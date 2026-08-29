@@ -1,0 +1,187 @@
+{
+  "meta": {
+    "title": "onespec — Le configurateur de menuiseries pour votre site",
+    "description": "Widget de configuration menuiseries intégrable via iframe : devis automatiques, prix toujours à jour, personnalisable pour votre entreprise."
+  },
+  "theme": {
+    "toDark": "Passer au mode sombre",
+    "toLight": "Passer au mode clair"
+  },
+  "languageSwitcher": {
+    "label": "Langue"
+  },
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "configurators": "Configurateurs",
+    "requests": "Demandes",
+    "notifications": "Notifications",
+    "account": "Compte",
+    "admin": "Admin",
+    "menu": "Menu"
+  },
+  "topbar": {
+    "account": "Compte",
+    "profile": "Profil",
+    "team": "Équipe",
+    "badge": "Badge Alpha",
+    "logout": "Déconnexion",
+    "menu": "Menu"
+  },
+  "auth": {
+    "login": {
+      "title": "Connexion",
+      "subtitle": "Entrez vos identifiants pour accéder au tableau de bord",
+      "emailLabel": "Email",
+      "emailPlaceholder": "vous@email.com",
+      "passwordLabel": "Mot de passe",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Se connecter",
+      "loading": "Connexion...",
+      "noAccount": "Pas de compte?",
+      "registerLink": "S'inscrire",
+      "forgotPassword": "Mot de passe oublié?",
+      "error": "Identifiants invalides",
+      "footer": "© 2026 onespec. Tous droits réservés."
+    },
+    "register": {
+      "title": "Inscription",
+      "subtitle": "Créez votre compte pour commencer avec onespec",
+      "nameLabel": "Nom",
+      "namePlaceholder": "Jean Dupont",
+      "emailLabel": "Email",
+      "emailPlaceholder": "vous@email.com",
+      "passwordLabel": "Mot de passe",
+      "passwordPlaceholder": "••••••••",
+      "confirmPasswordLabel": "Confirmer le mot de passe",
+      "confirmPasswordPlaceholder": "••••••••",
+      "submit": "S'inscrire",
+      "loading": "Inscription...",
+      "hasAccount": "Déjà un compte?",
+      "loginLink": "Se connecter",
+      "passwordMismatch": "Les mots de passe ne correspondent pas",
+      "error": "Erreur d'inscription",
+      "footer": "© 2026 onespec. Tous droits réservés."
+    },
+    "verify": {
+      "title": "Vérifiez votre email",
+      "subtitle": "Nous avons envoyé un code à 6 chiffres à votre email",
+      "codeLabel": "Code de vérification",
+      "codePlaceholder": "000000",
+      "submit": "Vérifier",
+      "loading": "Vérification...",
+      "resendLink": "Pas reçu le code? Renvoyer",
+      "error": "Code invalide ou expiré"
+    },
+    "forgotPassword": {
+      "title": "Mot de passe oublié",
+      "subtitle": "Entrez votre email pour recevoir un lien de réinitialisation",
+      "emailLabel": "Email",
+      "emailPlaceholder": "vous@email.com",
+      "submit": "Envoyer le lien",
+      "loading": "Envoi...",
+      "success": "Email envoyé!",
+      "checkEmail": "Vérifiez votre boîte mail pour le lien de réinitialisation.",
+      "backToLogin": "Retour à la",
+      "loginLink": "connexion",
+      "error": "Erreur d'envoi"
+    },
+    "resetPassword": {
+      "title": "Réinitialiser le mot de passe",
+      "subtitle": "Entrez le code reçu et le nouveau mot de passe",
+      "codeLabel": "Code",
+      "codePlaceholder": "000000",
+      "passwordLabel": "Nouveau mot de passe",
+      "passwordPlaceholder": "••••••••",
+      "confirmPasswordLabel": "Confirmer le nouveau mot de passe",
+      "confirmPasswordPlaceholder": "••••••••",
+      "submit": "Réinitialiser",
+      "loading": "Réinitialisation...",
+      "passwordMismatch": "Les mots de passe ne correspondent pas",
+      "error": "Code invalide ou expiré"
+    },
+    "onboarding": {
+      "title": "Créez votre entreprise",
+      "subtitle": "Entrez le nom de votre entreprise pour commencer",
+      "companyNameLabel": "Nom de l'entreprise",
+      "companyNamePlaceholder": "Ex. Menuiseries Dupont SARL",
+      "submit": "Créer l'entreprise",
+      "loading": "Création...",
+      "error": "Erreur de création",
+      "alphaTitle": "Bienvenue dans Alpha!",
+      "alphaSubtitle": "Votre entreprise {companyName} fait partie des 250 premiers membres Alpha. Vous avez bloqué 15% de réduction à vie.",
+      "starterTitle": "Entreprise créée",
+      "starterSubtitle": "Votre entreprise {companyName} est inscrite avec le plan Starter.",
+      "continue": "Aller au tableau de bord"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "label": "Notifications",
+    "empty": "Aucune notification",
+    "markAllSeen": "Marquer tout comme lu",
+    "seeAll": "Voir toutes"
+  },
+  "alpha": {
+    "member": "Membre Alpha",
+    "seatsSuffix": "disponibles",
+    "discountBadge": "−{percent}%",
+    "cta": "Prenez une place Alpha",
+    "title": "250 places. Puis prix plein.",
+    "subtitle": "L'accès Alpha est limité aux {seats} premiers clients sur plan Starter ou Business. Les premiers aident à définir le produit et gardent les conditions de lancement.",
+    "benefits": [
+      {
+        "title": "15% de réduction à vie",
+        "description": "La réduction reste attachée à votre abonnement Starter ou Business même après le lancement public. Le prix n'augmente pas."
+      },
+      {
+        "title": "Badge Membre Alpha",
+        "description": "Un badge vérifié certifiant que vous étiez parmi les 250 premiers. Utilisable sur votre site et supports commerciaux."
+      },
+      {
+        "title": "Accès mises à jour Alpha",
+        "description": "Recevez les builds en avant-première et le changelog réservé, avant que les fonctions n'arrivent à tous."
+      }
+    ]
+  },
+  "common": {
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "publish": "Publier",
+    "draft": "Brouillon",
+    "published": "Publié",
+    "archived": "Archivé",
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "confirm": "Confirmer",
+    "back": "Retour",
+    "next": "Suivant",
+    "close": "Fermer",
+    "yes": "Oui",
+    "no": "Non",
+    "search": "Rechercher",
+    "filter": "Filtrer",
+    "clear": "Effacer",
+    "apply": "Appliquer",
+    "reset": "Réinitialiser",
+    "copy": "Copier",
+    "copied": "Copié!",
+    "download": "Télécharger",
+    "upload": "Téléverser",
+    "select": "Sélectionner",
+    "optional": "Optionnel",
+    "required": "Requis"
+  },
+  "errors": {
+    "unauthorized": "Non autorisé",
+    "forbidden": "Accès refusé",
+    "notFound": "Non trouvé",
+    "serverError": "Erreur serveur",
+    "validationError": "Erreur de validation",
+    "rateLimited": "Trop de requêtes, réessayez plus tard",
+    "registrationClosed": "Inscriptions fermées",
+    "seatConflict": "Conflit de place",
+    "alreadyHasTenant": "A déjà une entreprise"
+  }
+}

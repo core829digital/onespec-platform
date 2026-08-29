@@ -1,0 +1,187 @@
+{
+  "meta": {
+    "title": "onespec — Il configuratore di infissi per il tuo sito",
+    "description": "Widget di configurazione infissi integrabile via iframe: preventivi automatici, prezzi sempre aggiornati, brandizzabile per la tua azienda."
+  },
+  "theme": {
+    "toDark": "Passa alla modalità scura",
+    "toLight": "Passa alla modalità chiara"
+  },
+  "languageSwitcher": {
+    "label": "Lingua"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "configurators": "Configuratori",
+    "requests": "Richieste",
+    "notifications": "Notifiche",
+    "account": "Account",
+    "admin": "Admin",
+    "menu": "Menu"
+  },
+  "topbar": {
+    "account": "Account",
+    "profile": "Profilo",
+    "team": "Team",
+    "badge": "Badge Alpha",
+    "logout": "Esci",
+    "menu": "Menu"
+  },
+  "auth": {
+    "login": {
+      "title": "Accedi",
+      "subtitle": "Inserisci le tue credenziali per accedere alla dashboard",
+      "emailLabel": "Email",
+      "emailPlaceholder": "tuo@email.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Accedi",
+      "loading": "Accesso...",
+      "noAccount": "Non hai un account?",
+      "registerLink": "Registrati",
+      "forgotPassword": "Hai dimenticato la password?",
+      "error": "Credenziali non valide",
+      "footer": "© 2026 onespec. Tutti i diritti riservati."
+    },
+    "register": {
+      "title": "Registrati",
+      "subtitle": "Crea il tuo account per iniziare con onespec",
+      "nameLabel": "Nome",
+      "namePlaceholder": "Mario Rossi",
+      "emailLabel": "Email",
+      "emailPlaceholder": "tuo@email.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "confirmPasswordLabel": "Conferma password",
+      "confirmPasswordPlaceholder": "••••••••",
+      "submit": "Registrati",
+      "loading": "Registrazione...",
+      "hasAccount": "Hai già un account?",
+      "loginLink": "Accedi",
+      "passwordMismatch": "Le password non coincidono",
+      "error": "Errore durante la registrazione",
+      "footer": "© 2026 onespec. Tutti i diritti riservati."
+    },
+    "verify": {
+      "title": "Verifica la tua email",
+      "subtitle": "Abbiamo inviato un codice a 6 cifre alla tua email",
+      "codeLabel": "Codice di verifica",
+      "codePlaceholder": "000000",
+      "submit": "Verifica",
+      "loading": "Verifica...",
+      "resendLink": "Non hai ricevuto il codice? Reinvia",
+      "error": "Codice non valido o scaduto"
+    },
+    "forgotPassword": {
+      "title": "Password dimenticata",
+      "subtitle": "Inserisci la tua email per ricevere un link di reset",
+      "emailLabel": "Email",
+      "emailPlaceholder": "tuo@email.com",
+      "submit": "Invia link",
+      "loading": "Invio...",
+      "success": "Email inviata!",
+      "checkEmail": "Controlla la tua casella di posta per il link di reset.",
+      "backToLogin": "Torna al",
+      "loginLink": "login",
+      "error": "Errore durante l'invio"
+    },
+    "resetPassword": {
+      "title": "Reimposta password",
+      "subtitle": "Inserisci il codice ricevuto e la nuova password",
+      "codeLabel": "Codice",
+      "codePlaceholder": "000000",
+      "passwordLabel": "Nuova password",
+      "passwordPlaceholder": "••••••••",
+      "confirmPasswordLabel": "Conferma nuova password",
+      "confirmPasswordPlaceholder": "••••••••",
+      "submit": "Reimposta",
+      "loading": "Reimpostazione...",
+      "passwordMismatch": "Le password non coincidono",
+      "error": "Codice non valido o scaduto"
+    },
+    "onboarding": {
+      "title": "Crea la tua azienda",
+      "subtitle": "Inserisci il nome della tua azienda per iniziare",
+      "companyNameLabel": "Nome azienda",
+      "companyNamePlaceholder": "Es. Rossi Infissi Srl",
+      "submit": "Crea azienda",
+      "loading": "Creazione...",
+      "error": "Errore durante la creazione",
+      "alphaTitle": "Benvenuto in Alpha!",
+      "alphaSubtitle": "La tua azienda {companyName} è tra i primi 250 membri Alpha. Hai bloccato lo sconto del 15% a vita.",
+      "starterTitle": "Azienda creata",
+      "starterSubtitle": "La tua azienda {companyName} è registrata con piano Starter.",
+      "continue": "Vai alla dashboard"
+    }
+  },
+  "notifications": {
+    "title": "Notifiche",
+    "label": "Notifiche",
+    "empty": "Nessuna notifica",
+    "markAllSeen": "Segna tutto come letto",
+    "seeAll": "Vedi tutte"
+  },
+  "alpha": {
+    "member": "Alpha Member",
+    "seatsSuffix": "disponibili",
+    "discountBadge": "−{percent}%",
+    "cta": "Prendi uno dei posti Alpha",
+    "title": "250 posti. Poi il prezzo torna pieno.",
+    "subtitle": "L'accesso Alpha è limitato ai primi {seats} clienti su piano Starter o Business. Chi entra adesso aiuta a definire il prodotto e si porta dietro le condizioni di lancio anche dopo.",
+    "benefits": [
+      {
+        "title": "15% di sconto a vita",
+        "description": "Lo sconto resta agganciato al tuo abbonamento Starter o Business anche dopo il lancio pubblico. Il prezzo non sale."
+      },
+      {
+        "title": "Badge Alpha Member",
+        "description": "Un badge verificato che certifica che eri tra i primi 250. Utilizzabile sul tuo sito e nei materiali commerciali."
+      },
+      {
+        "title": "Accesso agli aggiornamenti Alpha",
+        "description": "Ricevi le build in anteprima e il canale changelog riservato, prima che le funzioni arrivino a tutti."
+      }
+    ]
+  },
+  "common": {
+    "save": "Salva",
+    "cancel": "Annulla",
+    "delete": "Elimina",
+    "edit": "Modifica",
+    "publish": "Pubblica",
+    "draft": "Bozza",
+    "published": "Pubblicato",
+    "archived": "Archiviato",
+    "loading": "Caricamento...",
+    "error": "Errore",
+    "confirm": "Conferma",
+    "back": "Indietro",
+    "next": "Avanti",
+    "close": "Chiudi",
+    "yes": "Sì",
+    "no": "No",
+    "search": "Cerca",
+    "filter": "Filtra",
+    "clear": "Pulisci",
+    "apply": "Applica",
+    "reset": "Ripristina",
+    "copy": "Copia",
+    "copied": "Copiato!",
+    "download": "Scarica",
+    "upload": "Carica",
+    "select": "Seleziona",
+    "optional": "Opzionale",
+    "required": "Obbligatorio"
+  },
+  "errors": {
+    "unauthorized": "Non autorizzato",
+    "forbidden": "Accesso negato",
+    "notFound": "Non trovato",
+    "serverError": "Errore del server",
+    "validationError": "Errore di validazione",
+    "rateLimited": "Troppe richieste, riprova più tardi",
+    "registrationClosed": "Registrazioni chiuse",
+    "seatConflict": "Conflitto posto",
+    "alreadyHasTenant": "Hai già un'azienda"
+  }
+}

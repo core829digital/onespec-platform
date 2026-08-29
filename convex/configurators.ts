@@ -1,0 +1,199 @@
+import { mutation, query, internalMutation, internalQuery } from "./_generated/server";
+import { v } from "convex/values";
+import { ConvexError } from "convex/values";
+import { requireTenantRole, requireMembership } from "./lib/auth";
+import { nanoid } from "./lib/ids";
+import { checkQuota } from "./lib/plan";
+import { internal } from "./_generated/api";
+
+export const createConfigurator = mutation({
+  args: { tenantId: v.id("tenants"), name: v.string() },
+  handler: async (ctx, args) => {
+    const { membership } = await requireTenantRole(ctx, args.tenantId, ["owner", "admin"]);
+    const tenant = await ctx.db.get(args.tenantId);
+    if (!tenant) throw new ConvexError("TENANT_NOT_FOUND");
+
+    const existingCount = (
+      await ctx.db
+        .query("configurators")
+        .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+        .collect()
+    ).filter((c) => c.status !== "archived").length;
+    const quota = checkQuota(tenant.plan, "activeConfigurators", existingCount);
+    if (!quota.allowed) throw new ConvexError("CONFIGURATOR_LIMIT_REACHED");
+
+    const publicId = nanoid(10);
+    const configuratorId = await ctx.db.insert("configurators", {
+      tenantId: args.tenantId,
+      publicId,
+      name: args.name,
+      status: "draft",
+      allowedOrigins: [],
+      defaultLocale: "it",
+      defaultTheme: "auto",
+      vatRatePercent: 22,
+      priceRoundingStep: 1,
+      showPricesToEndUser: true,
+      currency: "EUR",
+    });
+
+    await ctx.db.insert("branding", {
+      tenantId: args.tenantId,
+      configuratorId,
+      whiteLabel: tenant.plan === "business" || tenant.plan === "enterprise" || tenant.isAlpha,
+      colorAccent: "#16d19d",
+      colorAccentInk: "#04150f",
+      fontFamily: "geist",
+      copy: {},
+      companyInfo: { name: tenant.name },
+    });
+
+    await ctx.runMutation(internal.catalog.seedDefaultCatalog, { configuratorId, tenantId: args.tenantId });
+
+    return { configuratorId, publicId };
+  },
+});
+
+export const listConfigurators = query({
+  args: { tenantId: v.id("tenants") },
+  handler: async (ctx, args) => {
+    await requireMembership(ctx, args.tenantId);
+    return await ctx.db.query("configurators").withIndex("by_tenant", q => q.eq("tenantId", args.tenantId)).collect();
+  },
+});
+
+export const getConfigurator = query({
+  args: { configuratorId: v.id("configurators") },
+  handler: async (ctx, args) => {
+    const configurator = await ctx.db.get(args.configuratorId);
+    if (!configurator) return null;
+    await requireMembership(ctx, configurator.tenantId);
+    return configurator;
+  },
+});
+
+export const updateConfigurator = mutation({
+  args: {
+    configuratorId: v.id("configurators"),
+    name: v.optional(v.string()),
+    allowedOrigins: v.optional(v.array(v.string())),
+    defaultLocale: v.optional(v.string()),
+    defaultTheme: v.optional(v.union(v.literal("light"), v.literal("dark"), v.literal("auto"))),
+    vatRatePercent: v.optional(v.number()),
+    priceRoundingStep: v.optional(v.number()),
+    showPricesToEndUser: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const configurator = await ctx.db.get(args.configuratorId);
+    if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
+    await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
+
+    const update: any = { updatedAt: Date.now() };
+    if (args.name !== undefined) update.name = args.name;
+    if (args.allowedOrigins !== undefined) update.allowedOrigins = args.allowedOrigins;
+    if (args.defaultLocale !== undefined) update.defaultLocale = args.defaultLocale;
+    if (args.defaultTheme !== undefined) update.defaultTheme = args.defaultTheme;
+    if (args.vatRatePercent !== undefined) update.vatRatePercent = args.vatRatePercent;
+    if (args.priceRoundingStep !== undefined) update.priceRoundingStep = args.priceRoundingStep;
+    if (args.showPricesToEndUser !== undefined) update.showPricesToEndUser = args.showPricesToEndUser;
+
+    await ctx.db.patch(args.configuratorId, update);
+  },
+});
+
+export const publishConfigurator = mutation({
+  args: { configuratorId: v.id("configurators"), changeNote: v.optional(v.string()) },
+  handler: async (ctx, args) => {
+    const configurator = await ctx.db.get(args.configuratorId);
+    if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
+    const { membership } = await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
+
+    const [materials, qualityTiers, sizeConstraints, glazing, finish, hardware, branding] = await Promise.all([
+      ctx.db.query("catalogMaterials").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
+      ctx.db.query("catalogQualityTiers").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
+      ctx.db.query("catalogSizeConstraints").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
+      ctx.db.query("catalogGlazingOptions").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
+      ctx.db.query("catalogFinishOptions").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
+      ctx.db.query("catalogHardwareOptions").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
+      ctx.db.query("branding").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).unique(),
+    ]);
+
+    const version = (configurator.publishedCatalogVersion || 0) + 1;
+
+    const payload = {
+      configurator: {
+        publicId: configurator.publicId,
+        name: configurator.name,
+        defaultLocale: configurator.defaultLocale,
+        defaultTheme: configurator.defaultTheme,
+        vatRatePercent: configurator.vatRatePercent,
+        priceRoundingStep: configurator.priceRoundingStep,
+        showPricesToEndUser: configurator.showPricesToEndUser,
+        currency: configurator.currency,
+      },
+      branding,
+      materials,
+      qualityTiers,
+      sizeConstraints,
+      glazing,
+      finish,
+      hardware,
+    };
+
+    await ctx.db.insert("catalogVersions", {
+      tenantId: configurator.tenantId,
+      configuratorId: args.configuratorId,
+      version,
+      publishedByUserId: membership.userId,
+      publishedAt: Date.now(),
+      payload,
+      changeNote: args.changeNote,
+    });
+
+    await ctx.db.patch(args.configuratorId, {
+      status: "published",
+      publishedAt: Date.now(),
+      publishedCatalogVersion: version,
+    });
+
+    await ctx.db.insert("auditLog", {
+      actorUserId: membership.userId,
+      actorKind: "user",
+      action: "configurator.publish",
+      targetTable: "configurators",
+      targetId: args.configuratorId,
+      meta: { version, changeNote: args.changeNote },
+      createdAt: Date.now(),
+    });
+
+    await ctx.scheduler.runAfter(0, internal.notifications.fanOutToTenant, {
+      tenantId: configurator.tenantId,
+      type: "configurator_published",
+      data: { configuratorName: configurator.name, version },
+      href: `/configurators/${args.configuratorId}`,
+    });
+
+    return { version };
+  },
+});
+
+export const getEditorState = query({
+  args: { configuratorId: v.id("configurators") },
+  handler: async (ctx, args) => {
+    const configurator = await ctx.db.get(args.configuratorId);
+    if (!configurator) return null;
+    await requireMembership(ctx, configurator.tenantId);
+
+    const [materials, qualityTiers, sizeConstraints, glazing, finish, hardware, branding] = await Promise.all([
+      ctx.db.query("catalogMaterials").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
+      ctx.db.query("catalogQualityTiers").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
+      ctx.db.query("catalogSizeConstraints").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
+      ctx.db.query("catalogGlazingOptions").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
+      ctx.db.query("catalogFinishOptions").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
+      ctx.db.query("catalogHardwareOptions").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
+      ctx.db.query("branding").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).unique(),
+    ]);
+
+    return { configurator, materials, qualityTiers, sizeConstraints, glazing, finish, hardware, branding };
+  },
+});

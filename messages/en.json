@@ -1,0 +1,187 @@
+{
+  "meta": {
+    "title": "onespec — The window configurator for your site",
+    "description": "Window configuration widget embeddable via iframe: automatic quotes, always up-to-date pricing, brandable for your business."
+  },
+  "theme": {
+    "toDark": "Switch to dark mode",
+    "toLight": "Switch to light mode"
+  },
+  "languageSwitcher": {
+    "label": "Language"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "configurators": "Configurators",
+    "requests": "Requests",
+    "notifications": "Notifications",
+    "account": "Account",
+    "admin": "Admin",
+    "menu": "Menu"
+  },
+  "topbar": {
+    "account": "Account",
+    "profile": "Profile",
+    "team": "Team",
+    "badge": "Alpha Badge",
+    "logout": "Logout",
+    "menu": "Menu"
+  },
+  "auth": {
+    "login": {
+      "title": "Sign in",
+      "subtitle": "Enter your credentials to access the dashboard",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@email.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Sign in",
+      "loading": "Signing in...",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Register",
+      "forgotPassword": "Forgot password?",
+      "error": "Invalid credentials",
+      "footer": "© 2026 onespec. All rights reserved."
+    },
+    "register": {
+      "title": "Register",
+      "subtitle": "Create your account to get started with onespec",
+      "nameLabel": "Name",
+      "namePlaceholder": "John Doe",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@email.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "confirmPasswordLabel": "Confirm password",
+      "confirmPasswordPlaceholder": "••••••••",
+      "submit": "Register",
+      "loading": "Registering...",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Sign in",
+      "passwordMismatch": "Passwords do not match",
+      "error": "Registration error",
+      "footer": "© 2026 onespec. All rights reserved."
+    },
+    "verify": {
+      "title": "Verify your email",
+      "subtitle": "We sent a 6-digit code to your email",
+      "codeLabel": "Verification code",
+      "codePlaceholder": "000000",
+      "submit": "Verify",
+      "loading": "Verifying...",
+      "resendLink": "Didn't receive the code? Resend",
+      "error": "Invalid or expired code"
+    },
+    "forgotPassword": {
+      "title": "Forgot password",
+      "subtitle": "Enter your email to receive a reset link",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@email.com",
+      "submit": "Send link",
+      "loading": "Sending...",
+      "success": "Email sent!",
+      "checkEmail": "Check your inbox for the reset link.",
+      "backToLogin": "Back to",
+      "loginLink": "login",
+      "error": "Error sending email"
+    },
+    "resetPassword": {
+      "title": "Reset password",
+      "subtitle": "Enter the code you received and your new password",
+      "codeLabel": "Code",
+      "codePlaceholder": "000000",
+      "passwordLabel": "New password",
+      "passwordPlaceholder": "••••••••",
+      "confirmPasswordLabel": "Confirm new password",
+      "confirmPasswordPlaceholder": "••••••••",
+      "submit": "Reset",
+      "loading": "Resetting...",
+      "passwordMismatch": "Passwords do not match",
+      "error": "Invalid or expired code"
+    },
+    "onboarding": {
+      "title": "Create your company",
+      "subtitle": "Enter your company name to get started",
+      "companyNameLabel": "Company name",
+      "companyNamePlaceholder": "e.g. Smith Windows Ltd",
+      "submit": "Create company",
+      "loading": "Creating...",
+      "error": "Error creating company",
+      "alphaTitle": "Welcome to Alpha!",
+      "alphaSubtitle": "Your company {companyName} is among the first 250 Alpha members. You've locked in 15% lifetime discount.",
+      "starterTitle": "Company created",
+      "starterSubtitle": "Your company {companyName} is registered with Starter plan.",
+      "continue": "Go to dashboard"
+    }
+  },
+  "notifications": {
+    "title": "Notifications",
+    "label": "Notifications",
+    "empty": "No notifications",
+    "markAllSeen": "Mark all as read",
+    "seeAll": "See all"
+  },
+  "alpha": {
+    "member": "Alpha Member",
+    "seatsSuffix": "available",
+    "discountBadge": "−{percent}%",
+    "cta": "Grab an Alpha spot",
+    "title": "250 seats. Then full price.",
+    "subtitle": "Alpha access is limited to the first {seats} clients on Starter or Business plans. Early adopters help shape the product and keep launch pricing forever.",
+    "benefits": [
+      {
+        "title": "15% lifetime discount",
+        "description": "The discount stays attached to your Starter or Business subscription even after public launch. Price never goes up."
+      },
+      {
+        "title": "Alpha Member Badge",
+        "description": "A verified badge certifying you were among the first 250. Usable on your site and marketing materials."
+      },
+      {
+        "title": "Alpha updates access",
+        "description": "Get preview builds and exclusive changelog channel before features reach everyone."
+      }
+    ]
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "publish": "Publish",
+    "draft": "Draft",
+    "published": "Published",
+    "archived": "Archived",
+    "loading": "Loading...",
+    "error": "Error",
+    "confirm": "Confirm",
+    "back": "Back",
+    "next": "Next",
+    "close": "Close",
+    "yes": "Yes",
+    "no": "No",
+    "search": "Search",
+    "filter": "Filter",
+    "clear": "Clear",
+    "apply": "Apply",
+    "reset": "Reset",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "download": "Download",
+    "upload": "Upload",
+    "select": "Select",
+    "optional": "Optional",
+    "required": "Required"
+  },
+  "errors": {
+    "unauthorized": "Unauthorized",
+    "forbidden": "Access denied",
+    "notFound": "Not found",
+    "serverError": "Server error",
+    "validationError": "Validation error",
+    "rateLimited": "Too many requests, try again later",
+    "registrationClosed": "Registration closed",
+    "seatConflict": "Seat conflict",
+    "alreadyHasTenant": "Already has a company"
+  }
+}

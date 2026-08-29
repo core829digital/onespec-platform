@@ -1,0 +1,187 @@
+{
+  "meta": {
+    "title": "onespec — Der Fenster-Konfigurator für Ihre Website",
+    "description": "Fenster-Konfigurator-Widget per iFrame einbindbar: automatische Angebote, immer aktuelle Preise, anpassbar für Ihr Unternehmen."
+  },
+  "theme": {
+    "toDark": "Zum Dunkelmodus wechseln",
+    "toLight": "Zum Hellmodus wechseln"
+  },
+  "languageSwitcher": {
+    "label": "Sprache"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "configurators": "Konfiguratoren",
+    "requests": "Anfragen",
+    "notifications": "Benachrichtigungen",
+    "account": "Konto",
+    "admin": "Admin",
+    "menu": "Menü"
+  },
+  "topbar": {
+    "account": "Konto",
+    "profile": "Profil",
+    "team": "Team",
+    "badge": "Alpha-Badge",
+    "logout": "Abmelden",
+    "menu": "Menü"
+  },
+  "auth": {
+    "login": {
+      "title": "Anmelden",
+      "subtitle": "Geben Sie Ihre Zugangsdaten ein, um auf das Dashboard zuzugreifen",
+      "emailLabel": "E-Mail",
+      "emailPlaceholder": "du@email.de",
+      "passwordLabel": "Passwort",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Anmelden",
+      "loading": "Anmeldung...",
+      "noAccount": "Noch kein Konto?",
+      "registerLink": "Registrieren",
+      "forgotPassword": "Passwort vergessen?",
+      "error": "Ungültige Anmeldedaten",
+      "footer": "© 2026 onespec. Alle Rechte vorbehalten."
+    },
+    "register": {
+      "title": "Registrieren",
+      "subtitle": "Erstellen Sie Ihr Konto, um mit onespec zu starten",
+      "nameLabel": "Name",
+      "namePlaceholder": "Max Mustermann",
+      "emailLabel": "E-Mail",
+      "emailPlaceholder": "du@email.de",
+      "passwordLabel": "Passwort",
+      "passwordPlaceholder": "••••••••",
+      "confirmPasswordLabel": "Passwort bestätigen",
+      "confirmPasswordPlaceholder": "••••••••",
+      "submit": "Registrieren",
+      "loading": "Registrierung...",
+      "hasAccount": "Bereits ein Konto?",
+      "loginLink": "Anmelden",
+      "passwordMismatch": "Passwörter stimmen nicht überein",
+      "error": "Registrierungsfehler",
+      "footer": "© 2026 onespec. Alle Rechte vorbehalten."
+    },
+    "verify": {
+      "title": "E-Mail verifizieren",
+      "subtitle": "Wir haben einen 6-stelligen Code an Ihre E-Mail gesendet",
+      "codeLabel": "Verifizierungscode",
+      "codePlaceholder": "000000",
+      "submit": "Verifizieren",
+      "loading": "Verifizierung...",
+      "resendLink": "Kein Code erhalten? Erneut senden",
+      "error": "Ungültiger oder abgelaufener Code"
+    },
+    "forgotPassword": {
+      "title": "Passwort vergessen",
+      "subtitle": "Geben Sie Ihre E-Mail ein, um einen Reset-Link zu erhalten",
+      "emailLabel": "E-Mail",
+      "emailPlaceholder": "du@email.de",
+      "submit": "Link senden",
+      "loading": "Senden...",
+      "success": "E-Mail gesendet!",
+      "checkEmail": "Prüfen Sie Ihr Postfach auf den Reset-Link.",
+      "backToLogin": "Zurück zum",
+      "loginLink": "Login",
+      "error": "Fehler beim Senden"
+    },
+    "resetPassword": {
+      "title": "Passwort zurücksetzen",
+      "subtitle": "Geben Sie den erhaltenen Code und das neue Passwort ein",
+      "codeLabel": "Code",
+      "codePlaceholder": "000000",
+      "passwordLabel": "Neues Passwort",
+      "passwordPlaceholder": "••••••••",
+      "confirmPasswordLabel": "Neues Passwort bestätigen",
+      "confirmPasswordPlaceholder": "••••••••",
+      "submit": "Zurücksetzen",
+      "loading": "Zurücksetzen...",
+      "passwordMismatch": "Passwörter stimmen nicht überein",
+      "error": "Ungültiger oder abgelaufener Code"
+    },
+    "onboarding": {
+      "title": "Unternehmen erstellen",
+      "subtitle": "Geben Sie Ihren Firmennamen ein, um zu starten",
+      "companyNameLabel": "Firmenname",
+      "companyNamePlaceholder": "z.B. Müller Fenster GmbH",
+      "submit": "Unternehmen erstellen",
+      "loading": "Erstellung...",
+      "error": "Fehler bei der Erstellung",
+      "alphaTitle": "Willkommen bei Alpha!",
+      "alphaSubtitle": "Ihr Unternehmen {companyName} ist unter den ersten 250 Alpha-Mitgliedern. Sie haben 15% lebenslangen Rabatt gesichert.",
+      "starterTitle": "Unternehmen erstellt",
+      "starterSubtitle": "Ihr Unternehmen {companyName} ist mit dem Starter-Plan registriert.",
+      "continue": "Zum Dashboard"
+    }
+  },
+  "notifications": {
+    "title": "Benachrichtigungen",
+    "label": "Benachrichtigungen",
+    "empty": "Keine Benachrichtigungen",
+    "markAllSeen": "Alle als gelesen markieren",
+    "seeAll": "Alle anzeigen"
+  },
+  "alpha": {
+    "member": "Alpha-Mitglied",
+    "seatsSuffix": "verfügbar",
+    "discountBadge": "−{percent}%",
+    "cta": "Alpha-Platz sichern",
+    "title": "250 Plätze. Dann Vollpreis.",
+    "subtitle": "Der Alpha-Zugang ist auf die ersten {seats} Kunden mit Starter- oder Business-Plan begrenzt. Frühe Nutzer gestalten das Produkt mit und behalten die Launch-Konditionen für immer.",
+    "benefits": [
+      {
+        "title": "15% lebenslanger Rabatt",
+        "description": "Der Rabatt bleibt an Ihrem Starter- oder Business-Abo hängen, auch nach dem öffentlichen Launch. Der Preis steigt nie."
+      },
+      {
+        "title": "Alpha-Mitglied-Badge",
+        "description": "Ein verifiziertes Badge, das bestätigt, dass Sie zu den ersten 250 gehörten. Nutzbar auf Ihrer Website und in Marketingmaterialien."
+      },
+      {
+        "title": "Zugang zu Alpha-Updates",
+        "description": "Erhalten Sie Preview-Builds und den exklusiven Changelog-Kanal, bevor Features alle erreichen."
+      }
+    ]
+  },
+  "common": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "publish": "Veröffentlichen",
+    "draft": "Entwurf",
+    "published": "Veröffentlicht",
+    "archived": "Archiviert",
+    "loading": "Laden...",
+    "error": "Fehler",
+    "confirm": "Bestätigen",
+    "back": "Zurück",
+    "next": "Weiter",
+    "close": "Schließen",
+    "yes": "Ja",
+    "no": "Nein",
+    "search": "Suchen",
+    "filter": "Filtern",
+    "clear": "Löschen",
+    "apply": "Anwenden",
+    "reset": "Zurücksetzen",
+    "copy": "Kopieren",
+    "copied": "Kopiert!",
+    "download": "Herunterladen",
+    "upload": "Hochladen",
+    "select": "Auswählen",
+    "optional": "Optional",
+    "required": "Erforderlich"
+  },
+  "errors": {
+    "unauthorized": "Nicht autorisiert",
+    "forbidden": "Zugriff verweigert",
+    "notFound": "Nicht gefunden",
+    "serverError": "Serverfehler",
+    "validationError": "Validierungsfehler",
+    "rateLimited": "Zu viele Anfragen, versuchen Sie es später erneut",
+    "registrationClosed": "Registrierung geschlossen",
+    "seatConflict": "Platzkonflikt",
+    "alreadyHasTenant": "Hat bereits ein Unternehmen"
+  }
+}

@@ -1,0 +1,187 @@
+{
+  "meta": {
+    "title": "onespec — De raam-configurator voor je site",
+    "description": "Raam-configurator-widget in te bedden via iframe: automatische offertes, altijd actuele prijzen, aanpasbaar voor je bedrijf."
+  },
+  "theme": {
+    "toDark": "Schakel naar donkere modus",
+    "toLight": "Schakel naar lichte modus"
+  },
+  "languageSwitcher": {
+    "label": "Taal"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "configurators": "Configurators",
+    "requests": "Aanvragen",
+    "notifications": "Notificaties",
+    "account": "Account",
+    "admin": "Admin",
+    "menu": "Menu"
+  },
+  "topbar": {
+    "account": "Account",
+    "profile": "Profiel",
+    "team": "Team",
+    "badge": "Alpha-badge",
+    "logout": "Afmelden",
+    "menu": "Menu"
+  },
+  "auth": {
+    "login": {
+      "title": "Inloggen",
+      "subtitle": "Voer je inloggegevens in om toegang te krijgen tot het dashboard",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "jij@email.nl",
+      "passwordLabel": "Wachtwoord",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Inloggen",
+      "loading": "Inloggen...",
+      "noAccount": "Geen account?",
+      "registerLink": "Registreren",
+      "forgotPassword": "Wachtwoord vergeten?",
+      "error": "Ongeldige inloggegevens",
+      "footer": "© 2026 onespec. Alle rechten voorbehouden."
+    },
+    "register": {
+      "title": "Registreren",
+      "subtitle": "Maak je account aan om te beginnen met onespec",
+      "nameLabel": "Naam",
+      "namePlaceholder": "Jan Jansen",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "jij@email.nl",
+      "passwordLabel": "Wachtwoord",
+      "passwordPlaceholder": "••••••••",
+      "confirmPasswordLabel": "Bevestig wachtwoord",
+      "confirmPasswordPlaceholder": "••••••••",
+      "submit": "Registreren",
+      "loading": "Registreren...",
+      "hasAccount": "Al een account?",
+      "loginLink": "Inloggen",
+      "passwordMismatch": "Wachtwoorden komen niet overeen",
+      "error": "Registratiefout",
+      "footer": "© 2026 onespec. Alle rechten voorbehouden."
+    },
+    "verify": {
+      "title": "Verifieer je e-mail",
+      "subtitle": "We hebben een 6-cijferige code naar je e-mail gestuurd",
+      "codeLabel": "Verificatiecode",
+      "codePlaceholder": "000000",
+      "submit": "Verifiëren",
+      "loading": "Verifiëren...",
+      "resendLink": "Geen code ontvangen? Opnieuw sturen",
+      "error": "Ongeldige of verlopen code"
+    },
+    "forgotPassword": {
+      "title": "Wachtwoord vergeten",
+      "subtitle": "Voer je e-mail in om een reset-link te ontvangen",
+      "emailLabel": "E-mail",
+      "emailPlaceholder": "jij@email.nl",
+      "submit": "Link sturen",
+      "loading": "Sturen...",
+      "success": "E-mail verstuurd!",
+      "checkEmail": "Controleer je inbox voor de reset-link.",
+      "backToLogin": "Terug naar",
+      "loginLink": "inloggen",
+      "error": "Fout bij versturen"
+    },
+    "resetPassword": {
+      "title": "Wachtwoord resetten",
+      "subtitle": "Voer de ontvangen code en het nieuwe wachtwoord in",
+      "codeLabel": "Code",
+      "codePlaceholder": "000000",
+      "passwordLabel": "Nieuw wachtwoord",
+      "passwordPlaceholder": "••••••••",
+      "confirmPasswordLabel": "Bevestig nieuw wachtwoord",
+      "confirmPasswordPlaceholder": "••••••••",
+      "submit": "Resetten",
+      "loading": "Resetten...",
+      "passwordMismatch": "Wachtwoorden komen niet overeen",
+      "error": "Ongeldige of verlopen code"
+    },
+    "onboarding": {
+      "title": "Bedrijf aanmaken",
+      "subtitle": "Voer je bedrijfsnaam in om te beginnen",
+      "companyNameLabel": "Bedrijfsnaam",
+      "companyNamePlaceholder": "bijv. Jansen Ramen BV",
+      "submit": "Bedrijf aanmaken",
+      "loading": "Aanmaken...",
+      "error": "Fout bij aanmaken",
+      "alphaTitle": "Welkom bij Alpha!",
+      "alphaSubtitle": "Je bedrijf {companyName} is onder de eerste 250 Alpha-leden. Je hebt 15% levenslange korting vastgelegd.",
+      "starterTitle": "Bedrijf aangemaakt",
+      "starterSubtitle": "Je bedrijf {companyName} is geregistreerd met het Starter-plan.",
+      "continue": "Naar dashboard"
+    }
+  },
+  "notifications": {
+    "title": "Notificaties",
+    "label": "Notificaties",
+    "empty": "Geen notificaties",
+    "markAllSeen": "Alles als gelezen markeren",
+    "seeAll": "Alles bekijken"
+  },
+  "alpha": {
+    "member": "Alpha-lid",
+    "seatsSuffix": "beschikbaar",
+    "discountBadge": "−{percent}%",
+    "cta": "Alpha-plaats claimen",
+    "title": "250 plekken. Dan volle prijs.",
+    "subtitle": "Alpha-toegang is beperkt tot de eerste {seats} klanten op Starter- of Business-plan. Vroegde adopters helpen het product vormgeven en houden de lanceringvoorwaarden voor altijd.",
+    "benefits": [
+      {
+        "title": "15% levenslange korting",
+        "description": "De korting blijft vastzitten aan je Starter- of Business-abonnement, ook na de publieke lancering. De prijs stijgt nooit."
+      },
+      {
+        "title": "Alpha-lid badge",
+        "description": "Een geverifieerde badge die bevestigt dat je tot de eerste 250 behoorde. Te gebruiken op je site en in marketingmateriaal."
+      },
+      {
+        "title": "Toegang tot Alpha-updates",
+        "description": "Ontvang preview-builds en de exclusieve changelog-kanaal, voordat functies iedereen bereiken."
+      }
+    ]
+  },
+  "common": {
+    "save": "Opslaan",
+    "cancel": "Annuleren",
+    "delete": "Verwijderen",
+    "edit": "Bewerken",
+    "publish": "Publiceren",
+    "draft": "Concept",
+    "published": "Gepubliceerd",
+    "archived": "Gearchiveerd",
+    "loading": "Laden...",
+    "error": "Fout",
+    "confirm": "Bevestigen",
+    "back": "Terug",
+    "next": "Volgende",
+    "close": "Sluiten",
+    "yes": "Ja",
+    "no": "Nee",
+    "search": "Zoeken",
+    "filter": "Filteren",
+    "clear": "Wissen",
+    "apply": "Toepassen",
+    "reset": "Resetten",
+    "copy": "Kopiëren",
+    "copied": "Gekopieerd!",
+    "download": "Downloaden",
+    "upload": "Uploaden",
+    "select": "Selecteren",
+    "optional": "Optioneel",
+    "required": "Verplicht"
+  },
+  "errors": {
+    "unauthorized": "Niet geautoriseerd",
+    "forbidden": "Toegang geweigerd",
+    "notFound": "Niet gevonden",
+    "serverError": "Serverfout",
+    "validationError": "Validatiefout",
+    "rateLimited": "Te veel verzoeken, probeer later opnieuw",
+    "registrationClosed": "Registratie gesloten",
+    "seatConflict": "Plaatsconflict",
+    "alreadyHasTenant": "Heeft al een bedrijf"
+  }
+}

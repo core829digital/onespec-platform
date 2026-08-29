@@ -1,0 +1,168 @@
+@import "tailwindcss";
+
+:root {
+  /* Dark is the default theme. */
+  --color-bg: #0a0b0d;
+  --color-bg-alt: #141618;
+  --color-bg-inverse: #000000;
+  --color-text: #f5f5f7;
+  --color-text-secondary: #9a9aa0;
+  --color-text-inverse: #1d1d1f;
+  --color-border: #34383c;
+  --color-border-subtle: #26292d;
+  --color-mint: #16d19d;
+  --color-mint-dark: #0fbf8f;
+  --color-mint-light: rgba(22, 209, 157, 0.14);
+  --color-danger: #ff6b6b;
+
+  --ease-out-apple: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out-apple: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+:root[data-theme="light"] {
+  --color-bg: #ffffff;
+  --color-bg-alt: #f5f5f7;
+  --color-bg-inverse: #0b0c0e;
+  --color-text: #1d1d1f;
+  --color-text-secondary: #6e6e73;
+  --color-text-inverse: #f5f5f7;
+  --color-border: #d2d2d7;
+  --color-border-subtle: #e8e8ed;
+  --color-mint: #0fbf8f;
+  --color-mint-dark: #0a9c74;
+  --color-mint-light: #e3f9f2;
+  --color-danger: #d9363e;
+}
+
+/* shadcn/ui CSS variable mapping — maps our brand tokens to shadcn expectations */
+:root {
+  --background: var(--color-bg);
+  --foreground: var(--color-text);
+  --card: var(--color-bg-alt);
+  --popover: var(--color-bg-alt);
+  --primary: var(--color-mint);
+  --primary-foreground: #04150f;
+  --muted: var(--color-bg-alt);
+  --muted-foreground: var(--color-text-secondary);
+  --border: var(--color-border);
+  --input: var(--color-border);
+  --ring: var(--color-mint);
+  --destructive: var(--color-danger);
+  --radius: .75rem;
+}
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-background: var(--color-bg);
+  --color-foreground: var(--color-text);
+  --color-card: var(--color-bg-alt);
+  --color-card-foreground: var(--color-text);
+  --color-popover: var(--color-bg-alt);
+  --color-popover-foreground: var(--color-text);
+  --color-primary: var(--color-mint);
+  --color-primary-foreground: #04150f;
+  --color-secondary: var(--color-bg-alt);
+  --color-secondary-foreground: var(--color-text);
+  --color-muted: var(--color-bg-alt);
+  --color-muted-foreground: var(--color-text-secondary);
+  --color-accent: var(--color-mint);
+  --color-accent-foreground: #04150f;
+  --color-destructive: var(--color-danger);
+  --color-destructive-foreground: #ffffff;
+  --color-border: var(--color-border);
+  --color-input: var(--color-border);
+  --color-ring: var(--color-mint);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: auto;
+  overscroll-behavior-y: none;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  transition: background-color 0.35s ease, color 0.35s ease;
+  overscroll-behavior-y: none;
+}
+
+a,
+button,
+[role="button"] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+::selection {
+  background: var(--color-mint-light);
+  color: var(--color-mint-dark);
+}
+
+.container-onespec {
+  width: 100%;
+  max-width: 1680px;
+  margin-inline: auto;
+  padding-inline: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .container-onespec {
+    padding-inline: 2.5rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .container-onespec {
+    padding-inline: 4rem;
+  }
+}
+
+@media (min-width: 1680px) {
+  .container-onespec {
+    padding-inline: 5rem;
+  }
+}
+
+.full-bleed {
+  width: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Logo: due varianti PNG, la giusta e mostrata via CSS in base al tema */
+.logo-dark {
+  display: block;
+}
+
+.logo-light {
+  display: none;
+}
+
+:root[data-theme="light"] .logo-dark {
+  display: none;
+}
+
+:root[data-theme="light"] .logo-light {
+  display: block;
+}

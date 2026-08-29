@@ -1,0 +1,187 @@
+{
+  "meta": {
+    "title": "onespec — Configuratorul de tâmplărie pentru site-ul tău",
+    "description": "Widget de configurare tâmplărie integrat prin iframe: oferte automate, prețuri actualizate, personalizabil pentru afacerea ta."
+  },
+  "theme": {
+    "toDark": "Comută la modul întunecat",
+    "toLight": "Comută la modul deschis"
+  },
+  "languageSwitcher": {
+    "label": "Limbă"
+  },
+  "nav": {
+    "dashboard": "Panou",
+    "configurators": "Configuratoare",
+    "requests": "Cereri",
+    "notifications": "Notificări",
+    "account": "Cont",
+    "admin": "Admin",
+    "menu": "Meniu"
+  },
+  "topbar": {
+    "account": "Cont",
+    "profile": "Profil",
+    "team": "Echipă",
+    "badge": "Insignă Alpha",
+    "logout": "Deconectare",
+    "menu": "Meniu"
+  },
+  "auth": {
+    "login": {
+      "title": "Autentificare",
+      "subtitle": "Introduceți datele pentru a accesa panoul",
+      "emailLabel": "Email",
+      "emailPlaceholder": "tu@email.com",
+      "passwordLabel": "Parolă",
+      "passwordPlaceholder": "••••••••",
+      "submit": "Autentificare",
+      "loading": "Autentificare...",
+      "noAccount": "Nu ai cont?",
+      "registerLink": "Înregistrare",
+      "forgotPassword": "Ai uitat parola?",
+      "error": "Date invalide",
+      "footer": "© 2026 onespec. Toate drepturile rezervate."
+    },
+    "register": {
+      "title": "Înregistrare",
+      "subtitle": "Creează contul pentru a începe cu onespec",
+      "nameLabel": "Nume",
+      "namePlaceholder": "Ion Popescu",
+      "emailLabel": "Email",
+      "emailPlaceholder": "tu@email.com",
+      "passwordLabel": "Parolă",
+      "passwordPlaceholder": "••••••••",
+      "confirmPasswordLabel": "Confirmă parola",
+      "confirmPasswordPlaceholder": "••••••••",
+      "submit": "Înregistrare",
+      "loading": "Înregistrare...",
+      "hasAccount": "Ai deja cont?",
+      "loginLink": "Autentificare",
+      "passwordMismatch": "Parolele nu coincid",
+      "error": "Eroare la înregistrare",
+      "footer": "© 2026 onespec. Toate drepturile rezervate."
+    },
+    "verify": {
+      "title": "Verifică emailul",
+      "subtitle": "Am trimis un cod de 6 cifre la emailul tău",
+      "codeLabel": "Cod de verificare",
+      "codePlaceholder": "000000",
+      "submit": "Verifică",
+      "loading": "Verificare...",
+      "resendLink": "Nu ai primit codul? Retrimite",
+      "error": "Cod invalid sau expirat"
+    },
+    "forgotPassword": {
+      "title": "Parolă uitată",
+      "subtitle": "Introduceți emailul pentru a primi linkul de resetare",
+      "emailLabel": "Email",
+      "emailPlaceholder": "tu@email.com",
+      "submit": "Trimite link",
+      "loading": "Trimitere...",
+      "success": "Email trimis!",
+      "checkEmail": "Verificați inbox-ul pentru linkul de resetare.",
+      "backToLogin": "Înapoi la",
+      "loginLink": "autentificare",
+      "error": "Eroare la trimitere"
+    },
+    "resetPassword": {
+      "title": "Resetează parola",
+      "subtitle": "Introduceți codul primit și noua parolă",
+      "codeLabel": "Cod",
+      "codePlaceholder": "000000",
+      "passwordLabel": "Parolă nouă",
+      "passwordPlaceholder": "••••••••",
+      "confirmPasswordLabel": "Confirmă parola nouă",
+      "confirmPasswordPlaceholder": "••••••••",
+      "submit": "Resetează",
+      "loading": "Resetare...",
+      "passwordMismatch": "Parolele nu coincid",
+      "error": "Cod invalid sau expirat"
+    },
+    "onboarding": {
+      "title": "Creează-ți firma",
+      "subtitle": "Introduceți numele firmei pentru a începe",
+      "companyNameLabel": "Nume firmă",
+      "companyNamePlaceholder": "Ex. Popescu Tâmplărie SRL",
+      "submit": "Creează firmă",
+      "loading": "Creare...",
+      "error": "Eroare la creare",
+      "alphaTitle": "Bine ai venit în Alpha!",
+      "alphaSubtitle": "Firma ta {companyName} este printre primele 250 de membri Alpha. Ai blocat reducerea de 15% pe viață.",
+      "starterTitle": "Firmă creată",
+      "starterSubtitle": "Firma ta {companyName} este înregistrată cu planul Starter.",
+      "continue": "Du-te la panou"
+    }
+  },
+  "notifications": {
+    "title": "Notificări",
+    "label": "Notificări",
+    "empty": "Nicio notificare",
+    "markAllSeen": "Marchează toate ca citite",
+    "seeAll": "Vezi toate"
+  },
+  "alpha": {
+    "member": "Membru Alpha",
+    "seatsSuffix": "disponibile",
+    "discountBadge": "−{percent}%",
+    "cta": "Ocupă un loc Alpha",
+    "title": "250 locuri. Apoi prețul crește.",
+    "subtitle": "Accesul Alpha este limitat la primii {seats} clienți pe planul Starter sau Business. Cei care intră acum ajută la definirea produsului și păstrează condițiile de lansare.",
+    "benefits": [
+      {
+        "title": "15% reducere pe viață",
+        "description": "Reducerea rămâne atasată abonamentului Starter sau Business chiar și după lansarea publică. Prețul nu crește."
+      },
+      {
+        "title": "Insignă Membru Alpha",
+        "description": "O insignă verificată care certifică că erați printre primii 250. Utilizabilă pe site și materiale comerciale."
+      },
+      {
+        "title": "Acces actualizări Alpha",
+        "description": "Primești build-uri în anteprima și changelog-ul rezervat, înainte ca funcțiile să ajungă la toți."
+      }
+    ]
+  },
+  "common": {
+    "save": "Salvează",
+    "cancel": "Anulează",
+    "delete": "Șterge",
+    "edit": "Editează",
+    "publish": "Publică",
+    "draft": "Ciornă",
+    "published": "Publicat",
+    "archived": "Arhivat",
+    "loading": "Se încarcă...",
+    "error": "Eroare",
+    "confirm": "Confirmă",
+    "back": "Înapoi",
+    "next": "Următorul",
+    "close": "Închide",
+    "yes": "Da",
+    "no": "Nu",
+    "search": "Caută",
+    "filter": "Filtrează",
+    "clear": "Șterge",
+    "apply": "Aplică",
+    "reset": "Resetează",
+    "copy": "Copiază",
+    "copied": "Copiat!",
+    "download": "Descarcă",
+    "upload": "Încarcă",
+    "select": "Selectează",
+    "optional": "Opțional",
+    "required": "Obligatoriu"
+  },
+  "errors": {
+    "unauthorized": "Neautorizat",
+    "forbidden": "Acces interzis",
+    "notFound": "Negăsit",
+    "serverError": "Eroare server",
+    "validationError": "Eroare validare",
+    "rateLimited": "Prea multe cereri, reîncercați mai târziu",
+    "registrationClosed": "Înregistrările închise",
+    "seatConflict": "Conflict loc",
+    "alreadyHasTenant": "Are deja firmă"
+  }
+}
