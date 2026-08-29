@@ -19,6 +19,16 @@
     "admin": "Admin",
     "menu": "Menu"
   },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Richieste di preventivo e attività",
+    "totalRequests": "Totale Richieste",
+    "pending": "In Sospeso",
+    "avgValue": "Valore Medio",
+    "conversion": "Conversione",
+    "recentRequests": "Richieste Recenti",
+    "noRequests": "Nessuna richiesta ancora"
+  },
   "topbar": {
     "account": "Account",
     "profile": "Profilo",
@@ -28,6 +38,7 @@
     "menu": "Menu"
   },
   "auth": {
+    "footer": "© 2026 onespec. Tutti i diritti riservati.",
     "login": {
       "title": "Accedi",
       "subtitle": "Inserisci le tue credenziali per accedere alla dashboard",

@@ -19,6 +19,16 @@
     "admin": "Admin",
     "menu": "Menu"
   },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Quote requests and activity",
+    "totalRequests": "Total Requests",
+    "pending": "Pending",
+    "avgValue": "Average Value",
+    "conversion": "Conversion",
+    "recentRequests": "Recent Requests",
+    "noRequests": "No requests yet"
+  },
   "topbar": {
     "account": "Account",
     "profile": "Profile",
@@ -28,6 +38,7 @@
     "menu": "Menu"
   },
   "auth": {
+    "footer": "© 2026 onespec. All rights reserved.",
     "login": {
       "title": "Sign in",
       "subtitle": "Enter your credentials to access the dashboard",
