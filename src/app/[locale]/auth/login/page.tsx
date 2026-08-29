@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { useAuth } from "@/app/[locale]/auth/use-auth";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 export default function LoginPage() {
   const t = useTranslations("auth.login");
   const router = useRouter();
-  const { signIn } = useAuth();
+  const { signIn } = useAuthActions();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -24,8 +24,8 @@ export default function LoginPage() {
     setError("");
     setLoading(true);
     try {
-      await signIn("password", { email, password });
-      router.push("/dashboard");
+      await signIn("password", { email, password, flow: "signIn" });
+      router.push("/app/dashboard");
     } catch (err: any) {
       setError(err?.message || t("error"));
     } finally {

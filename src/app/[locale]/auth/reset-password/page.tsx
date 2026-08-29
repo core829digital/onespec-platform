@@ -1,19 +1,21 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { useAuth } from "@/app/[locale]/auth/use-auth";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export default function ResetPasswordPage() {
+function ResetPasswordContent() {
   const t = useTranslations("auth.resetPassword");
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { resetPassword: confirmReset } = useAuth();
+  const { signIn } = useAuthActions();
+  const email = searchParams.get("email") || "";
   const [code, setCode] = useState(searchParams.get("code") || "");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -29,8 +31,8 @@ export default function ResetPasswordPage() {
     setError("");
     setLoading(true);
     try {
-      await confirmReset(code, password);
-      router.push("/login");
+      await signIn("password", { email, code, newPassword: password, flow: "reset-verification" });
+      router.push("/auth/login");
     } catch (err: any) {
       setError(err?.message || t("error"));
     } finally {
@@ -107,5 +109,13 @@ export default function ResetPasswordPage() {
         {loading ? t("loading") : t("submit")}
       </Button>
     </form>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ResetPasswordContent />
+    </Suspense>
   );
 }

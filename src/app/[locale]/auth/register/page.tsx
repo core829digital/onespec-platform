@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { useAuth } from "@/app/[locale]/auth/use-auth";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,7 +13,7 @@ import { Label } from "@/components/ui/label";
 export default function RegisterPage() {
   const t = useTranslations("auth.register");
   const router = useRouter();
-  const { signUp } = useAuth();
+  const { signIn } = useAuthActions();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,8 +30,8 @@ export default function RegisterPage() {
     setError("");
     setLoading(true);
     try {
-      await signUp("password", { name, email, password });
-      router.push("/verify");
+      await signIn("password", { name, email, password, flow: "signUp" });
+      router.push(`/auth/verify?email=${encodeURIComponent(email)}`);
     } catch (err: any) {
       setError(err?.message || t("error"));
     } finally {

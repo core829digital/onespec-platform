@@ -1,18 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { useAuth } from "@/app/[locale]/auth/use-auth";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export default function VerifyPage() {
+function VerifyContent() {
   const t = useTranslations("auth.verify");
   const router = useRouter();
-  const { verify } = useAuth();
+  const searchParams = useSearchParams();
+  const { signIn } = useAuthActions();
+  const email = searchParams.get("email") || "";
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -22,8 +24,8 @@ export default function VerifyPage() {
     setError("");
     setLoading(true);
     try {
-      await verify(code);
-      router.push("/onboarding");
+      await signIn("password", { email, code, flow: "email-verification" });
+      router.push("/auth/onboarding");
     } catch (err: any) {
       setError(err?.message || t("error"));
     } finally {
@@ -70,5 +72,13 @@ export default function VerifyPage() {
         {t("resendLink")}
       </p>
     </form>
+  );
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <VerifyContent />
+    </Suspense>
   );
 }

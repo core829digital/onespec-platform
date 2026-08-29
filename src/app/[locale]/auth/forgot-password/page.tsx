@@ -1,16 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
-import { useAuth } from "@/app/[locale]/auth/use-auth";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function ForgotPasswordPage() {
   const t = useTranslations("auth.forgotPassword");
-  const { resetPassword } = useAuth();
+  const router = useRouter();
+  const { signIn } = useAuthActions();
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
@@ -21,8 +23,8 @@ export default function ForgotPasswordPage() {
     setError("");
     setLoading(true);
     try {
-      await resetPassword(email);
-      setSuccess(true);
+      await signIn("password", { email, flow: "reset" });
+      router.push(`/auth/reset-password?email=${encodeURIComponent(email)}`);
     } catch (err: any) {
       setError(err?.message || t("error"));
     } finally {
@@ -75,7 +77,7 @@ export default function ForgotPasswordPage() {
       </Button>
 
       <p className="text-center text-sm text-[var(--color-text-secondary)]">
-        {t("backToLogin")} <a href="/login" className="text-[var(--color-mint)] hover:underline">{t("loginLink")}</a>
+        {t("backToLogin")} <Link href="/auth/login" className="text-[var(--color-mint)] hover:underline">{t("loginLink")}</Link>
       </p>
     </form>
   );

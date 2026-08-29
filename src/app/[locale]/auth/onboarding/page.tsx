@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -70,7 +70,7 @@ export default function OnboardingPage() {
           )}
         </div>
 
-        <Button onClick={() => router.push("/dashboard")} className="w-full" size="lg">
+        <Button onClick={() => router.push("/app/dashboard")} className="w-full" size="lg">
           {t("continue")}
         </Button>
       </div>
