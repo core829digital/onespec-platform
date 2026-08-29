@@ -6,12 +6,12 @@ const intl = createIntlMiddleware(routing);
 
 const isWidget = createRouteMatcher(["/w/(.*)"]);
 const isAuthPage = createRouteMatcher([
-  "/:locale/auth/:path*",
-  "/auth/:path*",
+  "/:locale/auth/*",
+  "/auth/*",
 ]);
 const isProtected = createRouteMatcher([
-  "/:locale/app/:path*",
-  "/app/:path*",
+  "/:locale/app/*",
+  "/app/*",
   "/:locale/auth/onboarding",
   "/auth/onboarding",
 ]);
