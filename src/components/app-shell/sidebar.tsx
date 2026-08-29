@@ -1,17 +1,17 @@
 "use client";
 
-import Link from "next/link";
+import { Link } from "@/i18n/navigation";
 import { usePathname } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { LayoutDashboard, Settings, Users, Bell, Package, FileText, Shield } from "lucide-react";
 
 const navItems = [
-  { href: "/dashboard", label: "nav.dashboard", icon: LayoutDashboard },
-  { href: "/configurators", label: "nav.configurators", icon: Package },
-  { href: "/requests", label: "nav.requests", icon: FileText },
-  { href: "/notifications", label: "nav.notifications", icon: Bell },
-  { href: "/account", label: "nav.account", icon: Settings, admin: false },
+  { href: "/app/dashboard", label: "nav.dashboard", icon: LayoutDashboard },
+  { href: "/app/configurators", label: "nav.configurators", icon: Package },
+  { href: "/app/requests", label: "nav.requests", icon: FileText },
+  { href: "/app/notifications", label: "nav.notifications", icon: Bell },
+  { href: "/app/account", label: "nav.account", icon: Settings, admin: false },
 ] as const;
 
 export function Sidebar({ tenant }: { tenant: any }) {
@@ -22,7 +22,7 @@ export function Sidebar({ tenant }: { tenant: any }) {
   return (
     <aside className="w-64 bg-[var(--color-bg-alt)] border-r border-[var(--color-border)] flex flex-col hidden lg:flex">
       <div className="p-4 border-b border-[var(--color-border)]">
-        <Link href="/dashboard" className="font-bold text-xl text-[var(--color-text)]">
+        <Link href="/app/dashboard" className="font-bold text-xl text-[var(--color-text)]">
           onespec
         </Link>
         <p className="text-xs text-[var(--color-text-secondary)] mt-1 capitalize">{tenant.name}</p>
@@ -57,7 +57,7 @@ export function Sidebar({ tenant }: { tenant: any }) {
           <>
             <hr className="border-[var(--color-border)] my-2" />
             <Link
-              href="/admin"
+              href="/app/admin"
               className={cn(
                 "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                 pathname.startsWith("/admin")

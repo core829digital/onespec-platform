@@ -4,6 +4,7 @@ import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 import { Menu, LogOut, User, ChevronDown } from "lucide-react";
 import { useState } from "react";
+import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/app/[locale]/auth/use-auth";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
@@ -46,13 +47,13 @@ export function Topbar({ tenant }: { tenant: any }) {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuItem asChild>
-              <a href="/account" className="flex w-full">{t("profile")}</a>
+              <Link href="/app/account" className="flex w-full">{t("profile")}</Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <a href="/account/team" className="flex w-full">{t("team")}</a>
+              <Link href="/app/account/team" className="flex w-full">{t("team")}</Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
-              <a href="/account/badge" className="flex w-full">{t("badge")}</a>
+              <Link href="/app/account/badge" className="flex w-full">{t("badge")}</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
