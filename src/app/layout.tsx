@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 
 export const metadata: Metadata = {
   title: "onespec — Il configuratore di infissi per il tuo sito",
@@ -8,8 +7,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <ConvexAuthNextjsServerProvider>
-      {children}
-    </ConvexAuthNextjsServerProvider>
+    <html>
+      <body>
+        {children}
+      </body>
+    </html>
   );
 }
