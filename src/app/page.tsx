@@ -1,5 +1,5 @@
-import { redirect } from "@/i18n/navigation";
+import { redirect } from "next/navigation";
 
 export default function RootPage() {
-  redirect("/auth/login");
+  redirect("/en/auth/login");
 }
