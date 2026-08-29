@@ -58,7 +58,6 @@ export function getDefaultConfigFields(): Omit<ProjectItem, "sashes"> & { sashes
       { type: "tiltturn", direction: "right", active: true, hardware: "maco", hardwareColor: "white" },
       { type: "fix", direction: "right", active: true, hardware: "maco", hardwareColor: "white" },
     ],
-    selectedSash: null,
     glazing: "double",
     color: "white",
     insectScreen: false,

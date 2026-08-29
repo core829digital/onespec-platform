@@ -60,7 +60,7 @@ export default function OnboardingPage() {
           </h2>
           <p className="text-[var(--color-text-secondary)] mb-4">
             {result.alpha
-              ? t("alphaSubtitle", { seatNumber: result.seatNumber, companyName })
+              ? t("alphaSubtitle", { seatNumber: result.seatNumber ?? 0, companyName })
               : t("starterSubtitle", { companyName })}
           </p>
           {result.alpha && result.seatNumber && (

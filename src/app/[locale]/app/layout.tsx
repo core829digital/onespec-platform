@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { fetchQuery } from "convex/nextjs";
 import { isAuthenticatedNextjs, convexAuthNextjsToken } from "@convex-dev/auth/nextjs/server";
+import { getMessages } from "next-intl/server";
 import { api } from "@/convex/_generated/api";
 import { Sidebar } from "@/components/app-shell/sidebar";
 import { Topbar } from "@/components/app-shell/topbar";

@@ -89,9 +89,9 @@ export function NotificationBell() {
                   <span className={cn("text-sm font-medium", !n.readAt ? "text-[var(--color-text)]" : "text-[var(--color-text-secondary)]")}>
                     {n.title}
                   </span>
-                  {n.createdAt && (
+                  {n._creationTime && (
                     <span className="text-xs text-[var(--color-text-secondary)] whitespace-nowrap">
-                      {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true })}
+                      {formatDistanceToNow(new Date(n._creationTime), { addSuffix: true })}
                     </span>
                   )}
                 </div>

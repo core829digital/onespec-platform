@@ -126,7 +126,7 @@ export const listMembers = query({
     await requireMembership(ctx, args.tenantId);
     const memberships = await ctx.db
       .query("memberships")
-      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .withIndex("by_tenant", (q: any) => q.eq("tenantId", args.tenantId))
       .collect();
     return await Promise.all(
       memberships.map(async (m) => {
@@ -174,7 +174,7 @@ export const suspendTenant = mutation({
 
 async function requireTenantRole(ctx: any, tenantId: any, roles: string[]) {
   const userId = await requireVerifiedUser(ctx);
-  const membership = await ctx.db.query("memberships").withIndex("by_tenant_user", q => q.eq("tenantId", tenantId).eq("userId", userId)).unique();
+  const membership = await ctx.db.query("memberships").withIndex("by_tenant_user", (q: any) => q.eq("tenantId", tenantId).eq("userId", userId)).unique();
   if (!membership || membership.status !== "active" || !roles.includes(membership.role)) {
     throw new ConvexError("INSUFFICIENT_ROLE");
   }

@@ -40,6 +40,6 @@ export default convexAuthNextjsMiddleware(async (request, { convexAuth }) => {
   }
 
   return intl(request);
-}, { cookieConfig: { maxAge: 60 * 60 * 24 * 30 } });
+});
 
 export const config = { matcher: ["/((?!api|trpc|_next|_vercel|.*\\..*).*)"] };

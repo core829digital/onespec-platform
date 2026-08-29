@@ -84,7 +84,7 @@ export const seedDefaultCatalog = internalMutation({
       await ctx.db.insert("catalogFinishOptions", { ...f, tenantId: args.tenantId, configuratorId: args.configuratorId });
     }
     for (const h of DEFAULT_HARDWARE) {
-      await ctx.db.insert("catalogHardwareOptions", { ...h, tenantId: args.tenantId, configuratorId: args.configuratorId });
+      await ctx.db.insert("catalogHardwareOptions", { ...h as any, tenantId: args.tenantId, configuratorId: args.configuratorId });
     }
   },
 });

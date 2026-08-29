@@ -22,7 +22,7 @@ export async function requireMembership(ctx: any, tenantId: any) {
   const userId = await requireVerifiedUser(ctx);
   const membership = await ctx.db
     .query("memberships")
-    .withIndex("by_tenant_user", q => q.eq("tenantId", tenantId).eq("userId", userId))
+    .withIndex("by_tenant_user", (q: any) => q.eq("tenantId", tenantId).eq("userId", userId))
     .unique();
   if (!membership || membership.status !== "active") {
     throw new ConvexError("NOT_A_MEMBER");

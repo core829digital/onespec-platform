@@ -70,7 +70,7 @@ export const getPublicConfigurator = query({
     const version = await ctx.db
       .query("catalogVersions")
       .withIndex("by_configurator_version", (q) =>
-        q.eq("configuratorId", configurator._id).eq("version", configurator.publishedCatalogVersion),
+        q.eq("configuratorId", configurator._id).eq("version", configurator.publishedCatalogVersion ?? 0),
       )
       .unique();
     if (!version) return null;

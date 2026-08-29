@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { useAuth } from "@/app/[locale]/auth/use-auth";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
