@@ -112,7 +112,8 @@
       "starterTitle": "Bedrijf aangemaakt",
       "starterSubtitle": "Je bedrijf {companyName} is geregistreerd met het Starter-plan.",
       "continue": "Naar dashboard"
-    }
+    },
+    "footer": "© 2026 onespec. Alle rechten voorbehouden."
   },
   "notifications": {
     "title": "Notificaties",
@@ -183,5 +184,15 @@
     "registrationClosed": "Registratie gesloten",
     "seatConflict": "Plaatsconflict",
     "alreadyHasTenant": "Heeft al een bedrijf"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Offerteaanvragen en activiteit",
+    "totalRequests": "Totaal aanvragen",
+    "pending": "In behandeling",
+    "avgValue": "Gem. waarde",
+    "conversion": "Conversie",
+    "recentRequests": "Recente aanvragen",
+    "noRequests": "Nog geen aanvragen"
   }
 }

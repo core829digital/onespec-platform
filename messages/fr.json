@@ -112,7 +112,8 @@
       "starterTitle": "Entreprise créée",
       "starterSubtitle": "Votre entreprise {companyName} est inscrite avec le plan Starter.",
       "continue": "Aller au tableau de bord"
-    }
+    },
+    "footer": "© 2026 onespec. Tous droits réservés."
   },
   "notifications": {
     "title": "Notifications",
@@ -183,5 +184,15 @@
     "registrationClosed": "Inscriptions fermées",
     "seatConflict": "Conflit de place",
     "alreadyHasTenant": "A déjà une entreprise"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "subtitle": "Demandes de devis et activité",
+    "totalRequests": "Demandes totales",
+    "pending": "En attente",
+    "avgValue": "Valeur moyenne",
+    "conversion": "Conversion",
+    "recentRequests": "Demandes récentes",
+    "noRequests": "Aucune demande"
   }
 }

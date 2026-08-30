@@ -124,7 +124,7 @@ export default function RegisterPage() {
       </Button>
 
       <p className="text-center text-sm text-[var(--color-text-secondary)]">
-        {t("hasAccount")} <Link href="/login" className="text-[var(--color-mint)] hover:underline">{t("loginLink")}</Link>
+        {t("hasAccount")} <Link href="/auth/login" className="text-[var(--color-mint)] hover:underline">{t("loginLink")}</Link>
       </p>
     </form>
   );

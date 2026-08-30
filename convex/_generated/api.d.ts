@@ -29,6 +29,7 @@ import type * as lib_ratelimit from "../lib/ratelimit.js";
 import type * as notifications from "../notifications.js";
 import type * as quotes from "../quotes.js";
 import type * as tenants from "../tenants.js";
+import type * as users from "../users.js";
 import type * as widget from "../widget.js";
 
 import type {
@@ -59,6 +60,7 @@ declare const fullApi: ApiFromModules<{
   notifications: typeof notifications;
   quotes: typeof quotes;
   tenants: typeof tenants;
+  users: typeof users;
   widget: typeof widget;
 }>;
 

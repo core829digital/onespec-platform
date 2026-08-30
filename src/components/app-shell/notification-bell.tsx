@@ -8,6 +8,7 @@ import { Bell, Check, ExternalLink } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from "@/components/ui/dropdown-menu";
+import { Link } from "@/i18n/navigation";
 import { formatDistanceToNow } from "date-fns";
 
 export function NotificationBell() {
@@ -104,10 +105,10 @@ export function NotificationBell() {
             ))}
             <DropdownMenuSeparator />
             <DropdownMenuItem asChild className="text-center text-[var(--color-mint)]">
-              <a href="/notifications" className="flex w-full items-center justify-center gap-1">
+              <Link href="/app/notifications" className="flex w-full items-center justify-center gap-1">
                 {t("seeAll")}
                 <ExternalLink size={12} />
-              </a>
+              </Link>
             </DropdownMenuItem>
           </>
         )}

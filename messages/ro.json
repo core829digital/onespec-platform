@@ -112,7 +112,8 @@
       "starterTitle": "Firmă creată",
       "starterSubtitle": "Firma ta {companyName} este înregistrată cu planul Starter.",
       "continue": "Du-te la panou"
-    }
+    },
+    "footer": "© 2026 onespec. Toate drepturile rezervate."
   },
   "notifications": {
     "title": "Notificări",
@@ -183,5 +184,15 @@
     "registrationClosed": "Înregistrările închise",
     "seatConflict": "Conflict loc",
     "alreadyHasTenant": "Are deja firmă"
+  },
+  "dashboard": {
+    "title": "Panou",
+    "subtitle": "Cereri de ofertă și activitate",
+    "totalRequests": "Total cereri",
+    "pending": "În așteptare",
+    "avgValue": "Valoare medie",
+    "conversion": "Conversie",
+    "recentRequests": "Cereri recente",
+    "noRequests": "Nicio cerere încă"
   }
 }

@@ -85,10 +85,10 @@ export default function LoginPage() {
       </Button>
 
       <p className="text-center text-sm text-[var(--color-text-secondary)]">
-        {t("noAccount")} <Link href="/register" className="text-[var(--color-mint)] hover:underline">{t("registerLink")}</Link>
+        {t("noAccount")} <Link href="/auth/register" className="text-[var(--color-mint)] hover:underline">{t("registerLink")}</Link>
       </p>
       <p className="text-center text-sm text-[var(--color-text-secondary)]">
-        <Link href="/forgot-password" className="text-[var(--color-mint)] hover:underline">{t("forgotPassword")}</Link>
+        <Link href="/auth/forgot-password" className="text-[var(--color-mint)] hover:underline">{t("forgotPassword")}</Link>
       </p>
     </form>
   );

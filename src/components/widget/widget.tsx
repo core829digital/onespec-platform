@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface WidgetProps {
   configurator: any;
@@ -10,6 +10,28 @@ interface WidgetProps {
 }
 
 export function Widget({ configurator, theme, lang, preview }: WidgetProps) {
+  useEffect(() => {
+    const resolved = theme === "light" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", resolved);
+  }, [theme]);
+
+  useEffect(() => {
+    function postHeight() {
+      if (window.parent === window) return;
+      window.parent.postMessage(
+        { type: "onespec:resize", publicId: configurator.publicId, height: document.body.scrollHeight },
+        "*",
+      );
+    }
+    postHeight();
+    const ro = new ResizeObserver(postHeight);
+    ro.observe(document.body);
+    if (window.parent !== window) {
+      window.parent.postMessage({ type: "onespec:ready", publicId: configurator.publicId }, "*");
+    }
+    return () => ro.disconnect();
+  }, [configurator.publicId]);
+
   const [step, setStep] = useState<"config" | "form" | "success">("config");
   const [formData, setFormData] = useState({
     leadName: "",
