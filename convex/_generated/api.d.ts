@@ -28,6 +28,7 @@ import type * as lib_pricing from "../lib/pricing.js";
 import type * as lib_ratelimit from "../lib/ratelimit.js";
 import type * as notifications from "../notifications.js";
 import type * as quotes from "../quotes.js";
+import type * as seed from "../seed.js";
 import type * as tenants from "../tenants.js";
 import type * as users from "../users.js";
 import type * as widget from "../widget.js";
@@ -59,6 +60,7 @@ declare const fullApi: ApiFromModules<{
   "lib/ratelimit": typeof lib_ratelimit;
   notifications: typeof notifications;
   quotes: typeof quotes;
+  seed: typeof seed;
   tenants: typeof tenants;
   users: typeof users;
   widget: typeof widget;
