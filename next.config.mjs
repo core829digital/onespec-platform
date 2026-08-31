@@ -22,7 +22,11 @@ const nextConfig = {
         ],
       },
       {
-        source: "/:path*",
+        // Everything EXCEPT the embeddable widget (/w/*). Without the negative
+        // lookahead this rule also matches /w/* and, being declared last, its
+        // frame-ancestors 'none' would override the widget's permissive CSP,
+        // making the widget un-embeddable.
+        source: "/((?!w/).*)",
         headers: [
           { key: "X-Frame-Options", value: "DENY" },
           { key: "Content-Security-Policy", value: "frame-ancestors 'none';" },
