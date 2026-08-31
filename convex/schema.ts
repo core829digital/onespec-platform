@@ -23,7 +23,7 @@ export default defineSchema({
     isAlpha: v.boolean(),
     alphaSeatNumber: v.optional(v.number()),
     plan: v.union(v.literal("alpha"), v.literal("starter"),
-                  v.literal("business"), v.literal("enterprise")),
+                  v.literal("business"), v.literal("enterprise"), v.literal("freemium")),
     planStatus: v.union(v.literal("active"), v.literal("trialing"),
                         v.literal("past_due"), v.literal("suspended")),
     alphaDiscountLocked: v.boolean(),
@@ -31,6 +31,8 @@ export default defineSchema({
     suspendedReason: v.optional(v.string()),
     createdVia: v.union(v.literal("alpha_signup"), v.literal("open_signup"),
                         v.literal("admin_created")),
+    stripeCustomerId: v.optional(v.string()),
+    email: v.optional(v.string()),
     createdAt: v.optional(v.number()),
     updatedAt: v.optional(v.number()),
     updatedByUserId: v.optional(v.id("users")),
@@ -318,4 +320,164 @@ export default defineSchema({
     tokens: v.number(),
     updatedAt: v.number(),
   }).index("by_key", ["bucketKey"]),
+
+  // Subscription & Billing
+  subscriptions: defineTable({
+    tenantId: v.id("tenants"),
+    stripeCustomerId: v.string(),
+    stripeSubscriptionId: v.optional(v.string()),
+    stripePriceId: v.optional(v.string()),
+    plan: v.union(v.literal("freemium"), v.literal("starter"), v.literal("business"), v.literal("enterprise"), v.literal("alpha")),
+    status: v.union(v.literal("trialing"), v.literal("active"), v.literal("past_due"), v.literal("canceled"), v.literal("incomplete"), v.literal("incomplete_expired"), v.literal("paused")),
+    currentPeriodStart: v.number(),
+    currentPeriodEnd: v.number(),
+    cancelAtPeriodEnd: v.boolean(),
+    canceledAt: v.optional(v.number()),
+    trialStart: v.optional(v.number()),
+    trialEnd: v.optional(v.number()),
+    stripeCurrentPeriodStart: v.optional(v.number()),
+    stripeCurrentPeriodEnd: v.optional(v.number()),
+    metadata: v.optional(v.any()),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_stripe_customer", ["stripeCustomerId"])
+    .index("by_stripe_subscription", ["stripeSubscriptionId"]),
+
+  invoices: defineTable({
+    tenantId: v.id("tenants"),
+    stripeInvoiceId: v.string(),
+    stripeSubscriptionId: v.optional(v.string()),
+    amountDue: v.number(),
+    amountPaid: v.number(),
+    amountRemaining: v.number(),
+    currency: v.string(),
+    status: v.union(v.literal("draft"), v.literal("open"), v.literal("paid"), v.literal("uncollectible"), v.literal("void")),
+    invoiceUrl: v.optional(v.string()),
+    invoicePdf: v.optional(v.string()),
+    periodStart: v.number(),
+    periodEnd: v.number(),
+    dueDate: v.optional(v.number()),
+    paidAt: v.optional(v.number()),
+    metadata: v.optional(v.any()),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_stripe_invoice", ["stripeInvoiceId"])
+    .index("by_stripe_subscription", ["stripeSubscriptionId"]),
+
+  paymentMethods: defineTable({
+    tenantId: v.id("tenants"),
+    stripePaymentMethodId: v.string(),
+    type: v.string(),
+    cardBrand: v.optional(v.string()),
+    cardLast4: v.optional(v.string()),
+    cardExpMonth: v.optional(v.number()),
+    cardExpYear: v.optional(v.number()),
+    isDefault: v.boolean(),
+    metadata: v.optional(v.any()),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_stripe_pm", ["stripePaymentMethodId"]),
+
+  subscriptionPlans: defineTable({
+    key: v.string(), // "freemium", "starter", "business", "enterprise", "alpha"
+    name: v.string(),
+    description: v.string(),
+    stripePriceIdMonthly: v.optional(v.string()),
+    stripePriceIdYearly: v.optional(v.string()),
+    priceMonthlyCents: v.number(),
+    priceYearlyCents: v.number(),
+    currency: v.string(),
+    trialDays: v.number(),
+    features: v.array(v.string()),
+    limits: v.object({
+      maxConfigurators: v.number(),
+      maxQuotesPerMonth: v.number(),
+      maxTeamMembers: v.number(),
+      whiteLabel: v.boolean(),
+      customDomain: v.boolean(),
+      apiAccess: v.boolean(),
+      prioritySupport: v.boolean(),
+    }),
+    isActive: v.boolean(),
+    sortOrder: v.number(),
+  })
+    .index("by_key", ["key"]),
+
+  webhookEvents: defineTable({
+    stripeEventId: v.string(),
+    type: v.string(),
+    processed: v.boolean(),
+    error: v.optional(v.string()),
+    payload: v.any(),
+    receivedAt: v.number(),
+    processedAt: v.optional(v.number()),
+  })
+    .index("by_stripe_event", ["stripeEventId"])
+    .index("by_type", ["type"]),
+
+  // PDF Quotes
+  pdfQuotes: defineTable({
+    tenantId: v.id("tenants"),
+    quoteRequestId: v.id("quoteRequests"),
+    configuratorId: v.id("configurators"),
+    storageId: v.id("_storage"),
+    fileName: v.string(),
+    fileSize: v.number(),
+    generatedAt: v.number(),
+    metadata: v.optional(v.any()),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_quote_request", ["quoteRequestId"])
+    .index("by_configurator", ["configuratorId"]),
+
+  // Cron Job Tracking
+  cronJobs: defineTable({
+    name: v.string(),
+    status: v.union(v.literal("scheduled"), v.literal("running"), v.literal("completed"), v.literal("failed")),
+    lastRunAt: v.optional(v.number()),
+    nextRunAt: v.optional(v.number()),
+    lastError: v.optional(v.string()),
+    runCount: v.number(),
+    metadata: v.optional(v.any()),
+  })
+    .index("by_name", ["name"])
+    .index("by_status", ["status"]),
+
+  // Import/Export Jobs
+  importJobs: defineTable({
+    tenantId: v.id("tenants"),
+    userId: v.id("users"),
+    type: v.union(v.literal("catalog_materials"), v.literal("catalog_quality"), v.literal("catalog_sizes"), v.literal("catalog_glazing"), v.literal("catalog_finish"), v.literal("catalog_hardware"), v.literal("full_catalog")),
+    status: v.union(v.literal("pending"), v.literal("processing"), v.literal("completed"), v.literal("failed")),
+    fileName: v.string(),
+    fileSize: v.number(),
+    totalRows: v.number(),
+    processedRows: v.number(),
+    failedRows: v.number(),
+    errors: v.array(v.string()),
+    mapping: v.optional(v.any()),
+    storageId: v.optional(v.id("_storage")),
+    startedAt: v.number(),
+    completedAt: v.optional(v.number()),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_user", ["userId"])
+    .index("by_status", ["status"]),
+
+  exportJobs: defineTable({
+    tenantId: v.id("tenants"),
+    userId: v.id("users"),
+    type: v.union(v.literal("catalog_materials"), v.literal("catalog_quality"), v.literal("catalog_sizes"), v.literal("catalog_glazing"), v.literal("catalog_finish"), v.literal("catalog_hardware"), v.literal("full_catalog"), v.literal("quotes")),
+    status: v.union(v.literal("pending"), v.literal("processing"), v.literal("completed"), v.literal("failed")),
+    format: v.union(v.literal("csv"), v.literal("json"), v.literal("xlsx")),
+    fileName: v.string(),
+    storageId: v.optional(v.id("_storage")),
+    totalRows: v.number(),
+    filters: v.optional(v.any()),
+    startedAt: v.number(),
+    completedAt: v.optional(v.number()),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_user", ["userId"])
+    .index("by_status", ["status"]),
 });

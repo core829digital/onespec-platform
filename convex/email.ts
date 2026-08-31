@@ -1,7 +1,7 @@
 import { internalAction, internalMutation } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { v } from "convex/values";
-import { renderAuthEmail } from "./emails/auth";
+import { renderEmail } from "./emails/templates";
 
 const TEMPLATE = v.union(
   v.literal("verify"),
@@ -10,13 +10,11 @@ const TEMPLATE = v.union(
   v.literal("welcome"),
   v.literal("new_quote_request"),
   v.literal("admin_resend"),
+  v.literal("trial_ending"),
+  v.literal("payment_failed"),
+  v.literal("subscription_canceled"),
 );
 
-/**
- * Central transactional email sender. In noop mode (RESEND_MODE !== "live" or
- * no AUTH_RESEND_KEY) nothing is sent — the rendered body is logged and stored
- * in `emailLog` (bodyPreview) so the admin email viewer can show it.
- */
 export const send = internalAction({
   args: {
     template: TEMPLATE,
@@ -28,7 +26,7 @@ export const send = internalAction({
   },
   handler: async (ctx, args) => {
     const live = process.env.RESEND_MODE === "live" && !!process.env.AUTH_RESEND_KEY;
-    const { subject, html, text } = renderAuthEmail(args.template, args.locale, args.data);
+    const { subject, html, text } = renderEmail(args.template, args.locale, args.data);
 
     if (!live) {
       console.log(`[email:noop] ${args.template} -> ${args.to}\n${text}`);
