@@ -4,6 +4,7 @@ import { internal } from "./_generated/api";
 import { ConvexError } from "convex/values";
 import { calculatePrice, type ProjectItem } from "../src/shared/pricing";
 import { ProjectItemSchema } from "../src/shared/widget-types";
+import { requireMembership } from "./lib/auth";
 
 /**
  * INTERNAL — resolve publicId to configuratorId for rate-limit bucket tracking
@@ -84,31 +85,120 @@ export const getPublicConfigurator = query({
       ? await ctx.storage.getUrl(branding.logoLightStorageId)
       : null;
 
-    const cfg = version.payload?.configurator ?? {};
-    return {
-      publicId: configurator.publicId,
-      name: configurator.name,
-      defaultLocale: cfg.defaultLocale ?? configurator.defaultLocale,
-      defaultTheme: cfg.defaultTheme ?? configurator.defaultTheme,
-      showPricesToEndUser: cfg.showPricesToEndUser ?? configurator.showPricesToEndUser,
-      currency: cfg.currency ?? configurator.currency,
-      vatRatePercent: cfg.vatRatePercent ?? configurator.vatRatePercent,
-      priceRoundingStep: cfg.priceRoundingStep ?? configurator.priceRoundingStep,
+    return assembleWidgetResponse({
+      configurator,
+      branding,
+      payload: version.payload,
       catalogVersion: configurator.publishedCatalogVersion,
-      branding: {
-        whiteLabel: branding?.whiteLabel ?? false,
-        colorAccent: branding?.colorAccent ?? "#16d19d",
-        colorAccentInk: branding?.colorAccentInk ?? "#04231a",
-        colorBg: branding?.colorBg,
-        colorBgDark: branding?.colorBgDark,
-        fontFamily: branding?.fontFamily ?? "space-grotesk",
-        copy: branding?.copy ?? {},
-        companyInfo: branding?.companyInfo ?? { name: configurator.name },
-        logoUrl,
-        logoLightUrl,
+      logoUrl,
+      logoLightUrl,
+    });
+  },
+});
+
+/** Shared shape builder for the public and preview widget responses. */
+function assembleWidgetResponse(args: {
+  configurator: any;
+  branding: any;
+  payload: any;
+  catalogVersion: number;
+  logoUrl: string | null;
+  logoLightUrl: string | null;
+}) {
+  const { configurator, branding, payload, catalogVersion, logoUrl, logoLightUrl } = args;
+  const cfg = payload?.configurator ?? {};
+  return {
+    publicId: configurator.publicId,
+    name: configurator.name,
+    defaultLocale: cfg.defaultLocale ?? configurator.defaultLocale,
+    defaultTheme: cfg.defaultTheme ?? configurator.defaultTheme,
+    showPricesToEndUser: cfg.showPricesToEndUser ?? configurator.showPricesToEndUser,
+    currency: cfg.currency ?? configurator.currency,
+    vatRatePercent: cfg.vatRatePercent ?? configurator.vatRatePercent,
+    priceRoundingStep: cfg.priceRoundingStep ?? configurator.priceRoundingStep,
+    catalogVersion,
+    branding: {
+      whiteLabel: branding?.whiteLabel ?? false,
+      colorAccent: branding?.colorAccent ?? "#16d19d",
+      colorAccentInk: branding?.colorAccentInk ?? null,
+      colorBg: branding?.colorBg ?? null,
+      colorBgDark: branding?.colorBgDark ?? null,
+      fontFamily: branding?.fontFamily ?? "space-grotesk",
+      copy: branding?.copy ?? {},
+      companyInfo: branding?.companyInfo ?? { name: configurator.name },
+      logoUrl,
+      logoLightUrl,
+    },
+    catalog: sanitizePayload(payload),
+  };
+}
+
+/**
+ * AUTHENTICATED — live (unpublished) preview of a configurator, built from the
+ * working catalog tables. Gated by tenant membership so drafts never leak.
+ * Used by the editor's `/w/{publicId}?preview=1` iframe.
+ */
+export const getConfiguratorForPreview = query({
+  args: { publicId: v.string() },
+  handler: async (ctx, args) => {
+    const configurator = await ctx.db
+      .query("configurators")
+      .withIndex("by_publicId", (q) => q.eq("publicId", args.publicId))
+      .unique();
+    if (!configurator) return null;
+
+    // Best-effort auth gate: non-members / anonymous callers get null (the page
+    // then falls back to the published version, or 404s).
+    try {
+      await requireMembership(ctx, configurator.tenantId);
+    } catch {
+      return null;
+    }
+
+    const [materials, qualityTiers, sizeConstraints, glazing, finish, hardware, branding] =
+      await Promise.all([
+        ctx.db.query("catalogMaterials").withIndex("by_configurator", (q) => q.eq("configuratorId", configurator._id)).collect(),
+        ctx.db.query("catalogQualityTiers").withIndex("by_configurator", (q) => q.eq("configuratorId", configurator._id)).collect(),
+        ctx.db.query("catalogSizeConstraints").withIndex("by_configurator", (q) => q.eq("configuratorId", configurator._id)).collect(),
+        ctx.db.query("catalogGlazingOptions").withIndex("by_configurator", (q) => q.eq("configuratorId", configurator._id)).collect(),
+        ctx.db.query("catalogFinishOptions").withIndex("by_configurator", (q) => q.eq("configuratorId", configurator._id)).collect(),
+        ctx.db.query("catalogHardwareOptions").withIndex("by_configurator", (q) => q.eq("configuratorId", configurator._id)).collect(),
+        ctx.db.query("branding").withIndex("by_configurator", (q) => q.eq("configuratorId", configurator._id)).unique(),
+      ]);
+
+    const logoUrl = branding?.logoStorageId ? await ctx.storage.getUrl(branding.logoStorageId) : null;
+    const logoLightUrl = branding?.logoLightStorageId
+      ? await ctx.storage.getUrl(branding.logoLightStorageId)
+      : null;
+
+    const payload = {
+      configurator: {
+        publicId: configurator.publicId,
+        name: configurator.name,
+        defaultLocale: configurator.defaultLocale,
+        defaultTheme: configurator.defaultTheme,
+        vatRatePercent: configurator.vatRatePercent,
+        priceRoundingStep: configurator.priceRoundingStep,
+        showPricesToEndUser: configurator.showPricesToEndUser,
+        currency: configurator.currency,
       },
-      catalog: sanitizePayload(version.payload),
+      branding,
+      materials,
+      qualityTiers,
+      sizeConstraints,
+      glazing,
+      finish,
+      hardware,
     };
+
+    return assembleWidgetResponse({
+      configurator,
+      branding,
+      payload,
+      catalogVersion: 0,
+      logoUrl,
+      logoLightUrl,
+    });
   },
 });
 

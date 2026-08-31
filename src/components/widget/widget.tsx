@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { SpecDrawing } from "./spec-drawing";
 import { getDict, LOCALE_CFG, labelFromList } from "./widget-i18n";
+import { readableInk, isSafeColor, resolveFontStack } from "./widget-theme";
 import {
   defaultConfig,
   defaultPricing,
@@ -35,7 +36,8 @@ interface WidgetProps {
     showPricesToEndUser?: boolean;
     branding?: {
       colorAccent?: string;
-      colorAccentInk?: string;
+      colorAccentInk?: string | null;
+      fontFamily?: string;
       companyInfo?: { name?: string };
       logoUrl?: string | null;
       logoLightUrl?: string | null;
@@ -44,6 +46,16 @@ interface WidgetProps {
   theme: string;
   lang: string;
   preview: boolean;
+  /** Host-site accent from the embed snippet (?accent=). */
+  accentOverride?: string;
+  /** Host-site font from the embed snippet (?font=). */
+  fontOverride?: string;
+}
+
+interface HostTheme {
+  accent?: string;
+  bg?: string;
+  font?: string;
 }
 
 interface SavedItem extends ConfigState {
@@ -56,7 +68,14 @@ const CONVEX_SITE =
   (process.env.NEXT_PUBLIC_CONVEX_URL as string)?.replace(".convex.cloud", ".convex.site") ||
   "";
 
-export function Widget({ configurator, theme, lang, preview }: WidgetProps) {
+export function Widget({
+  configurator,
+  theme,
+  lang,
+  preview,
+  accentOverride,
+  fontOverride,
+}: WidgetProps) {
   const dict = getDict(lang);
   const cfg = LOCALE_CFG[lang] ?? LOCALE_CFG.en;
   const submitLocale = (["it", "en", "fr"].includes(lang) ? lang : "it") as "it" | "en" | "fr";
@@ -68,8 +87,27 @@ export function Widget({ configurator, theme, lang, preview }: WidgetProps) {
   }, [configurator.vatRatePercent]);
 
   const showPrices = configurator.showPricesToEndUser !== false;
-  const accent = configurator.branding?.colorAccent || "#0FBF8F";
-  const accentInk = configurator.branding?.colorAccentInk || "#04231A";
+
+  // Host-page theme pushed via postMessage after mount (see the embed snippet).
+  const [hostTheme, setHostTheme] = useState<HostTheme>({});
+
+  // Accent precedence: postMessage from host > ?accent= > tenant branding > default.
+  const accent = useMemo(() => {
+    const candidates = [hostTheme.accent, accentOverride, configurator.branding?.colorAccent, "#16d19d"];
+    return candidates.find((c) => isSafeColor(c)) ?? "#16d19d";
+  }, [hostTheme.accent, accentOverride, configurator.branding?.colorAccent]);
+
+  // Ink is explicit-or-auto: use the tenant's configured ink if any, else derive
+  // a readable colour from the resolved accent (WCAG luminance).
+  const accentInk = useMemo(() => {
+    const configured = configurator.branding?.colorAccentInk;
+    return isSafeColor(configured) ? (configured as string) : readableInk(accent);
+  }, [configurator.branding?.colorAccentInk, accent]);
+
+  const fontStack = useMemo(
+    () => resolveFontStack(hostTheme.font || fontOverride || configurator.branding?.fontFamily),
+    [hostTheme.font, fontOverride, configurator.branding?.fontFamily],
+  );
 
   const [state, setState] = useState<ConfigState>(() => defaultConfig());
   const [items, setItems] = useState<SavedItem[]>([]);
@@ -85,11 +123,21 @@ export function Widget({ configurator, theme, lang, preview }: WidgetProps) {
   const [error, setError] = useState("");
   const [honeypot, setHoneypot] = useState("");
 
-  // ---- theme + iframe resize protocol ----
+  // ---- theme ----
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme === "light" ? "light" : "dark");
   }, [theme]);
 
+  // Push resolved accent / ink / font onto the scoped CSS vars so widget.css
+  // (focus rings, links, hover) and inline styles stay in sync.
+  useEffect(() => {
+    const root = document.querySelector<HTMLElement>(".tw-widget-root") ?? document.documentElement;
+    root.style.setProperty("--tw-accent", accent);
+    root.style.setProperty("--tw-accent-ink", accentInk);
+    root.style.setProperty("--tw-font", fontStack);
+  }, [accent, accentInk, fontStack]);
+
+  // ---- iframe resize + host-theme protocol ----
   useEffect(() => {
     function post() {
       if (window.parent === window) return;
@@ -104,7 +152,21 @@ export function Widget({ configurator, theme, lang, preview }: WidgetProps) {
     if (window.parent !== window) {
       window.parent.postMessage({ type: "onespec:ready", publicId: configurator.publicId }, "*");
     }
-    return () => ro.disconnect();
+
+    function onMessage(e: MessageEvent) {
+      const d = e.data;
+      if (!d || typeof d !== "object" || d.type !== "onespec:host-theme") return;
+      setHostTheme({
+        accent: typeof d.accent === "string" ? d.accent : undefined,
+        bg: typeof d.bg === "string" ? d.bg : undefined,
+        font: typeof d.font === "string" ? d.font : undefined,
+      });
+    }
+    window.addEventListener("message", onMessage);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener("message", onMessage);
+    };
   }, [configurator.publicId]);
 
   // ---- derived ----
@@ -330,6 +392,7 @@ export function Widget({ configurator, theme, lang, preview }: WidgetProps) {
             <button
               key={m.key}
               type="button"
+              data-tw-tab
               onClick={() => changeMaterial(m.key)}
               style={{ ...s.materialTab, ...(active ? { borderColor: accent, background: "var(--color-mint-light)" } : {}) }}
             >
@@ -340,7 +403,7 @@ export function Widget({ configurator, theme, lang, preview }: WidgetProps) {
         })}
       </div>
 
-      <div style={s.grid}>
+      <div style={s.grid} data-tw-grid>
         {/* LEFT: form */}
         <div style={s.panel}>
           <h2 style={s.h2}>{dict.configTitle}</h2>
@@ -351,6 +414,7 @@ export function Widget({ configurator, theme, lang, preview }: WidgetProps) {
                 <button
                   key={pt}
                   type="button"
+                  data-tw-tab
                   onClick={() => changeProductType(pt)}
                   style={{
                     ...s.typeBtn,
@@ -708,7 +772,7 @@ export function Widget({ configurator, theme, lang, preview }: WidgetProps) {
                 <button type="button" onClick={addAnother} style={s.btnSecondary}>
                   {dict.continueBtn}
                 </button>
-                <button type="button" onClick={() => setStep("lead")} style={{ ...s.btnPrimary, background: accent, color: accentInk }}>
+                <button type="button" data-tw-primary onClick={() => setStep("lead")} style={{ ...s.btnPrimary, background: accent, color: accentInk }}>
                   {dict.finishBtn}
                 </button>
               </div>
@@ -730,7 +794,7 @@ export function Widget({ configurator, theme, lang, preview }: WidgetProps) {
                   aria-hidden="true"
                 />
                 {error && <div style={{ fontSize: 12, color: "var(--color-danger)" }}>{error}</div>}
-                <button type="button" disabled={submitting} onClick={submit} style={{ ...s.btnPrimary, background: accent, color: accentInk, opacity: submitting ? 0.6 : 1 }}>
+                <button type="button" data-tw-primary disabled={submitting} onClick={submit} style={{ ...s.btnPrimary, background: accent, color: accentInk, opacity: submitting ? 0.6 : 1 }}>
                   {submitting ? dict.submitting : dict.submitBtn}
                 </button>
                 <button type="button" onClick={() => setStep("config")} style={{ background: "none", border: "none", color: "var(--color-text-secondary)", fontSize: 12, textDecoration: "underline", cursor: "pointer" }}>
@@ -844,7 +908,7 @@ function MiniField({ label, children }: { label: string; children: React.ReactNo
 
 const STYLES = {
   wrap: {
-    fontFamily: "var(--font-space-grotesk), -apple-system, 'Segoe UI', sans-serif",
+    fontFamily: "var(--tw-font, var(--font-space-grotesk), 'Segoe UI', system-ui, sans-serif)",
     color: "var(--color-text)",
     background: "var(--color-bg)",
     padding: 24,
@@ -869,6 +933,6 @@ const STYLES = {
   typeBtn: { flex: 1, padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--color-border)", background: "var(--color-bg)", cursor: "pointer", fontSize: 13, fontWeight: 600, textAlign: "center", color: "var(--color-text)" } as React.CSSProperties,
   sumRow: { display: "flex", justifyContent: "space-between", alignItems: "baseline", fontSize: 13, padding: "7px 0", borderBottom: "1px solid var(--color-border)" } as React.CSSProperties,
   btnSecondary: { width: "100%", padding: 11, borderRadius: 8, border: "1.5px solid var(--color-mint)", background: "transparent", color: "var(--color-mint)", fontWeight: 600, fontSize: 13.5, cursor: "pointer", fontFamily: "var(--font-space-grotesk), sans-serif" } as React.CSSProperties,
-  btnPrimary: { width: "100%", padding: 11, borderRadius: 8, border: "none", fontWeight: 700, fontSize: 13.5, cursor: "pointer", fontFamily: "var(--font-space-grotesk), sans-serif" } as React.CSSProperties,
+  btnPrimary: { width: "100%", padding: 11, borderRadius: 8, border: "none", fontWeight: 700, fontSize: 13.5, cursor: "pointer", fontFamily: "var(--tw-font, var(--font-space-grotesk), sans-serif)" } as React.CSSProperties,
   iconBtn: { width: 22, height: 22, borderRadius: "50%", border: "none", background: "var(--color-bg-alt)", color: "var(--color-text-secondary)", fontSize: 13, lineHeight: 1, cursor: "pointer", flexShrink: 0 } as React.CSSProperties,
 };

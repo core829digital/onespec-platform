@@ -1,0 +1,75 @@
+/* Structural + interactive styles the widget's inline styles can't express:
+   responsive stacking, hover, focus-visible, placeholder colour, select arrow.
+   Everything is scoped under .tw-widget-root. */
+
+.tw-widget-root {
+  --tw-accent: #16d19d;
+  --tw-accent-ink: #04231a;
+  --tw-font: var(--font-space-grotesk), "Segoe UI", system-ui, sans-serif;
+  font-family: var(--tw-font);
+}
+
+.tw-widget-root *,
+.tw-widget-root *::before,
+.tw-widget-root *::after {
+  box-sizing: border-box;
+}
+
+@media (max-width: 860px) {
+  .tw-widget-root [data-tw-grid] {
+    grid-template-columns: 1fr !important;
+  }
+  .tw-widget-root [data-tw-row] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+.tw-widget-root select,
+.tw-widget-root input,
+.tw-widget-root textarea {
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.tw-widget-root select:focus-visible,
+.tw-widget-root input:focus-visible,
+.tw-widget-root textarea:focus-visible {
+  outline: none;
+  border-color: var(--tw-accent) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--tw-accent) 22%, transparent);
+}
+
+.tw-widget-root input::placeholder,
+.tw-widget-root textarea::placeholder {
+  color: var(--color-text-secondary);
+  opacity: 0.8;
+}
+
+.tw-widget-root button {
+  transition: filter 0.12s ease, border-color 0.12s ease, background-color 0.12s ease;
+}
+
+.tw-widget-root button:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.tw-widget-root [data-tw-tab]:hover {
+  border-color: var(--color-text-secondary);
+}
+
+.tw-widget-root [data-tw-primary]:hover:not(:disabled) {
+  filter: brightness(0.94);
+}
+
+.tw-widget-root a {
+  color: var(--tw-accent);
+}
+
+/* Respect reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+  .tw-widget-root *,
+  .tw-widget-root *::before,
+  .tw-widget-root *::after {
+    transition-duration: 0.001ms !important;
+    animation-duration: 0.001ms !important;
+  }
+}

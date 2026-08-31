@@ -6,6 +6,23 @@ import createNextIntlPlugin from "next-intl/plugin";
 // on some machines. The ESM build of the plugin pulls no native binding.
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
+// The embeddable widget (/w/*) runs a strict CSP but must be framable anywhere.
+// - font-src needs 'self' + data: because next/font self-hosts .woff2 under
+//   /_next/static/media and inlines some as data: URIs.
+// - Vercel Speed Insights injects /_vercel/... (same-origin = 'self') plus
+//   https://va.vercel-scripts.com; allow both so it does not get CSP-blocked.
+const WIDGET_CSP = [
+  "frame-ancestors *",
+  "default-src 'self'",
+  "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://va.vercel-scripts.com",
+  "connect-src 'self' https://*.convex.cloud https://*.convex.site https://va.vercel-scripts.com https://vitals.vercel-insights.com",
+  "img-src 'self' data: blob: https:",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' data: https://fonts.gstatic.com",
+  "base-uri 'self'",
+  "form-action 'self'",
+].join("; ");
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   async headers() {
@@ -13,11 +30,7 @@ const nextConfig = {
       {
         source: "/w/:path*",
         headers: [
-          {
-            key: "Content-Security-Policy",
-            value:
-              "frame-ancestors *; default-src 'self'; script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com; connect-src 'self' https://*.convex.cloud https://*.convex.site; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com;",
-          },
+          { key: "Content-Security-Policy", value: WIDGET_CSP },
           { key: "Cross-Origin-Resource-Policy", value: "cross-origin" },
         ],
       },
