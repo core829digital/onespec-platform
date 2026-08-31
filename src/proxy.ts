@@ -34,6 +34,13 @@ function localePrefix(pathname: string): string {
 export default convexAuthNextjsMiddleware(
   async (request, { convexAuth }) => {
     const { pathname } = request.nextUrl;
+
+    // Convex Auth's wrapper already handled /api/auth before us. Any other
+    // /api/* or /w/* request must pass straight through (no i18n redirects).
+    if (pathname.startsWith("/api/") || pathname.startsWith("/w/")) {
+      return;
+    }
+
     const prefix = localePrefix(pathname);
     const authed = await convexAuth.isAuthenticated();
 
@@ -50,6 +57,7 @@ export default convexAuthNextjsMiddleware(
 );
 
 export const config = {
-  // Skip: API, Next internals, the embeddable widget (/w/*), files with an extension.
-  matcher: ["/((?!api|_next|_vercel|w/|.*\\..*).*)"],
+  // Run on everything except Next internals and static files. `/api/auth` MUST
+  // be included so Convex Auth's middleware can serve it.
+  matcher: ["/((?!_next|_vercel|.*\\..*).*)"],
 };
