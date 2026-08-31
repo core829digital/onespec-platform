@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
+import type { Doc } from "./_generated/dataModel";
 import { requireTenantRole, requireMembership } from "./lib/auth";
 
 const IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
@@ -50,7 +51,7 @@ export const updateBranding = mutation({
     const branding = await ctx.db.query("branding").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).unique();
     if (!branding) throw new ConvexError("BRANDING_NOT_FOUND");
 
-    const update: any = {};
+    const update: Partial<Doc<"branding">> = {};
     if (args.whiteLabel !== undefined) update.whiteLabel = args.whiteLabel;
     if (args.colorAccent !== undefined) update.colorAccent = args.colorAccent;
     if (args.colorAccentInk !== undefined) update.colorAccentInk = args.colorAccentInk;

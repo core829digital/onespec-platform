@@ -85,6 +85,11 @@ http.route({
     });
     if (!configurator) return json({ ok: false, error: "NOT_FOUND" }, 404);
 
+    const configuratorId = await ctx.runQuery(api.widget.getConfiguratorIdByPublicId, {
+      publicId: body.publicId,
+    });
+    if (!configuratorId) return json({ ok: false, error: "NOT_FOUND" }, 404);
+
     // Turnstile (required only when a secret is configured).
     if (process.env.TURNSTILE_SECRET) {
       const ok = await verifyTurnstile(body.turnstileToken ?? "", ip);
@@ -94,30 +99,23 @@ http.route({
     // Rate limit (throws ConvexError("RATE_LIMITED") -> map to 429).
     try {
       await ctx.runMutation(internal.lib.ratelimit.checkAllRateLimits, {
-        configuratorId: (configurator as any).catalogVersion
-          ? // getPublicConfigurator no longer returns _id; resolve via publicId
-            (await ctx.runQuery(api.widget.getConfiguratorIdByPublicId, {
-              publicId: body.publicId,
-            }))
-          : undefined,
+        configuratorId,
         ipHash,
-      } as any);
-    } catch (e: any) {
-      if (String(e?.message ?? e).includes("RATE_LIMITED")) {
+      });
+    } catch (e) {
+      if (String(e instanceof Error ? e.message : e).includes("RATE_LIMITED")) {
         return json({ ok: false, error: "RATE_LIMITED" }, 429);
       }
       throw e;
     }
 
-    // Soft origin check.
-    const allowed = configurator.catalog?.configurator?.allowedOrigins;
+    // Soft origin check — a mismatched origin is flagged for review, not rejected.
+    const configuratorCfg = configurator.catalog?.configurator as
+      | { allowedOrigins?: string[] }
+      | undefined;
+    const allowed = configuratorCfg?.allowedOrigins;
     const flagged =
       Array.isArray(allowed) && allowed.length > 0 && !allowed.includes(origin);
-
-    const configuratorId = await ctx.runQuery(api.widget.getConfiguratorIdByPublicId, {
-      publicId: body.publicId,
-    });
-    if (!configuratorId) return json({ ok: false, error: "NOT_FOUND" }, 404);
 
     const referenceId = await ctx.runMutation(internal.widget.insertQuote, {
       publicId: body.publicId,
@@ -129,7 +127,7 @@ http.route({
       leadPhone: body.leadPhone,
       leadCompany: body.leadCompany,
       leadMessage: body.leadMessage,
-      leadLocale: body.leadLocale || configurator.defaultLocale,
+      leadLocale: body.leadLocale,
       clientReportedPriceCents: body.clientReportedPriceCents,
       sourceIpHash: ipHash,
       sourceOrigin: origin,
@@ -142,18 +140,8 @@ http.route({
   }),
 });
 
-http.route({
-  path: "/api/resend/webhook",
-  method: "POST",
-  handler: httpAction(async (ctx, req) => {
-    // TODO(phase2): verify Svix signature with RESEND_WEBHOOK_SECRET before trusting.
-    const secret = process.env.RESEND_WEBHOOK_SECRET;
-    if (!secret) return new Response("disabled", { status: 404 });
-    return new Response(JSON.stringify({ ok: true }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" },
-    });
-  }),
-});
+// NOTE: a Resend delivery-tracking webhook is intentionally NOT mounted yet.
+// An endpoint that doesn't verify the Svix signature is worse than none; add it
+// back with `svix` verification when delivery status is actually needed.
 
 export default http;

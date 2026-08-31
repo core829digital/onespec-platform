@@ -17,7 +17,8 @@
     "notifications": "Notifications",
     "account": "Compte",
     "admin": "Admin",
-    "menu": "Menu"
+    "menu": "Menu",
+    "plan": "Forfait"
   },
   "topbar": {
     "account": "Compte",
@@ -193,6 +194,15 @@
     "avgValue": "Valeur moyenne",
     "conversion": "Conversion",
     "recentRequests": "Demandes récentes",
-    "noRequests": "Aucune demande"
+    "noRequests": "Aucune demande",
+    "thisMonth": "Ce mois-ci",
+    "viewAll": "Tout voir",
+    "noRequestsHint": "Les demandes de devis de vos configurateurs apparaîtront ici."
+  },
+  "app": {
+    "suspended": {
+      "title": "Compte suspendu",
+      "body": "Votre compte a été suspendu. Veuillez contacter le support."
+    }
   }
 }

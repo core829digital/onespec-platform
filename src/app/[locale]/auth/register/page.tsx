@@ -5,7 +5,6 @@ import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useAuthActions } from "@convex-dev/auth/react";
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -32,8 +31,8 @@ export default function RegisterPage() {
     try {
       await signIn("password", { name, email, password, flow: "signUp" });
       router.push(`/auth/verify?email=${encodeURIComponent(email)}`);
-    } catch (err: any) {
-      setError(err?.message || t("error"));
+    } catch (err) {
+      setError(err instanceof Error && err.message ? err.message : t("error"));
     } finally {
       setLoading(false);
     }

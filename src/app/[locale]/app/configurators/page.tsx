@@ -26,8 +26,8 @@ export default function ConfiguratorsPage() {
     try {
       await createConfigurator({ tenantId: tenant._id, name: name.trim() });
       setName("");
-    } catch (err: any) {
-      setError(err?.message || "Errore nella creazione");
+    } catch (err) {
+      setError(err instanceof Error && err.message ? err.message : "Errore nella creazione");
     } finally {
       setCreating(false);
     }
@@ -63,7 +63,7 @@ export default function ConfiguratorsPage() {
             Nessun configuratore. Creane uno per iniziare.
           </div>
         ) : (
-          configurators.map((c: any) => (
+          configurators.map((c) => (
             <div key={c._id} className="px-6 py-4 flex items-center justify-between">
               <div>
                 <p className="font-medium text-[var(--color-text)]">{c.name}</p>

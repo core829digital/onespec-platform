@@ -64,7 +64,7 @@ export default function AdminPage() {
         {tenants === undefined ? (
           <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">Caricamento...</div>
         ) : (
-          tenants.map((tn: any) => (
+          tenants.map((tn) => (
             <div key={tn._id} className="px-6 py-3 flex items-center justify-between text-sm">
               <span className="text-[var(--color-text)]">{tn.name}</span>
               <span className="text-[var(--color-text-secondary)]">

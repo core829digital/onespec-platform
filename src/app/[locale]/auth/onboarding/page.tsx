@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -11,6 +12,7 @@ import { cn } from "@/lib/utils";
 
 export default function OnboardingPage() {
   const t = useTranslations("auth.onboarding");
+  const router = useRouter();
   const [companyName, setCompanyName] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,8 +28,8 @@ export default function OnboardingPage() {
       const res = await registerTenant({ companyName });
       setResult(res);
       setLoading(false);
-    } catch (err: any) {
-      setError(err?.message || t("error"));
+    } catch (err) {
+      setError(err instanceof Error && err.message ? err.message : t("error"));
       setLoading(false);
     }
   }
@@ -68,16 +70,7 @@ export default function OnboardingPage() {
           )}
         </div>
 
-        <Button
-          onClick={() => {
-            // Full-page navigation so the request passes through the proxy,
-            // which promotes the client's auth tokens to server cookies before
-            // the /app layout runs its server-side auth check.
-            window.location.assign("/app/dashboard");
-          }}
-          className="w-full"
-          size="lg"
-        >
+        <Button onClick={() => router.push("/app/dashboard")} className="w-full" size="lg">
           {t("continue")}
         </Button>
       </div>

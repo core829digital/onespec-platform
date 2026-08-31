@@ -1,27 +1,25 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { cn } from "@/lib/utils";
 import { Menu, LogOut, User, ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { useAuthActions } from "@convex-dev/auth/react";
 import { Link } from "@/i18n/navigation";
-import { useAuth } from "@/app/[locale]/auth/use-auth";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { NotificationBell } from "./notification-bell";
 import { LanguageSwitcher } from "@/components/language-switcher";
 
-export function Topbar({ tenant }: { tenant: any }) {
+export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const t = useTranslations("topbar");
-  const { signOut } = useAuth();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { signOut } = useAuthActions();
 
   return (
     <header className="h-16 bg-[var(--color-bg)] border-b border-[var(--color-border)] flex items-center justify-between px-4 lg:px-6">
       <div className="flex items-center gap-4">
         <button
+          type="button"
           className="lg:hidden p-2 rounded-lg hover:bg-[var(--color-bg-alt)]"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          onClick={() => onMenuClick?.()}
           aria-label={t("menu")}
         >
           <Menu size={20} />

@@ -42,7 +42,7 @@ export default function RequestsPage() {
                 </td>
               </tr>
             ) : (
-              requests.map((r: any) => (
+              requests.map((r) => (
                 <tr key={r._id} className="hover:bg-[var(--color-bg)]">
                   <td className="px-4 py-3 text-[var(--color-text)]">{r.leadName}</td>
                   <td className="px-4 py-3 text-[var(--color-text-secondary)]">{r.leadEmail}</td>

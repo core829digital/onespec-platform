@@ -16,7 +16,7 @@ export interface CatalogPayload {
     colorBg?: string;
     colorBgDark?: string;
     fontFamily: "space-grotesk" | "inter" | "geist" | "system";
-    copy: Record<string, any>;
+    copy: Record<string, unknown>;
     companyInfo: {
       name: string;
       vatId?: string;
@@ -141,8 +141,15 @@ function getHardwareOption(payload: CatalogPayload, kind: string, key: string) {
   return payload.hardware.find(h => h.kind === kind && h.key === key && h.enabled);
 }
 
-function getSizeConstraint(payload: CatalogPayload, productType: "window" | "balconyDoor", sashCount: number) {
-  return payload.sizeConstraints.find(s => s.productType === productType && s.sashCount === sashCount);
+/** Looks up the size constraint for a product-type × sash-count combination. */
+export function getSizeConstraint(
+  payload: CatalogPayload,
+  productType: "window" | "balconyDoor",
+  sashCount: number,
+) {
+  return payload.sizeConstraints.find(
+    (s) => s.productType === productType && s.sashCount === sashCount,
+  );
 }
 
 export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): PriceBreakdown {

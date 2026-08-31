@@ -17,7 +17,8 @@
     "notifications": "Notifications",
     "account": "Account",
     "admin": "Admin",
-    "menu": "Menu"
+    "menu": "Menu",
+    "plan": "Plan"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -27,7 +28,10 @@
     "avgValue": "Average Value",
     "conversion": "Conversion",
     "recentRequests": "Recent Requests",
-    "noRequests": "No requests yet"
+    "noRequests": "No requests yet",
+    "thisMonth": "This Month",
+    "viewAll": "View all",
+    "noRequestsHint": "Quote requests from your configurators will show up here."
   },
   "topbar": {
     "account": "Account",
@@ -194,5 +198,11 @@
     "registrationClosed": "Registration closed",
     "seatConflict": "Seat conflict",
     "alreadyHasTenant": "Already has a company"
+  },
+  "app": {
+    "suspended": {
+      "title": "Account suspended",
+      "body": "Your account has been suspended. Please contact support."
+    }
   }
 }

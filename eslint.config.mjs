@@ -7,11 +7,19 @@ const eslintConfig = defineConfig([
   ...nextTs,
   // Override default ignores of eslint-config-next.
   globalIgnores([
-    // Default ignores of eslint-config-next:
     ".next/**",
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Convex codegen — machine-generated, carries its own eslint-disable header.
+    "convex/_generated/**",
+    // Local no-op shim for @swc/core (see next.config.mjs).
+    "vendor/**",
+    // Agent tooling scratch directories.
+    ".claude/**",
+    ".claude-flow/**",
+    ".agents/**",
+    ".codex/**",
   ]),
 ]);
 

@@ -2,7 +2,13 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import { internal } from "./_generated/api";
-import { requireVerifiedUser, requirePlatformAdmin, requireMembership } from "./lib/auth";
+import type { Doc, Id } from "./_generated/dataModel";
+import {
+  requireVerifiedUser,
+  requirePlatformAdmin,
+  requireMembership,
+  requireTenantRole,
+} from "./lib/auth";
 import { nanoid } from "./lib/ids";
 
 export const registerTenant = mutation({
@@ -22,7 +28,7 @@ export const registerTenant = mutation({
     if (!settings) throw new ConvexError("SETTINGS_NOT_FOUND");
 
     const isAlpha = settings.alphaSeatsClaimed < settings.alphaSeatCap;
-    let tenantId: any;
+    let tenantId: Id<"tenants">;
     let alphaSeatNumber: number | undefined;
 
     if (isAlpha) {
@@ -126,7 +132,7 @@ export const listMembers = query({
     await requireMembership(ctx, args.tenantId);
     const memberships = await ctx.db
       .query("memberships")
-      .withIndex("by_tenant", (q: any) => q.eq("tenantId", args.tenantId))
+      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
       .collect();
     return await Promise.all(
       memberships.map(async (m) => {
@@ -144,8 +150,8 @@ export const listMembers = query({
 export const updateTenant = mutation({
   args: { tenantId: v.id("tenants"), name: v.optional(v.string()), country: v.optional(v.string()) },
   handler: async (ctx, args) => {
-    const { membership } = await requireTenantRole(ctx, args.tenantId, ["owner", "admin"]);
-    const update: any = { updatedAt: Date.now() };
+    await requireTenantRole(ctx, args.tenantId, ["owner", "admin"]);
+    const update: Partial<Doc<"tenants">> = { updatedAt: Date.now() };
     if (args.name !== undefined) update.name = args.name;
     if (args.country !== undefined) update.country = args.country;
     await ctx.db.patch(args.tenantId, update);
@@ -172,11 +178,3 @@ export const suspendTenant = mutation({
   },
 });
 
-async function requireTenantRole(ctx: any, tenantId: any, roles: string[]) {
-  const userId = await requireVerifiedUser(ctx);
-  const membership = await ctx.db.query("memberships").withIndex("by_tenant_user", (q: any) => q.eq("tenantId", tenantId).eq("userId", userId)).unique();
-  if (!membership || membership.status !== "active" || !roles.includes(membership.role)) {
-    throw new ConvexError("INSUFFICIENT_ROLE");
-  }
-  return { userId, membership };
-}

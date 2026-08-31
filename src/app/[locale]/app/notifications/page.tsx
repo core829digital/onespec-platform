@@ -26,7 +26,7 @@ export default function NotificationsPage() {
         ) : notifications.length === 0 ? (
           <div className="px-6 py-8 text-center text-[var(--color-text-secondary)]">Nessuna notifica</div>
         ) : (
-          notifications.map((n: any) => (
+          notifications.map((n) => (
             <div key={n._id} className={`px-6 py-4 ${!n.readAt ? "bg-[var(--color-mint)]/5" : ""}`}>
               <div className="flex items-start justify-between gap-4">
                 <div>

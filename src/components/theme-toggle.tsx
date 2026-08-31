@@ -1,34 +1,44 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 import { Moon, Sun } from "@phosphor-icons/react/dist/ssr";
 
 const STORAGE_KEY = "onespec-theme";
 
+/** Subscribe to `<html data-theme>` changes (this component + other tabs). */
+function subscribe(onChange: () => void) {
+  const obs = new MutationObserver(onChange);
+  obs.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  window.addEventListener("storage", onChange);
+  return () => {
+    obs.disconnect();
+    window.removeEventListener("storage", onChange);
+  };
+}
+
+function getSnapshot() {
+  return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+}
+
 export function ThemeToggle() {
   const t = useTranslations("theme");
-  const [isLight, setIsLight] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  // `undefined` server snapshot => the button renders nothing until hydrated,
+  // which is fine (it's a floating affordance, not content).
+  const theme = useSyncExternalStore(subscribe, getSnapshot, () => undefined);
+  if (theme === undefined) return null;
 
-  useEffect(() => {
-    setMounted(true);
-    setIsLight(document.documentElement.getAttribute("data-theme") === "light");
-  }, []);
+  const isLight = theme === "light";
 
   function toggle() {
-    const next = !isLight;
-    setIsLight(next);
-    if (next) {
-      document.documentElement.setAttribute("data-theme", "light");
-      localStorage.setItem(STORAGE_KEY, "light");
-    } else {
+    if (isLight) {
       document.documentElement.removeAttribute("data-theme");
       localStorage.setItem(STORAGE_KEY, "dark");
+    } else {
+      document.documentElement.setAttribute("data-theme", "light");
+      localStorage.setItem(STORAGE_KEY, "light");
     }
   }
-
-  if (!mounted) return null;
 
   return (
     <button

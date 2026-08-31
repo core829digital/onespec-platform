@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "@/i18n/navigation";
+import { useRouter, Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,7 +14,6 @@ export default function ForgotPasswordPage() {
   const { signIn } = useAuthActions();
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -24,23 +22,13 @@ export default function ForgotPasswordPage() {
     setLoading(true);
     try {
       await signIn("password", { email, flow: "reset" });
+      // The OTP is sent by email; continue to the code-entry step.
       router.push(`/auth/reset-password?email=${encodeURIComponent(email)}`);
-    } catch (err: any) {
-      setError(err?.message || t("error"));
+    } catch (err) {
+      setError(err instanceof Error && err.message ? err.message : t("error"));
     } finally {
       setLoading(false);
     }
-  }
-
-  if (success) {
-    return (
-      <div className="space-y-6 text-center">
-        <div className="p-4 bg-[var(--color-mint)]/10 border border-[var(--color-mint)] rounded-lg text-[var(--color-mint)]">
-          {t("success")}
-        </div>
-        <p className="text-[var(--color-text-secondary)]">{t("checkEmail")}</p>
-      </div>
-    );
   }
 
   return (

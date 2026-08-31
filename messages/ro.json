@@ -17,7 +17,8 @@
     "notifications": "Notificări",
     "account": "Cont",
     "admin": "Admin",
-    "menu": "Meniu"
+    "menu": "Meniu",
+    "plan": "Plan"
   },
   "topbar": {
     "account": "Cont",
@@ -193,6 +194,15 @@
     "avgValue": "Valoare medie",
     "conversion": "Conversie",
     "recentRequests": "Cereri recente",
-    "noRequests": "Nicio cerere încă"
+    "noRequests": "Nicio cerere încă",
+    "thisMonth": "Luna aceasta",
+    "viewAll": "Vezi tot",
+    "noRequestsHint": "Cererile de ofertă din configuratoarele tale vor apărea aici."
+  },
+  "app": {
+    "suspended": {
+      "title": "Cont suspendat",
+      "body": "Contul tău a fost suspendat. Contactează asistența."
+    }
   }
 }

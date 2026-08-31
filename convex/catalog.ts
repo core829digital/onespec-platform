@@ -1,4 +1,4 @@
-import { mutation, query, internalMutation, internalQuery } from "./_generated/server";
+import { mutation, query, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import { requireTenantRole, requireMembership } from "./lib/auth";
@@ -48,7 +48,15 @@ const DEFAULT_FINISH = [
   { key: "woodeffect", labels: { it: "Effetto legno", en: "Wood effect", fr: "Effet bois" }, swatchHex: "#8B4513", priceCents: 8500, sortOrder: 2, enabled: true },
 ];
 
-const DEFAULT_HARDWARE = [
+const DEFAULT_HARDWARE: Array<{
+  kind: "hardware" | "hardwareColor" | "sashType" | "screen" | "threshold" | "misc";
+  key: string;
+  labels: { it: string; en: string; fr: string };
+  priceCents: number;
+  appliesToOperableOnly: boolean;
+  sortOrder: number;
+  enabled: boolean;
+}> = [
   { kind: "hardware", key: "maco", labels: { it: "Maco", en: "Maco", fr: "Maco" }, priceCents: 0, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
   { kind: "hardware", key: "roto", labels: { it: "Roto", en: "Roto", fr: "Roto" }, priceCents: 1500, appliesToOperableOnly: true, sortOrder: 1, enabled: true },
   { kind: "hardware", key: "siegenia", labels: { it: "Siegenia", en: "Siegenia", fr: "Siegenia" }, priceCents: 2500, appliesToOperableOnly: true, sortOrder: 2, enabled: true },
@@ -84,7 +92,7 @@ export const seedDefaultCatalog = internalMutation({
       await ctx.db.insert("catalogFinishOptions", { ...f, tenantId: args.tenantId, configuratorId: args.configuratorId });
     }
     for (const h of DEFAULT_HARDWARE) {
-      await ctx.db.insert("catalogHardwareOptions", { ...h as any, tenantId: args.tenantId, configuratorId: args.configuratorId });
+      await ctx.db.insert("catalogHardwareOptions", { ...h, tenantId: args.tenantId, configuratorId: args.configuratorId });
     }
   },
 });

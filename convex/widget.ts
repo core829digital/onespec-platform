@@ -2,9 +2,30 @@ import { query, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 import { ConvexError } from "convex/values";
-import { calculatePrice, type ProjectItem } from "../src/shared/pricing";
+import type { Doc } from "./_generated/dataModel";
+import { calculatePrice, type ProjectItem, type CatalogPayload } from "../src/shared/pricing";
 import { ProjectItemSchema } from "../src/shared/widget-types";
 import { requireMembership } from "./lib/auth";
+
+/** Rows/objects that may carry Convex system + tenant fields. */
+type WithSystemFields = Record<string, unknown> & {
+  _id?: unknown;
+  _creationTime?: unknown;
+  tenantId?: unknown;
+  configuratorId?: unknown;
+};
+
+/** The blob stored in `catalogVersions.payload`, plus the live-table variant. */
+interface StoredPayload {
+  configurator?: Record<string, unknown>;
+  branding?: (Record<string, unknown> & Partial<Doc<"branding">>) | null;
+  materials?: WithSystemFields[];
+  qualityTiers?: WithSystemFields[];
+  sizeConstraints?: WithSystemFields[];
+  glazing?: WithSystemFields[];
+  finish?: WithSystemFields[];
+  hardware?: WithSystemFields[];
+}
 
 /**
  * INTERNAL — resolve publicId to configuratorId for rate-limit bucket tracking
@@ -22,26 +43,31 @@ export const getConfiguratorIdByPublicId = query({
 });
 
 /** Strip Convex system + tenant fields from a catalog snapshot row. */
-function sanitizeRow<T extends Record<string, any>>(row: T) {
-  const { _id, _creationTime, tenantId, configuratorId, ...rest } = row;
+function sanitizeRow<T extends WithSystemFields>(row: T) {
+  const rest = { ...row };
+  delete rest._id;
+  delete rest._creationTime;
+  delete rest.tenantId;
+  delete rest.configuratorId;
   return rest;
 }
 
-function sanitizePayload(payload: any) {
-  if (!payload) return payload;
-  const arr = (a: any[]) => (Array.isArray(a) ? a.map(sanitizeRow) : []);
+function sanitizePayload(payload: StoredPayload | null | undefined): CatalogPayload | null {
+  if (!payload) return null;
+  const arr = (a: WithSystemFields[] | undefined) => (Array.isArray(a) ? a.map(sanitizeRow) : []);
+  const b = payload.branding;
   return {
     configurator: payload.configurator,
-    branding: payload.branding
+    branding: b
       ? {
-          whiteLabel: payload.branding.whiteLabel,
-          colorAccent: payload.branding.colorAccent,
-          colorAccentInk: payload.branding.colorAccentInk,
-          colorBg: payload.branding.colorBg,
-          colorBgDark: payload.branding.colorBgDark,
-          fontFamily: payload.branding.fontFamily,
-          copy: payload.branding.copy,
-          companyInfo: payload.branding.companyInfo,
+          whiteLabel: b.whiteLabel,
+          colorAccent: b.colorAccent,
+          colorAccentInk: b.colorAccentInk,
+          colorBg: b.colorBg,
+          colorBgDark: b.colorBgDark,
+          fontFamily: b.fontFamily,
+          copy: b.copy,
+          companyInfo: b.companyInfo,
         }
       : null,
     materials: arr(payload.materials),
@@ -50,7 +76,7 @@ function sanitizePayload(payload: any) {
     glazing: arr(payload.glazing),
     finish: arr(payload.finish),
     hardware: arr(payload.hardware),
-  };
+  } as unknown as CatalogPayload;
 }
 
 /**
@@ -98,24 +124,26 @@ export const getPublicConfigurator = query({
 
 /** Shared shape builder for the public and preview widget responses. */
 function assembleWidgetResponse(args: {
-  configurator: any;
-  branding: any;
-  payload: any;
+  configurator: Doc<"configurators">;
+  branding: Doc<"branding"> | null;
+  payload: StoredPayload | null | undefined;
   catalogVersion: number;
   logoUrl: string | null;
   logoLightUrl: string | null;
 }) {
   const { configurator, branding, payload, catalogVersion, logoUrl, logoLightUrl } = args;
-  const cfg = payload?.configurator ?? {};
+  const cfg = (payload?.configurator ?? {}) as Record<string, unknown>;
+  const pick = <T,>(key: string, fallback: T): T =>
+    (cfg[key] as T | undefined) ?? fallback;
   return {
     publicId: configurator.publicId,
     name: configurator.name,
-    defaultLocale: cfg.defaultLocale ?? configurator.defaultLocale,
-    defaultTheme: cfg.defaultTheme ?? configurator.defaultTheme,
-    showPricesToEndUser: cfg.showPricesToEndUser ?? configurator.showPricesToEndUser,
-    currency: cfg.currency ?? configurator.currency,
-    vatRatePercent: cfg.vatRatePercent ?? configurator.vatRatePercent,
-    priceRoundingStep: cfg.priceRoundingStep ?? configurator.priceRoundingStep,
+    defaultLocale: pick("defaultLocale", configurator.defaultLocale),
+    defaultTheme: pick("defaultTheme", configurator.defaultTheme),
+    showPricesToEndUser: pick("showPricesToEndUser", configurator.showPricesToEndUser),
+    currency: pick("currency", configurator.currency),
+    vatRatePercent: pick("vatRatePercent", configurator.vatRatePercent),
+    priceRoundingStep: pick("priceRoundingStep", configurator.priceRoundingStep),
     catalogVersion,
     branding: {
       whiteLabel: branding?.whiteLabel ?? false,

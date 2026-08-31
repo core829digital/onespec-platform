@@ -17,7 +17,8 @@
     "notifications": "Notifiche",
     "account": "Account",
     "admin": "Admin",
-    "menu": "Menu"
+    "menu": "Menu",
+    "plan": "Piano"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -27,7 +28,10 @@
     "avgValue": "Valore Medio",
     "conversion": "Conversione",
     "recentRequests": "Richieste Recenti",
-    "noRequests": "Nessuna richiesta ancora"
+    "noRequests": "Nessuna richiesta ancora",
+    "thisMonth": "Questo Mese",
+    "viewAll": "Vedi tutte",
+    "noRequestsHint": "Le richieste di preventivo dai tuoi configuratori appariranno qui."
   },
   "topbar": {
     "account": "Account",
@@ -194,5 +198,11 @@
     "registrationClosed": "Registrazioni chiuse",
     "seatConflict": "Conflitto posto",
     "alreadyHasTenant": "Hai già un'azienda"
+  },
+  "app": {
+    "suspended": {
+      "title": "Account sospeso",
+      "body": "Il tuo account è stato sospeso. Contatta il supporto."
+    }
   }
 }

@@ -24,7 +24,7 @@ export default function TeamPage() {
         {members === undefined ? (
           <div className="px-6 py-8 text-center text-[var(--color-text-secondary)]">Caricamento...</div>
         ) : (
-          members.map((m: any) => (
+          members.map((m) => (
             <div key={m._id} className="px-6 py-4 flex items-center justify-between">
               <div>
                 <p className="font-medium text-[var(--color-text)]">{m.userName ?? m.userEmail ?? "—"}</p>

@@ -8,6 +8,23 @@
  */
 type Rendered = { subject: string; html: string; text: string };
 
+/** Data available to auth/notification email templates. */
+export interface AuthEmailData {
+  code?: string;
+  companyName?: string;
+  seatNumber?: number;
+  leadName?: string;
+  leadEmail?: string;
+  priceCents?: number;
+  configuratorName?: string;
+  quoteId?: string;
+  newStatus?: string;
+  userName?: string;
+  version?: number;
+  message?: string;
+  href?: string;
+}
+
 function siteUrl() {
   return process.env.SITE_URL || "http://localhost:3000";
 }
@@ -30,7 +47,7 @@ function cta(href: string, label: string) {
   return `<a href="${href}" style="display:inline-block;margin-top:20px;padding:12px 22px;background:#16d19d;color:#04231a;font-weight:600;border-radius:9px;text-decoration:none">${label}</a>`;
 }
 
-export function renderAuthEmail(template: string, locale: string, data: any): Rendered {
+export function renderAuthEmail(template: string, locale: string, data: AuthEmailData): Rendered {
   const it = locale === "it";
   const base = siteUrl();
 
@@ -41,10 +58,10 @@ export function renderAuthEmail(template: string, locale: string, data: any): Re
         html: shell(
           `<h1 style="font-size:22px;font-weight:600;margin:0 0 12px">${it ? "Verifica la tua email" : "Verify your email"}</h1>
            <p style="color:#9a9aa0;line-height:1.6;margin:0">${it ? "Il tuo codice di verifica:" : "Your verification code:"}</p>
-           ${codeBox(data.code)}
+           ${codeBox(data.code ?? "")}
            <p style="color:#6e6e73;font-size:13px;margin:0">${it ? "Scade tra 15 minuti. Se non hai richiesto questo codice, ignora questa email." : "Expires in 15 minutes. If you didn't request this, ignore this email."}</p>`,
         ),
-        text: `${it ? "Codice di verifica" : "Verification code"}: ${data.code}`,
+        text: `${it ? "Codice di verifica" : "Verification code"}: ${data.code ?? ""}`,
       };
 
     case "reset":
@@ -53,10 +70,10 @@ export function renderAuthEmail(template: string, locale: string, data: any): Re
         html: shell(
           `<h1 style="font-size:22px;font-weight:600;margin:0 0 12px">${it ? "Reimposta la password" : "Reset your password"}</h1>
            <p style="color:#9a9aa0;line-height:1.6;margin:0">${it ? "Codice per reimpostare la password:" : "Password reset code:"}</p>
-           ${codeBox(data.code)}
+           ${codeBox(data.code ?? "")}
            <p style="color:#6e6e73;font-size:13px;margin:0">${it ? "Scade tra 15 minuti. Se non hai richiesto il reset, ignora questa email." : "Expires in 15 minutes. If you didn't request this, ignore this email."}</p>`,
         ),
-        text: `${it ? "Codice reset password" : "Password reset code"}: ${data.code}`,
+        text: `${it ? "Codice reset password" : "Password reset code"}: ${data.code ?? ""}`,
       };
 
     case "welcome_alpha":

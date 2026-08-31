@@ -17,7 +17,8 @@
     "notifications": "Benachrichtigungen",
     "account": "Konto",
     "admin": "Admin",
-    "menu": "Menü"
+    "menu": "Menü",
+    "plan": "Tarif"
   },
   "topbar": {
     "account": "Konto",
@@ -193,6 +194,15 @@
     "avgValue": "Durchschnittswert",
     "conversion": "Conversion",
     "recentRequests": "Neueste Anfragen",
-    "noRequests": "Noch keine Anfragen"
+    "noRequests": "Noch keine Anfragen",
+    "thisMonth": "Diesen Monat",
+    "viewAll": "Alle ansehen",
+    "noRequestsHint": "Angebotsanfragen aus Ihren Konfiguratoren erscheinen hier."
+  },
+  "app": {
+    "suspended": {
+      "title": "Konto gesperrt",
+      "body": "Ihr Konto wurde gesperrt. Bitte kontaktieren Sie den Support."
+    }
   }
 }

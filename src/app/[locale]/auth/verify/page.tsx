@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, Suspense } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,8 +26,8 @@ function VerifyContent() {
     try {
       await signIn("password", { email, code, flow: "email-verification" });
       router.push("/auth/onboarding");
-    } catch (err: any) {
-      setError(err?.message || t("error"));
+    } catch (err) {
+      setError(err instanceof Error && err.message ? err.message : t("error"));
     } finally {
       setLoading(false);
     }

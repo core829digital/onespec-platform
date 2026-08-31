@@ -4,7 +4,6 @@ import { useState, Suspense } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,8 +32,8 @@ function ResetPasswordContent() {
     try {
       await signIn("password", { email, code, newPassword: password, flow: "reset-verification" });
       router.push("/auth/login");
-    } catch (err: any) {
-      setError(err?.message || t("error"));
+    } catch (err) {
+      setError(err instanceof Error && err.message ? err.message : t("error"));
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,7 @@
-import { mutation, query, internalMutation, internalQuery } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
+import type { Doc } from "./_generated/dataModel";
 import { requireTenantRole, requireMembership } from "./lib/auth";
 import { nanoid } from "./lib/ids";
 import { checkQuota } from "./lib/plan";
@@ -9,7 +10,7 @@ import { internal } from "./_generated/api";
 export const createConfigurator = mutation({
   args: { tenantId: v.id("tenants"), name: v.string() },
   handler: async (ctx, args) => {
-    const { membership } = await requireTenantRole(ctx, args.tenantId, ["owner", "admin"]);
+    await requireTenantRole(ctx, args.tenantId, ["owner", "admin"]);
     const tenant = await ctx.db.get(args.tenantId);
     if (!tenant) throw new ConvexError("TENANT_NOT_FOUND");
 
@@ -88,7 +89,7 @@ export const updateConfigurator = mutation({
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
     await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
 
-    const update: any = { updatedAt: Date.now() };
+    const update: Partial<Doc<"configurators">> = { updatedAt: Date.now() };
     if (args.name !== undefined) update.name = args.name;
     if (args.allowedOrigins !== undefined) update.allowedOrigins = args.allowedOrigins;
     if (args.defaultLocale !== undefined) update.defaultLocale = args.defaultLocale;

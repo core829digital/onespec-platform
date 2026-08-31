@@ -80,11 +80,17 @@ export function Widget({
   const cfg = LOCALE_CFG[lang] ?? LOCALE_CFG.en;
   const submitLocale = (["it", "en", "fr"].includes(lang) ? lang : "it") as "it" | "en" | "fr";
 
+  const initialVat =
+    typeof configurator.vatRatePercent === "number" ? configurator.vatRatePercent : 22;
+  const [vatPct, setVatPct] = useState(initialVat);
+
+  // Pricing catalogue for the LIVE PREVIEW. The authoritative price is always
+  // recomputed on the server; VAT is the one field the visitor can tweak.
   const pricing = useMemo(() => {
     const p = defaultPricing();
-    if (typeof configurator.vatRatePercent === "number") p.vatRate = configurator.vatRatePercent;
+    p.vatRate = vatPct;
     return p;
-  }, [configurator.vatRatePercent]);
+  }, [vatPct]);
 
   const showPrices = configurator.showPricesToEndUser !== false;
 
@@ -115,7 +121,6 @@ export function Widget({
   const [ecobonusOpen, setEcobonusOpen] = useState(false);
   const [ecobonusPct, setEcobonusPct] = useState(0);
   const [discountPct, setDiscountPct] = useState(0);
-  const [vatPct, setVatPct] = useState(pricing.vatRate);
 
   const [step, setStep] = useState<"config" | "lead" | "success">("config");
   const [lead, setLead] = useState({ name: "", email: "", phone: "", company: "", message: "" });
@@ -728,12 +733,7 @@ export function Widget({
                     min={0}
                     max={100}
                     value={vatPct}
-                    onChange={(e) => {
-                      const n = clamp(parseFloat(e.target.value) || 0, 0, 100);
-                      setVatPct(n);
-                      pricing.vatRate = n;
-                      setState((x) => ({ ...x }));
-                    }}
+                    onChange={(e) => setVatPct(clamp(parseFloat(e.target.value) || 0, 0, 100))}
                   />
                 </div>
 

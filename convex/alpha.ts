@@ -8,7 +8,7 @@ import { requirePlatformAdmin } from "./lib/auth";
 
 export const getSeatStatus = query({
   handler: async (ctx) => {
-    const settings = await ctx.db.query("appSettings").withIndex("by_key", q => q.eq("key", "global")).unique();
+    const settings = await ctx.db.query("appSettings").withIndex("by_key", (q) => q.eq("key", "global")).unique();
     if (!settings) return { claimed: 0, cap: 250, open: false };
     return {
       claimed: settings.alphaSeatsClaimed,
@@ -21,14 +21,14 @@ export const getSeatStatus = query({
 export const raiseSeatCap = mutation({
   args: { newCap: v.number() },
   handler: async (ctx, args) => {
-    await requirePlatformAdmin(ctx);
-    const settings = await ctx.db.query("appSettings").withIndex("by_key", q => q.eq("key", "global")).unique();
+    const adminId = await requirePlatformAdmin(ctx);
+    const settings = await ctx.db.query("appSettings").withIndex("by_key", (q) => q.eq("key", "global")).unique();
     if (!settings) throw new ConvexError("SETTINGS_NOT_FOUND");
     if (args.newCap <= settings.alphaSeatCap) throw new ConvexError("CAP_MUST_INCREASE");
     await ctx.db.patch(settings._id, {
       alphaSeatCap: args.newCap,
       updatedAt: Date.now(),
-      updatedByUserId: (await requirePlatformAdmin(ctx)) as any,
+      updatedByUserId: adminId,
     });
     await ctx.db.insert("auditLog", {
       actorKind: "admin",
@@ -42,13 +42,13 @@ export const raiseSeatCap = mutation({
 export const toggleRegistration = mutation({
   args: { open: v.boolean() },
   handler: async (ctx, args) => {
-    await requirePlatformAdmin(ctx);
-    const settings = await ctx.db.query("appSettings").withIndex("by_key", q => q.eq("key", "global")).unique();
+    const adminId = await requirePlatformAdmin(ctx);
+    const settings = await ctx.db.query("appSettings").withIndex("by_key", (q) => q.eq("key", "global")).unique();
     if (!settings) throw new ConvexError("SETTINGS_NOT_FOUND");
     await ctx.db.patch(settings._id, {
       registrationOpen: args.open,
       updatedAt: Date.now(),
-      updatedByUserId: (await requirePlatformAdmin(ctx)) as any,
+      updatedByUserId: adminId,
     });
     await ctx.db.insert("auditLog", {
       actorKind: "admin",

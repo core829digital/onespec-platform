@@ -1,4 +1,5 @@
 import { internalMutation } from "../_generated/server";
+import type { MutationCtx } from "../_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 
@@ -9,14 +10,14 @@ export const RATE_LIMITS = {
 };
 
 async function consumeToken(
-  ctx: any,
+  ctx: MutationCtx,
   bucketKey: string,
   config: { tokens: number; refillMs: number },
 ): Promise<boolean> {
   const now = Date.now();
   const bucket = await ctx.db
     .query("rateLimits")
-    .withIndex("by_key", (q: any) => q.eq("bucketKey", bucketKey))
+    .withIndex("by_key", (q) => q.eq("bucketKey", bucketKey))
     .unique();
 
   if (!bucket) {
