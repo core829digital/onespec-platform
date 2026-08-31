@@ -7,11 +7,11 @@ import { cn } from "@/lib/utils";
 import { LayoutDashboard, Settings, Users, Bell, Package, FileText, Shield } from "lucide-react";
 
 const navItems = [
-  { href: "/app/dashboard", label: "nav.dashboard", icon: LayoutDashboard },
-  { href: "/app/configurators", label: "nav.configurators", icon: Package },
-  { href: "/app/requests", label: "nav.requests", icon: FileText },
-  { href: "/app/notifications", label: "nav.notifications", icon: Bell },
-  { href: "/app/account", label: "nav.account", icon: Settings, admin: false },
+  { href: "/app/dashboard", label: "dashboard", icon: LayoutDashboard },
+  { href: "/app/configurators", label: "configurators", icon: Package },
+  { href: "/app/requests", label: "requests", icon: FileText },
+  { href: "/app/notifications", label: "notifications", icon: Bell },
+  { href: "/app/account", label: "account", icon: Settings, admin: false },
 ] as const;
 
 export function Sidebar({ tenant }: { tenant: any }) {

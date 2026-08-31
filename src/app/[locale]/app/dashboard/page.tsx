@@ -7,7 +7,10 @@ import { useTranslations } from "next-intl";
 export default function DashboardPage() {
   const t = useTranslations("dashboard");
   const tenant = useQuery(api.tenants.getMyTenant);
-  const requests = tenant ? useQuery(api.quotes.listRequests, { tenantId: tenant._id, limit: 50 }) : null;
+  const requests = useQuery(
+    api.quotes.listRequests,
+    tenant ? { tenantId: tenant._id, limit: 50 } : "skip",
+  );
 
   const stats = {
     total: requests?.length ?? 0,
