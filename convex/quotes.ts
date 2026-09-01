@@ -4,15 +4,39 @@ import { ConvexError } from "convex/values";
 import { internal } from "./_generated/api";
 import { requireTenantRole, requireMembership } from "./lib/auth";
 
+const QUOTE_STATUS = v.union(
+  v.literal("new"),
+  v.literal("contacted"),
+  v.literal("quoted"),
+  v.literal("won"),
+  v.literal("lost"),
+  v.literal("spam"),
+);
+
 export const listRequests = query({
-  args: { tenantId: v.id("tenants"), status: v.optional(v.string()), limit: v.optional(v.number()) },
+  args: {
+    tenantId: v.id("tenants"),
+    status: v.optional(QUOTE_STATUS),
+    limit: v.optional(v.number()),
+  },
   handler: async (ctx, args) => {
     await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
-    let query = ctx.db.query("quoteRequests").withIndex("by_tenant", q => q.eq("tenantId", args.tenantId));
+    const limit = Math.min(Math.max(args.limit ?? 50, 1), 200);
     if (args.status) {
-      query = query.filter(q => q.eq(q.field("status"), args.status));
+      const status = args.status;
+      return await ctx.db
+        .query("quoteRequests")
+        .withIndex("by_tenant_status", (q) =>
+          q.eq("tenantId", args.tenantId).eq("status", status),
+        )
+        .order("desc")
+        .take(limit);
     }
-    return await query.order("desc").take(args.limit || 50);
+    return await ctx.db
+      .query("quoteRequests")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .order("desc")
+      .take(limit);
   },
 });
 

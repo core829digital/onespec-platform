@@ -248,6 +248,8 @@ export default defineSchema({
     userAgent: v.optional(v.string()),
     turnstileVerified: v.optional(v.boolean()),
     spamScore: v.optional(v.number()),
+    /** Accepted while the tenant was over its monthly quota (lead never lost). */
+    overQuota: v.optional(v.boolean()),
   })
     .index("by_tenant", ["tenantId"])
     .index("by_tenant_status", ["tenantId", "status"])
@@ -259,7 +261,7 @@ export default defineSchema({
     userId: v.id("users"),
     type: v.union(v.literal("quote_request_new"), v.literal("quote_status_changed"),
                   v.literal("member_joined"), v.literal("configurator_published"),
-                  v.literal("system")),
+                  v.literal("plan_limit"), v.literal("system")),
     title: v.string(),
     body: v.optional(v.string()),
     href: v.optional(v.string()),
@@ -311,6 +313,8 @@ export default defineSchema({
     period: v.string(),
     quoteRequestsCount: v.number(),
     activeConfiguratorsCount: v.number(),
+    /** Timestamp the tenant was last warned it crossed its monthly quota. */
+    overQuotaNotifiedAt: v.optional(v.number()),
   }).index("by_tenant_period", ["tenantId", "period"]),
 
   rateLimits: defineTable({

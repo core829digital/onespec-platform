@@ -6,6 +6,7 @@ import type { Doc } from "./_generated/dataModel";
 import { calculatePrice, type ProjectItem, type CatalogPayload } from "../src/shared/pricing";
 import { ProjectItemSchema } from "../src/shared/widget-types";
 import { requireMembership } from "./lib/auth";
+import { resolveTenantEntitlements, currentPeriod } from "./lib/entitlements";
 
 /** Rows/objects that may carry Convex system + tenant fields. */
 type WithSystemFields = Record<string, unknown> & {
@@ -275,6 +276,24 @@ export const insertQuote = internalMutation({
     });
     if (items.length === 0) throw new ConvexError("NO_ITEMS");
 
+    const tenant = await ctx.db.get(configurator.tenantId);
+    const entitlements = tenant ? resolveTenantEntitlements(tenant) : null;
+
+    // Monthly quota: over the limit we still accept the lead (never lose a
+    // real prospect), flag it, and warn the tenant once per period.
+    const period = currentPeriod();
+    const counter = await ctx.db
+      .query("usageCounters")
+      .withIndex("by_tenant_period", (q) =>
+        q.eq("tenantId", configurator.tenantId).eq("period", period),
+      )
+      .unique();
+    const usedThisPeriod = counter?.quoteRequestsCount ?? 0;
+    const overQuota =
+      !!entitlements &&
+      Number.isFinite(entitlements.maxQuotesPerMonth) &&
+      usedThisPeriod >= entitlements.maxQuotesPerMonth;
+
     const price = calculatePrice(version.payload, items);
 
     const priceMismatch =
@@ -305,24 +324,34 @@ export const insertQuote = internalMutation({
       userAgent: args.userAgent,
       turnstileVerified: args.turnstileVerified,
       spamScore: args.flagged ? 80 : priceMismatch ? 30 : 0,
+      overQuota: overQuota || undefined,
     });
 
-    // Upsert this period's usage counter.
-    const period = new Date().toISOString().slice(0, 7);
-    const counter = await ctx.db
-      .query("usageCounters")
-      .withIndex("by_tenant_period", (q) =>
-        q.eq("tenantId", configurator.tenantId).eq("period", period),
-      )
-      .unique();
+    // Bump this period's usage counter.
     if (counter) {
-      await ctx.db.patch(counter._id, { quoteRequestsCount: counter.quoteRequestsCount + 1 });
+      await ctx.db.patch(counter._id, {
+        quoteRequestsCount: counter.quoteRequestsCount + 1,
+        overQuotaNotifiedAt:
+          overQuota && !counter.overQuotaNotifiedAt ? Date.now() : counter.overQuotaNotifiedAt,
+      });
     } else {
       await ctx.db.insert("usageCounters", {
         tenantId: configurator.tenantId,
         period,
         quoteRequestsCount: 1,
         activeConfiguratorsCount: 0,
+      });
+    }
+
+    // Warn the tenant the first time it goes over quota in a period.
+    if (overQuota && counter && !counter.overQuotaNotifiedAt && entitlements) {
+      await ctx.scheduler.runAfter(0, internal.notifications.fanOutToTenant, {
+        tenantId: configurator.tenantId,
+        type: "plan_limit",
+        data: {
+          message: `Monthly quote limit reached (${entitlements.maxQuotesPerMonth}). New requests are still saved — upgrade to keep full analytics.`,
+        },
+        href: `/app/account`,
       });
     }
 

@@ -54,6 +54,7 @@ const NOTIF_TYPE = v.union(
   v.literal("quote_status_changed"),
   v.literal("member_joined"),
   v.literal("configurator_published"),
+  v.literal("plan_limit"),
   v.literal("system"),
 );
 
@@ -70,6 +71,7 @@ type NotifType =
   | "quote_status_changed"
   | "member_joined"
   | "configurator_published"
+  | "plan_limit"
   | "system";
 
 interface NotifData {

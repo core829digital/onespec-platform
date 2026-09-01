@@ -1,39 +1,39 @@
-export const QUOTA_MATRIX: Record<
-  string,
-  { quoteRequests: number; activeConfigurators: number; whiteLabel: boolean }
-> = {
-  starter: { quoteRequests: 50, activeConfigurators: 1, whiteLabel: false },
-  business: { quoteRequests: 300, activeConfigurators: 3, whiteLabel: true },
-  enterprise: { quoteRequests: Infinity, activeConfigurators: Infinity, whiteLabel: true },
-  alpha: { quoteRequests: 300, activeConfigurators: 3, whiteLabel: true },
-};
+// Back-compat shim. The entitlement source of truth is `./entitlements.ts`.
+import { entitlementsFor, resolveTenantEntitlements, checkQuota as checkQ } from "./entitlements";
+import type { Doc } from "../_generated/dataModel";
 
-export function planQuota(plan: string) {
-  return QUOTA_MATRIX[plan] ?? QUOTA_MATRIX.starter;
-}
+export { entitlementsFor, resolveTenantEntitlements };
+export type { Entitlements, PlanKey } from "./entitlements";
 
+/** @deprecated use `resolveTenantEntitlements(tenant).whiteLabel` */
 export function hasWhiteLabel(plan: string, isAlpha = false): boolean {
-  return isAlpha || planQuota(plan).whiteLabel;
+  return isAlpha || entitlementsFor(plan).whiteLabel;
 }
 
 /**
- * Soft quota check. For MVP callers treat `allowed:false` as advisory (audit +
- * warn), not a hard block.
+ * @deprecated use `assertQuota` from `./entitlements` (hard gate) or
+ * `resolveTenantEntitlements` + `checkQuota` (advisory).
  */
 export function checkQuota(
   plan: string,
   feature: "quoteRequests" | "activeConfigurators",
   currentUsage: number,
 ): { allowed: boolean; limit: number; warning?: string } {
-  const limit = planQuota(plan)[feature];
-  if (limit === Infinity) return { allowed: true, limit: Infinity };
-  const allowed = currentUsage < limit;
+  const e = entitlementsFor(plan);
+  const limit = feature === "activeConfigurators" ? e.maxConfigurators : e.maxQuotesPerMonth;
+  const r = checkQ(currentUsage, limit);
+  return { allowed: r.allowed, limit: r.limit, warning: r.warning };
+}
+
+export function planQuota(plan: string) {
+  const e = entitlementsFor(plan);
   return {
-    allowed,
-    limit,
-    warning:
-      currentUsage >= limit * 0.8
-        ? `Approaching ${feature} limit (${currentUsage}/${limit})`
-        : undefined,
+    quoteRequests: e.maxQuotesPerMonth,
+    activeConfigurators: e.maxConfigurators,
+    whiteLabel: e.whiteLabel,
   };
+}
+
+export function tenantWhiteLabel(tenant: Doc<"tenants">): boolean {
+  return resolveTenantEntitlements(tenant).whiteLabel;
 }

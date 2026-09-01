@@ -21,6 +21,7 @@ import type * as email from "../email.js";
 import type * as emails_auth from "../emails/auth.js";
 import type * as http from "../http.js";
 import type * as lib_auth from "../lib/auth.js";
+import type * as lib_entitlements from "../lib/entitlements.js";
 import type * as lib_enums from "../lib/enums.js";
 import type * as lib_ids from "../lib/ids.js";
 import type * as lib_plan from "../lib/plan.js";
@@ -53,6 +54,7 @@ declare const fullApi: ApiFromModules<{
   "emails/auth": typeof emails_auth;
   http: typeof http;
   "lib/auth": typeof lib_auth;
+  "lib/entitlements": typeof lib_entitlements;
   "lib/enums": typeof lib_enums;
   "lib/ids": typeof lib_ids;
   "lib/plan": typeof lib_plan;

@@ -4,7 +4,7 @@ import { ConvexError } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
 import { requireTenantRole, requireMembership } from "./lib/auth";
 import { nanoid } from "./lib/ids";
-import { checkQuota } from "./lib/plan";
+import { resolveTenantEntitlements, assertQuota } from "./lib/entitlements";
 import { internal } from "./_generated/api";
 
 export const createConfigurator = mutation({
@@ -14,20 +14,27 @@ export const createConfigurator = mutation({
     const tenant = await ctx.db.get(args.tenantId);
     if (!tenant) throw new ConvexError("TENANT_NOT_FOUND");
 
+    const name = args.name.trim();
+    if (name.length < 2 || name.length > 80) throw new ConvexError("INVALID_NAME");
+
     const existingCount = (
       await ctx.db
         .query("configurators")
         .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
         .collect()
     ).filter((c) => c.status !== "archived").length;
-    const quota = checkQuota(tenant.plan, "activeConfigurators", existingCount);
-    if (!quota.allowed) throw new ConvexError("CONFIGURATOR_LIMIT_REACHED");
+    // Hard gate — the plan's configurator count is a boundary, not advisory.
+    assertQuota(
+      existingCount,
+      resolveTenantEntitlements(tenant).maxConfigurators,
+      "CONFIGURATOR_LIMIT_REACHED",
+    );
 
     const publicId = nanoid(10);
     const configuratorId = await ctx.db.insert("configurators", {
       tenantId: args.tenantId,
       publicId,
-      name: args.name,
+      name,
       status: "draft",
       allowedOrigins: [],
       defaultLocale: "it",
