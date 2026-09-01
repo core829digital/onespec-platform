@@ -2,8 +2,11 @@
 
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { useRouter } from "@/i18n/navigation";
+import { StatusBadge } from "@/components/app-shell/status-badge";
 
 export default function RequestsPage() {
+  const router = useRouter();
   const tenant = useQuery(api.tenants.getMyTenant);
   const requests = useQuery(
     api.quotes.listRequests,
@@ -43,16 +46,18 @@ export default function RequestsPage() {
               </tr>
             ) : (
               requests.map((r) => (
-                <tr key={r._id} className="hover:bg-[var(--color-bg)]">
+                <tr
+                  key={r._id}
+                  onClick={() => router.push(`/app/requests/${r._id}`)}
+                  className="hover:bg-[var(--color-bg)] cursor-pointer"
+                >
                   <td className="px-4 py-3 text-[var(--color-text)]">{r.leadName}</td>
                   <td className="px-4 py-3 text-[var(--color-text-secondary)]">{r.leadEmail}</td>
                   <td className="px-4 py-3 text-right text-[var(--color-text)]">
                     €{(r.priceCents / 100).toFixed(2)}
                   </td>
                   <td className="px-4 py-3">
-                    <span className="px-2 py-0.5 rounded-full bg-[var(--color-bg)] border border-[var(--color-border)] text-xs capitalize">
-                      {r.status}
-                    </span>
+                    <StatusBadge status={r.status} />
                   </td>
                   <td className="px-4 py-3 text-right text-[var(--color-text-secondary)]">
                     {new Date(r._creationTime).toLocaleDateString()}

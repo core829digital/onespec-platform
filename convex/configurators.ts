@@ -185,6 +185,73 @@ export const publishConfigurator = mutation({
   },
 });
 
+export const listVersions = query({
+  args: { configuratorId: v.id("configurators") },
+  handler: async (ctx, args) => {
+    const configurator = await ctx.db.get(args.configuratorId);
+    if (!configurator) return [];
+    await requireMembership(ctx, configurator.tenantId);
+    const versions = await ctx.db
+      .query("catalogVersions")
+      .withIndex("by_configurator", (q) => q.eq("configuratorId", args.configuratorId))
+      .order("desc")
+      .take(50);
+    return versions.map((row) => ({
+      _id: row._id,
+      version: row.version,
+      publishedAt: row.publishedAt,
+      publishedByUserId: row.publishedByUserId,
+      changeNote: row.changeNote,
+      isCurrent: row.version === configurator.publishedCatalogVersion,
+    }));
+  },
+});
+
+export const rollbackToVersion = mutation({
+  args: { configuratorId: v.id("configurators"), version: v.number() },
+  handler: async (ctx, args) => {
+    const configurator = await ctx.db.get(args.configuratorId);
+    if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
+    const { membership } = await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
+
+    const target = await ctx.db
+      .query("catalogVersions")
+      .withIndex("by_configurator_version", (q) =>
+        q.eq("configuratorId", args.configuratorId).eq("version", args.version),
+      )
+      .unique();
+    if (!target) throw new ConvexError("VERSION_NOT_FOUND");
+
+    // Re-publish the old payload as a new version — never mutate history.
+    const newVersion = (configurator.publishedCatalogVersion || 0) + 1;
+    await ctx.db.insert("catalogVersions", {
+      tenantId: configurator.tenantId,
+      configuratorId: args.configuratorId,
+      version: newVersion,
+      publishedByUserId: membership.userId,
+      publishedAt: Date.now(),
+      payload: target.payload,
+      changeNote: `Ripristino della versione ${args.version}`,
+    });
+    await ctx.db.patch(args.configuratorId, {
+      status: "published",
+      publishedAt: Date.now(),
+      publishedCatalogVersion: newVersion,
+    });
+    await ctx.db.insert("auditLog", {
+      tenantId: configurator.tenantId,
+      actorUserId: membership.userId,
+      actorKind: "user",
+      action: "configurator.rollback",
+      targetTable: "configurators",
+      targetId: args.configuratorId,
+      meta: { fromVersion: args.version, newVersion },
+      createdAt: Date.now(),
+    });
+    return { version: newVersion };
+  },
+});
+
 export const getEditorState = query({
   args: { configuratorId: v.id("configurators") },
   handler: async (ctx, args) => {
