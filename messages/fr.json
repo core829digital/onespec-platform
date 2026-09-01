@@ -14,6 +14,8 @@
     "dashboard": "Tableau de bord",
     "configurators": "Configurateurs",
     "requests": "Demandes",
+    "pipeline": "Pipeline",
+    "analytics": "Analytics",
     "notifications": "Notifications",
     "account": "Compte",
     "admin": "Admin",

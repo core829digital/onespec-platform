@@ -7,15 +7,10 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Doc } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Settings, Bell, Package, FileText, Shield, X } from "lucide-react";
+import { X } from "lucide-react";
+import { NAV_ITEMS, ADMIN_NAV_ITEM } from "./nav-items";
 
-const navItems = [
-  { href: "/app/dashboard", label: "dashboard", icon: LayoutDashboard },
-  { href: "/app/configurators", label: "configurators", icon: Package },
-  { href: "/app/requests", label: "requests", icon: FileText },
-  { href: "/app/notifications", label: "notifications", icon: Bell },
-  { href: "/app/account", label: "account", icon: Settings },
-] as const;
+const navItems = NAV_ITEMS;
 
 export function MobileNav({
   tenant,
@@ -51,9 +46,7 @@ export function MobileNav({
     };
   }, [open, onClose]);
 
-  const items = isPlatformAdmin
-    ? [...navItems, { href: "/app/admin", label: "admin", icon: Shield } as const]
-    : navItems;
+  const items = isPlatformAdmin ? [...navItems, ADMIN_NAV_ITEM] : navItems;
 
   return (
     <div

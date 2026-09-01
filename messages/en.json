@@ -14,6 +14,8 @@
     "dashboard": "Dashboard",
     "configurators": "Configurators",
     "requests": "Requests",
+    "pipeline": "Pipeline",
+    "analytics": "Analytics",
     "notifications": "Notifications",
     "account": "Account",
     "admin": "Admin",

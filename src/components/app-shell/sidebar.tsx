@@ -6,15 +6,10 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Doc } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, Settings, Bell, Package, FileText, Shield } from "lucide-react";
+import { NAV_ITEMS, ADMIN_NAV_ITEM } from "./nav-items";
 
-const navItems = [
-  { href: "/app/dashboard", label: "dashboard", icon: LayoutDashboard },
-  { href: "/app/configurators", label: "configurators", icon: Package },
-  { href: "/app/requests", label: "requests", icon: FileText },
-  { href: "/app/notifications", label: "notifications", icon: Bell },
-  { href: "/app/account", label: "account", icon: Settings },
-] as const;
+const navItems = NAV_ITEMS;
+const AdminIcon = ADMIN_NAV_ITEM.icon;
 
 export function Sidebar({ tenant }: { tenant: Doc<"tenants"> }) {
   const t = useTranslations("nav");
@@ -71,7 +66,7 @@ export function Sidebar({ tenant }: { tenant: Doc<"tenants"> }) {
                   : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)] hover:text-[var(--color-text)]",
               )}
             >
-              <Shield size={18} aria-hidden="true" />
+              <AdminIcon size={18} aria-hidden="true" />
               <span>{t("admin")}</span>
             </Link>
           </>
