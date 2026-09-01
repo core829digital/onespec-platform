@@ -7,9 +7,15 @@ export const RATE_LIMITS = {
   quotePerIpPer10Min: { tokens: 5, refillMs: 10 * 60 * 1000 },
   quotePerIpPerDay: { tokens: 20, refillMs: 24 * 60 * 60 * 1000 },
   quoteGlobalPerConfigurator: { tokens: 100, refillMs: 60 * 60 * 1000 },
+  exportPerTenantPerHour: { tokens: 10, refillMs: 60 * 60 * 1000 },
 };
 
-async function consumeToken(
+/**
+ * Consume one token from a named bucket. Returns false when the bucket is
+ * exhausted. Exported so authenticated mutations (e.g. data export) can reuse
+ * the same token-bucket store as the widget rate limiter.
+ */
+export async function consumeToken(
   ctx: MutationCtx,
   bucketKey: string,
   config: { tokens: number; refillMs: number },
