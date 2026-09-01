@@ -44,6 +44,45 @@ export const getConfiguratorIdByPublicId = internalQuery({
   },
 });
 
+/**
+ * PUBLIC (unauthenticated) — the embed policy for a widget, consumed by the
+ * Next middleware to build a per-tenant `Content-Security-Policy: frame-ancestors`
+ * header. Returns ONLY the allow-listed origins + activation state; no internals.
+ */
+export const getEmbedPolicy = query({
+  args: { publicId: v.string() },
+  handler: async (ctx, args) => {
+    const configurator = await ctx.db
+      .query("configurators")
+      .withIndex("by_publicId", (q) => q.eq("publicId", args.publicId))
+      .unique();
+    if (!configurator) return { exists: false, active: false, frameAncestors: [] as string[] };
+
+    // Only http(s) origins, de-duplicated, hard-capped so a huge list can't be
+    // used to bloat the response header.
+    const frameAncestors = Array.from(
+      new Set(
+        (configurator.allowedOrigins ?? [])
+          .map((o) => {
+            try {
+              const u = new URL(o);
+              return u.protocol === "https:" || u.protocol === "http:" ? u.origin : null;
+            } catch {
+              return null;
+            }
+          })
+          .filter((o): o is string => o !== null),
+      ),
+    ).slice(0, 25);
+
+    return {
+      exists: true,
+      active: configurator.status === "published",
+      frameAncestors,
+    };
+  },
+});
+
 /** Strip Convex system + tenant fields from a catalog snapshot row. */
 function sanitizeRow<T extends WithSystemFields>(row: T) {
   const rest = { ...row };

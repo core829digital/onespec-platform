@@ -4,6 +4,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { SpecDrawing } from "./spec-drawing";
 import { getDict, LOCALE_CFG, labelFromList } from "./widget-i18n";
 import { readableInk, isSafeColor, resolveFontStack } from "./widget-theme";
+import { postToHost, readHostTheme } from "./host-bridge";
 import {
   defaultConfig,
   defaultPricing,
@@ -145,27 +146,20 @@ export function Widget({
   // ---- iframe resize + host-theme protocol ----
   useEffect(() => {
     function post() {
-      if (window.parent === window) return;
-      window.parent.postMessage(
-        { type: "onespec:resize", publicId: configurator.publicId, height: document.body.scrollHeight },
-        "*",
-      );
+      postToHost({
+        type: "onespec:resize",
+        publicId: configurator.publicId,
+        height: document.body.scrollHeight,
+      });
     }
     post();
     const ro = new ResizeObserver(post);
     ro.observe(document.body);
-    if (window.parent !== window) {
-      window.parent.postMessage({ type: "onespec:ready", publicId: configurator.publicId }, "*");
-    }
+    postToHost({ type: "onespec:ready", publicId: configurator.publicId });
 
     function onMessage(e: MessageEvent) {
-      const d = e.data;
-      if (!d || typeof d !== "object" || d.type !== "onespec:host-theme") return;
-      setHostTheme({
-        accent: typeof d.accent === "string" ? d.accent : undefined,
-        bg: typeof d.bg === "string" ? d.bg : undefined,
-        font: typeof d.font === "string" ? d.font : undefined,
-      });
+      const theme = readHostTheme(e);
+      if (theme) setHostTheme(theme);
     }
     window.addEventListener("message", onMessage);
     return () => {
@@ -333,9 +327,7 @@ export function Widget({
       const data = await res.json().catch(() => ({ ok: false, error: "BAD_RESPONSE" }));
       if (res.ok && data.ok) {
         setStep("success");
-        if (window.parent !== window) {
-          window.parent.postMessage({ type: "onespec:submitted", publicId: configurator.publicId }, "*");
-        }
+        postToHost({ type: "onespec:submitted", publicId: configurator.publicId });
       } else {
         setError(typeof data.error === "string" ? data.error : "SUBMIT_FAILED");
       }

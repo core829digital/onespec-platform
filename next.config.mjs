@@ -7,14 +7,14 @@ import createNextIntlPlugin from "next-intl/plugin";
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
 // The embeddable widget (/w/*) runs a strict CSP but must be framable.
-// `frame-ancestors *` here is a fallback; per-tenant origin allow-listing is
-// enforced at the request layer (see src/app/w/[publicId]). Do not narrow to a
-// single origin here — one build serves every tenant.
+// `frame-ancestors` is NOT set here: the Next middleware (src/proxy.ts) emits a
+// per-tenant `frame-ancestors` CSP header at request time from the configurator's
+// allow-listed origins. This static header is the fallback for the other
+// directives. Do not narrow to a single origin here — one build serves every tenant.
 // - font-src needs 'self' + data: because next/font self-hosts .woff2 under
 //   /_next/static/media and inlines some as data: URIs.
 // - Vercel Speed Insights injects /_vercel/... (same-origin) + va.vercel-scripts.com.
 const WIDGET_CSP = [
-  "frame-ancestors *",
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://va.vercel-scripts.com",
   "connect-src 'self' https://*.convex.cloud https://*.convex.site https://va.vercel-scripts.com https://vitals.vercel-insights.com",
