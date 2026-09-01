@@ -262,8 +262,11 @@ export default defineSchema({
     type: v.union(v.literal("quote_request_new"), v.literal("quote_status_changed"),
                   v.literal("member_joined"), v.literal("configurator_published"),
                   v.literal("plan_limit"), v.literal("system")),
+    /** Pre-rendered Italian title — fallback for rows written before i18n. */
     title: v.string(),
     body: v.optional(v.string()),
+    /** Structured payload so the client can render a localized title. */
+    data: v.optional(v.any()),
     href: v.optional(v.string()),
     entityTable: v.optional(v.string()),
     entityId: v.optional(v.string()),
@@ -273,6 +276,17 @@ export default defineSchema({
     .index("by_user", ["userId"])
     .index("by_user_unread", ["userId", "readAt"])
     .index("by_tenant", ["tenantId"]),
+
+  /** Per-user notification channel preferences. Absent row = everything on. */
+  notificationPrefs: defineTable({
+    userId: v.id("users"),
+    /** notification `type` values the user has switched OFF for the in-app inbox. */
+    mutedInApp: v.array(v.string()),
+    /** notification `type` values the user has switched OFF for email. */
+    mutedEmail: v.array(v.string()),
+    timezone: v.optional(v.string()),
+    updatedAt: v.number(),
+  }).index("by_user", ["userId"]),
 
   emailLog: defineTable({
     tenantId: v.optional(v.id("tenants")),

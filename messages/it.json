@@ -135,8 +135,40 @@
     "title": "Notifiche",
     "label": "Notifiche",
     "empty": "Nessuna notifica",
-    "markAllSeen": "Segna tutto come letto",
-    "seeAll": "Vedi tutte"
+    "markAllSeen": "Segna tutto come visto",
+    "markAllRead": "Segna tutte come lette",
+    "seeAll": "Vedi tutte",
+    "unreadOnly": "Solo non lette",
+    "all": "Tutte",
+    "preferences": "Preferenze",
+    "prefsIntro": "Scegli quali notifiche ricevere nell'app e via email.",
+    "channelInApp": "App",
+    "channelEmail": "Email",
+    "savedTz": "Fuso orario rilevato: {tz}",
+    "types": {
+      "quote_request_new": "Nuova richiesta da {leadName} — {price}",
+      "quote_status_changed": "{leadName}: stato aggiornato a {status}",
+      "member_joined": "{userName} si è unito al team",
+      "configurator_published": "{configuratorName} pubblicato (v{version})",
+      "plan_limit": "Limite del piano raggiunto",
+      "system": "{message}"
+    },
+    "typeNames": {
+      "quote_request_new": "Nuove richieste",
+      "quote_status_changed": "Cambi di stato",
+      "member_joined": "Nuovi membri del team",
+      "configurator_published": "Pubblicazioni configuratore",
+      "plan_limit": "Avvisi sui limiti del piano",
+      "system": "Comunicazioni di sistema"
+    },
+    "status": {
+      "new": "Nuova",
+      "contacted": "Contattata",
+      "quoted": "Preventivo inviato",
+      "won": "Vinta",
+      "lost": "Persa",
+      "spam": "Spam"
+    }
   },
   "alpha": {
     "member": "Alpha Member",

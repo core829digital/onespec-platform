@@ -135,8 +135,40 @@
     "title": "Notifications",
     "label": "Notifications",
     "empty": "No notifications",
-    "markAllSeen": "Mark all as read",
-    "seeAll": "See all"
+    "markAllSeen": "Mark all as seen",
+    "markAllRead": "Mark all as read",
+    "seeAll": "See all",
+    "unreadOnly": "Unread only",
+    "all": "All",
+    "preferences": "Preferences",
+    "prefsIntro": "Choose which notifications you get in the app and by email.",
+    "channelInApp": "App",
+    "channelEmail": "Email",
+    "savedTz": "Detected time zone: {tz}",
+    "types": {
+      "quote_request_new": "New request from {leadName} — {price}",
+      "quote_status_changed": "{leadName}: status changed to {status}",
+      "member_joined": "{userName} joined the team",
+      "configurator_published": "{configuratorName} published (v{version})",
+      "plan_limit": "Plan limit reached",
+      "system": "{message}"
+    },
+    "typeNames": {
+      "quote_request_new": "New requests",
+      "quote_status_changed": "Status changes",
+      "member_joined": "New team members",
+      "configurator_published": "Configurator publishes",
+      "plan_limit": "Plan-limit alerts",
+      "system": "System messages"
+    },
+    "status": {
+      "new": "New",
+      "contacted": "Contacted",
+      "quoted": "Quote sent",
+      "won": "Won",
+      "lost": "Lost",
+      "spam": "Spam"
+    }
   },
   "alpha": {
     "member": "Alpha Member",

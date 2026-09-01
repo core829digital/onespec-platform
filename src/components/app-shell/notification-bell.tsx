@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator, DropdownMenuLabel } from "@/components/ui/dropdown-menu";
 import { Link } from "@/i18n/navigation";
 import { formatDistanceToNow } from "date-fns";
+import { notificationText } from "@/components/notifications/notification-text";
 
 export function NotificationBell() {
   const t = useTranslations("notifications");
@@ -18,7 +19,7 @@ export function NotificationBell() {
   const notifications = useQuery(api.notifications.listMine, { limit: 10 });
   const unreadCount = useQuery(api.notifications.unreadCount);
   const markRead = useMutation(api.notifications.markRead);
-  const markAllSeen = useMutation(api.notifications.markAllSeen);
+  const markAllRead = useMutation(api.notifications.markAllRead);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -31,7 +32,7 @@ export function NotificationBell() {
   }, []);
 
   const handleMarkAllSeen = async () => {
-    await markAllSeen();
+    await markAllRead();
     setOpen(false);
   };
 
@@ -60,7 +61,7 @@ export function NotificationBell() {
           {count > 0 && (
             <Button variant="ghost" size="sm" onClick={handleMarkAllSeen}>
               <Check size={12} className="mr-1" />
-              {t("markAllSeen")}
+              {t("markAllRead")}
             </Button>
           )}
         </div>
@@ -88,7 +89,7 @@ export function NotificationBell() {
               >
                 <div className="flex w-full items-start justify-between gap-2">
                   <span className={cn("text-sm font-medium", !n.readAt ? "text-[var(--color-text)]" : "text-[var(--color-text-secondary)]")}>
-                    {n.title}
+                    {notificationText(t, n)}
                   </span>
                   {n._creationTime && (
                     <span className="text-xs text-[var(--color-text-secondary)] whitespace-nowrap">

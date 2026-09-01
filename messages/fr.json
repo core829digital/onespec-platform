@@ -122,8 +122,40 @@
     "title": "Notifications",
     "label": "Notifications",
     "empty": "Aucune notification",
-    "markAllSeen": "Marquer tout comme lu",
-    "seeAll": "Voir toutes"
+    "markAllSeen": "Tout marquer comme vu",
+    "markAllRead": "Tout marquer comme lu",
+    "seeAll": "Voir tout",
+    "unreadOnly": "Non lues uniquement",
+    "all": "Toutes",
+    "preferences": "Préférences",
+    "prefsIntro": "Choisissez les notifications reçues dans l'app et par e-mail.",
+    "channelInApp": "App",
+    "channelEmail": "E-mail",
+    "savedTz": "Fuseau horaire détecté : {tz}",
+    "types": {
+      "quote_request_new": "Nouvelle demande de {leadName} — {price}",
+      "quote_status_changed": "{leadName} : statut passé à {status}",
+      "member_joined": "{userName} a rejoint l'équipe",
+      "configurator_published": "{configuratorName} publié (v{version})",
+      "plan_limit": "Limite du forfait atteinte",
+      "system": "{message}"
+    },
+    "typeNames": {
+      "quote_request_new": "Nouvelles demandes",
+      "quote_status_changed": "Changements de statut",
+      "member_joined": "Nouveaux membres",
+      "configurator_published": "Publications du configurateur",
+      "plan_limit": "Alertes de limite",
+      "system": "Messages système"
+    },
+    "status": {
+      "new": "Nouvelle",
+      "contacted": "Contactée",
+      "quoted": "Devis envoyé",
+      "won": "Gagnée",
+      "lost": "Perdue",
+      "spam": "Spam"
+    }
   },
   "alpha": {
     "member": "Membre Alpha",

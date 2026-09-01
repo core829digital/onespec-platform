@@ -49,6 +49,95 @@ export const markAllSeen = mutation({
   },
 });
 
+export const markAllRead = mutation({
+  handler: async (ctx) => {
+    const userId = await requireVerifiedUser(ctx);
+    const now = Date.now();
+    const unread = await ctx.db
+      .query("notifications")
+      .withIndex("by_user_unread", (q) => q.eq("userId", userId).eq("readAt", undefined))
+      .collect();
+    for (const n of unread) await ctx.db.patch(n._id, { readAt: now, seenAt: n.seenAt ?? now });
+  },
+});
+
+export const NOTIFICATION_TYPES = [
+  "quote_request_new",
+  "quote_status_changed",
+  "member_joined",
+  "configurator_published",
+  "plan_limit",
+  "system",
+] as const;
+
+export const getPreferences = query({
+  handler: async (ctx) => {
+    const userId = await requireVerifiedUser(ctx);
+    const row = await ctx.db
+      .query("notificationPrefs")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .unique();
+    return {
+      mutedInApp: row?.mutedInApp ?? [],
+      mutedEmail: row?.mutedEmail ?? [],
+      timezone: row?.timezone,
+    };
+  },
+});
+
+export const setPreference = mutation({
+  args: {
+    type: v.union(...NOTIFICATION_TYPES.map((t) => v.literal(t))),
+    channel: v.union(v.literal("inApp"), v.literal("email")),
+    enabled: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await requireVerifiedUser(ctx);
+    const row = await ctx.db
+      .query("notificationPrefs")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .unique();
+
+    const field = args.channel === "inApp" ? "mutedInApp" : "mutedEmail";
+    const current = new Set(row?.[field] ?? []);
+    if (args.enabled) current.delete(args.type);
+    else current.add(args.type);
+    const muted = [...current];
+
+    if (row) {
+      await ctx.db.patch(row._id, { [field]: muted, updatedAt: Date.now() });
+    } else {
+      await ctx.db.insert("notificationPrefs", {
+        userId,
+        mutedInApp: field === "mutedInApp" ? muted : [],
+        mutedEmail: field === "mutedEmail" ? muted : [],
+        updatedAt: Date.now(),
+      });
+    }
+  },
+});
+
+export const setTimezone = mutation({
+  args: { timezone: v.string() },
+  handler: async (ctx, args) => {
+    const userId = await requireVerifiedUser(ctx);
+    const tz = args.timezone.slice(0, 64);
+    const row = await ctx.db
+      .query("notificationPrefs")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .unique();
+    if (row) await ctx.db.patch(row._id, { timezone: tz, updatedAt: Date.now() });
+    else
+      await ctx.db.insert("notificationPrefs", {
+        userId,
+        mutedInApp: [],
+        mutedEmail: [],
+        timezone: tz,
+        updatedAt: Date.now(),
+      });
+  },
+});
+
 const NOTIF_TYPE = v.union(
   v.literal("quote_request_new"),
   v.literal("quote_status_changed"),
@@ -125,18 +214,26 @@ export const fanOutToTenant = internalMutation({
     const entityId: string | undefined = data.quoteId ?? data.configuratorId;
 
     for (const m of memberships) {
-      await ctx.db.insert("notifications", {
-        tenantId: args.tenantId,
-        userId: m.userId,
-        type: args.type,
-        title: titleFor(args.type as NotifType, data),
-        body: undefined,
-        href: args.href,
-        entityTable: args.type.startsWith("quote") ? "quoteRequests" : "configurators",
-        entityId,
-      });
+      const prefs = await ctx.db
+        .query("notificationPrefs")
+        .withIndex("by_user", (q) => q.eq("userId", m.userId))
+        .unique();
 
-      if (args.emailTemplate) {
+      if (!prefs?.mutedInApp?.includes(args.type)) {
+        await ctx.db.insert("notifications", {
+          tenantId: args.tenantId,
+          userId: m.userId,
+          type: args.type,
+          title: titleFor(args.type as NotifType, data),
+          body: undefined,
+          data: args.data ?? undefined,
+          href: args.href,
+          entityTable: args.type.startsWith("quote") ? "quoteRequests" : "configurators",
+          entityId,
+        });
+      }
+
+      if (args.emailTemplate && !prefs?.mutedEmail?.includes(args.type)) {
         const user = await ctx.db.get(m.userId);
         if (user?.email) {
           await ctx.scheduler.runAfter(0, internal.email.send, {
