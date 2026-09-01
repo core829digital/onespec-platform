@@ -5,6 +5,7 @@ import type { Doc } from "./_generated/dataModel";
 import { requireTenantRole, requireMembership } from "./lib/auth";
 import { nanoid } from "./lib/ids";
 import { resolveTenantEntitlements, assertQuota } from "./lib/entitlements";
+import { resolveEffectiveConfig, PLATFORM_DEFAULTS, CONFIG_LAYERS } from "./lib/configResolution";
 import { internal } from "./_generated/api";
 
 export const createConfigurator = mutation({
@@ -249,6 +250,45 @@ export const rollbackToVersion = mutation({
       createdAt: Date.now(),
     });
     return { version: newVersion };
+  },
+});
+
+export const getEffectiveConfig = query({
+  args: { configuratorId: v.id("configurators") },
+  handler: async (ctx, args) => {
+    const configurator = await ctx.db.get(args.configuratorId);
+    if (!configurator) return null;
+    await requireMembership(ctx, configurator.tenantId);
+
+    const tenant = await ctx.db.get(configurator.tenantId);
+    if (!tenant) return null;
+    const branding = await ctx.db
+      .query("branding")
+      .withIndex("by_configurator", (q) => q.eq("configuratorId", args.configuratorId))
+      .unique();
+
+    const effective = resolveEffectiveConfig({
+      entitlements: resolveTenantEntitlements(tenant),
+      configurator: {
+        defaultLocale: configurator.defaultLocale,
+        defaultTheme: configurator.defaultTheme,
+        currency: configurator.currency,
+        vatRatePercent: configurator.vatRatePercent,
+        priceRoundingStep: configurator.priceRoundingStep,
+        showPricesToEndUser: configurator.showPricesToEndUser,
+      },
+      branding: branding
+        ? { whiteLabel: branding.whiteLabel, fontFamily: branding.fontFamily, colorAccent: branding.colorAccent }
+        : null,
+    });
+
+    return {
+      effective,
+      layers: CONFIG_LAYERS,
+      platformDefaults: PLATFORM_DEFAULTS,
+      plan: tenant.plan,
+      isAlpha: tenant.isAlpha,
+    };
   },
 });
 

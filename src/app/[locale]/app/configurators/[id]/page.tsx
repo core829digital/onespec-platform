@@ -10,15 +10,17 @@ import { GeneralTab } from "@/components/configurator/general-tab";
 import { CatalogTab } from "@/components/configurator/catalog-tab";
 import { BrandingTab } from "@/components/configurator/branding-tab";
 import { EmbedTab } from "@/components/configurator/embed-tab";
+import { ConfigTab } from "@/components/configurator/config-tab";
 import { cn } from "@/lib/utils";
 
-type Tab = "general" | "catalog" | "branding" | "embed" | "versions";
+type Tab = "general" | "catalog" | "branding" | "embed" | "config" | "versions";
 
 const TABS: Array<{ id: Tab; label: string }> = [
   { id: "general", label: "Generale" },
   { id: "catalog", label: "Catalogo e prezzi" },
   { id: "branding", label: "Branding" },
   { id: "embed", label: "Incorpora" },
+  { id: "config", label: "Config. effettiva" },
   { id: "versions", label: "Versioni" },
 ];
 
@@ -106,6 +108,7 @@ export default function ConfiguratorEditorPage({
           {tab === "embed" && (
             <EmbedTab publicId={cfg.publicId} status={cfg.status} origin={origin} />
           )}
+          {tab === "config" && <ConfigTab configuratorId={configuratorId} />}
           {tab === "versions" && <VersionsTab configuratorId={configuratorId} />}
         </div>
 
