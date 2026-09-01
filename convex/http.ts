@@ -2,6 +2,7 @@ import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
 import { api, internal } from "./_generated/api";
 import { auth } from "./auth";
+import { QuoteSubmissionSchema } from "../src/shared/widget-types";
 
 const http = httpRouter();
 
@@ -42,37 +43,6 @@ async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
   return data.success === true;
 }
 
-// Stripe webhook endpoint (called from Next.js API route)
-http.route({
-  path: "/api/stripe/webhook",
-  method: "POST",
-  handler: httpAction(async (ctx, req) => {
-    let raw: unknown;
-    try {
-      raw = await req.json();
-    } catch {
-      return json({ ok: false, error: "BAD_JSON" }, 400);
-    }
-
-    interface StripeWebhookPayload {
-  eventId: string;
-  type: string;
-  payload: Record<string, unknown>;
-}
-const { eventId, type, payload } = raw as StripeWebhookPayload;
-    if (!eventId || !type) return json({ ok: false, error: "INVALID_PAYLOAD" }, 400);
-
-    await ctx.runMutation(internal.subscriptions.handleStripeWebhook, {
-      eventId,
-      type,
-      payload,
-    });
-
-    return json({ ok: true });
-  }),
-});
-
-// Widget quote endpoint
 http.route({
   path: "/api/widget/quote",
   method: "OPTIONS",
@@ -115,6 +85,11 @@ http.route({
     });
     if (!configurator) return json({ ok: false, error: "NOT_FOUND" }, 404);
 
+    const configuratorId = await ctx.runQuery(api.widget.getConfiguratorIdByPublicId, {
+      publicId: body.publicId,
+    });
+    if (!configuratorId) return json({ ok: false, error: "NOT_FOUND" }, 404);
+
     // Turnstile (required only when a secret is configured).
     if (process.env.TURNSTILE_SECRET) {
       const ok = await verifyTurnstile(body.turnstileToken ?? "", ip);
@@ -124,30 +99,23 @@ http.route({
     // Rate limit (throws ConvexError("RATE_LIMITED") -> map to 429).
     try {
       await ctx.runMutation(internal.lib.ratelimit.checkAllRateLimits, {
-        configuratorId: configurator.catalogVersion
-          ? // getPublicConfigurator no longer returns _id; resolve via publicId
-            (await ctx.runQuery(api.widget.getConfiguratorIdByPublicId, {
-              publicId: body.publicId,
-            }))
-          : undefined,
+        configuratorId,
         ipHash,
       });
     } catch (e) {
-      if (String(e?.message ?? e).includes("RATE_LIMITED")) {
+      if (String(e instanceof Error ? e.message : e).includes("RATE_LIMITED")) {
         return json({ ok: false, error: "RATE_LIMITED" }, 429);
       }
       throw e;
     }
 
-    // Soft origin check.
-    const allowed = configurator.catalog?.configurator?.allowedOrigins;
+    // Soft origin check — a mismatched origin is flagged for review, not rejected.
+    const configuratorCfg = configurator.catalog?.configurator as
+      | { allowedOrigins?: string[] }
+      | undefined;
+    const allowed = configuratorCfg?.allowedOrigins;
     const flagged =
       Array.isArray(allowed) && allowed.length > 0 && !allowed.includes(origin);
-
-    const configuratorId = await ctx.runQuery(api.widget.getConfiguratorIdByPublicId, {
-      publicId: body.publicId,
-    });
-    if (!configuratorId) return json({ ok: false, error: "NOT_FOUND" }, 404);
 
     const referenceId = await ctx.runMutation(internal.widget.insertQuote, {
       publicId: body.publicId,
@@ -159,7 +127,7 @@ http.route({
       leadPhone: body.leadPhone,
       leadCompany: body.leadCompany,
       leadMessage: body.leadMessage,
-      leadLocale: body.leadLocale || configurator.defaultLocale,
+      leadLocale: body.leadLocale,
       clientReportedPriceCents: body.clientReportedPriceCents,
       sourceIpHash: ipHash,
       sourceOrigin: origin,
@@ -172,7 +140,8 @@ http.route({
   }),
 });
 
-// Import schema for quote validation
-import { QuoteSubmissionSchema } from "../src/shared/widget-types";
+// NOTE: a Resend delivery-tracking webhook is intentionally NOT mounted yet.
+// An endpoint that doesn't verify the Svix signature is worse than none; add it
+// back with `svix` verification when delivery status is actually needed.
 
 export default http;
