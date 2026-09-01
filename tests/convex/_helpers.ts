@@ -1,10 +1,10 @@
 import { convexTest } from "convex-test";
-import schema from "../schema";
-import type { Id } from "../_generated/dataModel";
+import schema from "../../convex/schema";
+import type { Id } from "../../convex/_generated/dataModel";
 
 // convex-test needs to see the function modules; import.meta.glob is provided by
 // Vitest. Passing the modules map avoids "module not found" in edge-runtime.
-const modules = import.meta.glob("../**/!(*.*.*)*.*s");
+const modules = import.meta.glob("../../convex/**/!(*.*.*)*.*s");
 
 export function newDb() {
   return convexTest(schema, modules);

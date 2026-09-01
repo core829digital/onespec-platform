@@ -1,13 +1,13 @@
 import { describe, expect, test } from "vitest";
-import { api } from "../_generated/api";
+import { api } from "../../convex/_generated/api";
 import {
   entitlementsFor,
   resolveTenantEntitlements,
   assertQuota,
   checkQuota,
-} from "../lib/entitlements";
+} from "../../convex/lib/entitlements";
 import { newDb, seedTenant } from "./_helpers";
-import type { Doc } from "../_generated/dataModel";
+import type { Doc } from "../../convex/_generated/dataModel";
 
 describe("entitlement matrix matches the verified pricing page", () => {
   test("starter", () => {

@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { api } from "../_generated/api";
+import { api } from "../../convex/_generated/api";
 import { newDb, seedTenant, seedPublishedConfigurator } from "./_helpers";
 
 describe("tenant isolation (BOLA / IDOR)", () => {
