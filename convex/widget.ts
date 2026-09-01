@@ -1,4 +1,4 @@
-import { query, internalMutation } from "./_generated/server";
+import { query, internalQuery, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 import { ConvexError } from "convex/values";
@@ -29,9 +29,10 @@ interface StoredPayload {
 
 /**
  * INTERNAL — resolve publicId to configuratorId for rate-limit bucket tracking
- * in the HTTP action.
+ * and the quote-insert path. Not public: the internal `_id` must never leak to
+ * an unauthenticated caller.
  */
-export const getConfiguratorIdByPublicId = query({
+export const getConfiguratorIdByPublicId = internalQuery({
   args: { publicId: v.string() },
   handler: async (ctx, args) => {
     const configurator = await ctx.db

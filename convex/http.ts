@@ -85,7 +85,7 @@ http.route({
     });
     if (!configurator) return json({ ok: false, error: "NOT_FOUND" }, 404);
 
-    const configuratorId = await ctx.runQuery(api.widget.getConfiguratorIdByPublicId, {
+    const configuratorId = await ctx.runQuery(internal.widget.getConfiguratorIdByPublicId, {
       publicId: body.publicId,
     });
     if (!configuratorId) return json({ ok: false, error: "NOT_FOUND" }, 404);

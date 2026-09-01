@@ -40,7 +40,7 @@ export const updateStatus = mutation({
       tenantId: quote.tenantId,
       type: "quote_status_changed",
       data: { quoteId: args.quoteId, oldStatus, newStatus: args.status, leadName: quote.leadName },
-      href: `/requests/${args.quoteId}`,
+      href: `/app/requests/${args.quoteId}`,
     });
 
     await ctx.db.insert("auditLog", {

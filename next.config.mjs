@@ -6,11 +6,13 @@ import createNextIntlPlugin from "next-intl/plugin";
 // on some machines. The ESM build of the plugin pulls no native binding.
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
-// The embeddable widget (/w/*) runs a strict CSP but must be framable anywhere.
+// The embeddable widget (/w/*) runs a strict CSP but must be framable.
+// `frame-ancestors *` here is a fallback; per-tenant origin allow-listing is
+// enforced at the request layer (see src/app/w/[publicId]). Do not narrow to a
+// single origin here — one build serves every tenant.
 // - font-src needs 'self' + data: because next/font self-hosts .woff2 under
 //   /_next/static/media and inlines some as data: URIs.
-// - Vercel Speed Insights injects /_vercel/... (same-origin = 'self') plus
-//   https://va.vercel-scripts.com; allow both so it does not get CSP-blocked.
+// - Vercel Speed Insights injects /_vercel/... (same-origin) + va.vercel-scripts.com.
 const WIDGET_CSP = [
   "frame-ancestors *",
   "default-src 'self'",
@@ -23,8 +25,26 @@ const WIDGET_CSP = [
   "form-action 'self'",
 ].join("; ");
 
+// Baseline hardening for the application (everything except /w/*).
+const APP_SECURITY_HEADERS = [
+  { key: "X-Frame-Options", value: "DENY" },
+  { key: "Content-Security-Policy", value: "frame-ancestors 'none';" },
+  { key: "X-Content-Type-Options", value: "nosniff" },
+  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+  {
+    key: "Permissions-Policy",
+    value: "camera=(), microphone=(), geolocation=(), browsing-topics=(), payment=()",
+  },
+  {
+    key: "Strict-Transport-Security",
+    value: "max-age=63072000; includeSubDomains; preload",
+  },
+  { key: "X-DNS-Prefetch-Control", value: "off" },
+];
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  poweredByHeader: false,
   async headers() {
     return [
       {
@@ -32,18 +52,15 @@ const nextConfig = {
         headers: [
           { key: "Content-Security-Policy", value: WIDGET_CSP },
           { key: "Cross-Origin-Resource-Policy", value: "cross-origin" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
         ],
       },
       {
-        // Everything EXCEPT the embeddable widget (/w/*). Without the negative
-        // lookahead this rule also matches /w/* and, being declared last, its
-        // frame-ancestors 'none' would override the widget's permissive CSP,
-        // making the widget un-embeddable.
+        // The negative lookahead keeps /w/* on its own permissive CSP; without
+        // it this rule (declared last) would win and break embedding.
         source: "/((?!w/).*)",
-        headers: [
-          { key: "X-Frame-Options", value: "DENY" },
-          { key: "Content-Security-Policy", value: "frame-ancestors 'none';" },
-        ],
+        headers: APP_SECURITY_HEADERS,
       },
     ];
   },
