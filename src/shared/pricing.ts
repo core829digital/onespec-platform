@@ -76,7 +76,7 @@ export interface CatalogPayload {
     enabled: boolean;
   }>;
   hardware: Array<{
-    kind: "hardware" | "hardwareColor" | "sashType" | "screen" | "threshold" | "misc";
+    kind: "hardware" | "hardwareColor" | "sashType" | "screen" | "screenColor" | "installation" | "threshold" | "misc";
     key: string;
     labels: Record<string, string>;
     priceCents: number;
@@ -105,6 +105,9 @@ export interface ProjectItem {
   glazing: string;
   color: string;
   insectScreen: boolean;
+  insectScreenType?: string;
+  insectScreenColor?: string;
+  installation?: string;
 }
 
 export interface ItemBreakdown {
@@ -220,10 +223,16 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
       : 0;
 
     const screenCost = item.insectScreen
-      ? (getHardwareOption(payload, "screen", "insectScreen")?.priceCents || 0)
+      ? (getHardwareOption(payload, "screen", item.insectScreenType ?? "")?.priceCents || 0) +
+        (getHardwareOption(payload, "screenColor", item.insectScreenColor ?? "")?.priceCents || 0)
       : 0;
 
-    const optionsCost = sashCost + hardwareCost + thresholdCost + (glazing?.priceCents || 0) + (finish?.priceCents || 0) + screenCost;
+    const installationCost =
+      getHardwareOption(payload, "installation", item.installation ?? "")?.priceCents || 0;
+
+    const optionsCost =
+      sashCost + hardwareCost + thresholdCost + installationCost +
+      (glazing?.priceCents || 0) + (finish?.priceCents || 0) + screenCost;
 
     const unitPrice = materialCost + profileCost + optionsCost;
     const itemTotal = unitPrice * item.quantity;

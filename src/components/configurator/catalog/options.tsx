@@ -151,7 +151,9 @@ const HARDWARE_KINDS: Array<{ kind: string; title: string }> = [
   { kind: "sashType", title: "Tipi di anta" },
   { kind: "hardware", title: "Ferramenta" },
   { kind: "hardwareColor", title: "Colore ferramenta" },
-  { kind: "screen", title: "Zanzariere" },
+  { kind: "screen", title: "Zanzariere (tipi)" },
+  { kind: "screenColor", title: "Colore zanzariera" },
+  { kind: "installation", title: "Montaggio / posa" },
   { kind: "threshold", title: "Soglie" },
   { kind: "misc", title: "Accessori" },
 ];

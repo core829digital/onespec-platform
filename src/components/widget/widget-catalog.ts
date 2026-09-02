@@ -76,6 +76,8 @@ export interface WidgetOptions {
   hardware: [string, string][];
   hardwareColor: [string, string][];
   screenTypes: [string, string][];
+  screenColors: [string, string][];
+  installations: [string, string][];
 }
 
 const SWATCH: Record<Material, string> = {
@@ -132,6 +134,8 @@ export function catalogOptions(
     hardware: pairsFrom(hw("hardware"), locale) ?? dict.hardwareBrands,
     hardwareColor: pairsFrom(hw("hardwareColor"), locale) ?? dict.hardwareColors,
     screenTypes: pairsFrom(hw("screen"), locale) ?? dict.insectScreenTypes,
+    screenColors: pairsFrom(hw("screenColor"), locale) ?? dict.insectScreenColors,
+    installations: pairsFrom(hw("installation"), locale) ?? dict.installationOptions,
   };
 }
 
@@ -182,6 +186,10 @@ export function catalogPricing(cat: WidgetCatalog | undefined): Pricing {
   if (hardwareColor) p.hardwareColor = hardwareColor;
   const screen = hw("screen");
   if (screen) p.insectScreenType = { ...p.insectScreenType, ...screen };
+  const screenColor = hw("screenColor");
+  if (screenColor) p.insectScreenColor = { ...p.insectScreenColor, ...screenColor };
+  const installation = hw("installation");
+  if (installation) p.installation = { ...p.installation, ...installation };
 
   const threshold = cat.hardware?.find((h) => h.kind === "threshold" && enabled(h));
   if (threshold) p.balconyDoorThreshold = cents(threshold.priceCents, p.balconyDoorThreshold);

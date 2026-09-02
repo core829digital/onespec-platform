@@ -67,7 +67,7 @@ const DEFAULT_FINISH = [
 ];
 
 const DEFAULT_HARDWARE: Array<{
-  kind: "hardware" | "hardwareColor" | "sashType" | "screen" | "threshold" | "misc";
+  kind: "hardware" | "hardwareColor" | "sashType" | "screen" | "screenColor" | "installation" | "threshold" | "misc";
   key: string;
   labels: { it: string; en: string; fr: string };
   priceCents: number;
@@ -85,7 +85,15 @@ const DEFAULT_HARDWARE: Array<{
   { kind: "sashType", key: "classic", labels: { it: "Classica", en: "Classic", fr: "Classique" }, priceCents: 3500, appliesToOperableOnly: true, sortOrder: 1, enabled: true },
   { kind: "sashType", key: "tiltturn", labels: { it: "Vasistas/Battente", en: "Tilt & Turn", fr: "Oscillo-battant" }, priceCents: 6500, appliesToOperableOnly: true, sortOrder: 2, enabled: true },
   { kind: "sashType", key: "sliding", labels: { it: "Scorrevole", en: "Sliding", fr: "Coulissant" }, priceCents: 8500, appliesToOperableOnly: true, sortOrder: 3, enabled: true },
-  { kind: "screen", key: "insectScreen", labels: { it: "Zanzariera", en: "Insect screen", fr: "Moustiquaire" }, priceCents: 4500, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
+  { kind: "screen", key: "cerniera", labels: { it: "Zanzariera a cerniera", en: "Hinged screen", fr: "Moustiquaire à charnière" }, priceCents: 4500, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
+  { kind: "screen", key: "molla", labels: { it: "Zanzariera a molla", en: "Roller screen", fr: "Moustiquaire à ressort" }, priceCents: 6500, appliesToOperableOnly: true, sortOrder: 1, enabled: true },
+  { kind: "screen", key: "plissettata", labels: { it: "Zanzariera plissettata", en: "Pleated screen", fr: "Moustiquaire plissée" }, priceCents: 8500, appliesToOperableOnly: true, sortOrder: 2, enabled: true },
+  { kind: "screen", key: "carrarmato", labels: { it: "Zanzariera carrarmato", en: "Reinforced screen", fr: "Moustiquaire renforcée" }, priceCents: 12000, appliesToOperableOnly: true, sortOrder: 3, enabled: true },
+  { kind: "screenColor", key: "white", labels: { it: "Bianco", en: "White", fr: "Blanc" }, priceCents: 0, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
+  { kind: "screenColor", key: "brown", labels: { it: "Marrone", en: "Brown", fr: "Marron" }, priceCents: 1000, appliesToOperableOnly: true, sortOrder: 1, enabled: true },
+  { kind: "screenColor", key: "woodeffect", labels: { it: "Effetto legno", en: "Wood effect", fr: "Effet bois" }, priceCents: 2000, appliesToOperableOnly: true, sortOrder: 2, enabled: true },
+  { kind: "installation", key: "classico", labels: { it: "Montaggio classico", en: "Standard installation", fr: "Pose standard" }, priceCents: 8000, appliesToOperableOnly: false, sortOrder: 0, enabled: true },
+  { kind: "installation", key: "posaClima", labels: { it: "Montaggio posa clima", en: "Certified (posa clima) installation", fr: "Pose certifiée" }, priceCents: 15000, appliesToOperableOnly: false, sortOrder: 1, enabled: true },
   { kind: "threshold", key: "balconyDoorThreshold", labels: { it: "Soglia balcone", en: "Balcony threshold", fr: "Seuil balcon" }, priceCents: 6500, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
 ];
 
@@ -253,7 +261,7 @@ export const upsertFinishOption = mutation({
 });
 
 export const upsertHardwareOption = mutation({
-  args: { configuratorId: v.id("configurators"), kind: v.union(v.literal("hardware"), v.literal("hardwareColor"), v.literal("sashType"), v.literal("screen"), v.literal("threshold"), v.literal("misc")), key: v.string(), labels: v.any(), priceCents: v.number(), appliesToOperableOnly: v.boolean(), sortOrder: v.number(), enabled: v.boolean() },
+  args: { configuratorId: v.id("configurators"), kind: v.union(v.literal("hardware"), v.literal("hardwareColor"), v.literal("sashType"), v.literal("screen"), v.literal("screenColor"), v.literal("installation"), v.literal("threshold"), v.literal("misc")), key: v.string(), labels: v.any(), priceCents: v.number(), appliesToOperableOnly: v.boolean(), sortOrder: v.number(), enabled: v.boolean() },
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");

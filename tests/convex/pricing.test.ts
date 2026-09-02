@@ -24,6 +24,9 @@ const catalog: CatalogPayload = {
     { kind: "sashType", key: "tiltturn", labels: { it: "AR" }, priceCents: 6500, appliesToOperableOnly: true, sortOrder: 1, enabled: true },
     { kind: "hardware", key: "maco", labels: { it: "Maco" }, priceCents: 0, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
     { kind: "hardwareColor", key: "white", labels: { it: "Bianco" }, priceCents: 0, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
+    { kind: "screen", key: "molla", labels: { it: "Molla" }, priceCents: 6500, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
+    { kind: "screenColor", key: "brown", labels: { it: "Marrone" }, priceCents: 1000, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
+    { kind: "installation", key: "posaClima", labels: { it: "Posa clima" }, priceCents: 15000, appliesToOperableOnly: false, sortOrder: 0, enabled: true },
   ],
 } as unknown as CatalogPayload;
 
@@ -45,6 +48,21 @@ describe("calculatePrice (server-authoritative)", () => {
       ProjectItemSchema.parse({ ...sampleItem, profileSystem: "premium" }),
     ]);
     expect(premium.priceCents).toBe(std.priceCents + 15120);
+  });
+
+  test("screen type + colour + installation add to the options cost", () => {
+    const base = calculatePrice(catalog, [ProjectItemSchema.parse(sampleItem)]);
+    const withOpts = calculatePrice(catalog, [
+      ProjectItemSchema.parse({
+        ...sampleItem,
+        insectScreen: true,
+        insectScreenType: "molla",
+        insectScreenColor: "brown",
+        installation: "posaClima",
+      }),
+    ]);
+    // 6500 (molla) + 1000 (brown) + 15000 (posaClima) = 22500
+    expect(withOpts.priceCents).toBe(base.priceCents + 22500);
   });
 
   test("quantity multiplies the unit price", () => {

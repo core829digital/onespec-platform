@@ -304,6 +304,9 @@ export function Widget({
       glazing: it.glazing,
       color: it.color,
       insectScreen: it.insectScreen,
+      insectScreenType: it.insectScreen ? it.insectScreenType : undefined,
+      insectScreenColor: it.insectScreen ? it.insectScreenColor : undefined,
+      installation: it.installation,
     };
   }
 
@@ -571,7 +574,7 @@ export function Widget({
 
           <Field label={dict.installationLabel}>
             <select style={s.select} value={state.installation} onChange={(e) => set({ installation: e.target.value })}>
-              {dict.installationOptions.map(([k, v]) => (
+              {options.installations.map(([k, v]) => (
                 <option key={k} value={k}>
                   {v}
                 </option>
@@ -597,7 +600,7 @@ export function Widget({
                 </Field>
                 <Field label={dict.insectScreenColorLabel}>
                   <select style={s.select} value={state.insectScreenColor} onChange={(e) => set({ insectScreenColor: e.target.value })}>
-                    {dict.insectScreenColors.map(([k, v]) => (
+                    {options.screenColors.map(([k, v]) => (
                       <option key={k} value={k}>
                         {v}
                       </option>
