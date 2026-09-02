@@ -181,18 +181,32 @@ export const applyWebhookEvent = internalMutation({
     if (seen) return { duplicate: true };
 
     const obj = (args.data?.object ?? {}) as Record<string, unknown>;
-    let tenantId: string | undefined =
+    const claimedTenantId =
       (obj.client_reference_id as string | undefined) ??
       ((obj.metadata as Record<string, string> | undefined)?.tenantId);
 
-    // Resolve by customer id if the event lacks metadata.
+    // Resolve the tenant. A forged (but signed) event could carry a bogus
+    // client_reference_id, so we only trust it when it maps to a real tenant
+    // whose stripe customer matches — otherwise fall back to the customer id.
     const customerId = obj.customer as string | undefined;
-    if (!tenantId && customerId) {
-      const t = await ctx.db
-        .query("tenants")
-        .withIndex("by_stripeCustomer", (q) => q.eq("stripeCustomerId", customerId))
-        .first();
-      tenantId = t?._id;
+    let tenantId: string | undefined;
+
+    const byCustomer = customerId
+      ? await ctx.db
+          .query("tenants")
+          .withIndex("by_stripeCustomer", (q) => q.eq("stripeCustomerId", customerId))
+          .first()
+      : null;
+
+    if (byCustomer) {
+      tenantId = byCustomer._id;
+    } else if (claimedTenantId) {
+      const claimed = ctx.db.normalizeId("tenants", claimedTenantId);
+      if (claimed) {
+        const t = await ctx.db.get(claimed);
+        // First subscription for this tenant: no customer id stored yet.
+        if (t && (!t.stripeCustomerId || t.stripeCustomerId === customerId)) tenantId = t._id;
+      }
     }
 
     if (tenantId) {
