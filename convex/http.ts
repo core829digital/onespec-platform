@@ -3,6 +3,7 @@ import { httpAction } from "./_generated/server";
 import { api, internal } from "./_generated/api";
 import { auth } from "./auth";
 import { QuoteSubmissionSchema } from "../src/shared/widget-types";
+import { verifyStripeSignature } from "./billing";
 
 const http = httpRouter();
 
@@ -143,5 +144,45 @@ http.route({
 // NOTE: a Resend delivery-tracking webhook is intentionally NOT mounted yet.
 // An endpoint that doesn't verify the Svix signature is worse than none; add it
 // back with `svix` verification when delivery status is actually needed.
+
+// Stripe webhook — dormant until STRIPE_WEBHOOK_SECRET is set.
+http.route({
+  path: "/api/stripe/webhook",
+  method: "POST",
+  handler: httpAction(async (ctx, req) => {
+    const secret = process.env.STRIPE_WEBHOOK_SECRET ?? "";
+    if (!secret) return new Response("billing not configured", { status: 503 });
+
+    const raw = await req.text();
+    const ok = await verifyStripeSignature(raw, req.headers.get("stripe-signature"), secret);
+    if (!ok) return new Response("bad signature", { status: 400 });
+
+    let event: { id?: string; type?: string; data?: unknown };
+    try {
+      event = JSON.parse(raw);
+    } catch {
+      return new Response("bad payload", { status: 400 });
+    }
+    if (!event.id || !event.type) return new Response("bad event", { status: 400 });
+
+    const HANDLED = [
+      "checkout.session.completed",
+      "customer.subscription.created",
+      "customer.subscription.updated",
+      "customer.subscription.deleted",
+    ];
+    if (HANDLED.includes(event.type)) {
+      await ctx.runMutation(internal.billing.applyWebhookEvent, {
+        eventId: event.id,
+        type: event.type,
+        data: event.data,
+      });
+    }
+    return new Response(JSON.stringify({ received: true }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }),
+});
 
 export default http;

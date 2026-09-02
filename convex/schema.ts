@@ -34,10 +34,25 @@ export default defineSchema({
     createdAt: v.optional(v.number()),
     updatedAt: v.optional(v.number()),
     updatedByUserId: v.optional(v.id("users")),
+    // Billing — populated only once Stripe is configured and a subscription exists.
+    stripeCustomerId: v.optional(v.string()),
+    stripeSubscriptionId: v.optional(v.string()),
+    subscriptionCurrentPeriodEnd: v.optional(v.number()),
+    subscriptionCancelAtPeriodEnd: v.optional(v.boolean()),
   })
     .index("by_slug", ["slug"])
     .index("by_owner", ["ownerUserId"])
-    .index("by_alphaSeatNumber", ["alphaSeatNumber"]),
+    .index("by_alphaSeatNumber", ["alphaSeatNumber"])
+    .index("by_stripeCustomer", ["stripeCustomerId"]),
+
+  /** Stripe webhook events — idempotency guard + billing audit trail. */
+  billingEvents: defineTable({
+    stripeEventId: v.string(),
+    type: v.string(),
+    tenantId: v.optional(v.id("tenants")),
+    payloadSummary: v.optional(v.any()),
+    receivedAt: v.number(),
+  }).index("by_event", ["stripeEventId"]),
 
   memberships: defineTable({
     tenantId: v.id("tenants"),

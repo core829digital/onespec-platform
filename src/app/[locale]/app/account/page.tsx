@@ -276,6 +276,9 @@ export default function AccountPage() {
         <Link href="/app/account/team" className="text-sm text-[var(--color-mint)] hover:underline">
           Team
         </Link>
+        <Link href="/app/account/billing" className="text-sm text-[var(--color-mint)] hover:underline">
+          Piano e fatturazione
+        </Link>
         {profile.alpha.verified ? (
           <Link href="/app/account/badge" className="text-sm text-[var(--color-mint)] hover:underline">
             Badge Alpha
