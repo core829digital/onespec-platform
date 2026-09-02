@@ -35,6 +35,10 @@ interface WidgetProps {
     currency?: string;
     vatRatePercent?: number;
     showPricesToEndUser?: boolean;
+    ecobonusEnabled?: boolean;
+    ecobonusMaxPercent?: number;
+    discountEnabled?: boolean;
+    discountMaxPercent?: number;
     branding?: {
       colorAccent?: string;
       colorAccentInk?: string | null;
@@ -103,6 +107,10 @@ export function Widget({
   }, [catalog, vatPct]);
 
   const showPrices = configurator.showPricesToEndUser !== false;
+  const ecobonusEnabled = configurator.ecobonusEnabled !== false;
+  const ecobonusMax = clamp(configurator.ecobonusMaxPercent ?? 50, 0, 100);
+  const discountEnabled = configurator.discountEnabled === true;
+  const discountMax = clamp(configurator.discountMaxPercent ?? 20, 0, 100);
 
   // Host-page theme pushed via postMessage after mount (see the embed snippet).
   const [hostTheme, setHostTheme] = useState<HostTheme>({});
@@ -702,32 +710,38 @@ export function Widget({
 
             {showPrices && (
               <>
-                <button
-                  type="button"
-                  onClick={() => setEcobonusOpen((o) => !o)}
-                  style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "var(--color-mint-light)", border: "none", borderRadius: 999, padding: "8px 16px", margin: "10px 0 4px", cursor: "pointer", fontWeight: 800, fontStyle: "italic", fontSize: 15, color: accent }}
-                >
-                  {dict.ecobonusToggle}
-                </button>
-                {ecobonusOpen && (
-                  <div style={{ padding: "10px 12px 4px", marginBottom: 8, borderLeft: `3px solid ${accent}`, background: "var(--color-mint-light)" }}>
-                    <Field label={dict.ecobonusPercentLabel}>
-                      <input
-                        style={s.input}
-                        type="number"
-                        min={0}
-                        max={100}
-                        value={ecobonusPct}
-                        onChange={(e) => setEcobonusPct(clamp(parseFloat(e.target.value) || 0, 0, 100))}
-                      />
-                    </Field>
-                  </div>
+                {ecobonusEnabled && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setEcobonusOpen((o) => !o)}
+                      style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "var(--color-mint-light)", border: "none", borderRadius: 999, padding: "8px 16px", margin: "10px 0 4px", cursor: "pointer", fontWeight: 800, fontStyle: "italic", fontSize: 15, color: accent }}
+                    >
+                      {dict.ecobonusToggle}
+                    </button>
+                    {ecobonusOpen && (
+                      <div style={{ padding: "10px 12px 4px", marginBottom: 8, borderLeft: `3px solid ${accent}`, background: "var(--color-mint-light)" }}>
+                        <Field label={dict.ecobonusPercentLabel}>
+                          <input
+                            style={s.input}
+                            type="number"
+                            min={0}
+                            max={ecobonusMax}
+                            value={ecobonusPct}
+                            onChange={(e) => setEcobonusPct(clamp(parseFloat(e.target.value) || 0, 0, ecobonusMax))}
+                          />
+                        </Field>
+                      </div>
+                    )}
+                  </>
                 )}
 
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: 10, padding: "8px 0" }}>
-                  <label style={{ fontSize: 12.5, fontWeight: 800, color: "var(--color-text)", letterSpacing: ".03em", textTransform: "uppercase" }}>{dict.discountLabel}</label>
-                  <input style={{ ...s.input, width: 84, textAlign: "right" }} type="number" min={0} max={100} value={discountPct} onChange={(e) => setDiscountPct(clamp(parseFloat(e.target.value) || 0, 0, 100))} />
-                </div>
+                {discountEnabled && (
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: 10, padding: "8px 0" }}>
+                    <label style={{ fontSize: 12.5, fontWeight: 800, color: "var(--color-text)", letterSpacing: ".03em", textTransform: "uppercase" }}>{dict.discountLabel}</label>
+                    <input style={{ ...s.input, width: 84, textAlign: "right" }} type="number" min={0} max={discountMax} value={discountPct} onChange={(e) => setDiscountPct(clamp(parseFloat(e.target.value) || 0, 0, discountMax))} />
+                  </div>
+                )}
 
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: "8px 0" }}>
                   <label style={{ fontSize: 12.5, fontWeight: 800, color: "var(--color-text)", letterSpacing: ".03em", textTransform: "uppercase" }}>{dict.vatPercentLabel}</label>

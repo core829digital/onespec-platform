@@ -44,6 +44,10 @@ export const createConfigurator = mutation({
       priceRoundingStep: 1,
       showPricesToEndUser: true,
       currency: "EUR",
+      ecobonusEnabled: true,
+      ecobonusMaxPercent: 50,
+      discountEnabled: false,
+      discountMaxPercent: 20,
     });
 
     await ctx.db.insert("branding", {
@@ -91,6 +95,10 @@ export const updateConfigurator = mutation({
     vatRatePercent: v.optional(v.number()),
     priceRoundingStep: v.optional(v.number()),
     showPricesToEndUser: v.optional(v.boolean()),
+    ecobonusEnabled: v.optional(v.boolean()),
+    ecobonusMaxPercent: v.optional(v.number()),
+    discountEnabled: v.optional(v.boolean()),
+    discountMaxPercent: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
@@ -105,6 +113,12 @@ export const updateConfigurator = mutation({
     if (args.vatRatePercent !== undefined) update.vatRatePercent = args.vatRatePercent;
     if (args.priceRoundingStep !== undefined) update.priceRoundingStep = args.priceRoundingStep;
     if (args.showPricesToEndUser !== undefined) update.showPricesToEndUser = args.showPricesToEndUser;
+    if (args.ecobonusEnabled !== undefined) update.ecobonusEnabled = args.ecobonusEnabled;
+    if (args.ecobonusMaxPercent !== undefined)
+      update.ecobonusMaxPercent = Math.max(0, Math.min(100, args.ecobonusMaxPercent));
+    if (args.discountEnabled !== undefined) update.discountEnabled = args.discountEnabled;
+    if (args.discountMaxPercent !== undefined)
+      update.discountMaxPercent = Math.max(0, Math.min(100, args.discountMaxPercent));
 
     await ctx.db.patch(args.configuratorId, update);
   },
@@ -140,6 +154,10 @@ export const publishConfigurator = mutation({
         priceRoundingStep: configurator.priceRoundingStep,
         showPricesToEndUser: configurator.showPricesToEndUser,
         currency: configurator.currency,
+        ecobonusEnabled: configurator.ecobonusEnabled,
+        ecobonusMaxPercent: configurator.ecobonusMaxPercent,
+        discountEnabled: configurator.discountEnabled,
+        discountMaxPercent: configurator.discountMaxPercent,
       },
       branding,
       materials,

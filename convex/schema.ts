@@ -112,6 +112,11 @@ export default defineSchema({
     priceRoundingStep: v.number(),
     showPricesToEndUser: v.boolean(),
     currency: v.literal("EUR"),
+    /** Incentive policy shown in the widget — dealer-controlled, not end-user. */
+    ecobonusEnabled: v.optional(v.boolean()),
+    ecobonusMaxPercent: v.optional(v.number()),
+    discountEnabled: v.optional(v.boolean()),
+    discountMaxPercent: v.optional(v.number()),
     publishedAt: v.optional(v.number()),
     publishedCatalogVersion: v.optional(v.number()),
     createdAt: v.optional(v.number()),

@@ -14,6 +14,10 @@ interface Configurator {
   priceRoundingStep: number;
   showPricesToEndUser: boolean;
   allowedOrigins: string[];
+  ecobonusEnabled?: boolean;
+  ecobonusMaxPercent?: number;
+  discountEnabled?: boolean;
+  discountMaxPercent?: number;
 }
 
 const LOCALES = ["it", "en", "fr"];
@@ -43,6 +47,10 @@ export function GeneralTab({
   const [vat, setVat] = useState(String(configurator.vatRatePercent));
   const [rounding, setRounding] = useState(String(configurator.priceRoundingStep));
   const [showPrices, setShowPrices] = useState(configurator.showPricesToEndUser);
+  const [ecoEnabled, setEcoEnabled] = useState(configurator.ecobonusEnabled !== false);
+  const [ecoMax, setEcoMax] = useState(String(configurator.ecobonusMaxPercent ?? 50));
+  const [discEnabled, setDiscEnabled] = useState(configurator.discountEnabled === true);
+  const [discMax, setDiscMax] = useState(String(configurator.discountMaxPercent ?? 20));
   const [origins, setOrigins] = useState<string[]>(configurator.allowedOrigins);
   const [originDraft, setOriginDraft] = useState("");
 
@@ -89,6 +97,10 @@ export function GeneralTab({
         priceRoundingStep: roundN,
         showPricesToEndUser: showPrices,
         allowedOrigins: origins,
+        ecobonusEnabled: ecoEnabled,
+        ecobonusMaxPercent: Math.max(0, Math.min(100, parseFloat(ecoMax) || 0)),
+        discountEnabled: discEnabled,
+        discountMaxPercent: Math.max(0, Math.min(100, parseFloat(discMax) || 0)),
       });
       setMsg({ kind: "ok", text: "Impostazioni salvate." });
     } catch (e) {
@@ -153,6 +165,32 @@ export function GeneralTab({
           onChange={setShowPrices}
           label="Mostra il prezzo indicativo all'utente finale nel widget"
         />
+      </Section>
+
+      <Section
+        title="Incentivi"
+        description="Politica di ecobonus e sconto mostrata nel widget. La decidi tu, non l'utente finale."
+      >
+        <Toggle
+          checked={ecoEnabled}
+          onChange={setEcoEnabled}
+          label="Mostra la stima Ecobonus nel widget"
+        />
+        {ecoEnabled ? (
+          <Field label="Percentuale Ecobonus massima" hint="Limite che l'utente può selezionare (es. 50).">
+            <NumberInput value={ecoMax} onChange={(e) => setEcoMax(e.target.value)} step="1" min={0} max={100} />
+          </Field>
+        ) : null}
+        <Toggle
+          checked={discEnabled}
+          onChange={setDiscEnabled}
+          label="Consenti l'inserimento di uno sconto nel widget"
+        />
+        {discEnabled ? (
+          <Field label="Sconto massimo %" hint="Limite dello sconto inseribile nel widget.">
+            <NumberInput value={discMax} onChange={(e) => setDiscMax(e.target.value)} step="1" min={0} max={100} />
+          </Field>
+        ) : null}
       </Section>
 
       <Section
