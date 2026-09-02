@@ -111,6 +111,9 @@ export async function seedPublishedConfigurator(t: T, tenantId: Id<"tenants">, p
           { kind: "sashType", key: "tiltturn", labels: { it: "AR" }, priceCents: 6500, appliesToOperableOnly: true, sortOrder: 1, enabled: true },
           { kind: "hardware", key: "maco", labels: { it: "Maco" }, priceCents: 0, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
           { kind: "hardwareColor", key: "white", labels: { it: "Bianco" }, priceCents: 0, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
+          { kind: "screen", key: "molla", labels: { it: "Molla" }, priceCents: 6500, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
+          { kind: "screenColor", key: "brown", labels: { it: "Marrone" }, priceCents: 1000, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
+          { kind: "installation", key: "posaClima", labels: { it: "Posa clima" }, priceCents: 15000, appliesToOperableOnly: false, sortOrder: 0, enabled: true },
         ],
       },
     });
