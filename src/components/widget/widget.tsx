@@ -5,9 +5,9 @@ import { SpecDrawing } from "./spec-drawing";
 import { getDict, LOCALE_CFG, labelFromList } from "./widget-i18n";
 import { readableInk, isSafeColor, resolveFontStack } from "./widget-theme";
 import { postToHost, readHostTheme } from "./host-bridge";
+import { catalogOptions, catalogPricing, type WidgetCatalog, type WidgetOptions } from "./widget-catalog";
 import {
   defaultConfig,
-  defaultPricing,
   defaultSashPreset,
   defaultDimsForType,
   calculate,
@@ -43,6 +43,8 @@ interface WidgetProps {
       logoUrl?: string | null;
       logoLightUrl?: string | null;
     };
+    /** Sanitized catalogue snapshot — drives option lists and preview pricing. */
+    catalog?: WidgetCatalog | null;
   };
   theme: string;
   lang: string;
@@ -85,13 +87,20 @@ export function Widget({
     typeof configurator.vatRatePercent === "number" ? configurator.vatRatePercent : 22;
   const [vatPct, setVatPct] = useState(initialVat);
 
-  // Pricing catalogue for the LIVE PREVIEW. The authoritative price is always
-  // recomputed on the server; VAT is the one field the visitor can tweak.
+  // Option lists + price table for the LIVE PREVIEW, built from the tenant's
+  // published catalogue (falling back to prototype defaults for any dimension
+  // the catalogue doesn't define). The authoritative price is always recomputed
+  // on the server; VAT is the one field the visitor can tweak.
+  const catalog = configurator.catalog ?? undefined;
+  const options = useMemo(
+    () => catalogOptions(catalog, dict, cfg.locale),
+    [catalog, dict, cfg.locale],
+  );
   const pricing = useMemo(() => {
-    const p = defaultPricing();
+    const p = catalogPricing(catalog);
     p.vatRate = vatPct;
     return p;
-  }, [vatPct]);
+  }, [catalog, vatPct]);
 
   const showPrices = configurator.showPricesToEndUser !== false;
 
@@ -353,11 +362,7 @@ export function Widget({
     );
   }
 
-  const materialTabs: { key: Material; label: string; swatch: string }[] = [
-    { key: "pvc", label: dict.materialPVC, swatch: "#DCEAF0" },
-    { key: "wood", label: dict.materialWood, swatch: "#F1E4D2" },
-    { key: "aluminum", label: dict.materialAluminum, swatch: "#E6E9EA" },
-  ];
+  const materialTabs = options.materials;
 
   const hasBrand = state.material === "pvc" || state.material === "aluminum";
 
@@ -429,7 +434,7 @@ export function Widget({
 
           <Field label={dict.qualityLabel}>
             <select style={s.select} value={state.quality[state.material]} onChange={(e) => set({ quality: { ...state.quality, [state.material]: e.target.value } })}>
-              {dict.quality[state.material].map(([k, v]) => (
+              {options.quality[state.material].map(([k, v]) => (
                 <option key={k} value={k}>
                   {v}
                 </option>
@@ -535,7 +540,7 @@ export function Widget({
                       <span>{isActive ? dict.sashActiveOn : dict.sashActiveOff}</span>
                     </label>
                   </div>
-                  <SashFields dict={dict} sash={sash} disabled={!isActive} onChange={(patch) => setSash(i, patch)} styles={s} />
+                  <SashFields dict={dict} options={options} sash={sash} disabled={!isActive} onChange={(patch) => setSash(i, patch)} styles={s} />
                 </div>
               );
             })}
@@ -543,7 +548,7 @@ export function Widget({
 
           <Field label={dict.glazingLabel} mt>
             <select style={s.select} value={state.glazing} onChange={(e) => set({ glazing: e.target.value })}>
-              {dict.glazing.map(([k, v]) => (
+              {options.glazing.map(([k, v]) => (
                 <option key={k} value={k}>
                   {v}
                 </option>
@@ -553,7 +558,7 @@ export function Widget({
 
           <Field label={dict.colorLabel}>
             <select style={s.select} value={state.color} onChange={(e) => set({ color: e.target.value })}>
-              {dict.color.map(([k, v]) => (
+              {options.color.map(([k, v]) => (
                 <option key={k} value={k}>
                   {v}
                 </option>
@@ -580,7 +585,7 @@ export function Widget({
               <div style={{ ...s.row, marginTop: 10 }}>
                 <Field label={dict.insectScreenTypeLabel}>
                   <select style={s.select} value={state.insectScreenType} onChange={(e) => set({ insectScreenType: e.target.value })}>
-                    {dict.insectScreenTypes.map(([k, v]) => (
+                    {options.screenTypes.map(([k, v]) => (
                       <option key={k} value={k}>
                         {v}
                       </option>
@@ -631,6 +636,7 @@ export function Widget({
                 </div>
                 <SashFields
                   dict={dict}
+                  options={options}
                   sash={state.sashes[selectedSash]}
                   disabled={state.sashes[selectedSash].active === false}
                   onChange={(patch) => setSash(selectedSash, patch)}
@@ -828,12 +834,14 @@ function SumRow({ k, v, s }: { k: string; v: string; s: typeof STYLES }) {
 
 function SashFields({
   dict,
+  options,
   sash,
   disabled,
   onChange,
   styles,
 }: {
   dict: ReturnType<typeof getDict>;
+  options: WidgetOptions;
   sash: Sash;
   disabled: boolean;
   onChange: (patch: Partial<Sash>) => void;
@@ -846,7 +854,7 @@ function SashFields({
       <div style={styles.row}>
         <MiniField label={dict.openingTypeLabel}>
           <select style={styles.select} value={sash.type} disabled={disabled} onChange={(e) => onChange({ type: e.target.value as SashType })}>
-            {dict.sashTypes.map(([k, v]) => (
+            {options.sashTypes.map(([k, v]) => (
               <option key={k} value={k}>
                 {v}
               </option>
@@ -866,7 +874,7 @@ function SashFields({
       <div style={styles.row}>
         <MiniField label={dict.hardwareLabel}>
           <select style={styles.select} value={sash.hardware} disabled={hwDisabled} onChange={(e) => onChange({ hardware: e.target.value })}>
-            {dict.hardwareBrands.map(([k, v]) => (
+            {options.hardware.map(([k, v]) => (
               <option key={k} value={k}>
                 {v}
               </option>
@@ -875,7 +883,7 @@ function SashFields({
         </MiniField>
         <MiniField label={dict.hardwareColorLabel}>
           <select style={styles.select} value={sash.hardwareColor} disabled={hwDisabled} onChange={(e) => onChange({ hardwareColor: e.target.value })}>
-            {dict.hardwareColors.map(([k, v]) => (
+            {options.hardwareColor.map(([k, v]) => (
               <option key={k} value={k}>
                 {v}
               </option>
