@@ -14,7 +14,7 @@
     "shadcn:add": "npx shadcn@latest add"
   },
   "dependencies": {
-    "@auth/core": "^0.41.1",
+    "@auth/core": "^0.41.3",
     "@convex-dev/auth": "^0.0.95",
     "@hookform/resolvers": "^3.9.1",
     "@phosphor-icons/react": "^2.1.10",
