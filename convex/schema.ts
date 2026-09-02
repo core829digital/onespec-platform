@@ -277,6 +277,26 @@ export default defineSchema({
     .index("by_user_unread", ["userId", "readAt"])
     .index("by_tenant", ["tenantId"]),
 
+  /** Catalog CSV imports — keeps a pre-import snapshot so an import can be undone. */
+  catalogImports: defineTable({
+    tenantId: v.id("tenants"),
+    configuratorId: v.id("configurators"),
+    target: v.union(
+      v.literal("materials"),
+      v.literal("glazing"),
+      v.literal("finish"),
+      v.literal("hardware"),
+    ),
+    importedByUserId: v.id("users"),
+    importedAt: v.number(),
+    summary: v.object({ created: v.number(), updated: v.number(), rejected: v.number() }),
+    /** Full rows of the target table as they were immediately before the import. */
+    snapshot: v.any(),
+    undone: v.boolean(),
+    undoneAt: v.optional(v.number()),
+  })
+    .index("by_configurator", ["configuratorId"]),
+
   /** GDPR — pending account-deletion requests (soft, with a grace window). */
   deletionRequests: defineTable({
     userId: v.id("users"),
