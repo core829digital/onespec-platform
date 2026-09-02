@@ -289,6 +289,8 @@ export function Widget({
       productType: it.productType,
       material: it.material,
       quality: it.quality,
+      profileSystem:
+        it.material === "pvc" || it.material === "aluminum" ? it.brand[it.material] : undefined,
       width: Math.round(it.width),
       height: Math.round(it.height),
       quantity: it.quantity,
@@ -364,7 +366,8 @@ export function Widget({
 
   const materialTabs = options.materials;
 
-  const hasBrand = state.material === "pvc" || state.material === "aluminum";
+  const brandOptions = options.profileSystems[state.material] ?? [];
+  const hasBrand = (state.material === "pvc" || state.material === "aluminum") && brandOptions.length > 0;
 
   return (
     <div style={s.wrap}>
@@ -449,7 +452,7 @@ export function Widget({
                 value={state.brand[state.material as "pvc" | "aluminum"]}
                 onChange={(e) => set({ brand: { ...state.brand, [state.material]: e.target.value } })}
               >
-                {dict.brands[state.material].map(([k, v]) => (
+                {brandOptions.map(([k, v]) => (
                   <option key={k} value={k}>
                     {v}
                   </option>

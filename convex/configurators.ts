@@ -117,9 +117,10 @@ export const publishConfigurator = mutation({
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
     const { membership } = await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
 
-    const [materials, qualityTiers, sizeConstraints, glazing, finish, hardware, branding] = await Promise.all([
+    const [materials, qualityTiers, profileSystems, sizeConstraints, glazing, finish, hardware, branding] = await Promise.all([
       ctx.db.query("catalogMaterials").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
       ctx.db.query("catalogQualityTiers").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
+      ctx.db.query("catalogProfileSystems").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
       ctx.db.query("catalogSizeConstraints").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
       ctx.db.query("catalogGlazingOptions").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
       ctx.db.query("catalogFinishOptions").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
@@ -143,6 +144,7 @@ export const publishConfigurator = mutation({
       branding,
       materials,
       qualityTiers,
+      profileSystems,
       sizeConstraints,
       glazing,
       finish,
@@ -299,9 +301,10 @@ export const getEditorState = query({
     if (!configurator) return null;
     await requireMembership(ctx, configurator.tenantId);
 
-    const [materials, qualityTiers, sizeConstraints, glazing, finish, hardware, branding] = await Promise.all([
+    const [materials, qualityTiers, profileSystems, sizeConstraints, glazing, finish, hardware, branding] = await Promise.all([
       ctx.db.query("catalogMaterials").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
       ctx.db.query("catalogQualityTiers").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
+      ctx.db.query("catalogProfileSystems").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
       ctx.db.query("catalogSizeConstraints").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
       ctx.db.query("catalogGlazingOptions").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
       ctx.db.query("catalogFinishOptions").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
@@ -309,6 +312,6 @@ export const getEditorState = query({
       ctx.db.query("branding").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).unique(),
     ]);
 
-    return { configurator, materials, qualityTiers, sizeConstraints, glazing, finish, hardware, branding };
+    return { configurator, materials, qualityTiers, profileSystems, sizeConstraints, glazing, finish, hardware, branding };
   },
 });

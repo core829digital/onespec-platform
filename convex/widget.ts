@@ -22,6 +22,7 @@ interface StoredPayload {
   branding?: (Record<string, unknown> & Partial<Doc<"branding">>) | null;
   materials?: WithSystemFields[];
   qualityTiers?: WithSystemFields[];
+  profileSystems?: WithSystemFields[];
   sizeConstraints?: WithSystemFields[];
   glazing?: WithSystemFields[];
   finish?: WithSystemFields[];
@@ -113,6 +114,7 @@ function sanitizePayload(payload: StoredPayload | null | undefined): CatalogPayl
       : null,
     materials: arr(payload.materials),
     qualityTiers: arr(payload.qualityTiers),
+    profileSystems: arr(payload.profileSystems),
     sizeConstraints: arr(payload.sizeConstraints),
     glazing: arr(payload.glazing),
     finish: arr(payload.finish),
@@ -224,10 +226,11 @@ export const getConfiguratorForPreview = query({
       return null;
     }
 
-    const [materials, qualityTiers, sizeConstraints, glazing, finish, hardware, branding] =
+    const [materials, qualityTiers, profileSystems, sizeConstraints, glazing, finish, hardware, branding] =
       await Promise.all([
         ctx.db.query("catalogMaterials").withIndex("by_configurator", (q) => q.eq("configuratorId", configurator._id)).collect(),
         ctx.db.query("catalogQualityTiers").withIndex("by_configurator", (q) => q.eq("configuratorId", configurator._id)).collect(),
+        ctx.db.query("catalogProfileSystems").withIndex("by_configurator", (q) => q.eq("configuratorId", configurator._id)).collect(),
         ctx.db.query("catalogSizeConstraints").withIndex("by_configurator", (q) => q.eq("configuratorId", configurator._id)).collect(),
         ctx.db.query("catalogGlazingOptions").withIndex("by_configurator", (q) => q.eq("configuratorId", configurator._id)).collect(),
         ctx.db.query("catalogFinishOptions").withIndex("by_configurator", (q) => q.eq("configuratorId", configurator._id)).collect(),
@@ -254,6 +257,7 @@ export const getConfiguratorForPreview = query({
       branding,
       materials,
       qualityTiers,
+      profileSystems,
       sizeConstraints,
       glazing,
       finish,

@@ -10,6 +10,7 @@ export const ProjectItemSchema = z
     productType: z.enum(["window", "balconyDoor"]),
     material: z.string().min(1).max(40),
     quality: z.record(z.string().max(40)),
+    profileSystem: z.string().max(40).optional(),
     width: z.number().int().min(200).max(DIM_ABS_MAX),
     height: z.number().int().min(200).max(DIM_ABS_MAX),
     quantity: z.number().int().positive().max(50),

@@ -2,12 +2,13 @@
 
 import type { Id } from "@/convex/_generated/dataModel";
 import { CatalogEditorProvider, useCatalogEditor } from "./catalog/store";
-import { MaterialsSection, QualitySection } from "./catalog/materials";
+import { MaterialsSection, QualitySection, ProfileSystemsSection } from "./catalog/materials";
 import { GlazingSection, FinishSection, HardwareSection, SizeSection } from "./catalog/options";
 
 interface EditorState {
   materials: Array<Record<string, unknown>>;
   qualityTiers: Array<Record<string, unknown>>;
+  profileSystems: Array<Record<string, unknown>>;
   sizeConstraints: Array<Record<string, unknown>>;
   glazing: Array<Record<string, unknown>>;
   finish: Array<Record<string, unknown>>;
@@ -41,6 +42,7 @@ export function CatalogTab({
         </p>
         <MaterialsSection materials={state.materials} />
         <QualitySection materials={state.materials} qualityTiers={state.qualityTiers} />
+        <ProfileSystemsSection materials={state.materials} profileSystems={state.profileSystems} />
         <GlazingSection rows={state.glazing} />
         <FinishSection rows={state.finish} />
         <HardwareSection hardware={state.hardware} />

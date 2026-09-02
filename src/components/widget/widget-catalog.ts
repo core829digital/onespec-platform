@@ -33,6 +33,7 @@ interface HardwareRow extends Row {
 export interface WidgetCatalog {
   materials?: MaterialRow[];
   qualityTiers?: QualityRow[];
+  profileSystems?: QualityRow[];
   glazing?: Row[];
   finish?: Row[];
   hardware?: HardwareRow[];
@@ -67,6 +68,8 @@ function pairsFrom(rows: Row[] | undefined, locale: string): [string, string][] 
 export interface WidgetOptions {
   materials: { key: Material; label: string; swatch: string }[];
   quality: Record<string, [string, string][]>;
+  /** profile system / brand pairs per canonical material key ("pvc" | "aluminum") */
+  profileSystems: Record<string, [string, string][]>;
   glazing: [string, string][];
   color: [string, string][];
   sashTypes: [string, string][];
@@ -109,9 +112,12 @@ export function catalogOptions(
         ];
 
   const quality: Record<string, [string, string][]> = {};
+  const profileSystems: Record<string, [string, string][]> = {};
   for (const m of CANONICAL_MATERIALS) {
     const tiers = cat?.qualityTiers?.filter((q) => q.materialKey === m);
     quality[m] = pairsFrom(tiers, locale) ?? dict.quality[m] ?? [];
+    const systems = cat?.profileSystems?.filter((p) => p.materialKey === m);
+    profileSystems[m] = pairsFrom(systems, locale) ?? dict.brands[m] ?? [];
   }
 
   return {
@@ -119,6 +125,7 @@ export function catalogOptions(
       { key: "pvc", label: dict.materialPVC, swatch: SWATCH.pvc },
     ],
     quality,
+    profileSystems,
     glazing: pairsFrom(cat?.glazing, locale) ?? dict.glazing,
     color: pairsFrom(cat?.finish, locale) ?? dict.color,
     sashTypes: pairsFrom(hw("sashType"), locale) ?? dict.sashTypes,
@@ -147,6 +154,12 @@ export function catalogPricing(cat: WidgetCatalog | undefined): Pricing {
       p.materials[key].qualities = Object.fromEntries(
         tiers.map((t) => [t.key, t.multiplier]),
       );
+    }
+    if (key === "pvc" || key === "aluminum") {
+      const systems = cat.profileSystems?.filter((s) => s.materialKey === key && enabled(s));
+      if (systems && systems.length > 0) {
+        p.brandMultiplier[key] = Object.fromEntries(systems.map((s) => [s.key, s.multiplier]));
+      }
     }
   }
 

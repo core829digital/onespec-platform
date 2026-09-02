@@ -18,6 +18,24 @@ const DEFAULT_QUALITIES = {
              { key: "thermalbreak", labels: { it: "Taglio termico", en: "Thermal break", fr: "Rupture de pont thermique" }, multiplier: 1.25, uAdjust: -0.5, sortOrder: 1, enabled: true }],
 };
 
+const DEFAULT_PROFILE_SYSTEMS: Record<string, Array<{ key: string; labels: { it: string; en: string; fr: string }; multiplier: number; sortOrder: number; enabled: boolean }>> = {
+  pvc: [
+    { key: "standard", labels: { it: "Standard", en: "Standard", fr: "Standard" }, multiplier: 1.0, sortOrder: 0, enabled: true },
+    { key: "aluplast", labels: { it: "Aluplast", en: "Aluplast", fr: "Aluplast" }, multiplier: 1.0, sortOrder: 1, enabled: true },
+    { key: "rehau", labels: { it: "Rehau", en: "Rehau", fr: "Rehau" }, multiplier: 1.08, sortOrder: 2, enabled: true },
+    { key: "kommerling", labels: { it: "Kömmerling", en: "Kömmerling", fr: "Kömmerling" }, multiplier: 1.1, sortOrder: 3, enabled: true },
+    { key: "deceuninck", labels: { it: "Deceuninck", en: "Deceuninck", fr: "Deceuninck" }, multiplier: 1.06, sortOrder: 4, enabled: true },
+    { key: "salamander", labels: { it: "Salamander", en: "Salamander", fr: "Salamander" }, multiplier: 1.05, sortOrder: 5, enabled: true },
+  ],
+  aluminum: [
+    { key: "standard", labels: { it: "Standard", en: "Standard", fr: "Standard" }, multiplier: 1.0, sortOrder: 0, enabled: true },
+    { key: "schuco", labels: { it: "Schüco", en: "Schüco", fr: "Schüco" }, multiplier: 1.15, sortOrder: 1, enabled: true },
+    { key: "reynaers", labels: { it: "Reynaers", en: "Reynaers", fr: "Reynaers" }, multiplier: 1.12, sortOrder: 2, enabled: true },
+    { key: "aluprof", labels: { it: "Aluprof", en: "Aluprof", fr: "Aluprof" }, multiplier: 1.0, sortOrder: 3, enabled: true },
+    { key: "cortizo", labels: { it: "Cortizo", en: "Cortizo", fr: "Cortizo" }, multiplier: 1.08, sortOrder: 4, enabled: true },
+  ],
+};
+
 const DEFAULT_SIZES: Array<{
   productType: "window" | "balconyDoor";
   sashCount: number;
@@ -80,6 +98,11 @@ export const seedDefaultCatalog = internalMutation({
     for (const [materialKey, qualities] of Object.entries(DEFAULT_QUALITIES)) {
       for (const q of qualities) {
         await ctx.db.insert("catalogQualityTiers", { ...q, tenantId: args.tenantId, configuratorId: args.configuratorId, materialKey });
+      }
+    }
+    for (const [materialKey, systems] of Object.entries(DEFAULT_PROFILE_SYSTEMS)) {
+      for (const p of systems) {
+        await ctx.db.insert("catalogProfileSystems", { ...p, tenantId: args.tenantId, configuratorId: args.configuratorId, materialKey });
       }
     }
     for (const s of DEFAULT_SIZES) {
@@ -149,6 +172,34 @@ export const deleteQualityTier = mutation({
     await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
 
     const existing = await ctx.db.query("catalogQualityTiers").withIndex("by_configurator_material", q => q.eq("configuratorId", args.configuratorId).eq("materialKey", args.materialKey)).filter(q => q.eq(q.field("key"), args.key)).unique();
+    if (existing) await ctx.db.delete(existing._id);
+  },
+});
+
+export const upsertProfileSystem = mutation({
+  args: { configuratorId: v.id("configurators"), materialKey: v.string(), key: v.string(), labels: v.any(), multiplier: v.number(), sortOrder: v.number(), enabled: v.boolean() },
+  handler: async (ctx, args) => {
+    const configurator = await ctx.db.get(args.configuratorId);
+    if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
+    await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
+
+    const existing = await ctx.db.query("catalogProfileSystems").withIndex("by_configurator_material", q => q.eq("configuratorId", args.configuratorId).eq("materialKey", args.materialKey)).filter(q => q.eq(q.field("key"), args.key)).unique();
+    if (existing) {
+      await ctx.db.patch(existing._id, args);
+    } else {
+      await ctx.db.insert("catalogProfileSystems", { ...args, tenantId: configurator.tenantId });
+    }
+  },
+});
+
+export const deleteProfileSystem = mutation({
+  args: { configuratorId: v.id("configurators"), materialKey: v.string(), key: v.string() },
+  handler: async (ctx, args) => {
+    const configurator = await ctx.db.get(args.configuratorId);
+    if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
+    await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
+
+    const existing = await ctx.db.query("catalogProfileSystems").withIndex("by_configurator_material", q => q.eq("configuratorId", args.configuratorId).eq("materialKey", args.materialKey)).filter(q => q.eq(q.field("key"), args.key)).unique();
     if (existing) await ctx.db.delete(existing._id);
   },
 });
@@ -223,14 +274,15 @@ export const getWorkingCatalog = query({
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) return null;
     await requireMembership(ctx, configurator.tenantId);
-    const [materials, qualityTiers, sizeConstraints, glazing, finish, hardware] = await Promise.all([
+    const [materials, qualityTiers, profileSystems, sizeConstraints, glazing, finish, hardware] = await Promise.all([
       ctx.db.query("catalogMaterials").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
       ctx.db.query("catalogQualityTiers").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
+      ctx.db.query("catalogProfileSystems").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
       ctx.db.query("catalogSizeConstraints").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
       ctx.db.query("catalogGlazingOptions").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
       ctx.db.query("catalogFinishOptions").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
       ctx.db.query("catalogHardwareOptions").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
     ]);
-    return { materials, qualityTiers, sizeConstraints, glazing, finish, hardware };
+    return { materials, qualityTiers, profileSystems, sizeConstraints, glazing, finish, hardware };
   },
 });

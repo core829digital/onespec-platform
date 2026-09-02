@@ -174,6 +174,20 @@ export default defineSchema({
     .index("by_configurator", ["configuratorId"])
     .index("by_configurator_material", ["configuratorId", "materialKey"]),
 
+  /** Profile systems / brands per material (Aluplast, Rehau, …) with a price multiplier. */
+  catalogProfileSystems: defineTable({
+    tenantId: v.id("tenants"),
+    configuratorId: v.id("configurators"),
+    materialKey: v.string(),
+    key: v.string(),
+    labels: v.any(),
+    multiplier: v.number(),
+    sortOrder: v.number(),
+    enabled: v.boolean(),
+  })
+    .index("by_configurator", ["configuratorId"])
+    .index("by_configurator_material", ["configuratorId", "materialKey"]),
+
   catalogSizeConstraints: defineTable({
     tenantId: v.id("tenants"),
     configuratorId: v.id("configurators"),

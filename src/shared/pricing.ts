@@ -43,6 +43,14 @@ export interface CatalogPayload {
     sortOrder: number;
     enabled: boolean;
   }>;
+  profileSystems?: Array<{
+    materialKey: string;
+    key: string;
+    labels: Record<string, string>;
+    multiplier: number;
+    sortOrder: number;
+    enabled: boolean;
+  }>;
   sizeConstraints: Array<{
     productType: "window" | "balconyDoor";
     sashCount: number;
@@ -82,6 +90,8 @@ export interface ProjectItem {
   productType: "window" | "balconyDoor";
   material: string;
   quality: Record<string, string>;
+  /** Profile system / brand key for this item's material (optional). */
+  profileSystem?: string;
   width: number;
   height: number;
   quantity: number;
@@ -127,6 +137,14 @@ function getMaterialConfig(payload: CatalogPayload, materialKey: string) {
 
 function getQualityTier(payload: CatalogPayload, materialKey: string, qualityKey: string) {
   return payload.qualityTiers.find(q => q.materialKey === materialKey && q.key === qualityKey && q.enabled);
+}
+
+function getProfileMultiplier(payload: CatalogPayload, materialKey: string, key: string | undefined) {
+  if (!key || !payload.profileSystems) return 1;
+  const found = payload.profileSystems.find(
+    p => p.materialKey === materialKey && p.key === key && p.enabled,
+  );
+  return found ? found.multiplier : 1;
 }
 
 function getGlazingOption(payload: CatalogPayload, key: string) {
@@ -179,7 +197,8 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
     const areaM2 = widthM * heightM;
     const perimeterM = 2 * (widthM + heightM);
 
-    const materialCost = Math.round(material.basePerM2Cents * quality.multiplier * areaM2);
+    const profileMult = getProfileMultiplier(payload, item.material, item.profileSystem);
+    const materialCost = Math.round(material.basePerM2Cents * quality.multiplier * profileMult * areaM2);
     const profileCost = Math.round(material.profilePerMlCents * perimeterM);
 
     let sashCost = 0;

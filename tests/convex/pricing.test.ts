@@ -12,6 +12,10 @@ const catalog: CatalogPayload = {
   qualityTiers: [
     { materialKey: "pvc", key: "chamber5", labels: { it: "5" }, multiplier: 1, sortOrder: 0, enabled: true },
   ],
+  profileSystems: [
+    { materialKey: "pvc", key: "standard", labels: { it: "Standard" }, multiplier: 1, sortOrder: 0, enabled: true },
+    { materialKey: "pvc", key: "premium", labels: { it: "Premium" }, multiplier: 1.5, sortOrder: 1, enabled: true },
+  ],
   sizeConstraints: [],
   glazing: [{ key: "double", labels: { it: "Doppio" }, priceCents: 0, sortOrder: 0, enabled: true }],
   finish: [{ key: "white", labels: { it: "Bianco" }, priceCents: 0, sortOrder: 0, enabled: true }],
@@ -32,6 +36,15 @@ describe("calculatePrice (server-authoritative)", () => {
     expect(r.priceExVatCents).toBe(Math.round(51300 / 1.22));
     expect(r.vatRatePercent).toBe(22);
     expect(r.totalPrice).toBe(r.priceCents);
+  });
+
+  test("profile system multiplier scales only the material cost", () => {
+    // base material cost = 1.68 * 18000 = 30240 ; * 1.5 = 45360 (+15120)
+    const std = calculatePrice(catalog, [ProjectItemSchema.parse(sampleItem)]);
+    const premium = calculatePrice(catalog, [
+      ProjectItemSchema.parse({ ...sampleItem, profileSystem: "premium" }),
+    ]);
+    expect(premium.priceCents).toBe(std.priceCents + 15120);
   });
 
   test("quantity multiplies the unit price", () => {
