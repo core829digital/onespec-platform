@@ -1,11 +1,18 @@
 import type { Metadata } from "next";
 import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
 
 const geistSans = Geist({ subsets: ["latin"], variable: "--font-geist-sans", display: "swap" });
 const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap" });
+// Display face for the auth scene — the same face the end customer meets in the
+// embeddable widget, set expanded + tracked like a drawing titleblock.
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space-grotesk",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "onespec — Il configuratore di infissi per il tuo sito",
@@ -17,7 +24,11 @@ const THEME_INIT = `try{var t=localStorage.getItem('onespec-theme');if(t==='ligh
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="it" suppressHydrationWarning className={`${geistSans.variable} ${geistMono.variable}`}>
+    <html
+      lang="it"
+      suppressHydrationWarning
+      className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable}`}
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME_INIT }} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />

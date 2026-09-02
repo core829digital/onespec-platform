@@ -150,6 +150,158 @@ button,
   text-wrap: balance;
 }
 
+/* ------------------------------------------------------------------ *
+ *  Auth scene — "one drawing, two media".
+ *  Dark  = blueprint (cold ink, cyan graph grid, cyan-white lines).
+ *  Light = carta millimetrata (warm drafting white, graphite lines).
+ *  Scoped to .auth-scene so it never leaks into the app or the widget.
+ * ------------------------------------------------------------------ */
+.auth-scene {
+  --auth-bg: #0b1013;
+  --auth-panel: #0e1519;
+  --auth-line: #4c6a72;
+  --auth-line-dim: #29393f;
+  --auth-live: #16d19d;
+  --auth-grid-minor: rgba(126, 166, 176, 0.05);
+  --auth-grid-major: rgba(126, 166, 176, 0.1);
+  --auth-text: #eef1f2;
+  --auth-text-dim: #8fa0a4;
+
+  background-color: var(--auth-bg);
+  color: var(--auth-text);
+  background-image:
+    linear-gradient(var(--auth-grid-minor) 1px, transparent 1px),
+    linear-gradient(90deg, var(--auth-grid-minor) 1px, transparent 1px),
+    linear-gradient(var(--auth-grid-major) 1px, transparent 1px),
+    linear-gradient(90deg, var(--auth-grid-major) 1px, transparent 1px);
+  background-size:
+    16px 16px,
+    16px 16px,
+    96px 96px,
+    96px 96px;
+}
+
+:root[data-theme="light"] .auth-scene {
+  --auth-bg: #f5f4ee;
+  --auth-panel: #ffffff;
+  --auth-line: #8a9498;
+  --auth-line-dim: #c9ccc2;
+  --auth-live: #0fbf8f;
+  --auth-grid-minor: rgba(30, 80, 90, 0.06);
+  --auth-grid-major: rgba(30, 80, 90, 0.11);
+  --auth-text: #16201f;
+  --auth-text-dim: #5c6b6a;
+}
+
+.auth-titleblock {
+  font-family: var(--font-space-grotesk), "Segoe UI", system-ui, sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.auth-data {
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- self-drawing elevation --- */
+.auth-draw path,
+.auth-draw line,
+.auth-draw polyline {
+  stroke-dasharray: var(--len, 400);
+  stroke-dashoffset: var(--len, 400);
+  animation: auth-draw 0.9s var(--ease-out-apple, ease) forwards;
+  animation-delay: var(--delay, 0s);
+}
+
+.auth-fade {
+  opacity: 0;
+  animation: auth-fade-up 0.5s ease forwards;
+  animation-delay: var(--delay, 0s);
+}
+
+/* the signature: mm measurement resolves into a price */
+.auth-morph-mm {
+  animation: auth-morph-out 0.45s ease forwards;
+  animation-delay: 2.15s;
+}
+.auth-morph-eur {
+  opacity: 0;
+  animation: auth-morph-in 0.5s var(--ease-out-apple, ease) forwards;
+  animation-delay: 2.35s;
+}
+.auth-live-stroke {
+  stroke: var(--auth-line-dim);
+  stroke-dasharray: var(--len, 400);
+  stroke-dashoffset: var(--len, 400);
+  animation:
+    auth-draw 0.9s var(--ease-out-apple, ease) 0.15s forwards,
+    auth-go-live 0.6s ease 2.4s forwards;
+}
+
+@keyframes auth-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes auth-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes auth-morph-out {
+  to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+@keyframes auth-morph-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes auth-go-live {
+  to {
+    stroke: var(--auth-live);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-draw path,
+  .auth-draw line,
+  .auth-draw polyline {
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+  .auth-fade {
+    opacity: 1;
+    animation: none;
+  }
+  .auth-morph-mm {
+    display: none;
+    animation: none;
+  }
+  .auth-morph-eur {
+    opacity: 1;
+    animation: none;
+  }
+  .auth-live-stroke {
+    stroke: var(--auth-live);
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+}
+
 /* Logo: due varianti PNG, la giusta e mostrata via CSS in base al tema */
 .logo-dark {
   display: block;
