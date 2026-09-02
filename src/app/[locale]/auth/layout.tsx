@@ -20,6 +20,20 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <p className="mt-6 text-center text-[var(--color-text-secondary)] text-sm">
           {t("footer")}
         </p>
+        <nav className="mt-3 flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-[var(--color-text-secondary)]">
+          <Link href="/legal/privacy" className="hover:text-[var(--color-text)]">
+            Privacy
+          </Link>
+          <Link href="/legal/termini-di-servizio" className="hover:text-[var(--color-text)]">
+            Termini di servizio
+          </Link>
+          <Link href="/legal/cookie" className="hover:text-[var(--color-text)]">
+            Cookie
+          </Link>
+          <Link href="/legal" className="hover:text-[var(--color-text)]">
+            Tutti i documenti
+          </Link>
+        </nav>
       </div>
     </div>
   );
