@@ -277,6 +277,27 @@ export default defineSchema({
     .index("by_user_unread", ["userId", "readAt"])
     .index("by_tenant", ["tenantId"]),
 
+  /** GDPR — pending account-deletion requests (soft, with a grace window). */
+  deletionRequests: defineTable({
+    userId: v.id("users"),
+    email: v.string(),
+    reason: v.optional(v.string()),
+    status: v.union(v.literal("pending"), v.literal("cancelled"), v.literal("completed")),
+    requestedAt: v.number(),
+    scheduledFor: v.number(),
+    resolvedAt: v.optional(v.number()),
+  })
+    .index("by_user", ["userId"])
+    .index("by_status", ["status"]),
+
+  /** GDPR — explicit, revocable consents, kept separate from auth + prefs. */
+  userConsents: defineTable({
+    userId: v.id("users"),
+    productUpdates: v.boolean(),
+    marketing: v.boolean(),
+    updatedAt: v.number(),
+  }).index("by_user", ["userId"]),
+
   /** Per-user notification channel preferences. Absent row = everything on. */
   notificationPrefs: defineTable({
     userId: v.id("users"),
