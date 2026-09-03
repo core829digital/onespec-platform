@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useAuthActions } from "@convex-dev/auth/react";
@@ -9,9 +10,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
+function safeRedirect(v: string | null): string {
+  return v && v.startsWith("/") && !v.startsWith("//") ? v : "/app/dashboard";
+}
+
 export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
+  );
+}
+
+function LoginForm() {
   const t = useTranslations("auth.login");
   const router = useRouter();
+  const redirect = safeRedirect(useSearchParams().get("redirect"));
   const { signIn } = useAuthActions();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -24,7 +38,7 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await signIn("password", { email, password, flow: "signIn" });
-      router.push("/app/dashboard");
+      router.push(redirect);
     } catch (err) {
       setError(err instanceof Error && err.message ? err.message : t("error"));
     } finally {
@@ -84,7 +98,13 @@ export default function LoginPage() {
       </Button>
 
       <p className="text-center text-sm text-[var(--color-text-secondary)]">
-        {t("noAccount")} <Link href="/auth/register" className="text-[var(--color-mint)] hover:underline">{t("registerLink")}</Link>
+        {t("noAccount")}{" "}
+        <Link
+          href={redirect === "/app/dashboard" ? "/auth/register" : `/auth/register?redirect=${encodeURIComponent(redirect)}`}
+          className="text-[var(--color-mint)] hover:underline"
+        >
+          {t("registerLink")}
+        </Link>
       </p>
       <p className="text-center text-sm text-[var(--color-text-secondary)]">
         <Link href="/auth/forgot-password" className="text-[var(--color-mint)] hover:underline">{t("forgotPassword")}</Link>

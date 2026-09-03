@@ -9,6 +9,7 @@ const TEMPLATE = v.union(
   v.literal("welcome_alpha"),
   v.literal("welcome"),
   v.literal("new_quote_request"),
+  v.literal("invitation"),
   v.literal("admin_resend"),
 );
 

@@ -15,6 +15,9 @@ function VerifyContent() {
   const searchParams = useSearchParams();
   const { signIn } = useAuthActions();
   const email = searchParams.get("email") || "";
+  const rawRedirect = searchParams.get("redirect");
+  const redirect =
+    rawRedirect && rawRedirect.startsWith("/") && !rawRedirect.startsWith("//") ? rawRedirect : null;
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -25,7 +28,7 @@ function VerifyContent() {
     setLoading(true);
     try {
       await signIn("password", { email, code, flow: "email-verification" });
-      router.push("/auth/onboarding");
+      router.push(redirect ?? "/auth/onboarding");
     } catch (err) {
       setError(err instanceof Error && err.message ? err.message : t("error"));
     } finally {

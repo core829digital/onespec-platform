@@ -23,6 +23,9 @@ export interface AuthEmailData {
   version?: number;
   message?: string;
   href?: string;
+  inviterName?: string;
+  role?: string;
+  acceptUrl?: string;
 }
 
 function siteUrl() {
@@ -116,6 +119,24 @@ export function renderAuthEmail(template: string, locale: string, data: AuthEmai
            ${cta(`${base}/app/requests/${data.quoteId}`, it ? "Apri in dashboard" : "Open in dashboard")}`,
         ),
         text: `${it ? "Nuova richiesta preventivo" : "New quote request"}: ${data.leadName} (${data.leadEmail}) — €${((data.priceCents ?? 0) / 100).toFixed(2)}\n${base}/app/requests/${data.quoteId}`,
+      };
+
+    case "invitation":
+      return {
+        subject: it
+          ? `Invito a collaborare su onespec — ${data.companyName ?? ""}`
+          : `You've been invited to onespec — ${data.companyName ?? ""}`,
+        html: shell(
+          `<h1 style="font-size:22px;font-weight:600;margin:0 0 12px">${it ? "Invito a collaborare" : "Team invitation"}</h1>
+           <p style="color:#9a9aa0;line-height:1.6">${
+             it
+               ? `${data.inviterName ?? "Un collega"} ti ha invitato a lavorare su <strong>${data.companyName ?? "un'azienda"}</strong> in onespec come <strong>${data.role ?? "membro"}</strong>.`
+               : `${data.inviterName ?? "A colleague"} invited you to work on <strong>${data.companyName ?? "a company"}</strong> in onespec as <strong>${data.role ?? "member"}</strong>.`
+           }</p>
+           ${cta(data.acceptUrl ?? base, it ? "Accetta l'invito" : "Accept invitation")}
+           <p style="color:#6e6e73;font-size:13px;margin-top:14px">${it ? "L'invito scade tra 7 giorni." : "This invitation expires in 7 days."}</p>`,
+        ),
+        text: `${it ? "Sei stato invitato a onespec" : "You've been invited to onespec"}: ${data.companyName ?? ""}\n${data.acceptUrl ?? base}`,
       };
 
     case "admin_resend":

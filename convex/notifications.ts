@@ -153,6 +153,7 @@ const EMAIL_TEMPLATE = v.union(
   v.literal("welcome"),
   v.literal("welcome_alpha"),
   v.literal("new_quote_request"),
+  v.literal("invitation"),
   v.literal("admin_resend"),
 );
 type NotifType =

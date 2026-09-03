@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useAuthActions } from "@convex-dev/auth/react";
@@ -10,8 +11,18 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export default function RegisterPage() {
+  return (
+    <Suspense fallback={null}>
+      <RegisterForm />
+    </Suspense>
+  );
+}
+
+function RegisterForm() {
   const t = useTranslations("auth.register");
   const router = useRouter();
+  const rawRedirect = useSearchParams().get("redirect");
+  const redirect = rawRedirect && rawRedirect.startsWith("/") && !rawRedirect.startsWith("//") ? rawRedirect : null;
   const { signIn } = useAuthActions();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -30,7 +41,9 @@ export default function RegisterPage() {
     setLoading(true);
     try {
       await signIn("password", { name, email, password, flow: "signUp" });
-      router.push(`/auth/verify?email=${encodeURIComponent(email)}`);
+      const q = new URLSearchParams({ email });
+      if (redirect) q.set("redirect", redirect);
+      router.push(`/auth/verify?${q.toString()}`);
     } catch (err) {
       setError(err instanceof Error && err.message ? err.message : t("error"));
     } finally {
