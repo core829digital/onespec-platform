@@ -8,8 +8,10 @@ import { Link } from "@/i18n/navigation";
 import { StatCard } from "@/components/app-shell/stat-card";
 import { EmptyState } from "@/components/app-shell/empty-state";
 import { RangeSwitcher, RANGE_LABEL, type AnalyticsRange } from "@/components/analytics/range-switcher";
+import { Eye, FileText, Percent, Trophy, Calculator } from "lucide-react";
 
 const pct = (n: number) => `${(n * 100).toFixed(1)}%`;
+const rel = (cur: number, prev: number) => (prev > 0 ? (cur - prev) / prev : undefined);
 
 export default function DashboardPage() {
   const t = useTranslations("dashboard");
@@ -43,17 +45,29 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
         <StatCard
+          icon={Eye}
           label={t("widgetViews")}
           value={overview ? `${overview.widgetViewsApprox ? "~" : ""}${overview.widgetViews}` : undefined}
         />
-        <StatCard label={t("totalRequests")} value={overview ? String(overview.totalRequests) : undefined} />
         <StatCard
+          icon={FileText}
+          label={t("totalRequests")}
+          value={overview ? String(overview.totalRequests) : undefined}
+          delta={overview ? rel(overview.totalRequests, overview.previous.totalRequests) : undefined}
+        />
+        <StatCard
+          icon={Percent}
           label={t("visitorConversion")}
           value={overview ? pct(overview.visitorConversionRate) : undefined}
           accent
         />
-        <StatCard label={t("wonValue")} value={overview ? money(overview.wonValueCents) : undefined} />
-        <StatCard label={t("avgValue")} value={overview ? money(overview.avgDealCents) : undefined} />
+        <StatCard
+          icon={Trophy}
+          label={t("wonValue")}
+          value={overview ? money(overview.wonValueCents) : undefined}
+          delta={overview ? rel(overview.wonValueCents, overview.previous.wonValueCents) : undefined}
+        />
+        <StatCard icon={Calculator} label={t("avgValue")} value={overview ? money(overview.avgDealCents) : undefined} />
       </div>
 
       <section className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl">

@@ -150,6 +150,23 @@ button,
   text-wrap: balance;
 }
 
+/* Consistent keyboard focus for interactive elements across the app. */
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-mint);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+button:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
 /* ------------------------------------------------------------------ *
  *  Auth scene — "one drawing, two media".
  *  Dark  = blueprint (cold ink, cyan graph grid, cyan-white lines).

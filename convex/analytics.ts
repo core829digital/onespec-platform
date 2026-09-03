@@ -69,6 +69,18 @@ export const getOverview = query({
 
     const inWindow = all.filter((r) => r._creationTime >= cutoff);
 
+    // Immediately-preceding window of the same length, for period-over-period deltas.
+    const prevStart = cutoff - spec.windowMs;
+    const prevWindow = all.filter((r) => r._creationTime >= prevStart && r._creationTime < cutoff);
+    const prevReal = prevWindow.filter((r) => r.status !== "spam");
+    const prevWon = prevWindow.filter((r) => r.status === "won");
+    const previous = {
+      totalRequests: prevWindow.length,
+      won: prevWon.length,
+      wonValueCents: prevWon.reduce((s, r) => s + r.priceCents, 0),
+      conversionRate: prevReal.length > 0 ? prevWon.length / prevReal.length : 0,
+    };
+
     const byStatus: Record<string, number> = {};
     let wonValueCents = 0;
     let quotedValueCents = 0;
@@ -150,6 +162,7 @@ export const getOverview = query({
 
     return {
       range,
+      previous,
       totalRequests: inWindow.length,
       widgetViews,
       widgetViewsApprox: spec.windowMs < 30 * DAY_MS,
