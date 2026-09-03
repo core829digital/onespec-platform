@@ -43,7 +43,7 @@ describe("analytics.getOverview", () => {
 
     const o = await t
       .withIdentity({ subject: memberId })
-      .query(api.analytics.getOverview, { tenantId, days: 30 });
+      .query(api.analytics.getOverview, { tenantId, range: "1m" });
 
     expect(o.totalRequests).toBe(5);
     expect(o.realLeads).toBe(4);
@@ -77,7 +77,7 @@ describe("analytics.getOverview", () => {
 
     const o = await t
       .withIdentity({ subject: ownerId })
-      .query(api.analytics.getOverview, { tenantId, days: 30 });
+      .query(api.analytics.getOverview, { tenantId, range: "1m" });
     expect(o.widgetViews).toBe(2);
     expect(o.visitorConversionRate).toBeCloseTo(0.5); // 1 request / 2 views
   });

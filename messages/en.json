@@ -33,7 +33,10 @@
     "noRequests": "No requests yet",
     "thisMonth": "This Month",
     "viewAll": "View all",
-    "noRequestsHint": "Quote requests from your configurators will show up here."
+    "noRequestsHint": "Quote requests from your configurators will show up here.",
+    "widgetViews": "Widget opens",
+    "visitorConversion": "Visitor conversion",
+    "wonValue": "Won value"
   },
   "topbar": {
     "account": "Account",

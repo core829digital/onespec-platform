@@ -234,7 +234,10 @@
     "noRequests": "Noch keine Anfragen",
     "thisMonth": "Diesen Monat",
     "viewAll": "Alle ansehen",
-    "noRequestsHint": "Angebotsanfragen aus Ihren Konfiguratoren erscheinen hier."
+    "noRequestsHint": "Angebotsanfragen aus Ihren Konfiguratoren erscheinen hier.",
+    "widgetViews": "Widget opens",
+    "visitorConversion": "Visitor conversion",
+    "wonValue": "Won value"
   },
   "app": {
     "suspended": {

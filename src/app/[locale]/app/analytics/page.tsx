@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { StatCard } from "@/components/app-shell/stat-card";
+import { RangeSwitcher, RANGE_LABEL, type AnalyticsRange } from "@/components/analytics/range-switcher";
 
 const eur = (c: number) => `€${(c / 100).toLocaleString("it-IT", { maximumFractionDigits: 0 })}`;
 const pct = (n: number) => `${(n * 100).toFixed(1)}%`;
@@ -16,10 +17,10 @@ const FUNNEL_LABEL: Record<string, string> = {
 
 export default function AnalyticsPage() {
   const tenant = useQuery(api.tenants.getMyTenant);
-  const [days, setDays] = useState(30);
+  const [range, setRange] = useState<AnalyticsRange>("1m");
   const data = useQuery(
     api.analytics.getOverview,
-    tenant ? { tenantId: tenant._id, days } : "skip",
+    tenant ? { tenantId: tenant._id, range } : "skip",
   );
 
   return (
@@ -27,23 +28,22 @@ export default function AnalyticsPage() {
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-text)]">Analytics</h1>
-          <p className="text-[var(--color-text-secondary)] mt-1">Dati reali del tuo account, ultimi {days} giorni</p>
+          <p className="text-[var(--color-text-secondary)] mt-1">
+            Dati reali del tuo account · {RANGE_LABEL[range]}
+          </p>
         </div>
-        <select
-          value={days}
-          onChange={(e) => setDays(Number(e.target.value))}
-          className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
-        >
-          <option value={7}>7 giorni</option>
-          <option value={30}>30 giorni</option>
-          <option value={90}>90 giorni</option>
-          <option value={365}>12 mesi</option>
-        </select>
+        <RangeSwitcher value={range} onChange={setRange} />
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+        <StatCard label="Aperture widget" value={data ? `${data.widgetViewsApprox ? "~" : ""}${data.widgetViews}` : undefined} />
         <StatCard label="Richieste" value={data ? String(data.totalRequests) : undefined} />
-        <StatCard label="Conversione" value={data ? pct(data.conversionRate) : undefined} accent />
+        <StatCard
+          label="Conv. visite"
+          value={data ? pct(data.visitorConversionRate) : undefined}
+          accent
+        />
+        <StatCard label="Conv. lead→vinta" value={data ? pct(data.conversionRate) : undefined} />
         <StatCard label="Valore vinto" value={data ? eur(data.wonValueCents) : undefined} />
         <StatCard label="Valore medio" value={data ? eur(data.avgDealCents) : undefined} />
       </div>
@@ -133,16 +133,16 @@ function Panel({ title, hint, children }: { title: string; hint?: string; childr
   );
 }
 
-function TrendChart({ trend }: { trend: Array<{ date: string; count: number }> }) {
+function TrendChart({ trend }: { trend: Array<{ label: string; count: number }> }) {
   const max = Math.max(...trend.map((t) => t.count), 1);
   return (
     <div className="flex items-end gap-0.5 h-32" role="img" aria-label="Grafico andamento richieste">
-      {trend.map((t) => (
-        <div key={t.date} className="flex-1 group relative flex items-end">
+      {trend.map((t, i) => (
+        <div key={i} className="flex-1 group relative flex items-end">
           <div
             className="w-full bg-[var(--color-mint)]/70 group-hover:bg-[var(--color-mint)] rounded-t"
             style={{ height: `${Math.max((t.count / max) * 100, t.count > 0 ? 6 : 0)}%` }}
-            title={`${t.date}: ${t.count}`}
+            title={`${t.label}: ${t.count}`}
           />
         </div>
       ))}

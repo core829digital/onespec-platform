@@ -234,7 +234,10 @@
     "noRequests": "Aucune demande",
     "thisMonth": "Ce mois-ci",
     "viewAll": "Tout voir",
-    "noRequestsHint": "Les demandes de devis de vos configurateurs apparaîtront ici."
+    "noRequestsHint": "Les demandes de devis de vos configurateurs apparaîtront ici.",
+    "widgetViews": "Ouvertures widget",
+    "visitorConversion": "Conversion visiteurs",
+    "wonValue": "Valeur gagnée"
   },
   "app": {
     "suspended": {

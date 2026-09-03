@@ -1,53 +1,59 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState } from "react";
 import { useQuery } from "convex/react";
 import { useFormatter, useTranslations } from "next-intl";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import { StatCard } from "@/components/app-shell/stat-card";
 import { EmptyState } from "@/components/app-shell/empty-state";
+import { RangeSwitcher, RANGE_LABEL, type AnalyticsRange } from "@/components/analytics/range-switcher";
+
+const pct = (n: number) => `${(n * 100).toFixed(1)}%`;
 
 export default function DashboardPage() {
   const t = useTranslations("dashboard");
   const format = useFormatter();
   const tenant = useQuery(api.tenants.getMyTenant);
+  const [range, setRange] = useState<AnalyticsRange>("1m");
+
+  const overview = useQuery(
+    api.analytics.getOverview,
+    tenant ? { tenantId: tenant._id, range } : "skip",
+  );
   const requests = useQuery(
     api.quotes.listRequests,
-    tenant ? { tenantId: tenant._id, limit: 100 } : "skip",
+    tenant ? { tenantId: tenant._id, limit: 8 } : "skip",
   );
-
-  const stats = useMemo(() => {
-    if (!requests) return null;
-    const active = requests.filter((r) => r.status !== "spam");
-    const values = active.map((r) => r.priceCents).filter((c) => c > 0);
-    const avg = values.length ? values.reduce((a, b) => a + b, 0) / values.length : 0;
-    const monthStart = new Date();
-    monthStart.setDate(1);
-    monthStart.setHours(0, 0, 0, 0);
-    return {
-      total: active.length,
-      pending: active.filter((r) => r.status === "new").length,
-      avgCents: avg,
-      thisMonth: active.filter((r) => r._creationTime >= monthStart.getTime()).length,
-    };
-  }, [requests]);
 
   const money = (cents: number) =>
     format.number(cents / 100, { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
 
   return (
     <div className="space-y-6 max-w-5xl">
-      <div>
-        <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-text)]">{t("title")}</h1>
-        <p className="text-[var(--color-text-secondary)] mt-1">{t("subtitle")}</p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-text)]">{t("title")}</h1>
+          <p className="text-[var(--color-text-secondary)] mt-1">
+            {t("subtitle")} · {RANGE_LABEL[range]}
+          </p>
+        </div>
+        <RangeSwitcher value={range} onChange={setRange} />
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <StatCard label={t("totalRequests")} value={stats ? String(stats.total) : undefined} />
-        <StatCard label={t("pending")} value={stats ? String(stats.pending) : undefined} accent={!!stats?.pending} />
-        <StatCard label={t("avgValue")} value={stats ? money(stats.avgCents) : undefined} />
-        <StatCard label={t("thisMonth")} value={stats ? String(stats.thisMonth) : undefined} />
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
+        <StatCard
+          label={t("widgetViews")}
+          value={overview ? `${overview.widgetViewsApprox ? "~" : ""}${overview.widgetViews}` : undefined}
+        />
+        <StatCard label={t("totalRequests")} value={overview ? String(overview.totalRequests) : undefined} />
+        <StatCard
+          label={t("visitorConversion")}
+          value={overview ? pct(overview.visitorConversionRate) : undefined}
+          accent
+        />
+        <StatCard label={t("wonValue")} value={overview ? money(overview.wonValueCents) : undefined} />
+        <StatCard label={t("avgValue")} value={overview ? money(overview.avgDealCents) : undefined} />
       </div>
 
       <section className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl">
@@ -70,7 +76,7 @@ export default function DashboardPage() {
           <EmptyState title={t("noRequests")} hint={t("noRequestsHint")} />
         ) : (
           <ul className="divide-y divide-[var(--color-border)]">
-            {requests.slice(0, 8).map((req) => (
+            {requests.map((req) => (
               <li key={req._id}>
                 <Link
                   href={`/app/requests/${req._id}`}

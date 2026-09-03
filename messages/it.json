@@ -33,7 +33,10 @@
     "noRequests": "Nessuna richiesta ancora",
     "thisMonth": "Questo Mese",
     "viewAll": "Vedi tutte",
-    "noRequestsHint": "Le richieste di preventivo dai tuoi configuratori appariranno qui."
+    "noRequestsHint": "Le richieste di preventivo dai tuoi configuratori appariranno qui.",
+    "widgetViews": "Aperture widget",
+    "visitorConversion": "Conversione visite",
+    "wonValue": "Valore vinto"
   },
   "topbar": {
     "account": "Account",
