@@ -98,7 +98,7 @@ export default function OnboardingPage() {
           )}
         </div>
 
-        <Button onClick={() => router.push("/app/dashboard")} className="w-full" size="lg">
+        <Button onClick={() => router.push("/onboarding")} className="w-full" size="lg">
           {t("continue")}
         </Button>
       </div>

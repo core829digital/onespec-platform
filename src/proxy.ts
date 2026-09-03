@@ -65,8 +65,12 @@ const isSignedOutOnly = createRouteMatcher([
 const isProtected = createRouteMatcher([
   "/app",
   "/app/(.*)",
+  "/onboarding",
+  "/onboarding/(.*)",
   "/(it|en|fr|ro|de|nl)/app",
   "/(it|en|fr|ro|de|nl)/app/(.*)",
+  "/(it|en|fr|ro|de|nl)/onboarding",
+  "/(it|en|fr|ro|de|nl)/onboarding/(.*)",
 ]);
 
 function localePrefix(pathname: string): string {

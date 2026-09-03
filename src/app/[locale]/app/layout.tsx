@@ -25,6 +25,10 @@ export default async function AppLayout({
     redirect(`/${locale}/auth/onboarding`);
   }
 
+  if (!tenant.onboardingCompletedAt) {
+    redirect(`/${locale}/onboarding`);
+  }
+
   if (tenant.suspendedAt) {
     const t = await getTranslations("app.suspended");
     return (
