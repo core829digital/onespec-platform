@@ -3,6 +3,10 @@ import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import { internal } from "./_generated/api";
 import { requireTenantRole, requireMembership } from "./lib/auth";
+import { calculatePrice, type ProjectItem, type CatalogPayload } from "../src/shared/pricing";
+
+/** Max size of a base64 signature PNG data URL (~200 KB of characters). */
+const MAX_SIGNATURE_LEN = 200_000;
 
 const QUOTE_STATUS = v.union(
   v.literal("new"),
@@ -108,5 +112,174 @@ export const addNote = mutation({
     await requireTenantRole(ctx, quote.tenantId, ["owner", "admin"]);
 
     await ctx.db.patch(args.quoteId, { internalNotes: (quote.internalNotes || "") + "\n" + args.note });
+  },
+});
+
+export const createFieldQuote = mutation({
+  args: {
+    tenantId: v.id("tenants"),
+    configuratorId: v.id("configurators"),
+    leadName: v.string(),
+    leadEmail: v.string(),
+    leadPhone: v.optional(v.string()),
+    customerAddress: v.optional(v.string()),
+    customerCity: v.optional(v.string()),
+    customerPostalCode: v.optional(v.string()),
+    leadLocale: v.optional(v.string()),
+    leadMessage: v.optional(v.string()),
+    items: v.any(),
+    installationType: v.optional(v.string()),
+    installationPriceCents: v.optional(v.number()),
+    demolitionPriceCents: v.optional(v.number()),
+    discountPercent: v.optional(v.number()),
+    ecobonusPercent: v.optional(v.number()),
+    profitMarginPercent: v.optional(v.number()),
+    vatRatePercent: v.optional(v.number()),
+    depositTerms: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const { userId } = await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
+    const configurator = await ctx.db.get(args.configuratorId);
+    if (!configurator || configurator.tenantId !== args.tenantId) {
+      throw new ConvexError("CONFIGURATOR_NOT_FOUND");
+    }
+
+    const targetVersion = configurator.publishedCatalogVersion ?? 1;
+    const versionDoc = await ctx.db
+      .query("catalogVersions")
+      .withIndex("by_configurator_version", (q) =>
+        q.eq("configuratorId", args.configuratorId).eq("version", targetVersion),
+      )
+      .unique();
+
+    if (!versionDoc) throw new ConvexError("NO_PUBLISHED_VERSION");
+
+    const payload = versionDoc.payload as CatalogPayload;
+    const items: ProjectItem[] = Array.isArray(args.items) ? args.items : [];
+
+    // Authoritative calculation — server is the source of truth for price.
+    const baseCalc = calculatePrice(payload, items);
+
+    const installCost = Math.max(args.installationPriceCents ?? 0, 0);
+    const demolitionCost = Math.max(args.demolitionPriceCents ?? 0, 0);
+    const discountPct = Math.min(Math.max(args.discountPercent ?? 0, 0), 100);
+    const ecobonusPct = Math.min(Math.max(args.ecobonusPercent ?? 0, 0), 100);
+
+    const subtotalExVat = baseCalc.priceExVatCents + installCost + demolitionCost;
+    const discountedExVat = Math.round(subtotalExVat * (1 - discountPct / 100));
+
+    const effectiveVat = args.vatRatePercent !== undefined ? args.vatRatePercent : configurator.vatRatePercent;
+    const finalPriceCents = Math.round(discountedExVat * (1 + effectiveVat / 100));
+    const ecobonusDeductionCents = Math.round(finalPriceCents * (ecobonusPct / 100));
+
+    const quoteId = await ctx.db.insert("quoteRequests", {
+      tenantId: args.tenantId,
+      configuratorId: args.configuratorId,
+      catalogVersion: targetVersion,
+      publicId: configurator.publicId,
+      leadName: args.leadName.trim(),
+      leadEmail: args.leadEmail.trim(),
+      leadPhone: args.leadPhone?.trim(),
+      customerAddress: args.customerAddress?.trim(),
+      customerCity: args.customerCity?.trim(),
+      customerPostalCode: args.customerPostalCode?.trim(),
+      leadLocale: args.leadLocale ?? configurator.defaultLocale ?? "it",
+      leadMessage: args.leadMessage,
+      channel: "field_b2b",
+      installationType: args.installationType,
+      installationPriceCents: installCost,
+      demolitionPriceCents: demolitionCost,
+      discountPercent: discountPct,
+      ecobonusPercent: ecobonusPct,
+      ecobonusDeductionCents,
+      profitMarginPercent: args.profitMarginPercent,
+      depositTerms: args.depositTerms ?? "30% ordine · 60% merce pronta · 10% posa",
+      items,
+      priceCents: finalPriceCents,
+      priceExVatCents: discountedExVat,
+      vatRatePercent: effectiveVat,
+      currency: "EUR",
+      status: "quoted",
+      assignedToUserId: userId,
+    });
+
+    await ctx.db.insert("auditLog", {
+      tenantId: args.tenantId,
+      actorUserId: userId,
+      actorKind: "user",
+      action: "quote.field_create",
+      targetTable: "quoteRequests",
+      targetId: quoteId,
+      meta: { priceCents: finalPriceCents, leadName: args.leadName },
+      createdAt: Date.now(),
+    });
+
+    return { quoteId, priceCents: finalPriceCents };
+  },
+});
+
+export const signQuote = mutation({
+  args: {
+    quoteId: v.id("quoteRequests"),
+    signatureDataUrl: v.string(),
+    signedByName: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const quote = await ctx.db.get(args.quoteId);
+    if (!quote) throw new ConvexError("QUOTE_NOT_FOUND");
+    await requireMembership(ctx, quote.tenantId);
+
+    if (!args.signatureDataUrl.startsWith("data:image/")) {
+      throw new ConvexError("INVALID_SIGNATURE");
+    }
+    if (args.signatureDataUrl.length > MAX_SIGNATURE_LEN) {
+      throw new ConvexError("SIGNATURE_TOO_LARGE");
+    }
+    const signedByName = args.signedByName.trim();
+    if (!signedByName) throw new ConvexError("SIGNER_NAME_REQUIRED");
+
+    const now = Date.now();
+    await ctx.db.patch(args.quoteId, {
+      signatureDataUrl: args.signatureDataUrl,
+      signedByName,
+      signedAt: now,
+      status: "won",
+    });
+
+    await ctx.db.insert("auditLog", {
+      tenantId: quote.tenantId,
+      actorKind: "user",
+      action: "quote.signed",
+      targetTable: "quoteRequests",
+      targetId: args.quoteId,
+      meta: { signedByName: args.signedByName, signedAt: now },
+      createdAt: now,
+    });
+
+    return { ok: true, signedAt: now };
+  },
+});
+
+export const getQuoteForPrint = query({
+  args: { quoteId: v.id("quoteRequests") },
+  handler: async (ctx, args) => {
+    const quote = await ctx.db.get(args.quoteId);
+    if (!quote) return null;
+    await requireMembership(ctx, quote.tenantId);
+
+    const tenant = await ctx.db.get(quote.tenantId);
+    const branding = await ctx.db
+      .query("branding")
+      .withIndex("by_configurator", (q) => q.eq("configuratorId", quote.configuratorId))
+      .unique();
+
+    const configurator = await ctx.db.get(quote.configuratorId);
+
+    return {
+      quote,
+      tenant,
+      branding,
+      configurator,
+    };
   },
 });

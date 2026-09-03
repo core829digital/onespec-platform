@@ -85,6 +85,33 @@ export const getConfigurator = query({
   },
 });
 
+/**
+ * The currently-published catalog payload for a configurator — same
+ * `catalogVersions.payload` the widget and server pricing use, membership-gated.
+ * Returns null when nothing has been published yet.
+ */
+export const getPublishedCatalog = query({
+  args: { configuratorId: v.id("configurators") },
+  handler: async (ctx, args) => {
+    const configurator = await ctx.db.get(args.configuratorId);
+    if (!configurator) return null;
+    await requireMembership(ctx, configurator.tenantId);
+
+    const version = configurator.publishedCatalogVersion;
+    if (!version) return null;
+
+    const versionDoc = await ctx.db
+      .query("catalogVersions")
+      .withIndex("by_configurator_version", (q) =>
+        q.eq("configuratorId", args.configuratorId).eq("version", version),
+      )
+      .unique();
+    if (!versionDoc) return null;
+
+    return { version, payload: versionDoc.payload as Record<string, unknown> };
+  },
+});
+
 export const updateConfigurator = mutation({
   args: {
     configuratorId: v.id("configurators"),

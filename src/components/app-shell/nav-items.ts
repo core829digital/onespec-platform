@@ -7,6 +7,7 @@ import {
   KanbanSquare,
   BarChart3,
   Shield,
+  PenLine,
   type LucideIcon,
 } from "lucide-react";
 
@@ -21,6 +22,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/app/dashboard", label: "dashboard", icon: LayoutDashboard },
   { href: "/app/configurators", label: "configurators", icon: Package },
   { href: "/app/requests", label: "requests", icon: FileText },
+  { href: "/app/quotes", label: "quotes", icon: PenLine },
   { href: "/app/pipeline", label: "pipeline", icon: KanbanSquare },
   { href: "/app/analytics", label: "analytics", icon: BarChart3 },
   { href: "/app/notifications", label: "notifications", icon: Bell },
