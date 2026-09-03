@@ -7,6 +7,7 @@ import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { NotificationBell } from "./notification-bell";
+import { AlphaFeedbackButton } from "./alpha-feedback-modal";
 import { LanguageSwitcher } from "@/components/language-switcher";
 
 export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
@@ -31,6 +32,7 @@ export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
       </div>
 
       <div className="flex items-center gap-3">
+        <AlphaFeedbackButton />
         <NotificationBell />
         
         <DropdownMenu>

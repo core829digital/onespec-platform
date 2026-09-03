@@ -25,6 +25,7 @@ import type * as crons from "../crons.js";
 import type * as email from "../email.js";
 import type * as emails_auth from "../emails/auth.js";
 import type * as exports from "../exports.js";
+import type * as feedback from "../feedback.js";
 import type * as http from "../http.js";
 import type * as lib_auth from "../lib/auth.js";
 import type * as lib_billingPlans from "../lib/billingPlans.js";
@@ -69,6 +70,7 @@ declare const fullApi: ApiFromModules<{
   email: typeof email;
   "emails/auth": typeof emails_auth;
   exports: typeof exports;
+  feedback: typeof feedback;
   http: typeof http;
   "lib/auth": typeof lib_auth;
   "lib/billingPlans": typeof lib_billingPlans;

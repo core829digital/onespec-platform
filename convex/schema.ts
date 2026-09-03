@@ -350,6 +350,20 @@ export default defineSchema({
     .index("by_user", ["userId"])
     .index("by_status", ["status"]),
 
+  /** Alpha-phase feedback + bug reports. */
+  alphaFeedback: defineTable({
+    tenantId: v.optional(v.id("tenants")),
+    userId: v.id("users"),
+    category: v.union(v.literal("bug"), v.literal("feature"), v.literal("general")),
+    message: v.string(),
+    pagePath: v.optional(v.string()),
+    userAgent: v.optional(v.string()),
+    status: v.union(v.literal("new"), v.literal("triaged"), v.literal("closed")),
+    createdAt: v.number(),
+  })
+    .index("by_status", ["status"])
+    .index("by_user", ["userId"]),
+
   /** GDPR — explicit, revocable consents, kept separate from auth + prefs. */
   userConsents: defineTable({
     userId: v.id("users"),
