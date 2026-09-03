@@ -39,6 +39,12 @@ interface WidgetProps {
     ecobonusMaxPercent?: number;
     discountEnabled?: boolean;
     discountMaxPercent?: number;
+    /** Region policy — server-authoritative (resolved from the tenant's country). */
+    region?: string;
+    widgetMode?: "lead_gen" | "transparent";
+    vatRates?: Array<{ key: string; percent: number; label: string }>;
+    defaultVatKey?: string;
+    complianceFlags?: string[];
     branding?: {
       colorAccent?: string;
       colorAccentInk?: string | null;
@@ -87,8 +93,17 @@ export function Widget({
   const cfg = LOCALE_CFG[lang] ?? LOCALE_CFG.en;
   const submitLocale = (["it", "en", "fr"].includes(lang) ? lang : "it") as "it" | "en" | "fr";
 
+  // The region's VAT rate set (if any). When present the visitor picks a rate
+  // from this list rather than typing a free number.
+  const vatRates = configurator.vatRates ?? [];
+  const isLeadGen = (configurator.widgetMode ?? "lead_gen") !== "transparent";
+  const complianceFlags = configurator.complianceFlags ?? [];
+
+  const defaultVatRate =
+    vatRates.find((r) => r.key === configurator.defaultVatKey) ?? vatRates[0];
   const initialVat =
-    typeof configurator.vatRatePercent === "number" ? configurator.vatRatePercent : 22;
+    defaultVatRate?.percent ??
+    (typeof configurator.vatRatePercent === "number" ? configurator.vatRatePercent : 22);
   const [vatPct, setVatPct] = useState(initialVat);
 
   // Option lists + price table for the LIVE PREVIEW, built from the tenant's
@@ -311,6 +326,7 @@ export function Widget({
     });
     if (ecobonusPct > 0) lines.push(`Ecobonus: -${ecobonusPct}%`);
     if (discountPct > 0) lines.push(`${dict.discountLabel}: -${discountPct}%`);
+    if (complianceFlags.includes("posa_uni_11673")) lines.push(dict.posaUni11673Note);
     return lines.join("\n");
   }
 
@@ -766,20 +782,40 @@ export function Widget({
                 )}
 
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: "8px 0" }}>
-                  <label style={{ fontSize: 12.5, fontWeight: 800, color: "var(--color-text)", letterSpacing: ".03em", textTransform: "uppercase" }}>{dict.vatPercentLabel}</label>
-                  <input
-                    style={{ ...s.input, width: 84, textAlign: "right" }}
-                    type="number"
-                    min={0}
-                    max={100}
-                    value={vatPct}
-                    onChange={(e) => setVatPct(clamp(parseFloat(e.target.value) || 0, 0, 100))}
-                  />
+                  <label style={{ fontSize: 12.5, fontWeight: 800, color: "var(--color-text)", letterSpacing: ".03em", textTransform: "uppercase" }}>
+                    {vatRates.length > 0 ? dict.vatRateLabel : dict.vatPercentLabel}
+                  </label>
+                  {vatRates.length > 0 ? (
+                    <select
+                      style={{ ...s.input, width: 200, textAlign: "right" }}
+                      value={vatPct}
+                      onChange={(e) => setVatPct(parseFloat(e.target.value))}
+                    >
+                      {vatRates.map((r) => (
+                        <option key={r.key} value={r.percent}>{r.label}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      style={{ ...s.input, width: 84, textAlign: "right" }}
+                      type="number"
+                      min={0}
+                      max={100}
+                      value={vatPct}
+                      onChange={(e) => setVatPct(clamp(parseFloat(e.target.value) || 0, 0, 100))}
+                    />
+                  )}
                 </div>
 
                 <div style={{ marginTop: 14, padding: 16, borderRadius: 8, background: accent, color: accentInk }}>
                   <div style={{ fontSize: 11.5, textTransform: "uppercase", letterSpacing: ".08em", opacity: 0.85 }}>{dict.summaryTotal}</div>
                   <div style={{ fontFamily: "var(--font-ibm-plex-mono), monospace", fontSize: 28, fontWeight: 600, marginTop: 4 }}>{fmtC(grossGrand)}</div>
+                  {isLeadGen && (
+                    <div style={{ fontSize: 11.5, opacity: 0.85, marginTop: 6, lineHeight: 1.5 }}>{dict.estimateNotContractual}</div>
+                  )}
+                  {complianceFlags.includes("posa_uni_11673") && (
+                    <div style={{ fontSize: 11.5, opacity: 0.85, marginTop: 4, lineHeight: 1.5 }}>{dict.posaUni11673Note}</div>
+                  )}
                   {ecobonusPct > 0 && (
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, opacity: 0.9, marginTop: 6, fontFamily: "var(--font-ibm-plex-mono), monospace" }}>
                       <span>ECOBONUS (-{ecobonusPct}%)</span>
@@ -835,7 +871,7 @@ export function Widget({
                 />
                 {error && <div style={{ fontSize: 12, color: "var(--color-danger)" }}>{error}</div>}
                 <button type="button" data-tw-primary disabled={submitting} onClick={submit} style={{ ...s.btnPrimary, background: accent, color: accentInk, opacity: submitting ? 0.6 : 1 }}>
-                  {submitting ? dict.submitting : dict.submitBtn}
+                  {submitting ? dict.submitting : isLeadGen ? dict.requestSurveyBtn : dict.submitBtn}
                 </button>
                 <button type="button" onClick={() => setStep("config")} style={{ background: "none", border: "none", color: "var(--color-text-secondary)", fontSize: 12, textDecoration: "underline", cursor: "pointer" }}>
                   ←

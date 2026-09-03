@@ -81,6 +81,10 @@ export interface WidgetDict {
   successBody: string;
   uwLabel: string;
   footerDisclaimer: string;
+  vatRateLabel: string;
+  estimateNotContractual: string;
+  requestSurveyBtn: string;
+  posaUni11673Note: string;
 }
 
 const en: WidgetDict = {
@@ -168,6 +172,10 @@ const en: WidgetDict = {
   successBody: "Thank you — we will get back to you with a detailed quote shortly.",
   uwLabel: "U-value (indicative)",
   footerDisclaimer: "Estimate for illustration purposes only. Final pricing is confirmed after on-site measurement.",
+  vatRateLabel: "VAT rate",
+  estimateNotContractual: "Indicative estimate — not a binding quote.",
+  requestSurveyBtn: "Request an on-site survey",
+  posaUni11673Note: "Installation to UNI 11673-1:2017 standard",
 };
 
 const it: WidgetDict = {
@@ -248,6 +256,10 @@ const it: WidgetDict = {
   successBody: "Grazie — ti ricontatteremo a breve con un preventivo dettagliato.",
   uwLabel: "Coefficiente Uw (indicativo)",
   footerDisclaimer: "Stima puramente indicativa. Il prezzo definitivo viene confermato dopo il sopralluogo.",
+  vatRateLabel: "Aliquota IVA",
+  estimateNotContractual: "Stima orientativa · non è un preventivo contrattuale.",
+  requestSurveyBtn: "Richiedi un sopralluogo",
+  posaUni11673Note: "Posa in opera secondo norma UNI 11673-1:2017",
 };
 
 const fr: WidgetDict = {
@@ -328,6 +340,10 @@ const fr: WidgetDict = {
   successBody: "Merci — nous reviendrons vers vous avec un devis détaillé sous peu.",
   uwLabel: "Coefficient Uw (indicatif)",
   footerDisclaimer: "Estimation à titre indicatif uniquement. Le prix définitif est confirmé après métrage sur site.",
+  vatRateLabel: "Taux de TVA",
+  estimateNotContractual: "Estimation indicative — ne constitue pas un devis contractuel.",
+  requestSurveyBtn: "Demander une visite technique",
+  posaUni11673Note: "Pose selon la norme UNI 11673-1:2017",
 };
 
 const DICTS: Record<string, WidgetDict> = { en, it, fr, ro: en, de: en, nl: en };

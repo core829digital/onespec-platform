@@ -8,6 +8,7 @@ import { ProjectItemSchema } from "../src/shared/widget-types";
 import { requireMembership } from "./lib/auth";
 import { resolveTenantEntitlements, currentPeriod } from "./lib/entitlements";
 import { consumeToken } from "./lib/ratelimit";
+import { regionForCountry, type RegionPolicy } from "./lib/regions";
 
 /** Rows/objects that may carry Convex system + tenant fields. */
 type WithSystemFields = Record<string, unknown> & {
@@ -208,6 +209,8 @@ export const getPublicConfigurator = query({
       ? await ctx.storage.getUrl(branding.logoLightStorageId)
       : null;
 
+    const tenant = await ctx.db.get(configurator.tenantId);
+
     return assembleWidgetResponse({
       configurator,
       branding,
@@ -215,6 +218,7 @@ export const getPublicConfigurator = query({
       catalogVersion: configurator.publishedCatalogVersion,
       logoUrl,
       logoLightUrl,
+      region: regionForCountry(tenant?.country),
     });
   },
 });
@@ -227,8 +231,9 @@ function assembleWidgetResponse(args: {
   catalogVersion: number;
   logoUrl: string | null;
   logoLightUrl: string | null;
+  region: RegionPolicy;
 }) {
-  const { configurator, branding, payload, catalogVersion, logoUrl, logoLightUrl } = args;
+  const { configurator, branding, payload, catalogVersion, logoUrl, logoLightUrl, region } = args;
   const cfg = (payload?.configurator ?? {}) as Record<string, unknown>;
   const pick = <T,>(key: string, fallback: T): T =>
     (cfg[key] as T | undefined) ?? fallback;
@@ -245,6 +250,12 @@ function assembleWidgetResponse(args: {
     ecobonusMaxPercent: pick("ecobonusMaxPercent", configurator.ecobonusMaxPercent ?? 50),
     discountEnabled: pick("discountEnabled", configurator.discountEnabled ?? false),
     discountMaxPercent: pick("discountMaxPercent", configurator.discountMaxPercent ?? 20),
+    // Region policy — server-authoritative, resolved from the tenant's country.
+    region: region.code,
+    widgetMode: region.widgetMode,
+    vatRates: region.vatRates,
+    defaultVatKey: region.defaultVatKey,
+    complianceFlags: region.complianceFlags,
     catalogVersion,
     branding: {
       whiteLabel: branding?.whiteLabel ?? false,
@@ -326,6 +337,8 @@ export const getConfiguratorForPreview = query({
       hardware,
     };
 
+    const tenant = await ctx.db.get(configurator.tenantId);
+
     return assembleWidgetResponse({
       configurator,
       branding,
@@ -333,6 +346,7 @@ export const getConfiguratorForPreview = query({
       catalogVersion: 0,
       logoUrl,
       logoLightUrl,
+      region: regionForCountry(tenant?.country),
     });
   },
 });

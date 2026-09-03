@@ -9,7 +9,9 @@ import {
   ALPHA_DISCOUNT_PCT,
   billingPlan,
   effectivePriceCents,
+  listPriceCents,
 } from "./lib/billingPlans";
+import { regionForCountry } from "./lib/regions";
 
 const STRIPE_API = "https://api.stripe.com/v1";
 const stripeKey = () => process.env.STRIPE_SECRET_KEY ?? "";
@@ -50,8 +52,10 @@ export const getBillingState = query({
     if (!tenant) return null;
 
     const configured = !!process.env.STRIPE_SECRET_KEY;
+    const region = regionForCountry(tenant.country).code;
     return {
       plan: tenant.plan,
+      region,
       planStatus: tenant.planStatus,
       isAlpha: tenant.isAlpha,
       alphaDiscountLocked: tenant.alphaDiscountLocked,
@@ -68,8 +72,8 @@ export const getBillingState = query({
       plans: BILLING_PLANS.map((p) => ({
         key: p.key,
         name: p.name,
-        priceCents: p.priceCents,
-        yourPriceCents: effectivePriceCents(p.key, tenant.isAlpha),
+        priceCents: listPriceCents(p.key, region),
+        yourPriceCents: effectivePriceCents(p.key, tenant.isAlpha, region),
       })),
     };
   },

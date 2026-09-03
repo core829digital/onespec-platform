@@ -60,7 +60,25 @@ describe("billing.getBillingState + webhook", () => {
       .withIdentity({ subject: ownerId })
       .query(api.billing.getBillingState, { tenantId });
     expect(s?.checkoutAvailable).toBe(false);
-    expect(s?.plans.find((p) => p.key === "business")?.yourPriceCents).toBe(3995);
+    // No country on the tenant → region resolves to the IT default, so the
+    // Business plan uses the IT regional price (€89) with the 15% Alpha discount.
+    expect(s?.region).toBe("IT");
+    expect(s?.plans.find((p) => p.key === "business")?.priceCents).toBe(8900);
+    expect(s?.plans.find((p) => p.key === "business")?.yourPriceCents).toBe(7565);
+  });
+
+  test("a region without a price override falls back to the base plan price", async () => {
+    const t = newDb();
+    const { tenantId, ownerId } = await seedTenant(t, { plan: "starter" });
+    await t.run(async (ctx) => {
+      await ctx.db.patch(tenantId, { country: "FR" });
+    });
+    const s = await t
+      .withIdentity({ subject: ownerId })
+      .query(api.billing.getBillingState, { tenantId });
+    expect(s?.region).toBe("FR");
+    // FR has no REGIONAL_PRICES entry yet → base Business price €47.
+    expect(s?.plans.find((p) => p.key === "business")?.priceCents).toBe(4700);
   });
 
   test("applyWebhookEvent activates a subscription and is idempotent", async () => {
