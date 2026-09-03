@@ -48,7 +48,7 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: "/w/:path*",
+        source: "/:kind(w|c)/:path*",
         headers: [
           { key: "Content-Security-Policy", value: WIDGET_CSP },
           { key: "Cross-Origin-Resource-Policy", value: "cross-origin" },
@@ -57,9 +57,10 @@ const nextConfig = {
         ],
       },
       {
-        // The negative lookahead keeps /w/* on its own permissive CSP; without
-        // it this rule (declared last) would win and break embedding.
-        source: "/((?!w/).*)",
+        // The negative lookahead keeps /w/* and /c/* on their own CSP (the
+        // middleware adds the per-tenant frame-ancestors); without it this rule
+        // (declared last) would win and break embedding.
+        source: "/((?!w/|c/).*)",
         headers: APP_SECURITY_HEADERS,
       },
     ];

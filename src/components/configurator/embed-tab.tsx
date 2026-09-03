@@ -66,7 +66,14 @@ export function EmbedTab({
         </p>
       ) : null}
 
-      <Section title="Codice di incorporamento" description="Incolla questo snippet nella pagina del tuo sito dove vuoi mostrare il configuratore.">
+      <Section
+        title="Pagina singola (per social e messaggi)"
+        description="Link a pagina intera del configuratore. Le modifiche che pubblichi sono sempre live: non serve reincollare nulla."
+      >
+        <CopyBlock code={`${origin}/c/${publicId}`} />
+      </Section>
+
+      <Section title="Codice di incorporamento (embed sul tuo sito)" description="Incolla questo snippet nella pagina del tuo sito dove vuoi mostrare il configuratore.">
         <CopyBlock code={iframe} />
       </Section>
 

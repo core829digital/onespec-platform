@@ -88,9 +88,10 @@ export default convexAuthNextjsMiddleware(
       return;
     }
 
-    // The embeddable widget: no i18n redirects, but inject a per-tenant
-    // `frame-ancestors` CSP so only the dealer's allow-listed domains can frame it.
-    if (pathname.startsWith("/w/")) {
+    // The embeddable widget (/w/) and the hosted single-page configurator (/c/):
+    // no i18n redirects, and a per-tenant `frame-ancestors` CSP so only the
+    // dealer's allow-listed domains can frame the embed.
+    if (pathname.startsWith("/w/") || pathname.startsWith("/c/")) {
       const publicId = pathname.split("/")[2] ?? "";
       if (!/^[A-Za-z0-9_-]{6,16}$/.test(publicId)) return;
       const res = NextResponse.next();
