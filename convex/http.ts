@@ -51,6 +51,41 @@ http.route({
 });
 
 http.route({
+  path: "/api/widget/view",
+  method: "OPTIONS",
+  handler: httpAction(async () => new Response(null, { status: 204, headers: CORS })),
+});
+
+http.route({
+  path: "/api/widget/view",
+  method: "POST",
+  handler: httpAction(async (ctx, req) => {
+    let body: { publicId?: string; viewToken?: string };
+    try {
+      body = await req.json();
+    } catch {
+      return json({ ok: false }, 400);
+    }
+    if (!body.publicId) return json({ ok: false }, 400);
+
+    const ip =
+      req.headers.get("cf-connecting-ip") ||
+      (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() ||
+      "0.0.0.0";
+    const token =
+      body.viewToken && /^[A-Za-z0-9_-]{8,64}$/.test(body.viewToken)
+        ? body.viewToken
+        : await hashIp(ip);
+
+    const res = await ctx.runMutation(internal.widget.recordWidgetView, {
+      publicId: body.publicId,
+      viewToken: token,
+    });
+    return json({ ok: true, counted: res.counted });
+  }),
+});
+
+http.route({
   path: "/api/widget/quote",
   method: "POST",
   handler: httpAction(async (ctx, req) => {

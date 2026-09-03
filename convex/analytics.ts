@@ -84,9 +84,27 @@ export const getOverview = query({
       .map(([host, count]) => ({ host, count }))
       .sort((a, b) => b.count - a.count);
 
+    // Widget opens — de-duplicated per-visitor counters, aggregated by month.
+    // Monthly resolution (matches the quota counter); finer trend stays request-based.
+    const months = new Set<string>();
+    for (let ms = cutoff; ms <= Date.now(); ms += DAY_MS) {
+      months.add(new Date(ms).toISOString().slice(0, 7));
+    }
+    const counters = await ctx.db
+      .query("usageCounters")
+      .withIndex("by_tenant_period", (q) => q.eq("tenantId", args.tenantId))
+      .collect();
+    const widgetViews = counters
+      .filter((c) => months.has(c.period))
+      .reduce((s, c) => s + (c.widgetViewsCount ?? 0), 0);
+    const visitorConversionRate =
+      widgetViews > 0 ? Math.min(1, inWindow.length / widgetViews) : 0;
+
     return {
       days,
       totalRequests: inWindow.length,
+      widgetViews,
+      visitorConversionRate,
       realLeads: realLeads.length,
       won,
       lost: byStatus.lost ?? 0,

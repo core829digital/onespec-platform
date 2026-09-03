@@ -7,6 +7,7 @@ import { calculatePrice, type ProjectItem, type CatalogPayload } from "../src/sh
 import { ProjectItemSchema } from "../src/shared/widget-types";
 import { requireMembership } from "./lib/auth";
 import { resolveTenantEntitlements, currentPeriod } from "./lib/entitlements";
+import { consumeToken } from "./lib/ratelimit";
 
 /** Rows/objects that may carry Convex system + tenant fields. */
 type WithSystemFields = Record<string, unknown> & {
@@ -81,6 +82,59 @@ export const getEmbedPolicy = query({
       active: configurator.status === "published",
       frameAncestors,
     };
+  },
+});
+
+/**
+ * INTERNAL — record one widget open, called from the `/api/widget/view` HTTP
+ * action (which supplies a per-visitor `viewToken` = client nonce or IP hash).
+ * De-duplicated per token per ~24h; a global per-configurator bucket bounds
+ * abuse. Aggregate only, no PII. Published configurators only.
+ */
+export const recordWidgetView = internalMutation({
+  args: { publicId: v.string(), viewToken: v.string() },
+  handler: async (ctx, args) => {
+    if (args.viewToken.length < 8 || args.viewToken.length > 128) return { counted: false };
+    const configurator = await ctx.db
+      .query("configurators")
+      .withIndex("by_publicId", (q) => q.eq("publicId", args.publicId))
+      .unique();
+    if (!configurator || configurator.status !== "published") return { counted: false };
+
+    // Once per session token per ~24h.
+    const fresh = await consumeToken(ctx, `view:${configurator._id}:${args.viewToken}`, {
+      tokens: 1,
+      refillMs: 24 * 60 * 60 * 1000,
+    });
+    if (!fresh) return { counted: false };
+    // Bound total opens counted per configurator per hour.
+    const underCap = await consumeToken(ctx, `view:${configurator._id}:hourly`, {
+      tokens: 3000,
+      refillMs: 60 * 60 * 1000,
+    });
+    if (!underCap) return { counted: false };
+
+    const period = currentPeriod();
+    const counter = await ctx.db
+      .query("usageCounters")
+      .withIndex("by_tenant_period", (q) =>
+        q.eq("tenantId", configurator.tenantId).eq("period", period),
+      )
+      .unique();
+    if (counter) {
+      await ctx.db.patch(counter._id, {
+        widgetViewsCount: (counter.widgetViewsCount ?? 0) + 1,
+      });
+    } else {
+      await ctx.db.insert("usageCounters", {
+        tenantId: configurator.tenantId,
+        period,
+        quoteRequestsCount: 0,
+        activeConfiguratorsCount: 0,
+        widgetViewsCount: 1,
+      });
+    }
+    return { counted: true };
   },
 });
 

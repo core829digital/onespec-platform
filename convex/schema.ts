@@ -408,6 +408,8 @@ export default defineSchema({
     period: v.string(),
     quoteRequestsCount: v.number(),
     activeConfiguratorsCount: v.number(),
+    /** De-duplicated widget opens for the period (per visitor session). */
+    widgetViewsCount: v.optional(v.number()),
     /** Timestamp the tenant was last warned it crossed its monthly quota. */
     overQuotaNotifiedAt: v.optional(v.number()),
   }).index("by_tenant_period", ["tenantId", "period"]),

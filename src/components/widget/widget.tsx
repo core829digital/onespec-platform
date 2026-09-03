@@ -151,6 +151,28 @@ export function Widget({
     document.documentElement.setAttribute("data-theme", theme === "light" ? "light" : "dark");
   }, [theme]);
 
+  // ---- widget-open telemetry (skips preview; once per browser session) ----
+  useEffect(() => {
+    if (preview || !CONVEX_SITE) return;
+    const key = `onespec-vt-${configurator.publicId}`;
+    let token: string;
+    try {
+      token = sessionStorage.getItem(key) ?? "";
+      if (!token) {
+        token = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+        sessionStorage.setItem(key, token);
+      }
+    } catch {
+      token = Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+    }
+    fetch(`${CONVEX_SITE}/api/widget/view`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ publicId: configurator.publicId, viewToken: token }),
+      keepalive: true,
+    }).catch(() => {});
+  }, [preview, configurator.publicId]);
+
   // Push resolved accent / ink / font onto the scoped CSS vars so widget.css
   // (focus rings, links, hover) and inline styles stay in sync.
   useEffect(() => {
