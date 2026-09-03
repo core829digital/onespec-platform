@@ -24,6 +24,8 @@ const LAYER_TONE: Record<string, string> = {
 };
 
 const FIELD_LABEL: Record<string, string> = {
+  region: "Regione / mercato",
+  widgetMode: "Modalità prezzo widget",
   locale: "Lingua",
   theme: "Tema",
   currency: "Valuta",

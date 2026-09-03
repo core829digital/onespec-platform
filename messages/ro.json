@@ -114,7 +114,10 @@
       "alphaSubtitle": "Firma ta {companyName} este printre primele 250 de membri Alpha. Ai blocat reducerea de 15% pe viață.",
       "starterTitle": "Firmă creată",
       "starterSubtitle": "Firma ta {companyName} este înregistrată cu planul Starter.",
-      "continue": "Du-te la panou"
+      "continue": "Du-te la panou",
+      "countryLabel": "Country",
+      "countryPlaceholder": "Select your country",
+      "countryDetected": "Detected automatically from your connection — you can change it."
     },
     "footer": "© 2026 onespec. Toate drepturile rezervate."
   },

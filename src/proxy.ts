@@ -104,7 +104,21 @@ export default convexAuthNextjsMiddleware(
       return nextjsMiddlewareRedirect(request, `${prefix}/auth/login`);
     }
 
-    return intlMiddleware(request);
+    const res = intlMiddleware(request);
+
+    // Auto country recognition: persist the edge geo signal so the sign-up
+    // funnel (and, later, per-country domain routing) can read it without a
+    // fresh header on every request. Advisory only — the authoritative market
+    // is the tenant's stored `country`.
+    const geo = request.headers.get("x-vercel-ip-country") ?? request.headers.get("cf-ipcountry");
+    if (geo && /^[A-Z]{2}$/.test(geo) && request.cookies.get("onespec-country")?.value !== geo) {
+      res.cookies.set("onespec-country", geo, {
+        maxAge: 60 * 60 * 24 * 30,
+        sameSite: "lax",
+        path: "/",
+      });
+    }
+    return res;
   },
   { cookieConfig: { maxAge: 60 * 60 * 24 * 30 } },
 );

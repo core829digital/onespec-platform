@@ -15,6 +15,7 @@
  */
 
 import type { Entitlements } from "./entitlements";
+import { regionForCountry, type RegionPolicy, type WidgetMode } from "./regions";
 
 export type ConfigLayer =
   | "platform"
@@ -52,6 +53,8 @@ export const PLATFORM_DEFAULTS = {
 
 export interface ResolverInput {
   entitlements: Entitlements;
+  /** ISO-2 country of the tenant; resolves the region policy. */
+  country?: string | null;
   configurator: {
     defaultLocale: string;
     defaultTheme: "light" | "dark" | "auto";
@@ -82,6 +85,8 @@ export interface EffectiveConfig {
   maxQuotesPerMonth: Resolved<number>;
   fontFamily: Resolved<string>;
   colorAccent: Resolved<string>;
+  region: Resolved<string>;
+  widgetMode: Resolved<WidgetMode>;
 }
 
 /** Configurator value wins unless it equals the platform default. */
@@ -94,6 +99,7 @@ function fromConfigurator<T>(value: T, platformDefault: T): Resolved<T> {
 export function resolveEffectiveConfig(input: ResolverInput): EffectiveConfig {
   const { entitlements: ent, configurator: cfg, branding } = input;
   const d = PLATFORM_DEFAULTS;
+  const region: RegionPolicy = regionForCountry(input.country);
 
   const whiteLabel: Resolved<boolean> = branding?.whiteLabel
     ? { value: true, source: "widget" }
@@ -102,6 +108,8 @@ export function resolveEffectiveConfig(input: ResolverInput): EffectiveConfig {
       : { value: false, source: "platform" };
 
   return {
+    region: { value: region.code, source: "region" },
+    widgetMode: { value: region.widgetMode, source: "region" },
     locale: fromConfigurator(cfg.defaultLocale, d.locale),
     theme: fromConfigurator(cfg.defaultTheme, d.theme),
     currency: fromConfigurator(cfg.currency, d.currency),

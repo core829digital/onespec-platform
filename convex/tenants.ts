@@ -11,12 +11,17 @@ import {
 } from "./lib/auth";
 import { nanoid } from "./lib/ids";
 
+const COUNTRY_RE = /^[A-Za-z]{2}$/;
+
 export const registerTenant = mutation({
-  args: { companyName: v.string() },
+  args: { companyName: v.string(), country: v.optional(v.string()) },
   handler: async (ctx, args) => {
     const userId = await requireVerifiedUser(ctx);
     const existing = await ctx.db.query("memberships").withIndex("by_user", q => q.eq("userId", userId)).first();
     if (existing) throw new ConvexError("ALREADY_HAS_TENANT");
+
+    const country = args.country && COUNTRY_RE.test(args.country) ? args.country.toUpperCase() : undefined;
+    if (country) await ctx.db.patch(userId, { country });
 
     // ── Atomic alpha-seat claim ──────────────────────────────────────────────
     // Convex mutations are serializable OCC transactions: this reads the
@@ -41,6 +46,7 @@ export const registerTenant = mutation({
         name: args.companyName,
         slug: args.companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "-" + nanoid(6),
         ownerUserId: userId,
+        country,
         isAlpha: true,
         alphaSeatNumber: seatNumber,
         plan: "alpha",
@@ -79,6 +85,7 @@ export const registerTenant = mutation({
         name: args.companyName,
         slug: args.companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "-" + nanoid(6),
         ownerUserId: userId,
+        country,
         isAlpha: false,
         plan: "starter",
         planStatus: "trialing",

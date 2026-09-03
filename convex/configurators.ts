@@ -289,6 +289,7 @@ export const getEffectiveConfig = query({
 
     const effective = resolveEffectiveConfig({
       entitlements: resolveTenantEntitlements(tenant),
+      country: tenant.country,
       configurator: {
         defaultLocale: configurator.defaultLocale,
         defaultTheme: configurator.defaultTheme,

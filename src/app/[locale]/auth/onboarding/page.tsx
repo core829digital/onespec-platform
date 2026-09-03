@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useMutation } from "convex/react";
@@ -10,22 +10,50 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 
+const COUNTRIES = [
+  { code: "IT", label: "Italia" },
+  { code: "FR", label: "France" },
+  { code: "BE", label: "België / Belgique" },
+  { code: "NL", label: "Nederland" },
+  { code: "DE", label: "Deutschland" },
+  { code: "LU", label: "Luxembourg" },
+];
+
 export default function OnboardingPage() {
   const t = useTranslations("auth.onboarding");
   const router = useRouter();
   const [companyName, setCompanyName] = useState("");
+  const [country, setCountry] = useState("");
+  const [detectedFrom, setDetectedFrom] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ alpha: boolean; seatNumber?: number } | null>(null);
 
   const registerTenant = useMutation(api.tenants.registerTenant);
 
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/geo")
+      .then((r) => r.json())
+      .then((g: { country?: string; source?: string }) => {
+        if (cancelled) return;
+        if (g.country && COUNTRIES.some((c) => c.code === g.country)) {
+          setCountry(g.country);
+          setDetectedFrom(g.source ?? null);
+        }
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
-      const res = await registerTenant({ companyName });
+      const res = await registerTenant({ companyName, country: country || undefined });
       setResult(res);
       setLoading(false);
     } catch (err) {
@@ -106,7 +134,33 @@ export default function OnboardingPage() {
         />
       </div>
 
-      <Button type="submit" className="w-full" disabled={loading}>
+      <div>
+        <Label htmlFor="country" className="text-sm font-medium text-[var(--color-text)]">
+          {t("countryLabel")}
+        </Label>
+        <select
+          id="country"
+          value={country}
+          onChange={(e) => setCountry(e.target.value)}
+          required
+          disabled={loading}
+          className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
+        >
+          <option value="" disabled>
+            {t("countryPlaceholder")}
+          </option>
+          {COUNTRIES.map((c) => (
+            <option key={c.code} value={c.code}>
+              {c.label}
+            </option>
+          ))}
+        </select>
+        {detectedFrom === "geo" ? (
+          <p className="mt-1 text-xs text-[var(--color-text-secondary)]">{t("countryDetected")}</p>
+        ) : null}
+      </div>
+
+      <Button type="submit" className="w-full" disabled={loading || !country}>
         {loading ? t("loading") : t("submit")}
       </Button>
     </form>

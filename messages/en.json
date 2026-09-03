@@ -128,7 +128,10 @@
       "alphaSubtitle": "Your company {companyName} is among the first 250 Alpha members. You've locked in 15% lifetime discount.",
       "starterTitle": "Company created",
       "starterSubtitle": "Your company {companyName} is registered with Starter plan.",
-      "continue": "Go to dashboard"
+      "continue": "Go to dashboard",
+      "countryLabel": "Country",
+      "countryPlaceholder": "Select your country",
+      "countryDetected": "Detected automatically from your connection — you can change it."
     }
   },
   "notifications": {

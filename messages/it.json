@@ -128,7 +128,10 @@
       "alphaSubtitle": "La tua azienda {companyName} è tra i primi 250 membri Alpha. Hai bloccato lo sconto del 15% a vita.",
       "starterTitle": "Azienda creata",
       "starterSubtitle": "La tua azienda {companyName} è registrata con piano Starter.",
-      "continue": "Vai alla dashboard"
+      "continue": "Vai alla dashboard",
+      "countryLabel": "Paese",
+      "countryPlaceholder": "Seleziona il paese",
+      "countryDetected": "Rilevato automaticamente dalla tua connessione — puoi cambiarlo."
     }
   },
   "notifications": {

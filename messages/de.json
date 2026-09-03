@@ -114,7 +114,10 @@
       "alphaSubtitle": "Ihr Unternehmen {companyName} ist unter den ersten 250 Alpha-Mitgliedern. Sie haben 15% lebenslangen Rabatt gesichert.",
       "starterTitle": "Unternehmen erstellt",
       "starterSubtitle": "Ihr Unternehmen {companyName} ist mit dem Starter-Plan registriert.",
-      "continue": "Zum Dashboard"
+      "continue": "Zum Dashboard",
+      "countryLabel": "Country",
+      "countryPlaceholder": "Select your country",
+      "countryDetected": "Detected automatically from your connection — you can change it."
     },
     "footer": "© 2026 onespec. Alle Rechte vorbehalten."
   },

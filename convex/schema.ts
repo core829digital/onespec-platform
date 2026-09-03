@@ -12,6 +12,8 @@ export default defineSchema({
     image: v.optional(v.string()),
     isPlatformAdmin: v.optional(v.boolean()),
     locale: v.optional(v.string()),
+    /** Best-effort ISO-3166-1 alpha-2, captured at sign-up (geo header / Accept-Language). */
+    country: v.optional(v.string()),
     lastSeenAt: v.optional(v.number()),
   }).index("email", ["email"]),
 
@@ -34,6 +36,9 @@ export default defineSchema({
     createdAt: v.optional(v.number()),
     updatedAt: v.optional(v.number()),
     updatedByUserId: v.optional(v.id("users")),
+    /** Guided-onboarding progress. `onboardingCompletedAt` set when the user finishes the wizard. */
+    onboardingStep: v.optional(v.string()),
+    onboardingCompletedAt: v.optional(v.number()),
     // Billing — populated only once Stripe is configured and a subscription exists.
     stripeCustomerId: v.optional(v.string()),
     stripeSubscriptionId: v.optional(v.string()),

@@ -36,6 +36,7 @@ import type * as lib_ids from "../lib/ids.js";
 import type * as lib_plan from "../lib/plan.js";
 import type * as lib_pricing from "../lib/pricing.js";
 import type * as lib_ratelimit from "../lib/ratelimit.js";
+import type * as lib_regions from "../lib/regions.js";
 import type * as notifications from "../notifications.js";
 import type * as quotes from "../quotes.js";
 import type * as seed from "../seed.js";
@@ -78,6 +79,7 @@ declare const fullApi: ApiFromModules<{
   "lib/plan": typeof lib_plan;
   "lib/pricing": typeof lib_pricing;
   "lib/ratelimit": typeof lib_ratelimit;
+  "lib/regions": typeof lib_regions;
   notifications: typeof notifications;
   quotes: typeof quotes;
   seed: typeof seed;

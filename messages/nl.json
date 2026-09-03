@@ -114,7 +114,10 @@
       "alphaSubtitle": "Je bedrijf {companyName} is onder de eerste 250 Alpha-leden. Je hebt 15% levenslange korting vastgelegd.",
       "starterTitle": "Bedrijf aangemaakt",
       "starterSubtitle": "Je bedrijf {companyName} is geregistreerd met het Starter-plan.",
-      "continue": "Naar dashboard"
+      "continue": "Naar dashboard",
+      "countryLabel": "Country",
+      "countryPlaceholder": "Select your country",
+      "countryDetected": "Detected automatically from your connection — you can change it."
     },
     "footer": "© 2026 onespec. Alle rechten voorbehouden."
   },

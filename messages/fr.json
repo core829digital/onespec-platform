@@ -114,7 +114,10 @@
       "alphaSubtitle": "Votre entreprise {companyName} fait partie des 250 premiers membres Alpha. Vous avez bloqué 15% de réduction à vie.",
       "starterTitle": "Entreprise créée",
       "starterSubtitle": "Votre entreprise {companyName} est inscrite avec le plan Starter.",
-      "continue": "Aller au tableau de bord"
+      "continue": "Aller au tableau de bord",
+      "countryLabel": "Pays",
+      "countryPlaceholder": "Sélectionnez votre pays",
+      "countryDetected": "Détecté automatiquement depuis votre connexion — modifiable."
     },
     "footer": "© 2026 onespec. Tous droits réservés."
   },
