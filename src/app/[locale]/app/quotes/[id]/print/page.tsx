@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
@@ -10,37 +11,40 @@ interface Props {
   params: { id: string; locale: string };
 }
 
-const MATERIAL_LABELS: Record<string, string> = {
-  pvc: "PVC Alta Densità",
-  alu: "Alluminio Taglio Termico",
-  wood: "Legno Lamellare",
-};
-const GLAZING_LABELS: Record<string, { label: string; ug: number }> = {
-  double: { label: "Doppio Vetro Basso Emissivo", ug: 1.1 },
-  triple: { label: "Triplo Vetro Termico", ug: 0.6 },
-};
-const COLOR_LABELS: Record<string, string> = {
-  white: "Bianco Massa RAL 9016",
-  anthracite: "Grigio Antracite RAL 7016",
-  woodgrain: "Effetto Legno Noce/Rovere",
-};
-const INSTALLATION_LABELS: Record<string, string> = {
-  posa_qualificata_uni_11673: "Posa Qualificata secondo UNI 11673-1:2017 (controtelaio + nastri)",
-  posa_standard: "Posa Standard su Telaio Esistente",
-  solo_fornitura: "Solo Fornitura",
-};
-const SASH_LABELS: Record<string, string> = {
-  fix: "Fisso",
-  tiltturn: "Vasistas / Antaribalta",
-  classic: "Battente",
+const MATERIAL_LABELS: Record<string, Record<string, string>> = {
+  pvc: { it: "PVC Alta Densità", fr: "PVC Haute Densité", de: "PVC Kunststoff", nl: "PVC Kunststof" },
+  alu: { it: "Alluminio Taglio Termico", fr: "Aluminium Rupture Thermique", de: "Aluminium Thermisch", nl: "Aluminium Thermisch" },
+  wood: { it: "Legno Lamellare", fr: "Bois Lamellé Collé", de: "Holz Lamelliert", nl: "Hout Gelamineerd" },
 };
 
-function fmt(cents: number) {
-  return new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(cents / 100);
+const GLAZING_LABELS: Record<string, { label: Record<string, string>; ug: number }> = {
+  double: {
+    label: { it: "Doppio Vetro Basso Emissivo", fr: "Double Vitrage FE", de: "2-fach Isolierglas", nl: "HR++ Dubbel Glas" },
+    ug: 1.1,
+  },
+  triple: {
+    label: { it: "Triplo Vetro Termico", fr: "Triple Vitrage Thermique", de: "3-fach Wärmeschutzglas", nl: "HR+++ Drievoudig Glas" },
+    ug: 0.6,
+  },
+};
+
+const COLOR_LABELS: Record<string, string> = {
+  white: "Bianco / Blanc / Weiß / Crème (RAL 9016/9001)",
+  anthracite: "Grigio Antracite / Gris Anthracite RAL 7016",
+  woodgrain: "Effetto Legno / Chêne / Monumentengroen RAL 6009",
+};
+
+const SASH_LABELS: Record<string, Record<string, string>> = {
+  fix: { it: "Fisso", fr: "Fixe", de: "Fest", nl: "Vast" },
+  tiltturn: { it: "Vasistas / Antaribalta", fr: "Oscillo-battant", de: "Dreh-Kipp", nl: "Draai-kiep" },
+  classic: { it: "Battente", fr: "Ouvrant", de: "Dreh", nl: "Draai" },
+};
+
+function fmt(cents: number, locale = "it-IT") {
+  return new Intl.NumberFormat(locale, { style: "currency", currency: "EUR" }).format(cents / 100);
 }
 
 function estimateUw(item: ProjectItem): number {
-  // Simplified Uw approximation for print document
   const ug = item.glazing === "triple" ? 0.6 : 1.1;
   const uframeMat: Record<string, number> = { pvc: 1.3, alu: 2.0, wood: 1.4 };
   const uFrame = uframeMat[item.material] ?? 1.5;
@@ -73,6 +77,9 @@ export default function PrintQuotePage({ params }: Props) {
   const quoteId = params.id as Id<"quoteRequests">;
   const data = useQuery(api.quotes.getQuoteForPrint, { quoteId });
 
+  // Luxembourg 1-click bilingual switch
+  const [luLang, setLuLang] = useState<"fr" | "de">("fr");
+
   if (!data) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -91,30 +98,55 @@ export default function PrintQuotePage({ params }: Props) {
     );
   }
 
+  const region = quote.regionCode || "IT";
   const items: ProjectItem[] = Array.isArray(quote.items) ? (quote.items as ProjectItem[]) : [];
-  const today = new Date().toLocaleDateString("it-IT", {
+
+  const langKey = region === "LU" ? luLang : region === "FR" || region === "BE" ? "fr" : region === "DE" ? "de" : region === "NL" ? "nl" : "it";
+  const dateLocale = langKey === "fr" ? "fr-FR" : langKey === "de" ? "de-DE" : langKey === "nl" ? "nl-NL" : "it-IT";
+
+  const today = new Date().toLocaleDateString(dateLocale, {
     day: "2-digit",
     month: "long",
     year: "numeric",
   });
   const signedDate = quote.signedAt
-    ? new Date(quote.signedAt).toLocaleDateString("it-IT", { day: "2-digit", month: "long", year: "numeric" })
+    ? new Date(quote.signedAt).toLocaleDateString(dateLocale, { day: "2-digit", month: "long", year: "numeric" })
     : null;
 
   const installationTotal = (quote.installationPriceCents ?? 0) + (quote.demolitionPriceCents ?? 0);
   const supplyExVat = quote.priceExVatCents - (installationTotal > 0 ? Math.round(installationTotal / (1 + (quote.vatRatePercent ?? 22) / 100)) : 0);
+
+  // Document Title by Region
+  let documentTitle = "PREVENTIVO UFFICIALE";
+  let documentTypeBadge = "🇮🇹 ITALIA · UNI 11673";
+  if (region === "FR") {
+    documentTitle = "DEVIS OFFICIEL & PROPOSITION COMMERCIALE";
+    documentTypeBadge = "🇫🇷 FRANCE · DTU 36.5 / RGE";
+  } else if (region === "BE") {
+    documentTitle = "OFFERTE / DEVIS DE MENUISERIE";
+    documentTypeBadge = "🇧🇪 BELGIQUE · TVA 6%/21%";
+  } else if (region === "NL") {
+    documentTitle = "OFFERTE KOZIJNEN & MONTAGE";
+    documentTypeBadge = "🇳🇱 NEDERLAND · BLOKPROFIEL / HVL";
+  } else if (region === "DE") {
+    documentTitle = "ANGEBOT FENSTERBAU & MONTAGE";
+    documentTypeBadge = "🇩🇪 DEUTSCHLAND · RAL-MONTAGE";
+  } else if (region === "LU") {
+    documentTitle = luLang === "de" ? "ANGEBOT / DEVIS (LUXEMBURG)" : "DEVIS OFFICIEL / ANGEBOT (LUXEMBOURG)";
+    documentTypeBadge = "🇱🇺 LUXEMBOURG · TVA 3%";
+  }
 
   return (
     <>
       {/* Print action bar (hidden in print) */}
       <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4">
         <div className="flex items-center gap-3">
-          <Link href="/app/requests" className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
-            ← Elenco Richieste
+          <Link href="/app/quotes" className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
+            ← Elenco Preventivi
           </Link>
           <span className="text-[var(--color-border)]">|</span>
           <span className="text-sm font-medium text-[var(--color-text)]">
-            Preventivo #{quote.publicId?.slice(-8).toUpperCase()}
+            Documento #{quote.publicId?.slice(-8).toUpperCase()} ({region})
           </span>
           {quote.signedAt ? (
             <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
@@ -126,7 +158,27 @@ export default function PrintQuotePage({ params }: Props) {
             </span>
           )}
         </div>
-        <div className="flex gap-2">
+        <div className="flex items-center gap-2">
+          {/* Luxembourg 1-Click Bilingual Switch */}
+          {region === "LU" && (
+            <div className="flex items-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-1 text-xs">
+              <button
+                type="button"
+                onClick={() => setLuLang("fr")}
+                className={`rounded px-2 py-1 font-bold ${luLang === "fr" ? "bg-[var(--color-mint)] text-[var(--color-mint-dark)]" : "text-[var(--color-text-secondary)]"}`}
+              >
+                Français (Devis)
+              </button>
+              <button
+                type="button"
+                onClick={() => setLuLang("de")}
+                className={`rounded px-2 py-1 font-bold ${luLang === "de" ? "bg-[var(--color-mint)] text-[var(--color-mint-dark)]" : "text-[var(--color-text-secondary)]"}`}
+              >
+                Deutsch (Angebot)
+              </button>
+            </div>
+          )}
+
           {!quote.signedAt && (
             <Link
               href={`/app/quotes/${quoteId}/sign`}
@@ -155,20 +207,27 @@ export default function PrintQuotePage({ params }: Props) {
           <div>
             <h1 className="text-2xl font-bold text-gray-900">{tenant?.name ?? "Serramenti"}</h1>
             <div className="mt-1 space-y-0.5 text-xs text-gray-500">
-              <p>P.IVA: {(tenant as { vatId?: string })?.vatId ?? "—"}</p>
+              <p>P.IVA / TVA / MwSt: {(tenant as { vatId?: string })?.vatId ?? "—"}</p>
+              {quote.rgeCertificate && (
+                <p className="font-semibold text-emerald-700">Certifié RGE QUALIBAT: {quote.rgeCertificate}</p>
+              )}
+              {quote.decennaleInsurance && (
+                <p className="text-gray-600">{quote.decennaleInsurance}</p>
+              )}
               <p>{(tenant as { address?: string })?.address ?? "—"}</p>
             </div>
           </div>
           <div className="text-right">
             <div className="inline-flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-1.5">
               <span className="text-xs font-bold uppercase tracking-widest text-emerald-700">
-                PREVENTIVO UFFICIALE
+                {documentTitle}
               </span>
             </div>
             <div className="mt-2 space-y-0.5 text-xs text-gray-500">
+              <p className="font-semibold text-gray-700">{documentTypeBadge}</p>
               <p>N° <span className="font-mono font-bold text-gray-800">{quote.publicId?.slice(-8).toUpperCase()}</span></p>
-              <p>Data: <strong>{today}</strong></p>
-              <p>Validità: <strong>30 giorni</strong></p>
+              <p>Data / Date: <strong>{today}</strong></p>
+              <p>Validità / Validité: <strong>30 giorni / 30 jours</strong></p>
             </div>
           </div>
         </div>
@@ -176,11 +235,15 @@ export default function PrintQuotePage({ params }: Props) {
         {/* Parties */}
         <div className="grid grid-cols-2 gap-8 border-b border-gray-200 px-8 py-5">
           <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">Azienda Emittente</p>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
+              {langKey === "fr" ? "Entreprise émettrice" : langKey === "de" ? "Ausführendes Unternehmen" : langKey === "nl" ? "Uitvoerend bedrijf" : "Azienda Emittente"}
+            </p>
             <p className="font-bold text-gray-800">{tenant?.name}</p>
           </div>
           <div>
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">Cliente</p>
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-gray-400">
+              {langKey === "fr" ? "Client / Maître d'ouvrage" : langKey === "de" ? "Kunde / Auftraggeber" : langKey === "nl" ? "Klant / Opdrachtgever" : "Cliente"}
+            </p>
             <p className="font-bold text-gray-800">{quote.leadName}</p>
             <p className="text-sm text-gray-600">{quote.leadEmail}</p>
             {quote.leadPhone && <p className="text-sm text-gray-600">{quote.leadPhone}</p>}
@@ -197,13 +260,15 @@ export default function PrintQuotePage({ params }: Props) {
         {/* Items table */}
         <div className="px-8 py-6">
           <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-gray-700">
-            Dettaglio Fornitura e Posa
+            {langKey === "fr" ? "Détail Menuiseries & Prestations de Pose" : langKey === "de" ? "Elemente- & Montageaufstellung" : langKey === "nl" ? "Specificatie Kozijnen & Montage" : "Dettaglio Fornitura e Posa"}
           </h2>
           <table className="w-full border-collapse text-xs">
             <thead>
               <tr className="border-b-2 border-gray-300 bg-gray-50 text-left">
                 <th className="px-3 py-2 font-semibold text-gray-600">Pos.</th>
-                <th className="px-3 py-2 font-semibold text-gray-600">Tipologia</th>
+                <th className="px-3 py-2 font-semibold text-gray-600">
+                  {langKey === "fr" ? "Type / Désignation" : langKey === "de" ? "Bezeichnung" : langKey === "nl" ? "Type" : "Tipologia"}
+                </th>
                 <th className="px-3 py-2 font-semibold text-gray-600">Dimensioni (mm)</th>
                 <th className="px-3 py-2 font-semibold text-gray-600">Materiale / Vetro</th>
                 <th className="px-3 py-2 font-semibold text-gray-600">U<sub>w</sub> W/m²K</th>
@@ -213,15 +278,23 @@ export default function PrintQuotePage({ params }: Props) {
             <tbody>
               {items.map((item, idx) => {
                 const uw = estimateUw(item);
-                const glazingInfo = GLAZING_LABELS[item.glazing] ?? { label: item.glazing, ug: 1.1 };
-                const sashTypes = item.sashes?.map((s) => SASH_LABELS[s.type] ?? s.type).join(" + ") ?? "—";
+                const matText = MATERIAL_LABELS[item.material]?.[langKey] ?? MATERIAL_LABELS[item.material]?.it ?? item.material;
+                const glazingInfo = GLAZING_LABELS[item.glazing] ?? { label: { it: item.glazing }, ug: 1.1 };
+                const glazingText = glazingInfo.label[langKey] ?? glazingInfo.label.it;
+                const sashTypes = item.sashes?.map((s) => SASH_LABELS[s.type]?.[langKey] ?? s.type).join(" + ") ?? "—";
                 return (
                   <tr key={idx} className="border-b border-gray-100 even:bg-gray-50">
                     <td className="px-3 py-3 font-bold text-gray-700">{idx + 1}</td>
                     <td className="px-3 py-3">
-                      <p className="font-semibold">{item.productType === "balconyDoor" ? "Portafinestra" : "Finestra"}</p>
+                      <p className="font-semibold">{item.productType === "balconyDoor" ? "Portafinestra / Porte-fenêtre" : "Finestra / Fenêtre"}</p>
                       <p className="text-gray-500">{sashTypes}</p>
                       <p className="text-gray-500">{COLOR_LABELS[item.color] ?? item.color}</p>
+                      {quote.hvlJointCount && (
+                        <p className="text-emerald-700 font-medium">✦ HVL 90° Houtverbindingslook ({quote.hvlJointCount} hoeken)</p>
+                      )}
+                      {quote.rcSecurityLevel && quote.rcSecurityLevel !== "standard" && (
+                        <p className="text-blue-700 font-medium">✦ Sicherheitsbeschlag {quote.rcSecurityLevel} (Pilzkopf + P4A)</p>
+                      )}
                     </td>
                     <td className="px-3 py-3 font-mono">
                       {item.width} × {item.height}
@@ -229,8 +302,8 @@ export default function PrintQuotePage({ params }: Props) {
                       <span className="text-gray-500">{((item.width / 1000) * (item.height / 1000)).toFixed(2)} m²</span>
                     </td>
                     <td className="px-3 py-3">
-                      <p>{MATERIAL_LABELS[item.material] ?? item.material}</p>
-                      <p className="text-gray-500">{glazingInfo.label}</p>
+                      <p>{matText}</p>
+                      <p className="text-gray-500">{glazingText}</p>
                       <p className="text-gray-500">U<sub>g</sub> = {glazingInfo.ug} W/m²K</p>
                     </td>
                     <td className="px-3 py-3">
@@ -249,85 +322,145 @@ export default function PrintQuotePage({ params }: Props) {
           <div className="ml-auto max-w-xs space-y-2 text-sm">
             <div className="flex justify-between text-gray-600">
               <span>Fornitura serramenti ({items.length} pz):</span>
-              <span className="font-mono">{fmt(supplyExVat)}</span>
+              <span className="font-mono">{fmt(supplyExVat, dateLocale)}</span>
             </div>
             {installationTotal > 0 && (
               <div className="flex justify-between text-gray-600">
-                <span>Posa + Smaltimento:</span>
-                <span className="font-mono">{fmt(installationTotal)}</span>
+                <span>Posa + Dépose / Smaltimento:</span>
+                <span className="font-mono">{fmt(installationTotal, dateLocale)}</span>
               </div>
             )}
             {(quote.discountPercent ?? 0) > 0 && (
               <div className="flex justify-between text-amber-600">
-                <span>Sconto ({quote.discountPercent}%):</span>
+                <span>Sconto / Remise ({quote.discountPercent}%):</span>
                 <span className="font-mono">− applicato</span>
               </div>
             )}
             <div className="flex justify-between border-t border-gray-300 pt-2 text-gray-600">
-              <span>Imponibile:</span>
-              <span className="font-mono">{fmt(quote.priceExVatCents)}</span>
+              <span>Imponibile / Total HT:</span>
+              <span className="font-mono">{fmt(quote.priceExVatCents, dateLocale)}</span>
             </div>
             <div className="flex justify-between text-gray-600">
-              <span>IVA ({quote.vatRatePercent ?? 22}%):</span>
-              <span className="font-mono">{fmt(quote.priceCents - quote.priceExVatCents)}</span>
+              <span>IVA / TVA / Btw ({quote.vatRatePercent ?? 20}%):</span>
+              <span className="font-mono">{fmt(quote.priceCents - quote.priceExVatCents, dateLocale)}</span>
             </div>
             <div className="flex justify-between border-t-2 border-gray-800 pt-2 text-base font-bold text-gray-900">
-              <span>TOTALE:</span>
-              <span className="font-mono">{fmt(quote.priceCents)}</span>
+              <span>TOTALE / TOTAL TTC:</span>
+              <span className="font-mono">{fmt(quote.priceCents, dateLocale)}</span>
             </div>
+
+            {/* Subsidies */}
             {(quote.ecobonusPercent ?? 0) > 0 && (
               <div className="mt-3 rounded-lg border border-emerald-300 bg-emerald-50 p-3 text-xs text-emerald-700">
                 <p className="font-bold">Detrazione Ecobonus {quote.ecobonusPercent}% (D.L. 63/2013 e s.m.i.)</p>
                 <div className="mt-1 flex justify-between">
-                  <span>Detrazione totale su 10 anni:</span>
-                  <span className="font-mono font-bold">{fmt(quote.ecobonusDeductionCents ?? 0)}</span>
+                  <span>Detrazione totale:</span>
+                  <span className="font-mono font-bold">{fmt(quote.ecobonusDeductionCents ?? 0, dateLocale)}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Costo netto effettivo:</span>
-                  <span className="font-mono font-bold">
-                    {fmt(quote.priceCents - (quote.ecobonusDeductionCents ?? 0))}
-                  </span>
+              </div>
+            )}
+
+            {(quote.maPrimeRenovPercent ?? 0) > 0 && (
+              <div className="mt-3 rounded-lg border border-emerald-300 bg-emerald-50 p-3 text-xs text-emerald-700">
+                <p className="font-bold">Aide MaPrimeRénov&apos; estimée ({quote.maPrimeRenovPercent}%)</p>
+                <div className="mt-1 flex justify-between">
+                  <span>Montant de l&apos;aide estimé:</span>
+                  <span className="font-mono font-bold">{fmt(quote.maPrimeRenovDeductionCents ?? 0, dateLocale)}</span>
                 </div>
+                <p className="mt-1 text-[10px] text-emerald-600">Sous réserve de validation par l&apos;ANAH et pose par installateur certifié RGE.</p>
+              </div>
+            )}
+
+            {quote.klimabonusEligible && (
+              <div className="mt-3 rounded-lg border border-emerald-300 bg-emerald-50 p-3 text-xs text-emerald-700">
+                <p className="font-bold">Éligible Subvention Klimabonus (Luxembourg)</p>
+                <p className="mt-0.5 text-[10px] text-emerald-600">Performance thermique conforme aux exigences de l&apos;Administration de l&apos;Environnement.</p>
               </div>
             )}
           </div>
         </div>
 
-        {/* Installation note */}
-        {quote.installationType && (
-          <div className="border-t border-gray-200 px-8 py-4 text-xs text-gray-600">
-            <strong>Modalità di posa:</strong>{" "}
-            {INSTALLATION_LABELS[quote.installationType] ?? quote.installationType}
-          </div>
-        )}
+        {/* Regional notes & legal */}
+        <div className="border-t border-gray-200 px-8 py-5 text-xs text-gray-500 space-y-2">
+          {region === "FR" && (
+            <>
+              <p>
+                <strong>Norme de pose DTU 36.5:</strong> La pose est réalisée conformément au Document Technique Unifié
+                DTU 36.5 (Mise en œuvre des fenêtres et portes-fenêtres). Étanchéité à l&apos;air et à l&apos;eau garantie par
+                membranes et fonds de joint normalisés.
+              </p>
+              <p>
+                <strong>Garanties & Assurance Décennale:</strong> Assurance responsabilité civile décennale obligatoire souscrite
+                auprès de {quote.decennaleInsurance || "AXA Assurances"}. Garantie biennale sur les équipements et garantie de parfait achèvement 1 an.
+              </p>
+              <p>
+                <strong>Rétractation (Art. L221-18 Code de la consommation):</strong> En cas de démarchage à domicile ou vente hors établissement,
+                le client dispose d&apos;un délai légal de rétractation de 14 jours francs à compter de la signature.
+              </p>
+            </>
+          )}
 
-        {/* Payment terms */}
-        {quote.depositTerms && (
-          <div className="border-t border-gray-200 px-8 py-4 text-xs text-gray-600">
-            <strong>Condizioni di pagamento:</strong> {quote.depositTerms}
-          </div>
-        )}
+          {region === "BE" && (
+            <>
+              <p>
+                <strong>Attestation TVA 6% (Belgique):</strong> Pour les travaux de rénovation sur un logement privé de plus de 10 ans,
+                le taux réduit de TVA de 6% est applicable sur présentation de la déclaration légale signée par le maître d&apos;ouvrage.
+              </p>
+              <p>
+                <strong>Primes Régionales:</strong> Menuiseries conformes aux normes d&apos;isolation Uw ≤ 1.5 W/m²K ouvrant droit aux
+                primes MijnVerbouwPremie (Flandre) et Primes Habitation (Wallonie).
+              </p>
+            </>
+          )}
 
-        {/* Legal & warranty */}
-        <div className="border-t border-gray-200 px-8 py-5 text-xs text-gray-500 space-y-1.5">
-          <p>
-            <strong>Norma di posa:</strong> La posa in opera verrà eseguita nel rispetto della norma tecnica{" "}
-            <strong>UNI 11673-1:2017</strong> — Posa in opera di serramenti — Parte 1: Requisiti e criteri di verifica
-            della progettazione. Saranno utilizzati nastri pre-compressi, sigillanti e controtelai conformi.
-          </p>
-          <p>
-            <strong>Garanzia:</strong> Garanzia prodotto 10 anni sui profili, 5 anni sulle ferramenta, 2 anni sulla
-            manodopera di posa secondo D.Lgs. 206/2005 (Codice del Consumo).
-          </p>
-          <p>
-            <strong>Detrazione fiscale:</strong> Ai fini Ecobonus, il committente dovrà comunicare preventivamente
-            l&apos;intervento al Comune e richiedere l&apos;APE (Attestato di Prestazione Energetica) pre e post intervento
-            se richiesto. Il presente preventivo non costituisce perizia energetica.
-          </p>
-          <p>
-            <strong>Privacy:</strong> I dati personali sono trattati ai sensi del Reg. UE 679/2016 (GDPR). Responsabile
-            del trattamento: {tenant?.name}.
-          </p>
+          {region === "NL" && (
+            <>
+              <p>
+                <strong>VKG / SKG Kwaliteitsnorm:</strong> Kozijnen uitgevoerd in Blokprofiel met HVL 90° rechte hoekverbinding
+                conform VKG-richtlijnen en SKG** weerstandsklasse.
+              </p>
+              <p>
+                <strong>ISDE Subsidie:</strong> Beglazing HR++ / HR+++ voldoet aan de eisen van de RVO voor de Investeringssubsidie
+                Duurzame Energie (ISDE).
+              </p>
+            </>
+          )}
+
+          {region === "DE" && (
+            <>
+              <p>
+                <strong>RAL-Gütegesicherte Montage (DIN 4108-7 / DIN 18055):</strong> 3-Ebenen-Montage nach den anerkannten Regeln der Technik.
+                Innen luftdicht (Dampfbremse), mittig wärme- und schalldämmend, außen schlagregendicht und diffusionsoffen (Compriband).
+              </p>
+              <p>
+                <strong>VOB/B Gewährleistung:</strong> 5 Jahre Gewährleistung auf Profile und Verglasung, 2 Jahre auf Beschläge und Montage.
+              </p>
+            </>
+          )}
+
+          {region === "LU" && (
+            <>
+              <p>
+                <strong>Taux de TVA 3% (Super-réduit):</strong> Application sous réserve de l&apos;accord formel de l&apos;Administration de l&apos;Enregistrement,
+                des Domaines et de la TVA (logement affecté à des fins d&apos;habitation principale).
+              </p>
+            </>
+          )}
+
+          {region === "IT" && (
+            <>
+              <p>
+                <strong>Norma UNI 11673-1:2017:</strong> Posa qualificata eseguita con controtelai termici, sigillanti elastici
+                e nastri autoespandenti conformi per l&apos;eliminazione dei ponti termici.
+              </p>
+            </>
+          )}
+
+          {quote.depositTerms && (
+            <p>
+              <strong>Condizioni di pagamento / Modalités:</strong> {quote.depositTerms}
+            </p>
+          )}
         </div>
 
         {/* Signature block */}
@@ -335,15 +468,15 @@ export default function PrintQuotePage({ params }: Props) {
           <div className="grid grid-cols-2 gap-10">
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">
-                Firma e Timbro Aziendale
+                {langKey === "fr" ? "Cachet et Signature de l'Entreprise" : langKey === "de" ? "Firmenstempel & Unterschrift" : langKey === "nl" ? "Handtekening Bedrijf" : "Firma e Timbro Aziendale"}
               </p>
               <div className="h-20 rounded-lg border border-dashed border-gray-300 bg-gray-50 flex items-end pb-2 px-2">
-                <span className="text-xs text-gray-400">Per {tenant?.name}</span>
+                <span className="text-xs text-gray-400">Pour / Per {tenant?.name}</span>
               </div>
             </div>
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 mb-3">
-                Firma Cliente per Accettazione
+                {langKey === "fr" ? "Bon pour Accord et Signature Client" : langKey === "de" ? "Auftragserteilung Kunde" : langKey === "nl" ? "Akkoord Klant" : "Firma Cliente per Accettazione"}
               </p>
               {quote.signatureDataUrl ? (
                 <div className="space-y-1">
@@ -360,7 +493,7 @@ export default function PrintQuotePage({ params }: Props) {
                 </div>
               ) : (
                 <div className="h-20 rounded-lg border border-dashed border-gray-300 bg-gray-50 flex items-end pb-2 px-2">
-                  <span className="text-xs text-gray-400">Da firmare</span>
+                  <span className="text-xs text-gray-400">Da firmare / À signer</span>
                 </div>
               )}
             </div>

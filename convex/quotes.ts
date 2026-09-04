@@ -136,6 +136,18 @@ export const createFieldQuote = mutation({
     profitMarginPercent: v.optional(v.number()),
     vatRatePercent: v.optional(v.number()),
     depositTerms: v.optional(v.string()),
+    regionCode: v.optional(v.string()),
+    poseType: v.optional(v.string()),
+    rgeCertificate: v.optional(v.string()),
+    maPrimeRenovPercent: v.optional(v.number()),
+    decennaleInsurance: v.optional(v.string()),
+    rensonGrilleWidthMm: v.optional(v.number()),
+    voletMonoblocHeightMm: v.optional(v.number()),
+    hvlJointCount: v.optional(v.number()),
+    isostoneSill: v.optional(v.boolean()),
+    ralMontage: v.optional(v.boolean()),
+    rcSecurityLevel: v.optional(v.string()),
+    klimabonusEligible: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const { userId } = await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
@@ -164,13 +176,15 @@ export const createFieldQuote = mutation({
     const demolitionCost = Math.max(args.demolitionPriceCents ?? 0, 0);
     const discountPct = Math.min(Math.max(args.discountPercent ?? 0, 0), 100);
     const ecobonusPct = Math.min(Math.max(args.ecobonusPercent ?? 0, 0), 100);
+    const maPrimePct = Math.min(Math.max(args.maPrimeRenovPercent ?? 0, 0), 100);
 
     const subtotalExVat = baseCalc.priceExVatCents + installCost + demolitionCost;
     const discountedExVat = Math.round(subtotalExVat * (1 - discountPct / 100));
 
     const effectiveVat = args.vatRatePercent !== undefined ? args.vatRatePercent : configurator.vatRatePercent;
     const finalPriceCents = Math.round(discountedExVat * (1 + effectiveVat / 100));
-    const ecobonusDeductionCents = Math.round(finalPriceCents * (ecobonusPct / 100));
+    const ecobonusDeductionCents = ecobonusPct > 0 ? Math.round(finalPriceCents * (ecobonusPct / 100)) : undefined;
+    const maPrimeRenovDeductionCents = maPrimePct > 0 ? Math.round(finalPriceCents * (maPrimePct / 100)) : undefined;
 
     const quoteId = await ctx.db.insert("quoteRequests", {
       tenantId: args.tenantId,
@@ -190,10 +204,23 @@ export const createFieldQuote = mutation({
       installationPriceCents: installCost,
       demolitionPriceCents: demolitionCost,
       discountPercent: discountPct,
-      ecobonusPercent: ecobonusPct,
+      ecobonusPercent: ecobonusPct > 0 ? ecobonusPct : undefined,
       ecobonusDeductionCents,
       profitMarginPercent: args.profitMarginPercent,
-      depositTerms: args.depositTerms ?? "30% ordine · 60% merce pronta · 10% posa",
+      depositTerms: args.depositTerms ?? (args.regionCode === "FR" ? "Acompte 30% à la commande · 70% à la livraison" : "30% ordine · 60% merce pronta · 10% posa"),
+      regionCode: args.regionCode,
+      poseType: args.poseType,
+      rgeCertificate: args.rgeCertificate,
+      maPrimeRenovPercent: maPrimePct > 0 ? maPrimePct : undefined,
+      maPrimeRenovDeductionCents,
+      decennaleInsurance: args.decennaleInsurance,
+      rensonGrilleWidthMm: args.rensonGrilleWidthMm,
+      voletMonoblocHeightMm: args.voletMonoblocHeightMm,
+      hvlJointCount: args.hvlJointCount,
+      isostoneSill: args.isostoneSill,
+      ralMontage: args.ralMontage,
+      rcSecurityLevel: args.rcSecurityLevel,
+      klimabonusEligible: args.klimabonusEligible,
       items,
       priceCents: finalPriceCents,
       priceExVatCents: discountedExVat,

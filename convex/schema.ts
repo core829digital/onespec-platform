@@ -288,6 +288,20 @@ export default defineSchema({
     signatureDataUrl: v.optional(v.string()),
     signedAt: v.optional(v.number()),
     signedByName: v.optional(v.string()),
+    // Regional Country Phase fields (FR, BE, NL, DE, LU)
+    regionCode: v.optional(v.string()),
+    poseType: v.optional(v.string()), // FR DTU 36.5 (renovation, feuillure, applique, tunnel)
+    rgeCertificate: v.optional(v.string()), // FR RGE Cert
+    maPrimeRenovPercent: v.optional(v.number()), // FR Subsidies
+    maPrimeRenovDeductionCents: v.optional(v.number()),
+    decennaleInsurance: v.optional(v.string()), // FR Assurance Decennale
+    rensonGrilleWidthMm: v.optional(v.number()), // BE Renson Invisivent ventilation grilles
+    voletMonoblocHeightMm: v.optional(v.number()), // BE/DE Rolling shutter box
+    hvlJointCount: v.optional(v.number()), // NL HVL 90 deg corner joints
+    isostoneSill: v.optional(v.boolean()), // NL Synthetic stone sill
+    ralMontage: v.optional(v.boolean()), // DE/LU RAL montage system
+    rcSecurityLevel: v.optional(v.string()), // DE/LU RC2 / RC3 security grade
+    klimabonusEligible: v.optional(v.boolean()), // LU Klimabonus
     items: v.any(),
     priceCents: v.number(),
     priceExVatCents: v.number(),
