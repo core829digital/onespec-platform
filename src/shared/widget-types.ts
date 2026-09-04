@@ -32,6 +32,7 @@ export const ProjectItemSchema = z
     insectScreenType: z.string().max(40).optional(),
     insectScreenColor: z.string().max(40).optional(),
     installation: z.string().max(40).optional(),
+    poseType: z.string().max(40).optional(),
   })
   .superRefine((item, ctx) => {
     // A one-piece sash cannot exceed 1200 x 2800 mm (structural limit) — this

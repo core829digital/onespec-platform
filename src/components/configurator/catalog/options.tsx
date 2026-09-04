@@ -154,6 +154,7 @@ const HARDWARE_KINDS: Array<{ kind: string; title: string }> = [
   { kind: "screen", title: "Zanzariere (tipi)" },
   { kind: "screenColor", title: "Colore zanzariera" },
   { kind: "installation", title: "Montaggio / posa" },
+  { kind: "poseType", title: "Tipo di posa (FR)" },
   { kind: "threshold", title: "Soglie" },
   { kind: "misc", title: "Accessori" },
 ];

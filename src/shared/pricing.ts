@@ -76,7 +76,7 @@ export interface CatalogPayload {
     enabled: boolean;
   }>;
   hardware: Array<{
-    kind: "hardware" | "hardwareColor" | "sashType" | "screen" | "screenColor" | "installation" | "threshold" | "misc";
+    kind: "hardware" | "hardwareColor" | "sashType" | "screen" | "screenColor" | "installation" | "poseType" | "threshold" | "misc";
     key: string;
     labels: Record<string, string>;
     priceCents: number;
@@ -108,6 +108,8 @@ export interface ProjectItem {
   insectScreenType?: string;
   insectScreenColor?: string;
   installation?: string;
+  /** FR frame-fitting method (pose): rénovation / feuillure / applique. */
+  poseType?: string;
 }
 
 export interface ItemBreakdown {
@@ -230,8 +232,11 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
     const installationCost =
       getHardwareOption(payload, "installation", item.installation ?? "")?.priceCents || 0;
 
+    const poseTypeCost =
+      getHardwareOption(payload, "poseType", item.poseType ?? "")?.priceCents || 0;
+
     const optionsCost =
-      sashCost + hardwareCost + thresholdCost + installationCost +
+      sashCost + hardwareCost + thresholdCost + installationCost + poseTypeCost +
       (glazing?.priceCents || 0) + (finish?.priceCents || 0) + screenCost;
 
     const unitPrice = materialCost + profileCost + optionsCost;

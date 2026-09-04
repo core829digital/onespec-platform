@@ -43,6 +43,7 @@ export interface WidgetDict {
   insectScreenColors: Pair[];
   installationLabel: string;
   installationOptions: Pair[];
+  poseTypeLabel: string;
   productTypeLabel: string;
   productTypeWindow: string;
   productTypeDoor: string;
@@ -85,6 +86,8 @@ export interface WidgetDict {
   estimateNotContractual: string;
   requestSurveyBtn: string;
   posaUni11673Note: string;
+  /** Region compliance-flag → visitor-facing note. */
+  compliance: Record<string, string>;
 }
 
 const en: WidgetDict = {
@@ -134,6 +137,7 @@ const en: WidgetDict = {
   insectScreenColors: [["white", "White"], ["brown", "Brown"], ["woodeffect", "Wood effect"], ["other", "Other colour"]],
   installationLabel: "Installation (montaggio)",
   installationOptions: [["classico", "Montaggio Classico"], ["posaClima", "Montaggio Posa Clima"]],
+  poseTypeLabel: "Pose type",
   productTypeLabel: "Product type",
   productTypeWindow: "Window",
   productTypeDoor: "Balcony door",
@@ -176,6 +180,11 @@ const en: WidgetDict = {
   estimateNotContractual: "Indicative estimate — not a binding quote.",
   requestSurveyBtn: "Request an on-site survey",
   posaUni11673Note: "Installation to UNI 11673-1:2017 standard",
+  compliance: {
+    posa_uni_11673: "Installation to UNI 11673-1:2017 standard",
+    rge: "RGE-certified installer — eligible for French energy incentives",
+    dtu_36_5: "Installation to DTU 36.5 (window fitting)",
+  },
 };
 
 const it: WidgetDict = {
@@ -220,6 +229,7 @@ const it: WidgetDict = {
   insectScreenColorLabel: "Colore zanzariera",
   insectScreenColors: [["white", "Bianco"], ["brown", "Marrone"], ["woodeffect", "Effetto legno"], ["other", "Altro colore"]],
   installationLabel: "Montaggio",
+  poseTypeLabel: "Tipo di posa",
   productTypeLabel: "Tipo di prodotto",
   productTypeWindow: "Finestra",
   productTypeDoor: "Porta balcone",
@@ -260,6 +270,11 @@ const it: WidgetDict = {
   estimateNotContractual: "Stima orientativa · non è un preventivo contrattuale.",
   requestSurveyBtn: "Richiedi un sopralluogo",
   posaUni11673Note: "Posa in opera secondo norma UNI 11673-1:2017",
+  compliance: {
+    posa_uni_11673: "Posa in opera secondo norma UNI 11673-1:2017",
+    rge: "Installatore certificato RGE",
+    dtu_36_5: "Posa secondo DTU 36.5",
+  },
 };
 
 const fr: WidgetDict = {
@@ -304,6 +319,7 @@ const fr: WidgetDict = {
   insectScreenColorLabel: "Couleur de la moustiquaire",
   insectScreenColors: [["white", "Blanc"], ["brown", "Marron"], ["woodeffect", "Effet bois"], ["other", "Autre couleur"]],
   installationLabel: "Montaggio (pose)",
+  poseTypeLabel: "Type de pose",
   productTypeLabel: "Type de produit",
   productTypeWindow: "Fenêtre",
   productTypeDoor: "Porte-fenêtre / balcon",
@@ -342,8 +358,13 @@ const fr: WidgetDict = {
   footerDisclaimer: "Estimation à titre indicatif uniquement. Le prix définitif est confirmé après métrage sur site.",
   vatRateLabel: "Taux de TVA",
   estimateNotContractual: "Estimation indicative — ne constitue pas un devis contractuel.",
-  requestSurveyBtn: "Demander une visite technique",
+  requestSurveyBtn: "Demander un devis gratuit & une visite technique",
   posaUni11673Note: "Pose selon la norme UNI 11673-1:2017",
+  compliance: {
+    posa_uni_11673: "Pose selon la norme UNI 11673-1:2017",
+    rge: "Poseur certifié RGE — éligible aux aides à la rénovation énergétique",
+    dtu_36_5: "Pose conforme au DTU 36.5",
+  },
 };
 
 const DICTS: Record<string, WidgetDict> = { en, it, fr, ro: en, de: en, nl: en };

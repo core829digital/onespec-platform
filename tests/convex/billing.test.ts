@@ -71,14 +71,27 @@ describe("billing.getBillingState + webhook", () => {
     const t = newDb();
     const { tenantId, ownerId } = await seedTenant(t, { plan: "starter" });
     await t.run(async (ctx) => {
+      await ctx.db.patch(tenantId, { country: "BE" });
+    });
+    const s = await t
+      .withIdentity({ subject: ownerId })
+      .query(api.billing.getBillingState, { tenantId });
+    expect(s?.region).toBe("BE");
+    // BE has no REGIONAL_PRICES entry yet → base Business price €47.
+    expect(s?.plans.find((p) => p.key === "business")?.priceCents).toBe(4700);
+  });
+
+  test("FR tenant gets the France regional plan price", async () => {
+    const t = newDb();
+    const { tenantId, ownerId } = await seedTenant(t, { plan: "starter" });
+    await t.run(async (ctx) => {
       await ctx.db.patch(tenantId, { country: "FR" });
     });
     const s = await t
       .withIdentity({ subject: ownerId })
       .query(api.billing.getBillingState, { tenantId });
     expect(s?.region).toBe("FR");
-    // FR has no REGIONAL_PRICES entry yet → base Business price €47.
-    expect(s?.plans.find((p) => p.key === "business")?.priceCents).toBe(4700);
+    expect(s?.plans.find((p) => p.key === "business")?.priceCents).toBe(10400);
   });
 
   test("applyWebhookEvent activates a subscription and is idempotent", async () => {

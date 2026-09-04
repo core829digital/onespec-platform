@@ -28,6 +28,8 @@ export interface ConfigState {
   glazing: string;
   color: string;
   installation: string;
+  /** FR pose (frame-fitting) method; "" = not offered / not chosen. */
+  poseType: string;
   insectScreen: boolean;
   insectScreenType: string;
   insectScreenColor: string;
@@ -46,6 +48,7 @@ export interface Pricing {
   insectScreenType: Record<string, number>;
   insectScreenColor: Record<string, number>;
   installation: Record<string, number>;
+  poseType: Record<string, number>;
   balconyDoorThreshold: number;
   vatRate: number;
   ecobonusPercent: number;
@@ -76,6 +79,7 @@ export function defaultPricing(): Pricing {
     insectScreenType: { cerniera: 45, molla: 65, plissettata: 85, carrarmato: 120 },
     insectScreenColor: { white: 0, brown: 10, woodeffect: 20, other: 15 },
     installation: { classico: 80, posaClima: 150 },
+    poseType: { renovation: 90, feuillure: 60, applique: 75 },
     balconyDoorThreshold: 65,
     vatRate: 22,
     ecobonusPercent: 50,
@@ -107,6 +111,7 @@ export function defaultConfig(): ConfigState {
     glazing: "double",
     color: "white",
     installation: "classico",
+    poseType: "",
     insectScreen: false,
     insectScreenType: "cerniera",
     insectScreenColor: "white",
@@ -175,6 +180,7 @@ export function calculate(state: ConfigState, pricing: Pricing, src?: ConfigStat
 
   const thresholdCost = s.productType === "balconyDoor" ? pricing.balconyDoorThreshold : 0;
   const installationCost = pricing.installation[s.installation] ?? 0;
+  const poseTypeCost = s.poseType ? (pricing.poseType[s.poseType] ?? 0) : 0;
   const screenCost = s.insectScreen
     ? (pricing.insectScreenType[s.insectScreenType] ?? 0) + (pricing.insectScreenColor[s.insectScreenColor] ?? 0)
     : 0;
@@ -184,6 +190,7 @@ export function calculate(state: ConfigState, pricing: Pricing, src?: ConfigStat
     hardwareCost +
     thresholdCost +
     installationCost +
+    poseTypeCost +
     screenCost +
     (pricing.glazing[s.glazing] ?? 0) +
     (pricing.color[s.color] ?? 0);

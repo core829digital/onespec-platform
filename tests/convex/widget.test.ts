@@ -88,4 +88,18 @@ describe("widget.getPublicConfigurator — region policy", () => {
     expect(res?.vatRates).toHaveLength(1);
     expect(res?.vatRates[0].percent).toBe(21);
   });
+
+  test("FR tenant → lead_gen, the 3 French VAT rates, and RGE + DTU flags", async () => {
+    const t = newDb();
+    const { tenantId } = await seedTenant(t);
+    await t.run((ctx) => ctx.db.patch(tenantId, { country: "FR" }));
+    await seedPublishedConfigurator(t, tenantId, "REGION_FR_1");
+
+    const res = await t.query(api.widget.getPublicConfigurator, { publicId: "REGION_FR_1" });
+    expect(res?.region).toBe("FR");
+    expect(res?.widgetMode).toBe("lead_gen");
+    expect(res?.defaultVatKey).toBe("renovation");
+    expect(res?.vatRates.map((r) => r.percent).sort((a, b) => a - b)).toEqual([5.5, 10, 20]);
+    expect(res?.complianceFlags).toEqual(["rge", "dtu_36_5"]);
+  });
 });

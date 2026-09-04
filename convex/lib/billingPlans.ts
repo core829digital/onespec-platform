@@ -45,6 +45,8 @@ export const BILLING_PLANS: BillingPlan[] = [
 export const REGIONAL_PRICES: Partial<Record<string, Partial<Record<PlanKey, number | null>>>> = {
   // Fase 21 — Italia (strategy PDF p.23). PROVISIONAL.
   IT: { starter: 4400, business: 8900, enterprise: 16900 },
+  // Fase 22 — France (strategy PDF). PROVISIONAL — needs founder sign-off.
+  FR: { starter: 5400, business: 10400, enterprise: 20400 },
 };
 
 export function alphaPriceCents(priceCents: number): number {

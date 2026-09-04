@@ -27,6 +27,7 @@ const catalog: CatalogPayload = {
     { kind: "screen", key: "molla", labels: { it: "Molla" }, priceCents: 6500, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
     { kind: "screenColor", key: "brown", labels: { it: "Marrone" }, priceCents: 1000, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
     { kind: "installation", key: "posaClima", labels: { it: "Posa clima" }, priceCents: 15000, appliesToOperableOnly: false, sortOrder: 0, enabled: true },
+    { kind: "poseType", key: "renovation", labels: { it: "Rénovation" }, priceCents: 9000, appliesToOperableOnly: false, sortOrder: 0, enabled: true },
   ],
 } as unknown as CatalogPayload;
 
@@ -63,6 +64,14 @@ describe("calculatePrice (server-authoritative)", () => {
     ]);
     // 6500 (molla) + 1000 (brown) + 15000 (posaClima) = 22500
     expect(withOpts.priceCents).toBe(base.priceCents + 22500);
+  });
+
+  test("FR pose type adds a flat per-item cost", () => {
+    const base = calculatePrice(catalog, [ProjectItemSchema.parse(sampleItem)]);
+    const withPose = calculatePrice(catalog, [
+      ProjectItemSchema.parse({ ...sampleItem, poseType: "renovation" }),
+    ]);
+    expect(withPose.priceCents).toBe(base.priceCents + 9000);
   });
 
   test("quantity multiplies the unit price", () => {

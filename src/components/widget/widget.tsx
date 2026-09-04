@@ -222,8 +222,18 @@ export function Widget({
     };
   }, [configurator.publicId]);
 
+  // When the region's catalogue offers pose types (FR) one is always in force —
+  // fall back to the first option so the preview + submitted price include it.
+  const withPose = useCallback(
+    (it: ConfigState): ConfigState =>
+      options.poseTypes.length > 0 && !it.poseType
+        ? { ...it, poseType: options.poseTypes[0][0] }
+        : it,
+    [options.poseTypes],
+  );
+
   // ---- derived ----
-  const result = useMemo(() => calculate(state, pricing), [state, pricing]);
+  const result = useMemo(() => calculate(withPose(state), pricing), [state, pricing, withPose]);
   const uw = useMemo(() => computeUw(state), [state]);
 
   const itemsSubtotal = items.reduce((s, it) => s + it.totalPrice, 0);
@@ -313,6 +323,9 @@ export function Widget({
       const glz = labelFromList(dict.glazing, it.glazing);
       const col = labelFromList(dict.color, it.color);
       const inst = labelFromList(dict.installationOptions, it.installation);
+      const pose = it.poseType
+        ? ` | ${dict.poseTypeLabel}: ${labelFromList(options.poseTypes, it.poseType)}`
+        : "";
       const sashDesc = it.sashes
         .map(
           (s, si) =>
@@ -322,11 +335,13 @@ export function Widget({
       const screen = it.insectScreen
         ? ` | ${dict.insectScreenLabel}: ${labelFromList(dict.insectScreenTypes, it.insectScreenType)} / ${labelFromList(dict.insectScreenColors, it.insectScreenColor)}`
         : "";
-      return `${i + 1}. ${pt} ${mat}${brand ? ` (${brand})` : ""} ${it.width}×${it.height}mm ×${it.quantity} | ${q}, ${glz}, ${col}, ${inst} | ${dict.sashLabel}: ${sashDesc}${screen}`;
+      return `${i + 1}. ${pt} ${mat}${brand ? ` (${brand})` : ""} ${it.width}×${it.height}mm ×${it.quantity} | ${q}, ${glz}, ${col}, ${inst}${pose} | ${dict.sashLabel}: ${sashDesc}${screen}`;
     });
     if (ecobonusPct > 0) lines.push(`Ecobonus: -${ecobonusPct}%`);
     if (discountPct > 0) lines.push(`${dict.discountLabel}: -${discountPct}%`);
-    if (complianceFlags.includes("posa_uni_11673")) lines.push(dict.posaUni11673Note);
+    for (const note of complianceFlags.map((f) => dict.compliance[f]).filter(Boolean)) {
+      lines.push(note);
+    }
     return lines.join("\n");
   }
 
@@ -353,6 +368,7 @@ export function Widget({
       insectScreenType: it.insectScreen ? it.insectScreenType : undefined,
       insectScreenColor: it.insectScreen ? it.insectScreenColor : undefined,
       installation: it.installation,
+      poseType: it.poseType || undefined,
     };
   }
 
@@ -364,7 +380,7 @@ export function Widget({
     }
     setSubmitting(true);
     try {
-      const all = [...items, state];
+      const all = [...items, state].map(withPose);
       const userMsg = lead.message.trim();
       const spec = buildSpecSummary(all);
       const body = {
@@ -628,6 +644,18 @@ export function Widget({
             </select>
           </Field>
 
+          {options.poseTypes.length > 0 && (
+            <Field label={dict.poseTypeLabel}>
+              <select style={s.select} value={withPose(state).poseType} onChange={(e) => set({ poseType: e.target.value })}>
+                {options.poseTypes.map(([k, v]) => (
+                  <option key={k} value={k}>
+                    {v}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          )}
+
           <Field>
             <label style={s.check}>
               <input type="checkbox" checked={state.insectScreen} onChange={(e) => set({ insectScreen: e.target.checked })} />
@@ -813,9 +841,12 @@ export function Widget({
                   {isLeadGen && (
                     <div style={{ fontSize: 11.5, opacity: 0.85, marginTop: 6, lineHeight: 1.5 }}>{dict.estimateNotContractual}</div>
                   )}
-                  {complianceFlags.includes("posa_uni_11673") && (
-                    <div style={{ fontSize: 11.5, opacity: 0.85, marginTop: 4, lineHeight: 1.5 }}>{dict.posaUni11673Note}</div>
-                  )}
+                  {complianceFlags
+                    .map((f) => dict.compliance[f])
+                    .filter(Boolean)
+                    .map((note) => (
+                      <div key={note} style={{ fontSize: 11.5, opacity: 0.85, marginTop: 4, lineHeight: 1.5 }}>{note}</div>
+                    ))}
                   {ecobonusPct > 0 && (
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12.5, opacity: 0.9, marginTop: 6, fontFamily: "var(--font-ibm-plex-mono), monospace" }}>
                       <span>ECOBONUS (-{ecobonusPct}%)</span>

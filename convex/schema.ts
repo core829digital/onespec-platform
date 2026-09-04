@@ -238,7 +238,7 @@ export default defineSchema({
     configuratorId: v.id("configurators"),
     kind: v.union(v.literal("hardware"), v.literal("hardwareColor"),
                   v.literal("sashType"), v.literal("screen"), v.literal("screenColor"),
-                  v.literal("installation"),
+                  v.literal("installation"), v.literal("poseType"),
                   v.literal("threshold"), v.literal("misc")),
     key: v.string(),
     labels: v.any(),

@@ -78,6 +78,8 @@ export interface WidgetOptions {
   screenTypes: [string, string][];
   screenColors: [string, string][];
   installations: [string, string][];
+  /** FR pose methods — empty unless the region's catalogue enables `poseType`. */
+  poseTypes: [string, string][];
 }
 
 const SWATCH: Record<Material, string> = {
@@ -136,6 +138,7 @@ export function catalogOptions(
     screenTypes: pairsFrom(hw("screen"), locale) ?? dict.insectScreenTypes,
     screenColors: pairsFrom(hw("screenColor"), locale) ?? dict.insectScreenColors,
     installations: pairsFrom(hw("installation"), locale) ?? dict.installationOptions,
+    poseTypes: pairsFrom(hw("poseType"), locale) ?? [],
   };
 }
 
@@ -190,6 +193,8 @@ export function catalogPricing(cat: WidgetCatalog | undefined): Pricing {
   if (screenColor) p.insectScreenColor = { ...p.insectScreenColor, ...screenColor };
   const installation = hw("installation");
   if (installation) p.installation = { ...p.installation, ...installation };
+  const poseType = hw("poseType");
+  if (poseType) p.poseType = { ...p.poseType, ...poseType };
 
   const threshold = cat.hardware?.find((h) => h.kind === "threshold" && enabled(h));
   if (threshold) p.balconyDoorThreshold = cents(threshold.priceCents, p.balconyDoorThreshold);

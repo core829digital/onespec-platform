@@ -2,6 +2,16 @@ import { mutation, query, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import { requireTenantRole, requireMembership } from "./lib/auth";
+import { regionForCountry, type RegionCode } from "./lib/regions";
+
+/**
+ * Country-specific hardware `kind`s that ship disabled in `DEFAULT_HARDWARE` and
+ * are switched on at seed time only for tenants in the matching region. A dealer
+ * can still toggle any row from the catalog editor afterwards.
+ */
+const REGION_CATALOG_KINDS: Partial<Record<RegionCode, string[]>> = {
+  FR: ["poseType"],
+};
 
 const DEFAULT_MATERIALS = [
   { key: "pvc", labels: { it: "PVC", en: "PVC", fr: "PVC" }, basePerM2Cents: 18000, profilePerMlCents: 2800, uFrameBase: 1.3, sortOrder: 0, enabled: true },
@@ -67,7 +77,7 @@ const DEFAULT_FINISH = [
 ];
 
 const DEFAULT_HARDWARE: Array<{
-  kind: "hardware" | "hardwareColor" | "sashType" | "screen" | "screenColor" | "installation" | "threshold" | "misc";
+  kind: "hardware" | "hardwareColor" | "sashType" | "screen" | "screenColor" | "installation" | "poseType" | "threshold" | "misc";
   key: string;
   labels: { it: string; en: string; fr: string };
   priceCents: number;
@@ -94,6 +104,10 @@ const DEFAULT_HARDWARE: Array<{
   { kind: "screenColor", key: "woodeffect", labels: { it: "Effetto legno", en: "Wood effect", fr: "Effet bois" }, priceCents: 2000, appliesToOperableOnly: true, sortOrder: 2, enabled: true },
   { kind: "installation", key: "classico", labels: { it: "Montaggio classico", en: "Standard installation", fr: "Pose standard" }, priceCents: 8000, appliesToOperableOnly: false, sortOrder: 0, enabled: true },
   { kind: "installation", key: "posaClima", labels: { it: "Montaggio posa clima", en: "Certified (posa clima) installation", fr: "Pose certifiée" }, priceCents: 15000, appliesToOperableOnly: false, sortOrder: 1, enabled: true },
+  // FR pose (frame-fitting method). Disabled by default — enabled for FR-region tenants.
+  { kind: "poseType", key: "renovation", labels: { it: "Posa in ristrutturazione", en: "Renovation (over existing frame)", fr: "Pose en rénovation (dépose incluse)" }, priceCents: 9000, appliesToOperableOnly: false, sortOrder: 0, enabled: false },
+  { kind: "poseType", key: "feuillure", labels: { it: "Posa in battuta", en: "Rebate fit", fr: "Pose en feuillure" }, priceCents: 6000, appliesToOperableOnly: false, sortOrder: 1, enabled: false },
+  { kind: "poseType", key: "applique", labels: { it: "Posa in applique", en: "Face-fixed (applique)", fr: "Pose en applique" }, priceCents: 7500, appliesToOperableOnly: false, sortOrder: 2, enabled: false },
   { kind: "threshold", key: "balconyDoorThreshold", labels: { it: "Soglia balcone", en: "Balcony threshold", fr: "Seuil balcon" }, priceCents: 6500, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
 ];
 
@@ -122,8 +136,16 @@ export const seedDefaultCatalog = internalMutation({
     for (const f of DEFAULT_FINISH) {
       await ctx.db.insert("catalogFinishOptions", { ...f, tenantId: args.tenantId, configuratorId: args.configuratorId });
     }
+    const tenant = await ctx.db.get(args.tenantId);
+    const regionKinds = REGION_CATALOG_KINDS[regionForCountry(tenant?.country).code] ?? [];
     for (const h of DEFAULT_HARDWARE) {
-      await ctx.db.insert("catalogHardwareOptions", { ...h, tenantId: args.tenantId, configuratorId: args.configuratorId });
+      const enabled = h.enabled || regionKinds.includes(h.kind);
+      await ctx.db.insert("catalogHardwareOptions", {
+        ...h,
+        enabled,
+        tenantId: args.tenantId,
+        configuratorId: args.configuratorId,
+      });
     }
   },
 });
@@ -261,7 +283,7 @@ export const upsertFinishOption = mutation({
 });
 
 export const upsertHardwareOption = mutation({
-  args: { configuratorId: v.id("configurators"), kind: v.union(v.literal("hardware"), v.literal("hardwareColor"), v.literal("sashType"), v.literal("screen"), v.literal("screenColor"), v.literal("installation"), v.literal("threshold"), v.literal("misc")), key: v.string(), labels: v.any(), priceCents: v.number(), appliesToOperableOnly: v.boolean(), sortOrder: v.number(), enabled: v.boolean() },
+  args: { configuratorId: v.id("configurators"), kind: v.union(v.literal("hardware"), v.literal("hardwareColor"), v.literal("sashType"), v.literal("screen"), v.literal("screenColor"), v.literal("installation"), v.literal("poseType"), v.literal("threshold"), v.literal("misc")), key: v.string(), labels: v.any(), priceCents: v.number(), appliesToOperableOnly: v.boolean(), sortOrder: v.number(), enabled: v.boolean() },
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
