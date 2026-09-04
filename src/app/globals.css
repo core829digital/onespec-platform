@@ -11,7 +11,7 @@
   --color-border: #34383c;
   --color-border-subtle: #26292d;
   --color-mint: #16d19d;
-  --color-mint-dark: #0fbf8f;
+  --color-mint-dark: #04241b;
   --color-mint-light: rgba(22, 209, 157, 0.14);
   --color-danger: #ff6b6b;
 
@@ -29,8 +29,8 @@
   --color-border: #d2d2d7;
   --color-border-subtle: #e8e8ed;
   --color-mint: #0fbf8f;
-  --color-mint-dark: #0a9c74;
-  --color-mint-light: #e3f9f2;
+  --color-mint-dark: #04241b;
+  --color-mint-light: rgba(15, 191, 143, 0.14);
   --color-danger: #d9363e;
 }
 

@@ -4,9 +4,9 @@ type Tone = "neutral" | "info" | "warn" | "good" | "bad";
 
 const TONE: Record<Tone, string> = {
   neutral: "bg-[var(--color-bg)] border-[var(--color-border)] text-[var(--color-text-secondary)]",
-  info: "bg-[var(--color-mint-light)] border-[var(--color-mint)]/40 text-[var(--color-mint)]",
-  warn: "bg-amber-500/10 border-amber-500/40 text-amber-500",
-  good: "bg-emerald-500/10 border-emerald-500/40 text-emerald-500",
+  info: "bg-[var(--color-mint-light)] border-[var(--color-mint)]/40 text-emerald-700 dark:text-[var(--color-mint)]",
+  warn: "bg-amber-500/10 border-amber-500/40 text-amber-600 dark:text-amber-400",
+  good: "bg-emerald-500/10 border-emerald-500/40 text-emerald-600 dark:text-emerald-400",
   bad: "bg-[var(--color-danger)]/10 border-[var(--color-danger)]/40 text-[var(--color-danger)]",
 };
 

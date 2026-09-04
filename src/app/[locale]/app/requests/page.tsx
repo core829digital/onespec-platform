@@ -197,6 +197,6 @@ export default function RequestsPage() {
 
 function chip(active: boolean) {
   return active
-    ? "rounded-full border border-[var(--color-mint)] bg-[var(--color-mint-light)] px-3 py-1 text-xs font-medium text-[var(--color-mint)]"
-    : "rounded-full border border-[var(--color-border)] px-3 py-1 text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text)]";
+    ? "rounded-full border border-[var(--color-mint)] bg-[var(--color-mint)] px-3 py-1 text-xs font-bold text-[var(--color-mint-dark)] shadow-sm"
+    : "rounded-full border border-[var(--color-border)] bg-[var(--color-bg-alt)] px-3 py-1 text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:border-[var(--color-text-secondary)] transition-colors";
 }

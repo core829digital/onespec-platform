@@ -464,8 +464,8 @@ export default function NewFieldQuotePage() {
               onClick={() => handleRegionChange(code)}
               className={`flex items-center gap-2 rounded-xl px-4 py-2 text-xs font-bold border transition-all shrink-0 ${
                 isSelected
-                  ? "border-[var(--color-mint)] bg-[var(--color-mint)]/10 text-[var(--color-mint)] shadow-sm"
-                  : "border-[var(--color-border)] bg-[var(--color-bg-alt)] text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
+                  ? "border-[var(--color-mint)] bg-[var(--color-mint)] text-[var(--color-mint-dark)] shadow-sm"
+                  : "border-[var(--color-border)] bg-[var(--color-bg-alt)] text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:border-[var(--color-text-secondary)]"
               }`}
             >
               <span className="text-base">{cfg.flag}</span>
@@ -578,7 +578,7 @@ export default function NewFieldQuotePage() {
               <button
                 type="button"
                 onClick={addItem}
-                className="rounded-lg bg-[var(--color-mint)] px-3 py-1.5 text-xs font-semibold text-[var(--color-mint-dark)] hover:opacity-90 transition-opacity"
+                className="rounded-lg bg-[var(--color-mint)] px-3 py-1.5 text-xs font-bold text-[var(--color-mint-dark)] hover:opacity-90 shadow-sm transition-opacity"
               >
                 + Aggiungi Infisso
               </button>
@@ -591,10 +591,10 @@ export default function NewFieldQuotePage() {
                   key={idx}
                   type="button"
                   onClick={() => setActiveItemIndex(idx)}
-                  className={`flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-medium border transition-colors shrink-0 ${
+                  className={`flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold border transition-colors shrink-0 ${
                     activeItemIndex === idx
-                      ? "border-[var(--color-mint)] bg-[var(--color-mint)]/10 text-[var(--color-mint)]"
-                      : "border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-secondary)]"
+                      ? "border-[var(--color-mint)] bg-[var(--color-mint)] text-[var(--color-mint-dark)] shadow-sm"
+                      : "border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:border-[var(--color-text-secondary)]"
                   }`}
                 >
                   <span>Pos. {idx + 1}: {it.productType === "balconyDoor" ? "Porta" : "Finestra"} ({it.width}×{it.height})</span>

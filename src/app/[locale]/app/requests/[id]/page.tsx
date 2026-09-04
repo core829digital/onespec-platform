@@ -357,8 +357,8 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
                   onClick={() => guard(() => updateStatus({ quoteId, status: s }))}
                   className={
                     s === quote.status
-                      ? "rounded-lg border border-[var(--color-mint)] bg-[var(--color-mint-light)] px-2.5 py-1 text-xs text-[var(--color-mint)] font-bold"
-                      : "rounded-lg border border-[var(--color-border)] px-2.5 py-1 text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
+                      ? "rounded-lg border border-[var(--color-mint)] bg-[var(--color-mint)] px-2.5 py-1 text-xs font-bold text-[var(--color-mint-dark)] shadow-sm"
+                      : "rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-2.5 py-1 text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:border-[var(--color-text-secondary)] transition-colors"
                   }
                 >
                   {STATUS_LABEL[s]}
