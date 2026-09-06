@@ -155,6 +155,9 @@ const HARDWARE_KINDS: Array<{ kind: string; title: string }> = [
   { kind: "screenColor", title: "Colore zanzariera" },
   { kind: "installation", title: "Montaggio / posa" },
   { kind: "poseType", title: "Tipo di posa (FR)" },
+  { kind: "ventilationGrille", title: "Griglia di ventilazione (BE)" },
+  { kind: "voletRoulant", title: "Tapparella monoblocco (BE)" },
+  { kind: "warmEdge", title: "Distanziatore warm-edge (BE)" },
   { kind: "threshold", title: "Soglie" },
   { kind: "misc", title: "Accessori" },
 ];

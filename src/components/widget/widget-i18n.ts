@@ -44,6 +44,9 @@ export interface WidgetDict {
   installationLabel: string;
   installationOptions: Pair[];
   poseTypeLabel: string;
+  ventilationGrilleLabel: string;
+  voletRoulantLabel: string;
+  warmEdgeLabel: string;
   productTypeLabel: string;
   productTypeWindow: string;
   productTypeDoor: string;
@@ -138,6 +141,9 @@ const en: WidgetDict = {
   installationLabel: "Installation (montaggio)",
   installationOptions: [["classico", "Montaggio Classico"], ["posaClima", "Montaggio Posa Clima"]],
   poseTypeLabel: "Pose type",
+  ventilationGrilleLabel: "Ventilation grille",
+  voletRoulantLabel: "Roller shutter",
+  warmEdgeLabel: "Warm-edge spacer",
   productTypeLabel: "Product type",
   productTypeWindow: "Window",
   productTypeDoor: "Balcony door",
@@ -184,6 +190,8 @@ const en: WidgetDict = {
     posa_uni_11673: "Installation to UNI 11673-1:2017 standard",
     rge: "RGE-certified installer — eligible for French energy incentives",
     dtu_36_5: "Installation to DTU 36.5 (window fitting)",
+    ventilation_grille: "Ventilation grille required by Belgian regulation (EPB)",
+    warm_edge: "Warm-edge spacer available on request",
   },
 };
 
@@ -230,6 +238,9 @@ const it: WidgetDict = {
   insectScreenColors: [["white", "Bianco"], ["brown", "Marrone"], ["woodeffect", "Effetto legno"], ["other", "Altro colore"]],
   installationLabel: "Montaggio",
   poseTypeLabel: "Tipo di posa",
+  ventilationGrilleLabel: "Griglia di ventilazione",
+  voletRoulantLabel: "Tapparella",
+  warmEdgeLabel: "Distanziatore warm-edge",
   productTypeLabel: "Tipo di prodotto",
   productTypeWindow: "Finestra",
   productTypeDoor: "Porta balcone",
@@ -274,6 +285,8 @@ const it: WidgetDict = {
     posa_uni_11673: "Posa in opera secondo norma UNI 11673-1:2017",
     rge: "Installatore certificato RGE",
     dtu_36_5: "Posa secondo DTU 36.5",
+    ventilation_grille: "Griglia di ventilazione richiesta dalla normativa belga (EPB)",
+    warm_edge: "Distanziatore warm-edge disponibile su richiesta",
   },
 };
 
@@ -320,6 +333,9 @@ const fr: WidgetDict = {
   insectScreenColors: [["white", "Blanc"], ["brown", "Marron"], ["woodeffect", "Effet bois"], ["other", "Autre couleur"]],
   installationLabel: "Montaggio (pose)",
   poseTypeLabel: "Type de pose",
+  ventilationGrilleLabel: "Grille de ventilation",
+  voletRoulantLabel: "Volet roulant",
+  warmEdgeLabel: "Intercalaire warm-edge",
   productTypeLabel: "Type de produit",
   productTypeWindow: "Fenêtre",
   productTypeDoor: "Porte-fenêtre / balcon",
@@ -364,6 +380,8 @@ const fr: WidgetDict = {
     posa_uni_11673: "Pose selon la norme UNI 11673-1:2017",
     rge: "Poseur certifié RGE — éligible aux aides à la rénovation énergétique",
     dtu_36_5: "Pose conforme au DTU 36.5",
+    ventilation_grille: "Grille de ventilation requise par la réglementation belge (PEB)",
+    warm_edge: "Intercalaire warm-edge disponible sur demande",
   },
 };
 

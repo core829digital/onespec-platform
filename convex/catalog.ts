@@ -11,6 +11,7 @@ import { regionForCountry, type RegionCode } from "./lib/regions";
  */
 const REGION_CATALOG_KINDS: Partial<Record<RegionCode, string[]>> = {
   FR: ["poseType"],
+  BE: ["ventilationGrille", "voletRoulant", "warmEdge"],
 };
 
 const DEFAULT_MATERIALS = [
@@ -77,9 +78,10 @@ const DEFAULT_FINISH = [
 ];
 
 const DEFAULT_HARDWARE: Array<{
-  kind: "hardware" | "hardwareColor" | "sashType" | "screen" | "screenColor" | "installation" | "poseType" | "threshold" | "misc";
+  kind: "hardware" | "hardwareColor" | "sashType" | "screen" | "screenColor" | "installation" | "poseType"
+    | "ventilationGrille" | "voletRoulant" | "warmEdge" | "threshold" | "misc";
   key: string;
-  labels: { it: string; en: string; fr: string };
+  labels: { it: string; en: string; fr: string; nl?: string; de?: string };
   priceCents: number;
   appliesToOperableOnly: boolean;
   sortOrder: number;
@@ -108,6 +110,17 @@ const DEFAULT_HARDWARE: Array<{
   { kind: "poseType", key: "renovation", labels: { it: "Posa in ristrutturazione", en: "Renovation (over existing frame)", fr: "Pose en rénovation (dépose incluse)" }, priceCents: 9000, appliesToOperableOnly: false, sortOrder: 0, enabled: false },
   { kind: "poseType", key: "feuillure", labels: { it: "Posa in battuta", en: "Rebate fit", fr: "Pose en feuillure" }, priceCents: 6000, appliesToOperableOnly: false, sortOrder: 1, enabled: false },
   { kind: "poseType", key: "applique", labels: { it: "Posa in applique", en: "Face-fixed (applique)", fr: "Pose en applique" }, priceCents: 7500, appliesToOperableOnly: false, sortOrder: 2, enabled: false },
+  // BE ventilation grille (Renson-style, top-rail). Disabled by default — enabled for BE-region tenants.
+  { kind: "ventilationGrille", key: "none", labels: { it: "Nessuna", en: "None", fr: "Aucune", nl: "Geen" }, priceCents: 0, appliesToOperableOnly: false, sortOrder: 0, enabled: false },
+  { kind: "ventilationGrille", key: "renson_standard", labels: { it: "Griglia Renson standard", en: "Renson standard grille", fr: "Grille de ventilation Renson standard", nl: "Renson standaard ventilatierooster" }, priceCents: 12000, appliesToOperableOnly: false, sortOrder: 1, enabled: false },
+  { kind: "ventilationGrille", key: "renson_acoustic", labels: { it: "Griglia Renson acustica", en: "Renson acoustic grille", fr: "Grille de ventilation Renson acoustique", nl: "Renson akoestisch ventilatierooster" }, priceCents: 18000, appliesToOperableOnly: false, sortOrder: 2, enabled: false },
+  // BE volet roulant monobloc. Disabled by default — enabled for BE-region tenants.
+  { kind: "voletRoulant", key: "none", labels: { it: "Nessuna", en: "None", fr: "Aucun", nl: "Geen" }, priceCents: 0, appliesToOperableOnly: false, sortOrder: 0, enabled: false },
+  { kind: "voletRoulant", key: "monobloc_pvc", labels: { it: "Tapparella monoblocco PVC", en: "PVC monobloc roller shutter", fr: "Volet roulant monobloc PVC", nl: "PVC monobloc rolluik" }, priceCents: 22000, appliesToOperableOnly: false, sortOrder: 1, enabled: false },
+  { kind: "voletRoulant", key: "monobloc_alu", labels: { it: "Tapparella monoblocco alluminio", en: "Aluminium monobloc roller shutter", fr: "Volet roulant monobloc aluminium", nl: "Aluminium monobloc rolluik" }, priceCents: 29000, appliesToOperableOnly: false, sortOrder: 2, enabled: false },
+  // BE warm-edge spacer toggle. Disabled by default — enabled for BE-region tenants.
+  { kind: "warmEdge", key: "standard", labels: { it: "Distanziatore standard", en: "Standard spacer", fr: "Intercalaire standard", nl: "Standaard spacer" }, priceCents: 0, appliesToOperableOnly: false, sortOrder: 0, enabled: false },
+  { kind: "warmEdge", key: "warm_edge", labels: { it: "Distanziatore warm-edge", en: "Warm-edge spacer", fr: "Intercalaire warm-edge", nl: "Warm-edge spacer" }, priceCents: 3500, appliesToOperableOnly: false, sortOrder: 1, enabled: false },
   { kind: "threshold", key: "balconyDoorThreshold", labels: { it: "Soglia balcone", en: "Balcony threshold", fr: "Seuil balcon" }, priceCents: 6500, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
 ];
 
@@ -283,7 +296,7 @@ export const upsertFinishOption = mutation({
 });
 
 export const upsertHardwareOption = mutation({
-  args: { configuratorId: v.id("configurators"), kind: v.union(v.literal("hardware"), v.literal("hardwareColor"), v.literal("sashType"), v.literal("screen"), v.literal("screenColor"), v.literal("installation"), v.literal("poseType"), v.literal("threshold"), v.literal("misc")), key: v.string(), labels: v.any(), priceCents: v.number(), appliesToOperableOnly: v.boolean(), sortOrder: v.number(), enabled: v.boolean() },
+  args: { configuratorId: v.id("configurators"), kind: v.union(v.literal("hardware"), v.literal("hardwareColor"), v.literal("sashType"), v.literal("screen"), v.literal("screenColor"), v.literal("installation"), v.literal("poseType"), v.literal("ventilationGrille"), v.literal("voletRoulant"), v.literal("warmEdge"), v.literal("threshold"), v.literal("misc")), key: v.string(), labels: v.any(), priceCents: v.number(), appliesToOperableOnly: v.boolean(), sortOrder: v.number(), enabled: v.boolean() },
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");

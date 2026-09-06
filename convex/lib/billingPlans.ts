@@ -47,6 +47,8 @@ export const REGIONAL_PRICES: Partial<Record<string, Partial<Record<PlanKey, num
   IT: { starter: 4400, business: 8900, enterprise: 16900 },
   // Fase 22 — France (strategy PDF). PROVISIONAL — needs founder sign-off.
   FR: { starter: 5400, business: 10400, enterprise: 20400 },
+  // Fase 23 — Belgium (strategy PDF). PROVISIONAL — needs founder sign-off.
+  BE: { starter: 5400, business: 10400, enterprise: 20400 },
 };
 
 export function alphaPriceCents(priceCents: number): number {

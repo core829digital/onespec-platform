@@ -239,6 +239,7 @@ export default defineSchema({
     kind: v.union(v.literal("hardware"), v.literal("hardwareColor"),
                   v.literal("sashType"), v.literal("screen"), v.literal("screenColor"),
                   v.literal("installation"), v.literal("poseType"),
+                  v.literal("ventilationGrille"), v.literal("voletRoulant"), v.literal("warmEdge"),
                   v.literal("threshold"), v.literal("misc")),
     key: v.string(),
     labels: v.any(),

@@ -76,7 +76,8 @@ export interface CatalogPayload {
     enabled: boolean;
   }>;
   hardware: Array<{
-    kind: "hardware" | "hardwareColor" | "sashType" | "screen" | "screenColor" | "installation" | "poseType" | "threshold" | "misc";
+    /** Catalog option family — new per-region kinds (poseType, ventilationGrille, …) just add a string. */
+    kind: string;
     key: string;
     labels: Record<string, string>;
     priceCents: number;
@@ -110,6 +111,12 @@ export interface ProjectItem {
   installation?: string;
   /** FR frame-fitting method (pose): rénovation / feuillure / applique. */
   poseType?: string;
+  /** BE ventilation grille (Renson-style, top rail). */
+  ventilationGrille?: string;
+  /** BE volet roulant monobloc. */
+  voletRoulant?: string;
+  /** BE warm-edge spacer choice. */
+  warmEdge?: string;
 }
 
 export interface ItemBreakdown {
@@ -235,8 +242,16 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
     const poseTypeCost =
       getHardwareOption(payload, "poseType", item.poseType ?? "")?.priceCents || 0;
 
+    const ventilationGrilleCost =
+      getHardwareOption(payload, "ventilationGrille", item.ventilationGrille ?? "")?.priceCents || 0;
+    const voletRoulantCost =
+      getHardwareOption(payload, "voletRoulant", item.voletRoulant ?? "")?.priceCents || 0;
+    const warmEdgeCost =
+      getHardwareOption(payload, "warmEdge", item.warmEdge ?? "")?.priceCents || 0;
+
     const optionsCost =
       sashCost + hardwareCost + thresholdCost + installationCost + poseTypeCost +
+      ventilationGrilleCost + voletRoulantCost + warmEdgeCost +
       (glazing?.priceCents || 0) + (finish?.priceCents || 0) + screenCost;
 
     const unitPrice = materialCost + profileCost + optionsCost;

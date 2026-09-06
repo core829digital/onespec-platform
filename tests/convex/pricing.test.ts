@@ -28,6 +28,9 @@ const catalog: CatalogPayload = {
     { kind: "screenColor", key: "brown", labels: { it: "Marrone" }, priceCents: 1000, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
     { kind: "installation", key: "posaClima", labels: { it: "Posa clima" }, priceCents: 15000, appliesToOperableOnly: false, sortOrder: 0, enabled: true },
     { kind: "poseType", key: "renovation", labels: { it: "Rénovation" }, priceCents: 9000, appliesToOperableOnly: false, sortOrder: 0, enabled: true },
+    { kind: "ventilationGrille", key: "renson_standard", labels: { fr: "Renson standard" }, priceCents: 12000, appliesToOperableOnly: false, sortOrder: 0, enabled: true },
+    { kind: "voletRoulant", key: "monobloc_pvc", labels: { fr: "Monobloc PVC" }, priceCents: 22000, appliesToOperableOnly: false, sortOrder: 0, enabled: true },
+    { kind: "warmEdge", key: "warm_edge", labels: { fr: "Warm-edge" }, priceCents: 3500, appliesToOperableOnly: false, sortOrder: 0, enabled: true },
   ],
 } as unknown as CatalogPayload;
 
@@ -72,6 +75,20 @@ describe("calculatePrice (server-authoritative)", () => {
       ProjectItemSchema.parse({ ...sampleItem, poseType: "renovation" }),
     ]);
     expect(withPose.priceCents).toBe(base.priceCents + 9000);
+  });
+
+  test("BE ventilation grille + volet roulant + warm edge add a flat per-item cost each", () => {
+    const base = calculatePrice(catalog, [ProjectItemSchema.parse(sampleItem)]);
+    const withBeOptions = calculatePrice(catalog, [
+      ProjectItemSchema.parse({
+        ...sampleItem,
+        ventilationGrille: "renson_standard",
+        voletRoulant: "monobloc_pvc",
+        warmEdge: "warm_edge",
+      }),
+    ]);
+    // 12000 (grille) + 22000 (volet) + 3500 (warm edge) = 37500
+    expect(withBeOptions.priceCents).toBe(base.priceCents + 37500);
   });
 
   test("quantity multiplies the unit price", () => {

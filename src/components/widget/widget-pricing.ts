@@ -30,6 +30,12 @@ export interface ConfigState {
   installation: string;
   /** FR pose (frame-fitting) method; "" = not offered / not chosen. */
   poseType: string;
+  /** BE ventilation grille; "" = not offered / not chosen. */
+  ventilationGrille: string;
+  /** BE volet roulant monobloc; "" = not offered / not chosen. */
+  voletRoulant: string;
+  /** BE warm-edge spacer; "" = not offered / not chosen. */
+  warmEdge: string;
   insectScreen: boolean;
   insectScreenType: string;
   insectScreenColor: string;
@@ -49,6 +55,9 @@ export interface Pricing {
   insectScreenColor: Record<string, number>;
   installation: Record<string, number>;
   poseType: Record<string, number>;
+  ventilationGrille: Record<string, number>;
+  voletRoulant: Record<string, number>;
+  warmEdge: Record<string, number>;
   balconyDoorThreshold: number;
   vatRate: number;
   ecobonusPercent: number;
@@ -80,6 +89,9 @@ export function defaultPricing(): Pricing {
     insectScreenColor: { white: 0, brown: 10, woodeffect: 20, other: 15 },
     installation: { classico: 80, posaClima: 150 },
     poseType: { renovation: 90, feuillure: 60, applique: 75 },
+    ventilationGrille: { none: 0, renson_standard: 120, renson_acoustic: 180 },
+    voletRoulant: { none: 0, monobloc_pvc: 220, monobloc_alu: 290 },
+    warmEdge: { standard: 0, warm_edge: 35 },
     balconyDoorThreshold: 65,
     vatRate: 22,
     ecobonusPercent: 50,
@@ -112,6 +124,9 @@ export function defaultConfig(): ConfigState {
     color: "white",
     installation: "classico",
     poseType: "",
+    ventilationGrille: "",
+    voletRoulant: "",
+    warmEdge: "",
     insectScreen: false,
     insectScreenType: "cerniera",
     insectScreenColor: "white",
@@ -181,6 +196,9 @@ export function calculate(state: ConfigState, pricing: Pricing, src?: ConfigStat
   const thresholdCost = s.productType === "balconyDoor" ? pricing.balconyDoorThreshold : 0;
   const installationCost = pricing.installation[s.installation] ?? 0;
   const poseTypeCost = s.poseType ? (pricing.poseType[s.poseType] ?? 0) : 0;
+  const ventilationGrilleCost = s.ventilationGrille ? (pricing.ventilationGrille[s.ventilationGrille] ?? 0) : 0;
+  const voletRoulantCost = s.voletRoulant ? (pricing.voletRoulant[s.voletRoulant] ?? 0) : 0;
+  const warmEdgeCost = s.warmEdge ? (pricing.warmEdge[s.warmEdge] ?? 0) : 0;
   const screenCost = s.insectScreen
     ? (pricing.insectScreenType[s.insectScreenType] ?? 0) + (pricing.insectScreenColor[s.insectScreenColor] ?? 0)
     : 0;
@@ -191,6 +209,9 @@ export function calculate(state: ConfigState, pricing: Pricing, src?: ConfigStat
     thresholdCost +
     installationCost +
     poseTypeCost +
+    ventilationGrilleCost +
+    voletRoulantCost +
+    warmEdgeCost +
     screenCost +
     (pricing.glazing[s.glazing] ?? 0) +
     (pricing.color[s.color] ?? 0);

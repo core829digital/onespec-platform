@@ -102,4 +102,18 @@ describe("widget.getPublicConfigurator — region policy", () => {
     expect(res?.vatRates.map((r) => r.percent).sort((a, b) => a - b)).toEqual([5.5, 10, 20]);
     expect(res?.complianceFlags).toEqual(["rge", "dtu_36_5"]);
   });
+
+  test("BE tenant → lead_gen, 21%/6% VAT set, ventilation_grille + warm_edge flags", async () => {
+    const t = newDb();
+    const { tenantId } = await seedTenant(t);
+    await t.run((ctx) => ctx.db.patch(tenantId, { country: "BE" }));
+    await seedPublishedConfigurator(t, tenantId, "REGION_BE_1");
+
+    const res = await t.query(api.widget.getPublicConfigurator, { publicId: "REGION_BE_1" });
+    expect(res?.region).toBe("BE");
+    expect(res?.widgetMode).toBe("lead_gen");
+    expect(res?.defaultVatKey).toBe("renovation");
+    expect(res?.vatRates.map((r) => r.percent).sort((a, b) => a - b)).toEqual([6, 21]);
+    expect(res?.complianceFlags).toEqual(["ventilation_grille", "warm_edge"]);
+  });
 });

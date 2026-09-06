@@ -222,18 +222,33 @@ export function Widget({
     };
   }, [configurator.publicId]);
 
-  // When the region's catalogue offers pose types (FR) one is always in force —
-  // fall back to the first option so the preview + submitted price include it.
-  const withPose = useCallback(
-    (it: ConfigState): ConfigState =>
-      options.poseTypes.length > 0 && !it.poseType
-        ? { ...it, poseType: options.poseTypes[0][0] }
-        : it,
-    [options.poseTypes],
+  // When the region's catalogue offers a region-specific option kind (FR pose
+  // type, BE ventilation grille / volet roulant / warm edge, …) one is always in
+  // force — fall back to the first option so the preview + submitted price
+  // include it, rather than silently pricing an unselected field at 0.
+  const withRegionDefaults = useCallback(
+    (it: ConfigState): ConfigState => {
+      let out = it;
+      const fallback = (
+        field: "poseType" | "ventilationGrille" | "voletRoulant" | "warmEdge",
+        list: [string, string][],
+      ) => {
+        if (list.length > 0 && !out[field]) out = { ...out, [field]: list[0][0] };
+      };
+      fallback("poseType", options.poseTypes);
+      fallback("ventilationGrille", options.ventilationGrilles);
+      fallback("voletRoulant", options.voletRoulants);
+      fallback("warmEdge", options.warmEdges);
+      return out;
+    },
+    [options.poseTypes, options.ventilationGrilles, options.voletRoulants, options.warmEdges],
   );
 
   // ---- derived ----
-  const result = useMemo(() => calculate(withPose(state), pricing), [state, pricing, withPose]);
+  const result = useMemo(
+    () => calculate(withRegionDefaults(state), pricing),
+    [state, pricing, withRegionDefaults],
+  );
   const uw = useMemo(() => computeUw(state), [state]);
 
   const itemsSubtotal = items.reduce((s, it) => s + it.totalPrice, 0);
@@ -326,6 +341,15 @@ export function Widget({
       const pose = it.poseType
         ? ` | ${dict.poseTypeLabel}: ${labelFromList(options.poseTypes, it.poseType)}`
         : "";
+      const grille = it.ventilationGrille && it.ventilationGrille !== "none"
+        ? ` | ${dict.ventilationGrilleLabel}: ${labelFromList(options.ventilationGrilles, it.ventilationGrille)}`
+        : "";
+      const volet = it.voletRoulant && it.voletRoulant !== "none"
+        ? ` | ${dict.voletRoulantLabel}: ${labelFromList(options.voletRoulants, it.voletRoulant)} — hauteur de baie à confirmer au métrage`
+        : "";
+      const warmEdge = it.warmEdge === "warm_edge"
+        ? ` | ${dict.warmEdgeLabel}: ${labelFromList(options.warmEdges, it.warmEdge)}`
+        : "";
       const sashDesc = it.sashes
         .map(
           (s, si) =>
@@ -335,7 +359,7 @@ export function Widget({
       const screen = it.insectScreen
         ? ` | ${dict.insectScreenLabel}: ${labelFromList(dict.insectScreenTypes, it.insectScreenType)} / ${labelFromList(dict.insectScreenColors, it.insectScreenColor)}`
         : "";
-      return `${i + 1}. ${pt} ${mat}${brand ? ` (${brand})` : ""} ${it.width}×${it.height}mm ×${it.quantity} | ${q}, ${glz}, ${col}, ${inst}${pose} | ${dict.sashLabel}: ${sashDesc}${screen}`;
+      return `${i + 1}. ${pt} ${mat}${brand ? ` (${brand})` : ""} ${it.width}×${it.height}mm ×${it.quantity} | ${q}, ${glz}, ${col}, ${inst}${pose}${grille}${volet}${warmEdge} | ${dict.sashLabel}: ${sashDesc}${screen}`;
     });
     if (ecobonusPct > 0) lines.push(`Ecobonus: -${ecobonusPct}%`);
     if (discountPct > 0) lines.push(`${dict.discountLabel}: -${discountPct}%`);
@@ -369,6 +393,9 @@ export function Widget({
       insectScreenColor: it.insectScreen ? it.insectScreenColor : undefined,
       installation: it.installation,
       poseType: it.poseType || undefined,
+      ventilationGrille: it.ventilationGrille || undefined,
+      voletRoulant: it.voletRoulant || undefined,
+      warmEdge: it.warmEdge || undefined,
     };
   }
 
@@ -380,7 +407,7 @@ export function Widget({
     }
     setSubmitting(true);
     try {
-      const all = [...items, state].map(withPose);
+      const all = [...items, state].map(withRegionDefaults);
       const userMsg = lead.message.trim();
       const spec = buildSpecSummary(all);
       const body = {
@@ -646,8 +673,56 @@ export function Widget({
 
           {options.poseTypes.length > 0 && (
             <Field label={dict.poseTypeLabel}>
-              <select style={s.select} value={withPose(state).poseType} onChange={(e) => set({ poseType: e.target.value })}>
+              <select style={s.select} value={withRegionDefaults(state).poseType} onChange={(e) => set({ poseType: e.target.value })}>
                 {options.poseTypes.map(([k, v]) => (
+                  <option key={k} value={k}>
+                    {v}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          )}
+
+          {options.ventilationGrilles.length > 0 && (
+            <Field label={dict.ventilationGrilleLabel}>
+              <select
+                style={s.select}
+                value={withRegionDefaults(state).ventilationGrille}
+                onChange={(e) => set({ ventilationGrille: e.target.value })}
+              >
+                {options.ventilationGrilles.map(([k, v]) => (
+                  <option key={k} value={k}>
+                    {v}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          )}
+
+          {options.voletRoulants.length > 0 && (
+            <Field label={dict.voletRoulantLabel}>
+              <select
+                style={s.select}
+                value={withRegionDefaults(state).voletRoulant}
+                onChange={(e) => set({ voletRoulant: e.target.value })}
+              >
+                {options.voletRoulants.map(([k, v]) => (
+                  <option key={k} value={k}>
+                    {v}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          )}
+
+          {options.warmEdges.length > 0 && (
+            <Field label={dict.warmEdgeLabel}>
+              <select
+                style={s.select}
+                value={withRegionDefaults(state).warmEdge}
+                onChange={(e) => set({ warmEdge: e.target.value })}
+              >
+                {options.warmEdges.map(([k, v]) => (
                   <option key={k} value={k}>
                     {v}
                   </option>
