@@ -117,7 +117,34 @@ export interface ProjectItem {
   voletRoulant?: string;
   /** BE warm-edge spacer choice. */
   warmEdge?: string;
+  /** NL block-profile depth (115 / 120 mm). */
+  profileDepth?: string;
+  /** NL HVL 90° corner joint. */
+  cornerJoint?: string;
+  /** NL glazing Ug tier (HR++ / HR+++). */
+  ugTier?: string;
+  /** NL Renolit colour preset. */
+  colorPreset?: string;
+  /** NL paid measurement service (inmeetservice). */
+  inmeetservice?: string;
 }
+
+/**
+ * Catalog `kind`s that are a flat per-item add and whose value lives on the
+ * item under a field of the same name. A country phase adds its kinds here and
+ * the pricing loop + widget submit pick them up automatically.
+ */
+export const REGION_FLAT_OPTION_KINDS = [
+  "poseType",
+  "ventilationGrille",
+  "voletRoulant",
+  "warmEdge",
+  "profileDepth",
+  "cornerJoint",
+  "ugTier",
+  "colorPreset",
+  "inmeetservice",
+] as const;
 
 export interface ItemBreakdown {
   areaM2: number;
@@ -239,19 +266,19 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
     const installationCost =
       getHardwareOption(payload, "installation", item.installation ?? "")?.priceCents || 0;
 
-    const poseTypeCost =
-      getHardwareOption(payload, "poseType", item.poseType ?? "")?.priceCents || 0;
-
-    const ventilationGrilleCost =
-      getHardwareOption(payload, "ventilationGrille", item.ventilationGrille ?? "")?.priceCents || 0;
-    const voletRoulantCost =
-      getHardwareOption(payload, "voletRoulant", item.voletRoulant ?? "")?.priceCents || 0;
-    const warmEdgeCost =
-      getHardwareOption(payload, "warmEdge", item.warmEdge ?? "")?.priceCents || 0;
+    // Region-specific flat option kinds (FR pose, BE ventilation/volet/warm-edge,
+    // NL deep-profile/joint/Ug/colour/inmeet, …). Each is a plain per-item add:
+    // the item field name matches the catalog `kind`.
+    let regionOptionsCost = 0;
+    for (const kind of REGION_FLAT_OPTION_KINDS) {
+      const chosen = (item as Record<string, unknown>)[kind];
+      if (typeof chosen === "string" && chosen) {
+        regionOptionsCost += getHardwareOption(payload, kind, chosen)?.priceCents || 0;
+      }
+    }
 
     const optionsCost =
-      sashCost + hardwareCost + thresholdCost + installationCost + poseTypeCost +
-      ventilationGrilleCost + voletRoulantCost + warmEdgeCost +
+      sashCost + hardwareCost + thresholdCost + installationCost + regionOptionsCost +
       (glazing?.priceCents || 0) + (finish?.priceCents || 0) + screenCost;
 
     const unitPrice = materialCost + profileCost + optionsCost;

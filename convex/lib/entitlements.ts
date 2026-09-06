@@ -36,6 +36,12 @@ export interface Entitlements {
   customDomain: boolean;
   apiAccess: boolean;
   prioritySupport: boolean;
+  /**
+   * NL transparent widget mode: show a real price breakdown and let the visitor
+   * request a firm order / measurement visit. Region still gates it (only NL is
+   * `transparent`), this is the plan gate on top.
+   */
+  transparentWidget: boolean;
   /** Locked lifetime discount percentage (Alpha = 15, else 0). */
   lifetimeDiscountPct: number;
 }
@@ -53,6 +59,7 @@ const STARTER: Entitlements = {
   customDomain: false,
   apiAccess: false,
   prioritySupport: false,
+  transparentWidget: false,
   lifetimeDiscountPct: 0,
 };
 
@@ -66,6 +73,7 @@ const BUSINESS: Entitlements = {
   multiCatalog: true,
   analytics: "advanced",
   prioritySupport: true,
+  transparentWidget: true,
 };
 
 const ENTERPRISE: Entitlements = {

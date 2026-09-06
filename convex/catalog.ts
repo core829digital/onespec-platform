@@ -12,6 +12,7 @@ import { regionForCountry, type RegionCode } from "./lib/regions";
 const REGION_CATALOG_KINDS: Partial<Record<RegionCode, string[]>> = {
   FR: ["poseType"],
   BE: ["ventilationGrille", "voletRoulant", "warmEdge"],
+  NL: ["profileDepth", "cornerJoint", "ugTier", "colorPreset", "inmeetservice"],
 };
 
 const DEFAULT_MATERIALS = [
@@ -79,7 +80,9 @@ const DEFAULT_FINISH = [
 
 const DEFAULT_HARDWARE: Array<{
   kind: "hardware" | "hardwareColor" | "sashType" | "screen" | "screenColor" | "installation" | "poseType"
-    | "ventilationGrille" | "voletRoulant" | "warmEdge" | "threshold" | "misc";
+    | "ventilationGrille" | "voletRoulant" | "warmEdge"
+    | "profileDepth" | "cornerJoint" | "ugTier" | "colorPreset" | "inmeetservice"
+    | "threshold" | "misc";
   key: string;
   labels: { it: string; en: string; fr: string; nl?: string; de?: string };
   priceCents: number;
@@ -121,6 +124,19 @@ const DEFAULT_HARDWARE: Array<{
   // BE warm-edge spacer toggle. Disabled by default — enabled for BE-region tenants.
   { kind: "warmEdge", key: "standard", labels: { it: "Distanziatore standard", en: "Standard spacer", fr: "Intercalaire standard", nl: "Standaard spacer" }, priceCents: 0, appliesToOperableOnly: false, sortOrder: 0, enabled: false },
   { kind: "warmEdge", key: "warm_edge", labels: { it: "Distanziatore warm-edge", en: "Warm-edge spacer", fr: "Intercalaire warm-edge", nl: "Warm-edge spacer" }, priceCents: 3500, appliesToOperableOnly: false, sortOrder: 1, enabled: false },
+  // NL deep-profile options. Disabled by default — enabled for NL-region tenants.
+  { kind: "profileDepth", key: "d115", labels: { it: "Profilo 115 mm", en: "115 mm profile", fr: "Profilé 115 mm", nl: "Blokprofiel 115 mm" }, priceCents: 0, appliesToOperableOnly: false, sortOrder: 0, enabled: false },
+  { kind: "profileDepth", key: "d120", labels: { it: "Profilo 120 mm", en: "120 mm profile", fr: "Profilé 120 mm", nl: "Blokprofiel 120 mm" }, priceCents: 4500, appliesToOperableOnly: false, sortOrder: 1, enabled: false },
+  { kind: "cornerJoint", key: "standard", labels: { it: "Giunto standard", en: "Standard joint", fr: "Assemblage standard", nl: "Standaard verbinding" }, priceCents: 0, appliesToOperableOnly: false, sortOrder: 0, enabled: false },
+  { kind: "cornerJoint", key: "hvl_90", labels: { it: "Giunto angolo HVL 90°", en: "HVL 90° corner joint", fr: "Assemblage d'angle HVL 90°", nl: "HVL 90° hoekverbinding" }, priceCents: 6000, appliesToOperableOnly: false, sortOrder: 1, enabled: false },
+  { kind: "ugTier", key: "hr_plus_plus", labels: { it: "Vetro HR++", en: "HR++ glazing", fr: "Vitrage HR++", nl: "HR++ beglazing" }, priceCents: 0, appliesToOperableOnly: false, sortOrder: 0, enabled: false },
+  { kind: "ugTier", key: "hr_plus_plus_plus", labels: { it: "Vetro HR+++ (triplo)", en: "HR+++ triple glazing", fr: "Vitrage HR+++ (triple)", nl: "HR+++ triple beglazing" }, priceCents: 14000, appliesToOperableOnly: false, sortOrder: 1, enabled: false },
+  { kind: "colorPreset", key: "ral9016", labels: { it: "Bianco RAL 9016", en: "RAL 9016 white", fr: "Blanc RAL 9016", nl: "RAL 9016 wit" }, priceCents: 0, appliesToOperableOnly: false, sortOrder: 0, enabled: false },
+  { kind: "colorPreset", key: "ral7016", labels: { it: "Grigio antracite RAL 7016", en: "RAL 7016 anthracite", fr: "Anthracite RAL 7016", nl: "RAL 7016 antraciet" }, priceCents: 2500, appliesToOperableOnly: false, sortOrder: 1, enabled: false },
+  { kind: "colorPreset", key: "ral6009", labels: { it: "Verde abete RAL 6009", en: "RAL 6009 fir green", fr: "Vert sapin RAL 6009", nl: "RAL 6009 dennengroen" }, priceCents: 2500, appliesToOperableOnly: false, sortOrder: 2, enabled: false },
+  { kind: "colorPreset", key: "ral9001", labels: { it: "Bianco crema RAL 9001", en: "RAL 9001 cream", fr: "Blanc crème RAL 9001", nl: "RAL 9001 crème" }, priceCents: 2500, appliesToOperableOnly: false, sortOrder: 3, enabled: false },
+  { kind: "inmeetservice", key: "none", labels: { it: "Nessuno", en: "None", fr: "Aucun", nl: "Geen" }, priceCents: 0, appliesToOperableOnly: false, sortOrder: 0, enabled: false },
+  { kind: "inmeetservice", key: "paid", labels: { it: "Servizio di rilievo misure", en: "Measurement service", fr: "Service de métrage", nl: "Inmeetservice (verrekenbaar)" }, priceCents: 9500, appliesToOperableOnly: false, sortOrder: 1, enabled: false },
   { kind: "threshold", key: "balconyDoorThreshold", labels: { it: "Soglia balcone", en: "Balcony threshold", fr: "Seuil balcon" }, priceCents: 6500, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
 ];
 
@@ -296,7 +312,7 @@ export const upsertFinishOption = mutation({
 });
 
 export const upsertHardwareOption = mutation({
-  args: { configuratorId: v.id("configurators"), kind: v.union(v.literal("hardware"), v.literal("hardwareColor"), v.literal("sashType"), v.literal("screen"), v.literal("screenColor"), v.literal("installation"), v.literal("poseType"), v.literal("ventilationGrille"), v.literal("voletRoulant"), v.literal("warmEdge"), v.literal("threshold"), v.literal("misc")), key: v.string(), labels: v.any(), priceCents: v.number(), appliesToOperableOnly: v.boolean(), sortOrder: v.number(), enabled: v.boolean() },
+  args: { configuratorId: v.id("configurators"), kind: v.union(v.literal("hardware"), v.literal("hardwareColor"), v.literal("sashType"), v.literal("screen"), v.literal("screenColor"), v.literal("installation"), v.literal("poseType"), v.literal("ventilationGrille"), v.literal("voletRoulant"), v.literal("warmEdge"), v.literal("profileDepth"), v.literal("cornerJoint"), v.literal("ugTier"), v.literal("colorPreset"), v.literal("inmeetservice"), v.literal("threshold"), v.literal("misc")), key: v.string(), labels: v.any(), priceCents: v.number(), appliesToOperableOnly: v.boolean(), sortOrder: v.number(), enabled: v.boolean() },
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");

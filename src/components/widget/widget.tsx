@@ -6,6 +6,7 @@ import { getDict, LOCALE_CFG, labelFromList } from "./widget-i18n";
 import { readableInk, isSafeColor, resolveFontStack } from "./widget-theme";
 import { postToHost, readHostTheme } from "./host-bridge";
 import { catalogOptions, catalogPricing, type WidgetCatalog, type WidgetOptions } from "./widget-catalog";
+import { REGION_FLAT_OPTION_KINDS } from "@/shared/pricing";
 import {
   defaultConfig,
   defaultSashPreset,
@@ -42,6 +43,7 @@ interface WidgetProps {
     /** Region policy — server-authoritative (resolved from the tenant's country). */
     region?: string;
     widgetMode?: "lead_gen" | "transparent";
+    transparentAllowed?: boolean;
     vatRates?: Array<{ key: string; percent: number; label: string }>;
     defaultVatKey?: string;
     complianceFlags?: string[];
@@ -91,12 +93,18 @@ export function Widget({
 }: WidgetProps) {
   const dict = getDict(lang);
   const cfg = LOCALE_CFG[lang] ?? LOCALE_CFG.en;
-  const submitLocale = (["it", "en", "fr"].includes(lang) ? lang : "it") as "it" | "en" | "fr";
+  const submitLocale = (["it", "en", "fr", "nl", "de"].includes(lang) ? lang : "it") as
+    | "it"
+    | "en"
+    | "fr"
+    | "nl"
+    | "de";
 
   // The region's VAT rate set (if any). When present the visitor picks a rate
   // from this list rather than typing a free number.
   const vatRates = configurator.vatRates ?? [];
-  const isLeadGen = (configurator.widgetMode ?? "lead_gen") !== "transparent";
+  const isTransparent = (configurator.widgetMode ?? "lead_gen") === "transparent";
+  const isLeadGen = !isTransparent;
   const complianceFlags = configurator.complianceFlags ?? [];
 
   const defaultVatRate =
@@ -223,25 +231,19 @@ export function Widget({
   }, [configurator.publicId]);
 
   // When the region's catalogue offers a region-specific option kind (FR pose
-  // type, BE ventilation grille / volet roulant / warm edge, …) one is always in
+  // type, BE ventilation grille / …, NL deep-profile / …) one is always in
   // force — fall back to the first option so the preview + submitted price
   // include it, rather than silently pricing an unselected field at 0.
   const withRegionDefaults = useCallback(
     (it: ConfigState): ConfigState => {
       let out = it;
-      const fallback = (
-        field: "poseType" | "ventilationGrille" | "voletRoulant" | "warmEdge",
-        list: [string, string][],
-      ) => {
-        if (list.length > 0 && !out[field]) out = { ...out, [field]: list[0][0] };
-      };
-      fallback("poseType", options.poseTypes);
-      fallback("ventilationGrille", options.ventilationGrilles);
-      fallback("voletRoulant", options.voletRoulants);
-      fallback("warmEdge", options.warmEdges);
+      for (const kind of REGION_FLAT_OPTION_KINDS) {
+        const list = options.regionOptions[kind] ?? [];
+        if (list.length > 0 && !out[kind]) out = { ...out, [kind]: list[0][0] };
+      }
       return out;
     },
-    [options.poseTypes, options.ventilationGrilles, options.voletRoulants, options.warmEdges],
+    [options.regionOptions],
   );
 
   // ---- derived ----
@@ -338,18 +340,13 @@ export function Widget({
       const glz = labelFromList(dict.glazing, it.glazing);
       const col = labelFromList(dict.color, it.color);
       const inst = labelFromList(dict.installationOptions, it.installation);
-      const pose = it.poseType
-        ? ` | ${dict.poseTypeLabel}: ${labelFromList(options.poseTypes, it.poseType)}`
-        : "";
-      const grille = it.ventilationGrille && it.ventilationGrille !== "none"
-        ? ` | ${dict.ventilationGrilleLabel}: ${labelFromList(options.ventilationGrilles, it.ventilationGrille)}`
-        : "";
-      const volet = it.voletRoulant && it.voletRoulant !== "none"
-        ? ` | ${dict.voletRoulantLabel}: ${labelFromList(options.voletRoulants, it.voletRoulant)} — hauteur de baie à confirmer au métrage`
-        : "";
-      const warmEdge = it.warmEdge === "warm_edge"
-        ? ` | ${dict.warmEdgeLabel}: ${labelFromList(options.warmEdges, it.warmEdge)}`
-        : "";
+      const regionBits = REGION_FLAT_OPTION_KINDS.map((kind) => {
+        const chosen = it[kind];
+        if (!chosen || chosen === "none" || chosen === "standard") return "";
+        const label = labelFromList(options.regionOptions[kind] ?? [], chosen);
+        const note = kind === "voletRoulant" ? " — hauteur de baie à confirmer au métrage" : "";
+        return ` | ${dict.regionOptionLabels[kind] ?? kind}: ${label}${note}`;
+      }).join("");
       const sashDesc = it.sashes
         .map(
           (s, si) =>
@@ -359,7 +356,7 @@ export function Widget({
       const screen = it.insectScreen
         ? ` | ${dict.insectScreenLabel}: ${labelFromList(dict.insectScreenTypes, it.insectScreenType)} / ${labelFromList(dict.insectScreenColors, it.insectScreenColor)}`
         : "";
-      return `${i + 1}. ${pt} ${mat}${brand ? ` (${brand})` : ""} ${it.width}×${it.height}mm ×${it.quantity} | ${q}, ${glz}, ${col}, ${inst}${pose}${grille}${volet}${warmEdge} | ${dict.sashLabel}: ${sashDesc}${screen}`;
+      return `${i + 1}. ${pt} ${mat}${brand ? ` (${brand})` : ""} ${it.width}×${it.height}mm ×${it.quantity} | ${q}, ${glz}, ${col}, ${inst}${regionBits} | ${dict.sashLabel}: ${sashDesc}${screen}`;
     });
     if (ecobonusPct > 0) lines.push(`Ecobonus: -${ecobonusPct}%`);
     if (discountPct > 0) lines.push(`${dict.discountLabel}: -${discountPct}%`);
@@ -392,10 +389,9 @@ export function Widget({
       insectScreenType: it.insectScreen ? it.insectScreenType : undefined,
       insectScreenColor: it.insectScreen ? it.insectScreenColor : undefined,
       installation: it.installation,
-      poseType: it.poseType || undefined,
-      ventilationGrille: it.ventilationGrille || undefined,
-      voletRoulant: it.voletRoulant || undefined,
-      warmEdge: it.warmEdge || undefined,
+      ...Object.fromEntries(
+        REGION_FLAT_OPTION_KINDS.map((kind) => [kind, it[kind] || undefined]),
+      ),
     };
   }
 
@@ -671,65 +667,25 @@ export function Widget({
             </select>
           </Field>
 
-          {options.poseTypes.length > 0 && (
-            <Field label={dict.poseTypeLabel}>
-              <select style={s.select} value={withRegionDefaults(state).poseType} onChange={(e) => set({ poseType: e.target.value })}>
-                {options.poseTypes.map(([k, v]) => (
-                  <option key={k} value={k}>
-                    {v}
-                  </option>
-                ))}
-              </select>
-            </Field>
-          )}
-
-          {options.ventilationGrilles.length > 0 && (
-            <Field label={dict.ventilationGrilleLabel}>
-              <select
-                style={s.select}
-                value={withRegionDefaults(state).ventilationGrille}
-                onChange={(e) => set({ ventilationGrille: e.target.value })}
-              >
-                {options.ventilationGrilles.map(([k, v]) => (
-                  <option key={k} value={k}>
-                    {v}
-                  </option>
-                ))}
-              </select>
-            </Field>
-          )}
-
-          {options.voletRoulants.length > 0 && (
-            <Field label={dict.voletRoulantLabel}>
-              <select
-                style={s.select}
-                value={withRegionDefaults(state).voletRoulant}
-                onChange={(e) => set({ voletRoulant: e.target.value })}
-              >
-                {options.voletRoulants.map(([k, v]) => (
-                  <option key={k} value={k}>
-                    {v}
-                  </option>
-                ))}
-              </select>
-            </Field>
-          )}
-
-          {options.warmEdges.length > 0 && (
-            <Field label={dict.warmEdgeLabel}>
-              <select
-                style={s.select}
-                value={withRegionDefaults(state).warmEdge}
-                onChange={(e) => set({ warmEdge: e.target.value })}
-              >
-                {options.warmEdges.map(([k, v]) => (
-                  <option key={k} value={k}>
-                    {v}
-                  </option>
-                ))}
-              </select>
-            </Field>
-          )}
+          {REGION_FLAT_OPTION_KINDS.map((kind) => {
+            const list = options.regionOptions[kind] ?? [];
+            if (list.length === 0) return null;
+            return (
+              <Field key={kind} label={dict.regionOptionLabels[kind] ?? kind}>
+                <select
+                  style={s.select}
+                  value={withRegionDefaults(state)[kind]}
+                  onChange={(e) => set({ [kind]: e.target.value })}
+                >
+                  {list.map(([k, v]) => (
+                    <option key={k} value={k}>
+                      {v}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            );
+          })}
 
           <Field>
             <label style={s.check}>

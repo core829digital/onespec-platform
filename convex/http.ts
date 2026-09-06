@@ -164,6 +164,7 @@ http.route({
       leadCompany: body.leadCompany,
       leadMessage: body.leadMessage,
       leadLocale: body.leadLocale,
+      requestKind: body.requestKind,
       clientReportedPriceCents: body.clientReportedPriceCents,
       sourceIpHash: ipHash,
       sourceOrigin: origin,

@@ -219,6 +219,7 @@ export const getPublicConfigurator = query({
       logoUrl,
       logoLightUrl,
       region: regionForCountry(tenant?.country),
+      transparentAllowed: tenant ? resolveTenantEntitlements(tenant).transparentWidget : false,
     });
   },
 });
@@ -232,8 +233,14 @@ function assembleWidgetResponse(args: {
   logoUrl: string | null;
   logoLightUrl: string | null;
   region: RegionPolicy;
+  /** Whether the tenant's plan may use transparent (B2C breakdown) mode. */
+  transparentAllowed: boolean;
 }) {
-  const { configurator, branding, payload, catalogVersion, logoUrl, logoLightUrl, region } = args;
+  const { configurator, branding, payload, catalogVersion, logoUrl, logoLightUrl, region, transparentAllowed } = args;
+  // Region says transparent, but the plan must also allow it — otherwise the
+  // widget falls back to lead-gen so the price is never shown as a firm B2C offer.
+  const widgetMode =
+    region.widgetMode === "transparent" && !transparentAllowed ? "lead_gen" : region.widgetMode;
   const cfg = (payload?.configurator ?? {}) as Record<string, unknown>;
   const pick = <T,>(key: string, fallback: T): T =>
     (cfg[key] as T | undefined) ?? fallback;
@@ -252,7 +259,8 @@ function assembleWidgetResponse(args: {
     discountMaxPercent: pick("discountMaxPercent", configurator.discountMaxPercent ?? 20),
     // Region policy — server-authoritative, resolved from the tenant's country.
     region: region.code,
-    widgetMode: region.widgetMode,
+    widgetMode,
+    transparentAllowed,
     vatRates: region.vatRates,
     defaultVatKey: region.defaultVatKey,
     complianceFlags: region.complianceFlags,
@@ -347,6 +355,7 @@ export const getConfiguratorForPreview = query({
       logoUrl,
       logoLightUrl,
       region: regionForCountry(tenant?.country),
+      transparentAllowed: tenant ? resolveTenantEntitlements(tenant).transparentWidget : false,
     });
   },
 });
@@ -368,6 +377,9 @@ export const insertQuote = internalMutation({
     leadCompany: v.optional(v.string()),
     leadMessage: v.optional(v.string()),
     leadLocale: v.string(),
+    requestKind: v.optional(
+      v.union(v.literal("quote"), v.literal("firm_order"), v.literal("measurement")),
+    ),
     clientReportedPriceCents: v.optional(v.number()),
     sourceIpHash: v.optional(v.string()),
     sourceOrigin: v.optional(v.string()),
@@ -432,12 +444,18 @@ export const insertQuote = internalMutation({
       leadCompany: args.leadCompany,
       leadMessage: args.leadMessage,
       leadLocale: args.leadLocale,
+      channel: "widget" as const,
+      requestKind: args.requestKind,
       priceCents: price.priceCents,
       priceExVatCents: price.priceExVatCents,
       vatRatePercent: price.vatRatePercent,
       currency: "EUR",
       clientReportedPriceCents: args.clientReportedPriceCents,
-      status: args.flagged ? "spam" : "new",
+      status: args.flagged
+        ? "spam"
+        : args.requestKind === "firm_order" || args.requestKind === "measurement"
+          ? "quoted"
+          : "new",
       sourceIpHash: args.sourceIpHash,
       sourceOrigin: args.sourceOrigin,
       userAgent: args.userAgent,

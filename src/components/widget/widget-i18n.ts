@@ -43,10 +43,8 @@ export interface WidgetDict {
   insectScreenColors: Pair[];
   installationLabel: string;
   installationOptions: Pair[];
-  poseTypeLabel: string;
-  ventilationGrilleLabel: string;
-  voletRoulantLabel: string;
-  warmEdgeLabel: string;
+  /** Region-specific flat option kind → field label, keyed by catalog `kind`. */
+  regionOptionLabels: Record<string, string>;
   productTypeLabel: string;
   productTypeWindow: string;
   productTypeDoor: string;
@@ -140,10 +138,17 @@ const en: WidgetDict = {
   insectScreenColors: [["white", "White"], ["brown", "Brown"], ["woodeffect", "Wood effect"], ["other", "Other colour"]],
   installationLabel: "Installation (montaggio)",
   installationOptions: [["classico", "Montaggio Classico"], ["posaClima", "Montaggio Posa Clima"]],
-  poseTypeLabel: "Pose type",
-  ventilationGrilleLabel: "Ventilation grille",
-  voletRoulantLabel: "Roller shutter",
-  warmEdgeLabel: "Warm-edge spacer",
+  regionOptionLabels: {
+    poseType: "Pose type",
+    ventilationGrille: "Ventilation grille",
+    voletRoulant: "Roller shutter",
+    warmEdge: "Warm-edge spacer",
+    profileDepth: "Profile depth",
+    cornerJoint: "Corner joint",
+    ugTier: "Glazing (Ug)",
+    colorPreset: "Colour",
+    inmeetservice: "Measurement service",
+  },
   productTypeLabel: "Product type",
   productTypeWindow: "Window",
   productTypeDoor: "Balcony door",
@@ -192,6 +197,8 @@ const en: WidgetDict = {
     dtu_36_5: "Installation to DTU 36.5 (window fitting)",
     ventilation_grille: "Ventilation grille required by Belgian regulation (EPB)",
     warm_edge: "Warm-edge spacer available on request",
+    hvl_verbinding: "HVL 90° welded corner joint",
+    hr_plus_plus: "HR++ glazing standard; HR+++ triple glazing available",
   },
 };
 
@@ -237,10 +244,17 @@ const it: WidgetDict = {
   insectScreenColorLabel: "Colore zanzariera",
   insectScreenColors: [["white", "Bianco"], ["brown", "Marrone"], ["woodeffect", "Effetto legno"], ["other", "Altro colore"]],
   installationLabel: "Montaggio",
-  poseTypeLabel: "Tipo di posa",
-  ventilationGrilleLabel: "Griglia di ventilazione",
-  voletRoulantLabel: "Tapparella",
-  warmEdgeLabel: "Distanziatore warm-edge",
+  regionOptionLabels: {
+    poseType: "Tipo di posa",
+    ventilationGrille: "Griglia di ventilazione",
+    voletRoulant: "Tapparella",
+    warmEdge: "Distanziatore warm-edge",
+    profileDepth: "Profondità profilo",
+    cornerJoint: "Giunto d'angolo",
+    ugTier: "Vetro (Ug)",
+    colorPreset: "Colore",
+    inmeetservice: "Servizio di rilievo misure",
+  },
   productTypeLabel: "Tipo di prodotto",
   productTypeWindow: "Finestra",
   productTypeDoor: "Porta balcone",
@@ -287,6 +301,8 @@ const it: WidgetDict = {
     dtu_36_5: "Posa secondo DTU 36.5",
     ventilation_grille: "Griglia di ventilazione richiesta dalla normativa belga (EPB)",
     warm_edge: "Distanziatore warm-edge disponibile su richiesta",
+    hvl_verbinding: "Giunto d'angolo saldato HVL 90°",
+    hr_plus_plus: "Vetro HR++ di serie; HR+++ triplo disponibile",
   },
 };
 
@@ -332,10 +348,17 @@ const fr: WidgetDict = {
   insectScreenColorLabel: "Couleur de la moustiquaire",
   insectScreenColors: [["white", "Blanc"], ["brown", "Marron"], ["woodeffect", "Effet bois"], ["other", "Autre couleur"]],
   installationLabel: "Montaggio (pose)",
-  poseTypeLabel: "Type de pose",
-  ventilationGrilleLabel: "Grille de ventilation",
-  voletRoulantLabel: "Volet roulant",
-  warmEdgeLabel: "Intercalaire warm-edge",
+  regionOptionLabels: {
+    poseType: "Type de pose",
+    ventilationGrille: "Grille de ventilation",
+    voletRoulant: "Volet roulant",
+    warmEdge: "Intercalaire warm-edge",
+    profileDepth: "Profondeur du profilé",
+    cornerJoint: "Assemblage d'angle",
+    ugTier: "Vitrage (Ug)",
+    colorPreset: "Couleur",
+    inmeetservice: "Service de métrage",
+  },
   productTypeLabel: "Type de produit",
   productTypeWindow: "Fenêtre",
   productTypeDoor: "Porte-fenêtre / balcon",
@@ -382,6 +405,8 @@ const fr: WidgetDict = {
     dtu_36_5: "Pose conforme au DTU 36.5",
     ventilation_grille: "Grille de ventilation requise par la réglementation belge (PEB)",
     warm_edge: "Intercalaire warm-edge disponible sur demande",
+    hvl_verbinding: "Assemblage d'angle soudé HVL 90°",
+    hr_plus_plus: "Vitrage HR++ de série ; HR+++ triple disponible",
   },
 };
 

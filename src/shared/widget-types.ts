@@ -36,6 +36,11 @@ export const ProjectItemSchema = z
     ventilationGrille: z.string().max(40).optional(),
     voletRoulant: z.string().max(40).optional(),
     warmEdge: z.string().max(40).optional(),
+    profileDepth: z.string().max(40).optional(),
+    cornerJoint: z.string().max(40).optional(),
+    ugTier: z.string().max(40).optional(),
+    colorPreset: z.string().max(40).optional(),
+    inmeetservice: z.string().max(40).optional(),
   })
   .superRefine((item, ctx) => {
     // A one-piece sash cannot exceed 1200 x 2800 mm (structural limit) — this
@@ -66,7 +71,9 @@ export const QuoteSubmissionSchema = z.object({
   leadPhone: z.string().max(30).optional(),
   leadCompany: z.string().max(100).optional(),
   leadMessage: z.string().max(2000).optional(),
-  leadLocale: z.enum(["it", "en", "fr"]).default("it"),
+  leadLocale: z.enum(["it", "en", "fr", "nl", "de"]).default("it"),
+  /** NL transparent mode: which action the visitor asked for. */
+  requestKind: z.enum(["quote", "firm_order", "measurement"]).default("quote"),
   turnstileToken: z.string().max(4096).optional(),
   honeypot: z.string().max(200).optional(),
   clientReportedPriceCents: z.number().int().positive().max(100_000_000).optional(),

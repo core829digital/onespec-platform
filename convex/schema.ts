@@ -240,6 +240,8 @@ export default defineSchema({
                   v.literal("sashType"), v.literal("screen"), v.literal("screenColor"),
                   v.literal("installation"), v.literal("poseType"),
                   v.literal("ventilationGrille"), v.literal("voletRoulant"), v.literal("warmEdge"),
+                  v.literal("profileDepth"), v.literal("cornerJoint"), v.literal("ugTier"),
+                  v.literal("colorPreset"), v.literal("inmeetservice"),
                   v.literal("threshold"), v.literal("misc")),
     key: v.string(),
     labels: v.any(),
@@ -289,6 +291,10 @@ export default defineSchema({
     signatureDataUrl: v.optional(v.string()),
     signedAt: v.optional(v.number()),
     signedByName: v.optional(v.string()),
+    // NL transparent widget mode — which action the visitor asked for.
+    requestKind: v.optional(
+      v.union(v.literal("quote"), v.literal("firm_order"), v.literal("measurement")),
+    ),
     // Regional Country Phase fields (FR, BE, NL, DE, LU)
     regionCode: v.optional(v.string()),
     poseType: v.optional(v.string()), // FR DTU 36.5 (renovation, feuillure, applique, tunnel)

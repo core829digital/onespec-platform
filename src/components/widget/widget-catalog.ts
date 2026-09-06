@@ -6,6 +6,7 @@
 import type { Material, Pricing } from "./widget-pricing";
 import { defaultPricing } from "./widget-pricing";
 import type { WidgetDict } from "./widget-i18n";
+import { REGION_FLAT_OPTION_KINDS } from "@/shared/pricing";
 
 type Labels = Record<string, string> | undefined;
 
@@ -78,14 +79,11 @@ export interface WidgetOptions {
   screenTypes: [string, string][];
   screenColors: [string, string][];
   installations: [string, string][];
-  /** FR pose methods — empty unless the region's catalogue enables `poseType`. */
-  poseTypes: [string, string][];
-  /** BE ventilation grille — empty unless the region's catalogue enables it. */
-  ventilationGrilles: [string, string][];
-  /** BE volet roulant monobloc — empty unless the region's catalogue enables it. */
-  voletRoulants: [string, string][];
-  /** BE warm-edge spacer — empty unless the region's catalogue enables it. */
-  warmEdges: [string, string][];
+  /**
+   * Region-specific flat option kinds → `[key, label]` pairs, keyed by catalog
+   * `kind`. A list is empty unless the tenant's region enabled that kind.
+   */
+  regionOptions: Record<string, [string, string][]>;
 }
 
 const SWATCH: Record<Material, string> = {
@@ -144,10 +142,9 @@ export function catalogOptions(
     screenTypes: pairsFrom(hw("screen"), locale) ?? dict.insectScreenTypes,
     screenColors: pairsFrom(hw("screenColor"), locale) ?? dict.insectScreenColors,
     installations: pairsFrom(hw("installation"), locale) ?? dict.installationOptions,
-    poseTypes: pairsFrom(hw("poseType"), locale) ?? [],
-    ventilationGrilles: pairsFrom(hw("ventilationGrille"), locale) ?? [],
-    voletRoulants: pairsFrom(hw("voletRoulant"), locale) ?? [],
-    warmEdges: pairsFrom(hw("warmEdge"), locale) ?? [],
+    regionOptions: Object.fromEntries(
+      REGION_FLAT_OPTION_KINDS.map((k) => [k, pairsFrom(hw(k), locale) ?? []]),
+    ),
   };
 }
 
@@ -202,14 +199,13 @@ export function catalogPricing(cat: WidgetCatalog | undefined): Pricing {
   if (screenColor) p.insectScreenColor = { ...p.insectScreenColor, ...screenColor };
   const installation = hw("installation");
   if (installation) p.installation = { ...p.installation, ...installation };
-  const poseType = hw("poseType");
-  if (poseType) p.poseType = { ...p.poseType, ...poseType };
-  const ventilationGrille = hw("ventilationGrille");
-  if (ventilationGrille) p.ventilationGrille = { ...p.ventilationGrille, ...ventilationGrille };
-  const voletRoulant = hw("voletRoulant");
-  if (voletRoulant) p.voletRoulant = { ...p.voletRoulant, ...voletRoulant };
-  const warmEdge = hw("warmEdge");
-  if (warmEdge) p.warmEdge = { ...p.warmEdge, ...warmEdge };
+  for (const kind of REGION_FLAT_OPTION_KINDS) {
+    const m = hw(kind);
+    if (m) {
+      const table = p[kind] as Record<string, number>;
+      (p as Record<string, unknown>)[kind] = { ...table, ...m };
+    }
+  }
 
   const threshold = cat.hardware?.find((h) => h.kind === "threshold" && enabled(h));
   if (threshold) p.balconyDoorThreshold = cents(threshold.priceCents, p.balconyDoorThreshold);

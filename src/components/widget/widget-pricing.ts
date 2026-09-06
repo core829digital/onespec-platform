@@ -3,6 +3,8 @@
 // always recomputed on the server (convex/http.ts -> convex/widget.insertQuote)
 // from the raw item inputs; a client-reported total is never trusted.
 
+import { REGION_FLAT_OPTION_KINDS } from "@/shared/pricing";
+
 export type ProductType = "window" | "balconyDoor";
 export type Material = "pvc" | "wood" | "aluminum";
 export type SashType = "fix" | "classic" | "tiltturn" | "sliding";
@@ -36,6 +38,16 @@ export interface ConfigState {
   voletRoulant: string;
   /** BE warm-edge spacer; "" = not offered / not chosen. */
   warmEdge: string;
+  /** NL block-profile depth; "" = not offered / not chosen. */
+  profileDepth: string;
+  /** NL HVL 90° corner joint; "" = not offered / not chosen. */
+  cornerJoint: string;
+  /** NL glazing Ug tier; "" = not offered / not chosen. */
+  ugTier: string;
+  /** NL Renolit colour preset; "" = not offered / not chosen. */
+  colorPreset: string;
+  /** NL paid measurement service; "" = not offered / not chosen. */
+  inmeetservice: string;
   insectScreen: boolean;
   insectScreenType: string;
   insectScreenColor: string;
@@ -58,6 +70,11 @@ export interface Pricing {
   ventilationGrille: Record<string, number>;
   voletRoulant: Record<string, number>;
   warmEdge: Record<string, number>;
+  profileDepth: Record<string, number>;
+  cornerJoint: Record<string, number>;
+  ugTier: Record<string, number>;
+  colorPreset: Record<string, number>;
+  inmeetservice: Record<string, number>;
   balconyDoorThreshold: number;
   vatRate: number;
   ecobonusPercent: number;
@@ -92,6 +109,11 @@ export function defaultPricing(): Pricing {
     ventilationGrille: { none: 0, renson_standard: 120, renson_acoustic: 180 },
     voletRoulant: { none: 0, monobloc_pvc: 220, monobloc_alu: 290 },
     warmEdge: { standard: 0, warm_edge: 35 },
+    profileDepth: { d115: 0, d120: 45 },
+    cornerJoint: { standard: 0, hvl_90: 60 },
+    ugTier: { hr_plus_plus: 0, hr_plus_plus_plus: 140 },
+    colorPreset: { ral9016: 0, ral7016: 25, ral6009: 25, ral9001: 25 },
+    inmeetservice: { none: 0, paid: 95 },
     balconyDoorThreshold: 65,
     vatRate: 22,
     ecobonusPercent: 50,
@@ -127,6 +149,11 @@ export function defaultConfig(): ConfigState {
     ventilationGrille: "",
     voletRoulant: "",
     warmEdge: "",
+    profileDepth: "",
+    cornerJoint: "",
+    ugTier: "",
+    colorPreset: "",
+    inmeetservice: "",
     insectScreen: false,
     insectScreenType: "cerniera",
     insectScreenColor: "white",
@@ -195,10 +222,15 @@ export function calculate(state: ConfigState, pricing: Pricing, src?: ConfigStat
 
   const thresholdCost = s.productType === "balconyDoor" ? pricing.balconyDoorThreshold : 0;
   const installationCost = pricing.installation[s.installation] ?? 0;
-  const poseTypeCost = s.poseType ? (pricing.poseType[s.poseType] ?? 0) : 0;
-  const ventilationGrilleCost = s.ventilationGrille ? (pricing.ventilationGrille[s.ventilationGrille] ?? 0) : 0;
-  const voletRoulantCost = s.voletRoulant ? (pricing.voletRoulant[s.voletRoulant] ?? 0) : 0;
-  const warmEdgeCost = s.warmEdge ? (pricing.warmEdge[s.warmEdge] ?? 0) : 0;
+
+  // Region-specific flat option kinds — mirrors src/shared/pricing.ts. The state
+  // field and the Pricing table share the kind name.
+  let regionOptionsCost = 0;
+  for (const kind of REGION_FLAT_OPTION_KINDS) {
+    const chosen = s[kind];
+    if (chosen) regionOptionsCost += (pricing[kind] as Record<string, number>)[chosen] ?? 0;
+  }
+
   const screenCost = s.insectScreen
     ? (pricing.insectScreenType[s.insectScreenType] ?? 0) + (pricing.insectScreenColor[s.insectScreenColor] ?? 0)
     : 0;
@@ -208,10 +240,7 @@ export function calculate(state: ConfigState, pricing: Pricing, src?: ConfigStat
     hardwareCost +
     thresholdCost +
     installationCost +
-    poseTypeCost +
-    ventilationGrilleCost +
-    voletRoulantCost +
-    warmEdgeCost +
+    regionOptionsCost +
     screenCost +
     (pricing.glazing[s.glazing] ?? 0) +
     (pricing.color[s.color] ?? 0);
