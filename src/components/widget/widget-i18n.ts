@@ -22,6 +22,8 @@ export interface WidgetDict {
   viewNote: string;
   singleSashCapHint: string;
   sashLabel: string;
+  handleHeightLabel: string;
+  whatsappShare: string;
   sashActiveOn: string;
   sashActiveOff: string;
   openingTypeLabel: string;
@@ -117,6 +119,8 @@ const en: WidgetDict = {
   viewNote: '"Left" / "Right" are defined viewed from inside the room, looking outward — the standard convention.',
   singleSashCapHint: "Single-sash units are capped at 1200×2800mm.",
   sashLabel: "Sash",
+  handleHeightLabel: "Handle height",
+  whatsappShare: "Send summary on WhatsApp",
   sashActiveOn: "Active",
   sashActiveOff: "Inactive",
   openingTypeLabel: "Opening type",
@@ -228,6 +232,8 @@ const it: WidgetDict = {
   viewNote: '"Sinistra" e "Destra" si intendono guardando dall\'interno verso l\'esterno (convenzione standard).',
   singleSashCapHint: "Gli infissi a un'anta sono limitati a 1200×2800mm.",
   sashLabel: "Anta",
+  handleHeightLabel: "Altezza maniglia",
+  whatsappShare: "Invia riepilogo su WhatsApp",
   sashActiveOn: "Attiva",
   sashActiveOff: "Inattiva",
   openingTypeLabel: "Tipo di apertura",
@@ -335,6 +341,8 @@ const fr: WidgetDict = {
   viewNote: '« Gauche » et « Droite » s\'entendent vue de l\'intérieur vers l\'extérieur (convention standard).',
   singleSashCapHint: "Les menuiseries à un seul vantail sont limitées à 1200×2800mm.",
   sashLabel: "Vantail",
+  handleHeightLabel: "Hauteur poignée",
+  whatsappShare: "Envoyer le récapitulatif sur WhatsApp",
   sashActiveOn: "Actif",
   sashActiveOff: "Inactif",
   openingTypeLabel: "Type d'ouverture",

@@ -168,6 +168,7 @@ export function Widget({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [honeypot, setHoneypot] = useState("");
+  const [successSummary, setSuccessSummary] = useState("");
 
   // ---- theme ----
   useEffect(() => {
@@ -382,6 +383,8 @@ export function Widget({
         active: s.active,
         hardware: s.hardware,
         hardwareColor: s.hardwareColor,
+        widthRatio: s.widthRatio,
+        handleHeightMm: s.handleHeightMm,
       })),
       glazing: it.glazing,
       color: it.color,
@@ -425,6 +428,15 @@ export function Widget({
       });
       const data = await res.json().catch(() => ({ ok: false, error: "BAD_RESPONSE" }));
       if (res.ok && data.ok) {
+        setSuccessSummary(
+          [
+            userMsg,
+            spec,
+            typeof data.referenceId === "string" ? `Rif. ${data.referenceId}` : "",
+          ]
+            .filter(Boolean)
+            .join("\n"),
+        );
         setStep("success");
         postToHost({ type: "onespec:submitted", publicId: configurator.publicId });
       } else {
@@ -447,6 +459,28 @@ export function Widget({
           <div style={{ fontSize: 34, marginBottom: 8 }}>✓</div>
           <h2 style={{ margin: "0 0 8px", color: "var(--color-text)" }}>{dict.successTitle}</h2>
           <p style={{ color: "var(--color-text-secondary)", margin: 0 }}>{dict.successBody}</p>
+          {successSummary && (
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(`${configurator.name || dict.brandName}\n\n${successSummary}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                marginTop: 18,
+                padding: "10px 18px",
+                borderRadius: 10,
+                background: "#25D366",
+                color: "#04231a",
+                fontWeight: 700,
+                fontSize: 13,
+                textDecoration: "none",
+              }}
+            >
+              {dict.whatsappShare}
+            </a>
+          )}
         </div>
       </div>
     );
@@ -769,6 +803,25 @@ export function Widget({
                   onChange={(patch) => setSash(selectedSash, patch)}
                   styles={s}
                 />
+                {state.sashes[selectedSash].active !== false && state.sashes[selectedSash].type !== "fix" && (
+                  <div style={{ marginTop: 10 }}>
+                    <div style={{ ...s.hint, marginBottom: 4 }}>
+                      {dict.handleHeightLabel}:{" "}
+                      <strong style={{ color: "var(--color-text)" }}>
+                        {state.sashes[selectedSash].handleHeightMm ?? Math.round(state.height / 2)} mm
+                      </strong>
+                    </div>
+                    <input
+                      type="range"
+                      min={Math.min(300, state.height - 100)}
+                      max={Math.max(400, state.height - 150)}
+                      step={10}
+                      value={state.sashes[selectedSash].handleHeightMm ?? Math.round(state.height / 2)}
+                      onChange={(e) => setSash(selectedSash, { handleHeightMm: parseInt(e.target.value, 10) })}
+                      style={{ width: "100%", accentColor: accent }}
+                    />
+                  </div>
+                )}
               </div>
             )}
           </div>
