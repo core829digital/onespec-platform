@@ -237,10 +237,11 @@ function assembleWidgetResponse(args: {
   transparentAllowed: boolean;
 }) {
   const { configurator, branding, payload, catalogVersion, logoUrl, logoLightUrl, region, transparentAllowed } = args;
-  // Region says transparent, but the plan must also allow it — otherwise the
-  // widget falls back to lead-gen so the price is never shown as a firm B2C offer.
-  const widgetMode =
-    region.widgetMode === "transparent" && !transparentAllowed ? "lead_gen" : region.widgetMode;
+  // The region is authoritative for widget mode: in NL a transparent price
+  // breakdown is table stakes (a lead-gen-only widget loses the market), so it
+  // is never downgraded by plan. `transparentAllowed` is surfaced for a future
+  // opt-in that lets lead-gen markets switch to transparent per configurator.
+  const widgetMode = region.widgetMode;
   const cfg = (payload?.configurator ?? {}) as Record<string, unknown>;
   const pick = <T,>(key: string, fallback: T): T =>
     (cfg[key] as T | undefined) ?? fallback;

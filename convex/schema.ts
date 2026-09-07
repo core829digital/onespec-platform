@@ -286,6 +286,7 @@ export default defineSchema({
     discountPercent: v.optional(v.number()),
     ecobonusPercent: v.optional(v.number()),
     ecobonusDeductionCents: v.optional(v.number()),
+    regionalSurchargeCents: v.optional(v.number()),
     profitMarginPercent: v.optional(v.number()),
     depositTerms: v.optional(v.string()),
     signatureDataUrl: v.optional(v.string()),

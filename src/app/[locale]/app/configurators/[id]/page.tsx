@@ -109,7 +109,7 @@ export default function ConfiguratorEditorPage({
           {tab === "import" && <ImportTab configuratorId={configuratorId} />}
           {tab === "branding" && <BrandingTab configuratorId={configuratorId} />}
           {tab === "embed" && (
-            <EmbedTab publicId={cfg.publicId} status={cfg.status} origin={origin} />
+            <EmbedTab publicId={cfg.publicId} status={cfg.status} origin={origin} configuratorId={configuratorId} />
           )}
           {tab === "config" && <ConfigTab configuratorId={configuratorId} />}
           {tab === "versions" && <VersionsTab configuratorId={configuratorId} />}

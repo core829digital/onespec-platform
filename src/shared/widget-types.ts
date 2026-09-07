@@ -79,7 +79,7 @@ export const QuoteSubmissionSchema = z.object({
   clientReportedPriceCents: z.number().int().positive().max(100_000_000).optional(),
 });
 
-export type ProjectItem = z.infer<typeof ProjectItemSchema>;
+export type ProjectItem = z.infer<typeof ProjectItemSchema> & Record<string, unknown>;
 export type QuoteSubmission = z.infer<typeof QuoteSubmissionSchema>;
 
 export function validateQuoteSubmission(

@@ -80,6 +80,7 @@ export interface Pricing {
   ecobonusPercent: number;
   discountPercent: number;
   brandMultiplier: { pvc: Record<string, number>; aluminum: Record<string, number> };
+  [key: string]: unknown;
 }
 
 export const DIM_MAX = 4000;

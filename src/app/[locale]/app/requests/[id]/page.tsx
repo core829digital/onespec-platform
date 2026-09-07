@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState, useMemo } from "react";
+import { use, useState, useMemo, useEffect, useRef } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
@@ -55,9 +55,14 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 60000);
+    return () => clearInterval(interval);
+  }, []);
+
   const slaInfo = useMemo(() => {
     if (!quote) return null;
-    const now = Date.now();
     const elapsedMinutes = Math.floor((now - quote._creationTime) / 60000);
     const creationDate = new Date(quote._creationTime);
     const hours = creationDate.getHours();
@@ -72,7 +77,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
       timeString: creationDate.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }),
       dateString: creationDate.toLocaleDateString("it-IT", { day: "2-digit", month: "long" }),
     };
-  }, [quote]);
+  }, [quote, now]);
 
   if (quote === undefined) {
     return <p className="text-[var(--color-text-secondary)]">Caricamento...</p>;

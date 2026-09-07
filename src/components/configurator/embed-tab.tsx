@@ -33,10 +33,12 @@ export function EmbedTab({
   publicId,
   status,
   origin,
+  configuratorId,
 }: {
   publicId: string;
   status: string;
   origin: string;
+  configuratorId: string;
 }) {
   const src = `${origin}/w/${publicId}`;
   const iframe = `<iframe
@@ -86,6 +88,24 @@ export function EmbedTab({
 
       <Section title="Anteprima diretta" description="Link privato con i dati in bozza (non richiede pubblicazione).">
         <CopyBlock code={`${origin}/w/${publicId}?preview=1`} />
+      </Section>
+
+      <Section
+        title="Preventivi cantiere B2B (stesso listino)"
+        description="Il preventivatore rapido per montatori usa esattamente questo listino pubblicato. Prezzo widget del cliente = prezzo del preventivo firmato in cantiere."
+      >
+        {status === "published" ? (
+          <a
+            href={`/app/quotes/new?config=${configuratorId}`}
+            className="inline-flex rounded-lg bg-[var(--color-mint)] px-3 py-2 text-sm font-bold text-[var(--color-mint-dark)] hover:opacity-90"
+          >
+            Apri preventivatore B2B con questo configuratore →
+          </a>
+        ) : (
+          <p className="text-sm text-[var(--color-text-secondary)]">
+            Pubblica il configuratore per abilitare i preventivi cantiere collegati.
+          </p>
+        )}
       </Section>
     </div>
   );

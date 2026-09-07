@@ -271,7 +271,7 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
     // the item field name matches the catalog `kind`.
     let regionOptionsCost = 0;
     for (const kind of REGION_FLAT_OPTION_KINDS) {
-      const chosen = (item as Record<string, unknown>)[kind];
+      const chosen = (item as unknown as Record<string, unknown>)[kind];
       if (typeof chosen === "string" && chosen) {
         regionOptionsCost += getHardwareOption(payload, kind, chosen)?.priceCents || 0;
       }

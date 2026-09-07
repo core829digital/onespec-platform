@@ -133,6 +133,8 @@ export const createFieldQuote = mutation({
     demolitionPriceCents: v.optional(v.number()),
     discountPercent: v.optional(v.number()),
     ecobonusPercent: v.optional(v.number()),
+    /** Country-specific line items (Renson grilles, HVL joints, RC2/RC3, RAL kit…) priced client-side and re-clamped here. */
+    regionalSurchargeCents: v.optional(v.number()),
     profitMarginPercent: v.optional(v.number()),
     vatRatePercent: v.optional(v.number()),
     depositTerms: v.optional(v.string()),
@@ -174,11 +176,12 @@ export const createFieldQuote = mutation({
 
     const installCost = Math.max(args.installationPriceCents ?? 0, 0);
     const demolitionCost = Math.max(args.demolitionPriceCents ?? 0, 0);
+    const regionalSurcharge = Math.min(Math.max(Math.round(args.regionalSurchargeCents ?? 0), 0), 100_000_000);
     const discountPct = Math.min(Math.max(args.discountPercent ?? 0, 0), 100);
     const ecobonusPct = Math.min(Math.max(args.ecobonusPercent ?? 0, 0), 100);
     const maPrimePct = Math.min(Math.max(args.maPrimeRenovPercent ?? 0, 0), 100);
 
-    const subtotalExVat = baseCalc.priceExVatCents + installCost + demolitionCost;
+    const subtotalExVat = baseCalc.priceExVatCents + installCost + demolitionCost + regionalSurcharge;
     const discountedExVat = Math.round(subtotalExVat * (1 - discountPct / 100));
 
     const effectiveVat = args.vatRatePercent !== undefined ? args.vatRatePercent : configurator.vatRatePercent;
@@ -206,6 +209,7 @@ export const createFieldQuote = mutation({
       discountPercent: discountPct,
       ecobonusPercent: ecobonusPct > 0 ? ecobonusPct : undefined,
       ecobonusDeductionCents,
+      regionalSurchargeCents: regionalSurcharge > 0 ? regionalSurcharge : undefined,
       profitMarginPercent: args.profitMarginPercent,
       depositTerms: args.depositTerms ?? (args.regionCode === "FR" ? "Acompte 30% à la commande · 70% à la livraison" : "30% ordine · 60% merce pronta · 10% posa"),
       regionCode: args.regionCode,

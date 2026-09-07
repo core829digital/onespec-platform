@@ -114,7 +114,9 @@ export default function PrintQuotePage({ params }: Props) {
     : null;
 
   const installationTotal = (quote.installationPriceCents ?? 0) + (quote.demolitionPriceCents ?? 0);
-  const supplyExVat = quote.priceExVatCents - (installationTotal > 0 ? Math.round(installationTotal / (1 + (quote.vatRatePercent ?? 22) / 100)) : 0);
+  const regionalSurchargeCents = quote.regionalSurchargeCents ?? 0;
+  const nonSupplyExVat = installationTotal + regionalSurchargeCents;
+  const supplyExVat = quote.priceExVatCents - (nonSupplyExVat > 0 ? Math.round(nonSupplyExVat / (1 + (quote.vatRatePercent ?? 22) / 100)) : 0);
 
   // Document Title by Region
   let documentTitle = "PREVENTIVO UFFICIALE";

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useRouter } from "@/i18n/navigation";
@@ -109,6 +110,7 @@ const REGION_CONFIGS: Record<RegionCode, RegionMeta> = {
 
 export default function NewFieldQuotePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const tenant = useQuery(api.tenants.getMyTenant);
   const configurators = useQuery(
     api.configurators.listConfigurators,
@@ -120,7 +122,9 @@ export default function NewFieldQuotePage() {
     [configurators],
   );
 
-  const [selectedConfigId, setSelectedConfigId] = useState<string>("");
+  const [selectedConfigId, setSelectedConfigId] = useState<string>(
+    () => searchParams.get("config") ?? "",
+  );
   const [regionCode, setRegionCode] = useState<RegionCode>("IT");
 
   // Customer state
@@ -187,6 +191,13 @@ export default function NewFieldQuotePage() {
 
   const activeConfig = publishedConfigs.find(
     (c: ConfiguratorDoc) => c._id === (selectedConfigId || publishedConfigs[0]?._id),
+  );
+
+  // The SAME published catalog payload the embeddable B2C widget uses — keeps
+  // B2B field-quote pricing and B2C site pricing identical.
+  const publishedCatalog = useQuery(
+    api.configurators.getPublishedCatalog,
+    activeConfig ? { configuratorId: activeConfig._id } : "skip",
   );
 
   const createFieldQuote = useMutation(api.quotes.createFieldQuote);
@@ -302,8 +313,14 @@ export default function NewFieldQuotePage() {
     ],
   };
 
+  // Live published catalog wins; the hard-coded catalog is only a visual demo
+  // shown until the dealer publishes a real configurator.
+  const effectivePayload: CatalogPayload =
+    (publishedCatalog?.payload as CatalogPayload | undefined) ?? mockPayload;
+  const usingLiveCatalog = Boolean(publishedCatalog?.payload);
+
   const priceCalc = useMemo(() => {
-    const base = calculatePrice(mockPayload, items);
+    const base = calculatePrice(effectivePayload, items);
 
     // Regional surcharges
     let regionalExtraCents = 0;
@@ -348,6 +365,7 @@ export default function NewFieldQuotePage() {
       netPayableWithBonus: finalGross - subsidyDed,
     };
   }, [
+    effectivePayload,
     items,
     installationEuros,
     demolitionEuros,
@@ -373,7 +391,15 @@ export default function NewFieldQuotePage() {
       return;
     }
     if (!activeConfig) {
-      setError("Nessun configuratore pubblicato trovato.");
+      setError(
+        "Nessun configuratore pubblicato. Crea e pubblica un configuratore dalla pagina Configuratori: quello stesso listino verrà usato sia qui che nel widget del sito.",
+      );
+      return;
+    }
+    if (!usingLiveCatalog) {
+      setError(
+        "Il listino pubblicato non è ancora disponibile. Attendi il caricamento o ripubblica il configuratore.",
+      );
       return;
     }
 
@@ -398,6 +424,7 @@ export default function NewFieldQuotePage() {
         installationPriceCents: installationEuros * 100,
         demolitionPriceCents: demolitionEuros * 100,
         discountPercent,
+        regionalSurchargeCents: priceCalc.regionalExtraCents,
         ecobonusPercent: regionCode === "IT" ? ecobonusPercent : undefined,
         poseType: regionCode === "FR" ? poseType : undefined,
         rgeCertificate: regionCode === "FR" ? rgeCertificate : undefined,
@@ -475,6 +502,55 @@ export default function NewFieldQuotePage() {
           );
         })}
       </div>
+
+      {/* Configurator link — the price engine shared with the B2C site widget */}
+      {configurators === undefined ? null : publishedConfigs.length === 0 ? (
+        <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-400 space-y-2">
+          <p className="font-semibold">Nessun configuratore pubblicato</p>
+          <p className="text-[var(--color-text-secondary)]">
+            Il preventivo cantiere usa lo stesso listino del configuratore che incorpori sul sito del cliente.
+            Crea un configuratore, imposta materiali e prezzi, poi premi <strong>Pubblica</strong>.
+          </p>
+          <Link
+            href="/app/configurators"
+            className="inline-flex rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-bold text-amber-950 hover:opacity-90"
+          >
+            Vai ai Configuratori →
+          </Link>
+        </div>
+      ) : (
+        <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4 space-y-2">
+          <label className="block text-xs font-medium text-[var(--color-text-secondary)]">
+            Configuratore / Listino prezzi (condiviso col widget B2C del sito)
+          </label>
+          <div className="flex flex-wrap items-center gap-3">
+            <select
+              value={selectedConfigId || publishedConfigs[0]?._id || ""}
+              onChange={(e) => setSelectedConfigId(e.target.value)}
+              className="flex-1 min-w-[220px] rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
+            >
+              {publishedConfigs.map((c: ConfiguratorDoc) => (
+                <option key={c._id} value={c._id}>
+                  {c.name} — v{c.publishedCatalogVersion ?? "?"}
+                </option>
+              ))}
+            </select>
+            {activeConfig ? (
+              <Link
+                href={`/app/configurators/${activeConfig._id}`}
+                className="text-xs font-semibold text-[var(--color-mint)] hover:underline"
+              >
+                Modifica listino →
+              </Link>
+            ) : null}
+          </div>
+          <p className="text-[11px] text-[var(--color-text-secondary)]">
+            {usingLiveCatalog
+              ? "Prezzi allineati al listino pubblicato: quello che vede il cliente finale nel widget = quello che calcoli qui."
+              : "Caricamento listino pubblicato…"}
+          </p>
+        </div>
+      )}
 
       {error ? (
         <div className="rounded-lg bg-[var(--color-danger)]/10 border border-[var(--color-danger)]/30 p-3 text-sm text-[var(--color-danger)]">
@@ -1032,10 +1108,14 @@ export default function NewFieldQuotePage() {
 
             <button
               type="submit"
-              disabled={submitting}
-              className="w-full mt-4 rounded-xl bg-[var(--color-mint)] py-3 px-4 text-center font-bold text-[var(--color-mint-dark)] shadow-sm hover:opacity-90 disabled:opacity-50 transition-opacity text-base flex items-center justify-center gap-2"
+              disabled={submitting || !activeConfig || !usingLiveCatalog}
+              className="w-full mt-4 rounded-xl bg-[var(--color-mint)] py-3 px-4 text-center font-bold text-[var(--color-mint-dark)] shadow-sm hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity text-base flex items-center justify-center gap-2"
             >
-              {submitting ? "Generazione in corso..." : `Procedi alla Firma Touch (${activeMeta.name}) ✍️`}
+              {submitting
+                ? "Generazione in corso..."
+                : !activeConfig
+                  ? "Pubblica un configuratore per continuare"
+                  : `Procedi alla Firma Touch (${activeMeta.name}) ✍️`}
             </button>
           </section>
         </div>

@@ -37,9 +37,10 @@ export interface Entitlements {
   apiAccess: boolean;
   prioritySupport: boolean;
   /**
-   * NL transparent widget mode: show a real price breakdown and let the visitor
-   * request a firm order / measurement visit. Region still gates it (only NL is
-   * `transparent`), this is the plan gate on top.
+   * Opt-in transparent widget mode for lead-gen markets (IT/FR/BE/DE/LU): show a
+   * real price breakdown + firm-order / measurement request. NL is always
+   * transparent by region policy regardless of plan; this flag is the future
+   * per-configurator opt-in for the other markets.
    */
   transparentWidget: boolean;
   /** Locked lifetime discount percentage (Alpha = 15, else 0). */
