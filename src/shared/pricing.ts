@@ -131,6 +131,12 @@ export interface ProjectItem {
   colorPreset?: string;
   /** NL paid measurement service (inmeetservice). */
   inmeetservice?: string;
+  /** DE/LU external sun protection (Rollladen / Raffstore). */
+  sunProtection?: string;
+  /** DE/LU burglary-resistance class (RC2 / RC3). */
+  securityClass?: string;
+  /** DE/LU installation system (standard / RAL-gütegesicherte Montage). */
+  montageSystem?: string;
 }
 
 /**
@@ -148,6 +154,9 @@ export const REGION_FLAT_OPTION_KINDS = [
   "ugTier",
   "colorPreset",
   "inmeetservice",
+  "sunProtection",
+  "securityClass",
+  "montageSystem",
 ] as const;
 
 export interface ItemBreakdown {

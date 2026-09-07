@@ -43,6 +43,9 @@ export const ProjectItemSchema = z
     ugTier: z.string().max(40).optional(),
     colorPreset: z.string().max(40).optional(),
     inmeetservice: z.string().max(40).optional(),
+    sunProtection: z.string().max(40).optional(),
+    securityClass: z.string().max(40).optional(),
+    montageSystem: z.string().max(40).optional(),
   })
   .superRefine((item, ctx) => {
     // A one-piece sash cannot exceed 1200 x 2800 mm (structural limit) — this

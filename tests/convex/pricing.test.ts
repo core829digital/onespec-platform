@@ -31,6 +31,9 @@ const catalog: CatalogPayload = {
     { kind: "ventilationGrille", key: "renson_standard", labels: { fr: "Renson standard" }, priceCents: 12000, appliesToOperableOnly: false, sortOrder: 0, enabled: true },
     { kind: "voletRoulant", key: "monobloc_pvc", labels: { fr: "Monobloc PVC" }, priceCents: 22000, appliesToOperableOnly: false, sortOrder: 0, enabled: true },
     { kind: "warmEdge", key: "warm_edge", labels: { fr: "Warm-edge" }, priceCents: 3500, appliesToOperableOnly: false, sortOrder: 0, enabled: true },
+    { kind: "sunProtection", key: "raffstore", labels: { de: "Raffstore" }, priceCents: 39000, appliesToOperableOnly: false, sortOrder: 0, enabled: true },
+    { kind: "securityClass", key: "rc2", labels: { de: "RC2" }, priceCents: 6500, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
+    { kind: "montageSystem", key: "ral", labels: { de: "RAL-Montage" }, priceCents: 4500, appliesToOperableOnly: false, sortOrder: 0, enabled: true },
   ],
 } as unknown as CatalogPayload;
 
@@ -89,6 +92,20 @@ describe("calculatePrice (server-authoritative)", () => {
     ]);
     // 12000 (grille) + 22000 (volet) + 3500 (warm edge) = 37500
     expect(withBeOptions.priceCents).toBe(base.priceCents + 37500);
+  });
+
+  test("DE/LU sun protection + RC2 + RAL-Montage add a flat per-item cost each", () => {
+    const base = calculatePrice(catalog, [ProjectItemSchema.parse(sampleItem)]);
+    const withDeOptions = calculatePrice(catalog, [
+      ProjectItemSchema.parse({
+        ...sampleItem,
+        sunProtection: "raffstore",
+        securityClass: "rc2",
+        montageSystem: "ral",
+      }),
+    ]);
+    // 39000 (Raffstore) + 6500 (RC2) + 4500 (RAL-Montage) = 50000
+    expect(withDeOptions.priceCents).toBe(base.priceCents + 50000);
   });
 
   test("quantity multiplies the unit price", () => {

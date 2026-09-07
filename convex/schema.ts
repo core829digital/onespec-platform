@@ -242,6 +242,7 @@ export default defineSchema({
                   v.literal("ventilationGrille"), v.literal("voletRoulant"), v.literal("warmEdge"),
                   v.literal("profileDepth"), v.literal("cornerJoint"), v.literal("ugTier"),
                   v.literal("colorPreset"), v.literal("inmeetservice"),
+                  v.literal("sunProtection"), v.literal("securityClass"), v.literal("montageSystem"),
                   v.literal("threshold"), v.literal("misc")),
     key: v.string(),
     labels: v.any(),

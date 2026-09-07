@@ -52,6 +52,12 @@ export interface ConfigState {
   colorPreset: string;
   /** NL paid measurement service; "" = not offered / not chosen. */
   inmeetservice: string;
+  /** DE/LU external sun protection (Rollladen / Raffstore); "" = not offered / not chosen. */
+  sunProtection: string;
+  /** DE/LU burglary-resistance class (RC2 / RC3); "" = not offered / not chosen. */
+  securityClass: string;
+  /** DE/LU installation system (RAL-Montage); "" = not offered / not chosen. */
+  montageSystem: string;
   insectScreen: boolean;
   insectScreenType: string;
   insectScreenColor: string;
@@ -79,6 +85,9 @@ export interface Pricing {
   ugTier: Record<string, number>;
   colorPreset: Record<string, number>;
   inmeetservice: Record<string, number>;
+  sunProtection: Record<string, number>;
+  securityClass: Record<string, number>;
+  montageSystem: Record<string, number>;
   balconyDoorThreshold: number;
   vatRate: number;
   ecobonusPercent: number;
@@ -119,6 +128,9 @@ export function defaultPricing(): Pricing {
     ugTier: { hr_plus_plus: 0, hr_plus_plus_plus: 140 },
     colorPreset: { ral9016: 0, ral7016: 25, ral6009: 25, ral9001: 25 },
     inmeetservice: { none: 0, paid: 95 },
+    sunProtection: { none: 0, aufsatzrollladen: 240, vorbaurollladen: 280, raffstore: 390 },
+    securityClass: { standard: 0, rc2: 65, rc3: 120 },
+    montageSystem: { standard: 0, ral: 45 },
     balconyDoorThreshold: 65,
     vatRate: 22,
     ecobonusPercent: 50,
@@ -159,6 +171,9 @@ export function defaultConfig(): ConfigState {
     ugTier: "",
     colorPreset: "",
     inmeetservice: "",
+    sunProtection: "",
+    securityClass: "",
+    montageSystem: "",
     insectScreen: false,
     insectScreenType: "cerniera",
     insectScreenColor: "white",

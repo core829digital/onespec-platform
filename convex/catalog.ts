@@ -13,6 +13,8 @@ const REGION_CATALOG_KINDS: Partial<Record<RegionCode, string[]>> = {
   FR: ["poseType"],
   BE: ["ventilationGrille", "voletRoulant", "warmEdge"],
   NL: ["profileDepth", "cornerJoint", "ugTier", "colorPreset", "inmeetservice"],
+  DE: ["sunProtection", "securityClass", "montageSystem", "warmEdge"],
+  LU: ["sunProtection", "securityClass", "montageSystem", "warmEdge"],
 };
 
 const DEFAULT_MATERIALS = [
@@ -82,6 +84,7 @@ const DEFAULT_HARDWARE: Array<{
   kind: "hardware" | "hardwareColor" | "sashType" | "screen" | "screenColor" | "installation" | "poseType"
     | "ventilationGrille" | "voletRoulant" | "warmEdge"
     | "profileDepth" | "cornerJoint" | "ugTier" | "colorPreset" | "inmeetservice"
+    | "sunProtection" | "securityClass" | "montageSystem"
     | "threshold" | "misc";
   key: string;
   labels: { it: string; en: string; fr: string; nl?: string; de?: string };
@@ -137,6 +140,18 @@ const DEFAULT_HARDWARE: Array<{
   { kind: "colorPreset", key: "ral9001", labels: { it: "Bianco crema RAL 9001", en: "RAL 9001 cream", fr: "Blanc crème RAL 9001", nl: "RAL 9001 crème" }, priceCents: 2500, appliesToOperableOnly: false, sortOrder: 3, enabled: false },
   { kind: "inmeetservice", key: "none", labels: { it: "Nessuno", en: "None", fr: "Aucun", nl: "Geen" }, priceCents: 0, appliesToOperableOnly: false, sortOrder: 0, enabled: false },
   { kind: "inmeetservice", key: "paid", labels: { it: "Servizio di rilievo misure", en: "Measurement service", fr: "Service de métrage", nl: "Inmeetservice (verrekenbaar)" }, priceCents: 9500, appliesToOperableOnly: false, sortOrder: 1, enabled: false },
+  // DE / LU — Sonnenschutz (Rollladen / Raffstoren): 30-40% of a German quote.
+  { kind: "sunProtection", key: "none", labels: { it: "Nessuno", en: "None", fr: "Aucun", de: "Keiner" }, priceCents: 0, appliesToOperableOnly: false, sortOrder: 0, enabled: false },
+  { kind: "sunProtection", key: "aufsatzrollladen", labels: { it: "Cassonetto sovrapposto", en: "Built-on roller shutter", fr: "Volet roulant en applique", de: "Aufsatzrollladen" }, priceCents: 24000, appliesToOperableOnly: false, sortOrder: 1, enabled: false },
+  { kind: "sunProtection", key: "vorbaurollladen", labels: { it: "Cassonetto frontale", en: "Front-mounted roller shutter", fr: "Volet roulant en façade", de: "Vorbaurollladen" }, priceCents: 28000, appliesToOperableOnly: false, sortOrder: 2, enabled: false },
+  { kind: "sunProtection", key: "raffstore", labels: { it: "Frangisole orientabile", en: "External venetian blind", fr: "Brise-soleil orientable", de: "Raffstore / Jalousie" }, priceCents: 39000, appliesToOperableOnly: false, sortOrder: 3, enabled: false },
+  // DE / LU — Widerstandsklasse (burglary resistance).
+  { kind: "securityClass", key: "standard", labels: { it: "Standard", en: "Standard fittings", fr: "Ferrures standard", de: "Standardbeschlag" }, priceCents: 0, appliesToOperableOnly: true, sortOrder: 0, enabled: false },
+  { kind: "securityClass", key: "rc2", labels: { it: "RC2 (antieffrazione)", en: "RC2 burglary resistance", fr: "Anti-effraction RC2", de: "RC2 (Pilzkopf + P4A)" }, priceCents: 6500, appliesToOperableOnly: true, sortOrder: 1, enabled: false },
+  { kind: "securityClass", key: "rc3", labels: { it: "RC3 (alta sicurezza)", en: "RC3 high security", fr: "Haute sécurité RC3", de: "RC3 (Hochsicherheit)" }, priceCents: 12000, appliesToOperableOnly: true, sortOrder: 2, enabled: false },
+  // DE / LU — Montageart (RAL-gütegesicherte Montage vs. simple foam).
+  { kind: "montageSystem", key: "standard", labels: { it: "Montaggio standard", en: "Standard installation", fr: "Pose standard", de: "Standardmontage" }, priceCents: 0, appliesToOperableOnly: false, sortOrder: 0, enabled: false },
+  { kind: "montageSystem", key: "ral", labels: { it: "Montaggio RAL (Compriband + barriere vapore)", en: "RAL-certified installation", fr: "Pose certifiée RAL", de: "RAL-gütegesicherte Montage" }, priceCents: 4500, appliesToOperableOnly: false, sortOrder: 1, enabled: false },
   { kind: "threshold", key: "balconyDoorThreshold", labels: { it: "Soglia balcone", en: "Balcony threshold", fr: "Seuil balcon" }, priceCents: 6500, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
 ];
 
@@ -312,7 +327,7 @@ export const upsertFinishOption = mutation({
 });
 
 export const upsertHardwareOption = mutation({
-  args: { configuratorId: v.id("configurators"), kind: v.union(v.literal("hardware"), v.literal("hardwareColor"), v.literal("sashType"), v.literal("screen"), v.literal("screenColor"), v.literal("installation"), v.literal("poseType"), v.literal("ventilationGrille"), v.literal("voletRoulant"), v.literal("warmEdge"), v.literal("profileDepth"), v.literal("cornerJoint"), v.literal("ugTier"), v.literal("colorPreset"), v.literal("inmeetservice"), v.literal("threshold"), v.literal("misc")), key: v.string(), labels: v.any(), priceCents: v.number(), appliesToOperableOnly: v.boolean(), sortOrder: v.number(), enabled: v.boolean() },
+  args: { configuratorId: v.id("configurators"), kind: v.union(v.literal("hardware"), v.literal("hardwareColor"), v.literal("sashType"), v.literal("screen"), v.literal("screenColor"), v.literal("installation"), v.literal("poseType"), v.literal("ventilationGrille"), v.literal("voletRoulant"), v.literal("warmEdge"), v.literal("profileDepth"), v.literal("cornerJoint"), v.literal("ugTier"), v.literal("colorPreset"), v.literal("inmeetservice"), v.literal("sunProtection"), v.literal("securityClass"), v.literal("montageSystem"), v.literal("threshold"), v.literal("misc")), key: v.string(), labels: v.any(), priceCents: v.number(), appliesToOperableOnly: v.boolean(), sortOrder: v.number(), enabled: v.boolean() },
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");

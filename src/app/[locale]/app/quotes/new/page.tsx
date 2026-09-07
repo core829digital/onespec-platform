@@ -11,9 +11,25 @@ import {
   calculatePrice,
   computeUw,
   computeOverallUw,
+  REGION_FLAT_OPTION_KINDS,
   type ProjectItem,
   type CatalogPayload,
 } from "@/shared/pricing";
+
+const REGION_OPTION_LABELS: Record<string, string> = {
+  poseType: "Tipo di posa",
+  ventilationGrille: "Griglia di ventilazione",
+  voletRoulant: "Tapparella / Volet",
+  warmEdge: "Distanziatore warm-edge",
+  profileDepth: "Profondità profilo",
+  cornerJoint: "Giunto d'angolo",
+  ugTier: "Vetro (Ug)",
+  colorPreset: "Colore preset",
+  inmeetservice: "Servizio di rilievo",
+  sunProtection: "Oscuramento (tapparella / frangisole)",
+  securityClass: "Antieffrazione (RC2 / RC3)",
+  montageSystem: "Sistema di montaggio",
+};
 import type { Doc, Id } from "@/convex/_generated/dataModel";
 import type { Material } from "@/components/widget/widget-pricing";
 
@@ -345,6 +361,20 @@ export default function NewFieldQuotePage() {
 
   const itemUw = usingLiveCatalog && currentItem ? computeUw(effectivePayload, currentItem) : 0;
   const overallUw = usingLiveCatalog ? computeOverallUw(effectivePayload, items) : 0;
+
+  // Catalog-driven regional options — the SAME rows the B2C widget renders, so a
+  // DE dealer prices RC2 / Rollladen / RAL-Montage from one shared list.
+  const regionOptionLists = REGION_FLAT_OPTION_KINDS.map((kind) => {
+    const opts = (effectivePayload.hardware || [])
+      .filter((h) => h.kind === kind && h.enabled)
+      .sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0))
+      .map((h) => ({
+        key: h.key,
+        label: h.labels?.[REGION_CONFIGS[regionCode].defaultLocale] || h.labels?.it || h.key,
+        priceCents: h.priceCents,
+      }));
+    return { kind, opts };
+  }).filter((x) => x.opts.length > 0);
 
   const priceCalc = useMemo(() => {
     const base = calculatePrice(effectivePayload, items);
@@ -1022,6 +1052,37 @@ export default function NewFieldQuotePage() {
                         <span>RAL-Montage (+45€/pz)</span>
                       </label>
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Catalog-driven regional options (shared with the B2C widget) */}
+              {regionOptionLists.length > 0 && currentItem && (
+                <div className="space-y-2 pt-2 border-t border-[var(--color-border)]">
+                  <p className="text-xs font-semibold text-[var(--color-text-secondary)]">
+                    Opzioni a listino ({activeMeta.code}) — Pos. {activeItemIndex + 1}
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {regionOptionLists.map(({ kind, opts }) => (
+                      <div key={kind}>
+                        <label className="block text-[11px] font-medium text-[var(--color-text-secondary)] mb-1">
+                          {REGION_OPTION_LABELS[kind] ?? kind}
+                        </label>
+                        <select
+                          value={(currentItem[kind as keyof ProjectItem] as string) || ""}
+                          onChange={(e) => updateCurrentItem({ [kind]: e.target.value } as Partial<ProjectItem>)}
+                          className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-2 text-xs text-[var(--color-text)]"
+                        >
+                          <option value="">— non incluso —</option>
+                          {opts.map((o) => (
+                            <option key={o.key} value={o.key}>
+                              {o.label}
+                              {o.priceCents > 0 ? ` (+€${(o.priceCents / 100).toFixed(0)})` : ""}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    ))}
                   </div>
                 </div>
               )}
