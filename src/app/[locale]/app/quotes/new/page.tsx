@@ -7,7 +7,13 @@ import { api } from "@/convex/_generated/api";
 import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
 import { SpecDrawing } from "@/components/widget/spec-drawing";
-import { calculatePrice, type ProjectItem, type CatalogPayload } from "@/shared/pricing";
+import {
+  calculatePrice,
+  computeUw,
+  computeOverallUw,
+  type ProjectItem,
+  type CatalogPayload,
+} from "@/shared/pricing";
 import type { Doc, Id } from "@/convex/_generated/dataModel";
 import type { Material } from "@/components/widget/widget-pricing";
 
@@ -186,6 +192,7 @@ export default function NewFieldQuotePage() {
   ]);
 
   const [activeItemIndex, setActiveItemIndex] = useState(0);
+  const [activeSashIndex, setActiveSashIndex] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -228,6 +235,23 @@ export default function NewFieldQuotePage() {
     setItems((prev) => {
       const next = [...prev];
       next[activeItemIndex] = { ...next[activeItemIndex], ...patch };
+      return next;
+    });
+  }
+
+  // Divider drag on the blueprint — rebalance two adjacent leaves (ONESPEC-V2).
+  function resizeSash(dividerIndex: number, leftRatio: number) {
+    setItems((prev) => {
+      const next = [...prev];
+      const item = next[activeItemIndex];
+      const sashes = item.sashes.map((s) => {
+        const r = typeof s.widthRatio === "number" && s.widthRatio > 0 ? s.widthRatio : 1 / item.sashes.length;
+        return { ...s, widthRatio: r };
+      });
+      const pair = sashes[dividerIndex].widthRatio! + sashes[dividerIndex + 1].widthRatio!;
+      sashes[dividerIndex].widthRatio = Math.max(0.05, Math.min(pair - 0.05, leftRatio));
+      sashes[dividerIndex + 1].widthRatio = pair - sashes[dividerIndex].widthRatio!;
+      next[activeItemIndex] = { ...item, sashes };
       return next;
     });
   }
@@ -318,6 +342,9 @@ export default function NewFieldQuotePage() {
   const effectivePayload: CatalogPayload =
     (publishedCatalog?.payload as CatalogPayload | undefined) ?? mockPayload;
   const usingLiveCatalog = Boolean(publishedCatalog?.payload);
+
+  const itemUw = usingLiveCatalog && currentItem ? computeUw(effectivePayload, currentItem) : 0;
+  const overallUw = usingLiveCatalog ? computeOverallUw(effectivePayload, items) : 0;
 
   const priceCalc = useMemo(() => {
     const base = calculatePrice(effectivePayload, items);
@@ -780,21 +807,36 @@ export default function NewFieldQuotePage() {
                   </div>
                 </div>
 
-                {/* 2D Vector Blueprint Preview */}
+                {/* 2D Vector Blueprint Preview — drag the dividers to rebalance the leaves */}
                 <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-4 flex flex-col items-center">
-                  <div className="w-full max-w-[280px] h-[220px]">
+                  <div className="w-full max-w-[280px]">
                     <SpecDrawing
                       material={(currentItem.material === "alu" ? "aluminum" : currentItem.material) as Material}
                       width={currentItem.width}
                       height={currentItem.height}
                       sashes={currentItem.sashes as import("@/components/widget/widget-pricing").Sash[]}
-                      selected={null}
-                      interactive={false}
+                      selected={activeSashIndex}
+                      interactive
+                      onSelectSash={setActiveSashIndex}
+                      onResizeSash={resizeSash}
+                      finish={currentItem.color}
+                      showMinWarnings
                     />
                   </div>
-                  <span className="text-xs text-[var(--color-text-secondary)] mt-2">
-                    Disegno quotato in scala · {currentItem.width} × {currentItem.height} mm
-                  </span>
+                  <div className="flex items-center gap-3 mt-2 text-xs text-[var(--color-text-secondary)]">
+                    <span>Disegno quotato · {currentItem.width} × {currentItem.height} mm</span>
+                    {itemUw > 0 && (
+                      <span
+                        className={`rounded-md px-2 py-0.5 font-mono font-bold ${
+                          itemUw <= 1.3
+                            ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                            : "bg-amber-500/15 text-amber-600 dark:text-amber-400"
+                        }`}
+                      >
+                        Uw ≈ {itemUw.toFixed(2)} W/m²K
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
             )}
@@ -1090,6 +1132,12 @@ export default function NewFieldQuotePage() {
                   €{(priceCalc.finalGrossCents / 100).toFixed(2)}
                 </span>
               </div>
+              {overallUw > 0 && (
+                <div className="flex justify-between text-xs text-[var(--color-text-secondary)]">
+                  <span>Trasmittanza media Uw:</span>
+                  <span className="font-mono">{overallUw.toFixed(2)} W/m²K</span>
+                </div>
+              )}
               {priceCalc.subsidyDeductionCents > 0 && (
                 <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-2.5 text-xs text-emerald-600 dark:text-emerald-400 space-y-1">
                   <div className="flex justify-between font-semibold">

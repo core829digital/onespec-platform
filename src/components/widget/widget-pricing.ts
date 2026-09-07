@@ -16,6 +16,10 @@ export interface Sash {
   active: boolean;
   hardware: string;
   hardwareColor: string;
+  /** Fraction of the total frame width for this leaf (ONESPEC-V2 drag-resize). Sum ≈ 1. Absent = equal split. */
+  widthRatio?: number;
+  /** Handle centre height in mm from the sill; absent = frame height / 2. */
+  handleHeightMm?: number;
 }
 
 export interface ConfigState {

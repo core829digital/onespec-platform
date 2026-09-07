@@ -22,6 +22,8 @@ export const ProjectItemSchema = z
           active: z.boolean(),
           hardware: z.string().max(40),
           hardwareColor: z.string().max(40),
+          widthRatio: z.number().positive().max(1).optional(),
+          handleHeightMm: z.number().int().nonnegative().max(4000).optional(),
         }),
       )
       .min(1)

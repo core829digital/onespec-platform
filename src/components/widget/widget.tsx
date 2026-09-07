@@ -730,6 +730,22 @@ export function Widget({
                 sashes={state.sashes}
                 selected={selectedSash}
                 onSelectSash={(i) => setSelectedSash((sel) => (sel === i ? null : i))}
+                onResizeSash={(idx, leftRatio) =>
+                  setState((prev) => {
+                    const sashes = prev.sashes.map((sh) => ({
+                      ...sh,
+                      widthRatio:
+                        typeof sh.widthRatio === "number" && sh.widthRatio > 0
+                          ? sh.widthRatio
+                          : 1 / prev.sashes.length,
+                    }));
+                    const pair = sashes[idx].widthRatio! + sashes[idx + 1].widthRatio!;
+                    sashes[idx].widthRatio = Math.max(0.05, Math.min(pair - 0.05, leftRatio));
+                    sashes[idx + 1].widthRatio = pair - sashes[idx].widthRatio!;
+                    return { ...prev, sashes };
+                  })
+                }
+                finish={state.color}
               />
             </div>
             <div style={{ fontSize: 11, color: "var(--color-text-secondary)", textAlign: "center", marginTop: 4 }}>{dict.diagramLegend}</div>

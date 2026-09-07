@@ -102,6 +102,10 @@ export interface ProjectItem {
     active: boolean;
     hardware: string;
     hardwareColor: string;
+    /** Fraction of frame width for this leaf (drag-resize); absent = equal split. */
+    widthRatio?: number;
+    /** Handle centre height in mm from the sill; absent = frame height / 2. */
+    handleHeightMm?: number;
   }>;
   glazing: string;
   color: string;
