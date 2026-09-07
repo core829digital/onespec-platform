@@ -259,6 +259,15 @@ export default function PrintQuotePage({ params }: Props) {
           </div>
         </div>
 
+        {quote.leadMessage && (
+          <div className="px-8 pb-4">
+            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+              {langKey === "fr" ? "Notes" : langKey === "de" ? "Anmerkungen" : langKey === "nl" ? "Opmerkingen" : "Note"}
+            </p>
+            <p className="whitespace-pre-line text-sm text-gray-700">{quote.leadMessage}</p>
+          </div>
+        )}
+
         {/* Items table */}
         <div className="px-8 py-6">
           <h2 className="mb-4 text-sm font-bold uppercase tracking-wider text-gray-700">

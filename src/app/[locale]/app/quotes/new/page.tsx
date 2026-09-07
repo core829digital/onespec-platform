@@ -30,7 +30,7 @@ const REGION_OPTION_LABELS: Record<string, string> = {
   securityClass: "Antieffrazione (RC2 / RC3)",
   montageSystem: "Sistema di montaggio",
 };
-import type { Doc, Id } from "@/convex/_generated/dataModel";
+import type { Doc } from "@/convex/_generated/dataModel";
 import type { Material } from "@/components/widget/widget-pricing";
 
 type ConfiguratorDoc = Doc<"configurators">;
@@ -696,6 +696,19 @@ export default function NewFieldQuotePage() {
                   className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
                 />
               </div>
+              <div className="sm:col-span-2">
+                <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+                  Note / Messaggio (visibili sul preventivo)
+                </label>
+                <textarea
+                  value={leadMessage}
+                  onChange={(e) => setLeadMessage(e.target.value)}
+                  rows={2}
+                  maxLength={2000}
+                  placeholder="Es. Cantiere al 2° piano senza ascensore · consegna concordata · colore campione da approvare"
+                  className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)] resize-y"
+                />
+              </div>
             </div>
           </section>
 
@@ -887,19 +900,36 @@ export default function NewFieldQuotePage() {
             <div className="space-y-3">
               {/* Region Specific Controls */}
               {regionCode === "IT" && (
-                <div>
-                  <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                    Norma di Posa in Opera (Italia)
-                  </label>
-                  <select
-                    value={installationType}
-                    onChange={(e) => setInstallationType(e.target.value)}
-                    className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
-                  >
-                    <option value="posa_qualificata_uni_11673">UNI 11673 Posa Qualificata (Controtelaio + Nastri)</option>
-                    <option value="posa_standard">Posa Standard su Telaio Esistente</option>
-                    <option value="solo_fornitura">Solo Fornitura (Ritiro in sede)</option>
-                  </select>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+                      Norma di Posa in Opera (Italia)
+                    </label>
+                    <select
+                      value={installationType}
+                      onChange={(e) => setInstallationType(e.target.value)}
+                      className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
+                    >
+                      <option value="posa_qualificata_uni_11673">UNI 11673 Posa Qualificata (Controtelaio + Nastri)</option>
+                      <option value="posa_standard">Posa Standard su Telaio Esistente</option>
+                      <option value="solo_fornitura">Solo Fornitura (Ritiro in sede)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+                      Detrazione fiscale (%)
+                    </label>
+                    <select
+                      value={ecobonusPercent}
+                      onChange={(e) => setEcobonusPercent(Number(e.target.value))}
+                      className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-2 text-xs text-[var(--color-text)] font-mono"
+                    >
+                      <option value={50}>50% (Bonus Casa / Ecobonus)</option>
+                      <option value={36}>36% (Ordinaria)</option>
+                      <option value={65}>65% (Ecobonus rafforzato)</option>
+                      <option value={0}>0% (Nessuna detrazione)</option>
+                    </select>
+                  </div>
                 </div>
               )}
 
@@ -946,6 +976,17 @@ export default function NewFieldQuotePage() {
                         <option value={0}>0% (Non éligible)</option>
                       </select>
                     </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+                      Assurance Décennale (mention obligatoire sur le devis)
+                    </label>
+                    <input
+                      value={decennaleInsurance}
+                      onChange={(e) => setDecennaleInsurance(e.target.value)}
+                      placeholder="Assurance Décennale AXA N° …"
+                      className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-xs text-[var(--color-text)]"
+                    />
                   </div>
                 </div>
               )}
@@ -1053,6 +1094,17 @@ export default function NewFieldQuotePage() {
                       </label>
                     </div>
                   </div>
+                  {regionCode === "LU" && (
+                    <label className="flex items-center gap-2 text-xs text-[var(--color-text)]">
+                      <input
+                        type="checkbox"
+                        checked={klimabonusEligible}
+                        onChange={(e) => setKlimabonusEligible(e.target.checked)}
+                        className="rounded border-[var(--color-border)] text-[var(--color-mint)]"
+                      />
+                      <span>Klimabonus éligible / Klimabonus-berechtigt (subvention −20%)</span>
+                    </label>
+                  )}
                 </div>
               )}
 
@@ -1145,6 +1197,19 @@ export default function NewFieldQuotePage() {
                     max={100}
                     value={discountPercent}
                     onChange={(e) => setDiscountPercent(Number(e.target.value))}
+                    className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)] font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+                    Margine di profitto (%) — solo interno
+                  </label>
+                  <input
+                    type="number"
+                    min={0}
+                    max={90}
+                    value={profitMarginPercent}
+                    onChange={(e) => setProfitMarginPercent(Number(e.target.value))}
                     className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)] font-mono"
                   />
                 </div>
