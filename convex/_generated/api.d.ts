@@ -18,6 +18,7 @@ import type * as audit from "../audit.js";
 import type * as auth from "../auth.js";
 import type * as billing from "../billing.js";
 import type * as branding from "../branding.js";
+import type * as calculations from "../calculations.js";
 import type * as catalog from "../catalog.js";
 import type * as catalogImport from "../catalogImport.js";
 import type * as configurators from "../configurators.js";
@@ -70,6 +71,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   billing: typeof billing;
   branding: typeof branding;
+  calculations: typeof calculations;
   catalog: typeof catalog;
   catalogImport: typeof catalogImport;
   configurators: typeof configurators;

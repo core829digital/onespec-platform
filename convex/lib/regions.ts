@@ -131,6 +131,114 @@ export function regionForCountry(country: string | null | undefined): RegionPoli
   return REGIONS[DEFAULT_REGION];
 }
 
+export interface VatBreakdownItem {
+  rate: number;
+  label: string;
+  baseCents: number;
+  vatCents: number;
+  totalCents: number;
+}
+
+export interface VatCalculationInput {
+  regionCode: RegionCode;
+  /** Subtotal excluding VAT, in eurocents. */
+  subtotalExVatCents: number;
+  /** Whether the renovation qualifies for energy-efficiency reduced rate. */
+  isEnergyRenovation?: boolean;
+  /** Building age in years (for BE/LU reduced rates). */
+  buildingAge?: number;
+  /** For IT: split between manopera (10%), beni (10% up to manopera value, 22% above), altri (10%). */
+  itSplit?: { manoperaCents: number; beniCents: number; altriCents: number };
+}
+
+/**
+ * Calculate VAT breakdown for a region according to local rules.
+ * Returns array of VatBreakdownItem with rate, label, base, VAT, and total.
+ */
+export function calculateVAT(input: VatCalculationInput): VatBreakdownItem[] {
+  const region = REGIONS[input.regionCode];
+  const breakdown: VatBreakdownItem[] = [];
+
+  if (input.regionCode === "IT") {
+    const split = input.itSplit ?? { manoperaCents: 0, beniCents: input.subtotalExVatCents, altriCents: 0 };
+    const limitaBeniLa10 = split.manoperaCents + split.altriCents;
+    const beni10 = Math.min(split.beniCents, limitaBeniLa10);
+    const beni22 = Math.max(0, split.beniCents - limitaBeniLa10);
+
+    const imponibile10 = split.manoperaCents + split.altriCents + beni10;
+    const iva10 = Math.round(imponibile10 * 0.1);
+    const imponibile22 = beni22;
+    const iva22 = Math.round(imponibile22 * 0.22);
+
+    breakdown.push({
+      rate: 0.1,
+      label: "IVA 10% (manopera + beni fino a concorrenza manopera)",
+      baseCents: imponibile10,
+      vatCents: iva10,
+      totalCents: imponibile10 + iva10,
+    });
+    breakdown.push({
+      rate: 0.22,
+      label: "IVA 22% (beni eccedenti)",
+      baseCents: imponibile22,
+      vatCents: iva22,
+      totalCents: imponibile22 + iva22,
+    });
+    return breakdown;
+  }
+
+  if (input.regionCode === "FR") {
+    let vatKey = "renovation";
+    if (input.isEnergyRenovation) vatKey = "renovation_energetique";
+    const vatRate = region.vatRates.find((v) => v.key === vatKey) || region.vatRates[1];
+    breakdown.push({
+      rate: vatRate.percent / 100,
+      label: vatRate.label,
+      baseCents: input.subtotalExVatCents,
+      vatCents: Math.round(input.subtotalExVatCents * vatRate.percent / 100),
+      totalCents: input.subtotalExVatCents + Math.round(input.subtotalExVatCents * vatRate.percent / 100),
+    });
+    return breakdown;
+  }
+
+  if (input.regionCode === "BE") {
+    const vatKey = (input.buildingAge ?? 0) > 10 ? "renovation" : "standard";
+    const vatRate = region.vatRates.find((v) => v.key === vatKey) || region.vatRates[0];
+    breakdown.push({
+      rate: vatRate.percent / 100,
+      label: vatRate.label,
+      baseCents: input.subtotalExVatCents,
+      vatCents: Math.round(input.subtotalExVatCents * vatRate.percent / 100),
+      totalCents: input.subtotalExVatCents + Math.round(input.subtotalExVatCents * vatRate.percent / 100),
+    });
+    return breakdown;
+  }
+
+  if (input.regionCode === "LU") {
+    const vatKey = input.isEnergyRenovation && (input.buildingAge ?? 0) > 10 ? "super_reduit" : "standard";
+    const vatRate = region.vatRates.find((v) => v.key === vatKey) || region.vatRates[1];
+    breakdown.push({
+      rate: vatRate.percent / 100,
+      label: vatRate.label,
+      baseCents: input.subtotalExVatCents,
+      vatCents: Math.round(input.subtotalExVatCents * vatRate.percent / 100),
+      totalCents: input.subtotalExVatCents + Math.round(input.subtotalExVatCents * vatRate.percent / 100),
+    });
+    return breakdown;
+  }
+
+  // NL, DE - single rate
+  const vatRate = region.vatRates.find((v) => v.key === region.defaultVatKey) || region.vatRates[0];
+  breakdown.push({
+    rate: vatRate.percent / 100,
+    label: vatRate.label,
+    baseCents: input.subtotalExVatCents,
+    vatCents: Math.round(input.subtotalExVatCents * vatRate.percent / 100),
+    totalCents: input.subtotalExVatCents + Math.round(input.subtotalExVatCents * vatRate.percent / 100),
+  });
+  return breakdown;
+}
+
 /** Best-effort ISO-2 from an `Accept-Language` header. */
 export function countryFromAcceptLanguage(header: string | null | undefined): string | null {
   if (!header) return null;
