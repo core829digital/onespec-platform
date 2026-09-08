@@ -21,7 +21,11 @@
     "account": "Account",
     "admin": "Admin",
     "menu": "Menu",
-    "plan": "Piano"
+    "plan": "Piano",
+    "surveys": "Rilievi",
+    "installations": "Posa UNI 11673",
+    "inspections": "Collaudi",
+    "passports": "Fascicoli QR"
   },
   "dashboard": {
     "title": "Dashboard",

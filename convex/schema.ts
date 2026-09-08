@@ -472,4 +472,162 @@ export default defineSchema({
     tokens: v.number(),
     updatedAt: v.number(),
   }).index("by_key", ["bucketKey"]),
+
+  /* ---------------------------------------------------------------------- */
+  /*  Phase C — B2B field modules (Rilievo, Posa, Collaudo, Fascicolo)       */
+  /*  Each row is tenant-scoped; `regionCode` pins the market's ruleset.     */
+  /* ---------------------------------------------------------------------- */
+
+  /** Rilievo Cantiere — on-site survey: laser measures, photos, diagnostics. */
+  siteSurveys: defineTable({
+    tenantId: v.id("tenants"),
+    regionCode: v.string(),
+    /** Optional link to the quote this survey belongs to. */
+    quoteId: v.optional(v.id("quoteRequests")),
+    createdByUserId: v.id("users"),
+    customerName: v.string(),
+    customerAddress: v.optional(v.string()),
+    customerCity: v.optional(v.string()),
+    customerPostalCode: v.optional(v.string()),
+    /** Per-opening measures + notes. */
+    openings: v.array(
+      v.object({
+        label: v.string(),
+        widthMm: v.number(),
+        heightMm: v.number(),
+        room: v.optional(v.string()),
+        floor: v.optional(v.string()),
+        laserSource: v.optional(v.string()),
+        notes: v.optional(v.string()),
+        photoStorageIds: v.optional(v.array(v.id("_storage"))),
+      }),
+    ),
+    /** Site diagnostic checklist (wall type, mould, access, counterframe…). */
+    diagnostics: v.object({
+      wallType: v.optional(v.string()),
+      counterFrame: v.optional(v.string()),
+      mould: v.optional(v.boolean()),
+      floorAccess: v.optional(v.string()),
+      craneRequired: v.optional(v.boolean()),
+      existingShutter: v.optional(v.boolean()),
+      notes: v.optional(v.string()),
+    }),
+    status: v.union(v.literal("draft"), v.literal("completed"), v.literal("synced")),
+    completedAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_quote", ["quoteId"]),
+
+  /** Posa UNI 11673 wizard output — installation node design + bill of materials. */
+  installationDossiers: defineTable({
+    tenantId: v.id("tenants"),
+    regionCode: v.string(),
+    quoteId: v.optional(v.id("quoteRequests")),
+    surveyId: v.optional(v.id("siteSurveys")),
+    createdByUserId: v.id("users"),
+    jobType: v.string(),
+    nodeType: v.string(),
+    /** Total perimeter of the openings, mm — drives material quantities. */
+    perimeterMm: v.number(),
+    materials: v.array(
+      v.object({
+        key: v.string(),
+        label: v.string(),
+        unit: v.string(),
+        quantity: v.number(),
+      }),
+    ),
+    normRef: v.string(),
+    notes: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_quote", ["quoteId"]),
+
+  /** Verbale di Collaudo — signed inspection record with mandatory photo checklist. */
+  inspectionReports: defineTable({
+    tenantId: v.id("tenants"),
+    regionCode: v.string(),
+    quoteId: v.optional(v.id("quoteRequests")),
+    createdByUserId: v.id("users"),
+    customerName: v.string(),
+    siteAddress: v.optional(v.string()),
+    /** One entry per mandatory photo slot for the market. */
+    photos: v.array(
+      v.object({
+        key: v.string(),
+        label: v.string(),
+        storageId: v.optional(v.id("_storage")),
+      }),
+    ),
+    /** Functional checks — each ticked by the installer. */
+    checks: v.array(v.object({ key: v.string(), label: v.string(), passed: v.boolean() })),
+    installerNotes: v.optional(v.string()),
+    clientRemarks: v.optional(v.string()),
+    signatureDataUrl: v.optional(v.string()),
+    signedByName: v.optional(v.string()),
+    signedAt: v.optional(v.number()),
+    status: v.union(v.literal("draft"), v.literal("signed")),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_quote", ["quoteId"]),
+
+  /** Fascicolo del Serramento — the digital dossier a QR label resolves to. */
+  serramentoPassports: defineTable({
+    tenantId: v.id("tenants"),
+    regionCode: v.string(),
+    quoteId: v.optional(v.id("quoteRequests")),
+    inspectionId: v.optional(v.id("inspectionReports")),
+    createdByUserId: v.id("users"),
+    /** Opaque public token used in the QR URL — unguessable. */
+    publicToken: v.string(),
+    label: v.string(),
+    customerName: v.string(),
+    siteAddress: v.optional(v.string()),
+    productSummary: v.optional(v.string()),
+    installedAt: v.optional(v.number()),
+    /** Documents attached to the dossier. */
+    documents: v.array(
+      v.object({
+        key: v.string(),
+        label: v.string(),
+        required: v.boolean(),
+        storageId: v.optional(v.id("_storage")),
+        url: v.optional(v.string()),
+      }),
+    ),
+    performanceDeclaration: v.optional(v.string()),
+    maintenanceLabel: v.optional(v.string()),
+    maintenancePriceCents: v.optional(v.number()),
+    maintenanceActive: v.optional(v.boolean()),
+    scanCount: v.number(),
+    lastScannedAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_token", ["publicToken"])
+    .index("by_quote", ["quoteId"]),
+
+  /** Post-sale service requests opened by an end client from a QR scan. */
+  passportInterventions: defineTable({
+    tenantId: v.id("tenants"),
+    passportId: v.id("serramentoPassports"),
+    kind: v.union(v.literal("adjustment"), v.literal("warranty"), v.literal("maintenance"), v.literal("other")),
+    message: v.string(),
+    contactName: v.optional(v.string()),
+    contactPhone: v.optional(v.string()),
+    contactEmail: v.optional(v.string()),
+    status: v.union(v.literal("new"), v.literal("scheduled"), v.literal("closed")),
+    sourceIpHash: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_passport", ["passportId"])
+    .index("by_tenant_status", ["tenantId", "status"]),
 });

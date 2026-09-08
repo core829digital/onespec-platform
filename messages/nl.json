@@ -21,7 +21,11 @@
     "account": "Account",
     "admin": "Admin",
     "menu": "Menu",
-    "plan": "Abonnement"
+    "plan": "Abonnement",
+    "surveys": "Inmeting",
+    "installations": "Montage (NPR 3577)",
+    "inspections": "Opleveringen",
+    "passports": "QR-dossiers"
   },
   "topbar": {
     "account": "Account",

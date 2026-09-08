@@ -21,7 +21,11 @@
     "account": "Konto",
     "admin": "Admin",
     "menu": "Menü",
-    "plan": "Tarif"
+    "plan": "Tarif",
+    "surveys": "Aufmaß",
+    "installations": "Montage (RAL)",
+    "inspections": "Abnahmen",
+    "passports": "QR-Doku"
   },
   "topbar": {
     "account": "Konto",

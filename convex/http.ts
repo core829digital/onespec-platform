@@ -177,6 +177,84 @@ http.route({
   }),
 });
 
+/* -------- Phase C — public Fascicolo (QR) endpoints -------- */
+
+http.route({
+  path: "/api/passport/scan",
+  method: "OPTIONS",
+  handler: httpAction(async () => new Response(null, { status: 204, headers: CORS })),
+});
+http.route({
+  path: "/api/passport/intervention",
+  method: "OPTIONS",
+  handler: httpAction(async () => new Response(null, { status: 204, headers: CORS })),
+});
+
+http.route({
+  path: "/api/passport/scan",
+  method: "POST",
+  handler: httpAction(async (ctx, req) => {
+    let body: { token?: string };
+    try {
+      body = await req.json();
+    } catch {
+      return json({ ok: false }, 400);
+    }
+    if (!body.token || !/^[A-Za-z0-9]{8,32}$/.test(body.token)) return json({ ok: false }, 400);
+    await ctx.runMutation(api.passports.recordScan, { token: body.token });
+    return json({ ok: true });
+  }),
+});
+
+http.route({
+  path: "/api/passport/intervention",
+  method: "POST",
+  handler: httpAction(async (ctx, req) => {
+    let body: {
+      token?: string;
+      kind?: "adjustment" | "warranty" | "maintenance" | "other";
+      message?: string;
+      contactName?: string;
+      contactPhone?: string;
+      contactEmail?: string;
+    };
+    try {
+      body = await req.json();
+    } catch {
+      return json({ ok: false, error: "BAD_JSON" }, 400);
+    }
+    if (!body.token || !/^[A-Za-z0-9]{8,32}$/.test(body.token)) {
+      return json({ ok: false, error: "BAD_TOKEN" }, 400);
+    }
+    const kind = body.kind ?? "other";
+    if (!["adjustment", "warranty", "maintenance", "other"].includes(kind)) {
+      return json({ ok: false, error: "BAD_KIND" }, 400);
+    }
+    const ip =
+      req.headers.get("cf-connecting-ip") ||
+      (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() ||
+      "0.0.0.0";
+    const ipHash = await hashIp(ip);
+    try {
+      await ctx.runMutation(internal.passports.recordInterventionFromHttp, {
+        token: body.token,
+        kind,
+        message: String(body.message ?? ""),
+        contactName: body.contactName,
+        contactPhone: body.contactPhone,
+        contactEmail: body.contactEmail,
+        sourceIpHash: ipHash,
+      });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.includes("MESSAGE_REQUIRED")) return json({ ok: false, error: "MESSAGE_REQUIRED" }, 400);
+      if (msg.includes("PASSPORT_NOT_FOUND")) return json({ ok: false, error: "NOT_FOUND" }, 404);
+      throw e;
+    }
+    return json({ ok: true });
+  }),
+});
+
 // NOTE: a Resend delivery-tracking webhook is intentionally NOT mounted yet.
 // An endpoint that doesn't verify the Svix signature is worse than none; add it
 // back with `svix` verification when delivery status is actually needed.

@@ -21,7 +21,11 @@
     "account": "Account",
     "admin": "Admin",
     "menu": "Menu",
-    "plan": "Plan"
+    "plan": "Plan",
+    "surveys": "Site surveys",
+    "installations": "Installation (UNI 11673)",
+    "inspections": "Inspections",
+    "passports": "QR passports"
   },
   "dashboard": {
     "title": "Dashboard",

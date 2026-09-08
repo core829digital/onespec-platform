@@ -21,7 +21,11 @@
     "account": "Cont",
     "admin": "Admin",
     "menu": "Meniu",
-    "plan": "Plan"
+    "plan": "Plan",
+    "surveys": "Relevee",
+    "installations": "Montaj",
+    "inspections": "Recepții",
+    "passports": "Dosare QR"
   },
   "topbar": {
     "account": "Cont",

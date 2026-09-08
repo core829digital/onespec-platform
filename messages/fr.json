@@ -21,7 +21,11 @@
     "account": "Compte",
     "admin": "Admin",
     "menu": "Menu",
-    "plan": "Forfait"
+    "plan": "Forfait",
+    "surveys": "Relevés",
+    "installations": "Pose (DTU 36.5)",
+    "inspections": "Réceptions",
+    "passports": "Dossiers QR"
   },
   "topbar": {
     "account": "Compte",

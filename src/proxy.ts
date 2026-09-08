@@ -99,6 +99,11 @@ export default convexAuthNextjsMiddleware(
       return res;
     }
 
+    // Public Fascicolo del serramento (QR target): no i18n redirect, same-origin.
+    if (pathname.startsWith("/f/")) {
+      return NextResponse.next();
+    }
+
     const prefix = localePrefix(pathname);
     const authed = await convexAuth.isAuthenticated();
 
