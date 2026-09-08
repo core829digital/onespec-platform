@@ -6,13 +6,7 @@ import { requireMembership, requireTenantRole } from "./lib/auth";
 import { requireTenantRegion } from "./lib/fieldModules";
 import { complianceForRegion } from "./lib/compliance";
 import { regionForCountry } from "./lib/regions";
-import {
-  guessZoneFromCap,
-  buildAllegatoF,
-  allegatoFToXml,
-  UW_LIMIT_BY_ZONE,
-  type ClimateZone,
-} from "./lib/enea";
+import { guessZoneFromCap, buildAllegatoF, allegatoFToXml, type ClimateZone } from "./lib/enea";
 import { computeOverallUw, type CatalogPayload, type ProjectItem } from "../src/shared/pricing";
 import { nanoid } from "./lib/ids";
 import { internal } from "./_generated/api";
@@ -139,11 +133,13 @@ export const attachDocument = mutation({
 });
 
 /**
- * ENEA Allegato F (Italy only) — computes Uw post from the linked quote's
- * catalogue payload, checks it against the zone limit, stores the data + XML
- * and flips the `enea` dossier document to available.
+ * Funding / fiscal declaration for the linked quote, per market:
+ *  IT  → ENEA Allegato F (+ portal XML)   FR → Attestation MaPrimeRénov'
+ *  BE  → Attestation Prime Rénovation      NL → ISDE-onderbouwing
+ *  DE  → Fachunternehmererklärung (BEG)    LU → Attestation Klimabonus
+ * All variants carry the computed Uw + surface + cost; only IT has portal XML.
  */
-export const generateEnea = mutation({
+export const generateFundingDoc = mutation({
   args: {
     passportId: v.id("serramentoPassports"),
     zone: v.optional(
@@ -158,14 +154,13 @@ export const generateEnea = mutation({
     ),
     gradiGiorno: v.optional(v.number()),
     uwAnte: v.optional(v.number()),
-    detrazionePercent: v.optional(v.number()),
+    deductionPercent: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const p = await ctx.db.get(args.passportId);
     if (!p) throw new ConvexError("PASSPORT_NOT_FOUND");
     await requireTenantRole(ctx, p.tenantId, ["owner", "admin", "member"]);
-    if (regionForCountry(p.regionCode).code !== "IT") throw new ConvexError("ENEA_IT_ONLY");
-    if (!p.quoteId) throw new ConvexError("ENEA_NEEDS_QUOTE");
+    if (!p.quoteId) throw new ConvexError("FUNDING_NEEDS_QUOTE");
 
     const quote = await ctx.db.get(p.quoteId);
     if (!quote) throw new ConvexError("QUOTE_NOT_FOUND");
@@ -180,51 +175,80 @@ export const generateEnea = mutation({
     const items: ProjectItem[] = Array.isArray(quote.items) ? (quote.items as ProjectItem[]) : [];
     const uwPost = computeOverallUw(versionDoc.payload as CatalogPayload, items);
     if (uwPost <= 0) throw new ConvexError("CANNOT_COMPUTE_UW");
-
     const superficieM2 = items.reduce(
       (s, it) => s + ((it.width || 0) / 1000) * ((it.height || 0) / 1000) * (it.quantity || 1),
       0,
     );
 
-    const guess = guessZoneFromCap(quote.customerPostalCode);
-    const zone: ClimateZone = args.zone ?? guess.zone;
-    const gradiGiorno = args.gradiGiorno ?? guess.gg;
+    const region = regionForCountry(p.regionCode).code;
+    const funding = complianceForRegion(region).funding;
+    const indirizzo = [quote.customerAddress, quote.customerCity, quote.customerPostalCode]
+      .filter(Boolean)
+      .join(", ");
     const uwAnte = args.uwAnte ?? Math.max(uwPost + 1.6, 3.2);
-    const detrazionePercent = Math.min(Math.max(args.detrazionePercent ?? 50, 0), 100);
+    const deductionPercent = Math.min(Math.max(args.deductionPercent ?? 50, 0), 100);
 
-    const allegato = buildAllegatoF({
-      zone,
-      gradiGiorno,
-      uwAnte,
-      uwPost,
-      superficieM2,
-      costoCents: quote.priceCents,
-      detrazionePercent,
-      beneficiario: quote.leadName,
-      indirizzo: [quote.customerAddress, quote.customerCity, quote.customerPostalCode]
-        .filter(Boolean)
-        .join(", "),
-      dataFineLavori: p.installedAt ?? Date.now(),
-    });
-    const xml = allegatoFToXml(allegato);
+    let eneaData: Record<string, unknown>;
+    let eneaXml: string | undefined;
 
-    const documents = p.documents.map((d) =>
-      d.key === "enea" ? { ...d, label: "Scheda ENEA / Allegato F", required: true } : d,
-    );
-    const hasEnea = documents.some((d) => d.key === "enea");
-    if (!hasEnea) {
-      documents.push({ key: "enea", label: "Scheda ENEA / Allegato F", required: true });
+    if (region === "IT") {
+      const guess = guessZoneFromCap(quote.customerPostalCode);
+      const zone: ClimateZone = args.zone ?? guess.zone;
+      const allegato = buildAllegatoF({
+        zone,
+        gradiGiorno: args.gradiGiorno ?? guess.gg,
+        uwAnte,
+        uwPost,
+        superficieM2,
+        costoCents: quote.priceCents,
+        detrazionePercent: deductionPercent,
+        beneficiario: quote.leadName,
+        indirizzo,
+        dataFineLavori: p.installedAt ?? Date.now(),
+      });
+      eneaData = { ...allegato, kind: "enea", title: funding.title, programme: funding.programme };
+      eneaXml = allegatoFToXml(allegato);
+    } else {
+      const deltaU = Math.max(uwAnte - uwPost, 0);
+      eneaData = {
+        kind: "declaration",
+        title: funding.title,
+        programme: funding.programme,
+        preamble: funding.preamble,
+        beneficiario: quote.leadName,
+        indirizzo,
+        uwAnte: round2(uwAnte),
+        uwPost: round2(uwPost),
+        deltaU: round2(deltaU),
+        superficieM2: round2(superficieM2),
+        costoCents: quote.priceCents,
+        deductionPercent,
+        performanceDeclaration: p.performanceDeclaration ?? null,
+        dataFineLavori: p.installedAt ?? Date.now(),
+      };
+      eneaXml = undefined;
     }
 
-    await ctx.db.patch(args.passportId, {
-      eneaData: allegato,
-      eneaXml: xml,
-      documents,
-      updatedAt: Date.now(),
-    });
-    return { conform: allegato.conform, uwPost: allegato.uwPost, uwLimit: UW_LIMIT_BY_ZONE[zone] };
+    const documents = p.documents.some((d) => d.key === "enea")
+      ? p.documents.map((d) =>
+          d.key === "enea" ? { ...d, label: funding.title, required: true } : d,
+        )
+      : [...p.documents, { key: "enea", label: funding.title, required: true }];
+
+    await ctx.db.patch(args.passportId, { eneaData, eneaXml, documents, updatedAt: Date.now() });
+    return {
+      region,
+      title: funding.title,
+      hasXml: !!eneaXml,
+      uwPost: round2(uwPost),
+      conform: region === "IT" ? (eneaData.conform as boolean) : undefined,
+    };
   },
 });
+
+function round2(n: number): number {
+  return Math.round(n * 100) / 100;
+}
 
 export const setMaintenance = mutation({
   args: {
@@ -274,63 +298,76 @@ export const updateInterventionStatus = mutation({
 
 /* ----------------------------- public (QR) ------------------------------ */
 
-/** End-client view of a dossier — no auth. Returns only client-safe fields. */
-export const getPublicByToken = query({
-  args: { token: v.string() },
-  handler: async (ctx, args) => {
-    const p = await ctx.db
-      .query("serramentoPassports")
-      .withIndex("by_token", (q) => q.eq("publicToken", args.token))
-      .unique();
-    if (!p) return null;
+ /** End-client view of a dossier — no auth. Returns only client-safe fields. */
+ export const getPublicByToken = query({
+   args: { token: v.string() },
+   handler: async (ctx, args) => {
+     const p = await ctx.db
+       .query("serramentoPassports")
+       .withIndex("by_token", (q) => q.eq("publicToken", args.token))
+       .unique();
+     if (!p) return null;
 
-    const tenant = await ctx.db.get(p.tenantId);
-    const branding = p.quoteId
-      ? await ctx.db.get(p.quoteId).then((q) =>
-          q
-            ? ctx.db
-                .query("branding")
-                .withIndex("by_configurator", (b) => b.eq("configuratorId", q.configuratorId))
-                .unique()
-            : null,
-        )
-      : null;
+     const tenant = await ctx.db.get(p.tenantId);
+     const branding = p.quoteId
+       ? await ctx.db.get(p.quoteId).then((q) =>
+           q
+             ? ctx.db
+                 .query("branding")
+                 .withIndex("by_configurator", (b) => b.eq("configuratorId", q.configuratorId))
+                 .unique()
+             : null,
+         )
+       : null;
 
-    const documents = await Promise.all(
-      p.documents.map(async (d) => ({
-        key: d.key,
-        label: d.label,
-        available: !!(d.storageId || d.url),
-        url: d.storageId ? await ctx.storage.getUrl(d.storageId) : d.url ?? null,
-      })),
-    );
+     const documents = await Promise.all(
+       p.documents.map(async (d) => ({
+         key: d.key,
+         label: d.label,
+         available: !!(d.storageId || d.url),
+         url: d.storageId ? await ctx.storage.getUrl(d.storageId) : d.url ?? null,
+       })),
+     );
 
-    const enea = p.eneaData
-      ? {
-          zone: p.eneaData.zone as string,
-          uwPost: p.eneaData.uwPost as number,
-          uwLimit: p.eneaData.uwLimit as number,
-          conform: p.eneaData.conform as boolean,
-          risparmioKwhAnno: p.eneaData.risparmioKwhAnno as number,
-        }
-      : null;
+     const ed = p.eneaData as Record<string, unknown> | undefined;
+     const kind = (ed?.kind as string) ?? "enea";
+     const enea = ed
+       ? {
+           kind,
+           title: (ed.title as string) ?? "Documento agevolazione",
+           programme: (ed.programme as string) ?? "",
+           zone: (ed.zone as string) ?? null,
+           uwPost: (ed.uwPost as number) ?? null,
+           uwLimit: (ed.uwLimit as number) ?? null,
+           conform: typeof ed.conform === "boolean" ? (ed.conform as boolean) : null,
+           risparmioKwhAnno: (ed.risparmioKwhAnno as number) ?? null,
+           // Funding declaration fields (non-IT markets)
+           uwAnte: (ed.uwAnte as number) ?? null,
+           deltaU: (ed.deltaU as number) ?? null,
+           superficieM2: (ed.superficieM2 as number) ?? null,
+           costoCents: (ed.costoCents as number) ?? null,
+           deductionPercent: (ed.deductionPercent as number) ?? null,
+           preamble: (ed.preamble as string[]) ?? null,
+         }
+       : null;
 
-    return {
-      label: p.label,
-      customerName: p.customerName,
-      productSummary: p.productSummary ?? null,
-      installedAt: p.installedAt ?? null,
-      enea,
-      performanceDeclaration: p.performanceDeclaration ?? null,
-      maintenanceLabel: p.maintenanceLabel ?? null,
-      maintenancePriceCents: p.maintenancePriceCents ?? null,
-      documents,
-      dealerName: branding?.companyInfo?.name ?? tenant?.name ?? "",
-      dealerPhone: branding?.companyInfo?.phone ?? null,
-      dealerEmail: branding?.companyInfo?.email ?? null,
-    };
-  },
-});
+     return {
+       label: p.label,
+       customerName: p.customerName,
+       productSummary: p.productSummary ?? null,
+       installedAt: p.installedAt ?? null,
+       regionCode: p.regionCode ?? null,
+       enea,
+       performanceDeclaration: p.performanceDeclaration ?? null,
+       maintenanceLabel: p.maintenanceLabel ?? null,
+       maintenancePriceCents: p.maintenancePriceCents ?? null,
+       documents,
+       dealerName: branding?.companyInfo?.name ?? tenant?.name ?? "",
+       dealerPhone: branding?.companyInfo?.phone ?? null,
+       dealerEmail: branding?.companyInfo?.email ?? null,
+     };
+   },
+ });
 
 export const recordScan = mutation({
   args: { token: v.string() },

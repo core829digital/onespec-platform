@@ -71,17 +71,36 @@ export default async function FascicoloPage({
 
       {data.enea && (
         <section className="rounded-2xl bg-white p-4 text-sm">
-          <h2 className="font-bold">Efficienza energetica · ENEA</h2>
-          <p className="mt-1">
-            Zona {data.enea.zone} · U<sub>w</sub> {data.enea.uwPost} W/m²K ≤ limite{" "}
-            {data.enea.uwLimit} ·{" "}
-            <span className={data.enea.conform ? "font-semibold text-emerald-600" : "text-red-600"}>
-              {data.enea.conform ? "conforme detrazione fiscale" : "non conforme"}
-            </span>
-          </p>
-          <p className="text-xs text-zinc-500">
-            Risparmio stimato ~{data.enea.risparmioKwhAnno} kWh/anno.
-          </p>
+          <h2 className="font-bold">
+            {data.enea.kind === "declaration" ? "Documento agevolazione fiscale" : "Efficienza energetica · ENEA"}
+          </h2>
+          {data.enea.kind === "declaration" ? (
+            <>
+              <p className="mt-1">Programma: {data.enea.programme}</p>
+              <p>Uw ante operam: {data.enea.uwAnte} W/m²K</p>
+              <p>Uw post operam: {data.enea.uwPost} W/m²K</p>
+              <p>ΔU: {data.enea.deltaU} W/m²K</p>
+              <p>Superficie: {data.enea.superficieM2} m²</p>
+              <p>Costo: {eur(data.enea.costoCents)}</p>
+              <p>Detrazione: {data.enea.deductionPercent}%</p>
+              {data.enea.preamble && data.enea.preamble.map((line: string, i: number) => (
+                <p key={i} className="text-xs text-zinc-500">{line}</p>
+              ))}
+            </>
+          ) : (
+            <>
+              <p className="mt-1">
+                Zona {data.enea.zone} · U<sub>w</sub> {data.enea.uwPost} W/m²K ≤ limite{" "}
+                {data.enea.uwLimit} ·{" "}
+                <span className={data.enea.conform ? "font-semibold text-emerald-600" : "text-red-600"}>
+                  {data.enea.conform ? "conforme detrazione fiscale" : "non conforme"}
+                </span>
+              </p>
+              <p className="text-xs text-zinc-500">
+                Risparmio stimato ~{data.enea.risparmioKwhAnno} kWh/anno.
+              </p>
+            </>
+          )}
         </section>
       )}
 

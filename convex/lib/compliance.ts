@@ -82,10 +82,26 @@ export interface DossierRequirements {
   maintenance: { label: string; defaultPriceCents: number };
 }
 
+/* -------------------------------------------------------------------------- */
+/*  Fiscal / funding declaration (ENEA, Fachunternehmererklärung, …)           */
+/* -------------------------------------------------------------------------- */
+
+export interface FundingDeclaration {
+  /** Document name in the market's language. */
+  title: string;
+  /** Programme it supports (Ecobonus, BEG/KfW, MaPrimeRénov', …). */
+  programme: string;
+  /** IT has a machine-readable portal row; others are a signed PDF text. */
+  hasPortalXml: boolean;
+  /** Fixed lines printed above the computed values. */
+  preamble: string[];
+}
+
 export interface MarketCompliance {
   installation: InstallationStandard;
   inspection: InspectionTemplate;
   dossier: DossierRequirements;
+  funding: FundingDeclaration;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -163,6 +179,15 @@ const IT: MarketCompliance = {
     performanceDeclaration: "DoP EN 14351-1 (Uw, permeabilità aria, tenuta acqua, resistenza al vento)",
     maintenance: { label: "Contratto di manutenzione programmata (annuale)", defaultPriceCents: 8900 },
   },
+  funding: {
+    title: "Scheda ENEA / Allegato F",
+    programme: "Ecobonus — detrazione sostituzione infissi",
+    hasPortalXml: true,
+    preamble: [
+      "Asseverazione DM 11/03/2008 · limiti di trasmittanza DM 06/08/2020 all. E.",
+      "Risparmio energetico stimato secondo UNI/TS 11300.",
+    ],
+  },
 };
 
 /* -------------------------------------------------------------------------- */
@@ -233,6 +258,15 @@ const FR: MarketCompliance = {
     performanceDeclaration: "DoP EN 14351-1 (Uw, AEV : air/eau/vent, Sw, Ra,tr)",
     maintenance: { label: "Contrat d'entretien annuel", defaultPriceCents: 9900 },
   },
+  funding: {
+    title: "Attestation de travaux — MaPrimeRénov'",
+    programme: "MaPrimeRénov' / CEE — remplacement de menuiseries",
+    hasPortalXml: false,
+    preamble: [
+      "Travaux réalisés par une entreprise certifiée RGE.",
+      "Menuiserie conforme : Uw ≤ 1,3 W/m²K et Sw ≥ 0,3 (fenêtre) — exigence CEE / MaPrimeRénov'.",
+    ],
+  },
 };
 
 /* -------------------------------------------------------------------------- */
@@ -295,6 +329,15 @@ const BE: MarketCompliance = {
     ],
     performanceDeclaration: "DoP EN 14351-1 (Uw, AEV, exigence PEB Uw ≤ 1,5 W/m²K)",
     maintenance: { label: "Contrat d'entretien annuel", defaultPriceCents: 9500 },
+  },
+  funding: {
+    title: "Attestation — Prime Rénovation / Renolution",
+    programme: "Prime Rénovation (Wallonie) / Renolution (Bruxelles)",
+    hasPortalXml: false,
+    preamble: [
+      "Châssis conforme PEB : Uw ≤ 1,5 W/m²K, vitrage Ug ≤ 1,1 W/m²K.",
+      "Ventilation réglementaire assurée (grille ou entrée d'air).",
+    ],
   },
 };
 
@@ -364,6 +407,15 @@ const NL: MarketCompliance = {
     ],
     performanceDeclaration: "DoP EN 14351-1 (Uw, lucht/water/wind, BENG-eis)",
     maintenance: { label: "Jaarlijks onderhoudscontract", defaultPriceCents: 9500 },
+  },
+  funding: {
+    title: "Onderbouwing — ISDE-subsidie",
+    programme: "ISDE (Investeringssubsidie Duurzame Energie) — isolatieglas",
+    hasPortalXml: false,
+    preamble: [
+      "HR++-glas: Ug ≤ 1,2 W/m²K · triple: Ug ≤ 0,8 W/m²K (ISDE-eis).",
+      "Minimaal 8 m² glasoppervlak vervangen per woning.",
+    ],
   },
 };
 
@@ -435,6 +487,15 @@ const DE: MarketCompliance = {
     performanceDeclaration: "LoE EN 14351-1 (Uw, Schlagregendichtheit, Luftdurchlässigkeit, Windlast)",
     maintenance: { label: "Jährlicher Wartungsvertrag", defaultPriceCents: 9900 },
   },
+  funding: {
+    title: "Fachunternehmererklärung (BEG)",
+    programme: "BEG EM / KfW / BAFA — Erneuerung der Fenster",
+    hasPortalXml: false,
+    preamble: [
+      "Ausführung nach anerkannten Regeln der Technik (RAL-Montageleitfaden, DIN 4108-7).",
+      "Höchstwert der Wärmedurchgangskoeffizienten: Uw ≤ 0,95 W/m²K (BEG-Anforderung Fenster).",
+    ],
+  },
 };
 
 /* -------------------------------------------------------------------------- */
@@ -496,6 +557,15 @@ const LU: MarketCompliance = {
     ],
     performanceDeclaration: "DoP EN 14351-1 (Uw, AEV, RC selon DIN EN 1627)",
     maintenance: { label: "Contrat d'entretien annuel / Wartungsvertrag", defaultPriceCents: 10900 },
+  },
+  funding: {
+    title: "Attestation Klimabonus / Klimabonus-Bescheinigung",
+    programme: "Klimabonus — Fënsteren / remplacement de fenêtres",
+    hasPortalXml: false,
+    preamble: [
+      "Pose par une entreprise agréée · Uw ≤ 1,0 W/m²K (exigence Klimabonus).",
+      "Devis et attestation établis en FR et DE.",
+    ],
   },
 };
 

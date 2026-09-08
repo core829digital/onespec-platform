@@ -8,6 +8,24 @@ import type { Id } from "@/convex/_generated/dataModel";
 
 type PassportId = Id<"serramentoPassports">;
 
+interface EneaData {
+  kind?: "enea" | "declaration";
+  title?: string;
+  programme?: string;
+  zone?: string;
+  gradiGiorno?: number;
+  uwPost?: number;
+  uwLimit?: number;
+  conform?: boolean;
+  risparmioKwhAnno?: number;
+  uwAnte?: number;
+  deltaU?: number;
+  superficieM2?: number;
+  costoCents?: number;
+  deductionPercent?: number;
+  preamble?: string[];
+}
+
 function eur(cents: number | null | undefined) {
   if (cents == null) return "—";
   return new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(cents / 100);
@@ -18,8 +36,10 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
   const genUrl = useMutation(api.passports.generateUploadUrl);
   const attach = useMutation(api.passports.attachDocument);
   const setMaintenance = useMutation(api.passports.setMaintenance);
-  const generateEnea = useMutation(api.passports.generateEnea);
-  const [eneaBusy, setEneaBusy] = useState(false);
+  const generateFundingDoc = useMutation(api.passports.generateFundingDoc);
+  const [fundingBusy, setFundingBusy] = useState(false);
+  const [uwAnteInput, setUwAnteInput] = useState<number | "">("");
+  const [deductionPercentInput, setDeductionPercentInput] = useState<number | "">("");
 
   const [qr, setQr] = useState("");
   const [err, setErr] = useState("");
@@ -124,53 +144,104 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
           </div>
         </div>
 
-        {p.regionCode === "IT" && (
-          <div className="rounded-lg border border-[var(--color-border)] p-3">
+        <div className="rounded-lg border border-[var(--color-border)] p-3">
             <div className="flex items-center justify-between">
-              <div className="text-sm font-semibold">Scheda ENEA · Allegato F</div>
+              <div className="text-sm font-semibold">{p.regionCode === "IT" ? "Scheda ENEA · Allegato F" : "Documento agevolazione fiscale"}</div>
               <button
                 onClick={async () => {
-                  setEneaBusy(true);
+                  setFundingBusy(true);
                   setErr("");
                   try {
-                    await generateEnea({ passportId });
+                    await generateFundingDoc({ 
+                      passportId,
+                      uwAnte: uwAnteInput || undefined,
+                      deductionPercent: deductionPercentInput || undefined,
+                    });
                   } catch (e) {
-                    setErr(e instanceof Error ? e.message : "Errore ENEA");
+                    setErr(e instanceof Error ? e.message : "Errore generazione documento");
                   } finally {
-                    setEneaBusy(false);
+                    setFundingBusy(false);
                   }
                 }}
-                disabled={eneaBusy}
+                disabled={fundingBusy}
                 className="rounded border border-[var(--color-border)] px-2 py-1 text-xs disabled:opacity-50"
               >
-                {eneaBusy ? "…" : p.eneaData ? "Rigenera" : "Genera da preventivo"}
+                {fundingBusy ? "…" : p.eneaData ? "Rigenera" : "Genera da preventivo"}
               </button>
+            </div>
+            <div className="mt-2 grid gap-2 sm:grid-cols-2 text-xs">
+              <label className="flex flex-col gap-1">
+                <span className="text-[var(--color-muted-fg)]">Uw ante operam (W/m²K, opzionale)</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={uwAnteInput}
+                  onChange={(e) => setUwAnteInput(e.target.value ? parseFloat(e.target.value) : "")}
+                  className="rounded border border-[var(--color-border)] bg-transparent px-2 py-1.5"
+                  placeholder="es. 3.2"
+                />
+              </label>
+              <label className="flex flex-col gap-1">
+                <span className="text-[var(--color-muted-fg)]">% Detrazione (opzionale)</span>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={deductionPercentInput}
+                  onChange={(e) => setDeductionPercentInput(e.target.value ? parseInt(e.target.value, 10) : "")}
+                  className="rounded border border-[var(--color-border)] bg-transparent px-2 py-1.5"
+                  placeholder="es. 50"
+                />
+              </label>
             </div>
             {p.eneaData && (
               <div className="mt-2 space-y-1 text-xs">
-                <div>
-                  Zona {p.eneaData.zone} · GG {p.eneaData.gradiGiorno} · Uw {p.eneaData.uwPost} ≤{" "}
-                  {p.eneaData.uwLimit} ·{" "}
-                  <span className={p.eneaData.conform ? "text-emerald-600" : "text-red-600"}>
-                    {p.eneaData.conform ? "conforme" : "non conforme"}
-                  </span>
-                </div>
-                <div>Risparmio stimato: {p.eneaData.risparmioKwhAnno} kWh/anno</div>
-                <button
-                  onClick={() => navigator.clipboard?.writeText(p.eneaXml ?? "")}
-                  className="rounded border border-[var(--color-border)] px-2 py-1"
-                >
-                  Copia XML per portale ENEA
-                </button>
+                {p.regionCode === "IT" && (p.eneaData as EneaData).zone && (
+                  <div>
+                    Zona {(p.eneaData as EneaData).zone} · GG {(p.eneaData as EneaData).gradiGiorno} · Uw {(p.eneaData as EneaData).uwPost} ≤{" "}
+                    {(p.eneaData as EneaData).uwLimit} ·{" "}
+                    <span className={(p.eneaData as EneaData).conform ? "text-emerald-600" : "text-red-600"}>
+                      {(p.eneaData as EneaData).conform ? "conforme" : "non conforme"}
+                    </span>
+                  </div>
+                )}
+                {p.regionCode !== "IT" && (
+                  <>
+                    <div>Programma: {p.eneaData.programme}</div>
+                    <div>Uw ante operam: {(p.eneaData as EneaData).uwAnte} W/m²K</div>
+                    <div>Uw post operam: {(p.eneaData as EneaData).uwPost} W/m²K</div>
+                    <div>ΔU: {(p.eneaData as EneaData).deltaU} W/m²K</div>
+                    <div>Superficie: {(p.eneaData as EneaData).superficieM2} m²</div>
+                    <div>Costo: {eur((p.eneaData as EneaData).costoCents)}</div>
+                    <div>Detrazione: {(p.eneaData as EneaData).deductionPercent}%</div>
+                    {(p.eneaData as EneaData).preamble && (
+                      <div>
+                        {(p.eneaData as EneaData).preamble!.map((line: string, i: number) => (
+                          <div key={i} className="text-[10px] text-[var(--color-muted-fg)]">{line}</div>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                )}
+                {(p.eneaData as EneaData).risparmioKwhAnno && (
+                  <div>Risparmio stimato: {(p.eneaData as EneaData).risparmioKwhAnno} kWh/anno</div>
+                )}
+                {p.eneaXml && (
+                  <button
+                    onClick={() => navigator.clipboard?.writeText(p.eneaXml ?? "")}
+                    className="rounded border border-[var(--color-border)] px-2 py-1"
+                  >
+                    Copia XML per portale ENEA
+                  </button>
+                )}
               </div>
             )}
             {!p.quoteId && (
               <p className="mt-1 text-xs text-[var(--color-muted-fg)]">
-                Collega il fascicolo a un preventivo per generare l&apos;Allegato F.
+                Collega il fascicolo a un preventivo per generare il documento agevolazione.
               </p>
             )}
           </div>
-        )}
 
         <div className="rounded-lg bg-[var(--color-muted)] p-3">
           <div className="text-sm font-semibold">{p.maintenanceLabel}</div>

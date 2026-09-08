@@ -146,7 +146,7 @@ test("enea: zone guess + Allegato F conformity + saving proxy", () => {
   expect(a.risparmioKwhAnno).toBeGreaterThan(0);
 });
 
-test("enea generateEnea from a linked field quote (IT tenant)", async () => {
+test("funding: generateFundingDoc from a linked field quote (IT tenant)", async () => {
   const t = newDb();
   const seeded = await seedTenant(t);
   await t.run(async (ctx) => {
@@ -176,7 +176,7 @@ test("enea generateEnea from a linked field quote (IT tenant)", async () => {
     installedAt: Date.now(),
   });
 
-  const res = await asOwner.mutation(api.passports.generateEnea, { passportId });
+  const res = await asOwner.mutation(api.passports.generateFundingDoc, { passportId });
   expect(res.uwPost).toBeGreaterThan(0);
   expect(typeof res.conform).toBe("boolean");
 
