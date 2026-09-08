@@ -39,6 +39,19 @@ export const list = query({
   },
 });
 
+export const listByQuote = query({
+  args: { quoteId: v.id("quoteRequests") },
+  handler: async (ctx, args) => {
+    const quote = await ctx.db.get(args.quoteId);
+    if (!quote) return [];
+    await requireMembership(ctx, quote.tenantId);
+    return await ctx.db
+      .query("siteSurveys")
+      .withIndex("by_quote", (q) => q.eq("quoteId", args.quoteId))
+      .collect();
+  },
+});
+
 export const get = query({
   args: { surveyId: v.id("siteSurveys") },
   handler: async (ctx, args) => {

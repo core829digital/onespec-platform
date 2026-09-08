@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { Link } from "@/i18n/navigation";
 import type { Id } from "@/convex/_generated/dataModel";
 
 type ReportId = Id<"inspectionReports">;
@@ -336,12 +337,20 @@ export default function InspectionsPage() {
                   {new Date(r.createdAt).toLocaleDateString("it-IT")}
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <button
-                    onClick={() => setSelected(r._id)}
-                    className="rounded border border-[var(--color-border)] px-2 py-1 text-xs"
-                  >
-                    Apri
-                  </button>
+                  <div className="flex justify-end gap-1">
+                    <button
+                      onClick={() => setSelected(r._id)}
+                      className="rounded border border-[var(--color-border)] px-2 py-1 text-xs"
+                    >
+                      Apri
+                    </button>
+                    <Link
+                      href={`/app/inspections/${r._id}/print`}
+                      className="rounded border border-[var(--color-border)] px-2 py-1 text-xs"
+                    >
+                      Stampa
+                    </Link>
+                  </div>
                 </td>
               </tr>
             ))}

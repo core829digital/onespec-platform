@@ -602,6 +602,9 @@ export default defineSchema({
       }),
     ),
     performanceDeclaration: v.optional(v.string()),
+    /** ENEA Allegato F (IT only) — computed data + XML for the fiscal-deduction portal. */
+    eneaData: v.optional(v.any()),
+    eneaXml: v.optional(v.string()),
     maintenanceLabel: v.optional(v.string()),
     maintenancePriceCents: v.optional(v.number()),
     maintenanceActive: v.optional(v.boolean()),

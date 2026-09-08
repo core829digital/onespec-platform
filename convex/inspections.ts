@@ -31,6 +31,19 @@ export const list = query({
   },
 });
 
+export const listByQuote = query({
+  args: { quoteId: v.id("quoteRequests") },
+  handler: async (ctx, args) => {
+    const quote = await ctx.db.get(args.quoteId);
+    if (!quote) return [];
+    await requireMembership(ctx, quote.tenantId);
+    return await ctx.db
+      .query("inspectionReports")
+      .withIndex("by_quote", (q) => q.eq("quoteId", args.quoteId))
+      .collect();
+  },
+});
+
 export const get = query({
   args: { reportId: v.id("inspectionReports") },
   handler: async (ctx, args) => {
@@ -52,6 +65,31 @@ export const generateUploadUrl = mutation({
   handler: async (ctx, args) => {
     await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
     return await ctx.storage.generateUploadUrl();
+  },
+});
+
+export const getForPrint = query({
+  args: { reportId: v.id("inspectionReports") },
+  handler: async (ctx, args) => {
+    const report = await ctx.db.get(args.reportId);
+    if (!report) return null;
+    await requireMembership(ctx, report.tenantId);
+    const tenant = await ctx.db.get(report.tenantId);
+    const region = regionForCountry(report.regionCode).code;
+    const tpl = complianceForRegion(region).inspection;
+    const photos = await Promise.all(
+      report.photos.map(async (p) => ({
+        ...p,
+        url: p.storageId ? await ctx.storage.getUrl(p.storageId) : null,
+      })),
+    );
+    return {
+      report: { ...report, photos },
+      tenant,
+      title: tpl.title,
+      legalBasis: tpl.legalBasis,
+      warrantyLines: tpl.warrantyLines,
+    };
   },
 });
 

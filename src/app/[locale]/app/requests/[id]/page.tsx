@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import type { Id } from "@/convex/_generated/dataModel";
 import { StatusBadge } from "@/components/app-shell/status-badge";
+import { QuoteFieldModules } from "@/components/field/quote-field-modules";
 
 const STATUSES = ["new", "contacted", "quoted", "won", "lost", "spam"] as const;
 const STATUS_LABEL: Record<string, string> = {
@@ -314,6 +315,17 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
               ) : null}
             </div>
           </section>
+
+          {/* Field modules — Rilievo / Posa / Verbale / Fascicolo */}
+          {tenant ? (
+            <QuoteFieldModules
+              quoteId={quoteId}
+              tenantId={tenant._id}
+              leadName={quote.leadName}
+              address={[quote.customerAddress, quote.customerCity].filter(Boolean).join(", ") || undefined}
+              items={quote.items}
+            />
+          ) : null}
 
           {/* Internal notes */}
           <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">

@@ -41,6 +41,36 @@ export const get = query({
   },
 });
 
+export const listByQuote = query({
+  args: { quoteId: v.id("quoteRequests") },
+  handler: async (ctx, args) => {
+    const quote = await ctx.db.get(args.quoteId);
+    if (!quote) return [];
+    await requireMembership(ctx, quote.tenantId);
+    return await ctx.db
+      .query("installationDossiers")
+      .withIndex("by_quote", (q) => q.eq("quoteId", args.quoteId))
+      .collect();
+  },
+});
+
+export const getForPrint = query({
+  args: { dossierId: v.id("installationDossiers") },
+  handler: async (ctx, args) => {
+    const dossier = await ctx.db.get(args.dossierId);
+    if (!dossier) return null;
+    await requireMembership(ctx, dossier.tenantId);
+    const tenant = await ctx.db.get(dossier.tenantId);
+    const region = regionForCountry(dossier.regionCode).code;
+    const std = complianceForRegion(region).installation;
+    const jobLabel = std.jobTypes.find((j) => j.key === dossier.jobType)?.label ?? dossier.jobType;
+    const nodeLabel = std.nodeTypes.find((n) => n.key === dossier.nodeType)?.label ?? dossier.nodeType;
+    const survey = dossier.surveyId ? await ctx.db.get(dossier.surveyId) : null;
+    const quote = dossier.quoteId ? await ctx.db.get(dossier.quoteId) : null;
+    return { dossier, tenant, jobLabel, nodeLabel, notes: std.notes, survey, quote };
+  },
+});
+
 export const create = mutation({
   args: {
     tenantId: v.id("tenants"),

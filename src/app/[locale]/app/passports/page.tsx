@@ -18,6 +18,8 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
   const genUrl = useMutation(api.passports.generateUploadUrl);
   const attach = useMutation(api.passports.attachDocument);
   const setMaintenance = useMutation(api.passports.setMaintenance);
+  const generateEnea = useMutation(api.passports.generateEnea);
+  const [eneaBusy, setEneaBusy] = useState(false);
 
   const [qr, setQr] = useState("");
   const [err, setErr] = useState("");
@@ -121,6 +123,54 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
             ))}
           </div>
         </div>
+
+        {p.regionCode === "IT" && (
+          <div className="rounded-lg border border-[var(--color-border)] p-3">
+            <div className="flex items-center justify-between">
+              <div className="text-sm font-semibold">Scheda ENEA · Allegato F</div>
+              <button
+                onClick={async () => {
+                  setEneaBusy(true);
+                  setErr("");
+                  try {
+                    await generateEnea({ passportId });
+                  } catch (e) {
+                    setErr(e instanceof Error ? e.message : "Errore ENEA");
+                  } finally {
+                    setEneaBusy(false);
+                  }
+                }}
+                disabled={eneaBusy}
+                className="rounded border border-[var(--color-border)] px-2 py-1 text-xs disabled:opacity-50"
+              >
+                {eneaBusy ? "…" : p.eneaData ? "Rigenera" : "Genera da preventivo"}
+              </button>
+            </div>
+            {p.eneaData && (
+              <div className="mt-2 space-y-1 text-xs">
+                <div>
+                  Zona {p.eneaData.zone} · GG {p.eneaData.gradiGiorno} · Uw {p.eneaData.uwPost} ≤{" "}
+                  {p.eneaData.uwLimit} ·{" "}
+                  <span className={p.eneaData.conform ? "text-emerald-600" : "text-red-600"}>
+                    {p.eneaData.conform ? "conforme" : "non conforme"}
+                  </span>
+                </div>
+                <div>Risparmio stimato: {p.eneaData.risparmioKwhAnno} kWh/anno</div>
+                <button
+                  onClick={() => navigator.clipboard?.writeText(p.eneaXml ?? "")}
+                  className="rounded border border-[var(--color-border)] px-2 py-1"
+                >
+                  Copia XML per portale ENEA
+                </button>
+              </div>
+            )}
+            {!p.quoteId && (
+              <p className="mt-1 text-xs text-[var(--color-muted-fg)]">
+                Collega il fascicolo a un preventivo per generare l&apos;Allegato F.
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="rounded-lg bg-[var(--color-muted)] p-3">
           <div className="text-sm font-semibold">{p.maintenanceLabel}</div>

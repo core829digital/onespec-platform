@@ -69,6 +69,22 @@ export default async function FascicoloPage({
         </ul>
       </section>
 
+      {data.enea && (
+        <section className="rounded-2xl bg-white p-4 text-sm">
+          <h2 className="font-bold">Efficienza energetica · ENEA</h2>
+          <p className="mt-1">
+            Zona {data.enea.zone} · U<sub>w</sub> {data.enea.uwPost} W/m²K ≤ limite{" "}
+            {data.enea.uwLimit} ·{" "}
+            <span className={data.enea.conform ? "font-semibold text-emerald-600" : "text-red-600"}>
+              {data.enea.conform ? "conforme detrazione fiscale" : "non conforme"}
+            </span>
+          </p>
+          <p className="text-xs text-zinc-500">
+            Risparmio stimato ~{data.enea.risparmioKwhAnno} kWh/anno.
+          </p>
+        </section>
+      )}
+
       {data.maintenanceLabel && (
         <section className="rounded-2xl border border-emerald-200 bg-emerald-50 p-4">
           <div className="text-sm font-bold text-emerald-800">{data.maintenanceLabel}</div>

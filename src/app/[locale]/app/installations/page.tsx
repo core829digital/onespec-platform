@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { Link } from "@/i18n/navigation";
 
 export default function InstallationsPage() {
   const tenant = useQuery(api.tenants.getMyTenant);
@@ -234,6 +235,7 @@ export default function InstallationsPage() {
               <th className="px-4 py-2 text-left">Nodo</th>
               <th className="px-4 py-2 text-right">Perimetro</th>
               <th className="px-4 py-2 text-right">Data</th>
+              <th className="px-4 py-2" />
             </tr>
           </thead>
           <tbody>
@@ -246,11 +248,19 @@ export default function InstallationsPage() {
                 <td className="px-4 py-3 text-right text-[var(--color-muted-fg)]">
                   {new Date(d.createdAt).toLocaleDateString("it-IT")}
                 </td>
+                <td className="px-4 py-3 text-right">
+                  <Link
+                    href={`/app/installations/${d._id}/print`}
+                    className="rounded border border-[var(--color-border)] px-2 py-1 text-xs"
+                  >
+                    Stampa
+                  </Link>
+                </td>
               </tr>
             ))}
             {dossiers && dossiers.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-[var(--color-muted-fg)]">
+                <td colSpan={6} className="px-4 py-8 text-center text-[var(--color-muted-fg)]">
                   Nessun dossier di posa.
                 </td>
               </tr>

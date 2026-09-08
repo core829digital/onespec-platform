@@ -5,6 +5,15 @@ import { v, ConvexError } from "convex/values";
 import { requireMembership, requireTenantRole } from "./lib/auth";
 import { requireTenantRegion } from "./lib/fieldModules";
 import { complianceForRegion } from "./lib/compliance";
+import { regionForCountry } from "./lib/regions";
+import {
+  guessZoneFromCap,
+  buildAllegatoF,
+  allegatoFToXml,
+  UW_LIMIT_BY_ZONE,
+  type ClimateZone,
+} from "./lib/enea";
+import { computeOverallUw, type CatalogPayload, type ProjectItem } from "../src/shared/pricing";
 import { nanoid } from "./lib/ids";
 import { internal } from "./_generated/api";
 
@@ -20,6 +29,19 @@ export const list = query({
       .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
       .order("desc")
       .take(limit);
+  },
+});
+
+export const listByQuote = query({
+  args: { quoteId: v.id("quoteRequests") },
+  handler: async (ctx, args) => {
+    const quote = await ctx.db.get(args.quoteId);
+    if (!quote) return [];
+    await requireMembership(ctx, quote.tenantId);
+    return await ctx.db
+      .query("serramentoPassports")
+      .withIndex("by_quote", (q) => q.eq("quoteId", args.quoteId))
+      .collect();
   },
 });
 
@@ -116,6 +138,94 @@ export const attachDocument = mutation({
   },
 });
 
+/**
+ * ENEA Allegato F (Italy only) — computes Uw post from the linked quote's
+ * catalogue payload, checks it against the zone limit, stores the data + XML
+ * and flips the `enea` dossier document to available.
+ */
+export const generateEnea = mutation({
+  args: {
+    passportId: v.id("serramentoPassports"),
+    zone: v.optional(
+      v.union(
+        v.literal("A"),
+        v.literal("B"),
+        v.literal("C"),
+        v.literal("D"),
+        v.literal("E"),
+        v.literal("F"),
+      ),
+    ),
+    gradiGiorno: v.optional(v.number()),
+    uwAnte: v.optional(v.number()),
+    detrazionePercent: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const p = await ctx.db.get(args.passportId);
+    if (!p) throw new ConvexError("PASSPORT_NOT_FOUND");
+    await requireTenantRole(ctx, p.tenantId, ["owner", "admin", "member"]);
+    if (regionForCountry(p.regionCode).code !== "IT") throw new ConvexError("ENEA_IT_ONLY");
+    if (!p.quoteId) throw new ConvexError("ENEA_NEEDS_QUOTE");
+
+    const quote = await ctx.db.get(p.quoteId);
+    if (!quote) throw new ConvexError("QUOTE_NOT_FOUND");
+    const versionDoc = await ctx.db
+      .query("catalogVersions")
+      .withIndex("by_configurator_version", (q) =>
+        q.eq("configuratorId", quote.configuratorId).eq("version", quote.catalogVersion),
+      )
+      .unique();
+    if (!versionDoc) throw new ConvexError("NO_CATALOG_VERSION");
+
+    const items: ProjectItem[] = Array.isArray(quote.items) ? (quote.items as ProjectItem[]) : [];
+    const uwPost = computeOverallUw(versionDoc.payload as CatalogPayload, items);
+    if (uwPost <= 0) throw new ConvexError("CANNOT_COMPUTE_UW");
+
+    const superficieM2 = items.reduce(
+      (s, it) => s + ((it.width || 0) / 1000) * ((it.height || 0) / 1000) * (it.quantity || 1),
+      0,
+    );
+
+    const guess = guessZoneFromCap(quote.customerPostalCode);
+    const zone: ClimateZone = args.zone ?? guess.zone;
+    const gradiGiorno = args.gradiGiorno ?? guess.gg;
+    const uwAnte = args.uwAnte ?? Math.max(uwPost + 1.6, 3.2);
+    const detrazionePercent = Math.min(Math.max(args.detrazionePercent ?? 50, 0), 100);
+
+    const allegato = buildAllegatoF({
+      zone,
+      gradiGiorno,
+      uwAnte,
+      uwPost,
+      superficieM2,
+      costoCents: quote.priceCents,
+      detrazionePercent,
+      beneficiario: quote.leadName,
+      indirizzo: [quote.customerAddress, quote.customerCity, quote.customerPostalCode]
+        .filter(Boolean)
+        .join(", "),
+      dataFineLavori: p.installedAt ?? Date.now(),
+    });
+    const xml = allegatoFToXml(allegato);
+
+    const documents = p.documents.map((d) =>
+      d.key === "enea" ? { ...d, label: "Scheda ENEA / Allegato F", required: true } : d,
+    );
+    const hasEnea = documents.some((d) => d.key === "enea");
+    if (!hasEnea) {
+      documents.push({ key: "enea", label: "Scheda ENEA / Allegato F", required: true });
+    }
+
+    await ctx.db.patch(args.passportId, {
+      eneaData: allegato,
+      eneaXml: xml,
+      documents,
+      updatedAt: Date.now(),
+    });
+    return { conform: allegato.conform, uwPost: allegato.uwPost, uwLimit: UW_LIMIT_BY_ZONE[zone] };
+  },
+});
+
 export const setMaintenance = mutation({
   args: {
     passportId: v.id("serramentoPassports"),
@@ -195,11 +305,22 @@ export const getPublicByToken = query({
       })),
     );
 
+    const enea = p.eneaData
+      ? {
+          zone: p.eneaData.zone as string,
+          uwPost: p.eneaData.uwPost as number,
+          uwLimit: p.eneaData.uwLimit as number,
+          conform: p.eneaData.conform as boolean,
+          risparmioKwhAnno: p.eneaData.risparmioKwhAnno as number,
+        }
+      : null;
+
     return {
       label: p.label,
       customerName: p.customerName,
       productSummary: p.productSummary ?? null,
       installedAt: p.installedAt ?? null,
+      enea,
       performanceDeclaration: p.performanceDeclaration ?? null,
       maintenanceLabel: p.maintenanceLabel ?? null,
       maintenancePriceCents: p.maintenancePriceCents ?? null,
