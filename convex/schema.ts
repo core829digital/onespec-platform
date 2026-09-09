@@ -502,6 +502,24 @@ export default defineSchema({
         photoStorageIds: v.optional(v.array(v.id("_storage"))),
       }),
     ),
+    /** Laser measurements from Bluetooth DISTO/GLM. */
+    laserMeasurements: v.optional(v.array(
+      v.object({
+        L: v.number(),
+        H: v.number(),
+        timestamp: v.number(),
+        deviceId: v.optional(v.string()),
+      })
+    )),
+    /** Photos with annotations (foto-cote). */
+    photos: v.optional(v.array(
+      v.object({
+        storageId: v.id("_storage"),
+        annotations: v.optional(v.array(v.any())),
+        type: v.optional(v.union(v.literal("foro"), v.literal("controtelaio"), v.literal("davanzale"), v.literal("rulou"))),
+        uploadedAt: v.number(),
+      })
+    )),
     /** Site diagnostic checklist (wall type, mould, access, counterframe…). */
     diagnostics: v.object({
       wallType: v.optional(v.string()),
@@ -511,6 +529,7 @@ export default defineSchema({
       craneRequired: v.optional(v.boolean()),
       existingShutter: v.optional(v.boolean()),
       notes: v.optional(v.string()),
+      recommendation: v.optional(v.string()),
     }),
     status: v.union(v.literal("draft"), v.literal("completed"), v.literal("synced")),
     completedAt: v.optional(v.number()),

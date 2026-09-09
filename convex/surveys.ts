@@ -24,6 +24,21 @@ const diagnosticsValidator = v.object({
   craneRequired: v.optional(v.boolean()),
   existingShutter: v.optional(v.boolean()),
   notes: v.optional(v.string()),
+  recommendation: v.optional(v.string()),
+});
+
+const laserMeasurementValidator = v.object({
+  L: v.number(),
+  H: v.number(),
+  timestamp: v.number(),
+  deviceId: v.optional(v.string()),
+});
+
+const photoValidator = v.object({
+  storageId: v.id("_storage"),
+  annotations: v.optional(v.array(v.any())),
+  type: v.optional(v.union(v.literal("foro"), v.literal("controtelaio"), v.literal("davanzale"), v.literal("rulou"))),
+  uploadedAt: v.number(),
 });
 
 export const list = query({
@@ -67,7 +82,15 @@ export const get = query({
           : [],
       })),
     );
-    return { ...survey, openings };
+
+    const photos = await Promise.all(
+      (survey.photos ?? []).map(async (p) => ({
+        ...p,
+        url: await ctx.storage.getUrl(p.storageId),
+      }))
+    );
+
+    return { ...survey, openings, photos };
   },
 });
 
@@ -89,6 +112,8 @@ export const create = mutation({
     customerPostalCode: v.optional(v.string()),
     openings: v.array(openingValidator),
     diagnostics: diagnosticsValidator,
+    laserMeasurements: v.optional(v.array(laserMeasurementValidator)),
+    photos: v.optional(v.array(photoValidator)),
   },
   handler: async (ctx, args) => {
     const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
@@ -107,6 +132,8 @@ export const create = mutation({
       customerPostalCode: args.customerPostalCode?.trim(),
       openings: args.openings,
       diagnostics: args.diagnostics,
+      laserMeasurements: args.laserMeasurements ?? [],
+      photos: args.photos ?? [],
       status: "draft",
       createdAt: now,
       updatedAt: now,
@@ -123,6 +150,8 @@ export const update = mutation({
     customerPostalCode: v.optional(v.string()),
     openings: v.optional(v.array(openingValidator)),
     diagnostics: v.optional(diagnosticsValidator),
+    laserMeasurements: v.optional(v.array(laserMeasurementValidator)),
+    photos: v.optional(v.array(photoValidator)),
     status: v.optional(v.union(v.literal("draft"), v.literal("completed"), v.literal("synced"))),
   },
   handler: async (ctx, args) => {
@@ -137,11 +166,73 @@ export const update = mutation({
     if (args.customerPostalCode !== undefined) patch.customerPostalCode = args.customerPostalCode.trim();
     if (args.openings !== undefined) patch.openings = args.openings;
     if (args.diagnostics !== undefined) patch.diagnostics = args.diagnostics;
+    if (args.laserMeasurements !== undefined) patch.laserMeasurements = args.laserMeasurements;
+    if (args.photos !== undefined) patch.photos = args.photos;
     if (args.status !== undefined) {
       patch.status = args.status;
       if (args.status === "completed" && !survey.completedAt) patch.completedAt = Date.now();
     }
     await ctx.db.patch(args.surveyId, patch);
+  },
+});
+
+export const saveLaserMeasurement = mutation({
+  args: {
+    surveyId: v.id("siteSurveys"),
+    measurement: laserMeasurementValidator,
+  },
+  handler: async (ctx, args) => {
+    const survey = await ctx.db.get(args.surveyId);
+    if (!survey) throw new ConvexError("SURVEY_NOT_FOUND");
+    await requireTenantRole(ctx, survey.tenantId, ["owner", "admin", "member"]);
+
+    const measurements = [...(survey.laserMeasurements ?? []), args.measurement];
+    await ctx.db.patch(args.surveyId, { laserMeasurements: measurements, updatedAt: Date.now() });
+  },
+});
+
+export const savePhotoCote = mutation({
+  args: {
+    surveyId: v.id("siteSurveys"),
+    photo: photoValidator,
+  },
+  handler: async (ctx, args) => {
+    const survey = await ctx.db.get(args.surveyId);
+    if (!survey) throw new ConvexError("SURVEY_NOT_FOUND");
+    await requireTenantRole(ctx, survey.tenantId, ["owner", "admin", "member"]);
+
+    const photos = [...(survey.photos ?? []), args.photo];
+    await ctx.db.patch(args.surveyId, { photos, updatedAt: Date.now() });
+  },
+});
+
+export const saveDiagnosticRecommendation = mutation({
+  args: {
+    surveyId: v.id("siteSurveys"),
+    recommendation: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const survey = await ctx.db.get(args.surveyId);
+    if (!survey) throw new ConvexError("SURVEY_NOT_FOUND");
+    await requireTenantRole(ctx, survey.tenantId, ["owner", "admin", "member"]);
+
+    const diagnostics = { ...survey.diagnostics, recommendation: args.recommendation };
+    await ctx.db.patch(args.surveyId, { diagnostics, updatedAt: Date.now() });
+  },
+});
+
+export const completeSurvey = mutation({
+  args: { surveyId: v.id("siteSurveys") },
+  handler: async (ctx, args) => {
+    const survey = await ctx.db.get(args.surveyId);
+    if (!survey) throw new ConvexError("SURVEY_NOT_FOUND");
+    await requireTenantRole(ctx, survey.tenantId, ["owner", "admin", "member"]);
+
+    await ctx.db.patch(args.surveyId, {
+      status: "completed",
+      completedAt: Date.now(),
+      updatedAt: Date.now(),
+    });
   },
 });
 

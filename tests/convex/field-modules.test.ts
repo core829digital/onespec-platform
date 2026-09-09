@@ -42,6 +42,21 @@ test("survey + installation dossier + inspection gate + passport flow", async ()
   const surveys = await asOwner.query(api.surveys.list, { tenantId: seeded.tenantId });
   expect(surveys.find((s) => s._id === surveyId)?.openings.length).toBe(2);
 
+  // laser measurement + diagnostic recommendation appended to the same survey
+  await asOwner.mutation(api.surveys.saveLaserMeasurement, {
+    surveyId,
+    measurement: { L: 1205, H: 1402, timestamp: Date.now(), deviceId: "DISTO-D2" },
+  });
+  await asOwner.mutation(api.surveys.saveDiagnosticRecommendation, {
+    surveyId,
+    recommendation: "Parete termica: banda barriera vapore interna + nastro BG1",
+  });
+  await asOwner.mutation(api.surveys.completeSurvey, { surveyId });
+  const done = await asOwner.query(api.surveys.get, { surveyId });
+  expect(done?.laserMeasurements?.length).toBe(1);
+  expect(done?.diagnostics.recommendation).toContain("BG1");
+  expect(done?.status).toBe("completed");
+
   // --- Posa wizard (defaults to IT ruleset) ---
   const std = await asOwner.query(api.installations.getStandard, { tenantId: seeded.tenantId });
   expect(std.regionCode).toBe("IT");
