@@ -107,6 +107,63 @@ export const create = mutation({
   },
 });
 
+/**
+ * One fascicolo per serramento of a signed field quote (FASE 6.1). Expands each
+ * quote item by quantity and skips items that already have a passport.
+ */
+export const createBatchFromQuote = mutation({
+  args: { tenantId: v.id("tenants"), quoteId: v.id("quoteRequests") },
+  handler: async (ctx, args) => {
+    const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
+    const quote = await ctx.db.get(args.quoteId);
+    if (!quote || quote.tenantId !== args.tenantId) throw new ConvexError("QUOTE_NOT_FOUND");
+
+    const existing = await ctx.db
+      .query("serramentoPassports")
+      .withIndex("by_quote", (q) => q.eq("quoteId", args.quoteId))
+      .collect();
+
+    const req = complianceForRegion(regionCode).dossier;
+    const rawItems = Array.isArray(quote.items) ? (quote.items as Record<string, unknown>[]) : [];
+    const units: string[] = [];
+    rawItems.forEach((it, i) => {
+      const qty = Math.max(1, Math.round(Number(it.quantity ?? 1)));
+      const base =
+        `${it.productType === "balconyDoor" ? "Porta-finestra" : "Finestra"} ${it.width ?? "?"}×${
+          it.height ?? "?"
+        }`.trim() || `Serramento ${i + 1}`;
+      for (let k = 0; k < qty; k++) units.push(qty > 1 ? `${base} (${k + 1}/${qty})` : base);
+    });
+
+    const now = Date.now();
+    const created: string[] = [];
+    for (let idx = existing.length; idx < units.length; idx++) {
+      const id = await ctx.db.insert("serramentoPassports", {
+        tenantId: args.tenantId,
+        regionCode,
+        quoteId: args.quoteId,
+        createdByUserId: userId,
+        publicToken: nanoid(16),
+        label: `FIN-${String(idx + 1).padStart(2, "0")} · ${units[idx]}`,
+        customerName: quote.leadName,
+        siteAddress: [quote.customerAddress, quote.customerCity].filter(Boolean).join(", ") || undefined,
+        productSummary: units[idx],
+        installedAt: now,
+        documents: req.documents.map((d) => ({ key: d.key, label: d.label, required: d.required })),
+        performanceDeclaration: req.performanceDeclaration,
+        maintenanceLabel: req.maintenance.label,
+        maintenancePriceCents: req.maintenance.defaultPriceCents,
+        maintenanceActive: false,
+        scanCount: 0,
+        createdAt: now,
+        updatedAt: now,
+      });
+      created.push(id);
+    }
+    return { created: created.length, skipped: existing.length, total: units.length };
+  },
+});
+
 export const attachDocument = mutation({
   args: {
     passportId: v.id("serramentoPassports"),

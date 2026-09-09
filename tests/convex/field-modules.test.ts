@@ -218,4 +218,19 @@ test("funding: generateFundingDoc from a linked field quote (IT tenant)", async 
     token: passport!.publicToken,
   });
   expect(publicView?.enea?.zone).toBe("E");
+
+  // batch: one fascicolo per serramento of the quote (2 items, qty 1 each)
+  const batch = await asOwner.mutation(api.passports.createBatchFromQuote, {
+    tenantId: seeded.tenantId,
+    quoteId,
+  });
+  expect(batch.total).toBe(2);
+  const all = await asOwner.query(api.passports.listByQuote, { quoteId });
+  expect(all.length).toBe(2);
+  // idempotent — running again creates nothing new
+  const again = await asOwner.mutation(api.passports.createBatchFromQuote, {
+    tenantId: seeded.tenantId,
+    quoteId,
+  });
+  expect(again.created).toBe(0);
 });

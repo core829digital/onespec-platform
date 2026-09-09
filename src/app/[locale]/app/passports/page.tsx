@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import QRCode from "qrcode";
 import { api } from "@/convex/_generated/api";
+import { Link } from "@/i18n/navigation";
 import type { Id } from "@/convex/_generated/dataModel";
 
 type PassportId = Id<"serramentoPassports">;
@@ -357,12 +358,20 @@ export default function PassportsPage() {
                     {p.scanCount} scan
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <button
-                      onClick={() => setSelected(p._id)}
-                      className="rounded border border-[var(--color-border)] px-2 py-1 text-xs"
-                    >
-                      Apri
-                    </button>
+                    <div className="flex justify-end gap-1">
+                      <button
+                        onClick={() => setSelected(p._id)}
+                        className="rounded border border-[var(--color-border)] px-2 py-1 text-xs"
+                      >
+                        Apri
+                      </button>
+                      <Link
+                        href={`/app/passports/${p._id}/labels`}
+                        className="rounded border border-[var(--color-border)] px-2 py-1 text-xs"
+                      >
+                        Etichette
+                      </Link>
+                    </div>
                   </td>
                 </tr>
               ))}

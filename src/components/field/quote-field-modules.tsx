@@ -39,6 +39,7 @@ export function QuoteFieldModules({
   const createSurvey = useMutation(api.surveys.create);
   const createInspection = useMutation(api.inspections.create);
   const createPassport = useMutation(api.passports.create);
+  const createPassportBatch = useMutation(api.passports.createBatchFromQuote);
 
   const [busy, setBusy] = useState<string | null>(null);
   const [err, setErr] = useState("");
@@ -124,23 +125,26 @@ export function QuoteFieldModules({
           title="Fascicolo QR"
           rows={(passports ?? []).map((p) => ({
             id: p._id,
-            label: `${p.scanCount} scan`,
-            href: `/app/passports`,
+            label: `${p.label.slice(0, 18)} · ${p.scanCount} scan`,
+            href: `/app/passports/${p._id}/labels`,
           }))}
           onCreate={() =>
-            run("passport", () =>
-              createPassport({
-                tenantId,
-                quoteId,
-                inspectionId: (inspections ?? [])[0]?._id,
-                label: `Fascicolo — ${leadName}`,
-                customerName: leadName,
-                installedAt: Date.now(),
-              }),
-            )
+            run("passport", async () => {
+              const res = await createPassportBatch({ tenantId, quoteId });
+              if (res.created === 0 && res.total === 0) {
+                await createPassport({
+                  tenantId,
+                  quoteId,
+                  inspectionId: (inspections ?? [])[0]?._id,
+                  label: `Fascicolo — ${leadName}`,
+                  customerName: leadName,
+                  installedAt: Date.now(),
+                });
+              }
+            })
           }
           busy={busy === "passport"}
-          createLabel="Crea fascicolo"
+          createLabel="Genera fascicoli"
         />
       </div>
       {err && <p className="mt-2 text-sm text-red-600">{err}</p>}
