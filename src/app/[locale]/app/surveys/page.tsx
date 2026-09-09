@@ -10,6 +10,7 @@ import {
   computeRecommendation,
   type DiagnosticData,
 } from "@/components/surveys/DiagnosticChecklist";
+import { PhotoCoteCanvas, type Annotation } from "@/components/surveys/PhotoCoteCanvas";
 import {
   enqueue,
   flushQueue,
@@ -26,7 +27,7 @@ type LaserOpening = {
   notes: string;
 };
 
-type SurveyPhoto = { storageId: Id<"_storage">; uploadedAt: number; url?: string };
+type SurveyPhoto = { storageId: Id<"_storage">; uploadedAt: number; url?: string; label?: string };
 
 const EMPTY_OPENING: LaserOpening = {
   label: "Foro 1",
@@ -103,6 +104,8 @@ export default function SurveysPage() {
   const [dimension, setDimension] = useState<"L" | "H">("L");
   const [diag, setDiag] = useState<DiagnosticData>({ ...EMPTY_DIAG });
   const [photos, setPhotos] = useState<SurveyPhoto[]>([]);
+  const [photoAnnotations, setPhotoAnnotations] = useState<Record<number, Annotation[]>>({});
+  const [activePhotoIdx, setActivePhotoIdx] = useState<number | null>(null);
   const [uploading, setUploading] = useState(false);
 
   const totalPerimeter = useMemo(() => perimeterMm(openings), [openings]);
@@ -404,31 +407,103 @@ export default function SurveysPage() {
 
             <div className="space-y-3">
               <h2 className="text-sm font-semibold">Foto-cote</h2>
-              <div className="flex flex-wrap gap-2">
-                {photos.map((p, i) => (
-                  <div key={i} className="relative h-20 w-20 overflow-hidden rounded border border-[var(--color-border)]">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={p.url} alt={`foto ${i + 1}`} className="h-full w-full object-cover" />
+              <div className="flex gap-2 border-b border-[var(--color-border)] pb-2">
+                <button
+                  onClick={() => setActivePhotoIdx(null)}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    activePhotoIdx === null
+                      ? "bg-zinc-900 text-white"
+                      : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
+                  }`}
+                >
+                  Galleria
+                </button>
+                <button
+                  onClick={() => setActivePhotoIdx(photos.length > 0 ? 0 : null)}
+                  disabled={photos.length === 0}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    activePhotoIdx !== null
+                      ? "bg-zinc-900 text-white"
+                      : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
+                  } disabled:opacity-50`}
+                >
+                  Annota
+                </button>
+              </div>
+
+              {activePhotoIdx === null ? (
+                <div className="flex flex-wrap gap-2">
+                  {photos.map((p, i) => (
+                    <div key={i} className="relative h-20 w-20 overflow-hidden rounded border border-[var(--color-border)]">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={p.url} alt={`foto ${i + 1}`} className="h-full w-full object-cover" />
+                      <button
+                        onClick={() => setPhotos((prev) => prev.filter((_, idx) => idx !== i))}
+                        className="absolute right-0 top-0 bg-black/60 px-1 text-xs text-white"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                  <label className="flex h-20 w-20 cursor-pointer items-center justify-center rounded border border-dashed border-[var(--color-border)] text-2xl">
+                    {uploading ? "…" : "＋"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      multiple
+                      className="hidden"
+                      onChange={(e) => handlePhotoUpload(e.target.files)}
+                    />
+                  </label>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold">
+                      Annotazione: {photos[activePhotoIdx]?.label || `Foto ${activePhotoIdx + 1}`}
+                    </h3>
                     <button
-                      onClick={() => setPhotos((prev) => prev.filter((_, idx) => idx !== i))}
-                      className="absolute right-0 top-0 bg-black/60 px-1 text-xs text-white"
+                      onClick={() => setActivePhotoIdx(null)}
+                      className="text-sm text-[var(--color-muted-fg)] hover:underline"
                     >
-                      ✕
+                      Torna alla galleria
                     </button>
                   </div>
-                ))}
-                <label className="flex h-20 w-20 cursor-pointer items-center justify-center rounded border border-dashed border-[var(--color-border)] text-2xl">
-                  {uploading ? "…" : "＋"}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    multiple
-                    className="hidden"
-                    onChange={(e) => handlePhotoUpload(e.target.files)}
+                  <PhotoCoteCanvas
+                    imageUrl={photos[activePhotoIdx]?.url || ""}
+                    annotations={photoAnnotations[activePhotoIdx] || []}
+                    onAnnotationsChange={(annotations) =>
+                      setPhotoAnnotations((prev) => ({ ...prev, [activePhotoIdx]: annotations }))
+                    }
+                    tool="dimension"
+                    onToolChange={(t) => {}}
+                    readOnly={false}
                   />
-                </label>
-              </div>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        const prevIdx = activePhotoIdx - 1;
+                        setActivePhotoIdx(prevIdx >= 0 ? prevIdx : photos.length - 1);
+                      }}
+                      disabled={activePhotoIdx === 0}
+                      className="rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-sm"
+                    >
+                      ← Precedente
+                    </button>
+                    <button
+                      onClick={() => {
+                        const nextIdx = activePhotoIdx + 1;
+                        setActivePhotoIdx(nextIdx < photos.length ? nextIdx : 0);
+                      }}
+                      disabled={activePhotoIdx === photos.length - 1}
+                      className="rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-sm"
+                    >
+                      Successivo →
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
 
             <DiagnosticChecklist data={diag} onChange={setDiag} />

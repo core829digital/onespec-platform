@@ -25,7 +25,8 @@
     "surveys": "Inmeting",
     "installations": "Montage (NPR 3577)",
     "inspections": "Opleveringen",
-    "passports": "QR-dossiers"
+    "passports": "QR-dossiers",
+    "showroom": "Showroom"
   },
   "topbar": {
     "account": "Account",

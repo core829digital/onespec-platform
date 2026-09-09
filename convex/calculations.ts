@@ -272,7 +272,10 @@ async function getTenantCatalog(
     .query("configurators")
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenantId))
-    .filter((c: { status?: string; publishedCatalogVersion?: number }) => c.status === "active" && c.publishedCatalogVersion !== undefined)
+    .filter(
+      (c: { status?: string; publishedCatalogVersion?: number }) =>
+        c.status === "published" && c.publishedCatalogVersion !== undefined,
+    )
     .collect();
 
   if (configurators.length === 0) return null;
@@ -502,6 +505,42 @@ export const getCalculationPreview = query({
       items: baseCalc.items,
       calculatedAt: Date.now(),
       catalogVersion,
+    };
+  },
+});
+/** Option lists for the in-app Showroom configurator (FASE 3). */
+export const getShowroomCatalog = query({
+  args: { tenantId: v.id("tenants") },
+  handler: async (ctx, args) => {
+    await requireUser(ctx);
+    const tenant = await ctx.db.get(args.tenantId);
+    const region = regionForCountry(tenant?.country);
+
+    const cat = await getTenantCatalog(ctx, args.tenantId);
+    if (!cat) return { regionCode: region.code, ready: false as const };
+
+    const p = cat.payload;
+    const lbl = (o: { key: string; labels?: Record<string, string> }) =>
+      o.labels?.[region.primaryLocale] ?? o.labels?.it ?? o.labels?.en ?? o.key;
+
+    const materials = p.materials.filter((m) => m.enabled);
+    return {
+      regionCode: region.code,
+      ready: true as const,
+      materials: materials.map((m) => ({ key: m.key, label: lbl(m) })),
+      quality: Object.fromEntries(
+        materials.map((m) => [
+          m.key,
+          p.qualityTiers
+            .filter((q) => q.materialKey === m.key && q.enabled)
+            .map((q) => ({ key: q.key, label: lbl(q) })),
+        ]),
+      ) as Record<string, { key: string; label: string }[]>,
+      glazing: p.glazing.filter((g) => g.enabled).map((g) => ({ key: g.key, label: lbl(g) })),
+      finish: p.finish.filter((f) => f.enabled).map((f) => ({ key: f.key, label: lbl(f) })),
+      installation: p.hardware
+        .filter((h) => h.kind === "installation" && h.enabled)
+        .map((h) => ({ key: h.key, label: lbl(h), priceCents: h.priceCents })),
     };
   },
 });

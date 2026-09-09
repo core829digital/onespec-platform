@@ -25,7 +25,8 @@
     "surveys": "Aufmaß",
     "installations": "Montage (RAL)",
     "inspections": "Abnahmen",
-    "passports": "QR-Doku"
+    "passports": "QR-Doku",
+    "showroom": "Showroom"
   },
   "topbar": {
     "account": "Konto",

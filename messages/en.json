@@ -25,7 +25,8 @@
     "surveys": "Site surveys",
     "installations": "Installation (UNI 11673)",
     "inspections": "Inspections",
-    "passports": "QR passports"
+    "passports": "QR passports",
+    "showroom": "Showroom"
   },
   "dashboard": {
     "title": "Dashboard",

@@ -25,7 +25,8 @@
     "surveys": "Relevee",
     "installations": "Montaj",
     "inspections": "Recepții",
-    "passports": "Dosare QR"
+    "passports": "Dosare QR",
+    "showroom": "Showroom"
   },
   "topbar": {
     "account": "Cont",

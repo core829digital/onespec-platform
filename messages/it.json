@@ -25,7 +25,8 @@
     "surveys": "Rilievi",
     "installations": "Posa UNI 11673",
     "inspections": "Collaudi",
-    "passports": "Fascicoli QR"
+    "passports": "Fascicoli QR",
+    "showroom": "Showroom"
   },
   "dashboard": {
     "title": "Dashboard",

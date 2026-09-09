@@ -25,7 +25,8 @@
     "surveys": "Relevés",
     "installations": "Pose (DTU 36.5)",
     "inspections": "Réceptions",
-    "passports": "Dossiers QR"
+    "passports": "Dossiers QR",
+    "showroom": "Showroom"
   },
   "topbar": {
     "account": "Compte",

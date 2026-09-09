@@ -12,6 +12,7 @@ import {
   Layers,
   ClipboardCheck,
   QrCode,
+  Store,
   type LucideIcon,
 } from "lucide-react";
 
@@ -27,6 +28,7 @@ export const NAV_ITEMS: NavItem[] = [
   { href: "/app/configurators", label: "configurators", icon: Package },
   { href: "/app/requests", label: "requests", icon: FileText },
   { href: "/app/quotes", label: "quotes", icon: PenLine },
+  { href: "/app/showroom", label: "showroom", icon: Store },
   { href: "/app/surveys", label: "surveys", icon: Ruler },
   { href: "/app/installations", label: "installations", icon: Layers },
   { href: "/app/inspections", label: "inspections", icon: ClipboardCheck },
