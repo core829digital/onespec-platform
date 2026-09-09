@@ -68,7 +68,7 @@ export default function AccountPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="w-full space-y-6">
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-text)]">Account</h1>
         <p className="text-[var(--color-text-secondary)] mt-1">Profilo, sessioni e dati personali</p>

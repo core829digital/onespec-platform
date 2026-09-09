@@ -51,3 +51,9 @@ next-env.d.ts
 /coordination/
 .claude/settings.local.json
 .claude/.proven-config-version
+
+# Reference docs (handoff / specs) — not part of the app
+*.pdf
+/Serramenti-Os*.html
+/ONESPEC-*.html
+"ONESPEC- V2 - 15.html"

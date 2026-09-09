@@ -32,7 +32,7 @@ export default function DashboardPage() {
     format.number(cents / 100, { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
 
   return (
-    <div className="space-y-6 max-w-5xl">
+    <div className="w-full space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-text)]">{t("title")}</h1>
