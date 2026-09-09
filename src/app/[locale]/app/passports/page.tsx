@@ -298,7 +298,7 @@ export default function PassportsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="w-full space-y-6">
       <div className="border-b border-[var(--color-border)] pb-4">
         <h1 className="text-xl font-semibold">Fascicolo del Serramento · QR</h1>
         <p className="text-sm text-[var(--color-muted-fg)]">

@@ -4,6 +4,8 @@ import { useMemo, useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
+import { ComplianceBadges } from "@/components/installations/ComplianceBadges";
+import type { Id } from "@/convex/_generated/dataModel";
 
 export default function InstallationsPage() {
   const tenant = useQuery(api.tenants.getMyTenant);
@@ -15,6 +17,10 @@ export default function InstallationsPage() {
     api.installations.list,
     tenant ? { tenantId: tenant._id } : "skip",
   );
+  const surveys = useQuery(
+    api.surveys.list,
+    tenant ? { tenantId: tenant._id } : "skip",
+  );
   const createDossier = useMutation(api.installations.create);
 
   const [open, setOpen] = useState(false);
@@ -22,6 +28,7 @@ export default function InstallationsPage() {
   const [jobType, setJobType] = useState("");
   const [nodeType, setNodeType] = useState("");
   const [perimeterM, setPerimeterM] = useState(0);
+  const [surveyId, setSurveyId] = useState<string>("");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState("");
@@ -49,6 +56,7 @@ export default function InstallationsPage() {
         jobType,
         nodeType,
         perimeterMm: Math.round(perimeterM * 1000),
+        surveyId: surveyId ? (surveyId as Id<"siteSurveys">) : undefined,
         notes: notes.trim() || undefined,
       });
       setOpen(false);
@@ -56,6 +64,7 @@ export default function InstallationsPage() {
       setJobType("");
       setNodeType("");
       setPerimeterM(0);
+      setSurveyId("");
       setNotes("");
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Errore");
@@ -65,7 +74,7 @@ export default function InstallationsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="w-full space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--color-border)] pb-4">
         <div>
           <h1 className="text-xl font-semibold">Posa Qualificata</h1>
@@ -74,9 +83,11 @@ export default function InstallationsPage() {
           </p>
         </div>
         {standard && (
-          <span className="rounded-full bg-[var(--color-muted)] px-3 py-1 text-xs font-medium">
-            {standard.regionCode} · {standard.norm}
-          </span>
+          <ComplianceBadges
+            norm={standard.norm}
+            flags={standard.complianceFlags}
+            fundingTitle={standard.fundingTitle}
+          />
         )}
       </div>
 
@@ -168,6 +179,33 @@ export default function InstallationsPage() {
           {step === 3 && (
             <div className="space-y-3">
               <h2 className="text-sm font-semibold">3 · Distinta materiali</h2>
+              {surveys && surveys.length > 0 && (
+                <label className="block text-sm">
+                  <span className="text-[var(--color-muted-fg)]">Carica da rilievo</span>
+                  <select
+                    value={surveyId}
+                    onChange={(e) => {
+                      setSurveyId(e.target.value);
+                      const s = surveys.find((x) => x._id === e.target.value);
+                      if (s) {
+                        const mm = s.openings.reduce(
+                          (acc, o) => acc + 2 * (o.widthMm + o.heightMm),
+                          0,
+                        );
+                        setPerimeterM(Math.round((mm / 1000) * 100) / 100);
+                      }
+                    }}
+                    className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
+                  >
+                    <option value="">— manuale —</option>
+                    {surveys.map((s) => (
+                      <option key={s._id} value={s._id}>
+                        {s.customerName} · {s.openings.length} fori
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              )}
               <label className="block text-sm">
                 <span className="text-[var(--color-muted-fg)]">
                   Perimetro totale aperture (m)
@@ -176,7 +214,10 @@ export default function InstallationsPage() {
                   type="number"
                   inputMode="decimal"
                   value={perimeterM || ""}
-                  onChange={(e) => setPerimeterM(Number(e.target.value) || 0)}
+                  onChange={(e) => {
+                    setPerimeterM(Number(e.target.value) || 0);
+                    setSurveyId("");
+                  }}
                   className="mt-1 w-40 rounded-lg border-2 border-[var(--color-border)] bg-transparent px-3 py-2 font-semibold"
                 />
               </label>

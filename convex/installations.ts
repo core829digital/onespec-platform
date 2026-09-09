@@ -14,7 +14,14 @@ export const getStandard = query({
     await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
     const tenant = await ctx.db.get(args.tenantId);
     const region = regionForCountry(tenant?.country);
-    return { regionCode: region.code, ...complianceForRegion(region.code).installation };
+    const compliance = complianceForRegion(region.code);
+    return {
+      regionCode: region.code,
+      complianceFlags: region.complianceFlags,
+      fundingTitle: compliance.funding.title,
+      inspectionTitle: compliance.inspection.title,
+      ...compliance.installation,
+    };
   },
 });
 
