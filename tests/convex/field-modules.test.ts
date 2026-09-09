@@ -85,6 +85,21 @@ test("survey + installation dossier + inspection gate + passport flow", async ()
   });
   const report = await asOwner.query(api.inspections.get, { reportId });
   expect(report?.photos.length).toBeGreaterThan(0);
+  expect(report?.installerToken).toMatch(/^[A-Za-z0-9]{16}$/);
+
+  // App Posatore — token-gated field flow
+  const iToken = report!.installerToken!;
+  const job = await t.query(api.inspections.getByInstallerToken, { token: iToken });
+  expect(job?.dealerName).toBeTruthy();
+  expect(job?.photos.length).toBe(report!.photos.length);
+  await expect(
+    t.mutation(internal.inspections.signByInstallerFromHttp, {
+      token: iToken,
+      signatureDataUrl:
+        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+      signedByName: "Rossi Marco",
+    }),
+  ).rejects.toThrow(/PHOTOS_INCOMPLETE/);
 
   // cannot sign before all mandatory photos are attached
   const sig =

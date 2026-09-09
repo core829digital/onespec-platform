@@ -99,8 +99,9 @@ export default convexAuthNextjsMiddleware(
       return res;
     }
 
-    // Public Fascicolo del serramento (QR target): no i18n redirect, same-origin.
-    if (pathname.startsWith("/f/")) {
+    // Public Fascicolo del serramento (QR target) + App Posatore (/i/[token]):
+    // no i18n redirect, same-origin.
+    if (pathname.startsWith("/f/") || pathname.startsWith("/i/")) {
       return NextResponse.next();
     }
 

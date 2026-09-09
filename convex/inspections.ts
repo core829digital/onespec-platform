@@ -1,11 +1,14 @@
 /** Verbale di Collaudo — signed inspection record with photo checklist (Phase C). */
 
-import { query, mutation } from "./_generated/server";
+import { query, mutation, internalMutation } from "./_generated/server";
+import type { QueryCtx, MutationCtx } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
 import { requireMembership, requireTenantRole } from "./lib/auth";
 import { requireTenantRegion, assertSignature } from "./lib/fieldModules";
 import { complianceForRegion } from "./lib/compliance";
 import { regionForCountry } from "./lib/regions";
+import { nanoid } from "./lib/ids";
+import { internal } from "./_generated/api";
 
 /** Per-market inspection template (title, legal basis, photo + check lists). */
 export const getTemplate = query({
@@ -99,6 +102,8 @@ export const create = mutation({
     quoteId: v.optional(v.id("quoteRequests")),
     customerName: v.string(),
     siteAddress: v.optional(v.string()),
+    installerTeam: v.optional(v.string()),
+    scheduledFor: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
@@ -114,11 +119,36 @@ export const create = mutation({
       createdByUserId: userId,
       customerName: name,
       siteAddress: args.siteAddress?.trim(),
+      installerToken: nanoid(16),
+      installerTeam: args.installerTeam?.trim(),
+      scheduledFor: args.scheduledFor,
       photos: tpl.photoChecklist.map((p) => ({ key: p.key, label: p.label })),
       checks: tpl.functionalChecks.map((c) => ({ key: c.key, label: c.label, passed: false })),
       status: "draft",
       createdAt: now,
       updatedAt: now,
+    });
+  },
+});
+
+/** Assign the installer team + schedule, (re)issuing the field token if absent. */
+export const assignInstaller = mutation({
+  args: {
+    reportId: v.id("inspectionReports"),
+    installerTeam: v.optional(v.string()),
+    scheduledFor: v.optional(v.number()),
+    regenerateToken: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const report = await ctx.db.get(args.reportId);
+    if (!report) throw new ConvexError("REPORT_NOT_FOUND");
+    await requireTenantRole(ctx, report.tenantId, ["owner", "admin", "member"]);
+    await ctx.db.patch(args.reportId, {
+      installerTeam: args.installerTeam?.trim() ?? report.installerTeam,
+      scheduledFor: args.scheduledFor ?? report.scheduledFor,
+      installerToken:
+        args.regenerateToken || !report.installerToken ? nanoid(16) : report.installerToken,
+      updatedAt: Date.now(),
     });
   },
 });
@@ -230,5 +260,166 @@ export const remove = mutation({
       if (p.storageId) await ctx.storage.delete(p.storageId).catch(() => {});
     }
     await ctx.db.delete(args.reportId);
+  },
+});
+
+/* ------------------------- App Posatore (/i/[token]) ------------------------ */
+
+async function reportByToken(ctx: QueryCtx | MutationCtx, token: string) {
+  if (!/^[A-Za-z0-9]{8,32}$/.test(token)) return null;
+  return await ctx.db
+    .query("inspectionReports")
+    .withIndex("by_installer_token", (q) => q.eq("installerToken", token))
+    .unique();
+}
+
+/** Field installer's view — no auth, the token is the capability. */
+export const getByInstallerToken = query({
+  args: { token: v.string() },
+  handler: async (ctx, args) => {
+    const report = await reportByToken(ctx, args.token);
+    if (!report) return null;
+
+    const tenant = await ctx.db.get(report.tenantId);
+    const region = regionForCountry(report.regionCode).code;
+    const tpl = complianceForRegion(region).inspection;
+
+    const photos = await Promise.all(
+      report.photos.map(async (p) => ({
+        key: p.key,
+        label: p.label,
+        url: p.storageId ? await ctx.storage.getUrl(p.storageId) : null,
+      })),
+    );
+
+    let items: { label: string; qty: number }[] = [];
+    if (report.quoteId) {
+      const quote = await ctx.db.get(report.quoteId);
+      const raw = Array.isArray(quote?.items) ? (quote!.items as Record<string, unknown>[]) : [];
+      items = raw.map((it, i) => ({
+        label: `${it.productType === "balconyDoor" ? "Porta-finestra" : "Finestra"} ${
+          it.width ?? "?"
+        }×${it.height ?? "?"} mm${it.floor ? ` · ${it.floor}` : ""}`.trim() || `Serramento ${i + 1}`,
+        qty: Number(it.quantity ?? 1),
+      }));
+    }
+
+    return {
+      status: report.status,
+      customerName: report.customerName,
+      siteAddress: report.siteAddress ?? null,
+      installerTeam: report.installerTeam ?? null,
+      scheduledFor: report.scheduledFor ?? null,
+      dealerName: tenant?.name ?? "",
+      title: tpl.title,
+      items,
+      photos,
+      checks: report.checks,
+      signedByName: report.signedByName ?? null,
+      signedAt: report.signedAt ?? null,
+    };
+  },
+});
+
+export const installerUploadUrlFromHttp = internalMutation({
+  args: { token: v.string() },
+  handler: async (ctx, args) => {
+    const report = await reportByToken(ctx, args.token);
+    if (!report) throw new ConvexError("REPORT_NOT_FOUND");
+    if (report.status === "signed") throw new ConvexError("REPORT_LOCKED");
+    return await ctx.storage.generateUploadUrl();
+  },
+});
+
+export const setInstallerPhotoFromHttp = internalMutation({
+  args: { token: v.string(), photoKey: v.string(), storageId: v.id("_storage") },
+  handler: async (ctx, args) => {
+    const report = await reportByToken(ctx, args.token);
+    if (!report) throw new ConvexError("REPORT_NOT_FOUND");
+    if (report.status === "signed") throw new ConvexError("REPORT_LOCKED");
+    let matched = false;
+    const photos = report.photos.map((p) => {
+      if (p.key !== args.photoKey) return p;
+      matched = true;
+      if (p.storageId && p.storageId !== args.storageId) {
+        ctx.storage.delete(p.storageId).catch(() => {});
+      }
+      return { ...p, storageId: args.storageId };
+    });
+    if (!matched) throw new ConvexError("UNKNOWN_PHOTO_SLOT");
+    await ctx.db.patch(report._id, { photos, updatedAt: Date.now() });
+  },
+});
+
+export const updateInstallerChecksFromHttp = internalMutation({
+  args: {
+    token: v.string(),
+    checks: v.array(v.object({ key: v.string(), passed: v.boolean() })),
+    installerNotes: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const report = await reportByToken(ctx, args.token);
+    if (!report) throw new ConvexError("REPORT_NOT_FOUND");
+    if (report.status === "signed") throw new ConvexError("REPORT_LOCKED");
+    const passedByKey = new Map(args.checks.map((c) => [c.key, c.passed]));
+    const checks = report.checks.map((c) => ({ ...c, passed: passedByKey.get(c.key) ?? c.passed }));
+    await ctx.db.patch(report._id, {
+      checks,
+      installerNotes: args.installerNotes?.trim().slice(0, 2000) ?? report.installerNotes,
+      updatedAt: Date.now(),
+    });
+  },
+});
+
+export const signByInstallerFromHttp = internalMutation({
+  args: {
+    token: v.string(),
+    signatureDataUrl: v.string(),
+    signedByName: v.string(),
+    clientRemarks: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const report = await reportByToken(ctx, args.token);
+    if (!report) throw new ConvexError("REPORT_NOT_FOUND");
+    if (report.status === "signed") throw new ConvexError("ALREADY_SIGNED");
+
+    const missing = report.photos.filter((p) => !p.storageId);
+    if (missing.length > 0) {
+      throw new ConvexError(`PHOTOS_INCOMPLETE:${missing.map((p) => p.key).join(",")}`);
+    }
+    assertSignature(args.signatureDataUrl);
+    const signedByName = args.signedByName.trim();
+    if (!signedByName) throw new ConvexError("SIGNER_NAME_REQUIRED");
+
+    const now = Date.now();
+    await ctx.db.patch(report._id, {
+      signatureDataUrl: args.signatureDataUrl,
+      signedByName,
+      clientRemarks: args.clientRemarks?.trim().slice(0, 2000) ?? report.clientRemarks,
+      signedAt: now,
+      status: "signed",
+      updatedAt: now,
+    });
+
+    await ctx.db.insert("auditLog", {
+      tenantId: report.tenantId,
+      actorKind: "system",
+      action: "inspection.signed_by_installer",
+      targetTable: "inspectionReports",
+      targetId: report._id,
+      meta: { signedByName, signedAt: now, team: report.installerTeam },
+      createdAt: now,
+    });
+
+    await ctx.scheduler.runAfter(0, internal.notifications.fanOutToTenant, {
+      tenantId: report.tenantId,
+      type: "system",
+      data: {
+        kind: "inspection_signed",
+        message: `Verbale di collaudo firmato — ${report.customerName}`,
+      },
+      href: `/app/inspections`,
+    });
+    return { ok: true };
   },
 });

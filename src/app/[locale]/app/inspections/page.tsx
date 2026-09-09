@@ -99,9 +99,11 @@ function ReportEditor({ reportId, tenantId }: { reportId: ReportId; tenantId: Id
   const setPhoto = useMutation(api.inspections.setPhoto);
   const updateChecks = useMutation(api.inspections.updateChecks);
   const sign = useMutation(api.inspections.sign);
+  const assignInstaller = useMutation(api.inspections.assignInstaller);
 
   const [sig, setSig] = useState<string | null>(null);
   const [signer, setSigner] = useState("");
+  const [team, setTeam] = useState("");
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
@@ -140,6 +142,11 @@ function ReportEditor({ reportId, tenantId }: { reportId: ReportId; tenantId: Id
   const allPhotos = report.photos.every((p) => p.url);
   const locked = report.status === "signed";
 
+  const installerUrl =
+    typeof window !== "undefined" && report.installerToken
+      ? `${window.location.origin}/i/${report.installerToken}`
+      : "";
+
   return (
     <div className="space-y-5 rounded-xl border border-[var(--color-border)] p-5">
       <div className="flex items-center justify-between">
@@ -147,6 +154,44 @@ function ReportEditor({ reportId, tenantId }: { reportId: ReportId; tenantId: Id
           {report.customerName} — {report.status === "signed" ? "Firmato" : "Bozza"}
         </h2>
       </div>
+
+      {!locked && (
+        <div className="rounded-lg border border-[var(--color-border)] p-3">
+          <h3 className="mb-2 text-xs font-semibold uppercase text-[var(--color-muted-fg)]">
+            App Posatore
+          </h3>
+          <div className="flex flex-wrap items-center gap-2">
+            <input
+              value={team}
+              onChange={(e) => setTeam(e.target.value)}
+              placeholder={report.installerTeam ?? "Squadra / posatore"}
+              className="rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-1.5 text-sm"
+            />
+            <button
+              onClick={() => assignInstaller({ reportId, installerTeam: team || undefined })}
+              className="rounded border border-[var(--color-border)] px-2 py-1.5 text-xs"
+            >
+              Assegna
+            </button>
+            {installerUrl && (
+              <>
+                <code className="rounded bg-[var(--color-muted)] px-2 py-1 text-[11px]">
+                  {installerUrl}
+                </code>
+                <button
+                  onClick={() => navigator.clipboard?.writeText(installerUrl)}
+                  className="rounded border border-[var(--color-border)] px-2 py-1.5 text-xs"
+                >
+                  Copia link
+                </button>
+              </>
+            )}
+          </div>
+          <p className="mt-1 text-[11px] text-[var(--color-muted-fg)]">
+            Il posatore apre il link sul telefono: indirizzo + Maps, foto obbligatorie, firma cliente.
+          </p>
+        </div>
+      )}
 
       <div>
         <h3 className="mb-2 text-xs font-semibold uppercase text-[var(--color-muted-fg)]">

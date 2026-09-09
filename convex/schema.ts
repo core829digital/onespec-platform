@@ -574,6 +574,10 @@ export default defineSchema({
     createdByUserId: v.id("users"),
     customerName: v.string(),
     siteAddress: v.optional(v.string()),
+    /** Opaque token for the field installer's mobile view (/i/[token]) — no login. */
+    installerToken: v.optional(v.string()),
+    installerTeam: v.optional(v.string()),
+    scheduledFor: v.optional(v.number()),
     /** One entry per mandatory photo slot for the market. */
     photos: v.array(
       v.object({
@@ -594,7 +598,8 @@ export default defineSchema({
     updatedAt: v.number(),
   })
     .index("by_tenant", ["tenantId"])
-    .index("by_quote", ["quoteId"]),
+    .index("by_quote", ["quoteId"])
+    .index("by_installer_token", ["installerToken"]),
 
   /** Fascicolo del Serramento — the digital dossier a QR label resolves to. */
   serramentoPassports: defineTable({

@@ -1,6 +1,7 @@
 import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
 import { api, internal } from "./_generated/api";
+import type { Id } from "./_generated/dataModel";
 import { auth } from "./auth";
 import { QuoteSubmissionSchema } from "../src/shared/widget-types";
 import { verifyStripeSignature } from "./billing";
@@ -252,6 +253,127 @@ http.route({
       throw e;
     }
     return json({ ok: true });
+  }),
+});
+
+/* -------- Phase C — App Posatore (/i/[token]) field endpoints -------- */
+
+const INSPECTION_PATHS = [
+  "/api/inspection/upload-url",
+  "/api/inspection/photo",
+  "/api/inspection/checks",
+  "/api/inspection/sign",
+];
+for (const path of INSPECTION_PATHS) {
+  http.route({
+    path,
+    method: "OPTIONS",
+    handler: httpAction(async () => new Response(null, { status: 204, headers: CORS })),
+  });
+}
+
+const TOKEN_RE = /^[A-Za-z0-9]{8,32}$/;
+
+http.route({
+  path: "/api/inspection/upload-url",
+  method: "POST",
+  handler: httpAction(async (ctx, req) => {
+    const body = (await req.json().catch(() => ({}))) as { token?: string };
+    if (!body.token || !TOKEN_RE.test(body.token)) return json({ ok: false }, 400);
+    try {
+      const url = await ctx.runMutation(internal.inspections.installerUploadUrlFromHttp, {
+        token: body.token,
+      });
+      return json({ ok: true, url });
+    } catch {
+      return json({ ok: false, error: "NOT_FOUND_OR_LOCKED" }, 404);
+    }
+  }),
+});
+
+http.route({
+  path: "/api/inspection/photo",
+  method: "POST",
+  handler: httpAction(async (ctx, req) => {
+    const body = (await req.json().catch(() => ({}))) as {
+      token?: string;
+      photoKey?: string;
+      storageId?: string;
+    };
+    if (!body.token || !TOKEN_RE.test(body.token) || !body.photoKey || !body.storageId) {
+      return json({ ok: false }, 400);
+    }
+    try {
+      await ctx.runMutation(internal.inspections.setInstallerPhotoFromHttp, {
+        token: body.token,
+        photoKey: body.photoKey,
+        storageId: body.storageId as Id<"_storage">,
+      });
+      return json({ ok: true });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      return json({ ok: false, error: msg.slice(0, 80) }, 400);
+    }
+  }),
+});
+
+http.route({
+  path: "/api/inspection/checks",
+  method: "POST",
+  handler: httpAction(async (ctx, req) => {
+    const body = (await req.json().catch(() => ({}))) as {
+      token?: string;
+      checks?: { key: string; passed: boolean }[];
+      installerNotes?: string;
+    };
+    if (!body.token || !TOKEN_RE.test(body.token) || !Array.isArray(body.checks)) {
+      return json({ ok: false }, 400);
+    }
+    try {
+      await ctx.runMutation(internal.inspections.updateInstallerChecksFromHttp, {
+        token: body.token,
+        checks: body.checks.map((c) => ({ key: String(c.key), passed: !!c.passed })),
+        installerNotes: body.installerNotes,
+      });
+      return json({ ok: true });
+    } catch {
+      return json({ ok: false }, 400);
+    }
+  }),
+});
+
+http.route({
+  path: "/api/inspection/sign",
+  method: "POST",
+  handler: httpAction(async (ctx, req) => {
+    const body = (await req.json().catch(() => ({}))) as {
+      token?: string;
+      signatureDataUrl?: string;
+      signedByName?: string;
+      clientRemarks?: string;
+    };
+    if (
+      !body.token ||
+      !TOKEN_RE.test(body.token) ||
+      !body.signatureDataUrl ||
+      !body.signedByName
+    ) {
+      return json({ ok: false, error: "BAD_REQUEST" }, 400);
+    }
+    try {
+      await ctx.runMutation(internal.inspections.signByInstallerFromHttp, {
+        token: body.token,
+        signatureDataUrl: body.signatureDataUrl,
+        signedByName: body.signedByName,
+        clientRemarks: body.clientRemarks,
+      });
+      return json({ ok: true });
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      if (msg.includes("PHOTOS_INCOMPLETE")) return json({ ok: false, error: "PHOTOS_INCOMPLETE" }, 400);
+      if (msg.includes("ALREADY_SIGNED")) return json({ ok: false, error: "ALREADY_SIGNED" }, 409);
+      return json({ ok: false, error: "SIGN_FAILED" }, 400);
+    }
   }),
 });
 
