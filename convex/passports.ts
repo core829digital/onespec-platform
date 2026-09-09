@@ -164,6 +164,65 @@ export const createBatchFromQuote = mutation({
   },
 });
 
+/**
+ * Generate QR codes for each item in a passport (one per window/door unit).
+ * Returns array of { token, label } for each unit.
+ */
+export const generatePassportQrs = mutation({
+  args: {
+    passportId: v.id("serramentoPassports"),
+  },
+  handler: async (ctx, args) => {
+    const p = await ctx.db.get(args.passportId);
+    if (!p) throw new ConvexError("PASSPORT_NOT_FOUND");
+    await requireTenantRole(ctx, p.tenantId, ["owner", "admin", "member"]);
+
+    if (!p.quoteId) throw new ConvexError("PASSPORT_NO_QUOTE");
+
+    const quote = await ctx.db.get(p.quoteId);
+    if (!quote) throw new ConvexError("QUOTE_NOT_FOUND");
+
+    const rawItems = Array.isArray(quote.items) ? (quote.items as Record<string, unknown>[]) : [];
+    const units: string[] = [];
+    rawItems.forEach((it, i) => {
+      const qty = Math.max(1, Math.round(Number(it.quantity ?? 1)));
+      const base =
+        `${it.productType === "balconyDoor" ? "Porta-finestra" : "Finestra"} ${it.width ?? "?"}×${
+          it.height ?? "?"
+        }`.trim() || `Serramento ${i + 1}`;
+      for (let k = 0; k < qty; k++) units.push(qty > 1 ? `${base} (${k + 1}/${qty})` : base);
+    });
+
+    const results: { token: string; label: string }[] = [];
+
+    for (let idx = 0; idx < units.length; idx++) {
+      const id = await ctx.db.insert("serramentoPassports", {
+        tenantId: p.tenantId,
+        regionCode: p.regionCode,
+        quoteId: p.quoteId,
+        createdByUserId: p.createdByUserId,
+        publicToken: nanoid(16),
+        label: `FIN-${String(idx + 1).padStart(2, "0")} · ${units[idx]}`,
+        customerName: p.customerName,
+        siteAddress: p.siteAddress,
+        productSummary: units[idx],
+        installedAt: p.installedAt,
+        documents: p.documents.map((d) => ({ key: d.key, label: d.label, required: d.required })),
+        performanceDeclaration: p.performanceDeclaration,
+        maintenanceLabel: p.maintenanceLabel,
+        maintenancePriceCents: p.maintenancePriceCents,
+        maintenanceActive: false,
+        scanCount: 0,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      });
+      results.push({ token: (await ctx.db.get(id))!.publicToken, label: units[idx] });
+    }
+
+    return results;
+  },
+});
+
 export const attachDocument = mutation({
   args: {
     passportId: v.id("serramentoPassports"),

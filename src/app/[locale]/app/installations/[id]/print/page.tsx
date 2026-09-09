@@ -3,6 +3,7 @@
 import { use } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { ComplianceBadges } from "@/components/installations/ComplianceBadges";
 import type { Id } from "@/convex/_generated/dataModel";
 
 export default function InstallationPrintPage({
@@ -99,7 +100,7 @@ export default function InstallationPrintPage({
       </section>
 
       <section className="mt-5 rounded bg-zinc-50 p-3 text-xs">
-        <h3 className="mb-1 font-bold">Istruzioni di posa — {dossier.normRef}</h3>
+        <h2 className="mb-1 font-bold">Istruzioni di posa — {dossier.normRef}</h2>
         <ul className="ml-4 list-disc space-y-1">
           {notes.map((n, i) => (
             <li key={i}>{n}</li>
@@ -111,6 +112,8 @@ export default function InstallationPrintPage({
           </p>
         )}
       </section>
+
+      <ComplianceBadges norm={dossier.normRef} flags={["posa_uni_11673"]} />
 
       <footer className="mt-8 border-t border-zinc-300 pt-3 text-[10px] text-zinc-500">
         Documento generato da OneSpec · Posa conforme {dossier.normRef} · Marcatura CE EN 14351-1.
