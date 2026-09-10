@@ -399,5 +399,42 @@
         "submitFailed": "Fehler beim Erstellen des Angebots"
       }
     }
+  },
+  "billing": {
+    "title": "Plan & Abrechnung",
+    "currentPlan": "Aktueller Plan",
+    "status": "Status",
+    "upgradeTo": "Upgrade auf",
+    "contactSales": "Vertrieb kontaktieren",
+    "startTrial": "Pro-Test starten (14 Tage)",
+    "comingSoon": "Demnächst verfügbar",
+    "selfServiceComingSoon": "Self-Service-Abrechnung aktiviert sich nach der Alpha-Phase. Bis dahin bleiben Ihr Plan und die Limits wie oben angezeigt.",
+    "termsOfService": "Nutzungsbedingungen",
+    "billing": {
+      "cycle": "Abrechnungszyklus",
+      "monthly": "Monatlich",
+      "annual": "Jährlich ({discount})",
+      "perMonth": "/Monat",
+      "perYear": "/Jahr"
+    },
+    "alpha": {
+      "discount": "Alpha-Rabatt {pct}% {locked}",
+      "locked": "gesperrt",
+      "active": "aktiv",
+      "pricesIncludeDiscount": "Die untenstehenden Preise enthalten bereits den für Alpha-Mitglieder reservierten Rabatt."
+    },
+    "subscription": {
+      "active": "Aktives Abonnement",
+      "renews": "verlängert sich am {date}",
+      "canceledAtPeriodEnd": "gekündigt zum Periodenende",
+      "manage": "Abonnement verwalten"
+    },
+    "error": {
+      "generic": "Fehler",
+      "unavailable": "Daten nicht verfügbar."
+    },
+    "common": {
+      "loading": "Laden..."
+    }
   }
 }

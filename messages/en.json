@@ -399,5 +399,42 @@
         "submitFailed": "Error creating quote"
       }
     }
+  },
+  "billing": {
+    "title": "Plan & Billing",
+    "currentPlan": "Current plan",
+    "status": "Status",
+    "upgradeTo": "Upgrade to",
+    "contactSales": "Contact sales",
+    "startTrial": "Start Pro trial (14 days)",
+    "comingSoon": "Coming soon",
+    "selfServiceComingSoon": "Self-service billing activates after the Alpha phase. Until then, your plan and limits remain as shown above.",
+    "termsOfService": "Terms of service",
+    "billing": {
+      "cycle": "Billing cycle",
+      "monthly": "Monthly",
+      "annual": "Annual ({discount})",
+      "perMonth": "/month",
+      "perYear": "/year"
+    },
+    "alpha": {
+      "discount": "Alpha discount {pct}% {locked}",
+      "locked": "locked",
+      "active": "active",
+      "pricesIncludeDiscount": "Prices below already include the discount reserved for Alpha Members."
+    },
+    "subscription": {
+      "active": "Active subscription",
+      "renews": "renews on {date}",
+      "canceledAtPeriodEnd": "canceled at period end",
+      "manage": "Manage subscription"
+    },
+    "error": {
+      "generic": "Error",
+      "unavailable": "Data unavailable."
+    },
+    "common": {
+      "loading": "Loading..."
+    }
   }
 }

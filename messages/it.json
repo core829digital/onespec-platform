@@ -398,6 +398,42 @@
         "catalogNotReady": "Il listino pubblicato non è ancora disponibile. Attendi il caricamento o ripubblica il configuratore.",
         "submitFailed": "Errore durante la creazione del preventivo"
       }
+    },
+  "billing": {
+    "title": "Piano e fatturazione",
+    "currentPlan": "Piano attuale",
+    "status": "Stato",
+    "upgradeTo": "Passa a",
+    "contactSales": "Contatta il commerciale",
+    "startTrial": "Avvia prova Pro (14 giorni)",
+    "comingSoon": "Disponibile a breve",
+    "selfServiceComingSoon": "La fatturazione self-service si attiva al termine della fase Alpha. Nel frattempo il tuo piano e i relativi limiti restano quelli mostrati sopra.",
+    "termsOfService": "Termini di servizio",
+    "billing": {
+      "cycle": "Ciclo fatturazione",
+      "monthly": "Mensile",
+      "annual": "Annuale ({discount})",
+      "perMonth": "/mese",
+      "perYear": "/anno"
+    },
+    "alpha": {
+      "discount": "Sconto Alpha {pct}% {locked}",
+      "locked": "bloccato",
+      "active": "attivo",
+      "pricesIncludeDiscount": "I prezzi qui sotto includono già lo sconto riservato agli Alpha Member."
+    },
+    "subscription": {
+      "active": "Abbonamento attivo",
+      "renews": "rinnovo il {date}",
+      "canceledAtPeriodEnd": "disdetta a fine periodo",
+      "manage": "Gestisci abbonamento"
+    },
+    "error": {
+      "generic": "Errore",
+      "unavailable": "Dati non disponibili."
+    },
+    "common": {
+      "loading": "Caricamento..."
     }
   }
 }

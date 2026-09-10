@@ -399,5 +399,42 @@
         "submitFailed": "Fout bij aanmaken offerte"
       }
     }
+  },
+  "billing": {
+    "title": "Plan & Facturatie",
+    "currentPlan": "Huidig plan",
+    "status": "Status",
+    "upgradeTo": "Upgrade naar",
+    "contactSales": "Contact sales",
+    "startTrial": "Start Pro proef (14 dagen)",
+    "comingSoon": "Binnenkort beschikbaar",
+    "selfServiceComingSoon": "Self-service facturatie activeert na de Alpha-fase. Tot dan blijven uw plan en limieten zoals boven weergegeven.",
+    "termsOfService": "Servicevoorwaarden",
+    "billing": {
+      "cycle": "Facturatiecyclus",
+      "monthly": "Maandelijks",
+      "annual": "Jaarlijks ({discount})",
+      "perMonth": "/maand",
+      "perYear": "/jaar"
+    },
+    "alpha": {
+      "discount": "Alpha korting {pct}% {locked}",
+      "locked": "vergrendeld",
+      "active": "actief",
+      "pricesIncludeDiscount": "De onderstaande prijzen bevatten al de voor Alpha-leden gereserveerde korting."
+    },
+    "subscription": {
+      "active": "Actief abonnement",
+      "renews": "verlengt op {date}",
+      "canceledAtPeriodEnd": "opgezegd aan het einde van de periode",
+      "manage": "Abonnement beheren"
+    },
+    "error": {
+      "generic": "Fout",
+      "unavailable": "Gegevens niet beschikbaar."
+    },
+    "common": {
+      "loading": "Laden..."
+    }
   }
 }

@@ -399,5 +399,42 @@
         "submitFailed": "Eroare la crearea ofertei"
       }
     }
+  },
+  "billing": {
+    "title": "Plan & Facturare",
+    "currentPlan": "Plan curent",
+    "status": "Stare",
+    "upgradeTo": "Upgrade la",
+    "contactSales": "Contactează vânzările",
+    "startTrial": "Începe încercare Pro (14 zile)",
+    "comingSoon": "Disponibil în curând",
+    "selfServiceComingSoon": "Facturarea self-service se activează după faza Alpha. Până atunci, planul tău și limitele rămân cele afișate mai sus.",
+    "termsOfService": "Termeni de utilizare",
+    "billing": {
+      "cycle": "Ciclu facturare",
+      "monthly": "Lunar",
+      "annual": "Anual ({discount})",
+      "perMonth": "/lună",
+      "perYear": "/an"
+    },
+    "alpha": {
+      "discount": "Reducere Alpha {pct}% {locked}",
+      "locked": "blocat",
+      "active": "activ",
+      "pricesIncludeDiscount": "Prețurile de mai jos includ deja reducerea rezervată membrilor Alpha."
+    },
+    "subscription": {
+      "active": "Abonament activ",
+      "renews": "se prelungesc pe {date}",
+      "canceledAtPeriodEnd": "anulat la sfârșitul perioadei",
+      "manage": "Gestionează abonamentul"
+    },
+    "error": {
+      "generic": "Eroare",
+      "unavailable": "Date indisponibile."
+    },
+    "common": {
+      "loading": "Se încarcă..."
+    }
   }
 }

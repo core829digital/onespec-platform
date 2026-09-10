@@ -399,5 +399,42 @@
         "submitFailed": "Erreur lors de la création du devis"
       }
     }
+  },
+  "billing": {
+    "title": "Plan et facturation",
+    "currentPlan": "Plan actuel",
+    "status": "Statut",
+    "upgradeTo": "Passer à",
+    "contactSales": "Contacter le commercial",
+    "startTrial": "Démarrer essai Pro (14 jours)",
+    "comingSoon": "Disponible bientôt",
+    "selfServiceComingSoon": "La facturation self-service s'active après la phase Alpha. En attendant, votre plan et ses limites restent ceux affichés ci-dessus.",
+    "termsOfService": "Conditions d'utilisation",
+    "billing": {
+      "cycle": "Cycle de facturation",
+      "monthly": "Mensuel",
+      "annual": "Annuel ({discount})",
+      "perMonth": "/mois",
+      "perYear": "/an"
+    },
+    "alpha": {
+      "discount": "Réduction Alpha {pct}% {locked}",
+      "locked": "bloqué",
+      "active": "actif",
+      "pricesIncludeDiscount": "Les prix ci-dessous incluent déjà la réduction réservée aux membres Alpha."
+    },
+    "subscription": {
+      "active": "Abonnement actif",
+      "renews": "renouvellement le {date}",
+      "canceledAtPeriodEnd": "résilié à la fin de la période",
+      "manage": "Gérer l'abonnement"
+    },
+    "error": {
+      "generic": "Erreur",
+      "unavailable": "Données non disponibles."
+    },
+    "common": {
+      "loading": "Chargement..."
+    }
   }
 }
