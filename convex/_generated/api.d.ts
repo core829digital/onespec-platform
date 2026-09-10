@@ -44,6 +44,7 @@ import type * as lib_plan from "../lib/plan.js";
 import type * as lib_pricing from "../lib/pricing.js";
 import type * as lib_ratelimit from "../lib/ratelimit.js";
 import type * as lib_regions from "../lib/regions.js";
+import type * as migrations from "../migrations.js";
 import type * as notifications from "../notifications.js";
 import type * as onboarding from "../onboarding.js";
 import type * as passports from "../passports.js";
@@ -97,6 +98,7 @@ declare const fullApi: ApiFromModules<{
   "lib/pricing": typeof lib_pricing;
   "lib/ratelimit": typeof lib_ratelimit;
   "lib/regions": typeof lib_regions;
+  migrations: typeof migrations;
   notifications: typeof notifications;
   onboarding: typeof onboarding;
   passports: typeof passports;
