@@ -250,5 +250,154 @@
       "title": "Account opgeschort",
       "body": "Uw account is opgeschort. Neem contact op met support."
     }
+  },
+  "quotes": {
+    "new": {
+      "header": {
+        "title": "Snelle B2B Offerte Tool (Bouwplaats / Tablet)",
+        "subtitle": "Genereer een officiële technische offerte in 3 minuten met afgemaakte tekening, gecertificeerde montage en klanthandtekening.",
+        "cancel": "Annuleren"
+      },
+      "marketTabs": {
+        "phasePrefix": "Fase 24"
+      },
+      "configuratorSection": {
+        "label": "Configurator / Prijslijst (gedeeld met B2C site widget)",
+        "editLink": "Prijslijst bewerken →",
+        "noConfigsTitle": "Geen gepubliceerde configurator",
+        "noConfigsDesc": "De bouwplaats-offerte gebruikt dezelfde prijslijst als de configurator die u op de klantensite insluit. Maak een configurator, stel materialen en prijzen in, en klik op <strong>Publiceren</strong>.",
+        "goToConfigurators": "Naar Configurators →",
+        "pricesAligned": "Prijzen afgestemd op gepubliceerde prijslijst: wat de eindklant in de widget ziet = wat u hier berekent.",
+        "loadingCatalog": "Gepubliceerde prijslijst laden…"
+      },
+      "sections": {
+        "customer": "Klant & Bouwplaats",
+        "items": "Raam/Kozijn & Opmeting",
+        "norms": "Normen & Bouwplaats",
+        "pricing": "Prijzen, BTW & Korting",
+        "summary": "Samenvatting"
+      },
+      "customerForm": {
+        "nameLabel": "Voor- en Achternaam / Klant *",
+        "namePlaceholderIT": "Bijv. Mario Rossi",
+        "namePlaceholderFR": "Bijv. Jean Dubois",
+        "namePlaceholderNL": "Bijv. Jan de Vries",
+        "namePlaceholderDE": "Bijv. Thomas Müller",
+        "emailLabel": "E-mail *",
+        "emailPlaceholder": "klant@email.com",
+        "phoneLabel": "Telefoon (WhatsApp)",
+        "phonePlaceholder": "+39 / +33 / +32 / +31 / +49...",
+        "addressLabel": "Adres / Bouwplaatsadres",
+        "addressPlaceholder": "Via Roma 12 / Rue de la Paix",
+        "cityLabel": "Stad / Ville / Stad",
+        "cityPlaceholderIT": "Milaan / Rome",
+        "cityPlaceholderFR": "Parijs / Lyon",
+        "cityPlaceholderNL": "Amsterdam / Utrecht",
+        "cityPlaceholderDE": "München / Berlijn",
+        "postalLabel": "Postcode / Code Postal / Postcode",
+        "postalPlaceholder": "20100 / 75001 / 1012...",
+        "messageLabel": "Notities / Bericht (zichtbaar op offerte)",
+        "messagePlaceholder": "Bijv. Bouwplaats 2e verdieping zonder lift · levering afgesproken · kleurmonster te goedkeuren"
+      },
+      "itemsForm": {
+        "addItem": "+ Raam/Kozijn toevoegen",
+        "productTypeLabel": "Type",
+        "windowOption": "Raam / Fenêtre / Fenster / Raam",
+        "doorOption": "Balkondeur / Porte-fenêtre / Balkontür",
+        "widthLabel": "Breedte (mm)",
+        "heightLabel": "Hoogte (mm)",
+        "materialLabel": "Materiaal",
+        "materialPVC": "PVC Hoge Dichtheid",
+        "materialAlu": "Aluminium Thermisch Onderbroken",
+        "materialWood": "Gelamineerd Hout",
+        "glazingLabel": "Isolerend Glas",
+        "glazingDouble": "Dubbel / Double / HR++ (Ug 1,1)",
+        "glazingTriple": "Drievoudig / Triple / 3-fach / HR+++ (Ug 0,6)",
+        "colorLabel": "Kleur / Afwerking",
+        "colorWhite": "Wit / Blanc / Weiß / Crème (RAL 9016/9001)",
+        "colorAnthracite": "Anthracietgrijs RAL 7016",
+        "colorWoodgrain": "Houtdecor Noten/Eik",
+        "drawingTitle": "Afmetingentekening",
+        "uwLabel": "Uw ≈ {value} W/m²K"
+      },
+      "norms": {
+        "IT": {
+          "installationLabel": "Montagenorm (Italië)",
+          "installationUNI": "UNI 11673 Gekwalificeerde Montage (Kozijn + Banden)",
+          "installationStandard": "Standaardmontage op Bestaand Kozijn",
+          "installationSupplyOnly": "Alleen Levering (Ophalen in Magazijn)",
+          "ecobonusLabel": "Fiscaal Aftrek (%)",
+          "ecobonus50": "50% (Huisbonus / Ecobonus)",
+          "ecobonus36": "36% (Standaard)",
+          "ecobonus65": "65% (Versterkte Ecobonus)",
+          "ecobonus0": "0% (Geen aftrek)"
+        },
+        "FR": {
+          "poseTypeLabel": "Posetype (DTU 36.5 Frankrijk)",
+          "poseRenovation": "Renovatiepose (op bestaand kozijn)",
+          "poseFeuillure": "Feuillure-pose (volledige demontage)",
+          "poseApplique": "Applique-pose met isolatievoering",
+          "poseTunnel": "Tunnelpose",
+          "rgeLabel": "RGE-certificaat",
+          "rgePlaceholder": "RGE-2026-8849",
+          "maPrimeRenovLabel": "MaPrimeRénov' (%)",
+          "maPrimeRenov25": "25% (Blauw / Geel)",
+          "maPrimeRenov15": "15% (Violet)",
+          "maPrimeRenov0": "0% (Niet in aanmerking)",
+          "decennaleLabel": "Décennale Verzekering (verplicht op offerte)",
+          "decennalePlaceholder": "Décennale Verzekering AXA Nr. …"
+        },
+        "BE": {
+          "rensonLabel": "Renson Roosters (mm)",
+          "rensonPlaceholder": "0 = geen",
+          "voletLabel": "Monobloc Roluik (mm)",
+          "voletPlaceholder": "0 = geen roluik"
+        },
+        "NL": {
+          "hvlLabel": "HVL 90° Verbindingen (stk)",
+          "inmeetLabel": "Opmeetservice (€)",
+          "isostoneLabel": "IzoStone Dorpel"
+        },
+        "DE_LU": {
+          "ralLabel": "RAL Montagekit",
+          "rcLabel": "Inbraakwerende Klasse",
+          "rc2": "RC2",
+          "rc3": "RC3",
+          "klimabonusLabel": "Klimabonus Gerechtigd"
+        }
+      },
+      "pricing": {
+        "installationType": "Montagetype",
+        "installationEuros": "Montagekosten (€)",
+        "demolitionEuros": "Sloopkosten (€)",
+        "discountPercent": "Korting (%)",
+        "profitMargin": "Marge (%)",
+        "vatRate": "BTW (%)",
+        "depositTerms": "Voorschotvoorwaarden"
+      },
+      "summary": {
+        "supplyCost": "Leveringskosten",
+        "installCost": "Montagekosten",
+        "demolitionCost": "Sloopkosten",
+        "regionalExtras": "Regionale Regulatoire Extras",
+        "subtotal": "Subtotaal (excl. BTW)",
+        "discount": "Korting",
+        "totalGross": "Totaal Bruto (incl. BTW)",
+        "subsidyDeduction": "Subsidie Aftrek",
+        "netPayable": "Te Betalen (met Bonus)",
+        "perUnit": "per stuk",
+        "units": "stk"
+      },
+      "buttons": {
+        "submit": "Offerte Maken",
+        "submitting": "Aan het Maken…"
+      },
+      "errors": {
+        "nameEmailRequired": "Voer klantnaam en e-mail in.",
+        "noConfigPublished": "Geen gepubliceerde configurator. Maak en publiceer een configurator via de Configurators-pagina: dezelfde prijslijst wordt hier en in de site-widget gebruikt.",
+        "catalogNotReady": "De gepubliceerde prijslijst is nog niet gereed. Wacht op laden of publiceer de configurator opnieuw.",
+        "submitFailed": "Fout bij aanmaken offerte"
+      }
+    }
   }
 }

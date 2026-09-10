@@ -250,5 +250,154 @@
       "title": "Cont suspendat",
       "body": "Contul tău a fost suspendat. Contactează asistența."
     }
+  },
+  "quotes": {
+    "new": {
+      "header": {
+        "title": "Instrument Rapid B2B de Oferte (Șantier / Tabletă)",
+        "subtitle": "Generează o ofertă tehnică oficială în 3 minute cu desen cotat, montaj certificat și semnătură client.",
+        "cancel": "Anulează"
+      },
+      "marketTabs": {
+        "phasePrefix": "Fază 21"
+      },
+      "configuratorSection": {
+        "label": "Configurator / Listă Prețuri (partajată cu widget-ul B2C al site-ului)",
+        "editLink": "Editează lista de prețuri →",
+        "noConfigsTitle": "Niciun configurator publicat",
+        "noConfigsDesc": "Oferta de șantier folosește aceeași listă de prețuri ca configuratorul pe care îl incluzi pe site-ul clientului. Creează un configurator, setează materialele și prețurile, apoi apasă <strong>Publică</strong>.",
+        "goToConfigurators": "Mergi la Configuratoare →",
+        "pricesAligned": "Prețuri aliniate cu lista publicată: ceea ce vede clientul final în widget = ceea ce calculezi aici.",
+        "loadingCatalog": "Se încarcă lista publicată…"
+      },
+      "sections": {
+        "customer": "Client & Șantier",
+        "items": "Fereștri/Uși & Măsurători Șantier",
+        "norms": "Norme & Șantier",
+        "pricing": "Prețuri, TVA & Reduceri",
+        "summary": "Sumar"
+      },
+      "customerForm": {
+        "nameLabel": "Nume și Prenume / Client *",
+        "namePlaceholderIT": "Ex. Mario Rossi",
+        "namePlaceholderFR": "Ex. Jean Dubois",
+        "namePlaceholderNL": "Ex. Jan de Vries",
+        "namePlaceholderDE": "Ex. Thomas Müller",
+        "emailLabel": "Email *",
+        "emailPlaceholder": "client@email.com",
+        "phoneLabel": "Telefon (WhatsApp)",
+        "phonePlaceholder": "+39 / +33 / +32 / +31 / +49...",
+        "addressLabel": "Adresă / Adresa Șantierului",
+        "addressPlaceholder": "Via Roma 12 / Rue de la Paix",
+        "cityLabel": "Oraș / Ville / Stad",
+        "cityPlaceholderIT": "Milano / Roma",
+        "cityPlaceholderFR": "Paris / Lyon",
+        "cityPlaceholderNL": "Amsterdam / Utrecht",
+        "cityPlaceholderDE": "München / Berlin",
+        "postalLabel": "Cod Poștal / Code Postal / Postcode",
+        "postalPlaceholder": "20100 / 75001 / 1012...",
+        "messageLabel": "Note / Mesaj (vizibile pe ofertă)",
+        "messagePlaceholder": "Ex. Șantier la etajul 2 fără lift · livrare stabilită · eșantion culoare de aprobat"
+      },
+      "itemsForm": {
+        "addItem": "+ Adaugă Fereastră/Ușă",
+        "productTypeLabel": "Tip",
+        "windowOption": "Fereastră / Fenêtre / Fenster / Raam",
+        "doorOption": "Ușă Balcon / Porte-fenêtre / Balkontür",
+        "widthLabel": "Lățime (mm)",
+        "heightLabel": "Înălțime (mm)",
+        "materialLabel": "Material",
+        "materialPVC": "PVC Densitate Ridicată",
+        "materialAlu": "Aluminiu Ruptură Termică",
+        "materialWood": "Lemn Laminat",
+        "glazingLabel": "Geam Izolant",
+        "glazingDouble": "Dublu / Double / HR++ (Ug 1.1)",
+        "glazingTriple": "Triplu / Triple / 3-fach / HR+++ (Ug 0.6)",
+        "colorLabel": "Culoare / Finisare",
+        "colorWhite": "Alb / Blanc / Weiß / Crème (RAL 9016/9001)",
+        "colorAnthracite": "Gri Antracit RAL 7016",
+        "colorWoodgrain": "Aspect Lemn Nuc/Stejar",
+        "drawingTitle": "Desen Cotat",
+        "uwLabel": "Uw ≈ {value} W/m²K"
+      },
+      "norms": {
+        "IT": {
+          "installationLabel": "Normă de Montaj (Italia)",
+          "installationUNI": "UNI 11673 Montaj Calificat (Contracader + Benzi)",
+          "installationStandard": "Montaj Standard pe Cadru Existent",
+          "installationSupplyOnly": "Doar Livrare (Ridicare la Depozit)",
+          "ecobonusLabel": "Deducere Fiscală (%)",
+          "ecobonus50": "50% (Bonus Casă / Ecobonus)",
+          "ecobonus36": "36% (Ordinara)",
+          "ecobonus65": "65% (Ecobonus Majorat)",
+          "ecobonus0": "0% (Nicio Deducere)"
+        },
+        "FR": {
+          "poseTypeLabel": "Tip Montaj (DTU 36.5 Franța)",
+          "poseRenovation": "Montaj în Renaștere (pe Cadru Existent)",
+          "poseFeuillure": "Montaj în Rabat (Demontare Totală)",
+          "poseApplique": "Montaj Aplicat cu Dublare Izolantă",
+          "poseTunnel": "Montaj în Tunel",
+          "rgeLabel": "Certificat RGE",
+          "rgePlaceholder": "RGE-2026-8849",
+          "maPrimeRenovLabel": "MaPrimeRénov' (%)",
+          "maPrimeRenov25": "25% (Albastru / Galben)",
+          "maPrimeRenov15": "15% (Violet)",
+          "maPrimeRenov0": "0% (Neeligibil)",
+          "decennaleLabel": "Asigurare Decenală (mențiune obligatorie pe ofertă)",
+          "decennalePlaceholder": "Asigurare Decenală AXA Nr. …"
+        },
+        "BE": {
+          "rensonLabel": "Grile Renson (mm)",
+          "rensonPlaceholder": "0 = nicio",
+          "voletLabel": "Tăietură Monobloc (mm)",
+          "voletPlaceholder": "0 = fără tăietură"
+        },
+        "NL": {
+          "hvlLabel": "Joncțiuni HVL 90° (buc)",
+          "inmeetLabel": "Serviciu Măsurare (€)",
+          "isostoneLabel": "Prag IsoStone"
+        },
+        "DE_LU": {
+          "ralLabel": "Kit Montaj RAL",
+          "rcLabel": "Clasă Antiefracție",
+          "rc2": "RC2",
+          "rc3": "RC3",
+          "klimabonusLabel": "Klimabonus Eligibil"
+        }
+      },
+      "pricing": {
+        "installationType": "Tip Montaj",
+        "installationEuros": "Cost Montaj (€)",
+        "demolitionEuros": "Cost Demolare (€)",
+        "discountPercent": "Reducere (%)",
+        "profitMargin": "Marge (%)",
+        "vatRate": "TVA (%)",
+        "depositTerms": "Termeni Avans"
+      },
+      "summary": {
+        "supplyCost": "Cost Furnizare",
+        "installCost": "Cost Montaj",
+        "demolitionCost": "Cost Demolare",
+        "regionalExtras": "Extra Reglementări Regionale",
+        "subtotal": "Subtotal (fără TVA)",
+        "discount": "Reducere",
+        "totalGross": "Total Brut (cu TVA)",
+        "subsidyDeduction": "Deducere Subvenție",
+        "netPayable": "De Plătit (cu Bonus)",
+        "perUnit": "per buc",
+        "units": "buc"
+      },
+      "buttons": {
+        "submit": "Creează Ofertă",
+        "submitting": "Se Creează…"
+      },
+      "errors": {
+        "nameEmailRequired": "Introduceți numele și emailul clientului.",
+        "noConfigPublished": "Niciun configurator publicat. Creați și publicați un configurator din pagina Configuratoare: aceeași listă de prețuri va fi folosită atât aici, cât și în widget-ul site-ului.",
+        "catalogNotReady": "Lista de prețuri publicată nu este încă gata. Așteptați încărcarea sau republicați configuratorul.",
+        "submitFailed": "Eroare la crearea ofertei"
+      }
+    }
   }
 }

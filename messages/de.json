@@ -250,5 +250,154 @@
       "title": "Konto gesperrt",
       "body": "Ihr Konto wurde gesperrt. Bitte kontaktieren Sie den Support."
     }
+  },
+  "quotes": {
+    "new": {
+      "header": {
+        "title": "Schnelles B2B-Angebotstool (Baustelle / Tablet)",
+        "subtitle": "Erstellen Sie ein offizielles technisches Angebot in 3 Minuten mit Maßzeichnung, zertifizierter Montage und Kundensignatur.",
+        "cancel": "Abbrechen"
+      },
+      "marketTabs": {
+        "phasePrefix": "Phase 25"
+      },
+      "configuratorSection": {
+        "label": "Konfigurator / Preisliste (geteilt mit B2C-Site-Widget)",
+        "editLink": "Preisliste bearbeiten →",
+        "noConfigsTitle": "Kein veröffentlichter Konfigurator",
+        "noConfigsDesc": "Das Baustellen-Angebot nutzt dieselbe Preisliste wie der Konfigurator, den Sie auf der Kundenseite einbetten. Erstellen Sie einen Konfigurator, legen Sie Materialien und Preise fest, dann klicken Sie auf <strong>Veröffentlichen</strong>.",
+        "goToConfigurators": "Zu Konfiguratoren →",
+        "pricesAligned": "Preise abgestimmt mit veröffentlichter Preisliste: was der Endkunde im Widget sieht = was Sie hier berechnen.",
+        "loadingCatalog": "Veröffentlichte Preisliste wird geladen…"
+      },
+      "sections": {
+        "customer": "Kunde & Baustelle",
+        "items": "Fenster/Türen & Aufmaß",
+        "norms": "Normen & Baustelle",
+        "pricing": "Preise, MwSt. & Rabatte",
+        "summary": "Zusammenfassung"
+      },
+      "customerForm": {
+        "nameLabel": "Vor- und Nachname / Kunde *",
+        "namePlaceholderIT": "Z.B. Mario Rossi",
+        "namePlaceholderFR": "Z.B. Jean Dubois",
+        "namePlaceholderNL": "Z.B. Jan de Vries",
+        "namePlaceholderDE": "Z.B. Thomas Müller",
+        "emailLabel": "E-Mail *",
+        "emailPlaceholder": "kunde@email.com",
+        "phoneLabel": "Telefon (WhatsApp)",
+        "phonePlaceholder": "+39 / +33 / +32 / +31 / +49...",
+        "addressLabel": "Adresse / Baustellenadresse",
+        "addressPlaceholder": "Via Roma 12 / Rue de la Paix",
+        "cityLabel": "Stadt / Ville / Stad",
+        "cityPlaceholderIT": "Mailand / Rom",
+        "cityPlaceholderFR": "Paris / Lyon",
+        "cityPlaceholderNL": "Amsterdam / Utrecht",
+        "cityPlaceholderDE": "München / Berlin",
+        "postalLabel": "PLZ / Code Postal / Postcode",
+        "postalPlaceholder": "20100 / 75001 / 1012...",
+        "messageLabel": "Notizen / Nachricht (sichtbar im Angebot)",
+        "messagePlaceholder": "Z.B. Baustelle 2. OG ohne Aufzug · Lieferung abgestimmt · Farbmuster zur Freigabe"
+      },
+      "itemsForm": {
+        "addItem": "+ Fenster/Tür hinzufügen",
+        "productTypeLabel": "Typ",
+        "windowOption": "Fenster / Fenêtre / Fenster / Raam",
+        "doorOption": "Balkontür / Porte-fenêtre / Balkontür",
+        "widthLabel": "Breite (mm)",
+        "heightLabel": "Höhe (mm)",
+        "materialLabel": "Material",
+        "materialPVC": "PVC Hochdicht",
+        "materialAlu": "Aluminium Thermisch Getrennt",
+        "materialWood": "Leimholz",
+        "glazingLabel": "Isolierverglasung",
+        "glazingDouble": "2-fach / Double / HR++ (Ug 1,1)",
+        "glazingTriple": "3-fach / Triple / 3-fach / HR+++ (Ug 0,6)",
+        "colorLabel": "Farbe / Ausführung",
+        "colorWhite": "Weiß / Blanc / Weiß / Crème (RAL 9016/9001)",
+        "colorAnthracite": "Anthrazitgrau RAL 7016",
+        "colorWoodgrain": "Holzdekor Nuss/Eiche",
+        "drawingTitle": "Maßzeichnung",
+        "uwLabel": "Uw ≈ {value} W/m²K"
+      },
+      "norms": {
+        "IT": {
+          "installationLabel": "Montagenorm (Italien)",
+          "installationUNI": "UNI 11673 Qualifizierte Montage (Blendrahmen + Bänder)",
+          "installationStandard": "Standardmontage auf Bestandsrahmen",
+          "installationSupplyOnly": "Nur Lieferung (Abholung im Lager)",
+          "ecobonusLabel": "Steuerabzug (%)",
+          "ecobonus50": "50% (Hausbonus / Ecobonus)",
+          "ecobonus36": "36% (Standard)",
+          "ecobonus65": "65% (Verstärkter Ecobonus)",
+          "ecobonus0": "0% (Kein Abzug)"
+        },
+        "FR": {
+          "poseTypeLabel": "Posetyp (DTU 36.5 Frankreich)",
+          "poseRenovation": "Rénovationspose (auf bestehendem Rahmen)",
+          "poseFeuillure": "Feuillure-Pose (vollständige Demontage)",
+          "poseApplique": "Applikationspose mit Dämmvorlage",
+          "poseTunnel": "Tunnelpose",
+          "rgeLabel": "RGE-Zertifikat",
+          "rgePlaceholder": "RGE-2026-8849",
+          "maPrimeRenovLabel": "MaPrimeRénov' (%)",
+          "maPrimeRenov25": "25% (Blau / Gelb)",
+          "maPrimeRenov15": "15% (Violett)",
+          "maPrimeRenov0": "0% (Nicht berechtigt)",
+          "decennaleLabel": "Décennale-Versicherung (Pflichtangabe im Angebot)",
+          "decennalePlaceholder": "Décennale-Versicherung AXA Nr. …"
+        },
+        "BE": {
+          "rensonLabel": "Renson-Gitter (mm)",
+          "rensonPlaceholder": "0 = keine",
+          "voletLabel": "Monobloc-Rollladen (mm)",
+          "voletPlaceholder": "0 = kein Rollladen"
+        },
+        "NL": {
+          "hvlLabel": "HVL 90°-Verbindungen (Stk)",
+          "inmeetLabel": "Aufmaßservice (€)",
+          "isostoneLabel": "IsoStone-Sturz"
+        },
+        "DE_LU": {
+          "ralLabel": "RAL-Montagekit",
+          "rcLabel": "Einbruchhemmungsklasse",
+          "rc2": "RC2",
+          "rc3": "RC3",
+          "klimabonusLabel": "Klimabonus Berechtigt"
+        }
+      },
+      "pricing": {
+        "installationType": "Montagetyp",
+        "installationEuros": "Montagekosten (€)",
+        "demolitionEuros": "Abbruchkosten (€)",
+        "discountPercent": "Rabatt (%)",
+        "profitMargin": "Marge (%)",
+        "vatRate": "MwSt. (%)",
+        "depositTerms": "Anzahlungsbedingungen"
+      },
+      "summary": {
+        "supplyCost": "Lieferkosten",
+        "installCost": "Montagekosten",
+        "demolitionCost": "Abbruchkosten",
+        "regionalExtras": "Regionale Regularien-Extras",
+        "subtotal": "Zwischensumme (netto MwSt.)",
+        "discount": "Rabatt",
+        "totalGross": "Gesamtbrutto (inkl. MwSt.)",
+        "subsidyDeduction": "Förderabzug",
+        "netPayable": "Zu Zahlen (mit Bonus)",
+        "perUnit": "pro Stück",
+        "units": "Stk"
+      },
+      "buttons": {
+        "submit": "Angebot Erstellen",
+        "submitting": "Wird Erstellt…"
+      },
+      "errors": {
+        "nameEmailRequired": "Kundenname und E-Mail eingeben.",
+        "noConfigPublished": "Kein veröffentlichter Konfigurator. Erstellen und veröffentlichen Sie einen Konfigurator auf der Konfiguratoren-Seite: dieselbe Preisliste wird hier und im Site-Widget verwendet.",
+        "catalogNotReady": "Die veröffentlichte Preisliste ist noch nicht bereit. Warten Sie auf das Laden oder veröffentlichen Sie den Konfigurator neu.",
+        "submitFailed": "Fehler beim Erstellen des Angebots"
+      }
+    }
   }
 }

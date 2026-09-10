@@ -250,5 +250,154 @@
       "title": "Account sospeso",
       "body": "Il tuo account è stato sospeso. Contatta il supporto."
     }
+  },
+  "quotes": {
+    "new": {
+      "header": {
+        "title": "Preventivatore Rapido B2B (Cantiere / Tablet)",
+        "subtitle": "Genera un preventivo tecnico ufficiale in 3 minuti con disegno quotato, posa certificata e firma del cliente.",
+        "cancel": "Annulla"
+      },
+      "marketTabs": {
+        "phasePrefix": "Fase 21"
+      },
+      "configuratorSection": {
+        "label": "Configuratore / Listino prezzi (condiviso col widget B2C del sito)",
+        "editLink": "Modifica listino →",
+        "noConfigsTitle": "Nessun configuratore pubblicato",
+        "noConfigsDesc": "Il preventivo cantiere usa lo stesso listino del configuratore che incorpori sul sito del cliente. Crea un configuratore, imposta materiali e prezzi, poi premi <strong>Pubblica</strong>.",
+        "goToConfigurators": "Vai ai Configuratori →",
+        "pricesAligned": "Prezzi allineati al listino pubblicato: quello che vede il cliente finale nel widget = quello che calcoli qui.",
+        "loadingCatalog": "Caricamento listino pubblicato…"
+      },
+      "sections": {
+        "customer": "Cliente & Cantiere",
+        "items": "Serramenti & Rilievo Misure",
+        "norms": "Normativa & Cantiere",
+        "pricing": "Prezzi, IVA & Sconti",
+        "summary": "Riepilogo"
+      },
+      "customerForm": {
+        "nameLabel": "Nome e Cognome / Client *",
+        "namePlaceholderIT": "Es. Mario Rossi",
+        "namePlaceholderFR": "Ex. Jean Dubois",
+        "namePlaceholderNL": "Bijv. Jan de Vries",
+        "namePlaceholderDE": "Z.B. Thomas Müller",
+        "emailLabel": "Email *",
+        "emailPlaceholder": "cliente@email.com",
+        "phoneLabel": "Telefono (WhatsApp)",
+        "phonePlaceholder": "+39 / +33 / +32 / +31 / +49...",
+        "addressLabel": "Indirizzo / Adresse Cantiere",
+        "addressPlaceholder": "Via Roma 12 / Rue de la Paix",
+        "cityLabel": "Città / Ville / Stad",
+        "cityPlaceholderIT": "Milano / Roma",
+        "cityPlaceholderFR": "Paris / Lyon",
+        "cityPlaceholderNL": "Amsterdam / Utrecht",
+        "cityPlaceholderDE": "München / Berlin",
+        "postalLabel": "CAP / Code Postal / Postcode",
+        "postalPlaceholder": "20100 / 75001 / 1012...",
+        "messageLabel": "Note / Messaggio (visibili sul preventivo)",
+        "messagePlaceholder": "Es. Cantiere al 2° piano senza ascensore · consegna concordata · colore campione da approvare"
+      },
+      "itemsForm": {
+        "addItem": "+ Aggiungi Infisso",
+        "productTypeLabel": "Tipologia",
+        "windowOption": "Finestra / Fenêtre / Fenster / Raam",
+        "doorOption": "Portafinestra / Porte-fenêtre / Balkontür",
+        "widthLabel": "Larghezza (mm)",
+        "heightLabel": "Altezza (mm)",
+        "materialLabel": "Materiale",
+        "materialPVC": "PVC Alta Densità",
+        "materialAlu": "Alluminio Taglio Termico",
+        "materialWood": "Legno Lamellare",
+        "glazingLabel": "Vetro Isolante",
+        "glazingDouble": "Doppio / Double / HR++ (Ug 1.1)",
+        "glazingTriple": "Triplo / Triple / 3-fach / HR+++ (Ug 0.6)",
+        "colorLabel": "Colore / Finitura",
+        "colorWhite": "Bianco / Blanc / Weiß / Crème (RAL 9016/9001)",
+        "colorAnthracite": "Grigio Antracite RAL 7016",
+        "colorWoodgrain": "Effetto Legno Noce/Rovere",
+        "drawingTitle": "Disegno quotato",
+        "uwLabel": "Uw ≈ {value} W/m²K"
+      },
+      "norms": {
+        "IT": {
+          "installationLabel": "Norma di Posa in Opera (Italia)",
+          "installationUNI": "UNI 11673 Posa Qualificata (Controtelaio + Nastri)",
+          "installationStandard": "Posa Standard su Telaio Esistente",
+          "installationSupplyOnly": "Solo Fornitura (Ritiro in sede)",
+          "ecobonusLabel": "Detrazione fiscale (%)",
+          "ecobonus50": "50% (Bonus Casa / Ecobonus)",
+          "ecobonus36": "36% (Ordinaria)",
+          "ecobonus65": "65% (Ecobonus rafforzato)",
+          "ecobonus0": "0% (Nessuna detrazione)"
+        },
+        "FR": {
+          "poseTypeLabel": "Type de Pose (DTU 36.5 France)",
+          "poseRenovation": "Pose en rénovation (sur dormant existant)",
+          "poseFeuillure": "Pose en feuillure (dépose totale)",
+          "poseApplique": "Pose en applique avec doublage isolant",
+          "poseTunnel": "Pose en tunnel",
+          "rgeLabel": "Certificat RGE",
+          "rgePlaceholder": "RGE-2026-8849",
+          "maPrimeRenovLabel": "MaPrimeRénov' (%)",
+          "maPrimeRenov25": "25% (Bleu / Jaune)",
+          "maPrimeRenov15": "15% (Violet)",
+          "maPrimeRenov0": "0% (Non éligible)",
+          "decennaleLabel": "Assurance Décennale (mention obligatoire sur le devis)",
+          "decennalePlaceholder": "Assurance Décennale AXA N° …"
+        },
+        "BE": {
+          "rensonLabel": "Grilles Renson (mm)",
+          "rensonPlaceholder": "0 = nessuna",
+          "voletLabel": "Volet Monobloc (mm)",
+          "voletPlaceholder": "0 = no volet"
+        },
+        "NL": {
+          "hvlLabel": "HVL Giunzioni 90° (pz)",
+          "inmeetLabel": "Inmeetservice (€)",
+          "isostoneLabel": "Davanzale IsoStone"
+        },
+        "DE_LU": {
+          "ralLabel": "Kit Montaggio RAL",
+          "rcLabel": "Classe Antieffrazione",
+          "rc2": "RC2",
+          "rc3": "RC3",
+          "klimabonusLabel": "Klimabonus Eligible"
+        }
+      },
+      "pricing": {
+        "installationType": "Tipo Posa",
+        "installationEuros": "Costo Posa (€)",
+        "demolitionEuros": "Costo Demolizione (€)",
+        "discountPercent": "Sconto (%)",
+        "profitMargin": "Margine (%)",
+        "vatRate": "IVA (%)",
+        "depositTerms": "Termini Acconto"
+      },
+      "summary": {
+        "supplyCost": "Costo Fornitura",
+        "installCost": "Costo Posa",
+        "demolitionCost": "Costo Demolizione",
+        "regionalExtras": "Extra Normativi Regionali",
+        "subtotal": "Subtotale (netto IVA)",
+        "discount": "Sconto",
+        "totalGross": "Totale Lordo (con IVA)",
+        "subsidyDeduction": "Detrazione Agevolazione",
+        "netPayable": "Da Pagare (con bonus)",
+        "perUnit": "al pezzo",
+        "units": "pezzi"
+      },
+      "buttons": {
+        "submit": "Crea Preventivo",
+        "submitting": "Creazione…"
+      },
+      "errors": {
+        "nameEmailRequired": "Inserisci il nome e l'email del cliente.",
+        "noConfigPublished": "Nessun configuratore pubblicato. Crea e pubblica un configuratore dalla pagina Configuratori: quello stesso listino verrà usato sia qui che nel widget del sito.",
+        "catalogNotReady": "Il listino pubblicato non è ancora disponibile. Attendi il caricamento o ripubblica il configuratore.",
+        "submitFailed": "Errore durante la creazione del preventivo"
+      }
+    }
   }
 }

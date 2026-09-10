@@ -250,5 +250,154 @@
       "title": "Account suspended",
       "body": "Your account has been suspended. Please contact support."
     }
+  },
+  "quotes": {
+    "new": {
+      "header": {
+        "title": "Rapid B2B Quoting Tool (Site / Tablet)",
+        "subtitle": "Generate an official technical quote in 3 minutes with dimensioned drawing, certified installation, and client signature.",
+        "cancel": "Cancel"
+      },
+      "marketTabs": {
+        "phasePrefix": "Phase 21"
+      },
+      "configuratorSection": {
+        "label": "Configurator / Price List (shared with B2C site widget)",
+        "editLink": "Edit price list →",
+        "noConfigsTitle": "No published configurator",
+        "noConfigsDesc": "The site quote uses the same price list as the configurator you embed on your client's site. Create a configurator, set materials and prices, then hit <strong>Publish</strong>.",
+        "goToConfigurators": "Go to Configurators →",
+        "pricesAligned": "Prices aligned with published price list: what the end client sees in the widget = what you calculate here.",
+        "loadingCatalog": "Loading published price list…"
+      },
+      "sections": {
+        "customer": "Client & Site",
+        "items": "Windows/Doors & Site Measurements",
+        "norms": "Standards & Site",
+        "pricing": "Pricing, VAT & Discounts",
+        "summary": "Summary"
+      },
+      "customerForm": {
+        "nameLabel": "Full Name / Client *",
+        "namePlaceholderIT": "E.g. Mario Rossi",
+        "namePlaceholderFR": "Ex. Jean Dubois",
+        "namePlaceholderNL": "E.g. Jan de Vries",
+        "namePlaceholderDE": "E.g. Thomas Müller",
+        "emailLabel": "Email *",
+        "emailPlaceholder": "client@email.com",
+        "phoneLabel": "Phone (WhatsApp)",
+        "phonePlaceholder": "+39 / +33 / +32 / +31 / +49...",
+        "addressLabel": "Address / Site Address",
+        "addressPlaceholder": "Via Roma 12 / Rue de la Paix",
+        "cityLabel": "City / Ville / Stad",
+        "cityPlaceholderIT": "Milan / Rome",
+        "cityPlaceholderFR": "Paris / Lyon",
+        "cityPlaceholderNL": "Amsterdam / Utrecht",
+        "cityPlaceholderDE": "Munich / Berlin",
+        "postalLabel": "ZIP / Code Postal / Postcode",
+        "postalPlaceholder": "20100 / 75001 / 1012...",
+        "messageLabel": "Notes / Message (visible on quote)",
+        "messagePlaceholder": "E.g. 2nd floor site no lift · agreed delivery · sample color to approve"
+      },
+      "itemsForm": {
+        "addItem": "+ Add Window/Door",
+        "productTypeLabel": "Type",
+        "windowOption": "Window / Fenêtre / Fenster / Raam",
+        "doorOption": "Balcony Door / Porte-fenêtre / Balkontür",
+        "widthLabel": "Width (mm)",
+        "heightLabel": "Height (mm)",
+        "materialLabel": "Material",
+        "materialPVC": "High-Density PVC",
+        "materialAlu": "Thermal Break Aluminum",
+        "materialWood": "Laminated Wood",
+        "glazingLabel": "Insulating Glass",
+        "glazingDouble": "Double / Double / HR++ (Ug 1.1)",
+        "glazingTriple": "Triple / Triple / 3-fach / HR+++ (Ug 0.6)",
+        "colorLabel": "Color / Finish",
+        "colorWhite": "White / Blanc / Weiß / Crème (RAL 9016/9001)",
+        "colorAnthracite": "Anthracite Grey RAL 7016",
+        "colorWoodgrain": "Wood Effect Walnut/Oak",
+        "drawingTitle": "Dimensioned Drawing",
+        "uwLabel": "Uw ≈ {value} W/m²K"
+      },
+      "norms": {
+        "IT": {
+          "installationLabel": "Installation Standard (Italy)",
+          "installationUNI": "UNI 11673 Qualified Installation (Sub-frame + Tapes)",
+          "installationStandard": "Standard Installation on Existing Frame",
+          "installationSupplyOnly": "Supply Only (Pickup at Warehouse)",
+          "ecobonusLabel": "Tax Deduction (%)",
+          "ecobonus50": "50% (Home Bonus / Ecobonus)",
+          "ecobonus36": "36% (Standard)",
+          "ecobonus65": "65% (Enhanced Ecobonus)",
+          "ecobonus0": "0% (No deduction)"
+        },
+        "FR": {
+          "poseTypeLabel": "Pose Type (DTU 36.5 France)",
+          "poseRenovation": "Renovation pose (on existing frame)",
+          "poseFeuillure": "Feuillure pose (full removal)",
+          "poseApplique": "Applique pose with insulation lining",
+          "poseTunnel": "Tunnel pose",
+          "rgeLabel": "RGE Certificate",
+          "rgePlaceholder": "RGE-2026-8849",
+          "maPrimeRenovLabel": "MaPrimeRénov' (%)",
+          "maPrimeRenov25": "25% (Blue / Yellow)",
+          "maPrimeRenov15": "15% (Violet)",
+          "maPrimeRenov0": "0% (Not eligible)",
+          "decennaleLabel": "Décennale Insurance (mandatory on quote)",
+          "decennalePlaceholder": "Décennale Insurance AXA N° …"
+        },
+        "BE": {
+          "rensonLabel": "Renson Grilles (mm)",
+          "rensonPlaceholder": "0 = none",
+          "voletLabel": "Monobloc Shutter (mm)",
+          "voletPlaceholder": "0 = no shutter"
+        },
+        "NL": {
+          "hvlLabel": "HVL 90° Joints (pcs)",
+          "inmeetLabel": "Measurement Service (€)",
+          "isostoneLabel": "IsoStone Sill"
+        },
+        "DE_LU": {
+          "ralLabel": "RAL Installation Kit",
+          "rcLabel": "Security Class",
+          "rc2": "RC2",
+          "rc3": "RC3",
+          "klimabonusLabel": "Klimabonus Eligible"
+        }
+      },
+      "pricing": {
+        "installationType": "Installation Type",
+        "installationEuros": "Installation Cost (€)",
+        "demolitionEuros": "Demolition Cost (€)",
+        "discountPercent": "Discount (%)",
+        "profitMargin": "Margin (%)",
+        "vatRate": "VAT (%)",
+        "depositTerms": "Deposit Terms"
+      },
+      "summary": {
+        "supplyCost": "Supply Cost",
+        "installCost": "Installation Cost",
+        "demolitionCost": "Demolition Cost",
+        "regionalExtras": "Regional Regulatory Extras",
+        "subtotal": "Subtotal (ex VAT)",
+        "discount": "Discount",
+        "totalGross": "Total Gross (incl VAT)",
+        "subsidyDeduction": "Subsidy Deduction",
+        "netPayable": "Net Payable (with bonus)",
+        "perUnit": "per unit",
+        "units": "pcs"
+      },
+      "buttons": {
+        "submit": "Create Quote",
+        "submitting": "Creating…"
+      },
+      "errors": {
+        "nameEmailRequired": "Enter the client name and email.",
+        "noConfigPublished": "No published configurator. Create and publish a configurator from the Configurators page: that same price list will be used both here and in the site widget.",
+        "catalogNotReady": "The published price list is not ready yet. Wait for loading or republish the configurator.",
+        "submitFailed": "Error creating quote"
+      }
+    }
   }
 }
