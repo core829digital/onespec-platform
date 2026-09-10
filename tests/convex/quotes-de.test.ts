@@ -4,7 +4,7 @@ import { newDb, seedTenant, seedPublishedConfigurator, sampleItem } from "./_hel
 
 test("Fase 25 DE: German field quote, RAL-Montage, RC2 security grade, 3-fach Verglasung", async () => {
   const t = newDb();
-  const seeded = await seedTenant(t);
+  const seeded = await seedTenant(t, { plan: "pro" });
   const configuratorId = await seedPublishedConfigurator(t, seeded.tenantId, "DE_ANGEBOT_01");
 
   const asOwner = t.withIdentity({ subject: seeded.ownerId });

@@ -12,6 +12,7 @@ import {
 } from "./lib/auth";
 import { nanoid } from "./lib/ids";
 import { resolveTenantEntitlements, assertQuota } from "./lib/entitlements";
+import { enforceForAddTeamMember } from "./lib/enforcement";
 
 const COUNTRY_RE = /^[A-Za-z]{2}$/;
 
@@ -193,6 +194,7 @@ export const inviteMember = mutation({
     role: v.union(v.literal("admin"), v.literal("member")),
   },
   handler: async (ctx, args) => {
+    await enforceForAddTeamMember(ctx, args.tenantId);
     const { userId } = await requireTenantRole(ctx, args.tenantId, ["owner", "admin"]);
     const email = args.email.trim().toLowerCase();
     if (!EMAIL_RE.test(email) || email.length > 200) throw new ConvexError("INVALID_EMAIL");

@@ -9,6 +9,7 @@ import { requireMembership } from "./lib/auth";
 import { resolveTenantEntitlements, currentPeriod } from "./lib/entitlements";
 import { consumeToken } from "./lib/ratelimit";
 import { regionForCountry, type RegionPolicy } from "./lib/regions";
+import { enforcePublicWidget } from "./lib/enforcement";
 
 /** Rows/objects that may carry Convex system + tenant fields. */
 type WithSystemFields = Record<string, unknown> & {
@@ -101,6 +102,8 @@ export const recordWidgetView = internalMutation({
       .withIndex("by_publicId", (q) => q.eq("publicId", args.publicId))
       .unique();
     if (!configurator || configurator.status !== "published") return { counted: false };
+
+    await enforcePublicWidget(ctx, configurator.tenantId);
 
     // Once per session token per ~24h.
     const fresh = await consumeToken(ctx, `view:${configurator._id}:${args.viewToken}`, {

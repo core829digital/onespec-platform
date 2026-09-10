@@ -4,7 +4,7 @@ import { newDb, seedTenant, seedPublishedConfigurator, sampleItem } from "./_hel
 
 test("Fase 22 FR: French Devis creation, DTU 36.5 pose en rénovation, TVA 5.5%, RGE & MaPrimeRénov'", async () => {
   const t = newDb();
-  const seeded = await seedTenant(t);
+  const seeded = await seedTenant(t, { plan: "pro" });
   const configuratorId = await seedPublishedConfigurator(t, seeded.tenantId, "FR_DEVIS_01");
 
   const asOwner = t.withIdentity({ subject: seeded.ownerId });

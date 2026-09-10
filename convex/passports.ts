@@ -4,6 +4,7 @@ import { query, mutation, internalMutation } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
 import { requireMembership, requireTenantRole } from "./lib/auth";
 import { requireTenantRegion } from "./lib/fieldModules";
+import { enforceForMaintenance } from "./lib/enforcement";
 import { complianceForRegion } from "./lib/compliance";
 import { regionForCountry } from "./lib/regions";
 import { guessZoneFromCap, buildAllegatoF, allegatoFToXml, type ClimateZone } from "./lib/enea";
@@ -75,6 +76,7 @@ export const create = mutation({
     installedAt: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    await enforceForMaintenance(ctx, args.tenantId);
     const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
     const label = args.label.trim();
     const customerName = args.customerName.trim();

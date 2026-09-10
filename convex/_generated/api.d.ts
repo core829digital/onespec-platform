@@ -36,6 +36,7 @@ import type * as lib_compliance from "../lib/compliance.js";
 import type * as lib_configResolution from "../lib/configResolution.js";
 import type * as lib_csv from "../lib/csv.js";
 import type * as lib_enea from "../lib/enea.js";
+import type * as lib_enforcement from "../lib/enforcement.js";
 import type * as lib_entitlements from "../lib/entitlements.js";
 import type * as lib_enums from "../lib/enums.js";
 import type * as lib_fieldModules from "../lib/fieldModules.js";
@@ -90,6 +91,7 @@ declare const fullApi: ApiFromModules<{
   "lib/configResolution": typeof lib_configResolution;
   "lib/csv": typeof lib_csv;
   "lib/enea": typeof lib_enea;
+  "lib/enforcement": typeof lib_enforcement;
   "lib/entitlements": typeof lib_entitlements;
   "lib/enums": typeof lib_enums;
   "lib/fieldModules": typeof lib_fieldModules;

@@ -25,7 +25,7 @@ test("compliance: per-market rulesets differ and material formula scales with pe
 
 test("survey + installation dossier + inspection gate + passport flow", async () => {
   const t = newDb();
-  const seeded = await seedTenant(t);
+  const seeded = await seedTenant(t, { plan: "pro" });
   const asOwner = t.withIdentity({ subject: seeded.ownerId });
 
   // --- Rilievo ---
@@ -178,7 +178,7 @@ test("enea: zone guess + Allegato F conformity + saving proxy", () => {
 
 test("funding: generateFundingDoc from a linked field quote (IT tenant)", async () => {
   const t = newDb();
-  const seeded = await seedTenant(t);
+  const seeded = await seedTenant(t, { plan: "pro" });
   await t.run(async (ctx) => {
     await ctx.db.patch(seeded.tenantId, { country: "IT" });
   });

@@ -4,7 +4,7 @@ import { newDb, seedTenant, seedPublishedConfigurator, sampleItem } from "./_hel
 
 test("Fase 24 NL: Dutch field quote, Blokprofiel 120mm, HVL 90 deg corner joints, IsoStone", async () => {
   const t = newDb();
-  const seeded = await seedTenant(t);
+  const seeded = await seedTenant(t, { plan: "pro" });
   const configuratorId = await seedPublishedConfigurator(t, seeded.tenantId, "NL_OFFERTE_01");
 
   const asOwner = t.withIdentity({ subject: seeded.ownerId });

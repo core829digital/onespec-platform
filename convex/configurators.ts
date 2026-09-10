@@ -4,7 +4,8 @@ import { ConvexError } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
 import { requireTenantRole, requireMembership } from "./lib/auth";
 import { nanoid } from "./lib/ids";
-import { resolveTenantEntitlements, assertQuota } from "./lib/entitlements";
+import { resolveTenantEntitlements, assertQuota, currentPeriod } from "./lib/entitlements";
+import { enforceForCreateConfigurator, enforceActivePlan } from "./lib/enforcement";
 import { resolveEffectiveConfig, PLATFORM_DEFAULTS, CONFIG_LAYERS } from "./lib/configResolution";
 import { internal } from "./_generated/api";
 
@@ -12,6 +13,7 @@ export const createConfigurator = mutation({
   args: { tenantId: v.id("tenants"), name: v.string() },
   handler: async (ctx, args) => {
     await requireTenantRole(ctx, args.tenantId, ["owner", "admin"]);
+    await enforceForCreateConfigurator(ctx, args.tenantId);
     const tenant = await ctx.db.get(args.tenantId);
     if (!tenant) throw new ConvexError("TENANT_NOT_FOUND");
 
@@ -24,12 +26,6 @@ export const createConfigurator = mutation({
         .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
         .collect()
     ).filter((c) => c.status !== "archived").length;
-    // Hard gate — the plan's configurator count is a boundary, not advisory.
-    assertQuota(
-      existingCount,
-      resolveTenantEntitlements(tenant).maxConfigurators,
-      "CONFIGURATOR_LIMIT_REACHED",
-    );
 
     const publicId = nanoid(10);
     const configuratorId = await ctx.db.insert("configurators", {
@@ -62,6 +58,25 @@ export const createConfigurator = mutation({
     });
 
     await ctx.runMutation(internal.catalog.seedDefaultCatalog, { configuratorId, tenantId: args.tenantId });
+
+    // Increment active configurator count for quota tracking
+    const period = currentPeriod();
+    const counter = await ctx.db
+      .query("usageCounters")
+      .withIndex("by_tenant_period", (q) => q.eq("tenantId", args.tenantId).eq("period", period))
+      .unique();
+    if (counter) {
+      await ctx.db.patch(counter._id, {
+        activeConfiguratorsCount: counter.activeConfiguratorsCount + 1,
+      });
+    } else {
+      await ctx.db.insert("usageCounters", {
+        tenantId: args.tenantId,
+        period,
+        quoteRequestsCount: 0,
+        activeConfiguratorsCount: 1,
+      });
+    }
 
     return { configuratorId, publicId };
   },

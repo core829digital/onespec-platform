@@ -4,6 +4,7 @@ import { query, mutation } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
 import { requireMembership, requireTenantRole } from "./lib/auth";
 import { requireTenantRegion } from "./lib/fieldModules";
+import { enforceForFieldSurvey } from "./lib/enforcement";
 
 const openingValidator = v.object({
   label: v.string(),
@@ -116,6 +117,7 @@ export const create = mutation({
     photos: v.optional(v.array(photoValidator)),
   },
   handler: async (ctx, args) => {
+    await enforceForFieldSurvey(ctx, args.tenantId);
     const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
     const name = args.customerName.trim();
     if (!name) throw new ConvexError("CUSTOMER_NAME_REQUIRED");

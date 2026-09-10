@@ -1,6 +1,7 @@
 import { query } from "./_generated/server";
 import { v } from "convex/values";
 import { requireMembership } from "./lib/auth";
+import { enforceAnalyticsForQuery } from "./lib/enforcement";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const HOUR_MS = 60 * 60 * 1000;
@@ -56,6 +57,7 @@ export const getOverview = query({
   args: { tenantId: v.id("tenants"), range: v.optional(RANGE) },
   handler: async (ctx, args) => {
     await requireMembership(ctx, args.tenantId);
+    await enforceAnalyticsForQuery(ctx, args.tenantId);
     const range = (args.range ?? "1m") as Range;
     const spec = RANGE_SPEC[range];
     const now = Date.now();

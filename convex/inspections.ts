@@ -9,6 +9,7 @@ import { complianceForRegion } from "./lib/compliance";
 import { regionForCountry } from "./lib/regions";
 import { nanoid } from "./lib/ids";
 import { internal } from "./_generated/api";
+import { enforceForESignature } from "./lib/enforcement";
 
 /** Per-market inspection template (title, legal basis, photo + check lists). */
 export const getTemplate = query({
@@ -216,6 +217,7 @@ export const sign = mutation({
     const report = await ctx.db.get(args.reportId);
     if (!report) throw new ConvexError("REPORT_NOT_FOUND");
     await requireMembership(ctx, report.tenantId);
+    await enforceForESignature(ctx, report.tenantId);
     if (report.status === "signed") throw new ConvexError("ALREADY_SIGNED");
 
     // Every mandatory photo slot must be filled before the record can be signed.

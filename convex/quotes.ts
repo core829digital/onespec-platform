@@ -3,7 +3,9 @@ import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import { internal } from "./_generated/api";
 import { requireTenantRole, requireMembership } from "./lib/auth";
+import { enforceForCreateQuote, enforceForESignature } from "./lib/enforcement";
 import { calculatePrice, type ProjectItem, type CatalogPayload } from "../src/shared/pricing";
+import { currentPeriod } from "./lib/entitlements";
 
 /** Max size of a base64 signature PNG data URL (~200 KB of characters). */
 const MAX_SIGNATURE_LEN = 200_000;
@@ -152,6 +154,7 @@ export const createFieldQuote = mutation({
     klimabonusEligible: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
+    await enforceForCreateQuote(ctx, args.tenantId);
     const { userId } = await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator || configurator.tenantId !== args.tenantId) {
@@ -245,6 +248,25 @@ export const createFieldQuote = mutation({
       createdAt: Date.now(),
     });
 
+    // Increment quote count for quota tracking
+    const period = currentPeriod();
+    const counter = await ctx.db
+      .query("usageCounters")
+      .withIndex("by_tenant_period", (q) => q.eq("tenantId", args.tenantId).eq("period", period))
+      .unique();
+    if (counter) {
+      await ctx.db.patch(counter._id, {
+        quoteRequestsCount: counter.quoteRequestsCount + 1,
+      });
+    } else {
+      await ctx.db.insert("usageCounters", {
+        tenantId: args.tenantId,
+        period,
+        quoteRequestsCount: 1,
+        activeConfiguratorsCount: 0,
+      });
+    }
+
     return { quoteId, priceCents: finalPriceCents };
   },
 });
@@ -259,6 +281,7 @@ export const signQuote = mutation({
     const quote = await ctx.db.get(args.quoteId);
     if (!quote) throw new ConvexError("QUOTE_NOT_FOUND");
     await requireMembership(ctx, quote.tenantId);
+    await enforceForESignature(ctx, quote.tenantId);
 
     if (!args.signatureDataUrl.startsWith("data:image/")) {
       throw new ConvexError("INVALID_SIGNATURE");

@@ -5,6 +5,7 @@ import { regionForCountry } from "./lib/regions";
 import { complianceForRegion } from "./lib/compliance";
 import { calculatePrice, type CatalogPayload, type ProjectItem } from "../src/shared/pricing";
 import { computeOverallUw } from "../src/shared/pricing";
+import { enforceForFiscalEngine } from "./lib/enforcement";
 
 function round2(n: number): number {
   return Math.round(n * 100) / 100;
@@ -313,6 +314,7 @@ export const serverCalculate = mutation({
   },
   handler: async (ctx, args) => {
     await requireUser(ctx);
+    await enforceForFiscalEngine(ctx, args.tenantId);
 
     const catalogData = await getTenantCatalog(ctx, args.tenantId);
     if (!catalogData) throw new Error("NO_CATALOG");

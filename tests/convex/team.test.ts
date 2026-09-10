@@ -63,7 +63,7 @@ describe("team invitations", () => {
         email: "fourth@example.com",
         role: "member",
       }),
-    ).rejects.toThrow(/MEMBER_LIMIT_REACHED/);
+    ).rejects.toThrow(/TEAM_QUOTA_EXCEEDED/);
   });
 
   test("expired invitation cannot be accepted", async () => {

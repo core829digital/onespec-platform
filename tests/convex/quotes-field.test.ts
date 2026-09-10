@@ -4,7 +4,7 @@ import { newDb, seedTenant, seedPublishedConfigurator, sampleItem } from "./_hel
 
 test("Fase 21 IT: Field quote creation, UNI 11673 posa, Ecobonus, and digital signature", async () => {
   const t = newDb();
-  const seeded = await seedTenant(t);
+  const seeded = await seedTenant(t, { plan: "pro" });
   const configuratorId = await seedPublishedConfigurator(t, seeded.tenantId, "IT_FIELD_01");
 
   const asOwner = t.withIdentity({ subject: seeded.ownerId });

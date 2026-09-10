@@ -108,7 +108,7 @@ describe("createConfigurator enforces the plan limit", () => {
         tenantId: A.tenantId,
         name: "Second",
       }),
-    ).rejects.toThrow(/CONFIGURATOR_LIMIT_REACHED/);
+    ).rejects.toThrow(/CONFIGURATOR_QUOTA_EXCEEDED/);
   });
 
   test("business tenant can create 3", async () => {
@@ -126,6 +126,6 @@ describe("createConfigurator enforces the plan limit", () => {
         tenantId: A.tenantId,
         name: "C4",
       }),
-    ).rejects.toThrow(/CONFIGURATOR_LIMIT_REACHED/);
+    ).rejects.toThrow(/CONFIGURATOR_QUOTA_EXCEEDED/);
   });
 });

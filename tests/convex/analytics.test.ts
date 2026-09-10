@@ -33,7 +33,7 @@ async function quote(
 describe("analytics.getOverview", () => {
   test("aggregates status, conversion and value from real rows only", async () => {
     const t = newDb();
-    const { tenantId, memberId } = await seedTenant(t);
+    const { tenantId, memberId } = await seedTenant(t, { plan: "pro" });
     const cfg = await seedPublishedConfigurator(t, tenantId);
     await quote(t, tenantId, cfg, "won", 100_00);
     await quote(t, tenantId, cfg, "won", 300_00);
@@ -57,7 +57,7 @@ describe("analytics.getOverview", () => {
 
   test("widget views are deduped per token and drive visitor conversion rate", async () => {
     const t = newDb();
-    const { tenantId, ownerId } = await seedTenant(t);
+    const { tenantId, ownerId } = await seedTenant(t, { plan: "showroom" });
     await seedPublishedConfigurator(t, tenantId);
     await quote(t, tenantId, await seedPublishedConfigurator(t, tenantId, "PUB2"), "new", 100_00);
 

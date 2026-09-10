@@ -4,6 +4,7 @@ import { query, mutation } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
 import { requireMembership, requireTenantRole } from "./lib/auth";
 import { requireTenantRegion } from "./lib/fieldModules";
+import { enforceForFullFieldModules } from "./lib/enforcement";
 import { complianceForRegion, computePosaMaterials } from "./lib/compliance";
 import { regionForCountry } from "./lib/regions";
 
@@ -89,6 +90,7 @@ export const create = mutation({
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    await enforceForFullFieldModules(ctx, args.tenantId);
     const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
     const std = complianceForRegion(regionCode).installation;
 
