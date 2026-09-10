@@ -1,9 +1,79 @@
 "use client";
 
+import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
+import { ADMIN_PREVIEW_EMAIL, canPreviewMarkets, previewableRegions } from "@/lib/country-locale";
+
+function MarketPreview() {
+  const [region, setRegion] = useState("IT");
+  const preview = useQuery(api.admin.getMarketPreview, { regionCode: region });
+
+  return (
+    <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg">
+      <div className="px-6 py-4 flex flex-wrap items-center justify-between gap-3">
+        <span className="font-bold text-[var(--color-text)]">
+          Anteprima mercato · <span className="font-mono text-xs">{ADMIN_PREVIEW_EMAIL}</span>
+        </span>
+        <select
+          value={region}
+          onChange={(e) => setRegion(e.target.value)}
+          aria-label="Seleziona mercato"
+          className="rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1.5 text-sm text-[var(--color-text)]"
+        >
+          {previewableRegions().map((r) => (
+            <option key={r.code} value={r.code}>
+              {r.label}
+            </option>
+          ))}
+        </select>
+      </div>
+      {preview === undefined ? (
+        <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">Caricamento...</div>
+      ) : (
+        <div className="px-6 py-4 space-y-4 text-sm">
+          <div className="flex flex-wrap gap-1.5">
+            <span className="rounded-full bg-[var(--color-accent)] px-2.5 py-1 text-xs font-semibold text-[var(--color-accent-ink)]">
+              {preview.installation.norm}
+            </span>
+            <span className="rounded-full border border-[var(--color-border)] px-2.5 py-1 text-xs">
+              widget: {preview.widgetMode}
+            </span>
+            <span className="rounded-full border border-[var(--color-border)] px-2.5 py-1 text-xs">
+              {preview.vatRates.map((v) => `${v.percent}%`).join(" / ")}
+            </span>
+            <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-medium text-emerald-800">
+              {preview.funding.title}
+            </span>
+          </div>
+          <div>
+            <p className="font-semibold text-[var(--color-text)]">Posa — {preview.installation.name}</p>
+            <p className="text-[var(--color-text-secondary)]">
+              {preview.installation.jobTypes.length} tipi lavoro ·{" "}
+              {preview.installation.nodeTypes.length} nodi ·{" "}
+              {preview.installation.materials.length} materiali
+            </p>
+          </div>
+          <div>
+            <p className="font-semibold text-[var(--color-text)]">Collaudo — {preview.inspection.title}</p>
+            <p className="text-[var(--color-text-secondary)]">{preview.inspection.legalBasis}</p>
+          </div>
+          <div>
+            <p className="font-semibold text-[var(--color-text)]">
+              Agevolazione — {preview.funding.programme}
+            </p>
+            <p className="text-[var(--color-text-secondary)]">
+              {preview.funding.hasPortalXml ? "XML portale" : "PDF firmato"} ·{" "}
+              {preview.funding.preamble[0] ?? ""}
+            </p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function AdminPage() {
   const viewer = useQuery(api.users.viewer);
@@ -76,6 +146,8 @@ export default function AdminPage() {
           ))
         )}
       </div>
+
+      {canPreviewMarkets(viewer?.email) && <MarketPreview />}
 
       <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg divide-y divide-[var(--color-border)]">
         <div className="px-6 py-4 font-bold text-[var(--color-text)]">

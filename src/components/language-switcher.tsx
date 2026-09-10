@@ -6,6 +6,10 @@ import { CaretDown, Check, Translate } from "@phosphor-icons/react/dist/ssr";
 import { usePathname, useRouter } from "@/i18n/navigation";
 import { routing, LOCALE_LABELS, type AppLocale } from "@/i18n/routing";
 
+export function persistLocaleChoice(next: AppLocale) {
+  document.cookie = `onespec-locale=${next}; max-age=${60 * 60 * 24 * 365}; path=/; samesite=lax`;
+}
+
 export function LanguageSwitcher() {
   const locale = useLocale() as AppLocale;
   const t = useTranslations("languageSwitcher");
@@ -24,6 +28,8 @@ export function LanguageSwitcher() {
 
   function select(next: AppLocale) {
     setOpen(false);
+    // Manual choice wins over geo auto-redirect forever.
+    persistLocaleChoice(next);
     router.replace(pathname, { locale: next });
   }
 

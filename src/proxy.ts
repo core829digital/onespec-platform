@@ -8,6 +8,7 @@ import createMiddleware from "next-intl/middleware";
 import { fetchQuery } from "convex/nextjs";
 import { api } from "../convex/_generated/api";
 import { routing } from "./i18n/routing";
+import { localeForCountry } from "./lib/country-locale";
 
 const intlMiddleware = createMiddleware(routing);
 
@@ -113,6 +114,30 @@ export default convexAuthNextjsMiddleware(
     }
     if (isProtected(request) && !authed) {
       return nextjsMiddlewareRedirect(request, `${prefix}/auth/login`);
+    }
+
+    // First-visit market detection: a visitor on a locale-less path with no
+    // manual choice yet is sent to the locale of their geo country (e.g. a
+    // visitor from France lands on /fr with the French market behaviour).
+    // Runs before next-intl so geo wins over Accept-Language negotiation.
+    // The authoritative market stays the tenant's stored `country`; picking a
+    // language in the switcher writes the `onespec-locale` cookie and stops
+    // any further auto-redirect.
+    if (!prefix && !request.cookies.get("onespec-locale")) {
+      const geoCountry =
+        request.headers.get("x-vercel-ip-country") ?? request.headers.get("cf-ipcountry");
+      const geoLocale = localeForCountry(geoCountry);
+      if (geoLocale && geoLocale !== routing.defaultLocale) {
+        const url = request.nextUrl.clone();
+        url.pathname = `/${geoLocale}${pathname}`;
+        const redirect = NextResponse.redirect(url);
+        redirect.cookies.set("onespec-locale", geoLocale, {
+          maxAge: 60 * 60 * 24 * 365,
+          sameSite: "lax",
+          path: "/",
+        });
+        return redirect;
+      }
     }
 
     const res = intlMiddleware(request);
