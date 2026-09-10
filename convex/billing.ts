@@ -326,3 +326,55 @@ export const reconcile = internalAction({
     return { skipped: false };
   },
 });
+
+/**
+ * Safety net for expired trials (daily cron). Stripe-managed trials convert
+ * or fail via webhook; this only flips abandoned pre-Stripe rows to past_due
+ * and notifies once, so a lapsed trial can never silently keep Pro access.
+ */
+export const trialSweep = internalMutation({
+  handler: async (ctx) => {
+    const now = Date.now();
+    const trialing = await ctx.db
+      .query("tenants")
+      .withIndex("by_planStatus", (q) => q.eq("planStatus", "trialing"))
+      .collect();
+    let swept = 0;
+    for (const t of trialing) {
+      if (t.stripeSubscriptionId) {
+        // Stripe-owned: webhook converts or fails it. Only escalate when the
+        // trial end is 3+ days stale and Stripe never reported back.
+        if (t.trialEndsAt && t.trialEndsAt < now - 3 * 24 * 60 * 60 * 1000) {
+          await ctx.db.patch(t._id, { planStatus: "past_due", updatedAt: Date.now() });
+          await ctx.scheduler.runAfter(0, internal.notifications.fanOutToTenant, {
+            tenantId: t._id,
+            type: "plan_limit",
+            data: { message: "Trial sync overdue — check the subscription status." },
+            href: `/app/account/billing`,
+          });
+          swept++;
+        }
+        continue;
+      }
+      if (t.trialEndsAt && t.trialEndsAt < now) {
+        await ctx.db.patch(t._id, { planStatus: "past_due", updatedAt: Date.now() });
+        await ctx.db.insert("auditLog", {
+          tenantId: t._id,
+          actorKind: "system",
+          action: "trial.expired",
+          targetTable: "tenants",
+          targetId: t._id,
+          createdAt: now,
+        });
+        await ctx.scheduler.runAfter(0, internal.notifications.fanOutToTenant, {
+          tenantId: t._id,
+          type: "plan_limit",
+          data: { message: "Pro trial ended — choose a plan to keep Pro features." },
+          href: `/app/account/billing`,
+        });
+        swept++;
+      }
+    }
+    return { swept };
+  },
+});

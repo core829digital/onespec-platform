@@ -127,4 +127,110 @@ describe("billing.getBillingState + webhook", () => {
     expect(tenant?.stripeSubscriptionId).toBe("sub_1");
     expect(tenant?.planStatus).toBe("active");
   });
+
+  test("checkout.session.completed with trial metadata starts a Pro trial", async () => {
+    const t = newDb();
+    const { tenantId } = await seedTenant(t);
+
+    await t.mutation(internal.billing.applyWebhookEvent, {
+      eventId: "evt_trial_1",
+      type: "checkout.session.completed",
+      data: {
+        object: {
+          client_reference_id: tenantId,
+          customer: "cus_trial",
+          subscription: "sub_trial",
+          metadata: { trialPlan: "pro", cycle: "monthly" },
+        },
+      },
+    });
+
+    const tenant = await t.run((ctx) => ctx.db.get(tenantId));
+    expect(tenant?.plan).toBe("pro");
+    expect(tenant?.trialPlan).toBe("pro");
+    expect(tenant?.trialStartedAt).toBeDefined();
+    expect(tenant?.billingCycle).toBe("monthly");
+  });
+
+  test("subscription.updated trialing records trial end; active clears it", async () => {
+    const t = newDb();
+    const { tenantId } = await seedTenant(t);
+    const trialEnd = Math.floor(Date.now() / 1000) + 14 * 24 * 60 * 60;
+
+    await t.mutation(internal.billing.applyWebhookEvent, {
+      eventId: "evt_trial_2",
+      type: "customer.subscription.updated",
+      data: {
+        object: {
+          id: "sub_trial",
+          customer: "cus_trial",
+          client_reference_id: tenantId,
+          status: "trialing",
+          trial_end: trialEnd,
+          current_period_end: trialEnd,
+          items: { data: [] },
+        },
+      },
+    });
+    // tenantId resolution needs the customer link first
+    const tenant = await t.run((ctx) => ctx.db.get(tenantId));
+    expect(tenant?.trialEndsAt).toBe(trialEnd * 1000);
+    expect(tenant?.trialPlan).toBe("pro");
+  });
+
+  test("trialSweep flips abandoned pre-Stripe trials to past_due, skips active subs", async () => {
+    const t = newDb();
+    const abandoned = await seedTenant(t);
+    const active = await seedTenant(t);
+    await t.run(async (ctx) => {
+      await ctx.db.patch(abandoned.tenantId, {
+        planStatus: "trialing",
+        trialEndsAt: Date.now() - 4 * 24 * 60 * 60 * 1000,
+      });
+      await ctx.db.patch(active.tenantId, {
+        planStatus: "trialing",
+        stripeSubscriptionId: "sub_live",
+        trialEndsAt: Date.now() + 5 * 24 * 60 * 60 * 1000,
+      });
+    });
+
+    const res = await t.mutation(internal.billing.trialSweep, {});
+    expect(res.swept).toBe(1);
+
+    const after = await t.run(async (ctx) => ({
+      abandoned: await ctx.db.get(abandoned.tenantId),
+      active: await ctx.db.get(active.tenantId),
+    }));
+    expect(after.abandoned?.planStatus).toBe("past_due");
+    expect(after.active?.planStatus).toBe("trialing");
+  });
+
+  test("price→plan reverse map resolves regional env prices to pro", async () => {
+    process.env.STRIPE_PRICE_PRO_MONTHLY_IT = "price_test_pro_it";
+    try {
+      const t = newDb();
+      const { tenantId } = await seedTenant(t);
+      await t.run(async (ctx) => {
+        await ctx.db.patch(tenantId, { stripeCustomerId: "cus_map" });
+      });
+      await t.mutation(internal.billing.applyWebhookEvent, {
+        eventId: "evt_map_1",
+        type: "customer.subscription.updated",
+        data: {
+          object: {
+            id: "sub_map",
+            customer: "cus_map",
+            status: "active",
+            current_period_end: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60,
+            items: { data: [{ price: { id: "price_test_pro_it" } }] },
+          },
+        },
+      });
+      const tenant = await t.run((ctx) => ctx.db.get(tenantId));
+      expect(tenant?.plan).toBe("pro");
+      expect(tenant?.billingCycle).toBe("monthly");
+    } finally {
+      delete process.env.STRIPE_PRICE_PRO_MONTHLY_IT;
+    }
+  });
 });

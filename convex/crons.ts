@@ -11,4 +11,10 @@ crons.daily(
   internal.billing.reconcile,
 );
 
+crons.daily(
+  "trial-sweep",
+  { hourUTC: 4, minuteUTC: 0 },
+  internal.billing.trialSweep,
+);
+
 export default crons;
