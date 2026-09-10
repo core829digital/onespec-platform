@@ -7,9 +7,11 @@ import { resolveTenantEntitlements } from "./lib/entitlements";
 import {
   BILLING_PLANS,
   ALPHA_DISCOUNT_PCT,
-  billingPlan,
   effectivePriceCents,
   listPriceCents,
+  resolveStripePriceId,
+  planFromStripePriceId,
+  type BillingCycle,
 } from "./lib/billingPlans";
 import { regionForCountry } from "./lib/regions";
 
@@ -90,6 +92,8 @@ export const assertOwner = internalQuery({
       email: (await ctx.db.get(membership.userId))?.email ?? undefined,
       stripeCustomerId: tenant.stripeCustomerId,
       slug: tenant.slug,
+      country: tenant.country ?? null,
+      trialStartedAt: tenant.trialStartedAt ?? null,
     };
   },
 });
@@ -99,16 +103,23 @@ export const assertOwner = internalQuery({
 // ---------------------------------------------------------------------------
 
 export const createCheckoutSession = action({
-  args: { tenantId: v.id("tenants"), plan: v.union(v.literal("starter"), v.literal("business")) },
+  args: {
+    tenantId: v.id("tenants"),
+    plan: v.union(v.literal("starter"), v.literal("pro"), v.literal("business")),
+    cycle: v.optional(v.union(v.literal("monthly"), v.literal("annual"))),
+  },
   handler: async (ctx, args): Promise<{ url: string }> => {
     if (!stripeKey()) throw new ConvexError("BILLING_NOT_CONFIGURED");
-    const plan = billingPlan(args.plan);
-    const priceId = plan?.stripePriceEnv ? process.env[plan.stripePriceEnv] : undefined;
-    if (!priceId) throw new ConvexError("BILLING_PRICE_NOT_CONFIGURED");
+    // "business" is the pre-migration plan key — it checks out as Pro.
+    const planKey = (args.plan === "business" ? "pro" : args.plan) as "starter" | "pro";
+    const cycle: BillingCycle = args.cycle ?? "monthly";
 
     const owner = await ctx.runQuery(internal.billing.assertOwner, { tenantId: args.tenantId });
+    const region = regionForCountry(owner.country).code;
+    const priceId = resolveStripePriceId(planKey, cycle, region);
+    if (!priceId) throw new ConvexError("BILLING_PRICE_NOT_CONFIGURED");
 
-    const session = await stripe("/checkout/sessions", {
+    const params: Record<string, string | undefined> = {
       mode: "subscription",
       "line_items[0][price]": priceId,
       "line_items[0][quantity]": "1",
@@ -116,10 +127,22 @@ export const createCheckoutSession = action({
       customer_email: owner.stripeCustomerId ? undefined : owner.email,
       client_reference_id: args.tenantId,
       "subscription_data[metadata][tenantId]": args.tenantId,
+      "subscription_data[metadata][plan]": planKey,
+      "subscription_data[metadata][cycle]": cycle,
       success_url: `${siteUrl()}/app/account/billing?status=success`,
       cancel_url: `${siteUrl()}/app/account/billing?status=cancelled`,
       allow_promotion_codes: "true",
-    });
+    };
+
+    // Pro-only 14-day trial: the card is captured up front and Stripe
+    // auto-converts at trial end (no trial = immediate charge).
+    if (planKey === "pro" && !owner.trialStartedAt) {
+      params["subscription_data[trial_period_days]"] = "14";
+      params["payment_method_collection"] = "always";
+      params["subscription_data[metadata][trialPlan]"] = "pro";
+    }
+
+    const session = await stripe("/checkout/sessions", params);
     return { url: String(session.url) };
   },
 });
@@ -216,12 +239,23 @@ export const applyWebhookEvent = internalMutation({
     if (tenantId) {
       const tenant = await ctx.db.get(tenantId as never);
       if (tenant) {
+        const tenantDoc =
+          "plan" in tenant ? (tenant as unknown as import("./_generated/dataModel").Doc<"tenants">) : null;
         const patch: Record<string, unknown> = {};
         if (customerId) patch.stripeCustomerId = customerId;
 
         if (args.type === "checkout.session.completed") {
           patch.stripeSubscriptionId = obj.subscription as string;
           patch.planStatus = "active";
+          const meta = (obj.metadata ?? {}) as Record<string, string>;
+          if (meta.trialPlan === "pro") {
+            patch.plan = "pro";
+            patch.trialPlan = "pro";
+            patch.trialStartedAt = Date.now();
+          }
+          if (meta.cycle === "annual" || meta.cycle === "monthly") {
+            patch.billingCycle = meta.cycle;
+          }
         }
         if (args.type.startsWith("customer.subscription")) {
           patch.stripeSubscriptionId = obj.id as string;
@@ -236,13 +270,25 @@ export const applyWebhookEvent = internalMutation({
             patch.subscriptionCurrentPeriodEnd = obj.current_period_end * 1000;
           patch.subscriptionCancelAtPeriodEnd = !!obj.cancel_at_period_end;
 
+          if (typeof obj.trial_start === "number" && !tenantDoc?.trialStartedAt) {
+            patch.trialStartedAt = obj.trial_start * 1000;
+          }
+          if (typeof obj.trial_end === "number") {
+            patch.trialEndsAt = obj.trial_end * 1000;
+            patch.trialPlan = "pro";
+          }
+          // Trial converted: clear the countdown.
+          if (status === "active") patch.trialEndsAt = undefined;
+
           const priceId = (
             (obj.items as { data?: Array<{ price?: { id?: string } }> } | undefined)?.data?.[0]?.price
               ?.id
           ) as string | undefined;
-          for (const p of BILLING_PLANS) {
-            if (p.stripePriceEnv && priceId && process.env[p.stripePriceEnv] === priceId) {
-              patch.plan = p.key;
+          if (priceId) {
+            const mapped = planFromStripePriceId(priceId);
+            if (mapped && (mapped.plan === "starter" || mapped.plan === "pro")) {
+              patch.plan = mapped.plan;
+              patch.billingCycle = mapped.cycle;
             }
           }
           if (args.type === "customer.subscription.deleted") {

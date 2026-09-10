@@ -13,32 +13,52 @@ describe("entitlement matrix matches the verified pricing page", () => {
   test("starter", () => {
     const e = entitlementsFor("starter");
     expect(e.maxConfigurators).toBe(1);
-    expect(e.maxQuotesPerMonth).toBe(50);
+    expect(e.maxQuotesPerMonth).toBe(20);
     expect(e.whiteLabel).toBe(false);
     expect(e.customDomain).toBe(false);
     expect(e.lifetimeDiscountPct).toBe(0);
+    expect(e.fieldModules).toBe("rilievo_only");
+    expect(e.fiscalEngine).toBe("basic");
+    expect(e.analytics).toBe("none");
   });
-  test("business", () => {
+  test("business (legacy) resolves to Pro", () => {
     const e = entitlementsFor("business");
     expect(e.maxConfigurators).toBe(3);
-    expect(e.maxQuotesPerMonth).toBe(300);
+    expect(e.maxQuotesPerMonth).toBe(Infinity);
     expect(e.whiteLabel).toBe(true);
     expect(e.advancedPricingRules).toBe(true);
     expect(e.customDomain).toBe(false);
+    expect(e.fieldModules).toBe("full");
   });
-  test("enterprise is unlimited + custom domain + API", () => {
-    const e = entitlementsFor("enterprise");
+  test("pro", () => {
+    const e = entitlementsFor("pro");
+    expect(e.maxConfigurators).toBe(3);
+    expect(e.maxTeamMembers).toBe(5);
+    expect(e.fieldModules).toBe("full");
+    expect(e.eSignature).toBe(true);
+    expect(e.trialEligible).toBe(true);
+  });
+  test("showroom extends enterprise with storefront", () => {
+    const e = entitlementsFor("showroom");
     expect(e.maxConfigurators).toBe(Infinity);
+    expect(e.publicWidget).toBe(true);
+    expect(e.showroomCalculator).toBe(true);
+    expect(entitlementsFor("enterprise").publicWidget).toBe(false);
+  });
+  test("enterprise is capped seats + custom domain + API", () => {
+    const e = entitlementsFor("enterprise");
+    expect(e.maxConfigurators).toBe(10);
     expect(e.maxQuotesPerMonth).toBe(Infinity);
     expect(e.customDomain).toBe(true);
     expect(e.apiAccess).toBe(true);
     expect(e.bulkImportMultiSite).toBe(true);
   });
-  test("alpha = business + locked 15% discount", () => {
+  test("alpha = pro + locked 15% discount + advanced analytics", () => {
     const e = entitlementsFor("alpha");
     expect(e.maxConfigurators).toBe(3);
     expect(e.whiteLabel).toBe(true);
     expect(e.lifetimeDiscountPct).toBe(15);
+    expect(e.analytics).toBe("advanced");
   });
   test("unknown plan falls back to starter", () => {
     expect(entitlementsFor("nope").maxConfigurators).toBe(1);

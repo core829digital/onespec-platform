@@ -11,15 +11,16 @@ import { newDb, seedTenant } from "./_helpers";
 describe("billing plan catalogue", () => {
   test("verified prices match the pricing page", () => {
     expect(BILLING_PLANS.find((p) => p.key === "starter")?.priceCents).toBe(2400);
-    expect(BILLING_PLANS.find((p) => p.key === "business")?.priceCents).toBe(4700);
+    expect(BILLING_PLANS.find((p) => p.key === "pro")?.priceCents).toBe(4700);
     expect(BILLING_PLANS.find((p) => p.key === "enterprise")?.priceCents).toBeNull();
+    expect(BILLING_PLANS.find((p) => p.key === "showroom")?.priceCents).toBeNull();
   });
 
   test("Alpha price is a derived 15% discount", () => {
     expect(alphaPriceCents(2400)).toBe(2040);
     expect(alphaPriceCents(4700)).toBe(3995);
-    expect(effectivePriceCents("business", true)).toBe(3995);
-    expect(effectivePriceCents("business", false)).toBe(4700);
+    expect(effectivePriceCents("pro", true)).toBe(3995);
+    expect(effectivePriceCents("pro", false)).toBe(4700);
     expect(effectivePriceCents("enterprise", true)).toBeNull();
   });
 });
@@ -61,10 +62,10 @@ describe("billing.getBillingState + webhook", () => {
       .query(api.billing.getBillingState, { tenantId });
     expect(s?.checkoutAvailable).toBe(false);
     // No country on the tenant → region resolves to the IT default, so the
-    // Business plan uses the IT regional price (€89) with the 15% Alpha discount.
+    // Pro plan uses the IT regional price (€89) with the 15% Alpha discount.
     expect(s?.region).toBe("IT");
-    expect(s?.plans.find((p) => p.key === "business")?.priceCents).toBe(8900);
-    expect(s?.plans.find((p) => p.key === "business")?.yourPriceCents).toBe(7565);
+    expect(s?.plans.find((p) => p.key === "pro")?.priceCents).toBe(8900);
+    expect(s?.plans.find((p) => p.key === "pro")?.yourPriceCents).toBe(7565);
   });
 
   test("a region without a price override falls back to the base plan price", async () => {
@@ -77,8 +78,8 @@ describe("billing.getBillingState + webhook", () => {
       .withIdentity({ subject: ownerId })
       .query(api.billing.getBillingState, { tenantId });
     expect(s?.region).toBe("NL");
-    // NL has no REGIONAL_PRICES entry yet → base Business price €47.
-    expect(s?.plans.find((p) => p.key === "business")?.priceCents).toBe(4700);
+    // NL has a REGIONAL_PRICES entry → Pro price €129.
+    expect(s?.plans.find((p) => p.key === "pro")?.priceCents).toBe(12900);
   });
 
   test("FR tenant gets the France regional plan price", async () => {
@@ -91,7 +92,7 @@ describe("billing.getBillingState + webhook", () => {
       .withIdentity({ subject: ownerId })
       .query(api.billing.getBillingState, { tenantId });
     expect(s?.region).toBe("FR");
-    expect(s?.plans.find((p) => p.key === "business")?.priceCents).toBe(10400);
+    expect(s?.plans.find((p) => p.key === "pro")?.priceCents).toBe(9900);
   });
 
   test("BE tenant gets the Belgium regional plan price", async () => {
@@ -104,7 +105,7 @@ describe("billing.getBillingState + webhook", () => {
       .withIdentity({ subject: ownerId })
       .query(api.billing.getBillingState, { tenantId });
     expect(s?.region).toBe("BE");
-    expect(s?.plans.find((p) => p.key === "business")?.priceCents).toBe(10400);
+    expect(s?.plans.find((p) => p.key === "pro")?.priceCents).toBe(9900);
   });
 
   test("applyWebhookEvent activates a subscription and is idempotent", async () => {

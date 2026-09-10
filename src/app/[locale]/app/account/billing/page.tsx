@@ -119,7 +119,7 @@ export default function BillingPage() {
                       go(() =>
                         checkout({
                           tenantId: tenant!._id,
-                          plan: p.key as "starter" | "business",
+                          plan: p.key as "starter" | "pro",
                         }),
                       )
                     }

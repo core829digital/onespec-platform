@@ -55,8 +55,8 @@ describe("resolveEffectiveConfig", () => {
       configurator: baseCfg,
       branding: null,
     });
-    expect(r.maxQuotesPerMonth).toEqual({ value: 300, source: "plan" });
-    expect(r.analytics).toEqual({ value: "advanced", source: "plan" });
+    expect(r.maxQuotesPerMonth).toEqual({ value: Infinity, source: "plan" });
+    expect(r.analytics).toEqual({ value: "basic", source: "plan" });
   });
 
   test("PLATFORM_DEFAULTS stays the documented product baseline", () => {

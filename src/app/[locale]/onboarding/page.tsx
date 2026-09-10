@@ -118,7 +118,7 @@ export default function OnboardingWizard() {
             la conferma del pagamento.
           </p>
           <div className="flex flex-wrap gap-2">
-            {(["starter", "business"] as const).map((p) => (
+            {(["starter", "pro"] as const).map((p) => (
               <button
                 key={p}
                 type="button"

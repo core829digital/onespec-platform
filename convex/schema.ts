@@ -25,7 +25,10 @@ export default defineSchema({
     isAlpha: v.boolean(),
     alphaSeatNumber: v.optional(v.number()),
     plan: v.union(v.literal("alpha"), v.literal("starter"),
-                  v.literal("business"), v.literal("enterprise")),
+                  // "business" is transitional: deploy #1 keeps it validating while
+                  // the migration renames rows to "pro"; deploy #2 drops it.
+                  v.literal("business"),
+                  v.literal("pro"), v.literal("enterprise"), v.literal("showroom")),
     planStatus: v.union(v.literal("active"), v.literal("trialing"),
                         v.literal("past_due"), v.literal("suspended")),
     alphaDiscountLocked: v.boolean(),
@@ -44,11 +47,20 @@ export default defineSchema({
     stripeSubscriptionId: v.optional(v.string()),
     subscriptionCurrentPeriodEnd: v.optional(v.number()),
     subscriptionCancelAtPeriodEnd: v.optional(v.boolean()),
+    // Pro-only 14-day trial (card captured up front, auto-converts via webhook).
+    trialPlan: v.optional(v.literal("pro")),
+    trialStartedAt: v.optional(v.number()),
+    trialEndsAt: v.optional(v.number()),
+    // Billing cycle chosen at checkout (display + annual price selection).
+    billingCycle: v.optional(v.union(v.literal("monthly"), v.literal("annual"))),
+    // Sales-led deals: setup fee invoiced outside Stripe.
+    setupFeePaidAt: v.optional(v.number()),
   })
     .index("by_slug", ["slug"])
     .index("by_owner", ["ownerUserId"])
     .index("by_alphaSeatNumber", ["alphaSeatNumber"])
-    .index("by_stripeCustomer", ["stripeCustomerId"]),
+    .index("by_stripeCustomer", ["stripeCustomerId"])
+    .index("by_planStatus", ["planStatus"]),
 
   /** Stripe webhook events — idempotency guard + billing audit trail. */
   billingEvents: defineTable({

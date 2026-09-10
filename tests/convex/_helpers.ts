@@ -23,7 +23,7 @@ let slugCounter = 0;
 
 export async function seedTenant(
   t: T,
-  opts: { plan?: "starter" | "business" | "enterprise" | "alpha"; isAlpha?: boolean } = {},
+  opts: { plan?: "starter" | "business" | "pro" | "enterprise" | "showroom" | "alpha"; isAlpha?: boolean } = {},
 ): Promise<SeededTenant> {
   const plan = opts.plan ?? "starter";
   const isAlpha = opts.isAlpha ?? plan === "alpha";

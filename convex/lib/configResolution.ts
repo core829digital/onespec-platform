@@ -80,7 +80,7 @@ export interface EffectiveConfig {
   whiteLabel: Resolved<boolean>;
   advancedPricingRules: Resolved<boolean>;
   multiCatalog: Resolved<boolean>;
-  analytics: Resolved<"basic" | "advanced">;
+  analytics: Resolved<"none" | "basic" | "advanced">;
   maxConfigurators: Resolved<number>;
   maxQuotesPerMonth: Resolved<number>;
   fontFamily: Resolved<string>;

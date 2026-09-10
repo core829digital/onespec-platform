@@ -6,14 +6,20 @@ import type { Doc } from "../_generated/dataModel";
  * Never trust a plan / entitlement value coming from the client — always
  * resolve it from the tenant document via `resolveTenantEntitlements`.
  *
- * Numbers reference the verified public pricing page:
- *   Starter  — 1 configurator, 50 requests/month, OneSpec badge required
- *   Business — 3 configurators, 300 requests/month, white-label + advanced
- *   Enterprise — unlimited, custom domain, API/CRM, multi-site import
- *   Alpha    — Business entitlements + locked 15% lifetime discount
+ * Plan ladder (founder strategy):
+ *   Starter   — solo installer: field quotes (capped), Rilievo, lead-gen widget
+ *   Pro       — installer firm: unlimited quotes, e-signature, advances,
+ *               maintenance, full fiscal engine + ENEA
+ *   Enterprise— showroom/distributor back-office: multi-supplier, API/CRM,
+ *               GAEB export, custom domain, no public storefront
+ *   Showroom  — Enterprise + in-app 3-zone showroom calculator + public B2C widget
+ *   Alpha     — internal: Pro entitlements + forced whiteLabel + 15% lifetime
+ *               discount + advanced analytics (no regression vs. today)
  */
 
-export type PlanKey = "starter" | "business" | "enterprise" | "alpha";
+export type PlanKey = "starter" | "pro" | "enterprise" | "showroom" | "alpha";
+
+export type SupportTier = "email" | "priority" | "dedicated";
 
 export interface Entitlements {
   /** Non-archived configurators. `Infinity` = unlimited. */
@@ -28,7 +34,7 @@ export interface Entitlements {
   advancedPricingRules: boolean;
   /** More than one price list per configurator. */
   multiCatalog: boolean;
-  analytics: "basic" | "advanced";
+  analytics: "none" | "basic" | "advanced";
   /** Guided CSV/XLSX price-list import. */
   csvImport: boolean;
   /** Bulk multi-site import (Enterprise onboarding). */
@@ -45,16 +51,44 @@ export interface Entitlements {
   transparentWidget: boolean;
   /** Locked lifetime discount percentage (Alpha = 15, else 0). */
   lifetimeDiscountPct: number;
+  /** Which field modules the tenant may use. */
+  fieldModules: "rilievo_only" | "full";
+  /** Fiscal engine depth: basic = single default VAT rate; full = Beni
+   * Significativi, reduced rates, ENEA / funding declarations. */
+  fiscalEngine: "basic" | "full";
+  /** Electronic signature on quotes (tablet). */
+  eSignature: boolean;
+  /** Advance invoices (acconto / acompte). */
+  advanceInvoices: boolean;
+  /** Yearly maintenance contracts on passports. */
+  maintenanceContracts: boolean;
+  /** Multi-supplier aggregator (supplier directory + supplier lines). */
+  multiSupplierAggregator: boolean;
+  /** In-app 3-zone showroom calculator. */
+  showroomCalculator: boolean;
+  /** Public embeddable B2C widget (/w/[publicId]). */
+  publicWidget: boolean;
+  /** GAEB/DATANORM export (DE official renovations). */
+  gaebExport: boolean;
+  /** CRM / stock API integration. */
+  crmIntegration: boolean;
+  support: SupportTier;
+  /** Annual billing offered (2 months free). Enterprise/Showroom are sales-led. */
+  annualBilling: boolean;
+  /** Self-serve Stripe checkout available. */
+  selfServeCheckout: boolean;
+  /** Eligible for the 14-day Pro trial. */
+  trialEligible: boolean;
 }
 
 const STARTER: Entitlements = {
   maxConfigurators: 1,
-  maxQuotesPerMonth: 50,
+  maxQuotesPerMonth: 20,
   maxTeamMembers: 2,
   whiteLabel: false,
   advancedPricingRules: false,
   multiCatalog: false,
-  analytics: "basic",
+  analytics: "none",
   csvImport: true,
   bulkImportMultiSite: false,
   customDomain: false,
@@ -62,44 +96,86 @@ const STARTER: Entitlements = {
   prioritySupport: false,
   transparentWidget: false,
   lifetimeDiscountPct: 0,
+  fieldModules: "rilievo_only",
+  fiscalEngine: "basic",
+  eSignature: false,
+  advanceInvoices: false,
+  maintenanceContracts: false,
+  multiSupplierAggregator: false,
+  showroomCalculator: false,
+  publicWidget: false,
+  gaebExport: false,
+  crmIntegration: false,
+  support: "email",
+  annualBilling: true,
+  selfServeCheckout: true,
+  trialEligible: false,
 };
 
-const BUSINESS: Entitlements = {
+const PRO: Entitlements = {
   ...STARTER,
   maxConfigurators: 3,
-  maxQuotesPerMonth: 300,
-  maxTeamMembers: 10,
+  maxQuotesPerMonth: Infinity,
+  maxTeamMembers: 5,
   whiteLabel: true,
   advancedPricingRules: true,
   multiCatalog: true,
-  analytics: "advanced",
+  analytics: "basic",
   prioritySupport: true,
   transparentWidget: true,
+  fieldModules: "full",
+  fiscalEngine: "full",
+  eSignature: true,
+  advanceInvoices: true,
+  maintenanceContracts: true,
+  support: "priority",
+  trialEligible: true,
 };
 
 const ENTERPRISE: Entitlements = {
-  ...BUSINESS,
-  maxConfigurators: Infinity,
-  maxQuotesPerMonth: Infinity,
-  maxTeamMembers: Infinity,
+  ...PRO,
+  maxConfigurators: 10,
+  maxTeamMembers: 15,
+  analytics: "advanced",
   bulkImportMultiSite: true,
   customDomain: true,
   apiAccess: true,
+  multiSupplierAggregator: true,
+  gaebExport: true,
+  crmIntegration: true,
+  support: "dedicated",
+  annualBilling: false,
+  selfServeCheckout: false,
+};
+
+const SHOWROOM: Entitlements = {
+  ...ENTERPRISE,
+  maxConfigurators: Infinity,
+  maxTeamMembers: 25,
+  showroomCalculator: true,
+  publicWidget: true,
 };
 
 const ALPHA: Entitlements = {
-  ...BUSINESS,
+  ...PRO,
+  analytics: "advanced",
+  whiteLabel: true,
   lifetimeDiscountPct: 15,
+  multiSupplierAggregator: true,
 };
 
 const PLAN_ENTITLEMENTS: Record<PlanKey, Entitlements> = {
   starter: STARTER,
-  business: BUSINESS,
+  pro: PRO,
   enterprise: ENTERPRISE,
+  showroom: SHOWROOM,
   alpha: ALPHA,
 };
 
 export function entitlementsFor(plan: string): Entitlements {
+  // "business" is the pre-migration plan key (deploy #1 transition) — it
+  // resolves to Pro so not-yet-migrated rows keep working.
+  if (plan === "business") return PRO;
   return PLAN_ENTITLEMENTS[plan as PlanKey] ?? STARTER;
 }
 
@@ -108,9 +184,43 @@ export function resolveTenantEntitlements(tenant: Doc<"tenants">): Entitlements 
   const base = entitlementsFor(tenant.plan);
   // Alpha members keep white-label + discount even if the stored plan drifts.
   if (tenant.isAlpha) {
-    return { ...base, whiteLabel: true, lifetimeDiscountPct: Math.max(base.lifetimeDiscountPct, 15) };
+    return {
+      ...base,
+      whiteLabel: true,
+      lifetimeDiscountPct: Math.max(base.lifetimeDiscountPct, 15),
+      fieldModules: "full",
+      fiscalEngine: "full",
+    };
   }
   return base;
+}
+
+export type BooleanEntitlementKey = {
+  [K in keyof Entitlements]: Entitlements[K] extends boolean ? K : never;
+}[keyof Entitlements];
+
+/** Hard gate on a boolean entitlement — throws `ConvexError(code)` when off. */
+export function assertEntitlement(
+  tenant: Doc<"tenants">,
+  key: BooleanEntitlementKey,
+  code: string,
+): void {
+  if (resolveTenantEntitlements(tenant)[key] !== true) {
+    throw new ConvexError(code);
+  }
+}
+
+/** Hard gate on a valued entitlement — throws `ConvexError(code)` when the
+ * tenant's value is not in the allowed list. */
+export function assertEntitlementValue<K extends keyof Entitlements>(
+  tenant: Doc<"tenants">,
+  key: K,
+  allowed: Entitlements[K][],
+  code: string,
+): void {
+  if (!allowed.includes(resolveTenantEntitlements(tenant)[key])) {
+    throw new ConvexError(code);
+  }
 }
 
 export interface QuotaResult {
