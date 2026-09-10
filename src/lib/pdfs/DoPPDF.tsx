@@ -148,8 +148,8 @@ export function DoPPDF({
 
   const rows: [string, string, string][] = [
     ["Coefficiente di trasmittanza termica (Uw)", `${uValue.toFixed(2)} W/m²K`, "EN 10077-1/2"],
-    ["Permeabilità all'aria", airPermeability, "EN 1026 / EN 12207"],
-    ["Tenuta all'acqua", waterTightness, "EN 1027 / EN 12208"],
+    ["Permeabilità all&apos;aria", airPermeability, "EN 1026 / EN 12207"],
+    ["Tenuta all&apos;acqua", waterTightness, "EN 1027 / EN 12208"],
     ["Resistenza al carico del vento", windResistance, "EN 12211 / EN 12210"],
     ["Isolamento acustico (Rw)", `${acousticInsulation} dB`, "EN ISO 10140-2"],
     ["Sostanze pericolose", dangerousSubstances, "Reg. (CE) 1907/2006"],
