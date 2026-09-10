@@ -43,7 +43,7 @@ export async function seedTenant(
       slug: `tenant-${slugCounter++}-${Date.now()}`,
       ownerUserId: ownerId,
       isAlpha,
-      plan,
+      plan: plan as "alpha" | "starter" | "pro" | "enterprise" | "showroom",
       planStatus: "active",
       alphaDiscountLocked: isAlpha,
       createdVia: isAlpha ? "alpha_signup" : "open_signup",

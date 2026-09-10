@@ -25,9 +25,6 @@ export default defineSchema({
     isAlpha: v.boolean(),
     alphaSeatNumber: v.optional(v.number()),
     plan: v.union(v.literal("alpha"), v.literal("starter"),
-                  // "business" is transitional: deploy #1 keeps it validating while
-                  // the migration renames rows to "pro"; deploy #2 drops it.
-                  v.literal("business"),
                   v.literal("pro"), v.literal("enterprise"), v.literal("showroom")),
     planStatus: v.union(v.literal("active"), v.literal("trialing"),
                         v.literal("past_due"), v.literal("suspended")),

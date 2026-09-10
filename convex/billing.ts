@@ -105,13 +105,12 @@ export const assertOwner = internalQuery({
 export const createCheckoutSession = action({
   args: {
     tenantId: v.id("tenants"),
-    plan: v.union(v.literal("starter"), v.literal("pro"), v.literal("business")),
+    plan: v.union(v.literal("starter"), v.literal("pro")),
     cycle: v.optional(v.union(v.literal("monthly"), v.literal("annual"))),
   },
   handler: async (ctx, args): Promise<{ url: string }> => {
     if (!stripeKey()) throw new ConvexError("BILLING_NOT_CONFIGURED");
-    // "business" is the pre-migration plan key — it checks out as Pro.
-    const planKey = (args.plan === "business" ? "pro" : args.plan) as "starter" | "pro";
+    const planKey = args.plan;
     const cycle: BillingCycle = args.cycle ?? "monthly";
 
     const owner = await ctx.runQuery(internal.billing.assertOwner, { tenantId: args.tenantId });
