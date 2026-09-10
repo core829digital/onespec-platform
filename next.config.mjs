@@ -45,6 +45,17 @@ const APP_SECURITY_HEADERS = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
+  async redirects() {
+    return [
+      {
+        // Legacy deep links (old bundles / bookmarks) without the /app prefix.
+        // next-intl middleware then applies the locale prefix as usual.
+        source: "/configurators/:path*",
+        destination: "/app/configurators/:path*",
+        permanent: false,
+      },
+    ];
+  },
   async headers() {
     return [
       {
