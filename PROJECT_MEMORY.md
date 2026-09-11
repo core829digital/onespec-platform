@@ -152,13 +152,18 @@ Nomi utente: **Starter / Pro / Enterprise / Showroom**. Solo **Pro** ha il
 free-trial 14gg con auto-abbonamento a fine trial (carta richiesta subito,
 Stripe `trial_period_days:14`, si converte automaticamente).
 
-### Matrice entitlement proposta (da validare col founder)
+### Matrice entitlement — FINALIZZATA (risposte utente 2026-09-11)
+
+Differenza chiave Enterprise/Showroom (decisione utente): **stesse feature**,
+la differenza è **solo nei limiti d'uso**. Enterprise = tutto sbloccato ma
+con tetto su preventivi/configuratori/seats. Showroom = tutto sbloccato e
+**senza limiti** (piano top di gamma).
 
 | Entitlement | Starter | Pro | Enterprise | Showroom | alpha→ |
 |---|---|---|---|---|---|
 | maxConfigurators | 1 | 3 | 10 | ∞ | Pro |
-| maxQuotesPerMonth | 20 | ∞ | ∞ | ∞ | ∞ |
-| maxTeamMembers | 2 | 5 | 15 | 25 | 5 |
+| maxQuotesPerMonth | **20** (nuovi) / **50** (grandfather Starter esistenti) | ∞ | **1000** (provvisorio) | ∞ | ∞ |
+| maxTeamMembers | 2 | 5 | 15 | ∞ | 5 |
 | whiteLabel | ✗ | ✓ | ✓ | ✓ | ✓ (forzato) |
 | analytics | none | basic | advanced | advanced | advanced |
 | fieldModules (Rilievo/Posa/Collaudo/Fascicolo/`/i/[token]`) | Rilievo only | full | full | full | full |
@@ -167,14 +172,25 @@ Stripe `trial_period_days:14`, si converte automaticamente).
 | advanceInvoices (acconto) | ✗ | ✓ | ✓ | ✓ | ✓ |
 | maintenanceContracts | ✗ | ✓ | ✓ | ✓ | ✓ |
 | multiSupplierAggregator | ✗ | ✗ | ✓ | ✓ | ✓ |
-| showroomCalculator (in-app 3-zone) | ✗ | ✗ | ✗ | ✓ | ✗ |
-| publicWidget (`/w/[publicId]` embeddabile) | ✗ | ✗ | ✗ | ✓* | ✗ |
+| showroomCalculator (in-app 3-zone) | ✗ | ✗ | **✓** | ✓ | ✗ |
+| publicWidget (`/w/[publicId]` embeddabile) | ✗ | ✗ | **✓*** | ✓* | ✗ |
 | apiAccess / crmIntegration / gaebExport | ✗ | ✗ | ✓ | ✓ | ✗ |
 | trialEligible / selfServeCheckout | ✗ / ✓ | ✓ / ✓ | ✗ / ✗ (sales) | ✗ / ✗ (sales) | — |
 
 \* NL è **sempre** `widgetMode:"transparent"` indipendentemente dal piano
 (regola region, non toccare) — il gate `publicWidget` deve fare
 `OR` con `region.widgetMode === "transparent"`.
+
+**Grandfathering Starter**: nuovo campo tenant `quotaOverrideQuotesPerMonth?:
+number` — settato a `50` in una migrazione una-tantum per ogni tenant già
+`plan:"starter"` al momento del deploy; `resolveTenantEntitlements` usa
+`tenant.quotaOverrideQuotesPerMonth ?? entitlement.maxQuotesPerMonth`. Nuovi
+Starter dopo il deploy non ricevono l'override → 20/mese.
+
+**maxQuotesPerMonth Enterprise = 1000** è un numero di partenza arbitrario
+(provvisorio come i prezzi) — da confermare o cambiare, non blocca l'avvio
+dell'implementazione (facile da editare dopo, è solo un numero in
+`entitlements.ts`).
 
 ### Prezzo mensile proposto (centesimi, PROVVISORIO — punto medio range PDF)
 
@@ -187,18 +203,26 @@ Stripe `trial_period_days:14`, si converte automaticamente).
 
 Annuale = mensile × 10 (2 mesi gratis) salvo Price Stripe annuale dedicato.
 
-### Decisioni ancora aperte (serve tuo OK prima di implementare)
-- **D1** — trial "senza carta" (dal PDF) vs "carta richiesta, auto-convert"
-  (più pulito tecnicamente). Consigliato: carta richiesta.
-- **D2** — Starter: 20 preventivi/mese soft-cap è un downgrade rispetto al
-  limite attuale (50) per i tenant `starter` già esistenti. Serve decidere
-  se applicare da subito o "grandfather" i tenant esistenti.
-- **D3** — Enterprise **non** ha showroom calculator/widget pubblico
-  (solo Showroom li ha) — confermare questo split.
-- **D4** — fee di setup 150-300€ Enterprise/Showroom: solo nota display o
-  fattura Stripe one-time reale? Consigliato: solo nota v1.
-- **D5** — 24 Price ID Stripe (2 piani billable × 2 cicli × 6 regioni) da
-  creare e gestire in env — confermare che va bene operativamente.
+### Decisioni — CHIUSE (2026-09-11)
+- **D1** — Trial: **carta richiesta subito**, Stripe `trial_period_days:14`,
+  auto-conversione ad abbonato attivo senza altra azione dell'utente.
+- **D2** — Starter: **grandfather** — chi è già `plan:"starter"` al deploy
+  mantiene 50/mese (`quotaOverrideQuotesPerMonth`); nuovi Starter = 20/mese.
+- **D3** — Enterprise **e** Showroom hanno le stesse feature (showroom
+  calculator, widget pubblico, multi-fornitore, API/CRM/GAEB); la
+  differenza è **solo nei tetti numerici** — Enterprise limitato
+  (preventivi/configuratori/seats), Showroom illimitato su tutto.
+- Prezzi mensili (tabella sopra) **confermati come provvisori** — via libera
+  a scriverli nel codice marcati `PROVVISORIO`, modificabili in seguito
+  senza toccare la logica.
+
+### Decisioni ancora aperte (non bloccanti, default ragionevole già scelto)
+- **D4** — fee di setup 150-300€ Enterprise/Showroom: default = solo nota
+  display in v1 (nessuna fattura Stripe one-time automatica).
+- **D5** — 24 Price ID Stripe (2 piani self-serve × 2 cicli × 6 regioni) da
+  creare in Stripe dashboard e incollare negli env — operativo, non di design.
+- **Enterprise `maxQuotesPerMonth = 1000`** — numero di partenza arbitrario,
+  cambiabile in un secondo momento.
 
 ### Riepilogo implementazione (dettaglio completo nel report dell'agente
 Plan di questa sessione — fasi 0-8: enum widening → migrazione dati
