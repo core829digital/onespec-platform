@@ -41,7 +41,6 @@ export function FiscalEngine({
   totalVatCents,
   beniSignificativi,
   monthlyRate24Months,
-  netAfterBonus50,
   regionCode,
   onWhatsApp,
   onSopralluogo,

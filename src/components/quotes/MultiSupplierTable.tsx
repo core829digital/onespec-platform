@@ -89,11 +89,6 @@ export function MultiSupplierTable({
     onItemsChange(items.filter((i) => i.id !== id));
   };
 
-  const supplierColor = (name: string) => {
-    const idx = suppliers.findIndex((s) => s.name === name);
-    return SUPPLIER_COLORS[idx % SUPPLIER_COLORS.length];
-  };
-
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">

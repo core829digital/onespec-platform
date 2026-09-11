@@ -1,7 +1,5 @@
 "use client";
 
-import { useState, useCallback } from "react";
-
 interface VisualSimulatorProps {
   productType: "finestra1" | "finestra2" | "porta1" | "porta2" | "scorrevole";
   onProductTypeChange: (type: "finestra1" | "finestra2" | "porta1" | "porta2" | "scorrevole") => void;
@@ -38,8 +36,6 @@ const PRODUCT_TYPES = [
 
 const SLIDER_STEP = 50;
 const MIN_DIM = 450;
-const MAX_WIDTH = 4000;
-const MAX_HEIGHT = 3000;
 
 export function VisualSimulator({
   productType,
@@ -48,8 +44,6 @@ export function VisualSimulator({
   height,
   onWidthChange,
   onHeightChange,
-  material,
-  color,
   sashes,
   uwValue,
   uwEligible,
@@ -195,7 +189,7 @@ export function VisualSimulator({
                   <span className="text-[var(--color-muted-fg)] block mb-1">Tipo</span>
                   <select
                     value={sash.type}
-                    onChange={(e) => {}}
+                    onChange={() => {}}
                     className="w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
                   >
                     <option value="fissa">Fissa</option>
@@ -211,7 +205,7 @@ export function VisualSimulator({
                   <span className="text-[var(--color-muted-fg)] block mb-1">Direzione</span>
                   <select
                     value={sash.direction}
-                    onChange={(e) => {}}
+                    onChange={() => {}}
                     className="w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
                   >
                     <option value="left">Sinistra</option>
@@ -229,7 +223,7 @@ export function VisualSimulator({
                     max={90}
                     step={5}
                     value={Math.round(sash.widthRatio * 100)}
-                    onChange={(e) => {}}
+                    onChange={() => {}}
                     className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-zinc-900"
                   />
                   <span className="text-xs text-[var(--color-muted-fg)] mt-1">
@@ -245,7 +239,7 @@ export function VisualSimulator({
                     max={100}
                     step={5}
                     value={Math.round(sash.heightRatio * 100)}
-                    onChange={(e) => {}}
+                    onChange={() => {}}
                     className="w-full h-2 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-zinc-900"
                   />
                   <span className="text-xs text-[var(--color-muted-fg)] mt-1">
@@ -258,7 +252,7 @@ export function VisualSimulator({
                   <input
                     type="number"
                     value={sash.handleHeightMm || ""}
-                    onChange={(e) => {}}
+                    onChange={() => {}}
                     className="w-full rounded-lg border border-[var(--color-border)] bg-transparent px-2 py-1.5 text-sm"
                     placeholder="H/2"
                   />
@@ -270,7 +264,7 @@ export function VisualSimulator({
                   <span className="text-[var(--color-muted-fg)] block mb-1">Ferramenta</span>
                   <select
                     value={sash.hardware}
-                    onChange={(e) => {}}
+                    onChange={() => {}}
                     className="w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
                   >
                     <option value="standard">Standard</option>

@@ -1,12 +1,8 @@
 "use client";
 
-import { useState } from "react";
-
 interface MaterialConfigProps {
   material: string;
   onMaterialChange: (m: string) => void;
-  color: string;
-  onColorChange: (c: string) => void;
   glazing: string;
   onGlazingChange: (g: string) => void;
   accessories: {
@@ -40,8 +36,6 @@ const ACCESSORIES = [
 export function MaterialConfig({
   material,
   onMaterialChange,
-  color,
-  onColorChange,
   glazing,
   onGlazingChange,
   accessories,

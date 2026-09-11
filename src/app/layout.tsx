@@ -15,9 +15,25 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "onespec — Il configuratore di infissi per il tuo sito",
+  metadataBase: new URL("https://onespec.eu"),
+  title: {
+    default: "onespec — Il configuratore di infissi per il tuo sito",
+    template: "%s | onespec",
+  },
   description:
     "Widget di configurazione infissi integrabile via iframe: preventivi automatici, prezzi sempre aggiornati, brandizzabile per la tua azienda.",
+  icons: {
+    icon: [
+      { url: "/onespec-logo.png", sizes: "512x512", type: "image/png" },
+      { url: "/onespec-logo.png", sizes: "192x192", type: "image/png" },
+      { url: "/onespec-logo.png", sizes: "32x32", type: "image/png" },
+      { url: "/onespec-logo.png", sizes: "16x16", type: "image/png" },
+    ],
+    shortcut: "/onespec-logo.png",
+    apple: "/onespec-logo.png",
+  },
+  manifest: "/manifest.json",
+  themeColor: "#16d19d",
 };
 
 const THEME_INIT = `try{var t=localStorage.getItem('onespec-theme');if(t==='light'){document.documentElement.setAttribute('data-theme','light');}}catch(e){}`;

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect, useState, useCallback } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Stage, Layer, Image as KonvaImage } from "react-konva";
 import Konva from "konva";
 
@@ -25,7 +25,6 @@ export function PhotoCanvas({
   const stageRef = useRef<Konva.Stage>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [stageSize, setStageSize] = useState({ width, height });
-  const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
   const [imageElement, setImageElement] = useState<HTMLImageElement | null>(null);
   const scaleRef = useRef(1);
 
@@ -35,7 +34,6 @@ export function PhotoCanvas({
     img.crossOrigin = "anonymous";
     img.onload = () => {
       const dims = { width: img.width, height: img.height };
-      setImageDimensions(dims);
       setImageElement(img);
       onImageLoad?.(dims);
       setImageLoaded(true);
@@ -50,24 +48,6 @@ export function PhotoCanvas({
     img.src = imageUrl;
     return () => { img.onload = null; };
   }, [imageUrl, width, height, onImageLoad]);
-
-  // Calculate scale from refs (for annotations)
-  const getScale = useCallback(() => {
-    if (!imageDimensions) return 1;
-    return stageSize.width / imageDimensions.width;
-  }, [stageSize.width, imageDimensions]);
-
-  // Convert canvas coordinates to image coordinates
-  const canvasToImage = useCallback((x: number, y: number) => {
-    const scale = getScale();
-    return { x: x / scale, y: y / scale };
-  }, [getScale]);
-
-  // Convert image coordinates to canvas coordinates
-  const imageToCanvas = useCallback((x: number, y: number) => {
-    const scale = getScale();
-    return { x: x * scale, y: y * scale };
-  }, [getScale]);
 
   if (!imageLoaded || !imageElement) {
     return (

@@ -477,7 +477,7 @@ export default function SurveysPage() {
                       setPhotoAnnotations((prev) => ({ ...prev, [activePhotoIdx]: annotations }))
                     }
                     tool="dimension"
-                    onToolChange={(t) => {}}
+                    onToolChange={() => {}}
                     readOnly={false}
                   />
                   <div className="flex gap-2">

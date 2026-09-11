@@ -8,19 +8,12 @@ import type { Id } from "@/convex/_generated/dataModel";
 
 type PassportId = Id<"serramentoPassports">;
 
-function eur(cents: number | null | undefined) {
-  if (cents == null) return "—";
-  return new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(cents / 100);
-}
-
-function PassportLabelsPanel({ passportId, tenantId }: { passportId: PassportId; tenantId: Id<"tenants"> }) {
+function PassportLabelsPanel({ passportId }: { passportId: PassportId }) {
   const p = useQuery(api.passports.get, { passportId });
   const generateQrs = useMutation(api.passports.generatePassportQrs);
   const [qrData, setQrData] = useState<{ token: string; qr: string }[]>([]);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
-
-  const publicUrl = typeof window !== "undefined" && p ? `${window.location.origin}/f/${p.publicToken}` : "";
 
   async function generate() {
     setBusy(true);
@@ -138,7 +131,7 @@ function PassportLabelsPage() {
         </table>
       </div>
 
-      {selected && tenant && <PassportLabelsPanel passportId={selected} tenantId={tenant._id} />}
+      {selected && tenant && <PassportLabelsPanel passportId={selected} />}
     </div>
   );
 }

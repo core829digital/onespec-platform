@@ -144,16 +144,12 @@ export function FundingDocPDF({
   companyName,
   companyAddress,
   companyPhone,
-  companyEmail,
   customerName,
   customerAddress,
   productSummary,
-  installedAt,
   regionCode,
   title,
   programme,
-  hasXml,
-  preamble,
   uwPost,
   uwAnte,
   deltaU,
@@ -169,10 +165,6 @@ export function FundingDocPDF({
   performanceDeclaration,
   dataFineLavori,
 }: FundingDocPDFProps) {
-  const formatDate = (ts: number) => new Date(ts).toLocaleDateString("it-IT");
-  const formatEur = (cents: number | undefined) =>
-    cents == null ? "—" : new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(cents / 100);
-
   const isIT = regionCode === "IT";
 
   return (

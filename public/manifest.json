@@ -1,0 +1,27 @@
+{
+  "name": "onespec — Configuratore Infissi",
+  "short_name": "onespec",
+  "description": "Widget di configurazione infissi integrabile via iframe: preventivi automatici, prezzi sempre aggiornati, brandizzabile per la tua azienda.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0f0d",
+  "theme_color": "#16d19d",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/onespec-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/onespec-logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity", "utilities"],
+  "lang": "it",
+  "dir": "ltr"
+}

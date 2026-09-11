@@ -1,7 +1,5 @@
 "use client";
 
-import { useCallback } from "react";
-
 export type ToolType = 
   | "select" 
   | "dimension" 
@@ -38,17 +36,6 @@ const TOOL_ICONS: Record<ToolType, string> = {
   roller: "🪟",
   sill: "📐",
   frame: "🏗️",
-};
-
-const TOOL_COLORS: Record<ToolType, string> = {
-  select: "#6B7280",
-  dimension: "#9B1B20",    // RAL 3003
-  arrow: "#2563EB",        // Blue
-  text: "#1F2937",         // Dark gray
-  rectangle: "#383E42",    // Anthracite
-  roller: "#FF0000",       // RAL 3026
-  sill: "#6B7378",         // Gray
-  frame: "#2D7D46",        // RAL 6029
 };
 
 const TOOLS_ORDER: ToolType[] = [

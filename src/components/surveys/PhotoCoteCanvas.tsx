@@ -1,7 +1,6 @@
-import { useRef, useEffect, useState, useCallback } from "react";
-import { PhotoCanvas } from "./PhotoCanvas";
+import { useRef, useEffect, useState } from "react";
 import { AnnotationToolbar, ToolType } from "./AnnotationToolbar";
-import { AnnotationLayer, type Annotation } from "./AnnotationLayer";
+import type { Annotation } from "./AnnotationLayer";
 import { Stage, Layer, Image as KonvaImage, Line, Text, Rect, Circle } from "react-konva";
 import Konva from "konva";
 
@@ -23,7 +22,6 @@ type KonvaEvent = Konva.KonvaEventObject<MouseEvent>;
 export function PhotoCoteCanvas({
   imageUrl,
   annotations,
-  onAnnotationsChange,
   readOnly = false,
   tool = "select",
   onToolChange,
@@ -35,7 +33,6 @@ export function PhotoCoteCanvas({
   const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
   const [imageElement, setImageElement] = useState<HTMLImageElement | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [newAnnotationStart, setNewAnnotationStart] = useState<{ x: number; y: number } | null>(null);
   const stageRef = useRef<Konva.Stage>(null);
 
   // Load image
@@ -80,7 +77,6 @@ export function PhotoCoteCanvas({
   const renderAnnotations = () => {
     return annotations.map((ann) => {
       const pts = getCanvasPoints(ann);
-      const isSelected = selectedId === ann.id;
 
       if (ann.type === "dimension" || ann.type === "arrow") {
         const [x1, y1, x2, y2] = pts;

@@ -5,17 +5,11 @@ import { VisualSimulator } from "./VisualSimulator";
 import { MaterialConfig } from "./MaterialConfig";
 import { FiscalEngine } from "./FiscalEngine";
 import { calculatePrice } from "@/lib/pricing-calculator";
-import type { ToolType } from "../surveys/AnnotationToolbar";
 
 import type { CatalogPayload } from "@/shared/pricing";
 
 interface ShowroomWidgetProps {
-  tenantId: string;
   catalog: CatalogPayload | null;
-  readOnly?: boolean;
-  onSopralluogo?: () => void;
-  onAddToCart?: () => void;
-  onWhatsApp?: () => void;
 }
 
 const DEFAULT_SASH_PRESET = [
@@ -44,12 +38,7 @@ const DEFAULT_SASH_PRESET = [
 ];
 
 export function ShowroomWidget({
-  tenantId,
   catalog,
-  readOnly = false,
-  onSopralluogo,
-  onAddToCart,
-  onWhatsApp,
 }: ShowroomWidgetProps) {
   const [productType, setProductType] = useState<"finestra1" | "finestra2" | "porta1" | "porta2" | "scorrevole">("finestra2");
   const [width, setWidth] = useState(1200);
@@ -160,8 +149,6 @@ export function ShowroomWidget({
         <MaterialConfig
           material={material}
           onMaterialChange={setMaterial}
-          color={color}
-          onColorChange={setColor}
           glazing={glazing}
           onGlazingChange={setGlazing}
           accessories={accessories}
@@ -172,10 +159,10 @@ export function ShowroomWidget({
 
         {/* Zona C — Fiscal Engine */}
         <FiscalEngine
-          priceCents={0}
-          priceExVatCents={0}
+          priceCents={priceCalc?.priceCents ?? 0}
+          priceExVatCents={priceCalc?.priceExVatCents ?? 0}
           vatBreakdown={[]}
-          totalVatCents={0}
+          totalVatCents={(priceCalc?.priceCents ?? 0) - (priceCalc?.priceExVatCents ?? 0)}
           beniSignificativi={null}
           monthlyRate24Months={0}
           netAfterBonus50={0}
