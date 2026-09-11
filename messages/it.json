@@ -398,7 +398,8 @@
         "catalogNotReady": "Il listino pubblicato non è ancora disponibile. Attendi il caricamento o ripubblica il configuratore.",
         "submitFailed": "Errore durante la creazione del preventivo"
       }
-    },
+    }
+  },
   "billing": {
     "title": "Piano e fatturazione",
     "currentPlan": "Piano attuale",
