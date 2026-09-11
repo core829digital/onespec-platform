@@ -56,7 +56,7 @@ export default function BillingPage() {
   const getAnnualPrice = (monthly: number | null) => monthly === null ? null : monthly * 10;
 
   return (
-    <div className="space-y-6 max-w-4xl">
+    <div className="space-y-6">
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-text)]">{t("title")}</h1>
         <p className="text-[var(--color-text-secondary)] mt-1">

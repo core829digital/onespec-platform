@@ -62,7 +62,7 @@ export default function TeamPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6">
       <div className="flex items-center gap-3">
         <Link href="/app/account" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
           ←

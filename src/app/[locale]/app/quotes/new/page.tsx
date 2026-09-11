@@ -510,7 +510,7 @@ export default function NewFieldQuotePage() {
   const activeMeta = REGION_CONFIGS[regionCode];
 
   return (
-    <div className="space-y-6 max-w-6xl pb-16">
+    <div className="space-y-6 pb-16">
       {/* Header with Region Selector */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--color-border)] pb-4">
         <div>

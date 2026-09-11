@@ -9,7 +9,7 @@ export default function BadgePage() {
 
   if (tenant && !tenant.isAlpha) {
     return (
-      <div className="space-y-4 max-w-2xl">
+      <div className="space-y-4">
         <h1 className="text-3xl font-bold text-[var(--color-text)]">Badge Alpha</h1>
         <p className="text-[var(--color-text-secondary)]">
           Il badge Alpha Member è riservato ai primi 250 iscritti.
@@ -26,7 +26,7 @@ export default function BadgePage() {
 </a>`;
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6">
       <div className="flex items-center gap-3">
         <Link href="/app/account" className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
           ←

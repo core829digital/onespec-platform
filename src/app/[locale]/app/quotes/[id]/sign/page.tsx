@@ -184,7 +184,7 @@ export default function SignQuotePage({ params }: Props) {
   });
 
   return (
-    <div className="max-w-2xl space-y-6 pb-16">
+    <div className="space-y-6 pb-16">
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--color-border)] pb-4">
         <div>
