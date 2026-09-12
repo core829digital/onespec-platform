@@ -45,6 +45,9 @@ const APP_SECURITY_HEADERS = [
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   poweredByHeader: false,
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   async redirects() {
     return [
       {

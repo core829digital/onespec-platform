@@ -278,6 +278,28 @@ export default defineSchema({
     .index("by_configurator", ["configuratorId"])
     .index("by_configurator_version", ["configuratorId", "version"]),
 
+  /** Supplier directory for multi-supplier quotes (FASE 2.4). */
+  catalogSuppliers: defineTable({
+    tenantId: v.id("tenants"),
+    name: v.string(),
+    /** Supplier contact email for order forwarding. */
+    email: v.optional(v.string()),
+    /** Supplier contact phone. */
+    phone: v.optional(v.string()),
+    /** Supplier address. */
+    address: v.optional(v.string()),
+    /** Supplier VAT number. */
+    vatNumber: v.optional(v.string()),
+    /** Default lead time in days. */
+    leadTimeDays: v.optional(v.number()),
+    /** Whether this supplier is active/available for quotes. */
+    isActive: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_active", ["tenantId", "isActive"]),
+
   quoteRequests: defineTable({
     tenantId: v.id("tenants"),
     configuratorId: v.id("configurators"),
@@ -340,6 +362,13 @@ export default defineSchema({
     spamScore: v.optional(v.number()),
     /** Accepted while the tenant was over its monthly quota (lead never lost). */
     overQuota: v.optional(v.boolean()),
+    /** Multi-supplier breakdown: each line assigns an item to a supplier with price and lead time. */
+    supplierLines: v.optional(v.array(v.object({
+      supplierId: v.id("catalogSuppliers"),
+      itemIndex: v.number(),
+      supplierPriceCents: v.number(),
+      leadTimeDays: v.number(),
+    }))),
   })
     .index("by_tenant", ["tenantId"])
     .index("by_tenant_status", ["tenantId", "status"])
