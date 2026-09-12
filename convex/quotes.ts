@@ -6,6 +6,7 @@ import { requireTenantRole, requireMembership } from "./lib/auth";
 import { enforceForCreateQuote, enforceForESignature } from "./lib/enforcement";
 import { calculatePrice, type ProjectItem, type CatalogPayload } from "../src/shared/pricing";
 import { currentPeriod } from "./lib/entitlements";
+import { regionForCountry } from "./lib/regions";
 
 /** Max size of a base64 signature PNG data URL (~200 KB of characters). */
 const MAX_SIGNATURE_LEN = 200_000;
@@ -245,6 +246,150 @@ export const createFieldQuote = mutation({
       targetTable: "quoteRequests",
       targetId: quoteId,
       meta: { priceCents: finalPriceCents, leadName: args.leadName },
+      createdAt: Date.now(),
+    });
+
+    // Increment quote count for quota tracking
+    const period = currentPeriod();
+    const counter = await ctx.db
+      .query("usageCounters")
+      .withIndex("by_tenant_period", (q) => q.eq("tenantId", args.tenantId).eq("period", period))
+      .unique();
+    if (counter) {
+      await ctx.db.patch(counter._id, {
+        quoteRequestsCount: counter.quoteRequestsCount + 1,
+      });
+    } else {
+      await ctx.db.insert("usageCounters", {
+        tenantId: args.tenantId,
+        period,
+        quoteRequestsCount: 1,
+        activeConfiguratorsCount: 0,
+      });
+    }
+
+    return { quoteId, priceCents: finalPriceCents };
+  },
+});
+
+/** Create a field quote from a completed survey — links survey to quote and pre-fills quote with survey data. */
+export const createFieldQuoteFromSurvey = mutation({
+  args: {
+    tenantId: v.id("tenants"),
+    surveyId: v.id("siteSurveys"),
+    configuratorId: v.id("configurators"),
+  },
+  handler: async (ctx, args) => {
+    await enforceForCreateQuote(ctx, args.tenantId);
+    const { userId } = await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
+
+    // Get the survey
+    const survey = await ctx.db.get(args.surveyId);
+    if (!survey) throw new ConvexError("SURVEY_NOT_FOUND");
+    if (survey.tenantId !== args.tenantId) throw new ConvexError("TENANT_MISMATCH");
+    if (survey.status !== "completed") throw new ConvexError("SURVEY_NOT_COMPLETED");
+    if (survey.quoteId) throw new ConvexError("SURVEY_ALREADY_LINKED");
+
+    const configurator = await ctx.db.get(args.configuratorId);
+    if (!configurator || configurator.tenantId !== args.tenantId) {
+      throw new ConvexError("CONFIGURATOR_NOT_FOUND");
+    }
+
+    const targetVersion = configurator.publishedCatalogVersion ?? 1;
+    const versionDoc = await ctx.db
+      .query("catalogVersions")
+      .withIndex("by_configurator_version", (q) =>
+        q.eq("configuratorId", args.configuratorId).eq("version", targetVersion),
+      )
+      .unique();
+
+    if (!versionDoc) throw new ConvexError("NO_PUBLISHED_VERSION");
+
+    const payload = versionDoc.payload as CatalogPayload;
+
+    // Convert survey openings to quote items with default values
+    const items: ProjectItem[] = survey.openings.map((opening) => {
+      const firstEnabledMaterial = payload.materials.find((m) => m.enabled);
+      const material = firstEnabledMaterial?.key ?? "pvc";
+      return {
+        productType: "window" as const,
+        material,
+        quality: { [material]: "standard" },
+        profileSystem: "standard",
+        width: opening.widthMm,
+        height: opening.heightMm,
+        quantity: 1,
+        sashes: [
+          { type: "tiltturn", direction: "right", active: true, hardware: "standard", hardwareColor: "white" },
+        ],
+        glazing: "double",
+        color: "white",
+        insectScreen: false,
+        installation: "standard",
+      };
+    });
+
+    // Use survey data for quote
+    const tenant = await ctx.db.get(args.tenantId);
+    const region = tenant?.country ? regionForCountry(tenant.country).code : "IT";
+
+    const baseCalc = calculatePrice(payload, items);
+
+    const installCost = 0;
+    const demolitionCost = 0;
+    const regionalSurcharge = 0;
+    const discountPct = 0;
+    const ecobonusPct = 0;
+    const maPrimePct = 0;
+
+    const subtotalExVat = baseCalc.priceExVatCents;
+    const discountedExVat = Math.round(subtotalExVat * (1 - 0 / 100));
+
+    const effectiveVat = configurator.vatRatePercent;
+    const finalPriceCents = Math.round(discountedExVat * (1 + effectiveVat / 100));
+
+    const quoteId = await ctx.db.insert("quoteRequests", {
+      tenantId: args.tenantId,
+      configuratorId: args.configuratorId,
+      catalogVersion: targetVersion,
+      publicId: configurator.publicId,
+      leadName: survey.customerName,
+      leadEmail: "",
+      leadPhone: undefined,
+      customerAddress: survey.customerAddress,
+      customerCity: survey.customerCity,
+      customerPostalCode: survey.customerPostalCode,
+      leadLocale: configurator.defaultLocale ?? "it",
+      leadMessage: `Generato da rilievo: ${survey.customerName}`,
+      channel: "field_b2b",
+      installationType: "standard",
+      installationPriceCents: 0,
+      demolitionPriceCents: 0,
+      discountPercent: 0,
+      regionalSurchargeCents: 0,
+      profitMarginPercent: 30,
+      vatRatePercent: effectiveVat,
+      depositTerms: region === "FR" ? "Acompte 30% à la commande · 70% à la livraison" : "30% ordine · 60% merce pronta · 10% posa",
+      regionCode: region,
+      items,
+      priceCents: finalPriceCents,
+      priceExVatCents: baseCalc.priceExVatCents,
+      currency: "EUR",
+      status: "quoted",
+      assignedToUserId: userId,
+    });
+
+    // Link survey to quote
+    await ctx.db.patch(args.surveyId, { quoteId, updatedAt: Date.now() });
+
+    await ctx.db.insert("auditLog", {
+      tenantId: args.tenantId,
+      actorUserId: userId,
+      actorKind: "user",
+      action: "quote.field_create_from_survey",
+      targetTable: "quoteRequests",
+      targetId: quoteId,
+      meta: { priceCents: finalPriceCents, leadName: survey.customerName, surveyId: args.surveyId },
       createdAt: Date.now(),
     });
 

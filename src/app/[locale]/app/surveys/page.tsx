@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { useRouter } from "@/i18n/navigation";
 import type { Id } from "@/convex/_generated/dataModel";
 import { LaserMeasure } from "@/components/surveys/LaserMeasure";
 import {
@@ -80,10 +81,20 @@ function SyncBadge({ state, onSync }: { state: SyncState; onSync: () => void }) 
 }
 
 export default function SurveysPage() {
+  const router = useRouter();
   const tenant = useQuery(api.tenants.getMyTenant);
   const surveys = useQuery(api.surveys.list, tenant ? { tenantId: tenant._id } : "skip");
   const createSurvey = useMutation(api.surveys.create);
   const generateUploadUrl = useMutation(api.surveys.generateUploadUrl);
+  const createQuoteFromSurvey = useMutation(api.quotes.createFieldQuoteFromSurvey);
+  const configurators = useQuery(
+    api.configurators.listConfigurators,
+    tenant ? { tenantId: tenant._id } : "skip",
+  );
+  const publishedConfig = useMemo(
+    () => (configurators ?? []).find((c) => c.status === "published"),
+    [configurators],
+  );
 
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -178,6 +189,20 @@ export default function SurveysPage() {
     setDiag({ ...EMPTY_DIAG });
     setPhotos([]);
     setErr("");
+  }
+
+  async function generateQuoteFromSurvey(surveyId: Id<"siteSurveys">) {
+    if (!publishedConfig) {
+      setErr("Nessun configuratore pubblicato. Pubblica un configuratore prima di generare un preventivo.");
+      return;
+    }
+    setErr("");
+    try {
+      const result = await createQuoteFromSurvey({ surveyId, configuratorId: publishedConfig._id, tenantId: tenant!._id });
+      router.push(`/app/quotes/${result.quoteId}`);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Errore generazione preventivo");
+    }
   }
 
   function patchOpening(i: number, patch: Partial<LaserOpening>) {
@@ -532,6 +557,7 @@ export default function SurveysPage() {
               <th className="px-4 py-2 text-center">Foto</th>
               <th className="px-4 py-2 text-center">Stato</th>
               <th className="px-4 py-2 text-right">Data</th>
+              <th className="px-4 py-2 text-center">Azioni</th>
             </tr>
           </thead>
           <tbody>
@@ -545,11 +571,21 @@ export default function SurveysPage() {
                 <td className="px-4 py-3 text-right text-[var(--color-muted-fg)]">
                   {new Date(s.createdAt).toLocaleDateString("it-IT")}
                 </td>
+                <td className="px-4 py-3 text-center">
+                  {s.status === "completed" && tenant && publishedConfig && (
+                    <button
+                      onClick={() => generateQuoteFromSurvey(s._id)}
+                      className="rounded-lg border border-[var(--color-mint)] bg-[var(--color-mint)] px-3 py-1.5 text-xs font-semibold text-[var(--color-mint-dark)] hover:bg-[var(--color-mint)]/80"
+                    >
+                      Genera preventivo
+                    </button>
+                  )}
+                </td>
               </tr>
             ))}
             {surveys && surveys.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-[var(--color-muted-fg)]">
+                <td colSpan={7} className="px-4 py-8 text-center text-[var(--color-muted-fg)]">
                   Nessun rilievo ancora.
                 </td>
               </tr>
