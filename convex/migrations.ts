@@ -73,3 +73,33 @@ export const backfillTrialEndsAt = internalMutation({
     return { backfilled, done: page.isDone, cursor: page.continueCursor };
   },
 });
+
+export const backfillStarterQuotaOverride = internalMutation({
+  args: { cursor: v.optional(v.string()), limit: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    const page = await ctx.db
+      .query("tenants")
+      .withIndex("by_plan", (q) => q.eq("plan", "starter"))
+      .paginate({ cursor: args.cursor ?? null, numItems: args.limit ?? 100 });
+    let backfilled = 0;
+    for (const t of page.page) {
+      // Only patch tenants that don't already have the override set.
+      if (typeof t.quotaOverrideQuotesPerMonth === "number") continue;
+      await ctx.db.patch(t._id, {
+        quotaOverrideQuotesPerMonth: 50,
+        updatedAt: Date.now(),
+      });
+      await ctx.db.insert("auditLog", {
+        tenantId: t._id,
+        actorKind: "system",
+        action: "quota.override",
+        targetTable: "tenants",
+        targetId: t._id,
+        meta: { field: "quotaOverrideQuotesPerMonth", value: 50, reason: "grandfather Starter 50 quotes/month" },
+        createdAt: Date.now(),
+      });
+      backfilled++;
+    }
+    return { backfilled, done: page.isDone, cursor: page.continueCursor };
+  },
+});

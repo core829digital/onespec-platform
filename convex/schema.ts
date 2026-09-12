@@ -39,6 +39,8 @@ export default defineSchema({
     /** Guided-onboarding progress. `onboardingCompletedAt` set when the user finishes the wizard. */
     onboardingStep: v.optional(v.string()),
     onboardingCompletedAt: v.optional(v.number()),
+    /** Grandfathering: existing Starter tenants keep 50 quotes/month instead of 20. */
+    quotaOverrideQuotesPerMonth: v.optional(v.number()),
     // Billing — populated only once Stripe is configured and a subscription exists.
     stripeCustomerId: v.optional(v.string()),
     stripeSubscriptionId: v.optional(v.string()),
@@ -57,7 +59,8 @@ export default defineSchema({
     .index("by_owner", ["ownerUserId"])
     .index("by_alphaSeatNumber", ["alphaSeatNumber"])
     .index("by_stripeCustomer", ["stripeCustomerId"])
-    .index("by_planStatus", ["planStatus"]),
+    .index("by_planStatus", ["planStatus"])
+    .index("by_plan", ["plan"]),
 
   /** Stripe webhook events — idempotency guard + billing audit trail. */
   billingEvents: defineTable({

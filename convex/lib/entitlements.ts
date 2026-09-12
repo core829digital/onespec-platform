@@ -182,17 +182,22 @@ export function entitlementsFor(plan: string): Entitlements {
 /** Resolve the effective entitlements for a tenant document. */
 export function resolveTenantEntitlements(tenant: Doc<"tenants">): Entitlements {
   const base = entitlementsFor(tenant.plan);
+  // Grandfathering: existing Starter tenants keep 50 quotes/month instead of 20.
+  const ent = { ...base };
+  if (tenant.plan === "starter" && typeof tenant.quotaOverrideQuotesPerMonth === "number") {
+    ent.maxQuotesPerMonth = tenant.quotaOverrideQuotesPerMonth;
+  }
   // Alpha members keep white-label + discount even if the stored plan drifts.
   if (tenant.isAlpha) {
     return {
-      ...base,
+      ...ent,
       whiteLabel: true,
-      lifetimeDiscountPct: Math.max(base.lifetimeDiscountPct, 15),
+      lifetimeDiscountPct: Math.max(ent.lifetimeDiscountPct, 15),
       fieldModules: "full",
       fiscalEngine: "full",
     };
   }
-  return base;
+  return ent;
 }
 
 export type BooleanEntitlementKey = {
