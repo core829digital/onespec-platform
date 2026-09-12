@@ -7,6 +7,8 @@ import { api } from "@/convex/_generated/api";
 import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
 import { SpecDrawing } from "@/components/widget/spec-drawing";
+import { SashEditor } from "@/components/quotes/sash-editor";
+import { SashPanel } from "@/components/quotes/sash-panel";
 import {
   calculatePrice,
   computeUw,
@@ -15,6 +17,8 @@ import {
   type ProjectItem,
   type CatalogPayload,
 } from "@/shared/pricing";
+import type { Sash } from "@/components/widget/widget-pricing";
+import type { EditorSash } from "@/shared/sash-rules";
 
 const REGION_OPTION_LABELS: Record<string, string> = {
   poseType: "Tipo di posa",
@@ -211,6 +215,36 @@ export default function NewFieldQuotePage() {
   const [activeSashIndex, setActiveSashIndex] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  function setSashCount(count: number) {
+    const n = Math.min(Math.max(Math.round(count), 1), 6);
+    setItems((prev) => {
+      const item = prev[activeItemIndex];
+      if (!item) return prev;
+      const next = [...prev];
+      const currentCount = item.sashes.length;
+      let sashes: EditorSash[] = [...item.sashes] as EditorSash[];
+      if (n > currentCount) {
+        for (let i = currentCount; i < n; i++) {
+          sashes.push({
+            type: "tiltturn",
+            direction: i % 2 === 0 ? "right" : "left",
+            active: true,
+            hardware: "maco",
+            hardwareColor: "white",
+            widthRatio: 1 / n,
+            handleHeightMm: Math.round(currentItem.height / 2),
+            main: i === 0,
+          });
+        }
+      } else if (n < currentCount) {
+        sashes = sashes.slice(0, n);
+      }
+      next[activeItemIndex] = { ...item, sashes: sashes as any };
+      return next;
+    });
+    setActiveSashIndex(n > 0 ? 0 : null);
+  }
 
   const activeConfig = publishedConfigs.find(
     (c: ConfiguratorDoc) => c._id === (selectedConfigId || publishedConfigs[0]?._id),
@@ -853,17 +887,32 @@ export default function NewFieldQuotePage() {
                 {/* 2D Vector Blueprint Preview — drag the dividers to rebalance the leaves */}
                 <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-4 flex flex-col items-center">
                   <div className="w-full max-w-[280px]">
-                    <SpecDrawing
-                      material={(currentItem.material === "alu" ? "aluminum" : currentItem.material) as Material}
-                      width={currentItem.width}
-                      height={currentItem.height}
-                      sashes={currentItem.sashes as import("@/components/widget/widget-pricing").Sash[]}
-                      selected={activeSashIndex}
-                      interactive
-                      onSelectSash={setActiveSashIndex}
-                      onResizeSash={resizeSash}
-                      finish={currentItem.color}
-                      showMinWarnings
+                    <SashEditor
+                      item={{
+                        width: currentItem.width,
+                        height: currentItem.height,
+                        sashes: currentItem.sashes.map((s): EditorSash => ({
+                          type: s.type as EditorSash["type"],
+                          direction: s.direction,
+                          active: s.active,
+                          hardware: s.hardware,
+                          hardwareColor: s.hardwareColor,
+                          widthRatio: s.widthRatio,
+                          handleHeightMm: s.handleHeightMm,
+                          main: (s as any).main,
+                          securityClass: (s as any).securityClass,
+                        })),
+                      }}
+                      selectedIndex={activeSashIndex}
+                      onSelect={setActiveSashIndex}
+                      onAddSash={(atIndex) => setSashCount(currentItem.sashes.length + 1)}
+                      onRemoveSash={(index) => {
+                        const next = [...currentItem.sashes];
+                        next.splice(index, 1);
+                        updateCurrentItem({ sashes: next });
+                      }}
+                      onDragDivider={resizeSash}
+                      readOnly={false}
                     />
                   </div>
                   <div className="flex items-center gap-3 mt-2 text-xs text-[var(--color-text-secondary)]">
