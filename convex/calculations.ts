@@ -1,4 +1,4 @@
-import { mutation, query } from "./_generated/server";
+import { mutation, query, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
 import { requireUser } from "./lib/auth";
 import { regionForCountry } from "./lib/regions";
@@ -6,6 +6,7 @@ import { complianceForRegion } from "./lib/compliance";
 import { calculatePrice, type CatalogPayload, type ProjectItem } from "../src/shared/pricing";
 import { computeOverallUw } from "../src/shared/pricing";
 import { enforceForFiscalEngine } from "./lib/enforcement";
+import { internal } from "./_generated/api";
 
 function round2(n: number): number {
   return Math.round(n * 100) / 100;
@@ -312,97 +313,34 @@ export const serverCalculate = mutation({
       uwAnte: v.optional(v.number()),
     }),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<{
+    priceCents: number;
+    priceExVatCents: number;
+    vatRatePercent: number;
+    vatBreakdown: Array<{ rate: number; label: string; baseCents: number; vatCents: number; totalCents: number }>;
+    totalVatCents: number;
+    beniSignificativi: BeniSignificativiBreakdown | null;
+    uwPerItem: number[];
+    uwWeightedAverage: number;
+    uwEligible: boolean;
+    energySavingsKwhYear: number;
+    fundingDocParams: FundingDocParams | null;
+    monthlyRate24Months: number;
+    netAfterBonus50: number;
+    items: ReturnType<typeof calculatePrice>["items"];
+    calculatedAt: number;
+    catalogVersion: number;
+  }> => {
     await requireUser(ctx);
     await enforceForFiscalEngine(ctx, args.tenantId);
 
-    const catalogData = await getTenantCatalog(ctx, args.tenantId);
-    if (!catalogData) throw new Error("NO_CATALOG");
-
-    const { payload, version: catalogVersion } = catalogData;
-    const items = args.items as ProjectItem[];
-    const { regionCode, buildingAge, isEnergyRenovation, deductionPercent, uwAnte } = args.options;
-
-    const baseCalc = calculatePrice(payload, items);
-    const uwPerItem = items.map((item) => {
-      const material = payload.materials.find((m) => m.key === item.material && m.enabled);
-      const quality = payload.qualityTiers.find(
-        (q) => q.materialKey === item.material && q.key === item.quality[item.material] && q.enabled
-      );
-      const glazing = payload.glazing.find((g) => g.key === item.glazing && g.enabled);
-
-      if (!material || !quality || !glazing) return 0;
-
-      const frameU = (material.uFrameBase || 1.3) + (quality.uAdjust || 0);
-      const glassU = glazing.uGlass || 1.1;
-      const glassToFrameRatio = 0.7;
-
-      return glassToFrameRatio * glassU + (1 - glassToFrameRatio) * frameU;
+    const result = await ctx.runQuery(internal.calculations.calculateInternal, {
+      tenantId: args.tenantId,
+      items: args.items,
+      options: args.options,
     });
-    const uwWeightedAverage = computeOverallUw(payload, items);
-    const uwEligible = checkUwEligibility(regionCode, uwWeightedAverage);
-    const energySavingsKwhYear = estimateEnergySavings(regionCode, uwWeightedAverage, items);
 
-    const vatBreakdown = calculateVatBreakdown(regionCode, items, payload, baseCalc, isEnergyRenovation, buildingAge);
-    const totalVatCents = vatBreakdown.reduce((sum, v) => sum + v.vatCents, 0);
-
-    let beniSignificativi: BeniSignificativiBreakdown | null = null;
-    if (regionCode === "IT") {
-      let manoperaCents = 0;
-      let beniCents = 0;
-      let altriCents = 0;
-
-      for (let i = 0; i < items.length; i++) {
-        const item = items[i];
-        const ib = baseCalc.items[i];
-        if (!ib) continue;
-
-        const installationCost = item.installation
-          ? (getHardwareOption(payload, "installation", item.installation)?.priceCents || 0)
-          : 0;
-        manoperaCents += installationCost * item.quantity;
-
-        const materialCost = ib.materialCost + ib.profileCost;
-        beniCents += materialCost * item.quantity;
-
-        const optionsCost = ib.optionsCost - installationCost;
-        altriCents += optionsCost * item.quantity;
-      }
-
-      beniSignificativi = calculateBeniSignificativi(manoperaCents, beniCents, altriCents);
-    }
-
-    const fundingDocParams = getFundingDocParams(
-      regionCode,
-      uwWeightedAverage,
-      items,
-      payload,
-      baseCalc,
-      deductionPercent,
-      uwAnte
-    );
-
-    const monthlyRate24Months = calculateMonthlyRate(baseCalc.priceCents, 24, 0);
-    const netAfterBonus50 = regionCode === "IT" ? calculateNetAfterBonus50(baseCalc.priceCents, deductionPercent) : 0;
-
-    return {
-      priceCents: baseCalc.priceCents,
-      priceExVatCents: baseCalc.priceExVatCents,
-      vatRatePercent: baseCalc.vatRatePercent,
-      vatBreakdown,
-      totalVatCents,
-      beniSignificativi,
-      uwPerItem,
-      uwWeightedAverage: round2(uwWeightedAverage),
-      uwEligible,
-      energySavingsKwhYear,
-      fundingDocParams,
-      monthlyRate24Months,
-      netAfterBonus50,
-      items: baseCalc.items,
-      calculatedAt: Date.now(),
-      catalogVersion,
-    };
+    return result;
   },
 });
 
@@ -418,9 +356,49 @@ export const getCalculationPreview = query({
       uwAnte: v.optional(v.number()),
     }),
   },
-  handler: async (ctx, args) => {
+  handler: async (ctx, args): Promise<{
+    priceCents: number;
+    priceExVatCents: number;
+    vatRatePercent: number;
+    vatBreakdown: Array<{ rate: number; label: string; baseCents: number; vatCents: number; totalCents: number }>;
+    totalVatCents: number;
+    beniSignificativi: BeniSignificativiBreakdown | null;
+    uwPerItem: number[];
+    uwWeightedAverage: number;
+    uwEligible: boolean;
+    energySavingsKwhYear: number;
+    fundingDocParams: FundingDocParams | null;
+    monthlyRate24Months: number;
+    netAfterBonus50: number;
+    items: ReturnType<typeof calculatePrice>["items"];
+    calculatedAt: number;
+    catalogVersion: number;
+  }> => {
     await requireUser(ctx);
 
+    const result = await ctx.runQuery(internal.calculations.calculateInternal, {
+      tenantId: args.tenantId,
+      items: args.items,
+      options: args.options,
+    });
+
+    return result;
+  },
+});
+/** Shared internal calculation logic used by both serverCalculate and getCalculationPreview. */
+export const calculateInternal = internalQuery({
+  args: {
+    tenantId: v.id("tenants"),
+    items: v.array(v.any()),
+    options: v.object({
+      regionCode: v.union(v.literal("IT"), v.literal("FR"), v.literal("BE"), v.literal("NL"), v.literal("DE"), v.literal("LU")),
+      buildingAge: v.number(),
+      isEnergyRenovation: v.boolean(),
+      deductionPercent: v.number(),
+      uwAnte: v.optional(v.number()),
+    }),
+  },
+  handler: async (ctx, args) => {
     const catalogData = await getTenantCatalog(ctx, args.tenantId);
     if (!catalogData) throw new Error("NO_CATALOG");
 
@@ -510,6 +488,7 @@ export const getCalculationPreview = query({
     };
   },
 });
+
 /** Option lists for the in-app Showroom configurator (FASE 3). */
 export const getShowroomCatalog = query({
   args: { tenantId: v.id("tenants") },
