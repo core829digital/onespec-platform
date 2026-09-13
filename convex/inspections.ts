@@ -9,7 +9,7 @@ import { complianceForRegion } from "./lib/compliance";
 import { regionForCountry } from "./lib/regions";
 import { nanoid } from "./lib/ids";
 import { internal } from "./_generated/api";
-import { enforceForESignature } from "./lib/enforcement";
+import { enforceForESignature, enforceForFieldSurvey, enforceActivePlan } from "./lib/enforcement";
 
 /** Per-market inspection template (title, legal basis, photo + check lists). */
 export const getTemplate = query({
@@ -107,6 +107,8 @@ export const create = mutation({
     scheduledFor: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    await enforceForFieldSurvey(ctx, args.tenantId);
+    await enforceActivePlan(ctx, args.tenantId);
     const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
     const name = args.customerName.trim();
     if (!name) throw new ConvexError("CUSTOMER_NAME_REQUIRED");
