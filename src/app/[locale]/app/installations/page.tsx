@@ -1,11 +1,44 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import { ComplianceBadges } from "@/components/installations/ComplianceBadges";
 import type { Id } from "@/convex/_generated/dataModel";
+import {
+  enqueue,
+  flushQueue,
+  subscribeSyncState,
+  type SyncState,
+} from "@/lib/offline-sync";
+
+function SyncBadge({ state, onSync }: { state: SyncState; onSync: () => void }) {
+  const color = !state.isOnline
+    ? "bg-amber-100 text-amber-800"
+    : state.pendingCount > 0
+    ? "bg-blue-100 text-blue-800"
+    : "bg-emerald-100 text-emerald-700";
+  const label = !state.isOnline
+    ? "Offline — salvataggio locale"
+    : state.pendingCount > 0
+    ? `${state.pendingCount} da sincronizzare`
+    : "Sincronizzato";
+  return (
+    <div className="flex items-center gap-2">
+      <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${color}`}>
+        <span className="h-1.5 w-1.5 rounded-full bg-current" />
+        {label}
+      </span>
+      {state.isOnline && state.pendingCount > 0 && (
+        <button onClick={onSync} className="rounded border border-[var(--color-border)] px-2 py-1 text-xs">
+          Sincronizza ora
+        </button>
+      )}
+      {state.error && <span className="text-xs text-red-600">{state.error}</span>}
+    </div>
+  );
+}
 
 export default function InstallationsPage() {
   const tenant = useQuery(api.tenants.getMyTenant);
@@ -33,6 +66,13 @@ export default function InstallationsPage() {
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState("");
 
+  const [sync, setSync] = useState<SyncState>({
+    isOnline: true,
+    pendingCount: 0,
+    lastSync: null,
+    error: null,
+  });
+
   // Live material preview mirrors the server formula (compliance.computePosaMaterials).
   const preview = useMemo(() => {
     if (!standard) return [];
@@ -42,6 +82,40 @@ export default function InstallationsPage() {
       return { ...m, quantity: Math.ceil(raw * 10) / 10 };
     });
   }, [standard, perimeterM]);
+
+  const [open, setOpen] = useState(false);
+  const [step, setStep] = useState(1);
+  const [jobType, setJobType] = useState("");
+  const [nodeType, setNodeType] = useState("");
+  const [perimeterM, setPerimeterM] = useState(0);
+  const [surveyId, setSurveyId] = useState<string>("");
+  const [notes, setNotes] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState("");
+
+  const [sync, setSync] = useState<SyncState>({
+    isOnline: true,
+    pendingCount: 0,
+    lastSync: null,
+    error: null,
+  });
+
+  const runSync = useCallback(() => {
+    void flushQueue({
+      "installation.create": (payload) =>
+        createDossier(payload as Parameters<typeof createDossier>[0]),
+    });
+  }, [createDossier]);
+
+  useEffect(() => {
+    const unsub = subscribeSyncState(setSync);
+    runSync();
+    return unsub;
+  }, [runSync]);
+
+  useEffect(() => {
+    if (sync.isOnline && sync.pendingCount > 0) runSync();
+  }, [sync.isOnline, sync.pendingCount, runSync]);
 
   async function save() {
     if (!tenant || !jobType || !nodeType) {
@@ -82,13 +156,9 @@ export default function InstallationsPage() {
             Wizard nodo di posa + distinta materiali conforme alla norma del mercato.
           </p>
         </div>
-        {standard && (
-          <ComplianceBadges
-            norm={standard.norm}
-            flags={standard.complianceFlags}
-            fundingTitle={standard.fundingTitle}
-          />
-        )}
+        <div className="flex items-center gap-3">
+          <SyncBadge state={sync} onSync={runSync} />
+        </div>
       </div>
 
       <button

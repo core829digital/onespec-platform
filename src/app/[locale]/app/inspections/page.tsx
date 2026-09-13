@@ -5,8 +5,42 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import type { Id } from "@/convex/_generated/dataModel";
+import {
+  enqueue,
+  flushQueue,
+  subscribeSyncState,
+  type SyncState,
+} from "@/lib/offline-sync";
 
 type ReportId = Id<"inspectionReports">;
+
+function SyncBadge({ state, onSync }: { state: SyncState; onSync: () => void }) {
+  const { isOnline, pendingCount, error } = state;
+  const color = !state.isOnline
+    ? "bg-amber-100 text-amber-800"
+    : state.pendingCount > 0
+    ? "bg-blue-100 text-blue-800"
+    : "bg-emerald-100 text-emerald-700";
+  const label = !state.isOnline
+    ? "Offline — salvataggio locale"
+    : state.pendingCount > 0
+    ? `${state.pendingCount} da sincronizzare`
+    : "Sincronizzato";
+  return (
+    <div className="flex items-center gap-2">
+      <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${color}`}>
+        <span className="h-1.5 w-1.5 rounded-full bg-current" />
+        {label}
+      </span>
+      {state.isOnline && state.pendingCount > 0 && (
+        <button onClick={onSync} className="rounded border border-[var(--color-border)] px-2 py-1 text-xs">
+          Sincronizza ora
+        </button>
+      )}
+      {state.error && <span className="text-xs text-red-600">{state.error}</span>}
+    </div>
+  );
+}
 
 function SignaturePad({
   onChange,
@@ -304,20 +338,53 @@ export default function InspectionsPage() {
   const [selected, setSelected] = useState<ReportId | null>(null);
   const [err, setErr] = useState("");
 
+  const [sync, setSync] = useState<SyncState>({
+    isOnline: true,
+    pendingCount: 0,
+    lastSync: null,
+    error: null,
+  });
+
+  const createReport = useMutation(api.inspections.create);
+
+  const runSync = useCallback(() => {
+    void flushQueue({
+      "inspection.create": (payload) =>
+        createReport(payload as Parameters<typeof createReport>[0]),
+    });
+  }, [createReport]);
+
+  useEffect(() => {
+    const unsub = subscribeSyncState(setSync);
+    runSync();
+    return unsub;
+  }, [runSync]);
+
+  useEffect(() => {
+    if (sync.isOnline && sync.pendingCount > 0) runSync();
+  }, [sync.isOnline, sync.pendingCount, runSync]);
+
   async function add() {
     if (!tenant || !name.trim()) {
       setErr("Nome cliente obbligatorio.");
       return;
     }
     setErr("");
-    const id = await create({
-      tenantId: tenant._id,
-      customerName: name.trim(),
-      siteAddress: address.trim() || undefined,
-    });
-    setName("");
-    setAddress("");
-    setSelected(id);
+    try {
+      if (!navigator.onLine) {
+        await enqueue("inspection.create", {
+          tenantId: tenant._id,
+          customerName: name.trim(),
+          siteAddress: address.trim() || undefined,
+        });
+      } else {
+        await create({ tenantId: tenant._id, customerName: name.trim(), siteAddress: address.trim() || undefined });
+      }
+      setName("");
+      setAddress("");
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Errore creazione verbale");
+    }
   }
 
   return (
@@ -330,6 +397,9 @@ export default function InspectionsPage() {
               ? `${template.title} — ${template.legalBasis}`
               : "Checklist foto + firma cliente."}
           </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <SyncBadge state={sync} onSync={runSync} />
         </div>
       </div>
 
