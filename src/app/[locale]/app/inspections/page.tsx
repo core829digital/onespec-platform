@@ -369,6 +369,7 @@ export default function InspectionsPage() {
               <th className="px-4 py-2 text-left">Cantiere</th>
               <th className="px-4 py-2 text-center">Stato</th>
               <th className="px-4 py-2 text-right">Data</th>
+              <th className="px-4 py-2 text-center">Mappe</th>
               <th className="px-4 py-2" />
             </tr>
           </thead>
@@ -380,6 +381,32 @@ export default function InspectionsPage() {
                 <td className="px-4 py-3 text-center">{r.status}</td>
                 <td className="px-4 py-3 text-right text-[var(--color-muted-fg)]">
                   {new Date(r.createdAt).toLocaleDateString("it-IT")}
+                </td>
+                <td className="px-4 py-3 text-center">
+                  {(r.siteAddress) && (
+                    <div className="flex justify-center gap-1">
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(r.siteAddress || "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-lg bg-blue-600 px-2 py-1 text-[10px] font-medium text-white hover:opacity-80 transition-opacity"
+                        title="Apri in Google Maps"
+                        aria-label="Apri in Google Maps"
+                      >
+                        Maps
+                      </a>
+                      <a
+                        href={`https://waze.com/ul?navigate=yes&address=${encodeURIComponent(r.siteAddress || "")}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-lg bg-[#4BB543] px-2 py-1 text-[10px] font-medium text-white hover:opacity-80 transition-opacity"
+                        title="Apri in Waze"
+                        aria-label="Apri in Waze"
+                      >
+                        Waze
+                      </a>
+                    </div>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-right">
                   <div className="flex justify-end gap-1">
@@ -401,7 +428,7 @@ export default function InspectionsPage() {
             ))}
             {reports && reports.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-[var(--color-muted-fg)]">
+                <td colSpan={6} className="px-4 py-8 text-center text-[var(--color-muted-fg)]">
                   Nessun verbale.
                 </td>
               </tr>

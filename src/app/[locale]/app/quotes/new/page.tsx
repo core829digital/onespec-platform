@@ -208,6 +208,7 @@ export default function NewFieldQuotePage() {
       glazing: "double",
       color: "white",
       insectScreen: false,
+      notes: "",
     },
   ]);
 
@@ -321,6 +322,7 @@ export default function NewFieldQuotePage() {
       glazing: regionCode === "DE" ? "triple" : "double",
       color: "white",
       insectScreen: false,
+      notes: "",
     };
     setItems((prev) => [...prev, newItem]);
     setActiveItemIndex(items.length);
@@ -882,6 +884,19 @@ export default function NewFieldQuotePage() {
                       <option value="woodgrain">{regionCode === "NL" ? "Monumentengroen RAL 6009 Houtnerf" : "Effetto Legno Noce/Rovere"}</option>
                     </select>
                   </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
+                    Note / Osservazioni
+                  </label>
+                  <textarea
+                    value={currentItem.notes || ""}
+                    onChange={(e) => updateCurrentItem({ notes: e.target.value })}
+                    rows={2}
+                    placeholder="Note aggiuntive per questa riga..."
+                    className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)] resize-y"
+                  />
                 </div>
 
                 {/* 2D Vector Blueprint Preview — drag the dividers to rebalance the leaves */}

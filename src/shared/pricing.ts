@@ -137,6 +137,8 @@ export interface ProjectItem {
   securityClass?: string;
   /** DE/LU installation system (standard / RAL-gütegesicherte Montage). */
   montageSystem?: string;
+  /** Free text notes per item/line. */
+  notes?: string;
 }
 
 /**

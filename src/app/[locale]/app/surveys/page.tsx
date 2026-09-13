@@ -557,6 +557,7 @@ export default function SurveysPage() {
               <th className="px-4 py-2 text-center">Foto</th>
               <th className="px-4 py-2 text-center">Stato</th>
               <th className="px-4 py-2 text-right">Data</th>
+              <th className="px-4 py-2 text-center">Mappe</th>
               <th className="px-4 py-2 text-center">Azioni</th>
             </tr>
           </thead>
@@ -570,6 +571,32 @@ export default function SurveysPage() {
                 <td className="px-4 py-3 text-center">{s.status}</td>
                 <td className="px-4 py-3 text-right text-[var(--color-muted-fg)]">
                   {new Date(s.createdAt).toLocaleDateString("it-IT")}
+                </td>
+                <td className="px-4 py-3 text-center">
+                  {(s.customerAddress || s.customerCity || s.customerPostalCode) && (
+                    <div className="flex justify-center gap-1">
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${s.customerAddress || ""}, ${s.customerPostalCode || ""} ${s.customerCity || ""}`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-lg bg-blue-600 px-2 py-1 text-[10px] font-medium text-white hover:opacity-80 transition-opacity"
+                        title="Apri in Google Maps"
+                        aria-label="Apri in Google Maps"
+                      >
+                        Maps
+                      </a>
+                      <a
+                        href={`https://waze.com/ul?navigate=yes&address=${encodeURIComponent(`${s.customerAddress || ""}, ${s.customerPostalCode || ""} ${s.customerCity || ""}`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-lg bg-[#4BB543] px-2 py-1 text-[10px] font-medium text-white hover:opacity-80 transition-opacity"
+                        title="Apri in Waze"
+                        aria-label="Apri in Waze"
+                      >
+                        Waze
+                      </a>
+                    </div>
+                  )}
                 </td>
                 <td className="px-4 py-3 text-center">
                   {s.status === "completed" && tenant && publishedConfig && (
