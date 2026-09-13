@@ -42,6 +42,28 @@ export default async function WidgetPage({
     notFound();
   }
 
+  // Check if tenant has publicWidget entitlement (Showroom tier only)
+  const tenant = await fetchQuery(api.tenants.getMyTenant);
+  const publicWidgetAllowed = tenant && tenant.plan === "showroom";
+
+if (!preview && !publicWidgetAllowed) {
+    // Public widget is only available for Showroom tier tenants
+    return (
+      <div className="w-full h-[400px] flex flex-col items-center justify-center bg-[var(--color-bg)] text-[var(--color-text)] p-8 text-center">
+        <div className="rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg-alt)] p-8 max-w-md">
+          <div className="text-4xl mb-4">🔒</div>
+          <h2 className="text-xl font-semibold mb-2">Widget niet beschikbaar</h2>
+          <p className="text-[var(--color-muted-fg)] mb-4">
+            Deze publieke widget is enkel beschikbaar voor tenants met het <strong>Showroom</strong> abonnement.
+          </p>
+          <p className="text-sm text-[var(--color-muted-fg)]">
+            Upgrade naar Showroom om de publieke widget in te schakelen voor uw klanten.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Widget
       configurator={configurator}

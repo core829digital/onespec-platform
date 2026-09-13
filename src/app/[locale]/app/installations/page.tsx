@@ -83,23 +83,6 @@ export default function InstallationsPage() {
     });
   }, [standard, perimeterM]);
 
-  const [open, setOpen] = useState(false);
-  const [step, setStep] = useState(1);
-  const [jobType, setJobType] = useState("");
-  const [nodeType, setNodeType] = useState("");
-  const [perimeterM, setPerimeterM] = useState(0);
-  const [surveyId, setSurveyId] = useState<string>("");
-  const [notes, setNotes] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [err, setErr] = useState("");
-
-  const [sync, setSync] = useState<SyncState>({
-    isOnline: true,
-    pendingCount: 0,
-    lastSync: null,
-    error: null,
-  });
-
   const runSync = useCallback(() => {
     void flushQueue({
       "installation.create": (payload) =>
