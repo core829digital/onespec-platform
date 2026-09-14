@@ -191,3 +191,40 @@ export const getOverview = query({
     };
   },
 });
+
+/** Peak hours heatmap data — returns array of { hour, day, value } for last 30 days. */
+export const getPeakHours = query({
+  args: { tenantId: v.id("tenants"), range: v.optional(RANGE) },
+  handler: async (ctx, args) => {
+    await requireMembership(ctx, args.tenantId);
+    await enforceAnalyticsForQuery(ctx, args.tenantId);
+    const range = (args.range ?? "1m") as Range;
+    const spec = RANGE_SPEC[range];
+    const now = Date.now();
+    const cutoff = now - spec.windowMs;
+
+    const all = await ctx.db
+      .query("quoteRequests")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .order("desc")
+      .take(MAX_SCAN);
+
+    const inWindow = all.filter((r) => r._creationTime >= cutoff);
+
+    const heatmap: Array<{ hour: number; day: number; value: number }> = [];
+
+    for (const r of inWindow) {
+      const date = new Date(r._creationTime);
+      const hour = date.getHours();
+      const day = date.getDay(); // 0 = Sunday, 6 = Saturday
+      const existing = heatmap.find((h) => h.hour === hour && h.day === day);
+      if (existing) {
+        existing.value++;
+      } else {
+        heatmap.push({ hour, day, value: 1 });
+      }
+    }
+
+    return heatmap;
+  },
+});

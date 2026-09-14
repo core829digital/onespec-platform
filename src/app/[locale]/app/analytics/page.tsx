@@ -1,13 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useState, Suspense, lazy } from "react";
 import { useQuery } from "convex/react";
+import { useTranslations, useFormatter } from "next-intl";
 import { api } from "@/convex/_generated/api";
-import { StatCard } from "@/components/app-shell/stat-card";
 import { RangeSwitcher, RANGE_LABEL, type AnalyticsRange } from "@/components/analytics/range-switcher";
+import {
+  Eye,
+  FileText,
+  Percent,
+  Trophy,
+  Calculator,
+  TrendingUp,
+  Users,
+  Clock,
+  BarChart3,
+} from "lucide-react";
+import { motion } from "framer-motion";
+
+const PieChart = lazy(() => import("@/components/analytics/PieChart").then((m) => ({ default: m.PieChart })));
+const FunnelChart = lazy(() => import("@/components/analytics/PieChart").then((m) => ({ default: m.FunnelChart })));
+const PeakHoursHeatmap = lazy(() => import("@/components/analytics/PieChart").then((m) => ({ default: m.PeakHoursHeatmap })));
+const TrendChart = lazy(() => import("@/components/analytics/PieChart").then((m) => ({ default: m.TrendChart })));
+const StatsGrid = lazy(() => import("@/components/analytics/PieChart").then((m) => ({ default: m.StatsGrid })));
 
 const eur = (c: number) => `€${(c / 100).toLocaleString("it-IT", { maximumFractionDigits: 0 })}`;
 const pct = (n: number) => `${(n * 100).toFixed(1)}%`;
+
 const FUNNEL_LABEL: Record<string, string> = {
   new: "Nuove",
   contacted: "Contattate",
@@ -15,164 +34,316 @@ const FUNNEL_LABEL: Record<string, string> = {
   won: "Vinte",
 };
 
+const FUNNEL_COLORS = {
+  new: "#3b82f6",
+  contacted: "#8b5cf6",
+  quoted: "#f59e0b",
+  won: "#10b981",
+};
+
+const CHART_COLORS = [
+  "#10b981",
+  "#3b82f6",
+  "#8b5cf6",
+  "#f59e0b",
+  "#ef4444",
+  "#06b6d4",
+  "#84cc16",
+  "#f97316",
+];
+
+const ChartSkeleton = () => (
+  <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5 animate-pulse">
+    <div className="h-6 w-40 rounded bg-[var(--color-border)] mb-4" />
+    <div className="h-64 bg-[var(--color-border)] rounded" />
+  </div>
+);
+
+const StatsSkeleton = () => (
+  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 animate-pulse">
+    {Array.from({ length: 6 }).map((_, i) => (
+      <div key={i} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4">
+        <div className="h-5 w-24 rounded bg-[var(--color-border)] mb-2" />
+        <div className="h-8 w-32 rounded bg-[var(--color-border)]" />
+      </div>
+    ))}
+  </div>
+);
+
 export default function AnalyticsPage() {
+  const t = useTranslations("analytics");
+  const format = useFormatter();
   const tenant = useQuery(api.tenants.getMyTenant);
   const [range, setRange] = useState<AnalyticsRange>("1m");
-  const data = useQuery(
+  const overview = useQuery(
     api.analytics.getOverview,
     tenant ? { tenantId: tenant._id, range } : "skip",
   );
+  const peakHours = useQuery(
+    api.analytics.getPeakHours,
+    tenant ? { tenantId: tenant._id, range } : "skip",
+  );
+
+  if (!tenant) return null;
+
+  const stats = overview ? [
+    {
+      label: t("widgetViews"),
+      value: overview.widgetViewsApprox ? `~${overview.widgetViews}` : overview.widgetViews,
+      icon: <Eye className="w-5 h-5" />,
+      delta: overview.previous ? ((overview.widgetViews - overview.previous.widgetViews) / Math.max(overview.previous.widgetViews, 1)) * 100 : undefined,
+      trend: overview.previous && overview.widgetViews > overview.previous.widgetViews ? "up" : overview.previous && overview.widgetViews < overview.previous.widgetViews ? "down" : "neutral",
+    },
+    {
+      label: t("totalRequests"),
+      value: overview.totalRequests,
+      icon: <FileText className="w-5 h-5" />,
+      delta: overview.previous ? ((overview.totalRequests - overview.previous.totalRequests) / Math.max(overview.previous.totalRequests, 1)) * 100 : undefined,
+      trend: overview.previous && overview.totalRequests > overview.previous.totalRequests ? "up" : overview.previous && overview.totalRequests < overview.previous.totalRequests ? "down" : "neutral",
+    },
+    {
+      label: t("visitorConversion"),
+      value: pct(overview.visitorConversionRate),
+      icon: <Percent className="w-5 h-5" />,
+      accent: true,
+      delta: overview.previous ? ((overview.visitorConversionRate - overview.previous.visitorConversionRate) / Math.max(overview.previous.visitorConversionRate, 0.001)) * 100 : undefined,
+      trend: overview.previous && overview.visitorConversionRate > overview.previous.visitorConversionRate ? "up" : overview.previous && overview.visitorConversionRate < overview.previous.visitorConversionRate ? "down" : "neutral",
+    },
+    {
+      label: t("conversionRate"),
+      value: pct(overview.conversionRate),
+      icon: <Trophy className="w-5 h-5" />,
+      delta: overview.previous ? ((overview.conversionRate - overview.previous.conversionRate) / Math.max(overview.previous.conversionRate, 0.001)) * 100 : undefined,
+      trend: overview.previous && overview.conversionRate > overview.previous.conversionRate ? "up" : overview.previous && overview.conversionRate < overview.previous.conversionRate ? "down" : "neutral",
+    },
+    {
+      label: t("wonValue"),
+      value: eur(overview.wonValueCents),
+      icon: <TrendingUp className="w-5 h-5" />,
+      delta: overview.previous ? ((overview.wonValueCents - overview.previous.wonValueCents) / Math.max(overview.previous.wonValueCents, 1)) * 100 : undefined,
+      trend: overview.previous && overview.wonValueCents > overview.previous.wonValueCents ? "up" : overview.previous && overview.wonValueCents < overview.previous.wonValueCents ? "down" : "neutral",
+    },
+    {
+      label: t("avgDeal"),
+      value: eur(overview.avgDealCents),
+      icon: <Calculator className="w-5 h-5" />,
+      delta: overview.previous ? ((overview.avgDealCents - overview.previous.avgDealCents) / Math.max(overview.previous.avgDealCents, 1)) * 100 : undefined,
+      trend: overview.previous && overview.avgDealCents > overview.previous.avgDealCents ? "up" : overview.previous && overview.avgDealCents < overview.previous.avgDealCents ? "down" : "neutral",
+    },
+  ] : [];
+
+  const funnelData = overview ? overview.funnel.map((f) => ({
+    label: FUNNEL_LABEL[f.key] || f.key,
+    value: f.count,
+    color: FUNNEL_COLORS[f.key as keyof typeof FUNNEL_COLORS] || CHART_COLORS[0],
+  })) : [];
+
+  const pieData = overview ? overview.funnel.map((f, i) => ({
+    label: FUNNEL_LABEL[f.key] || f.key,
+    value: f.count,
+    color: CHART_COLORS[i % CHART_COLORS.length],
+  })) : [];
+
+  const trendData = overview ? overview.trend.map((t) => ({
+    label: t.label,
+    value: t.count,
+  })) : [];
+
+  const peakHoursData = peakHours || [];
+
+  const byConfiguratorData = overview ? overview.byConfigurator.map((c, i) => ({
+    label: c.name,
+    value: c.count,
+    color: CHART_COLORS[i % CHART_COLORS.length],
+  })) : [];
+
+  const ChartSkeleton = () => (
+    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5 animate-pulse">
+      <div className="h-6 w-40 rounded bg-[var(--color-border)] mb-4" />
+      <div className="h-64 bg-[var(--color-border)] rounded" />
+    </div>
+  );
+
+  const StatsSkeleton = () => (
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 animate-pulse">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div key={i} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4">
+          <div className="h-5 w-24 rounded bg-[var(--color-border)] mb-2" />
+          <div className="h-8 w-32 rounded bg-[var(--color-border)]" />
+        </div>
+      ))}
+    </div>
+  );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-text)]">Analytics</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-text)]">{t("title")}</h1>
           <p className="text-[var(--color-text-secondary)] mt-1">
-            Dati reali del tuo account · {RANGE_LABEL[range]}
+            {t("subtitle")} · {RANGE_LABEL[range]}
           </p>
         </div>
         <RangeSwitcher value={range} onChange={setRange} />
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
-        <StatCard label="Aperture widget" value={data ? `${data.widgetViewsApprox ? "~" : ""}${data.widgetViews}` : undefined} />
-        <StatCard label="Richieste" value={data ? String(data.totalRequests) : undefined} />
-        <StatCard
-          label="Conv. visite"
-          value={data ? pct(data.visitorConversionRate) : undefined}
-          accent
-        />
-        <StatCard label="Conv. lead→vinta" value={data ? pct(data.conversionRate) : undefined} />
-        <StatCard label="Valore vinto" value={data ? eur(data.wonValueCents) : undefined} />
-        <StatCard label="Valore medio" value={data ? eur(data.avgDealCents) : undefined} />
-      </div>
+      <Suspense fallback={<StatsSkeleton />}>
+        <StatsGrid stats={stats} columns={6} />
+      </Suspense>
 
-      {data === undefined ? (
-        <p className="text-[var(--color-text-secondary)]">Caricamento...</p>
-      ) : data.totalRequests === 0 ? (
-        <p className="text-sm text-[var(--color-text-secondary)]">
-          Nessuna richiesta nel periodo selezionato.
-        </p>
+      {overview === undefined ? (
+        <div className="space-y-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5 animate-pulse">
+              <div className="h-6 w-40 rounded bg-[var(--color-border)] mb-4" />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="h-32 bg-[var(--color-border)] rounded" />
+                <div className="h-32 bg-[var(--color-border)] rounded" />
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : overview.totalRequests === 0 ? (
+        <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-12 text-center">
+          <BarChart3 className="w-12 h-12 mx-auto text-[var(--color-text-secondary)] mb-4" />
+          <h2 className="text-lg font-semibold text-[var(--color-text)] mb-2">{t("noData")}</h2>
+          <p className="text-[var(--color-text-secondary)]">{t("noDataHint")}</p>
+        </div>
       ) : (
         <>
-          <Panel title="Andamento richieste">
-            <TrendChart trend={data.trend} />
-          </Panel>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
+              <Suspense fallback={<ChartSkeleton />}>
+                <PieChart
+                  data={pieData}
+                  title={t("funnelDistribution")}
+                  size={240}
+                  innerRadius={90}
+                />
+              </Suspense>
+            </section>
 
-          <Panel title="Imbuto di vendita" hint="Distribuzione delle richieste per fase attuale.">
-            <div className="space-y-2">
-              {data.funnel.map((f) => {
-                const max = Math.max(...data.funnel.map((x) => x.count), 1);
-                return (
-                  <div key={f.key} className="flex items-center gap-3">
-                    <span className="w-36 text-sm text-[var(--color-text-secondary)] shrink-0">
-                      {FUNNEL_LABEL[f.key]}
-                    </span>
-                    <div className="flex-1 h-6 rounded bg-[var(--color-bg)] overflow-hidden">
-                      <div
-                        className="h-full bg-[var(--color-mint)]"
-                        style={{ width: `${(f.count / max) * 100}%` }}
-                      />
-                    </div>
-                    <span className="w-10 text-right text-sm text-[var(--color-text)] tabular-nums">
-                      {f.count}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-            <table className="sr-only">
-              <caption>Imbuto di vendita</caption>
-              <tbody>
-                {data.funnel.map((f) => (
-                  <tr key={f.key}>
-                    <th scope="row">{FUNNEL_LABEL[f.key]}</th>
-                    <td>{f.count}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </Panel>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <Panel title="Per configuratore">
-              <BreakdownTable
-                rows={data.byConfigurator.map((c) => ({
-                  label: c.name,
-                  count: c.count,
-                  extra: eur(c.valueCents),
-                }))}
-              />
-            </Panel>
-            <Panel title="Per sorgente">
-              <BreakdownTable
-                rows={data.bySource.map((s) => ({ label: s.host, count: s.count }))}
-              />
-            </Panel>
+            <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
+              <Suspense fallback={<ChartSkeleton />}>
+                <FunnelChart
+                  data={funnelData}
+                  title={t("salesFunnel")}
+                  showPercentages={true}
+                />
+              </Suspense>
+            </section>
           </div>
 
-          {data.truncated ? (
-            <p className="text-xs text-[var(--color-text-secondary)]">
-              Analisi limitata alle {5000} richieste più recenti.
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
+              <Suspense fallback={<ChartSkeleton />}>
+                <TrendChart
+                  data={trendData}
+                  title={t("requestsTrend")}
+                  color="var(--color-mint)"
+                />
+              </Suspense>
+            </section>
+
+            <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
+              <Suspense fallback={<ChartSkeleton />}>
+                <PieChart
+                  data={byConfiguratorData}
+                  title={t("byConfigurator")}
+                  size={240}
+                  innerRadius={90}
+                />
+              </Suspense>
+            </section>
+          </div>
+
+          {peakHoursData.length > 0 && (
+            <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
+              <Suspense fallback={<ChartSkeleton />}>
+                <PeakHoursHeatmap
+                  data={peakHoursData}
+                  title={t("peakHours")}
+                />
+              </Suspense>
+            </section>
+          )}
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
+              <h2 className="font-semibold text-[var(--color-text)] mb-4">{t("byConfigurator")}</h2>
+              <div className="space-y-3">
+                {overview.byConfigurator.map((c, i) => {
+                  const max = Math.max(...overview.byConfigurator.map((x) => x.count), 1);
+                  return (
+                    <motion.div
+                      key={c.name}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      className="flex items-center gap-3 text-sm"
+                    >
+                      <span className="w-40 truncate text-[var(--color-text)] shrink-0" title={c.name}>
+                        {c.name}
+                      </span>
+                      <div className="flex-1 h-4 rounded bg-[var(--color-bg)] overflow-hidden">
+                        <motion.div
+                          layout
+                          className="h-full transition-all duration-500"
+                          style={{
+                            background: CHART_COLORS[i % CHART_COLORS.length],
+                            width: `${(c.count / max) * 100}%`,
+                          }}
+                        />
+                      </div>
+                      <span className="w-10 text-right tabular-nums text-[var(--color-text)]">{c.count}</span>
+                      <span className="w-16 text-right tabular-nums text-[var(--color-text-secondary)]">{eur(c.valueCents)}</span>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </section>
+
+            <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
+              <h2 className="font-semibold text-[var(--color-text)] mb-4">{t("bySource")}</h2>
+              <div className="space-y-3">
+                {overview.bySource.map((s, i) => {
+                  const max = Math.max(...overview.bySource.map((x) => x.count), 1);
+                  return (
+                    <motion.div
+                      key={s.host}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      className="flex items-center gap-3 text-sm"
+                    >
+                      <span className="w-40 truncate text-[var(--color-text)] shrink-0" title={s.host}>
+                        {s.host}
+                      </span>
+                      <div className="flex-1 h-4 rounded bg-[var(--color-bg)] overflow-hidden">
+                        <motion.div
+                          layout
+                          className="h-full transition-all duration-500"
+                          style={{
+                            background: CHART_COLORS[i % CHART_COLORS.length],
+                            width: `${(s.count / max) * 100}%`,
+                          }}
+                        />
+                      </div>
+                      <span className="w-10 text-right tabular-nums text-[var(--color-text)]">{s.count}</span>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </section>
+          </div>
+
+          {overview.truncated && (
+            <p className="text-xs text-[var(--color-text-secondary)] text-center">
+              {t("truncatedNotice", { count: 5000 })}
             </p>
-          ) : null}
+          )}
         </>
       )}
-    </div>
-  );
-}
-
-function Panel({ title, hint, children }: { title: string; hint?: string; children: React.ReactNode }) {
-  return (
-    <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
-      <h2 className="font-semibold text-[var(--color-text)]">{title}</h2>
-      {hint ? <p className="text-sm text-[var(--color-text-secondary)] mt-0.5">{hint}</p> : null}
-      <div className="mt-4">{children}</div>
-    </section>
-  );
-}
-
-function TrendChart({ trend }: { trend: Array<{ label: string; count: number }> }) {
-  const max = Math.max(...trend.map((t) => t.count), 1);
-  return (
-    <div className="flex items-end gap-0.5 h-32" role="img" aria-label="Grafico andamento richieste">
-      {trend.map((t, i) => (
-        <div key={i} className="flex-1 group relative flex items-end">
-          <div
-            className="w-full bg-[var(--color-mint)]/70 group-hover:bg-[var(--color-mint)] rounded-t"
-            style={{ height: `${Math.max((t.count / max) * 100, t.count > 0 ? 6 : 0)}%` }}
-            title={`${t.label}: ${t.count}`}
-          />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function BreakdownTable({
-  rows,
-}: {
-  rows: Array<{ label: string; count: number; extra?: string }>;
-}) {
-  if (rows.length === 0) return <p className="text-sm text-[var(--color-text-secondary)]">Nessun dato.</p>;
-  const max = Math.max(...rows.map((r) => r.count), 1);
-  return (
-    <div className="space-y-2">
-      {rows.map((r) => (
-        <div key={r.label} className="flex items-center gap-3 text-sm">
-          <span className="w-40 truncate text-[var(--color-text)] shrink-0" title={r.label}>
-            {r.label}
-          </span>
-          <div className="flex-1 h-4 rounded bg-[var(--color-bg)] overflow-hidden">
-            <div className="h-full bg-[var(--color-mint)]/60" style={{ width: `${(r.count / max) * 100}%` }} />
-          </div>
-          <span className="w-8 text-right tabular-nums text-[var(--color-text)]">{r.count}</span>
-          {r.extra ? (
-            <span className="w-16 text-right tabular-nums text-[var(--color-text-secondary)]">{r.extra}</span>
-          ) : null}
-        </div>
-      ))}
     </div>
   );
 }

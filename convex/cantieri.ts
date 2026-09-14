@@ -1,0 +1,432 @@
+import { query, mutation } from "./_generated/server";
+import { v } from "convex/values";
+import { ConvexError } from "convex/values";
+import { requireTenantRole, requireMembership } from "./lib/auth";
+
+const CANTIERE_STATUSES = [
+  "preventivo",
+  "confermato",
+  "in_produzione",
+  "pronto_consegna",
+  "in_posa",
+  "collaudo",
+  "chiuso",
+] as const;
+
+const TASK_STATUSES = ["todo", "in_progress", "review", "done"] as const;
+
+/** List cantieri for a tenant with optional filters. */
+export const listCantieri = query({
+  args: {
+    tenantId: v.id("tenants"),
+    status: v.optional(v.union(
+      v.literal("preventivo"),
+      v.literal("confermato"),
+      v.literal("in_produzione"),
+      v.literal("pronto_consegna"),
+      v.literal("in_posa"),
+      v.literal("collaudo"),
+      v.literal("chiuso"),
+    )),
+    clientId: v.optional(v.id("clients")),
+    assignedUserId: v.optional(v.id("users")),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
+    const limit = Math.min(Math.max(args.limit ?? 100, 1), 500);
+
+    let q = ctx.db.query("cantieri").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId));
+
+    if (args.status) {
+      q = q.filter((c) => c.status === args.status);
+    }
+    if (args.clientId) {
+      q = q.filter((c) => c.clientId === args.clientId);
+    }
+    if (args.assignedUserId) {
+      q = q.filter((c) => c.assignedUserIds.includes(args.assignedUserId!));
+    }
+
+    const cantieri = await q.order("desc").take(limit);
+
+    // Enrich with task counts
+    const enriched = await Promise.all(
+      cantieri.map(async (c) => {
+        const tasks = await ctx.db
+          .query("cantiereTasks")
+          .withIndex("by_cantiere", (q) => q.eq("cantiereId", c._id))
+          .collect();
+        const taskCounts = TASK_STATUSES.reduce(
+          (acc, s) => ({ ...acc, [s]: tasks.filter((t) => t.status === s).length }),
+          {} as Record<string, number>,
+        );
+        return { ...c, taskCounts, totalTasks: tasks.length };
+      }),
+    );
+
+    return enriched;
+  },
+});
+
+/** Get a single cantiere with tasks and guest access check. */
+export const getCantiere = query({
+  args: { cantiereId: v.id("cantieri") },
+  handler: async (ctx, args) => {
+    const cantiere = await ctx.db.get(args.cantiereId);
+    if (!cantiere) return null;
+
+    // Check if user is member of tenant or has valid guest PIN
+    const tenant = await ctx.db.get(cantiere.tenantId);
+    if (!tenant) return null;
+
+    const tasks = await ctx.db
+      .query("cantiereTasks")
+      .withIndex("by_cantiere", (q) => q.eq("cantiereId", args.cantiereId))
+      .order("asc")
+      .collect();
+
+    // Get client info if linked
+    let client = null;
+    if (cantiere.clientId) {
+      client = await ctx.db.get(cantiere.clientId);
+    }
+
+    // Get quote info if linked
+    let quote = null;
+    if (cantiere.quoteId) {
+      quote = await ctx.db.get(cantiere.quoteId);
+    }
+
+    return { cantiere, tasks, client, quote, tenant: { name: tenant.name } };
+  },
+});
+
+/** Guest access check for cantiere via PIN. */
+export const getCantiereByGuestPin = query({
+  args: { pin: v.string() },
+  handler: async (ctx, args) => {
+    const cantiere = await ctx.db
+      .query("cantieri")
+      .withIndex("by_guest_pin", (q) => q.eq("guestPin", args.pin))
+      .unique();
+
+    if (!cantiere) return { ok: false, error: "PIN non valido" };
+    if (cantiere.guestPinExpiresAt && cantiere.guestPinExpiresAt < Date.now()) {
+      return { ok: false, error: "PIN scaduto" };
+    }
+
+    const tasks = await ctx.db
+      .query("cantiereTasks")
+      .withIndex("by_cantiere", (q) => q.eq("cantiereId", cantiere._id))
+      .order("asc")
+      .collect();
+
+    const tenant = await ctx.db.get(cantiere.tenantId);
+    if (!tenant) return { ok: false, error: "Tenant non trovato" };
+
+    let client = null;
+    if (cantiere.clientId) {
+      client = await ctx.db.get(cantiere.clientId);
+    }
+
+    return { ok: true, cantiere, tasks, tenant: { name: tenant.name }, client };
+  },
+});
+
+/** Create a new cantiere. */
+export const createCantiere = mutation({
+  args: {
+    tenantId: v.id("tenants"),
+    name: v.string(),
+    address: v.string(),
+    city: v.string(),
+    postalCode: v.string(),
+    country: v.optional(v.string()),
+    clientId: v.optional(v.id("clients")),
+    quoteId: v.optional(v.id("quoteRequests")),
+    status: v.optional(v.union(
+      v.literal("preventivo"),
+      v.literal("confermato"),
+      v.literal("in_produzione"),
+      v.literal("pronto_consegna"),
+      v.literal("in_posa"),
+      v.literal("collaudo"),
+      v.literal("chiuso"),
+    )),
+    priority: v.optional(v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("urgent"))),
+    assignedUserIds: v.optional(v.array(v.id("users"))),
+    estimatedStartAt: v.optional(v.number()),
+    estimatedEndAt: v.optional(v.number()),
+    valueCents: v.optional(v.number()),
+    notes: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
+    const { userId } = await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
+
+    const now = Date.now();
+    const cantiereId = await ctx.db.insert("cantieri", {
+      tenantId: args.tenantId,
+      name: args.name.trim(),
+      address: args.address.trim(),
+      city: args.city.trim(),
+      postalCode: args.postalCode.trim(),
+      country: args.country?.trim(),
+      clientId: args.clientId,
+      quoteId: args.quoteId,
+      status: args.status ?? "preventivo",
+      priority: args.priority ?? "medium",
+      assignedUserIds: args.assignedUserIds ?? [],
+      estimatedStartAt: args.estimatedStartAt,
+      estimatedEndAt: args.estimatedEndAt,
+      valueCents: args.valueCents,
+      notes: args.notes?.trim(),
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    await ctx.db.insert("auditLog", {
+      tenantId: args.tenantId,
+      actorUserId: userId,
+      actorKind: "user",
+      action: "cantiere.create",
+      targetTable: "cantieri",
+      targetId: cantiereId,
+      meta: { name: args.name, status: args.status ?? "preventivo" },
+      createdAt: now,
+    });
+
+    return cantiereId;
+  },
+});
+
+/** Update a cantiere. */
+export const updateCantiere = mutation({
+  args: {
+    cantiereId: v.id("cantieri"),
+    name: v.optional(v.string()),
+    address: v.optional(v.string()),
+    city: v.optional(v.string()),
+    postalCode: v.optional(v.string()),
+    country: v.optional(v.string()),
+    clientId: v.optional(v.id("clients")),
+    quoteId: v.optional(v.id("quoteRequests")),
+    status: v.optional(v.union(
+      v.literal("preventivo"),
+      v.literal("confermato"),
+      v.literal("in_produzione"),
+      v.literal("pronto_consegna"),
+      v.literal("in_posa"),
+      v.literal("collaudo"),
+      v.literal("chiuso"),
+    )),
+    priority: v.optional(v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("urgent"))),
+    assignedUserIds: v.optional(v.array(v.id("users"))),
+    estimatedStartAt: v.optional(v.number()),
+    estimatedEndAt: v.optional(v.number()),
+    actualStartAt: v.optional(v.number()),
+    actualEndAt: v.optional(v.number()),
+    valueCents: v.optional(v.number()),
+    notes: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const cantiere = await ctx.db.get(args.cantiereId);
+    if (!cantiere) throw new ConvexError("CANTIERE_NOT_FOUND");
+    await requireTenantRole(ctx, cantiere.tenantId, ["owner", "admin", "member"]);
+    const { userId } = await requireTenantRole(ctx, cantiere.tenantId, ["owner", "admin", "member"]);
+
+    const patch: Record<string, unknown> = { updatedAt: Date.now() };
+    const allowedFields = [
+      "name", "address", "city", "postalCode", "country",
+      "clientId", "quoteId", "status", "priority", "assignedUserIds",
+      "estimatedStartAt", "estimatedEndAt", "actualStartAt", "actualEndAt",
+      "valueCents", "notes",
+    ];
+
+    for (const field of allowedFields) {
+      if (args[field as keyof typeof args] !== undefined) {
+        patch[field] = args[field as keyof typeof args];
+      }
+    }
+
+    await ctx.db.patch(args.cantiereId, patch);
+
+    await ctx.db.insert("auditLog", {
+      tenantId: cantiere.tenantId,
+      actorUserId: userId,
+      actorKind: "user",
+      action: "cantiere.update",
+      targetTable: "cantieri",
+      targetId: args.cantiereId,
+      meta: patch,
+      createdAt: Date.now(),
+    });
+
+    return { ok: true };
+  },
+});
+
+/** Generate/refresh guest PIN for a cantiere. */
+export const generateGuestPin = mutation({
+  args: {
+    cantiereId: v.id("cantieri"),
+    expiresInDays: v.optional(v.number()), // default 30 days
+  },
+  handler: async (ctx, args) => {
+    const cantiere = await ctx.db.get(args.cantiereId);
+    if (!cantiere) throw new ConvexError("CANTIERE_NOT_FOUND");
+    await requireTenantRole(ctx, cantiere.tenantId, ["owner", "admin", "member"]);
+    const { userId } = await requireTenantRole(ctx, cantiere.tenantId, ["owner", "admin", "member"]);
+
+    // Generate 6-digit PIN
+    const pin = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Date.now() + (args.expiresInDays ?? 30) * 24 * 60 * 60 * 1000;
+
+    await ctx.db.patch(args.cantiereId, {
+      guestPin: pin,
+      guestPinExpiresAt: expiresAt,
+      updatedAt: Date.now(),
+    });
+
+    await ctx.db.insert("auditLog", {
+      tenantId: cantiere.tenantId,
+      actorUserId: userId,
+      actorKind: "user",
+      action: "cantiere.generate_guest_pin",
+      targetTable: "cantieri",
+      targetId: args.cantiereId,
+      meta: { expiresAt },
+      createdAt: Date.now(),
+    });
+
+    return { pin, expiresAt };
+  },
+});
+
+/** Revoke guest PIN. */
+export const revokeGuestPin = mutation({
+  args: { cantiereId: v.id("cantieri") },
+  handler: async (ctx, args) => {
+    const cantiere = await ctx.db.get(args.cantiereId);
+    if (!cantiere) throw new ConvexError("CANTIERE_NOT_FOUND");
+    await requireTenantRole(ctx, cantiere.tenantId, ["owner", "admin", "member"]);
+    const { userId } = await requireTenantRole(ctx, cantiere.tenantId, ["owner", "admin", "member"]);
+
+    await ctx.db.patch(args.cantiereId, {
+      guestPin: undefined,
+      guestPinExpiresAt: undefined,
+      updatedAt: Date.now(),
+    });
+
+    await ctx.db.insert("auditLog", {
+      tenantId: cantiere.tenantId,
+      actorUserId: userId,
+      actorKind: "user",
+      action: "cantiere.revoke_guest_pin",
+      targetTable: "cantieri",
+      targetId: args.cantiereId,
+      meta: {},
+      createdAt: Date.now(),
+    });
+
+    return { ok: true };
+  },
+});
+
+/** Cantiere Tasks **/
+
+/** Create a task for a cantiere. */
+export const createCantiereTask = mutation({
+  args: {
+    tenantId: v.id("tenants"),
+    cantiereId: v.id("cantieri"),
+    title: v.string(),
+    description: v.optional(v.string()),
+    priority: v.optional(v.union(v.literal("low"), v.literal("medium"), v.literal("high"))),
+    dueAt: v.optional(v.number()),
+    assignedUserId: v.optional(v.id("users")),
+  },
+  handler: async (ctx, args) => {
+    await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
+    const { userId } = await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
+
+    const cantiere = await ctx.db.get(args.cantiereId);
+    if (!cantiere || cantiere.tenantId !== args.tenantId) {
+      throw new ConvexError("CANTIERE_NOT_FOUND");
+    }
+
+    const taskId = await ctx.db.insert("cantiereTasks", {
+      tenantId: args.tenantId,
+      cantiereId: args.cantiereId,
+      userId: args.assignedUserId ?? userId,
+      title: args.title.trim(),
+      description: args.description?.trim(),
+      status: "todo",
+      priority: args.priority ?? "medium",
+      dueAt: args.dueAt,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+
+    await ctx.db.patch(args.cantiereId, { updatedAt: Date.now() });
+
+    return { taskId };
+  },
+});
+
+/** Update a cantiere task. */
+export const updateCantiereTask = mutation({
+  args: {
+    taskId: v.id("cantiereTasks"),
+    title: v.optional(v.string()),
+    description: v.optional(v.string()),
+    status: v.optional(v.union(v.literal("todo"), v.literal("in_progress"), v.literal("review"), v.literal("done"))),
+    priority: v.optional(v.union(v.literal("low"), v.literal("medium"), v.literal("high"))),
+    dueAt: v.optional(v.number()),
+    assignedUserId: v.optional(v.id("users")),
+  },
+  handler: async (ctx, args) => {
+    const task = await ctx.db.get(args.taskId);
+    if (!task) throw new ConvexError("TASK_NOT_FOUND");
+    await requireTenantRole(ctx, task.tenantId, ["owner", "admin", "member"]);
+    const { userId } = await requireTenantRole(ctx, task.tenantId, ["owner", "admin", "member"]);
+
+    const patch: Record<string, unknown> = { updatedAt: Date.now() };
+    const allowedFields = ["title", "description", "status", "priority", "dueAt", "assignedUserId"];
+
+    for (const field of allowedFields) {
+      if (args[field as keyof typeof args] !== undefined) {
+        patch[field] = args[field as keyof typeof args];
+      }
+    }
+
+    // Set completedAt when status changes to done
+    if (patch.status === "done" && task.status !== "done") {
+      patch.completedAt = Date.now();
+    } else if (patch.status && patch.status !== "done" && task.status === "done") {
+      patch.completedAt = undefined;
+    }
+
+    await ctx.db.patch(args.taskId, patch);
+    await ctx.db.patch(task.cantiereId, { updatedAt: Date.now() });
+
+    return { ok: true };
+  },
+});
+
+/** Delete a cantiere task. */
+export const deleteCantiereTask = mutation({
+  args: { taskId: v.id("cantiereTasks") },
+  handler: async (ctx, args) => {
+    const task = await ctx.db.get(args.taskId);
+    if (!task) throw new ConvexError("TASK_NOT_FOUND");
+    await requireTenantRole(ctx, task.tenantId, ["owner", "admin", "member"]);
+    const { userId } = await requireTenantRole(ctx, task.tenantId, ["owner", "admin", "member"]);
+
+    await ctx.db.delete(args.taskId);
+    await ctx.db.patch(task.cantiereId, { updatedAt: Date.now() });
+
+    return { ok: true };
+  },
+});

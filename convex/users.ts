@@ -1,5 +1,7 @@
 import { query } from "./_generated/server";
+import { v } from "convex/values";
 import { getAuthUserId } from "@convex-dev/auth/server";
+import { requireMembership } from "./lib/auth";
 
 export const viewer = query({
   handler: async (ctx) => {
@@ -14,5 +16,26 @@ export const viewer = query({
       emailVerified: !!user.emailVerificationTime,
       isPlatformAdmin: !!user.isPlatformAdmin,
     };
+  },
+});
+
+export const listUsers = query({
+  args: { tenantId: v.id("tenants") },
+  handler: async (ctx, args) => {
+    await requireMembership(ctx, args.tenantId);
+    const memberships = await ctx.db
+      .query("memberships")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .filter((m) => m.status === "active")
+      .collect();
+
+    const userIds = memberships.map((m) => m.userId);
+    const users = await Promise.all(userIds.map((id) => ctx.db.get(id)));
+
+    return users.filter((u): u is any => u !== null).map((u) => ({
+      _id: u._id,
+      name: u.name ?? null,
+      email: u.email ?? null,
+    }));
   },
 });

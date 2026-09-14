@@ -262,7 +262,7 @@ function estimateEnergySavings(regionCode: string, uw: number, items: ProjectIte
   return Math.round(deltaU * superficieM2 * gg * 24 / 1000);
 }
 
-async function getTenantCatalog(
+export async function getTenantCatalog(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ctx: any,
   tenantId: string

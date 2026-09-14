@@ -697,5 +697,119 @@ export default defineSchema({
   })
     .index("by_tenant", ["tenantId"])
     .index("by_passport", ["passportId"])
-    .index("by_tenant_status", ["tenantId", "status"]),
+    .index("by_tenant_status", ["tenantId", "status"])),
+
+  /** Client Intelligence Hub — CRM-style client records with history, tags, notes. */
+  clients: defineTable({
+    tenantId: v.id("tenants"),
+    name: v.string(),
+    contactName: v.optional(v.string()),
+    email: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    billingAddress: v.optional(v.string()),
+    billingCity: v.optional(v.string()),
+    billingPostalCode: v.optional(v.string()),
+    billingCountry: v.optional(v.string()),
+    siteAddress: v.optional(v.string()),
+    siteCity: v.optional(v.string()),
+    sitePostalCode: v.optional(v.string()),
+    siteCountry: v.optional(v.string()),
+    vatNumber: v.optional(v.string()),
+    fiscalCode: v.optional(v.string()),
+    type: v.union(v.literal("private"), v.literal("company"), v.literal("developer"), v.literal("architect"), v.literal("contractor")),
+    tags: v.array(v.string()),
+    source: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    assignedToUserId: v.optional(v.id("users")),
+    status: v.union(v.literal("lead"), v.literal("prospect"), v.literal("active"), v.literal("inactive"), v.literal("lost")),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_tenant_email", ["tenantId", "email"])
+    .index("by_assigned", ["assignedToUserId"]),
+
+  /** Client activities/interactions timeline. */
+  clientActivities: defineTable({
+    tenantId: v.id("tenants"),
+    clientId: v.id("clients"),
+    userId: v.id("users"),
+    type: v.union(
+      v.literal("note"),
+      v.literal("call"),
+      v.literal("email"),
+      v.literal("meeting"),
+      v.literal("survey"),
+      v.literal("quote"),
+      v.literal("order"),
+      v.literal("installation"),
+      v.literal("inspection"),
+      v.literal("handover"),
+      v.literal("intervention"),
+      v.literal("task"),
+    ),
+    title: v.string(),
+    description: v.optional(v.string()),
+    relatedTable: v.optional(v.string()),
+    relatedId: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_client", ["clientId"])
+    .index("by_tenant", ["tenantId"]),
+
+  /** Cantieri (construction sites) — Kanban board for project tracking. */
+  cantieri: defineTable({
+    tenantId: v.id("tenants"),
+    name: v.string(),
+    address: v.string(),
+    city: v.string(),
+    postalCode: v.string(),
+    country: v.optional(v.string()),
+    clientId: v.optional(v.id("clients")),
+    quoteId: v.optional(v.id("quoteRequests")),
+    status: v.union(
+      v.literal("preventivo"),
+      v.literal("confermato"),
+      v.literal("in_produzione"),
+      v.literal("pronto_consegna"),
+      v.literal("in_posa"),
+      v.literal("collaudo"),
+      v.literal("chiuso"),
+    ),
+    priority: v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("urgent")),
+    assignedUserIds: v.array(v.id("users")),
+    estimatedStartAt: v.optional(v.number()),
+    estimatedEndAt: v.optional(v.number()),
+    actualStartAt: v.optional(v.number()),
+    actualEndAt: v.optional(v.number()),
+    valueCents: v.optional(v.number()),
+    notes: v.optional(v.string()),
+    guestPin: v.optional(v.string()),
+    guestPinExpiresAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_client", ["clientId"])
+    .index("by_guest_pin", ["guestPin"]),
+
+  /** Cantiere tasks/activities for Kanban cards. */
+  cantiereTasks: defineTable({
+    tenantId: v.id("tenants"),
+    cantiereId: v.id("cantieri"),
+    userId: v.id("users"),
+    title: v.string(),
+    description: v.optional(v.string()),
+    status: v.union(v.literal("todo"), v.literal("in_progress"), v.literal("review"), v.literal("done")),
+    priority: v.union(v.literal("low"), v.literal("medium"), v.literal("high")),
+    dueAt: v.optional(v.number()),
+    completedAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_cantiere", ["cantiereId"])
+    .index("by_tenant", ["tenantId"])
+    .index("by_assignee", ["userId"]),
 });

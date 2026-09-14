@@ -2,9 +2,10 @@
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import { internal } from "./_generated/api";
-import { requireTenantRole, requireMembership } from "./lib/auth";
+import { requireTenantRole, requireMembership, requireUser } from "./lib/auth";
 import { enforceForCreateQuote, enforceForESignature, enforceForMultiSupplier } from "./lib/enforcement";
 import { calculatePrice, type ProjectItem, type CatalogPayload } from "../src/shared/pricing";
+import { getTenantCatalog } from "./calculations";
 import { currentPeriod } from "./lib/entitlements";
 import { regionForCountry } from "./lib/regions";
 
@@ -432,15 +433,14 @@ export const createFieldQuoteFromSurvey = mutation({
       installationPriceCents: 0,
       demolitionPriceCents: 0,
       discountPercent: 0,
-      regionalSurchargeCents: 0,
+regionalSurchargeCents: 0,
       profitMarginPercent: 30,
       vatRatePercent: effectiveVat,
-      depositTerms: region === 'FR' ? 'Acompte 30% Ã  la commande Â· 70% Ã  la livraison' : '30% ordine Â· 60% merce pronta Â· 10% posa',
+      depositTerms: region === 'FR' ? 'Acompte 30% à la commande · 70% à la livraison' : '30% ordine · 60% merce pronta · 10% posa',
       regionCode: region,
       items,
       priceCents: finalPriceCents,
       priceExVatCents: baseCalc.priceExVatCents,
-      vatRatePercent: effectiveVat,
       currency: 'EUR',
       status: 'quoted',
       assignedToUserId: userId,
@@ -513,7 +513,6 @@ export const createQuoteWithSuppliers = mutation({
     profitMarginPercent: v.optional(v.number()),
     vatRatePercent: v.optional(v.number()),
     depositTerms: v.optional(v.string()),
-    regionCode: v.optional(v.string()),
     poseType: v.optional(v.string()),
     rgeCertificate: v.optional(v.string()),
     maPrimeRenovPercent: v.optional(v.number()),
@@ -525,10 +524,6 @@ export const createQuoteWithSuppliers = mutation({
     ralMontage: v.optional(v.boolean()),
     rcSecurityLevel: v.optional(v.string()),
     klimabonusEligible: v.optional(v.boolean()),
-    profitMarginPercent: v.optional(v.number()),
-    vatRatePercent: v.optional(v.number()),
-    depositTerms: v.optional(v.string()),
-    regionCode: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     await enforceForCreateQuote(ctx, args.tenantId);
@@ -564,6 +559,7 @@ export const createQuoteWithSuppliers = mutation({
           throw new ConvexError('INVALID_ITEM_INDEX');
         }
       }
+    }
 
     // Authoritative calculation â€” server is the source of truth for price.
     const baseCalc = calculatePrice(payload, items);

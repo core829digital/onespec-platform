@@ -522,7 +522,6 @@ const de: WidgetDict = {
   successBody: "Danke — wir melden uns zeitnah mit einem detaillierten Angebot.",
   uwLabel: "U-Wert (indikativ)",
   footerDisclaimer: "Nur eine unverbindliche Kostenschätzung. Der endgültige Preis wird nach dem Aufmaß vor Ort bestätigt.",
-  vatRateLabel: "MwSt.-Satz",
   estimateNotContractual: "Unverbindliche Kostenschätzung — kein verbindliches Angebot.",
   requestSurveyBtn: "Kostenloses Aufmaß & Beratung anfordern",
   posaUni11673Note: "Montage nach DIN EN 14351-1 / UNI 11673",
@@ -633,7 +632,6 @@ const nl: WidgetDict = {
   successBody: "Dank u — wij nemen zo spoedig mogelijk contact op met een gedetailleerde offerte.",
   uwLabel: "U-waarde (indicatief)",
   footerDisclaimer: "Alleen een indicatieve prijsindicatie. De definitieve prijs wordt bevestigd na opprom.",
-  vatRateLabel: "BTW-tarief",
   estimateNotContractual: "Alleen indicatief — geen bindende offerte.",
   requestSurveyBtn: "Gratis opmeting & advies aanvragen",
   posaUni11673Note: "Montage volgens NEN-EN 14351-1 / NEN 2743",
@@ -648,7 +646,7 @@ const nl: WidgetDict = {
   },
 };
  
-const DICTS: Record<string, WidgetDict> = { en, it, fr, ro, de, nl };
+const DICTS: Record<string, WidgetDict> = { en, it, fr, de, nl };
 
 export function getDict(lang: string): WidgetDict {
   return DICTS[lang] ?? en;

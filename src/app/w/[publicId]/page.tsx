@@ -6,6 +6,14 @@ import { notFound } from "next/navigation";
 
 export const revalidate = 30;
 
+async function safeFetchQuery<T>(query: any, args: any, options?: any): Promise<T | null> {
+  try {
+    return await fetchQuery(query, args, options);
+  } catch {
+    return null;
+  }
+}
+
 export default async function WidgetPage({
   params,
   searchParams,
@@ -18,36 +26,31 @@ export default async function WidgetPage({
   const theme = (sp.theme as string) || "dark";
   const lang = (sp.lang as string) || "it";
   const preview = sp.preview === "1";
-  // Optional host-supplied brand overrides (from the embed snippet).
   const accentParam = typeof sp.accent === "string" ? sp.accent : undefined;
   const fontParam = typeof sp.font === "string" ? sp.font : undefined;
 
   let configurator = null;
 
   if (preview) {
-    // Authenticated live preview of the working (unpublished) catalogue.
     const token = await convexAuthNextjsToken();
     if (token) {
-      configurator = await fetchQuery(api.widget.getConfiguratorForPreview, { publicId }, { token });
+      configurator = await safeFetchQuery(api.widget.getConfiguratorForPreview, { publicId }, { token });
     }
-    // Fall back to the published version if the caller can't preview.
     if (!configurator) {
-      configurator = await fetchQuery(api.widget.getPublicConfigurator, { publicId });
+      configurator = await safeFetchQuery(api.widget.getPublicConfigurator, { publicId });
     }
   } else {
-    configurator = await fetchQuery(api.widget.getPublicConfigurator, { publicId });
+    configurator = await safeFetchQuery(api.widget.getPublicConfigurator, { publicId });
   }
 
   if (!configurator) {
     notFound();
   }
 
-  // Check if tenant has publicWidget entitlement (Showroom tier only)
-  const tenant = await fetchQuery(api.tenants.getMyTenant);
+  const tenant = await safeFetchQuery(api.tenants.getMyTenant);
   const publicWidgetAllowed = tenant && tenant.plan === "showroom";
 
-if (!preview && !publicWidgetAllowed) {
-    // Public widget is only available for Showroom tier tenants
+  if (!preview && !publicWidgetAllowed) {
     return (
       <div className="w-full h-[400px] flex flex-col items-center justify-center bg-[var(--color-bg)] text-[var(--color-text)] p-8 text-center">
         <div className="rounded-xl border-2 border-[var(--color-border)] bg-[var(--color-bg-alt)] p-8 max-w-md">
