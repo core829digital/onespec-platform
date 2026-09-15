@@ -143,16 +143,17 @@ export default function RequestsPage() {
 
       <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl overflow-x-auto">
         <table className="w-full text-sm min-w-[720px]">
-          <thead className="bg-[var(--color-bg)] text-[var(--color-text-secondary)]">
-            <tr>
-              <th className={th}>Cliente</th>
-              <th className={th}>Email</th>
-              <th className={th}>Azienda</th>
-              <th className={`${th} text-right`}>Valore</th>
-              <th className={th}>Stato</th>
-              <th className={`${th} text-right`}>Data</th>
-            </tr>
-          </thead>
+<thead className="bg-[var(--color-bg)] text-[var(--color-text-secondary)]">
+              <tr>
+                <th className={th}>Cliente</th>
+                <th className={th}>Email</th>
+                <th className={th}>Telefono</th>
+                <th className={th}>Azienda</th>
+                <th className={`${th} text-right`}>Valore</th>
+                <th className={th}>Stato</th>
+                <th className={`${th} text-right`}>Data</th>
+              </tr>
+            </thead>
           <tbody className="divide-y divide-[var(--color-border)]">
             {rows === undefined ? (
               <tr>
@@ -175,6 +176,7 @@ export default function RequestsPage() {
                 >
                   <td className="px-4 py-3 text-[var(--color-text)]">{r.leadName}</td>
                   <td className="px-4 py-3 text-[var(--color-text-secondary)]">{r.leadEmail}</td>
+                  <td className="px-4 py-3 text-[var(--color-text-secondary)]">{r.leadPhone ?? "—"}</td>
                   <td className="px-4 py-3 text-[var(--color-text-secondary)]">{r.leadCompany ?? "—"}</td>
                   <td className="px-4 py-3 text-right text-[var(--color-text)] tabular-nums">
                     €{(r.priceCents / 100).toLocaleString("it-IT", { minimumFractionDigits: 2 })}
