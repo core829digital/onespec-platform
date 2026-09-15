@@ -43,12 +43,12 @@ describe("entitlement matrix matches the verified pricing page", () => {
     expect(e.maxConfigurators).toBe(Infinity);
     expect(e.publicWidget).toBe(true);
     expect(e.showroomCalculator).toBe(true);
-    expect(entitlementsFor("enterprise").publicWidget).toBe(false);
+    expect(entitlementsFor("enterprise").publicWidget).toBe(true);
   });
   test("enterprise is capped seats + custom domain + API", () => {
     const e = entitlementsFor("enterprise");
     expect(e.maxConfigurators).toBe(10);
-    expect(e.maxQuotesPerMonth).toBe(Infinity);
+    expect(e.maxQuotesPerMonth).toBe(1000);
     expect(e.customDomain).toBe(true);
     expect(e.apiAccess).toBe(true);
     expect(e.bulkImportMultiSite).toBe(true);

@@ -132,14 +132,14 @@ function ClientRow({
       </td>
       <td className="px-4 py-3 hidden xl:table-cell">
         <div className="flex flex-wrap gap-1">
-          {client.tags?.slice(0, 3).map((tag: string, i: number) => (
+          {(client.tags || []).slice(0, 3).map((tag: string, i: number) => (
             <span key={i} className="inline-flex items-center px-2 py-0.5 rounded text-xs text-[var(--color-text-secondary)] bg-[var(--color-bg-alt)] border border-[var(--color-border)]">
               {tag}
             </span>
           ))}
-          {client.tags?.length > 3 && (
+          {(client.tags || []).length > 3 && (
             <span className="inline-flex items-center px-2 py-0.5 rounded text-xs text-[var(--color-text-secondary)] bg-[var(--color-bg-alt)] border border-[var(--color-border)]">
-              +{client.tags.length - 3}
+              +{(client.tags || []).length - 3}
             </span>
           )}
         </div>
@@ -227,7 +227,28 @@ function ClientModal({
   saving: boolean;
   t: (key: string) => string;
 }) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    contactName: string;
+    email: string;
+    phone: string;
+    billingAddress: string;
+    billingCity: string;
+    billingPostalCode: string;
+    billingCountry: string;
+    siteAddress: string;
+    siteCity: string;
+    sitePostalCode: string;
+    siteCountry: string;
+    vatNumber: string;
+    fiscalCode: string;
+    type: string;
+    tags: string;
+    source: string;
+    notes: string;
+    assignedToUserId: string;
+    status: string;
+  }>({
     name: "",
     contactName: "",
     email: "",
@@ -242,12 +263,12 @@ function ClientModal({
     siteCountry: "IT",
     vatNumber: "",
     fiscalCode: "",
-    type: "private" as const,
+    type: "private",
     tags: "",
     source: "",
     notes: "",
     assignedToUserId: "",
-    status: "lead" as const,
+    status: "lead",
   });
 
   if (client) {
@@ -267,7 +288,7 @@ function ClientModal({
       vatNumber: client.vatNumber || "",
       fiscalCode: client.fiscalCode || "",
       type: client.type,
-      tags: client.tags?.join(", ") || "",
+      tags: (client.tags || []).join(", "),
       source: client.source || "",
       notes: client.notes || "",
       assignedToUserId: client.assignedToUserId || "",
@@ -279,8 +300,10 @@ function ClientModal({
     e.preventDefault();
     const data = {
       ...formData,
-      tags: formData.tags.split(",").map((t) => t.trim()).filter(Boolean),
+      tags: formData.tags,
       assignedToUserId: formData.assignedToUserId || undefined,
+      type: formData.type as "private" | "company" | "developer" | "architect" | "contractor",
+      status: formData.status as "lead" | "prospect" | "active" | "inactive" | "lost",
     };
     onSubmit(data);
   };
@@ -325,7 +348,7 @@ function ClientModal({
               </label>
               <select
                 value={formData.type}
-                onChange={(e) => setFormData({ ...formData, type: e.target.value as "private" | "company" | "developer" | "architect" | "contractor" })}
+                onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                 className="w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
               >
                 <option value="private">{TYPE_LABELS.private}</option>
@@ -341,7 +364,7 @@ function ClientModal({
               </label>
               <select
                 value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value as "lead" | "prospect" | "active" | "inactive" | "lost" })}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                 className="w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
               >
                 <option value="lead">{STATUS_LABELS.lead}</option>
@@ -547,7 +570,7 @@ export default function ClientsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingClient, setEditingClient] = useState<
+const [editingClient, setEditingClient] = useState<
   | {
       _id: string;
       name: string;
@@ -571,7 +594,7 @@ export default function ClientsPage() {
       assignedToUserId?: string;
       status: "lead" | "prospect" | "active" | "inactive" | "lost";
     }
-  | null>(null);
+  | undefined>(undefined);
   const [saving, setSaving] = useState(false);
 
   const clients = useQuery(
@@ -602,18 +625,25 @@ export default function ClientsPage() {
     siteCountry: string;
     vatNumber: string;
     fiscalCode: string;
-    type: "private" | "company" | "developer" | "architect" | "contractor";
+    type: string;
     tags: string;
     source: string;
     notes: string;
     assignedToUserId?: string;
-    status: "lead" | "prospect" | "active" | "inactive" | "lost";
+    status: string;
   }) => {
     setSaving(true);
     try {
-      await createClient({ tenantId: tenant!._id, ...data });
+      await createClient({ 
+        tenantId: tenant!._id, 
+        ...data, 
+        tags: data.tags.split(",").map((t) => t.trim()).filter(Boolean),
+        type: data.type as "private" | "company" | "developer" | "architect" | "contractor",
+        status: data.status as "lead" | "prospect" | "active" | "inactive" | "lost",
+        assignedToUserId: data.assignedToUserId as Id<"users"> | undefined,
+      });
       setModalOpen(false);
-      setEditingClient(null);
+      setEditingClient(undefined);
     } catch (e) {
       console.error("Error creating client:", e);
     } finally {
@@ -636,19 +666,26 @@ export default function ClientsPage() {
     siteCountry: string;
     vatNumber: string;
     fiscalCode: string;
-    type: "private" | "company" | "developer" | "architect" | "contractor";
+    type: string;
     tags: string;
     source: string;
     notes: string;
     assignedToUserId?: string;
-    status: "lead" | "prospect" | "active" | "inactive" | "lost";
+    status: string;
   }) => {
     if (!editingClient) return;
     setSaving(true);
     try {
-      await updateClient({ clientId: editingClient._id, ...data });
+      await updateClient({
+        clientId: editingClient._id as Id<"clients">,
+        ...data,
+        tags: data.tags.split(",").map((t) => t.trim()).filter(Boolean),
+        type: data.type as "private" | "company" | "developer" | "architect" | "contractor",
+        status: data.status as "lead" | "prospect" | "active" | "inactive" | "lost",
+        assignedToUserId: data.assignedToUserId as Id<"users"> | undefined,
+      });
       setModalOpen(false);
-      setEditingClient(null);
+      setEditingClient(undefined);
     } catch (e) {
       console.error("Error updating client:", e);
     } finally {
@@ -656,22 +693,44 @@ export default function ClientsPage() {
     }
   };
 
-  const handleDelete = async (clientId: Id<"clients">) => {
+  const handleDelete = async (clientId: string) => {
     if (!confirm(t("confirmDelete"))) return;
     try {
-      await deleteClient({ clientId });
+      await deleteClient({ clientId: clientId as Id<"clients"> });
     } catch (e) {
       console.error("Error deleting client:", e);
     }
   };
 
-  const openEditModal = (client: any) => {
+  const openEditModal = (client: {
+    _id: string;
+    name: string;
+    contactName?: string;
+    email?: string;
+    phone?: string;
+    billingAddress?: string;
+    billingCity?: string;
+    billingPostalCode?: string;
+    billingCountry?: string;
+    siteAddress?: string;
+    siteCity?: string;
+    sitePostalCode?: string;
+    siteCountry?: string;
+    vatNumber?: string;
+    fiscalCode?: string;
+    type: "private" | "company" | "developer" | "architect" | "contractor";
+    tags?: string[];
+    source?: string;
+    notes?: string;
+    assignedToUserId?: string;
+    status: "lead" | "prospect" | "active" | "inactive" | "lost";
+  }) => {
     setEditingClient(client);
     setModalOpen(true);
   };
 
   const openNewModal = () => {
-    setEditingClient(null);
+    setEditingClient(undefined);
     setModalOpen(true);
   };
 
@@ -766,7 +825,7 @@ export default function ClientsPage() {
 
       <ClientModal
         isOpen={modalOpen}
-        onClose={() => { setModalOpen(false); setEditingClient(null); }}
+        onClose={() => { setModalOpen(false); setEditingClient(undefined); }}
         onSubmit={editingClient ? handleUpdate : handleCreate}
         client={editingClient}
         saving={saving}

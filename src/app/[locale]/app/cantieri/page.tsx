@@ -441,7 +441,7 @@ function CantiereModal({
               </div>
               <div>
                 <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
-                  {t("priority")}
+                  {t("priorityLabel")}
                 </label>
                 <select
                   value={formData.priority}
@@ -668,7 +668,7 @@ try {
         ...data,
         clientId: data.clientId as Id<"clients">, // eslint-disable-line @typescript-eslint/no-explicit-any
         quoteId: data.quoteId as Id<"quoteRequests">, // eslint-disable-line @typescript-eslint/no-explicit-any
-        assignedUserIds: data.assignedUserIds as Id<"users">, // eslint-disable-line @typescript-eslint/no-explicit-any
+        assignedUserIds: data.assignedUserIds as unknown as Id<"users">[], // eslint-disable-line @typescript-eslint/no-explicit-any
       });
       setModalOpen(false);
       setEditingCantiere(null);

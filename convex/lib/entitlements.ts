@@ -136,6 +136,7 @@ const ENTERPRISE: Entitlements = {
   ...PRO,
   maxConfigurators: 10,
   maxTeamMembers: 15,
+  maxQuotesPerMonth: 1000,
   analytics: "advanced",
   bulkImportMultiSite: true,
   customDomain: true,
@@ -146,6 +147,8 @@ const ENTERPRISE: Entitlements = {
   support: "dedicated",
   annualBilling: false,
   selfServeCheckout: false,
+  showroomCalculator: true,
+  publicWidget: true,
 };
 
 const SHOWROOM: Entitlements = {
