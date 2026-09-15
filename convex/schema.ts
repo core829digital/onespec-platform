@@ -369,11 +369,17 @@ export default defineSchema({
       supplierPriceCents: v.number(),
       leadTimeDays: v.number(),
     }))),
+    /** Optional link to the client this quote belongs to. */
+    clientId: v.optional(v.id("clients")),
+    /** Optional link to the cantiere this quote belongs to. */
+    cantiereId: v.optional(v.id("cantieri")),
   })
     .index("by_tenant", ["tenantId"])
     .index("by_tenant_status", ["tenantId", "status"])
     .index("by_configurator", ["configuratorId"])
-    .index("by_ipHash", ["sourceIpHash"]),
+    .index("by_ipHash", ["sourceIpHash"])
+    .index("by_client", ["clientId"])
+    .index("by_cantiere", ["cantiereId"]),
 
   notifications: defineTable({
     tenantId: v.id("tenants"),
@@ -530,6 +536,10 @@ export default defineSchema({
     customerAddress: v.optional(v.string()),
     customerCity: v.optional(v.string()),
     customerPostalCode: v.optional(v.string()),
+    /** Optional link to the client this survey belongs to. */
+    clientId: v.optional(v.id("clients")),
+    /** Optional link to the cantiere this survey belongs to. */
+    cantiereId: v.optional(v.id("cantieri")),
     /** Per-opening measures + notes. */
     openings: v.array(
       v.object({
@@ -578,7 +588,9 @@ export default defineSchema({
     updatedAt: v.number(),
   })
     .index("by_tenant", ["tenantId"])
-    .index("by_quote", ["quoteId"]),
+    .index("by_quote", ["quoteId"])
+    .index("by_client", ["clientId"])
+    .index("by_cantiere", ["cantiereId"]),
 
   /** Posa UNI 11673 wizard output — installation node design + bill of materials. */
   installationDossiers: defineTable({
@@ -615,6 +627,10 @@ export default defineSchema({
     createdByUserId: v.id("users"),
     customerName: v.string(),
     siteAddress: v.optional(v.string()),
+    /** Optional link to the client this inspection belongs to. */
+    clientId: v.optional(v.id("clients")),
+    /** Optional link to the cantiere this inspection belongs to. */
+    cantiereId: v.optional(v.id("cantieri")),
     /** Opaque token for the field installer's mobile view (/i/[token]) — no login. */
     installerToken: v.optional(v.string()),
     installerTeam: v.optional(v.string()),
@@ -640,7 +656,9 @@ export default defineSchema({
   })
     .index("by_tenant", ["tenantId"])
     .index("by_quote", ["quoteId"])
-    .index("by_installer_token", ["installerToken"]),
+    .index("by_installer_token", ["installerToken"])
+    .index("by_client", ["clientId"])
+    .index("by_cantiere", ["cantiereId"]),
 
   /** Fascicolo del Serramento — the digital dossier a QR label resolves to. */
   serramentoPassports: defineTable({

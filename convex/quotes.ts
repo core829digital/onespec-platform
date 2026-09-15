@@ -137,7 +137,7 @@ export const createFieldQuote = mutation({
     demolitionPriceCents: v.optional(v.number()),
     discountPercent: v.optional(v.number()),
     ecobonusPercent: v.optional(v.number()),
-    /** Country-specific line items (Renson grilles, HVL joints, RC2/RC3, RAL kitÔÇª) priced client-side and re-clamped here. */
+    /** Country-specific line items (Renson grilles, HVL joints, RC2/RC3, RAL kit…) priced client-side and re-clamped here. */
     regionalSurchargeCents: v.optional(v.number()),
     profitMarginPercent: v.optional(v.number()),
     vatRatePercent: v.optional(v.number()),
@@ -154,6 +154,10 @@ export const createFieldQuote = mutation({
     ralMontage: v.optional(v.boolean()),
     rcSecurityLevel: v.optional(v.string()),
     klimabonusEligible: v.optional(v.boolean()),
+    /** Optional link to the client this quote belongs to. */
+    clientId: v.optional(v.id("clients")),
+    /** Optional link to the cantiere this quote belongs to. */
+    cantiereId: v.optional(v.id("cantieri")),
   },
   handler: async (ctx, args) => {
     await enforceForCreateQuote(ctx, args.tenantId);
@@ -237,6 +241,8 @@ export const createFieldQuote = mutation({
       currency: "EUR",
       status: "quoted",
       assignedToUserId: userId,
+      clientId: args.clientId,
+      cantiereId: args.cantiereId,
     });
 
     await ctx.db.insert("auditLog", {

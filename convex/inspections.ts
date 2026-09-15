@@ -101,6 +101,8 @@ export const create = mutation({
   args: {
     tenantId: v.id("tenants"),
     quoteId: v.optional(v.id("quoteRequests")),
+    clientId: v.optional(v.id("clients")),
+    cantiereId: v.optional(v.id("cantieri")),
     customerName: v.string(),
     siteAddress: v.optional(v.string()),
     installerTeam: v.optional(v.string()),
@@ -119,6 +121,8 @@ export const create = mutation({
       tenantId: args.tenantId,
       regionCode,
       quoteId: args.quoteId,
+      clientId: args.clientId,
+      cantiereId: args.cantiereId,
       createdByUserId: userId,
       customerName: name,
       siteAddress: args.siteAddress?.trim(),
