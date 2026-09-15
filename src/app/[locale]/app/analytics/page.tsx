@@ -205,7 +205,7 @@ export default function AnalyticsPage() {
       </div>
 
       <Suspense fallback={<StatsSkeleton />}>
-        <StatsGrid stats={stats} columns={6} />
+        <StatsGrid key={range} stats={stats} columns={6} />
       </Suspense>
 
       {overview === undefined ? (
@@ -227,8 +227,14 @@ export default function AnalyticsPage() {
           <p className="text-[var(--color-text-secondary)]">{t("noDataHint")}</p>
         </div>
       ) : (
+        // key={range} on each block remounts its chart tree when the period
+        // switcher changes, so the entrance animation replays as visual
+        // confirmation the numbers below actually refreshed — otherwise a
+        // range change swaps data with no motion feedback at all. Keyed
+        // individually (not by wrapping the whole fragment) so the
+        // space-y-6 gap on the parent still applies between these blocks.
         <>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div key={`funnel-${range}`} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
               <Suspense fallback={<ChartSkeleton />}>
                 <PieChart
@@ -251,7 +257,7 @@ export default function AnalyticsPage() {
             </section>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div key={`trend-${range}`} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
               <Suspense fallback={<ChartSkeleton />}>
                 <TrendChart
@@ -275,7 +281,7 @@ export default function AnalyticsPage() {
           </div>
 
           {peakHoursData.length > 0 && (
-            <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
+            <section key={`peak-${range}`} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
               <Suspense fallback={<ChartSkeleton />}>
                 <PeakHoursHeatmap
                   data={peakHoursData}
@@ -287,70 +293,81 @@ export default function AnalyticsPage() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
-              <h2 className="font-semibold text-[var(--color-text)] mb-4">{t("byConfigurator")}</h2>
-              <div className="space-y-3">
-                {overview.byConfigurator.map((c: { name: string; count: number; valueCents: number }, i: number) => {
-                  const max = Math.max(...overview.byConfigurator.map((x: { count: number }) => x.count), 1);
-                  return (
-                    <motion.div
-                      key={c.name}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.05 }}
-                      className="flex items-center gap-3 text-sm"
-                    >
-                      <span className="w-40 truncate text-[var(--color-text)] shrink-0" title={c.name}>
-                        {c.name}
-                      </span>
-                      <div className="flex-1 h-4 rounded bg-[var(--color-bg)] overflow-hidden">
-                        <motion.div
-                          layout
-                          className="h-full transition-all duration-500"
-                          style={{
-                            background: CHART_COLORS[i % CHART_COLORS.length],
-                            width: `${(c.count / max) * 100}%`,
-                          }}
-                        />
-                      </div>
-                      <span className="w-10 text-right tabular-nums text-[var(--color-text)]">{c.count}</span>
-                      <span className="w-16 text-right tabular-nums text-[var(--color-text-secondary)]">{eur(c.valueCents)}</span>
-                    </motion.div>
-                  );
-                })}
-              </div>
+              {/* Distinct from the pie chart above, which already carries the
+                  "Per Configuratore" title — same label twice on one screen
+                  read as a mistake, so the list gets its own. */}
+              <h2 className="font-semibold text-[var(--color-text)] mb-4">{t("byConfiguratorDetail")}</h2>
+              {overview.byConfigurator.length === 0 ? (
+                <p className="text-sm text-[var(--color-text-secondary)]">{t("noData")}</p>
+              ) : (
+                <div className="space-y-3">
+                  {overview.byConfigurator.map((c: { name: string; count: number; valueCents: number }, i: number) => {
+                    const max = Math.max(...overview.byConfigurator.map((x: { count: number }) => x.count), 1);
+                    return (
+                      <motion.div
+                        key={c.name}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.05 }}
+                        className="flex items-center gap-3 text-sm"
+                      >
+                        <span className="w-40 truncate text-[var(--color-text)] shrink-0" title={c.name}>
+                          {c.name}
+                        </span>
+                        <div className="flex-1 h-4 rounded bg-[var(--color-bg)] overflow-hidden">
+                          <motion.div
+                            layout
+                            className="h-full transition-all duration-500"
+                            style={{
+                              background: CHART_COLORS[i % CHART_COLORS.length],
+                              width: `${(c.count / max) * 100}%`,
+                            }}
+                          />
+                        </div>
+                        <span className="w-10 text-right tabular-nums text-[var(--color-text)] shrink-0">{c.count}</span>
+                        <span className="w-16 text-right tabular-nums text-[var(--color-text-secondary)] shrink-0">{eur(c.valueCents)}</span>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
             </section>
 
             <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
               <h2 className="font-semibold text-[var(--color-text)] mb-4">{t("bySource")}</h2>
-              <div className="space-y-3">
-                {overview.bySource.map((s: { host: string; count: number }, i: number) => {
-                  const max = Math.max(...overview.bySource.map((x: { count: number }) => x.count), 1);
-                  return (
-                    <motion.div
-                      key={s.host}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.05 }}
-                      className="flex items-center gap-3 text-sm"
-                    >
-                      <span className="w-40 truncate text-[var(--color-text)] shrink-0" title={s.host}>
-                        {s.host}
-                      </span>
-                      <div className="flex-1 h-4 rounded bg-[var(--color-bg)] overflow-hidden">
-                        <motion.div
-                          layout
-                          className="h-full transition-all duration-500"
-                          style={{
-                            background: CHART_COLORS[i % CHART_COLORS.length],
-                            width: `${(s.count / max) * 100}%`,
-                          }}
-                        />
-                      </div>
-                      <span className="w-10 text-right tabular-nums text-[var(--color-text)]">{s.count}</span>
-                    </motion.div>
-                  );
-                })}
-              </div>
+              {overview.bySource.length === 0 ? (
+                <p className="text-sm text-[var(--color-text-secondary)]">{t("noData")}</p>
+              ) : (
+                <div className="space-y-3">
+                  {overview.bySource.map((s: { host: string; count: number }, i: number) => {
+                    const max = Math.max(...overview.bySource.map((x: { count: number }) => x.count), 1);
+                    return (
+                      <motion.div
+                        key={s.host}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: i * 0.05 }}
+                        className="flex items-center gap-3 text-sm"
+                      >
+                        <span className="w-40 truncate text-[var(--color-text)] shrink-0" title={s.host}>
+                          {s.host}
+                        </span>
+                        <div className="flex-1 h-4 rounded bg-[var(--color-bg)] overflow-hidden">
+                          <motion.div
+                            layout
+                            className="h-full transition-all duration-500"
+                            style={{
+                              background: CHART_COLORS[i % CHART_COLORS.length],
+                              width: `${(s.count / max) * 100}%`,
+                            }}
+                          />
+                        </div>
+                        <span className="w-10 text-right tabular-nums text-[var(--color-text)] shrink-0">{s.count}</span>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              )}
             </section>
           </div>
 

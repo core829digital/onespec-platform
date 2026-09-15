@@ -263,7 +263,8 @@
     "widgetViews": "Widget-Öffnungen",
     "visitorConversion": "Besucher-Conversion",
     "wonValue": "Gewonnener Wert",
-    "totalRequests": "Gesamtanfragen"
+    "totalRequests": "Gesamtanfragen",
+    "byConfiguratorDetail": "Konfigurator-Detail"
   },
   "app": {
     "suspended": {
@@ -520,7 +521,12 @@
     "country": "Land",
     "client": "Kunde",
     "status": "Status",
-    "priority": "Priorität",
+    "priority": {
+      "low": "Niedrig",
+      "medium": "Mittel",
+      "high": "Hoch",
+      "urgent": "Dringend"
+    },
     "assignedTo": "Zugewiesen an",
     "estimatedStart": "Geplanter Start",
     "estimatedEnd": "Geplantes Ende",
@@ -542,12 +548,6 @@
     "assigned": "zugewiesen",
     "overdue": "Überfällig",
     "tasksDone": "Aufgaben erledigt",
-    "priority": {
-      "low": "Niedrig",
-      "medium": "Mittel",
-      "high": "Hoch",
-      "urgent": "Dringend"
-    },
     "preventivo": "Angebot",
     "confermato": "Bestätigt",
     "in_produzione": "In Produktion",
@@ -555,6 +555,7 @@
     "in_posa": "In Montage",
     "collaudo": "Abnahme",
     "chiuso": "Abgeschlossen",
-    "selectClient": "Kunde auswählen"
+    "selectClient": "Kunde auswählen",
+    "priorityLabel": "Priorität"
   }
 }

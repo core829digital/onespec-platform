@@ -263,7 +263,8 @@
     "widgetViews": "Widget opens",
     "visitorConversion": "Bezoekersconversie",
     "wonValue": "Gewonnen waarde",
-    "totalRequests": "Totaal aanvragen"
+    "totalRequests": "Totaal aanvragen",
+    "byConfiguratorDetail": "Configurator detail"
   },
   "app": {
     "suspended": {
@@ -520,7 +521,12 @@
     "country": "Land",
     "client": "Klant",
     "status": "Status",
-    "priority": "Prioriteit",
+    "priority": {
+      "low": "Laag",
+      "medium": "Medium",
+      "high": "Hoog",
+      "urgent": "Urgent"
+    },
     "assignedTo": "Toegewezen aan",
     "estimatedStart": "Geschatte start",
     "estimatedEnd": "Geschat einde",
@@ -542,12 +548,6 @@
     "assigned": "toegewezen",
     "overdue": "Achterstallig",
     "tasksDone": "taken voltooid",
-    "priority": {
-      "low": "Laag",
-      "medium": "Medium",
-      "high": "Hoog",
-      "urgent": "Urgent"
-    },
     "preventivo": "Offerte",
     "confermato": "Bevestigd",
     "in_produzione": "In Productie",
@@ -555,6 +555,7 @@
     "in_posa": "In Montage",
     "collaudo": "Oplevering",
     "chiuso": "Afgerond",
-    "selectClient": "Klant selecteren"
+    "selectClient": "Klant selecteren",
+    "priorityLabel": "Prioriteit"
   }
 }

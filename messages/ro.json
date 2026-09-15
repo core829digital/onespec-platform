@@ -28,7 +28,7 @@
     "passports": "Dosare QR",
     "showroom": "Showroom"
   },
-"topbar": {
+  "topbar": {
     "account": "Cont",
     "profile": "Profil",
     "team": "Echipa",
@@ -263,7 +263,8 @@
     "widgetViews": "Deschideri Widget",
     "visitorConversion": "Conversie Vizitatori",
     "wonValue": "Valoare Câștigată",
-    "totalRequests": "Total Cereri"
+    "totalRequests": "Total Cereri",
+    "byConfiguratorDetail": "Detaliu configuratoare"
   },
   "app": {
     "suspended": {
@@ -520,7 +521,12 @@
     "country": "Țară",
     "client": "Client",
     "status": "Stare",
-    "priority": "Prioritate",
+    "priority": {
+      "low": "Scăzută",
+      "medium": "Medie",
+      "high": "Ridicată",
+      "urgent": "Urgentă"
+    },
     "assignedTo": "Atribuit",
     "estimatedStart": "Început estimat",
     "estimatedEnd": "Sfârșit estimat",
@@ -542,12 +548,6 @@
     "assigned": "atribuți",
     "overdue": "Întârziat",
     "tasksDone": "sarcină finalizate",
-    "priority": {
-      "low": "Scăzută",
-      "medium": "Medie",
-      "high": "Ridicată",
-      "urgent": "Urgentă"
-    },
     "preventivo": "Ofertă",
     "confermato": "Confirmat",
     "in_produzione": "În Producție",
@@ -555,6 +555,7 @@
     "in_posa": "În Montaj",
     "collaudo": "Recepție",
     "chiuso": "Închis",
-    "selectClient": "Selectează Client"
+    "selectClient": "Selectează Client",
+    "priorityLabel": "Prioritate"
   }
 }

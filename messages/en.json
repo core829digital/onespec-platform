@@ -61,7 +61,8 @@
     "widgetViews": "Widget Opens",
     "visitorConversion": "Visitor Conversion",
     "wonValue": "Won Value",
-    "totalRequests": "Total Requests"
+    "totalRequests": "Total Requests",
+    "byConfiguratorDetail": "Configurator Detail"
   },
   "topbar": {
     "account": "Account",
@@ -520,7 +521,12 @@
     "country": "Country",
     "client": "Client",
     "status": "Status",
-    "priority": "Priority",
+    "priority": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "urgent": "Urgent"
+    },
     "assignedTo": "Assigned To",
     "estimatedStart": "Est. Start Date",
     "estimatedEnd": "Est. End Date",
@@ -542,12 +548,6 @@
     "assigned": "assigned",
     "overdue": "Overdue",
     "tasksDone": "tasks done",
-    "priority": {
-      "low": "Low",
-      "medium": "Medium",
-      "high": "High",
-      "urgent": "Urgent"
-    },
     "preventivo": "Quote",
     "confermato": "Confirmed",
     "in_produzione": "In Production",
@@ -555,6 +555,7 @@
     "in_posa": "Installing",
     "collaudo": "Inspection",
     "chiuso": "Closed",
-    "selectClient": "Select Client"
+    "selectClient": "Select Client",
+    "priorityLabel": "Priority"
   }
 }

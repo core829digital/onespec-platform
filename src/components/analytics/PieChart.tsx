@@ -32,7 +32,7 @@ export function PieChart({
       className="w-full"
     >
       {title && (
-        <h3 className="font-semibold text-[var(--color-text)] mb-4 text-center">{title}</h3>
+        <h3 className="font-semibold text-[var(--color-text)] mb-4 text-left">{title}</h3>
       )}
       <div className="flex justify-center mb-4">
         <svg
@@ -155,43 +155,46 @@ export function FunnelChart({
       className="w-full"
     >
       {title && (
-        <h3 className="font-semibold text-[var(--color-text)] mb-4 text-center">{title}</h3>
+        <h3 className="font-semibold text-[var(--color-text)] mb-4 text-left">{title}</h3>
       )}
-      <div className="space-y-3" role="list">
+      <div className="space-y-4" role="list">
         {data.map((item, index) => (
           <motion.div
             key={item.label}
-            initial={{ opacity: 0, x: -30, height: 0 }}
-            animate={{ opacity: 1, x: 0, height: "auto" }}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.1, duration: 0.5, ease: "easeOut" }}
-            className="relative group"
+            className="group"
             role="listitem"
           >
-            <div className="flex items-center gap-3">
-              <span className="w-36 text-sm text-[var(--color-text-secondary)] shrink-0 text-right pr-2">
-                {item.label}
-              </span>
-              <div className="flex-1 relative">
-                <motion.div
-                  layout
-                  className="h-10 rounded-lg flex items-center justify-between px-3 transition-all duration-300"
-                  style={{
-                    background: item.color,
-                    width: `${(item.value / maxValue) * 100}%`,
-                  }}
-                  whileHover={{ scale: 1.02, boxShadow: "0 4px 12px rgba(0,0,0,0.15)" }}
-                >
-                  <span className="text-white font-medium text-sm z-10">{item.label}</span>
-                  <span className="text-white/90 font-semibold text-sm z-10">
-                    {item.value.toLocaleString()}
-                  </span>
-                </motion.div>
-              </div>
-              {showPercentages && index > 0 && (
-                <span className="w-16 text-right text-sm text-[var(--color-text)] tabular-nums">
-                  {((item.value / data[0].value) * 100).toFixed(1)}%
+            {/* Label + numbers sit outside the fill, on the card background —
+                never on top of the colored bar, so contrast never depends on
+                the segment's color or how narrow the fill is (was the source
+                of the white-on-white bug on short segments in light mode). */}
+            <div className="flex items-baseline justify-between gap-3 mb-1.5 text-sm">
+              <span className="font-medium text-[var(--color-text)] truncate">{item.label}</span>
+              <div className="flex items-center gap-2 shrink-0 tabular-nums">
+                <span className="font-semibold text-[var(--color-text)]">
+                  {item.value.toLocaleString()}
                 </span>
-              )}
+                {showPercentages && index > 0 && (
+                  <span className="text-xs text-[var(--color-text-secondary)] w-12 text-right">
+                    {((item.value / data[0].value) * 100).toFixed(1)}%
+                  </span>
+                )}
+              </div>
+            </div>
+            <div className="h-3 rounded-full bg-[var(--color-bg)] overflow-hidden">
+              <motion.div
+                layout
+                className="h-full rounded-full transition-shadow duration-300"
+                style={{
+                  background: item.color,
+                  width: `${(item.value / maxValue) * 100}%`,
+                }}
+                whileHover={{ boxShadow: "0 0 0 2px rgba(0,0,0,0.08) inset" }}
+                title={`${item.label}: ${item.value.toLocaleString()}`}
+              />
             </div>
           </motion.div>
         ))}
@@ -223,6 +226,16 @@ export function PeakHoursHeatmap({
     return "rgba(16, 185, 129, 0.9)";
   };
 
+  // The hover value used the theme's default text color regardless of the
+  // cell's own background — on a saturated high-intensity green (dark in
+  // both themes) that reads fine, but on a light/empty cell in light mode
+  // it needs the normal (dark) text token, not white. Switch at the same
+  // 0.5 breakpoint where the green fill turns dark enough to need it.
+  const getTextColor = (value: number) => {
+    const intensity = value / maxValue;
+    return intensity >= 0.5 ? "#ffffff" : "var(--color-text)";
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -231,7 +244,7 @@ export function PeakHoursHeatmap({
       className="w-full overflow-x-auto"
     >
       {title && (
-        <h3 className="font-semibold text-[var(--color-text)] mb-4 text-center">{title}</h3>
+        <h3 className="font-semibold text-[var(--color-text)] mb-4 text-left">{title}</h3>
       )}
       <div className="relative" role="img" aria-label={title || "Heatmap ore di punta"}>
         <div className="flex">
@@ -273,7 +286,10 @@ export function PeakHoursHeatmap({
                           style={{ backgroundColor: getColor(value) }}
                         >
                           <div className="absolute inset-0 flex items-center justify-center">
-                            <span className="text-xs font-medium text-[var(--color-text)] opacity-0 group-hover:opacity-100 transition-opacity">
+                            <span
+                              className="text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity"
+                              style={{ color: getTextColor(value) }}
+                            >
                               {value > 0 ? value : "—"}
                             </span>
                           </div>
@@ -289,8 +305,9 @@ export function PeakHoursHeatmap({
             </table>
           </div>
         </div>
-        <div className="flex items-center gap-4 mt-4 text-xs text-[var(--color-text-secondary)]">
+        <div className="flex items-center gap-2 mt-4 text-xs text-[var(--color-text-secondary)]">
           <span>Intensità:</span>
+          <span>Basso</span>
           <div className="flex gap-1">
             {[0, 0.25, 0.5, 0.75, 1].map((v) => (
               <div
@@ -300,7 +317,6 @@ export function PeakHoursHeatmap({
               />
             ))}
           </div>
-          <span>Basso</span>
           <span>Alto</span>
         </div>
       </div>
@@ -329,7 +345,7 @@ export function TrendChart({
       className="w-full"
     >
       {title && (
-        <h3 className="font-semibold text-[var(--color-text)] mb-4 text-center">{title}</h3>
+        <h3 className="font-semibold text-[var(--color-text)] mb-4 text-left">{title}</h3>
       )}
       <div className="flex items-end gap-1 h-48 relative" role="img" aria-label={title || "Grafico trend"}>
         {data.map((item, index) => (
@@ -351,7 +367,7 @@ export function TrendChart({
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-0.5 bg-black/80 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap"
+              className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 px-2 py-0.5 bg-[var(--color-bg-inverse)] text-[var(--color-text-inverse)] text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10"
             >
               {item.value}
             </motion.div>
