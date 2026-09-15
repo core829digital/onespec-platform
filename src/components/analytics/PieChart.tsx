@@ -1,8 +1,6 @@
 "use client";
 
-import { motion, animate } from "framer-motion";
-import { useEffect, useRef } from "react";
-import { gsap } from "gsap";
+import { motion } from "framer-motion";
 
 interface PieChartProps {
   data: Array<{ label: string; value: number; color: string }>;
@@ -19,38 +17,12 @@ export function PieChart({
   showLegend = true,
   size = 200,
   innerRadius = 80,
-  animate = true,
 }: PieChartProps) {
-  const svgRef = useRef<SVGSVGElement>(null);
-  const pathsRef = useRef<SVGPathElement[]>([]);
-
   const total = data.reduce((sum, d) => sum + d.value, 0);
   const segments = data.map((d, i) => {
     const angle = (d.value / total) * 2 * Math.PI;
     return { ...d, angle, index: i };
   });
-
-  useEffect(() => {
-    if (!animate || !svgRef.current) return;
-
-    const paths = pathsRef.current;
-    if (paths.length === 0) return;
-
-    gsap.fromTo(
-      paths,
-      { strokeDashoffset: (i) => paths[i]?.getTotalLength() || 0 },
-      {
-        strokeDashoffset: 0,
-        duration: 1.2,
-        ease: "power3.out",
-        stagger: 0.1,
-        scrollTrigger: {
-          trigger: svgRef.current,
-          start: "top 80%",
-        },
-      },
-    );
-  }, [animate]);
 
   return (
     <motion.div
@@ -64,7 +36,6 @@ export function PieChart({
       )}
       <div className="flex justify-center mb-4">
         <svg
-          ref={svgRef}
           width={size}
           height={size}
           viewBox={`0 0 ${size} ${size}`}
@@ -123,8 +94,6 @@ export function PieChart({
                 <title>{segment.label}: {((segment.value / total) * 100).toFixed(1)}%</title>
               </motion.path>
             );
-
-            pathsRef.current[i] = null;
             return path;
           })}
           <circle

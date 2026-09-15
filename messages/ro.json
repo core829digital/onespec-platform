@@ -28,11 +28,12 @@
     "passports": "Dosare QR",
     "showroom": "Showroom"
   },
-  "topbar": {
+"topbar": {
     "account": "Cont",
     "profile": "Profil",
-    "team": "Echipă",
-    "badge": "Insignă Alpha",
+    "team": "Echipa",
+    "billing": "Plan & Facturare",
+    "badge": "Insigna Alpha",
     "logout": "Deconectare",
     "menu": "Meniu"
   },

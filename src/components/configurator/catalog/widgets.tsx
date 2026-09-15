@@ -4,9 +4,9 @@ import { useState } from "react";
 import { NumberInput, TextInput } from "../editor-primitives";
 
 const mintBtn =
-  "rounded-md bg-[var(--color-mint)] px-2.5 py-1 text-xs font-semibold text-[var(--color-mint-dark)] disabled:opacity-50";
+  "rounded-md bg-[var(--color-mint)] px-2.5 py-1 text-xs font-semibold text-[var(--color-mint-dark)] transition-all hover:brightness-95 hover:shadow-sm active:brightness-90 disabled:opacity-50 disabled:hover:brightness-100 disabled:hover:shadow-none";
 const ghostBtn =
-  "rounded-md border border-[var(--color-border)] px-2.5 py-1 text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-danger)]";
+  "rounded-md border border-[var(--color-border)] px-2.5 py-1 text-xs text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-danger)] hover:bg-[var(--color-danger)]/10 hover:text-[var(--color-danger)]";
 
 export function SaveButton({ busy, onClick }: { busy: boolean; onClick: () => void }) {
   return (

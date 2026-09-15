@@ -53,6 +53,9 @@ export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
               <Link href="/app/account/team" className="flex w-full">{t("team")}</Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild>
+              <Link href="/app/account/billing" className="flex w-full">{t("billing")}</Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
               <Link href="/app/account/badge" className="flex w-full">{t("badge")}</Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator />

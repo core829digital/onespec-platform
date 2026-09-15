@@ -23,16 +23,16 @@ export const listUsers = query({
   args: { tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
     await requireMembership(ctx, args.tenantId);
-    const memberships = await ctx.db
+    const allMemberships = await ctx.db
       .query("memberships")
       .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
-      .filter((m) => m.status === "active")
       .collect();
 
-    const userIds = memberships.map((m) => m.userId);
+    const activeMemberships = allMemberships.filter((m) => m.status === "active");
+    const userIds = activeMemberships.map((m) => m.userId);
     const users = await Promise.all(userIds.map((id) => ctx.db.get(id)));
 
-    return users.filter((u): u is any => u !== null).map((u) => ({
+    return users.filter((u): u is NonNullable<typeof u> => u !== null).map((u) => ({
       _id: u._id,
       name: u.name ?? null,
       email: u.email ?? null,

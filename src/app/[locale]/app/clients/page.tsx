@@ -57,11 +57,21 @@ function ClientRow({
   format,
   t,
 }: {
-  client: any;
+  client: {
+    _id: string;
+    name: string;
+    contactName?: string;
+    email?: string;
+    phone?: string;
+    status: string;
+    type: string;
+    tags?: string[];
+    updatedAt: number;
+  };
   onEdit: () => void;
   onDelete: () => void;
-  format: any;
-  t: any;
+  format: ReturnType<typeof useFormatter>;
+  t: (key: string) => string;
 }) {
   return (
     <tr className="border-t border-[var(--color-border)] hover:bg-[var(--color-bg-alt)] transition-colors">
@@ -169,13 +179,54 @@ function ClientModal({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: any) => void;
-  client?: any;
+  onSubmit: (data: {
+    name: string;
+    contactName: string;
+    email: string;
+    phone: string;
+    billingAddress: string;
+    billingCity: string;
+    billingPostalCode: string;
+    billingCountry: string;
+    siteAddress: string;
+    siteCity: string;
+    sitePostalCode: string;
+    siteCountry: string;
+    vatNumber: string;
+    fiscalCode: string;
+    type: "private" | "company" | "developer" | "architect" | "contractor";
+    tags: string;
+    source: string;
+    notes: string;
+    assignedToUserId?: string;
+    status: "lead" | "prospect" | "active" | "inactive" | "lost";
+  }) => void;
+  client?: {
+    _id: string;
+    name: string;
+    contactName?: string;
+    email?: string;
+    phone?: string;
+    billingAddress?: string;
+    billingCity?: string;
+    billingPostalCode?: string;
+    billingCountry?: string;
+    siteAddress?: string;
+    siteCity?: string;
+    sitePostalCode?: string;
+    siteCountry?: string;
+    vatNumber?: string;
+    fiscalCode?: string;
+    type: string;
+    tags?: string[];
+    source?: string;
+    notes?: string;
+    assignedToUserId?: string;
+    status: string;
+  };
   saving: boolean;
-  t: any;
+  t: (key: string) => string;
 }) {
-  if (!isOpen) return null;
-
   const [formData, setFormData] = useState({
     name: "",
     contactName: "",
@@ -274,7 +325,7 @@ function ClientModal({
               </label>
               <select
                 value={formData.type}
-                onChange={(e) => setFormData({ ...formData, type: e.target.value as any })}
+                onChange={(e) => setFormData({ ...formData, type: e.target.value as "private" | "company" | "developer" | "architect" | "contractor" })}
                 className="w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
               >
                 <option value="private">{TYPE_LABELS.private}</option>
@@ -290,7 +341,7 @@ function ClientModal({
               </label>
               <select
                 value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value as "lead" | "prospect" | "active" | "inactive" | "lost" })}
                 className="w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
               >
                 <option value="lead">{STATUS_LABELS.lead}</option>
@@ -496,19 +547,68 @@ export default function ClientsPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingClient, setEditingClient] = useState<any>(null);
+  const [editingClient, setEditingClient] = useState<
+  | {
+      _id: string;
+      name: string;
+      contactName?: string;
+      email?: string;
+      phone?: string;
+      billingAddress?: string;
+      billingCity?: string;
+      billingPostalCode?: string;
+      billingCountry?: string;
+      siteAddress?: string;
+      siteCity?: string;
+      sitePostalCode?: string;
+      siteCountry?: string;
+      vatNumber?: string;
+      fiscalCode?: string;
+      type: "private" | "company" | "developer" | "architect" | "contractor";
+      tags?: string[];
+      source?: string;
+      notes?: string;
+      assignedToUserId?: string;
+      status: "lead" | "prospect" | "active" | "inactive" | "lost";
+    }
+  | null>(null);
   const [saving, setSaving] = useState(false);
 
   const clients = useQuery(
     api.clients.listClients,
-    tenant ? { tenantId: tenant._id, status: statusFilter !== "all" ? statusFilter : undefined, search: search || undefined } : "skip",
+    tenant ? { 
+      tenantId: tenant._id, 
+      status: statusFilter !== "all" ? statusFilter as "lead" | "prospect" | "active" | "inactive" | "lost" : undefined, 
+      search: search || undefined 
+    } : "skip",
   );
 
   const createClient = useMutation(api.clients.createClient);
   const updateClient = useMutation(api.clients.updateClient);
   const deleteClient = useMutation(api.clients.deleteClient);
 
-  const handleCreate = async (data: any) => {
+  const handleCreate = async (data: {
+    name: string;
+    contactName: string;
+    email: string;
+    phone: string;
+    billingAddress: string;
+    billingCity: string;
+    billingPostalCode: string;
+    billingCountry: string;
+    siteAddress: string;
+    siteCity: string;
+    sitePostalCode: string;
+    siteCountry: string;
+    vatNumber: string;
+    fiscalCode: string;
+    type: "private" | "company" | "developer" | "architect" | "contractor";
+    tags: string;
+    source: string;
+    notes: string;
+    assignedToUserId?: string;
+    status: "lead" | "prospect" | "active" | "inactive" | "lost";
+  }) => {
     setSaving(true);
     try {
       await createClient({ tenantId: tenant!._id, ...data });
@@ -521,7 +621,28 @@ export default function ClientsPage() {
     }
   };
 
-  const handleUpdate = async (data: any) => {
+  const handleUpdate = async (data: {
+    name: string;
+    contactName: string;
+    email: string;
+    phone: string;
+    billingAddress: string;
+    billingCity: string;
+    billingPostalCode: string;
+    billingCountry: string;
+    siteAddress: string;
+    siteCity: string;
+    sitePostalCode: string;
+    siteCountry: string;
+    vatNumber: string;
+    fiscalCode: string;
+    type: "private" | "company" | "developer" | "architect" | "contractor";
+    tags: string;
+    source: string;
+    notes: string;
+    assignedToUserId?: string;
+    status: "lead" | "prospect" | "active" | "inactive" | "lost";
+  }) => {
     if (!editingClient) return;
     setSaving(true);
     try {
@@ -607,7 +728,11 @@ export default function ClientsPage() {
             ))}
           </div>
         ) : clients.length === 0 ? (
-          <EmptyState title={t("noClients")} hint={t("noClientsHint")} action={{ label: t("newClient"), onClick: openNewModal }} />
+          <EmptyState title={t("noClients")} hint={t("noClientsHint")} action={
+            <button onClick={openNewModal} className="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-[var(--color-accent-ink)]">
+              {t("newClient")}
+            </button>
+          } />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">

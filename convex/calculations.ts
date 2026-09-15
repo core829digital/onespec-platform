@@ -1,12 +1,13 @@
 import { mutation, query, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
-import { requireUser } from "./lib/auth";
+import { requireUser, type ReadCtx } from "./lib/auth";
 import { regionForCountry } from "./lib/regions";
 import { complianceForRegion } from "./lib/compliance";
 import { calculatePrice, type CatalogPayload, type ProjectItem } from "../src/shared/pricing";
 import { computeOverallUw } from "../src/shared/pricing";
 import { enforceForFiscalEngine } from "./lib/enforcement";
 import { internal } from "./_generated/api";
+import type { Id } from "./_generated/dataModel";
 
 function round2(n: number): number {
   return Math.round(n * 100) / 100;
@@ -263,31 +264,29 @@ function estimateEnergySavings(regionCode: string, uw: number, items: ProjectIte
 }
 
 export async function getTenantCatalog(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  ctx: any,
-  tenantId: string
-): Promise<{ payload: CatalogPayload; version: number; configuratorId: string } | null> {
+  ctx: ReadCtx,
+  tenantId: Id<"tenants">,
+): Promise<{ payload: CatalogPayload; version: number; configuratorId: Id<"configurators"> } | null> {
   const tenant = await ctx.db.get(tenantId);
   if (!tenant) return null;
 
+  // Use the by_tenant_status index (no .filter() — its predicate receives a
+  // FilterBuilder, not the document, and treating it as the document silently
+  // matched nothing, which broke the showroom with "no published configurator").
   const configurators = await ctx.db
     .query("configurators")
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .withIndex("by_tenant", (q: any) => q.eq("tenantId", tenantId))
-    .filter(
-      (c: { status?: string; publishedCatalogVersion?: number }) =>
-        c.status === "published" && c.publishedCatalogVersion !== undefined,
+    .withIndex("by_tenant_status", (q) =>
+      q.eq("tenantId", tenantId).eq("status", "published"),
     )
     .collect();
 
-  if (configurators.length === 0) return null;
+  const configurator = configurators.find((c) => c.publishedCatalogVersion !== undefined);
+  if (!configurator) return null;
 
-  const configurator = configurators[0];
   const targetVersion = configurator.publishedCatalogVersion ?? 1;
-const versionDoc = await ctx.db
+  const versionDoc = await ctx.db
     .query("catalogVersions")
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .withIndex("by_configurator_version", (q: any) =>
+    .withIndex("by_configurator_version", (q) =>
       q.eq("configuratorId", configurator._id).eq("version", targetVersion),
     )
     .unique();

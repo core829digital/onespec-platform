@@ -324,14 +324,17 @@ export const getQuoteForPrint = query({
     await requireMembership(ctx, quote.tenantId);
 
     const tenant = await ctx.db.get(quote.tenantId);
+    // Resilient to duplicate branding rows: take the most recent instead of
+    // crashing with ".unique() found more than one document".
     const branding = await ctx.db
       .query("branding")
       .withIndex("by_configurator", (q) => q.eq("configuratorId", quote.configuratorId))
-      .unique();
+      .order("desc")
+      .first();
 
     const configurator = await ctx.db.get(quote.configuratorId);
 
-return {
+    return {
       quote,
       tenant,
       branding,

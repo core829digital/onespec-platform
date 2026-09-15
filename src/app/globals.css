@@ -1,37 +1,57 @@
 @import "tailwindcss";
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600;700;800&display=swap");
 
 :root {
-  /* Dark is the default theme. */
+  /* Dark is the default theme. OKLCH color palette matching reference configurator */
   --color-bg: #0a0b0d;
   --color-bg-alt: #141618;
+  --color-bg-elevated: #1e2023;
   --color-bg-inverse: #000000;
   --color-text: #f5f5f7;
   --color-text-secondary: #9a9aa0;
+  --color-text-tertiary: #6e6e73;
   --color-text-inverse: #1d1d1f;
   --color-border: #34383c;
+  --color-border-subtle: #26292d;
+  --color-border-focus: #16d19d;
   --color-border-subtle: #26292d;
   --color-mint: #16d19d;
   --color-mint-dark: #04241b;
   --color-mint-light: rgba(22, 209, 157, 0.14);
+  --color-emerald: #2D7D46;
+  --color-emerald-dark: #1a4d2a;
+  --color-emerald-light: rgba(45, 125, 70, 0.14);
   --color-danger: #ff6b6b;
+  --color-warning: #f59e0b;
+  --color-info: #3b82f6;
 
   --ease-out-apple: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out-apple: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 :root[data-theme="light"] {
   --color-bg: #ffffff;
   --color-bg-alt: #f5f5f7;
+  --color-bg-elevated: #f0f0f2;
   --color-bg-inverse: #0b0c0e;
   --color-text: #1d1d1f;
   --color-text-secondary: #6e6e73;
+  --color-text-tertiary: #8e8e93;
   --color-text-inverse: #f5f5f7;
   --color-border: #d2d2d7;
+  --color-border-subtle: #e8e8ed;
+  --color-border-focus: #0fbf8f;
   --color-border-subtle: #e8e8ed;
   --color-mint: #0fbf8f;
   --color-mint-dark: #04241b;
   --color-mint-light: rgba(15, 191, 143, 0.14);
+  --color-emerald: #2D7D46;
+  --color-emerald-dark: #1a4d2a;
+  --color-emerald-light: rgba(45, 125, 70, 0.14);
   --color-danger: #d9363e;
+  --color-warning: #d97706;
+  --color-info: #2563eb;
 }
 
 /* shadcn/ui CSS variable mapping — maps our brand tokens to shadcn expectations */
@@ -42,18 +62,26 @@
   --popover: var(--color-bg-alt);
   --primary: var(--color-mint);
   --primary-foreground: #04150f;
+  --secondary: var(--color-bg-alt);
+  --secondary-foreground: var(--color-text);
   --muted: var(--color-bg-alt);
   --muted-foreground: var(--color-text-secondary);
+  --accent: var(--color-mint);
+  --accent-foreground: #04150f;
+  --destructive: var(--color-danger);
+  --destructive-foreground: #ffffff;
   --border: var(--color-border);
   --input: var(--color-border);
   --ring: var(--color-mint);
-  --destructive: var(--color-danger);
   --radius: .75rem;
 }
 
 @theme inline {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Fraunces", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  --font-space-grotesk: "Space Grotesk", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
   --color-background: var(--color-bg);
   --color-foreground: var(--color-text);
   --color-card: var(--color-bg-alt);
@@ -73,6 +101,37 @@
   --color-border: var(--color-border);
   --color-input: var(--color-border);
   --color-ring: var(--color-mint);
+
+  --animate-draw: draw 0.9s var(--ease-out-apple) forwards;
+  --animate-fade-up: fade-up 0.5s ease forwards;
+  --animate-fade-in: fade-in 0.3s ease forwards;
+  --animate-scale-in: scale-in 0.3s var(--ease-spring) forwards;
+  --animate-slide-up: slide-up 0.4s var(--ease-out-apple) forwards;
+  --animate-pulse-soft: pulse-soft 3s ease-in-out infinite;
+}
+
+@keyframes draw {
+  to { stroke-dashoffset: 0; }
+}
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 
 * {
@@ -89,6 +148,35 @@ body {
   color: var(--color-text);
   font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  transition: background-color 0.35s ease, color 0.35s ease;
+  overscroll-behavior-y: none;
+}
+
+.font-display {
+  font-family: var(--font-display), var(--font-sans);
+}
+
+.font-space-grotesk {
+  font-family: var(--font-space-grotesk);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: auto;
+  overscroll-behavior-y: none;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
   transition: background-color 0.35s ease, color 0.35s ease;
   overscroll-behavior-y: none;
@@ -167,12 +255,114 @@ button:disabled,
   cursor: not-allowed;
 }
 
-/* ------------------------------------------------------------------ *
- *  Auth scene — "one drawing, two media".
- *  Dark  = blueprint (cold ink, cyan graph grid, cyan-white lines).
- *  Light = carta millimetrata (warm drafting white, graphite lines).
- *  Scoped to .auth-scene so it never leaks into the app or the widget.
- * ------------------------------------------------------------------ */
+/* Glassmorphism utility classes */
+.glass {
+  background: rgba(20, 22, 24, 0.7);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.glass-light {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.glass-strong {
+  background: rgba(20, 22, 24, 0.9);
+  backdrop-filter: blur(30px);
+  border: 1px solid var(--color-border);
+}
+
+/* Glassmorphism cards */
+.card-glass {
+  background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius);
+}
+
+.card-glass-light {
+  background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.05) 100%);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius);
+}
+
+/* Gradient borders */
+.gradient-border {
+  position: relative;
+  border-radius: var(--radius);
+  background: var(--color-bg-alt);
+}
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: calc(var(--radius) + 1px);
+  background: linear-gradient(135deg, var(--color-mint), var(--color-emerald));
+  z-index: -1;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, var(--color-mint), var(--color-emerald));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Shimmer animation */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+/* Consistent keyboard focus for interactive elements across the app. */
+a:focus-visible,
+button:focus-visible,
+[role="button"]:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--color-mint);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+button:disabled,
+[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+/* Auth scene — "one drawing, two media".
+ * Dark  = blueprint (cold ink, cyan graph grid, cyan-white lines).
+ * Light = carta millimetrata (warm drafting white, graphite lines).
+ * Scoped to .auth-scene so it never leaks into the app or the widget. */
 .auth-scene {
   --auth-bg: #0b1013;
   --auth-panel: #0e1519;
@@ -183,6 +373,8 @@ button:disabled,
   --auth-grid-major: rgba(126, 166, 176, 0.1);
   --auth-text: #eef1f2;
   --auth-text-dim: #8fa0a4;
+  --auth-grid-minor: rgba(126, 166, 176, 0.05);
+  --auth-grid-major: rgba(126, 166, 176, 0.1);
 
   background-color: var(--auth-bg);
   color: var(--auth-text);
@@ -211,13 +403,13 @@ button:disabled,
 }
 
 .auth-titleblock {
-  font-family: var(--font-space-grotesk), "Segoe UI", system-ui, sans-serif;
+  font-family: var(--font-display), var(--font-sans);
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
 .auth-data {
-  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
 }
 
@@ -227,7 +419,7 @@ button:disabled,
 .auth-draw polyline {
   stroke-dasharray: var(--len, 400);
   stroke-dashoffset: var(--len, 400);
-  animation: auth-draw 0.9s var(--ease-out-apple, ease) forwards;
+  animation: auth-draw 0.9s var(--ease-out-apple) forwards;
   animation-delay: var(--delay, 0s);
 }
 
@@ -237,14 +429,13 @@ button:disabled,
   animation-delay: var(--delay, 0s);
 }
 
-/* the signature: mm measurement resolves into a price */
 .auth-morph-mm {
   animation: auth-morph-out 0.45s ease forwards;
   animation-delay: 2.15s;
 }
 .auth-morph-eur {
   opacity: 0;
-  animation: auth-morph-in 0.5s var(--ease-out-apple, ease) forwards;
+  animation: auth-morph-in 0.5s var(--ease-out-apple) forwards;
   animation-delay: 2.35s;
 }
 .auth-live-stroke {
@@ -252,45 +443,26 @@ button:disabled,
   stroke-dasharray: var(--len, 400);
   stroke-dashoffset: var(--len, 400);
   animation:
-    auth-draw 0.9s var(--ease-out-apple, ease) 0.15s forwards,
+    auth-draw 0.9s var(--ease-out-apple) 0.15s forwards,
     auth-go-live 0.6s ease 2.4s forwards;
 }
 
 @keyframes auth-draw {
-  to {
-    stroke-dashoffset: 0;
-  }
+  to { stroke-dashoffset: 0; }
 }
 @keyframes auth-fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
 }
 @keyframes auth-morph-out {
-  to {
-    opacity: 0;
-    transform: translateY(-4px);
-  }
+  to { opacity: 0; transform: translateY(-4px); }
 }
 @keyframes auth-morph-in {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
 }
 @keyframes auth-go-live {
-  to {
-    stroke: var(--auth-live);
-  }
+  to { stroke: var(--auth-live); }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -300,38 +472,71 @@ button:disabled,
     stroke-dashoffset: 0;
     animation: none;
   }
-  .auth-fade {
-    opacity: 1;
-    animation: none;
-  }
-  .auth-morph-mm {
-    display: none;
-    animation: none;
-  }
-  .auth-morph-eur {
-    opacity: 1;
-    animation: none;
-  }
-  .auth-live-stroke {
-    stroke: var(--auth-live);
-    stroke-dashoffset: 0;
-    animation: none;
-  }
+  .auth-fade { opacity: 1; animation: none; }
+  .auth-morph-mm { display: none; animation: none; }
+  .auth-morph-eur { opacity: 1; animation: none; }
+  .auth-live-stroke { stroke: var(--auth-live); stroke-dashoffset: 0; animation: none; }
 }
 
-/* Logo: due varianti PNG, la giusta e mostrata via CSS in base al tema */
-.logo-dark {
-  display: block;
+.logo-dark { display: block; }
+.logo-light { display: none; }
+:root[data-theme="light"] .logo-dark { display: none; }
+:root[data-theme="light"] .logo-light { display: block; }
+
+/* Skeleton loaders */
+.skeleton {
+  background: linear-gradient(90deg, var(--color-border-subtle) 25%, var(--color-border) 50%, var(--color-border-subtle) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius);
 }
 
-.logo-light {
-  display: none;
+.skeleton-text {
+  height: 1rem;
+  width: 100%;
 }
 
-:root[data-theme="light"] .logo-dark {
-  display: none;
+.skeleton-title {
+  height: 1.5rem;
+  width: 60%;
 }
 
-:root[data-theme="light"] .logo-light {
-  display: block;
+.skeleton-card {
+  height: 100%;
+  min-height: 200px;
+}
+
+/* Print styles */
+@media print {
+  .no-print { display: none !important; }
+  .print-only { display: block !important; }
+  .auth-scene { background: none !important; color: #000 !important; }
+  .glass, .glass-light, .glass-strong { background: none !important; backdrop-filter: none !important; border: 1px solid #ccc !important; }
+  .card-glass, .card-glass-light { background: none !important; backdrop-filter: none !important; border: 1px solid #ccc !important; }
+  a { text-decoration: none; color: inherit; }
+  .no-print { display: none !important; }
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-focus);
+}
+::-webkit-scrollbar-corner {
+  background: var(--color-bg);
+}
+
+/* Focus ring utility */
+.focus-ring {
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-mint)];
 }

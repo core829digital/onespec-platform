@@ -75,12 +75,43 @@ export const getOverview = query({
     const prevStart = cutoff - spec.windowMs;
     const prevWindow = all.filter((r) => r._creationTime >= prevStart && r._creationTime < cutoff);
     const prevReal = prevWindow.filter((r) => r.status !== "spam");
-    const prevWon = prevWindow.filter((r) => r.status === "won");
+    const prevWonWindow = prevWindow.filter((r) => r.status === "won");
+
+    // Widget views in previous period (de-duplicated per-visitor counters)
+    const prevMonthsInWindow = new Set<string>();
+    for (let ms = prevStart; ms <= cutoff; ms += DAY_MS) {
+      prevMonthsInWindow.add(new Date(ms).toISOString().slice(0, 7));
+    }
+    const prevCounters = await ctx.db
+      .query("usageCounters")
+      .withIndex("by_tenant_period", (q) => q.eq("tenantId", args.tenantId))
+      .collect();
+    const prevWidgetViews = prevCounters
+      .filter((c) => prevMonthsInWindow.has(c.period))
+      .reduce((s, c) => s + (c.widgetViewsCount ?? 0), 0);
+    const prevVisitorConversionRate = prevWidgetViews > 0 ? Math.min(1, prevReal.length / prevWidgetViews) : 0;
+
+    const prevByStatus: Record<string, number> = {};
+    let prevWonValueCents = 0;
+    let prevQuotedValueCents = 0;
+    for (const r of prevWindow) {
+      prevByStatus[r.status] = (prevByStatus[r.status] ?? 0) + 1;
+      if (r.status === "won") prevWonValueCents += r.priceCents;
+      if (r.status !== "spam") prevQuotedValueCents += r.priceCents;
+    }
+    const prevRealLeads = prevWindow.filter((r) => r.status !== "spam");
+    const prevWonCount = prevByStatus.won ?? 0;
+    const prevConversionRate = prevRealLeads.length > 0 ? prevWonCount / prevRealLeads.length : 0;
+    const prevAvgDealCents = prevWonCount > 0 ? Math.round(prevWonValueCents / prevWonCount) : 0;
+
     const previous = {
       totalRequests: prevWindow.length,
-      won: prevWon.length,
-      wonValueCents: prevWon.reduce((s, r) => s + r.priceCents, 0),
-      conversionRate: prevReal.length > 0 ? prevWon.length / prevReal.length : 0,
+      won: prevWonCount,
+      wonValueCents: prevWonValueCents,
+      conversionRate: prevConversionRate,
+      widgetViews: prevWidgetViews,
+      visitorConversionRate: prevVisitorConversionRate,
+      avgDealCents: prevAvgDealCents,
     };
 
     const byStatus: Record<string, number> = {};

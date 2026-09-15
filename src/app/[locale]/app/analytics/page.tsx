@@ -12,8 +12,6 @@ import {
   Trophy,
   Calculator,
   TrendingUp,
-  Users,
-  Clock,
   BarChart3,
 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -52,6 +50,43 @@ const CHART_COLORS = [
   "#f97316",
 ];
 
+interface OverviewData {
+  range: AnalyticsRange;
+  previous: {
+    totalRequests: number;
+    won: number;
+    wonValueCents: number;
+    conversionRate: number;
+    widgetViews: number;
+    visitorConversionRate: number;
+    avgDealCents: number;
+  };
+  totalRequests: number;
+  widgetViews: number;
+  widgetViewsApprox: boolean;
+  visitorConversionRate: number;
+  realLeads: number;
+  won: number;
+  lost: number;
+  spam: number;
+  conversionRate: number;
+  wonValueCents: number;
+  pipelineValueCents: number;
+  avgDealCents: number;
+  byStatus: Record<string, number>;
+  funnel: Array<{ key: string; count: number }>;
+  trend: Array<{ label: string; count: number; valueCents: number }>;
+  byConfigurator: Array<{ name: string; count: number; valueCents: number }>;
+  bySource: Array<{ host: string; count: number }>;
+  truncated: boolean;
+}
+
+interface PeakHourData {
+  hour: number;
+  day: number;
+  value: number;
+}
+
 const ChartSkeleton = () => (
   <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5 animate-pulse">
     <div className="h-6 w-40 rounded bg-[var(--color-border)] mb-4" />
@@ -78,11 +113,11 @@ export default function AnalyticsPage() {
   const overview = useQuery(
     api.analytics.getOverview,
     tenant ? { tenantId: tenant._id, range } : "skip",
-  );
+  ) as OverviewData | undefined;
   const peakHours = useQuery(
     api.analytics.getPeakHours,
     tenant ? { tenantId: tenant._id, range } : "skip",
-  );
+  ) as PeakHourData[] | undefined;
 
   if (!tenant) return null;
 
@@ -92,14 +127,14 @@ export default function AnalyticsPage() {
       value: overview.widgetViewsApprox ? `~${overview.widgetViews}` : overview.widgetViews,
       icon: <Eye className="w-5 h-5" />,
       delta: overview.previous ? ((overview.widgetViews - overview.previous.widgetViews) / Math.max(overview.previous.widgetViews, 1)) * 100 : undefined,
-      trend: overview.previous && overview.widgetViews > overview.previous.widgetViews ? "up" : overview.previous && overview.widgetViews < overview.previous.widgetViews ? "down" : "neutral",
+      trend: (overview.previous && overview.widgetViews > overview.previous.widgetViews ? "up" : overview.previous && overview.widgetViews < overview.previous.widgetViews ? "down" : "neutral") as "up" | "down" | "neutral",
     },
     {
       label: t("totalRequests"),
       value: overview.totalRequests,
       icon: <FileText className="w-5 h-5" />,
       delta: overview.previous ? ((overview.totalRequests - overview.previous.totalRequests) / Math.max(overview.previous.totalRequests, 1)) * 100 : undefined,
-      trend: overview.previous && overview.totalRequests > overview.previous.totalRequests ? "up" : overview.previous && overview.totalRequests < overview.previous.totalRequests ? "down" : "neutral",
+      trend: (overview.previous && overview.totalRequests > overview.previous.totalRequests ? "up" : overview.previous && overview.totalRequests < overview.previous.totalRequests ? "down" : "neutral") as "up" | "down" | "neutral",
     },
     {
       label: t("visitorConversion"),
@@ -107,73 +142,55 @@ export default function AnalyticsPage() {
       icon: <Percent className="w-5 h-5" />,
       accent: true,
       delta: overview.previous ? ((overview.visitorConversionRate - overview.previous.visitorConversionRate) / Math.max(overview.previous.visitorConversionRate, 0.001)) * 100 : undefined,
-      trend: overview.previous && overview.visitorConversionRate > overview.previous.visitorConversionRate ? "up" : overview.previous && overview.visitorConversionRate < overview.previous.visitorConversionRate ? "down" : "neutral",
+      trend: (overview.previous && overview.visitorConversionRate > overview.previous.visitorConversionRate ? "up" : overview.previous && overview.visitorConversionRate < overview.previous.visitorConversionRate ? "down" : "neutral") as "up" | "down" | "neutral",
     },
     {
       label: t("conversionRate"),
       value: pct(overview.conversionRate),
       icon: <Trophy className="w-5 h-5" />,
       delta: overview.previous ? ((overview.conversionRate - overview.previous.conversionRate) / Math.max(overview.previous.conversionRate, 0.001)) * 100 : undefined,
-      trend: overview.previous && overview.conversionRate > overview.previous.conversionRate ? "up" : overview.previous && overview.conversionRate < overview.previous.conversionRate ? "down" : "neutral",
+      trend: (overview.previous && overview.conversionRate > overview.previous.conversionRate ? "up" : overview.previous && overview.conversionRate < overview.previous.conversionRate ? "down" : "neutral") as "up" | "down" | "neutral",
     },
     {
       label: t("wonValue"),
       value: eur(overview.wonValueCents),
       icon: <TrendingUp className="w-5 h-5" />,
       delta: overview.previous ? ((overview.wonValueCents - overview.previous.wonValueCents) / Math.max(overview.previous.wonValueCents, 1)) * 100 : undefined,
-      trend: overview.previous && overview.wonValueCents > overview.previous.wonValueCents ? "up" : overview.previous && overview.wonValueCents < overview.previous.wonValueCents ? "down" : "neutral",
+      trend: (overview.previous && overview.wonValueCents > overview.previous.wonValueCents ? "up" : overview.previous && overview.wonValueCents < overview.previous.wonValueCents ? "down" : "neutral") as "up" | "down" | "neutral",
     },
     {
       label: t("avgDeal"),
       value: eur(overview.avgDealCents),
       icon: <Calculator className="w-5 h-5" />,
       delta: overview.previous ? ((overview.avgDealCents - overview.previous.avgDealCents) / Math.max(overview.previous.avgDealCents, 1)) * 100 : undefined,
-      trend: overview.previous && overview.avgDealCents > overview.previous.avgDealCents ? "up" : overview.previous && overview.avgDealCents < overview.previous.avgDealCents ? "down" : "neutral",
+      trend: (overview.previous && overview.avgDealCents > overview.previous.avgDealCents ? "up" : overview.previous && overview.avgDealCents < overview.previous.avgDealCents ? "down" : "neutral") as "up" | "down" | "neutral",
     },
   ] : [];
 
-  const funnelData = overview ? overview.funnel.map((f) => ({
+  const funnelData = overview ? overview.funnel.map((f: { key: string; count: number }) => ({
     label: FUNNEL_LABEL[f.key] || f.key,
     value: f.count,
     color: FUNNEL_COLORS[f.key as keyof typeof FUNNEL_COLORS] || CHART_COLORS[0],
   })) : [];
 
-  const pieData = overview ? overview.funnel.map((f, i) => ({
+  const pieData = overview ? overview.funnel.map((f: { key: string; count: number }, i: number) => ({
     label: FUNNEL_LABEL[f.key] || f.key,
     value: f.count,
     color: CHART_COLORS[i % CHART_COLORS.length],
   })) : [];
 
-  const trendData = overview ? overview.trend.map((t) => ({
+  const trendData = overview ? overview.trend.map((t: { label: string; count: number }) => ({
     label: t.label,
     value: t.count,
   })) : [];
 
   const peakHoursData = peakHours || [];
 
-  const byConfiguratorData = overview ? overview.byConfigurator.map((c, i) => ({
+  const byConfiguratorData = overview ? overview.byConfigurator.map((c: { name: string; count: number }, i: number) => ({
     label: c.name,
     value: c.count,
     color: CHART_COLORS[i % CHART_COLORS.length],
   })) : [];
-
-  const ChartSkeleton = () => (
-    <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5 animate-pulse">
-      <div className="h-6 w-40 rounded bg-[var(--color-border)] mb-4" />
-      <div className="h-64 bg-[var(--color-border)] rounded" />
-    </div>
-  );
-
-  const StatsSkeleton = () => (
-    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 animate-pulse">
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4">
-          <div className="h-5 w-24 rounded bg-[var(--color-border)] mb-2" />
-          <div className="h-8 w-32 rounded bg-[var(--color-border)]" />
-        </div>
-      ))}
-    </div>
-  );
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -272,8 +289,8 @@ export default function AnalyticsPage() {
             <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
               <h2 className="font-semibold text-[var(--color-text)] mb-4">{t("byConfigurator")}</h2>
               <div className="space-y-3">
-                {overview.byConfigurator.map((c, i) => {
-                  const max = Math.max(...overview.byConfigurator.map((x) => x.count), 1);
+                {overview.byConfigurator.map((c: { name: string; count: number; valueCents: number }, i: number) => {
+                  const max = Math.max(...overview.byConfigurator.map((x: { count: number }) => x.count), 1);
                   return (
                     <motion.div
                       key={c.name}
@@ -306,8 +323,8 @@ export default function AnalyticsPage() {
             <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
               <h2 className="font-semibold text-[var(--color-text)] mb-4">{t("bySource")}</h2>
               <div className="space-y-3">
-                {overview.bySource.map((s, i) => {
-                  const max = Math.max(...overview.bySource.map((x) => x.count), 1);
+                {overview.bySource.map((s: { host: string; count: number }, i: number) => {
+                  const max = Math.max(...overview.bySource.map((x: { count: number }) => x.count), 1);
                   return (
                     <motion.div
                       key={s.host}

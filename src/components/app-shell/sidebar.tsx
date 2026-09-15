@@ -58,7 +58,7 @@ export function Sidebar({ tenant }: { tenant: Doc<"tenants"> }) {
   return (
     <aside
       className={cn(
-        "bg-[var(--color-bg-alt)] border-r border-[var(--color-border)] flex-col hidden lg:flex transition-[width] duration-200 ease-out",
+        "bg-[var(--color-bg-alt)] border-r border-[var(--color-border)] flex-col hidden lg:flex h-screen sticky top-0 transition-[width] duration-200 ease-out",
         collapsed ? "w-16" : "w-64",
       )}
     >
@@ -84,7 +84,7 @@ export function Sidebar({ tenant }: { tenant: Doc<"tenants"> }) {
         ) : null}
       </div>
 
-      <nav id="app-sidebar-nav" className={cn("flex-1 space-y-1 overflow-y-auto", collapsed ? "p-2" : "p-4")}>
+      <nav id="app-sidebar-nav" className={cn("flex-1 min-h-0 space-y-1 overflow-y-auto overflow-x-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden", collapsed ? "p-2" : "p-4")}>
         {rows.map((item, i) => {
           const isAdminRow = item.href === ADMIN_NAV_ITEM.href;
           const isActive =

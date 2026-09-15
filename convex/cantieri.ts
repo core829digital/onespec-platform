@@ -36,19 +36,25 @@ export const listCantieri = query({
     await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
     const limit = Math.min(Math.max(args.limit ?? 100, 1), 500);
 
-    let q = ctx.db.query("cantieri").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId));
+    // Fetch all cantieri for tenant, then filter in memory
+    const allCantieri = await ctx.db
+      .query("cantieri")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .order("desc")
+      .take(limit * 3); // Take more to account for filtering
 
+    let filtered = allCantieri;
     if (args.status) {
-      q = q.filter((c) => c.status === args.status);
+      filtered = filtered.filter((c) => c.status === args.status);
     }
     if (args.clientId) {
-      q = q.filter((c) => c.clientId === args.clientId);
+      filtered = filtered.filter((c) => c.clientId === args.clientId);
     }
     if (args.assignedUserId) {
-      q = q.filter((c) => c.assignedUserIds.includes(args.assignedUserId!));
+      filtered = filtered.filter((c) => c.assignedUserIds.includes(args.assignedUserId!));
     }
 
-    const cantieri = await q.order("desc").take(limit);
+    const cantieri = filtered.slice(0, limit);
 
     // Enrich with task counts
     const enriched = await Promise.all(
@@ -410,6 +416,41 @@ export const updateCantiereTask = mutation({
 
     await ctx.db.patch(args.taskId, patch);
     await ctx.db.patch(task.cantiereId, { updatedAt: Date.now() });
+
+    return { ok: true };
+  },
+});
+
+/** Delete a cantiere. */
+export const deleteCantiere = mutation({
+  args: { cantiereId: v.id("cantieri") },
+  handler: async (ctx, args) => {
+    const cantiere = await ctx.db.get(args.cantiereId);
+    if (!cantiere) throw new ConvexError("CANTIERE_NOT_FOUND");
+    await requireTenantRole(ctx, cantiere.tenantId, ["owner", "admin"]);
+    const { userId } = await requireTenantRole(ctx, cantiere.tenantId, ["owner", "admin"]);
+
+    // Delete associated tasks first
+    const tasks = await ctx.db
+      .query("cantiereTasks")
+      .withIndex("by_cantiere", (q) => q.eq("cantiereId", args.cantiereId))
+      .collect();
+    for (const task of tasks) {
+      await ctx.db.delete(task._id);
+    }
+
+    await ctx.db.delete(args.cantiereId);
+
+    await ctx.db.insert("auditLog", {
+      tenantId: cantiere.tenantId,
+      actorUserId: userId,
+      actorKind: "user",
+      action: "cantiere.delete",
+      targetTable: "cantieri",
+      targetId: args.cantiereId,
+      meta: { name: cantiere.name },
+      createdAt: Date.now(),
+    });
 
     return { ok: true };
   },

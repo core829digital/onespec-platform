@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { use, useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
@@ -8,7 +8,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 import type { ProjectItem } from "@/shared/pricing";
 
 interface Props {
-  params: { id: string; locale: string };
+  params: Promise<{ id: string; locale: string }>;
 }
 
 const MATERIAL_LABELS: Record<string, Record<string, string>> = {
@@ -74,7 +74,8 @@ function EnergyBadge({ uw }: { uw: number }) {
 }
 
 export default function PrintQuotePage({ params }: Props) {
-  const quoteId = params.id as Id<"quoteRequests">;
+  const { id } = use(params);
+  const quoteId = id as Id<"quoteRequests">;
   const data = useQuery(api.quotes.getQuoteForPrint, { quoteId });
 
   // Luxembourg 1-click bilingual switch

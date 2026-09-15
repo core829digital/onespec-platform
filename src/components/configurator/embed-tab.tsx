@@ -21,9 +21,9 @@ function CopyBlock({ code }: { code: string }) {
             /* clipboard unavailable */
           }
         }}
-        className="absolute top-2 right-2 rounded-md border border-[var(--color-border)] bg-[var(--color-bg-alt)] px-2 py-1 text-xs text-[var(--color-text-secondary)]"
+        className="absolute top-2 right-2 rounded-md border border-[var(--color-border)] bg-[var(--color-bg-alt)] px-2 py-1 text-xs text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-mint)] hover:text-[var(--color-mint)] active:scale-95"
       >
-        {copied ? "Copiato" : "Copia"}
+        {copied ? "Copiato ✓" : "Copia"}
       </button>
     </div>
   );

@@ -187,7 +187,7 @@ function ModuleCard({
       {createHref ? (
         <Link
           href={createHref}
-          className="mt-2 block rounded border border-[var(--color-border)] px-2 py-1 text-center text-xs"
+          className="mt-2 block rounded border border-[var(--color-border)] px-2 py-1 text-center text-xs transition-colors hover:border-[var(--color-mint)] hover:bg-[var(--color-mint)]/10 hover:text-[var(--color-mint)]"
         >
           {createLabel}
         </Link>
@@ -195,7 +195,7 @@ function ModuleCard({
         <button
           onClick={onCreate}
           disabled={busy}
-          className="mt-2 w-full rounded border border-[var(--color-border)] px-2 py-1 text-xs disabled:opacity-50"
+          className="mt-2 w-full rounded border border-[var(--color-border)] px-2 py-1 text-xs transition-colors hover:border-[var(--color-mint)] hover:bg-[var(--color-mint)]/10 hover:text-[var(--color-mint)] disabled:opacity-50 disabled:hover:border-[var(--color-border)] disabled:hover:bg-transparent disabled:hover:text-inherit"
         >
           {busy ? "…" : createLabel}
         </button>

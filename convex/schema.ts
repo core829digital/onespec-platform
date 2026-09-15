@@ -697,7 +697,7 @@ export default defineSchema({
   })
     .index("by_tenant", ["tenantId"])
     .index("by_passport", ["passportId"])
-    .index("by_tenant_status", ["tenantId", "status"])),
+    .index("by_tenant_status", ["tenantId", "status"]),
 
   /** Client Intelligence Hub — CRM-style client records with history, tags, notes. */
   clients: defineTable({

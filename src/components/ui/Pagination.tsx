@@ -91,7 +91,7 @@ export function Pagination({
         <button
           onClick={firstPage}
           disabled={currentPage === 1}
-          className="p-2 rounded border border-[var(--color-border)] bg-[var(--color-bg)] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[var(--color-bg-alt)]"
+          className="p-2 rounded border border-[var(--color-border)] bg-[var(--color-bg)] transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[var(--color-bg-alt)] hover:border-[var(--color-mint)] disabled:hover:bg-[var(--color-bg)] disabled:hover:border-[var(--color-border)]"
           aria-label="Prima pagina"
         >
           <ChevronFirst className="w-4 h-4" />
@@ -99,14 +99,14 @@ export function Pagination({
         <button
           onClick={prevPage}
           disabled={currentPage === 1}
-          className="p-2 rounded border border-[var(--color-border)] bg-[var(--color-bg)] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[var(--color-bg-alt)]"
+          className="p-2 rounded border border-[var(--color-border)] bg-[var(--color-bg)] transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[var(--color-bg-alt)] hover:border-[var(--color-mint)] disabled:hover:bg-[var(--color-bg)] disabled:hover:border-[var(--color-border)]"
           aria-label="Pagina precedente"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
 
         <div className="flex items-center gap-1 mx-2">
-          {pageNumbers.map((page, idx) => (
+          {pageNumbers.map((page: number | "ellipsis", idx: number) => (
             <button
               key={idx}
               onClick={() => page !== "ellipsis" && goToPage(page as number)}
@@ -127,7 +127,7 @@ export function Pagination({
         <button
           onClick={nextPage}
           disabled={currentPage === totalPages}
-          className="p-2 rounded border border-[var(--color-border)] bg-[var(--color-bg)] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[var(--color-bg-alt)]"
+          className="p-2 rounded border border-[var(--color-border)] bg-[var(--color-bg)] transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[var(--color-bg-alt)] hover:border-[var(--color-mint)] disabled:hover:bg-[var(--color-bg)] disabled:hover:border-[var(--color-border)]"
           aria-label="Pagina successiva"
         >
           <ChevronRight className="w-4 h-4" />
@@ -135,7 +135,7 @@ export function Pagination({
         <button
           onClick={lastPage}
           disabled={currentPage === totalPages}
-          className="p-2 rounded border border-[var(--color-border)] bg-[var(--color-bg)] disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[var(--color-bg-alt)]"
+          className="p-2 rounded border border-[var(--color-border)] bg-[var(--color-bg)] transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[var(--color-bg-alt)] hover:border-[var(--color-mint)] disabled:hover:bg-[var(--color-bg)] disabled:hover:border-[var(--color-border)]"
           aria-label="Ultima pagina"
         >
           <ChevronLast className="w-4 h-4" />

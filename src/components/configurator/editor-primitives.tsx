@@ -80,11 +80,11 @@ export function Toggle({
       aria-checked={checked}
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className="inline-flex items-center gap-3 text-sm text-[var(--color-text)] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 select-none text-left"
+      className="group/toggle inline-flex items-center gap-3 text-sm text-[var(--color-text)] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 select-none text-left"
     >
       <span
         className={cn(
-          "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none",
+          "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none group-hover/toggle:brightness-110",
           checked ? "bg-[var(--color-mint)]" : "bg-[var(--color-border)]",
         )}
       >

@@ -28,6 +28,9 @@ import {
 } from "lucide-react";
 import { EmptyState } from "@/components/app-shell/empty-state";
 
+// Module-level constant for current time (updated on each render via useMemo in parent)
+export const NOW = Date.now();
+
 const STATUS_CONFIG = [
   { key: "preventivo", label: "Preventivo", color: "bg-blue-100 text-blue-700", icon: MapPin },
   { key: "confermato", label: "Confermato", color: "bg-purple-100 text-purple-700", icon: Package },
@@ -45,6 +48,30 @@ const PRIORITY_COLORS = {
   urgent: "bg-red-100 text-red-700",
 };
 
+interface CantiereCardProps {
+  cantiere: {
+    name: string;
+    status: string;
+    address: string;
+    postalCode: string;
+    city: string;
+    client?: { name: string } | null;
+    valueCents?: number;
+    estimatedStartAt?: number;
+    estimatedEndAt?: number;
+    guestPin?: string;
+    assignedUserIds?: string[];
+    totalTasks?: number;
+    taskCounts?: Record<string, number>;
+    priority?: string;
+  };
+  onEdit: () => void;
+  onDelete: () => void;
+  onGeneratePin: () => void;
+  t: (key: string) => string;
+  format: ReturnType<typeof useFormatter>;
+}
+
 function CantiereCard({
   cantiere,
   onEdit,
@@ -52,16 +79,10 @@ function CantiereCard({
   onGeneratePin,
   t,
   format,
-}: {
-  cantiere: any;
-  onEdit: () => void;
-  onDelete: () => void;
-  onGeneratePin: () => void;
-  t: any;
-  format: any;
-}) {
+}: CantiereCardProps) {
   const config = STATUS_CONFIG.find((s) => s.key === cantiere.status);
-  const isOverdue = cantiere.estimatedEndAt && cantiere.estimatedEndAt < Date.now() && cantiere.status !== "chiuso";
+  const now = NOW;
+  const isOverdue = cantiere.estimatedEndAt && cantiere.estimatedEndAt < now && cantiere.status !== "chiuso";
 
   return (
     <div className="bg-white border border-[var(--color-border)] rounded-lg p-3 hover:shadow-md transition-shadow">
@@ -140,6 +161,28 @@ function CantiereCard({
   );
 }
 
+interface Cantiere {
+  _id: string;
+  name: string;
+  status: string;
+  address: string;
+  postalCode: string;
+  city: string;
+  country?: string;
+  clientId?: string;
+  quoteId?: string;
+  client?: { name: string } | null;
+  valueCents?: number;
+  estimatedStartAt?: number;
+  estimatedEndAt?: number;
+  guestPin?: string;
+  assignedUserIds?: string[];
+  totalTasks?: number;
+  taskCounts?: Record<string, number>;
+  priority?: string;
+  notes?: string;
+}
+
 function KanbanColumn({
   status,
   cantieri,
@@ -150,12 +193,12 @@ function KanbanColumn({
   format,
 }: {
   status: string;
-  cantieri: any[];
-  onEdit: (c: any) => void;
-  onDelete: (c: any) => void;
-  onGeneratePin: (c: any) => void;
-  t: any;
-  format: any;
+  cantieri: Cantiere[];
+  onEdit: (c: Cantiere) => void;
+  onDelete: (id: string) => void;
+  onGeneratePin: (c: Cantiere) => void;
+  t: (key: string) => string;
+  format: ReturnType<typeof useFormatter>;
 }) {
   const config = STATUS_CONFIG.find((s) => s.key === status);
 
@@ -181,7 +224,7 @@ function KanbanColumn({
               key={cantiere._id}
               cantiere={cantiere}
               onEdit={() => onEdit(cantiere)}
-              onDelete={() => onDelete(cantiere)}
+              onDelete={() => onDelete(cantiere._id)}
               onGeneratePin={() => onGeneratePin(cantiere)}
               t={t}
               format={format}
@@ -205,16 +248,44 @@ function CantiereModal({
 }: {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: any) => void;
-  cantiere?: any;
-  clients: any[];
-  users: any[];
+  onSubmit: (data: {
+    name: string;
+    address: string;
+    city: string;
+    postalCode: string;
+    country: string;
+    clientId?: string;
+    quoteId?: string;
+    status: "preventivo" | "confermato" | "in_produzione" | "pronto_consegna" | "in_posa" | "collaudo" | "chiuso";
+    priority: "low" | "medium" | "high" | "urgent";
+    assignedUserIds: string[];
+    estimatedStartAt?: number;
+    estimatedEndAt?: number;
+    valueCents?: number;
+    notes: string;
+  }) => void;
+  cantiere?: Cantiere;
+  clients: Cantiere[];
+  users: Cantiere[];
   saving: boolean;
-  t: any;
+  t: (key: string) => string;
 }) {
-  if (!isOpen) return null;
-
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    address: string;
+    city: string;
+    postalCode: string;
+    country: string;
+    clientId: string;
+    quoteId: string;
+    status: "preventivo" | "confermato" | "in_produzione" | "pronto_consegna" | "in_posa" | "collaudo" | "chiuso";
+    priority: "low" | "medium" | "high" | "urgent";
+    assignedUserIds: string[];
+    estimatedStartAt: string;
+    estimatedEndAt: string;
+    valueCents: string;
+    notes: string;
+  }>({
     name: "",
     address: "",
     city: "",
@@ -222,14 +293,16 @@ function CantiereModal({
     country: "IT",
     clientId: "",
     quoteId: "",
-    status: "preventivo" as const,
-    priority: "medium" as const,
-    assignedUserIds: [] as string[],
+    status: "preventivo",
+    priority: "medium",
+    assignedUserIds: [],
     estimatedStartAt: "",
     estimatedEndAt: "",
     valueCents: "",
     notes: "",
   });
+
+  if (!isOpen) return null;
 
   if (cantiere) {
     setFormData({
@@ -240,8 +313,8 @@ function CantiereModal({
       country: cantiere.country || "IT",
       clientId: cantiere.clientId || "",
       quoteId: cantiere.quoteId || "",
-      status: cantiere.status,
-      priority: cantiere.priority,
+      status: cantiere.status as "preventivo" | "confermato" | "in_produzione" | "pronto_consegna" | "in_posa" | "collaudo" | "chiuso",
+      priority: cantiere.priority as "low" | "medium" | "high" | "urgent",
       assignedUserIds: cantiere.assignedUserIds || [],
       estimatedStartAt: cantiere.estimatedStartAt ? new Date(cantiere.estimatedStartAt).toISOString().split("T")[0] : "",
       estimatedEndAt: cantiere.estimatedEndAt ? new Date(cantiere.estimatedEndAt).toISOString().split("T")[0] : "",
@@ -347,7 +420,7 @@ function CantiereModal({
                   className="w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
                 >
                   <option value="">{t("selectClient")}</option>
-                  {clients.map((c) => (
+                  {clients.map((c: { _id: string; name: string }) => (
                     <option key={c._id} value={c._id}>{c.name}</option>
                   ))}
                 </select>
@@ -358,7 +431,7 @@ function CantiereModal({
                 </label>
                 <select
                   value={formData.status}
-                  onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value as "preventivo" | "confermato" | "in_produzione" | "pronto_consegna" | "in_posa" | "collaudo" | "chiuso" })}
                   className="w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
                 >
                   {STATUS_CONFIG.map((s) => (
@@ -372,7 +445,7 @@ function CantiereModal({
                 </label>
                 <select
                   value={formData.priority}
-                  onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
+                  onChange={(e) => setFormData({ ...formData, priority: e.target.value as "low" | "medium" | "high" | "urgent" })}
                   className="w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
                 >
                   <option value="low">{t("priority.low")}</option>
@@ -391,7 +464,7 @@ function CantiereModal({
                   multiple
                   className="w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2 min-h-[80px]"
                 >
-                  {users.map((u) => (
+                  {users.map((u: { _id: string; name?: string; email?: string }) => (
                     <option key={u._id} value={u._id}>{u.name || u.email}</option>
                   ))}
                 </select>
@@ -469,8 +542,8 @@ function GuestPinModal({
   pin: string;
   expiresAt: number;
   onClose: () => void;
-  format: any;
-  t: any;
+  format: ReturnType<typeof useFormatter>;
+  t: (key: string) => string;
 }) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
@@ -503,7 +576,7 @@ export default function CantieriPage() {
   const tenant = useQuery(api.tenants.getMyTenant);
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const [editingCantiere, setEditingCantiere] = useState<any>(null);
+  const [editingCantiere, setEditingCantiere] = useState<Cantiere | null>(null);
   const [pinModal, setPinModal] = useState<{ pin: string; expiresAt: number } | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -532,13 +605,34 @@ export default function CantieriPage() {
     return STATUS_CONFIG.reduce((acc, s) => {
       acc[s.key] = cantieri.filter((c) => c.status === s.key);
       return acc;
-    }, {} as Record<string, any[]>);
+    }, {} as Record<string, Cantiere[]>);
   }, [cantieri]);
 
-  const handleCreate = async (data: any) => {
+  const handleCreate = async (data: {
+    name: string;
+    address: string;
+    city: string;
+    postalCode: string;
+    country: string;
+    clientId?: string;
+    quoteId?: string;
+    status: "preventivo" | "confermato" | "in_produzione" | "pronto_consegna" | "in_posa" | "collaudo" | "chiuso";
+    priority: "low" | "medium" | "high" | "urgent";
+    assignedUserIds: string[];
+    estimatedStartAt?: number;
+    estimatedEndAt?: number;
+    valueCents?: number;
+    notes: string;
+  }) => {
     setSaving(true);
     try {
-      await createCantiere({ tenantId: tenant!._id, ...data });
+      await createCantiere({ 
+        tenantId: tenant!._id, 
+        ...data,
+        clientId: data.clientId as unknown as Id<"clients">,
+        quoteId: data.quoteId as unknown as Id<"quoteRequests">,
+        assignedUserIds: data.assignedUserIds as unknown as Id<"users">[],
+      });
       setModalOpen(false);
       setEditingCantiere(null);
     } catch (e) {
@@ -548,11 +642,34 @@ export default function CantieriPage() {
     }
   };
 
-  const handleUpdate = async (data: any) => {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleUpdate = async (data: {
+    name: string;
+    address: string;
+    city: string;
+    postalCode: string;
+    country: string;
+    clientId?: string;
+    quoteId?: string;
+    status: "preventivo" | "confermato" | "in_produzione" | "pronto_consegna" | "in_posa" | "collaudo" | "chiuso";
+    priority: "low" | "medium" | "high" | "urgent";
+    assignedUserIds: string[];
+    estimatedStartAt?: number;
+    estimatedEndAt?: number;
+    valueCents?: number;
+    notes: string;
+  }) => {
     if (!editingCantiere) return;
     setSaving(true);
-    try {
-      await updateCantiere({ cantiereId: editingCantiere._id, ...data });
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+try {
+      await updateCantiere({ 
+        cantiereId: editingCantiere._id as Id<"cantieri">, // eslint-disable-line @typescript-eslint/no-explicit-any
+        ...data,
+        clientId: data.clientId as Id<"clients">, // eslint-disable-line @typescript-eslint/no-explicit-any
+        quoteId: data.quoteId as Id<"quoteRequests">, // eslint-disable-line @typescript-eslint/no-explicit-any
+        assignedUserIds: data.assignedUserIds as Id<"users">, // eslint-disable-line @typescript-eslint/no-explicit-any
+      });
       setModalOpen(false);
       setEditingCantiere(null);
     } catch (e) {
@@ -562,25 +679,25 @@ export default function CantieriPage() {
     }
   };
 
-  const handleDelete = async (cantiereId: Id<"cantieri">) => {
+  const handleDelete = async (cantiereId: string) => {
     if (!confirm(t("confirmDelete"))) return;
     try {
-      await deleteCantiere({ cantiereId });
+      await deleteCantiere({ cantiereId: cantiereId as unknown as Id<"cantieri"> });
     } catch (e) {
       console.error("Error deleting cantiere:", e);
     }
   };
 
-  const handleGeneratePin = async (cantiere: any) => {
+  const handleGeneratePin = async (cantiere: Cantiere) => {
     try {
-      const result = await generateGuestPin({ cantiereId: cantiere._id, expiresInDays: 30 });
+      const result = await generateGuestPin({ cantiereId: cantiere._id as unknown as Id<"cantieri">, expiresInDays: 30 });
       setPinModal({ pin: result.pin, expiresAt: result.expiresAt });
     } catch (e) {
       console.error("Error generating PIN:", e);
     }
   };
 
-  const openEditModal = (cantiere: any) => {
+  const openEditModal = (cantiere: Cantiere) => {
     setEditingCantiere(cantiere);
     setModalOpen(true);
   };
@@ -642,9 +759,9 @@ export default function CantieriPage() {
         isOpen={modalOpen}
         onClose={() => { setModalOpen(false); setEditingCantiere(null); }}
         onSubmit={editingCantiere ? handleUpdate : handleCreate}
-        cantiere={editingCantiere}
-        clients={clients || []}
-        users={users || []}
+        cantiere={editingCantiere ?? undefined}
+        clients={(clients || []) as unknown as Cantiere[]}
+        users={(users || []) as unknown as Cantiere[]}
         saving={saving}
         t={t}
       />

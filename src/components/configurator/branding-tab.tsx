@@ -212,7 +212,7 @@ export function BrandingTab({ configuratorId }: { configuratorId: Id<"configurat
         type="button"
         onClick={save}
         disabled={saving}
-        className="rounded-lg bg-[var(--color-mint)] px-5 py-2.5 text-sm font-semibold text-[var(--color-mint-dark)] disabled:opacity-50"
+        className="rounded-lg bg-[var(--color-mint)] px-5 py-2.5 text-sm font-semibold text-[var(--color-mint-dark)] transition-all hover:brightness-95 hover:shadow-sm active:brightness-90 disabled:opacity-50 disabled:hover:brightness-100 disabled:hover:shadow-none"
       >
         {saving ? "Salvataggio..." : "Salva branding"}
       </button>

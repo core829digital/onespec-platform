@@ -15,15 +15,21 @@ export const listClients = query({
     await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
     const limit = Math.min(Math.max(args.limit ?? 50, 1), 200);
 
-    let q = ctx.db.query("clients").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId));
+    // Fetch all clients for tenant, then filter in memory
+    const allClients = await ctx.db
+      .query("clients")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .order("desc")
+      .take(limit * 3);
 
+    let filtered = allClients;
     if (args.status) {
-      q = q.filter((c) => c.status === args.status);
+      filtered = filtered.filter((c) => c.status === args.status);
     }
 
-    const clients = await q.order("desc").take(limit);
+    const clients = filtered.slice(0, limit);
 
-    // Filter by search term in memory (could be optimized with search index)
+    // Filter by search term in memory
     if (args.search) {
       const search = args.search.toLowerCase();
       return clients.filter(
@@ -60,11 +66,11 @@ export const getClient = query({
       .collect();
 
     // Get related quotes
-    const quotes = await ctx.db
+    const allQuotes = await ctx.db
       .query("quoteRequests")
       .withIndex("by_tenant", (q) => q.eq("tenantId", client.tenantId))
-      .filter((q) => q.leadEmail === client.email)
-      .take(20);
+      .take(100);
+    const quotes = allQuotes.filter((q) => q.leadEmail === client.email).slice(0, 20);
 
     return { client, activities, cantieri, quotes };
   },

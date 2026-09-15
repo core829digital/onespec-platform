@@ -6,9 +6,9 @@ import { notFound } from "next/navigation";
 
 export const revalidate = 30;
 
-async function safeFetchQuery<T>(query: any, args: any, options?: any): Promise<T | null> {
+async function safeFetchQuery<T>(query: any, args: any, token?: string): Promise<T | null> {
   try {
-    return await fetchQuery(query, args, options);
+    return await fetchQuery(query, args, token ? { token } : undefined);
   } catch {
     return null;
   }
@@ -29,12 +29,12 @@ export default async function WidgetPage({
   const accentParam = typeof sp.accent === "string" ? sp.accent : undefined;
   const fontParam = typeof sp.font === "string" ? sp.font : undefined;
 
-  let configurator = null;
+  let configurator: any = null;
 
   if (preview) {
     const token = await convexAuthNextjsToken();
     if (token) {
-      configurator = await safeFetchQuery(api.widget.getConfiguratorForPreview, { publicId }, { token });
+      configurator = await safeFetchQuery(api.widget.getConfiguratorForPreview, { publicId }, token);
     }
     if (!configurator) {
       configurator = await safeFetchQuery(api.widget.getPublicConfigurator, { publicId });
@@ -47,8 +47,8 @@ export default async function WidgetPage({
     notFound();
   }
 
-  const tenant = await safeFetchQuery(api.tenants.getMyTenant);
-  const publicWidgetAllowed = tenant && tenant.plan === "showroom";
+  const tenant = await safeFetchQuery(api.tenants.getMyTenant, {});
+  const publicWidgetAllowed = tenant && (tenant as any).plan === "showroom";
 
   if (!preview && !publicWidgetAllowed) {
     return (
