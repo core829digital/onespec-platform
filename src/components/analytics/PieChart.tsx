@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 
 interface PieChartProps {
@@ -66,11 +67,14 @@ export function PieChart({
   size = 200,
   innerRadius = 80,
 }: PieChartProps) {
+  const [hovered, setHovered] = useState<number | null>(null);
   const total = data.reduce((sum, d) => sum + d.value, 0);
   const segments = data.map((d, i) => {
     const angle = total > 0 ? (d.value / total) * 2 * Math.PI : 0;
     return { ...d, angle, index: i };
   });
+  const hoveredSegment = hovered !== null ? segments.find((s) => s.index === hovered) : undefined;
+  const hoveredPct = hoveredSegment && total > 0 ? ((hoveredSegment.value / total) * 100).toFixed(1) : null;
 
   return (
     <motion.div
@@ -82,7 +86,7 @@ export function PieChart({
       {title && (
         <h3 className="font-semibold text-[var(--color-text)] mb-4 text-left">{title}</h3>
       )}
-      <div className="flex justify-center mb-4">
+      <div className="relative flex justify-center mb-4">
         <svg
           width={size}
           height={size}
@@ -127,22 +131,48 @@ export function PieChart({
                 const cy = size / 2;
                 const outerRadius = size / 2 - 4;
                 const paths = wedgePaths(cx, cy, outerRadius, innerRadius, startAngle, segment.angle);
-                return paths.map((d, partIndex) => (
-                  <motion.path
-                    key={`${segment.label}-${partIndex}`}
-                    d={d}
-                    fill={`url(#grad-${segment.label.replace(/\s+/g, "-")})`}
-                    stroke="var(--color-bg-alt)"
-                    strokeWidth="2"
-                    style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))" }}
-                    initial={{ scale: 0, originX: cx, originY: cy }}
-                    animate={{ scale: 1 }}
-                    transition={{ delay: i * 0.1, duration: 0.6, ease: "easeOut" }}
-                    whileHover={{ scale: 1.02, originX: cx, originY: cy, filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.15))" }}
+                const isHovered = hovered === segment.index;
+                const isDimmed = hovered !== null && !isHovered;
+                // Nudge the wedge outward along its own bisector on hover —
+                // reads as "this slice lifted toward you", stronger and more
+                // legible at a glance than a uniform scale-up of everything.
+                const midAngle = startAngle + segment.angle / 2 - Math.PI / 2;
+                const popDistance = isHovered ? 6 : 0;
+                const dx = Math.cos(midAngle) * popDistance;
+                const dy = Math.sin(midAngle) * popDistance;
+                return (
+                  <motion.g
+                    key={segment.label}
+                    tabIndex={0}
+                    role="button"
+                    aria-label={`${segment.label}: ${((segment.value / total) * 100).toFixed(1)}%`}
+                    style={{ cursor: "pointer", outline: "none" }}
+                    onMouseEnter={() => setHovered(segment.index)}
+                    onMouseLeave={() => setHovered(null)}
+                    onFocus={() => setHovered(segment.index)}
+                    onBlur={() => setHovered(null)}
+                    animate={{ x: dx, y: dy, opacity: isDimmed ? 0.35 : 1 }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
                   >
-                    <title>{segment.label}: {((segment.value / total) * 100).toFixed(1)}%</title>
-                  </motion.path>
-                ));
+                    {paths.map((d, partIndex) => (
+                      <motion.path
+                        key={partIndex}
+                        d={d}
+                        fill={`url(#grad-${segment.label.replace(/\s+/g, "-")})`}
+                        stroke="var(--color-bg-alt)"
+                        initial={{ scale: 0, originX: cx, originY: cy }}
+                        animate={{
+                          scale: 1,
+                          strokeWidth: isHovered ? 3 : 2,
+                          filter: isHovered
+                            ? "drop-shadow(0 6px 14px rgba(0,0,0,0.22))"
+                            : "drop-shadow(0 2px 4px rgba(0,0,0,0.1))",
+                        }}
+                        transition={{ delay: i * 0.1, duration: 0.6, ease: "easeOut" }}
+                      />
+                    ))}
+                  </motion.g>
+                );
               })
           )}
           <circle
@@ -154,29 +184,78 @@ export function PieChart({
             strokeWidth="1"
           />
         </svg>
+
+        {/* The donut's own hole is otherwise dead space — use it to show
+            whichever slice is hovered (or focused via keyboard), instead of
+            a floating tooltip that would need its own position tracking. */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          {hoveredSegment ? (
+            <motion.div
+              key={hoveredSegment.label}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.15 }}
+              className="text-center px-2"
+            >
+              <div
+                className="text-xs font-medium truncate"
+                style={{ maxWidth: innerRadius * 1.6, color: hoveredSegment.color }}
+              >
+                {hoveredSegment.label}
+              </div>
+              <div className="text-xl font-bold text-[var(--color-text)] tabular-nums leading-tight">
+                {hoveredPct}%
+              </div>
+              <div className="text-[11px] text-[var(--color-text-secondary)] tabular-nums">
+                {hoveredSegment.value.toLocaleString()}
+              </div>
+            </motion.div>
+          ) : total > 0 ? (
+            <div className="text-center">
+              <div className="text-xl font-bold text-[var(--color-text)] tabular-nums leading-tight">
+                {total.toLocaleString()}
+              </div>
+              <div className="text-[11px] text-[var(--color-text-secondary)]">Totale</div>
+            </div>
+          ) : null}
+        </div>
       </div>
 
       {showLegend && (
         <div className="flex flex-wrap justify-center gap-3 mt-4" role="list">
-          {segments.map((segment) => (
-            <div
-              key={segment.label}
-              className="flex items-center gap-2 text-sm"
-              role="listitem"
-            >
-              <motion.div
-                initial={{ scale: 0 }}
-                animate={{ scale: 1 }}
-                transition={{ delay: segment.index * 0.05, duration: 0.3 }}
-                className="w-3 h-3 rounded"
-                style={{ background: segment.color }}
-              />
-              <span className="text-[var(--color-text)]">{segment.label}</span>
-              <span className="text-[var(--color-text-secondary)] tabular-nums">
-                {total > 0 ? `${((segment.value / total) * 100).toFixed(1)}%` : "—"}
-              </span>
-            </div>
-          ))}
+          {segments.map((segment) => {
+            const isHovered = hovered === segment.index;
+            return (
+              <button
+                key={segment.label}
+                type="button"
+                role="listitem"
+                onMouseEnter={() => setHovered(segment.index)}
+                onMouseLeave={() => setHovered(null)}
+                onFocus={() => setHovered(segment.index)}
+                onBlur={() => setHovered(null)}
+                className={`flex items-center gap-2 text-sm rounded px-1.5 py-0.5 -mx-1.5 transition-colors ${
+                  isHovered ? "bg-[var(--color-bg)]" : ""
+                }`}
+              >
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: isHovered ? 1.25 : 1 }}
+                  transition={{ duration: 0.2 }}
+                  className="w-3 h-3 rounded shrink-0"
+                  style={{ background: segment.color }}
+                />
+                <span
+                  className={`text-[var(--color-text)] ${isHovered ? "font-semibold" : ""}`}
+                >
+                  {segment.label}
+                </span>
+                <span className="text-[var(--color-text-secondary)] tabular-nums">
+                  {total > 0 ? `${((segment.value / total) * 100).toFixed(1)}%` : "—"}
+                </span>
+              </button>
+            );
+          })}
         </div>
       )}
     </motion.div>
