@@ -11,6 +11,54 @@ interface PieChartProps {
   animate?: boolean;
 }
 
+/**
+ * Builds the outer+inner donut-wedge path(s) for one segment. An SVG
+ * elliptical-arc command whose start and end point coincide is defined to
+ * render as nothing at all (SVG spec) — that's exactly what happens when a
+ * single category holds 100% of the total (every other value is 0): the
+ * arc spans a full 2π and its two endpoints land on the same point, so the
+ * "pie" silently disappears. Splitting a full-circle sweep into two half
+ * sweeps keeps every arc's endpoints distinct and sidesteps the bug.
+ */
+function wedgePaths(
+  cx: number,
+  cy: number,
+  outerRadius: number,
+  innerRadius: number,
+  startAngle: number,
+  sweepAngle: number,
+): string[] {
+  const FULL_CIRCLE_EPS = 1e-6;
+  if (sweepAngle >= 2 * Math.PI - FULL_CIRCLE_EPS) {
+    return [
+      singleWedgePath(cx, cy, outerRadius, innerRadius, startAngle, Math.PI),
+      singleWedgePath(cx, cy, outerRadius, innerRadius, startAngle + Math.PI, Math.PI),
+    ];
+  }
+  return [singleWedgePath(cx, cy, outerRadius, innerRadius, startAngle, sweepAngle)];
+}
+
+function singleWedgePath(
+  cx: number,
+  cy: number,
+  outerRadius: number,
+  innerRadius: number,
+  startAngle: number,
+  sweepAngle: number,
+): string {
+  const endAngle = startAngle + sweepAngle;
+  const x1 = cx + outerRadius * Math.cos(startAngle - Math.PI / 2);
+  const y1 = cy + outerRadius * Math.sin(startAngle - Math.PI / 2);
+  const x2 = cx + outerRadius * Math.cos(endAngle - Math.PI / 2);
+  const y2 = cy + outerRadius * Math.sin(endAngle - Math.PI / 2);
+  const largeArcFlag = sweepAngle > Math.PI ? 1 : 0;
+  const innerX1 = cx + innerRadius * Math.cos(startAngle - Math.PI / 2);
+  const innerY1 = cy + innerRadius * Math.sin(startAngle - Math.PI / 2);
+  const innerX2 = cx + innerRadius * Math.cos(endAngle - Math.PI / 2);
+  const innerY2 = cy + innerRadius * Math.sin(endAngle - Math.PI / 2);
+  return `M ${cx} ${cy} L ${x1} ${y1} A ${outerRadius} ${outerRadius} 0 ${largeArcFlag} 1 ${x2} ${y2} L ${innerX2} ${innerY2} A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 0 ${innerX1} ${innerY1} Z`;
+}
+
 export function PieChart({
   data,
   title,
@@ -20,7 +68,7 @@ export function PieChart({
 }: PieChartProps) {
   const total = data.reduce((sum, d) => sum + d.value, 0);
   const segments = data.map((d, i) => {
-    const angle = (d.value / total) * 2 * Math.PI;
+    const angle = total > 0 ? (d.value / total) * 2 * Math.PI : 0;
     return { ...d, angle, index: i };
   });
 
@@ -57,45 +105,46 @@ export function PieChart({
               </linearGradient>
             ))}
           </defs>
-          {segments.map((segment, i) => {
-            let startAngle = 0;
-            for (let j = 0; j < i; j++) startAngle += segments[j].angle;
-
-            const endAngle = startAngle + segment.angle;
-            const cx = size / 2;
-            const cy = size / 2;
-            const outerRadius = size / 2 - 4;
-
-            const x1 = cx + outerRadius * Math.cos(startAngle - Math.PI / 2);
-            const y1 = cy + outerRadius * Math.sin(startAngle - Math.PI / 2);
-            const x2 = cx + outerRadius * Math.cos(endAngle - Math.PI / 2);
-            const y2 = cy + outerRadius * Math.sin(endAngle - Math.PI / 2);
-
-            const largeArcFlag = segment.angle > Math.PI ? 1 : 0;
-
-            const innerX1 = cx + innerRadius * Math.cos(startAngle - Math.PI / 2);
-            const innerY1 = cy + innerRadius * Math.sin(startAngle - Math.PI / 2);
-            const innerX2 = cx + innerRadius * Math.cos(endAngle - Math.PI / 2);
-            const innerY2 = cy + innerRadius * Math.sin(endAngle - Math.PI / 2);
-
-            const path = (
-              <motion.path
-                key={segment.label}
-                d={`M ${cx} ${cy} L ${x1} ${y1} A ${outerRadius} ${outerRadius} 0 ${largeArcFlag} 1 ${x2} ${y2} L ${innerX2} ${innerY2} A ${innerRadius} ${innerRadius} 0 ${largeArcFlag} 0 ${innerX1} ${innerY1} Z`}
-                fill={`url(#grad-${segment.label.replace(/\s+/g, "-")})`}
-                stroke="white"
-                strokeWidth="2"
-                style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))" }}
-                initial={{ scale: 0, originX: cx, originY: cy }}
-                animate={{ scale: 1 }}
-                transition={{ delay: i * 0.1, duration: 0.6, ease: "easeOut" }}
-                whileHover={{ scale: 1.02, originX: cx, originY: cy, filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.15))" }}
-              >
-                <title>{segment.label}: {((segment.value / total) * 100).toFixed(1)}%</title>
-              </motion.path>
-            );
-            return path;
-          })}
+          {total <= 0 ? (
+            <circle
+              cx={size / 2}
+              cy={size / 2}
+              r={(size / 2 - 4 + innerRadius) / 2}
+              fill="none"
+              stroke="var(--color-border)"
+              strokeWidth={(size / 2 - 4 - innerRadius)}
+            />
+          ) : (
+            segments
+              .filter((segment) => segment.angle > 0)
+              .map((segment, i) => {
+                let startAngle = 0;
+                for (const s of segments) {
+                  if (s.index >= segment.index) break;
+                  startAngle += s.angle;
+                }
+                const cx = size / 2;
+                const cy = size / 2;
+                const outerRadius = size / 2 - 4;
+                const paths = wedgePaths(cx, cy, outerRadius, innerRadius, startAngle, segment.angle);
+                return paths.map((d, partIndex) => (
+                  <motion.path
+                    key={`${segment.label}-${partIndex}`}
+                    d={d}
+                    fill={`url(#grad-${segment.label.replace(/\s+/g, "-")})`}
+                    stroke="var(--color-bg-alt)"
+                    strokeWidth="2"
+                    style={{ filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.1))" }}
+                    initial={{ scale: 0, originX: cx, originY: cy }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: i * 0.1, duration: 0.6, ease: "easeOut" }}
+                    whileHover={{ scale: 1.02, originX: cx, originY: cy, filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.15))" }}
+                  >
+                    <title>{segment.label}: {((segment.value / total) * 100).toFixed(1)}%</title>
+                  </motion.path>
+                ));
+              })
+          )}
           <circle
             cx={size / 2}
             cy={size / 2}
@@ -124,7 +173,7 @@ export function PieChart({
               />
               <span className="text-[var(--color-text)]">{segment.label}</span>
               <span className="text-[var(--color-text-secondary)] tabular-nums">
-                {((segment.value / total) * 100).toFixed(1)}%
+                {total > 0 ? `${((segment.value / total) * 100).toFixed(1)}%` : "—"}
               </span>
             </div>
           ))}
@@ -145,7 +194,8 @@ export function FunnelChart({
   title,
   showPercentages = true,
 }: FunnelChartProps) {
-  const maxValue = Math.max(...data.map((d) => d.value));
+  const maxValue = Math.max(...data.map((d) => d.value), 1);
+  const baseValue = data[0]?.value ?? 0;
 
   return (
     <motion.div
@@ -179,7 +229,7 @@ export function FunnelChart({
                 </span>
                 {showPercentages && index > 0 && (
                   <span className="text-xs text-[var(--color-text-secondary)] w-12 text-right">
-                    {((item.value / data[0].value) * 100).toFixed(1)}%
+                    {baseValue > 0 ? `${((item.value / baseValue) * 100).toFixed(1)}%` : "—"}
                   </span>
                 )}
               </div>
@@ -282,12 +332,22 @@ export function PeakHoursHeatmap({
                           initial={{ scale: 0 }}
                           animate={{ scale: 1 }}
                           transition={{ delay: (dayIndex * 24 + hour) * 0.005, duration: 0.3 }}
-                          className="w-20 min-w-[80px] h-8 relative cursor-pointer group"
+                          // A border on every cell (not just the colored ones)
+                          // is what makes this read as a grid at all when
+                          // most cells have no data — without it, an empty
+                          // heatmap is just a blank white rectangle with the
+                          // hour labels floating unattached next to it.
+                          className="w-20 min-w-[80px] h-8 relative cursor-pointer group border border-[var(--color-border-subtle)] hover:border-[var(--color-mint)] transition-colors"
                           style={{ backgroundColor: getColor(value) }}
                         >
                           <div className="absolute inset-0 flex items-center justify-center">
                             <span
-                              className="text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity"
+                              // Real values stay dimly legible without a
+                              // hover; the "—" empty-cell placeholder is
+                              // subtler still so it doesn't read as data.
+                              className={`text-xs font-medium transition-opacity ${
+                                value > 0 ? "opacity-70 group-hover:opacity-100" : "opacity-0 group-hover:opacity-40"
+                              }`}
                               style={{ color: getTextColor(value) }}
                             >
                               {value > 0 ? value : "—"}
@@ -403,6 +463,18 @@ interface StatsGridProps {
   columns?: number;
 }
 
+// Tailwind's build-time scanner only generates a class for a literal
+// string it can find in source; `lg:grid-cols-${columns}` interpolated at
+// runtime isn't one, so it only "works" today because that exact class
+// happens to be written out statically elsewhere on this page. A fixed
+// lookup keeps this component correct on its own regardless.
+const COLUMN_CLASSES: Record<number, string> = {
+  3: "lg:grid-cols-3",
+  4: "lg:grid-cols-4",
+  5: "lg:grid-cols-5",
+  6: "lg:grid-cols-6",
+};
+
 export function StatsGrid({
   stats,
   columns = 6,
@@ -412,7 +484,7 @@ export function StatsGrid({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className={`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-${columns} gap-3`}
+      className={`grid grid-cols-2 sm:grid-cols-3 ${COLUMN_CLASSES[columns] ?? "lg:grid-cols-6"} gap-3`}
     >
       {stats.map((stat, index) => (
         <motion.div
@@ -432,13 +504,22 @@ export function StatsGrid({
                 {stat.icon}
               </div>
             )}
-            {stat.trend !== "neutral" && (
-              <span className={`text-xs font-medium flex items-center gap-0.5 ${
-                stat.trend === "up" ? "text-emerald-600" : "text-red-600"
-              }`}>
-                {stat.trend === "up" ? "↑" : "↓"} {Math.abs(stat.delta || 0).toFixed(1)}%
-              </span>
-            )}
+            {stat.trend !== "neutral" && (() => {
+              const abs = Math.abs(stat.delta || 0);
+              // A previous-period value near zero turns a normal-looking
+              // improvement into a meaningless "+8915400%" once divided —
+              // past a reasonable ceiling, say "new" instead of the number.
+              const isMeaningless = abs > 999;
+              return (
+                <span className={`text-xs font-medium flex items-center gap-0.5 ${
+                  stat.trend === "up" ? "text-emerald-600" : "text-red-600"
+                }`}>
+                  {isMeaningless ? "Nuovo" : (
+                    <>{stat.trend === "up" ? "↑" : "↓"} {abs.toFixed(1)}%</>
+                  )}
+                </span>
+              );
+            })()}
           </div>
           <p className="text-2xl sm:text-3xl font-bold text-[var(--color-text)] tabular-nums">
             {typeof stat.value === "number" ? stat.value.toLocaleString() : stat.value}
