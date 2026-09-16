@@ -42,7 +42,14 @@
     "noRequestsHint": "Le richieste di preventivo dai tuoi configuratori appariranno qui.",
     "widgetViews": "Aperture widget",
     "visitorConversion": "Conversione visite",
-    "wonValue": "Valore vinto"
+    "wonValue": "Valore vinto",
+    "planUsage": "Utilizzo piano",
+    "quotesThisMonth": "Preventivi (mese)",
+    "configuratorsUsed": "Configuratori attivi",
+    "teamMembers": "Membri team",
+    "alphaDiscountNote": "Sconto Alpha {pct}% bloccato a vita.",
+    "requestsByCategory": "Preventivi per categoria cliente",
+    "unlinked": "Non collegati"
   },
   "analytics": {
     "title": "Analytics",

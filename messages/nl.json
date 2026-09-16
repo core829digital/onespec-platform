@@ -244,7 +244,14 @@
     "noRequestsHint": "Offerteaanvragen van je configurators verschijnen hier.",
     "widgetViews": "Widget opens",
     "visitorConversion": "Bezoekersconversie",
-    "wonValue": "Gewonnen waarde"
+    "wonValue": "Gewonnen waarde",
+    "planUsage": "Plangebruik",
+    "quotesThisMonth": "Offertes (deze maand)",
+    "configuratorsUsed": "Actieve configurators",
+    "teamMembers": "Teamleden",
+    "alphaDiscountNote": "Alpha-korting {pct}% levenslang vergrendeld.",
+    "requestsByCategory": "Aanvragen per klantcategorie",
+    "unlinked": "Niet gekoppeld"
   },
   "analytics": {
     "title": "Analytics",

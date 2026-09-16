@@ -244,7 +244,14 @@
     "noRequestsHint": "Les demandes de devis de vos configurateurs apparaîtront ici.",
     "widgetViews": "Ouvertures widget",
     "visitorConversion": "Conversion visiteurs",
-    "wonValue": "Valeur gagnée"
+    "wonValue": "Valeur gagnée",
+    "planUsage": "Utilisation du plan",
+    "quotesThisMonth": "Devis (ce mois)",
+    "configuratorsUsed": "Configurateurs actifs",
+    "teamMembers": "Membres de l'équipe",
+    "alphaDiscountNote": "Réduction Alpha {pct}% à vie verrouillée.",
+    "requestsByCategory": "Demandes par catégorie de client",
+    "unlinked": "Non liés"
   },
   "analytics": {
     "title": "Analytics",

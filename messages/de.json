@@ -244,7 +244,14 @@
     "noRequestsHint": "Angebotsanfragen aus Ihren Konfiguratoren erscheinen hier.",
     "widgetViews": "Widget opens",
     "visitorConversion": "Besucher-Conversion",
-    "wonValue": "Gewonnener Wert"
+    "wonValue": "Gewonnener Wert",
+    "planUsage": "Plan-Auslastung",
+    "quotesThisMonth": "Angebote (dieser Monat)",
+    "configuratorsUsed": "Aktive Konfiguratoren",
+    "teamMembers": "Team-Mitglieder",
+    "alphaDiscountNote": "Alpha-Rabatt {pct}% lebenslang gesperrt.",
+    "requestsByCategory": "Anfragen nach Kundenkategorie",
+    "unlinked": "Nicht verknüpft"
   },
   "analytics": {
     "title": "Analytics",

@@ -244,7 +244,14 @@
     "noRequestsHint": "Cererile de ofertă din configuratoarele tale vor apărea aici.",
     "widgetViews": "Widget opens",
     "visitorConversion": "Conversie vizitatori",
-    "wonValue": "Valoare câștigată"
+    "wonValue": "Valoare câștigată",
+    "planUsage": "Utilizare plan",
+    "quotesThisMonth": "Oferte (luna asta)",
+    "configuratorsUsed": "Configuratoare active",
+    "teamMembers": "Membri echipă",
+    "alphaDiscountNote": "Reducere Alpha {pct}% pe viață, blocată.",
+    "requestsByCategory": "Cereri pe categorie client",
+    "unlinked": "Neasociate"
   },
   "analytics": {
     "title": "Analytics",

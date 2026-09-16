@@ -2,6 +2,7 @@ import { query } from "./_generated/server";
 import { v } from "convex/values";
 import { requireMembership } from "./lib/auth";
 import { enforceAnalyticsForQuery } from "./lib/enforcement";
+import { resolveTenantEntitlements, currentPeriod } from "./lib/entitlements";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 const HOUR_MS = 60 * 60 * 1000;
@@ -257,5 +258,72 @@ export const getPeakHours = query({
     }
 
     return heatmap;
+  },
+});
+
+/** Plan usage widget — limits vs current usage for the dashboard. */
+export const getPlanUsage = query({
+  args: { tenantId: v.id("tenants") },
+  handler: async (ctx, args) => {
+    await requireMembership(ctx, args.tenantId);
+    const tenant = await ctx.db.get(args.tenantId);
+    if (!tenant) return null;
+    const ent = resolveTenantEntitlements(tenant);
+
+    // Quotes this calendar month (from the usage counter).
+    const period = currentPeriod();
+    const counter = await ctx.db
+      .query("usageCounters")
+      .withIndex("by_tenant_period", (q) =>
+        q.eq("tenantId", args.tenantId).eq("period", period),
+      )
+      .unique();
+    const quotesUsed = counter?.quoteRequestsCount ?? 0;
+
+    // Active (non-archived) configurators.
+    const configurators = await ctx.db
+      .query("configurators")
+      .withIndex("by_tenant_status", (q) =>
+        q.eq("tenantId", args.tenantId).eq("status", "published"),
+      )
+      .collect();
+    const configuratorsUsed = configurators.length;
+
+    // Active members.
+    const memberships = await ctx.db
+      .query("memberships")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .collect();
+    const membersUsed = memberships.filter((m) => m.status === "active").length;
+
+    return {
+      plan: tenant.plan,
+      planStatus: tenant.planStatus,
+      isAlpha: tenant.isAlpha,
+      alphaDiscountLocked: tenant.alphaDiscountLocked,
+      lifetimeDiscountPct: ent.lifetimeDiscountPct,
+      period,
+      quotes: {
+        used: quotesUsed,
+        limit: ent.maxQuotesPerMonth,
+        limitLabel: Number.isFinite(ent.maxQuotesPerMonth)
+          ? String(ent.maxQuotesPerMonth)
+          : "∞",
+      },
+      configurators: {
+        used: configuratorsUsed,
+        limit: ent.maxConfigurators,
+        limitLabel: Number.isFinite(ent.maxConfigurators)
+          ? String(ent.maxConfigurators)
+          : "∞",
+      },
+      members: {
+        used: membersUsed,
+        limit: ent.maxTeamMembers,
+        limitLabel: Number.isFinite(ent.maxTeamMembers)
+          ? String(ent.maxTeamMembers)
+          : "∞",
+      },
+    };
   },
 });
