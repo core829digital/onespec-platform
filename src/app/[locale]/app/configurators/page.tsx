@@ -57,26 +57,42 @@ export default function ConfiguratorsPage() {
 
       <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg divide-y divide-[var(--color-border)]">
         {configurators === undefined ? (
-          <div className="px-6 py-8 text-center text-[var(--color-text-secondary)]">Caricamento...</div>
+          <div className="px-6 py-8 text-center text-[var(--color-text-secondary)]">
+            Caricamento...
+          </div>
         ) : configurators.length === 0 ? (
           <div className="px-6 py-8 text-center text-[var(--color-text-secondary)]">
             Nessun configuratore. Creane uno per iniziare.
           </div>
         ) : (
           configurators.map((c) => (
-            <div key={c._id} className="px-6 py-4 flex items-center justify-between">
+            <div
+              key={c._id}
+              className="px-6 py-4 flex items-center justify-between"
+            >
               <div>
                 <p className="font-medium text-[var(--color-text)]">{c.name}</p>
                 <p className="text-sm text-[var(--color-text-secondary)]">
-                  <span className="capitalize">{c.status}</span> · /w/{c.publicId}
+                  <span className="capitalize">{c.status}</span> · /w/
+                  {c.publicId}
                 </p>
               </div>
-              <Link
-                href={`/app/configurators/${c._id}`}
-                className="text-[var(--color-mint)] text-sm hover:underline"
-              >
-                Modifica
-              </Link>
+              <div className="flex items-center gap-2">
+                {c.status === "draft" && (
+                  <button
+                    type="button"
+                    className="rounded-lg bg-[var(--color-mint)] px-4 py-2 text-sm font-semibold text-[var(--color-mint-dark)] hover:opacity-90 transition-colors"
+                  >
+                    Pubblica
+                  </button>
+                )}
+                <Link
+                  href={`/app/configurators/${c._id}`}
+                  className="text-[var(--color-mint)] text-sm hover:underline"
+                >
+                  Modifica
+                </Link>
+              </div>
             </div>
           ))
         )}

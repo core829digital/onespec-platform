@@ -1,5 +1,5 @@
-@import "tailwindcss";
 @import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Inter:wght@400;500;600;700;800&display=swap");
+@import "tailwindcss";
 
 :root {
   /* Dark is the default theme. OKLCH color palette matching reference configurator */
@@ -14,7 +14,6 @@
   --color-border: #34383c;
   --color-border-subtle: #26292d;
   --color-border-focus: #16d19d;
-  --color-border-subtle: #26292d;
   --color-mint: #16d19d;
   --color-mint-dark: #04241b;
   --color-mint-light: rgba(22, 209, 157, 0.14);
@@ -42,7 +41,6 @@
   --color-border: #d2d2d7;
   --color-border-subtle: #e8e8ed;
   --color-border-focus: #0fbf8f;
-  --color-border-subtle: #e8e8ed;
   --color-mint: #0fbf8f;
   --color-mint-dark: #04241b;
   --color-mint-light: rgba(15, 191, 143, 0.14);
@@ -160,26 +158,6 @@ body {
 
 .font-space-grotesk {
   font-family: var(--font-space-grotesk);
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: auto;
-  overscroll-behavior-y: none;
-}
-
-body {
-  background: var(--color-bg);
-  color: var(--color-text);
-  font-family: var(--font-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
-  transition: background-color 0.35s ease, color 0.35s ease;
-  overscroll-behavior-y: none;
 }
 
 a,
@@ -326,39 +304,6 @@ button:disabled,
   animation: shimmer 2s infinite;
 }
 
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    scroll-behavior: auto !important;
-  }
-}
-
-.text-balance {
-  text-wrap: balance;
-}
-
-/* Consistent keyboard focus for interactive elements across the app. */
-a:focus-visible,
-button:focus-visible,
-[role="button"]:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible,
-[tabindex]:focus-visible {
-  outline: 2px solid var(--color-mint);
-  outline-offset: 2px;
-  border-radius: 4px;
-}
-button:disabled,
-[aria-disabled="true"] {
-  cursor: not-allowed;
-}
-
 /* Auth scene — "one drawing, two media".
  * Dark  = blueprint (cold ink, cyan graph grid, cyan-white lines).
  * Light = carta millimetrata (warm drafting white, graphite lines).
@@ -373,8 +318,6 @@ button:disabled,
   --auth-grid-major: rgba(126, 166, 176, 0.1);
   --auth-text: #eef1f2;
   --auth-text-dim: #8fa0a4;
-  --auth-grid-minor: rgba(126, 166, 176, 0.05);
-  --auth-grid-major: rgba(126, 166, 176, 0.1);
 
   background-color: var(--auth-bg);
   color: var(--auth-text);
@@ -514,7 +457,6 @@ button:disabled,
   .glass, .glass-light, .glass-strong { background: none !important; backdrop-filter: none !important; border: 1px solid #ccc !important; }
   .card-glass, .card-glass-light { background: none !important; backdrop-filter: none !important; border: 1px solid #ccc !important; }
   a { text-decoration: none; color: inherit; }
-  .no-print { display: none !important; }
 }
 
 /* Scrollbar styling */
