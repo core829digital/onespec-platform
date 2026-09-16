@@ -1,4 +1,4 @@
-import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { Document, Page, Text, View, StyleSheet, PDFViewer } from "@react-pdf/renderer";
 import type { ProjectItem } from "@/shared/pricing";
 
 const colors = {
@@ -393,8 +393,216 @@ export function QuotePrintPDF({
           </View>
         </View>
 
-        <View style={{ marginTop: 16, paddingTop: 8, borderTopWidth: 1, borderTopColor: "#e5e7eb", fontSize: 8, color: "#6b7280", textAlign: "center" }}>
-          <Text>Documento generato da OneSpec · {new Date().toLocaleDateString("it-IT")}</Text>
+        {/* Items table */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>
+            Dettaglio Fornitura e Posa / Détail Menuiseries & Pose
+          </Text>
+          <View style={styles.tableHeader}>
+            <View style={styles.tableHeaderCell}>Pos.</View>
+            <View style={styles.tableHeaderCell}>Tipologia</View>
+            <View style={styles.tableHeaderCell}>Dimensioni</View>
+            <View style={styles.tableHeaderCell}>Materiale / Vetro</View>
+            <View style={styles.tableHeaderCell}>Uw</View>
+            <View style={{ ...styles.tableHeaderCell, textAlign: "right", width: "12%" }}>Qtà</View>
+          </View>
+          {items.map((item, idx) => {
+            const uw = estimateUw(item);
+            const matText = MATERIAL_LABELS[item.material]?.[langKey] ?? MATERIAL_LABELS[item.material]?.it ?? item.material;
+            const glazingInfo = GLAZING_LABELS[item.glazing] ?? { label: { it: item.glazing }, ug: 1.1 };
+            const glazingText = glazingInfo.label[langKey] ?? glazingInfo.label.it;
+            const sashTypes = item.sashes?.map((s) => SASH_LABELS[s.type]?.[langKey] ?? s.type).join(" + ") ?? "—";
+            return (
+              <View key={idx} style={styles.tableRow}>
+                <View style={styles.tableCell}>{idx + 1}</View>
+                <View style={styles.tableCell}>
+                  <Text>{item.productType === "balconyDoor" ? "Portafinestra / Porte-fenêtre" : "Finestra / Fenêtre"}</Text>
+                  <Text style={{ fontSize: 8, color: colors.gray[500] }}>{sashTypes}</Text>
+                  <Text style={{ fontSize: 8, color: colors.gray[500] }}>{COLOR_LABELS[item.color] ?? item.color}</Text>
+                  {quote.hvlJointCount && (
+                    <Text style={{ fontSize: 8, color: colors.emerald[700], fontWeight: "bold" }}>
+                      HVL 90° ({quote.hvlJointCount} giunti)
+                    </Text>
+                  )}
+                  {quote.rcSecurityLevel && quote.rcSecurityLevel !== "standard" && (
+                    <Text style={{ fontSize: 8, color: colors.blue[700], fontWeight: "bold" }}>
+                      RC {quote.rcSecurityLevel} (Pilzkopf + P4A)
+                    </Text>
+                  )}
+                </View>
+                <View style={styles.tableCell}>
+                  <Text>{item.width} × {item.height} mm</Text>
+                  <Text style={{ fontSize: 8, color: colors.gray[500] }}>
+                    {((item.width / 1000) * (item.height / 1000)).toFixed(2)} m²
+                  </Text>
+                </View>
+                <View style={styles.tableCell}>
+                  <Text>{matText}</Text>
+                  <Text style={{ fontSize: 8, color: colors.gray[500] }}>{glazingText}</Text>
+                  <Text style={{ fontSize: 8, color: colors.gray[500] }}>Ug = {glazingInfo.ug} W/m²K</Text>
+                </View>
+                <View style={styles.tableCell}>
+                  <View style={[
+                    styles.badge,
+                    uw <= 1.0 ? styles.badgeGreen : uw <= 1.4 ? styles.badgeAmber : styles.badgeRed
+                  ]}>
+                    <Text>{uw.toFixed(1)} W/m²K</Text>
+                  </View>
+                </View>
+                <View style={{ ...styles.tableCell, textAlign: "right" }}>{item.quantity ?? 1}</View>
+              </View>
+            );
+          })}
+        </View>
+
+        {/* Price breakdown */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Breakdown Prezzo / Détail Prix</Text>
+          <View style={{ marginLeft: "auto", width: "45%" }}>
+            <View style={styles.priceRow}>
+              <Text style={{ color: colors.gray[600] }}>Fornitura serramenti ({items.length} pz):</Text>
+              <Text style={{ fontFamily: "Courier", fontWeight: "bold" }}>{eur(supplyExVat)}</Text>
+            </View>
+            {installationTotal > 0 && (
+              <View style={styles.priceRow}>
+                <Text style={{ color: colors.gray[600] }}>Posa + Smaltimento / Pose + Dépose:</Text>
+                <Text style={{ fontFamily: "Courier", fontWeight: "bold" }}>{eur(installationTotal)}</Text>
+              </View>
+            )}
+            {regionalSurchargeCents > 0 && (
+              <View style={styles.priceRow}>
+                <Text style={{ color: colors.gray[600] }}>Opzioni Regionali ({region}):</Text>
+                <Text style={{ fontFamily: "Courier", fontWeight: "bold" }}>{eur(regionalSurchargeCents)}</Text>
+              </View>
+            )}
+            {(quote.discountPercent ?? 0) > 0 && (
+              <View style={styles.priceRow}>
+                <Text style={{ color: colors.amber[600] }}>Sconto / Remise ({quote.discountPercent}%):</Text>
+                <Text style={{ fontFamily: "Courier", fontWeight: "bold", color: colors.amber[600] }}>
+                  -{eur(quote.priceExVatCents - supplyExVat - installationTotal - regionalSurchargeCents)}
+                </Text>
+              </View>
+            )}
+            <View style={styles.priceRow}>
+              <Text style={{ color: colors.gray[600] }}>Imponibile / Total HT:</Text>
+              <Text style={{ fontFamily: "Courier", fontWeight: "bold" }}>{eur(quote.priceExVatCents)}</Text>
+            </View>
+            <View style={styles.priceRow}>
+              <Text style={{ color: colors.gray[600] }}>IVA / TVA / Btw ({quote.vatRatePercent ?? 20}%):</Text>
+              <Text style={{ fontFamily: "Courier", fontWeight: "bold" }}>{eur(quote.priceCents - quote.priceExVatCents)}</Text>
+            </View>
+            <View style={styles.priceTotal}>
+              <Text>TOTALE / TOTAL TTC:</Text>
+              <Text style={{ fontFamily: "Courier", color: colors.emerald[600] }}>{eur(quote.priceCents)}</Text>
+            </View>
+
+            {/* Subsidies */}
+            {(quote.ecobonusPercent ?? 0) > 0 && (
+              <View style={{ ...styles.badge, ...styles.badgeGreen, marginTop: 10, width: "100%" }}>
+                <Text style={{ fontWeight: "bold" }}>Detrazione Ecobonus {quote.ecobonusPercent}% (D.L. 63/2013)</Text>
+                <Text style={{ fontFamily: "Courier" }}>Valore: {eur(quote.ecobonusDeductionCents ?? 0)}</Text>
+              </View>
+            )}
+            {(quote.maPrimeRenovPercent ?? 0) > 0 && (
+              <View style={{ ...styles.badge, ...styles.badgeGreen, marginTop: 10, width: "100%" }}>
+                <Text style={{ fontWeight: "bold" }}>MaPrimeRénov&apos; ({quote.maPrimeRenovPercent}%)</Text>
+                <Text style={{ fontFamily: "Courier" }}>Aide estimée: {eur(quote.maPrimeRenovDeductionCents ?? 0)}</Text>
+                <Text style={{ fontSize: 7, color: colors.emerald[600] }}>
+                  Sous réserve de validation ANAH et pose par installateur RGE.
+                </Text>
+              </View>
+            )}
+            {quote.klimabonusEligible && (
+              <View style={{ ...styles.badge, ...styles.badgeGreen, marginTop: 10, width: "100%" }}>
+                <Text style={{ fontWeight: "bold" }}>Klimabonus Subvention (Luxembourg)</Text>
+                <Text style={{ fontSize: 7, color: colors.emerald[600] }}>
+                  Performance thermique conforme aux exigences de l&apos;Administration de l&apos;Environnement.
+                </Text>
+              </View>
+            )}
+          </View>
+        </View>
+
+        {/* Regional notes & legal */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Note Normative / Notes Réglementaires</Text>
+          <View style={{ marginLeft: 12, fontSize: 8, color: colors.gray[600], lineHeight: 1.6 }}>
+            {region === "FR" && (
+              <>
+                <Text><Text style={styles.label}>Norme de pose DTU 36.5:</Text> Pose conforme au Document Technique Unifié DTU 36.5. Étanchéité air/eau garantie par membranes et fonds de joint normalisés.</Text>
+                <Text style={{ marginTop: 4 }}><Text style={styles.label}>Garanties & Assurance Décennale:</Text> RC décennale obligatoire: {quote.decennaleInsurance || "AXA Assurances"}. Garantie biennale équipements, parfait achèvement 1 an.</Text>
+                <Text style={{ marginTop: 4 }}><Text style={styles.label}>Rétractation (Art. L221-18):</Text> 14 jours francs à compter de la signature pour démarchage à domicile/vente hors établissement.</Text>
+              </>
+            )}
+            {region === "BE" && (
+              <>
+                <Text><Text style={styles.label}>TVA 6% (Belgique):</Text> Logement plus de 10 ans, déclaration signée par le maître d&apos;ouvrage.</Text>
+                <Text style={{ marginTop: 4 }}><Text style={styles.label}>Primes Régionales:</Text> Uw inferieur ou egal 1.5 W/m²K pour MijnVerbouwPremie (Flandre) / Primes Habitation (Wallonie).</Text>
+              </>
+            )}
+            {region === "NL" && (
+              <>
+                <Text><Text style={styles.label}>VKG / SKG:</Text> Blokprofiel HVL 90° conforme VKG/SKG**.</Text>
+                <Text style={{ marginTop: 4 }}><Text style={styles.label}>ISDE Subsidie:</Text> HR++/HR+++ éligible RVO Investeringssubsidie Duurzame Energie.</Text>
+              </>
+            )}
+            {region === "DE" && (
+              <>
+                <Text><Text style={styles.label}>RAL-Montage (DIN 4108-7/18055):</Text> 3-Ebenen: innen luftdicht, mittig dämmend, außen schlagregendicht/diffusionsoffen.</Text>
+                <Text style={{ marginTop: 4 }}><Text style={styles.label}>VOB/B Gewährleistung:</Text> 5 Jahre Profil/Verglasung, 2 Jahre Beschläge/Montage.</Text>
+              </>
+            )}
+            {region === "LU" && (
+              <>
+                <Text><Text style={styles.label}>TVA 3%:</Text> Sous accord Administration de l&apos;Enregistrement (habitation principale).</Text>
+              </>
+            )}
+            {region === "IT" && (
+              <>
+                <Text><Text style={styles.label}>UNI 11673-1:2017:</Text> Posa qualificata con controtelai termici, sigillanti elastici, nastri autoespandenti per eliminazione ponti termici.</Text>
+              </>
+            )}
+            {quote.depositTerms && (
+              <Text style={{ marginTop: 4 }}><Text style={styles.label}>Pagamento / Modalités:</Text> {quote.depositTerms}</Text>
+            )}
+          </View>
+        </View>
+
+        {/* Signature block */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Signatures / Firme</Text>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 16 }}>
+            <View style={{ width: "45%" }}>
+              <Text style={{ fontSize: 8, fontWeight: "bold", textTransform: "uppercase", color: colors.gray[500], marginBottom: 8 }}>
+                {langKey === "fr" ? "Cachet et Signature Entreprise" : langKey === "de" ? "Firmenstempel & Unterschrift" : langKey === "nl" ? "Handtekening Bedrijf" : "Firma e Timbro Aziendale"}
+              </Text>
+              <View style={{ height: 50, borderBottomWidth: 1, borderBottomColor: colors.gray[300] }} />
+              <Text style={{ fontSize: 9, marginTop: 4, color: colors.gray[600] }}>{tenant?.name ?? "Serramenti"}</Text>
+            </View>
+            <View style={{ width: "45%", textAlign: "right" }}>
+              <Text style={{ fontSize: 8, fontWeight: "bold", textTransform: "uppercase", color: colors.gray[500], marginBottom: 8 }}>
+                {langKey === "fr" ? "Bon pour Accord Client" : langKey === "de" ? "Auftragserteilung Kunde" : langKey === "nl" ? "Akkoord Klant" : "Firma Cliente per Accettazione"}
+              </Text>
+              {quote.signatureDataUrl ? (
+                <View style={{ height: 50, width: "100%", backgroundColor: colors.gray[50], borderWidth: 1, borderColor: colors.gray[300] }}>
+                  <Text style={{ fontSize: 7, color: colors.gray[400], margin: "auto", textAlign: "center" }}>[Firma digitale]</Text>
+                </View>
+              ) : (
+                <View style={{ height: 50, borderBottomWidth: 1, borderBottomColor: colors.gray[300] }} />
+              )}
+              {quote.signedByName && (
+                <Text style={{ fontSize: 9, marginTop: 4, fontWeight: "bold", color: colors.gray[700] }}>
+                  {quote.signedByName}
+                  {signedDate ? ` — ${signedDate}` : ""}
+                </Text>
+              )}
+            </View>
+          </View>
+        </View>
+
+        {/* Footer */}
+        <View style={styles.footer}>
+          <Text>Documento generato da OneSpec Platform · onespec-platform.vercel.app · {today}</Text>
         </View>
       </Page>
     </Document>
