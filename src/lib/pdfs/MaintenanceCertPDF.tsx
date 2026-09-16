@@ -194,6 +194,10 @@ interface MaintenanceCertPDFProps {
     uValue: number;
   };
   locale?: string;
+  /** Footer "generated on" timestamp — pass Date.now() from the caller via
+   * a lazy useState initializer so it's computed once, not on every
+   * render (keeps this component a pure function of its props). */
+  generatedAt: number;
 }
 
 const fmtDate = (ts: number, locale = "it-IT") =>
@@ -208,6 +212,7 @@ export function MaintenanceCertPDF({
   maintenance,
   product,
   locale = "it-IT",
+  generatedAt,
 }: MaintenanceCertPDFProps) {
   const typeLabels: Record<string, string> = {
     ordinaria: "Manutenzione Ordinaria",

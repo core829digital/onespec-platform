@@ -184,6 +184,11 @@ interface InspectionCertPDFProps {
   legalBasis: string;
   warrantyLines: string[];
   locale?: string;
+  /** Footer "generated on" timestamp. Required (not defaulted to
+   * Date.now() here) so this component stays a pure function of its
+   * props — pass `Date.now()` from the caller via a lazy useState
+   * initializer so it's computed once, not on every render. */
+  generatedAt: number;
 }
 
 const fmtDate = (ts: number, locale = "it-IT") =>
@@ -199,6 +204,7 @@ export function InspectionCertPDF({
   legalBasis,
   warrantyLines,
   locale = "it-IT",
+  generatedAt,
 }: InspectionCertPDFProps) {
   const isSigned = report.status === "signed";
 
@@ -312,7 +318,7 @@ export function InspectionCertPDF({
         )}
 
         <View style={styles.footer}>
-          <Text>{legalBasis} · Documento generato da OneSpec · {fmtDate(Date.now(), locale)}</Text>
+          <Text>{legalBasis} · Documento generato da OneSpec · {fmtDate(generatedAt, locale)}</Text>
         </View>
       </Page>
     </Document>

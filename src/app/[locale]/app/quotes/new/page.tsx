@@ -6,6 +6,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import { SpecDrawing } from "@/components/widget/spec-drawing";
 import { SashEditor } from "@/components/quotes/sash-editor";
 import { SashPanel } from "@/components/quotes/sash-panel";
@@ -136,6 +137,7 @@ const REGION_CONFIGS: Record<RegionCode, RegionMeta> = {
 };
 
 export default function NewFieldQuotePage() {
+  const t = useTranslations("quotes.new");
   const router = useRouter();
   const searchParams = useSearchParams();
   const tenant = useQuery(api.tenants.getMyTenant);
@@ -548,7 +550,7 @@ export default function NewFieldQuotePage() {
 
       router.push(`/app/quotes/${res.quoteId}/sign`);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Errore durante la creazione del preventivo");
+      setError(err instanceof Error ? err.message : t("createQuoteError"));
     } finally {
       setSubmitting(false);
     }
@@ -569,17 +571,17 @@ export default function NewFieldQuotePage() {
             <span className="text-xs text-[var(--color-text-secondary)]">{activeMeta.sub}</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-text)] mt-1">
-            Preventivatore Rapido B2B (Cantiere / Tablet)
+            {t("title")}
           </h1>
           <p className="text-sm text-[var(--color-text-secondary)]">
-            Genera un preventivo tecnico ufficiale in 3 minuti con disegno quotato, posa certificata e firma del cliente.
+            {t("subtitle")}
           </p>
         </div>
         <Link
           href="/app/quotes"
           className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-alt)] px-3 py-2 text-sm text-[var(--color-text)] hover:bg-[var(--color-bg)]"
         >
-          Annulla
+          {t("cancel")}
         </Link>
       </div>
 
@@ -610,22 +612,21 @@ export default function NewFieldQuotePage() {
       {/* Configurator link — the price engine shared with the B2C site widget */}
       {configurators === undefined ? null : publishedConfigs.length === 0 ? (
         <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-400 space-y-2">
-          <p className="font-semibold">Nessun configuratore pubblicato</p>
+          <p className="font-semibold">{t("noPublishedConfig")}</p>
           <p className="text-[var(--color-text-secondary)]">
-            Il preventivo cantiere usa lo stesso listino del configuratore che incorpori sul sito del cliente.
-            Crea un configuratore, imposta materiali e prezzi, poi premi <strong>Pubblica</strong>.
+            {t("sharedCatalogHint")}
           </p>
           <Link
             href="/app/configurators"
             className="inline-flex rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-bold text-amber-950 hover:opacity-90"
           >
-            Vai ai Configuratori →
+            {t("goToConfigurators")}
           </Link>
         </div>
       ) : (
         <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4 space-y-2">
           <label className="block text-xs font-medium text-[var(--color-text-secondary)]">
-            Configuratore / Listino prezzi (condiviso col widget B2C del sito)
+            {t("configuratorLabel")}
           </label>
           <div className="flex flex-wrap items-center gap-3">
             <select
@@ -644,14 +645,14 @@ export default function NewFieldQuotePage() {
                 href={`/app/configurators/${activeConfig._id}`}
                 className="text-xs font-semibold text-[var(--color-mint)] hover:underline"
               >
-                Modifica listino →
+                {t("editCatalog")}
               </Link>
             ) : null}
           </div>
           <p className="text-[11px] text-[var(--color-text-secondary)]">
             {usingLiveCatalog
-              ? "Prezzi allineati al listino pubblicato: quello che vede il cliente finale nel widget = quello che calcoli qui."
-              : "Caricamento listino pubblicato…"}
+              ? t("pricesAligned")
+              : t("loadingCatalog")}
           </p>
         </div>
       )}
@@ -671,12 +672,12 @@ export default function NewFieldQuotePage() {
               <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--color-mint)] text-xs font-bold text-[var(--color-mint-dark)]">
                 1
               </span>
-              Cliente & Cantiere ({activeMeta.name})
+              {t("customerSite", { country: activeMeta.name })}
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                  Nome e Cognome / Client *
+                  {t("fullNameLabel")}
                 </label>
                 <input
                   required
@@ -688,7 +689,7 @@ export default function NewFieldQuotePage() {
               </div>
               <div>
                 <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                  Email *
+                  {t("emailLabel")}
                 </label>
                 <input
                   required
@@ -701,7 +702,7 @@ export default function NewFieldQuotePage() {
               </div>
               <div>
                 <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                  Telefono (WhatsApp)
+                  {t("phoneLabel")}
                 </label>
                 <input
                   value={leadPhone}
@@ -712,7 +713,7 @@ export default function NewFieldQuotePage() {
               </div>
               <div>
                 <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                  Indirizzo / Adresse Cantiere
+                  {t("addressLabel")}
                 </label>
                 <input
                   value={customerAddress}
@@ -723,7 +724,7 @@ export default function NewFieldQuotePage() {
               </div>
               <div>
                 <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                  Città / Ville / Stad
+                  {t("cityLabel")}
                 </label>
                 <input
                   value={customerCity}
@@ -734,7 +735,7 @@ export default function NewFieldQuotePage() {
               </div>
               <div>
                 <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                  CAP / Code Postal / Postcode
+                  {t("postalCodeLabel")}
                 </label>
                 <input
                   value={customerPostalCode}
@@ -745,14 +746,14 @@ export default function NewFieldQuotePage() {
               </div>
               <div className="sm:col-span-2">
                 <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                  Note / Messaggio (visibili sul preventivo)
+                  {t("notesLabel")}
                 </label>
                 <textarea
                   value={leadMessage}
                   onChange={(e) => setLeadMessage(e.target.value)}
                   rows={2}
                   maxLength={2000}
-                  placeholder="Es. Cantiere al 2° piano senza ascensore · consegna concordata · colore campione da approvare"
+                  placeholder={t("notesPlaceholder")}
                   className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)] resize-y"
                 />
               </div>
@@ -766,14 +767,14 @@ export default function NewFieldQuotePage() {
                 <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--color-mint)] text-xs font-bold text-[var(--color-mint-dark)]">
                   2
                 </span>
-                Serramenti & Rilievo Misure ({items.length})
+                {t("windowsMeasure", { count: items.length })}
               </h2>
               <button
                 type="button"
                 onClick={addItem}
                 className="rounded-lg bg-[var(--color-mint)] px-3 py-1.5 text-xs font-bold text-[var(--color-mint-dark)] hover:opacity-90 shadow-sm transition-opacity"
               >
-                + Aggiungi Infisso
+                {t("addWindow")}
               </button>
             </div>
 
@@ -790,7 +791,7 @@ export default function NewFieldQuotePage() {
                       : "border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:border-[var(--color-text-secondary)]"
                   }`}
                 >
-                  <span>Pos. {idx + 1}: {it.productType === "balconyDoor" ? "Porta" : "Finestra"} ({it.width}×{it.height})</span>
+                  <span>Pos. {idx + 1}: {it.productType === "balconyDoor" ? t("door") : t("window")} ({it.width}×{it.height})</span>
                   {items.length > 1 && (
                     <span
                       onClick={(e) => {
@@ -812,20 +813,20 @@ export default function NewFieldQuotePage() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
                     <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                      Tipologia
+                      {t("typology")}
                     </label>
                     <select
                       value={currentItem.productType}
                       onChange={(e) => updateCurrentItem({ productType: e.target.value as "window" | "balconyDoor" })}
                       className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
                     >
-                      <option value="window">Finestra / Fenêtre / Fenster / Raam</option>
-                      <option value="balconyDoor">Portafinestra / Porte-fenêtre / Balkontür</option>
+                      <option value="window">{t("windowOption")}</option>
+                      <option value="balconyDoor">{t("doorOption")}</option>
                     </select>
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                      Larghezza (mm)
+                      {t("widthMm")}
                     </label>
                     <input
                       type="number"
@@ -839,7 +840,7 @@ export default function NewFieldQuotePage() {
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                      Altezza (mm)
+                      {t("heightMm")}
                     </label>
                     <input
                       type="number"
@@ -856,56 +857,56 @@ export default function NewFieldQuotePage() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
                     <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                      Materiale
+                      {t("material")}
                     </label>
                     <select
                       value={currentItem.material}
                       onChange={(e) => updateCurrentItem({ material: e.target.value })}
                       className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
                     >
-                      <option value="pvc">PVC Alta Densità</option>
-                      <option value="alu">Alluminio Taglio Termico</option>
-                      <option value="wood">Legno Lamellare</option>
+                      <option value="pvc">{t("materialPvc")}</option>
+                      <option value="alu">{t("materialAlu")}</option>
+                      <option value="wood">{t("materialWood")}</option>
                     </select>
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                      Vetro Isolante
+                      {t("glazing")}
                     </label>
                     <select
                       value={currentItem.glazing}
                       onChange={(e) => updateCurrentItem({ glazing: e.target.value })}
                       className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
                     >
-                      <option value="double">Doppio / Double / HR++ (Ug 1.1)</option>
-                      <option value="triple">Triplo / Triple / 3-fach / HR+++ (Ug 0.6)</option>
+                      <option value="double">{t("glazingDouble")}</option>
+                      <option value="triple">{t("glazingTriple")}</option>
                     </select>
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                      Colore / Finitura
+                      {t("colorFinish")}
                     </label>
                     <select
                       value={currentItem.color}
                       onChange={(e) => updateCurrentItem({ color: e.target.value })}
                       className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
                     >
-                      <option value="white">Bianco / Blanc / Weiß / Crème (RAL 9016/9001)</option>
-                      <option value="anthracite">Grigio Antracite RAL 7016</option>
-                      <option value="woodgrain">{regionCode === "NL" ? "Monumentengroen RAL 6009 Houtnerf" : "Effetto Legno Noce/Rovere"}</option>
+                      <option value="white">{t("colorWhite")}</option>
+                      <option value="anthracite">{t("colorAnthracite")}</option>
+                      <option value="woodgrain">{regionCode === "NL" ? "Monumentengroen RAL 6009 Houtnerf" : t("colorWoodgrain")}</option>
                     </select>
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                    Note / Osservazioni
+                    {t("notesObservations")}
                   </label>
                   <textarea
                     value={currentItem.notes || ""}
                     onChange={(e) => updateCurrentItem({ notes: e.target.value })}
                     rows={2}
-                    placeholder="Note aggiuntive per questa riga..."
+                    placeholder={t("notesPlaceholderLine")}
                     className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)] resize-y"
                   />
                 </div>
@@ -942,7 +943,7 @@ export default function NewFieldQuotePage() {
                     />
                   </div>
                   <div className="flex items-center gap-3 mt-2 text-xs text-[var(--color-text-secondary)]">
-                    <span>Disegno quotato · {currentItem.width} × {currentItem.height} mm</span>
+                    <span>{t("blueprintLabel", { width: currentItem.width, height: currentItem.height })}</span>
                     {itemUw > 0 && (
                       <span
                         className={`rounded-md px-2 py-0.5 font-mono font-bold ${
@@ -1304,47 +1305,47 @@ export default function NewFieldQuotePage() {
           {/* Section 4: Live Price Summary & Direct Sign CTA */}
           <section className="rounded-xl border border-[var(--color-mint)]/40 bg-[var(--color-mint)]/5 p-5 space-y-3">
             <h3 className="text-sm font-semibold text-[var(--color-text)] uppercase tracking-wider flex items-center justify-between">
-              <span>Riepilogo {activeMeta.name}</span>
+              <span>{t("summary", { country: activeMeta.name })}</span>
               <span className="text-xs font-normal text-[var(--color-text-secondary)]">{activeMeta.flag}</span>
             </h3>
             <div className="space-y-2 text-sm">
               <div className="flex justify-between text-[var(--color-text-secondary)]">
-                <span>Fornitura Infissi ({items.length} pz):</span>
+                <span>{t("supplyWindows", { count: items.length })}</span>
                 <span className="font-mono">€{(priceCalc.supplyExVat / 100).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-[var(--color-text-secondary)]">
-                <span>Posa + Smaltimento:</span>
+                <span>{t("installationDisposal")}</span>
                 <span className="font-mono">€{(installationEuros + demolitionEuros).toFixed(2)}</span>
               </div>
               {priceCalc.regionalExtraCents > 0 && (
                 <div className="flex justify-between text-[var(--color-text-secondary)]">
-                  <span>Opzioni Regionali ({activeMeta.code}):</span>
+                  <span>{t("regionalOptions", { code: activeMeta.code })}</span>
                   <span className="font-mono">€{(priceCalc.regionalExtraCents / 100).toFixed(2)}</span>
                 </div>
               )}
               {discountPercent > 0 && (
                 <div className="flex justify-between text-amber-500">
-                  <span>Sconto ({discountPercent}%):</span>
+                  <span>{t("discount", { percent: discountPercent })}</span>
                   <span className="font-mono">-€{((priceCalc.subtotalEx - priceCalc.discountedExVat) / 100).toFixed(2)}</span>
                 </div>
               )}
               <div className="flex justify-between text-[var(--color-text-secondary)] border-t border-[var(--color-border)] pt-2">
-                <span>Imponibile Netto:</span>
+                <span>{t("netTaxable")}</span>
                 <span className="font-mono">€{(priceCalc.discountedExVat / 100).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-[var(--color-text-secondary)]">
-                <span>IVA / TVA / Btw ({vatRatePercent}%):</span>
+                <span>{t("vat", { percent: vatRatePercent })}</span>
                 <span className="font-mono">€{((priceCalc.finalGrossCents - priceCalc.discountedExVat) / 100).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-base font-bold text-[var(--color-text)] border-t border-[var(--color-border)] pt-2">
-                <span>Totale Preventivo:</span>
+                <span>{t("totalQuote")}</span>
                 <span className="text-[var(--color-mint)] font-mono">
                   €{(priceCalc.finalGrossCents / 100).toFixed(2)}
                 </span>
               </div>
               {overallUw > 0 && (
                 <div className="flex justify-between text-xs text-[var(--color-text-secondary)]">
-                  <span>Trasmittanza media Uw:</span>
+                  <span>{t("avgUw")}</span>
                   <span className="font-mono">{overallUw.toFixed(2)} W/m²K</span>
                 </div>
               )}
@@ -1352,12 +1353,12 @@ export default function NewFieldQuotePage() {
                 <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-2.5 text-xs text-emerald-600 dark:text-emerald-400 space-y-1">
                   <div className="flex justify-between font-semibold">
                     <span>
-                      {regionCode === "FR" ? `MaPrimeRénov' (${maPrimeRenovPercent}%):` : regionCode === "LU" ? "Klimabonus Subvention (20%):" : `Detrazione Ecobonus (${ecobonusPercent}%):`}
+                      {regionCode === "FR" ? t("maPrimeRenov", { percent: maPrimeRenovPercent }) : regionCode === "LU" ? t("klimabonus") : t("ecobonus", { percent: ecobonusPercent })}
                     </span>
                     <span>€{(priceCalc.subsidyDeductionCents / 100).toFixed(2)}</span>
                   </div>
                   <div className="flex justify-between opacity-80">
-                    <span>Costo netto per il cliente:</span>
+                    <span>{t("netCostClient")}</span>
                     <span>€{(priceCalc.netPayableWithBonus / 100).toFixed(2)}</span>
                   </div>
                 </div>
@@ -1370,10 +1371,10 @@ export default function NewFieldQuotePage() {
               className="w-full mt-4 rounded-xl bg-[var(--color-mint)] py-3 px-4 text-center font-bold text-[var(--color-mint-dark)] shadow-sm hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity text-base flex items-center justify-center gap-2"
             >
               {submitting
-                ? "Generazione in corso..."
+                ? t("generating")
                 : !activeConfig
-                  ? "Pubblica un configuratore per continuare"
-                  : `Procedi alla Firma Touch (${activeMeta.name}) ✍️`}
+                  ? t("publishConfigFirst")
+                  : t("proceedToSign", { country: activeMeta.name })}
             </button>
           </section>
         </div>

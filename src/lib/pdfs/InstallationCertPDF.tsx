@@ -172,6 +172,10 @@ interface InstallationCertPDFProps {
     openings: Array<{ widthMm: number; heightMm: number }>;
   };
   locale?: string;
+  /** Footer "generated on" timestamp — pass Date.now() from the caller via
+   * a lazy useState initializer so it's computed once, not on every
+   * render (keeps this component a pure function of its props). */
+  generatedAt: number;
 }
 
 const fmtDate = (ts: number, locale = "it-IT") =>
@@ -186,6 +190,7 @@ export function InstallationCertPDF({
   quote,
   survey,
   locale = "it-IT",
+  generatedAt,
 }: InstallationCertPDFProps) {
   return (
     <Document>
@@ -300,7 +305,7 @@ export function InstallationCertPDF({
 
         <View style={styles.footer}>
           <Text>Documento generato da OneSpec · Posa conforme {dossier.normRef} · Marcatura CE EN 14351-1</Text>
-          <Text>{fmtDate(Date.now(), locale)}</Text>
+          <Text>{fmtDate(generatedAt, locale)}</Text>
         </View>
       </Page>
     </Document>
