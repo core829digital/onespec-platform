@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 
-interface SupplierItem {
+export interface SupplierItem {
   id: string;
   supplier: string;
   product: string;

@@ -9,6 +9,7 @@ import { Link } from "@/i18n/navigation";
 import { SpecDrawing } from "@/components/widget/spec-drawing";
 import { SashEditor } from "@/components/quotes/sash-editor";
 import { SashPanel } from "@/components/quotes/sash-panel";
+import { MultiSupplierTable, type SupplierItem } from "@/components/quotes/MultiSupplierTable";
 import {
   calculatePrice,
   computeUw,
@@ -216,6 +217,16 @@ export default function NewFieldQuotePage() {
   const [activeSashIndex, setActiveSashIndex] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+
+  // Multi-supplier BOM state
+  const [supplierItems, setSupplierItems] = useState<SupplierItem[]>([
+    { id: `sup_${Date.now()}_1`, supplier: "Forza Finestre", product: "PVC 70mm 5 Camere", qty: 12, price: 185, total: 2220 },
+    { id: `sup_${Date.now()}_2`, supplier: "VetroTech", product: "Doppio Vetro Ug 1.1", qty: 12, price: 95, total: 1140 },
+  ]);
+  const [suppliers, setSuppliers] = useState<Array<{ name: string; color: string }>>([
+    { name: "Forza Finestre", color: "bg-blue-600" },
+    { name: "VetroTech", color: "bg-amber-500" },
+  ]);
 
   function setSashCount(count: number) {
     const n = Math.min(Math.max(Math.round(count), 1), 6);
@@ -1279,6 +1290,15 @@ export default function NewFieldQuotePage() {
                 </div>
               </div>
             </div>
+          </section>
+
+          {/* Section: Materiali Multi-Fornitore (BOM) */}
+          <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
+            <MultiSupplierTable
+              items={supplierItems}
+              onItemsChange={setSupplierItems}
+              suppliers={suppliers}
+            />
           </section>
 
           {/* Section 4: Live Price Summary & Direct Sign CTA */}
