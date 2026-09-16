@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactElement } from "react";
 import { PDFViewer } from "@react-pdf/renderer";
 
 // @react-pdf/renderer's own type for <PDFViewer style={...}> is its internal
@@ -8,13 +9,13 @@ import { PDFViewer } from "@react-pdf/renderer";
 // a bare `<iframe style={style} ...props />`, so it's actually real
 // DOM CSSProperties. This cast just corrects the type to match reality.
 const IframePDFViewer = PDFViewer as unknown as React.ComponentType<{
-  children: React.ReactElement<any>;
+  children: ReactElement;
   showToolbar?: boolean;
   style?: React.CSSProperties;
 }>;
 
 interface PDFViewerProps {
-  document: React.ReactElement<any>;
+  document: ReactElement;
   className?: string;
   /** Iframe height. @react-pdf/renderer's <PDFViewer> is a bare <iframe> —
    * it applies no default sizing at all, so without an explicit height it
@@ -32,10 +33,11 @@ export function PDFViewerComponent({
   return (
     <div className={`relative ${className}`}>
       <IframePDFViewer
-        children={document}
         showToolbar={false}
         style={{ width: "100%", height, border: "none" }}
-      />
+      >
+        {document}
+      </IframePDFViewer>
     </div>
   );
 }

@@ -190,6 +190,7 @@ interface ComplianceCertPDFProps {
     validUntil?: number;
   };
   locale?: string;
+  generatedAt: number;
 }
 
 const fmtDate = (ts: number, locale = "it-IT") =>
@@ -201,6 +202,7 @@ export function ComplianceCertPDF({
   product,
   compliance,
   locale = "it-IT",
+  generatedAt,
 }: ComplianceCertPDFProps) {
   const resultLabels: Record<string, string> = {
     conforme: "CONFORME",
@@ -336,7 +338,7 @@ export function ComplianceCertPDF({
         </View>
 
         <View style={styles.footer}>
-          <Text>Documento generato da OneSpec · Certificato N° {compliance.certificateNumber} · {fmtDate(Date.now(), locale)}</Text>
+          <Text>Documento generato da OneSpec · Certificato N° {compliance.certificateNumber} · {fmtDate(generatedAt, locale)}</Text>
         </View>
       </Page>
     </Document>

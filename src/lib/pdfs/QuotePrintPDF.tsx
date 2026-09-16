@@ -336,7 +336,7 @@ export function QuotePrintPDF({
           <View>
             <Text style={styles.company}>{tenant?.name ?? "Serramenti"}</Text>
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 15, marginTop: 10 }}>
-              <Text style={styles.subtitle}>P.IVA / TVA / MwSt: {(tenant as any)?.vatId ?? "—"}</Text>
+              <Text style={styles.subtitle}>P.IVA / TVA / MwSt: {tenant?.vatId ?? "—"}</Text>
               <Text style={styles.subtitle}>{tenant?.address ?? "—"}</Text>
             </View>
           </View>

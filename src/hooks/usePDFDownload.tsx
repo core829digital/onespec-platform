@@ -8,6 +8,10 @@ interface UsePDFDownloadOptions {
   filename?: string;
 }
 
+// Generic constraint needs to accept any component's prop shape; there's no
+// type-safe substitute for `any` here (unknown/Record don't satisfy JSX's
+// LibraryManagedAttributes inference for an arbitrary ComponentType).
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function usePDFDownload<T extends React.ComponentType<any>>(
   PDFFactory: T,
   options: UsePDFDownloadOptions = {}

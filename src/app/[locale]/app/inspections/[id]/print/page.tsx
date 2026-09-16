@@ -1,6 +1,6 @@
 "use client";
 
-import { use, Suspense } from "react";
+import { use, useState, Suspense } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -13,6 +13,7 @@ interface Props {
 
 function InspectionDocument({ data, region }: { data: any; region: string }) {
   const { report, tenant, title, legalBasis, warrantyLines } = data;
+  const [generatedAt] = useState(() => Date.now());
 
   const langKey = region === "FR" || region === "BE" ? "fr" : region === "DE" ? "de" : region === "NL" ? "nl" : "it";
   const dateLocale = langKey === "fr" ? "fr-FR" : langKey === "de" ? "de-DE" : langKey === "nl" ? "nl-NL" : "it-IT";
@@ -41,6 +42,7 @@ function InspectionDocument({ data, region }: { data: any; region: string }) {
       legalBasis={legalBasis}
       warrantyLines={warrantyLines}
       locale={dateLocale}
+      generatedAt={generatedAt}
     />
   );
 

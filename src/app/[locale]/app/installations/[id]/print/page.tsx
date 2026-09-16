@@ -1,6 +1,6 @@
 "use client";
 
-import { use, Suspense } from "react";
+import { use, useState, Suspense } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -13,6 +13,11 @@ interface Props {
 
 function InstallationDocument({ data, region }: { data: any; region: string }) {
   const { dossier, tenant, jobLabel, nodeLabel, notes, survey, quote } = data;
+  // Lazy initializer: React calls this exactly once (on mount), not on
+  // every render — the sanctioned way to grab "now" for display without
+  // tripping the impure-render rule Date.now() directly in the PDF
+  // template's body would (see InstallationCertPDF's generatedAt prop).
+  const [generatedAt] = useState(() => Date.now());
 
   const langKey = region === "FR" || region === "BE" ? "fr" : region === "DE" ? "de" : region === "NL" ? "nl" : "it";
   const dateLocale = langKey === "fr" ? "fr-FR" : langKey === "de" ? "de-DE" : langKey === "nl" ? "nl-NL" : "it-IT";
@@ -48,6 +53,7 @@ function InstallationDocument({ data, region }: { data: any; region: string }) {
           }
         : undefined}
       locale={dateLocale}
+      generatedAt={generatedAt}
     />
   );
 

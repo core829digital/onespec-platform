@@ -354,7 +354,7 @@ export function MaintenanceCertPDF({
         </View>
 
         <View style={styles.footer}>
-          <Text>Documento generato da OneSpec · {fmtDateTime(Date.now(), locale)}</Text>
+          <Text>Documento generato da OneSpec · {fmtDateTime(generatedAt, locale)}</Text>
         </View>
       </Page>
     </Document>

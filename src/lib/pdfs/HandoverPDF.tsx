@@ -197,6 +197,7 @@ interface HandoverPDFProps {
     clientSignature?: string;
   };
   locale?: string;
+  generatedAt: number;
 }
 
 const fmtDate = (ts: number, locale = "it-IT") =>
@@ -211,6 +212,7 @@ export function HandoverPDF({
   product,
   handover,
   locale = "it-IT",
+  generatedAt,
 }: HandoverPDFProps) {
   return (
     <Document>
@@ -394,7 +396,7 @@ export function HandoverPDF({
         </View>
 
         <View style={styles.footer}>
-          <Text>Documento generato da OneSpec · Verbale di consegna · {fmtDateTime(Date.now(), locale)}</Text>
+          <Text>Documento generato da OneSpec · Verbale di consegna · {fmtDateTime(generatedAt, locale)}</Text>
         </View>
       </Page>
     </Document>
