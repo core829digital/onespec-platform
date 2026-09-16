@@ -156,7 +156,7 @@ export default function InstallationsPage() {
             <p className="text-sm font-medium text-amber-900">{t("countryNotSet")}</p>
             <p className="text-sm text-amber-800 mt-1">{t("countryNotSetHint")}</p>
             <Link
-              href="/app/account/settings"
+              href="/app/account"
               className="inline-flex items-center gap-1.5 mt-2 text-sm font-medium text-amber-900 underline hover:text-amber-700"
             >
               <Settings className="w-3.5 h-3.5" />
