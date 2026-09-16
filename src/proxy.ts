@@ -89,6 +89,15 @@ export default convexAuthNextjsMiddleware(
       return;
     }
 
+    // Sentry's tunnelRoute (next.config.mjs) proxies client error/replay
+    // envelopes through this same origin to dodge ad-blockers. Without this
+    // early return it falls into the i18n middleware below like any other
+    // page path and gets locale-redirected — silently breaking every
+    // client-side error report (the POST never reaches the rewrite).
+    if (pathname === "/monitoring") {
+      return NextResponse.next();
+    }
+
     // The embeddable widget (/w/) and the hosted single-page configurator (/c/):
     // no i18n redirects, and a per-tenant `frame-ancestors` CSP so only the
     // dealer's allow-listed domains can frame the embed.
