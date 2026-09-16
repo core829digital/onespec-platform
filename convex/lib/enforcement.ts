@@ -137,10 +137,14 @@ export async function enforceConfiguratorQuota(ctx: ReadCtx, tenantId: Id<"tenan
   const { tenant, ent } = await getTenantWithEntitlements(ctx, tenantId);
   if (!Number.isFinite(ent.maxConfigurators)) return;
   const period = currentPeriod();
+  // .first() rather than .unique(): a duplicate counter row for the same
+  // tenant+period (e.g. from a past race between two concurrent writers,
+  // see convex/quotes.ts/widget.ts upsert sites) would make .unique() throw
+  // and permanently block every configurator create for that tenant.
   const counter = await ctx.db
     .query("usageCounters")
     .withIndex("by_tenant_period", (q) => q.eq("tenantId", tenantId).eq("period", period))
-    .unique();
+    .first();
   const used = counter?.activeConfiguratorsCount ?? 0;
   assertQuota(used, ent.maxConfigurators, "CONFIGURATOR_QUOTA_EXCEEDED");
 }
@@ -152,7 +156,7 @@ export async function enforceQuoteQuota(ctx: ReadCtx, tenantId: Id<"tenants">): 
   const counter = await ctx.db
     .query("usageCounters")
     .withIndex("by_tenant_period", (q) => q.eq("tenantId", tenantId).eq("period", period))
-    .unique();
+    .first();
   const used = counter?.quoteRequestsCount ?? 0;
   assertQuota(used, ent.maxQuotesPerMonth, "QUOTE_QUOTA_EXCEEDED");
 }

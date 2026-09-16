@@ -261,7 +261,7 @@ export const createFieldQuote = mutation({
     const counter = await ctx.db
       .query("usageCounters")
       .withIndex("by_tenant_period", (q) => q.eq("tenantId", args.tenantId).eq("period", period))
-      .unique();
+      .first();
     if (counter) {
       await ctx.db.patch(counter._id, {
         quoteRequestsCount: counter.quoteRequestsCount + 1,
@@ -474,7 +474,7 @@ regionalSurchargeCents: 0,
     const counter = await ctx.db
       .query('usageCounters')
       .withIndex('by_tenant_period', (q) => q.eq('tenantId', args.tenantId).eq('period', period))
-      .unique();
+      .first();
     if (counter) {
       await ctx.db.patch(counter._id, {
         quoteRequestsCount: counter.quoteRequestsCount + 1,
@@ -650,7 +650,7 @@ export const createQuoteWithSuppliers = mutation({
     const counter = await ctx.db
       .query('usageCounters')
       .withIndex('by_tenant_period', (q) => q.eq('tenantId', args.tenantId).eq('period', period))
-      .unique();
+      .first();
     if (counter) {
       await ctx.db.patch(counter._id, {
         quoteRequestsCount: counter.quoteRequestsCount + 1,

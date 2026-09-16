@@ -272,12 +272,18 @@ export const getPlanUsage = query({
 
     // Quotes this calendar month (from the usage counter).
     const period = currentPeriod();
+    // .first(), not .unique(): if a duplicate counter row ever exists for
+    // this tenant+period (a past race between two of the read-then-insert
+    // upsert sites in quotes.ts/widget.ts/configurators.ts, before those
+    // were hardened the same way), .unique() throws and this query — the
+    // dashboard's plan-usage widget — fails permanently for that tenant on
+    // every load instead of just reading a slightly stale count.
     const counter = await ctx.db
       .query("usageCounters")
       .withIndex("by_tenant_period", (q) =>
         q.eq("tenantId", args.tenantId).eq("period", period),
       )
-      .unique();
+      .first();
     const quotesUsed = counter?.quoteRequestsCount ?? 0;
 
     // Active (non-archived) configurators.

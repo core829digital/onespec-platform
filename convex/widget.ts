@@ -124,7 +124,7 @@ export const recordWidgetView = internalMutation({
       .withIndex("by_tenant_period", (q) =>
         q.eq("tenantId", configurator.tenantId).eq("period", period),
       )
-      .unique();
+      .first();
     if (counter) {
       await ctx.db.patch(counter._id, {
         widgetViewsCount: (counter.widgetViewsCount ?? 0) + 1,
@@ -422,7 +422,7 @@ export const insertQuote = internalMutation({
       .withIndex("by_tenant_period", (q) =>
         q.eq("tenantId", configurator.tenantId).eq("period", period),
       )
-      .unique();
+      .first();
     const usedThisPeriod = counter?.quoteRequestsCount ?? 0;
     const overQuota =
       !!entitlements &&

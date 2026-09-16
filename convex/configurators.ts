@@ -64,7 +64,7 @@ export const createConfigurator = mutation({
     const counter = await ctx.db
       .query("usageCounters")
       .withIndex("by_tenant_period", (q) => q.eq("tenantId", args.tenantId).eq("period", period))
-      .unique();
+      .first();
     if (counter) {
       await ctx.db.patch(counter._id, {
         activeConfiguratorsCount: counter.activeConfiguratorsCount + 1,
