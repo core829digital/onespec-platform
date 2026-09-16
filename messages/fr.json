@@ -564,5 +564,12 @@
     "chiuso": "Clôturé",
     "selectClient": "Sélectionner Client",
     "priorityLabel": "Priorité"
+  },
+  "installations": {
+    "title": "Pose Qualifiée",
+    "subtitle": "Assistant nœud de pose + nomenclature de matériaux conforme aux normes.",
+    "countryNotSet": "Pays non défini",
+    "countryNotSetHint": "Définissez votre pays dans les Paramètres pour voir la norme et les exigences de conformité correctes.",
+    "goToSettings": "Aller aux Paramètres"
   }
 }

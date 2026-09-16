@@ -564,5 +564,12 @@
     "chiuso": "Abgeschlossen",
     "selectClient": "Kunde auswählen",
     "priorityLabel": "Priorität"
+  },
+  "installations": {
+    "title": "Qualifizierte Montage",
+    "subtitle": "Montageknoten-Assistent + konforme Materialliste.",
+    "countryNotSet": "Land nicht festgelegt",
+    "countryNotSetHint": "Legen Sie Ihr Land in den Einstellungen fest, um die korrekte Norm und Compliance-Anforderungen zu sehen.",
+    "goToSettings": "Zu den Einstellungen"
   }
 }

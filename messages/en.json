@@ -564,5 +564,12 @@
     "chiuso": "Closed",
     "selectClient": "Select Client",
     "priorityLabel": "Priority"
+  },
+  "installations": {
+    "title": "Qualified Installation",
+    "subtitle": "Installation node wizard + compliant bill of materials.",
+    "countryNotSet": "Country not set",
+    "countryNotSetHint": "Set your country in Settings to see the correct standard and compliance requirements.",
+    "goToSettings": "Go to Settings"
   }
 }

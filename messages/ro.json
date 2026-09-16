@@ -564,5 +564,12 @@
     "chiuso": "Închis",
     "selectClient": "Selectează Client",
     "priorityLabel": "Prioritate"
+  },
+  "installations": {
+    "title": "Montare Calificată",
+    "subtitle": "Ghid nod montare + listă materiale conformă standardelor.",
+    "countryNotSet": "Țară nesetată",
+    "countryNotSetHint": "Setați țara în Setări pentru a vedea standardul corect și cerințele de conformitate.",
+    "goToSettings": "Mergeți la Setări"
   }
 }

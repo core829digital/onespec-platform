@@ -564,5 +564,12 @@
     "chiuso": "Afgerond",
     "selectClient": "Klant selecteren",
     "priorityLabel": "Prioriteit"
+  },
+  "installations": {
+    "title": "Gekwalificeerde Montage",
+    "subtitle": "Montageknooppunt-wizard + conforme materialenlijst.",
+    "countryNotSet": "Land niet ingesteld",
+    "countryNotSetHint": "Stel uw land in bij Instellingen om de juiste norm en compliance-eisen te zien.",
+    "goToSettings": "Naar Instellingen"
   }
 }

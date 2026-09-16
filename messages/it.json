@@ -562,7 +562,15 @@
     "in_posa": "In Posa",
     "collaudo": "Collaudo",
     "chiuso": "Chiuso",
-    "selectClient": "Seleziona Cliente",
-    "priorityLabel": "Priorità"
+"selectClient": "Seleziona Cliente",
+    "priorityLabel": "Priorit��"
+  },
+  "installations": {
+    "title": "Posa Qualificata",
+    "subtitle": "Wizard nodo di posa + distinta materiali conforme alla norma del mercato.",
+    "countryNotSet": "Paese non impostato",
+    "countryNotSetHint": "Imposta il tuo paese nelle Impostazioni per vedere la normativa e i requisiti di conformit�� corretti.",
+    "goToSettings": "Vai alle Impostazioni"
   }
+}
 }

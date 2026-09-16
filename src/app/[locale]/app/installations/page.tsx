@@ -6,12 +6,14 @@ import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import { ComplianceBadges } from "@/components/installations/ComplianceBadges";
 import type { Id } from "@/convex/_generated/dataModel";
+import { useTranslations } from "next-intl";
 import {
   enqueue,
   flushQueue,
   subscribeSyncState,
   type SyncState,
 } from "@/lib/offline-sync";
+import { AlertTriangle, Globe, Settings } from "lucide-react";
 
 function SyncBadge({ state, onSync }: { state: SyncState; onSync: () => void }) {
   const color = !state.isOnline
@@ -41,6 +43,7 @@ function SyncBadge({ state, onSync }: { state: SyncState; onSync: () => void }) 
 }
 
 export default function InstallationsPage() {
+  const t = useTranslations("installations");
   const tenant = useQuery(api.tenants.getMyTenant);
   const standard = useQuery(
     api.installations.getStandard,
@@ -130,16 +133,49 @@ export default function InstallationsPage() {
     }
   }
 
+  // Country / region info from standard
+  const regionCode = standard?.regionCode ?? tenant?.country?.toUpperCase() ?? "IT";
+  const regionLabels: Record<string, string> = {
+    IT: "Italia — UNI 11673",
+    FR: "Francia — NF DTU 36.5",
+    BE: "Belgio — NBN B 62-001",
+    NL: "Paesi Bassi — NEN 2646",
+    DE: "Germania — RAL-GZ 716",
+    LU: "Lussemburgo — RAL-GZ 716",
+  };
+  const regionLabel = regionLabels[regionCode] ?? regionCode;
+
+  const hasCountry = !!tenant?.country;
+
   return (
     <div className="w-full space-y-6">
+      {!hasCountry && tenant && (
+        <div className="flex items-start gap-3 rounded-lg border border-amber-300 bg-amber-50 p-4">
+          <AlertTriangle className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" aria-hidden="true" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-amber-900">{t("countryNotSet")}</p>
+            <p className="text-sm text-amber-800 mt-1">{t("countryNotSetHint")}</p>
+            <Link
+              href="/app/account/settings"
+              className="inline-flex items-center gap-1.5 mt-2 text-sm font-medium text-amber-900 underline hover:text-amber-700"
+            >
+              <Settings className="w-3.5 h-3.5" />
+              {t("goToSettings")}
+            </Link>
+          </div>
+        </div>
+      )}
+
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--color-border)] pb-4">
         <div>
-          <h1 className="text-xl font-semibold">Posa Qualificata</h1>
-          <p className="text-sm text-[var(--color-muted-fg)]">
-            Wizard nodo di posa + distinta materiali conforme alla norma del mercato.
-          </p>
+          <h1 className="text-xl font-semibold">{t("title")}</h1>
+          <p className="text-sm text-[var(--color-muted-fg)] mt-1">{t("subtitle")}</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-wrap">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-[var(--color-muted)] px-3 py-1.5 text-xs font-medium text-[var(--color-muted-fg)]">
+            <Globe className="w-3.5 h-3.5" />
+            {regionLabel}
+          </span>
           <SyncBadge state={sync} onSync={runSync} />
         </div>
       </div>
