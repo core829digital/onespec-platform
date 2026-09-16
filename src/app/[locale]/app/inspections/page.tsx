@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import type { Id } from "@/convex/_generated/dataModel";
 import {
   enqueue,
@@ -15,6 +16,7 @@ import {
 type ReportId = Id<"inspectionReports">;
 
 function SyncBadge({ state, onSync }: { state: SyncState; onSync: () => void }) {
+  const t = useTranslations("inspections");
   const { isOnline, pendingCount, error } = state;
   const color = !state.isOnline
     ? "bg-amber-100 text-amber-800"
@@ -22,10 +24,10 @@ function SyncBadge({ state, onSync }: { state: SyncState; onSync: () => void }) 
     ? "bg-blue-100 text-blue-800"
     : "bg-emerald-100 text-emerald-700";
   const label = !state.isOnline
-    ? "Offline — salvataggio locale"
+    ? t("offline")
     : state.pendingCount > 0
-    ? `${state.pendingCount} da sincronizzare`
-    : "Sincronizzato";
+    ? `${state.pendingCount} ${t("pendingSync")}`
+    : t("synced");
   return (
     <div className="flex items-center gap-2">
       <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${color}`}>
@@ -34,7 +36,7 @@ function SyncBadge({ state, onSync }: { state: SyncState; onSync: () => void }) 
       </span>
       {state.isOnline && state.pendingCount > 0 && (
         <button onClick={onSync} className="rounded border border-[var(--color-border)] px-2 py-1 text-xs">
-          Sincronizza ora
+          {t("syncNow")}
         </button>
       )}
       {state.error && <span className="text-xs text-red-600">{state.error}</span>}
@@ -47,6 +49,7 @@ function SignaturePad({
 }: {
   onChange: (dataUrl: string | null) => void;
 }) {
+  const t = useTranslations("inspections");
   const ref = useRef<HTMLCanvasElement>(null);
   const drawing = useRef(false);
   const last = useRef<{ x: number; y: number } | null>(null);
@@ -121,13 +124,14 @@ function SignaturePad({
         }}
         className="mt-1 text-xs text-[var(--color-muted-fg)] underline"
       >
-        Cancella firma
+        {t("clearSignature")}
       </button>
     </div>
   );
 }
 
 function ReportEditor({ reportId, tenantId }: { reportId: ReportId; tenantId: Id<"tenants"> }) {
+  const t = useTranslations("inspections");
   const report = useQuery(api.inspections.get, { reportId });
   const genUrl = useMutation(api.inspections.generateUploadUrl);
   const setPhoto = useMutation(api.inspections.setPhoto);
@@ -141,7 +145,7 @@ function ReportEditor({ reportId, tenantId }: { reportId: ReportId; tenantId: Id
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
 
-  if (!report) return <p className="text-sm text-[var(--color-muted-fg)]">Caricamento…</p>;
+  if (!report) return <p className="text-sm text-[var(--color-muted-fg)]">{t("loading")}</p>;
 
   async function upload(key: string, file: File) {
     setErr("");
@@ -155,19 +159,19 @@ function ReportEditor({ reportId, tenantId }: { reportId: ReportId; tenantId: Id
       const { storageId } = await res.json();
       await setPhoto({ reportId, photoKey: key, storageId });
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Upload fallito");
+      setErr(e instanceof Error ? e.message : t("uploadFailed"));
     }
   }
 
   async function doSign() {
-    if (!sig) return setErr("Firma mancante.");
-    if (!signer.trim()) return setErr("Nome firmatario mancante.");
+    if (!sig) return setErr(t("signatureMissing"));
+    if (!signer.trim()) return setErr(t("signerNameMissing"));
     setBusy(true);
     setErr("");
     try {
       await sign({ reportId, signatureDataUrl: sig, signedByName: signer.trim() });
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Errore firma");
+      setErr(e instanceof Error ? e.message : t("signError"));
     } finally {
       setBusy(false);
     }
@@ -185,27 +189,27 @@ function ReportEditor({ reportId, tenantId }: { reportId: ReportId; tenantId: Id
     <div className="space-y-5 rounded-xl border border-[var(--color-border)] p-5">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold">
-          {report.customerName} — {report.status === "signed" ? "Firmato" : "Bozza"}
+          {report.customerName} — {report.status === "signed" ? t("signed") : t("draft")}
         </h2>
       </div>
 
       {!locked && (
         <div className="rounded-lg border border-[var(--color-border)] p-3">
           <h3 className="mb-2 text-xs font-semibold uppercase text-[var(--color-muted-fg)]">
-            App Posatore
+            {t("installerApp")}
           </h3>
           <div className="flex flex-wrap items-center gap-2">
             <input
               value={team}
               onChange={(e) => setTeam(e.target.value)}
-              placeholder={report.installerTeam ?? "Squadra / posatore"}
+              placeholder={report.installerTeam ?? t("teamPlaceholder")}
               className="rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-1.5 text-sm"
             />
             <button
               onClick={() => assignInstaller({ reportId, installerTeam: team || undefined })}
               className="rounded border border-[var(--color-border)] px-2 py-1.5 text-xs"
             >
-              Assegna
+              {t("assign")}
             </button>
             {installerUrl && (
               <>
@@ -216,20 +220,20 @@ function ReportEditor({ reportId, tenantId }: { reportId: ReportId; tenantId: Id
                   onClick={() => navigator.clipboard?.writeText(installerUrl)}
                   className="rounded border border-[var(--color-border)] px-2 py-1.5 text-xs"
                 >
-                  Copia link
+                  {t("copyLink")}
                 </button>
               </>
             )}
           </div>
           <p className="mt-1 text-[11px] text-[var(--color-muted-fg)]">
-            Il posatore apre il link sul telefono: indirizzo + Maps, foto obbligatorie, firma cliente.
+            {t("installerInstruction")}
           </p>
         </div>
       )}
 
       <div>
         <h3 className="mb-2 text-xs font-semibold uppercase text-[var(--color-muted-fg)]">
-          Foto obbligatorie
+          {t("mandatoryPhotos")}
         </h3>
         <div className="grid gap-3 sm:grid-cols-2">
           {report.photos.map((p) => (
@@ -240,7 +244,7 @@ function ReportEditor({ reportId, tenantId }: { reportId: ReportId; tenantId: Id
                 <img src={p.url} alt={p.label} className="mt-2 h-32 w-full rounded object-cover" />
               ) : (
                 <div className="mt-2 grid h-32 place-items-center rounded border border-dashed border-[var(--color-border)] text-xs text-[var(--color-muted-fg)]">
-                  Nessuna foto
+                  {t("noPhoto")}
                 </div>
               )}
               {!locked && (
@@ -262,7 +266,7 @@ function ReportEditor({ reportId, tenantId }: { reportId: ReportId; tenantId: Id
 
       <div>
         <h3 className="mb-2 text-xs font-semibold uppercase text-[var(--color-muted-fg)]">
-          Prova di funzionamento
+          {t("functionalTest")}
         </h3>
         <div className="space-y-1.5">
           {report.checks.map((c) => (
@@ -287,17 +291,17 @@ function ReportEditor({ reportId, tenantId }: { reportId: ReportId; tenantId: Id
       {!locked ? (
         <div className="space-y-2">
           <h3 className="text-xs font-semibold uppercase text-[var(--color-muted-fg)]">
-            Firma cliente
+            {t("clientSignature")}
           </h3>
           {!allPhotos && (
             <p className="text-xs text-amber-600">
-              Carica tutte le foto obbligatorie per poter firmare.
+              {t("uploadAllPhotosFirst")}
             </p>
           )}
           <input
             value={signer}
             onChange={(e) => setSigner(e.target.value)}
-            placeholder="Nome di chi firma"
+            placeholder={t("signerPlaceholder")}
             className="w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2 text-sm"
           />
           <SignaturePad onChange={setSig} />
@@ -307,14 +311,12 @@ function ReportEditor({ reportId, tenantId }: { reportId: ReportId; tenantId: Id
             disabled={busy || !allPhotos}
             className="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-[var(--color-accent-ink)] disabled:opacity-50"
           >
-            {busy ? "…" : "Genera verbale · protezione pagamento"}
+            {busy ? "…" : t("generateReport")}
           </button>
         </div>
       ) : (
         <div className="rounded-lg bg-emerald-50 p-3 text-sm text-emerald-800">
-          Verbale firmato da {report.signedByName} il{" "}
-          {report.signedAt ? new Date(report.signedAt).toLocaleString("it-IT") : ""}. PDF + foto +
-          firma archiviati.
+          {t("reportSignedBy", { name: report.signedByName ?? "", date: report.signedAt ? new Date(report.signedAt).toLocaleString() : new Date().toLocaleString() })}
         </div>
       )}
     </div>
@@ -322,6 +324,7 @@ function ReportEditor({ reportId, tenantId }: { reportId: ReportId; tenantId: Id
 }
 
 export default function InspectionsPage() {
+  const t = useTranslations("inspections");
   const tenant = useQuery(api.tenants.getMyTenant);
   const template = useQuery(
     api.inspections.getTemplate,
@@ -366,7 +369,7 @@ export default function InspectionsPage() {
 
   async function add() {
     if (!tenant || !name.trim()) {
-      setErr("Nome cliente obbligatorio.");
+      setErr(t("clientNameRequired"));
       return;
     }
     setErr("");
@@ -383,7 +386,7 @@ export default function InspectionsPage() {
       setName("");
       setAddress("");
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Errore creazione verbale");
+      setErr(e instanceof Error ? e.message : t("createReportError"));
     }
   }
 
@@ -391,11 +394,11 @@ export default function InspectionsPage() {
     <div className="w-full space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--color-border)] pb-4">
         <div>
-          <h1 className="text-xl font-semibold">Verbale di Collaudo</h1>
+          <h1 className="text-xl font-semibold">{t("title")}</h1>
           <p className="text-sm text-[var(--color-muted-fg)]">
             {template
               ? `${template.title} — ${template.legalBasis}`
-              : "Checklist foto + firma cliente."}
+              : t("subtitle")}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -405,7 +408,7 @@ export default function InspectionsPage() {
 
       <div className="flex flex-wrap items-end gap-2 rounded-xl border border-[var(--color-border)] p-4">
         <label className="text-sm">
-          <span className="text-[var(--color-muted-fg)]">Cliente</span>
+          <span className="text-[var(--color-muted-fg)]">{t("client")}</span>
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
@@ -413,7 +416,7 @@ export default function InspectionsPage() {
           />
         </label>
         <label className="text-sm">
-          <span className="text-[var(--color-muted-fg)]">Indirizzo cantiere</span>
+          <span className="text-[var(--color-muted-fg)]">{t("siteAddress")}</span>
           <input
             value={address}
             onChange={(e) => setAddress(e.target.value)}
@@ -424,7 +427,7 @@ export default function InspectionsPage() {
           onClick={add}
           className="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-[var(--color-accent-ink)]"
         >
-          + Nuovo verbale
+          {t("newReport")}
         </button>
         {err && <p className="w-full text-sm text-red-600">{err}</p>}
       </div>
@@ -435,11 +438,11 @@ export default function InspectionsPage() {
         <table className="w-full text-sm">
           <thead className="bg-[var(--color-muted)] text-xs text-[var(--color-muted-fg)]">
             <tr>
-              <th className="px-4 py-2 text-left">Cliente</th>
-              <th className="px-4 py-2 text-left">Cantiere</th>
-              <th className="px-4 py-2 text-center">Stato</th>
-              <th className="px-4 py-2 text-right">Data</th>
-              <th className="px-4 py-2 text-center">Mappe</th>
+              <th className="px-4 py-2 text-left">{t("client")}</th>
+              <th className="px-4 py-2 text-left">{t("site")}</th>
+              <th className="px-4 py-2 text-center">{t("status")}</th>
+              <th className="px-4 py-2 text-right">{t("date")}</th>
+              <th className="px-4 py-2 text-center">{t("maps")}</th>
               <th className="px-4 py-2" />
             </tr>
           </thead>
@@ -450,7 +453,7 @@ export default function InspectionsPage() {
                 <td className="px-4 py-3">{r.siteAddress ?? "—"}</td>
                 <td className="px-4 py-3 text-center">{r.status}</td>
                 <td className="px-4 py-3 text-right text-[var(--color-muted-fg)]">
-                  {new Date(r.createdAt).toLocaleDateString("it-IT")}
+                  {new Date(r.createdAt).toLocaleDateString()}
                 </td>
                 <td className="px-4 py-3 text-center">
                   {(r.siteAddress) && (
@@ -460,8 +463,8 @@ export default function InspectionsPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="rounded-lg bg-blue-600 px-2 py-1 text-[10px] font-medium text-white hover:opacity-80 transition-opacity"
-                        title="Apri in Google Maps"
-                        aria-label="Apri in Google Maps"
+                        title={t("openMaps")}
+                        aria-label={t("openMaps")}
                       >
                         Maps
                       </a>
@@ -470,8 +473,8 @@ export default function InspectionsPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="rounded-lg bg-[#4BB543] px-2 py-1 text-[10px] font-medium text-white hover:opacity-80 transition-opacity"
-                        title="Apri in Waze"
-                        aria-label="Apri in Waze"
+                        title={t("openWaze")}
+                        aria-label={t("openWaze")}
                       >
                         Waze
                       </a>
@@ -484,13 +487,13 @@ export default function InspectionsPage() {
                       onClick={() => setSelected(r._id)}
                       className="rounded border border-[var(--color-border)] px-2 py-1 text-xs"
                     >
-                      Apri
+                      {t("open")}
                     </button>
                     <Link
                       href={`/app/inspections/${r._id}/print`}
                       className="rounded border border-[var(--color-border)] px-2 py-1 text-xs"
                     >
-                      Stampa
+                      {t("print")}
                     </Link>
                   </div>
                 </td>
@@ -499,7 +502,7 @@ export default function InspectionsPage() {
             {reports && reports.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-4 py-8 text-center text-[var(--color-muted-fg)]">
-                  Nessun verbale.
+                  {t("noReports")}
                 </td>
               </tr>
             )}
