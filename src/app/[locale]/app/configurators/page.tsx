@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import type { Id } from "@/convex/_generated/dataModel";
 
 export default function ConfiguratorsPage() {
   const tenant = useQuery(api.tenants.getMyTenant);
@@ -14,9 +15,23 @@ export default function ConfiguratorsPage() {
     tenant ? { tenantId: tenant._id } : "skip",
   );
   const createConfigurator = useMutation(api.configurators.createConfigurator);
+  const publishConfigurator = useMutation(api.configurators.publishConfigurator);
   const [name, setName] = useState("");
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
+  const [publishingId, setPublishingId] = useState<string | null>(null);
+
+  async function handlePublish(configuratorId: string) {
+    setError("");
+    setPublishingId(configuratorId);
+    try {
+      await publishConfigurator({ configuratorId: configuratorId as Id<"configurators"> });
+    } catch (err) {
+      setError(err instanceof Error && err.message ? err.message : "Errore nella pubblicazione");
+    } finally {
+      setPublishingId(null);
+    }
+  }
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault();
@@ -81,9 +96,11 @@ export default function ConfiguratorsPage() {
                 {c.status === "draft" && (
                   <button
                     type="button"
-                    className="rounded-lg bg-[var(--color-mint)] px-4 py-2 text-sm font-semibold text-[var(--color-mint-dark)] hover:opacity-90 transition-colors"
+                    onClick={() => handlePublish(c._id)}
+                    disabled={publishingId === c._id}
+                    className="rounded-lg bg-[var(--color-mint)] px-4 py-2 text-sm font-semibold text-[var(--color-mint-dark)] hover:opacity-90 transition-colors disabled:opacity-50"
                   >
-                    Pubblica
+                    {publishingId === c._id ? "Pubblicazione..." : "Pubblica"}
                   </button>
                 )}
                 <Link

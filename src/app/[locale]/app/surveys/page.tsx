@@ -199,7 +199,10 @@ export default function SurveysPage() {
     setErr("");
     try {
       const result = await createQuoteFromSurvey({ surveyId, configuratorId: publishedConfig._id, tenantId: tenant!._id });
-      router.push(`/app/quotes/${result.quoteId}`);
+      // /app/quotes/[id] (bare) doesn't exist as a route — only .../print and
+      // .../sign do. This 404'd every time a field quote was generated from
+      // a completed survey, breaking the Rilievo -> Preventivo handoff.
+      router.push(`/app/quotes/${result.quoteId}/print`);
     } catch (e) {
       setErr(e instanceof Error ? e.message : "Errore generazione preventivo");
     }

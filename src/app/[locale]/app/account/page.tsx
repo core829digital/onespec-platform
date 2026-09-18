@@ -211,7 +211,13 @@ export default function AccountPage() {
               {!s.current ? (
                 <button
                   type="button"
-                  onClick={() => revokeSession({ sessionId: s.id as Id<"authSessions"> })}
+                  onClick={async () => {
+                    try {
+                      await revokeSession({ sessionId: s.id as Id<"authSessions"> });
+                    } catch (e) {
+                      setMsg(e instanceof Error ? e.message : "Errore durante la revoca della sessione");
+                    }
+                  }}
                   className="rounded-lg border border-[var(--color-border)] px-3 py-1 text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-danger)]"
                 >
                   Revoca
@@ -224,8 +230,12 @@ export default function AccountPage() {
           <button
             type="button"
             onClick={async () => {
-              const { revoked } = await revokeOthers();
-              setMsg(`Disconnesse ${revoked} altre sessioni.`);
+              try {
+                const { revoked } = await revokeOthers();
+                setMsg(`Disconnesse ${revoked} altre sessioni.`);
+              } catch (e) {
+                setMsg(e instanceof Error ? e.message : "Errore durante la disconnessione degli altri dispositivi");
+              }
             }}
             className="rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm text-[var(--color-text)]"
           >
