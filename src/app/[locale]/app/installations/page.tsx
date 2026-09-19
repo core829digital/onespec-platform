@@ -6,6 +6,8 @@ import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import { ComplianceBadges } from "@/components/installations/ComplianceBadges";
 import { ClientCantierePicker, type PickedLinks } from "@/components/app-shell/client-cantiere-picker";
+import { EditDossierPanel, type EditableDossier } from "@/components/installations/EditDossierPanel";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useTranslations } from "next-intl";
 import {
@@ -59,6 +61,10 @@ export default function InstallationsPage() {
     tenant ? { tenantId: tenant._id } : "skip",
   );
   const createDossier = useMutation(api.installations.create);
+  const removeDossier = useMutation(api.installations.remove);
+  const td = useTranslations("dossierEdit");
+  const toMessage = useFriendlyError();
+  const [editing, setEditing] = useState<EditableDossier | null>(null);
 
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(1);
@@ -198,6 +204,18 @@ export default function InstallationsPage() {
       >
         {open ? "Chiudi wizard" : "+ Nuovo dossier di posa"}
       </button>
+
+      {editing && standard && (
+        <EditDossierPanel
+          key={editing._id}
+          dossier={editing}
+          jobTypes={standard.jobTypes}
+          nodeTypes={standard.nodeTypes}
+          onClose={() => setEditing(null)}
+        />
+      )}
+
+      {err && !open && <p className="text-sm text-[var(--color-danger)]" role="alert">{err}</p>}
 
       {open && standard && (
         <div className="space-y-5 rounded-xl border border-[var(--color-border)] p-5">
@@ -402,10 +420,10 @@ export default function InstallationsPage() {
                 </td>
                 <td className="px-4 py-3 text-center">
                   {/* Maps/Waze buttons for installations with survey data */}
-                  {(d.surveyId) && (
+                  {d.siteAddress ? (
                     <div className="flex justify-center gap-1">
                       <a
-                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent("Cantiere posa " + d._id)}`}
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(d.siteAddress)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="rounded-lg bg-blue-600 px-2 py-1 text-[10px] font-medium text-white hover:opacity-80 transition-opacity"
@@ -415,7 +433,7 @@ export default function InstallationsPage() {
                         Maps
                       </a>
                       <a
-                        href={`https://waze.com/ul?navigate=yes&address=${encodeURIComponent("Cantiere posa " + d._id)}`}
+                        href={`https://waze.com/ul?navigate=yes&address=${encodeURIComponent(d.siteAddress)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="rounded-lg bg-[#4BB543] px-2 py-1 text-[10px] font-medium text-white hover:opacity-80 transition-opacity"
@@ -425,15 +443,40 @@ export default function InstallationsPage() {
                         Waze
                       </a>
                     </div>
+                  ) : (
+                    <span className="text-xs text-[var(--color-muted-fg)]">—</span>
                   )}
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <Link
-                    href={`/app/installations/${d._id}/print`}
-                    className="rounded border border-[var(--color-border)] px-2 py-1 text-xs"
-                  >
-                    Stampa
-                  </Link>
+                  <div className="flex flex-wrap items-center justify-end gap-1.5">
+                    <Link
+                      href={`/app/installations/${d._id}/print`}
+                      className="rounded border border-[var(--color-border)] px-2 py-1 text-xs"
+                    >
+                      {td("print")}
+                    </Link>
+                    <button
+                      type="button"
+                      onClick={() => setEditing(d)}
+                      className="rounded border border-[var(--color-border)] px-2 py-1 text-xs"
+                    >
+                      {td("edit")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (!window.confirm(td("deleteConfirm"))) return;
+                        try {
+                          await removeDossier({ dossierId: d._id });
+                        } catch (e) {
+                          setErr(toMessage(e));
+                        }
+                      }}
+                      className="rounded border border-[var(--color-border)] px-2 py-1 text-xs text-red-600 hover:bg-red-50"
+                    >
+                      {td("delete")}
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

@@ -96,6 +96,34 @@ export const get = query({
   },
 });
 
+/** Survey + tenant header data for the PDF sheet (photos resolved to URLs). */
+export const getForPrint = query({
+  args: { surveyId: v.id("siteSurveys") },
+  handler: async (ctx, args) => {
+    const survey = await ctx.db.get(args.surveyId);
+    if (!survey) return null;
+    await requireMembership(ctx, survey.tenantId);
+    const tenant = await ctx.db.get(survey.tenantId);
+    const openings = await Promise.all(
+      survey.openings.map(async (o) => ({
+        ...o,
+        photoUrls: o.photoStorageIds
+          ? await Promise.all(o.photoStorageIds.map((id) => ctx.storage.getUrl(id)))
+          : [],
+      })),
+    );
+    const photos = await Promise.all(
+      (survey.photos ?? []).map(async (p) => ({
+        storageId: p.storageId,
+        type: p.type,
+        uploadedAt: p.uploadedAt,
+        url: await ctx.storage.getUrl(p.storageId),
+      })),
+    );
+    return { survey: { ...survey, openings, photos }, tenant };
+  },
+});
+
 export const generateUploadUrl = mutation({
   args: { tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
@@ -249,6 +277,12 @@ export const completeSurvey = mutation({
     const survey = await ctx.db.get(args.surveyId);
     if (!survey) throw new ConvexError("SURVEY_NOT_FOUND");
     await requireTenantRole(ctx, survey.tenantId, ["owner", "admin", "member"]);
+    if (survey.status === "completed") return;
+    // A survey with no usable measurement can't become a quote — refuse
+    // instead of letting an empty rilievo reach 'Genera preventivo'.
+    if (!survey.openings.some((o) => o.widthMm > 0 && o.heightMm > 0)) {
+      throw new ConvexError("NO_ITEMS");
+    }
 
     await ctx.db.patch(args.surveyId, {
       status: "completed",
@@ -264,10 +298,15 @@ export const remove = mutation({
     const survey = await ctx.db.get(args.surveyId);
     if (!survey) return;
     await requireTenantRole(ctx, survey.tenantId, ["owner", "admin"]);
+    // Delete every stored file: per-opening photos AND the survey-level
+    // photos (these used to be left behind in storage).
     for (const o of survey.openings) {
       for (const id of o.photoStorageIds ?? []) {
         await ctx.storage.delete(id).catch(() => {});
       }
+    }
+    for (const p of survey.photos ?? []) {
+      await ctx.storage.delete(p.storageId).catch(() => {});
     }
     await ctx.db.delete(args.surveyId);
   },

@@ -32,11 +32,27 @@ export const list = query({
   handler: async (ctx, args) => {
     await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
     const limit = Math.min(Math.max(args.limit ?? 50, 1), 200);
-    return await ctx.db
+    const dossiers = await ctx.db
       .query("installationDossiers")
       .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
       .order("desc")
       .take(limit);
+    // The Maps/Waze buttons used to search for "Cantiere posa <dossier id>" —
+    // an id, not an address. Resolve the real site address from the linked
+    // cantiere / survey / client instead.
+    return await Promise.all(
+      dossiers.map(async (d) => {
+        const cantiere = d.cantiereId ? await ctx.db.get(d.cantiereId) : null;
+        const survey = d.surveyId ? await ctx.db.get(d.surveyId) : null;
+        const client = d.clientId ? await ctx.db.get(d.clientId) : null;
+        const siteAddress =
+          (cantiere && [cantiere.address, cantiere.postalCode, cantiere.city].filter(Boolean).join(", ")) ||
+          (survey && [survey.customerAddress, survey.customerPostalCode, survey.customerCity].filter(Boolean).join(", ")) ||
+          (client && [client.siteAddress, client.sitePostalCode, client.siteCity].filter(Boolean).join(", ")) ||
+          undefined;
+        return { ...d, siteAddress, clientName: client?.name };
+      }),
+    );
   },
 });
 
@@ -154,6 +170,9 @@ export const update = mutation({
     nodeType: v.optional(v.string()),
     perimeterMm: v.optional(v.number()),
     notes: v.optional(v.string()),
+    /** Pass to (re)link the dossier; pass `null` to clear the link. */
+    clientId: v.optional(v.union(v.id("clients"), v.null())),
+    cantiereId: v.optional(v.union(v.id("cantieri"), v.null())),
   },
   handler: async (ctx, args) => {
     const doc = await ctx.db.get(args.dossierId);
@@ -172,12 +191,21 @@ export const update = mutation({
         ? Math.min(Math.max(Math.round(args.perimeterMm), 0), 1_000_000)
         : doc.perimeterMm;
 
+    const relink = args.clientId !== undefined || args.cantiereId !== undefined;
+    const links = relink
+      ? await resolveLinks(ctx, doc.tenantId, {
+          clientId: args.clientId === undefined ? doc.clientId : (args.clientId ?? undefined),
+          cantiereId: args.cantiereId === undefined ? doc.cantiereId : (args.cantiereId ?? undefined),
+        })
+      : null;
+
     await ctx.db.patch(args.dossierId, {
       jobType,
       nodeType,
       perimeterMm,
       materials: computePosaMaterials(region, perimeterMm),
       notes: args.notes !== undefined ? args.notes.trim() : doc.notes,
+      ...(links ? { clientId: links.clientId, cantiereId: links.cantiereId } : {}),
       updatedAt: Date.now(),
     });
   },

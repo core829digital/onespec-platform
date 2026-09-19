@@ -160,3 +160,51 @@ test("client folder joins everything through the real FK, cantiere folder needs 
   await expect(asStranger.query(api.cantieri.getCantiere, { cantiereId })).rejects.toThrow();
   await expect(asStranger.query(api.clients.getClient, { clientId })).rejects.toThrow();
 });
+
+test("survey lifecycle: empty survey can't complete, completed one can, delete works; installation list resolves a real address and update re-links", async () => {
+  const t = newDb();
+  const seeded = await seedTenant(t, { plan: "pro" });
+  const asOwner = t.withIdentity({ subject: seeded.ownerId });
+  const clientId = await seedClient(t, seeded.tenantId);
+
+  const emptyId = await asOwner.mutation(api.surveys.create, {
+    tenantId: seeded.tenantId,
+    customerName: "Vuoto",
+    openings: [{ label: "Foro 1", widthMm: 0, heightMm: 0 }],
+    diagnostics: {},
+  });
+  await expect(asOwner.mutation(api.surveys.completeSurvey, { surveyId: emptyId })).rejects.toThrow(/NO_ITEMS/);
+
+  const okId = await asOwner.mutation(api.surveys.create, {
+    tenantId: seeded.tenantId,
+    clientId,
+    customerName: "",
+    openings: opening,
+    diagnostics: {},
+  });
+  await asOwner.mutation(api.surveys.completeSurvey, { surveyId: okId });
+  expect((await t.run((ctx) => ctx.db.get(okId)))?.status).toBe("completed");
+
+  const print = await asOwner.query(api.surveys.getForPrint, { surveyId: okId });
+  expect(print?.survey.customerName).toBe("Bianchi Srl");
+  expect(print?.tenant?._id).toBe(seeded.tenantId);
+
+  // A dossier built on that survey inherits the client and shows its address.
+  const dossierId = await asOwner.mutation(api.installations.create, {
+    tenantId: seeded.tenantId,
+    surveyId: okId,
+    jobType: (await asOwner.query(api.installations.getStandard, { tenantId: seeded.tenantId })).jobTypes[0].key,
+    nodeType: (await asOwner.query(api.installations.getStandard, { tenantId: seeded.tenantId })).nodeTypes[0].key,
+    perimeterMm: 5200,
+  });
+  const list = await asOwner.query(api.installations.list, { tenantId: seeded.tenantId });
+  expect(list[0].clientId).toBe(clientId);
+  expect(list[0].siteAddress).toContain("Via Roma 1");
+
+  // Clearing the link works.
+  await asOwner.mutation(api.installations.update, { dossierId, clientId: null });
+  expect((await t.run((ctx) => ctx.db.get(dossierId)))?.clientId).toBeUndefined();
+
+  await asOwner.mutation(api.surveys.remove, { surveyId: emptyId });
+  expect(await t.run((ctx) => ctx.db.get(emptyId))).toBeNull();
+});

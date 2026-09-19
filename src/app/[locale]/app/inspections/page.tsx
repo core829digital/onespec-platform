@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import type { Id } from "@/convex/_generated/dataModel";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 import { ClientCantierePicker, type PickedLinks } from "@/components/app-shell/client-cantiere-picker";
 import {
   enqueue,
@@ -336,6 +337,8 @@ export default function InspectionsPage() {
     tenant ? { tenantId: tenant._id } : "skip",
   );
   const create = useMutation(api.inspections.create);
+  const removeReport = useMutation(api.inspections.remove);
+  const toMessage = useFriendlyError();
 
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
@@ -527,6 +530,21 @@ export default function InspectionsPage() {
                     >
                       {t("print")}
                     </Link>
+                    {r.status !== "signed" && (
+                      <button
+                        onClick={async () => {
+                          if (!window.confirm(t("deleteConfirm"))) return;
+                          try {
+                            await removeReport({ reportId: r._id });
+                          } catch (e) {
+                            setErr(toMessage(e));
+                          }
+                        }}
+                        className="rounded border border-[var(--color-border)] px-2 py-1 text-xs text-red-600 hover:bg-red-50"
+                      >
+                        {t("delete")}
+                      </button>
+                    )}
                   </div>
                 </td>
               </tr>

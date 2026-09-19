@@ -3,9 +3,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
+import { useTranslations } from "next-intl";
 import type { Id } from "@/convex/_generated/dataModel";
 import { LaserMeasure } from "@/components/surveys/LaserMeasure";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 import { ClientCantierePicker, type PickedLinks } from "@/components/app-shell/client-cantiere-picker";
 import {
   DiagnosticChecklist,
@@ -83,11 +85,14 @@ function SyncBadge({ state, onSync }: { state: SyncState; onSync: () => void }) 
 
 export default function SurveysPage() {
   const router = useRouter();
+  const td = useTranslations("surveyDoc");
   const tenant = useQuery(api.tenants.getMyTenant);
   const surveys = useQuery(api.surveys.list, tenant ? { tenantId: tenant._id } : "skip");
   const createSurvey = useMutation(api.surveys.create);
   const generateUploadUrl = useMutation(api.surveys.generateUploadUrl);
   const createQuoteFromSurvey = useMutation(api.quotes.createFieldQuoteFromSurvey);
+  const completeSurvey = useMutation(api.surveys.completeSurvey);
+  const toMessage = useFriendlyError();
   const configurators = useQuery(
     api.configurators.listConfigurators,
     tenant ? { tenantId: tenant._id } : "skip",
@@ -594,11 +599,19 @@ export default function SurveysPage() {
           <tbody>
             {surveys?.map((s) => (
               <tr key={s._id} className="border-t border-[var(--color-border)]">
-                <td className="px-4 py-3 font-medium">{s.customerName}</td>
+                <td className="px-4 py-3 font-medium">
+                  <Link href={`/app/surveys/${s._id}`} className="hover:text-[var(--color-mint)] hover:underline">
+                    {s.customerName}
+                  </Link>
+                </td>
                 <td className="px-4 py-3">{s.customerCity ?? "—"}</td>
                 <td className="px-4 py-3 text-center">{s.openings.length}</td>
                 <td className="px-4 py-3 text-center">{s.photos?.length ?? 0}</td>
-                <td className="px-4 py-3 text-center">{s.status}</td>
+                <td className="px-4 py-3 text-center">
+                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${s.status === "completed" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>
+                    {s.status === "completed" ? td("statusCompleted") : td("statusDraft")}
+                  </span>
+                </td>
                 <td className="px-4 py-3 text-right text-[var(--color-muted-fg)]">
                   {new Date(s.createdAt).toLocaleDateString("it-IT")}
                 </td>
@@ -629,14 +642,37 @@ export default function SurveysPage() {
                   )}
                 </td>
                 <td className="px-4 py-3 text-center">
-                  {s.status === "completed" && tenant && publishedConfig && (
+                  <div className="flex flex-wrap items-center justify-center gap-1.5">
+                  <Link
+                    href={`/app/surveys/${s._id}`}
+                    className="rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-xs font-medium hover:bg-[var(--color-bg-alt)]"
+                  >
+                    {td("open")}
+                  </Link>
+                  {s.status !== "completed" && (
+                    <button
+                      onClick={async () => {
+                        if (!window.confirm(td("completeConfirm"))) return;
+                        try {
+                          await completeSurvey({ surveyId: s._id });
+                        } catch (e) {
+                          setErr(toMessage(e));
+                        }
+                      }}
+                      className="rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-xs font-medium hover:bg-[var(--color-bg-alt)]"
+                    >
+                      {td("complete")}
+                    </button>
+                  )}
+                  {s.status === "completed" && !s.quoteId && tenant && publishedConfig && (
                     <button
                       onClick={() => generateQuoteFromSurvey(s._id)}
                       className="rounded-lg border border-[var(--color-mint)] bg-[var(--color-mint)] px-3 py-1.5 text-xs font-semibold text-[var(--color-mint-dark)] hover:bg-[var(--color-mint)]/80"
                     >
-                      Genera preventivo
+                      {td("generateQuote")}
                     </button>
                   )}
+                  </div>
                 </td>
               </tr>
             ))}
