@@ -358,3 +358,119 @@ Campo: `convex/surveys.ts`, `convex/installations.ts`, `convex/inspections.ts`,
 Widget pubblico: `src/components/widget/*`, `convex/widget.ts`,
 `src/app/w/[publicId]/**`, `src/components/configurator/embed-tab.tsx`.
 i18n: `messages/{it,en,fr,ro,de,nl}.json`, `src/i18n/*`, `src/proxy.ts`.
+
+---
+
+## 9. REGISTRO CONTINUO — aggiornare dopo OGNI fase completata
+
+Regola (richiesta esplicita dell'utente, 2026-09-19): tutto ciò che si fa da
+ora in poi va registrato qui man mano, non a fine lavoro. Formato per ogni
+voce: data · commit · cosa · perché · cosa resta.
+
+### 9.1 Già fatto e in produzione (sessione 2026-09-10 → 2026-09-19)
+
+Deploy: Vercel (frontend, automatico su git push) e Convex (backend,
+**SEPARATO** — `npx convex deploy`, NON parte da solo col push; incidente
+reale: fix `getPlanUsage` committato ma non live finché non è stato
+lanciato il deploy Convex a mano). Prod Convex = `spotted-basilisk-866`
+(team core-829, progetto onespec-platform); dev locale = `canny-marten-905`.
+
+- **Build/i18n**: `messages/it.json` era invalido due volte (graffa in
+  eccesso + caratteri corrotti U+FFFD) — fixato in `cbecc6a`, `4c33e07`.
+  Chiave `cantieri.priority` era duplicata in tutti e 6 i locale (JSON
+  tiene solo l'ultima) — separata in `priorityLabel` + `priority.*`.
+- **Piani abbonamento 4-tier** (Starter/Pro/Enterprise/Showroom + alpha
+  interno): schema, entitlements, migrazione business→pro, trial Pro 14gg
+  via Stripe, enforcement, UI billing — tutto codice pronto, **dormiente
+  finché non arrivano STRIPE_SECRET_KEY/webhook/24 Price ID** (utente li
+  sta configurando). Fix Enterprise (showroomCalculator/publicWidget true,
+  maxQuotesPerMonth 1000) in `e3d1dc3`.
+- **Analytics** (`0f986f8`, `d08e5c7`, `94aa0d6`): funnel bianco-su-bianco
+  in light mode, pie donut invisibile al 100% (arco SVG degenere),
+  NaN%/Infinity%, heatmap senza griglia, delta assurdi, hover pie
+  ridisegnato (pannello centrale + lift wedge + dim altri + legenda
+  bidirezionale).
+- **Sentry** (`2c8f4aa`): wizard files mai committati (Sentry non era
+  attivo), `tunnelRoute /monitoring` finiva nel middleware i18n (errori
+  client persi) — esclusione aggiunta in `src/proxy.ts`; sampling prod
+  20%; `ignoreErrors` per il rumore noto `startTime` (script legacy
+  Vercel web-vitals, si fixa solo da dashboard Vercel → Analytics).
+- **getPlanUsage / usageCounters** (`96567bc`): `.unique()`→`.first()` su 6
+  siti (crash permanente se due righe per tenant+periodo).
+- **Account** (`e7ede59`, `971cfb0`): link rotto `/app/account/settings`
+  (404) → `/app/account`; aggiunta sezione "Azienda" con selettore paese
+  (owner/admin); try/catch su revokeSession/revokeOthers.
+- **PDF** (`8154eee`, `7096408`): `<PDFViewer>` di @react-pdf/renderer è un
+  `<iframe>` nudo senza altezza → collassava a ~150px; fix con altezza
+  esplicita + cast tipo. 5 template PDF avevano `Date.now()` in render
+  (errore lint purity) → prop `generatedAt` da `useState(() => Date.now())`.
+- **Bug UI** (`971cfb0`): bottone "Pubblica" configuratori senza onClick
+  (morto) → collegato a `publishConfigurator`; redirect survey→quote
+  puntava a `/app/quotes/{id}` (404, esistono solo `/print` e `/sign`).
+- Sito onespec-website (`4b833cf`): email `hello@onespec.eu`, URL embed
+  `platform.onespec.eu`.
+- Cartella "CONFIGURATORE NUOVO AGGIORNATO PER MONTATORI, RIVENDITORI E
+  SHOWROOM": bundle Vite compilato, NON portato as-is (non code-split, CSS
+  non isolato); solo design system OKLCH/Fraunces applicato (`40b2fe2`),
+  `MultiSupplierTable` cablato in quotes/new (`8c32cc4`).
+- ⚠️ Lezione operativa: due sessioni sullo stesso working tree → commit
+  altrui hanno inglobato modifiche mie non committate (`8154eee`).
+  File spazzatura a 0 byte (`,` `{const` `Phase` `per` `quote`…) da
+  comandi shell malformati — cancellarli, mai committarli. MAI stampare
+  `npx convex env list` (mostra JWT_PRIVATE_KEY): è successo una volta.
+
+### 9.2 Piano approvato 2026-09-19 — NON ANCORA ESEGUITO
+
+Piano completo in `C:\Users\user\.claude\plans\sleepy-beaming-goblet.md`
+(include prompt copiabile per un altro agente). Sintesi fasi:
+
+- **FASE 1 — Hub clienti/cantieri ("cartelle")**: richiesto dall'utente dal
+  primo prompt, MAI realizzato — `/clients` e `/cantieri` sono liste
+  piatte. 1A schema `clientId/cantiereId` su `installationDossiers` + campo
+  nei form di creazione (quotes/new, surveys, inspections, cantieri
+  `quoteId`); 1B fix `getClient`/`getCantiere` (join per email invece che
+  FK; mancano surveys/inspections/installations); 1C pagine
+  `/clients/[id]` e `/cantieri/[id]`; 1D selettore condiviso
+  `client-cantiere-picker`; 1E backfill dati storici (chiedere).
+- **FASE 2 — ~30 funzioni Convex orfane**: per ognuna wire-o-elimina (lista
+  nel piano). `markAllSeen` da eliminare (badge conta su `readAt`).
+- **FASE 3 — UI/UX**: loading/empty/error state mancanti, i18n su 18 pagine
+  100% hardcoded + 5 miste.
+- **FASE 4 — Bug per pagina** (da utente 2026-09-19): 4.1 hover pie
+  dashboard bugga fuori dal pixel; 4.2 configuratori tab Generale
+  (lingua/tema predefiniti non applicati al widget); 4.3 PDF richieste
+  senza firma + SVG tecnico non fedele (ante/vetro/telaio Z/maniglia/arco/
+  porta/pannello modulare/delineatore con quote); 4.4 Showroom "Richiedi
+  Sopralluogo" non passa dati a /quotes + form Posa vuoto; 4.5 Rilievi
+  senza colonna Azioni (apri/stampa); 4.6 Installazioni solo stampa
+  (mancano modifica/elimina); 4.7 Collaudi PDF senza firma/foto; 4.8
+  Passports "Genera da Preventivo" → `passports:generateFundingDoc`
+  Server Error grezzo; 4.9 heatmap Ore di Punta + Andamento Richieste da
+  rifare animati e chiari.
+- **FASE 5 — Sistemici**: 5.1 i PDF "sembrano screenshot con scrollbar"
+  perché il bottone chiama `window.print()` sulla pagina con l'iframe —
+  causa confermata; fix = `pdf().toBlob()` via `usePDFDownload` (hook
+  esistente ma mai usato) + upload logo aziendale nei template; 5.2 firma
+  e foto in ogni PDF, foto MAI ridimensionate; 5.3 utility errori
+  condivisa (mai più stringhe `[CONVEX M(...)] Server Error` in UI); 5.4
+  apri/modifica/elimina su ogni documento; 5.5 = FASE 1.
+- **FASE 6 — Struttura**: 6.1 Team/Piano/Fatturazione nel menu laterale +
+  **rimozione sistema Alpha** (⚠️ distruttivo su dati reali: serve
+  conferma utente su dove migrare i tenant Alpha esistenti PRIMA di
+  toccare schema/entitlements/signup/`alpha.ts`/`account/badge`); 6.2
+  pagine legali nell'header + sito, senza placeholder; 6.3 admin con più
+  controlli tenant (`suspendTenant` esiste ma nessun bottone); 6.4 sidebar
+  floating/sticky/traslucida/categorie collassabili (solo desktop,
+  mobile/tablet diverso).
+- **FASE 7 — i18n + chiusura workflow circolare** (cliente una volta →
+  ovunque → PDF → ritorno al cliente).
+
+Decisioni ancora aperte (da chiedere, non assumere): backfill storico
+`clientId`; destino tenant Alpha; se `admin.resendEmail/listEmails` erano
+pianificati prima di eliminarli.
+
+### 9.3 Log esecuzione (aggiungere righe qui, più recente in basso)
+
+| Data | Fase | Commit | Note |
+|---|---|---|---|
+| 2026-09-19 | — | — | Piano approvato, nessuna fase ancora avviata. |
