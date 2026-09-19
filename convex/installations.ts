@@ -7,6 +7,7 @@ import { requireTenantRegion } from "./lib/fieldModules";
 import { enforceForFullFieldModules } from "./lib/enforcement";
 import { complianceForRegion, computePosaMaterials } from "./lib/compliance";
 import { regionForCountry } from "./lib/regions";
+import { resolveLinks, logClientActivity } from "./lib/links";
 
 /** Static per-market ruleset for the wizard UI (job types, nodes, notes). */
 export const getStandard = query({
@@ -84,6 +85,8 @@ export const create = mutation({
     tenantId: v.id("tenants"),
     quoteId: v.optional(v.id("quoteRequests")),
     surveyId: v.optional(v.id("siteSurveys")),
+    clientId: v.optional(v.id("clients")),
+    cantiereId: v.optional(v.id("cantieri")),
     jobType: v.string(),
     nodeType: v.string(),
     perimeterMm: v.number(),
@@ -100,12 +103,27 @@ export const create = mutation({
     const perimeterMm = Math.min(Math.max(Math.round(args.perimeterMm), 0), 1_000_000);
     const materials = computePosaMaterials(regionCode, perimeterMm);
 
+    // A dossier inherits its client/cantiere from the survey or quote it is
+    // built on when the caller did not pick one — the link is never lost
+    // along survey -> quote -> posa.
+    const survey = args.surveyId ? await ctx.db.get(args.surveyId) : null;
+    const quote = args.quoteId ? await ctx.db.get(args.quoteId) : null;
+    if ((survey && survey.tenantId !== args.tenantId) || (quote && quote.tenantId !== args.tenantId)) {
+      throw new ConvexError("TENANT_MISMATCH");
+    }
+    const links = await resolveLinks(ctx, args.tenantId, {
+      clientId: args.clientId ?? survey?.clientId ?? quote?.clientId,
+      cantiereId: args.cantiereId ?? survey?.cantiereId ?? quote?.cantiereId,
+    });
+
     const now = Date.now();
-    return await ctx.db.insert("installationDossiers", {
+    const dossierId = await ctx.db.insert("installationDossiers", {
       tenantId: args.tenantId,
       regionCode,
       quoteId: args.quoteId,
       surveyId: args.surveyId,
+      clientId: links.clientId,
+      cantiereId: links.cantiereId,
       createdByUserId: userId,
       jobType: args.jobType,
       nodeType: args.nodeType,
@@ -116,6 +134,16 @@ export const create = mutation({
       createdAt: now,
       updatedAt: now,
     });
+    await logClientActivity(ctx, {
+      tenantId: args.tenantId,
+      clientId: links.clientId,
+      userId,
+      type: "installation",
+      title: "Dossier di posa creato",
+      relatedTable: "installationDossiers",
+      relatedId: dossierId,
+    });
+    return dossierId;
   },
 });
 

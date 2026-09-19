@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import type { Id } from "@/convex/_generated/dataModel";
+import { ClientCantierePicker, type PickedLinks } from "@/components/app-shell/client-cantiere-picker";
 import {
   enqueue,
   flushQueue,
@@ -338,6 +339,19 @@ export default function InspectionsPage() {
 
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
+  // Client / cantiere link — pick once, name and site address prefill.
+  const [clientId, setClientId] = useState<Id<"clients"> | undefined>(undefined);
+  const [cantiereId, setCantiereId] = useState<Id<"cantieri"> | undefined>(undefined);
+  const handleLinks = useCallback((next: PickedLinks) => {
+    setClientId(next.clientId);
+    setCantiereId(next.cantiereId);
+    const c = next.client;
+    if (c) {
+      setName(c.name);
+      const addr = [c.siteAddress, c.siteCity].filter(Boolean).join(", ");
+      if (addr) setAddress(addr);
+    }
+  }, []);
   const [selected, setSelected] = useState<ReportId | null>(null);
   const [err, setErr] = useState("");
 
@@ -368,7 +382,7 @@ export default function InspectionsPage() {
   }, [sync.isOnline, sync.pendingCount, runSync]);
 
   async function add() {
-    if (!tenant || !name.trim()) {
+    if (!tenant || (!name.trim() && !clientId)) {
       setErr(t("clientNameRequired"));
       return;
     }
@@ -377,14 +391,24 @@ export default function InspectionsPage() {
       if (!navigator.onLine) {
         await enqueue("inspection.create", {
           tenantId: tenant._id,
+          clientId,
+          cantiereId,
           customerName: name.trim(),
           siteAddress: address.trim() || undefined,
         });
       } else {
-        await create({ tenantId: tenant._id, customerName: name.trim(), siteAddress: address.trim() || undefined });
+        await create({
+          tenantId: tenant._id,
+          clientId,
+          cantiereId,
+          customerName: name.trim(),
+          siteAddress: address.trim() || undefined,
+        });
       }
       setName("");
       setAddress("");
+      setClientId(undefined);
+      setCantiereId(undefined);
     } catch (e) {
       setErr(e instanceof Error ? e.message : t("createReportError"));
     }
@@ -407,6 +431,14 @@ export default function InspectionsPage() {
       </div>
 
       <div className="flex flex-wrap items-end gap-2 rounded-xl border border-[var(--color-border)] p-4">
+        <div className="w-full">
+          <ClientCantierePicker
+            tenantId={tenant?._id}
+            clientId={clientId}
+            cantiereId={cantiereId}
+            onChange={handleLinks}
+          />
+        </div>
         <label className="text-sm">
           <span className="text-[var(--color-muted-fg)]">{t("client")}</span>
           <input

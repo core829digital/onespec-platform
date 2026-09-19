@@ -10,6 +10,7 @@ import { regionForCountry } from "./lib/regions";
 import { nanoid } from "./lib/ids";
 import { internal } from "./_generated/api";
 import { enforceForESignature, enforceForFieldSurvey, enforceActivePlan } from "./lib/enforcement";
+import { resolveLinks, logClientActivity } from "./lib/links";
 
 /** Per-market inspection template (title, legal basis, photo + check lists). */
 export const getTemplate = query({
@@ -112,20 +113,32 @@ export const create = mutation({
     await enforceForFieldSurvey(ctx, args.tenantId);
     await enforceActivePlan(ctx, args.tenantId);
     const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
-    const name = args.customerName.trim();
+    // Inherit the link from the quote this inspection closes when the caller
+    // did not pick a client/cantiere explicitly.
+    const quote = args.quoteId ? await ctx.db.get(args.quoteId) : null;
+    if (quote && quote.tenantId !== args.tenantId) throw new ConvexError("TENANT_MISMATCH");
+    const links = await resolveLinks(ctx, args.tenantId, {
+      clientId: args.clientId ?? quote?.clientId,
+      cantiereId: args.cantiereId ?? quote?.cantiereId,
+    });
+    // Picking a client is enough — no need to retype their name/address.
+    const name = args.customerName.trim() || links.client?.name || "";
     if (!name) throw new ConvexError("CUSTOMER_NAME_REQUIRED");
     const tpl = complianceForRegion(regionCode).inspection;
 
     const now = Date.now();
-    return await ctx.db.insert("inspectionReports", {
+    const reportId = await ctx.db.insert("inspectionReports", {
       tenantId: args.tenantId,
       regionCode,
       quoteId: args.quoteId,
-      clientId: args.clientId,
-      cantiereId: args.cantiereId,
+      clientId: links.clientId,
+      cantiereId: links.cantiereId,
       createdByUserId: userId,
       customerName: name,
-      siteAddress: args.siteAddress?.trim(),
+      siteAddress:
+        args.siteAddress?.trim() ||
+        [links.client?.siteAddress, links.client?.siteCity].filter(Boolean).join(", ") ||
+        undefined,
       installerToken: nanoid(16),
       installerTeam: args.installerTeam?.trim(),
       scheduledFor: args.scheduledFor,
@@ -135,6 +148,16 @@ export const create = mutation({
       createdAt: now,
       updatedAt: now,
     });
+    await logClientActivity(ctx, {
+      tenantId: args.tenantId,
+      clientId: links.clientId,
+      userId,
+      type: "inspection",
+      title: "Collaudo creato",
+      relatedTable: "inspectionReports",
+      relatedId: reportId,
+    });
+    return reportId;
   },
 });
 

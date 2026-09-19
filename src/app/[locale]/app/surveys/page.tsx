@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { useRouter } from "@/i18n/navigation";
 import type { Id } from "@/convex/_generated/dataModel";
 import { LaserMeasure } from "@/components/surveys/LaserMeasure";
+import { ClientCantierePicker, type PickedLinks } from "@/components/app-shell/client-cantiere-picker";
 import {
   DiagnosticChecklist,
   computeRecommendation,
@@ -110,6 +111,20 @@ export default function SurveysPage() {
   const [customerAddress, setCustomerAddress] = useState("");
   const [customerCity, setCustomerCity] = useState("");
   const [customerPostalCode, setCustomerPostalCode] = useState("");
+  // Client / cantiere link — pick once, name and address prefill.
+  const [clientId, setClientId] = useState<Id<"clients"> | undefined>(undefined);
+  const [cantiereId, setCantiereId] = useState<Id<"cantieri"> | undefined>(undefined);
+  const handleLinks = useCallback((next: PickedLinks) => {
+    setClientId(next.clientId);
+    setCantiereId(next.cantiereId);
+    const c = next.client;
+    if (c) {
+      setCustomerName(c.name);
+      if (c.siteAddress) setCustomerAddress(c.siteAddress);
+      if (c.siteCity) setCustomerCity(c.siteCity);
+      if (c.sitePostalCode) setCustomerPostalCode(c.sitePostalCode);
+    }
+  }, []);
   const [openings, setOpenings] = useState<LaserOpening[]>([{ ...EMPTY_OPENING }]);
   const [activeIdx, setActiveIdx] = useState(0);
   const [dimension, setDimension] = useState<"L" | "H">("L");
@@ -126,6 +141,8 @@ export default function SurveysPage() {
     if (!tenant) return null;
     return {
       tenantId: tenant._id,
+      clientId,
+      cantiereId,
       customerName: customerName.trim(),
       customerAddress: customerAddress.trim() || undefined,
       customerCity: customerCity.trim() || undefined,
@@ -152,6 +169,8 @@ export default function SurveysPage() {
     };
   }, [
     tenant,
+    clientId,
+    cantiereId,
     customerName,
     customerAddress,
     customerCity,
@@ -180,6 +199,8 @@ export default function SurveysPage() {
   }, [sync.isOnline, sync.pendingCount, runSync]);
 
   function reset() {
+    setClientId(undefined);
+    setCantiereId(undefined);
     setCustomerName("");
     setCustomerAddress("");
     setCustomerCity("");
@@ -321,6 +342,12 @@ export default function SurveysPage() {
           </div>
 
           <div className="space-y-5 rounded-xl border border-[var(--color-border)] p-5">
+            <ClientCantierePicker
+              tenantId={tenant?._id}
+              clientId={clientId}
+              cantiereId={cantiereId}
+              onChange={handleLinks}
+            />
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <label className="text-sm">
                 <span className="text-[var(--color-muted-fg)]">Cliente *</span>

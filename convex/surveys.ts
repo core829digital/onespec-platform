@@ -5,6 +5,7 @@ import { v, ConvexError } from "convex/values";
 import { requireMembership, requireTenantRole } from "./lib/auth";
 import { requireTenantRegion } from "./lib/fieldModules";
 import { enforceForFieldSurvey } from "./lib/enforcement";
+import { resolveLinks, logClientActivity } from "./lib/links";
 
 const openingValidator = v.object({
   label: v.string(),
@@ -121,21 +122,26 @@ export const create = mutation({
   handler: async (ctx, args) => {
     await enforceForFieldSurvey(ctx, args.tenantId);
     const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
-    const name = args.customerName.trim();
+    const links = await resolveLinks(ctx, args.tenantId, {
+      clientId: args.clientId,
+      cantiereId: args.cantiereId,
+    });
+    // Picking a client is enough — no need to retype their name/address.
+    const name = args.customerName.trim() || links.client?.name || "";
     if (!name) throw new ConvexError("CUSTOMER_NAME_REQUIRED");
 
     const now = Date.now();
-    return await ctx.db.insert("siteSurveys", {
+    const surveyId = await ctx.db.insert("siteSurveys", {
       tenantId: args.tenantId,
       regionCode,
       quoteId: args.quoteId,
-      clientId: args.clientId,
-      cantiereId: args.cantiereId,
+      clientId: links.clientId,
+      cantiereId: links.cantiereId,
       createdByUserId: userId,
       customerName: name,
-      customerAddress: args.customerAddress?.trim(),
-      customerCity: args.customerCity?.trim(),
-      customerPostalCode: args.customerPostalCode?.trim(),
+      customerAddress: args.customerAddress?.trim() || links.client?.siteAddress,
+      customerCity: args.customerCity?.trim() || links.client?.siteCity,
+      customerPostalCode: args.customerPostalCode?.trim() || links.client?.sitePostalCode,
       openings: args.openings,
       diagnostics: args.diagnostics,
       laserMeasurements: args.laserMeasurements ?? [],
@@ -144,6 +150,16 @@ export const create = mutation({
       createdAt: now,
       updatedAt: now,
     });
+    await logClientActivity(ctx, {
+      tenantId: args.tenantId,
+      clientId: links.clientId,
+      userId,
+      type: "survey",
+      title: "Rilievo creato",
+      relatedTable: "siteSurveys",
+      relatedId: surveyId,
+    });
+    return surveyId;
   },
 });
 

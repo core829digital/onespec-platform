@@ -5,6 +5,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import { ComplianceBadges } from "@/components/installations/ComplianceBadges";
+import { ClientCantierePicker, type PickedLinks } from "@/components/app-shell/client-cantiere-picker";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useTranslations } from "next-intl";
 import {
@@ -66,6 +67,13 @@ export default function InstallationsPage() {
   const [perimeterM, setPerimeterM] = useState(0);
   const [surveyId, setSurveyId] = useState<string>("");
   const [notes, setNotes] = useState("");
+  // Client / cantiere link — a dossier also inherits it from its survey.
+  const [clientId, setClientId] = useState<Id<"clients"> | undefined>(undefined);
+  const [cantiereId, setCantiereId] = useState<Id<"cantieri"> | undefined>(undefined);
+  const handleLinks = useCallback((next: PickedLinks) => {
+    setClientId(next.clientId);
+    setCantiereId(next.cantiereId);
+  }, []);
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState("");
 
@@ -117,8 +125,12 @@ export default function InstallationsPage() {
         nodeType,
         perimeterMm: Math.round(perimeterM * 1000),
         surveyId: surveyId ? (surveyId as Id<"siteSurveys">) : undefined,
+        clientId,
+        cantiereId,
         notes: notes.trim() || undefined,
       });
+      setClientId(undefined);
+      setCantiereId(undefined);
       setOpen(false);
       setStep(1);
       setJobType("");
@@ -204,6 +216,13 @@ export default function InstallationsPage() {
             ))}
           </div>
 
+          <ClientCantierePicker
+            tenantId={tenant?._id}
+            clientId={clientId}
+            cantiereId={cantiereId}
+            onChange={handleLinks}
+          />
+
           {step === 1 && (
             <div className="space-y-2">
               <h2 className="text-sm font-semibold">1 · Tipo di lavoro</h2>
@@ -277,6 +296,8 @@ export default function InstallationsPage() {
                       setSurveyId(e.target.value);
                       const s = surveys.find((x) => x._id === e.target.value);
                       if (s) {
+                        if (!clientId && s.clientId) setClientId(s.clientId);
+                        if (!cantiereId && s.cantiereId) setCantiereId(s.cantiereId);
                         const mm = s.openings.reduce(
                           (acc, o) => acc + 2 * (o.widthMm + o.heightMm),
                           0,

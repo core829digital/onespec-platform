@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -8,6 +8,7 @@ import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { SpecDrawing } from "@/components/widget/spec-drawing";
+import { ClientCantierePicker, type PickedLinks } from "@/components/app-shell/client-cantiere-picker";
 import { SashEditor } from "@/components/quotes/sash-editor";
 import { SashPanel } from "@/components/quotes/sash-panel";
 import { MultiSupplierTable, type SupplierItem } from "@/components/quotes/MultiSupplierTable";
@@ -36,7 +37,7 @@ const REGION_OPTION_LABELS: Record<string, string> = {
   securityClass: "Antieffrazione (RC2 / RC3)",
   montageSystem: "Sistema di montaggio",
 };
-import type { Doc } from "@/convex/_generated/dataModel";
+import type { Doc, Id } from "@/convex/_generated/dataModel";
 import type { Material } from "@/components/widget/widget-pricing";
 
 type ConfiguratorDoc = Doc<"configurators">;
@@ -164,6 +165,23 @@ export default function NewFieldQuotePage() {
   const [customerCity, setCustomerCity] = useState("");
   const [customerPostalCode, setCustomerPostalCode] = useState("");
   const [leadMessage, setLeadMessage] = useState("");
+
+  // Client / cantiere link — pick once, everything below prefills.
+  const [clientId, setClientId] = useState<Id<"clients"> | undefined>(undefined);
+  const [cantiereId, setCantiereId] = useState<Id<"cantieri"> | undefined>(undefined);
+  const handleLinks = useCallback((next: PickedLinks) => {
+    setClientId(next.clientId);
+    setCantiereId(next.cantiereId);
+    const c = next.client;
+    if (c) {
+      setLeadName(c.name);
+      if (c.email) setLeadEmail(c.email);
+      if (c.phone) setLeadPhone(c.phone);
+      if (c.siteAddress) setCustomerAddress(c.siteAddress);
+      if (c.siteCity) setCustomerCity(c.siteCity);
+      if (c.sitePostalCode) setCustomerPostalCode(c.sitePostalCode);
+    }
+  }, []);
 
   // Base calculation & options
   const [installationType, setInstallationType] = useState("posa_qualificata_uni_11673");
@@ -516,6 +534,8 @@ export default function NewFieldQuotePage() {
       const res = await createFieldQuote({
         tenantId: tenant!._id,
         configuratorId: activeConfig._id,
+        clientId,
+        cantiereId,
         leadName: leadName.trim(),
         leadEmail: leadEmail.trim(),
         leadPhone: leadPhone.trim() || undefined,
@@ -674,6 +694,12 @@ export default function NewFieldQuotePage() {
               </span>
               {t("customerSite", { country: activeMeta.name })}
             </h2>
+            <ClientCantierePicker
+              tenantId={tenant?._id}
+              clientId={clientId}
+              cantiereId={cantiereId}
+              onChange={handleLinks}
+            />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">

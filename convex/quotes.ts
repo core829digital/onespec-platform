@@ -8,6 +8,7 @@ import { calculatePrice, type ProjectItem, type CatalogPayload } from "../src/sh
 import { getTenantCatalog } from "./calculations";
 import { currentPeriod } from "./lib/entitlements";
 import { regionForCountry } from "./lib/regions";
+import { resolveLinks, logClientActivity } from "./lib/links";
 
 /** Max size of a base64 signature PNG data URL (~200 KB of characters). */
 const MAX_SIGNATURE_LEN = 200_000;
@@ -198,17 +199,23 @@ export const createFieldQuote = mutation({
     const ecobonusDeductionCents = ecobonusPct > 0 ? Math.round(finalPriceCents * (ecobonusPct / 100)) : undefined;
     const maPrimeRenovDeductionCents = maPrimePct > 0 ? Math.round(finalPriceCents * (maPrimePct / 100)) : undefined;
 
+    // Reject another tenant's client/cantiere; a cantiere implies its client.
+    const links = await resolveLinks(ctx, args.tenantId, {
+      clientId: args.clientId,
+      cantiereId: args.cantiereId,
+    });
+
     const quoteId = await ctx.db.insert("quoteRequests", {
       tenantId: args.tenantId,
       configuratorId: args.configuratorId,
       catalogVersion: targetVersion,
       publicId: configurator.publicId,
-      leadName: args.leadName.trim(),
-      leadEmail: args.leadEmail.trim(),
-      leadPhone: args.leadPhone?.trim(),
-      customerAddress: args.customerAddress?.trim(),
-      customerCity: args.customerCity?.trim(),
-      customerPostalCode: args.customerPostalCode?.trim(),
+      leadName: args.leadName.trim() || links.client?.name || "",
+      leadEmail: args.leadEmail.trim() || links.client?.email || "",
+      leadPhone: args.leadPhone?.trim() || links.client?.phone,
+      customerAddress: args.customerAddress?.trim() || links.client?.siteAddress,
+      customerCity: args.customerCity?.trim() || links.client?.siteCity,
+      customerPostalCode: args.customerPostalCode?.trim() || links.client?.sitePostalCode,
       leadLocale: args.leadLocale ?? configurator.defaultLocale ?? "it",
       leadMessage: args.leadMessage,
       channel: "field_b2b",
@@ -220,7 +227,7 @@ export const createFieldQuote = mutation({
       ecobonusDeductionCents,
       regionalSurchargeCents: regionalSurcharge > 0 ? regionalSurcharge : undefined,
       profitMarginPercent: args.profitMarginPercent,
-      depositTerms: args.depositTerms ?? (args.regionCode === "FR" ? "Acompte 30% ├á la commande ┬À 70% ├á la livraison" : "30% ordine ┬À 60% merce pronta ┬À 10% posa"),
+      depositTerms: args.depositTerms ?? (args.regionCode === "FR" ? "Acompte 30% à la commande · 70% à la livraison" : "30% ordine · 60% merce pronta · 10% posa"),
       regionCode: args.regionCode,
       poseType: args.poseType,
       rgeCertificate: args.rgeCertificate,
@@ -241,8 +248,17 @@ export const createFieldQuote = mutation({
       currency: "EUR",
       status: "quoted",
       assignedToUserId: userId,
-      clientId: args.clientId,
-      cantiereId: args.cantiereId,
+      clientId: links.clientId,
+      cantiereId: links.cantiereId,
+    });
+    await logClientActivity(ctx, {
+      tenantId: args.tenantId,
+      clientId: links.clientId,
+      userId,
+      type: "quote",
+      title: "Preventivo creato",
+      relatedTable: "quoteRequests",
+      relatedId: quoteId,
     });
 
     await ctx.db.insert("auditLog", {
@@ -453,10 +469,23 @@ regionalSurchargeCents: 0,
       currency: 'EUR',
       status: 'quoted',
       assignedToUserId: userId,
+      // The survey's client/cantiere carries over — the link is never lost
+      // along survey -> quote.
+      clientId: survey.clientId,
+      cantiereId: survey.cantiereId,
     });
 
     // Link survey to quote
     await ctx.db.patch(args.surveyId, { quoteId, updatedAt: Date.now() });
+    await logClientActivity(ctx, {
+      tenantId: args.tenantId,
+      clientId: survey.clientId,
+      userId,
+      type: 'quote',
+      title: 'Preventivo generato da rilievo',
+      relatedTable: 'quoteRequests',
+      relatedId: quoteId,
+    });
 
     await ctx.db.insert('auditLog', {
       tenantId: args.tenantId,
@@ -533,6 +562,8 @@ export const createQuoteWithSuppliers = mutation({
     ralMontage: v.optional(v.boolean()),
     rcSecurityLevel: v.optional(v.string()),
     klimabonusEligible: v.optional(v.boolean()),
+    clientId: v.optional(v.id('clients')),
+    cantiereId: v.optional(v.id('cantieri')),
   },
   handler: async (ctx, args) => {
     await enforceForCreateQuote(ctx, args.tenantId);
@@ -588,17 +619,22 @@ export const createQuoteWithSuppliers = mutation({
     const ecobonusDeductionCents = ecobonusPct > 0 ? Math.round(finalPriceCents * (ecobonusPct / 100)) : undefined;
     const maPrimeRenovDeductionCents = maPrimePct > 0 ? Math.round(finalPriceCents * (maPrimePct / 100)) : undefined;
 
+    const links = await resolveLinks(ctx, args.tenantId, {
+      clientId: args.clientId,
+      cantiereId: args.cantiereId,
+    });
+
     const quoteId = await ctx.db.insert('quoteRequests', {
       tenantId: args.tenantId,
       configuratorId: args.configuratorId,
       catalogVersion: targetVersion,
       publicId: configurator.publicId,
-      leadName: args.leadName.trim(),
-      leadEmail: args.leadEmail.trim(),
-      leadPhone: args.leadPhone?.trim(),
-      customerAddress: args.customerAddress?.trim(),
-      customerCity: args.customerCity?.trim(),
-      customerPostalCode: args.customerPostalCode?.trim(),
+      leadName: args.leadName.trim() || links.client?.name || '',
+      leadEmail: args.leadEmail.trim() || links.client?.email || '',
+      leadPhone: args.leadPhone?.trim() || links.client?.phone,
+      customerAddress: args.customerAddress?.trim() || links.client?.siteAddress,
+      customerCity: args.customerCity?.trim() || links.client?.siteCity,
+      customerPostalCode: args.customerPostalCode?.trim() || links.client?.sitePostalCode,
       leadLocale: args.leadLocale ?? configurator.defaultLocale ?? 'it',
       leadMessage: args.leadMessage,
       channel: 'field_b2b',
@@ -610,7 +646,7 @@ export const createQuoteWithSuppliers = mutation({
       ecobonusDeductionCents,
       regionalSurchargeCents: regionalSurcharge > 0 ? regionalSurcharge : undefined,
       profitMarginPercent: args.profitMarginPercent,
-      depositTerms: args.depositTerms ?? (args.regionCode === 'FR' ? 'Acompte 30% Ã  la commande Â· 70% Ã  la livraison' : '30% ordine Â· 60% merce pronta Â· 10% posa'),
+      depositTerms: args.depositTerms ?? (args.regionCode === 'FR' ? 'Acompte 30% à la commande · 70% à la livraison' : '30% ordine · 60% merce pronta · 10% posa'),
       regionCode: args.regionCode,
       poseType: args.poseType,
       rgeCertificate: args.rgeCertificate,
@@ -632,6 +668,17 @@ export const createQuoteWithSuppliers = mutation({
       status: 'quoted',
       assignedToUserId: userId,
       supplierLines: args.supplierLines,
+      clientId: links.clientId,
+      cantiereId: links.cantiereId,
+    });
+    await logClientActivity(ctx, {
+      tenantId: args.tenantId,
+      clientId: links.clientId,
+      userId,
+      type: 'quote',
+      title: 'Preventivo multi-fornitore creato',
+      relatedTable: 'quoteRequests',
+      relatedId: quoteId,
     });
 
     await ctx.db.insert('auditLog', {

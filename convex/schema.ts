@@ -598,6 +598,8 @@ export default defineSchema({
     regionCode: v.string(),
     quoteId: v.optional(v.id("quoteRequests")),
     surveyId: v.optional(v.id("siteSurveys")),
+    clientId: v.optional(v.id("clients")),
+    cantiereId: v.optional(v.id("cantieri")),
     createdByUserId: v.id("users"),
     jobType: v.string(),
     nodeType: v.string(),
@@ -617,7 +619,9 @@ export default defineSchema({
     updatedAt: v.number(),
   })
     .index("by_tenant", ["tenantId"])
-    .index("by_quote", ["quoteId"]),
+    .index("by_quote", ["quoteId"])
+    .index("by_client", ["clientId"])
+    .index("by_cantiere", ["cantiereId"]),
 
   /** Verbale di Collaudo — signed inspection record with mandatory photo checklist. */
   inspectionReports: defineTable({

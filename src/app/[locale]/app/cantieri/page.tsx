@@ -242,6 +242,7 @@ function CantiereModal({
   onSubmit,
   cantiere,
   clients,
+  quotes,
   users,
   saving,
   t,
@@ -266,6 +267,7 @@ function CantiereModal({
   }) => void;
   cantiere?: Cantiere;
   clients: Cantiere[];
+  quotes: Array<{ _id: string; leadName: string; clientId?: string }>;
   users: Cantiere[];
   saving: boolean;
   t: (key: string) => string;
@@ -423,6 +425,23 @@ function CantiereModal({
                   {clients.map((c: { _id: string; name: string }) => (
                     <option key={c._id} value={c._id}>{c.name}</option>
                   ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
+                  {t("quote")}
+                </label>
+                <select
+                  value={formData.quoteId}
+                  onChange={(e) => setFormData({ ...formData, quoteId: e.target.value })}
+                  className="w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
+                >
+                  <option value="">{t("noQuote")}</option>
+                  {quotes
+                    .filter((q) => !formData.clientId || q.clientId === formData.clientId || q._id === formData.quoteId)
+                    .map((q) => (
+                      <option key={q._id} value={q._id}>{q.leadName}</option>
+                    ))}
                 </select>
               </div>
               <div>
@@ -587,6 +606,11 @@ export default function CantieriPage() {
 
   const clients = useQuery(
     api.clients.listClients,
+    tenant ? { tenantId: tenant._id, limit: 200 } : "skip",
+  );
+
+  const quotes = useQuery(
+    api.quotes.listRequests,
     tenant ? { tenantId: tenant._id, limit: 200 } : "skip",
   );
 
@@ -761,6 +785,7 @@ try {
         onSubmit={editingCantiere ? handleUpdate : handleCreate}
         cantiere={editingCantiere ?? undefined}
         clients={(clients || []) as unknown as Cantiere[]}
+        quotes={(quotes || []) as unknown as Array<{ _id: string; leadName: string; clientId?: string }>}
         users={(users || []) as unknown as Cantiere[]}
         saving={saving}
         t={t}
