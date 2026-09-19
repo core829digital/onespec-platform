@@ -465,12 +465,43 @@ Piano completo in `C:\Users\user\.claude\plans\sleepy-beaming-goblet.md`
 - **FASE 7 — i18n + chiusura workflow circolare** (cliente una volta →
   ovunque → PDF → ritorno al cliente).
 
-Decisioni ancora aperte (da chiedere, non assumere): backfill storico
-`clientId`; destino tenant Alpha; se `admin.resendEmail/listEmails` erano
-pianificati prima di eliminarli.
+**Decisioni utente 2026-09-19 (CHIUSE):**
+- Alpha: SOLO l'admin con email contact.core829@gmail.com avrà il piano
+  maggiore esistente (Showroom). Gli altri tenant migrano al piano che
+  l'agente ritiene migliore — regola: l'app NON va regalata. Scelta
+  raccomandata: tutti gli altri → Starter (piano pagante più basso, cap
+  20 preventivi/mese), niente sconto Alpha; rimuovere isAlpha/
+  alphaDiscountLocked/alphaSeatNumber, alphaSeats, appSettings.alpha*,
+  convex/alpha.ts, pagina account/badge, piano `alpha` in entitlements.
+  Va fatta con migration esplicita (FASE 6.1), non solo togliendo codice.
+- Backfill storico clientId: NON serve. I dati esistenti sono solo test;
+  l'utente vuole dati FRESCHI e non toccati per i prossimi test.
+- admin.resendEmail/listEmails/recentSignups: ERANO pianificati → da
+  collegare in UI admin (non eliminare), FASE 6.3.
 
 ### 9.3 Log esecuzione (aggiungere righe qui, più recente in basso)
 
 | Data | Fase | Commit | Note |
 |---|---|---|---|
 | 2026-09-19 | — | — | Piano approvato, nessuna fase ancora avviata. |
+| 2026-09-19 | 1A+1D | 808d3ab | `convex/lib/links.ts` (resolveLinks anti cross-tenant + cantiere→cliente + logClientActivity); `installationDossiers` +clientId/cantiereId +indici; createFieldQuoteFromSurvey non perde più il link; createQuoteWithSuppliers accetta i link; componente unico `client-cantiere-picker` in quotes/new, surveys, inspections, installations (prefill nome/indirizzo dal cliente, legge ?clientId=); select preventivo nel modal cantiere (write path morto); fix mojibake in depositTerms. Test client-links. Deploy Convex prod fatto (consenso utente). |
+| 2026-09-19 | 1B+1C | 8ba2c5d | getClient/getCantiere via FK (listRelated, summary leggeri); **fix sicurezza: getCantiere non aveva alcun controllo accessi**; pagine `/app/clients/[id]` e `/app/cantieri/[id]` (tab Cantieri/Preventivi/Rilievi/Collaudi/Posa/Attività, note timeline = addClientActivity cablata, task cantiere CRUD + revoca PIN cablati); liste linkano alle cartelle. **5.3 parte**: `src/lib/errors.ts` + `use-friendly-error.ts` + namespace i18n `errors` (mai più `[CONVEX M(...)] Server Error` a schermo) — DA ESTENDERE a tutte le pagine (oggi usato solo dalle nuove). Deploy Convex prod fatto. |
+| 2026-09-19 | 1E | — | Chiusa: nessun backfill (dati test, vedi decisioni). |
+
+### 9.4 Note operative apprese (2026-09-19)
+
+- Un'ALTRA sessione lavora nello stesso working tree e committa in parallelo
+  (numerazione sua: `1.1 PDF download fix` d47fcf6, `1.2 Guest PIN /k/[pin]`
+  c580626, `1.3 MultiSupplierTable` cf54c76). Prima di toccare un file
+  condiviso: `git pull`, rileggerlo, edit chirurgici, mai `git stash`
+  (un mio stash ha fatto perdere temporaneamente il lavoro: recuperato).
+  Committare SOLO i propri file con `git add <path>` espliciti.
+- `node -e` con `=>`/`>` dentro virgolette doppie in bash crea file
+  spazzatura (`JSON.stringify(a)`, `{const`…). Usare file .js in scratchpad.
+- `git push` NON deploya Convex: `npx convex deploy` a parte, con consenso
+  esplicito per prod ogni volta.
+- Bug latente noto: `getCantiereByGuestPin` usa `.unique()` su un PIN a 6
+  cifre non unico tra tenant e non ha rate limit (brute-force) — da
+  sistemare insieme alla pagina guest `/k/[pin]` (FASE 2/cantieri).
+- Warning build: `themeColor` nel `metadata export` va spostato in
+  `viewport export` (Next 16) — su tutte le rotte.
