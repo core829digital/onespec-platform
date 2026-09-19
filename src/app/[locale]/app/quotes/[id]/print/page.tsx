@@ -7,6 +7,7 @@ import { Link } from "@/i18n/navigation";
 import type { Id } from "@/convex/_generated/dataModel";
 import { PDFViewerComponent } from "@/components/ui/PDFViewer";
 import { QuotePrintPDF } from "@/lib/pdfs/QuotePrintPDF";
+import { usePDFDownload } from "@/hooks/usePDFDownload";
 
 interface Props {
   params: Promise<{ id: string; locale: string }>;
@@ -31,6 +32,24 @@ function QuoteDocument({ quote, tenant, region }: { quote: any; tenant: any; reg
       region={region}
     />
   );
+
+  // PDF Download hook
+  const { downloadPDF } = usePDFDownload(QuotePrintPDF, {
+    filename: `preventivo-${quote.publicId?.slice(-8) || "quote"}.pdf`,
+  });
+
+  const handleDownload = async () => {
+    await downloadPDF({
+      tenant: {
+        name: tenant?.name ?? "Serramenti",
+        vatId: (tenant as any)?.vatId,
+        address: (tenant as any)?.address,
+      },
+      quote,
+      locale: dateLocale,
+      region,
+    });
+  };
 
   return (
     <>
@@ -84,10 +103,16 @@ function QuoteDocument({ quote, tenant, region }: { quote: any; tenant: any; reg
             </Link>
           )}
           <button
+            onClick={handleDownload}
+            className="rounded-lg bg-[var(--color-mint)] px-4 py-2 text-sm font-bold text-[var(--color-mint-dark)] hover:opacity-90"
+          >
+            ⬇️ Scarica PDF
+          </button>
+          <button
             onClick={() => window.print()}
             className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2 text-sm font-medium text-[var(--color-text)] hover:bg-[var(--color-bg-alt)]"
           >
-            🖨️ Stampa / Salva PDF
+            🖨️ Stampa
           </button>
         </div>
       </div>

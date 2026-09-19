@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { PDFViewerComponent } from "@/components/ui/PDFViewer";
 import { InspectionCertPDF } from "@/lib/pdfs/InspectionCertPDF";
+import { usePDFDownload } from "@/hooks/usePDFDownload";
 
 interface Props {
   params: Promise<{ id: string; locale: string }>;
@@ -46,6 +47,39 @@ function InspectionDocument({ data, region }: { data: any; region: string }) {
     />
   );
 
+  // PDF Download hook
+  const { downloadPDF } = usePDFDownload(InspectionCertPDF, {
+    filename: `verbale-collaudo-${report._id?.slice(-8) || "report"}.pdf`,
+  });
+
+  const handleDownload = async () => {
+    await downloadPDF({
+      tenant: {
+        name: tenant?.name ?? "Serramenti",
+        address: (tenant as any)?.address,
+        vatId: (tenant as any)?.vatId,
+      },
+      report: {
+        createdAt: report.createdAt,
+        status: report.status,
+        customerName: report.customerName,
+        siteAddress: report.siteAddress,
+        photos: report.photos,
+        checks: report.checks,
+        installerNotes: report.installerNotes,
+        clientRemarks: report.clientRemarks,
+        signatureDataUrl: report.signatureDataUrl,
+        signedByName: report.signedByName,
+        signedAt: report.signedAt,
+      },
+      title,
+      legalBasis,
+      warrantyLines,
+      locale: dateLocale,
+      generatedAt,
+    });
+  };
+
   return (
     <>
       {/* Print action bar (hidden in print) */}
@@ -55,12 +89,20 @@ function InspectionDocument({ data, region }: { data: any; region: string }) {
             {title} #{report._id?.slice(-8).toUpperCase()} ({region})
           </span>
         </div>
-        <button
-          onClick={() => window.print()}
-          className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2 text-sm font-medium text-[var(--color-text)] hover:bg-[var(--color-bg-alt)]"
-        >
-          🖨️ Stampa / Salva PDF
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleDownload}
+            className="rounded-lg bg-[var(--color-mint)] px-4 py-2 text-sm font-bold text-[var(--color-mint-dark)] hover:opacity-90"
+          >
+            ⬇️ Scarica PDF
+          </button>
+          <button
+            onClick={() => window.print()}
+            className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2 text-sm font-medium text-[var(--color-text)] hover:bg-[var(--color-bg-alt)]"
+          >
+            🖨️ Stampa
+          </button>
+        </div>
       </div>
 
       {/* PDF Viewer */}

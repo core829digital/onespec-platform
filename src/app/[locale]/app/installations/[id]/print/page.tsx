@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { PDFViewerComponent } from "@/components/ui/PDFViewer";
 import { InstallationCertPDF } from "@/lib/pdfs/InstallationCertPDF";
+import { usePDFDownload } from "@/hooks/usePDFDownload";
 
 interface Props {
   params: Promise<{ id: string; locale: string }>;
@@ -57,6 +58,46 @@ function InstallationDocument({ data, region }: { data: any; region: string }) {
     />
   );
 
+  // PDF Download hook
+  const { downloadPDF } = usePDFDownload(InstallationCertPDF, {
+    filename: `dossier-posa-${dossier._id?.slice(-8) || "dossier"}.pdf`,
+  });
+
+  const handleDownload = async () => {
+    await downloadPDF({
+      tenant: {
+        name: tenant?.name ?? "Serramenti",
+        address: (tenant as any)?.address,
+        vatId: (tenant as any)?.vatId,
+      },
+      dossier: {
+        normRef: dossier.normRef,
+        createdAt: dossier.createdAt,
+        perimeterMm: dossier.perimeterMm,
+        materials: dossier.materials,
+        notes: dossier.notes,
+      },
+      jobLabel,
+      nodeLabel,
+      notes,
+      quote: quote
+        ? {
+            leadName: quote.leadName,
+            customerAddress: quote.customerAddress,
+            customerCity: quote.customerCity,
+          }
+        : undefined,
+      survey: survey
+        ? {
+            customerName: survey.customerName,
+            openings: survey.openings,
+          }
+        : undefined,
+      locale: dateLocale,
+      generatedAt,
+    });
+  };
+
   return (
     <>
       {/* Print action bar (hidden in print) */}
@@ -66,12 +107,20 @@ function InstallationDocument({ data, region }: { data: any; region: string }) {
             Dossier #{dossier._id?.slice(-8).toUpperCase()} ({region})
           </span>
         </div>
-        <button
-          onClick={() => window.print()}
-          className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2 text-sm font-medium text-[var(--color-text)] hover:bg-[var(--color-bg-alt)]"
-        >
-          🖨️ Stampa / Salva PDF
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleDownload}
+            className="rounded-lg bg-[var(--color-mint)] px-4 py-2 text-sm font-bold text-[var(--color-mint-dark)] hover:opacity-90"
+          >
+            ⬇️ Scarica PDF
+          </button>
+          <button
+            onClick={() => window.print()}
+            className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2 text-sm font-medium text-[var(--color-text)] hover:bg-[var(--color-bg-alt)]"
+          >
+            🖨️ Stampa
+          </button>
+        </div>
       </div>
 
       {/* PDF Viewer */}
