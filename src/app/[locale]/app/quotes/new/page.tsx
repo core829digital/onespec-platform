@@ -290,6 +290,7 @@ export default function NewFieldQuotePage() {
   );
 
   const createFieldQuote = useMutation(api.quotes.createFieldQuote);
+  const createQuoteWithSuppliers = useMutation(api.quotes.createQuoteWithSuppliers);
 
   const currentItem = items[activeItemIndex] || items[0];
 
@@ -531,44 +532,102 @@ export default function NewFieldQuotePage() {
     setError("");
 
     try {
-      const res = await createFieldQuote({
-        tenantId: tenant!._id,
-        configuratorId: activeConfig._id,
-        clientId,
-        cantiereId,
-        leadName: leadName.trim(),
-        leadEmail: leadEmail.trim(),
-        leadPhone: leadPhone.trim() || undefined,
-        customerAddress: customerAddress.trim() || undefined,
-        customerCity: customerCity.trim() || undefined,
-        customerPostalCode: customerPostalCode.trim() || undefined,
-        leadLocale: REGION_CONFIGS[regionCode].defaultLocale,
-        leadMessage: leadMessage.trim() || undefined,
-        regionCode,
-        items,
-        installationType,
-        installationPriceCents: installationEuros * 100,
-        demolitionPriceCents: demolitionEuros * 100,
-        discountPercent,
-        regionalSurchargeCents: priceCalc.regionalExtraCents,
-        ecobonusPercent: regionCode === "IT" ? ecobonusPercent : undefined,
-        poseType: regionCode === "FR" ? poseType : undefined,
-        rgeCertificate: regionCode === "FR" ? rgeCertificate : undefined,
-        decennaleInsurance: regionCode === "FR" ? decennaleInsurance : undefined,
-        maPrimeRenovPercent: regionCode === "FR" ? maPrimeRenovPercent : undefined,
-        rensonGrilleWidthMm: regionCode === "BE" && rensonGrilleWidthMm > 0 ? rensonGrilleWidthMm : undefined,
-        voletMonoblocHeightMm: (regionCode === "BE" || regionCode === "DE") && voletMonoblocHeightMm > 0 ? voletMonoblocHeightMm : undefined,
-        hvlJointCount: regionCode === "NL" && hvlJointCount > 0 ? hvlJointCount : undefined,
-        isostoneSill: regionCode === "NL" ? isostoneSill : undefined,
-        ralMontage: (regionCode === "DE" || regionCode === "LU") ? ralMontage : undefined,
-        rcSecurityLevel: (regionCode === "DE" || regionCode === "LU") ? rcSecurityLevel : undefined,
-        klimabonusEligible: regionCode === "LU" ? klimabonusEligible : undefined,
-        profitMarginPercent,
-        vatRatePercent,
-        depositTerms,
-      });
+      const hasSupplierItems = supplierItems.length > 0;
+      let res;
 
-      router.push(`/app/quotes/${res.quoteId}/sign`);
+      if (hasSupplierItems) {
+        const supplierLines = supplierItems.map((si, idx) => {
+          // Match supplier by name from local state
+          const matchingSupplier = suppliers.find((s) => s.name === si.supplier);
+          return {
+            supplierId: (matchingSupplier ? `supplier_${matchingSupplier.name.replace(/\s+/g, "_")}` : `supplier_${si.supplier.replace(/\s+/g, "_")}`) as Id<"catalogSuppliers">,
+            itemIndex: idx,
+            supplierPriceCents: Math.round(si.price * 100),
+            leadTimeDays: 7, // Default lead time
+          };
+        }).filter((line) => line.supplierId); // Only include lines with valid supplier IDs
+
+        if (supplierLines.length === 0) {
+          throw new Error("Nessun fornitore valido trovato per le righe multi-fornitore");
+        }
+
+        res = await createQuoteWithSuppliers({
+          tenantId: tenant!._id,
+          configuratorId: activeConfig._id,
+          clientId,
+          cantiereId,
+          leadName: leadName.trim(),
+          leadEmail: leadEmail.trim(),
+          leadPhone: leadPhone.trim() || undefined,
+          customerAddress: customerAddress.trim() || undefined,
+          customerCity: customerCity.trim() || undefined,
+          customerPostalCode: customerPostalCode.trim() || undefined,
+          leadLocale: REGION_CONFIGS[regionCode].defaultLocale,
+          leadMessage: leadMessage.trim() || undefined,
+          regionCode,
+          items,
+          supplierLines,
+          installationType,
+          installationPriceCents: installationEuros * 100,
+          demolitionPriceCents: demolitionEuros * 100,
+          discountPercent,
+          regionalSurchargeCents: priceCalc.regionalExtraCents,
+          ecobonusPercent: regionCode === "IT" ? ecobonusPercent : undefined,
+          poseType: regionCode === "FR" ? poseType : undefined,
+          rgeCertificate: regionCode === "FR" ? rgeCertificate : undefined,
+          decennaleInsurance: regionCode === "FR" ? decennaleInsurance : undefined,
+          maPrimeRenovPercent: regionCode === "FR" ? maPrimeRenovPercent : undefined,
+          rensonGrilleWidthMm: regionCode === "BE" && rensonGrilleWidthMm > 0 ? rensonGrilleWidthMm : undefined,
+          voletMonoblocHeightMm: (regionCode === "BE" || regionCode === "DE") && voletMonoblocHeightMm > 0 ? voletMonoblocHeightMm : undefined,
+          hvlJointCount: regionCode === "NL" && hvlJointCount > 0 ? hvlJointCount : undefined,
+          isostoneSill: regionCode === "NL" ? isostoneSill : undefined,
+          ralMontage: (regionCode === "DE" || regionCode === "LU") ? ralMontage : undefined,
+          rcSecurityLevel: (regionCode === "DE" || regionCode === "LU") ? rcSecurityLevel : undefined,
+          klimabonusEligible: regionCode === "LU" ? klimabonusEligible : undefined,
+          profitMarginPercent,
+          vatRatePercent,
+          depositTerms,
+        });
+      } else {
+        const res = await createFieldQuote({
+          tenantId: tenant!._id,
+          configuratorId: activeConfig._id,
+          clientId,
+          cantiereId,
+          leadName: leadName.trim(),
+          leadEmail: leadEmail.trim(),
+          leadPhone: leadPhone.trim() || undefined,
+          customerAddress: customerAddress.trim() || undefined,
+          customerCity: customerCity.trim() || undefined,
+          customerPostalCode: customerPostalCode.trim() || undefined,
+          leadLocale: REGION_CONFIGS[regionCode].defaultLocale,
+          leadMessage: leadMessage.trim() || undefined,
+          regionCode,
+          items,
+          installationType,
+          installationPriceCents: installationEuros * 100,
+          demolitionPriceCents: demolitionEuros * 100,
+          discountPercent,
+          regionalSurchargeCents: priceCalc.regionalExtraCents,
+          ecobonusPercent: regionCode === "IT" ? ecobonusPercent : undefined,
+          poseType: regionCode === "FR" ? poseType : undefined,
+          rgeCertificate: regionCode === "FR" ? rgeCertificate : undefined,
+          decennaleInsurance: regionCode === "FR" ? decennaleInsurance : undefined,
+          maPrimeRenovPercent: regionCode === "FR" ? maPrimeRenovPercent : undefined,
+          rensonGrilleWidthMm: regionCode === "BE" && rensonGrilleWidthMm > 0 ? rensonGrilleWidthMm : undefined,
+          voletMonoblocHeightMm: (regionCode === "BE" || regionCode === "DE") && voletMonoblocHeightMm > 0 ? voletMonoblocHeightMm : undefined,
+          hvlJointCount: regionCode === "NL" && hvlJointCount > 0 ? hvlJointCount : undefined,
+          isostoneSill: regionCode === "NL" ? isostoneSill : undefined,
+          ralMontage: (regionCode === "DE" || regionCode === "LU") ? ralMontage : undefined,
+          rcSecurityLevel: (regionCode === "DE" || regionCode === "LU") ? rcSecurityLevel : undefined,
+          klimabonusEligible: regionCode === "LU" ? klimabonusEligible : undefined,
+          profitMarginPercent,
+          vatRatePercent,
+          depositTerms,
+        });
+      }
+
+      router.push(`/app/quotes/${res!.quoteId}/sign`);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : t("createQuoteError"));
     } finally {
