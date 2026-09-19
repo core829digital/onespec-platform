@@ -25,6 +25,7 @@ import {
   Clock,
   Package,
   CheckCircle,
+  Link2,
 } from "lucide-react";
 import { EmptyState } from "@/components/app-shell/empty-state";
 
@@ -68,6 +69,7 @@ interface CantiereCardProps {
   onEdit: () => void;
   onDelete: () => void;
   onGeneratePin: () => void;
+  onRevokePin: () => void;
   t: (key: string) => string;
   format: ReturnType<typeof useFormatter>;
 }
@@ -77,6 +79,7 @@ function CantiereCard({
   onEdit,
   onDelete,
   onGeneratePin,
+  onRevokePin,
   t,
   format,
 }: CantiereCardProps) {
@@ -149,9 +152,15 @@ function CantiereCard({
           <button onClick={onEdit} className="p-1.5 rounded hover:bg-[var(--color-bg-alt)]" title={t("edit")}>
             <Edit className="w-4 h-4" />
           </button>
-          <button onClick={onGeneratePin} className="p-1.5 rounded hover:bg-[var(--color-bg-alt)]" title={t("generatePin")}>
-            <Key className="w-4 h-4" />
-          </button>
+          {cantiere.guestPin ? (
+            <button onClick={onRevokePin} className="p-1.5 rounded hover:bg-red-50 text-red-500" title={t("revokePin")}>
+              <Key className="w-4 h-4" />
+            </button>
+          ) : (
+            <button onClick={onGeneratePin} className="p-1.5 rounded hover:bg-[var(--color-bg-alt)]" title={t("generatePin")}>
+              <Key className="w-4 h-4" />
+            </button>
+          )}
           <button onClick={onDelete} className="p-1.5 rounded hover:bg-red-50 text-red-500" title={t("delete")}>
             <Trash2 className="w-4 h-4" />
           </button>
@@ -189,6 +198,7 @@ function KanbanColumn({
   onEdit,
   onDelete,
   onGeneratePin,
+  onRevokePin,
   t,
   format,
 }: {
@@ -197,6 +207,7 @@ function KanbanColumn({
   onEdit: (c: Cantiere) => void;
   onDelete: (id: string) => void;
   onGeneratePin: (c: Cantiere) => void;
+  onRevokePin: (c: Cantiere) => void;
   t: (key: string) => string;
   format: ReturnType<typeof useFormatter>;
 }) {
@@ -219,17 +230,18 @@ function KanbanColumn({
             {t("noItemsInColumn")}
           </div>
         ) : (
-          cantieri.map((cantiere) => (
-            <CantiereCard
-              key={cantiere._id}
-              cantiere={cantiere}
-              onEdit={() => onEdit(cantiere)}
-              onDelete={() => onDelete(cantiere._id)}
-              onGeneratePin={() => onGeneratePin(cantiere)}
-              t={t}
-              format={format}
-            />
-          ))
+cantieri.map((cantiere) => (
+              <CantiereCard
+                key={cantiere._id}
+                cantiere={cantiere}
+                onEdit={() => onEdit(cantiere)}
+                onDelete={() => onDelete(cantiere._id)}
+                onGeneratePin={() => onGeneratePin(cantiere)}
+                onRevokePin={() => onRevokePin(cantiere)}
+                t={t}
+                format={format}
+              />
+            ))
         )}
       </div>
     </div>
@@ -564,6 +576,8 @@ function GuestPinModal({
   format: ReturnType<typeof useFormatter>;
   t: (key: string) => string;
 }) {
+  const guestUrl = typeof window !== "undefined" ? `${window.location.origin}/k/${pin}` : `/k/${pin}`;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
       <div className="bg-white rounded-xl shadow-xl max-w-md w-full">
@@ -578,6 +592,18 @@ function GuestPinModal({
           <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl p-6">
             <div className="text-4xl font-mono font-bold tracking-widest text-[var(--color-accent)]">{pin}</div>
             <p className="text-xs text-[var(--color-text-secondary)] mt-2">{t("validUntil")} {format.dateTime(new Date(expiresAt), { dateStyle: "medium" })}</p>
+          </div>
+          <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg p-4 text-left space-y-2">
+            <p className="text-xs font-medium text-[var(--color-text-secondary)]">{t("guestAccessUrl")}</p>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 bg-[var(--color-bg)] border border-[var(--color-border)] rounded px-3 py-2 text-xs font-mono break-all">{guestUrl}</code>
+              <button
+                onClick={() => navigator.clipboard?.writeText(guestUrl)}
+                className="px-3 py-2 text-xs rounded border border-[var(--color-border)] bg-[var(--color-bg)] hover:bg-[var(--color-bg-alt)] whitespace-nowrap"
+              >
+                {t("copyLink")}
+              </button>
+            </div>
           </div>
           <p className="text-xs text-[var(--color-text-secondary)]">{t("pinInstructions")}</p>
           <button onClick={onClose} className="w-full rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-[var(--color-accent-ink)]">
@@ -623,6 +649,7 @@ export default function CantieriPage() {
   const updateCantiere = useMutation(api.cantieri.updateCantiere);
   const deleteCantiere = useMutation(api.cantieri.deleteCantiere);
   const generateGuestPin = useMutation(api.cantieri.generateGuestPin);
+  const revokeGuestPin = useMutation(api.cantieri.revokeGuestPin);
 
   const groupedCantieri = useCallback(() => {
     if (!cantieri) return {};
@@ -721,6 +748,15 @@ try {
     }
   };
 
+  const handleRevokePin = async (cantiere: Cantiere) => {
+    if (!confirm(t("confirmRevokePin"))) return;
+    try {
+      await revokeGuestPin({ cantiereId: cantiere._id as unknown as Id<"cantieri"> });
+    } catch (e) {
+      console.error("Error revoking PIN:", e);
+    }
+  };
+
   const openEditModal = (cantiere: Cantiere) => {
     setEditingCantiere(cantiere);
     setModalOpen(true);
@@ -772,6 +808,7 @@ try {
               onEdit={openEditModal}
               onDelete={handleDelete}
               onGeneratePin={handleGeneratePin}
+              onRevokePin={handleRevokePin}
               t={t}
               format={format}
             />
