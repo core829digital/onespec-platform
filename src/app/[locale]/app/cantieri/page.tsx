@@ -51,6 +51,7 @@ const PRIORITY_COLORS = {
 
 interface CantiereCardProps {
   cantiere: {
+    _id?: string;
     name: string;
     status: string;
     address: string;
@@ -90,7 +91,15 @@ function CantiereCard({
   return (
     <div className="bg-white border border-[var(--color-border)] rounded-lg p-3 hover:shadow-md transition-shadow">
       <div className="flex items-start justify-between gap-2 mb-2">
-        <h3 className="font-semibold text-[var(--color-text)] truncate">{cantiere.name}</h3>
+        <h3 className="font-semibold text-[var(--color-text)] truncate">
+          {cantiere._id ? (
+            <Link href={`/app/cantieri/${cantiere._id}`} className="hover:text-[var(--color-mint)] hover:underline">
+              {cantiere.name}
+            </Link>
+          ) : (
+            cantiere.name
+          )}
+        </h3>
         {cantiere.guestPin && (
           <span className="flex items-center gap-1 px-2 py-0.5 rounded text-xs bg-emerald-100 text-emerald-700" title={t("guestAccessActive")}>
             <Key className="w-3 h-3" />

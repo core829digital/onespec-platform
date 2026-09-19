@@ -75,3 +75,94 @@ export async function logClientActivity(
     createdAt: Date.now(),
   });
 }
+
+/** Lightweight summaries — never ship photo/signature payloads to a folder view. */
+export interface RelatedRecords {
+  quotes: Array<{
+    _id: Id<"quoteRequests">;
+    leadName: string;
+    priceCents: number;
+    status: string;
+    publicId: string;
+    signedAt: number | undefined;
+    createdAt: number;
+  }>;
+  surveys: Array<{
+    _id: Id<"siteSurveys">;
+    customerName: string;
+    status: string;
+    openingsCount: number;
+    createdAt: number;
+  }>;
+  inspections: Array<{
+    _id: Id<"inspectionReports">;
+    customerName: string;
+    status: string;
+    createdAt: number;
+  }>;
+  installations: Array<{
+    _id: Id<"installationDossiers">;
+    jobType: string;
+    nodeType: string;
+    createdAt: number;
+  }>;
+}
+
+const RELATED_LIMIT = 100;
+
+/**
+ * Everything in the platform tied to one client OR one cantiere — the data
+ * behind the client/cantiere "folder" pages. Uses the by_client/by_cantiere
+ * indexes (the real FK), never a heuristic like matching e-mail addresses.
+ */
+export async function listRelated(
+  ctx: QueryCtx,
+  key: { clientId: Id<"clients"> } | { cantiereId: Id<"cantieri"> },
+): Promise<RelatedRecords> {
+  const byClient = "clientId" in key;
+  const [quotes, surveys, inspections, installations] = await Promise.all([
+    byClient
+      ? ctx.db.query("quoteRequests").withIndex("by_client", (q) => q.eq("clientId", key.clientId)).order("desc").take(RELATED_LIMIT)
+      : ctx.db.query("quoteRequests").withIndex("by_cantiere", (q) => q.eq("cantiereId", key.cantiereId)).order("desc").take(RELATED_LIMIT),
+    byClient
+      ? ctx.db.query("siteSurveys").withIndex("by_client", (q) => q.eq("clientId", key.clientId)).order("desc").take(RELATED_LIMIT)
+      : ctx.db.query("siteSurveys").withIndex("by_cantiere", (q) => q.eq("cantiereId", key.cantiereId)).order("desc").take(RELATED_LIMIT),
+    byClient
+      ? ctx.db.query("inspectionReports").withIndex("by_client", (q) => q.eq("clientId", key.clientId)).order("desc").take(RELATED_LIMIT)
+      : ctx.db.query("inspectionReports").withIndex("by_cantiere", (q) => q.eq("cantiereId", key.cantiereId)).order("desc").take(RELATED_LIMIT),
+    byClient
+      ? ctx.db.query("installationDossiers").withIndex("by_client", (q) => q.eq("clientId", key.clientId)).order("desc").take(RELATED_LIMIT)
+      : ctx.db.query("installationDossiers").withIndex("by_cantiere", (q) => q.eq("cantiereId", key.cantiereId)).order("desc").take(RELATED_LIMIT),
+  ]);
+
+  return {
+    quotes: quotes.map((r) => ({
+      _id: r._id,
+      leadName: r.leadName,
+      priceCents: r.priceCents,
+      status: r.status,
+      publicId: r.publicId,
+      signedAt: r.signedAt,
+      createdAt: r._creationTime,
+    })),
+    surveys: surveys.map((r) => ({
+      _id: r._id,
+      customerName: r.customerName,
+      status: r.status,
+      openingsCount: r.openings.length,
+      createdAt: r._creationTime,
+    })),
+    inspections: inspections.map((r) => ({
+      _id: r._id,
+      customerName: r.customerName,
+      status: r.status,
+      createdAt: r._creationTime,
+    })),
+    installations: installations.map((r) => ({
+      _id: r._id,
+      jobType: r.jobType,
+      nodeType: r.nodeType,
+      createdAt: r._creationTime,
+    })),
+  };
+}

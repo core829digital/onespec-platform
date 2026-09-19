@@ -2,6 +2,7 @@ import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import { requireTenantRole, requireMembership } from "./lib/auth";
+import { listRelated } from "./lib/links";
 
 /** List clients for a tenant with optional filters. */
 export const listClients = query({
@@ -65,14 +66,12 @@ export const getClient = query({
       .withIndex("by_client", (q) => q.eq("clientId", args.clientId))
       .collect();
 
-    // Get related quotes
-    const allQuotes = await ctx.db
-      .query("quoteRequests")
-      .withIndex("by_tenant", (q) => q.eq("tenantId", client.tenantId))
-      .take(100);
-    const quotes = allQuotes.filter((q) => q.leadEmail === client.email).slice(0, 20);
+    // Everything tied to this client through the real FK (by_client indexes) —
+    // this used to guess quotes by matching e-mail addresses and never joined
+    // surveys, inspections or installation dossiers at all.
+    const related = await listRelated(ctx, { clientId: args.clientId });
 
-    return { client, activities, cantieri, quotes };
+    return { client, activities, cantieri, ...related };
   },
 });
 

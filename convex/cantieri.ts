@@ -2,6 +2,7 @@ import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import { requireTenantRole, requireMembership } from "./lib/auth";
+import { listRelated } from "./lib/links";
 
 const CANTIERE_STATUSES = [
   "preventivo",
@@ -75,14 +76,20 @@ export const listCantieri = query({
   },
 });
 
-/** Get a single cantiere with tasks and guest access check. */
+/**
+ * Get a single cantiere with tasks and everything linked to it. Members of the
+ * owning tenant only — this had NO access check at all (the comment promised
+ * "member or valid guest PIN" but nothing enforced either), so anyone holding
+ * a cantiere id could read its tasks, client and quote. Guests holding a PIN
+ * use getCantiereByGuestPin instead.
+ */
 export const getCantiere = query({
   args: { cantiereId: v.id("cantieri") },
   handler: async (ctx, args) => {
     const cantiere = await ctx.db.get(args.cantiereId);
     if (!cantiere) return null;
+    await requireMembership(ctx, cantiere.tenantId);
 
-    // Check if user is member of tenant or has valid guest PIN
     const tenant = await ctx.db.get(cantiere.tenantId);
     if (!tenant) return null;
 
@@ -104,7 +111,9 @@ export const getCantiere = query({
       quote = await ctx.db.get(cantiere.quoteId);
     }
 
-    return { cantiere, tasks, client, quote, tenant: { name: tenant.name } };
+    const related = await listRelated(ctx, { cantiereId: args.cantiereId });
+
+    return { cantiere, tasks, client, quote, tenant: { name: tenant.name }, ...related };
   },
 });
 

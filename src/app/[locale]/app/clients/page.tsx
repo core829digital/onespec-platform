@@ -97,7 +97,12 @@ function ClientRow({
             )}
           </div>
           <div>
-            <p className="font-medium text-[var(--color-text)]">{client.name}</p>
+            <Link
+              href={`/app/clients/${client._id}`}
+              className="font-medium text-[var(--color-text)] hover:text-[var(--color-mint)] hover:underline"
+            >
+              {client.name}
+            </Link>
             {client.contactName && (
               <p className="text-sm text-[var(--color-text-secondary)]">{client.contactName}</p>
             )}

@@ -112,3 +112,51 @@ test("a cantiere implies its client and a mismatching pair is rejected", async (
     }),
   ).rejects.toThrow(/CANTIERE_CLIENT_MISMATCH/);
 });
+
+test("client folder joins everything through the real FK, cantiere folder needs membership", async () => {
+  const t = newDb();
+  const seeded = await seedTenant(t, { plan: "pro" });
+  const other = await seedTenant(t, { plan: "pro" });
+  const asOwner = t.withIdentity({ subject: seeded.ownerId });
+  const asStranger = t.withIdentity({ subject: other.ownerId });
+  const clientId = await seedClient(t, seeded.tenantId);
+  const cantiereId = await t.run((ctx) =>
+    ctx.db.insert("cantieri", {
+      tenantId: seeded.tenantId,
+      name: "Villa",
+      address: "Via 1",
+      city: "Prato",
+      postalCode: "59100",
+      clientId,
+      status: "preventivo",
+      priority: "low",
+      assignedUserIds: [],
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    }),
+  );
+
+  await asOwner.mutation(api.surveys.create, {
+    tenantId: seeded.tenantId,
+    cantiereId,
+    customerName: "",
+    openings: opening,
+    diagnostics: {},
+  });
+  await asOwner.mutation(api.inspections.create, { tenantId: seeded.tenantId, clientId, customerName: "" });
+
+  const folder = await asOwner.query(api.clients.getClient, { clientId });
+  expect(folder?.surveys).toHaveLength(1);
+  expect(folder?.inspections).toHaveLength(1);
+  expect(folder?.cantieri).toHaveLength(1);
+  // timeline: one line per creation, newest first
+  expect(folder?.activities.map((a) => a.type).sort()).toEqual(["inspection", "survey"]);
+
+  const site = await asOwner.query(api.cantieri.getCantiere, { cantiereId });
+  expect(site?.surveys).toHaveLength(1);
+  expect(site?.inspections).toHaveLength(0);
+
+  // Another tenant's owner must not read this cantiere or client.
+  await expect(asStranger.query(api.cantieri.getCantiere, { cantiereId })).rejects.toThrow();
+  await expect(asStranger.query(api.clients.getClient, { clientId })).rejects.toThrow();
+});
