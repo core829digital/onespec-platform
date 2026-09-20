@@ -28,6 +28,7 @@ import {
   Link2,
 } from "lucide-react";
 import { EmptyState } from "@/components/app-shell/empty-state";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 
 // Module-level constant for current time (updated on each render via useMemo in parent)
 export const NOW = Date.now();
@@ -626,6 +627,12 @@ function GuestPinModal({
 
 export default function CantieriPage() {
   const t = useTranslations("cantieri");
+  const tf = useFriendlyError();
+  const [actionError, setActionError] = useState("");
+  const showError = (e: unknown) => {
+    setActionError(tf(e));
+    setTimeout(() => setActionError(""), 8000);
+  };
   const format = useFormatter();
   const tenant = useQuery(api.tenants.getMyTenant);
   const [search, setSearch] = useState("");
@@ -696,7 +703,7 @@ export default function CantieriPage() {
       setModalOpen(false);
       setEditingCantiere(null);
     } catch (e) {
-      console.error("Error creating cantiere:", e);
+      showError(e);
     } finally {
       setSaving(false);
     }
@@ -733,7 +740,7 @@ try {
       setModalOpen(false);
       setEditingCantiere(null);
     } catch (e) {
-      console.error("Error updating cantiere:", e);
+      showError(e);
     } finally {
       setSaving(false);
     }
@@ -744,7 +751,7 @@ try {
     try {
       await deleteCantiere({ cantiereId: cantiereId as unknown as Id<"cantieri"> });
     } catch (e) {
-      console.error("Error deleting cantiere:", e);
+      showError(e);
     }
   };
 
@@ -753,7 +760,7 @@ try {
       const result = await generateGuestPin({ cantiereId: cantiere._id as unknown as Id<"cantieri">, expiresInDays: 30 });
       setPinModal({ pin: result.pin, expiresAt: result.expiresAt });
     } catch (e) {
-      console.error("Error generating PIN:", e);
+      showError(e);
     }
   };
 
@@ -762,7 +769,7 @@ try {
     try {
       await revokeGuestPin({ cantiereId: cantiere._id as unknown as Id<"cantieri"> });
     } catch (e) {
-      console.error("Error revoking PIN:", e);
+      showError(e);
     }
   };
 
@@ -783,6 +790,17 @@ try {
 
   return (
     <div className="w-full space-y-6">
+      {actionError ? (
+        <div
+          role="alert"
+          className="fixed left-1/2 top-4 z-[100] flex max-w-[90vw] -translate-x-1/2 items-start gap-3 rounded-lg border border-[var(--color-danger)] bg-[var(--color-bg)] px-4 py-3 text-sm text-[var(--color-danger)] shadow-lg"
+        >
+          <span>{actionError}</span>
+          <button type="button" onClick={() => setActionError("")} aria-label="Close" className="font-bold leading-none">
+            ×
+          </button>
+        </div>
+      ) : null}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-text)]">{t("title")}</h1>

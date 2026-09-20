@@ -4,6 +4,7 @@ import { isAuthenticatedNextjs, convexAuthNextjsToken } from "@convex-dev/auth/n
 import { getTranslations } from "next-intl/server";
 import { api } from "@/convex/_generated/api";
 import { AppShell } from "@/components/app-shell/app-shell";
+import { ActionToaster } from "@/components/app-shell/action-toaster";
 
 export default async function AppLayout({
   children,
@@ -41,5 +42,10 @@ export default async function AppLayout({
     );
   }
 
-  return <AppShell tenant={tenant}>{children}</AppShell>;
+  return (
+    <AppShell tenant={tenant}>
+      {children}
+      <ActionToaster />
+    </AppShell>
+  );
 }

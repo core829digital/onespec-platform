@@ -25,6 +25,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { EmptyState } from "@/components/app-shell/empty-state";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 
 const STATUS_LABELS = {
   lead: "Lead",
@@ -570,6 +571,12 @@ function ClientModal({
 
 export default function ClientsPage() {
   const t = useTranslations("clients");
+  const tf = useFriendlyError();
+  const [actionError, setActionError] = useState("");
+  const showError = (e: unknown) => {
+    setActionError(tf(e));
+    setTimeout(() => setActionError(""), 8000);
+  };
   const format = useFormatter();
   const tenant = useQuery(api.tenants.getMyTenant);
   const [search, setSearch] = useState("");
@@ -650,7 +657,7 @@ const [editingClient, setEditingClient] = useState<
       setModalOpen(false);
       setEditingClient(undefined);
     } catch (e) {
-      console.error("Error creating client:", e);
+      showError(e);
     } finally {
       setSaving(false);
     }
@@ -692,7 +699,7 @@ const [editingClient, setEditingClient] = useState<
       setModalOpen(false);
       setEditingClient(undefined);
     } catch (e) {
-      console.error("Error updating client:", e);
+      showError(e);
     } finally {
       setSaving(false);
     }
@@ -703,7 +710,7 @@ const [editingClient, setEditingClient] = useState<
     try {
       await deleteClient({ clientId: clientId as Id<"clients"> });
     } catch (e) {
-      console.error("Error deleting client:", e);
+      showError(e);
     }
   };
 
@@ -741,6 +748,17 @@ const [editingClient, setEditingClient] = useState<
 
   return (
     <div className="w-full space-y-6">
+      {actionError ? (
+        <div
+          role="alert"
+          className="fixed left-1/2 top-4 z-[100] flex max-w-[90vw] -translate-x-1/2 items-start gap-3 rounded-lg border border-[var(--color-danger)] bg-[var(--color-bg)] px-4 py-3 text-sm text-[var(--color-danger)] shadow-lg"
+        >
+          <span>{actionError}</span>
+          <button type="button" onClick={() => setActionError("")} aria-label="Close" className="font-bold leading-none">
+            ×
+          </button>
+        </div>
+      ) : null}
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-text)]">{t("title")}</h1>

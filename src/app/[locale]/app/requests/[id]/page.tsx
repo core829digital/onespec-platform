@@ -7,6 +7,7 @@ import { Link } from "@/i18n/navigation";
 import type { Id } from "@/convex/_generated/dataModel";
 import { StatusBadge } from "@/components/app-shell/status-badge";
 import { QuoteFieldModules } from "@/components/field/quote-field-modules";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 
 const STATUSES = ["new", "contacted", "quoted", "won", "lost", "spam"] as const;
 const STATUS_LABEL: Record<string, string> = {
@@ -39,6 +40,7 @@ interface ItemLike {
 }
 
 export default function RequestDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const tf = useFriendlyError();
   const { id } = use(params);
   const quoteId = id as Id<"quoteRequests">;
   const quote = useQuery(api.quotes.getRequest, { quoteId });
@@ -102,7 +104,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
     try {
       await fn();
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Errore");
+      setErr(tf(e));
     } finally {
       setBusy(false);
     }

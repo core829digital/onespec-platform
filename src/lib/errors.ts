@@ -41,6 +41,13 @@ export type ErrorKey =
   | "signatureInvalid"
   | "imageType"
   | "imageTooLarge"
+  | "alreadyMember"
+  | "alreadyInvited"
+  | "alreadyHasTenant"
+  | "inviteMismatch"
+  | "inviteInvalid"
+  | "invalidEmail"
+  | "cannotRemoveOwner"
   | "offline";
 
 const EXACT: Record<string, ErrorKey> = {
@@ -79,6 +86,14 @@ const EXACT: Record<string, ErrorKey> = {
   SIGNATURE_TOO_LARGE: "signatureInvalid",
   UNSUPPORTED_IMAGE_TYPE: "imageType",
   IMAGE_TOO_LARGE: "imageTooLarge",
+  ALREADY_MEMBER: "alreadyMember",
+  ALREADY_INVITED: "alreadyInvited",
+  ALREADY_HAS_TENANT: "alreadyHasTenant",
+  INVITATION_EMAIL_MISMATCH: "inviteMismatch",
+  INVITATION_EXPIRED: "inviteInvalid",
+  INVITATION_USED: "inviteInvalid",
+  INVALID_EMAIL: "invalidEmail",
+  CANNOT_REMOVE_OWNER: "cannotRemoveOwner",
 };
 
 /** Map a backend error code to a message key (pattern fallbacks for families). */
@@ -126,4 +141,15 @@ export function friendlyError(e: unknown, t: (key: ErrorKey) => string): string 
     console.error(e);
   }
   return t(key);
+}
+
+/**
+ * Auth actions throw plain Errors; in production Convex hides their text behind
+ * "[CONVEX A(auth:signIn)] [Request ID: …] Server Error". Show the message only
+ * when it is a real, readable one, otherwise the page's own fallback.
+ */
+export function authErrorMessage(e: unknown, fallback: string): string {
+  const m = e instanceof Error ? e.message : "";
+  if (!m || /\[CONVEX|Request ID|Server Error|Uncaught/i.test(m)) return fallback;
+  return m;
 }

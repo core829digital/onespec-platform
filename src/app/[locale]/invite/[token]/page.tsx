@@ -4,8 +4,10 @@ import { use, useState } from "react";
 import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link, useRouter } from "@/i18n/navigation";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 
 export default function AcceptInvitePage({ params }: { params: Promise<{ token: string }> }) {
+  const tf = useFriendlyError();
   const { token } = use(params);
   const router = useRouter();
   const { isAuthenticated, isLoading } = useConvexAuth();
@@ -51,15 +53,7 @@ export default function AcceptInvitePage({ params }: { params: Promise<{ token: 
                     await accept({ token });
                     router.replace("/app/dashboard");
                   } catch (e) {
-                    setErr(
-                      e instanceof Error && /EMAIL_MISMATCH/.test(e.message)
-                        ? "Questo invito è per un altro indirizzo email. Accedi con l'account giusto."
-                        : e instanceof Error && /ALREADY_HAS_TENANT/.test(e.message)
-                          ? "Fai già parte di un'organizzazione."
-                          : e instanceof Error
-                            ? e.message
-                            : "Errore",
-                    );
+                    setErr(tf(e));
                     setBusy(false);
                   }
                 }}

@@ -5,6 +5,7 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { Section, Field, TextInput, NumberInput, SelectInput, Toggle } from "./editor-primitives";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 
 interface Configurator {
   name: string;
@@ -37,6 +38,7 @@ export function GeneralTab({
   configuratorId: Id<"configurators">;
   configurator: Configurator;
 }) {
+  const tf = useFriendlyError();
   const update = useMutation(api.configurators.updateConfigurator);
   const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
   const [saving, setSaving] = useState(false);
@@ -104,7 +106,7 @@ export function GeneralTab({
       });
       setMsg({ kind: "ok", text: "Impostazioni salvate." });
     } catch (e) {
-      setMsg({ kind: "err", text: e instanceof Error ? e.message : "Errore nel salvataggio" });
+      setMsg({ kind: "err", text: tf(e) });
     } finally {
       setSaving(false);
     }

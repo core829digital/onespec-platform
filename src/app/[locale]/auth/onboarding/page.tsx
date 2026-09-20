@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import { authErrorMessage } from "@/lib/errors";
 
 const COUNTRIES = [
   { code: "IT", label: "Italia" },
@@ -57,7 +58,7 @@ export default function OnboardingPage() {
       setResult(res);
       setLoading(false);
     } catch (err) {
-      setError(err instanceof Error && err.message ? err.message : t("error"));
+      setError(authErrorMessage(err, t("error")));
       setLoading(false);
     }
   }

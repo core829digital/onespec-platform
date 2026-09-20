@@ -9,6 +9,7 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { authErrorMessage } from "@/lib/errors";
 
 export default function RegisterPage() {
   return (
@@ -45,7 +46,7 @@ function RegisterForm() {
       if (redirect) q.set("redirect", redirect);
       router.push(`/auth/verify?${q.toString()}`);
     } catch (err) {
-      setError(err instanceof Error && err.message ? err.message : t("error"));
+      setError(authErrorMessage(err, t("error")));
     } finally {
       setLoading(false);
     }

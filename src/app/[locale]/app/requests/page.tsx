@@ -5,6 +5,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useRouter } from "@/i18n/navigation";
 import { StatusBadge } from "@/components/app-shell/status-badge";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 
 const STATUSES = ["new", "contacted", "quoted", "won", "lost", "spam"] as const;
 type Status = (typeof STATUSES)[number];
@@ -20,6 +21,7 @@ const STATUS_LABEL: Record<Status, string> = {
 type SortKey = "date" | "value" | "name";
 
 export default function RequestsPage() {
+  const tf = useFriendlyError();
   const router = useRouter();
   const tenant = useQuery(api.tenants.getMyTenant);
   const [status, setStatus] = useState<Status | "all">("all");
@@ -75,13 +77,7 @@ export default function RequestsPage() {
         `Esportate ${res.rowCount} righe${res.truncated ? " (troncato al massimo consentito)" : ""}.`,
       );
     } catch (e) {
-      setMsg(
-        e instanceof Error && /RATE_LIMITED/.test(e.message)
-          ? "Limite di esportazioni orarie raggiunto. Riprova più tardi."
-          : e instanceof Error
-            ? e.message
-            : "Errore nell'esportazione",
-      );
+      setMsg(tf(e));
     } finally {
       setExporting(false);
     }

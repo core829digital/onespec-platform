@@ -7,6 +7,7 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { authErrorMessage } from "@/lib/errors";
 
 export default function ForgotPasswordPage() {
   const t = useTranslations("auth.forgotPassword");
@@ -25,7 +26,7 @@ export default function ForgotPasswordPage() {
       // The OTP is sent by email; continue to the code-entry step.
       router.push(`/auth/reset-password?email=${encodeURIComponent(email)}`);
     } catch (err) {
-      setError(err instanceof Error && err.message ? err.message : t("error"));
+      setError(authErrorMessage(err, t("error")));
     } finally {
       setLoading(false);
     }

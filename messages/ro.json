@@ -248,7 +248,14 @@
     "signatureInvalid": "Semnătură invalidă sau prea mare. Semnează din nou.",
     "imageType": "Format de imagine neacceptat. Folosește JPG, PNG sau WebP.",
     "offline": "Ești offline. Reîncearcă la revenirea conexiunii.",
-    "imageTooLarge": "Imagine prea mare (maximum 2 MB)."
+    "imageTooLarge": "Imagine prea mare (maximum 2 MB).",
+    "alreadyMember": "Această persoană face deja parte din echipă.",
+    "alreadyInvited": "Există deja o invitație în așteptare pentru acest e-mail.",
+    "alreadyHasTenant": "Faci deja parte dintr-o organizație.",
+    "inviteMismatch": "Această invitație este pentru altă adresă de e-mail. Autentifică-te cu contul potrivit.",
+    "inviteInvalid": "Invitație expirată sau deja folosită. Cere una nouă.",
+    "invalidEmail": "Adresă de e-mail invalidă.",
+    "cannotRemoveOwner": "Proprietarul organizației nu poate fi eliminat."
   },
   "dashboard": {
     "title": "Panou",

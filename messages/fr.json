@@ -248,7 +248,14 @@
     "signatureInvalid": "Signature invalide ou trop volumineuse. Signez à nouveau.",
     "imageType": "Format d'image non pris en charge. Utilisez JPG, PNG ou WebP.",
     "offline": "Vous êtes hors ligne. Réessayez au retour de la connexion.",
-    "imageTooLarge": "Image trop volumineuse (2 Mo maximum)."
+    "imageTooLarge": "Image trop volumineuse (2 Mo maximum).",
+    "alreadyMember": "Cette personne fait déjà partie de l'équipe.",
+    "alreadyInvited": "Une invitation est déjà en attente pour cet e-mail.",
+    "alreadyHasTenant": "Vous faites déjà partie d'une organisation.",
+    "inviteMismatch": "Cette invitation est destinée à une autre adresse e-mail. Connectez-vous avec le bon compte.",
+    "inviteInvalid": "Invitation expirée ou déjà utilisée. Demandez-en une nouvelle.",
+    "invalidEmail": "Adresse e-mail invalide.",
+    "cannotRemoveOwner": "Le propriétaire de l'organisation ne peut pas être retiré."
   },
   "dashboard": {
     "title": "Tableau de bord",

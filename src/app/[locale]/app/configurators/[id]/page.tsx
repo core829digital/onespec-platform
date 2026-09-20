@@ -13,6 +13,7 @@ import { EmbedTab } from "@/components/configurator/embed-tab";
 import { ConfigTab } from "@/components/configurator/config-tab";
 import { ImportTab } from "@/components/configurator/import-tab";
 import { cn } from "@/lib/utils";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 
 type Tab = "general" | "catalog" | "import" | "branding" | "embed" | "config" | "versions";
 
@@ -151,6 +152,7 @@ function PublishButton({
   configuratorId: Id<"configurators">;
   onPublished: () => void;
 }) {
+  const tf = useFriendlyError();
   const publish = useMutation(api.configurators.publishConfigurator);
   const [open, setOpen] = useState(false);
   const [note, setNote] = useState("");
@@ -166,7 +168,7 @@ function PublishButton({
       setNote("");
       onPublished();
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Errore nella pubblicazione");
+      setErr(tf(e));
     } finally {
       setBusy(false);
     }
@@ -220,6 +222,7 @@ function PublishButton({
 }
 
 function VersionsTab({ configuratorId }: { configuratorId: Id<"configurators"> }) {
+  const tf = useFriendlyError();
   const versions = useQuery(api.configurators.listVersions, { configuratorId });
   const rollback = useMutation(api.configurators.rollbackToVersion);
   const [busy, setBusy] = useState<number | null>(null);
@@ -264,7 +267,7 @@ function VersionsTab({ configuratorId }: { configuratorId: Id<"configurators"> }
                   try {
                     await rollback({ configuratorId, version: v.version });
                   } catch (e) {
-                    setErr(e instanceof Error ? e.message : "Errore nel ripristino");
+                    setErr(tf(e));
                   } finally {
                     setBusy(null);
                   }

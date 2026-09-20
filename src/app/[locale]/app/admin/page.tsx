@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { ADMIN_PREVIEW_EMAIL, canPreviewMarkets, previewableRegions } from "@/lib/country-locale";
+import { useRunAction } from "@/hooks/useRunAction";
 
 function MarketPreview() {
   const [region, setRegion] = useState("IT");
@@ -76,6 +77,7 @@ function MarketPreview() {
 }
 
 export default function AdminPage() {
+  const run = useRunAction();
   const viewer = useQuery(api.users.viewer);
   const isAdmin = viewer?.isPlatformAdmin === true;
 
@@ -121,10 +123,10 @@ export default function AdminPage() {
         <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg p-4 flex flex-col justify-between">
           <p className="text-sm text-[var(--color-text-secondary)]">Registrazioni</p>
           <div className="flex gap-2 mt-2">
-            <Button size="sm" variant="ghost" onClick={() => toggleRegistration({ open: true })}>
+            <Button size="sm" variant="ghost" onClick={() => run(toggleRegistration({ open: true }))}>
               Apri
             </Button>
-            <Button size="sm" variant="ghost" onClick={() => toggleRegistration({ open: false })}>
+            <Button size="sm" variant="ghost" onClick={() => run(toggleRegistration({ open: false }))}>
               Chiudi
             </Button>
           </div>
@@ -168,7 +170,7 @@ export default function AdminPage() {
                 <select
                   value={f.status}
                   onChange={(e) =>
-                    setFeedbackStatus({ id: f._id, status: e.target.value as "new" | "triaged" | "closed" })
+                    run(setFeedbackStatus({ id: f._id, status: e.target.value as "new" | "triaged" | "closed" }))
                   }
                   className="rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-1.5 py-0.5 text-xs text-[var(--color-text)]"
                 >

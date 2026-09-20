@@ -248,7 +248,14 @@
     "signatureInvalid": "Unterschrift ungültig oder zu groß. Bitte neu unterschreiben.",
     "imageType": "Bildformat nicht unterstützt. JPG, PNG oder WebP verwenden.",
     "offline": "Du bist offline. Versuche es erneut, sobald die Verbindung zurück ist.",
-    "imageTooLarge": "Bild zu groß (maximal 2 MB)."
+    "imageTooLarge": "Bild zu groß (maximal 2 MB).",
+    "alreadyMember": "Diese Person gehört bereits zum Team.",
+    "alreadyInvited": "Für diese E-Mail gibt es bereits eine offene Einladung.",
+    "alreadyHasTenant": "Sie gehören bereits einer Organisation an.",
+    "inviteMismatch": "Diese Einladung gilt für eine andere E-Mail-Adresse. Melden Sie sich mit dem richtigen Konto an.",
+    "inviteInvalid": "Einladung abgelaufen oder bereits verwendet. Bitten Sie um eine neue.",
+    "invalidEmail": "Ungültige E-Mail-Adresse.",
+    "cannotRemoveOwner": "Der Inhaber der Organisation kann nicht entfernt werden."
   },
   "dashboard": {
     "title": "Dashboard",

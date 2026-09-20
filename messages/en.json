@@ -291,7 +291,14 @@
     "signatureInvalid": "Signature invalid or too large. Please sign again.",
     "imageType": "Unsupported image format. Use JPG, PNG or WebP.",
     "offline": "You're offline. Try again when the connection is back.",
-    "imageTooLarge": "Image too large (2 MB maximum)."
+    "imageTooLarge": "Image too large (2 MB maximum).",
+    "alreadyMember": "This person is already in the team.",
+    "alreadyInvited": "There is already a pending invitation for this email.",
+    "alreadyHasTenant": "You already belong to an organization.",
+    "inviteMismatch": "This invitation is for a different email address. Sign in with the right account.",
+    "inviteInvalid": "Invitation expired or already used. Ask for a new one.",
+    "invalidEmail": "Invalid email address.",
+    "cannotRemoveOwner": "The organization owner cannot be removed."
   },
   "app": {
     "suspended": {

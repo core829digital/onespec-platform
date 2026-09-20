@@ -40,6 +40,7 @@ const REGION_OPTION_LABELS: Record<string, string> = {
 };
 import type { Doc, Id } from "@/convex/_generated/dataModel";
 import type { Material } from "@/components/widget/widget-pricing";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 
 type ConfiguratorDoc = Doc<"configurators">;
 type RegionCode = "IT" | "FR" | "BE" | "NL" | "DE" | "LU";
@@ -139,6 +140,7 @@ const REGION_CONFIGS: Record<RegionCode, RegionMeta> = {
 };
 
 export default function NewFieldQuotePage() {
+  const tf = useFriendlyError();
   const t = useTranslations("quotes.new");
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -665,7 +667,7 @@ export default function NewFieldQuotePage() {
 
       router.push(`/app/quotes/${res!.quoteId}/sign`);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : t("createQuoteError"));
+      setError(tf(err));
     } finally {
       setSubmitting(false);
     }

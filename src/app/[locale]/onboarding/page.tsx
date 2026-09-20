@@ -6,10 +6,12 @@ import { api } from "@/convex/_generated/api";
 import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
 import type { Id } from "@/convex/_generated/dataModel";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 
 type Step = "welcome" | "billing" | "team" | "configurator";
 
 export default function OnboardingWizard() {
+  const tf = useFriendlyError();
   const router = useRouter();
   const state = useQuery(api.onboarding.getState);
   const tenant = useQuery(api.tenants.getMyTenant);
@@ -72,7 +74,7 @@ export default function OnboardingWizard() {
       await complete();
       router.replace("/app/dashboard");
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Errore");
+      setErr(tf(e));
       setBusy(false);
     }
   }
@@ -131,7 +133,7 @@ export default function OnboardingWizard() {
                     const { url } = await checkout({ tenantId: tenant._id, plan: p });
                     window.location.href = url;
                   } catch (e) {
-                    setErr(e instanceof Error ? e.message : "Errore checkout");
+                    setErr(tf(e));
                     setBusy(false);
                   }
                 }}

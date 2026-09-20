@@ -14,6 +14,7 @@ import {
   subscribeSyncState,
   type SyncState,
 } from "@/lib/offline-sync";
+import { useRunAction } from "@/hooks/useRunAction";
 
 type ReportId = Id<"inspectionReports">;
 
@@ -133,6 +134,8 @@ function SignaturePad({
 }
 
 function ReportEditor({ reportId, tenantId }: { reportId: ReportId; tenantId: Id<"tenants"> }) {
+  const run = useRunAction();
+  const tf = useFriendlyError();
   const t = useTranslations("inspections");
   const report = useQuery(api.inspections.get, { reportId });
   const genUrl = useMutation(api.inspections.generateUploadUrl);
@@ -161,7 +164,7 @@ function ReportEditor({ reportId, tenantId }: { reportId: ReportId; tenantId: Id
       const { storageId } = await res.json();
       await setPhoto({ reportId, photoKey: key, storageId });
     } catch (e) {
-      setErr(e instanceof Error ? e.message : t("uploadFailed"));
+      setErr(tf(e));
     }
   }
 
@@ -173,7 +176,7 @@ function ReportEditor({ reportId, tenantId }: { reportId: ReportId; tenantId: Id
     try {
       await sign({ reportId, signatureDataUrl: sig, signedByName: signer.trim() });
     } catch (e) {
-      setErr(e instanceof Error ? e.message : t("signError"));
+      setErr(tf(e));
     } finally {
       setBusy(false);
     }
@@ -208,7 +211,7 @@ function ReportEditor({ reportId, tenantId }: { reportId: ReportId; tenantId: Id
               className="rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-1.5 text-sm"
             />
             <button
-              onClick={() => assignInstaller({ reportId, installerTeam: team || undefined })}
+              onClick={() => run(assignInstaller({ reportId, installerTeam: team || undefined }))}
               className="rounded border border-[var(--color-border)] px-2 py-1.5 text-xs"
             >
               {t("assign")}
@@ -278,10 +281,10 @@ function ReportEditor({ reportId, tenantId }: { reportId: ReportId; tenantId: Id
                 checked={c.passed}
                 disabled={locked}
                 onChange={(e) =>
-                  updateChecks({
+                  run(updateChecks({
                     reportId,
                     checks: [{ key: c.key, passed: e.target.checked }],
-                  })
+                  }))
                 }
               />
               {c.label}
@@ -326,6 +329,7 @@ function ReportEditor({ reportId, tenantId }: { reportId: ReportId; tenantId: Id
 }
 
 export default function InspectionsPage() {
+  const tf = useFriendlyError();
   const t = useTranslations("inspections");
   const tenant = useQuery(api.tenants.getMyTenant);
   const template = useQuery(
@@ -413,7 +417,7 @@ export default function InspectionsPage() {
       setClientId(undefined);
       setCantiereId(undefined);
     } catch (e) {
-      setErr(e instanceof Error ? e.message : t("createReportError"));
+      setErr(tf(e));
     }
   }
 

@@ -291,7 +291,14 @@
     "signatureInvalid": "Firma non valida o troppo grande. Firma di nuovo.",
     "imageType": "Formato immagine non supportato. Usa JPG, PNG o WebP.",
     "offline": "Sei offline. Riprova quando torna la connessione.",
-    "imageTooLarge": "Immagine troppo grande (massimo 2 MB)."
+    "imageTooLarge": "Immagine troppo grande (massimo 2 MB).",
+    "alreadyMember": "Questa persona fa già parte del team.",
+    "alreadyInvited": "C'è già un invito in sospeso per questa email.",
+    "alreadyHasTenant": "Fai già parte di un'organizzazione.",
+    "inviteMismatch": "Questo invito è per un altro indirizzo email. Accedi con l'account giusto.",
+    "inviteInvalid": "Invito scaduto o già utilizzato. Chiedi di inviarne uno nuovo.",
+    "invalidEmail": "Indirizzo email non valido.",
+    "cannotRemoveOwner": "Il titolare dell'organizzazione non può essere rimosso."
   },
   "app": {
     "suspended": {

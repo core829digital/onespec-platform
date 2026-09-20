@@ -5,6 +5,7 @@ import { useAction, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 
 const euro = (c: number | null, locale: string) =>
   c === null
@@ -22,6 +23,7 @@ const euro = (c: number | null, locale: string) =>
     : `€${(c / 100).toLocaleString(locale, { minimumFractionDigits: 2 })}`;
 
 export default function BillingPage() {
+  const tf = useFriendlyError();
   const t = useTranslations("billing");
   const locale = useLocale();
   const tenant = useQuery(api.tenants.getMyTenant);
@@ -42,7 +44,7 @@ export default function BillingPage() {
       const { url } = await fn();
       window.location.href = url;
     } catch (e) {
-      setErr(e instanceof Error ? e.message : t("error.generic"));
+      setErr(tf(e));
       setBusy(false);
     }
   }

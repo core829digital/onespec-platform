@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useRouter } from "@/i18n/navigation";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 
 const COLUMNS = ["new", "contacted", "quoted", "won", "lost"] as const;
 type Col = (typeof COLUMNS)[number];
@@ -28,6 +29,7 @@ type Req = {
 };
 
 export default function PipelinePage() {
+  const tf = useFriendlyError();
   const router = useRouter();
   const tenant = useQuery(api.tenants.getMyTenant);
   const requests = useQuery(
@@ -61,7 +63,7 @@ export default function PipelinePage() {
         delete n[id];
         return n;
       });
-      setErr(e instanceof Error ? e.message : "Errore nello spostamento");
+      setErr(tf(e));
     }
   }
 

@@ -7,8 +7,10 @@ import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Id } from "@/convex/_generated/dataModel";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 
 export default function ConfiguratorsPage() {
+  const tf = useFriendlyError();
   const tenant = useQuery(api.tenants.getMyTenant);
   const configurators = useQuery(
     api.configurators.listConfigurators,
@@ -27,7 +29,7 @@ export default function ConfiguratorsPage() {
     try {
       await publishConfigurator({ configuratorId: configuratorId as Id<"configurators"> });
     } catch (err) {
-      setError(err instanceof Error && err.message ? err.message : "Errore nella pubblicazione");
+      setError(tf(err));
     } finally {
       setPublishingId(null);
     }
@@ -42,7 +44,7 @@ export default function ConfiguratorsPage() {
       await createConfigurator({ tenantId: tenant._id, name: name.trim() });
       setName("");
     } catch (err) {
-      setError(err instanceof Error && err.message ? err.message : "Errore nella creazione");
+      setError(tf(err));
     } finally {
       setCreating(false);
     }

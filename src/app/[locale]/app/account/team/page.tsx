@@ -5,10 +5,14 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import type { Id } from "@/convex/_generated/dataModel";
+import { useFriendlyError } from "@/lib/use-friendly-error";
+import { useRunAction } from "@/hooks/useRunAction";
 
 const d = (ms: number) => new Date(ms).toLocaleDateString("it-IT");
 
 export default function TeamPage() {
+  const run = useRunAction();
+  const tf = useFriendlyError();
   const tenant = useQuery(api.tenants.getMyTenant);
   const members = useQuery(api.tenants.listMembers, tenant ? { tenantId: tenant._id } : "skip");
   const invitations = useQuery(
@@ -43,19 +47,7 @@ export default function TeamPage() {
       setEmail("");
       setMsg({ kind: "ok", text: "Invito inviato." });
     } catch (err) {
-      const m = err instanceof Error ? err.message : "";
-      setMsg({
-        kind: "err",
-        text: /ALREADY_MEMBER/.test(m)
-          ? "Questa persona fa già parte del team."
-          : /ALREADY_INVITED/.test(m)
-            ? "C'è già un invito in sospeso per questa email."
-            : /MEMBER_LIMIT_REACHED/.test(m)
-              ? "Hai raggiunto il limite di membri del tuo piano."
-              : /INVALID_EMAIL/.test(m)
-                ? "Email non valida."
-                : m || "Errore",
-      });
+      setMsg({ kind: "err", text: tf(err) });
     } finally {
       setBusy(false);
     }
@@ -152,7 +144,7 @@ export default function TeamPage() {
                   {m.role !== "owner" ? (
                     <button
                       type="button"
-                      onClick={() => removeMember({ membershipId: m._id as Id<"memberships"> })}
+                      onClick={() => run(removeMember({ membershipId: m._id as Id<"memberships"> }))}
                       className="text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-danger)]"
                     >
                       Rimuovi
@@ -178,7 +170,7 @@ export default function TeamPage() {
                 </span>
                 <button
                   type="button"
-                  onClick={() => cancelInvitation({ invitationId: inv._id as Id<"invitations"> })}
+                  onClick={() => run(cancelInvitation({ invitationId: inv._id as Id<"invitations"> }))}
                   className="text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-danger)]"
                 >
                   Annulla

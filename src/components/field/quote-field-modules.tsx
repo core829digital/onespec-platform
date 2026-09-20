@@ -5,6 +5,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import type { Id } from "@/convex/_generated/dataModel";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 
 interface QuoteItemLike {
   width?: number;
@@ -31,6 +32,7 @@ export function QuoteFieldModules({
   address?: string;
   items: unknown;
 }) {
+  const tf = useFriendlyError();
   const surveys = useQuery(api.surveys.listByQuote, { quoteId });
   const dossiers = useQuery(api.installations.listByQuote, { quoteId });
   const inspections = useQuery(api.inspections.listByQuote, { quoteId });
@@ -60,7 +62,7 @@ export function QuoteFieldModules({
     try {
       await fn();
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Errore");
+      setErr(tf(e));
     } finally {
       setBusy(null);
     }

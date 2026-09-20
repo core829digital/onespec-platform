@@ -248,7 +248,14 @@
     "signatureInvalid": "Handtekening ongeldig of te groot. Teken opnieuw.",
     "imageType": "Afbeeldingsformaat niet ondersteund. Gebruik JPG, PNG of WebP.",
     "offline": "Je bent offline. Probeer opnieuw zodra de verbinding terug is.",
-    "imageTooLarge": "Afbeelding te groot (maximaal 2 MB)."
+    "imageTooLarge": "Afbeelding te groot (maximaal 2 MB).",
+    "alreadyMember": "Deze persoon maakt al deel uit van het team.",
+    "alreadyInvited": "Er staat al een uitnodiging open voor dit e-mailadres.",
+    "alreadyHasTenant": "Je maakt al deel uit van een organisatie.",
+    "inviteMismatch": "Deze uitnodiging is voor een ander e-mailadres. Log in met het juiste account.",
+    "inviteInvalid": "Uitnodiging verlopen of al gebruikt. Vraag een nieuwe aan.",
+    "invalidEmail": "Ongeldig e-mailadres.",
+    "cannotRemoveOwner": "De eigenaar van de organisatie kan niet worden verwijderd."
   },
   "dashboard": {
     "title": "Dashboard",

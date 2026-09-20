@@ -5,6 +5,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { Section, Field, TextInput, SelectInput, Toggle, inputClass } from "./editor-primitives";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 
 const FONTS = [
   { value: "geist", label: "Geist (default OneSpec)" },
@@ -19,6 +20,7 @@ const LOCALES = ["it", "en", "fr"] as const;
 type CopyBlock = { headline?: string; subheadline?: string; ctaLabel?: string };
 
 export function BrandingTab({ configuratorId }: { configuratorId: Id<"configurators"> }) {
+  const tf = useFriendlyError();
   const branding = useQuery(api.branding.getBranding, { configuratorId });
   const updateBranding = useMutation(api.branding.updateBranding);
   const generateUploadUrl = useMutation(api.branding.generateUploadUrl);
@@ -68,7 +70,7 @@ export function BrandingTab({ configuratorId }: { configuratorId: Id<"configurat
       setCopy(null);
       setMsg({ kind: "ok", text: "Branding salvato. Pubblica per applicarlo al widget." });
     } catch (e) {
-      setMsg({ kind: "err", text: e instanceof Error ? e.message : "Errore nel salvataggio" });
+      setMsg({ kind: "err", text: tf(e) });
     } finally {
       setSaving(false);
     }
@@ -96,7 +98,7 @@ export function BrandingTab({ configuratorId }: { configuratorId: Id<"configurat
       await setLogo({ configuratorId, storageId, variant });
       setMsg({ kind: "ok", text: "Logo caricato." });
     } catch (e) {
-      setMsg({ kind: "err", text: e instanceof Error ? e.message : "Errore nel caricamento" });
+      setMsg({ kind: "err", text: tf(e) });
     }
   }
 

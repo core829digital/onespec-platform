@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useMemo, useState } from "react";
 import type { Id } from "@/convex/_generated/dataModel";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 
 export type LabelSet = { it?: string; en?: string; fr?: string } & Record<string, string>;
 
@@ -37,6 +38,7 @@ export function CatalogEditorProvider({
   configuratorId: Id<"configurators">;
   children: React.ReactNode;
 }) {
+  const tf = useFriendlyError();
   const [drafts, setDrafts] = useState<Record<string, Draft>>({});
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState("");
@@ -62,13 +64,13 @@ export function CatalogEditorProvider({
         try {
           await fn();
         } catch (e) {
-          setError(e instanceof Error && e.message ? e.message : "Errore nel salvataggio");
+          setError(tf(e));
         } finally {
           setBusy(null);
         }
       },
     }),
-    [configuratorId, drafts, busy, error],
+    [configuratorId, drafts, busy, error, tf],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;

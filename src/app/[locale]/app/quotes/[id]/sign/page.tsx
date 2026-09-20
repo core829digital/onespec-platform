@@ -5,12 +5,14 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useRouter } from "@/i18n/navigation";
 import type { Id } from "@/convex/_generated/dataModel";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 
 interface Props {
   params: Promise<{ id: string; locale: string }>;
 }
 
 export default function SignQuotePage({ params }: Props) {
+  const tf = useFriendlyError();
   const router = useRouter();
   const { id } = use(params);
   const quoteId = id as Id<"quoteRequests">;
@@ -134,7 +136,7 @@ export default function SignQuotePage({ params }: Props) {
         router.push(`/app/quotes/${quoteId}/print`);
       }, 1500);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Errore durante la firma. Riprova.");
+      setError(tf(err));
     } finally {
       setSigning(false);
     }

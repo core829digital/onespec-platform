@@ -46,6 +46,7 @@ function SyncBadge({ state, onSync }: { state: SyncState; onSync: () => void }) 
 }
 
 export default function InstallationsPage() {
+  const tf = useFriendlyError();
   const t = useTranslations("installations");
   const tenant = useQuery(api.tenants.getMyTenant);
   const standard = useQuery(
@@ -145,7 +146,7 @@ export default function InstallationsPage() {
       setSurveyId("");
       setNotes("");
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Errore");
+      setErr(tf(e));
     } finally {
       setSaving(false);
     }

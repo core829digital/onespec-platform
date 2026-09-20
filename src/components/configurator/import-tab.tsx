@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { parseCsv } from "@/lib/csv-parse";
 import { Section, SelectInput } from "./editor-primitives";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 
 type Target = "materials" | "glazing" | "finish" | "hardware";
 
@@ -44,6 +45,7 @@ const FIELDS: Record<Target, Array<{ k: string; l: string; price?: boolean }>> =
 const toCents = (s: string) => Math.round(parseFloat(String(s).replace(",", ".")) * 100);
 
 export function ImportTab({ configuratorId }: { configuratorId: Id<"configurators"> }) {
+  const tf = useFriendlyError();
   const importRows = useMutation(api.catalogImport.importRows);
   const undoImport = useMutation(api.catalogImport.undoImport);
   const history = useQuery(api.catalogImport.listImports, { configuratorId });
@@ -108,7 +110,7 @@ export function ImportTab({ configuratorId }: { configuratorId: Id<"configurator
       setGrid(null);
       setMap({});
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Errore nell'importazione");
+      setErr(tf(e));
     } finally {
       setBusy(false);
     }

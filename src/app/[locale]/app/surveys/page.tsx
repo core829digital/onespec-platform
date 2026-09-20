@@ -84,6 +84,7 @@ function SyncBadge({ state, onSync }: { state: SyncState; onSync: () => void }) 
 }
 
 export default function SurveysPage() {
+  const tf = useFriendlyError();
   const router = useRouter();
   const td = useTranslations("surveyDoc");
   const tenant = useQuery(api.tenants.getMyTenant);
@@ -230,7 +231,7 @@ export default function SurveysPage() {
       // a completed survey, breaking the Rilievo -> Preventivo handoff.
       router.push(`/app/quotes/${result.quoteId}/print`);
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Errore generazione preventivo");
+      setErr(tf(e));
     }
   }
 
@@ -273,7 +274,7 @@ export default function SurveysPage() {
         ]);
       }
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Upload foto fallito");
+      setErr(tf(e));
     } finally {
       setUploading(false);
     }
@@ -304,7 +305,7 @@ export default function SurveysPage() {
         reset();
         setOpen(false);
       } catch {
-        setErr(e instanceof Error ? e.message : "Errore salvataggio");
+        setErr(tf(e));
       }
     } finally {
       setSaving(false);

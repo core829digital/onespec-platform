@@ -9,6 +9,7 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { authErrorMessage } from "@/lib/errors";
 
 function safeRedirect(v: string | null): string {
   return v && v.startsWith("/") && !v.startsWith("//") ? v : "/app/dashboard";
@@ -40,7 +41,7 @@ function LoginForm() {
       await signIn("password", { email, password, flow: "signIn" });
       router.push(redirect);
     } catch (err) {
-      setError(err instanceof Error && err.message ? err.message : t("error"));
+      setError(authErrorMessage(err, t("error")));
     } finally {
       setLoading(false);
     }

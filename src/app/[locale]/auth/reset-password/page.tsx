@@ -8,6 +8,7 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { authErrorMessage } from "@/lib/errors";
 
 function ResetPasswordContent() {
   const t = useTranslations("auth.resetPassword");
@@ -33,7 +34,7 @@ function ResetPasswordContent() {
       await signIn("password", { email, code, newPassword: password, flow: "reset-verification" });
       router.push("/auth/login");
     } catch (err) {
-      setError(err instanceof Error && err.message ? err.message : t("error"));
+      setError(authErrorMessage(err, t("error")));
     } finally {
       setLoading(false);
     }

@@ -5,10 +5,12 @@ import { useState } from "react";
 import QRCode from "qrcode";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 
 type PassportId = Id<"serramentoPassports">;
 
 function PassportLabelsPanel({ passportId }: { passportId: PassportId }) {
+  const tf = useFriendlyError();
   const p = useQuery(api.passports.get, { passportId });
   const generateQrs = useMutation(api.passports.generatePassportQrs);
   const [qrData, setQrData] = useState<{ token: string; qr: string }[]>([]);
@@ -28,7 +30,7 @@ function PassportLabelsPanel({ passportId }: { passportId: PassportId }) {
       );
       setQrData(qrs);
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Errore generazione QR");
+      setErr(tf(e));
     } finally {
       setBusy(false);
     }

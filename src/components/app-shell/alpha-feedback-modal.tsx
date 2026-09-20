@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { MessageSquarePlus } from "lucide-react";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 
 type Category = "bug" | "feature" | "general";
 
@@ -14,6 +15,7 @@ const CATEGORIES: Array<{ v: Category; label: string }> = [
 ];
 
 export function AlphaFeedbackButton() {
+  const tf = useFriendlyError();
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState<Category>("bug");
   const [message, setMessage] = useState("");
@@ -39,13 +41,7 @@ export function AlphaFeedbackButton() {
       }, 1400);
     } catch (e) {
       setState("error");
-      setErr(
-        e instanceof Error && /RATE_LIMITED/.test(e.message)
-          ? "Hai inviato troppi feedback. Riprova più tardi."
-          : e instanceof Error
-            ? e.message
-            : "Errore",
-      );
+      setErr(tf(e));
     }
   }
 

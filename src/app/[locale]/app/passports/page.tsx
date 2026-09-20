@@ -7,6 +7,7 @@ import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useFriendlyError } from "@/lib/use-friendly-error";
+import { useRunAction } from "@/hooks/useRunAction";
 
 type PassportId = Id<"serramentoPassports">;
 
@@ -308,6 +309,7 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
 }
 
 export default function PassportsPage() {
+  const run = useRunAction();
   const tenant = useQuery(api.tenants.getMyTenant);
   const passports = useQuery(api.passports.list, tenant ? { tenantId: tenant._id } : "skip");
   const interventions = useQuery(
@@ -479,10 +481,10 @@ export default function PassportsPage() {
                     <select
                       value={iv.status}
                       onChange={(e) =>
-                        updateIv({
+                        run(updateIv({
                           interventionId: iv._id,
                           status: e.target.value as "new" | "scheduled" | "closed",
-                        })
+                        }))
                       }
                       className="rounded border border-[var(--color-border)] bg-transparent px-2 py-1 text-xs"
                     >

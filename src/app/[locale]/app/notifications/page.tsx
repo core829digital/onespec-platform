@@ -8,6 +8,7 @@ import { Link } from "@/i18n/navigation";
 import { formatDistanceToNow } from "date-fns";
 import { notificationText } from "@/components/notifications/notification-text";
 import { Toggle } from "@/components/configurator/editor-primitives";
+import { useRunAction } from "@/hooks/useRunAction";
 
 const TYPES = [
   "quote_request_new",
@@ -19,6 +20,7 @@ const TYPES = [
 ] as const;
 
 export default function NotificationsPage() {
+  const run = useRunAction();
   const t = useTranslations("notifications");
   const notifications = useQuery(api.notifications.listMine, { limit: 100 });
   const prefs = useQuery(api.notifications.getPreferences);
@@ -53,7 +55,7 @@ export default function NotificationsPage() {
         </div>
         <button
           type="button"
-          onClick={() => markAllRead()}
+          onClick={() => run(markAllRead())}
           className="rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm text-[var(--color-text)]"
         >
           {t("markAllRead")}
@@ -100,7 +102,7 @@ export default function NotificationsPage() {
                 key={n._id}
                 href={n.href}
                 onClick={() => {
-                  if (!n.readAt) markRead({ notificationId: n._id });
+                  if (!n.readAt) run(markRead({ notificationId: n._id }));
                 }}
                 className="flex px-5 py-3.5 hover:bg-[var(--color-bg)]"
               >
@@ -136,7 +138,7 @@ export default function NotificationsPage() {
                 <div className="flex gap-6 sm:gap-4 sm:justify-center">
                   <Toggle
                     checked={inApp}
-                    onChange={(v) => setPreference({ type, channel: "inApp", enabled: v })}
+                    onChange={(v) => run(setPreference({ type, channel: "inApp", enabled: v }))}
                     label=""
                   />
                   <span className="sm:hidden text-xs text-[var(--color-text-secondary)]">
@@ -146,7 +148,7 @@ export default function NotificationsPage() {
                 <div className="flex gap-6 sm:gap-4 sm:justify-center">
                   <Toggle
                     checked={email}
-                    onChange={(v) => setPreference({ type, channel: "email", enabled: v })}
+                    onChange={(v) => run(setPreference({ type, channel: "email", enabled: v }))}
                     label=""
                   />
                   <span className="sm:hidden text-xs text-[var(--color-text-secondary)]">

@@ -8,6 +8,7 @@ import { Link } from "@/i18n/navigation";
 import { Section, Field, TextInput, SelectInput, Toggle } from "@/components/configurator/editor-primitives";
 import type { Id } from "@/convex/_generated/dataModel";
 import { CompanyProfileSection } from "@/components/account/company-profile";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 
 const LOCALES = [
   { v: "it", l: "Italiano" },
@@ -22,6 +23,7 @@ const dt = (ms: number) => new Date(ms).toLocaleString("it-IT");
 const d = (ms: number) => new Date(ms).toLocaleDateString("it-IT");
 
 export default function AccountPage() {
+  const tf = useFriendlyError();
   const profile = useQuery(api.account.getProfile);
   const tenant = useQuery(api.tenants.getMyTenant);
   const updateProfile = useMutation(api.account.updateProfile);
@@ -55,7 +57,7 @@ export default function AccountPage() {
       setSavedProfile(true);
       setTimeout(() => setSavedProfile(false), 2000);
     } catch (e) {
-      setMsg(e instanceof Error ? e.message : "Errore nel salvataggio");
+      setMsg(tf(e));
     }
   }
 
@@ -160,7 +162,7 @@ export default function AccountPage() {
                     try {
                       await revokeSession({ sessionId: s.id as Id<"authSessions"> });
                     } catch (e) {
-                      setMsg(e instanceof Error ? e.message : "Errore durante la revoca della sessione");
+                      setMsg(tf(e));
                     }
                   }}
                   className="rounded-lg border border-[var(--color-border)] px-3 py-1 text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-danger)]"
@@ -179,7 +181,7 @@ export default function AccountPage() {
                 const { revoked } = await revokeOthers();
                 setMsg(`Disconnesse ${revoked} altre sessioni.`);
               } catch (e) {
-                setMsg(e instanceof Error ? e.message : "Errore durante la disconnessione degli altri dispositivi");
+                setMsg(tf(e));
               }
             }}
             className="rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm text-[var(--color-text)]"
@@ -262,13 +264,7 @@ export default function AccountPage() {
                     await requestDeletion({ reason: reason.trim() || undefined });
                     setConfirmDelete(false);
                   } catch (e) {
-                    setMsg(
-                      e instanceof Error && /SOLE_OWNER/.test(e.message)
-                        ? "Sei l'unico titolare dell'organizzazione: trasferisci la titolarità prima di eliminare l'account."
-                        : e instanceof Error
-                          ? e.message
-                          : "Errore",
-                    );
+                    setMsg(tf(e));
                     setConfirmDelete(false);
                   }
                 }}
