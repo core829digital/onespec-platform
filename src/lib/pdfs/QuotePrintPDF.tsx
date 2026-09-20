@@ -1,5 +1,6 @@
-import { Document, Page, Text, View, StyleSheet, PDFViewer } from "@react-pdf/renderer";
+import { Document, Image, Page, Text, View, StyleSheet, PDFViewer } from "@react-pdf/renderer";
 import type { ProjectItem } from "@/shared/pricing";
+import { WindowDrawingPDF } from "./WindowDrawingPDF";
 
 const colors = {
   black: "#111827",
@@ -455,6 +456,25 @@ export function QuotePrintPDF({
           })}
         </View>
 
+        {/* Technical drawings — one per line item, from the item's real configuration */}
+        {items.length > 0 && (
+          <View style={styles.section} wrap={false}>
+            <Text style={styles.sectionTitle}>
+              {langKey === "fr" ? "Dessins techniques" : langKey === "de" ? "Technische Zeichnungen" : langKey === "nl" ? "Technische tekeningen" : "Disegni tecnici"}
+            </Text>
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
+              {items.map((item, idx) => (
+                <View key={idx} style={{ width: 170 }} wrap={false}>
+                  <Text style={{ fontSize: 8, fontWeight: "bold", marginBottom: 2 }}>
+                    #{idx + 1} · {item.width} × {item.height} mm × {item.quantity ?? 1}
+                  </Text>
+                  <WindowDrawingPDF width={item.width} height={item.height} material={item.material} color={item.color} sashes={item.sashes ?? []} />
+                </View>
+              ))}
+            </View>
+          </View>
+        )}
+
         {/* Price breakdown */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Breakdown Prezzo / Détail Prix</Text>
@@ -584,8 +604,8 @@ export function QuotePrintPDF({
                 {langKey === "fr" ? "Bon pour Accord Client" : langKey === "de" ? "Auftragserteilung Kunde" : langKey === "nl" ? "Akkoord Klant" : "Firma Cliente per Accettazione"}
               </Text>
               {quote.signatureDataUrl ? (
-                <View style={{ height: 50, width: "100%", backgroundColor: colors.gray[50], borderWidth: 1, borderColor: colors.gray[300] }}>
-                  <Text style={{ fontSize: 7, color: colors.gray[400], margin: "auto", textAlign: "center" }}>[Firma digitale]</Text>
+                <View style={{ height: 50, width: "100%", backgroundColor: colors.gray[50], borderWidth: 1, borderColor: colors.gray[300], padding: 2 }}>
+                  <Image src={quote.signatureDataUrl} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
                 </View>
               ) : (
                 <View style={{ height: 50, borderBottomWidth: 1, borderBottomColor: colors.gray[300] }} />

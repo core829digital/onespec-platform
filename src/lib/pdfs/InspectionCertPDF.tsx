@@ -1,4 +1,4 @@
-import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { Document, Image, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 
 const colors = {
   black: "#111827",
@@ -250,8 +250,13 @@ export function InspectionCertPDF({
                 <View key={p.key} style={{ width: "48%", borderWidth: 1, borderColor: colors.gray[300], padding: 4 }}>
                   <Text style={{ fontWeight: "bold", fontSize: 8, marginBottom: 2 }}>{p.label}</Text>
                   {p.url ? (
-                    <View style={{ height: 80, backgroundColor: colors.gray[100], alignItems: "center", justifyContent: "center" }}>
-                      <Text style={{ fontSize: 7, color: colors.gray[400] }}>[Immagine: {p.label}]</Text>
+                    // The real photo (this used to print the literal text
+                    // "[Immagine: …]"). Width-driven so the height follows the
+                    // photo's own aspect ratio; objectFit "contain" inside the
+                    // height cap means it is scaled to fit, never cropped or
+                    // stretched. The file itself is embedded as uploaded.
+                    <View style={{ borderWidth: 1, borderColor: colors.gray[200] }}>
+                      <Image src={p.url} style={{ width: "100%", maxHeight: 230, objectFit: "contain" }} />
                     </View>
                   ) : (
                     <View style={{ height: 80, backgroundColor: colors.gray[100], alignItems: "center", justifyContent: "center" }}>
@@ -307,8 +312,9 @@ export function InspectionCertPDF({
         {isSigned && report.signatureDataUrl && (
           <View style={styles.signatureArea}>
             <Text style={{ fontSize: 8, color: colors.gray[500], marginBottom: 8 }}>Firma del committente</Text>
-            <View style={{ height: 60, width: 160, backgroundColor: colors.gray[50], borderWidth: 1, borderColor: colors.gray[300] }}>
-              <Text style={{ fontSize: 7, color: colors.gray[400], margin: "auto", textAlign: "center" }}>[Firma digitale]</Text>
+            <View style={{ height: 70, width: 200, backgroundColor: colors.gray[50], borderWidth: 1, borderColor: colors.gray[300], padding: 3 }}>
+              {/* The captured signature itself (a PNG data URL) — was a text placeholder. */}
+              <Image src={report.signatureDataUrl} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
             </View>
             <Text style={{ marginTop: 4, fontWeight: "bold", fontSize: 9 }}>{report.signedByName}</Text>
             {report.signedAt && (

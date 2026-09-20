@@ -1,4 +1,4 @@
-import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { Document, Image, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 
 const colors = {
   black: "#111827",
@@ -339,8 +339,8 @@ export function MaintenanceCertPDF({
             <View style={styles.signatureArea}>
               <Text style={{ fontSize: 8, color: colors.gray[500], marginBottom: 8 }}>Tecnico: {maintenance.technicianName}</Text>
               {maintenance.technicianSignature ? (
-                <View style={{ height: 50, width: 150, backgroundColor: colors.gray[50], borderWidth: 1, borderColor: colors.gray[300] }}>
-                  <Text style={{ fontSize: 7, color: colors.gray[400], margin: "auto", textAlign: "center" }}>[Firma]</Text>
+                <View style={{ height: 50, width: 150, backgroundColor: colors.gray[50], borderWidth: 1, borderColor: colors.gray[300], padding: 2 }}>
+                  <Image src={maintenance.technicianSignature} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
                 </View>
               ) : (
                 <View style={{ height: 50, width: 150, borderBottomWidth: 1, borderBottomColor: colors.gray[400] }} />
