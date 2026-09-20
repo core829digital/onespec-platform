@@ -521,6 +521,16 @@ export const getShowroomCatalog = query({
       installation: p.hardware
         .filter((h) => h.kind === "installation" && h.enabled)
         .map((h) => ({ key: h.key, label: lbl(h), priceCents: h.priceCents })),
+      // Markets that price "posa" under their own catalog kind (FR pose type,
+      // DE/LU montage system) have NO 'installation' options — the showroom's
+      // Posa select used to render empty for them. Expose those lists so the
+      // page can fall back to the one this market actually uses.
+      poseType: p.hardware
+        .filter((h) => h.kind === "poseType" && h.enabled)
+        .map((h) => ({ key: h.key, label: lbl(h), priceCents: h.priceCents })),
+      montageSystem: p.hardware
+        .filter((h) => h.kind === "montageSystem" && h.enabled)
+        .map((h) => ({ key: h.key, label: lbl(h), priceCents: h.priceCents })),
     };
   },
 });

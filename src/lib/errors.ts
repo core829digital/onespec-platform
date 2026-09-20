@@ -104,7 +104,7 @@ export function errorCode(e: unknown): string | null {
 export function errorKey(e: unknown): ErrorKey {
   const code = errorCode(e);
   if (code) return keyForCode(code);
-  if (typeof navigator !== "undefined" && !navigator.onLine) return "offline";
+  if (typeof navigator !== "undefined" && navigator.onLine === false) return "offline";
   return "generic";
 }
 

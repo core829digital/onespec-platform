@@ -3,7 +3,9 @@
 import { useMemo, useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { useRouter } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
+import type { ProjectItem } from "@/shared/pricing";
+import { saveShowroomHandoff } from "@/lib/showroom-handoff";
 import { SpecDrawing } from "@/components/widget/spec-drawing";
 import { defaultSashPreset } from "@/components/widget/widget-pricing";
 import { FiscalEngine, type FiscalCalc } from "@/components/showroom/FiscalEngine";
@@ -18,7 +20,10 @@ type SlimItem = {
   sashes: ReturnType<typeof defaultSashPreset>;
   glazing: string;
   color: string;
+  /** Posa: whichever catalog kind this market prices it under. */
   installation?: string;
+  poseType?: string;
+  montageSystem?: string;
   insectScreen: boolean;
 };
 
@@ -56,7 +61,20 @@ export default function ShowroomPage() {
     : "";
   const glazing = ready ? sel.glazing || catalog.glazing[0]?.key || "" : "";
   const color = ready ? sel.color || catalog.finish[0]?.key || "" : "";
-  const installation = ready ? sel.installation || catalog.installation[0]?.key || "" : "";
+  // Posa options live under a different catalog kind per market (IT
+  // 'installation', FR 'poseType', DE/LU 'montageSystem'). Use the first kind
+  // that has enabled options — the select used to be empty for the others.
+  const installField: "installation" | "poseType" | "montageSystem" | undefined = !ready
+    ? undefined
+    : catalog.installation.length > 0
+      ? "installation"
+      : (catalog.poseType?.length ?? 0) > 0
+        ? "poseType"
+        : (catalog.montageSystem?.length ?? 0) > 0
+          ? "montageSystem"
+          : undefined;
+  const installOptions = ready && installField ? (catalog[installField] ?? []) : [];
+  const installation = ready && installField ? sel.installation || installOptions[0]?.key || "" : "";
   const setField = (k: string, v: string) =>
     setSel((s) => (k === "material" ? { ...s, material: v, quality: "" } : { ...s, [k]: v }));
 
@@ -82,10 +100,10 @@ export default function ShowroomPage() {
       sashes,
       glazing,
       color,
-      installation: installation || undefined,
+      ...(installation && installField ? { [installField]: installation } : {}),
       insectScreen: false,
     };
-  }, [ready, productType, material, quality, glazing, color, installation, width, height, quantity, sashes]);
+  }, [ready, productType, material, quality, glazing, color, installation, installField, width, height, quantity, sashes]);
 
   const calc = useQuery(
     api.calculations.getCalculationPreview,
@@ -102,6 +120,20 @@ export default function ShowroomPage() {
         }
       : "skip",
   );
+
+  /** "Richiedi sopralluogo": carry every configured window into the B2B quote. */
+  function requestSurvey() {
+    const items = [...cart, ...(item ? [item] : [])];
+    if (items.length > 0) {
+      saveShowroomHandoff({
+        items: items as unknown as ProjectItem[],
+        regionCode: (catalog?.regionCode ?? "IT") as "IT" | "FR" | "BE" | "NL" | "DE" | "LU",
+        buildingAge,
+        isEnergyRenovation,
+      });
+    }
+    router.push("/app/quotes/new?from=showroom");
+  }
 
   function whatsapp() {
     if (!calc || !item) return;
@@ -228,7 +260,6 @@ export default function ShowroomPage() {
                   ["Qualità", "quality", quality, catalog.quality[material] ?? []],
                   ["Vetro", "glazing", glazing, catalog.glazing],
                   ["Colore / finitura", "color", color, catalog.finish],
-                  ["Posa", "installation", installation, catalog.installation],
                 ] as const
               ).map(([label, field, val, opts]) => (
                 <label key={field} className="block text-sm">
@@ -246,6 +277,30 @@ export default function ShowroomPage() {
                   </select>
                 </label>
               ))}
+              {installOptions.length > 0 ? (
+                <label className="block text-sm">
+                  <span className="text-[var(--color-muted-fg)]">Posa</span>
+                  <select
+                    value={installation}
+                    onChange={(e) => setField("installation", e.target.value)}
+                    className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
+                  >
+                    {installOptions.map((o) => (
+                      <option key={o.key} value={o.key}>
+                        {o.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : (
+                <p className="rounded-lg border border-dashed border-[var(--color-border)] p-3 text-xs text-[var(--color-muted-fg)]">
+                  Nessuna opzione di posa nel listino pubblicato: il prezzo è solo fornitura.{" "}
+                  <Link href="/app/configurators" className="text-[var(--color-mint)] underline">
+                    Aggiungila nel configuratore
+                  </Link>
+                  .
+                </p>
+              )}
               <label className="flex items-center gap-2 pt-1 text-sm">
                 <input
                   type="checkbox"
@@ -275,7 +330,7 @@ export default function ShowroomPage() {
               calc={calc as FiscalCalc}
               regionCode={catalog?.regionCode ?? "IT"}
               onWhatsApp={whatsapp}
-              onSopralluogo={() => router.push("/app/quotes/new")}
+              onSopralluogo={requestSurvey}
               onAddToCart={() => item && setCart((c) => [...c, item])}
             />
           ) : (

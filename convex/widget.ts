@@ -200,13 +200,13 @@ export const getPublicConfigurator = query({
       .withIndex("by_configurator_version", (q) =>
         q.eq("configuratorId", configurator._id).eq("version", configurator.publishedCatalogVersion ?? 0),
       )
-      .unique();
+      .first();
     if (!version) return null;
 
     const branding = await ctx.db
       .query("branding")
       .withIndex("by_configurator", (q) => q.eq("configuratorId", configurator._id))
-      .unique();
+      .first();
     const logoUrl = branding?.logoStorageId ? await ctx.storage.getUrl(branding.logoStorageId) : null;
     const logoLightUrl = branding?.logoLightStorageId
       ? await ctx.storage.getUrl(branding.logoLightStorageId)
@@ -215,6 +215,7 @@ export const getPublicConfigurator = query({
     const tenant = await ctx.db.get(configurator.tenantId);
 
     return assembleWidgetResponse({
+      publicWidgetAllowed: tenant ? resolveTenantEntitlements(tenant).publicWidget : false,
       configurator,
       branding,
       payload: version.payload,
@@ -238,6 +239,8 @@ function assembleWidgetResponse(args: {
   region: RegionPolicy;
   /** Whether the tenant's plan may use transparent (B2C breakdown) mode. */
   transparentAllowed: boolean;
+  /** Whether the OWNER's plan includes the public embeddable widget. */
+  publicWidgetAllowed?: boolean;
 }) {
   const { configurator, branding, payload, catalogVersion, logoUrl, logoLightUrl, region, transparentAllowed } = args;
   // The region is authoritative for widget mode: in NL a transparent price
@@ -265,6 +268,11 @@ function assembleWidgetResponse(args: {
     region: region.code,
     widgetMode,
     transparentAllowed,
+    // The widget owner's plan decides whether visitors may use it — NOT the
+    // visitor's own account (the page used to check getMyTenant, which is
+    // null for every anonymous customer, so the public widget was locked for
+    // everyone except its owner previewing it).
+    publicWidgetAllowed: args.publicWidgetAllowed ?? true,
     vatRates: region.vatRates,
     defaultVatKey: region.defaultVatKey,
     complianceFlags: region.complianceFlags,

@@ -358,7 +358,8 @@
       "netCostClient": "Nettokosten voor klant:",
       "generating": "Genereren…",
       "publishConfigFirst": "Publiceer een configurator om door te gaan",
-      "proceedToSign": "Ga verder naar Touch-handtekening ({country}) ✍️"
+      "proceedToSign": "Ga verder naar Touch-handtekening ({country}) ✍️",
+      "fromShowroom": "{count} ramen overgenomen uit de showroomofferte: vul klant, detailmaten en opties aan."
     }
   },
   "billing": {

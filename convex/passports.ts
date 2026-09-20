@@ -287,7 +287,8 @@ export const generateFundingDoc = mutation({
       .withIndex("by_configurator_version", (q) =>
         q.eq("configuratorId", quote.configuratorId).eq("version", quote.catalogVersion),
       )
-      .unique();
+      // .first(): a duplicate version row must not turn into a crash.
+      .first();
     if (!versionDoc) throw new ConvexError("NO_CATALOG_VERSION");
 
     const items: ProjectItem[] = Array.isArray(quote.items) ? (quote.items as ProjectItem[]) : [];
@@ -361,6 +362,24 @@ export const generateFundingDoc = mutation({
       uwPost: round2(uwPost),
       conform: region === "IT" ? (eneaData.conform as boolean) : undefined,
     };
+  },
+});
+
+/**
+ * Link (or re-link) a fascicolo to a quote. generateFundingDoc needs it, and
+ * fascicoli created from the page were created WITHOUT one — so "Genera da
+ * preventivo" always failed with FUNDING_NEEDS_QUOTE and the UI had no way to
+ * fix that.
+ */
+export const linkQuote = mutation({
+  args: { passportId: v.id("serramentoPassports"), quoteId: v.id("quoteRequests") },
+  handler: async (ctx, args) => {
+    const p = await ctx.db.get(args.passportId);
+    if (!p) throw new ConvexError("PASSPORT_NOT_FOUND");
+    await requireTenantRole(ctx, p.tenantId, ["owner", "admin", "member"]);
+    const quote = await ctx.db.get(args.quoteId);
+    if (!quote || quote.tenantId !== p.tenantId) throw new ConvexError("QUOTE_NOT_FOUND");
+    await ctx.db.patch(args.passportId, { quoteId: args.quoteId, updatedAt: Date.now() });
   },
 });
 

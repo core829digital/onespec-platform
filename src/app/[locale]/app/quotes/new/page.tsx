@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -8,6 +8,7 @@ import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { SpecDrawing } from "@/components/widget/spec-drawing";
+import { takeShowroomHandoff } from "@/lib/showroom-handoff";
 import { ClientCantierePicker, type PickedLinks } from "@/components/app-shell/client-cantiere-picker";
 import { SashEditor } from "@/components/quotes/sash-editor";
 import { SashPanel } from "@/components/quotes/sash-panel";
@@ -313,6 +314,41 @@ export default function NewFieldQuotePage() {
       setInstallationType("posa_qualificata_uni_11673");
     }
   }
+
+  // Showroom -> B2B: "Richiedi sopralluogo" leaves the configured windows in
+  // sessionStorage; adopt them once instead of starting from the blank default.
+  const handoffApplied = useRef(false);
+  const [fromShowroom, setFromShowroom] = useState(0);
+  useEffect(() => {
+    if (handoffApplied.current || searchParams.get("from") !== "showroom") return;
+    // Deferred one tick: applying state synchronously inside the effect body
+    // cascades a render, and the guard flips inside the callback (not before)
+    // so StrictMode's mount/cleanup/mount cycle can't skip the only run.
+    const id = setTimeout(() => {
+      if (handoffApplied.current) return;
+      handoffApplied.current = true;
+      const h = takeShowroomHandoff();
+      if (!h) return;
+    handleRegionChange(h.regionCode);
+    setItems(
+      h.items.map((it) => ({
+        ...it,
+        profileSystem: it.profileSystem ?? "standard",
+        notes: it.notes ?? "",
+        sashes: it.sashes.map((sash, i, all) => ({
+          ...sash,
+          widthRatio: sash.widthRatio ?? 1 / all.length,
+          main: i === 0,
+        })),
+      })) as ProjectItem[],
+    );
+    setActiveItemIndex(0);
+    setActiveSashIndex(null);
+    setEcobonusPercent(h.isEnergyRenovation && h.regionCode === "IT" ? 50 : 0);
+    setFromShowroom(h.items.length);
+    }, 0);
+    return () => clearTimeout(id);
+  }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function updateCurrentItem(patch: Partial<ProjectItem>) {
     setItems((prev) => {
@@ -753,6 +789,11 @@ export default function NewFieldQuotePage() {
               </span>
               {t("customerSite", { country: activeMeta.name })}
             </h2>
+            {fromShowroom > 0 && (
+              <p className="rounded-lg border border-[var(--color-mint)]/40 bg-[var(--color-mint-light)] px-3 py-2 text-sm text-[var(--color-text)]" role="status">
+                {t("fromShowroom", { count: fromShowroom })}
+              </p>
+            )}
             <ClientCantierePicker
               tenantId={tenant?._id}
               clientId={clientId}

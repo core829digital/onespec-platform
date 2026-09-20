@@ -358,7 +358,8 @@
       "netCostClient": "Nettokosten für den Kunden:",
       "generating": "Wird generiert…",
       "publishConfigFirst": "Veröffentlichen Sie einen Konfigurator, um fortzufahren",
-      "proceedToSign": "Zur Touch-Signatur fortfahren ({country}) ✍️"
+      "proceedToSign": "Zur Touch-Signatur fortfahren ({country}) ✍️",
+      "fromShowroom": "{count} Fenster aus dem Showroom-Angebot übernommen: Kunde, Detailmaße und Optionen ergänzen."
     }
   },
   "billing": {

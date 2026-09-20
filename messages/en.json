@@ -358,7 +358,8 @@
       "netCostClient": "Net cost for client:",
       "generating": "Generating…",
       "publishConfigFirst": "Publish a configurator to continue",
-      "proceedToSign": "Proceed to Touch Signature ({country}) ✍️"
+      "proceedToSign": "Proceed to Touch Signature ({country}) ✍️",
+      "fromShowroom": "Imported {count} windows from the showroom quote: complete the client, detailed measurements and options."
     }
   },
   "billing": {

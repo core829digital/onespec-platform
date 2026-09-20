@@ -358,7 +358,8 @@
       "netCostClient": "Cost net pentru client:",
       "generating": "Se generează…",
       "publishConfigFirst": "Publică un configurator pentru a continua",
-      "proceedToSign": "Continuă la Semnătura Touch ({country}) ✍️"
+      "proceedToSign": "Continuă la Semnătura Touch ({country}) ✍️",
+      "fromShowroom": "{count} ferestre importate din oferta showroom: completează clientul, măsurătorile detaliate și opțiunile."
     }
   },
   "billing": {

@@ -6,6 +6,7 @@ import QRCode from "qrcode";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import type { Id } from "@/convex/_generated/dataModel";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 
 type PassportId = Id<"serramentoPassports">;
 
@@ -38,6 +39,10 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
   const attach = useMutation(api.passports.attachDocument);
   const setMaintenance = useMutation(api.passports.setMaintenance);
   const generateFundingDoc = useMutation(api.passports.generateFundingDoc);
+  const linkQuote = useMutation(api.passports.linkQuote);
+  const quotes = useQuery(api.quotes.listRequests, { tenantId, limit: 200 });
+  const toMessage = useFriendlyError();
+  const [quoteToLink, setQuoteToLink] = useState("");
   const [fundingBusy, setFundingBusy] = useState(false);
   const [uwAnteInput, setUwAnteInput] = useState<number | "">("");
   const [deductionPercentInput, setDeductionPercentInput] = useState<number | "">("");
@@ -66,7 +71,7 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
       const { storageId } = await res.json();
       await attach({ passportId, key, storageId });
     } catch (e) {
-      setErr(e instanceof Error ? e.message : "Upload fallito");
+      setErr(toMessage(e));
     }
   }
 
@@ -159,12 +164,13 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
                       deductionPercent: deductionPercentInput || undefined,
                     });
                   } catch (e) {
-                    setErr(e instanceof Error ? e.message : "Errore generazione documento");
+                    setErr(toMessage(e));
                   } finally {
                     setFundingBusy(false);
                   }
                 }}
-                disabled={fundingBusy}
+                disabled={fundingBusy || !p.quoteId}
+                title={!p.quoteId ? "Collega prima un preventivo al fascicolo" : undefined}
                 className="rounded border border-[var(--color-border)] px-2 py-1 text-xs disabled:opacity-50"
               >
                 {fundingBusy ? "…" : p.eneaData ? "Rigenera" : "Genera da preventivo"}
@@ -238,9 +244,41 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
               </div>
             )}
             {!p.quoteId && (
-              <p className="mt-1 text-xs text-[var(--color-muted-fg)]">
-                Collega il fascicolo a un preventivo per generare il documento agevolazione.
-              </p>
+              <div className="mt-2 space-y-2 rounded-lg border border-dashed border-[var(--color-border)] p-3 text-xs">
+                <p className="text-[var(--color-muted-fg)]">
+                  Collega il fascicolo a un preventivo per generare il documento agevolazione.
+                </p>
+                <div className="flex flex-wrap items-center gap-2">
+                  <select
+                    value={quoteToLink}
+                    onChange={(e) => setQuoteToLink(e.target.value)}
+                    className="rounded-lg border border-[var(--color-border)] bg-transparent px-2 py-1.5"
+                  >
+                    <option value="">— scegli preventivo —</option>
+                    {(quotes ?? []).map((q) => (
+                      <option key={q._id} value={q._id}>
+                        {q.leadName} · € {(q.priceCents / 100).toFixed(0)}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    disabled={!quoteToLink}
+                    onClick={async () => {
+                      setErr("");
+                      try {
+                        await linkQuote({ passportId, quoteId: quoteToLink as Id<"quoteRequests"> });
+                        setQuoteToLink("");
+                      } catch (e) {
+                        setErr(toMessage(e));
+                      }
+                    }}
+                    className="rounded border border-[var(--color-border)] px-2 py-1 disabled:opacity-50"
+                  >
+                    Collega
+                  </button>
+                </div>
+              </div>
             )}
           </div>
 
@@ -251,7 +289,13 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
             <input
               type="checkbox"
               checked={!!p.maintenanceActive}
-              onChange={(e) => setMaintenance({ passportId, active: e.target.checked })}
+              onChange={async (e) => {
+                try {
+                  await setMaintenance({ passportId, active: e.target.checked });
+                } catch (er) {
+                  setErr(toMessage(er));
+                }
+              }}
             />
             Contratto di manutenzione attivo
           </label>
@@ -272,6 +316,10 @@ export default function PassportsPage() {
   );
   const create = useMutation(api.passports.create);
   const updateIv = useMutation(api.passports.updateInterventionStatus);
+  const quotesForCreate = useQuery(api.quotes.listRequests, tenant ? { tenantId: tenant._id, limit: 200 } : "skip");
+  const toMessageTop = useFriendlyError();
+  const [creating, setCreating] = useState(false);
+  const [quoteId, setQuoteId] = useState("");
 
   const [label, setLabel] = useState("");
   const [customer, setCustomer] = useState("");
@@ -285,17 +333,26 @@ export default function PassportsPage() {
       return;
     }
     setErr("");
-    const id = await create({
-      tenantId: tenant._id,
-      label: label.trim(),
-      customerName: customer.trim(),
-      productSummary: product.trim() || undefined,
-      installedAt: Date.now(),
-    });
-    setLabel("");
-    setCustomer("");
-    setProduct("");
-    setSelected(id);
+    setCreating(true);
+    try {
+      const id = await create({
+        tenantId: tenant._id,
+        quoteId: quoteId ? (quoteId as Id<"quoteRequests">) : undefined,
+        label: label.trim(),
+        customerName: customer.trim(),
+        productSummary: product.trim() || undefined,
+        installedAt: Date.now(),
+      });
+      setLabel("");
+      setCustomer("");
+      setProduct("");
+      setQuoteId("");
+      setSelected(id);
+    } catch (e) {
+      setErr(toMessageTop(e));
+    } finally {
+      setCreating(false);
+    }
   }
 
   return (
@@ -332,11 +389,31 @@ export default function PassportsPage() {
             className="mt-1 block rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
           />
         </label>
+        <label className="text-sm">
+          <span className="text-[var(--color-muted-fg)]">Preventivo (per scheda incentivi)</span>
+          <select
+            value={quoteId}
+            onChange={(e) => {
+              setQuoteId(e.target.value);
+              const q = (quotesForCreate ?? []).find((x) => x._id === e.target.value);
+              if (q && !customer.trim()) setCustomer(q.leadName);
+            }}
+            className="mt-1 block rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
+          >
+            <option value="">— nessuno —</option>
+            {(quotesForCreate ?? []).map((q) => (
+              <option key={q._id} value={q._id}>
+                {q.leadName} · € {(q.priceCents / 100).toFixed(0)}
+              </option>
+            ))}
+          </select>
+        </label>
         <button
           onClick={add}
-          className="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-[var(--color-accent-ink)]"
+          disabled={creating}
+          className="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-[var(--color-accent-ink)] disabled:opacity-50"
         >
-          + Nuovo fascicolo
+          {creating ? "…" : "+ Nuovo fascicolo"}
         </button>
         {err && <p className="w-full text-sm text-red-600">{err}</p>}
       </div>

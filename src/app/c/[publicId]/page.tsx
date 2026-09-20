@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { fetchQuery } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
 import { Widget } from "@/components/widget/widget";
+import { resolveWidgetLang, resolveWidgetTheme } from "@/lib/widget-params";
 import { notFound } from "next/navigation";
 
 export const revalidate = 30;
@@ -32,13 +33,13 @@ export default async function HostedConfiguratorPage({
 }) {
   const { publicId } = await params;
   const sp = await searchParams;
-  const theme = (sp.theme as string) || "light";
-  const lang = (sp.lang as string) || "it";
   const accentParam = typeof sp.accent === "string" ? sp.accent : undefined;
   const fontParam = typeof sp.font === "string" ? sp.font : undefined;
 
   const configurator = await fetchQuery(api.widget.getPublicConfigurator, { publicId });
   if (!configurator) notFound();
+  const theme = resolveWidgetTheme(sp.theme, configurator.defaultTheme);
+  const lang = resolveWidgetLang(sp.lang, configurator.defaultLocale);
 
   return (
     <Widget

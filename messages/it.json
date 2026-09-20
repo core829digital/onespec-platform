@@ -358,7 +358,8 @@
       "netCostClient": "Costo netto per il cliente:",
       "generating": "Generazione in corso…",
       "publishConfigFirst": "Pubblica un configuratore per continuare",
-      "proceedToSign": "Procedi alla Firma Touch ({country}) ✍️"
+      "proceedToSign": "Procedi alla Firma Touch ({country}) ✍️",
+      "fromShowroom": "Importati {count} serramenti dal preventivo showroom: completa cliente, misure di dettaglio e opzioni."
     }
   },
   "billing": {

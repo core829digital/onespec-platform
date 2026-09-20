@@ -358,7 +358,8 @@
       "netCostClient": "Coût net pour le client:",
       "generating": "Génération en cours…",
       "publishConfigFirst": "Publiez un configurateur pour continuer",
-      "proceedToSign": "Passer à la Signature Tactile ({country}) ✍️"
+      "proceedToSign": "Passer à la Signature Tactile ({country}) ✍️",
+      "fromShowroom": "{count} menuiseries importées du devis showroom : complétez le client, les mesures détaillées et les options."
     }
   },
   "billing": {

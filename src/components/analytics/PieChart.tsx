@@ -93,6 +93,8 @@ export function PieChart({
           viewBox={`0 0 ${size} ${size}`}
           role="img"
           aria-label={title || "Pie chart"}
+          // Safety net: leaving the chart entirely always clears the hover.
+          onMouseLeave={() => setHovered(null)}
         >
           <defs>
             {segments.map((segment, i) => (
@@ -141,16 +143,32 @@ export function PieChart({
                 const dx = Math.cos(midAngle) * popDistance;
                 const dy = Math.sin(midAngle) * popDistance;
                 return (
+                  <g key={segment.label}>
+                  {/* Hover is detected on a STATIC, invisible copy of the wedge.
+                      The visible wedge lifts and moves on hover; if it also
+                      owned the mouse events, a cursor near its edge would fall
+                      off the moved shape -> mouseleave -> it snaps back ->
+                      mouseenter -> ... a flicker loop (the reported bug). */}
+                  {paths.map((d, partIndex) => (
+                    <path
+                      key={`hit-${partIndex}`}
+                      d={d}
+                      fill="transparent"
+                      stroke="transparent"
+                      strokeWidth={6}
+                      pointerEvents="all"
+                      tabIndex={partIndex === 0 ? 0 : -1}
+                      role="button"
+                      aria-label={`${segment.label}: ${((segment.value / total) * 100).toFixed(1)}%`}
+                      style={{ cursor: "pointer", outline: "none" }}
+                      onMouseEnter={() => setHovered(segment.index)}
+                      onMouseLeave={() => setHovered(null)}
+                      onFocus={() => setHovered(segment.index)}
+                      onBlur={() => setHovered(null)}
+                    />
+                  ))}
                   <motion.g
-                    key={segment.label}
-                    tabIndex={0}
-                    role="button"
-                    aria-label={`${segment.label}: ${((segment.value / total) * 100).toFixed(1)}%`}
-                    style={{ cursor: "pointer", outline: "none" }}
-                    onMouseEnter={() => setHovered(segment.index)}
-                    onMouseLeave={() => setHovered(null)}
-                    onFocus={() => setHovered(segment.index)}
-                    onBlur={() => setHovered(null)}
+                    style={{ pointerEvents: "none" }}
                     animate={{ x: dx, y: dy, opacity: isDimmed ? 0.35 : 1 }}
                     transition={{ duration: 0.2, ease: "easeOut" }}
                   >
@@ -172,6 +190,7 @@ export function PieChart({
                       />
                     ))}
                   </motion.g>
+                  </g>
                 );
               })
           )}

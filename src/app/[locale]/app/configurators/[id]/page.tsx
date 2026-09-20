@@ -130,7 +130,9 @@ export default function ConfiguratorEditorPage({
               </button>
             </div>
             <iframe
-              key={previewNonce}
+              // Also remount when a saved setting changes, so the preview follows
+              // language/theme/pricing edits without pressing Ricarica.
+              key={`${previewNonce}-${cfg.updatedAt ?? 0}-${cfg.defaultLocale}-${cfg.defaultTheme}`}
               src={`/w/${cfg.publicId}?preview=1`}
               title="Anteprima configuratore"
               className="w-full h-[640px] bg-white"

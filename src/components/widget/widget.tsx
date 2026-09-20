@@ -172,7 +172,18 @@ export function Widget({
 
   // ---- theme ----
   useEffect(() => {
-    document.documentElement.setAttribute("data-theme", theme === "light" ? "light" : "dark");
+    const apply = (t: "light" | "dark") => document.documentElement.setAttribute("data-theme", t);
+    if (theme === "light" || theme === "dark") {
+      apply(theme);
+      return;
+    }
+    // "auto": follow the visitor's OS/browser preference (this used to fall
+    // through to dark for everyone).
+    const mq = window.matchMedia("(prefers-color-scheme: light)");
+    const sync = () => apply(mq.matches ? "light" : "dark");
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
   }, [theme]);
 
   // ---- widget-open telemetry (skips preview; once per browser session) ----
