@@ -1,4 +1,5 @@
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { CompanyLogo } from "./CompanyLogo";
 
 const colors = {
   black: "#111827",
@@ -151,6 +152,9 @@ interface InstallationCertPDFProps {
     name: string;
     address?: string;
     vatId?: string;
+    phone?: string;
+    email?: string;
+    logoUrl?: string;
   };
   dossier: {
     normRef: string;
@@ -197,10 +201,12 @@ export function InstallationCertPDF({
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
           <View>
+            <CompanyLogo url={tenant.logoUrl} />
             <Text style={styles.company}>{tenant.name}</Text>
             <Text style={styles.subtitle}>Dossier di Posa Qualificata</Text>
             {tenant.address && <Text style={styles.subtitle}>{tenant.address}</Text>}
             {tenant.vatId && <Text style={styles.subtitle}>P.IVA: {tenant.vatId}</Text>}
+            {(tenant.phone || tenant.email) && <Text style={styles.subtitle}>{[tenant.phone, tenant.email].filter(Boolean).join(" · ")}</Text>}
           </View>
           <View style={{ textAlign: "right" }}>
             <View style={[styles.badge, styles.badgeGreen]}>

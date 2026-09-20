@@ -1,4 +1,5 @@
 import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { CompanyLogo } from "./CompanyLogo";
 
 /** All visible strings come in as props (built from the `surveyDoc` i18n
  * namespace), so the sheet is generated in the language the user works in. */
@@ -34,7 +35,7 @@ export interface SurveyPdfLabels {
 }
 
 export interface SurveyPdfProps {
-  tenant: { name: string; address?: string; vatId?: string };
+  tenant: { name: string; address?: string; vatId?: string; phone?: string; email?: string; logoUrl?: string };
   survey: {
     customerName: string;
     customerAddress?: string;
@@ -132,9 +133,11 @@ export function SurveyPDF({ tenant, survey, labels, locale, generatedAt }: Surve
       <Page size="A4" style={styles.page} wrap>
         <View style={styles.header} fixed>
           <View>
+            <CompanyLogo url={tenant.logoUrl} />
             <Text style={styles.company}>{tenant.name}</Text>
             {tenant.address ? <Text style={styles.muted}>{tenant.address}</Text> : null}
             {tenant.vatId ? <Text style={styles.muted}>{tenant.vatId}</Text> : null}
+            {tenant.phone || tenant.email ? <Text style={styles.muted}>{[tenant.phone, tenant.email].filter(Boolean).join(" · ")}</Text> : null}
           </View>
           <View>
             <Text style={styles.title}>{labels.title}</Text>

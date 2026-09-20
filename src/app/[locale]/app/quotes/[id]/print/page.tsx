@@ -2,31 +2,33 @@
 
 import { use, useState, Suspense } from "react";
 import { useQuery } from "convex/react";
+import type { FunctionReturnType } from "convex/server";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import type { Id } from "@/convex/_generated/dataModel";
 import { PDFViewerComponent } from "@/components/ui/PDFViewer";
 import { QuotePrintPDF } from "@/lib/pdfs/QuotePrintPDF";
 import { usePDFDownload } from "@/hooks/usePDFDownload";
+import { useCompanyPdf } from "@/lib/use-company-pdf";
 
 interface Props {
   params: Promise<{ id: string; locale: string }>;
 }
 
-function QuoteDocument({ quote, tenant, region }: { quote: any; tenant: any; region: string }) {
+type QuoteForPrint = NonNullable<FunctionReturnType<typeof api.quotes.getQuoteForPrint>>;
+
+function QuoteDocument({ quote, tenant, region }: { quote: NonNullable<QuoteForPrint["quote"]>; tenant: QuoteForPrint["tenant"]; region: string }) {
   // Luxembourg 1-click bilingual switch
   const [luLang, setLuLang] = useState<"fr" | "de">("fr");
 
   const langKey = region === "LU" ? luLang : region === "FR" || region === "BE" ? "fr" : region === "DE" ? "de" : region === "NL" ? "nl" : "it";
   const dateLocale = langKey === "fr" ? "fr-FR" : langKey === "de" ? "de-DE" : langKey === "nl" ? "nl-NL" : "it-IT";
 
+  const { ready: companyReady, company } = useCompanyPdf(tenant?.name);
+
   const pdfDoc = (
     <QuotePrintPDF
-      tenant={{
-        name: tenant?.name ?? "Serramenti",
-        vatId: (tenant as any)?.vatId,
-        address: (tenant as any)?.address,
-      }}
+      tenant={company}
       quote={quote}
       locale={dateLocale}
       region={region}
@@ -40,11 +42,7 @@ function QuoteDocument({ quote, tenant, region }: { quote: any; tenant: any; reg
 
   const handleDownload = async () => {
     await downloadPDF({
-      tenant: {
-        name: tenant?.name ?? "Serramenti",
-        vatId: (tenant as any)?.vatId,
-        address: (tenant as any)?.address,
-      },
+      tenant: company,
       quote,
       locale: dateLocale,
       region,
@@ -104,6 +102,7 @@ function QuoteDocument({ quote, tenant, region }: { quote: any; tenant: any; reg
           )}
           <button
             onClick={handleDownload}
+            disabled={!companyReady}
             className="rounded-lg bg-[var(--color-mint)] px-4 py-2 text-sm font-bold text-[var(--color-mint-dark)] hover:opacity-90"
           >
             ⬇️ Scarica PDF
@@ -125,7 +124,13 @@ function QuoteDocument({ quote, tenant, region }: { quote: any; tenant: any; reg
           </div>
         }
       >
-        <PDFViewerComponent document={pdfDoc} className="min-h-[800px]" />
+        {companyReady ? (
+          <PDFViewerComponent document={pdfDoc} className="min-h-[800px]" />
+        ) : (
+          <div className="flex min-h-[600px] items-center justify-center">
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--color-mint)] border-t-transparent" />
+          </div>
+        )}
       </Suspense>
     </>
   );

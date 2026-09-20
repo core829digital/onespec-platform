@@ -157,14 +157,92 @@ export const listMembers = query({
   },
 });
 
+const COMPANY_TEXT_MAX = 200;
+/** Trim; empty string clears the field. */
+function cleanCompanyText(value: string): string | undefined {
+  const t = value.trim();
+  if (t.length > COMPANY_TEXT_MAX) throw new ConvexError("INVALID_INPUT");
+  return t === "" ? undefined : t;
+}
+
 export const updateTenant = mutation({
-  args: { tenantId: v.id("tenants"), name: v.optional(v.string()), country: v.optional(v.string()) },
+  args: {
+    tenantId: v.id("tenants"),
+    name: v.optional(v.string()),
+    country: v.optional(v.string()),
+    vatId: v.optional(v.string()),
+    address: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    companyEmail: v.optional(v.string()),
+  },
   handler: async (ctx, args) => {
     await requireTenantRole(ctx, args.tenantId, ["owner", "admin"]);
     const update: Partial<Doc<"tenants">> = { updatedAt: Date.now() };
     if (args.name !== undefined) update.name = args.name;
     if (args.country !== undefined) update.country = args.country;
+    if (args.vatId !== undefined) update.vatId = cleanCompanyText(args.vatId);
+    if (args.address !== undefined) update.address = cleanCompanyText(args.address);
+    if (args.phone !== undefined) update.phone = cleanCompanyText(args.phone);
+    if (args.companyEmail !== undefined) update.companyEmail = cleanCompanyText(args.companyEmail);
     await ctx.db.patch(args.tenantId, update);
+  },
+});
+
+// ── Company logo (printed in every PDF header) ──────────────────────────────
+// react-pdf can only embed JPEG/PNG, so those are the only accepted types.
+const LOGO_TYPES = ["image/png", "image/jpeg"];
+const LOGO_MAX_BYTES = 2 * 1024 * 1024;
+
+export const generateLogoUploadUrl = mutation({
+  args: { tenantId: v.id("tenants") },
+  handler: async (ctx, args) => {
+    await requireTenantRole(ctx, args.tenantId, ["owner", "admin"]);
+    return await ctx.storage.generateUploadUrl();
+  },
+});
+
+export const setCompanyLogo = mutation({
+  args: { tenantId: v.id("tenants"), storageId: v.union(v.id("_storage"), v.null()) },
+  handler: async (ctx, args) => {
+    await requireTenantRole(ctx, args.tenantId, ["owner", "admin"]);
+    const tenant = await ctx.db.get(args.tenantId);
+    if (!tenant) throw new ConvexError("NOT_FOUND");
+
+    if (args.storageId) {
+      const meta = await ctx.db.system.get(args.storageId);
+      if (!meta || !meta.contentType || !LOGO_TYPES.includes(meta.contentType)) {
+        await ctx.storage.delete(args.storageId);
+        throw new ConvexError("UNSUPPORTED_IMAGE_TYPE");
+      }
+      if (meta.size > LOGO_MAX_BYTES) {
+        await ctx.storage.delete(args.storageId);
+        throw new ConvexError("IMAGE_TOO_LARGE");
+      }
+    }
+    if (tenant.logoStorageId && tenant.logoStorageId !== args.storageId) {
+      await ctx.storage.delete(tenant.logoStorageId);
+    }
+    await ctx.db.patch(args.tenantId, { logoStorageId: args.storageId ?? undefined, updatedAt: Date.now() });
+  },
+});
+
+/** Company details + logo URL for the caller's tenant — what PDF headers print. */
+export const getCompanyProfile = query({
+  handler: async (ctx) => {
+    const userId = await requireVerifiedUser(ctx);
+    const membership = await ctx.db.query("memberships").withIndex("by_user", (q) => q.eq("userId", userId)).first();
+    if (!membership) return null;
+    const tenant = await ctx.db.get(membership.tenantId);
+    if (!tenant) return null;
+    return {
+      tenantId: tenant._id,
+      name: tenant.name,
+      vatId: tenant.vatId,
+      address: tenant.address,
+      phone: tenant.phone,
+      email: tenant.companyEmail,
+      logoUrl: tenant.logoStorageId ? await ctx.storage.getUrl(tenant.logoStorageId) : null,
+    };
   },
 });
 

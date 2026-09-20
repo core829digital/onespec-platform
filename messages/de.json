@@ -247,7 +247,8 @@
     "billingNotConfigured": "Die Abrechnung ist noch nicht aktiv. Später erneut versuchen.",
     "signatureInvalid": "Unterschrift ungültig oder zu groß. Bitte neu unterschreiben.",
     "imageType": "Bildformat nicht unterstützt. JPG, PNG oder WebP verwenden.",
-    "offline": "Du bist offline. Versuche es erneut, sobald die Verbindung zurück ist."
+    "offline": "Du bist offline. Versuche es erneut, sobald die Verbindung zurück ist.",
+    "imageTooLarge": "Bild zu groß (maximal 2 MB)."
   },
   "dashboard": {
     "title": "Dashboard",
@@ -696,5 +697,26 @@
     "notes": "Notizen",
     "print": "Drucken",
     "noAddress": "Keine Adresse verknüpft"
+  },
+  "company": {
+    "title": "Unternehmen",
+    "description": "Diese Angaben erscheinen im Kopf aller erzeugten PDFs (Angebote, Aufmaße, Abnahmen, Montage). Das Land bestimmt die in der Plattform angezeigten Vorschriften.",
+    "logo": "Firmenlogo",
+    "logoHint": "PNG oder JPG, maximal 2 MB. Wird unverändert und ohne Zuschnitt eingefügt.",
+    "noLogo": "Kein Logo",
+    "logoUpload": "Logo hochladen",
+    "logoReplace": "Logo ersetzen",
+    "logoRemove": "Logo entfernen",
+    "uploading": "Wird hochgeladen…",
+    "logoType": "Format nicht unterstützt: PNG oder JPG verwenden.",
+    "logoSize": "Bild zu groß (maximal 2 MB).",
+    "country": "Land",
+    "countryUnset": "Nicht festgelegt",
+    "vatId": "USt-IdNr.",
+    "address": "Firmensitz",
+    "phone": "Telefon",
+    "email": "Firmen-E-Mail",
+    "save": "Speichern",
+    "saved": "Gespeichert"
   }
 }

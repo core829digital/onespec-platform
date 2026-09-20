@@ -247,7 +247,8 @@
     "billingNotConfigured": "La facturation n'est pas encore active. Réessayez plus tard.",
     "signatureInvalid": "Signature invalide ou trop volumineuse. Signez à nouveau.",
     "imageType": "Format d'image non pris en charge. Utilisez JPG, PNG ou WebP.",
-    "offline": "Vous êtes hors ligne. Réessayez au retour de la connexion."
+    "offline": "Vous êtes hors ligne. Réessayez au retour de la connexion.",
+    "imageTooLarge": "Image trop volumineuse (2 Mo maximum)."
   },
   "dashboard": {
     "title": "Tableau de bord",
@@ -696,5 +697,26 @@
     "notes": "Notes",
     "print": "Imprimer",
     "noAddress": "Aucune adresse liée"
+  },
+  "company": {
+    "title": "Entreprise",
+    "description": "Ces informations figurent dans l'en-tête de tous les PDF générés (devis, relevés, réceptions, pose). Le pays détermine la réglementation affichée dans la plateforme.",
+    "logo": "Logo de l'entreprise",
+    "logoHint": "PNG ou JPG, 2 Mo maximum. Inséré tel quel, sans recadrage.",
+    "noLogo": "Aucun logo",
+    "logoUpload": "Téléverser le logo",
+    "logoReplace": "Remplacer le logo",
+    "logoRemove": "Supprimer le logo",
+    "uploading": "Téléversement…",
+    "logoType": "Format non pris en charge : utilisez PNG ou JPG.",
+    "logoSize": "Image trop volumineuse (2 Mo maximum).",
+    "country": "Pays",
+    "countryUnset": "Non défini",
+    "vatId": "N° de TVA / SIRET",
+    "address": "Adresse du siège",
+    "phone": "Téléphone",
+    "email": "E-mail de l'entreprise",
+    "save": "Enregistrer",
+    "saved": "Enregistré"
   }
 }

@@ -10,6 +10,7 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { EmptyState } from "@/components/app-shell/empty-state";
 import { SurveyPDF, type SurveyPdfLabels } from "@/lib/pdfs/SurveyPDF";
 import { usePDFDownload } from "@/hooks/usePDFDownload";
+import { useCompanyPdf } from "@/lib/use-company-pdf";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 
 const LABEL_KEYS: Array<keyof SurveyPdfLabels> = [
@@ -45,6 +46,7 @@ export default function SurveyDetailPage({ params }: { params: Promise<{ id: str
   const { downloadPDF } = usePDFDownload(SurveyPDF, {
     filename: `rilievo-${id.slice(-6)}.pdf`,
   });
+  const { ready: companyReady, company } = useCompanyPdf(data?.tenant?.name);
   const [busy, setBusy] = useState<"" | "pdf" | "complete" | "quote" | "delete">("");
   const [error, setError] = useState("");
 
@@ -109,15 +111,11 @@ export default function SurveyDetailPage({ params }: { params: Promise<{ id: str
       <div className="flex flex-wrap gap-2">
         <button
           type="button"
-          disabled={busy !== ""}
+          disabled={busy !== "" || !companyReady}
           onClick={() =>
             run("pdf", () =>
               downloadPDF({
-                tenant: {
-                  name: data.tenant?.name ?? "",
-                  address: (data.tenant as { address?: string } | null)?.address,
-                  vatId: (data.tenant as { vatId?: string } | null)?.vatId,
-                },
+                tenant: company,
                 survey,
                 labels,
                 locale,

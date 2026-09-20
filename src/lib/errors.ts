@@ -40,6 +40,7 @@ export type ErrorKey =
   | "billingNotConfigured"
   | "signatureInvalid"
   | "imageType"
+  | "imageTooLarge"
   | "offline";
 
 const EXACT: Record<string, ErrorKey> = {
@@ -77,6 +78,7 @@ const EXACT: Record<string, ErrorKey> = {
   INVALID_SIGNATURE: "signatureInvalid",
   SIGNATURE_TOO_LARGE: "signatureInvalid",
   UNSUPPORTED_IMAGE_TYPE: "imageType",
+  IMAGE_TOO_LARGE: "imageTooLarge",
 };
 
 /** Map a backend error code to a message key (pattern fallbacks for families). */

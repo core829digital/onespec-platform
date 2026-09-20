@@ -290,7 +290,8 @@
     "billingNotConfigured": "La fatturazione non è ancora attiva. Riprova più tardi.",
     "signatureInvalid": "Firma non valida o troppo grande. Firma di nuovo.",
     "imageType": "Formato immagine non supportato. Usa JPG, PNG o WebP.",
-    "offline": "Sei offline. Riprova quando torna la connessione."
+    "offline": "Sei offline. Riprova quando torna la connessione.",
+    "imageTooLarge": "Immagine troppo grande (massimo 2 MB)."
   },
   "app": {
     "suspended": {
@@ -696,5 +697,26 @@
     "notes": "Note",
     "print": "Stampa",
     "noAddress": "Nessun indirizzo collegato"
+  },
+  "company": {
+    "title": "Azienda",
+    "description": "Questi dati compaiono nell'intestazione di tutti i PDF generati (preventivi, rilievi, collaudi, posa). Il paese determina la normativa mostrata in piattaforma.",
+    "logo": "Logo aziendale",
+    "logoHint": "PNG o JPG, massimo 2 MB. Viene inserito così com'è, senza ritagli.",
+    "noLogo": "Nessun logo",
+    "logoUpload": "Carica logo",
+    "logoReplace": "Sostituisci logo",
+    "logoRemove": "Rimuovi logo",
+    "uploading": "Caricamento…",
+    "logoType": "Formato non supportato: usa PNG o JPG.",
+    "logoSize": "Immagine troppo grande (massimo 2 MB).",
+    "country": "Paese",
+    "countryUnset": "Non impostato",
+    "vatId": "Partita IVA / ID fiscale",
+    "address": "Indirizzo sede",
+    "phone": "Telefono",
+    "email": "Email aziendale",
+    "save": "Salva",
+    "saved": "Salvato"
   }
 }

@@ -1,4 +1,5 @@
 import { Document, Image, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { CompanyLogo } from "./CompanyLogo";
 
 const colors = {
   black: "#111827",
@@ -166,6 +167,9 @@ interface InspectionCertPDFProps {
     name: string;
     address?: string;
     vatId?: string;
+    phone?: string;
+    email?: string;
+    logoUrl?: string;
   };
   report: {
     createdAt: number;
@@ -213,10 +217,12 @@ export function InspectionCertPDF({
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
           <View>
+            <CompanyLogo url={tenant.logoUrl} />
             <Text style={styles.company}>{tenant.name}</Text>
             <Text style={styles.subtitle}>{title}</Text>
             {tenant.address && <Text style={styles.subtitle}>{tenant.address}</Text>}
             {tenant.vatId && <Text style={styles.subtitle}>P.IVA: {tenant.vatId}</Text>}
+            {(tenant.phone || tenant.email) && <Text style={styles.subtitle}>{[tenant.phone, tenant.email].filter(Boolean).join(" · ")}</Text>}
           </View>
           <View style={{ textAlign: "right" }}>
             <View style={[styles.badge, isSigned ? styles.badgeGreen : styles.badgeAmber]}>

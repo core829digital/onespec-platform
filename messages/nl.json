@@ -247,7 +247,8 @@
     "billingNotConfigured": "Facturatie is nog niet actief. Probeer het later opnieuw.",
     "signatureInvalid": "Handtekening ongeldig of te groot. Teken opnieuw.",
     "imageType": "Afbeeldingsformaat niet ondersteund. Gebruik JPG, PNG of WebP.",
-    "offline": "Je bent offline. Probeer opnieuw zodra de verbinding terug is."
+    "offline": "Je bent offline. Probeer opnieuw zodra de verbinding terug is.",
+    "imageTooLarge": "Afbeelding te groot (maximaal 2 MB)."
   },
   "dashboard": {
     "title": "Dashboard",
@@ -696,5 +697,26 @@
     "notes": "Notities",
     "print": "Afdrukken",
     "noAddress": "Geen adres gekoppeld"
+  },
+  "company": {
+    "title": "Bedrijf",
+    "description": "Deze gegevens staan in de kop van alle gegenereerde pdf's (offertes, opmetingen, oplevering, montage). Het land bepaalt de getoonde regelgeving in het platform.",
+    "logo": "Bedrijfslogo",
+    "logoHint": "PNG of JPG, maximaal 2 MB. Wordt ongewijzigd en zonder bijsnijden ingevoegd.",
+    "noLogo": "Geen logo",
+    "logoUpload": "Logo uploaden",
+    "logoReplace": "Logo vervangen",
+    "logoRemove": "Logo verwijderen",
+    "uploading": "Uploaden…",
+    "logoType": "Formaat niet ondersteund: gebruik PNG of JPG.",
+    "logoSize": "Afbeelding te groot (maximaal 2 MB).",
+    "country": "Land",
+    "countryUnset": "Niet ingesteld",
+    "vatId": "BTW-nummer",
+    "address": "Vestigingsadres",
+    "phone": "Telefoon",
+    "email": "Bedrijfs-e-mail",
+    "save": "Opslaan",
+    "saved": "Opgeslagen"
   }
 }

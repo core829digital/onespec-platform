@@ -290,7 +290,8 @@
     "billingNotConfigured": "Billing isn't active yet. Try again later.",
     "signatureInvalid": "Signature invalid or too large. Please sign again.",
     "imageType": "Unsupported image format. Use JPG, PNG or WebP.",
-    "offline": "You're offline. Try again when the connection is back."
+    "offline": "You're offline. Try again when the connection is back.",
+    "imageTooLarge": "Image too large (2 MB maximum)."
   },
   "app": {
     "suspended": {
@@ -696,5 +697,26 @@
     "notes": "Notes",
     "print": "Print",
     "noAddress": "No address linked"
+  },
+  "company": {
+    "title": "Company",
+    "description": "These details appear in the header of every generated PDF (quotes, surveys, inspections, installation). The country sets the regulations shown in the platform.",
+    "logo": "Company logo",
+    "logoHint": "PNG or JPG, 2 MB maximum. Inserted as-is, never cropped.",
+    "noLogo": "No logo",
+    "logoUpload": "Upload logo",
+    "logoReplace": "Replace logo",
+    "logoRemove": "Remove logo",
+    "uploading": "Uploading…",
+    "logoType": "Unsupported format: use PNG or JPG.",
+    "logoSize": "Image too large (2 MB maximum).",
+    "country": "Country",
+    "countryUnset": "Not set",
+    "vatId": "VAT / tax ID",
+    "address": "Registered address",
+    "phone": "Phone",
+    "email": "Company email",
+    "save": "Save",
+    "saved": "Saved"
   }
 }

@@ -54,6 +54,12 @@ export default defineSchema({
     billingCycle: v.optional(v.union(v.literal("monthly"), v.literal("annual"))),
     // Sales-led deals: setup fee invoiced outside Stripe.
     setupFeePaidAt: v.optional(v.number()),
+    // Company profile printed in every generated PDF header.
+    vatId: v.optional(v.string()),
+    address: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    companyEmail: v.optional(v.string()),
+    logoStorageId: v.optional(v.id("_storage")),
   })
     .index("by_slug", ["slug"])
     .index("by_owner", ["ownerUserId"])

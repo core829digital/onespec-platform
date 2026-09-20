@@ -247,7 +247,8 @@
     "billingNotConfigured": "Facturarea nu este încă activă. Reîncearcă mai târziu.",
     "signatureInvalid": "Semnătură invalidă sau prea mare. Semnează din nou.",
     "imageType": "Format de imagine neacceptat. Folosește JPG, PNG sau WebP.",
-    "offline": "Ești offline. Reîncearcă la revenirea conexiunii."
+    "offline": "Ești offline. Reîncearcă la revenirea conexiunii.",
+    "imageTooLarge": "Imagine prea mare (maximum 2 MB)."
   },
   "dashboard": {
     "title": "Panou",
@@ -696,5 +697,26 @@
     "notes": "Note",
     "print": "Tipărește",
     "noAddress": "Nicio adresă asociată"
+  },
+  "company": {
+    "title": "Companie",
+    "description": "Aceste date apar în antetul tuturor PDF-urilor generate (oferte, măsurători, recepții, montaj). Țara determină reglementările afișate în platformă.",
+    "logo": "Logo companie",
+    "logoHint": "PNG sau JPG, maximum 2 MB. Este inserat ca atare, fără decupare.",
+    "noLogo": "Fără logo",
+    "logoUpload": "Încarcă logo",
+    "logoReplace": "Înlocuiește logo",
+    "logoRemove": "Elimină logo",
+    "uploading": "Se încarcă…",
+    "logoType": "Format neacceptat: folosește PNG sau JPG.",
+    "logoSize": "Imagine prea mare (maximum 2 MB).",
+    "country": "Țara",
+    "countryUnset": "Nesetat",
+    "vatId": "CUI / cod fiscal",
+    "address": "Adresa sediului",
+    "phone": "Telefon",
+    "email": "E-mail companie",
+    "save": "Salvează",
+    "saved": "Salvat"
   }
 }

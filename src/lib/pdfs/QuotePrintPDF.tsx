@@ -1,6 +1,7 @@
 import { Document, Image, Page, Text, View, StyleSheet, PDFViewer } from "@react-pdf/renderer";
 import type { ProjectItem } from "@/shared/pricing";
 import { WindowDrawingPDF } from "./WindowDrawingPDF";
+import { CompanyLogo } from "./CompanyLogo";
 
 const colors = {
   black: "#111827",
@@ -232,6 +233,9 @@ interface QuotePrintPDFProps {
     name: string;
     vatId?: string;
     address?: string;
+    phone?: string;
+    email?: string;
+    logoUrl?: string;
   };
   quote: {
     publicId: string;
@@ -335,10 +339,14 @@ export function QuotePrintPDF({
         {/* Print action bar (hidden in print) */}
         <View style={styles.header}>
           <View>
+            <CompanyLogo url={tenant?.logoUrl} />
             <Text style={styles.company}>{tenant?.name ?? "Serramenti"}</Text>
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 15, marginTop: 10 }}>
-              <Text style={styles.subtitle}>P.IVA / TVA / MwSt: {tenant?.vatId ?? "—"}</Text>
-              <Text style={styles.subtitle}>{tenant?.address ?? "—"}</Text>
+              {tenant?.vatId ? <Text style={styles.subtitle}>P.IVA / TVA / MwSt: {tenant.vatId}</Text> : null}
+              {tenant?.address ? <Text style={styles.subtitle}>{tenant.address}</Text> : null}
+              {tenant?.phone || tenant?.email ? (
+                <Text style={styles.subtitle}>{[tenant.phone, tenant.email].filter(Boolean).join(" · ")}</Text>
+              ) : null}
             </View>
           </View>
           <View style={{ textAlign: "right" }}>

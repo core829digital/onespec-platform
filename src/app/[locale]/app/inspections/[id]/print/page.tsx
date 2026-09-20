@@ -8,6 +8,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { PDFViewerComponent } from "@/components/ui/PDFViewer";
 import { InspectionCertPDF } from "@/lib/pdfs/InspectionCertPDF";
 import { usePDFDownload } from "@/hooks/usePDFDownload";
+import { useCompanyPdf } from "@/lib/use-company-pdf";
 import { usePdfImages } from "@/lib/pdf-images";
 
 interface Props {
@@ -16,7 +17,6 @@ interface Props {
 
 function InspectionDocument({ data, region }: { data: NonNullable<FunctionReturnType<typeof api.inspections.getForPrint>>; region: string }) {
   const { report, tenant, title, legalBasis, warrantyLines } = data;
-  const company = tenant as { address?: string; vatId?: string } | null;
   const [generatedAt] = useState(() => Date.now());
 
   const langKey = region === "FR" || region === "BE" ? "fr" : region === "DE" ? "de" : region === "NL" ? "nl" : "it";
@@ -25,14 +25,12 @@ function InspectionDocument({ data, region }: { data: NonNullable<FunctionReturn
   // Photos are made PDF-safe (EXIF rotation, non JPEG/PNG formats) at their
   // natural size — never resized. The PDF is only built once they're ready.
   const photoUrls = useMemo(() => (report.photos as Array<{ url?: string }>).map((p) => p.url), [report.photos]);
-  const { ready, map } = usePdfImages(photoUrls);
+  const { ready: photosReady, map } = usePdfImages(photoUrls);
+  const { ready: companyReady, company } = useCompanyPdf(tenant?.name);
+  const ready = photosReady && companyReady;
 
   const pdfProps = {
-    tenant: {
-      name: tenant?.name ?? "Serramenti",
-      address: company?.address,
-      vatId: company?.vatId,
-    },
+    tenant: company,
     report: {
       createdAt: report.createdAt,
       status: report.status,

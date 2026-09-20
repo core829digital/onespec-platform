@@ -7,6 +7,7 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { Link } from "@/i18n/navigation";
 import { Section, Field, TextInput, SelectInput, Toggle } from "@/components/configurator/editor-primitives";
 import type { Id } from "@/convex/_generated/dataModel";
+import { CompanyProfileSection } from "@/components/account/company-profile";
 
 const LOCALES = [
   { v: "it", l: "Italiano" },
@@ -17,17 +18,6 @@ const LOCALES = [
   { v: "ro", l: "Română" },
 ];
 
-// The 6 markets the platform actually has region/compliance logic for
-// (see src/app/[locale]/app/installations/page.tsx's regionLabels).
-const COUNTRIES = [
-  { v: "IT", l: "Italia" },
-  { v: "FR", l: "Francia" },
-  { v: "BE", l: "Belgio" },
-  { v: "NL", l: "Paesi Bassi" },
-  { v: "DE", l: "Germania" },
-  { v: "LU", l: "Lussemburgo" },
-];
-
 const dt = (ms: number) => new Date(ms).toLocaleString("it-IT");
 const d = (ms: number) => new Date(ms).toLocaleDateString("it-IT");
 
@@ -35,7 +25,6 @@ export default function AccountPage() {
   const profile = useQuery(api.account.getProfile);
   const tenant = useQuery(api.tenants.getMyTenant);
   const updateProfile = useMutation(api.account.updateProfile);
-  const updateTenant = useMutation(api.tenants.updateTenant);
   const setConsent = useMutation(api.account.setConsent);
   const revokeSession = useMutation(api.account.revokeSession);
   const revokeOthers = useMutation(api.account.revokeOtherSessions);
@@ -47,9 +36,6 @@ export default function AccountPage() {
   const [nameEdit, setNameEdit] = useState<string | null>(null);
   const [localeEdit, setLocaleEdit] = useState<string | null>(null);
   const [savedProfile, setSavedProfile] = useState(false);
-  const [countryEdit, setCountryEdit] = useState<string | null>(null);
-  const [savedCompany, setSavedCompany] = useState(false);
-  const [companyMsg, setCompanyMsg] = useState("");
   const [msg, setMsg] = useState("");
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [reason, setReason] = useState("");
@@ -70,19 +56,6 @@ export default function AccountPage() {
       setTimeout(() => setSavedProfile(false), 2000);
     } catch (e) {
       setMsg(e instanceof Error ? e.message : "Errore nel salvataggio");
-    }
-  }
-
-  async function saveCompany() {
-    setCompanyMsg("");
-    if (!tenant || !countryEdit) return;
-    try {
-      await updateTenant({ tenantId: tenant._id, country: countryEdit });
-      setCountryEdit(null);
-      setSavedCompany(true);
-      setTimeout(() => setSavedCompany(false), 2000);
-    } catch (e) {
-      setCompanyMsg(e instanceof Error ? e.message : "Errore nel salvataggio");
     }
   }
 
@@ -157,35 +130,7 @@ export default function AccountPage() {
       </Section>
 
       {tenant && (profile.role === "owner" || profile.role === "admin") ? (
-        <Section
-          title="Azienda"
-          description="Il paese determina la normativa e i requisiti di conformità mostrati in piattaforma (posa, fascicoli, preventivi)."
-        >
-          {companyMsg ? <p className="text-sm text-[var(--color-danger)]">{companyMsg}</p> : null}
-          <Field label="Paese">
-            <SelectInput
-              value={countryEdit ?? tenant.country ?? ""}
-              onChange={(e) => setCountryEdit(e.target.value)}
-            >
-              <option value="" disabled>
-                Non impostato
-              </option>
-              {COUNTRIES.map((c) => (
-                <option key={c.v} value={c.v}>
-                  {c.l}
-                </option>
-              ))}
-            </SelectInput>
-          </Field>
-          <button
-            type="button"
-            onClick={saveCompany}
-            disabled={!countryEdit}
-            className="rounded-lg bg-[var(--color-mint)] px-4 py-2 text-sm font-semibold text-[var(--color-mint-dark)] disabled:opacity-50"
-          >
-            {savedCompany ? "Salvato" : "Salva paese"}
-          </button>
-        </Section>
+        <CompanyProfileSection tenantId={tenant._id} country={tenant.country} />
       ) : null}
 
       <Section title="Sessioni attive" description="Dispositivi e browser con cui hai effettuato l'accesso.">

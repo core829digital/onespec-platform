@@ -2,17 +2,19 @@
 
 import { use, useState, Suspense } from "react";
 import { useQuery } from "convex/react";
+import type { FunctionReturnType } from "convex/server";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { PDFViewerComponent } from "@/components/ui/PDFViewer";
 import { InstallationCertPDF } from "@/lib/pdfs/InstallationCertPDF";
 import { usePDFDownload } from "@/hooks/usePDFDownload";
+import { useCompanyPdf } from "@/lib/use-company-pdf";
 
 interface Props {
   params: Promise<{ id: string; locale: string }>;
 }
 
-function InstallationDocument({ data, region }: { data: any; region: string }) {
+function InstallationDocument({ data, region }: { data: NonNullable<FunctionReturnType<typeof api.installations.getForPrint>>; region: string }) {
   const { dossier, tenant, jobLabel, nodeLabel, notes, survey, quote } = data;
   // Lazy initializer: React calls this exactly once (on mount), not on
   // every render — the sanctioned way to grab "now" for display without
@@ -23,13 +25,11 @@ function InstallationDocument({ data, region }: { data: any; region: string }) {
   const langKey = region === "FR" || region === "BE" ? "fr" : region === "DE" ? "de" : region === "NL" ? "nl" : "it";
   const dateLocale = langKey === "fr" ? "fr-FR" : langKey === "de" ? "de-DE" : langKey === "nl" ? "nl-NL" : "it-IT";
 
+  const { ready: companyReady, company } = useCompanyPdf(tenant?.name);
+
   const pdfDoc = (
     <InstallationCertPDF
-      tenant={{
-        name: tenant?.name ?? "Serramenti",
-        address: (tenant as any)?.address,
-        vatId: (tenant as any)?.vatId,
-      }}
+      tenant={company}
       dossier={{
         normRef: dossier.normRef,
         createdAt: dossier.createdAt,
@@ -65,11 +65,7 @@ function InstallationDocument({ data, region }: { data: any; region: string }) {
 
   const handleDownload = async () => {
     await downloadPDF({
-      tenant: {
-        name: tenant?.name ?? "Serramenti",
-        address: (tenant as any)?.address,
-        vatId: (tenant as any)?.vatId,
-      },
+      tenant: company,
       dossier: {
         normRef: dossier.normRef,
         createdAt: dossier.createdAt,
@@ -110,6 +106,7 @@ function InstallationDocument({ data, region }: { data: any; region: string }) {
         <div className="flex items-center gap-2">
           <button
             onClick={handleDownload}
+            disabled={!companyReady}
             className="rounded-lg bg-[var(--color-mint)] px-4 py-2 text-sm font-bold text-[var(--color-mint-dark)] hover:opacity-90"
           >
             ⬇️ Scarica PDF
@@ -131,7 +128,13 @@ function InstallationDocument({ data, region }: { data: any; region: string }) {
           </div>
         }
       >
-        <PDFViewerComponent document={pdfDoc} className="min-h-[800px]" />
+        {companyReady ? (
+          <PDFViewerComponent document={pdfDoc} className="min-h-[800px]" />
+        ) : (
+          <div className="flex min-h-[600px] items-center justify-center">
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--color-mint)] border-t-transparent" />
+          </div>
+        )}
       </Suspense>
     </>
   );
