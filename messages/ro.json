@@ -47,7 +47,8 @@
     "billing": "Plan & Facturare",
     "logout": "Deconectare",
     "menu": "Meniu",
-    "legal": "Legal"
+    "legal": "Legal",
+    "dpa": "Acord DPA (GDPR)"
   },
   "auth": {
     "login": {
@@ -243,7 +244,9 @@
     "inviteMismatch": "Această invitație este pentru altă adresă de e-mail. Autentifică-te cu contul potrivit.",
     "inviteInvalid": "Invitație expirată sau deja folosită. Cere una nouă.",
     "invalidEmail": "Adresă de e-mail invalidă.",
-    "cannotRemoveOwner": "Proprietarul organizației nu poate fi eliminat."
+    "cannotRemoveOwner": "Proprietarul organizației nu poate fi eliminat.",
+    "dpaVersion": "Textul acordului a fost actualizat: reîncarcă pagina.",
+    "companyIncomplete": "Completează mai întâi datele companiei (denumire, CUI, adresă)."
   },
   "dashboard": {
     "title": "Panou",
@@ -730,5 +733,31 @@
     "email": "E-mail companie",
     "save": "Salvează",
     "saved": "Salvat"
+  },
+  "dpa": {
+    "title": "Acord de prelucrare a datelor (DPA)",
+    "intro": "Acord conform art. 28 GDPR între organizația ta (Operator) și ONESPEC (Persoană împuternicită).",
+    "versionLabel": "Versiunea {version}",
+    "loading": "Se încarcă…",
+    "acceptedTitle": "Acord acceptat",
+    "acceptedBy": "Acceptat de {name} ({role}) la {date}.",
+    "acceptTitle": "Acceptă acordul",
+    "ownerMustAccept": "Acordul trebuie acceptat de proprietarul sau de un administrator al organizației.",
+    "signerName": "Numele complet al semnatarului",
+    "signerRole": "Funcția",
+    "signerRolePlaceholder": "Reprezentant legal",
+    "consent": "Am citit integral acordul și sunt autorizat să îl accept în numele {company}.",
+    "accept": "Accept acordul",
+    "accepting": "Se salvează…",
+    "companyIncomplete": "Înainte de acceptare, completează datele companiei: denumire, CUI și adresă.",
+    "goToCompany": "Mergi la datele companiei",
+    "downloadPreview": "Descarcă PDF (previzualizare)",
+    "downloadSigned": "Descarcă PDF semnat",
+    "downloading": "Se generează…",
+    "gateTitle": "Este necesară acceptarea DPA",
+    "gateBody": "Pentru a continua să folosești platforma trebuie să accepți acordul de prelucrare a datelor cu caracter personal (art. 28 GDPR).",
+    "gateCta": "Citește și acceptă",
+    "signOut": "Deconectare",
+    "memberBanner": "Proprietarul organizației nu a acceptat încă acordul de prelucrare a datelor (DPA)."
   }
 }

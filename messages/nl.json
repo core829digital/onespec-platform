@@ -47,7 +47,8 @@
     "billing": "Plan & Facturatie",
     "logout": "Afmelden",
     "menu": "Menu",
-    "legal": "Juridisch"
+    "legal": "Juridisch",
+    "dpa": "DPA-overeenkomst (AVG)"
   },
   "auth": {
     "login": {
@@ -243,7 +244,9 @@
     "inviteMismatch": "Deze uitnodiging is voor een ander e-mailadres. Log in met het juiste account.",
     "inviteInvalid": "Uitnodiging verlopen of al gebruikt. Vraag een nieuwe aan.",
     "invalidEmail": "Ongeldig e-mailadres.",
-    "cannotRemoveOwner": "De eigenaar van de organisatie kan niet worden verwijderd."
+    "cannotRemoveOwner": "De eigenaar van de organisatie kan niet worden verwijderd.",
+    "dpaVersion": "De tekst van de overeenkomst is bijgewerkt: laad de pagina opnieuw.",
+    "companyIncomplete": "Vul eerst de bedrijfsgegevens aan (naam, btw-nummer, adres)."
   },
   "dashboard": {
     "title": "Dashboard",
@@ -730,5 +733,31 @@
     "email": "Bedrijfs-e-mail",
     "save": "Opslaan",
     "saved": "Opgeslagen"
+  },
+  "dpa": {
+    "title": "Verwerkersovereenkomst (DPA)",
+    "intro": "Overeenkomst op grond van art. 28 AVG tussen uw organisatie (Verwerkingsverantwoordelijke) en ONESPEC (Verwerker).",
+    "versionLabel": "Versie {version}",
+    "loading": "Laden…",
+    "acceptedTitle": "Overeenkomst geaccepteerd",
+    "acceptedBy": "Geaccepteerd door {name} ({role}) op {date}.",
+    "acceptTitle": "Overeenkomst accepteren",
+    "ownerMustAccept": "De overeenkomst moet worden geaccepteerd door de eigenaar of een beheerder van de organisatie.",
+    "signerName": "Volledige naam van de ondertekenaar",
+    "signerRole": "Functie",
+    "signerRolePlaceholder": "Wettelijk vertegenwoordiger",
+    "consent": "Ik heb de volledige overeenkomst gelezen en ben bevoegd deze namens {company} te accepteren.",
+    "accept": "Ik accepteer de overeenkomst",
+    "accepting": "Opslaan…",
+    "companyIncomplete": "Vul vóór acceptatie de bedrijfsgegevens aan: bedrijfsnaam, btw-nummer en adres.",
+    "goToCompany": "Naar bedrijfsgegevens",
+    "downloadPreview": "Pdf downloaden (voorbeeld)",
+    "downloadSigned": "Ondertekende pdf downloaden",
+    "downloading": "Genereren…",
+    "gateTitle": "Acceptatie van de DPA vereist",
+    "gateBody": "Om het platform te blijven gebruiken moet u de verwerkersovereenkomst (art. 28 AVG) accepteren.",
+    "gateCta": "Lezen en accepteren",
+    "signOut": "Uitloggen",
+    "memberBanner": "De eigenaar van de organisatie heeft de verwerkersovereenkomst (DPA) nog niet geaccepteerd."
   }
 }

@@ -50,6 +50,10 @@ export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
                 <Link href={`/legal/${d.slug}`} className="flex w-full">{d.title}</Link>
               </DropdownMenuItem>
             ))}
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/app/account/dpa" className="flex w-full">{t("dpa")}</Link>
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
         

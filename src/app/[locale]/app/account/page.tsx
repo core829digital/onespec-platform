@@ -280,6 +280,9 @@ export default function AccountPage() {
         <Link href="/app/account/billing" className="text-sm text-[var(--color-mint)] hover:underline">
           Piano e fatturazione
         </Link>
+        <Link href="/app/account/dpa" className="text-sm text-[var(--color-mint)] hover:underline">
+          Accordo DPA (GDPR)
+        </Link>
         <button
           type="button"
           onClick={() => signOut()}

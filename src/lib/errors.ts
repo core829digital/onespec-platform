@@ -48,6 +48,8 @@ export type ErrorKey =
   | "inviteInvalid"
   | "invalidEmail"
   | "cannotRemoveOwner"
+  | "dpaVersion"
+  | "companyIncomplete"
   | "offline";
 
 const EXACT: Record<string, ErrorKey> = {
@@ -94,6 +96,8 @@ const EXACT: Record<string, ErrorKey> = {
   INVITATION_USED: "inviteInvalid",
   INVALID_EMAIL: "invalidEmail",
   CANNOT_REMOVE_OWNER: "cannotRemoveOwner",
+  DPA_VERSION_MISMATCH: "dpaVersion",
+  COMPANY_PROFILE_INCOMPLETE: "companyIncomplete",
 };
 
 /** Map a backend error code to a message key (pattern fallbacks for families). */

@@ -97,9 +97,31 @@ export default defineSchema({
     .index("by_tenant", ["tenantId"])
     .index("by_email", ["email"]),
 
+  /** Tenant acceptance of a specific version of the Art. 28 GDPR agreement (src/shared/dpa.ts). */
+  dpaAcceptances: defineTable({
+    tenantId: v.id("tenants"),
+    version: v.string(),
+    acceptedByUserId: v.id("users"),
+    signerName: v.string(),
+    signerRole: v.string(),
+    signerEmail: v.optional(v.string()),
+    /** Snapshot of the controller's identity at signing time (the tenant profile can change later). */
+    controller: v.object({
+      name: v.string(),
+      vatId: v.optional(v.string()),
+      address: v.optional(v.string()),
+      email: v.optional(v.string()),
+    }),
+    acceptedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_version", ["tenantId", "version"]),
+
   appSettings: defineTable({
     key: v.literal("global"),
     registrationOpen: v.boolean(),
+    /** When true, owners/admins must accept the Art. 28 GDPR agreement before using the app. */
+    dpaRequired: v.optional(v.boolean()),
     maintenanceBanner: v.optional(v.string()),
     resendMode: v.union(v.literal("live"), v.literal("noop")),
     updatedByUserId: v.optional(v.id("users")),

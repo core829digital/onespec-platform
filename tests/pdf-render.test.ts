@@ -92,3 +92,16 @@ test("window drawing renders with sashes and handle heights", async () => {
   );
   expect(buf.subarray(0, 4).toString()).toBe("%PDF");
 });
+
+test("DPA PDF renders unsigned and signed, with pagination", async () => {
+  const { DpaPDF } = await import("../src/lib/pdfs/DpaPDF");
+  const { buildDpa, DPA_VERSION } = await import("../src/shared/dpa");
+  const controller = { name: "Acme Serramenti Srl", vatId: "IT01234567890", address: "Via Roma 1, Prato", email: "info@acme.it" };
+  for (const acceptance of [null, { signerName: "Mario Rossi", signerRole: "Legale rappresentante", acceptedAt: 1_700_000_000_000 }]) {
+    const buf = await renderToBuffer(
+      h(DpaPDF, { doc: buildDpa(controller), version: DPA_VERSION, controller, acceptance, locale: "it-IT", generatedAt: 1 }),
+    );
+    expect(buf.subarray(0, 4).toString()).toBe("%PDF");
+    expect(buf.length).toBeGreaterThan(5000);
+  }
+});

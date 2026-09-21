@@ -24,6 +24,7 @@ import type * as catalogImport from "../catalogImport.js";
 import type * as clients from "../clients.js";
 import type * as configurators from "../configurators.js";
 import type * as crons from "../crons.js";
+import type * as dpa from "../dpa.js";
 import type * as email from "../email.js";
 import type * as emails_auth from "../emails/auth.js";
 import type * as exports from "../exports.js";
@@ -82,6 +83,7 @@ declare const fullApi: ApiFromModules<{
   clients: typeof clients;
   configurators: typeof configurators;
   crons: typeof crons;
+  dpa: typeof dpa;
   email: typeof email;
   "emails/auth": typeof emails_auth;
   exports: typeof exports;

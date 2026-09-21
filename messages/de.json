@@ -47,7 +47,8 @@
     "billing": "Plan & Abrechnung",
     "logout": "Abmelden",
     "menu": "Menü",
-    "legal": "Rechtliches"
+    "legal": "Rechtliches",
+    "dpa": "AVV (DSGVO)"
   },
   "auth": {
     "login": {
@@ -243,7 +244,9 @@
     "inviteMismatch": "Diese Einladung gilt für eine andere E-Mail-Adresse. Melden Sie sich mit dem richtigen Konto an.",
     "inviteInvalid": "Einladung abgelaufen oder bereits verwendet. Bitten Sie um eine neue.",
     "invalidEmail": "Ungültige E-Mail-Adresse.",
-    "cannotRemoveOwner": "Der Inhaber der Organisation kann nicht entfernt werden."
+    "cannotRemoveOwner": "Der Inhaber der Organisation kann nicht entfernt werden.",
+    "dpaVersion": "Der Vertragstext wurde aktualisiert: Seite neu laden.",
+    "companyIncomplete": "Ergänzen Sie zuerst die Firmendaten (Firmenname, USt-IdNr., Adresse)."
   },
   "dashboard": {
     "title": "Dashboard",
@@ -730,5 +733,31 @@
     "email": "Firmen-E-Mail",
     "save": "Speichern",
     "saved": "Gespeichert"
+  },
+  "dpa": {
+    "title": "Auftragsverarbeitungsvertrag (AVV/DPA)",
+    "intro": "Vertrag nach Art. 28 DSGVO zwischen Ihrer Organisation (Verantwortlicher) und ONESPEC (Auftragsverarbeiter).",
+    "versionLabel": "Version {version}",
+    "loading": "Wird geladen…",
+    "acceptedTitle": "Vertrag akzeptiert",
+    "acceptedBy": "Akzeptiert von {name} ({role}) am {date}.",
+    "acceptTitle": "Vertrag akzeptieren",
+    "ownerMustAccept": "Der Vertrag muss vom Inhaber oder einem Administrator der Organisation akzeptiert werden.",
+    "signerName": "Vollständiger Name des Unterzeichners",
+    "signerRole": "Funktion",
+    "signerRolePlaceholder": "Gesetzlicher Vertreter",
+    "consent": "Ich habe den gesamten Vertrag gelesen und bin berechtigt, ihn im Namen von {company} zu akzeptieren.",
+    "accept": "Ich akzeptiere den Vertrag",
+    "accepting": "Wird gespeichert…",
+    "companyIncomplete": "Vor der Annahme ergänzen Sie bitte die Firmendaten: Firmenname, USt-IdNr. und Adresse.",
+    "goToCompany": "Zu den Firmendaten",
+    "downloadPreview": "PDF herunterladen (Vorschau)",
+    "downloadSigned": "Signiertes PDF herunterladen",
+    "downloading": "Wird erstellt…",
+    "gateTitle": "Annahme des AVV erforderlich",
+    "gateBody": "Um die Plattform weiter zu nutzen, müssen Sie den Auftragsverarbeitungsvertrag (Art. 28 DSGVO) akzeptieren.",
+    "gateCta": "Lesen und akzeptieren",
+    "signOut": "Abmelden",
+    "memberBanner": "Der Inhaber der Organisation hat den Auftragsverarbeitungsvertrag (AVV) noch nicht akzeptiert."
   }
 }

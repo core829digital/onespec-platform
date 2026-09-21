@@ -85,6 +85,7 @@ export default function AdminPage() {
   const tenants = useQuery(api.admin.listTenants, isAdmin ? { limit: 50 } : "skip");
   const feedback = useQuery(api.feedback.listFeedback, isAdmin ? {} : "skip");
   const toggleRegistration = useMutation(api.registration.toggleRegistration);
+  const setDpaRequired = useMutation(api.dpa.setDpaRequired);
   const setFeedbackStatus = useMutation(api.feedback.setFeedbackStatus);
 
   if (viewer === undefined) {
@@ -109,7 +110,7 @@ export default function AdminPage() {
     <div className="space-y-6">
       <h1 className="text-3xl font-bold text-[var(--color-text)]">Admin</h1>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg p-4">
           <p className="text-sm text-[var(--color-text-secondary)]">Stato registrazioni</p>
           <p className="text-3xl font-bold text-[var(--color-text)] mt-2">
@@ -128,6 +129,19 @@ export default function AdminPage() {
             </Button>
             <Button size="sm" variant="ghost" onClick={() => run(toggleRegistration({ open: false }))}>
               Chiudi
+            </Button>
+          </div>
+        </div>
+        <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg p-4 flex flex-col justify-between">
+          <p className="text-sm text-[var(--color-text-secondary)]">
+            Accordo DPA obbligatorio: {registration ? (registration.dpaRequired ? "attivo" : "spento") : "—"}
+          </p>
+          <div className="flex gap-2 mt-2">
+            <Button size="sm" variant="ghost" onClick={() => run(setDpaRequired({ required: true }))}>
+              Attiva
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => run(setDpaRequired({ required: false }))}>
+              Spegni
             </Button>
           </div>
         </div>

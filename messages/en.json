@@ -97,7 +97,8 @@
     "billing": "Plan & Billing",
     "logout": "Logout",
     "menu": "Menu",
-    "legal": "Legal"
+    "legal": "Legal",
+    "dpa": "DPA agreement (GDPR)"
   },
   "auth": {
     "footer": "© 2026 onespec. All rights reserved.",
@@ -293,7 +294,9 @@
     "inviteMismatch": "This invitation is for a different email address. Sign in with the right account.",
     "inviteInvalid": "Invitation expired or already used. Ask for a new one.",
     "invalidEmail": "Invalid email address.",
-    "cannotRemoveOwner": "The organization owner cannot be removed."
+    "cannotRemoveOwner": "The organization owner cannot be removed.",
+    "dpaVersion": "The agreement text was updated: reload the page.",
+    "companyIncomplete": "Complete your company details first (name, VAT ID, address)."
   },
   "app": {
     "suspended": {
@@ -730,5 +733,31 @@
     "email": "Company email",
     "save": "Save",
     "saved": "Saved"
+  },
+  "dpa": {
+    "title": "Data Processing Agreement (DPA)",
+    "intro": "Art. 28 GDPR agreement between your organisation (Controller) and ONESPEC (Processor).",
+    "versionLabel": "Version {version}",
+    "loading": "Loading…",
+    "acceptedTitle": "Agreement accepted",
+    "acceptedBy": "Accepted by {name} ({role}) on {date}.",
+    "acceptTitle": "Accept the agreement",
+    "ownerMustAccept": "The agreement must be accepted by the organisation's owner or an administrator.",
+    "signerName": "Signer's full name",
+    "signerRole": "Role",
+    "signerRolePlaceholder": "Legal representative",
+    "consent": "I have read the whole agreement and I am authorised to accept it on behalf of {company}.",
+    "accept": "I accept the agreement",
+    "accepting": "Saving…",
+    "companyIncomplete": "Before accepting, complete your company details: company name, VAT ID and address.",
+    "goToCompany": "Go to company details",
+    "downloadPreview": "Download PDF (preview)",
+    "downloadSigned": "Download signed PDF",
+    "downloading": "Generating…",
+    "gateTitle": "DPA acceptance required",
+    "gateBody": "To keep using the platform you must accept the personal-data processing agreement (Art. 28 GDPR).",
+    "gateCta": "Read and accept",
+    "signOut": "Sign out",
+    "memberBanner": "The organisation's owner has not yet accepted the data processing agreement (DPA)."
   }
 }

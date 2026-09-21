@@ -97,7 +97,8 @@
     "billing": "Piano e fatturazione",
     "logout": "Esci",
     "menu": "Menu",
-    "legal": "Legale"
+    "legal": "Legale",
+    "dpa": "Accordo DPA (GDPR)"
   },
   "auth": {
     "footer": "© 2026 onespec. Tutti i diritti riservati.",
@@ -293,7 +294,9 @@
     "inviteMismatch": "Questo invito è per un altro indirizzo email. Accedi con l'account giusto.",
     "inviteInvalid": "Invito scaduto o già utilizzato. Chiedi di inviarne uno nuovo.",
     "invalidEmail": "Indirizzo email non valido.",
-    "cannotRemoveOwner": "Il titolare dell'organizzazione non può essere rimosso."
+    "cannotRemoveOwner": "Il titolare dell'organizzazione non può essere rimosso.",
+    "dpaVersion": "Il testo dell'accordo è stato aggiornato: ricarica la pagina.",
+    "companyIncomplete": "Completa prima i dati azienda (ragione sociale, P.IVA, indirizzo)."
   },
   "app": {
     "suspended": {
@@ -730,5 +733,31 @@
     "email": "Email aziendale",
     "save": "Salva",
     "saved": "Salvato"
+  },
+  "dpa": {
+    "title": "Accordo sul trattamento dei dati (DPA)",
+    "intro": "Accordo ex Art. 28 GDPR tra la tua organizzazione (Titolare) e ONESPEC (Responsabile del trattamento).",
+    "versionLabel": "Versione {version}",
+    "loading": "Caricamento…",
+    "acceptedTitle": "Accordo accettato",
+    "acceptedBy": "Accettato da {name} ({role}) il {date}.",
+    "acceptTitle": "Accetta l'accordo",
+    "ownerMustAccept": "L'accordo deve essere accettato dal titolare o da un amministratore dell'organizzazione.",
+    "signerName": "Nome e cognome del firmatario",
+    "signerRole": "Ruolo",
+    "signerRolePlaceholder": "Legale rappresentante",
+    "consent": "Dichiaro di aver letto integralmente l'accordo e di essere autorizzato ad accettarlo per conto di {company}.",
+    "accept": "Accetto l'accordo",
+    "accepting": "Registrazione…",
+    "companyIncomplete": "Prima di accettare completa i dati azienda: ragione sociale, P.IVA e indirizzo.",
+    "goToCompany": "Vai ai dati azienda",
+    "downloadPreview": "Scarica PDF (anteprima)",
+    "downloadSigned": "Scarica PDF firmato",
+    "downloading": "Generazione…",
+    "gateTitle": "Accettazione dell'accordo DPA",
+    "gateBody": "Per continuare a usare la piattaforma è necessario accettare l'accordo sul trattamento dei dati personali (Art. 28 GDPR).",
+    "gateCta": "Leggi e accetta",
+    "signOut": "Esci",
+    "memberBanner": "Il titolare dell'organizzazione deve ancora accettare l'accordo sul trattamento dei dati (DPA)."
   }
 }

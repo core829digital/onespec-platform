@@ -8,7 +8,7 @@ export const getRegistrationStatus = query({
   handler: async (ctx) => {
     await requirePlatformAdmin(ctx);
     const settings = await ctx.db.query("appSettings").withIndex("by_key", (q) => q.eq("key", "global")).unique();
-    return { open: settings?.registrationOpen ?? false };
+    return { open: settings?.registrationOpen ?? false, dpaRequired: settings?.dpaRequired === true };
   },
 });
 

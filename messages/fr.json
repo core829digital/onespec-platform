@@ -47,7 +47,8 @@
     "billing": "Plan et facturation",
     "logout": "Déconnexion",
     "menu": "Menu",
-    "legal": "Mentions légales"
+    "legal": "Mentions légales",
+    "dpa": "Accord DPA (RGPD)"
   },
   "auth": {
     "login": {
@@ -243,7 +244,9 @@
     "inviteMismatch": "Cette invitation est destinée à une autre adresse e-mail. Connectez-vous avec le bon compte.",
     "inviteInvalid": "Invitation expirée ou déjà utilisée. Demandez-en une nouvelle.",
     "invalidEmail": "Adresse e-mail invalide.",
-    "cannotRemoveOwner": "Le propriétaire de l'organisation ne peut pas être retiré."
+    "cannotRemoveOwner": "Le propriétaire de l'organisation ne peut pas être retiré.",
+    "dpaVersion": "Le texte de l'accord a été mis à jour : rechargez la page.",
+    "companyIncomplete": "Complétez d'abord les données de l'entreprise (raison sociale, n° de TVA, adresse)."
   },
   "dashboard": {
     "title": "Tableau de bord",
@@ -730,5 +733,31 @@
     "email": "E-mail de l'entreprise",
     "save": "Enregistrer",
     "saved": "Enregistré"
+  },
+  "dpa": {
+    "title": "Accord de traitement des données (DPA)",
+    "intro": "Accord au titre de l'art. 28 RGPD entre votre organisation (Responsable de traitement) et ONESPEC (Sous-traitant).",
+    "versionLabel": "Version {version}",
+    "loading": "Chargement…",
+    "acceptedTitle": "Accord accepté",
+    "acceptedBy": "Accepté par {name} ({role}) le {date}.",
+    "acceptTitle": "Accepter l'accord",
+    "ownerMustAccept": "L'accord doit être accepté par le propriétaire ou un administrateur de l'organisation.",
+    "signerName": "Nom complet du signataire",
+    "signerRole": "Fonction",
+    "signerRolePlaceholder": "Représentant légal",
+    "consent": "J'ai lu l'intégralité de l'accord et je suis autorisé à l'accepter au nom de {company}.",
+    "accept": "J'accepte l'accord",
+    "accepting": "Enregistrement…",
+    "companyIncomplete": "Avant d'accepter, complétez les données de l'entreprise : raison sociale, n° de TVA et adresse.",
+    "goToCompany": "Aller aux données de l'entreprise",
+    "downloadPreview": "Télécharger le PDF (aperçu)",
+    "downloadSigned": "Télécharger le PDF signé",
+    "downloading": "Génération…",
+    "gateTitle": "Acceptation du DPA requise",
+    "gateBody": "Pour continuer à utiliser la plateforme, vous devez accepter l'accord de traitement des données personnelles (art. 28 RGPD).",
+    "gateCta": "Lire et accepter",
+    "signOut": "Se déconnecter",
+    "memberBanner": "Le propriétaire de l'organisation n'a pas encore accepté l'accord de traitement des données (DPA)."
   }
 }

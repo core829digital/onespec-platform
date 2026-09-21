@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { api } from "@/convex/_generated/api";
 import { AppShell } from "@/components/app-shell/app-shell";
 import { ActionToaster } from "@/components/app-shell/action-toaster";
+import { DpaGate } from "@/components/app-shell/dpa-gate";
 
 export default async function AppLayout({
   children,
@@ -46,6 +47,7 @@ export default async function AppLayout({
     <AppShell tenant={tenant}>
       {children}
       <ActionToaster />
+      <DpaGate />
     </AppShell>
   );
 }
