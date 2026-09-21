@@ -1,3 +1,4 @@
+import { loadExtras } from "./lib/catalogExtras";
 import { query, internalQuery, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
@@ -30,6 +31,9 @@ interface StoredPayload {
   glazing?: WithSystemFields[];
   finish?: WithSystemFields[];
   hardware?: WithSystemFields[];
+  frameTypes?: WithSystemFields[];
+  accessories?: WithSystemFields[];
+  productBase?: WithSystemFields[];
 }
 
 /**
@@ -177,6 +181,9 @@ function sanitizePayload(payload: StoredPayload | null | undefined): CatalogPayl
     glazing: arr(payload.glazing),
     finish: arr(payload.finish),
     hardware: arr(payload.hardware),
+    frameTypes: arr(payload.frameTypes),
+    accessories: arr(payload.accessories),
+    productBase: arr(payload.productBase),
   } as unknown as CatalogPayload;
 }
 
@@ -355,6 +362,7 @@ export const getConfiguratorForPreview = query({
       glazing,
       finish,
       hardware,
+      ...(await loadExtras(ctx, configurator._id)),
     };
 
     const tenant = await ctx.db.get(configurator.tenantId);

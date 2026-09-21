@@ -1,5 +1,6 @@
 import { internalMutation } from "./_generated/server";
 import { v } from "convex/values";
+import { seedExtras } from "./lib/catalogExtras";
 
 /**
  * One-shot data migrations for the plan-ladder rename (business → pro).
@@ -101,5 +102,28 @@ export const backfillStarterQuotaOverride = internalMutation({
       backfilled++;
     }
     return { backfilled, done: page.isDone, cursor: page.continueCursor };
+  },
+});
+
+/**
+ * Add the B2B/showroom catalogue sections (telaio types, accessories, new hardware
+ * / profile / glazing / finish rows) to every existing configurator:
+ *
+ *   npx convex run migrations:seedCatalogExtras
+ *
+ * Idempotent — only inserts rows that are missing, never overwrites tenant edits.
+ * Already-published versions are untouched; the next publish picks the new rows up.
+ */
+export const seedCatalogExtras = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    let configurators = 0;
+    let inserted = 0;
+    for (const c of await ctx.db.query("configurators").collect()) {
+      const r = await seedExtras(ctx, { tenantId: c.tenantId, configuratorId: c._id });
+      configurators++;
+      inserted += r.inserted;
+    }
+    return { configurators, inserted };
   },
 });

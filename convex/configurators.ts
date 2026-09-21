@@ -4,6 +4,7 @@ import { ConvexError } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
 import { requireTenantRole, requireMembership } from "./lib/auth";
 import { nanoid } from "./lib/ids";
+import { loadExtras } from "./lib/catalogExtras";
 import { resolveTenantEntitlements, assertQuota, currentPeriod } from "./lib/entitlements";
 import { enforceForCreateConfigurator, enforceActivePlan } from "./lib/enforcement";
 import { resolveEffectiveConfig, PLATFORM_DEFAULTS, CONFIG_LAYERS } from "./lib/configResolution";
@@ -185,6 +186,7 @@ export const publishConfigurator = mutation({
     ]);
 
     const version = (configurator.publishedCatalogVersion || 0) + 1;
+    const extras = await loadExtras(ctx, args.configuratorId);
 
     const payload = {
       configurator: {
@@ -209,6 +211,7 @@ export const publishConfigurator = mutation({
       glazing,
       finish,
       hardware,
+      ...extras,
     };
 
     await ctx.db.insert("catalogVersions", {
@@ -372,6 +375,7 @@ export const getEditorState = query({
       ctx.db.query("branding").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).unique(),
     ]);
 
-    return { configurator, materials, qualityTiers, profileSystems, sizeConstraints, glazing, finish, hardware, branding };
+    const extras = await loadExtras(ctx, args.configuratorId);
+    return { configurator, materials, qualityTiers, profileSystems, sizeConstraints, glazing, finish, hardware, branding, ...extras };
   },
 });

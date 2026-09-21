@@ -3,6 +3,7 @@ import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import { requireTenantRole, requireMembership } from "./lib/auth";
 import { regionForCountry, type RegionCode } from "./lib/regions";
+import { loadExtras, seedExtras } from "./lib/catalogExtras";
 
 /**
  * Country-specific hardware `kind`s that ship disabled in `DEFAULT_HARDWARE` and
@@ -191,6 +192,7 @@ export const seedDefaultCatalog = internalMutation({
         configuratorId: args.configuratorId,
       });
     }
+    await seedExtras(ctx, { tenantId: args.tenantId, configuratorId: args.configuratorId });
   },
 });
 
@@ -251,7 +253,7 @@ export const deleteQualityTier = mutation({
 });
 
 export const upsertProfileSystem = mutation({
-  args: { configuratorId: v.id("configurators"), materialKey: v.string(), key: v.string(), labels: v.any(), multiplier: v.number(), sortOrder: v.number(), enabled: v.boolean() },
+  args: { configuratorId: v.id("configurators"), materialKey: v.string(), key: v.string(), labels: v.any(), multiplier: v.number(), uFrame: v.optional(v.number()), group: v.optional(v.string()), sortOrder: v.number(), enabled: v.boolean() },
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
@@ -295,7 +297,7 @@ export const upsertSizeConstraint = mutation({
 });
 
 export const upsertGlazingOption = mutation({
-  args: { configuratorId: v.id("configurators"), key: v.string(), labels: v.any(), priceCents: v.number(), uGlass: v.optional(v.number()), sortOrder: v.number(), enabled: v.boolean() },
+  args: { configuratorId: v.id("configurators"), key: v.string(), labels: v.any(), priceCents: v.number(), uGlass: v.optional(v.number()), psi: v.optional(v.number()), multiplier: v.optional(v.number()), sortOrder: v.number(), enabled: v.boolean() },
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
@@ -311,7 +313,7 @@ export const upsertGlazingOption = mutation({
 });
 
 export const upsertFinishOption = mutation({
-  args: { configuratorId: v.id("configurators"), key: v.string(), labels: v.any(), swatchHex: v.optional(v.string()), priceCents: v.number(), sortOrder: v.number(), enabled: v.boolean() },
+  args: { configuratorId: v.id("configurators"), key: v.string(), labels: v.any(), swatchHex: v.optional(v.string()), priceCents: v.number(), multiplier: v.optional(v.number()), sortOrder: v.number(), enabled: v.boolean() },
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
@@ -357,6 +359,104 @@ export const getWorkingCatalog = query({
       ctx.db.query("catalogFinishOptions").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
       ctx.db.query("catalogHardwareOptions").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
     ]);
-    return { materials, qualityTiers, profileSystems, sizeConstraints, glazing, finish, hardware };
+    const extras = await loadExtras(ctx, args.configuratorId);
+    return { materials, qualityTiers, profileSystems, sizeConstraints, glazing, finish, hardware, ...extras };
+  },
+});
+
+async function ownedConfigurator(ctx: import("./_generated/server").MutationCtx, configuratorId: import("./_generated/dataModel").Id<"configurators">) {
+  const configurator = await ctx.db.get(configuratorId);
+  if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
+  await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
+  return configurator;
+}
+
+const positive = (n: number) => Number.isFinite(n) && n >= 0;
+
+export const upsertFrameType = mutation({
+  args: {
+    configuratorId: v.id("configurators"),
+    key: v.string(),
+    labels: v.any(),
+    descriptions: v.optional(v.any()),
+    multiplier: v.number(),
+    installByLeavesCents: v.array(v.number()),
+    disposalPerPieceCents: v.number(),
+    scaffoldPerPieceCents: v.number(),
+    sortOrder: v.number(),
+    enabled: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const configurator = await ownedConfigurator(ctx, args.configuratorId);
+    if (args.multiplier <= 0 || args.multiplier > 5) throw new ConvexError("INVALID_INPUT");
+    if (args.installByLeavesCents.length !== 3 || !args.installByLeavesCents.every(positive)) throw new ConvexError("INVALID_INPUT");
+    if (!positive(args.disposalPerPieceCents) || !positive(args.scaffoldPerPieceCents)) throw new ConvexError("INVALID_INPUT");
+    const existing = await ctx.db.query("catalogFrameTypes").withIndex("by_configurator", (q) => q.eq("configuratorId", args.configuratorId)).filter((q) => q.eq(q.field("key"), args.key)).unique();
+    if (existing) await ctx.db.patch(existing._id, args);
+    else await ctx.db.insert("catalogFrameTypes", { ...args, tenantId: configurator.tenantId });
+  },
+});
+
+export const deleteFrameType = mutation({
+  args: { configuratorId: v.id("configurators"), key: v.string() },
+  handler: async (ctx, args) => {
+    await ownedConfigurator(ctx, args.configuratorId);
+    const existing = await ctx.db.query("catalogFrameTypes").withIndex("by_configurator", (q) => q.eq("configuratorId", args.configuratorId)).filter((q) => q.eq(q.field("key"), args.key)).unique();
+    if (existing) await ctx.db.delete(existing._id);
+  },
+});
+
+export const upsertAccessory = mutation({
+  args: {
+    configuratorId: v.id("configurators"),
+    category: v.union(v.literal("zanz"), v.literal("cass"), v.literal("avv"), v.literal("pers")),
+    key: v.string(),
+    labels: v.any(),
+    priceModel: v.union(v.literal("flat"), v.literal("perM2"), v.literal("perMl")),
+    priceCents: v.number(),
+    sortOrder: v.number(),
+    enabled: v.boolean(),
+  },
+  handler: async (ctx, args) => {
+    const configurator = await ownedConfigurator(ctx, args.configuratorId);
+    if (!positive(args.priceCents)) throw new ConvexError("INVALID_INPUT");
+    const existing = await ctx.db.query("catalogAccessories").withIndex("by_configurator_category", (q) => q.eq("configuratorId", args.configuratorId).eq("category", args.category)).filter((q) => q.eq(q.field("key"), args.key)).unique();
+    if (existing) await ctx.db.patch(existing._id, args);
+    else await ctx.db.insert("catalogAccessories", { ...args, tenantId: configurator.tenantId });
+  },
+});
+
+export const deleteAccessory = mutation({
+  args: { configuratorId: v.id("configurators"), category: v.union(v.literal("zanz"), v.literal("cass"), v.literal("avv"), v.literal("pers")), key: v.string() },
+  handler: async (ctx, args) => {
+    await ownedConfigurator(ctx, args.configuratorId);
+    const existing = await ctx.db.query("catalogAccessories").withIndex("by_configurator_category", (q) => q.eq("configuratorId", args.configuratorId).eq("category", args.category)).filter((q) => q.eq(q.field("key"), args.key)).unique();
+    if (existing) await ctx.db.delete(existing._id);
+  },
+});
+
+/** Set (or clear with a null price) the optional fixed base price of a piece category. */
+export const setProductBase = mutation({
+  args: { configuratorId: v.id("configurators"), category: v.string(), basePriceCents: v.union(v.number(), v.null()), enabled: v.optional(v.boolean()) },
+  handler: async (ctx, args) => {
+    const configurator = await ownedConfigurator(ctx, args.configuratorId);
+    const existing = await ctx.db.query("catalogProductBase").withIndex("by_configurator", (q) => q.eq("configuratorId", args.configuratorId)).filter((q) => q.eq(q.field("category"), args.category)).unique();
+    if (args.basePriceCents === null) {
+      if (existing) await ctx.db.delete(existing._id);
+      return;
+    }
+    if (!positive(args.basePriceCents)) throw new ConvexError("INVALID_INPUT");
+    const row = { category: args.category, basePriceCents: args.basePriceCents, enabled: args.enabled ?? true };
+    if (existing) await ctx.db.patch(existing._id, row);
+    else await ctx.db.insert("catalogProductBase", { ...row, tenantId: configurator.tenantId, configuratorId: args.configuratorId });
+  },
+});
+
+/** Add the B2B/showroom catalogue sections to a configurator that predates them (idempotent). */
+export const ensureCatalogExtras = mutation({
+  args: { configuratorId: v.id("configurators") },
+  handler: async (ctx, args) => {
+    const configurator = await ownedConfigurator(ctx, args.configuratorId);
+    return await seedExtras(ctx, { tenantId: configurator.tenantId, configuratorId: args.configuratorId });
   },
 });

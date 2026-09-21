@@ -215,6 +215,10 @@ export default defineSchema({
     key: v.string(),
     labels: v.any(),
     multiplier: v.number(),
+    /** Frame U-value of this series, W/m²K. */
+    uFrame: v.optional(v.number()),
+    /** UI grouping ("tab1" value / "tab2" premium). */
+    group: v.optional(v.string()),
     sortOrder: v.number(),
     enabled: v.boolean(),
   })
@@ -241,6 +245,10 @@ export default defineSchema({
     labels: v.any(),
     priceCents: v.number(),
     uGlass: v.optional(v.number()),
+    /** Linear transmittance of the spacer, W/mK. */
+    psi: v.optional(v.number()),
+    /** Multiplier on the material cost, on top of the flat price. */
+    multiplier: v.optional(v.number()),
     sortOrder: v.number(),
     enabled: v.boolean(),
   }).index("by_configurator", ["configuratorId"]),
@@ -252,7 +260,49 @@ export default defineSchema({
     labels: v.any(),
     swatchHex: v.optional(v.string()),
     priceCents: v.number(),
+    /** Multiplier on the material cost, on top of the flat price. */
+    multiplier: v.optional(v.number()),
     sortOrder: v.number(),
+    enabled: v.boolean(),
+  }).index("by_configurator", ["configuratorId"]),
+
+  /** Telaio / controtelaio types: cost multiplier + installation labour by leaf count. */
+  catalogFrameTypes: defineTable({
+    tenantId: v.id("tenants"),
+    configuratorId: v.id("configurators"),
+    key: v.string(),
+    labels: v.any(),
+    descriptions: v.optional(v.any()),
+    multiplier: v.number(),
+    /** Labour per piece, cents, for 1 / 2 / 3+ leaves. */
+    installByLeavesCents: v.array(v.number()),
+    disposalPerPieceCents: v.number(),
+    scaffoldPerPieceCents: v.number(),
+    sortOrder: v.number(),
+    enabled: v.boolean(),
+  }).index("by_configurator", ["configuratorId"]),
+
+  /** Zanzariere / cassonetti / avvolgibili / persiane — priced by the tenant (flat, per m² or per ml). */
+  catalogAccessories: defineTable({
+    tenantId: v.id("tenants"),
+    configuratorId: v.id("configurators"),
+    category: v.union(v.literal("zanz"), v.literal("cass"), v.literal("avv"), v.literal("pers")),
+    key: v.string(),
+    labels: v.any(),
+    priceModel: v.union(v.literal("flat"), v.literal("perM2"), v.literal("perMl")),
+    priceCents: v.number(),
+    sortOrder: v.number(),
+    enabled: v.boolean(),
+  })
+    .index("by_configurator", ["configuratorId"])
+    .index("by_configurator_category", ["configuratorId", "category"]),
+
+  /** Optional fixed base price per piece category, added on top of the m² price. */
+  catalogProductBase: defineTable({
+    tenantId: v.id("tenants"),
+    configuratorId: v.id("configurators"),
+    category: v.string(),
+    basePriceCents: v.number(),
     enabled: v.boolean(),
   }).index("by_configurator", ["configuratorId"]),
 
