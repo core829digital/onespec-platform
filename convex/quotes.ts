@@ -358,12 +358,20 @@ export const getQuoteForPrint = query({
       .first();
 
     const configurator = await ctx.db.get(quote.configuratorId);
+    // The catalogue version the quote was priced on — labels, Uf/Ug/Ψ and telaio names for the PDF/exports.
+    const versionDoc = await ctx.db
+      .query("catalogVersions")
+      .withIndex("by_configurator_version", (q) =>
+        q.eq("configuratorId", quote.configuratorId).eq("version", quote.catalogVersion),
+      )
+      .unique();
 
     return {
       quote,
       tenant,
       branding,
       configurator,
+      catalog: versionDoc?.payload ?? null,
     };
   },
 });

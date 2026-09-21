@@ -1,6 +1,9 @@
 import { Document, Image, Page, Text, View, StyleSheet, PDFViewer } from "@react-pdf/renderer";
 import type { ProjectItem } from "@/shared/pricing";
-import { WindowDrawingPDF } from "./WindowDrawingPDF";
+import { WindowDrawingPdf } from "@/lib/drawing";
+import { CATEGORY_DEFS } from "@/shared/configurator-model";
+import { computeItemThermal, type CatalogPayload } from "@/shared/pricing";
+import { dictFor } from "@/lib/quote-export/dictionary";
 import { CompanyLogo } from "./CompanyLogo";
 
 const colors = {
@@ -229,6 +232,8 @@ function estimateUw(item: { material: string; glazing: string }): number {
 }
 
 interface QuotePrintPDFProps {
+  /** The catalogue version the quote was priced on: real labels, Uf/Ug/Ψ for the Uw, telaio names. */
+  catalog?: CatalogPayload | null;
   tenant: {
     name: string;
     vatId?: string;
@@ -239,6 +244,8 @@ interface QuotePrintPDFProps {
   };
   quote: {
     publicId: string;
+    offerNumber?: string;
+    _creationTime?: number;
     status: string;
     leadName: string;
     leadEmail: string;
@@ -285,6 +292,7 @@ interface QuotePrintPDFProps {
 export function QuotePrintPDF({
   tenant,
   quote,
+  catalog,
   locale = "it-IT",
 }: QuotePrintPDFProps) {
   const region = quote.regionCode || "IT";
@@ -356,7 +364,7 @@ export function QuotePrintPDF({
             <Text style={{ marginTop: 8, fontSize: 10, color: "#6b7280", fontWeight: "bold" }}>
               {documentTypeBadge}
             </Text>
-            <Text style={{ fontSize: 10, color: "#6b7280" }}>N° {quote.publicId?.slice(-8).toUpperCase()}</Text>
+            <Text style={{ fontSize: 10, color: "#6b7280" }}>N° {quote.offerNumber ?? quote.publicId?.slice(-8).toUpperCase()}</Text>
             <Text style={{ fontSize: 10 }}>Data / Date: {new Date().toLocaleDateString(dateLocale, { day: "2-digit", month: "long", year: "numeric" })}</Text>
             <Text style={{ fontSize: 10 }}>Validità / Validité: 30 giorni / 30 jours</Text>
           </View>
@@ -416,7 +424,19 @@ export function QuotePrintPDF({
             <View style={{ ...styles.tableHeaderCell, textAlign: "right", width: "12%" }}>Qtà</View>
           </View>
           {items.map((item, idx) => {
-            const uw = estimateUw(item);
+            const uw = catalog ? computeItemThermal(catalog, item).uw : estimateUw(item);
+            const dict = dictFor(langKey);
+            const lab = (row: { key: string; labels?: Record<string, string> } | undefined, fb: string) =>
+              row ? row.labels?.[langKey] || row.labels?.it || row.labels?.en || row.key : fb;
+            const category = item.category ? CATEGORY_DEFS[item.category] : undefined;
+            const profileLabel = catalog ? lab(catalog.profileSystems?.find((p) => p.materialKey === item.material && p.key === item.profileSystem), "") : "";
+            const frameLabel = catalog ? lab(catalog.frameTypes?.find((f) => f.key === item.frameType), "") : "";
+            const finishLabel = catalog ? lab(catalog.finish.find((f) => f.key === item.color), COLOR_LABELS[item.color] ?? item.color) : COLOR_LABELS[item.color] ?? item.color;
+            const accessoryLabels = (["zanz", "cass", "avv", "pers"] as const).flatMap((c) => {
+              const key = item.accessories?.[c];
+              return key && key !== "none" ? [lab(catalog?.accessories?.find((a) => a.category === c && a.key === key), key)] : [];
+            });
+            const leafLines = (item.sashes ?? []).map((sh, i) => `${dict.leaf} ${i + 1}: ${sh.direction === "left" ? dict.hingeLeft : dict.hingeRight} ${dict.sashTypes[sh.type] ?? sh.type}${sh.main ? ` (${dict.principal})` : ""}${sh.type !== "fix" ? ` · ${dict.handle} ${sh.handleHeightMm ?? Math.round(item.height / 2)} mm` : ""}`);
             const matText = MATERIAL_LABELS[item.material]?.[langKey] ?? MATERIAL_LABELS[item.material]?.it ?? item.material;
             const glazingInfo = GLAZING_LABELS[item.glazing] ?? { label: { it: item.glazing }, ug: 1.1 };
             const glazingText = glazingInfo.label[langKey] ?? glazingInfo.label.it;
@@ -425,9 +445,13 @@ export function QuotePrintPDF({
               <View key={idx} style={styles.tableRow}>
                 <View style={styles.tableCell}>{idx + 1}</View>
                 <View style={styles.tableCell}>
-                  <Text>{item.productType === "balconyDoor" ? "Portafinestra / Porte-fenêtre" : "Finestra / Fenêtre"}</Text>
-                  <Text style={{ fontSize: 8, color: colors.gray[500] }}>{sashTypes}</Text>
-                  <Text style={{ fontSize: 8, color: colors.gray[500] }}>{COLOR_LABELS[item.color] ?? item.color}</Text>
+                  <Text>{category ? (category.labels[langKey] ?? category.labels.it) : item.productType === "balconyDoor" ? "Portafinestra / Porte-fenêtre" : "Finestra / Fenêtre"}</Text>
+                  {profileLabel ? <Text style={{ fontSize: 8, color: colors.gray[500] }}>{profileLabel}</Text> : null}
+                  <Text style={{ fontSize: 8, color: colors.gray[500] }}>{finishLabel}</Text>
+                  {frameLabel ? <Text style={{ fontSize: 8, color: colors.gray[500] }}>{dict.frame}: {frameLabel}</Text> : null}
+                  {leafLines.length > 0 ? leafLines.map((l, li) => <Text key={li} style={{ fontSize: 7, color: colors.gray[500] }}>{l}</Text>) : <Text style={{ fontSize: 8, color: colors.gray[500] }}>{sashTypes}</Text>}
+                  {accessoryLabels.length > 0 ? <Text style={{ fontSize: 7, color: colors.gray[500] }}>{dict.accessories}: {accessoryLabels.join(", ")}</Text> : null}
+                  {item.notes ? <Text style={{ fontSize: 7, color: "#b91c1c" }}>{dict.notes}: {item.notes}</Text> : null}
                   {quote.hvlJointCount && (
                     <Text style={{ fontSize: 8, color: colors.emerald[700], fontWeight: "bold" }}>
                       HVL 90° ({quote.hvlJointCount} giunti)
@@ -447,15 +471,15 @@ export function QuotePrintPDF({
                 </View>
                 <View style={styles.tableCell}>
                   <Text>{matText}</Text>
-                  <Text style={{ fontSize: 8, color: colors.gray[500] }}>{glazingText}</Text>
-                  <Text style={{ fontSize: 8, color: colors.gray[500] }}>Ug = {glazingInfo.ug} W/m²K</Text>
+                  <Text style={{ fontSize: 8, color: colors.gray[500] }}>{catalog ? lab(catalog.glazing.find((g) => g.key === item.glazing), glazingText) : glazingText}</Text>
+                  <Text style={{ fontSize: 8, color: colors.gray[500] }}>Ug = {catalog ? (catalog.glazing.find((g) => g.key === item.glazing)?.uGlass ?? glazingInfo.ug) : glazingInfo.ug} W/m²K</Text>
                 </View>
                 <View style={styles.tableCell}>
                   <View style={[
                     styles.badge,
                     uw <= 1.0 ? styles.badgeGreen : uw <= 1.4 ? styles.badgeAmber : styles.badgeRed
                   ]}>
-                    <Text>{uw.toFixed(1)} W/m²K</Text>
+                    <Text>{uw.toFixed(catalog ? 2 : 1)} W/m²K</Text>
                   </View>
                 </View>
                 <View style={{ ...styles.tableCell, textAlign: "right" }}>{item.quantity ?? 1}</View>
@@ -476,7 +500,11 @@ export function QuotePrintPDF({
                   <Text style={{ fontSize: 8, fontWeight: "bold", marginBottom: 2 }}>
                     #{idx + 1} · {item.width} × {item.height} mm × {item.quantity ?? 1}
                   </Text>
-                  <WindowDrawingPDF width={item.width} height={item.height} material={item.material} color={item.color} sashes={item.sashes ?? []} />
+                  <WindowDrawingPdf
+                    width={170}
+                    input={{ widthMm: item.width, heightMm: item.height, category: item.category, sashes: item.sashes ?? [], finish: item.color, frameType: item.frameType, accessories: item.accessories }}
+                    options={{ handleGuide: "all", showLeafDimensions: true }}
+                  />
                 </View>
               ))}
             </View>

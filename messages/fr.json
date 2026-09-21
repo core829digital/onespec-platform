@@ -803,5 +803,13 @@
       "leafHeight": "Vantail {leaf} : hauteur {got} mm inférieure au minimum de {min} mm.",
       "unknownKey": "La valeur « {key} » ({field}) n'est pas dans le tarif publié."
     }
+  },
+  "quoteExport": {
+    "title": "Exporter",
+    "txt": "TXT",
+    "html": "HTML avec dessins",
+    "whatsapp": "WhatsApp",
+    "email": "E-mail",
+    "backup": "Sauvegarde JSON"
   }
 }

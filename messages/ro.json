@@ -803,5 +803,13 @@
       "leafHeight": "Canat {leaf}: înălțimea {got} mm sub minimul de {min} mm.",
       "unknownKey": "Valoarea „{key}” ({field}) nu este în lista de prețuri publicată."
     }
+  },
+  "quoteExport": {
+    "title": "Exportă",
+    "txt": "TXT",
+    "html": "HTML cu desene",
+    "whatsapp": "WhatsApp",
+    "email": "E-mail",
+    "backup": "Backup JSON"
   }
 }

@@ -803,5 +803,13 @@
       "leafHeight": "Anta {leaf}: altezza {got} mm sotto il minimo di {min} mm.",
       "unknownKey": "Valore «{key}» ({field}) non presente nel listino pubblicato."
     }
+  },
+  "quoteExport": {
+    "title": "Esporta",
+    "txt": "TXT",
+    "html": "HTML con disegni",
+    "whatsapp": "WhatsApp",
+    "email": "Email",
+    "backup": "Backup JSON"
   }
 }

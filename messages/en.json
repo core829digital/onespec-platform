@@ -803,5 +803,13 @@
       "leafHeight": "Leaf {leaf}: height {got} mm is below the {min} mm minimum.",
       "unknownKey": "Value “{key}” ({field}) is not in the published price list."
     }
+  },
+  "quoteExport": {
+    "title": "Export",
+    "txt": "TXT",
+    "html": "HTML with drawings",
+    "whatsapp": "WhatsApp",
+    "email": "Email",
+    "backup": "JSON backup"
   }
 }

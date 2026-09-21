@@ -803,5 +803,13 @@
       "leafHeight": "Flügel {leaf}: Höhe {got} mm unter dem Minimum von {min} mm.",
       "unknownKey": "Wert „{key}“ ({field}) ist nicht in der veröffentlichten Preisliste."
     }
+  },
+  "quoteExport": {
+    "title": "Exportieren",
+    "txt": "TXT",
+    "html": "HTML mit Zeichnungen",
+    "whatsapp": "WhatsApp",
+    "email": "E-Mail",
+    "backup": "JSON-Sicherung"
   }
 }

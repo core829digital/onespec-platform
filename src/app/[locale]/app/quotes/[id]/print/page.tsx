@@ -9,6 +9,8 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { PDFViewerComponent } from "@/components/ui/PDFViewer";
 import { QuotePrintPDF } from "@/lib/pdfs/QuotePrintPDF";
 import { usePDFDownload } from "@/hooks/usePDFDownload";
+import { QuoteExportBar } from "@/components/quotes/quote-export-bar";
+import type { CatalogPayload } from "@/shared/pricing";
 import { useCompanyPdf } from "@/lib/use-company-pdf";
 
 interface Props {
@@ -17,7 +19,7 @@ interface Props {
 
 type QuoteForPrint = NonNullable<FunctionReturnType<typeof api.quotes.getQuoteForPrint>>;
 
-function QuoteDocument({ quote, tenant, region }: { quote: NonNullable<QuoteForPrint["quote"]>; tenant: QuoteForPrint["tenant"]; region: string }) {
+function QuoteDocument({ quote, tenant, region, catalog }: { quote: NonNullable<QuoteForPrint["quote"]>; tenant: QuoteForPrint["tenant"]; region: string; catalog: CatalogPayload | null }) {
   // Luxembourg 1-click bilingual switch
   const [luLang, setLuLang] = useState<"fr" | "de">("fr");
 
@@ -30,6 +32,7 @@ function QuoteDocument({ quote, tenant, region }: { quote: NonNullable<QuoteForP
     <QuotePrintPDF
       tenant={company}
       quote={quote}
+      catalog={catalog}
       locale={dateLocale}
       region={region}
     />
@@ -44,6 +47,7 @@ function QuoteDocument({ quote, tenant, region }: { quote: NonNullable<QuoteForP
     await downloadPDF({
       tenant: company,
       quote,
+      catalog,
       locale: dateLocale,
       region,
     });
@@ -116,6 +120,8 @@ function QuoteDocument({ quote, tenant, region }: { quote: NonNullable<QuoteForP
         </div>
       </div>
 
+      {catalog ? <QuoteExportBar quote={quote} catalog={catalog} company={company} /> : null}
+
       {/* PDF Viewer */}
       <Suspense
         fallback={
@@ -150,6 +156,7 @@ export default function PrintQuotePage({ params }: Props) {
   }
 
   const { quote, tenant } = data;
+  const catalog = (data.catalog as CatalogPayload | null) ?? null;
 
   if (!quote) {
     return (
@@ -161,5 +168,5 @@ export default function PrintQuotePage({ params }: Props) {
 
   const region = quote.regionCode || "IT";
 
-  return <QuoteDocument quote={quote} tenant={tenant} region={region} />;
+  return <QuoteDocument quote={quote} tenant={tenant} region={region} catalog={catalog} />;
 }

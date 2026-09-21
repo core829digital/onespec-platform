@@ -105,3 +105,49 @@ test("DPA PDF renders unsigned and signed, with pagination", async () => {
     expect(buf.length).toBeGreaterThan(5000);
   }
 });
+
+test("quote PDF renders with the pinned catalogue: offer number, real Uw, telaio, leaves, accessories, drawings", async () => {
+  const { QuotePrintPDF } = await import("../src/lib/pdfs/QuotePrintPDF");
+  const { defaultItem } = await import("../src/shared/item-defaults");
+  const { DEFAULT_ACCESSORIES, DEFAULT_FRAME_TYPES } = await import("../src/shared/configurator-model");
+  const catalog = {
+    configurator: { vatRatePercent: 10, priceRoundingStep: 1, currency: "EUR" },
+    branding: null,
+    materials: [{ key: "pvc", labels: { it: "PVC" }, basePerM2Cents: 18000, profilePerMlCents: 2800, uFrameBase: 1.3, sortOrder: 0, enabled: true }],
+    qualityTiers: [{ materialKey: "pvc", key: "chamber5", labels: { it: "5" }, multiplier: 1, sortOrder: 0, enabled: true }],
+    profileSystems: [{ materialKey: "pvc", key: "rehau", labels: { it: "Rehau Synego" }, multiplier: 1, uFrame: 1, sortOrder: 0, enabled: true }],
+    sizeConstraints: [],
+    glazing: [{ key: "double", labels: { it: "Doppio" }, priceCents: 0, uGlass: 1.1, sortOrder: 0, enabled: true }],
+    finish: [{ key: "white", labels: { it: "Bianco" }, priceCents: 0, sortOrder: 0, enabled: true }],
+    hardware: [
+      { kind: "sashType", key: "tiltturn", labels: { it: "AR" }, priceCents: 5000, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
+      { kind: "sashType", key: "classic", labels: { it: "B" }, priceCents: 3000, appliesToOperableOnly: true, sortOrder: 1, enabled: true },
+      { kind: "hardware", key: "standard", labels: { it: "Standard" }, priceCents: 0, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
+      { kind: "hardwareColor", key: "silver", labels: { it: "Argento" }, priceCents: 0, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
+    ],
+    frameTypes: DEFAULT_FRAME_TYPES,
+    accessories: DEFAULT_ACCESSORIES,
+  } as unknown as Parameters<typeof QuotePrintPDF>[0]["catalog"];
+  const item = { ...defaultItem(catalog!, "finestra2"), profileSystem: "rehau", frameType: "reno40", notes: "senza zanzariera", accessories: { zanz: "plisettata", cass: "aluplast140" } };
+  const buf = await renderToBuffer(
+    h(QuotePrintPDF, {
+      tenant: { name: "Acme" },
+      catalog,
+      locale: "it-IT",
+      quote: {
+        publicId: "ABCDEF1234",
+        offerNumber: "Q-2026-0007",
+        status: "quoted",
+        leadName: "Mario",
+        leadEmail: "m@example.com",
+        vatRatePercent: 10,
+        priceCents: 100000,
+        priceExVatCents: 90909,
+        items: [item, { ...item, category: "porta2", productType: "balconyDoor", width: 1600, height: 2100 }],
+        regionCode: "IT",
+      },
+    } as unknown as Parameters<typeof QuotePrintPDF>[0]) as unknown as Parameters<typeof renderToBuffer>[0],
+  );
+  expect(buf.subarray(0, 4).toString()).toBe("%PDF");
+  expect(buf.length).toBeGreaterThan(8000);
+});

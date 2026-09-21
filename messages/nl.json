@@ -803,5 +803,13 @@
       "leafHeight": "Vleugel {leaf}: hoogte {got} mm onder het minimum van {min} mm.",
       "unknownKey": "Waarde “{key}” ({field}) staat niet in de gepubliceerde prijslijst."
     }
+  },
+  "quoteExport": {
+    "title": "Exporteren",
+    "txt": "TXT",
+    "html": "HTML met tekeningen",
+    "whatsapp": "WhatsApp",
+    "email": "E-mail",
+    "backup": "JSON-back-up"
   }
 }
