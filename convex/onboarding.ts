@@ -30,8 +30,10 @@ export const getState = query({
     const ent = resolveTenantEntitlements(tenant);
     const stripeConfigured = !!process.env.STRIPE_SECRET_KEY;
     const activeSub = tenant.planStatus === "active" || tenant.planStatus === "trialing";
-    // Payment is required only for a paying (non-Alpha) tenant, once Stripe is live.
-    const needsBilling = stripeConfigured && !tenant.isAlpha && !activeSub;
+    // Every self-serve tenant pays once Stripe is live. Sales-led plans (Enterprise /
+    // Showroom) are invoiced outside Stripe, so they are never sent to checkout.
+    const salesLed = tenant.plan === "enterprise" || tenant.plan === "showroom";
+    const needsBilling = stripeConfigured && !salesLed && !activeSub;
 
     const configurators = (
       await ctx.db
@@ -47,8 +49,6 @@ export const getState = query({
       needsBilling,
       stripeConfigured,
       role,
-      isAlpha: tenant.isAlpha,
-      alphaSeatNumber: tenant.alphaSeatNumber ?? null,
       plan: tenant.plan,
       region: regionForCountry(tenant.country).code,
       entitlements: {

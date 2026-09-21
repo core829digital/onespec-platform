@@ -3,7 +3,6 @@ import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import { getAuthSessionId } from "@convex-dev/auth/server";
 import { requireUser } from "./lib/auth";
-import { resolveTenantEntitlements } from "./lib/entitlements";
 
 const DELETION_GRACE_DAYS = 30;
 
@@ -36,12 +35,6 @@ export const getProfile = query({
       .filter((q) => q.eq(q.field("status"), "pending"))
       .first();
 
-    // The Alpha Member badge is only shown when the entitlement is actually
-    // verified server-side; otherwise the user gets a neutral identity badge.
-    const entitlements = tenant ? resolveTenantEntitlements(tenant) : null;
-    const alphaVerified =
-      !!tenant?.isAlpha && !!entitlements && entitlements.lifetimeDiscountPct >= 15;
-
     return {
       userId,
       name: user.name ?? "",
@@ -49,9 +42,6 @@ export const getProfile = query({
       locale: user.locale ?? "it",
       role: membership?.role ?? null,
       tenant: tenant ? { name: tenant.name, plan: tenant.plan } : null,
-      alpha: alphaVerified
-        ? { verified: true as const, seatNumber: tenant?.alphaSeatNumber ?? null }
-        : { verified: false as const },
       sessions: sessions
         .map((s) => ({
           id: s._id,

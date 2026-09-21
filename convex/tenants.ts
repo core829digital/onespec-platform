@@ -26,77 +26,20 @@ export const registerTenant = mutation({
     const country = args.country && COUNTRY_RE.test(args.country) ? args.country.toUpperCase() : undefined;
     if (country) await ctx.db.patch(userId, { country });
 
-    // ── Atomic alpha-seat claim ──────────────────────────────────────────────
-    // Convex mutations are serializable OCC transactions: this reads the
-    // `appSettings` singleton and later patches `alphaSeatsClaimed` on it. If two
-    // signups race, the first commits and the second's read set is invalidated,
-    // so Convex re-runs it against the incremented counter. Over-allocation past
-    // the cap is therefore impossible without any explicit lock.
     const settings = await ctx.db.query("appSettings").withIndex("by_key", q => q.eq("key", "global")).unique();
     if (!settings) throw new ConvexError("SETTINGS_NOT_FOUND");
+    if (!settings.registrationOpen) throw new ConvexError("REGISTRATION_CLOSED");
 
-    const isAlpha = settings.alphaSeatsClaimed < settings.alphaSeatCap;
-    let tenantId: Id<"tenants">;
-    let alphaSeatNumber: number | undefined;
-
-    if (isAlpha) {
-      const seatNumber = settings.alphaSeatsClaimed + 1;
-      const existingSeat = await ctx.db.query("alphaSeats").withIndex("by_seatNumber", q => q.eq("seatNumber", seatNumber)).unique();
-      if (existingSeat) throw new ConvexError("SEAT_CONFLICT");
-
-      const user = await ctx.db.get(userId);
-      tenantId = await ctx.db.insert("tenants", {
-        name: args.companyName,
-        slug: args.companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "-" + nanoid(6),
-        ownerUserId: userId,
-        country,
-        isAlpha: true,
-        alphaSeatNumber: seatNumber,
-        plan: "alpha",
-        planStatus: "active",
-        alphaDiscountLocked: true,
-        createdVia: "alpha_signup",
-        createdAt: Date.now(),
-      });
-
-      await ctx.db.insert("alphaSeats", {
-        seatNumber,
-        tenantId,
-        userId,
-        email: user?.email || "",
-        claimedAt: Date.now(),
-      });
-
-      await ctx.db.patch(settings._id, {
-        alphaSeatsClaimed: seatNumber,
-        updatedAt: Date.now(),
-        updatedByUserId: userId,
-      });
-
-      await ctx.db.insert("auditLog", {
-        actorUserId: userId,
-        actorKind: "user",
-        action: "seat.claim",
-        meta: { seatNumber },
-        createdAt: Date.now(),
-      });
-
-      alphaSeatNumber = seatNumber;
-    } else {
-      if (!settings.registrationOpen) throw new ConvexError("REGISTRATION_CLOSED");
-      tenantId = await ctx.db.insert("tenants", {
-        name: args.companyName,
-        slug: args.companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "-" + nanoid(6),
-        ownerUserId: userId,
-        country,
-        isAlpha: false,
-        plan: "starter",
-        planStatus: "trialing",
-        alphaDiscountLocked: false,
-        createdVia: "open_signup",
-        createdAt: Date.now(),
-      });
-    }
+    const tenantId = await ctx.db.insert("tenants", {
+      name: args.companyName,
+      slug: args.companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "-" + nanoid(6),
+      ownerUserId: userId,
+      country,
+      plan: "starter",
+      planStatus: "trialing",
+      createdVia: "open_signup",
+      createdAt: Date.now(),
+    });
 
     await ctx.db.insert("memberships", {
       tenantId,
@@ -106,16 +49,15 @@ export const registerTenant = mutation({
       acceptedAt: Date.now(),
     });
 
-    const template = isAlpha ? "welcome_alpha" : "welcome";
     await ctx.scheduler.runAfter(0, internal.email.send, {
-      template,
+      template: "welcome",
       to: (await ctx.db.get(userId))?.email || "",
       locale: "it",
-      data: { companyName: args.companyName, seatNumber: alphaSeatNumber },
+      data: { companyName: args.companyName },
       tenantId,
     });
 
-    return { alpha: isAlpha, seatNumber: alphaSeatNumber, tenantId };
+    return { tenantId };
   },
 });
 

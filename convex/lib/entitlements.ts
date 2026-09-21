@@ -13,8 +13,8 @@ import type { Doc } from "../_generated/dataModel";
  *   Enterprise— showroom/distributor back-office: multi-supplier, API/CRM,
  *               GAEB export, custom domain, no public storefront
  *   Showroom  — Enterprise + in-app 3-zone showroom calculator + public B2C widget
- *   Alpha     — internal: Pro entitlements + forced whiteLabel + 15% lifetime
- *               discount + advanced analytics (no regression vs. today)
+ *   Alpha     — RETIRED. Kept only until `migrations:retireAlpha` has run in prod
+ *               (Pro + white-label + advanced analytics); then removed.
  */
 
 export type PlanKey = "starter" | "pro" | "enterprise" | "showroom" | "alpha";
@@ -49,8 +49,6 @@ export interface Entitlements {
    * per-configurator opt-in for the other markets.
    */
   transparentWidget: boolean;
-  /** Locked lifetime discount percentage (Alpha = 15, else 0). */
-  lifetimeDiscountPct: number;
   /** Which field modules the tenant may use. */
   fieldModules: "rilievo_only" | "full";
   /** Fiscal engine depth: basic = single default VAT rate; full = Beni
@@ -95,7 +93,6 @@ const STARTER: Entitlements = {
   apiAccess: false,
   prioritySupport: false,
   transparentWidget: false,
-  lifetimeDiscountPct: 0,
   fieldModules: "rilievo_only",
   fiscalEngine: "basic",
   eSignature: false,
@@ -163,7 +160,6 @@ const ALPHA: Entitlements = {
   ...PRO,
   analytics: "advanced",
   whiteLabel: true,
-  lifetimeDiscountPct: 15,
   multiSupplierAggregator: true,
 };
 
@@ -189,16 +185,6 @@ export function resolveTenantEntitlements(tenant: Doc<"tenants">): Entitlements 
   const ent = { ...base };
   if (tenant.plan === "starter" && typeof tenant.quotaOverrideQuotesPerMonth === "number") {
     ent.maxQuotesPerMonth = tenant.quotaOverrideQuotesPerMonth;
-  }
-  // Alpha members keep white-label + discount even if the stored plan drifts.
-  if (tenant.isAlpha) {
-    return {
-      ...ent,
-      whiteLabel: true,
-      lifetimeDiscountPct: Math.max(ent.lifetimeDiscountPct, 15),
-      fieldModules: "full",
-      fiscalEngine: "full",
-    };
   }
   return ent;
 }

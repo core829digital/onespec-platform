@@ -45,7 +45,6 @@
     "profile": "Profiel",
     "team": "Team",
     "billing": "Plan & Facturatie",
-    "badge": "Alpha-badge",
     "logout": "Afmelden",
     "menu": "Menu",
     "legal": "Juridisch"
@@ -130,8 +129,6 @@
       "submit": "Bedrijf aanmaken",
       "loading": "Aanmaken...",
       "error": "Fout bij aanmaken",
-      "alphaTitle": "Welkom bij Alpha!",
-      "alphaSubtitle": "Je bedrijf {companyName} is onder de eerste 250 Alpha-leden. Je hebt 15% levenslange korting vastgelegd.",
       "starterTitle": "Bedrijf aangemaakt",
       "starterSubtitle": "Je bedrijf {companyName} is geregistreerd met het Starter-plan.",
       "continue": "Naar dashboard",
@@ -179,28 +176,6 @@
       "lost": "Lost",
       "spam": "Spam"
     }
-  },
-  "alpha": {
-    "member": "Alpha-lid",
-    "seatsSuffix": "beschikbaar",
-    "discountBadge": "−{percent}%",
-    "cta": "Alpha-plaats claimen",
-    "title": "250 plekken. Dan volle prijs.",
-    "subtitle": "Alpha-toegang is beperkt tot de eerste {seats} klanten op Starter- of Business-plan. Vroegde adopters helpen het product vormgeven en houden de lanceringvoorwaarden voor altijd.",
-    "benefits": [
-      {
-        "title": "15% levenslange korting",
-        "description": "De korting blijft vastzitten aan je Starter- of Business-abonnement, ook na de publieke lancering. De prijs stijgt nooit."
-      },
-      {
-        "title": "Alpha-lid badge",
-        "description": "Een geverifieerde badge die bevestigt dat je tot de eerste 250 behoorde. Te gebruiken op je site en in marketingmateriaal."
-      },
-      {
-        "title": "Toegang tot Alpha-updates",
-        "description": "Ontvang preview-builds en de exclusieve changelog-kanaal, voordat functies iedereen bereiken."
-      }
-    ]
   },
   "common": {
     "save": "Opslaan",
@@ -289,7 +264,6 @@
     "quotesThisMonth": "Offertes (deze maand)",
     "configuratorsUsed": "Actieve configurators",
     "teamMembers": "Teamleden",
-    "alphaDiscountNote": "Alpha-korting {pct}% levenslang vergrendeld.",
     "requestsByCategory": "Aanvragen per klantcategorie",
     "unlinked": "Niet gekoppeld"
   },
@@ -407,12 +381,6 @@
       "annual": "Jaarlijks ({discount})",
       "perMonth": "/maand",
       "perYear": "/jaar"
-    },
-    "alpha": {
-      "discount": "Alpha korting {pct}% {locked}",
-      "locked": "vergrendeld",
-      "active": "actief",
-      "pricesIncludeDiscount": "De onderstaande prijzen bevatten al de voor Alpha-leden gereserveerde korting."
     },
     "subscription": {
       "active": "Actief abonnement",

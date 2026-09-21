@@ -45,7 +45,6 @@
     "profile": "Profil",
     "team": "Echipa",
     "billing": "Plan & Facturare",
-    "badge": "Insigna Alpha",
     "logout": "Deconectare",
     "menu": "Meniu",
     "legal": "Legal"
@@ -130,8 +129,6 @@
       "submit": "Creează firmă",
       "loading": "Creare...",
       "error": "Eroare la creare",
-      "alphaTitle": "Bine ai venit în Alpha!",
-      "alphaSubtitle": "Firma ta {companyName} este printre primele 250 de membri Alpha. Ai blocat reducerea de 15% pe viață.",
       "starterTitle": "Firmă creată",
       "starterSubtitle": "Firma ta {companyName} este înregistrată cu planul Starter.",
       "continue": "Du-te la panou",
@@ -179,28 +176,6 @@
       "lost": "Lost",
       "spam": "Spam"
     }
-  },
-  "alpha": {
-    "member": "Membru Alpha",
-    "seatsSuffix": "disponibile",
-    "discountBadge": "−{percent}%",
-    "cta": "Ocupă un loc Alpha",
-    "title": "250 locuri. Apoi prețul crește.",
-    "subtitle": "Accesul Alpha este limitat la primii {seats} clienți pe planul Starter sau Business. Cei care intră acum ajută la definirea produsului și păstrează condițiile de lansare.",
-    "benefits": [
-      {
-        "title": "15% reducere pe viață",
-        "description": "Reducerea rămâne atasată abonamentului Starter sau Business chiar și după lansarea publică. Prețul nu crește."
-      },
-      {
-        "title": "Insignă Membru Alpha",
-        "description": "O insignă verificată care certifică că erați printre primii 250. Utilizabilă pe site și materiale comerciale."
-      },
-      {
-        "title": "Acces actualizări Alpha",
-        "description": "Primești build-uri în anteprima și changelog-ul rezervat, înainte ca funcțiile să ajungă la toți."
-      }
-    ]
   },
   "common": {
     "save": "Salvează",
@@ -289,7 +264,6 @@
     "quotesThisMonth": "Oferte (luna asta)",
     "configuratorsUsed": "Configuratoare active",
     "teamMembers": "Membri echipă",
-    "alphaDiscountNote": "Reducere Alpha {pct}% pe viață, blocată.",
     "requestsByCategory": "Cereri pe categorie client",
     "unlinked": "Neasociate"
   },
@@ -407,12 +381,6 @@
       "annual": "Anual ({discount})",
       "perMonth": "/lună",
       "perYear": "/an"
-    },
-    "alpha": {
-      "discount": "Reducere Alpha {pct}% {locked}",
-      "locked": "blocat",
-      "active": "activ",
-      "pricesIncludeDiscount": "Prețurile de mai jos includ deja reducerea rezervată membrilor Alpha."
     },
     "subscription": {
       "active": "Abonament activ",

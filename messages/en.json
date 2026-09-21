@@ -59,7 +59,6 @@
     "quotesThisMonth": "Quotes (this month)",
     "configuratorsUsed": "Active configurators",
     "teamMembers": "Team members",
-    "alphaDiscountNote": "Alpha {pct}% lifetime discount locked.",
     "requestsByCategory": "Requests by client category",
     "unlinked": "Unlinked"
   },
@@ -96,7 +95,6 @@
     "profile": "Profile",
     "team": "Team",
     "billing": "Plan & Billing",
-    "badge": "Alpha Badge",
     "logout": "Logout",
     "menu": "Menu",
     "legal": "Legal"
@@ -182,8 +180,6 @@
       "submit": "Create company",
       "loading": "Creating...",
       "error": "Error creating company",
-      "alphaTitle": "Welcome to Alpha!",
-      "alphaSubtitle": "Your company {companyName} is among the first 250 Alpha members. You've locked in 15% lifetime discount.",
       "starterTitle": "Company created",
       "starterSubtitle": "Your company {companyName} is registered with Starter plan.",
       "continue": "Go to dashboard",
@@ -230,28 +226,6 @@
       "lost": "Lost",
       "spam": "Spam"
     }
-  },
-  "alpha": {
-    "member": "Alpha Member",
-    "seatsSuffix": "available",
-    "discountBadge": "−{percent}%",
-    "cta": "Grab an Alpha spot",
-    "title": "250 seats. Then full price.",
-    "subtitle": "Alpha access is limited to the first {seats} clients on Starter or Business plans. Early adopters help shape the product and keep launch pricing forever.",
-    "benefits": [
-      {
-        "title": "15% lifetime discount",
-        "description": "The discount stays attached to your Starter or Business subscription even after public launch. Price never goes up."
-      },
-      {
-        "title": "Alpha Member Badge",
-        "description": "A verified badge certifying you were among the first 250. Usable on your site and marketing materials."
-      },
-      {
-        "title": "Alpha updates access",
-        "description": "Get preview builds and exclusive changelog channel before features reach everyone."
-      }
-    ]
   },
   "common": {
     "save": "Save",
@@ -407,12 +381,6 @@
       "annual": "Annual ({discount})",
       "perMonth": "/month",
       "perYear": "/year"
-    },
-    "alpha": {
-      "discount": "Alpha discount {pct}% {locked}",
-      "locked": "locked",
-      "active": "active",
-      "pricesIncludeDiscount": "Prices below already include the discount reserved for Alpha Members."
     },
     "subscription": {
       "active": "Active subscription",

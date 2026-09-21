@@ -45,7 +45,6 @@
     "profile": "Profil",
     "team": "Team",
     "billing": "Plan & Abrechnung",
-    "badge": "Alpha-Badge",
     "logout": "Abmelden",
     "menu": "Menü",
     "legal": "Rechtliches"
@@ -130,8 +129,6 @@
       "submit": "Unternehmen erstellen",
       "loading": "Erstellung...",
       "error": "Fehler bei der Erstellung",
-      "alphaTitle": "Willkommen bei Alpha!",
-      "alphaSubtitle": "Ihr Unternehmen {companyName} ist unter den ersten 250 Alpha-Mitgliedern. Sie haben 15% lebenslangen Rabatt gesichert.",
       "starterTitle": "Unternehmen erstellt",
       "starterSubtitle": "Ihr Unternehmen {companyName} ist mit dem Starter-Plan registriert.",
       "continue": "Zum Dashboard",
@@ -179,28 +176,6 @@
       "lost": "Lost",
       "spam": "Spam"
     }
-  },
-  "alpha": {
-    "member": "Alpha-Mitglied",
-    "seatsSuffix": "verfügbar",
-    "discountBadge": "−{percent}%",
-    "cta": "Alpha-Platz sichern",
-    "title": "250 Plätze. Dann Vollpreis.",
-    "subtitle": "Der Alpha-Zugang ist auf die ersten {seats} Kunden mit Starter- oder Business-Plan begrenzt. Frühe Nutzer gestalten das Produkt mit und behalten die Launch-Konditionen für immer.",
-    "benefits": [
-      {
-        "title": "15% lebenslanger Rabatt",
-        "description": "Der Rabatt bleibt an Ihrem Starter- oder Business-Abo hängen, auch nach dem öffentlichen Launch. Der Preis steigt nie."
-      },
-      {
-        "title": "Alpha-Mitglied-Badge",
-        "description": "Ein verifiziertes Badge, das bestätigt, dass Sie zu den ersten 250 gehörten. Nutzbar auf Ihrer Website und in Marketingmaterialien."
-      },
-      {
-        "title": "Zugang zu Alpha-Updates",
-        "description": "Erhalten Sie Preview-Builds und den exklusiven Changelog-Kanal, bevor Features alle erreichen."
-      }
-    ]
   },
   "common": {
     "save": "Speichern",
@@ -289,7 +264,6 @@
     "quotesThisMonth": "Angebote (dieser Monat)",
     "configuratorsUsed": "Aktive Konfiguratoren",
     "teamMembers": "Team-Mitglieder",
-    "alphaDiscountNote": "Alpha-Rabatt {pct}% lebenslang gesperrt.",
     "requestsByCategory": "Anfragen nach Kundenkategorie",
     "unlinked": "Nicht verknüpft"
   },
@@ -407,12 +381,6 @@
       "annual": "Jährlich ({discount})",
       "perMonth": "/Monat",
       "perYear": "/Jahr"
-    },
-    "alpha": {
-      "discount": "Alpha-Rabatt {pct}% {locked}",
-      "locked": "gesperrt",
-      "active": "aktiv",
-      "pricesIncludeDiscount": "Die untenstehenden Preise enthalten bereits den für Alpha-Mitglieder reservierten Rabatt."
     },
     "subscription": {
       "active": "Aktives Abonnement",

@@ -1,10 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { api, internal } from "../../convex/_generated/api";
-import {
-  effectivePriceCents,
-  alphaPriceCents,
-  BILLING_PLANS,
-} from "../../convex/lib/billingPlans";
+import { listPriceCents, BILLING_PLANS } from "../../convex/lib/billingPlans";
 import { verifyStripeSignature } from "../../convex/billing";
 import { newDb, seedTenant } from "./_helpers";
 
@@ -16,12 +12,11 @@ describe("billing plan catalogue", () => {
     expect(BILLING_PLANS.find((p) => p.key === "showroom")?.priceCents).toBeNull();
   });
 
-  test("Alpha price is a derived 15% discount", () => {
-    expect(alphaPriceCents(2400)).toBe(2040);
-    expect(alphaPriceCents(4700)).toBe(3995);
-    expect(effectivePriceCents("pro", true)).toBe(3995);
-    expect(effectivePriceCents("pro", false)).toBe(4700);
-    expect(effectivePriceCents("enterprise", true)).toBeNull();
+  test("list prices: base, regional override, custom plans have none", () => {
+    expect(listPriceCents("pro")).toBe(4700);
+    expect(listPriceCents("pro", "IT")).toBe(8900);
+    expect(listPriceCents("pro", "IT", "annual")).toBe(89000);
+    expect(listPriceCents("enterprise")).toBeNull();
   });
 });
 
@@ -54,18 +49,17 @@ describe("verifyStripeSignature", () => {
 });
 
 describe("billing.getBillingState + webhook", () => {
-  test("getBillingState reports plan, alpha discount and dormant checkout", async () => {
+  test("getBillingState reports plan, regional price and dormant checkout", async () => {
     const t = newDb();
-    const { tenantId, ownerId } = await seedTenant(t, { plan: "alpha", isAlpha: true });
+    const { tenantId, ownerId } = await seedTenant(t, { plan: "pro" });
     const s = await t
       .withIdentity({ subject: ownerId })
       .query(api.billing.getBillingState, { tenantId });
     expect(s?.checkoutAvailable).toBe(false);
     // No country on the tenant → region resolves to the IT default, so the
-    // Pro plan uses the IT regional price (€89) with the 15% Alpha discount.
+    // Pro plan uses the IT regional price (€89).
     expect(s?.region).toBe("IT");
     expect(s?.plans.find((p) => p.key === "pro")?.priceCents).toBe(8900);
-    expect(s?.plans.find((p) => p.key === "pro")?.yourPriceCents).toBe(7565);
   });
 
   test("a region without a price override falls back to the base plan price", async () => {

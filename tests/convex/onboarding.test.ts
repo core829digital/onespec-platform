@@ -3,16 +3,16 @@ import { api } from "../../convex/_generated/api";
 import { newDb, seedTenant } from "./_helpers";
 
 describe("onboarding wizard state", () => {
-  test("alpha tenant needs no billing; advance + complete update the tenant", async () => {
+  test("sales-led tenant needs no billing; advance + complete update the tenant", async () => {
     const t = newDb();
-    const { ownerId } = await seedTenant(t, { plan: "alpha", isAlpha: true });
+    const { ownerId } = await seedTenant(t, { plan: "enterprise" });
     const as = t.withIdentity({ subject: ownerId });
 
     let s = await as.query(api.onboarding.getState);
     expect(s.hasTenant).toBe(true);
     if (!s.hasTenant) return;
     expect(s.completed).toBe(false);
-    expect(s.needsBilling).toBe(false); // alpha + no stripe key
+    expect(s.needsBilling).toBe(false); // no stripe key, and sales-led
     expect(s.step).toBe("welcome");
     expect(s.entitlements.whiteLabel).toBe(true);
 

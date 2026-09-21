@@ -6,15 +6,6 @@ import { requirePlatformAdmin } from "./lib/auth";
 import { complianceForRegion } from "./lib/compliance";
 import { REGIONS, type RegionCode } from "./lib/regions";
 
-export const getSeatCount = query({
-  handler: async (ctx) => {
-    await requirePlatformAdmin(ctx);
-    const settings = await ctx.db.query("appSettings").withIndex("by_key", q => q.eq("key", "global")).unique();
-    if (!settings) return { claimed: 0, cap: 250 };
-    return { claimed: settings.alphaSeatsClaimed, cap: settings.alphaSeatCap };
-  },
-});
-
 export const listTenants = query({
   args: { limit: v.optional(v.number()), cursor: v.optional(v.string()) },
   handler: async (ctx, args) => {
@@ -63,8 +54,7 @@ export const resendEmail = mutation({
   },
 });
 
-// Seat-cap + registration controls live in `convex/alpha.ts`
-// (raiseSeatCap, toggleRegistration, getSeatStatus).
+// Registration open/close lives in `convex/registration.ts`.
 
 const REGION_CODES = Object.keys(REGIONS) as RegionCode[];
 

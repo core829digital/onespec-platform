@@ -16,7 +16,6 @@ describe("entitlement matrix matches the verified pricing page", () => {
     expect(e.maxQuotesPerMonth).toBe(20);
     expect(e.whiteLabel).toBe(false);
     expect(e.customDomain).toBe(false);
-    expect(e.lifetimeDiscountPct).toBe(0);
     expect(e.fieldModules).toBe("rilievo_only");
     expect(e.fiscalEngine).toBe("basic");
     expect(e.analytics).toBe("none");
@@ -53,11 +52,10 @@ describe("entitlement matrix matches the verified pricing page", () => {
     expect(e.apiAccess).toBe(true);
     expect(e.bulkImportMultiSite).toBe(true);
   });
-  test("alpha = pro + locked 15% discount + advanced analytics", () => {
+  test("alpha (retired, transitional until migrated) = pro + white-label + advanced analytics", () => {
     const e = entitlementsFor("alpha");
     expect(e.maxConfigurators).toBe(3);
     expect(e.whiteLabel).toBe(true);
-    expect(e.lifetimeDiscountPct).toBe(15);
     expect(e.analytics).toBe("advanced");
   });
   test("unknown plan falls back to starter", () => {
@@ -66,14 +64,12 @@ describe("entitlement matrix matches the verified pricing page", () => {
 });
 
 describe("resolveTenantEntitlements", () => {
-  test("an alpha tenant keeps white-label + discount even if stored plan drifts", () => {
+  test("the legacy isAlpha flag no longer grants anything by itself", () => {
     const tenant = { plan: "starter", isAlpha: true } as Doc<"tenants">;
-    const e = resolveTenantEntitlements(tenant);
-    expect(e.whiteLabel).toBe(true);
-    expect(e.lifetimeDiscountPct).toBe(15);
+    expect(resolveTenantEntitlements(tenant).whiteLabel).toBe(false);
   });
-  test("a non-alpha starter tenant does not get white-label", () => {
-    const tenant = { plan: "starter", isAlpha: false } as Doc<"tenants">;
+  test("a starter tenant does not get white-label", () => {
+    const tenant = { plan: "starter" } as Doc<"tenants">;
     expect(resolveTenantEntitlements(tenant).whiteLabel).toBe(false);
   });
 });

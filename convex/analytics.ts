@@ -315,9 +315,6 @@ export const getPlanUsage = query({
     return {
       plan: tenant.plan,
       planStatus: tenant.planStatus,
-      isAlpha: tenant.isAlpha,
-      alphaDiscountLocked: tenant.alphaDiscountLocked,
-      lifetimeDiscountPct: ent.lifetimeDiscountPct,
       period,
       quotes: {
         used: quotesUsed,

@@ -149,48 +149,13 @@ export default function BillingPage() {
         </>
       ) : (
         <>
-        {state.isAlpha ? (
-          <div className="rounded-xl border border-[var(--color-mint)]/40 bg-[var(--color-mint-light)] p-4 text-sm">
-            <p className="font-semibold text-[var(--color-mint)]">
-              {t("alpha.discount", { pct: state.alphaDiscountPct, locked: state.alphaDiscountLocked ? t("alpha.locked") : t("alpha.active") })}
-            </p>
-            <p className="text-[var(--color-text-secondary)] mt-1">
-              {t("alpha.pricesIncludeDiscount")}
-            </p>
-          </div>
-        ) : null}
-  
-          {/* Annual / Monthly toggle */}
-        <div className="flex items-center gap-4">
-          <span className="text-sm text-[var(--color-text-secondary)]">{t("billing.cycle")}</span>
-          <div className="flex rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-1">
-            {["monthly", "annual"].map((c) => (
-              <button
-                key={c}
-                type="button"
-                onClick={() => setCycle(c as "monthly" | "annual")}
-                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
-                  cycle === c
-                    ? "bg-[var(--color-mint)] text-[var(--color-mint-dark)]"
-                    : "text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
-                }`}
-              >
-                {c === "monthly" ? t("billing.monthly") : t("billing.annual", { discount: "2 mesi gratis" })}
-              </button>
-            ))}
-          </div>
-        </div>
-  
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {displayPlans.map((p) => {
             const current = p.key === state.plan;
             const monthlyPrice = p.priceCents;
-            const monthlyYourPrice = p.yourPriceCents;
             const annualPrice = getAnnualPrice(monthlyPrice);
-            const annualYourPrice = getAnnualPrice(monthlyYourPrice);
   
             const priceCents = cycle === "annual" ? annualPrice : monthlyPrice;
-            const displayPrice = cycle === "annual" ? annualYourPrice : monthlyYourPrice;
   
             return (
               <div
@@ -201,19 +166,13 @@ export default function BillingPage() {
               >
                 <p className="font-semibold text-[var(--color-text)]">{p.name}</p>
                 <p className="mt-1 text-2xl font-bold text-[var(--color-text)] tabular-nums">
-                  {euro(displayPrice ?? priceCents, locale)}
+                  {euro(priceCents, locale)}
                   {priceCents !== null ? (
                     <span className="text-sm font-normal text-[var(--color-text-secondary)]">
                       {cycle === "annual" ? ` ${t("billing.perYear")}` : ` ${t("billing.perMonth")}`}
                     </span>
                   ) : null}
                 </p>
-                {state.isAlpha && priceCents !== null && monthlyYourPrice !== monthlyPrice ? (
-                  <p className="text-xs text-[var(--color-text-secondary)] line-through">
-                    {euro(cycle === "annual" ? annualPrice : monthlyPrice, locale)}
-                  </p>
-                ) : null}
-  
                 <div className="mt-3 space-y-2">
                   {current ? (
                     <span className="text-xs text-[var(--color-mint)] block">{t("currentPlan")}</span>

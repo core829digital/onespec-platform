@@ -14,7 +14,7 @@ const CATEGORIES: Array<{ v: Category; label: string }> = [
   { v: "general", label: "Altro" },
 ];
 
-export function AlphaFeedbackButton() {
+export function FeedbackButton() {
   const tf = useFriendlyError();
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState<Category>("bug");

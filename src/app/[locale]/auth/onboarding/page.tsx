@@ -8,7 +8,6 @@ import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
 import { authErrorMessage } from "@/lib/errors";
 
 const COUNTRIES = [
@@ -28,7 +27,7 @@ export default function OnboardingPage() {
   const [detectedFrom, setDetectedFrom] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<{ alpha: boolean; seatNumber?: number } | null>(null);
+  const [result, setResult] = useState<{ tenantId: string } | null>(null);
 
   const registerTenant = useMutation(api.tenants.registerTenant);
 
@@ -66,37 +65,9 @@ export default function OnboardingPage() {
   if (result) {
     return (
       <div className="space-y-6 text-center">
-        <div className={cn(
-          "p-6 rounded-xl border",
-          result.alpha
-            ? "bg-gradient-to-br from-[var(--color-mint)]/10 to-[var(--color-mint-dark)]/10 border-[var(--color-mint)]"
-            : "bg-[var(--color-bg-alt)] border-[var(--color-border)]"
-        )}>
-          <div className="mb-4">
-            {result.alpha ? (
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--color-mint)]/20 text-[var(--color-mint)] text-sm font-medium">
-                <span className="w-2 h-2 rounded-full bg-[var(--color-mint)]" />
-                Alpha Member
-              </span>
-            ) : (
-              <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--color-bg)] border border-[var(--color-border)] text-[var(--color-text-secondary)] text-sm">
-                Starter
-              </span>
-            )}
-          </div>
-          <h2 className="text-2xl font-bold text-[var(--color-text)] mb-2">
-            {result.alpha ? t("alphaTitle") : t("starterTitle")}
-          </h2>
-          <p className="text-[var(--color-text-secondary)] mb-4">
-            {result.alpha
-              ? t("alphaSubtitle", { seatNumber: result.seatNumber ?? 0, companyName })
-              : t("starterSubtitle", { companyName })}
-          </p>
-          {result.alpha && result.seatNumber && (
-            <div className="text-4xl font-bold text-[var(--color-mint)] font-mono mb-4">
-              #{result.seatNumber}
-            </div>
-          )}
+        <div className="p-6 rounded-xl border bg-[var(--color-bg-alt)] border-[var(--color-border)]">
+          <h2 className="text-2xl font-bold text-[var(--color-text)] mb-2">{t("starterTitle")}</h2>
+          <p className="text-[var(--color-text-secondary)]">{t("starterSubtitle", { companyName })}</p>
         </div>
 
         <Button onClick={() => router.push("/onboarding")} className="w-full" size="lg">

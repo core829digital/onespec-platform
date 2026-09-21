@@ -16,9 +16,6 @@
  * Regional figures are mid-range strategy-PDF values and need founder sign-off
  * before a country goes live — do not treat them as final.
  *
- * The Alpha price is always derived, never stored: alphaCents = round(price*0.85),
- * so base / regional / Alpha figures can never drift apart.
- *
  * Annual billing = monthly × 10 (2 months free), unless an explicit annual
  * Stripe Price says otherwise.
  */
@@ -34,8 +31,6 @@ export interface BillingPlan {
   /** Stripe Price env-key stem, e.g. "STARTER" → STRIPE_PRICE_STARTER_MONTHLY_IT. */
   stripePriceKey?: "STARTER" | "PRO";
 }
-
-export const ALPHA_DISCOUNT_PCT = 15;
 
 export type PlanKey = BillablePlan | "enterprise" | "showroom";
 
@@ -61,18 +56,13 @@ export const REGIONAL_PRICES: Partial<Record<string, Partial<Record<PlanKey, num
   LU: { starter: 7900, pro: 16900, enterprise: 34900, showroom: 44900 },
 };
 
-export function alphaPriceCents(priceCents: number): number {
-  return Math.round((priceCents * (100 - ALPHA_DISCOUNT_PCT)) / 100);
-}
-
 export function billingPlan(key: string): BillingPlan | undefined {
   if (key === "business") return BILLING_PLANS.find((p) => p.key === "pro");
   return BILLING_PLANS.find((p) => p.key === key);
 }
 
 /**
- * The list (standard) monthly price for a plan in a given region, before any
- * Alpha discount. `region` is a RegionCode (e.g. "IT"); undefined => base price.
+ * The list monthly price for a plan in a given region. `region` is a RegionCode (e.g. "IT"); undefined => base price.
  */
 export function listPriceCents(
   planKey: string,
@@ -87,21 +77,6 @@ export function listPriceCents(
       : base.priceCents;
   if (monthly === null || monthly === undefined) return null;
   return cycle === "annual" ? monthly * 10 : monthly;
-}
-
-/**
- * The price a given tenant would actually pay for a plan: regional list price
- * with the Alpha discount applied when the tenant is on Alpha.
- */
-export function effectivePriceCents(
-  planKey: string,
-  isAlpha: boolean,
-  region?: string | null,
-  cycle: BillingCycle = "monthly",
-): number | null {
-  const list = listPriceCents(planKey, region, cycle);
-  if (list === null) return null;
-  return isAlpha ? alphaPriceCents(list) : list;
 }
 
 /* -------------------------------------------------------------------------- */

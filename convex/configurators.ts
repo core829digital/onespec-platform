@@ -49,7 +49,7 @@ export const createConfigurator = mutation({
     await ctx.db.insert("branding", {
       tenantId: args.tenantId,
       configuratorId,
-      whiteLabel: tenant.plan === "enterprise" || tenant.plan === "showroom" || tenant.isAlpha,
+      whiteLabel: resolveTenantEntitlements(tenant).whiteLabel,
       colorAccent: "#16d19d",
       colorAccentInk: "#04150f",
       fontFamily: "geist",
@@ -350,7 +350,6 @@ export const getEffectiveConfig = query({
       layers: CONFIG_LAYERS,
       platformDefaults: PLATFORM_DEFAULTS,
       plan: tenant.plan,
-      isAlpha: tenant.isAlpha,
     };
   },
 });

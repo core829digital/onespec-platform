@@ -81,10 +81,10 @@ export default function AdminPage() {
   const viewer = useQuery(api.users.viewer);
   const isAdmin = viewer?.isPlatformAdmin === true;
 
-  const seats = useQuery(api.admin.getSeatCount, isAdmin ? {} : "skip");
+  const registration = useQuery(api.registration.getRegistrationStatus, isAdmin ? {} : "skip");
   const tenants = useQuery(api.admin.listTenants, isAdmin ? { limit: 50 } : "skip");
   const feedback = useQuery(api.feedback.listFeedback, isAdmin ? {} : "skip");
-  const toggleRegistration = useMutation(api.alpha.toggleRegistration);
+  const toggleRegistration = useMutation(api.registration.toggleRegistration);
   const setFeedbackStatus = useMutation(api.feedback.setFeedbackStatus);
 
   if (viewer === undefined) {
@@ -111,9 +111,9 @@ export default function AdminPage() {
 
       <div className="grid grid-cols-3 gap-4">
         <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg p-4">
-          <p className="text-sm text-[var(--color-text-secondary)]">Posti Alpha</p>
+          <p className="text-sm text-[var(--color-text-secondary)]">Stato registrazioni</p>
           <p className="text-3xl font-bold text-[var(--color-text)] mt-2">
-            {seats ? `${seats.claimed} / ${seats.cap}` : "—"}
+            {registration ? (registration.open ? "Aperte" : "Chiuse") : "—"}
           </p>
         </div>
         <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg p-4">
@@ -142,7 +142,7 @@ export default function AdminPage() {
             <div key={tn._id} className="px-6 py-3 flex items-center justify-between text-sm">
               <span className="text-[var(--color-text)]">{tn.name}</span>
               <span className="text-[var(--color-text-secondary)]">
-                {tn.isAlpha ? `Alpha #${tn.alphaSeatNumber}` : tn.plan}
+                {tn.plan}
               </span>
             </div>
           ))

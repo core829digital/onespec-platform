@@ -45,7 +45,6 @@
     "profile": "Profil",
     "team": "Équipe",
     "billing": "Plan et facturation",
-    "badge": "Badge Alpha",
     "logout": "Déconnexion",
     "menu": "Menu",
     "legal": "Mentions légales"
@@ -130,8 +129,6 @@
       "submit": "Créer l'entreprise",
       "loading": "Création...",
       "error": "Erreur de création",
-      "alphaTitle": "Bienvenue dans Alpha!",
-      "alphaSubtitle": "Votre entreprise {companyName} fait partie des 250 premiers membres Alpha. Vous avez bloqué 15% de réduction à vie.",
       "starterTitle": "Entreprise créée",
       "starterSubtitle": "Votre entreprise {companyName} est inscrite avec le plan Starter.",
       "continue": "Aller au tableau de bord",
@@ -179,28 +176,6 @@
       "lost": "Perdue",
       "spam": "Spam"
     }
-  },
-  "alpha": {
-    "member": "Membre Alpha",
-    "seatsSuffix": "disponibles",
-    "discountBadge": "−{percent}%",
-    "cta": "Prenez une place Alpha",
-    "title": "250 places. Puis prix plein.",
-    "subtitle": "L'accès Alpha est limité aux {seats} premiers clients sur plan Starter ou Business. Les premiers aident à définir le produit et gardent les conditions de lancement.",
-    "benefits": [
-      {
-        "title": "15% de réduction à vie",
-        "description": "La réduction reste attachée à votre abonnement Starter ou Business même après le lancement public. Le prix n'augmente pas."
-      },
-      {
-        "title": "Badge Membre Alpha",
-        "description": "Un badge vérifié certifiant que vous étiez parmi les 250 premiers. Utilisable sur votre site et supports commerciaux."
-      },
-      {
-        "title": "Accès mises à jour Alpha",
-        "description": "Recevez les builds en avant-première et le changelog réservé, avant que les fonctions n'arrivent à tous."
-      }
-    ]
   },
   "common": {
     "save": "Enregistrer",
@@ -289,7 +264,6 @@
     "quotesThisMonth": "Devis (ce mois)",
     "configuratorsUsed": "Configurateurs actifs",
     "teamMembers": "Membres de l'équipe",
-    "alphaDiscountNote": "Réduction Alpha {pct}% à vie verrouillée.",
     "requestsByCategory": "Demandes par catégorie de client",
     "unlinked": "Non liés"
   },
@@ -407,12 +381,6 @@
       "annual": "Annuel ({discount})",
       "perMonth": "/mois",
       "perYear": "/an"
-    },
-    "alpha": {
-      "discount": "Réduction Alpha {pct}% {locked}",
-      "locked": "bloqué",
-      "active": "actif",
-      "pricesIncludeDiscount": "Les prix ci-dessous incluent déjà la réduction réservée aux membres Alpha."
     },
     "subscription": {
       "active": "Abonnement actif",

@@ -161,7 +161,6 @@ export default function DashboardPage() {
                 </h2>
                 <span className="rounded-full bg-[var(--color-mint-light)] px-3 py-1 text-xs font-bold uppercase tracking-wide text-[var(--color-mint)]">
                   {planUsage.plan}
-                  {planUsage.isAlpha && " · Alpha"}
                 </span>
               </div>
               <div className="space-y-4">
@@ -181,11 +180,6 @@ export default function DashboardPage() {
                   limit={planUsage.members.limit}
                 />
               </div>
-              {planUsage.isAlpha && planUsage.lifetimeDiscountPct > 0 && (
-                <p className="mt-4 text-xs text-[var(--color-text-secondary)]">
-                  {t("alphaDiscountNote", { pct: planUsage.lifetimeDiscountPct })}
-                </p>
-              )}
             </section>
           )}
           {categoryData.length > 0 && (

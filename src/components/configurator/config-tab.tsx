@@ -63,8 +63,7 @@ export function ConfigTab({ configuratorId }: { configuratorId: Id<"configurator
         Ogni impostazione è risolta attraverso i livelli{" "}
         <span className="text-[var(--color-text)]">{data.layers.map((l) => LAYER_LABEL[l]).join(" → ")}</span>. La
         colonna &quot;Origine&quot; indica quale livello ha determinato il valore effettivo. Piano attuale:{" "}
-        <span className="text-[var(--color-text)] capitalize">{data.plan}</span>
-        {data.isAlpha ? " (Alpha)" : ""}.
+        <span className="text-[var(--color-text)] capitalize">{data.plan}</span>.
       </p>
 
       <Section title="Configurazione effettiva">

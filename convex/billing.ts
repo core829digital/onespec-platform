@@ -6,8 +6,6 @@ import { requireMembership } from "./lib/auth";
 import { resolveTenantEntitlements } from "./lib/entitlements";
 import {
   BILLING_PLANS,
-  ALPHA_DISCOUNT_PCT,
-  effectivePriceCents,
   listPriceCents,
   resolveStripePriceId,
   planFromStripePriceId,
@@ -59,9 +57,6 @@ export const getBillingState = query({
       plan: tenant.plan,
       region,
       planStatus: tenant.planStatus,
-      isAlpha: tenant.isAlpha,
-      alphaDiscountLocked: tenant.alphaDiscountLocked,
-      alphaDiscountPct: ALPHA_DISCOUNT_PCT,
       entitlements: resolveTenantEntitlements(tenant),
       subscription: tenant.stripeSubscriptionId
         ? {
@@ -75,7 +70,6 @@ export const getBillingState = query({
         key: p.key,
         name: p.name,
         priceCents: listPriceCents(p.key, region),
-        yourPriceCents: effectivePriceCents(p.key, tenant.isAlpha, region),
       })),
     };
   },

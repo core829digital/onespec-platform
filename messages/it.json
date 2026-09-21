@@ -59,7 +59,6 @@
     "quotesThisMonth": "Preventivi (mese)",
     "configuratorsUsed": "Configuratori attivi",
     "teamMembers": "Membri team",
-    "alphaDiscountNote": "Sconto Alpha {pct}% bloccato a vita.",
     "requestsByCategory": "Preventivi per categoria cliente",
     "unlinked": "Non collegati"
   },
@@ -96,7 +95,6 @@
     "profile": "Profilo",
     "team": "Team",
     "billing": "Piano e fatturazione",
-    "badge": "Badge Alpha",
     "logout": "Esci",
     "menu": "Menu",
     "legal": "Legale"
@@ -182,8 +180,6 @@
       "submit": "Crea azienda",
       "loading": "Creazione...",
       "error": "Errore durante la creazione",
-      "alphaTitle": "Benvenuto in Alpha!",
-      "alphaSubtitle": "La tua azienda {companyName} è tra i primi 250 membri Alpha. Hai bloccato lo sconto del 15% a vita.",
       "starterTitle": "Azienda creata",
       "starterSubtitle": "La tua azienda {companyName} è registrata con piano Starter.",
       "continue": "Vai alla dashboard",
@@ -230,28 +226,6 @@
       "lost": "Persa",
       "spam": "Spam"
     }
-  },
-  "alpha": {
-    "member": "Alpha Member",
-    "seatsSuffix": "disponibili",
-    "discountBadge": "−{percent}%",
-    "cta": "Prendi uno dei posti Alpha",
-    "title": "250 posti. Poi il prezzo torna pieno.",
-    "subtitle": "L'accesso Alpha è limitato ai primi {seats} clienti su piano Starter o Business. Chi entra adesso aiuta a definire il prodotto e si porta dietro le condizioni di lancio anche dopo.",
-    "benefits": [
-      {
-        "title": "15% di sconto a vita",
-        "description": "Lo sconto resta agganciato al tuo abbonamento Starter o Business anche dopo il lancio pubblico. Il prezzo non sale."
-      },
-      {
-        "title": "Badge Alpha Member",
-        "description": "Un badge verificato che certifica che eri tra i primi 250. Utilizzabile sul tuo sito e nei materiali commerciali."
-      },
-      {
-        "title": "Accesso agli aggiornamenti Alpha",
-        "description": "Ricevi le build in anteprima e il canale changelog riservato, prima che le funzioni arrivino a tutti."
-      }
-    ]
   },
   "common": {
     "save": "Salva",
@@ -407,12 +381,6 @@
       "annual": "Annuale ({discount})",
       "perMonth": "/mese",
       "perYear": "/anno"
-    },
-    "alpha": {
-      "discount": "Sconto Alpha {pct}% {locked}",
-      "locked": "bloccato",
-      "active": "attivo",
-      "pricesIncludeDiscount": "I prezzi qui sotto includono già lo sconto riservato agli Alpha Member."
     },
     "subscription": {
       "active": "Abbonamento attivo",

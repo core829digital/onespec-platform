@@ -79,26 +79,15 @@ export default function AccountPage() {
       </div>
       {msg ? <p className="text-sm text-[var(--color-danger)]">{msg}</p> : null}
 
-      {/* Identity / Alpha badge */}
-      {profile.alpha.verified ? (
-        <div className="rounded-xl border border-[var(--color-mint)]/40 bg-[var(--color-mint-light)] p-4">
-          <p className="text-sm font-semibold text-[var(--color-mint)]">Alpha Member</p>
-          <p className="text-xs text-[var(--color-text-secondary)] mt-1">
-            Posto #{profile.alpha.seatNumber ?? "—"} · sconto del 15% bloccato a vita ·{" "}
-            {profile.tenant?.name}
-          </p>
-        </div>
-      ) : (
-        <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4">
-          <p className="text-sm font-semibold text-[var(--color-text)]">Identità account</p>
-          <p className="text-xs text-[var(--color-text-secondary)] mt-1 font-mono break-all">
-            {profile.email} · {profile.userId}
-          </p>
-          <p className="text-xs text-[var(--color-text-secondary)] mt-1">
-            Comunica questi dati al supporto per richieste sul tuo account.
-          </p>
-        </div>
-      )}
+      <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4">
+        <p className="text-sm font-semibold text-[var(--color-text)]">Identità account</p>
+        <p className="text-xs text-[var(--color-text-secondary)] mt-1 font-mono break-all">
+          {profile.email} · {profile.userId}
+        </p>
+        <p className="text-xs text-[var(--color-text-secondary)] mt-1">
+          Comunica questi dati al supporto per richieste sul tuo account.
+        </p>
+      </div>
 
       <Section title="Profilo">
         <Field label="Nome">
@@ -291,11 +280,6 @@ export default function AccountPage() {
         <Link href="/app/account/billing" className="text-sm text-[var(--color-mint)] hover:underline">
           Piano e fatturazione
         </Link>
-        {profile.alpha.verified ? (
-          <Link href="/app/account/badge" className="text-sm text-[var(--color-mint)] hover:underline">
-            Badge Alpha
-          </Link>
-        ) : null}
         <button
           type="button"
           onClick={() => signOut()}

@@ -114,10 +114,10 @@ export const LEGAL_DOCS: LegalDoc[] = [
         ],
       },
       {
-        h: "Account e programma Alpha",
+        h: "Account e registrazione",
         p: [
           "L'accesso richiede la creazione di un account e la verifica dell'indirizzo email.",
-          "Il programma Alpha è riservato alle prime 250 organizzazioni registrate e attribuisce lo stato di «Alpha Member» con uno sconto del 15% bloccato sui piani a pagamento, alle condizioni indicate al momento dell'adesione. Esauriti i posti, le nuove registrazioni non-Alpha restano sospese fino a diversa decisione di OneSpec.",
+          "Le nuove registrazioni possono essere aperte o sospese da OneSpec. Ogni organizzazione accede con il piano a pagamento scelto, alle condizioni indicate al momento dell'adesione.",
         ],
       },
       {

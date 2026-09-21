@@ -82,7 +82,7 @@ describe("RBAC", () => {
     const A = await seedTenant(t);
     const asOwner = t.withIdentity({ subject: A.ownerId });
     await expect(asOwner.query(api.admin.listTenants, {})).rejects.toThrow();
-    await expect(asOwner.query(api.admin.getSeatCount, {})).rejects.toThrow();
+    await expect(asOwner.query(api.registration.getRegistrationStatus, {})).rejects.toThrow();
   });
 });
 

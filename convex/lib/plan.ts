@@ -6,8 +6,8 @@ export { entitlementsFor, resolveTenantEntitlements };
 export type { Entitlements, PlanKey } from "./entitlements";
 
 /** @deprecated use `resolveTenantEntitlements(tenant).whiteLabel` */
-export function hasWhiteLabel(plan: string, isAlpha = false): boolean {
-  return isAlpha || entitlementsFor(plan).whiteLabel;
+export function hasWhiteLabel(plan: string): boolean {
+  return entitlementsFor(plan).whiteLabel;
 }
 
 /**

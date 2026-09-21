@@ -102,11 +102,11 @@ export function BlueprintHero() {
         </div>
         <div className="flex justify-between">
           <dt>revisione</dt>
-          <dd className="auth-data text-[var(--auth-text)]">α</dd>
+          <dd className="auth-data text-[var(--auth-text)]">1</dd>
         </div>
         <div className="col-span-2 flex justify-between border-t border-[var(--auth-line-dim)] pt-2 mt-1">
-          <dt>programma alpha</dt>
-          <dd className="auth-data text-[var(--auth-live)]">250 posti</dd>
+          <dt>mercati</dt>
+          <dd className="auth-data text-[var(--auth-live)]">6 paesi</dd>
         </div>
       </dl>
     </div>

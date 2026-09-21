@@ -92,12 +92,6 @@ export default function OnboardingWizard() {
             OneSpec trasforma il tuo listino in un configuratore di preventivi che i tuoi clienti
             usano dal tuo sito o dai social. Ricevi le richieste già valorizzate nella dashboard.
           </p>
-          {state.isAlpha ? (
-            <p className="text-sm text-[var(--color-mint)]">
-              Sei Alpha Member{state.alphaSeatNumber ? ` #${state.alphaSeatNumber}` : ""} — sconto del
-              15% bloccato a vita, fatturazione self-service quando la fase Alpha termina.
-            </p>
-          ) : null}
           <ul className="text-sm text-[var(--color-text)] space-y-1.5 mt-2">
             <li>
               • {ent.maxConfigurators === Infinity ? "Configuratori illimitati" : `${ent.maxConfigurators} configuratore${ent.maxConfigurators > 1 ? "i" : ""}`}

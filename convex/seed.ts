@@ -20,8 +20,6 @@ export const run = internalMutation({
     const settingsId = await ctx.db.insert("appSettings", {
       key: "global",
       registrationOpen: false,
-      alphaSeatCap: 250,
-      alphaSeatsClaimed: 0,
       resendMode: "noop",
       updatedAt: Date.now(),
     });
