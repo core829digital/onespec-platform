@@ -94,7 +94,7 @@ export function MultiSupplierTable({
       <div className="flex justify-between items-center">
         <h3 className="font-semibold">Articoli Multi-Fornitore</h3>
         {!readOnly && (
-          <button
+          <button type="button"
             onClick={addItem}
             className="px-3 py-1.5 rounded-lg text-sm font-medium bg-zinc-900 text-white hover:bg-zinc-800"
           >
@@ -175,13 +175,13 @@ export function MultiSupplierTable({
                   <td className="px-3 py-2 text-right">
                     {isEditing ? (
                       <div className="flex gap-1 justify-end">
-                        <button
+                        <button type="button"
                           onClick={() => saveEdit(item.id)}
                           className="px-2 py-1 rounded text-xs bg-emerald-600 text-white hover:bg-emerald-700"
                         >
                           Salva
                         </button>
-                        <button
+                        <button type="button"
                           onClick={() => cancelEdit(item.id)}
                           className="px-2 py-1 rounded text-xs border border-[var(--color-border)] hover:bg-zinc-100"
                         >
@@ -191,14 +191,14 @@ export function MultiSupplierTable({
                     ) : (
                       <div className="flex gap-1 justify-end">
                         {!readOnly && (
-                          <button
+                          <button type="button"
                             onClick={() => setEditingId(item.id)}
                             className="px-2 py-1 rounded text-xs bg-zinc-100 hover:bg-zinc-200 text-zinc-700"
                           >
                             Modifica
                           </button>
                         )}
-                        <button
+                        <button type="button"
                           onClick={() => removeItem(item.id)}
                           disabled={readOnly}
                           className="px-2 py-1 rounded text-xs bg-red-100 text-red-700 hover:bg-red-200 disabled:opacity-50"

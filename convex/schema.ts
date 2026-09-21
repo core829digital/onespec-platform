@@ -50,6 +50,8 @@ export default defineSchema({
     billingCycle: v.optional(v.union(v.literal("monthly"), v.literal("annual"))),
     // Sales-led deals: setup fee invoiced outside Stripe.
     setupFeePaidAt: v.optional(v.number()),
+    /** Per-year offer counter for "Q-YYYY-NNNN" quote numbers. */
+    quoteSeq: v.optional(v.object({ year: v.number(), n: v.number() })),
     // Company profile printed in every generated PDF header.
     vatId: v.optional(v.string()),
     address: v.optional(v.string()),
@@ -366,6 +368,8 @@ export default defineSchema({
     configuratorId: v.id("configurators"),
     catalogVersion: v.number(),
     publicId: v.string(),
+    /** Per-tenant offer number ("Q-2026-0007"); absent on quotes created before it existed. */
+    offerNumber: v.optional(v.string()),
     leadName: v.string(),
     leadEmail: v.string(),
     leadPhone: v.optional(v.string()),

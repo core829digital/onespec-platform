@@ -9,6 +9,8 @@ import { getTenantCatalog } from "./calculations";
 import { currentPeriod } from "./lib/entitlements";
 import { regionForCountry } from "./lib/regions";
 import { resolveLinks, logClientActivity } from "./lib/links";
+import { parseQuoteItems, nextOfferNumber } from "./lib/quoteItems";
+import { defaultItem } from "../src/shared/item-defaults";
 
 /** Max size of a base64 signature PNG data URL (~200 KB of characters). */
 const MAX_SIGNATURE_LEN = 200_000;
@@ -179,7 +181,7 @@ export const createFieldQuote = mutation({
     if (!versionDoc) throw new ConvexError("NO_PUBLISHED_VERSION");
 
     const payload = versionDoc.payload as CatalogPayload;
-    const items: ProjectItem[] = Array.isArray(args.items) ? args.items : [];
+    const items = parseQuoteItems(args.items);
 
     // Authoritative calculation ÔÇö server is the source of truth for price.
     const baseCalc = calculatePrice(payload, items);
@@ -206,6 +208,7 @@ export const createFieldQuote = mutation({
     });
 
     const quoteId = await ctx.db.insert("quoteRequests", {
+      offerNumber: await nextOfferNumber(ctx, args.tenantId),
       tenantId: args.tenantId,
       configuratorId: args.configuratorId,
       catalogVersion: targetVersion,
@@ -399,27 +402,10 @@ export const createFieldQuoteFromSurvey = mutation({
 
     const payload = versionDoc.payload as CatalogPayload;
 
-    // Convert survey openings to quote items with default values
-    const items: ProjectItem[] = survey.openings.map((opening) => {
-      const firstEnabledMaterial = payload.materials.find((m) => m.enabled);
-      const material = firstEnabledMaterial?.key ?? 'pvc';
-      return {
-        productType: 'window' as const,
-        material,
-        quality: { [material]: 'standard' },
-        profileSystem: 'standard',
-        width: opening.widthMm,
-        height: opening.heightMm,
-        quantity: 1,
-        sashes: [
-          { type: 'tiltturn', direction: 'right', active: true, hardware: 'standard', hardwareColor: 'white' },
-        ],
-        glazing: 'double',
-        color: 'white',
-        insectScreen: false,
-        installation: 'standard',
-      };
-    });
+    // Each opening becomes a piece built from the tenant's own catalogue keys, so it prices for real.
+    const items: ProjectItem[] = survey.openings.map((opening) =>
+      defaultItem(payload, "finestra1", { width: opening.widthMm, height: opening.heightMm }),
+    );
 
     // Use survey data for quote
     const tenant = await ctx.db.get(args.tenantId);
@@ -441,6 +427,7 @@ export const createFieldQuoteFromSurvey = mutation({
     const finalPriceCents = Math.round(discountedExVat * (1 + effectiveVat / 100));
 
     const quoteId = await ctx.db.insert('quoteRequests', {
+      offerNumber: await nextOfferNumber(ctx, args.tenantId),
       tenantId: args.tenantId,
       configuratorId: args.configuratorId,
       catalogVersion: targetVersion,
@@ -586,7 +573,7 @@ export const createQuoteWithSuppliers = mutation({
     if (!versionDoc) throw new ConvexError('NO_PUBLISHED_VERSION');
 
     const payload = versionDoc.payload as CatalogPayload;
-    const items: ProjectItem[] = Array.isArray(args.items) ? args.items : [];
+    const items = parseQuoteItems(args.items);
 
     // Validate supplier lines
     if (args.supplierLines && args.supplierLines.length > 0) {
@@ -625,6 +612,7 @@ export const createQuoteWithSuppliers = mutation({
     });
 
     const quoteId = await ctx.db.insert('quoteRequests', {
+      offerNumber: await nextOfferNumber(ctx, args.tenantId),
       tenantId: args.tenantId,
       configuratorId: args.configuratorId,
       catalogVersion: targetVersion,

@@ -35,6 +35,7 @@ export const ProjectItemSchema = z
           direction: z.enum(["left", "right"]),
           active: z.boolean(),
           main: z.boolean().optional(),
+          securityClass: z.enum(["standard", "rc2", "rc3"]).optional(),
           hardware: z.string().max(40),
           hardwareColor: z.string().max(40),
           widthRatio: z.number().positive().max(1).optional(),

@@ -242,14 +242,15 @@ export default function NewFieldQuotePage() {
   const [error, setError] = useState("");
 
   // Multi-supplier BOM state
-  const [supplierItems, setSupplierItems] = useState<SupplierItem[]>([
-    { id: `sup_${Date.now()}_1`, supplier: "Forza Finestre", product: "PVC 70mm 5 Camere", qty: 12, price: 185, total: 2220 },
-    { id: `sup_${Date.now()}_2`, supplier: "VetroTech", product: "Doppio Vetro Ug 1.1", qty: 12, price: 95, total: 1140 },
-  ]);
-  const [suppliers, setSuppliers] = useState<Array<{ name: string; color: string }>>([
-    { name: "Forza Finestre", color: "bg-blue-600" },
-    { name: "VetroTech", color: "bg-amber-500" },
-  ]);
+  // Multi-supplier BOM: real suppliers from the tenant's directory, no demo rows.
+  const [supplierItems, setSupplierItems] = useState<SupplierItem[]>([]);
+  const supplierData = useQuery(api.suppliers.listSuppliers, tenant ? { tenantId: tenant._id } : "skip");
+  const createSupplier = useMutation(api.suppliers.createSupplier);
+  const [newSupplier, setNewSupplier] = useState("");
+  const suppliers = useMemo(
+    () => (supplierData?.suppliers ?? []).map((sup) => ({ name: sup.name, color: "" })),
+    [supplierData],
+  );
 
   function setSashCount(count: number) {
     const n = Math.min(Math.max(Math.round(count), 1), 6);
@@ -570,20 +571,20 @@ export default function NewFieldQuotePage() {
     setError("");
 
     try {
-      const hasSupplierItems = supplierItems.length > 0;
+      const hasSupplierItems = supplierItems.length > 0 && supplierData?.allowed === true;
       let res;
 
       if (hasSupplierItems) {
         const supplierLines = supplierItems.map((si, idx) => {
-          // Match supplier by name from local state
-          const matchingSupplier = suppliers.find((s) => s.name === si.supplier);
+          const real = supplierData?.suppliers.find((sup) => sup.name === si.supplier);
+          if (!real) return null;
           return {
-            supplierId: (matchingSupplier ? `supplier_${matchingSupplier.name.replace(/\s+/g, "_")}` : `supplier_${si.supplier.replace(/\s+/g, "_")}`) as Id<"catalogSuppliers">,
-            itemIndex: idx,
+            supplierId: real._id,
+            itemIndex: Math.min(idx, items.length - 1),
             supplierPriceCents: Math.round(si.price * 100),
-            leadTimeDays: 7, // Default lead time
+            leadTimeDays: real.leadTimeDays,
           };
-        }).filter((line) => line.supplierId); // Only include lines with valid supplier IDs
+        }).filter((line): line is NonNullable<typeof line> => line !== null);
 
         if (supplierLines.length === 0) {
           throw new Error("Nessun fornitore valido trovato per le righe multi-fornitore");
@@ -1421,14 +1422,44 @@ export default function NewFieldQuotePage() {
             </div>
           </section>
 
-          {/* Section: Materiali Multi-Fornitore (BOM) */}
-          <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
-            <MultiSupplierTable
-              items={supplierItems}
-              onItemsChange={setSupplierItems}
-              suppliers={suppliers}
-            />
-          </section>
+          {/* Section: Materiali Multi-Fornitore (BOM) — Enterprise / Showroom only */}
+          {supplierData?.allowed ? (
+            <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5 space-y-4">
+              <div className="flex flex-wrap items-end gap-2">
+                <label className="text-sm">
+                  <span className="mb-1 block text-[var(--color-text-secondary)]">Nuovo fornitore</span>
+                  <input
+                    value={newSupplier}
+                    onChange={(e) => setNewSupplier(e.target.value)}
+                    maxLength={80}
+                    className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
+                  />
+                </label>
+                <button
+                  type="button"
+                  disabled={newSupplier.trim().length < 2}
+                  onClick={async () => {
+                    try {
+                      await createSupplier({ tenantId: tenant!._id, name: newSupplier });
+                      setNewSupplier("");
+                    } catch (err) {
+                      setError(tf(err));
+                    }
+                  }}
+                  className="rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm font-medium text-[var(--color-text)] disabled:opacity-50"
+                >
+                  Aggiungi fornitore
+                </button>
+              </div>
+              {suppliers.length > 0 ? (
+                <MultiSupplierTable items={supplierItems} onItemsChange={setSupplierItems} suppliers={suppliers} />
+              ) : (
+                <p className="text-sm text-[var(--color-text-secondary)]">
+                  Aggiungi almeno un fornitore per ripartire i materiali del preventivo.
+                </p>
+              )}
+            </section>
+          ) : null}
 
           {/* Section 4: Live Price Summary & Direct Sign CTA */}
           <section className="rounded-xl border border-[var(--color-mint)]/40 bg-[var(--color-mint)]/5 p-5 space-y-3">
