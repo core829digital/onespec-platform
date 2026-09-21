@@ -298,7 +298,15 @@
     "visitorConversion": "Bezoekersconversie",
     "wonValue": "Gewonnen waarde",
     "totalRequests": "Totaal aanvragen",
-    "byConfiguratorDetail": "Configurator detail"
+    "byConfiguratorDetail": "Configurator detail",
+    "peakByHour": "Per uur",
+    "peakByDay": "Per dag",
+    "peakHourInsight": "Piekuur",
+    "peakDayInsight": "Piekdag",
+    "requestsCount": "{count, plural, one {# aanvraag} other {# aanvragen}}",
+    "trendTotal": "Totaal",
+    "trendPeak": "Piek",
+    "noRequestsPeriod": "Geen aanvragen in de gekozen periode."
   },
   "app": {
     "suspended": {

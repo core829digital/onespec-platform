@@ -26,7 +26,7 @@ type Range = "24h" | "3d" | "5d" | "7d" | "14d" | "1m" | "3m" | "6m" | "1y" | "3
 
 /** window length + trend bucket size + label formatter per range. */
 const RANGE_SPEC: Record<Range, { windowMs: number; bucketMs: number; fmt: (d: Date) => string }> = {
-  "24h": { windowMs: DAY_MS, bucketMs: HOUR_MS, fmt: (d) => `${String(d.getHours()).padStart(2, "0")}:00` },
+  "24h": { windowMs: DAY_MS, bucketMs: HOUR_MS, fmt: (d) => `${String(d.getUTCHours()).padStart(2, "0")}:00` },
   "3d": { windowMs: 3 * DAY_MS, bucketMs: 6 * HOUR_MS, fmt: hm },
   "5d": { windowMs: 5 * DAY_MS, bucketMs: 6 * HOUR_MS, fmt: hm },
   "7d": { windowMs: 7 * DAY_MS, bucketMs: DAY_MS, fmt: dm },
@@ -40,14 +40,26 @@ const RANGE_SPEC: Record<Range, { windowMs: number; bucketMs: number; fmt: (d: D
   "10y": { windowMs: 3652 * DAY_MS, bucketMs: 91 * DAY_MS, fmt: my },
 };
 
+/**
+ * The server runs in UTC, so "which hour" / "which day" must be computed in the
+ * viewer's timezone or every chart is shifted by their UTC offset. The client
+ * sends Date.getTimezoneOffset() (minutes, positive west of UTC); the returned
+ * Date's UTC fields read as the viewer's local clock. The offset is applied as
+ * a constant for the whole window, so around a DST change it can be an hour off.
+ */
+function localClock(ms: number, tzOffsetMinutes = 0): Date {
+  const clamped = Math.max(-840, Math.min(840, Math.round(tzOffsetMinutes)));
+  return new Date(ms - clamped * 60_000);
+}
+
 function hm(d: Date) {
-  return `${d.getDate()}/${d.getMonth() + 1} ${String(d.getHours()).padStart(2, "0")}h`;
+  return `${d.getUTCDate()}/${d.getUTCMonth() + 1} ${String(d.getUTCHours()).padStart(2, "0")}h`;
 }
 function dm(d: Date) {
-  return `${d.getDate()}/${d.getMonth() + 1}`;
+  return `${d.getUTCDate()}/${d.getUTCMonth() + 1}`;
 }
 function my(d: Date) {
-  return `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getFullYear()).slice(2)}`;
+  return `${String(d.getUTCMonth() + 1).padStart(2, "0")}/${String(d.getUTCFullYear()).slice(2)}`;
 }
 
 /**
@@ -55,7 +67,7 @@ function my(d: Date) {
  * derived from real quoteRequests rows for this tenant — never demo data.
  */
 export const getOverview = query({
-  args: { tenantId: v.id("tenants"), range: v.optional(RANGE) },
+  args: { tenantId: v.id("tenants"), range: v.optional(RANGE), tzOffsetMinutes: v.optional(v.number()) },
   handler: async (ctx, args) => {
     await requireMembership(ctx, args.tenantId);
     await enforceAnalyticsForQuery(ctx, args.tenantId);
@@ -138,7 +150,7 @@ export const getOverview = query({
       const end = now - i * bucketMs;
       const rows = inWindow.filter((r) => r._creationTime >= start && r._creationTime < end);
       trend.push({
-        label: spec.fmt(new Date(end)),
+        label: spec.fmt(localClock(end, args.tzOffsetMinutes)),
         count: rows.length,
         valueCents: rows.reduce((s, r) => s + r.priceCents, 0),
       });
@@ -226,7 +238,7 @@ export const getOverview = query({
 
 /** Peak hours heatmap data — returns array of { hour, day, value } for last 30 days. */
 export const getPeakHours = query({
-  args: { tenantId: v.id("tenants"), range: v.optional(RANGE) },
+  args: { tenantId: v.id("tenants"), range: v.optional(RANGE), tzOffsetMinutes: v.optional(v.number()) },
   handler: async (ctx, args) => {
     await requireMembership(ctx, args.tenantId);
     await enforceAnalyticsForQuery(ctx, args.tenantId);
@@ -243,21 +255,19 @@ export const getPeakHours = query({
 
     const inWindow = all.filter((r) => r._creationTime >= cutoff);
 
-    const heatmap: Array<{ hour: number; day: number; value: number }> = [];
+    const cells = new Map<number, { hour: number; day: number; value: number }>();
 
     for (const r of inWindow) {
-      const date = new Date(r._creationTime);
-      const hour = date.getHours();
-      const day = date.getDay(); // 0 = Sunday, 6 = Saturday
-      const existing = heatmap.find((h) => h.hour === hour && h.day === day);
-      if (existing) {
-        existing.value++;
-      } else {
-        heatmap.push({ hour, day, value: 1 });
-      }
+      const date = localClock(r._creationTime, args.tzOffsetMinutes);
+      const hour = date.getUTCHours();
+      const day = date.getUTCDay(); // 0 = Sunday, 6 = Saturday
+      const key = day * 24 + hour;
+      const existing = cells.get(key);
+      if (existing) existing.value++;
+      else cells.set(key, { hour, day, value: 1 });
     }
 
-    return heatmap;
+    return [...cells.values()];
   },
 });
 

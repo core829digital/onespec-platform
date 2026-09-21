@@ -298,7 +298,15 @@
     "visitorConversion": "Conversie Vizitatori",
     "wonValue": "Valoare Câștigată",
     "totalRequests": "Total Cereri",
-    "byConfiguratorDetail": "Detaliu configuratoare"
+    "byConfiguratorDetail": "Detaliu configuratoare",
+    "peakByHour": "Pe oră",
+    "peakByDay": "Pe zi",
+    "peakHourInsight": "Ora de vârf",
+    "peakDayInsight": "Ziua de vârf",
+    "requestsCount": "{count, plural, one {# solicitare} other {# solicitări}}",
+    "trendTotal": "Total",
+    "trendPeak": "Vârf",
+    "noRequestsPeriod": "Nicio solicitare în perioada selectată."
   },
   "app": {
     "suspended": {

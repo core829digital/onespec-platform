@@ -2,7 +2,7 @@
 
 import { useState, Suspense, lazy } from "react";
 import { useQuery } from "convex/react";
-import { useTranslations, useFormatter } from "next-intl";
+import { useTranslations, useFormatter, useLocale } from "next-intl";
 import { api } from "@/convex/_generated/api";
 import { RangeSwitcher, RANGE_LABEL, type AnalyticsRange } from "@/components/analytics/range-switcher";
 import {
@@ -18,8 +18,8 @@ import { motion } from "framer-motion";
 
 const PieChart = lazy(() => import("@/components/analytics/PieChart").then((m) => ({ default: m.PieChart })));
 const FunnelChart = lazy(() => import("@/components/analytics/PieChart").then((m) => ({ default: m.FunnelChart })));
-const PeakHoursHeatmap = lazy(() => import("@/components/analytics/PieChart").then((m) => ({ default: m.PeakHoursHeatmap })));
-const TrendChart = lazy(() => import("@/components/analytics/PieChart").then((m) => ({ default: m.TrendChart })));
+const PeakHoursChart = lazy(() => import("@/components/analytics/charts").then((m) => ({ default: m.PeakHoursChart })));
+const TrendChart = lazy(() => import("@/components/analytics/charts").then((m) => ({ default: m.TrendChart })));
 const StatsGrid = lazy(() => import("@/components/analytics/PieChart").then((m) => ({ default: m.StatsGrid })));
 
 const eur = (c: number) => `€${(c / 100).toLocaleString("it-IT", { maximumFractionDigits: 0 })}`;
@@ -109,14 +109,17 @@ export default function AnalyticsPage() {
   const t = useTranslations("analytics");
   const format = useFormatter();
   const tenant = useQuery(api.tenants.getMyTenant);
+  const locale = useLocale();
   const [range, setRange] = useState<AnalyticsRange>("1m");
+  // The server runs in UTC; send the viewer's offset so hours/days/labels are local.
+  const [tzOffsetMinutes] = useState(() => new Date().getTimezoneOffset());
   const overview = useQuery(
     api.analytics.getOverview,
-    tenant ? { tenantId: tenant._id, range } : "skip",
+    tenant ? { tenantId: tenant._id, range, tzOffsetMinutes } : "skip",
   ) as OverviewData | undefined;
   const peakHours = useQuery(
     api.analytics.getPeakHours,
-    tenant ? { tenantId: tenant._id, range } : "skip",
+    tenant ? { tenantId: tenant._id, range, tzOffsetMinutes } : "skip",
   ) as PeakHourData[] | undefined;
 
   if (!tenant) return null;
@@ -184,7 +187,16 @@ export default function AnalyticsPage() {
     value: t.count,
   })) : [];
 
-  const peakHoursData = peakHours || [];
+  const requestsLabel = (n: number) => t("requestsCount", { count: n });
+  const trendTotal = trendData.reduce((sum: number, d: { value: number }) => sum + d.value, 0);
+  const trendPeak = trendData.reduce(
+    (best: { label: string; value: number } | null, d: { label: string; value: number }) => (d.value > (best?.value ?? 0) ? d : best),
+    null,
+  );
+  const trendStats = [
+    { label: t("trendTotal"), value: String(trendTotal) },
+    ...(trendPeak ? [{ label: t("trendPeak"), value: `${trendPeak.label} · ${trendPeak.value}` }] : []),
+  ];
 
   const byConfiguratorData = overview ? overview.byConfigurator.map((c: { name: string; count: number }, i: number) => ({
     label: c.name,
@@ -264,6 +276,9 @@ export default function AnalyticsPage() {
                   data={trendData}
                   title={t("requestsTrend")}
                   color="var(--color-mint)"
+                  formatValue={requestsLabel}
+                  stats={trendStats}
+                  emptyLabel={t("noRequestsPeriod")}
                 />
               </Suspense>
             </section>
@@ -280,16 +295,27 @@ export default function AnalyticsPage() {
             </section>
           </div>
 
-          {peakHoursData.length > 0 && (
-            <section key={`peak-${range}`} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
+          <section key={`peak-${range}`} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
+            {peakHours === undefined ? (
+              <ChartSkeleton />
+            ) : (
               <Suspense fallback={<ChartSkeleton />}>
-                <PeakHoursHeatmap
-                  data={peakHoursData}
+                <PeakHoursChart
+                  data={peakHours}
                   title={t("peakHours")}
+                  locale={locale}
+                  formatValue={requestsLabel}
+                  labels={{
+                    byHour: t("peakByHour"),
+                    byDay: t("peakByDay"),
+                    peakHour: t("peakHourInsight"),
+                    peakDay: t("peakDayInsight"),
+                    empty: t("noRequestsPeriod"),
+                  }}
                 />
               </Suspense>
-            </section>
-          )}
+            )}
+          </section>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">

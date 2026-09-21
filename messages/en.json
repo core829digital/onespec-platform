@@ -69,7 +69,15 @@
     "visitorConversion": "Visitor Conversion",
     "wonValue": "Won Value",
     "totalRequests": "Total Requests",
-    "byConfiguratorDetail": "Configurator Detail"
+    "byConfiguratorDetail": "Configurator Detail",
+    "peakByHour": "By hour",
+    "peakByDay": "By day",
+    "peakHourInsight": "Peak hour",
+    "peakDayInsight": "Peak day",
+    "requestsCount": "{count, plural, one {# request} other {# requests}}",
+    "trendTotal": "Total",
+    "trendPeak": "Peak",
+    "noRequestsPeriod": "No requests in the selected period."
   },
   "topbar": {
     "account": "Account",

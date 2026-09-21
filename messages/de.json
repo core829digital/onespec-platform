@@ -298,7 +298,15 @@
     "visitorConversion": "Besucher-Conversion",
     "wonValue": "Gewonnener Wert",
     "totalRequests": "Gesamtanfragen",
-    "byConfiguratorDetail": "Konfigurator-Detail"
+    "byConfiguratorDetail": "Konfigurator-Detail",
+    "peakByHour": "Nach Stunde",
+    "peakByDay": "Nach Tag",
+    "peakHourInsight": "Spitzenstunde",
+    "peakDayInsight": "Spitzentag",
+    "requestsCount": "{count, plural, one {# Anfrage} other {# Anfragen}}",
+    "trendTotal": "Gesamt",
+    "trendPeak": "Spitze",
+    "noRequestsPeriod": "Keine Anfragen im gewählten Zeitraum."
   },
   "app": {
     "suspended": {

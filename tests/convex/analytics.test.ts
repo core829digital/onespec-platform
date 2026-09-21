@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { api, internal } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { newDb, seedTenant, seedPublishedConfigurator } from "./_helpers";
@@ -89,5 +89,32 @@ describe("analytics.getOverview", () => {
     await expect(
       t.withIdentity({ subject: b.ownerId }).query(api.analytics.getOverview, { tenantId: a.tenantId }),
     ).rejects.toThrow();
+  });
+});
+
+describe("analytics timezone", () => {
+  test("peak hours are bucketed in the viewer's timezone, not the server's UTC", async () => {
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date("2026-03-10T23:30:00Z")); // Tuesday 23:30 UTC
+      const t = newDb();
+      const { tenantId, memberId } = await seedTenant(t, { plan: "pro" });
+      const cfg = await seedPublishedConfigurator(t, tenantId);
+      await quote(t, tenantId, cfg, "new", 100_00);
+      vi.setSystemTime(new Date("2026-03-10T23:45:00Z"));
+      const as = t.withIdentity({ subject: memberId });
+
+      const utc = await as.query(api.analytics.getPeakHours, { tenantId, range: "1m" });
+      expect(utc).toEqual([{ hour: 23, day: 2, value: 1 }]);
+
+      // UTC+2 (getTimezoneOffset() = -120): already Wednesday 01:30 locally.
+      const rome = await as.query(api.analytics.getPeakHours, { tenantId, range: "1m", tzOffsetMinutes: -120 });
+      expect(rome).toEqual([{ hour: 1, day: 3, value: 1 }]);
+
+      const o = await as.query(api.analytics.getOverview, { tenantId, range: "24h", tzOffsetMinutes: -120 });
+      expect(o.trend[o.trend.length - 1].label).toBe("01:00");
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

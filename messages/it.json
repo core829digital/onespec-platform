@@ -69,7 +69,15 @@
     "visitorConversion": "Conversione Visite",
     "wonValue": "Valore Vinto",
     "totalRequests": "Totale Richieste",
-    "byConfiguratorDetail": "Dettaglio Configuratori"
+    "byConfiguratorDetail": "Dettaglio Configuratori",
+    "peakByHour": "Per ora",
+    "peakByDay": "Per giorno",
+    "peakHourInsight": "Ora di punta",
+    "peakDayInsight": "Giorno di punta",
+    "requestsCount": "{count, plural, one {# richiesta} other {# richieste}}",
+    "trendTotal": "Totale",
+    "trendPeak": "Picco",
+    "noRequestsPeriod": "Nessuna richiesta nel periodo selezionato."
   },
   "topbar": {
     "account": "Account",
