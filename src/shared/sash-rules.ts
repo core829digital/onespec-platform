@@ -100,6 +100,7 @@ export function sashTypeAllowedWith(
   siblings: SashKind[],
   candidate: SashKind,
 ): { ok: boolean; reason?: string } {
+  if (candidate === "fix") return { ok: true };
   const others = siblings.filter(Boolean);
   const hasSliding = others.includes("sliding");
   const hasLiftSlide = others.includes("liftslide");
