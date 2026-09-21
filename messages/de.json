@@ -26,7 +26,19 @@
     "installations": "Montage (RAL)",
     "inspections": "Abnahmen",
     "passports": "QR-Doku",
-    "showroom": "Showroom"
+    "showroom": "Showroom",
+    "groups": {
+      "overview": "Übersicht",
+      "sales": "Vertrieb",
+      "field": "Baustelle",
+      "account": "Organisation"
+    },
+    "clients": "Kunden",
+    "cantieri": "Baustellen",
+    "team": "Team",
+    "billing": "Abrechnung",
+    "collapse": "Menü einklappen",
+    "expand": "Menü ausklappen"
   },
   "topbar": {
     "account": "Konto",
@@ -35,7 +47,8 @@
     "billing": "Plan & Abrechnung",
     "badge": "Alpha-Badge",
     "logout": "Abmelden",
-    "menu": "Menü"
+    "menu": "Menü",
+    "legal": "Rechtliches"
   },
   "auth": {
     "login": {
@@ -413,6 +426,22 @@
     },
     "common": {
       "loading": "Laden..."
+    },
+    "tabs": {
+      "plan": "Tarif",
+      "billing": "Abrechnung"
+    },
+    "invoicing": {
+      "noSubscription": "Kein aktives Abonnement. Sie können im Tab Tarif eines starten.",
+      "details": "Rechnungsdaten",
+      "company": "Firmenname",
+      "vatId": "USt-IdNr.",
+      "address": "Adresse",
+      "email": "E-Mail",
+      "notSet": "Nicht angegeben",
+      "edit": "Firmendaten bearbeiten",
+      "invoices": "Rechnungen",
+      "invoicesHint": "Rechnungen erscheinen hier, sobald Ihr Abonnement aktiv ist; Sie können sie herunterladen und Ihre Zahlungsmethode verwalten."
     }
   },
   "clients": {

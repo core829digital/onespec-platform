@@ -1,5 +1,6 @@
 import { Link } from "@/i18n/navigation";
 import { LEGAL_DOCS } from "@/content/legal";
+import { legalValue } from "@/content/legal-values";
 
 export function LegalFooter() {
   return (
@@ -17,11 +18,8 @@ export function LegalFooter() {
           ))}
         </nav>
         <p className="text-xs text-[var(--color-text-secondary)] mt-4">
-          © {new Date().getFullYear()} OneSpec — servizio gestito da{" "}
-          <mark className="rounded bg-amber-500/15 text-amber-600 dark:text-amber-400 px-1 py-0.5 font-medium">
-            da completare: ragione sociale
-          </mark>
-          .
+          © {new Date().getFullYear()} OneSpec
+          {legalValue("ragione sociale") ? ` — ${legalValue("ragione sociale")}` : ""}
         </p>
       </div>
     </footer>

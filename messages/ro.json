@@ -26,7 +26,19 @@
     "installations": "Montaj",
     "inspections": "Recepții",
     "passports": "Dosare QR",
-    "showroom": "Showroom"
+    "showroom": "Showroom",
+    "groups": {
+      "overview": "Prezentare",
+      "sales": "Vânzări",
+      "field": "Șantier",
+      "account": "Organizație"
+    },
+    "clients": "Clienți",
+    "cantieri": "Șantiere",
+    "team": "Echipă",
+    "billing": "Facturare",
+    "collapse": "Restrânge meniul",
+    "expand": "Extinde meniul"
   },
   "topbar": {
     "account": "Cont",
@@ -35,7 +47,8 @@
     "billing": "Plan & Facturare",
     "badge": "Insigna Alpha",
     "logout": "Deconectare",
-    "menu": "Meniu"
+    "menu": "Meniu",
+    "legal": "Legal"
   },
   "auth": {
     "login": {
@@ -413,6 +426,22 @@
     },
     "common": {
       "loading": "Se încarcă..."
+    },
+    "tabs": {
+      "plan": "Plan",
+      "billing": "Facturare"
+    },
+    "invoicing": {
+      "noSubscription": "Niciun abonament activ. Poți începe unul din fila Plan.",
+      "details": "Date de facturare",
+      "company": "Denumire companie",
+      "vatId": "CUI",
+      "address": "Adresă",
+      "email": "E-mail",
+      "notSet": "Nesetat",
+      "edit": "Modifică datele companiei",
+      "invoices": "Facturi",
+      "invoicesHint": "Facturile vor apărea aici odată ce abonamentul este activ; le vei putea descărca și îți vei putea gestiona metoda de plată."
     }
   },
   "clients": {

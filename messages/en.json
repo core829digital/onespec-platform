@@ -26,7 +26,19 @@
     "installations": "Installation (UNI 11673)",
     "inspections": "Inspections",
     "passports": "QR passports",
-    "showroom": "Showroom"
+    "showroom": "Showroom",
+    "groups": {
+      "overview": "Overview",
+      "sales": "Sales",
+      "field": "Field work",
+      "account": "Organization"
+    },
+    "clients": "Clients",
+    "cantieri": "Sites",
+    "team": "Team",
+    "billing": "Billing",
+    "collapse": "Collapse menu",
+    "expand": "Expand menu"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -86,7 +98,8 @@
     "billing": "Plan & Billing",
     "badge": "Alpha Badge",
     "logout": "Logout",
-    "menu": "Menu"
+    "menu": "Menu",
+    "legal": "Legal"
   },
   "auth": {
     "footer": "© 2026 onespec. All rights reserved.",
@@ -413,6 +426,22 @@
     },
     "common": {
       "loading": "Loading..."
+    },
+    "tabs": {
+      "plan": "Plan",
+      "billing": "Billing"
+    },
+    "invoicing": {
+      "noSubscription": "No active subscription. You can start one from the Plan tab.",
+      "details": "Billing details",
+      "company": "Company name",
+      "vatId": "VAT ID",
+      "address": "Address",
+      "email": "Email",
+      "notSet": "Not set",
+      "edit": "Edit company details",
+      "invoices": "Invoices",
+      "invoicesHint": "Invoices will appear here once your subscription is active; you will be able to download them and manage your payment method."
     }
   },
   "clients": {

@@ -8,9 +8,8 @@ import { api } from "@/convex/_generated/api";
 import type { Doc } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
-import { NAV_ITEMS, ADMIN_NAV_ITEM } from "./nav-items";
-
-const navItems = NAV_ITEMS;
+import { useSearchParams } from "next/navigation";
+import { NAV_GROUPS, ADMIN_NAV_ITEM, isNavItemActive, navHref, type NavGroup } from "./nav-items";
 
 export function MobileNav({
   tenant,
@@ -23,6 +22,7 @@ export function MobileNav({
 }) {
   const t = useTranslations("nav");
   const pathname = usePathname();
+  const params = useSearchParams();
   const viewer = useQuery(api.users.viewer);
   const isPlatformAdmin = viewer?.isPlatformAdmin === true;
 
@@ -46,7 +46,9 @@ export function MobileNav({
     };
   }, [open, onClose]);
 
-  const items = isPlatformAdmin ? [...navItems, ADMIN_NAV_ITEM] : navItems;
+  const groups: NavGroup[] = isPlatformAdmin
+    ? [...NAV_GROUPS, { key: "admin", items: [ADMIN_NAV_ITEM] }]
+    : NAV_GROUPS;
 
   return (
     <div
@@ -68,27 +70,38 @@ export function MobileNav({
           </button>
         </div>
         <p className="text-xs text-[var(--color-text-secondary)] mt-3 capitalize truncate">{tenant.name}</p>
-        <div className="flex-1 mt-3 space-y-1 overflow-y-auto">
-          {items.map((item) => {
-            const active = pathname === item.href || pathname.startsWith(item.href + "/");
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={onClose}
-                aria-current={active ? "page" : undefined}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium",
-                  active
-                    ? "bg-[var(--color-mint)]/10 text-[var(--color-mint)]"
-                    : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)]",
-                )}
-              >
-                <item.icon size={18} aria-hidden="true" />
-                <span>{t(item.label)}</span>
-              </Link>
-            );
-          })}
+        <div className="mt-3 flex-1 space-y-4 overflow-y-auto">
+          {groups.map((group) => (
+            <div key={group.key}>
+              {group.key !== "admin" ? (
+                <p className="mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
+                  {t(`groups.${group.key}`)}
+                </p>
+              ) : null}
+              <div className="space-y-1">
+                {group.items.map((item) => {
+                  const active = isNavItemActive(item, pathname, params);
+                  return (
+                    <Link
+                      key={item.label}
+                      href={navHref(item)}
+                      onClick={onClose}
+                      aria-current={active ? "page" : undefined}
+                      className={cn(
+                        "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium",
+                        active
+                          ? "bg-[var(--color-mint)]/10 text-[var(--color-mint)]"
+                          : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)]",
+                      )}
+                    >
+                      <item.icon size={18} aria-hidden="true" />
+                      <span>{t(item.label)}</span>
+                    </Link>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       </nav>
     </div>

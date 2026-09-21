@@ -26,7 +26,19 @@
     "installations": "Pose (DTU 36.5)",
     "inspections": "Réceptions",
     "passports": "Dossiers QR",
-    "showroom": "Showroom"
+    "showroom": "Showroom",
+    "groups": {
+      "overview": "Aperçu",
+      "sales": "Ventes",
+      "field": "Chantier",
+      "account": "Organisation"
+    },
+    "clients": "Clients",
+    "cantieri": "Chantiers",
+    "team": "Équipe",
+    "billing": "Facturation",
+    "collapse": "Réduire le menu",
+    "expand": "Développer le menu"
   },
   "topbar": {
     "account": "Compte",
@@ -35,7 +47,8 @@
     "billing": "Plan et facturation",
     "badge": "Badge Alpha",
     "logout": "Déconnexion",
-    "menu": "Menu"
+    "menu": "Menu",
+    "legal": "Mentions légales"
   },
   "auth": {
     "login": {
@@ -413,6 +426,22 @@
     },
     "common": {
       "loading": "Chargement..."
+    },
+    "tabs": {
+      "plan": "Offre",
+      "billing": "Facturation"
+    },
+    "invoicing": {
+      "noSubscription": "Aucun abonnement actif. Vous pouvez en démarrer un depuis l'onglet Offre.",
+      "details": "Informations de facturation",
+      "company": "Raison sociale",
+      "vatId": "N° de TVA",
+      "address": "Adresse",
+      "email": "E-mail",
+      "notSet": "Non renseigné",
+      "edit": "Modifier les données de l'entreprise",
+      "invoices": "Factures",
+      "invoicesHint": "Les factures apparaîtront ici dès que votre abonnement sera actif ; vous pourrez les télécharger et gérer votre moyen de paiement."
     }
   },
   "clients": {

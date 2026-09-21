@@ -1,4 +1,5 @@
 import type { LegalDoc } from "@/content/legal";
+import { legalValue } from "@/content/legal-values";
 
 /** Render a paragraph, turning every `[[…]]` token into a visible "to complete" chip. */
 function renderText(text: string, keyBase: string) {
@@ -6,6 +7,8 @@ function renderText(text: string, keyBase: string) {
   return parts.map((part, i) => {
     const m = part.match(/^\[\[([^\]]+)\]\]$/);
     if (m) {
+      const known = legalValue(m[1]);
+      if (known) return <span key={`${keyBase}-${i}`}>{known}</span>;
       return (
         <mark
           key={`${keyBase}-${i}`}
@@ -20,6 +23,9 @@ function renderText(text: string, keyBase: string) {
 }
 
 export function LegalDocView({ doc }: { doc: LegalDoc }) {
+  const hasOpenPlaceholders = doc.sections.some((sec) =>
+    sec.p.some((para) => [...para.matchAll(/\[\[([^\]]+)\]\]/g)].some((m) => !legalValue(m[1]))),
+  );
   return (
     <article className="max-w-2xl mx-auto py-10 px-5">
       <p className="text-xs uppercase tracking-wider text-[var(--color-text-secondary)] font-mono">
@@ -46,11 +52,13 @@ export function LegalDocView({ doc }: { doc: LegalDoc }) {
         ))}
       </div>
 
-      <p className="mt-10 text-xs text-[var(--color-text-secondary)] border-t border-[var(--color-border)] pt-4">
-        Le sezioni evidenziate in giallo richiedono l&apos;inserimento di dati reali
-        (identità della società, termini economici, riferimenti normativi) prima della
-        pubblicazione. OneSpec non dichiara certificazioni o dati non verificabili.
-      </p>
+      {hasOpenPlaceholders ? (
+        <p className="mt-10 text-xs text-[var(--color-text-secondary)] border-t border-[var(--color-border)] pt-4">
+          Le sezioni evidenziate in giallo richiedono l&apos;inserimento di dati reali
+          (identità della società, termini economici, riferimenti normativi) prima della
+          pubblicazione. OneSpec non dichiara certificazioni o dati non verificabili.
+        </p>
+      ) : null}
     </article>
   );
 }

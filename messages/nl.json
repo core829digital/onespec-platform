@@ -26,7 +26,19 @@
     "installations": "Montage (NPR 3577)",
     "inspections": "Opleveringen",
     "passports": "QR-dossiers",
-    "showroom": "Showroom"
+    "showroom": "Showroom",
+    "groups": {
+      "overview": "Overzicht",
+      "sales": "Verkoop",
+      "field": "Werf",
+      "account": "Organisatie"
+    },
+    "clients": "Klanten",
+    "cantieri": "Werven",
+    "team": "Team",
+    "billing": "Facturatie",
+    "collapse": "Menu inklappen",
+    "expand": "Menu uitklappen"
   },
   "topbar": {
     "account": "Account",
@@ -35,7 +47,8 @@
     "billing": "Plan & Facturatie",
     "badge": "Alpha-badge",
     "logout": "Afmelden",
-    "menu": "Menu"
+    "menu": "Menu",
+    "legal": "Juridisch"
   },
   "auth": {
     "login": {
@@ -413,6 +426,22 @@
     },
     "common": {
       "loading": "Laden..."
+    },
+    "tabs": {
+      "plan": "Abonnement",
+      "billing": "Facturatie"
+    },
+    "invoicing": {
+      "noSubscription": "Geen actief abonnement. Je kunt er een starten via het tabblad Abonnement.",
+      "details": "Factuurgegevens",
+      "company": "Bedrijfsnaam",
+      "vatId": "BTW-nummer",
+      "address": "Adres",
+      "email": "E-mail",
+      "notSet": "Niet ingesteld",
+      "edit": "Bedrijfsgegevens wijzigen",
+      "invoices": "Facturen",
+      "invoicesHint": "Facturen verschijnen hier zodra je abonnement actief is; je kunt ze downloaden en je betaalmethode beheren."
     }
   },
   "clients": {

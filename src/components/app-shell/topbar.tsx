@@ -1,7 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import { Menu, LogOut, User, ChevronDown } from "lucide-react";
+import { Menu, LogOut, User, ChevronDown, Scale } from "lucide-react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { NotificationBell } from "./notification-bell";
 import { AlphaFeedbackButton } from "./alpha-feedback-modal";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { LEGAL_DOCS } from "@/content/legal";
 
 export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const t = useTranslations("topbar");
@@ -34,6 +35,23 @@ export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
       <div className="flex items-center gap-3">
         <AlphaFeedbackButton />
         <NotificationBell />
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="flex items-center gap-2 px-3 py-1.5" aria-label={t("legal")}>
+              <Scale size={18} />
+              <span className="hidden md:block text-sm font-medium text-[var(--color-text)]">{t("legal")}</span>
+              <ChevronDown size={14} />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-64">
+            {LEGAL_DOCS.map((d) => (
+              <DropdownMenuItem key={d.slug} asChild>
+                <Link href={`/legal/${d.slug}`} className="flex w-full">{d.title}</Link>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

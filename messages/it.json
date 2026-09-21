@@ -26,7 +26,19 @@
     "installations": "Posa UNI 11673",
     "inspections": "Collaudi",
     "passports": "Fascicoli QR",
-    "showroom": "Showroom"
+    "showroom": "Showroom",
+    "groups": {
+      "overview": "Panoramica",
+      "sales": "Vendite",
+      "field": "Cantiere",
+      "account": "Organizzazione"
+    },
+    "clients": "Clienti",
+    "cantieri": "Cantieri",
+    "team": "Team",
+    "billing": "Fatturazione",
+    "collapse": "Comprimi il menu",
+    "expand": "Espandi il menu"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -86,7 +98,8 @@
     "billing": "Piano e fatturazione",
     "badge": "Badge Alpha",
     "logout": "Esci",
-    "menu": "Menu"
+    "menu": "Menu",
+    "legal": "Legale"
   },
   "auth": {
     "footer": "© 2026 onespec. Tutti i diritti riservati.",
@@ -413,6 +426,22 @@
     },
     "common": {
       "loading": "Caricamento..."
+    },
+    "tabs": {
+      "plan": "Piano",
+      "billing": "Fatturazione"
+    },
+    "invoicing": {
+      "noSubscription": "Nessun abbonamento attivo. Puoi attivarne uno dalla scheda Piano.",
+      "details": "Dati di fatturazione",
+      "company": "Ragione sociale",
+      "vatId": "Partita IVA",
+      "address": "Indirizzo",
+      "email": "Email",
+      "notSet": "Non impostato",
+      "edit": "Modifica i dati azienda",
+      "invoices": "Fatture",
+      "invoicesHint": "Le fatture compariranno qui non appena l'abbonamento sarà attivo; potrai scaricarle e gestire il metodo di pagamento."
     }
   },
   "clients": {
