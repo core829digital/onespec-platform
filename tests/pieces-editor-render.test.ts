@@ -38,8 +38,12 @@ const payload = {
 
 function render(locale: "it" | "en", items = [defaultItem(payload, "finestra2")]) {
   return renderToString(
-    h(NextIntlClientProvider, { locale, messages: locale === "it" ? it : en, onError: () => undefined },
-      h(PiecesEditor, { payload, locale, items, onChange: () => undefined, activeIndex: 0, onActiveChange: () => undefined })),
+    h(NextIntlClientProvider, {
+      locale,
+      messages: locale === "it" ? it : en,
+      onError: () => undefined,
+      children: h(PiecesEditor, { payload, locale, items, onChange: () => undefined, activeIndex: 0, onActiveChange: () => undefined }),
+    } as unknown as Parameters<typeof NextIntlClientProvider>[0]),
   ).replace(/<!-- -->/g, "");
 }
 
