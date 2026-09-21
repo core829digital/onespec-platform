@@ -34,6 +34,7 @@ import type * as inspections from "../inspections.js";
 import type * as installations from "../installations.js";
 import type * as lib_auth from "../lib/auth.js";
 import type * as lib_billingPlans from "../lib/billingPlans.js";
+import type * as lib_catalogExtras from "../lib/catalogExtras.js";
 import type * as lib_compliance from "../lib/compliance.js";
 import type * as lib_configResolution from "../lib/configResolution.js";
 import type * as lib_csv from "../lib/csv.js";
@@ -93,6 +94,7 @@ declare const fullApi: ApiFromModules<{
   installations: typeof installations;
   "lib/auth": typeof lib_auth;
   "lib/billingPlans": typeof lib_billingPlans;
+  "lib/catalogExtras": typeof lib_catalogExtras;
   "lib/compliance": typeof lib_compliance;
   "lib/configResolution": typeof lib_configResolution;
   "lib/csv": typeof lib_csv;
