@@ -13,11 +13,9 @@ import type { Doc } from "../_generated/dataModel";
  *   Enterprise— showroom/distributor back-office: multi-supplier, API/CRM,
  *               GAEB export, custom domain, no public storefront
  *   Showroom  — Enterprise + in-app 3-zone showroom calculator + public B2C widget
- *   Alpha     — RETIRED. Kept only until `migrations:retireAlpha` has run in prod
- *               (Pro + white-label + advanced analytics); then removed.
  */
 
-export type PlanKey = "starter" | "pro" | "enterprise" | "showroom" | "alpha";
+export type PlanKey = "starter" | "pro" | "enterprise" | "showroom";
 
 export type SupportTier = "email" | "priority" | "dedicated";
 
@@ -156,19 +154,11 @@ const SHOWROOM: Entitlements = {
   publicWidget: true,
 };
 
-const ALPHA: Entitlements = {
-  ...PRO,
-  analytics: "advanced",
-  whiteLabel: true,
-  multiSupplierAggregator: true,
-};
-
 const PLAN_ENTITLEMENTS: Record<PlanKey, Entitlements> = {
   starter: STARTER,
   pro: PRO,
   enterprise: ENTERPRISE,
   showroom: SHOWROOM,
-  alpha: ALPHA,
 };
 
 export function entitlementsFor(plan: string): Entitlements {

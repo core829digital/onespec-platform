@@ -23,10 +23,9 @@ let slugCounter = 0;
 
 export async function seedTenant(
   t: T,
-  opts: { plan?: "starter" | "business" | "pro" | "enterprise" | "showroom" | "alpha"; isAlpha?: boolean } = {},
+  opts: { plan?: "starter" | "business" | "pro" | "enterprise" | "showroom" } = {},
 ): Promise<SeededTenant> {
   const plan = opts.plan ?? "starter";
-  const isAlpha = opts.isAlpha ?? plan === "alpha";
   return t.run(async (ctx) => {
     const mkUser = (name: string) =>
       ctx.db.insert("users", {
@@ -42,11 +41,9 @@ export async function seedTenant(
       name: `Tenant ${slugCounter}`,
       slug: `tenant-${slugCounter++}-${Date.now()}`,
       ownerUserId: ownerId,
-      isAlpha,
-      plan: plan as "alpha" | "starter" | "pro" | "enterprise" | "showroom",
+      plan: plan as "starter" | "pro" | "enterprise" | "showroom",
       planStatus: "active",
-      alphaDiscountLocked: isAlpha,
-      createdVia: isAlpha ? "alpha_signup" : "open_signup",
+      createdVia: "open_signup",
       createdAt: Date.now(),
     });
 

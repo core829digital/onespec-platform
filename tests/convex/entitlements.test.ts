@@ -52,11 +52,9 @@ describe("entitlement matrix matches the verified pricing page", () => {
     expect(e.apiAccess).toBe(true);
     expect(e.bulkImportMultiSite).toBe(true);
   });
-  test("alpha (retired, transitional until migrated) = pro + white-label + advanced analytics", () => {
-    const e = entitlementsFor("alpha");
-    expect(e.maxConfigurators).toBe(3);
-    expect(e.whiteLabel).toBe(true);
-    expect(e.analytics).toBe("advanced");
+  test("the retired alpha key falls back to starter", () => {
+    expect(entitlementsFor("alpha").maxConfigurators).toBe(1);
+    expect(entitlementsFor("alpha").whiteLabel).toBe(false);
   });
   test("unknown plan falls back to starter", () => {
     expect(entitlementsFor("nope").maxConfigurators).toBe(1);
@@ -64,10 +62,6 @@ describe("entitlement matrix matches the verified pricing page", () => {
 });
 
 describe("resolveTenantEntitlements", () => {
-  test("the legacy isAlpha flag no longer grants anything by itself", () => {
-    const tenant = { plan: "starter", isAlpha: true } as Doc<"tenants">;
-    expect(resolveTenantEntitlements(tenant).whiteLabel).toBe(false);
-  });
   test("a starter tenant does not get white-label", () => {
     const tenant = { plan: "starter" } as Doc<"tenants">;
     expect(resolveTenantEntitlements(tenant).whiteLabel).toBe(false);

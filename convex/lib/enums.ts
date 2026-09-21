@@ -1,4 +1,4 @@
-export const PLAN_TIERS = ["starter", "pro", "enterprise", "showroom", "alpha"] as const;
+export const PLAN_TIERS = ["starter", "pro", "enterprise", "showroom"] as const;
 export type PlanTier = (typeof PLAN_TIERS)[number];
 
 /** Pre-migration rows still carry plan:"business" (deploy #1). Resolves to Pro. */

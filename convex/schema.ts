@@ -22,18 +22,13 @@ export default defineSchema({
     slug: v.string(),
     ownerUserId: v.id("users"),
     country: v.optional(v.string()),
-    /** @deprecated Alpha retired — kept optional until `migrations:retireAlpha` has run in prod. */
-    isAlpha: v.optional(v.boolean()),
-    alphaSeatNumber: v.optional(v.number()),
-    plan: v.union(v.literal("alpha"), v.literal("starter"),
+    plan: v.union(v.literal("starter"),
                   v.literal("pro"), v.literal("enterprise"), v.literal("showroom")),
     planStatus: v.union(v.literal("active"), v.literal("trialing"),
                         v.literal("past_due"), v.literal("suspended")),
-    alphaDiscountLocked: v.optional(v.boolean()),
     suspendedAt: v.optional(v.number()),
     suspendedReason: v.optional(v.string()),
-    createdVia: v.union(v.literal("alpha_signup"), v.literal("open_signup"),
-                        v.literal("admin_created")),
+    createdVia: v.union(v.literal("open_signup"), v.literal("admin_created")),
     createdAt: v.optional(v.number()),
     updatedAt: v.optional(v.number()),
     updatedByUserId: v.optional(v.id("users")),
@@ -64,7 +59,6 @@ export default defineSchema({
   })
     .index("by_slug", ["slug"])
     .index("by_owner", ["ownerUserId"])
-    .index("by_alphaSeatNumber", ["alphaSeatNumber"])
     .index("by_stripeCustomer", ["stripeCustomerId"])
     .index("by_planStatus", ["planStatus"])
     .index("by_plan", ["plan"]),
@@ -103,21 +97,9 @@ export default defineSchema({
     .index("by_tenant", ["tenantId"])
     .index("by_email", ["email"]),
 
-  alphaSeats: defineTable({
-    seatNumber: v.number(),
-    tenantId: v.id("tenants"),
-    userId: v.id("users"),
-    claimedAt: v.number(),
-    email: v.string(),
-  })
-    .index("by_seatNumber", ["seatNumber"])
-    .index("by_tenant", ["tenantId"]),
-
   appSettings: defineTable({
     key: v.literal("global"),
     registrationOpen: v.boolean(),
-    alphaSeatCap: v.optional(v.number()),
-    alphaSeatsClaimed: v.optional(v.number()),
     maintenanceBanner: v.optional(v.string()),
     resendMode: v.union(v.literal("live"), v.literal("noop")),
     updatedByUserId: v.optional(v.id("users")),
