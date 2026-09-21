@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PIECE_CATEGORIES } from "./configurator-model";
 
 /** Structural limits enforced on BOTH client preview and server. */
 export const DIM_ABS_MAX = 6000; // mm — hard ceiling for any single element
@@ -8,6 +9,19 @@ export const SINGLE_SASH_MAX_HEIGHT = 2800; // mm
 export const ProjectItemSchema = z
   .object({
     productType: z.enum(["window", "balconyDoor"]),
+    category: z.enum(PIECE_CATEGORIES).optional(),
+    frameType: z.string().max(40).optional(),
+    accessories: z
+      .object({
+        zanz: z.string().max(40).optional(),
+        cass: z.string().max(40).optional(),
+        avv: z.string().max(40).optional(),
+        pers: z.string().max(40).optional(),
+        width: z.number().int().min(100).max(DIM_ABS_MAX).optional(),
+        height: z.number().int().min(100).max(DIM_ABS_MAX).optional(),
+      })
+      .optional(),
+    notes: z.string().max(500).optional(),
     material: z.string().min(1).max(40),
     quality: z.record(z.string().max(40)),
     profileSystem: z.string().max(40).optional(),
@@ -17,9 +31,10 @@ export const ProjectItemSchema = z
     sashes: z
       .array(
         z.object({
-          type: z.enum(["fix", "classic", "tiltturn", "sliding"]),
+          type: z.enum(["fix", "classic", "tiltturn", "tilt", "sliding", "liftslide"]),
           direction: z.enum(["left", "right"]),
           active: z.boolean(),
+          main: z.boolean().optional(),
           hardware: z.string().max(40),
           hardwareColor: z.string().max(40),
           widthRatio: z.number().positive().max(1).optional(),
@@ -27,7 +42,7 @@ export const ProjectItemSchema = z
         }),
       )
       .min(1)
-      .max(4),
+      .max(6),
     glazing: z.string().min(1).max(40),
     color: z.string().min(1).max(40),
     insectScreen: z.boolean(),

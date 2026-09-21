@@ -99,7 +99,7 @@ test("DPA PDF renders unsigned and signed, with pagination", async () => {
   const controller = { name: "Acme Serramenti Srl", vatId: "IT01234567890", address: "Via Roma 1, Prato", email: "info@acme.it" };
   for (const acceptance of [null, { signerName: "Mario Rossi", signerRole: "Legale rappresentante", acceptedAt: 1_700_000_000_000 }]) {
     const buf = await renderToBuffer(
-      h(DpaPDF, { doc: buildDpa(controller), version: DPA_VERSION, controller, acceptance, locale: "it-IT", generatedAt: 1 }),
+      h(DpaPDF, { doc: buildDpa(controller), version: DPA_VERSION, controller, acceptance, locale: "it-IT", generatedAt: 1 }) as unknown as Parameters<typeof renderToBuffer>[0],
     );
     expect(buf.subarray(0, 4).toString()).toBe("%PDF");
     expect(buf.length).toBeGreaterThan(5000);

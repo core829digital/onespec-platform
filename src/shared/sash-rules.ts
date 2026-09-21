@@ -103,7 +103,8 @@ export function sashTypeAllowedWith(
   const others = siblings.filter(Boolean);
   const hasSliding = others.includes("sliding");
   const hasLiftSlide = others.includes("liftslide");
-  const hasHinged = others.some((t) => t !== "sliding" && t !== "liftslide");
+  // A fixed leaf never moves, so it sits next to any system.
+  const hasHinged = others.some((t) => t !== "sliding" && t !== "liftslide" && t !== "fix");
 
   if (candidate === "sliding") {
     if (hasHinged || hasLiftSlide) {

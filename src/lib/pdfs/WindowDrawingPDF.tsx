@@ -17,7 +17,7 @@ const FINISH_COLORS: Record<string, { stroke: string; fill: string }> = {
 };
 
 export interface DrawingSash {
-  type: "fix" | "classic" | "tiltturn" | "sliding";
+  type: "fix" | "classic" | "tiltturn" | "tilt" | "sliding" | "liftslide";
   direction: "left" | "right";
   active: boolean;
   widthRatio?: number;
@@ -89,6 +89,13 @@ export function WindowDrawingPDF({
           parts.push(
             <Line key="hatch" x1={sx + 6} y1={rectY + rectH - 6} x2={sx2 - 6} y2={rectY + 6} stroke="#8A9492" strokeWidth={1} />,
           );
+        } else if (sash.type === "tilt") {
+          const by = rectY + rectH - 10;
+          const cx = sx + sashW / 2;
+          parts.push(
+            <Line key="t1" x1={sx + 8} y1={by} x2={cx} y2={rectY + 8} stroke={palette.stroke} strokeWidth={2} />,
+            <Line key="t2" x1={sx2 - 8} y1={by} x2={cx} y2={rectY + 8} stroke={palette.stroke} strokeWidth={2} />,
+          );
         } else if (sash.type === "classic" || sash.type === "tiltturn") {
           const apexX = sash.direction === "left" ? sx2 - 6 : sx + 6;
           const farX = sash.direction === "left" ? sx + 6 : sx2 - 6;
@@ -104,7 +111,7 @@ export function WindowDrawingPDF({
               <Line key="tt2" x1={cx + 9} y1={by} x2={cx} y2={by - 10} stroke={palette.stroke} strokeWidth={2.2} />,
             );
           }
-        } else if (sash.type === "sliding") {
+        } else if (sash.type === "sliding" || sash.type === "liftslide") {
           const shaftX1 = sx + 10;
           const shaftX2 = sx2 - 10;
           const tipX = sash.direction === "left" ? shaftX2 : shaftX1;
