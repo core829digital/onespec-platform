@@ -315,7 +315,7 @@
       "configuratorLabel": "Configuratore / Listino prezzi (condiviso col widget B2C del sito)",
       "editCatalog": "Modifica listino →",
       "pricesAligned": "Prezzi allineati al listino pubblicato: quello che vede il cliente finale nel widget = quello che calcoli qui.",
-      "loadingCatalog": "Caricamento listino pubblicato…",
+      "loadingCatalog": "Caricamento del listino pubblicato…",
       "createQuoteError": "Errore durante la creazione del preventivo",
       "customerSite": "Cliente & Cantiere ({country})",
       "fullNameLabel": "Nome e Cognome / Client *",
@@ -365,7 +365,11 @@
       "generating": "Generazione in corso…",
       "publishConfigFirst": "Pubblica un configuratore per continuare",
       "proceedToSign": "Procedi alla Firma Touch ({country}) ✍️",
-      "fromShowroom": "Importati {count} serramenti dal preventivo showroom: completa cliente, misure di dettaglio e opzioni."
+      "fromShowroom": "Importati {count} serramenti dal preventivo showroom: completa cliente, misure di dettaglio e opzioni.",
+      "noCatalog": "Nessun listino pubblicato: crea e pubblica un configuratore dalla pagina Configuratori.",
+      "fixPieces": "Correggi i pezzi evidenziati prima di salvare il preventivo.",
+      "autoInstall": "Calcola dal telaio",
+      "autoInstallHint": "Posa, ponteggio e smaltimento secondo il telaio scelto e il numero di ante."
     }
   },
   "billing": {
@@ -759,5 +763,45 @@
     "gateCta": "Leggi e accetta",
     "signOut": "Esci",
     "memberBanner": "Il titolare dell'organizzazione deve ancora accettare l'accordo sul trattamento dei dati (DPA)."
+  },
+  "pieces": {
+    "addPiece": "Aggiungi pezzo",
+    "lotFrame": "Telaio / controtelaio",
+    "lotFrameHint": "si applica a tutto il lotto",
+    "empty": "Aggiungi un primo pezzo scegliendo la tipologia.",
+    "position": "Pos. {n}",
+    "moveUp": "Sposta su",
+    "moveDown": "Sposta giù",
+    "duplicate": "Duplica",
+    "remove": "Elimina",
+    "category": "Tipologia",
+    "resetLeaves": "Ripristina ante della tipologia",
+    "width": "Larghezza (mm)",
+    "height": "Altezza (mm)",
+    "quantity": "Quantità",
+    "material": "Materiale",
+    "quality": "Qualità",
+    "profile": "Profilo / serie",
+    "groupValue": "Best value",
+    "groupPremium": "Top di gamma",
+    "glazing": "Vetro",
+    "finish": "Colore / finitura",
+    "accessories": "Accessori",
+    "accessoryWidth": "Larghezza accessorio (mm)",
+    "accessoryHeight": "Altezza accessorio (mm)",
+    "none": "Nessuno",
+    "notes": "Osservazioni",
+    "notesPlaceholder": "Es. senza zanzariera, soglia in alluminio, posa al piano 3…",
+    "drawingLabel": "Disegno tecnico {width}×{height} mm",
+    "addLeaf": "Anta",
+    "removeLeaf": "Anta",
+    "minHint": "Minimi: anta-ribalta {w}×{h} mm",
+    "issue": {
+      "size": "{axis} fuori limite ({min}–{max} mm).",
+      "singleLeafMax": "Con una sola anta {axis} massima {max} mm: aggiungi un'anta.",
+      "leafWidth": "Anta {leaf}: larghezza {got} mm sotto il minimo di {min} mm.",
+      "leafHeight": "Anta {leaf}: altezza {got} mm sotto il minimo di {min} mm.",
+      "unknownKey": "Valore «{key}» ({field}) non presente nel listino pubblicato."
+    }
   }
 }

@@ -6,23 +6,21 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
-import { useTranslations } from "next-intl";
-import { SpecDrawing } from "@/components/widget/spec-drawing";
+import { useLocale, useTranslations } from "next-intl";
 import { takeShowroomHandoff } from "@/lib/showroom-handoff";
 import { ClientCantierePicker, type PickedLinks } from "@/components/app-shell/client-cantiere-picker";
-import { SashEditor } from "@/components/quotes/sash-editor";
-import { SashPanel } from "@/components/quotes/sash-panel";
+import { PiecesEditor } from "@/components/quotes/editor/pieces-editor";
+import { defaultItem } from "@/shared/item-defaults";
+import { blockingIssues, pieceIssues } from "@/shared/piece-ops";
 import { MultiSupplierTable, type SupplierItem } from "@/components/quotes/MultiSupplierTable";
 import {
   calculatePrice,
-  computeUw,
   computeOverallUw,
+  computeInstallation,
   REGION_FLAT_OPTION_KINDS,
   type ProjectItem,
   type CatalogPayload,
 } from "@/shared/pricing";
-import type { Sash } from "@/components/widget/widget-pricing";
-import type { EditorSash } from "@/shared/sash-rules";
 
 const REGION_OPTION_LABELS: Record<string, string> = {
   poseType: "Tipo di posa",
@@ -39,8 +37,22 @@ const REGION_OPTION_LABELS: Record<string, string> = {
   montageSystem: "Sistema di montaggio",
 };
 import type { Doc, Id } from "@/convex/_generated/dataModel";
-import type { Material } from "@/components/widget/widget-pricing";
 import { useFriendlyError } from "@/lib/use-friendly-error";
+
+const EMPTY_PAYLOAD = {
+  configurator: { publicId: "draft", name: "", defaultLocale: "it", defaultTheme: "auto", vatRatePercent: 22, priceRoundingStep: 1, showPricesToEndUser: true, currency: "EUR" },
+  branding: null,
+  materials: [],
+  qualityTiers: [],
+  profileSystems: [],
+  sizeConstraints: [],
+  glazing: [],
+  finish: [],
+  hardware: [],
+  frameTypes: [],
+  accessories: [],
+  productBase: [],
+} as unknown as CatalogPayload;
 
 type ConfiguratorDoc = Doc<"configurators">;
 type RegionCode = "IT" | "FR" | "BE" | "NL" | "DE" | "LU";
@@ -215,29 +227,10 @@ export default function NewFieldQuotePage() {
   const [rcSecurityLevel, setRcSecurityLevel] = useState("RC2");
   const [klimabonusEligible, setKlimabonusEligible] = useState(true);
 
-  // Items state (start with 1 standard window)
-  const [items, setItems] = useState<ProjectItem[]>([
-    {
-      productType: "window",
-      material: "pvc",
-      quality: { pvc: "chamber5" },
-      profileSystem: "standard",
-      width: 1200,
-      height: 1400,
-      quantity: 1,
-      sashes: [
-        { type: "fix", direction: "right", active: true, hardware: "maco", hardwareColor: "white" },
-        { type: "tiltturn", direction: "right", active: true, hardware: "maco", hardwareColor: "white" },
-      ],
-      glazing: "double",
-      color: "white",
-      insectScreen: false,
-      notes: "",
-    },
-  ]);
+  // Pieces: null until the dealer edits them, then the seed (built from the published catalogue) is replaced.
+  const [itemsState, setItems] = useState<ProjectItem[] | null>(null);
 
   const [activeItemIndex, setActiveItemIndex] = useState(0);
-  const [activeSashIndex, setActiveSashIndex] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
@@ -252,36 +245,6 @@ export default function NewFieldQuotePage() {
     [supplierData],
   );
 
-  function setSashCount(count: number) {
-    const n = Math.min(Math.max(Math.round(count), 1), 6);
-    setItems((prev) => {
-      const item = prev[activeItemIndex];
-      if (!item) return prev;
-      const next = [...prev];
-      const currentCount = item.sashes.length;
-      let sashes: EditorSash[] = [...item.sashes] as EditorSash[];
-      if (n > currentCount) {
-        for (let i = currentCount; i < n; i++) {
-          sashes.push({
-            type: "tiltturn",
-            direction: i % 2 === 0 ? "right" : "left",
-            active: true,
-            hardware: "maco",
-            hardwareColor: "white",
-            widthRatio: 1 / n,
-            handleHeightMm: Math.round(currentItem.height / 2),
-            main: i === 0,
-          });
-        }
-      } else if (n < currentCount) {
-        sashes = sashes.slice(0, n);
-      }
-      next[activeItemIndex] = { ...item, sashes: sashes as any };
-      return next;
-    });
-    setActiveSashIndex(n > 0 ? 0 : null);
-  }
-
   const activeConfig = publishedConfigs.find(
     (c: ConfiguratorDoc) => c._id === (selectedConfigId || publishedConfigs[0]?._id),
   );
@@ -295,8 +258,6 @@ export default function NewFieldQuotePage() {
 
   const createFieldQuote = useMutation(api.quotes.createFieldQuote);
   const createQuoteWithSuppliers = useMutation(api.quotes.createQuoteWithSuppliers);
-
-  const currentItem = items[activeItemIndex] || items[0];
 
   function handleRegionChange(newRegion: RegionCode) {
     setRegionCode(newRegion);
@@ -346,127 +307,26 @@ export default function NewFieldQuotePage() {
       })) as ProjectItem[],
     );
     setActiveItemIndex(0);
-    setActiveSashIndex(null);
     setEcobonusPercent(h.isEnergyRenovation && h.regionCode === "IT" ? 50 : 0);
     setFromShowroom(h.items.length);
     }, 0);
     return () => clearTimeout(id);
   }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // The dealer's own published catalogue is the only source of prices and choices — the
+  // same one the embeddable widget uses. Without one there is nothing to price.
+  const livePayload = publishedCatalog?.payload as CatalogPayload | undefined;
+  const effectivePayload: CatalogPayload = livePayload ?? EMPTY_PAYLOAD;
+  const usingLiveCatalog = livePayload !== undefined;
+  const seedItems = useMemo(() => (livePayload ? [defaultItem(livePayload, "finestra2")] : []), [livePayload]);
+  const items = itemsState ?? seedItems;
+  const currentItem = items[activeItemIndex] || items[0];
+
   function updateCurrentItem(patch: Partial<ProjectItem>) {
-    setItems((prev) => {
-      const next = [...prev];
-      next[activeItemIndex] = { ...next[activeItemIndex], ...patch };
-      return next;
-    });
+    setItems((itemsState ?? seedItems).map((it, i) => (i === activeItemIndex ? { ...it, ...patch } : it)));
   }
+  const locale = useLocale();
 
-  // Divider drag on the blueprint — rebalance two adjacent leaves (ONESPEC-V2).
-  function resizeSash(dividerIndex: number, leftRatio: number) {
-    setItems((prev) => {
-      const next = [...prev];
-      const item = next[activeItemIndex];
-      const sashes = item.sashes.map((s) => {
-        const r = typeof s.widthRatio === "number" && s.widthRatio > 0 ? s.widthRatio : 1 / item.sashes.length;
-        return { ...s, widthRatio: r };
-      });
-      const pair = sashes[dividerIndex].widthRatio! + sashes[dividerIndex + 1].widthRatio!;
-      sashes[dividerIndex].widthRatio = Math.max(0.05, Math.min(pair - 0.05, leftRatio));
-      sashes[dividerIndex + 1].widthRatio = pair - sashes[dividerIndex].widthRatio!;
-      next[activeItemIndex] = { ...item, sashes };
-      return next;
-    });
-  }
-
-  function addItem() {
-    const newItem: ProjectItem = {
-      productType: "window",
-      material: currentItem.material || "pvc",
-      quality: { pvc: "chamber5" },
-      profileSystem: "standard",
-      width: 1000,
-      height: 1200,
-      quantity: 1,
-      sashes: [
-        { type: "tiltturn", direction: "right", active: true, hardware: "maco", hardwareColor: "white" },
-      ],
-      glazing: regionCode === "DE" ? "triple" : "double",
-      color: "white",
-      insectScreen: false,
-      notes: "",
-    };
-    setItems((prev) => [...prev, newItem]);
-    setActiveItemIndex(items.length);
-  }
-
-  function removeItem(index: number) {
-    if (items.length <= 1) return;
-    setItems((prev) => prev.filter((_, i) => i !== index));
-    setActiveItemIndex(Math.max(0, index - 1));
-  }
-
-  // Live price calculation
-  const mockPayload: CatalogPayload = {
-    configurator: {
-      publicId: activeConfig?.publicId || "draft",
-      name: activeConfig?.name || "Configuratore",
-      defaultLocale: REGION_CONFIGS[regionCode].defaultLocale,
-      defaultTheme: "auto",
-      vatRatePercent,
-      priceRoundingStep: 1,
-      showPricesToEndUser: true,
-      currency: "EUR",
-    },
-    branding: {
-      whiteLabel: true,
-      colorAccent: "#16d19d",
-      colorAccentInk: "#042f24",
-      fontFamily: "geist",
-      copy: {},
-      companyInfo: { name: tenant?.name || "Serramenti" },
-    },
-    materials: [
-      { key: "pvc", labels: { it: "PVC Alta Densità", fr: "PVC Haute Densité", de: "PVC Kunststoff", nl: "PVC Kunststof" }, basePerM2Cents: 18000, profilePerMlCents: 2800, sortOrder: 1, enabled: true },
-      { key: "alu", labels: { it: "Alluminio Taglio Termico", fr: "Aluminium Rupture Thermique", de: "Aluminium Thermisch getrennt", nl: "Aluminium Thermisch onderbroken" }, basePerM2Cents: 26000, profilePerMlCents: 3800, sortOrder: 2, enabled: true },
-      { key: "wood", labels: { it: "Legno Massello Lamellare", fr: "Bois Lamellé Collé", de: "Holz Lamelliert", nl: "Hout Gelamineerd" }, basePerM2Cents: 32000, profilePerMlCents: 4500, sortOrder: 3, enabled: true },
-    ],
-    qualityTiers: [
-      { materialKey: "pvc", key: "chamber5", labels: { it: "70mm 5 Camere", fr: "70mm 5 Chambres", de: "70mm 5-Kammer", nl: "70mm 5-Kamer" }, multiplier: 1.0, uAdjust: 0, sortOrder: 1, enabled: true },
-      { materialKey: "pvc", key: "chamber7", labels: { it: "82mm 7 Camere Triplo Vetro", fr: "82mm 7 Chambres Triple Vitrage", de: "82mm 7-Kammer 3-fach", nl: "82mm 7-Kamer Drievoudig" }, multiplier: 1.35, uAdjust: -0.3, sortOrder: 2, enabled: true },
-      { materialKey: "alu", key: "standard", labels: { it: "Taglio Termico 65mm", fr: "Rupture Thermique 65mm", de: "Thermoschnitt 65mm", nl: "Thermische Onderbreking 65mm" }, multiplier: 1.0, uAdjust: 0, sortOrder: 1, enabled: true },
-      { materialKey: "wood", key: "standard", labels: { it: "Legno Lamellare 68mm", fr: "Bois 68mm", de: "Holz 68mm", nl: "Hout 68mm" }, multiplier: 1.0, uAdjust: 0, sortOrder: 1, enabled: true },
-    ],
-    profileSystems: [
-      { materialKey: "pvc", key: "standard", labels: { it: "Standard", fr: "Standard", de: "Standard", nl: "Standaard" }, multiplier: 1.0, sortOrder: 1, enabled: true },
-      { materialKey: "pvc", key: "premium", labels: { it: "Schüco / Aluplast / Kömmerling", fr: "Schüco / Aluplast", de: "Schüco / Aluplast / Kömmerling", nl: "K-Vision / Gealan" }, multiplier: 1.25, sortOrder: 2, enabled: true },
-    ],
-    sizeConstraints: [],
-    glazing: [
-      { key: "double", labels: { it: "Doppio Vetro Basso Emissivo (Ug 1.1)", fr: "Double Vitrage FE (Ug 1.1)", de: "2-fach Isolierglas (Ug 1.1)", nl: "HR++ Dubbel Glas (Ug 1.1)" }, priceCents: 0, uGlass: 1.1, sortOrder: 1, enabled: true },
-      { key: "triple", labels: { it: "Triplo Vetro Termico (Ug 0.6)", fr: "Triple Vitrage Thermique (Ug 0.6)", de: "3-fach Wärmeschutzglas (Ug 0.6)", nl: "HR+++ Drievoudig Glas (Ug 0.6)" }, priceCents: 6500, uGlass: 0.6, sortOrder: 2, enabled: true },
-    ],
-    finish: [
-      { key: "white", labels: { it: "Bianco Massa RAL 9016", fr: "Blanc Masse RAL 9016", de: "Verkehrsweiß RAL 9016", nl: "Crèmewit / Wit RAL 9001/9016" }, priceCents: 0, swatchHex: "#ffffff", sortOrder: 1, enabled: true },
-      { key: "anthracite", labels: { it: "Grigio Antracite RAL 7016", fr: "Gris Anthracite RAL 7016", de: "Anthrazitgrau RAL 7016", nl: "Antraciet RAL 7016" }, priceCents: 3500, swatchHex: "#373e48", sortOrder: 2, enabled: true },
-      { key: "woodgrain", labels: { it: "Noce / Rovere", fr: "Chêne Doré / Noyer", de: "Golden Oak / Nussbaum", nl: "Monumentengroen / Houtnerf RAL 6009" }, priceCents: 5500, swatchHex: "#6d4c41", sortOrder: 3, enabled: true },
-    ],
-    hardware: [
-      { kind: "sashType", key: "fix", labels: { it: "Fisso", fr: "Fixe", de: "Festverglasung", nl: "Vast glas" }, priceCents: 0, appliesToOperableOnly: false, sortOrder: 1, enabled: true },
-      { kind: "sashType", key: "tiltturn", labels: { it: "Antaribalta (Vasistas)", fr: "Oscillo-battant", de: "Dreh-Kipp", nl: "Draai-kiep" }, priceCents: 4500, appliesToOperableOnly: true, sortOrder: 2, enabled: true },
-      { kind: "sashType", key: "classic", labels: { it: "Battente", fr: "Ouvrant à la française", de: "Drehflügel", nl: "Draaivleugel" }, priceCents: 2000, appliesToOperableOnly: true, sortOrder: 3, enabled: true },
-      { kind: "hardware", key: "maco", labels: { it: "Maco / Siegenia / Winkhaus" }, priceCents: 0, appliesToOperableOnly: true, sortOrder: 1, enabled: true },
-      { kind: "hardwareColor", key: "white", labels: { it: "Standard" }, priceCents: 0, appliesToOperableOnly: true, sortOrder: 1, enabled: true },
-      { kind: "screen", key: "molla", labels: { it: "Zanzariera", fr: "Moustiquaire", de: "Insektenschutz", nl: "Hor" }, priceCents: 7500, appliesToOperableOnly: true, sortOrder: 1, enabled: true },
-    ],
-  };
-
-  // Live published catalog wins; the hard-coded catalog is only a visual demo
-  // shown until the dealer publishes a real configurator.
-  const effectivePayload: CatalogPayload =
-    (publishedCatalog?.payload as CatalogPayload | undefined) ?? mockPayload;
-  const usingLiveCatalog = Boolean(publishedCatalog?.payload);
-
-  const itemUw = usingLiveCatalog && currentItem ? computeUw(effectivePayload, currentItem) : 0;
   const overallUw = usingLiveCatalog ? computeOverallUw(effectivePayload, items) : 0;
 
   // Catalog-driven regional options — the SAME rows the B2C widget renders, so a
@@ -564,6 +424,12 @@ export default function NewFieldQuotePage() {
       setError(
         "Il listino pubblicato non è ancora disponibile. Attendi il caricamento o ripubblica il configuratore.",
       );
+      return;
+    }
+
+    const blocking = items.flatMap((it) => blockingIssues(pieceIssues(it, effectivePayload)));
+    if (blocking.length > 0) {
+      setError(t("fixPieces"));
       return;
     }
 
@@ -891,202 +757,25 @@ export default function NewFieldQuotePage() {
 
           {/* Section 2: Items Configuration */}
           <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="text-base font-semibold text-[var(--color-text)] flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--color-mint)] text-xs font-bold text-[var(--color-mint-dark)]">
-                  2
-                </span>
-                {t("windowsMeasure", { count: items.length })}
-              </h2>
-              <button
-                type="button"
-                onClick={addItem}
-                className="rounded-lg bg-[var(--color-mint)] px-3 py-1.5 text-xs font-bold text-[var(--color-mint-dark)] hover:opacity-90 shadow-sm transition-opacity"
-              >
-                {t("addWindow")}
-              </button>
-            </div>
-
-            {/* Item Tabs */}
-            <div className="flex gap-2 overflow-x-auto pb-1">
-              {items.map((it, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => setActiveItemIndex(idx)}
-                  className={`flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-bold border transition-colors shrink-0 ${
-                    activeItemIndex === idx
-                      ? "border-[var(--color-mint)] bg-[var(--color-mint)] text-[var(--color-mint-dark)] shadow-sm"
-                      : "border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:border-[var(--color-text-secondary)]"
-                  }`}
-                >
-                  <span>Pos. {idx + 1}: {it.productType === "balconyDoor" ? t("door") : t("window")} ({it.width}×{it.height})</span>
-                  {items.length > 1 && (
-                    <span
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        removeItem(idx);
-                      }}
-                      className="hover:text-[var(--color-danger)] text-base leading-none"
-                    >
-                      ×
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-
-            {/* Active Item Configuration */}
-            {currentItem && (
-              <div className="space-y-4 pt-2 border-t border-[var(--color-border)]">
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div>
-                    <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                      {t("typology")}
-                    </label>
-                    <select
-                      value={currentItem.productType}
-                      onChange={(e) => updateCurrentItem({ productType: e.target.value as "window" | "balconyDoor" })}
-                      className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
-                    >
-                      <option value="window">{t("windowOption")}</option>
-                      <option value="balconyDoor">{t("doorOption")}</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                      {t("widthMm")}
-                    </label>
-                    <input
-                      type="number"
-                      step={10}
-                      min={400}
-                      max={4000}
-                      value={currentItem.width}
-                      onChange={(e) => updateCurrentItem({ width: Number(e.target.value) })}
-                      className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)] font-mono"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                      {t("heightMm")}
-                    </label>
-                    <input
-                      type="number"
-                      step={10}
-                      min={400}
-                      max={3000}
-                      value={currentItem.height}
-                      onChange={(e) => updateCurrentItem({ height: Number(e.target.value) })}
-                      className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)] font-mono"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div>
-                    <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                      {t("material")}
-                    </label>
-                    <select
-                      value={currentItem.material}
-                      onChange={(e) => updateCurrentItem({ material: e.target.value })}
-                      className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
-                    >
-                      <option value="pvc">{t("materialPvc")}</option>
-                      <option value="alu">{t("materialAlu")}</option>
-                      <option value="wood">{t("materialWood")}</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                      {t("glazing")}
-                    </label>
-                    <select
-                      value={currentItem.glazing}
-                      onChange={(e) => updateCurrentItem({ glazing: e.target.value })}
-                      className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
-                    >
-                      <option value="double">{t("glazingDouble")}</option>
-                      <option value="triple">{t("glazingTriple")}</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                      {t("colorFinish")}
-                    </label>
-                    <select
-                      value={currentItem.color}
-                      onChange={(e) => updateCurrentItem({ color: e.target.value })}
-                      className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
-                    >
-                      <option value="white">{t("colorWhite")}</option>
-                      <option value="anthracite">{t("colorAnthracite")}</option>
-                      <option value="woodgrain">{regionCode === "NL" ? "Monumentengroen RAL 6009 Houtnerf" : t("colorWoodgrain")}</option>
-                    </select>
-                  </div>
-                </div>
-
-                <div>
-                  <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                    {t("notesObservations")}
-                  </label>
-                  <textarea
-                    value={currentItem.notes || ""}
-                    onChange={(e) => updateCurrentItem({ notes: e.target.value })}
-                    rows={2}
-                    placeholder={t("notesPlaceholderLine")}
-                    className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)] resize-y"
-                  />
-                </div>
-
-                {/* 2D Vector Blueprint Preview — drag the dividers to rebalance the leaves */}
-                <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-4 flex flex-col items-center">
-                  <div className="w-full max-w-[280px]">
-                    <SashEditor
-                      item={{
-                        width: currentItem.width,
-                        height: currentItem.height,
-                        sashes: currentItem.sashes.map((s): EditorSash => ({
-                          type: s.type as EditorSash["type"],
-                          direction: s.direction,
-                          active: s.active,
-                          hardware: s.hardware,
-                          hardwareColor: s.hardwareColor,
-                          widthRatio: s.widthRatio,
-                          handleHeightMm: s.handleHeightMm,
-                          main: (s as any).main,
-                          securityClass: (s as any).securityClass,
-                        })),
-                      }}
-                      selectedIndex={activeSashIndex}
-                      onSelect={setActiveSashIndex}
-                      onAddSash={(atIndex) => setSashCount(currentItem.sashes.length + 1)}
-                      onRemoveSash={(index) => {
-                        const next = [...currentItem.sashes];
-                        next.splice(index, 1);
-                        updateCurrentItem({ sashes: next });
-                      }}
-                      onDragDivider={resizeSash}
-                      readOnly={false}
-                    />
-                  </div>
-                  <div className="flex items-center gap-3 mt-2 text-xs text-[var(--color-text-secondary)]">
-                    <span>{t("blueprintLabel", { width: currentItem.width, height: currentItem.height })}</span>
-                    {itemUw > 0 && (
-                      <span
-                        className={`rounded-md px-2 py-0.5 font-mono font-bold ${
-                          itemUw <= 1.3
-                            ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
-                            : "bg-amber-500/15 text-amber-600 dark:text-amber-400"
-                        }`}
-                      >
-                        Uw ≈ {itemUw.toFixed(2)} W/m²K
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
+            <h2 className="text-base font-semibold text-[var(--color-text)] flex items-center gap-2">
+              <span className="flex h-6 w-6 items-center justify-center rounded-full bg-[var(--color-mint)] text-xs font-bold text-[var(--color-mint-dark)]">
+                2
+              </span>
+              {t("windowsMeasure", { count: items.length })}
+            </h2>
+            {usingLiveCatalog ? (
+              <PiecesEditor
+                payload={effectivePayload}
+                locale={locale}
+                items={items}
+                onChange={setItems}
+                activeIndex={Math.min(activeItemIndex, Math.max(0, items.length - 1))}
+                onActiveChange={setActiveItemIndex}
+              />
+            ) : (
+              <p className="rounded-lg border border-dashed border-[var(--color-border)] p-6 text-center text-sm text-[var(--color-text-secondary)]">
+                {publishedCatalog === undefined && activeConfig ? t("loadingCatalog") : t("noCatalog")}
+              </p>
             )}
           </section>
         </div>
@@ -1345,6 +1034,22 @@ export default function NewFieldQuotePage() {
               )}
 
               {/* General Labor & Demolition */}
+              {(effectivePayload.frameTypes ?? []).length > 0 && items.some((it) => it.frameType) ? (
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-[var(--color-border)]">
+                  <p className="text-xs text-[var(--color-text-secondary)]">{t("autoInstallHint")}</p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const auto = computeInstallation(effectivePayload, items);
+                      setInstallationEuros(Math.round((auto.labourCents + auto.scaffoldCents) / 100));
+                      setDemolitionEuros(Math.round(auto.disposalCents / 100));
+                    }}
+                    className="rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-xs font-semibold text-[var(--color-text)] hover:border-[var(--color-mint)]"
+                  >
+                    {t("autoInstall")}
+                  </button>
+                </div>
+              ) : null}
               <div className="grid grid-cols-2 gap-3 pt-2 border-t border-[var(--color-border)]">
                 <div>
                   <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">

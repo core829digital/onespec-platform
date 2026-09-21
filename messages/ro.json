@@ -365,7 +365,11 @@
       "generating": "Se generează…",
       "publishConfigFirst": "Publică un configurator pentru a continua",
       "proceedToSign": "Continuă la Semnătura Touch ({country}) ✍️",
-      "fromShowroom": "{count} ferestre importate din oferta showroom: completează clientul, măsurătorile detaliate și opțiunile."
+      "fromShowroom": "{count} ferestre importate din oferta showroom: completează clientul, măsurătorile detaliate și opțiunile.",
+      "noCatalog": "Nicio listă de prețuri publicată: creează și publică un configurator din pagina Configuratoare.",
+      "fixPieces": "Corectează elementele marcate înainte de a salva oferta.",
+      "autoInstall": "Calculează din toc",
+      "autoInstallHint": "Montaj, schelă și debarasare în funcție de tocul ales și numărul de canate."
     }
   },
   "billing": {
@@ -759,5 +763,45 @@
     "gateCta": "Citește și acceptă",
     "signOut": "Deconectare",
     "memberBanner": "Proprietarul organizației nu a acceptat încă acordul de prelucrare a datelor (DPA)."
+  },
+  "pieces": {
+    "addPiece": "Adaugă element",
+    "lotFrame": "Toc / contra-toc",
+    "lotFrameHint": "se aplică întregului lot",
+    "empty": "Adaugă un prim element alegând tipul.",
+    "position": "Poz. {n}",
+    "moveUp": "Mută sus",
+    "moveDown": "Mută jos",
+    "duplicate": "Duplică",
+    "remove": "Șterge",
+    "category": "Tip",
+    "resetLeaves": "Restabilește canatele tipului",
+    "width": "Lățime (mm)",
+    "height": "Înălțime (mm)",
+    "quantity": "Cantitate",
+    "material": "Material",
+    "quality": "Calitate",
+    "profile": "Profil / serie",
+    "groupValue": "Raport calitate-preț",
+    "groupPremium": "Premium",
+    "glazing": "Geam",
+    "finish": "Culoare / finisaj",
+    "accessories": "Accesorii",
+    "accessoryWidth": "Lățime accesoriu (mm)",
+    "accessoryHeight": "Înălțime accesoriu (mm)",
+    "none": "Niciunul",
+    "notes": "Observații",
+    "notesPlaceholder": "Ex. fără plasă anti-insecte, pervaz din aluminiu, montaj la etajul 3…",
+    "drawingLabel": "Desen tehnic {width}×{height} mm",
+    "addLeaf": "Canat",
+    "removeLeaf": "Canat",
+    "minHint": "Minime: oscilo-batant {w}×{h} mm",
+    "issue": {
+      "size": "{axis} în afara limitelor ({min}–{max} mm).",
+      "singleLeafMax": "Cu un singur canat, {axis} este limitată la {max} mm: adaugă un canat.",
+      "leafWidth": "Canat {leaf}: lățimea {got} mm sub minimul de {min} mm.",
+      "leafHeight": "Canat {leaf}: înălțimea {got} mm sub minimul de {min} mm.",
+      "unknownKey": "Valoarea „{key}” ({field}) nu este în lista de prețuri publicată."
+    }
   }
 }

@@ -315,7 +315,7 @@
       "configuratorLabel": "Configurator / Price list (shared with B2C site widget)",
       "editCatalog": "Edit price list →",
       "pricesAligned": "Prices aligned with published price list: what the end client sees in the widget = what you calculate here.",
-      "loadingCatalog": "Loading published price list…",
+      "loadingCatalog": "Loading the published price list…",
       "createQuoteError": "Error creating quote",
       "customerSite": "Client & Site ({country})",
       "fullNameLabel": "Full Name / Client *",
@@ -365,7 +365,11 @@
       "generating": "Generating…",
       "publishConfigFirst": "Publish a configurator to continue",
       "proceedToSign": "Proceed to Touch Signature ({country}) ✍️",
-      "fromShowroom": "Imported {count} windows from the showroom quote: complete the client, detailed measurements and options."
+      "fromShowroom": "Imported {count} windows from the showroom quote: complete the client, detailed measurements and options.",
+      "noCatalog": "No published price list: create and publish a configurator from the Configurators page.",
+      "fixPieces": "Fix the highlighted pieces before saving the quote.",
+      "autoInstall": "Calculate from frame",
+      "autoInstallHint": "Installation, scaffold and disposal from the chosen frame and the number of leaves."
     }
   },
   "billing": {
@@ -759,5 +763,45 @@
     "gateCta": "Read and accept",
     "signOut": "Sign out",
     "memberBanner": "The organisation's owner has not yet accepted the data processing agreement (DPA)."
+  },
+  "pieces": {
+    "addPiece": "Add piece",
+    "lotFrame": "Frame / sub-frame",
+    "lotFrameHint": "applies to the whole lot",
+    "empty": "Add a first piece by choosing its type.",
+    "position": "Pos. {n}",
+    "moveUp": "Move up",
+    "moveDown": "Move down",
+    "duplicate": "Duplicate",
+    "remove": "Remove",
+    "category": "Type",
+    "resetLeaves": "Reset leaves to the type default",
+    "width": "Width (mm)",
+    "height": "Height (mm)",
+    "quantity": "Quantity",
+    "material": "Material",
+    "quality": "Quality",
+    "profile": "Profile / series",
+    "groupValue": "Best value",
+    "groupPremium": "Premium",
+    "glazing": "Glazing",
+    "finish": "Colour / finish",
+    "accessories": "Accessories",
+    "accessoryWidth": "Accessory width (mm)",
+    "accessoryHeight": "Accessory height (mm)",
+    "none": "None",
+    "notes": "Notes",
+    "notesPlaceholder": "E.g. no insect screen, aluminium sill, installation on floor 3…",
+    "drawingLabel": "Technical drawing {width}×{height} mm",
+    "addLeaf": "Leaf",
+    "removeLeaf": "Leaf",
+    "minHint": "Minimums: tilt-turn {w}×{h} mm",
+    "issue": {
+      "size": "{axis} out of range ({min}–{max} mm).",
+      "singleLeafMax": "With a single leaf the {axis} is limited to {max} mm: add a leaf.",
+      "leafWidth": "Leaf {leaf}: width {got} mm is below the {min} mm minimum.",
+      "leafHeight": "Leaf {leaf}: height {got} mm is below the {min} mm minimum.",
+      "unknownKey": "Value “{key}” ({field}) is not in the published price list."
+    }
   }
 }

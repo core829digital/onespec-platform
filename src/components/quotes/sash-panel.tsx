@@ -10,6 +10,7 @@ import {
   type EditorSash,
   type SashKind,
 } from "@/shared/sash-rules";
+import { handleRange } from "@/shared/configurator-model";
 
 interface Props {
   sash: EditorSash;
@@ -36,8 +37,7 @@ export function SashPanel({
   onPatch,
   onClose,
 }: Props) {
-  const handleMin = 400;
-  const handleMax = Math.max(handleMin + 100, itemHeightMm - 150);
+  const { min: handleMin, max: handleMax } = handleRange(itemHeightMm);
   const handle = sash.handleHeightMm ?? Math.round(itemHeightMm / 2);
   const operable = isOperable(sash.type);
 

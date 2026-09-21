@@ -315,7 +315,7 @@
       "configuratorLabel": "Configurator / Prijzenlijst (gedeeld met B2C site widget)",
       "editCatalog": "Prijzenlijst bewerken →",
       "pricesAligned": "Prijzen afgestemd op gepubliceerde prijzenlijst: wat de eindklant in de widget ziet = wat u hier berekent.",
-      "loadingCatalog": "Gepubliceerde prijzenlijst laden…",
+      "loadingCatalog": "Gepubliceerde prijslijst laden…",
       "createQuoteError": "Fout bij aanmaken offerte",
       "customerSite": "Klant & Project ({country})",
       "fullNameLabel": "Volledige Naam / Klant *",
@@ -365,7 +365,11 @@
       "generating": "Genereren…",
       "publishConfigFirst": "Publiceer een configurator om door te gaan",
       "proceedToSign": "Ga verder naar Touch-handtekening ({country}) ✍️",
-      "fromShowroom": "{count} ramen overgenomen uit de showroomofferte: vul klant, detailmaten en opties aan."
+      "fromShowroom": "{count} ramen overgenomen uit de showroomofferte: vul klant, detailmaten en opties aan.",
+      "noCatalog": "Geen gepubliceerde prijslijst: maak en publiceer een configurator via de pagina Configurators.",
+      "fixPieces": "Corrigeer de gemarkeerde elementen voordat je de offerte opslaat.",
+      "autoInstall": "Berekenen uit kozijn",
+      "autoInstallHint": "Montage, steiger en afvoer volgens het gekozen kozijn en het aantal vleugels."
     }
   },
   "billing": {
@@ -759,5 +763,45 @@
     "gateCta": "Lezen en accepteren",
     "signOut": "Uitloggen",
     "memberBanner": "De eigenaar van de organisatie heeft de verwerkersovereenkomst (DPA) nog niet geaccepteerd."
+  },
+  "pieces": {
+    "addPiece": "Element toevoegen",
+    "lotFrame": "Kozijn / inbouwkozijn",
+    "lotFrameHint": "geldt voor de hele partij",
+    "empty": "Voeg een eerste element toe door het type te kiezen.",
+    "position": "Pos. {n}",
+    "moveUp": "Omhoog",
+    "moveDown": "Omlaag",
+    "duplicate": "Dupliceren",
+    "remove": "Verwijderen",
+    "category": "Type",
+    "resetLeaves": "Vleugels terugzetten naar standaard van het type",
+    "width": "Breedte (mm)",
+    "height": "Hoogte (mm)",
+    "quantity": "Aantal",
+    "material": "Materiaal",
+    "quality": "Kwaliteit",
+    "profile": "Profiel / serie",
+    "groupValue": "Beste prijs-kwaliteit",
+    "groupPremium": "Premium",
+    "glazing": "Beglazing",
+    "finish": "Kleur / afwerking",
+    "accessories": "Accessoires",
+    "accessoryWidth": "Breedte accessoire (mm)",
+    "accessoryHeight": "Hoogte accessoire (mm)",
+    "none": "Geen",
+    "notes": "Opmerkingen",
+    "notesPlaceholder": "Bijv. zonder hor, aluminium dorpel, montage op 3e verdieping…",
+    "drawingLabel": "Technische tekening {width}×{height} mm",
+    "addLeaf": "Vleugel",
+    "removeLeaf": "Vleugel",
+    "minHint": "Minimum: draai-kiep {w}×{h} mm",
+    "issue": {
+      "size": "{axis} buiten bereik ({min}–{max} mm).",
+      "singleLeafMax": "Met één vleugel is {axis} beperkt tot {max} mm: voeg een vleugel toe.",
+      "leafWidth": "Vleugel {leaf}: breedte {got} mm onder het minimum van {min} mm.",
+      "leafHeight": "Vleugel {leaf}: hoogte {got} mm onder het minimum van {min} mm.",
+      "unknownKey": "Waarde “{key}” ({field}) staat niet in de gepubliceerde prijslijst."
+    }
   }
 }

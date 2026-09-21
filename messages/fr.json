@@ -365,7 +365,11 @@
       "generating": "Génération en cours…",
       "publishConfigFirst": "Publiez un configurateur pour continuer",
       "proceedToSign": "Passer à la Signature Tactile ({country}) ✍️",
-      "fromShowroom": "{count} menuiseries importées du devis showroom : complétez le client, les mesures détaillées et les options."
+      "fromShowroom": "{count} menuiseries importées du devis showroom : complétez le client, les mesures détaillées et les options.",
+      "noCatalog": "Aucun tarif publié : créez et publiez un configurateur depuis la page Configurateurs.",
+      "fixPieces": "Corrigez les pièces signalées avant d'enregistrer le devis.",
+      "autoInstall": "Calculer d'après le cadre",
+      "autoInstallHint": "Pose, échafaudage et dépose selon le cadre choisi et le nombre de vantaux."
     }
   },
   "billing": {
@@ -759,5 +763,45 @@
     "gateCta": "Lire et accepter",
     "signOut": "Se déconnecter",
     "memberBanner": "Le propriétaire de l'organisation n'a pas encore accepté l'accord de traitement des données (DPA)."
+  },
+  "pieces": {
+    "addPiece": "Ajouter une pièce",
+    "lotFrame": "Cadre / contre-cadre",
+    "lotFrameHint": "s'applique à tout le lot",
+    "empty": "Ajoutez une première pièce en choisissant son type.",
+    "position": "Pos. {n}",
+    "moveUp": "Monter",
+    "moveDown": "Descendre",
+    "duplicate": "Dupliquer",
+    "remove": "Supprimer",
+    "category": "Type",
+    "resetLeaves": "Rétablir les vantaux du type",
+    "width": "Largeur (mm)",
+    "height": "Hauteur (mm)",
+    "quantity": "Quantité",
+    "material": "Matériau",
+    "quality": "Qualité",
+    "profile": "Profilé / série",
+    "groupValue": "Meilleur rapport",
+    "groupPremium": "Haut de gamme",
+    "glazing": "Vitrage",
+    "finish": "Couleur / finition",
+    "accessories": "Accessoires",
+    "accessoryWidth": "Largeur de l'accessoire (mm)",
+    "accessoryHeight": "Hauteur de l'accessoire (mm)",
+    "none": "Aucun",
+    "notes": "Observations",
+    "notesPlaceholder": "Ex. sans moustiquaire, seuil aluminium, pose au 3e étage…",
+    "drawingLabel": "Dessin technique {width}×{height} mm",
+    "addLeaf": "Vantail",
+    "removeLeaf": "Vantail",
+    "minHint": "Minimums : oscillo-battant {w}×{h} mm",
+    "issue": {
+      "size": "{axis} hors limites ({min}–{max} mm).",
+      "singleLeafMax": "Avec un seul vantail, {axis} maximale {max} mm : ajoutez un vantail.",
+      "leafWidth": "Vantail {leaf} : largeur {got} mm inférieure au minimum de {min} mm.",
+      "leafHeight": "Vantail {leaf} : hauteur {got} mm inférieure au minimum de {min} mm.",
+      "unknownKey": "La valeur « {key} » ({field}) n'est pas dans le tarif publié."
+    }
   }
 }
