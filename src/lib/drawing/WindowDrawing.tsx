@@ -84,6 +84,7 @@ export function WindowDrawing({
   const { meta } = scene;
   const dragRef = useRef<{ index: number; ratios: number[] } | null>(null);
   const [dragging, setDragging] = useState<number | null>(null);
+  const [hovered, setHovered] = useState<number | null>(null);
 
   const visual = scene.primitives.filter((p) => p.role !== "hit");
   const hits = scene.primitives.filter((p) => p.role === "hit");
@@ -138,8 +139,10 @@ export function WindowDrawing({
               y={p.y}
               width={p.w}
               height={p.h}
-              fill="transparent"
-              style={{ cursor: "pointer" }}
+              fill={hovered === p.sashIndex ? "rgba(37,99,235,0.10)" : "transparent"}
+              style={{ cursor: "pointer", transition: "fill 120ms ease" }}
+              onPointerEnter={() => setHovered(p.sashIndex as number)}
+              onPointerLeave={() => setHovered((h) => (h === p.sashIndex ? null : h))}
               onClick={() => onSelectSash(p.sashIndex as number)}
             />
           ) : null,
@@ -155,6 +158,7 @@ export function WindowDrawing({
               rx={3}
               fill={dragging === i ? PALETTE.guide : "#9CA3AF"}
               pointerEvents="none"
+              style={{ transition: "fill 100ms ease" }}
             />
             <rect
               x={x - 8}
@@ -168,6 +172,28 @@ export function WindowDrawing({
               onPointerUp={endDrag}
               onPointerCancel={endDrag}
             />
+            {dragging === i ? (
+              <g pointerEvents="none">
+                <rect
+                  x={x - 34}
+                  y={meta.inner.y - 22}
+                  width={68}
+                  height={18}
+                  rx={4}
+                  fill={PALETTE.guide}
+                />
+                <text
+                  x={x}
+                  y={meta.inner.y - 9}
+                  textAnchor="middle"
+                  fontSize={10}
+                  fontFamily={MONO}
+                  fill="#fff"
+                >
+                  {Math.round(meta.ratios[i] * meta.widthMm)} / {Math.round(meta.ratios[i + 1] * meta.widthMm)} mm
+                </text>
+              </g>
+            ) : null}
           </g>
         ))}
     </svg>

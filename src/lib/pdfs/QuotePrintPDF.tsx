@@ -616,6 +616,11 @@ export function QuotePrintPDF({
             {region === "IT" && (
               <>
                 <Text><Text style={styles.label}>UNI 11673-1:2017:</Text> Posa qualificata con controtelai termici, sigillanti elastici, nastri autoespandenti per eliminazione ponti termici.</Text>
+                {(quote.ecobonusPercent ?? 0) > 0 && (
+                  <Text style={{ marginTop: 4 }}>
+                    <Text style={styles.label}>Bonus Casa:</Text> Detrazione IRPEF 50% prima casa / 36% seconda casa in 10 quote annuali ex Art.16-bis TUIR. Spettanza subordinata a capienza IRPEF. IVA 10% su posa ex DPR 633/72. Comunicazione ENEA entro 90gg a carico cliente, con nostra assistenza (schede Uw). Prezzi validi 30gg. Uw calcolato secondo UNI EN ISO 10077-1.
+                  </Text>
+                )}
               </>
             )}
             {quote.depositTerms && (
