@@ -1,6 +1,7 @@
 import { internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { seedExtras } from "./lib/catalogExtras";
+import type { TableNames } from "./_generated/dataModel";
 
 /**
  * One-shot data migrations for the plan-ladder rename (business → pro).
@@ -172,5 +173,81 @@ export const seedCatalogExtras = internalMutation({
       inserted += r.inserted;
     }
     return { configurators, inserted };
+  },
+});
+
+/**
+ * FUTURE USE ONLY — NOT invoked by any code path, cron, or migration runner.
+ * A platform-wide data reset for a pre-launch cleanup: wipes every row of
+ * business/generated data across ALL tenants while keeping every account
+ * (no `users`/`tenants`/`memberships`/`invitations` row is touched, no
+ * account is deleted — only the data *inside* accounts).
+ *
+ * Kept tables (identity/billing/consent — never touched):
+ *   users, tenants, memberships, invitations, billingEvents, dpaAcceptances,
+ *   appSettings, userConsents.
+ *
+ * Erased tables (everything else — configurators, catalog, quotes, field
+ * modules, clients/cantieri, logs):
+ *   see `ERASABLE_TABLES` below.
+ *
+ * Deliberately requires the literal string "ERASE ALL TENANT DATA" so a
+ * stray/scripted call can't trigger it by accident:
+ *
+ *   npx convex run migrations:eraseAllTenantData '{"confirm":"ERASE ALL TENANT DATA"}'
+ *
+ * Run it multiple times (once per table batch) if any table reports
+ * `done:false` — each call processes up to `limit` rows per table per call.
+ */
+const ERASABLE_TABLES: TableNames[] = [
+  "configurators",
+  "branding",
+  "catalogMaterials",
+  "catalogQualityTiers",
+  "catalogProfileSystems",
+  "catalogSizeConstraints",
+  "catalogGlazingOptions",
+  "catalogFinishOptions",
+  "catalogFrameTypes",
+  "catalogAccessories",
+  "catalogProductBase",
+  "catalogHardwareOptions",
+  "catalogVersions",
+  "catalogSuppliers",
+  "quoteRequests",
+  "notifications",
+  "catalogImports",
+  "deletionRequests",
+  "alphaFeedback",
+  "notificationPrefs",
+  "emailLog",
+  "auditLog",
+  "usageCounters",
+  "rateLimits",
+  "siteSurveys",
+  "installationDossiers",
+  "inspectionReports",
+  "serramentoPassports",
+  "passportInterventions",
+  "clients",
+  "clientActivities",
+  "cantieri",
+  "cantiereTasks",
+];
+
+export const eraseAllTenantData = internalMutation({
+  args: { confirm: v.string(), limit: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    if (args.confirm !== "ERASE ALL TENANT DATA") {
+      throw new Error('Refusing: pass confirm:"ERASE ALL TENANT DATA" exactly.');
+    }
+    const limit = args.limit ?? 500;
+    const perTable: Record<string, { deleted: number; done: boolean }> = {};
+    for (const table of ERASABLE_TABLES) {
+      const page = await ctx.db.query(table).take(limit);
+      for (const row of page) await ctx.db.delete(row._id);
+      perTable[table] = { deleted: page.length, done: page.length < limit };
+    }
+    return perTable;
   },
 });
