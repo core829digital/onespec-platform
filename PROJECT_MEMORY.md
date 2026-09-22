@@ -645,4 +645,27 @@ Elenco completo, tenuto qui per non perdere pezzi. Stato ad oggi per ciascun pun
 
 **Ancora aperto, non bloccante**: punto 5 (accessibility audit formale — dedicato, non ancora fatto come esercizio sistematico, anche se singoli bug a11y sono stati corretti strada facendo: `name=` sugli input, header sticky, focus visibile della sidebar gia' presente), punto 8 (Vanta/Drata/SecureFrame, calendario 90gg, checklist giurisdizioni — documenti di business, non codice), punto 9 (audit "13 livelli" olistico dedicato).
 
+### 9.13 Status page separato — `onespec-status-page` (nuovo repo, 2026-09-22 notte)
+
+**Richiesta aggiornata dall'utente**: non nello stesso repo/progetto/dominio del platform. Costruito **per intero** in una cartella sorella `c:\Users\user\Desktop\ALL\Claude Code\Claude\onespec-status-page\` (git locale inizializzato, primo commit `530722d`, **non ancora pushato** — serve un repo GitHub vuoto che io non posso creare, `gh` CLI non disponibile in questo ambiente).
+
+**Cosa c'e' dentro** (Next.js + Convex, backend vero non mock):
+- Schema: `services`, `incidents` (con `updates[]` embedded = il timeline della incident communication workflow), `maintenanceWindows`, `subscribers` (opt-in email dalla pagina stessa), `deployLog`, `notificationLog`.
+- `convex/http.ts`: 4 endpoint protetti da bearer token (`STATUS_ADMIN_TOKEN`, mai un token utente reale — questo progetto non ha account): `POST /api/deploy` (log deployment, chiamato dalla CI del repo principale), `POST /api/incident` (apre incidente + notifica subscriber), `POST /api/incident/update` (posta un aggiornamento sul timeline + notifica — la cadenza è decisa dall'operatore, il fan-out pagina+email è automatico), `POST /api/maintenance` (pianifica manutenzione + notifica subito).
+- `convex/crons.ts`: ogni 15 minuti manda il reminder "inizia tra poco" per ogni finestra di manutenzione entro 2 ore che non l'ha ancora ricevuto — **completamente automatico**, idempotente (`reminderSentAt`).
+- `convex/email.ts`: stesso pattern noop-finche'-`RESEND_MODE=live` del platform principale, template inline (nessun servizio esterno di template).
+- Frontend: `StatusPage.tsx` con query Convex reali (non piu' i dati mock del vecchio `apps/status-page/`, che tra l'altro aveva un bug reale — interfacce duplicate/redichiarate che causavano l'errore di sintassi visto da `tsc` prima in questa sessione), 4 tab (Status/Incidents/Maintenance/Components), form iscrizione email, palette mint/teal coerente col brand OneSpec.
+- **Verificato**, non solo scritto: `npm install` reale fatto (371 pacchetti), `tsc --noEmit` pulito **a meno degli errori "implicit any" attesi** (derivano solo dal fatto che `convex/_generated/` non esiste finche' non si fa `npx convex dev` con login vero — non sono bug, sono la conseguenza prevista di non avere ancora un progetto Convex collegato).
+
+**`apps/status-page/` nel repo principale**: ora escluso da git (`.gitignore` aggiornato in 9.12), resta come cartella locale morta — il vero sviluppo continua SOLO nel nuovo repo separato. Da cancellare fisicamente quando l'utente conferma che il nuovo repo e' a posto (non cancellato ora, per sicurezza, nel caso l'utente voglia ancora confrontare).
+
+**Aggiunto al repo principale**: `.github/workflows/notify-status-page.yml` — POST a `/api/deploy` a ogni push su `main`, dietro un guard `if:` che lo rende un no-op finche' l'utente non imposta le GitHub Actions variable/secret `STATUS_PAGE_SITE_URL` e `STATUS_ADMIN_TOKEN` sul repo (impossibile impostarle da qui, servono i settings del repo GitHub). Non rompe la CI ora.
+
+**3 passi che restano SOLO all'utente** (accesso ad account/servizi esterni che questo ambiente non ha — `gh` CLI assente, login Convex/Vercel interattivo, DNS del dominio):
+1. `gh repo create onespec-status-page` (o repo vuoto su github.com) + push del commit locale gia' pronto.
+2. `npx convex dev` dentro `onespec-status-page/` (crea un progetto Convex NUOVO, mai lo stesso del platform) → poi `npx convex run seed:seedServices`, impostare `STATUS_ADMIN_TOKEN`/`AUTH_RESEND_KEY`/`RESEND_FROM_STATUS` come env Convex, `npx convex deploy --prod`.
+3. Deploy del frontend come progetto Vercel A SE' (non una route dentro il progetto Vercel del platform), dominio `status.onespec.eu` in DNS (CNAME) + custom domain su quel progetto Vercel. Poi impostare `STATUS_PAGE_SITE_URL`/`STATUS_ADMIN_TOKEN` come variable/secret nel repo GitHub principale per attivare il workflow.
+
+Istruzioni esatte, comandi copiabili, tutto nel `README.md` del nuovo repo.
+
 **Status page — richiesta esplicita aggiornata dall'utente**: NON nello stesso repo/progetto/dominio — repo GitHub nuovo, progetto Convex nuovo, pubblicato su `status.onespec.eu`, publishing automatico via trigger a ogni deploy. Trovato in `apps/status-page/` un abbozzo locale (Next.js standalone, solo `StatusPage.tsx`/`layout.tsx`/`page.tsx`, **nessun backend Convex**, cartella `.next` di build finita per errore nel working tree, ora esclusa da git). Questo e' materiale di partenza utile ma richiede provisioning di risorse ESTERNE NUOVE (repo GitHub sotto l'account dell'utente, progetto Convex nuovo — a pagamento/quota separata, dominio da configurare in DNS) — **azioni irreversibili/account-wide, chieste conferma esplicita all'utente prima di crearle**, non fatte alla cieca in questo turno.

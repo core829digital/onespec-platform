@@ -1,0 +1,17 @@
+name: Notify status page on deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: POST deploy event to status.onespec.eu
+        if: ${{ vars.STATUS_PAGE_SITE_URL != '' && secrets.STATUS_ADMIN_TOKEN != '' }}
+        run: |
+          curl -sS -X POST "${{ vars.STATUS_PAGE_SITE_URL }}/api/deploy" \
+            -H "Authorization: Bearer ${{ secrets.STATUS_ADMIN_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"repo\":\"${{ github.repository }}\",\"commitSha\":\"${{ github.sha }}\",\"commitMessage\":$(jq -Rs . <<< "${{ github.event.head_commit.message }}")}"
