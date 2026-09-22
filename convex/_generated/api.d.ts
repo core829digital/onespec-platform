@@ -45,6 +45,7 @@ import type * as lib_enums from "../lib/enums.js";
 import type * as lib_fieldModules from "../lib/fieldModules.js";
 import type * as lib_ids from "../lib/ids.js";
 import type * as lib_links from "../lib/links.js";
+import type * as lib_payload from "../lib/payload.js";
 import type * as lib_plan from "../lib/plan.js";
 import type * as lib_pricing from "../lib/pricing.js";
 import type * as lib_quoteItems from "../lib/quoteItems.js";
@@ -107,6 +108,7 @@ declare const fullApi: ApiFromModules<{
   "lib/fieldModules": typeof lib_fieldModules;
   "lib/ids": typeof lib_ids;
   "lib/links": typeof lib_links;
+  "lib/payload": typeof lib_payload;
   "lib/plan": typeof lib_plan;
   "lib/pricing": typeof lib_pricing;
   "lib/quoteItems": typeof lib_quoteItems;

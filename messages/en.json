@@ -369,7 +369,10 @@
       "noCatalog": "No published price list: create and publish a configurator from the Configurators page.",
       "fixPieces": "Fix the highlighted pieces before saving the quote.",
       "autoInstall": "Calculate from frame",
-      "autoInstallHint": "Installation, scaffold and disposal from the chosen frame and the number of leaves."
+      "autoInstallHint": "Installation, scaffold and disposal from the chosen frame and the number of leaves.",
+      "draftRestored": "Draft restored: {count} pieces.",
+      "discardDraft": "Discard and start over",
+      "draftSaved": "Draft saved automatically in this browser."
     }
   },
   "billing": {
@@ -811,5 +814,26 @@
     "whatsapp": "WhatsApp",
     "email": "Email",
     "backup": "JSON backup"
+  },
+  "showroom": {
+    "title": "Showroom · Quote in 60 seconds",
+    "subtitle": "Configure every leaf, show the turnkey price and close by WhatsApp or site visit.",
+    "noCatalog": "No published configurator. Publish a catalogue to use the showroom quoting tool.",
+    "notAllowed": "The showroom quoting tool is included in the Showroom plan.",
+    "seePlans": "See plans",
+    "loading": "Loading the price list…",
+    "energyRenovation": "Energy renovation",
+    "buildingAge": "Building age (years)",
+    "configureToSee": "Configure to see the price…",
+    "fixPieces": "Fix the highlighted pieces before requesting the site visit.",
+    "clientTitle": "Client",
+    "clientName": "Full name",
+    "clientPhone": "WhatsApp (e.g. 340 1234567)",
+    "clientCity": "City",
+    "exportTxt": "Download TXT",
+    "exportDraft": "Save draft",
+    "loadDraft": "Load draft",
+    "draftRestored": "Draft restored: {count} pieces.",
+    "discardDraft": "Discard and start over"
   }
 }

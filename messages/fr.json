@@ -369,7 +369,10 @@
       "noCatalog": "Aucun tarif publié : créez et publiez un configurateur depuis la page Configurateurs.",
       "fixPieces": "Corrigez les pièces signalées avant d'enregistrer le devis.",
       "autoInstall": "Calculer d'après le cadre",
-      "autoInstallHint": "Pose, échafaudage et dépose selon le cadre choisi et le nombre de vantaux."
+      "autoInstallHint": "Pose, échafaudage et dépose selon le cadre choisi et le nombre de vantaux.",
+      "draftRestored": "Brouillon restauré : {count} pièces.",
+      "discardDraft": "Abandonner et recommencer",
+      "draftSaved": "Brouillon enregistré automatiquement dans ce navigateur."
     }
   },
   "billing": {
@@ -811,5 +814,26 @@
     "whatsapp": "WhatsApp",
     "email": "E-mail",
     "backup": "Sauvegarde JSON"
+  },
+  "showroom": {
+    "title": "Showroom · Devis en 60 secondes",
+    "subtitle": "Configurez chaque vantail, affichez le prix clés en main et concluez par WhatsApp ou visite sur place.",
+    "noCatalog": "Aucun configurateur publié. Publiez un catalogue pour utiliser l'outil de devis showroom.",
+    "notAllowed": "L'outil de devis showroom est inclus dans l'offre Showroom.",
+    "seePlans": "Voir les offres",
+    "loading": "Chargement du tarif…",
+    "energyRenovation": "Rénovation énergétique",
+    "buildingAge": "Âge du bâtiment (ans)",
+    "configureToSee": "Configurez pour voir le prix…",
+    "fixPieces": "Corrigez les pièces signalées avant de demander la visite.",
+    "clientTitle": "Client",
+    "clientName": "Nom et prénom",
+    "clientPhone": "WhatsApp (ex. 06 12 34 56 78)",
+    "clientCity": "Commune",
+    "exportTxt": "Télécharger le TXT",
+    "exportDraft": "Enregistrer le brouillon",
+    "loadDraft": "Charger un brouillon",
+    "draftRestored": "Brouillon restauré : {count} pièces.",
+    "discardDraft": "Abandonner et recommencer"
   }
 }

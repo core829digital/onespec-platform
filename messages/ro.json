@@ -369,7 +369,10 @@
       "noCatalog": "Nicio listă de prețuri publicată: creează și publică un configurator din pagina Configuratoare.",
       "fixPieces": "Corectează elementele marcate înainte de a salva oferta.",
       "autoInstall": "Calculează din toc",
-      "autoInstallHint": "Montaj, schelă și debarasare în funcție de tocul ales și numărul de canate."
+      "autoInstallHint": "Montaj, schelă și debarasare în funcție de tocul ales și numărul de canate.",
+      "draftRestored": "Ciornă restaurată: {count} elemente.",
+      "discardDraft": "Renunță și reia",
+      "draftSaved": "Ciorna este salvată automat în acest browser."
     }
   },
   "billing": {
@@ -811,5 +814,26 @@
     "whatsapp": "WhatsApp",
     "email": "E-mail",
     "backup": "Backup JSON"
+  },
+  "showroom": {
+    "title": "Showroom · Ofertă în 60 de secunde",
+    "subtitle": "Configurează fiecare canat, arată prețul la cheie și încheie prin WhatsApp sau vizită la fața locului.",
+    "noCatalog": "Niciun configurator publicat. Publică un catalog pentru a folosi instrumentul de ofertare din showroom.",
+    "notAllowed": "Instrumentul de ofertare din showroom este inclus în planul Showroom.",
+    "seePlans": "Vezi planurile",
+    "loading": "Se încarcă lista de prețuri…",
+    "energyRenovation": "Renovare energetică",
+    "buildingAge": "Vârsta clădirii (ani)",
+    "configureToSee": "Configurează pentru a vedea prețul…",
+    "fixPieces": "Corectează elementele marcate înainte de a cere vizita.",
+    "clientTitle": "Client",
+    "clientName": "Nume și prenume",
+    "clientPhone": "WhatsApp (ex. 0712 345 678)",
+    "clientCity": "Localitate",
+    "exportTxt": "Descarcă TXT",
+    "exportDraft": "Salvează ciorna",
+    "loadDraft": "Încarcă ciorna",
+    "draftRestored": "Ciornă restaurată: {count} elemente.",
+    "discardDraft": "Renunță și reia"
   }
 }

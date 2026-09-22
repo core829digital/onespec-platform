@@ -369,7 +369,10 @@
       "noCatalog": "Keine veröffentlichte Preisliste: Erstellen und veröffentlichen Sie einen Konfigurator auf der Seite Konfiguratoren.",
       "fixPieces": "Korrigieren Sie die markierten Elemente, bevor Sie das Angebot speichern.",
       "autoInstall": "Aus Rahmen berechnen",
-      "autoInstallHint": "Montage, Gerüst und Entsorgung nach gewähltem Rahmen und Flügelanzahl."
+      "autoInstallHint": "Montage, Gerüst und Entsorgung nach gewähltem Rahmen und Flügelanzahl.",
+      "draftRestored": "Entwurf wiederhergestellt: {count} Elemente.",
+      "discardDraft": "Verwerfen und neu beginnen",
+      "draftSaved": "Entwurf wird automatisch in diesem Browser gespeichert."
     }
   },
   "billing": {
@@ -811,5 +814,26 @@
     "whatsapp": "WhatsApp",
     "email": "E-Mail",
     "backup": "JSON-Sicherung"
+  },
+  "showroom": {
+    "title": "Showroom · Angebot in 60 Sekunden",
+    "subtitle": "Jeden Flügel konfigurieren, den Schlüsselfertig-Preis zeigen und per WhatsApp oder Vor-Ort-Termin abschließen.",
+    "noCatalog": "Kein veröffentlichter Konfigurator. Veröffentlichen Sie einen Katalog, um das Showroom-Angebotstool zu nutzen.",
+    "notAllowed": "Das Showroom-Angebotstool ist im Showroom-Tarif enthalten.",
+    "seePlans": "Tarife ansehen",
+    "loading": "Preisliste wird geladen…",
+    "energyRenovation": "Energetische Sanierung",
+    "buildingAge": "Gebäudealter (Jahre)",
+    "configureToSee": "Konfigurieren, um den Preis zu sehen…",
+    "fixPieces": "Korrigieren Sie die markierten Elemente, bevor Sie den Termin anfragen.",
+    "clientTitle": "Kunde",
+    "clientName": "Vor- und Nachname",
+    "clientPhone": "WhatsApp (z. B. 0151 2345678)",
+    "clientCity": "Ort",
+    "exportTxt": "TXT herunterladen",
+    "exportDraft": "Entwurf speichern",
+    "loadDraft": "Entwurf laden",
+    "draftRestored": "Entwurf wiederhergestellt: {count} Elemente.",
+    "discardDraft": "Verwerfen und neu beginnen"
   }
 }

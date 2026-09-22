@@ -12,6 +12,7 @@ import { ClientCantierePicker, type PickedLinks } from "@/components/app-shell/c
 import { PiecesEditor } from "@/components/quotes/editor/pieces-editor";
 import { defaultItem } from "@/shared/item-defaults";
 import { blockingIssues, pieceIssues } from "@/shared/piece-ops";
+import { clearDraft, useDraftRestore, useDraftSave } from "@/lib/use-draft";
 import { MultiSupplierTable, type SupplierItem } from "@/components/quotes/MultiSupplierTable";
 import {
   calculatePrice,
@@ -322,6 +323,18 @@ export default function NewFieldQuotePage() {
   const items = itemsState ?? seedItems;
   const currentItem = items[activeItemIndex] || items[0];
 
+  // Draft: the pieces and the client survive a reload or a dead signal on site.
+  const draftKey = tenant ? `quote-new:${tenant._id}` : "quote-new";
+  const [draftRestored, setDraftRestored] = useState(0);
+  useDraftRestore(draftKey, usingLiveCatalog && searchParams.get("from") !== "showroom", (draft) => {
+    setItems(draft.items);
+    if (draft.meta.clientName) setLeadName(draft.meta.clientName);
+    if (draft.meta.clientPhone) setLeadPhone(draft.meta.clientPhone);
+    if (draft.meta.clientCity) setCustomerCity(draft.meta.clientCity);
+    setDraftRestored(draft.items.length);
+  });
+  useDraftSave(draftKey, itemsState, { clientName: leadName, clientPhone: leadPhone, clientCity: customerCity });
+
   function updateCurrentItem(patch: Partial<ProjectItem>) {
     setItems((itemsState ?? seedItems).map((it, i) => (i === activeItemIndex ? { ...it, ...patch } : it)));
   }
@@ -532,6 +545,7 @@ export default function NewFieldQuotePage() {
         });
       }
 
+      clearDraft(draftKey);
       router.push(`/app/quotes/${res!.quoteId}/sign`);
     } catch (err: unknown) {
       setError(tf(err));
@@ -763,6 +777,23 @@ export default function NewFieldQuotePage() {
               </span>
               {t("windowsMeasure", { count: items.length })}
             </h2>
+            {draftRestored > 0 ? (
+              <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[var(--color-mint)]/40 bg-[var(--color-mint)]/10 px-3 py-2 text-xs">
+                <span>{t("draftRestored", { count: draftRestored })}</span>
+                <button
+                  type="button"
+                  className="underline"
+                  onClick={() => {
+                    clearDraft(draftKey);
+                    setItems(null);
+                    setActiveItemIndex(0);
+                    setDraftRestored(0);
+                  }}
+                >
+                  {t("discardDraft")}
+                </button>
+              </div>
+            ) : null}
             {usingLiveCatalog ? (
               <PiecesEditor
                 payload={effectivePayload}

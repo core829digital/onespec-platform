@@ -369,7 +369,10 @@
       "noCatalog": "Geen gepubliceerde prijslijst: maak en publiceer een configurator via de pagina Configurators.",
       "fixPieces": "Corrigeer de gemarkeerde elementen voordat je de offerte opslaat.",
       "autoInstall": "Berekenen uit kozijn",
-      "autoInstallHint": "Montage, steiger en afvoer volgens het gekozen kozijn en het aantal vleugels."
+      "autoInstallHint": "Montage, steiger en afvoer volgens het gekozen kozijn en het aantal vleugels.",
+      "draftRestored": "Concept hersteld: {count} elementen.",
+      "discardDraft": "Verwerpen en opnieuw beginnen",
+      "draftSaved": "Concept wordt automatisch in deze browser opgeslagen."
     }
   },
   "billing": {
@@ -811,5 +814,26 @@
     "whatsapp": "WhatsApp",
     "email": "E-mail",
     "backup": "JSON-back-up"
+  },
+  "showroom": {
+    "title": "Showroom · Offerte in 60 seconden",
+    "subtitle": "Configureer elke vleugel, toon de turnkeyprijs en sluit af via WhatsApp of opname ter plaatse.",
+    "noCatalog": "Geen gepubliceerde configurator. Publiceer een catalogus om de showroom-offertetool te gebruiken.",
+    "notAllowed": "De showroom-offertetool is inbegrepen in het Showroom-abonnement.",
+    "seePlans": "Bekijk abonnementen",
+    "loading": "Prijslijst laden…",
+    "energyRenovation": "Energetische renovatie",
+    "buildingAge": "Leeftijd gebouw (jaar)",
+    "configureToSee": "Configureer om de prijs te zien…",
+    "fixPieces": "Corrigeer de gemarkeerde elementen voordat je de opname aanvraagt.",
+    "clientTitle": "Klant",
+    "clientName": "Volledige naam",
+    "clientPhone": "WhatsApp (bijv. 06 12345678)",
+    "clientCity": "Plaats",
+    "exportTxt": "TXT downloaden",
+    "exportDraft": "Concept opslaan",
+    "loadDraft": "Concept laden",
+    "draftRestored": "Concept hersteld: {count} elementen.",
+    "discardDraft": "Verwerpen en opnieuw beginnen"
   }
 }

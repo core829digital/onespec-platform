@@ -1,6 +1,8 @@
 import { mutation, query, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
-import { requireUser, type ReadCtx } from "./lib/auth";
+import { requireMembership, requireUser, type ReadCtx } from "./lib/auth";
+import { publicPayload } from "./lib/payload";
+import { resolveTenantEntitlements } from "./lib/entitlements";
 import { regionForCountry } from "./lib/regions";
 import { complianceForRegion } from "./lib/compliance";
 import { calculatePrice, type CatalogPayload, type ProjectItem } from "../src/shared/pricing";
@@ -330,7 +332,7 @@ export const serverCalculate = mutation({
     calculatedAt: number;
     catalogVersion: number;
   }> => {
-    await requireUser(ctx);
+    await requireMembership(ctx, args.tenantId);
     await enforceForFiscalEngine(ctx, args.tenantId);
 
     const result = await ctx.runQuery(internal.calculations.calculateInternal, {
@@ -373,7 +375,7 @@ export const getCalculationPreview = query({
     calculatedAt: number;
     catalogVersion: number;
   }> => {
-    await requireUser(ctx);
+    await requireMembership(ctx, args.tenantId);
 
     const result = await ctx.runQuery(internal.calculations.calculateInternal, {
       tenantId: args.tenantId,
@@ -492,12 +494,16 @@ export const calculateInternal = internalQuery({
 export const getShowroomCatalog = query({
   args: { tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
-    await requireUser(ctx);
+    await requireMembership(ctx, args.tenantId);
     const tenant = await ctx.db.get(args.tenantId);
     const region = regionForCountry(tenant?.country);
+    // The calculator is a Showroom-plan feature; other plans get a clear "not included" state.
+    if (!tenant || !resolveTenantEntitlements(tenant).showroomCalculator) {
+      return { regionCode: region.code, ready: false as const, allowed: false as const };
+    }
 
     const cat = await getTenantCatalog(ctx, args.tenantId);
-    if (!cat) return { regionCode: region.code, ready: false as const };
+    if (!cat) return { regionCode: region.code, ready: false as const, allowed: true as const };
 
     const p = cat.payload;
     const lbl = (o: { key: string; labels?: Record<string, string> }) =>
@@ -507,6 +513,9 @@ export const getShowroomCatalog = query({
     return {
       regionCode: region.code,
       ready: true as const,
+      allowed: true as const,
+      locale: region.primaryLocale,
+      payload: publicPayload(p),
       materials: materials.map((m) => ({ key: m.key, label: lbl(m) })),
       quality: Object.fromEntries(
         materials.map((m) => [

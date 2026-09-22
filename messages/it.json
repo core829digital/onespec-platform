@@ -369,7 +369,10 @@
       "noCatalog": "Nessun listino pubblicato: crea e pubblica un configuratore dalla pagina Configuratori.",
       "fixPieces": "Correggi i pezzi evidenziati prima di salvare il preventivo.",
       "autoInstall": "Calcola dal telaio",
-      "autoInstallHint": "Posa, ponteggio e smaltimento secondo il telaio scelto e il numero di ante."
+      "autoInstallHint": "Posa, ponteggio e smaltimento secondo il telaio scelto e il numero di ante.",
+      "draftRestored": "Bozza ripristinata: {count} pezzi.",
+      "discardDraft": "Scarta e ricomincia",
+      "draftSaved": "Bozza salvata automaticamente in questo browser."
     }
   },
   "billing": {
@@ -811,5 +814,26 @@
     "whatsapp": "WhatsApp",
     "email": "Email",
     "backup": "Backup JSON"
+  },
+  "showroom": {
+    "title": "Showroom · Preventivo in 60 secondi",
+    "subtitle": "Configura ogni anta, mostra il prezzo chiavi in mano e chiudi con WhatsApp o sopralluogo.",
+    "noCatalog": "Nessun configuratore pubblicato. Pubblica un catalogo per usare il preventivatore da showroom.",
+    "notAllowed": "Il preventivatore da showroom è incluso nel piano Showroom.",
+    "seePlans": "Vedi i piani",
+    "loading": "Caricamento del listino…",
+    "energyRenovation": "Ristrutturazione energetica",
+    "buildingAge": "Anni dell'edificio",
+    "configureToSee": "Configura per vedere il prezzo…",
+    "fixPieces": "Correggi i pezzi evidenziati prima di chiedere il sopralluogo.",
+    "clientTitle": "Cliente",
+    "clientName": "Nome e cognome",
+    "clientPhone": "WhatsApp (es. 340 1234567)",
+    "clientCity": "Comune",
+    "exportTxt": "Scarica TXT",
+    "exportDraft": "Salva bozza",
+    "loadDraft": "Carica bozza",
+    "draftRestored": "Bozza ripristinata: {count} pezzi.",
+    "discardDraft": "Scarta e ricomincia"
   }
 }
