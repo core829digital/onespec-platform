@@ -739,7 +739,9 @@
     "phone": "Telefono",
     "email": "Email aziendale",
     "save": "Salva",
-    "saved": "Salvato"
+    "saved": "Salvato",
+    "privacyUrl": "URL informativa privacy",
+    "privacyUrlHint": "Mostrata come link nella checkbox di consenso del widget pubblico."
   },
   "dpa": {
     "title": "Accordo sul trattamento dei dati (DPA)",

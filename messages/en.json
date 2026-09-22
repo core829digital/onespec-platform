@@ -739,7 +739,9 @@
     "phone": "Phone",
     "email": "Company email",
     "save": "Save",
-    "saved": "Saved"
+    "saved": "Saved",
+    "privacyUrl": "Privacy notice URL",
+    "privacyUrlHint": "Shown as a link in the public widget consent checkbox."
   },
   "dpa": {
     "title": "Data Processing Agreement (DPA)",

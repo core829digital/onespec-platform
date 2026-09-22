@@ -739,7 +739,9 @@
     "phone": "Telefoon",
     "email": "Bedrijfs-e-mail",
     "save": "Opslaan",
-    "saved": "Opgeslagen"
+    "saved": "Opgeslagen",
+    "privacyUrl": "URL privacyverklaring",
+    "privacyUrlHint": "Wordt als link getoond in het toestemmingsvakje van de publieke widget."
   },
   "dpa": {
     "title": "Verwerkersovereenkomst (DPA)",

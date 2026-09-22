@@ -58,6 +58,8 @@ export default defineSchema({
     phone: v.optional(v.string()),
     companyEmail: v.optional(v.string()),
     logoStorageId: v.optional(v.id("_storage")),
+    /** Privacy notice URL shown on the public widget's consent checkbox (Annex D of the DPA). */
+    privacyUrl: v.optional(v.string()),
   })
     .index("by_slug", ["slug"])
     .index("by_owner", ["ownerUserId"])
@@ -427,6 +429,9 @@ export default defineSchema({
     spamScore: v.optional(v.number()),
     /** Accepted while the tenant was over its monthly quota (lead never lost). */
     overQuota: v.optional(v.boolean()),
+    /** Consent timestamp for the public-widget lead (GDPR Art. 13 checkbox); absent for non-widget channels. */
+    consentAt: v.optional(v.number()),
+    consentVersion: v.optional(v.string()),
     /** Multi-supplier breakdown: each line assigns an item to a supplier with price and lead time. */
     supplierLines: v.optional(v.array(v.object({
       supplierId: v.id("catalogSuppliers"),

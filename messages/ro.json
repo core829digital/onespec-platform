@@ -739,7 +739,9 @@
     "phone": "Telefon",
     "email": "E-mail companie",
     "save": "Salvează",
-    "saved": "Salvat"
+    "saved": "Salvat",
+    "privacyUrl": "URL notă de confidențialitate",
+    "privacyUrlHint": "Afișată ca link în caseta de consimțământ a widgetului public."
   },
   "dpa": {
     "title": "Acord de prelucrare a datelor (DPA)",

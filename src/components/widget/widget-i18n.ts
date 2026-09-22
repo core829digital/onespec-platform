@@ -85,6 +85,10 @@ export interface WidgetDict {
   successBody: string;
   uwLabel: string;
   footerDisclaimer: string;
+  consentPrefix: string;
+  consentLink: string;
+  consentSuffix: string;
+  consentRequired: string;
   vatRateLabel: string;
   estimateNotContractual: string;
   requestSurveyBtn: string;
@@ -194,6 +198,10 @@ const en: WidgetDict = {
   successBody: "Thank you — we will get back to you with a detailed quote shortly.",
   uwLabel: "U-value (indicative)",
   footerDisclaimer: "Estimate for illustration purposes only. Final pricing is confirmed after on-site measurement.",
+  consentPrefix: "I have read the",
+  consentLink: "privacy notice",
+  consentSuffix: " and I agree to the processing of my data to receive this quote.",
+  consentRequired: "Please accept the privacy notice to continue.",
   vatRateLabel: "VAT rate",
   estimateNotContractual: "Indicative estimate — not a binding quote.",
   requestSurveyBtn: "Request an on-site survey",
@@ -303,6 +311,10 @@ const it: WidgetDict = {
   successBody: "Grazie — ti ricontatteremo a breve con un preventivo dettagliato.",
   uwLabel: "Coefficiente Uw (indicativo)",
   footerDisclaimer: "Stima puramente indicativa. Il prezzo definitivo viene confermato dopo il sopralluogo.",
+  consentPrefix: "Ho letto l'",
+  consentLink: "informativa privacy",
+  consentSuffix: " e acconsento al trattamento dei miei dati per ricevere questo preventivo.",
+  consentRequired: "Per continuare devi accettare l'informativa privacy.",
   vatRateLabel: "Aliquota IVA",
   estimateNotContractual: "Stima orientativa · non è un preventivo contrattuale.",
   requestSurveyBtn: "Richiedi un sopralluogo",
@@ -412,6 +424,10 @@ const fr: WidgetDict = {
   successBody: "Merci — nous reviendrons vers vous avec un devis détaillé sous peu.",
   uwLabel: "Coefficient Uw (indicatif)",
   footerDisclaimer: "Estimation à titre indicatif uniquement. Le prix définitif est confirmé après métrage sur site.",
+  consentPrefix: "J'ai lu l'",
+  consentLink: "information sur la confidentialité",
+  consentSuffix: " et j'accepte le traitement de mes données pour recevoir ce devis.",
+  consentRequired: "Veuillez accepter l'information sur la confidentialité pour continuer.",
   vatRateLabel: "Taux de TVA",
   estimateNotContractual: "Estimation indicative — ne constitue pas un devis contractuel.",
   requestSurveyBtn: "Demander un devis gratuit & une visite technique",
@@ -522,6 +538,10 @@ const de: WidgetDict = {
   successBody: "Danke — wir melden uns zeitnah mit einem detaillierten Angebot.",
   uwLabel: "U-Wert (indikativ)",
   footerDisclaimer: "Nur eine unverbindliche Kostenschätzung. Der endgültige Preis wird nach dem Aufmaß vor Ort bestätigt.",
+  consentPrefix: "Ich habe die",
+  consentLink: "Datenschutzhinweise",
+  consentSuffix: " gelesen und stimme der Verarbeitung meiner Daten zum Erhalt dieses Angebots zu.",
+  consentRequired: "Bitte akzeptieren Sie die Datenschutzhinweise, um fortzufahren.",
   estimateNotContractual: "Unverbindliche Kostenschätzung — kein verbindliches Angebot.",
   requestSurveyBtn: "Kostenloses Aufmaß & Beratung anfordern",
   posaUni11673Note: "Montage nach DIN EN 14351-1 / UNI 11673",
@@ -632,6 +652,10 @@ const nl: WidgetDict = {
   successBody: "Dank u — wij nemen zo spoedig mogelijk contact op met een gedetailleerde offerte.",
   uwLabel: "U-waarde (indicatief)",
   footerDisclaimer: "Alleen een indicatieve prijsindicatie. De definitieve prijs wordt bevestigd na opprom.",
+  consentPrefix: "Ik heb de",
+  consentLink: "privacyverklaring",
+  consentSuffix: " gelezen en ga akkoord met de verwerking van mijn gegevens om deze offerte te ontvangen.",
+  consentRequired: "Accepteer de privacyverklaring om door te gaan.",
   estimateNotContractual: "Alleen indicatief — geen bindende offerte.",
   requestSurveyBtn: "Gratis opmeting & advies aanvragen",
   posaUni11673Note: "Montage volgens NEN-EN 14351-1 / NEN 2743",

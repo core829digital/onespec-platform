@@ -231,6 +231,7 @@ export const getPublicConfigurator = query({
       logoLightUrl,
       region: regionForCountry(tenant?.country),
       transparentAllowed: tenant ? resolveTenantEntitlements(tenant).transparentWidget : false,
+      privacyUrl: tenant?.privacyUrl,
     });
   },
 });
@@ -248,8 +249,10 @@ function assembleWidgetResponse(args: {
   transparentAllowed: boolean;
   /** Whether the OWNER's plan includes the public embeddable widget. */
   publicWidgetAllowed?: boolean;
+  /** Owner's privacy notice URL for the consent checkbox (Annex D of the DPA); absent = generic wording. */
+  privacyUrl?: string;
 }) {
-  const { configurator, branding, payload, catalogVersion, logoUrl, logoLightUrl, region, transparentAllowed } = args;
+  const { configurator, branding, payload, catalogVersion, logoUrl, logoLightUrl, region, transparentAllowed, privacyUrl } = args;
   // The region is authoritative for widget mode: in NL a transparent price
   // breakdown is table stakes (a lead-gen-only widget loses the market), so it
   // is never downgraded by plan. `transparentAllowed` is surfaced for a future
@@ -297,6 +300,7 @@ function assembleWidgetResponse(args: {
       logoLightUrl,
     },
     catalog: sanitizePayload(payload),
+    privacyUrl: privacyUrl ?? null,
   };
 }
 
@@ -368,6 +372,7 @@ export const getConfiguratorForPreview = query({
     const tenant = await ctx.db.get(configurator.tenantId);
 
     return assembleWidgetResponse({
+      privacyUrl: tenant?.privacyUrl,
       configurator,
       branding,
       payload,
@@ -406,6 +411,8 @@ export const insertQuote = internalMutation({
     userAgent: v.optional(v.string()),
     turnstileVerified: v.optional(v.boolean()),
     flagged: v.optional(v.boolean()),
+    consentAt: v.optional(v.number()),
+    consentVersion: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
@@ -482,6 +489,8 @@ export const insertQuote = internalMutation({
       turnstileVerified: args.turnstileVerified,
       spamScore: args.flagged ? 80 : priceMismatch ? 30 : 0,
       overQuota: overQuota || undefined,
+      consentAt: args.consentAt,
+      consentVersion: args.consentVersion,
     });
 
     // Bump this period's usage counter.

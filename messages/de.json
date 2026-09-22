@@ -739,7 +739,9 @@
     "phone": "Telefon",
     "email": "Firmen-E-Mail",
     "save": "Speichern",
-    "saved": "Gespeichert"
+    "saved": "Gespeichert",
+    "privacyUrl": "URL der Datenschutzhinweise",
+    "privacyUrlHint": "Wird als Link im Zustimmungsfeld des öffentlichen Widgets angezeigt."
   },
   "dpa": {
     "title": "Auftragsverarbeitungsvertrag (AVV/DPA)",

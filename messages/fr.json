@@ -739,7 +739,9 @@
     "phone": "Téléphone",
     "email": "E-mail de l'entreprise",
     "save": "Enregistrer",
-    "saved": "Enregistré"
+    "saved": "Enregistré",
+    "privacyUrl": "URL de la politique de confidentialité",
+    "privacyUrlHint": "Affichée comme lien dans la case de consentement du widget public."
   },
   "dpa": {
     "title": "Accord de traitement des données (DPA)",

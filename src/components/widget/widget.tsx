@@ -57,6 +57,8 @@ interface WidgetProps {
     };
     /** Sanitized catalogue snapshot — drives option lists and preview pricing. */
     catalog?: WidgetCatalog | null;
+    /** Owner's privacy notice URL for the consent checkbox (Annex D of the DPA). */
+    privacyUrl?: string | null;
   };
   theme: string;
   lang: string;
@@ -168,6 +170,7 @@ export function Widget({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [honeypot, setHoneypot] = useState("");
+  const [consent, setConsent] = useState(false);
   const [successSummary, setSuccessSummary] = useState("");
 
   // ---- theme ----
@@ -415,6 +418,10 @@ export function Widget({
       setError(dict.leadError);
       return;
     }
+    if (!consent) {
+      setError(dict.consentRequired);
+      return;
+    }
     setSubmitting(true);
     try {
       const all = [...items, state].map(withRegionDefaults);
@@ -431,6 +438,8 @@ export function Widget({
         leadLocale: submitLocale,
         honeypot: honeypot || undefined,
         clientReportedPriceCents: Math.round(finalGrand * 100),
+        consent: true as const,
+        consentVersion: "widget-1",
       };
       const res = await fetch(`${CONVEX_SITE}/api/widget/quote`, {
         method: "POST",
@@ -1011,8 +1020,28 @@ export function Widget({
                   style={{ position: "absolute", left: "-9999px", width: 1, height: 1, opacity: 0 }}
                   aria-hidden="true"
                 />
+                <label style={{ display: "flex", alignItems: "flex-start", gap: 8, fontSize: 11.5, color: "var(--color-text-secondary)", lineHeight: 1.5 }}>
+                  <input
+                    type="checkbox"
+                    required
+                    checked={consent}
+                    onChange={(e) => setConsent(e.target.checked)}
+                    style={{ marginTop: 2 }}
+                  />
+                  <span>
+                    {dict.consentPrefix}{" "}
+                    {configurator.privacyUrl ? (
+                      <a href={configurator.privacyUrl} target="_blank" rel="noopener noreferrer" style={{ color: "inherit", textDecoration: "underline" }}>
+                        {dict.consentLink}
+                      </a>
+                    ) : (
+                      dict.consentLink
+                    )}
+                    {dict.consentSuffix}
+                  </span>
+                </label>
                 {error && <div style={{ fontSize: 12, color: "var(--color-danger)" }}>{error}</div>}
-                <button type="button" data-tw-primary disabled={submitting} onClick={submit} style={{ ...s.btnPrimary, background: accent, color: accentInk, opacity: submitting ? 0.6 : 1 }}>
+                <button type="button" data-tw-primary disabled={submitting || !consent} onClick={submit} style={{ ...s.btnPrimary, background: accent, color: accentInk, opacity: submitting ? 0.6 : 1 }}>
                   {submitting ? dict.submitting : isLeadGen ? dict.requestSurveyBtn : dict.submitBtn}
                 </button>
                 <button type="button" onClick={() => setStep("config")} style={{ background: "none", border: "none", color: "var(--color-text-secondary)", fontSize: 12, textDecoration: "underline", cursor: "pointer" }}>

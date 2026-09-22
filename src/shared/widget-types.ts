@@ -97,6 +97,9 @@ export const QuoteSubmissionSchema = z.object({
   requestKind: z.enum(["quote", "firm_order", "measurement"]).default("quote"),
   turnstileToken: z.string().max(4096).optional(),
   honeypot: z.string().max(200).optional(),
+  /** GDPR Art. 13 consent checkbox (Annex D of the DPA) — required. */
+  consent: z.literal(true),
+  consentVersion: z.string().max(20).optional(),
   clientReportedPriceCents: z.number().int().positive().max(100_000_000).optional(),
 });
 

@@ -116,6 +116,7 @@ export const updateTenant = mutation({
     address: v.optional(v.string()),
     phone: v.optional(v.string()),
     companyEmail: v.optional(v.string()),
+    privacyUrl: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     await requireTenantRole(ctx, args.tenantId, ["owner", "admin"]);
@@ -126,6 +127,11 @@ export const updateTenant = mutation({
     if (args.address !== undefined) update.address = cleanCompanyText(args.address);
     if (args.phone !== undefined) update.phone = cleanCompanyText(args.phone);
     if (args.companyEmail !== undefined) update.companyEmail = cleanCompanyText(args.companyEmail);
+    if (args.privacyUrl !== undefined) {
+      const url = args.privacyUrl.trim();
+      if (url && !/^https:\/\//.test(url)) throw new ConvexError("INVALID_INPUT");
+      update.privacyUrl = url || undefined;
+    }
     await ctx.db.patch(args.tenantId, update);
   },
 });
@@ -183,6 +189,7 @@ export const getCompanyProfile = query({
       address: tenant.address,
       phone: tenant.phone,
       email: tenant.companyEmail,
+      privacyUrl: tenant.privacyUrl,
       logoUrl: tenant.logoStorageId ? await ctx.storage.getUrl(tenant.logoStorageId) : null,
     };
   },

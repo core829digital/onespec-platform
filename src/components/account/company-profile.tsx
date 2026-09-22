@@ -20,7 +20,7 @@ const COUNTRIES = [
 const LOGO_TYPES = ["image/png", "image/jpeg"];
 const LOGO_MAX_BYTES = 2 * 1024 * 1024;
 
-type Draft = { country?: string; vatId?: string; address?: string; phone?: string; companyEmail?: string };
+type Draft = { country?: string; vatId?: string; address?: string; phone?: string; companyEmail?: string; privacyUrl?: string };
 
 export function CompanyProfileSection({ tenantId, country }: { tenantId: Id<"tenants">; country?: string }) {
   const t = useTranslations("company");
@@ -156,6 +156,15 @@ export function CompanyProfileSection({ tenantId, country }: { tenantId: Id<"ten
           <TextInput type="email" maxLength={200} value={val("companyEmail", profile?.email)} onChange={(e) => setDraft((d) => ({ ...d, companyEmail: e.target.value }))} />
         </Field>
       </div>
+      <Field label={t("privacyUrl")} hint={t("privacyUrlHint")}>
+        <TextInput
+          type="url"
+          maxLength={300}
+          placeholder="https://…"
+          value={val("privacyUrl", profile?.privacyUrl)}
+          onChange={(e) => setDraft((d) => ({ ...d, privacyUrl: e.target.value }))}
+        />
+      </Field>
       <button
         type="button"
         onClick={() => void save()}
