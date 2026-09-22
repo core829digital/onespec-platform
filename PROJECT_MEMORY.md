@@ -668,4 +668,15 @@ Elenco completo, tenuto qui per non perdere pezzi. Stato ad oggi per ciascun pun
 
 Istruzioni esatte, comandi copiabili, tutto nel `README.md` del nuovo repo.
 
+### 9.14 Fix compliance reale — PostHog/Sentry Replay senza consenso (2026-09-23)
+
+Verificando le legal pages contro il vincolo "non inventare, descrivi il vero data-flow" (punto 4 della coda), trovata una dichiarazione **falsa**: `src/content/legal.ts` (cookie doc) diceva "nessun cookie di profilazione, nessun banner necessario" — vero quando scritto, ma PostHog (session replay + analytics) e Sentry Replay sono stati aggiunti dopo e **si attivavano senza consenso per ogni visitatore**. Sotto le regole ePrivacy UE e' tracciamento non essenziale prima del consenso — esattamente la categoria "causa legale" che l'utente ha chiesto di prioritizzare, non solo un problema di testo.
+
+**Corretto su entrambi i lati**:
+- `instrumentation-client.ts`: PostHog parte con `opt_out_capturing_by_default: true`, Sentry Replay parte a sample-rate 0. Nuova `applyConsent(granted)` — l'unico interruttore che accende/spegne entrambi. La sola segnalazione errori Sentry (senza replay, nessun contenuto utente) resta sempre attiva — legittimo interesse per sicurezza/stabilita', non e' quello che va bloccato.
+- Nuovo banner cookie (`src/lib/consent.ts` + `cookie-consent-banner.tsx`, montato nel layout root, i18n 6 lingue) — nulla viene catturato finche' non si accetta.
+- `legal.ts`: elenco sub-responsabili nella privacy policy ora include PostHog e Sentry; sezione cookie riscritta per descrivere davvero cosa viene raccolto e che e' condizionato al consenso.
+
+Commit `01adc35` pushato. Gate: tsc pulito, eslint 0 errori, vitest 254/254, build verde. Nessun deploy Convex necessario (solo frontend).
+
 **Status page — richiesta esplicita aggiornata dall'utente**: NON nello stesso repo/progetto/dominio — repo GitHub nuovo, progetto Convex nuovo, pubblicato su `status.onespec.eu`, publishing automatico via trigger a ogni deploy. Trovato in `apps/status-page/` un abbozzo locale (Next.js standalone, solo `StatusPage.tsx`/`layout.tsx`/`page.tsx`, **nessun backend Convex**, cartella `.next` di build finita per errore nel working tree, ora esclusa da git). Questo e' materiale di partenza utile ma richiede provisioning di risorse ESTERNE NUOVE (repo GitHub sotto l'account dell'utente, progetto Convex nuovo — a pagamento/quota separata, dominio da configurare in DNS) — **azioni irreversibili/account-wide, chieste conferma esplicita all'utente prima di crearle**, non fatte alla cieca in questo turno.
