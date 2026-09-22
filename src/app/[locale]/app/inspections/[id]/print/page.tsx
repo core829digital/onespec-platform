@@ -3,11 +3,13 @@
 import { use, useMemo, useState, Suspense } from "react";
 import { useQuery } from "convex/react";
 import type { FunctionReturnType } from "convex/server";
+import { pdf } from "@react-pdf/renderer";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { PDFViewerComponent } from "@/components/ui/PDFViewer";
 import { InspectionCertPDF } from "@/lib/pdfs/InspectionCertPDF";
 import { usePDFDownload } from "@/hooks/usePDFDownload";
+import { printPdfBlob } from "@/lib/print-pdf";
 import { useCompanyPdf } from "@/lib/use-company-pdf";
 import { usePdfImages } from "@/lib/pdf-images";
 
@@ -64,6 +66,16 @@ function InspectionDocument({ data, region }: { data: NonNullable<FunctionReturn
     await downloadPDF(pdfProps);
   };
 
+  const [printing, setPrinting] = useState(false);
+  const handlePrint = async () => {
+    setPrinting(true);
+    try {
+      printPdfBlob(await pdf(pdfDoc).toBlob());
+    } finally {
+      setPrinting(false);
+    }
+  };
+
   return (
     <>
       {/* Print action bar (hidden in print) */}
@@ -82,7 +94,8 @@ function InspectionDocument({ data, region }: { data: NonNullable<FunctionReturn
             ⬇️ Scarica PDF
           </button>
           <button
-            onClick={() => window.print()}
+            onClick={handlePrint}
+            disabled={!ready || printing}
             className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2 text-sm font-medium text-[var(--color-text)] hover:bg-[var(--color-bg-alt)]"
           >
             🖨️ Stampa

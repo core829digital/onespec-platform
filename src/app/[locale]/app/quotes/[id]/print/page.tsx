@@ -3,12 +3,14 @@
 import { use, useState, Suspense } from "react";
 import { useQuery } from "convex/react";
 import type { FunctionReturnType } from "convex/server";
+import { pdf } from "@react-pdf/renderer";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import type { Id } from "@/convex/_generated/dataModel";
 import { PDFViewerComponent } from "@/components/ui/PDFViewer";
 import { QuotePrintPDF } from "@/lib/pdfs/QuotePrintPDF";
 import { usePDFDownload } from "@/hooks/usePDFDownload";
+import { printPdfBlob } from "@/lib/print-pdf";
 import { QuoteExportBar } from "@/components/quotes/quote-export-bar";
 import type { CatalogPayload } from "@/shared/pricing";
 import { useCompanyPdf } from "@/lib/use-company-pdf";
@@ -51,6 +53,19 @@ function QuoteDocument({ quote, tenant, region, catalog }: { quote: NonNullable<
       locale: dateLocale,
       region,
     });
+  };
+
+  const [printing, setPrinting] = useState(false);
+  const handlePrint = async () => {
+    setPrinting(true);
+    try {
+      const blob = await pdf(
+        <QuotePrintPDF tenant={company} quote={quote} catalog={catalog} locale={dateLocale} region={region} />,
+      ).toBlob();
+      printPdfBlob(blob);
+    } finally {
+      setPrinting(false);
+    }
   };
 
   return (
@@ -112,7 +127,8 @@ function QuoteDocument({ quote, tenant, region, catalog }: { quote: NonNullable<
             ⬇️ Scarica PDF
           </button>
           <button
-            onClick={() => window.print()}
+            onClick={handlePrint}
+            disabled={!companyReady || printing}
             className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2 text-sm font-medium text-[var(--color-text)] hover:bg-[var(--color-bg-alt)]"
           >
             🖨️ Stampa

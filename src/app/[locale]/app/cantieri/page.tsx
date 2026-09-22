@@ -259,7 +259,6 @@ cantieri.map((cantiere) => (
 }
 
 function CantiereModal({
-  isOpen,
   onClose,
   onSubmit,
   cantiere,
@@ -269,7 +268,6 @@ function CantiereModal({
   saving,
   t,
 }: {
-  isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: {
     name: string;
@@ -309,43 +307,41 @@ function CantiereModal({
     estimatedEndAt: string;
     valueCents: string;
     notes: string;
-  }>({
-    name: "",
-    address: "",
-    city: "",
-    postalCode: "",
-    country: "IT",
-    clientId: "",
-    quoteId: "",
-    status: "preventivo",
-    priority: "medium",
-    assignedUserIds: [],
-    estimatedStartAt: "",
-    estimatedEndAt: "",
-    valueCents: "",
-    notes: "",
-  });
-
-  if (!isOpen) return null;
-
-  if (cantiere) {
-    setFormData({
-      name: cantiere.name,
-      address: cantiere.address,
-      city: cantiere.city,
-      postalCode: cantiere.postalCode,
-      country: cantiere.country || "IT",
-      clientId: cantiere.clientId || "",
-      quoteId: cantiere.quoteId || "",
-      status: cantiere.status as "preventivo" | "confermato" | "in_produzione" | "pronto_consegna" | "in_posa" | "collaudo" | "chiuso",
-      priority: cantiere.priority as "low" | "medium" | "high" | "urgent",
-      assignedUserIds: cantiere.assignedUserIds || [],
-      estimatedStartAt: cantiere.estimatedStartAt ? new Date(cantiere.estimatedStartAt).toISOString().split("T")[0] : "",
-      estimatedEndAt: cantiere.estimatedEndAt ? new Date(cantiere.estimatedEndAt).toISOString().split("T")[0] : "",
-      valueCents: cantiere.valueCents ? String(cantiere.valueCents) : "",
-      notes: cantiere.notes || "",
-    });
-  }
+  }>(() =>
+    cantiere
+      ? {
+          name: cantiere.name,
+          address: cantiere.address,
+          city: cantiere.city,
+          postalCode: cantiere.postalCode,
+          country: cantiere.country || "IT",
+          clientId: cantiere.clientId || "",
+          quoteId: cantiere.quoteId || "",
+          status: cantiere.status as "preventivo" | "confermato" | "in_produzione" | "pronto_consegna" | "in_posa" | "collaudo" | "chiuso",
+          priority: cantiere.priority as "low" | "medium" | "high" | "urgent",
+          assignedUserIds: cantiere.assignedUserIds || [],
+          estimatedStartAt: cantiere.estimatedStartAt ? new Date(cantiere.estimatedStartAt).toISOString().split("T")[0] : "",
+          estimatedEndAt: cantiere.estimatedEndAt ? new Date(cantiere.estimatedEndAt).toISOString().split("T")[0] : "",
+          valueCents: cantiere.valueCents ? String(cantiere.valueCents) : "",
+          notes: cantiere.notes || "",
+        }
+      : {
+          name: "",
+          address: "",
+          city: "",
+          postalCode: "",
+          country: "IT",
+          clientId: "",
+          quoteId: "",
+          status: "preventivo",
+          priority: "medium",
+          assignedUserIds: [],
+          estimatedStartAt: "",
+          estimatedEndAt: "",
+          valueCents: "",
+          notes: "",
+        },
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -843,17 +839,18 @@ try {
         </div>
       </div>
 
-      <CantiereModal
-        isOpen={modalOpen}
-        onClose={() => { setModalOpen(false); setEditingCantiere(null); }}
-        onSubmit={editingCantiere ? handleUpdate : handleCreate}
-        cantiere={editingCantiere ?? undefined}
-        clients={(clients || []) as unknown as Cantiere[]}
-        quotes={(quotes || []) as unknown as Array<{ _id: string; leadName: string; clientId?: string }>}
-        users={(users || []) as unknown as Cantiere[]}
-        saving={saving}
-        t={t}
-      />
+      {modalOpen ? (
+        <CantiereModal
+          onClose={() => { setModalOpen(false); setEditingCantiere(null); }}
+          onSubmit={editingCantiere ? handleUpdate : handleCreate}
+          cantiere={editingCantiere ?? undefined}
+          clients={(clients || []) as unknown as Cantiere[]}
+          quotes={(quotes || []) as unknown as Array<{ _id: string; leadName: string; clientId?: string }>}
+          users={(users || []) as unknown as Cantiere[]}
+          saving={saving}
+          t={t}
+        />
+      ) : null}
 
       {pinModal && (
         <GuestPinModal

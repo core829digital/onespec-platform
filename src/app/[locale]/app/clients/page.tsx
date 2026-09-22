@@ -176,14 +176,12 @@ function ClientRow({
 }
 
 function ClientModal({
-  isOpen,
   onClose,
   onSubmit,
   client,
   saving,
   t,
 }: {
-  isOpen: boolean;
   onClose: () => void;
   onSubmit: (data: {
     name: string;
@@ -254,53 +252,53 @@ function ClientModal({
     notes: string;
     assignedToUserId: string;
     status: string;
-  }>({
-    name: "",
-    contactName: "",
-    email: "",
-    phone: "",
-    billingAddress: "",
-    billingCity: "",
-    billingPostalCode: "",
-    billingCountry: "IT",
-    siteAddress: "",
-    siteCity: "",
-    sitePostalCode: "",
-    siteCountry: "IT",
-    vatNumber: "",
-    fiscalCode: "",
-    type: "private",
-    tags: "",
-    source: "",
-    notes: "",
-    assignedToUserId: "",
-    status: "lead",
-  });
-
-  if (client) {
-    setFormData({
-      name: client.name,
-      contactName: client.contactName || "",
-      email: client.email || "",
-      phone: client.phone || "",
-      billingAddress: client.billingAddress || "",
-      billingCity: client.billingCity || "",
-      billingPostalCode: client.billingPostalCode || "",
-      billingCountry: client.billingCountry || "IT",
-      siteAddress: client.siteAddress || "",
-      siteCity: client.siteCity || "",
-      sitePostalCode: client.sitePostalCode || "",
-      siteCountry: client.siteCountry || "IT",
-      vatNumber: client.vatNumber || "",
-      fiscalCode: client.fiscalCode || "",
-      type: client.type,
-      tags: (client.tags || []).join(", "),
-      source: client.source || "",
-      notes: client.notes || "",
-      assignedToUserId: client.assignedToUserId || "",
-      status: client.status,
-    });
-  }
+  }>(() =>
+    client
+      ? {
+          name: client.name,
+          contactName: client.contactName || "",
+          email: client.email || "",
+          phone: client.phone || "",
+          billingAddress: client.billingAddress || "",
+          billingCity: client.billingCity || "",
+          billingPostalCode: client.billingPostalCode || "",
+          billingCountry: client.billingCountry || "IT",
+          siteAddress: client.siteAddress || "",
+          siteCity: client.siteCity || "",
+          sitePostalCode: client.sitePostalCode || "",
+          siteCountry: client.siteCountry || "IT",
+          vatNumber: client.vatNumber || "",
+          fiscalCode: client.fiscalCode || "",
+          type: client.type,
+          tags: (client.tags || []).join(", "),
+          source: client.source || "",
+          notes: client.notes || "",
+          assignedToUserId: client.assignedToUserId || "",
+          status: client.status,
+        }
+      : {
+          name: "",
+          contactName: "",
+          email: "",
+          phone: "",
+          billingAddress: "",
+          billingCity: "",
+          billingPostalCode: "",
+          billingCountry: "IT",
+          siteAddress: "",
+          siteCity: "",
+          sitePostalCode: "",
+          siteCountry: "IT",
+          vatNumber: "",
+          fiscalCode: "",
+          type: "private",
+          tags: "",
+          source: "",
+          notes: "",
+          assignedToUserId: "",
+          status: "lead",
+        },
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -846,14 +844,15 @@ const [editingClient, setEditingClient] = useState<
         )}
       </div>
 
-      <ClientModal
-        isOpen={modalOpen}
-        onClose={() => { setModalOpen(false); setEditingClient(undefined); }}
-        onSubmit={editingClient ? handleUpdate : handleCreate}
-        client={editingClient}
-        saving={saving}
-        t={t}
-      />
+      {modalOpen ? (
+        <ClientModal
+          onClose={() => { setModalOpen(false); setEditingClient(undefined); }}
+          onSubmit={editingClient ? handleUpdate : handleCreate}
+          client={editingClient}
+          saving={saving}
+          t={t}
+        />
+      ) : null}
     </div>
   );
 }
