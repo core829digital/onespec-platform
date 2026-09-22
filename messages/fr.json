@@ -130,12 +130,12 @@
       "submit": "Créer l'entreprise",
       "loading": "Création...",
       "error": "Erreur de création",
-      "starterTitle": "Entreprise créée",
-      "starterSubtitle": "Votre entreprise {companyName} est inscrite avec le plan Starter.",
       "continue": "Aller au tableau de bord",
       "countryLabel": "Pays",
       "countryPlaceholder": "Sélectionnez votre pays",
-      "countryDetected": "Détecté automatiquement depuis votre connexion — modifiable."
+      "countryDetected": "Détecté automatiquement depuis votre connexion — modifiable.",
+      "baseTitle": "Entreprise créée",
+      "baseSubtitle": "Votre entreprise {companyName} est inscrite avec le plan Base."
     },
     "footer": "© 2026 onespec. Tous droits réservés."
   },
@@ -821,7 +821,7 @@
     "title": "Showroom · Devis en 60 secondes",
     "subtitle": "Configurez chaque vantail, affichez le prix clés en main et concluez par WhatsApp ou visite sur place.",
     "noCatalog": "Aucun configurateur publié. Publiez un catalogue pour utiliser l'outil de devis showroom.",
-    "notAllowed": "L'outil de devis showroom est inclus dans l'offre Showroom.",
+    "notAllowed": "L'outil de devis showroom est inclus dans les offres Agency et Enterprise.",
     "seePlans": "Voir les offres",
     "loading": "Chargement du tarif…",
     "energyRenovation": "Rénovation énergétique",

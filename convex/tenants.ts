@@ -35,7 +35,7 @@ export const registerTenant = mutation({
       slug: args.companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "-" + nanoid(6),
       ownerUserId: userId,
       country,
-      plan: "starter",
+      plan: "base",
       planStatus: "trialing",
       createdVia: "open_signup",
       createdAt: Date.now(),

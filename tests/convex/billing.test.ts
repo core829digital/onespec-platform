@@ -5,18 +5,18 @@ import { verifyStripeSignature } from "../../convex/billing";
 import { newDb, seedTenant } from "./_helpers";
 
 describe("billing plan catalogue", () => {
-  test("verified prices match the pricing page", () => {
-    expect(BILLING_PLANS.find((p) => p.key === "starter")?.priceCents).toBe(2400);
-    expect(BILLING_PLANS.find((p) => p.key === "pro")?.priceCents).toBe(4700);
-    expect(BILLING_PLANS.find((p) => p.key === "enterprise")?.priceCents).toBeNull();
-    expect(BILLING_PLANS.find((p) => p.key === "showroom")?.priceCents).toBeNull();
+  test("verified prices match the signed SaaS contracts (flat, no regional variance)", () => {
+    expect(BILLING_PLANS.find((p) => p.key === "base")?.priceCents).toBe(9700);
+    expect(BILLING_PLANS.find((p) => p.key === "pro")?.priceCents).toBe(19700);
+    expect(BILLING_PLANS.find((p) => p.key === "agency")?.priceCents).toBe(39700);
+    expect(BILLING_PLANS.find((p) => p.key === "enterprise")?.priceCents).toBe(69000);
   });
 
-  test("list prices: base, regional override, custom plans have none", () => {
-    expect(listPriceCents("pro")).toBe(4700);
-    expect(listPriceCents("pro", "IT")).toBe(8900);
-    expect(listPriceCents("pro", "IT", "annual")).toBe(89000);
-    expect(listPriceCents("enterprise")).toBeNull();
+  test("list prices: flat everywhere, annual = monthly x10", () => {
+    expect(listPriceCents("pro")).toBe(19700);
+    expect(listPriceCents("pro", "IT")).toBe(19700);
+    expect(listPriceCents("pro", "IT", "annual")).toBe(197000);
+    expect(listPriceCents("enterprise")).toBe(69000);
   });
 });
 
@@ -56,15 +56,14 @@ describe("billing.getBillingState + webhook", () => {
       .withIdentity({ subject: ownerId })
       .query(api.billing.getBillingState, { tenantId });
     expect(s?.checkoutAvailable).toBe(false);
-    // No country on the tenant → region resolves to the IT default, so the
-    // Pro plan uses the IT regional price (€89).
     expect(s?.region).toBe("IT");
-    expect(s?.plans.find((p) => p.key === "pro")?.priceCents).toBe(8900);
+    // v2 prices are flat everywhere — no regional override.
+    expect(s?.plans.find((p) => p.key === "pro")?.priceCents).toBe(19700);
   });
 
-  test("a region without a price override falls back to the base plan price", async () => {
+  test("price is flat regardless of tenant country (no v1 regional override)", async () => {
     const t = newDb();
-    const { tenantId, ownerId } = await seedTenant(t, { plan: "starter" });
+    const { tenantId, ownerId } = await seedTenant(t, { plan: "base" });
     await t.run(async (ctx) => {
       await ctx.db.patch(tenantId, { country: "NL" });
     });
@@ -72,34 +71,7 @@ describe("billing.getBillingState + webhook", () => {
       .withIdentity({ subject: ownerId })
       .query(api.billing.getBillingState, { tenantId });
     expect(s?.region).toBe("NL");
-    // NL has a REGIONAL_PRICES entry → Pro price €129.
-    expect(s?.plans.find((p) => p.key === "pro")?.priceCents).toBe(12900);
-  });
-
-  test("FR tenant gets the France regional plan price", async () => {
-    const t = newDb();
-    const { tenantId, ownerId } = await seedTenant(t, { plan: "starter" });
-    await t.run(async (ctx) => {
-      await ctx.db.patch(tenantId, { country: "FR" });
-    });
-    const s = await t
-      .withIdentity({ subject: ownerId })
-      .query(api.billing.getBillingState, { tenantId });
-    expect(s?.region).toBe("FR");
-    expect(s?.plans.find((p) => p.key === "pro")?.priceCents).toBe(9900);
-  });
-
-  test("BE tenant gets the Belgium regional plan price", async () => {
-    const t = newDb();
-    const { tenantId, ownerId } = await seedTenant(t, { plan: "starter" });
-    await t.run(async (ctx) => {
-      await ctx.db.patch(tenantId, { country: "BE" });
-    });
-    const s = await t
-      .withIdentity({ subject: ownerId })
-      .query(api.billing.getBillingState, { tenantId });
-    expect(s?.region).toBe("BE");
-    expect(s?.plans.find((p) => p.key === "pro")?.priceCents).toBe(9900);
+    expect(s?.plans.find((p) => p.key === "pro")?.priceCents).toBe(19700);
   });
 
   test("applyWebhookEvent activates a subscription and is idempotent", async () => {

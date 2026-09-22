@@ -9,9 +9,9 @@ export const LEGAL_VALUES: Record<string, string> = {
   "email di contatto sicurezza": "hello@onespec.eu",
 
   // Operating company identity — fill in from the company registration.
-  "ragione sociale": "",
-  "indirizzo completo": "",
-  "P.IVA / codice fiscale": "",
+  "ragione sociale": "CORE829",
+  "indirizzo completo": "Str. Mihai Eminescu, 10, Roman, România",
+  "P.IVA / codice fiscale": "CUI/CIF RO54616345 — Reg. com. J2026029428009",
   "indirizzo PEC": "",
 
   // Data protection / hosting.

@@ -9,12 +9,13 @@ import {
 import { newDb, seedTenant } from "./_helpers";
 import type { Doc } from "../../convex/_generated/dataModel";
 
-describe("entitlement matrix matches the verified pricing page", () => {
-  test("starter", () => {
-    const e = entitlementsFor("starter");
+describe("entitlement matrix matches the signed SaaS contracts (v2 ladder)", () => {
+  test("base", () => {
+    const e = entitlementsFor("base");
     expect(e.maxConfigurators).toBe(1);
     expect(e.maxQuotesPerMonth).toBe(20);
     expect(e.whiteLabel).toBe(false);
+    expect(e.publicWidget).toBe(false);
     expect(e.customDomain).toBe(false);
     expect(e.fieldModules).toBe("rilievo_only");
     expect(e.fiscalEngine).toBe("basic");
@@ -29,41 +30,52 @@ describe("entitlement matrix matches the verified pricing page", () => {
     expect(e.customDomain).toBe(false);
     expect(e.fieldModules).toBe("full");
   });
-  test("pro", () => {
+  test("pro (\"Widget WhiteLabel\") unlocks the public embeddable widget", () => {
     const e = entitlementsFor("pro");
     expect(e.maxConfigurators).toBe(3);
     expect(e.maxTeamMembers).toBe(5);
     expect(e.fieldModules).toBe("full");
     expect(e.eSignature).toBe(true);
     expect(e.trialEligible).toBe(true);
-  });
-  test("showroom extends enterprise with storefront", () => {
-    const e = entitlementsFor("showroom");
-    expect(e.maxConfigurators).toBe(Infinity);
     expect(e.publicWidget).toBe(true);
-    expect(e.showroomCalculator).toBe(true);
-    expect(entitlementsFor("enterprise").publicWidget).toBe(true);
+    expect(e.whiteLabel).toBe(true);
   });
-  test("enterprise is capped seats + custom domain + API", () => {
-    const e = entitlementsFor("enterprise");
+  test("agency (\"MultiBrand\") adds multi-supplier + showroom calculator", () => {
+    const e = entitlementsFor("agency");
     expect(e.maxConfigurators).toBe(10);
     expect(e.maxQuotesPerMonth).toBe(1000);
+    expect(e.multiSupplierAggregator).toBe(true);
+    expect(e.showroomCalculator).toBe(true);
+    expect(e.bulkImportMultiSite).toBe(true);
+    expect(e.customDomain).toBe(false);
+    expect(e.apiAccess).toBe(false);
+  });
+  test("enterprise (\"API\") is unlimited + custom domain + API", () => {
+    const e = entitlementsFor("enterprise");
+    expect(e.maxConfigurators).toBe(Infinity);
     expect(e.customDomain).toBe(true);
     expect(e.apiAccess).toBe(true);
-    expect(e.bulkImportMultiSite).toBe(true);
+    expect(e.gaebExport).toBe(true);
+    expect(e.crmIntegration).toBe(true);
+    expect(e.selfServeCheckout).toBe(false);
   });
-  test("the retired alpha key falls back to starter", () => {
+  test("legacy 'starter'/'showroom' plan values still resolve (pre-migration rows)", () => {
+    expect(entitlementsFor("starter").maxConfigurators).toBe(1);
+    expect(entitlementsFor("showroom").maxConfigurators).toBe(Infinity);
+    expect(entitlementsFor("showroom").publicWidget).toBe(true);
+  });
+  test("the retired alpha key falls back to base", () => {
     expect(entitlementsFor("alpha").maxConfigurators).toBe(1);
     expect(entitlementsFor("alpha").whiteLabel).toBe(false);
   });
-  test("unknown plan falls back to starter", () => {
+  test("unknown plan falls back to base", () => {
     expect(entitlementsFor("nope").maxConfigurators).toBe(1);
   });
 });
 
 describe("resolveTenantEntitlements", () => {
-  test("a starter tenant does not get white-label", () => {
-    const tenant = { plan: "starter" } as Doc<"tenants">;
+  test("a base tenant does not get white-label", () => {
+    const tenant = { plan: "base" } as Doc<"tenants">;
     expect(resolveTenantEntitlements(tenant).whiteLabel).toBe(false);
   });
 });
@@ -82,9 +94,9 @@ describe("quota gates", () => {
 });
 
 describe("createConfigurator enforces the plan limit", () => {
-  test("starter tenant is blocked on the 2nd configurator", async () => {
+  test("base tenant is blocked on the 2nd configurator", async () => {
     const t = newDb();
-    const A = await seedTenant(t, { plan: "starter" });
+    const A = await seedTenant(t, { plan: "base" });
     const asOwner = t.withIdentity({ subject: A.ownerId });
 
     const first = await asOwner.mutation(api.configurators.createConfigurator, {

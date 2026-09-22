@@ -176,14 +176,14 @@ export default function BillingPage() {
                 <div className="mt-3 space-y-2">
                   {current ? (
                     <span className="text-xs text-[var(--color-mint)] block">{t("currentPlan")}</span>
-                  ) : p.key === "enterprise" || p.key === "showroom" ? (
+                  ) : p.key === "enterprise" ? (
                     <a
                       href="mailto:sales@onespec.eu"
                       className="text-xs text-[var(--color-mint)] hover:underline block text-center"
                     >
                       {t("contactSales")}
                     </a>
-                  ) : p.key === "pro" && state.plan === "starter" && state.checkoutAvailable && cycle === "monthly" ? (
+                  ) : p.key === "pro" && state.plan === "base" && state.checkoutAvailable && cycle === "monthly" ? (
                     <button
                       type="button"
                       disabled={busy}
@@ -208,7 +208,7 @@ export default function BillingPage() {
                         go(() =>
                           checkout({
                             tenantId: tenant!._id,
-                            plan: p.key as "starter" | "pro",
+                            plan: p.key as "base" | "pro" | "agency",
                             cycle,
                           }),
                         )

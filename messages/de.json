@@ -130,12 +130,12 @@
       "submit": "Unternehmen erstellen",
       "loading": "Erstellung...",
       "error": "Fehler bei der Erstellung",
-      "starterTitle": "Unternehmen erstellt",
-      "starterSubtitle": "Ihr Unternehmen {companyName} ist mit dem Starter-Plan registriert.",
       "continue": "Zum Dashboard",
       "countryLabel": "Country",
       "countryPlaceholder": "Select your country",
-      "countryDetected": "Detected automatically from your connection — you can change it."
+      "countryDetected": "Detected automatically from your connection — you can change it.",
+      "baseTitle": "Unternehmen erstellt",
+      "baseSubtitle": "Ihr Unternehmen {companyName} ist mit dem Base-Plan registriert."
     },
     "footer": "© 2026 onespec. Alle Rechte vorbehalten."
   },
@@ -821,7 +821,7 @@
     "title": "Showroom · Angebot in 60 Sekunden",
     "subtitle": "Jeden Flügel konfigurieren, den Schlüsselfertig-Preis zeigen und per WhatsApp oder Vor-Ort-Termin abschließen.",
     "noCatalog": "Kein veröffentlichter Konfigurator. Veröffentlichen Sie einen Katalog, um das Showroom-Angebotstool zu nutzen.",
-    "notAllowed": "Das Showroom-Angebotstool ist im Showroom-Tarif enthalten.",
+    "notAllowed": "Das Showroom-Angebotstool ist in den Tarifen Agency und Enterprise enthalten.",
     "seePlans": "Tarife ansehen",
     "loading": "Preisliste wird geladen…",
     "energyRenovation": "Energetische Sanierung",

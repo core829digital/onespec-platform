@@ -22,8 +22,11 @@ export default defineSchema({
     slug: v.string(),
     ownerUserId: v.id("users"),
     country: v.optional(v.string()),
-    plan: v.union(v.literal("starter"),
-                  v.literal("pro"), v.literal("enterprise"), v.literal("showroom")),
+    // v2 plan ladder (2026-09-22, per signed SaaS contracts): base/pro/agency/enterprise.
+    // "starter"/"showroom" kept as transitional literals until migrations.renamePlansToV2
+    // has run on every deployment, then removed.
+    plan: v.union(v.literal("base"), v.literal("pro"), v.literal("agency"), v.literal("enterprise"),
+                  v.literal("starter"), v.literal("showroom")),
     planStatus: v.union(v.literal("active"), v.literal("trialing"),
                         v.literal("past_due"), v.literal("suspended")),
     suspendedAt: v.optional(v.number()),

@@ -130,12 +130,12 @@
       "submit": "Bedrijf aanmaken",
       "loading": "Aanmaken...",
       "error": "Fout bij aanmaken",
-      "starterTitle": "Bedrijf aangemaakt",
-      "starterSubtitle": "Je bedrijf {companyName} is geregistreerd met het Starter-plan.",
       "continue": "Naar dashboard",
       "countryLabel": "Country",
       "countryPlaceholder": "Select your country",
-      "countryDetected": "Detected automatically from your connection — you can change it."
+      "countryDetected": "Detected automatically from your connection — you can change it.",
+      "baseTitle": "Bedrijf aangemaakt",
+      "baseSubtitle": "Je bedrijf {companyName} is geregistreerd met het Base-plan."
     },
     "footer": "© 2026 onespec. Alle rechten voorbehouden."
   },
@@ -821,7 +821,7 @@
     "title": "Showroom · Offerte in 60 seconden",
     "subtitle": "Configureer elke vleugel, toon de turnkeyprijs en sluit af via WhatsApp of opname ter plaatse.",
     "noCatalog": "Geen gepubliceerde configurator. Publiceer een catalogus om de showroom-offertetool te gebruiken.",
-    "notAllowed": "De showroom-offertetool is inbegrepen in het Showroom-abonnement.",
+    "notAllowed": "De showroom-offertetool is inbegrepen in de Agency- en Enterprise-abonnementen.",
     "seePlans": "Bekijk abonnementen",
     "loading": "Prijslijst laden…",
     "energyRenovation": "Energetische renovatie",

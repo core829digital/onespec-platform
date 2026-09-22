@@ -11,7 +11,7 @@ async function seedSettings(t: ReturnType<typeof newDb>, registrationOpen: boole
   );
 }
 
-test("registerTenant: closed registration rejects, open creates a Starter tenant", async () => {
+test("registerTenant: closed registration rejects, open creates a Base tenant", async () => {
   const t = newDb();
   await seedSettings(t, false);
   const userId = await t.run((ctx) =>
@@ -29,6 +29,6 @@ test("registerTenant: closed registration rejects, open creates a Starter tenant
 
   const res = await as.mutation(api.tenants.registerTenant, { companyName: "Acme" });
   const tenant = await t.run((ctx) => ctx.db.get(res.tenantId));
-  expect(tenant?.plan).toBe("starter");
+  expect(tenant?.plan).toBe("base");
   expect(tenant?.createdVia).toBe("open_signup");
 });

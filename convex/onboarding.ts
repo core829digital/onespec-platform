@@ -32,7 +32,7 @@ export const getState = query({
     const activeSub = tenant.planStatus === "active" || tenant.planStatus === "trialing";
     // Every self-serve tenant pays once Stripe is live. Sales-led plans (Enterprise /
     // Showroom) are invoiced outside Stripe, so they are never sent to checkout.
-    const salesLed = tenant.plan === "enterprise" || tenant.plan === "showroom";
+    const salesLed = tenant.plan === "enterprise";
     const needsBilling = stripeConfigured && !salesLed && !activeSub;
 
     const configurators = (

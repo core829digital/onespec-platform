@@ -66,8 +66,8 @@ export default function OnboardingPage() {
     return (
       <div className="space-y-6 text-center">
         <div className="p-6 rounded-xl border bg-[var(--color-bg-alt)] border-[var(--color-border)]">
-          <h2 className="text-2xl font-bold text-[var(--color-text)] mb-2">{t("starterTitle")}</h2>
-          <p className="text-[var(--color-text-secondary)]">{t("starterSubtitle", { companyName })}</p>
+          <h2 className="text-2xl font-bold text-[var(--color-text)] mb-2">{t("baseTitle")}</h2>
+          <p className="text-[var(--color-text-secondary)]">{t("baseSubtitle", { companyName })}</p>
         </div>
 
         <Button onClick={() => router.push("/onboarding")} className="w-full" size="lg">

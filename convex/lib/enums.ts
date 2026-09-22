@@ -1,8 +1,12 @@
-export const PLAN_TIERS = ["starter", "pro", "enterprise", "showroom"] as const;
+export const PLAN_TIERS = ["base", "pro", "agency", "enterprise"] as const;
 export type PlanTier = (typeof PLAN_TIERS)[number];
 
-/** Pre-migration rows still carry plan:"business" (deploy #1). Resolves to Pro. */
-export const LEGACY_PLAN_TIERS = ["business"] as const;
+/**
+ * Pre-migration rows: "business" (deploy #1, resolves to Pro), "starter"/
+ * "showroom" (pre-v2 ladder, resolve to Base/Enterprise) — until
+ * `migrations.renamePlansToV2` has run everywhere.
+ */
+export const LEGACY_PLAN_TIERS = ["business", "starter", "showroom"] as const;
 export type LegacyPlanTier = (typeof LEGACY_PLAN_TIERS)[number];
 
 export const PLAN_STATUSES = ["active", "trialing", "past_due", "suspended"] as const;

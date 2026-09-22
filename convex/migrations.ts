@@ -43,6 +43,53 @@ export const renameBusinessToPro = internalMutation({
   },
 });
 
+/**
+ * v2 plan-ladder rename (2026-09-22, per signed SaaS contracts):
+ *   starter  → base       (same entitlements, renamed)
+ *   showroom → enterprise (Enterprise now includes what Showroom used to add
+ *                          on top — unlimited configurators, showroom
+ *                          calculator, public widget — no capability lost)
+ *   pro/enterprise (as literal strings) are unchanged; only their
+ *   entitlements/price moved, not the DB value.
+ *
+ * Run AFTER the transitional schema deploy (plan union keeps starter/showroom
+ * as valid literals) and BEFORE the deploy that drops those two literals:
+ *
+ *   npx convex run migrations:renamePlansToV2
+ *
+ * Idempotent — safe to re-run.
+ */
+export const renamePlansToV2 = internalMutation({
+  args: { cursor: v.optional(v.string()), limit: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    const page = await ctx.db
+      .query("tenants")
+      .paginate({ cursor: args.cursor ?? null, numItems: args.limit ?? 100 });
+    let migrated = 0;
+    for (const t of page.page) {
+      const from = t.plan as string;
+      const to = from === "starter" ? "base" : from === "showroom" ? "enterprise" : null;
+      if (!to) continue;
+      await ctx.db.patch(t._id, { plan: to as "base" | "enterprise", updatedAt: Date.now() });
+      await ctx.db.insert("auditLog", {
+        tenantId: t._id,
+        actorKind: "system",
+        action: "plan.migrate",
+        targetTable: "tenants",
+        targetId: t._id,
+        meta: { from, to },
+        createdAt: Date.now(),
+      });
+      migrated++;
+    }
+    return {
+      migrated,
+      done: page.isDone,
+      cursor: page.continueCursor,
+    };
+  },
+});
+
 export const backfillTrialEndsAt = internalMutation({
   args: { cursor: v.optional(v.string()), limit: v.optional(v.number()) },
   handler: async (ctx, args) => {

@@ -181,12 +181,12 @@
       "submit": "Crea azienda",
       "loading": "Creazione...",
       "error": "Errore durante la creazione",
-      "starterTitle": "Azienda creata",
-      "starterSubtitle": "La tua azienda {companyName} è registrata con piano Starter.",
       "continue": "Vai alla dashboard",
       "countryLabel": "Paese",
       "countryPlaceholder": "Seleziona il paese",
-      "countryDetected": "Rilevato automaticamente dalla tua connessione — puoi cambiarlo."
+      "countryDetected": "Rilevato automaticamente dalla tua connessione — puoi cambiarlo.",
+      "baseTitle": "Azienda creata",
+      "baseSubtitle": "La tua azienda {companyName} è registrata con piano Base."
     }
   },
   "notifications": {
@@ -821,7 +821,7 @@
     "title": "Showroom · Preventivo in 60 secondi",
     "subtitle": "Configura ogni anta, mostra il prezzo chiavi in mano e chiudi con WhatsApp o sopralluogo.",
     "noCatalog": "Nessun configuratore pubblicato. Pubblica un catalogo per usare il preventivatore da showroom.",
-    "notAllowed": "Il preventivatore da showroom è incluso nel piano Showroom.",
+    "notAllowed": "Il preventivatore da showroom è incluso nei piani Agency ed Enterprise.",
     "seePlans": "Vedi i piani",
     "loading": "Caricamento del listino…",
     "energyRenovation": "Ristrutturazione energetica",

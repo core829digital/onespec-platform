@@ -99,7 +99,7 @@ export const assertOwner = internalQuery({
 export const createCheckoutSession = action({
   args: {
     tenantId: v.id("tenants"),
-    plan: v.union(v.literal("starter"), v.literal("pro")),
+    plan: v.union(v.literal("base"), v.literal("pro"), v.literal("agency")),
     cycle: v.optional(v.union(v.literal("monthly"), v.literal("annual"))),
   },
   handler: async (ctx, args): Promise<{ url: string }> => {
@@ -279,7 +279,7 @@ export const applyWebhookEvent = internalMutation({
           ) as string | undefined;
           if (priceId) {
             const mapped = planFromStripePriceId(priceId);
-            if (mapped && (mapped.plan === "starter" || mapped.plan === "pro")) {
+            if (mapped && (mapped.plan === "base" || mapped.plan === "pro" || mapped.plan === "agency")) {
               patch.plan = mapped.plan;
               patch.billingCycle = mapped.cycle;
             }

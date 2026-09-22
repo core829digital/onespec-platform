@@ -181,12 +181,12 @@
       "submit": "Create company",
       "loading": "Creating...",
       "error": "Error creating company",
-      "starterTitle": "Company created",
-      "starterSubtitle": "Your company {companyName} is registered with Starter plan.",
       "continue": "Go to dashboard",
       "countryLabel": "Country",
       "countryPlaceholder": "Select your country",
-      "countryDetected": "Detected automatically from your connection — you can change it."
+      "countryDetected": "Detected automatically from your connection — you can change it.",
+      "baseTitle": "Company created",
+      "baseSubtitle": "Your company {companyName} is registered with the Base plan."
     }
   },
   "notifications": {
@@ -821,7 +821,7 @@
     "title": "Showroom · Quote in 60 seconds",
     "subtitle": "Configure every leaf, show the turnkey price and close by WhatsApp or site visit.",
     "noCatalog": "No published configurator. Publish a catalogue to use the showroom quoting tool.",
-    "notAllowed": "The showroom quoting tool is included in the Showroom plan.",
+    "notAllowed": "The showroom quoting tool is included in the Agency and Enterprise plans.",
     "seePlans": "See plans",
     "loading": "Loading the price list…",
     "energyRenovation": "Energy renovation",

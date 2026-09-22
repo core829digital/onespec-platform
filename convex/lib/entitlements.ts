@@ -6,16 +6,20 @@ import type { Doc } from "../_generated/dataModel";
  * Never trust a plan / entitlement value coming from the client — always
  * resolve it from the tenant document via `resolveTenantEntitlements`.
  *
- * Plan ladder (founder strategy):
- *   Starter   — solo installer: field quotes (capped), Rilievo, lead-gen widget
- *   Pro       — installer firm: unlimited quotes, e-signature, advances,
- *               maintenance, full fiscal engine + ENEA
- *   Enterprise— showroom/distributor back-office: multi-supplier, API/CRM,
- *               GAEB export, custom domain, no public storefront
- *   Showroom  — Enterprise + in-app 3-zone showroom calculator + public B2C widget
+ * Plan ladder v2 (2026-09-22, per signed SaaS contracts — Base/Pro/Agency/Enterprise):
+ *   Base       — solo installer: field quotes (capped), Rilievo, no public widget
+ *   Pro        — "Widget WhiteLabel": public embeddable widget + white-label,
+ *                unlimited quotes, e-signature, advances, full fiscal engine + ENEA
+ *   Agency     — "MultiBrand": multi-catalog at scale, multi-supplier aggregator,
+ *                in-app 3-zone showroom calculator, bulk import
+ *   Enterprise — "API": everything + API/CRM, GAEB export, custom domain, dedicated support
+ *
+ * "starter"/"showroom" are the pre-v2 plan keys, kept resolvable here until
+ * `migrations.renamePlansToV2` has run on every deployment (starter→base,
+ * showroom→enterprise — see that migration for the mapping rationale).
  */
 
-export type PlanKey = "starter" | "pro" | "enterprise" | "showroom";
+export type PlanKey = "base" | "pro" | "agency" | "enterprise" | "starter" | "showroom";
 
 export type SupportTier = "email" | "priority" | "dedicated";
 
@@ -77,7 +81,7 @@ export interface Entitlements {
   trialEligible: boolean;
 }
 
-const STARTER: Entitlements = {
+const BASE: Entitlements = {
   maxConfigurators: 1,
   maxQuotesPerMonth: 20,
   maxTeamMembers: 2,
@@ -108,7 +112,7 @@ const STARTER: Entitlements = {
 };
 
 const PRO: Entitlements = {
-  ...STARTER,
+  ...BASE,
   maxConfigurators: 3,
   maxQuotesPerMonth: Infinity,
   maxTeamMembers: 5,
@@ -125,55 +129,57 @@ const PRO: Entitlements = {
   maintenanceContracts: true,
   support: "priority",
   trialEligible: true,
+  // "Widget WhiteLabel" contract tier: public embeddable widget unlocks here.
+  publicWidget: true,
 };
 
-const ENTERPRISE: Entitlements = {
+const AGENCY: Entitlements = {
   ...PRO,
   maxConfigurators: 10,
   maxTeamMembers: 15,
   maxQuotesPerMonth: 1000,
   analytics: "advanced",
   bulkImportMultiSite: true,
-  customDomain: true,
-  apiAccess: true,
   multiSupplierAggregator: true,
-  gaebExport: true,
-  crmIntegration: true,
+  showroomCalculator: true,
   support: "dedicated",
   annualBilling: false,
-  selfServeCheckout: false,
-  showroomCalculator: true,
-  publicWidget: true,
 };
 
-const SHOWROOM: Entitlements = {
-  ...ENTERPRISE,
+const ENTERPRISE: Entitlements = {
+  ...AGENCY,
   maxConfigurators: Infinity,
-  maxTeamMembers: 25,
-  showroomCalculator: true,
-  publicWidget: true,
+  maxTeamMembers: Infinity,
+  customDomain: true,
+  apiAccess: true,
+  gaebExport: true,
+  crmIntegration: true,
+  selfServeCheckout: false,
 };
 
 const PLAN_ENTITLEMENTS: Record<PlanKey, Entitlements> = {
-  starter: STARTER,
+  base: BASE,
   pro: PRO,
+  agency: AGENCY,
   enterprise: ENTERPRISE,
-  showroom: SHOWROOM,
+  // Pre-v2 keys, resolvable until `migrations.renamePlansToV2` runs everywhere.
+  starter: BASE,
+  showroom: ENTERPRISE,
 };
 
 export function entitlementsFor(plan: string): Entitlements {
   // "business" is the pre-migration plan key (deploy #1 transition) — it
   // resolves to Pro so not-yet-migrated rows keep working.
   if (plan === "business") return PRO;
-  return PLAN_ENTITLEMENTS[plan as PlanKey] ?? STARTER;
+  return PLAN_ENTITLEMENTS[plan as PlanKey] ?? BASE;
 }
 
 /** Resolve the effective entitlements for a tenant document. */
 export function resolveTenantEntitlements(tenant: Doc<"tenants">): Entitlements {
   const base = entitlementsFor(tenant.plan);
-  // Grandfathering: existing Starter tenants keep 50 quotes/month instead of 20.
+  // Grandfathering: existing Base (ex-Starter) tenants keep 50 quotes/month instead of 20.
   const ent = { ...base };
-  if (tenant.plan === "starter" && typeof tenant.quotaOverrideQuotesPerMonth === "number") {
+  if ((tenant.plan === "base" || tenant.plan === "starter") && typeof tenant.quotaOverrideQuotesPerMonth === "number") {
     ent.maxQuotesPerMonth = tenant.quotaOverrideQuotesPerMonth;
   }
   return ent;

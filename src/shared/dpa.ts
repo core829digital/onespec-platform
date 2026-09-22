@@ -21,12 +21,13 @@ export interface DpaController {
 
 /** The operator's identity, as written in the agreement. */
 export const DPA_PROCESSOR = {
-  name: "SERBAN FERRESTRE SRL / ONESPEC",
-  vatId: "",
-  address: "",
+  name: "CORE829 / ONESPEC",
+  vatId: "CUI/CIF RO54616345 — Reg. com. J2026029428009",
+  address: "Str. Mihai Eminescu, 10, Roman, România",
   representative: "Vasile Vasea Serban",
   privacyEmail: "privacy@onespec.it",
   offerEmail: "offerta@serbanferrestre.it",
+  phone: "+40 766 668 482",
 };
 
 export interface DpaSection {

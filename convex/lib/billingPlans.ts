@@ -1,60 +1,45 @@
 /**
  * Billing catalogue — the single source of truth for prices shown and charged.
  *
- * `BILLING_PLANS` holds the base (region-agnostic) monthly price. Per Master
- * Plan v2 the platform rolls out country by country with **different prices per
- * country** ("prezzi diversi per nazione"); `REGIONAL_PRICES` overrides the base
- * figure for a market that has been priced. A region with no entry falls back to
- * the base price.
+ * v2 plan ladder (2026-09-22), per the signed SaaS service contracts
+ * (Base/Pro/Agency/Enterprise): flat monthly price, same everywhere — the
+ * contracts do not vary by country, unlike the earlier region-priced v1
+ * ladder this replaces. `REGIONAL_PRICES` is kept as a mechanism (a future
+ * market could still get an override) but starts empty.
  *
- *   Base        Starter €24   Pro €47       Enterprise custom   Showroom custom
- *   IT          Starter €44   Pro €89       Enterprise €169     Showroom €249
- *   FR/BE       Starter €54   Pro €99       Enterprise €199     Showroom €279
- *   NL          Starter €64   Pro €129      Enterprise €279     Showroom €349
- *   DE/LU       Starter €79   Pro €169      Enterprise €349     Showroom €449
- *
- * Regional figures are mid-range strategy-PDF values and need founder sign-off
- * before a country goes live — do not treat them as final.
+ *   Base €97   Pro €197 (bestseller)   Agency €397   Enterprise €690
  *
  * Annual billing = monthly × 10 (2 months free), unless an explicit annual
  * Stripe Price says otherwise.
  */
 
-export type BillablePlan = "starter" | "pro";
+export type BillablePlan = "base" | "pro" | "agency";
 export type BillingCycle = "monthly" | "annual";
 
 export interface BillingPlan {
-  key: BillablePlan | "enterprise" | "showroom";
+  key: BillablePlan | "enterprise";
   name: string;
-  /** Base monthly price, cents. null => custom / contact sales. */
+  /** Flat monthly price, cents. null => custom / contact sales. */
   priceCents: number | null;
-  /** Stripe Price env-key stem, e.g. "STARTER" → STRIPE_PRICE_STARTER_MONTHLY_IT. */
-  stripePriceKey?: "STARTER" | "PRO";
+  /** Stripe Price env-key stem, e.g. "BASE" → STRIPE_PRICE_BASE_MONTHLY_IT. */
+  stripePriceKey?: "BASE" | "PRO" | "AGENCY";
 }
 
-export type PlanKey = BillablePlan | "enterprise" | "showroom";
+export type PlanKey = BillablePlan | "enterprise";
 
 export const BILLING_PLANS: BillingPlan[] = [
-  { key: "starter", name: "Starter", priceCents: 2400, stripePriceKey: "STARTER" },
-  { key: "pro", name: "Pro", priceCents: 4700, stripePriceKey: "PRO" },
-  { key: "enterprise", name: "Enterprise", priceCents: null },
-  { key: "showroom", name: "Showroom", priceCents: null },
+  { key: "base", name: "Base", priceCents: 9700, stripePriceKey: "BASE" },
+  { key: "pro", name: "Pro", priceCents: 19700, stripePriceKey: "PRO" },
+  { key: "agency", name: "Agency", priceCents: 39700, stripePriceKey: "AGENCY" },
+  { key: "enterprise", name: "Enterprise", priceCents: 69000 },
 ];
 
 /**
- * Per-market price overrides (monthly, cents). A region absent here uses the
- * base `BILLING_PLANS` figure; a plan absent within a present region likewise
- * falls back to base. Enterprise/Showroom figures are display-only anchors
- * for the contact-sales cards.
+ * Per-market price overrides (monthly, cents). Empty for v2 — the signed
+ * contracts price flat regardless of country. A region added here would
+ * override the base `BILLING_PLANS` figure for that market.
  */
-export const REGIONAL_PRICES: Partial<Record<string, Partial<Record<PlanKey, number | null>>>> = {
-  IT: { starter: 4400, pro: 8900, enterprise: 16900, showroom: 24900 },
-  FR: { starter: 5400, pro: 9900, enterprise: 19900, showroom: 27900 },
-  BE: { starter: 5400, pro: 9900, enterprise: 19900, showroom: 27900 },
-  NL: { starter: 6400, pro: 12900, enterprise: 27900, showroom: 34900 },
-  DE: { starter: 7900, pro: 16900, enterprise: 34900, showroom: 44900 },
-  LU: { starter: 7900, pro: 16900, enterprise: 34900, showroom: 44900 },
-};
+export const REGIONAL_PRICES: Partial<Record<string, Partial<Record<PlanKey, number | null>>>> = {};
 
 export function billingPlan(key: string): BillingPlan | undefined {
   if (key === "business") return BILLING_PLANS.find((p) => p.key === "pro");
@@ -85,8 +70,8 @@ export function listPriceCents(
 
 /**
  * Env-var name for a Stripe Price: STRIPE_PRICE_<PLAN>_<CYCLE>_<REGION>,
- * e.g. STRIPE_PRICE_PRO_ANNUAL_IT. Only starter/pro are billable;
- * enterprise/showroom are sales-led (ad-hoc Price per deal, or invoiced).
+ * e.g. STRIPE_PRICE_PRO_ANNUAL_IT. Only base/pro/agency are self-serve
+ * billable; enterprise is sales-led (ad-hoc Price per deal, or invoiced).
  */
 export function stripePriceEnvName(
   plan: BillablePlan,
@@ -108,8 +93,8 @@ export function resolveStripePriceId(
   return (
     process.env[stripePriceEnvName(plan, cycle, region)] ??
     process.env[`STRIPE_PRICE_${plan.toUpperCase()}_${cycle.toUpperCase()}`] ??
-    (cycle === "monthly" && plan === "starter" ? process.env.STRIPE_PRICE_STARTER : undefined) ??
-    (cycle === "monthly" && plan === "pro" ? process.env.STRIPE_PRICE_BUSINESS : undefined)
+    (cycle === "monthly" && plan === "base" ? process.env.STRIPE_PRICE_BASE : undefined) ??
+    (cycle === "monthly" && plan === "pro" ? process.env.STRIPE_PRICE_PRO : undefined)
   );
 }
 
@@ -126,16 +111,16 @@ export function planFromStripePriceId(priceId: string): {
   const env = process.env as Record<string, string | undefined>;
   for (const [name, value] of Object.entries(env)) {
     if (!name.startsWith("STRIPE_PRICE_") || value !== priceId) continue;
-    const m = /^STRIPE_PRICE_(STARTER|PRO)(?:_(MONTHLY|ANNUAL)(?:_([A-Z]{2}))?)?$/.exec(name);
+    const m = /^STRIPE_PRICE_(BASE|PRO|AGENCY)(?:_(MONTHLY|ANNUAL)(?:_([A-Z]{2}))?)?$/.exec(name);
     if (!m) continue;
     return {
-      plan: m[1] === "STARTER" ? "starter" : "pro",
+      plan: m[1].toLowerCase() as PlanKey,
       cycle: (m[2]?.toLowerCase() as BillingCycle | undefined) ?? "monthly",
       region: m[3] ?? "",
     };
   }
   // Legacy single-price envs.
-  if (priceId === env.STRIPE_PRICE_STARTER) return { plan: "starter", cycle: "monthly", region: "" };
-  if (priceId === env.STRIPE_PRICE_BUSINESS) return { plan: "pro", cycle: "monthly", region: "" };
+  if (priceId === env.STRIPE_PRICE_BASE) return { plan: "base", cycle: "monthly", region: "" };
+  if (priceId === env.STRIPE_PRICE_PRO) return { plan: "pro", cycle: "monthly", region: "" };
   return null;
 }

@@ -130,12 +130,12 @@
       "submit": "Creează firmă",
       "loading": "Creare...",
       "error": "Eroare la creare",
-      "starterTitle": "Firmă creată",
-      "starterSubtitle": "Firma ta {companyName} este înregistrată cu planul Starter.",
       "continue": "Du-te la panou",
       "countryLabel": "Country",
       "countryPlaceholder": "Select your country",
-      "countryDetected": "Detected automatically from your connection — you can change it."
+      "countryDetected": "Detected automatically from your connection — you can change it.",
+      "baseTitle": "Firmă creată",
+      "baseSubtitle": "Firma ta {companyName} este înregistrată cu planul Base."
     },
     "footer": "© 2026 onespec. Toate drepturile rezervate."
   },
@@ -821,7 +821,7 @@
     "title": "Showroom · Ofertă în 60 de secunde",
     "subtitle": "Configurează fiecare canat, arată prețul la cheie și încheie prin WhatsApp sau vizită la fața locului.",
     "noCatalog": "Niciun configurator publicat. Publică un catalog pentru a folosi instrumentul de ofertare din showroom.",
-    "notAllowed": "Instrumentul de ofertare din showroom este inclus în planul Showroom.",
+    "notAllowed": "Instrumentul de ofertare din showroom este inclus în planurile Agency și Enterprise.",
     "seePlans": "Vezi planurile",
     "loading": "Se încarcă lista de prețuri…",
     "energyRenovation": "Renovare energetică",
