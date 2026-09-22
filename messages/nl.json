@@ -845,5 +845,12 @@
     "cookie": "Cookies",
     "lastUpdated": "Laatst bijgewerkt",
     "allRightsReserved": "Alle rechten voorbehouden."
+  },
+  "cookieConsent": {
+    "title": "Cookietoestemming",
+    "body": "We gebruiken optionele analyse- en sessie-replaytools (PostHog, Sentry Replay) om platformfouten te begrijpen en op te lossen. Ze blijven uit totdat je akkoord gaat.",
+    "learnMore": "Meer informatie",
+    "accept": "Accepteren",
+    "reject": "Weigeren"
   }
 }

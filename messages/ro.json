@@ -845,5 +845,12 @@
     "cookie": "Cookie-uri",
     "lastUpdated": "Ultima actualizare",
     "allRightsReserved": "Toate drepturile rezervate."
+  },
+  "cookieConsent": {
+    "title": "Consimțământ cookie-uri",
+    "body": "Folosim instrumente opționale de analiză și redare a sesiunii (PostHog, Sentry Replay) pentru a înțelege și remedia erorile platformei. Rămân dezactivate până accepți.",
+    "learnMore": "Află mai multe",
+    "accept": "Accept",
+    "reject": "Refuz"
   }
 }

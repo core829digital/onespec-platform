@@ -845,5 +845,12 @@
     "cookie": "Cookie",
     "lastUpdated": "Ultimo aggiornamento",
     "allRightsReserved": "Tutti i diritti riservati."
+  },
+  "cookieConsent": {
+    "title": "Consenso cookie",
+    "body": "Usiamo strumenti opzionali di analisi e registrazione sessione (PostHog, Sentry Replay) per capire e risolvere i bug della piattaforma. Restano spenti finché non accetti.",
+    "learnMore": "Scopri di più",
+    "accept": "Accetta",
+    "reject": "Rifiuta"
   }
 }

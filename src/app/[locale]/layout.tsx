@@ -9,6 +9,7 @@ import { Toaster } from "@/components/ui/sonner";
 import { MotionConfig } from "framer-motion";
 import { LocaleHtmlLang } from "@/components/locale-html-lang";
 import { RageClickDetector } from "@/hooks/useRageClick";
+import { CookieConsentBanner } from "@/components/cookie-consent-banner";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -40,6 +41,7 @@ export default async function LocaleLayout({
             {children}
             <ThemeToggle />
             <Toaster />
+            <CookieConsentBanner />
           </MotionConfig>
         </RageClickDetector>
       </ConvexClientProvider>

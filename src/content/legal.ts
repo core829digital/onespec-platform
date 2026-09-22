@@ -40,6 +40,8 @@ const SUBPROCESSORS: LegalSection = {
     "• Resend (Resend, Inc.) — invio delle email transazionali (codici di verifica, notifiche di preventivo).",
     "• Cloudflare Turnstile (Cloudflare, Inc.) — verifica anti-bot sull'invio dei preventivi dal widget.",
     "• Vercel (Vercel, Inc.) — hosting dell'applicazione web e misurazione delle prestazioni (Speed Insights, senza cookie).",
+    "• PostHog (PostHog Inc.) — analisi di prodotto e registrazione della sessione (click, scroll, navigazione) per individuare e correggere malfunzionamenti; i valori digitati nei campi dei moduli restano oscurati. Attivo solo dopo il consenso esplicito tramite il banner cookie.",
+    "• Sentry (Functional Software, Inc.) — rilevamento errori tecnici; la registrazione visiva della sessione (Session Replay) è attiva solo dopo lo stesso consenso, la sola segnalazione degli errori resta sempre attiva per garantire la sicurezza e la stabilità del servizio.",
     "Eventuali trasferimenti verso paesi terzi avvengono sulla base delle Clausole Contrattuali Standard della Commissione Europea. L'elenco aggiornato dei sub-responsabili con i relativi dettagli è disponibile su richiesta a [[email di contatto privacy]].",
   ],
 };
@@ -58,7 +60,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
   {
     slug: "privacy",
     title: "Informativa sulla privacy",
-    updated: "2026-09-02",
+    updated: "2026-09-23",
     summary: "Quali dati personali trattiamo, perché e per quanto tempo.",
     sections: [
       IDENTITY_INTRO,
@@ -195,7 +197,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
   {
     slug: "cookie",
     title: "Cookie e tecnologie simili",
-    updated: "2026-09-02",
+    updated: "2026-09-23",
     summary: "Quali cookie e archiviazioni locali utilizza l'applicazione.",
     sections: [
       {
@@ -217,9 +219,11 @@ export const LEGAL_DOCS: LegalDoc[] = [
         ],
       },
       {
-        h: "Assenza di cookie di profilazione",
+        h: "Analisi e registrazione della sessione (previo consenso)",
         p: [
-          "Non sono utilizzati cookie di profilazione o pubblicitari di terze parti. Per questo motivo non è presente un banner di consenso ai cookie: se in futuro verranno introdotti strumenti non essenziali, sarà richiesto il consenso preventivo, gestito separatamente dall'accesso.",
+          "Utilizziamo PostHog per l'analisi di prodotto e la registrazione della sessione (click, scorrimento, percorso di navigazione) e Sentry Replay per rivedere visivamente cosa ha causato un errore tecnico — entrambi servono a individuare e correggere malfunzionamenti della piattaforma. I valori digitati nei campi dei moduli restano sempre oscurati nella registrazione.",
+          "Questi strumenti non si attivano automaticamente: al primo accesso viene mostrato un banner che chiede il consenso; finché non viene accettato, nessun dato di navigazione viene raccolto da questi strumenti. La sola segnalazione tecnica degli errori (senza registrazione visiva né dati di navigazione) resta invece sempre attiva, come misura di sicurezza e stabilità del servizio.",
+          "Non sono utilizzati cookie pubblicitari o di profilazione commerciale di terze parti.",
         ],
       },
     ],
