@@ -152,6 +152,8 @@ export default defineSchema({
     ecobonusMaxPercent: v.optional(v.number()),
     discountEnabled: v.optional(v.boolean()),
     discountMaxPercent: v.optional(v.number()),
+    /** "standard" (full pricing widget, default) or "wizard" (5-step qualitative lead-capture, no live price). */
+    widgetStyle: v.optional(v.union(v.literal("standard"), v.literal("wizard"))),
     publishedAt: v.optional(v.number()),
     publishedCatalogVersion: v.optional(v.number()),
     createdAt: v.optional(v.number()),

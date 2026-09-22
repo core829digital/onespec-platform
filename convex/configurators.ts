@@ -142,6 +142,7 @@ export const updateConfigurator = mutation({
     ecobonusMaxPercent: v.optional(v.number()),
     discountEnabled: v.optional(v.boolean()),
     discountMaxPercent: v.optional(v.number()),
+    widgetStyle: v.optional(v.union(v.literal("standard"), v.literal("wizard"))),
   },
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
@@ -162,6 +163,7 @@ export const updateConfigurator = mutation({
     if (args.discountEnabled !== undefined) update.discountEnabled = args.discountEnabled;
     if (args.discountMaxPercent !== undefined)
       update.discountMaxPercent = Math.max(0, Math.min(100, args.discountMaxPercent));
+    if (args.widgetStyle !== undefined) update.widgetStyle = args.widgetStyle;
 
     await ctx.db.patch(args.configuratorId, update);
   },

@@ -19,6 +19,7 @@ interface Configurator {
   ecobonusMaxPercent?: number;
   discountEnabled?: boolean;
   discountMaxPercent?: number;
+  widgetStyle?: "standard" | "wizard";
 }
 
 const LOCALES = ["it", "en", "fr"];
@@ -55,6 +56,7 @@ export function GeneralTab({
   const [discMax, setDiscMax] = useState(String(configurator.discountMaxPercent ?? 20));
   const [origins, setOrigins] = useState<string[]>(configurator.allowedOrigins);
   const [originDraft, setOriginDraft] = useState("");
+  const [widgetStyle, setWidgetStyle] = useState<"standard" | "wizard">(configurator.widgetStyle ?? "standard");
 
   function addOrigin() {
     const v = originDraft.trim().replace(/\/$/, "");
@@ -103,6 +105,7 @@ export function GeneralTab({
         ecobonusMaxPercent: Math.max(0, Math.min(100, parseFloat(ecoMax) || 0)),
         discountEnabled: discEnabled,
         discountMaxPercent: Math.max(0, Math.min(100, parseFloat(discMax) || 0)),
+        widgetStyle,
       });
       setMsg({ kind: "ok", text: "Impostazioni salvate." });
     } catch (e) {
@@ -150,6 +153,42 @@ export function GeneralTab({
               <option value="dark">Scuro</option>
             </SelectInput>
           </Field>
+        </div>
+      </Section>
+
+      <Section
+        title="Stile widget"
+        description="Come si presenta il configuratore sul sito del montatore. Cambia solo la UI pubblica — catalogo, prezzi e leadgen restano gli stessi."
+      >
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <button
+            type="button"
+            onClick={() => setWidgetStyle("standard")}
+            className={`rounded-xl border p-4 text-left transition-colors ${
+              widgetStyle === "standard"
+                ? "border-[var(--color-mint)] bg-[var(--color-mint-light)]"
+                : "border-[var(--color-border)] bg-[var(--color-bg-alt)] hover:border-[var(--color-mint)]/50"
+            }`}
+          >
+            <p className="font-semibold text-[var(--color-text)]">Configuratore completo</p>
+            <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
+              Editor tecnico completo: categorie, telaio, per-anta, accessori, prezzo live. Per chi vuole un preventivo dettagliato online.
+            </p>
+          </button>
+          <button
+            type="button"
+            onClick={() => setWidgetStyle("wizard")}
+            className={`rounded-xl border p-4 text-left transition-colors ${
+              widgetStyle === "wizard"
+                ? "border-[var(--color-mint)] bg-[var(--color-mint-light)]"
+                : "border-[var(--color-border)] bg-[var(--color-bg-alt)] hover:border-[var(--color-mint)]/50"
+            }`}
+          >
+            <p className="font-semibold text-[var(--color-text)]">Wizard semplice</p>
+            <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
+              5 passaggi rapidi, nessun prezzo mostrato: raccoglie il contatto e le preferenze, poi lo richiami tu. Per chi vuole solo generare lead.
+            </p>
+          </button>
         </div>
       </Section>
 

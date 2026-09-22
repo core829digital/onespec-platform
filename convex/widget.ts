@@ -266,6 +266,7 @@ function assembleWidgetResponse(args: {
     name: configurator.name,
     defaultLocale: pick("defaultLocale", configurator.defaultLocale),
     defaultTheme: pick("defaultTheme", configurator.defaultTheme),
+    widgetStyle: configurator.widgetStyle ?? "standard",
     showPricesToEndUser: pick("showPricesToEndUser", configurator.showPricesToEndUser),
     currency: pick("currency", configurator.currency),
     vatRatePercent: pick("vatRatePercent", configurator.vatRatePercent),

@@ -3,6 +3,7 @@ import type { FunctionReturnType } from "convex/server";
 import { convexAuthNextjsToken } from "@convex-dev/auth/nextjs/server";
 import { api } from "@/convex/_generated/api";
 import { Widget } from "@/components/widget/widget";
+import { SimpleWizardWidget } from "@/components/widget/simple-wizard-widget";
 import { notFound } from "next/navigation";
 import { resolveWidgetLang, resolveWidgetTheme } from "@/lib/widget-params";
 
@@ -79,6 +80,19 @@ export default async function WidgetPage({
           <p className="text-[var(--color-muted-fg)]">{LOCKED[lang]?.body ?? LOCKED.en.body}</p>
         </div>
       </div>
+    );
+  }
+
+  if (configurator.widgetStyle === "wizard") {
+    return (
+      <SimpleWizardWidget
+        configurator={configurator}
+        theme={theme}
+        lang={lang}
+        preview={preview}
+        accentOverride={accentParam}
+        fontOverride={fontParam}
+      />
     );
   }
 
