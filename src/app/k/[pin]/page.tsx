@@ -1,10 +1,14 @@
 import type { Metadata } from "next";
-import { fetchQuery } from "convex/nextjs";
+import { fetchMutation } from "convex/nextjs";
+import { headers } from "next/headers";
 import { api } from "@/convex/_generated/api";
 import { notFound } from "next/navigation";
 import { CantiereGuestView } from "@/components/cantieri/CantiereGuestView";
 
-export const revalidate = 60;
+async function clientIp(): Promise<string | undefined> {
+  const h = await headers();
+  return (h.get("x-forwarded-for") || "").split(",")[0].trim() || h.get("x-real-ip") || undefined;
+}
 
 export async function generateMetadata({
   params,
@@ -12,7 +16,7 @@ export async function generateMetadata({
   params: Promise<{ pin: string }>;
 }): Promise<Metadata> {
   const { pin } = await params;
-  const result = await fetchQuery(api.cantieri.getCantiereByGuestPin, { pin });
+  const result = await fetchMutation(api.cantieri.getCantiereByGuestPin, { pin, ip: await clientIp() });
   if (!result || "error" in result) return { title: "OneSpec — Cantiere non trovato" };
   const cantiere = result.cantiere;
   return {
@@ -29,7 +33,7 @@ export default async function CantiereGuestPage({
   params: Promise<{ pin: string }>;
 }) {
   const { pin } = await params;
-  const result = await fetchQuery(api.cantieri.getCantiereByGuestPin, { pin });
+  const result = await fetchMutation(api.cantieri.getCantiereByGuestPin, { pin, ip: await clientIp() });
   if (!result || "error" in result) notFound();
   const cantiere = result.cantiere;
 

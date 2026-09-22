@@ -14,16 +14,16 @@ export function useDebounce<T extends (...args: unknown[]) => void>(
   }, [callback]);
 
   const debouncedFn = useCallback(
-    ((...args: unknown[]) => {
+    (...args: unknown[]) => {
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
       timeoutRef.current = setTimeout(() => {
         callbackRef.current(...args);
       }, delay);
-    }) as T,
+    },
     [delay]
-  );
+  ) as T;
 
   useEffect(() => {
     return () => {

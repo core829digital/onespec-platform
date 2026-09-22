@@ -5,6 +5,7 @@ import type { Id } from "./_generated/dataModel";
 import { auth } from "./auth";
 import { QuoteSubmissionSchema } from "../src/shared/widget-types";
 import { verifyStripeSignature } from "./billing";
+import { hashIp } from "./lib/ipHash";
 
 const http = httpRouter();
 
@@ -24,13 +25,6 @@ function json(body: unknown, status = 200) {
   });
 }
 
-async function hashIp(ip: string): Promise<string> {
-  const salt = process.env.DAILY_IP_SALT || "dev-salt";
-  const buf = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(ip + salt));
-  return Array.from(new Uint8Array(buf))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
-}
 
 async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
   const secret = process.env.TURNSTILE_SECRET;

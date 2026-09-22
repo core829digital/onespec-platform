@@ -3,6 +3,8 @@ import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import { requireTenantRole, requireMembership } from "./lib/auth";
 import { listRelated } from "./lib/links";
+import { consumeToken, RATE_LIMITS } from "./lib/ratelimit";
+import { hashIp } from "./lib/ipHash";
 
 const CANTIERE_STATUSES = [
   "preventivo",
@@ -117,10 +119,19 @@ export const getCantiere = query({
   },
 });
 
-/** Guest access check for cantiere via PIN. */
-export const getCantiereByGuestPin = query({
-  args: { pin: v.string() },
+/**
+ * Guest access check for cantiere via PIN. A `mutation` (not `query`) so it
+ * can consume a rate-limit token before the lookup — a 6-digit PIN is
+ * brute-forceable (900k combinations) without one. Callers use
+ * `fetchMutation`, not the reactive `useQuery` hook.
+ */
+export const getCantiereByGuestPin = mutation({
+  args: { pin: v.string(), ip: v.optional(v.string()) },
   handler: async (ctx, args) => {
+    const ipHash = args.ip ? await hashIp(args.ip) : "unknown";
+    const ok = await consumeToken(ctx, `guestpin:${ipHash}`, RATE_LIMITS.guestPinPerIpPer10Min);
+    if (!ok) return { ok: false, error: "Troppi tentativi, riprova più tardi" };
+
     const cantiere = await ctx.db
       .query("cantieri")
       .withIndex("by_guest_pin", (q) => q.eq("guestPin", args.pin))

@@ -8,6 +8,7 @@ export const RATE_LIMITS = {
   quotePerIpPerDay: { tokens: 20, refillMs: 24 * 60 * 60 * 1000 },
   quoteGlobalPerConfigurator: { tokens: 100, refillMs: 60 * 60 * 1000 },
   exportPerTenantPerHour: { tokens: 10, refillMs: 60 * 60 * 1000 },
+  guestPinPerIpPer10Min: { tokens: 10, refillMs: 10 * 60 * 1000 },
 };
 
 /**

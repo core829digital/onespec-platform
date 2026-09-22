@@ -1,13 +1,14 @@
 import { test, expect, vi, beforeEach, afterEach } from "vitest";
 import { api } from "../../convex/_generated/api";
 import { newDb, seedTenant } from "./_helpers";
+import type { Id } from "../../convex/_generated/dataModel";
 
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => vi.useRealTimers());
 
 const opening = [{ label: "Foro 1", widthMm: 1200, heightMm: 1400 }];
 
-async function seedClient(t: ReturnType<typeof newDb>, tenantId: any, name = "Bianchi Srl") {
+async function seedClient(t: ReturnType<typeof newDb>, tenantId: Id<"tenants">, name = "Bianchi Srl") {
   return await t.run((ctx) =>
     ctx.db.insert("clients", {
       tenantId,
