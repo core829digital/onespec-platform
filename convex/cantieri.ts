@@ -259,7 +259,6 @@ export const updateCantiere = mutation({
   handler: async (ctx, args) => {
     const cantiere = await ctx.db.get(args.cantiereId);
     if (!cantiere) throw new ConvexError("CANTIERE_NOT_FOUND");
-    await requireTenantRole(ctx, cantiere.tenantId, ["owner", "admin", "member"]);
     const { userId } = await requireTenantRole(ctx, cantiere.tenantId, ["owner", "admin", "member"]);
 
     const patch: Record<string, unknown> = { updatedAt: Date.now() };
@@ -276,18 +275,34 @@ export const updateCantiere = mutation({
       }
     }
 
-    await ctx.db.patch(args.cantiereId, patch);
+    try {
+      await ctx.db.patch(args.cantiereId, patch);
 
-    await ctx.db.insert("auditLog", {
-      tenantId: cantiere.tenantId,
-      actorUserId: userId,
-      actorKind: "user",
-      action: "cantiere.update",
-      targetTable: "cantieri",
-      targetId: args.cantiereId,
-      meta: patch,
-      createdAt: Date.now(),
-    });
+      await ctx.db.insert("auditLog", {
+        tenantId: cantiere.tenantId,
+        actorUserId: userId,
+        actorKind: "user",
+        action: "cantiere.update",
+        targetTable: "cantieri",
+        targetId: args.cantiereId,
+        meta: patch,
+        createdAt: Date.now(),
+      });
+    } catch (err) {
+      // Convex mutations can't call PostHog directly (no network I/O in a
+      // transaction), and a scheduled call made here would roll back along
+      // with everything else once we throw below. console.error is the only
+      // capture that survives: Convex keeps function logs independent of the
+      // transaction's commit/rollback outcome.
+      console.error("[cantieri:updateCantiere] patch failed", {
+        cantiereId: args.cantiereId,
+        tenantId: cantiere.tenantId,
+        userId,
+        fields: Object.keys(patch),
+        error: err instanceof Error ? err.message : String(err),
+      });
+      throw new ConvexError("CANTIERE_UPDATE_FAILED");
+    }
 
     return { ok: true };
   },

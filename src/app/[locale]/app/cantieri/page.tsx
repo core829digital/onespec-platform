@@ -600,7 +600,6 @@ export default function CantieriPage() {
       setModalOpen(false);
       setEditingCantiere(null);
     } catch (e) {
-      posthog.captureException(e);
       showError(e);
     } finally {
       setSaving(false);
@@ -625,14 +624,13 @@ const handleUpdate = async (data: {
   }) => {
     if (!editingCantiere) return;
     setSaving(true);
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-try {
-      await updateCantiere({ 
-        cantiereId: editingCantiere._id as Id<"cantieri">, // eslint-disable-line @typescript-eslint/no-explicit-any
+    try {
+      await updateCantiere({
+        cantiereId: editingCantiere._id as Id<"cantieri">,
         ...data,
-        clientId: data.clientId as Id<"clients">, // eslint-disable-line @typescript-eslint/no-explicit-any
-        quoteId: data.quoteId as Id<"quoteRequests">, // eslint-disable-line @typescript-eslint/no-explicit-any
-        assignedUserIds: data.assignedUserIds as unknown as Id<"users">[], // eslint-disable-line @typescript-eslint/no-explicit-any
+        clientId: data.clientId ? (data.clientId as Id<"clients">) : undefined,
+        quoteId: data.quoteId ? (data.quoteId as Id<"quoteRequests">) : undefined,
+        assignedUserIds: data.assignedUserIds as unknown as Id<"users">[],
       });
       setModalOpen(false);
       setEditingCantiere(null);
@@ -688,7 +686,6 @@ try {
         new_status: newStatus,
       });
     } catch (e) {
-      posthog.captureException(e);
       showError(e);
     }
   };
