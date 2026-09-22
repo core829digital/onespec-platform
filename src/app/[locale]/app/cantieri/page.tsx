@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import posthog from "posthog-js";
 import { useQuery, useMutation } from "convex/react";
 import { useTranslations, useFormatter } from "next-intl";
 import { api } from "@/convex/_generated/api";
@@ -29,6 +30,21 @@ import {
 } from "lucide-react";
 import { EmptyState } from "@/components/app-shell/empty-state";
 import { useFriendlyError } from "@/lib/use-friendly-error";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import { SortableCantiereCard, type SortableCantiereCardProps } from "@/components/cantieri/SortableCantiereCard";
 
 // Module-level constant for current time (updated on each render via useMemo in parent)
 export const NOW = Date.now();
@@ -49,136 +65,6 @@ const PRIORITY_COLORS = {
   high: "bg-amber-100 text-amber-700",
   urgent: "bg-red-100 text-red-700",
 };
-
-interface CantiereCardProps {
-  cantiere: {
-    _id?: string;
-    name: string;
-    status: string;
-    address: string;
-    postalCode: string;
-    city: string;
-    client?: { name: string } | null;
-    valueCents?: number;
-    estimatedStartAt?: number;
-    estimatedEndAt?: number;
-    guestPin?: string;
-    assignedUserIds?: string[];
-    totalTasks?: number;
-    taskCounts?: Record<string, number>;
-    priority?: string;
-  };
-  onEdit: () => void;
-  onDelete: () => void;
-  onGeneratePin: () => void;
-  onRevokePin: () => void;
-  t: (key: string) => string;
-  format: ReturnType<typeof useFormatter>;
-}
-
-function CantiereCard({
-  cantiere,
-  onEdit,
-  onDelete,
-  onGeneratePin,
-  onRevokePin,
-  t,
-  format,
-}: CantiereCardProps) {
-  const config = STATUS_CONFIG.find((s) => s.key === cantiere.status);
-  const now = NOW;
-  const isOverdue = cantiere.estimatedEndAt && cantiere.estimatedEndAt < now && cantiere.status !== "chiuso";
-
-  return (
-    <div className="bg-white border border-[var(--color-border)] rounded-lg p-3 hover:shadow-md transition-shadow">
-      <div className="flex items-start justify-between gap-2 mb-2">
-        <h3 className="font-semibold text-[var(--color-text)] truncate">
-          {cantiere._id ? (
-            <Link href={`/app/cantieri/${cantiere._id}`} className="hover:text-[var(--color-mint)] hover:underline">
-              {cantiere.name}
-            </Link>
-          ) : (
-            cantiere.name
-          )}
-        </h3>
-        {cantiere.guestPin && (
-          <span className="flex items-center gap-1 px-2 py-0.5 rounded text-xs bg-emerald-100 text-emerald-700" title={t("guestAccessActive")}>
-            <Key className="w-3 h-3" />
-            {t("pinActive")}
-          </span>
-        )}
-      </div>
-      <div className="space-y-1.5 text-sm text-[var(--color-text-secondary)]">
-        <div className="flex items-center gap-1">
-          <MapPin className="w-3.5 h-3.5 flex-shrink-0" />
-          <span className="truncate">{cantiere.address}, {cantiere.postalCode} {cantiere.city}</span>
-        </div>
-        {cantiere.client && (
-          <div className="flex items-center gap-1">
-            <Users className="w-3.5 h-3.5 flex-shrink-0" />
-            <span className="truncate">{cantiere.client.name}</span>
-          </div>
-        )}
-        {cantiere.valueCents && (
-          <div className="flex items-center gap-1">
-            <Euro className="w-3.5 h-3.5 flex-shrink-0" />
-            <span>{format.number(cantiere.valueCents / 100, { style: "currency", currency: "EUR", maximumFractionDigits: 0 })}</span>
-          </div>
-        )}
-        <div className="flex items-center gap-1">
-          <Calendar className="w-3.5 h-3.5 flex-shrink-0" />
-          <span>
-            {cantiere.estimatedStartAt ? format.dateTime(new Date(cantiere.estimatedStartAt), { dateStyle: "short" }) : "—"}
-            {cantiere.estimatedEndAt ? ` → ${format.dateTime(new Date(cantiere.estimatedEndAt), { dateStyle: "short" })}` : ""}
-            {isOverdue && <span className="ml-1 text-red-500">({t("overdue")})</span>}
-          </span>
-        </div>
-        {cantiere.assignedUserIds?.length && (
-          <div className="flex items-center gap-1">
-            <Users className="w-3.5 h-3.5 flex-shrink-0" />
-            <span>{cantiere.assignedUserIds.length} {t("assigned")}</span>
-          </div>
-        )}
-        {cantiere.totalTasks !== undefined && cantiere.totalTasks > 0 && (
-          <div className="flex items-center gap-1 pt-1 border-t border-[var(--color-border)]">
-            <Package className="w-3.5 h-3.5 flex-shrink-0" />
-            <span className="text-xs">
-              {cantiere.taskCounts?.done || 0} / {cantiere.totalTasks} {t("tasksDone")}
-            </span>
-            <div className="ml-2 flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-emerald-500 transition-all"
-                style={{ width: `${((cantiere.taskCounts?.done || 0) / cantiere.totalTasks) * 100}%` }}
-              />
-            </div>
-          </div>
-        )}
-      </div>
-      <div className="flex items-center justify-between gap-2 mt-3 pt-2 border-t border-[var(--color-border)]">
-        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${PRIORITY_COLORS[cantiere.priority as keyof typeof PRIORITY_COLORS] || "bg-gray-100 text-gray-700"}`}>
-          {t(`priority.${cantiere.priority}`)}
-        </span>
-        <div className="flex items-center gap-1">
-          <button onClick={onEdit} className="p-1.5 rounded hover:bg-[var(--color-bg-alt)]" title={t("edit")}>
-            <Edit className="w-4 h-4" />
-          </button>
-          {cantiere.guestPin ? (
-            <button onClick={onRevokePin} className="p-1.5 rounded hover:bg-red-50 text-red-500" title={t("revokePin")}>
-              <Key className="w-4 h-4" />
-            </button>
-          ) : (
-            <button onClick={onGeneratePin} className="p-1.5 rounded hover:bg-[var(--color-bg-alt)]" title={t("generatePin")}>
-              <Key className="w-4 h-4" />
-            </button>
-          )}
-          <button onClick={onDelete} className="p-1.5 rounded hover:bg-red-50 text-red-500" title={t("delete")}>
-            <Trash2 className="w-4 h-4" />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 interface Cantiere {
   _id: string;
@@ -201,6 +87,8 @@ interface Cantiere {
   priority?: string;
   notes?: string;
 }
+
+export type { Cantiere };
 
 function KanbanColumn({
   status,
@@ -234,14 +122,18 @@ function KanbanColumn({
           </span>
         </div>
       </div>
-      <div className="space-y-3 min-h-[300px]">
-        {cantieri.length === 0 ? (
-          <div className="text-center text-[var(--color-text-secondary)] py-8 text-sm">
-            {t("noItemsInColumn")}
-          </div>
-        ) : (
-cantieri.map((cantiere) => (
-              <CantiereCard
+      <SortableContext
+        items={cantieri.map((c) => c._id)}
+        strategy={verticalListSortingStrategy}
+      >
+        <div className="space-y-3 min-h-[300px]">
+          {cantieri.length === 0 ? (
+            <div className="text-center text-[var(--color-text-secondary)] py-8 text-sm">
+              {t("noItemsInColumn")}
+            </div>
+          ) : (
+            cantieri.map((cantiere, index) => (
+              <SortableCantiereCard
                 key={cantiere._id}
                 cantiere={cantiere}
                 onEdit={() => onEdit(cantiere)}
@@ -250,10 +142,13 @@ cantieri.map((cantiere) => (
                 onRevokePin={() => onRevokePin(cantiere)}
                 t={t}
                 format={format}
+                index={index}
+                items={cantieri}
               />
             ))
-        )}
-      </div>
+          )}
+        </div>
+      </SortableContext>
     </div>
   );
 }
@@ -696,17 +591,23 @@ export default function CantieriPage() {
         quoteId: data.quoteId as unknown as Id<"quoteRequests">,
         assignedUserIds: data.assignedUserIds as unknown as Id<"users">[],
       });
+      posthog.capture("cantiere_created", {
+        initial_status: data.status,
+        priority: data.priority,
+        has_client: Boolean(data.clientId),
+        has_quote: Boolean(data.quoteId),
+      });
       setModalOpen(false);
       setEditingCantiere(null);
     } catch (e) {
+      posthog.captureException(e);
       showError(e);
     } finally {
       setSaving(false);
     }
   };
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleUpdate = async (data: {
+const handleUpdate = async (data: {
     name: string;
     address: string;
     city: string;
@@ -769,6 +670,29 @@ try {
     }
   };
 
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over) return;
+
+    const cantiereId = active.id as string;
+    const newStatus = over.id as (typeof STATUS_CONFIG)[number]["key"];
+
+    const cantiere = cantieri?.find((c) => c._id === cantiereId);
+    if (!cantiere || cantiere.status === newStatus) return;
+
+    try {
+      await updateCantiere({ cantiereId: cantiereId as Id<"cantieri">, status: newStatus });
+      posthog.capture("cantiere_status_changed", {
+        cantiere_id: cantiereId,
+        previous_status: cantiere.status,
+        new_status: newStatus,
+      });
+    } catch (e) {
+      posthog.captureException(e);
+      showError(e);
+    }
+  };
+
   const openEditModal = (cantiere: Cantiere) => {
     setEditingCantiere(cantiere);
     setModalOpen(true);
@@ -822,8 +746,16 @@ try {
       </div>
 
       <div className="overflow-x-auto pb-4">
-        <div className="flex gap-3 min-w-max">
-          {columns.map((col) => (
+        <DndContext
+          sensors={useSensors(
+            useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+            useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+          )}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <div className="flex gap-3 min-w-max">
+            {columns.map((col) => (
             <KanbanColumn
               key={col.status}
               status={col.status}
@@ -837,7 +769,8 @@ try {
             />
           ))}
         </div>
-      </div>
+      </DndContext>
+    </div>
 
       {modalOpen ? (
         <CantiereModal

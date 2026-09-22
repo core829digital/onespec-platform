@@ -837,5 +837,13 @@
     "loadDraft": "Entwurf laden",
     "draftRestored": "Entwurf wiederhergestellt: {count} Elemente.",
     "discardDraft": "Verwerfen und neu beginnen"
+  },
+  "legal": {
+    "privacy": "Datenschutz",
+    "terms": "AGB",
+    "dpa": "AVV",
+    "cookie": "Cookies",
+    "lastUpdated": "Zuletzt aktualisiert",
+    "allRightsReserved": "Alle Rechte vorbehalten."
   }
 }

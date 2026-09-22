@@ -289,24 +289,24 @@ export function ComplianceCertPDF({
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Verifiche di Conformità</Text>
           <View style={styles.tableHeader}>
-            <View style={styles.tableHeaderCell}>Requisito</View>
-            <View style={{ ...styles.tableHeaderCell, width: "20%" }}>Riferimento</View>
-            <View style={{ ...styles.tableHeaderCell, width: "15%", textAlign: "center" }}>Esito</View>
-            <View style={{ ...styles.tableHeaderCell, width: "35%" }}>Note</View>
+            <View style={styles.tableHeaderCell}><Text>Requisito</Text></View>
+            <View style={{ ...styles.tableHeaderCell, width: "20%" }}><Text>Riferimento</Text></View>
+            <View style={{ ...styles.tableHeaderCell, width: "15%", textAlign: "center" }}><Text>Esito</Text></View>
+            <View style={{ ...styles.tableHeaderCell, width: "35%" }}><Text>Note</Text></View>
           </View>
           {compliance.checks.map((c, i) => (
             <View key={i} style={styles.tableRow}>
-              <View style={styles.tableCell}>{c.requirement}</View>
-              <View style={styles.tableCell}>{c.reference}</View>
+              <View style={styles.tableCell}><Text>{c.requirement}</Text></View>
+              <View style={styles.tableCell}><Text>{c.reference}</Text></View>
               <View style={{
                 ...styles.tableCell,
                 textAlign: "center",
                 fontWeight: "bold",
                 color: c.result === "pass" ? colors.emerald[700] : c.result === "fail" ? "#dc2626" : colors.gray[500],
               }}>
-                {c.result === "pass" ? "✓ PASS" : c.result === "fail" ? "✗ FAIL" : "— N/A"}
+                <Text>{c.result === "pass" ? "✓ PASS" : c.result === "fail" ? "✗ FAIL" : "— N/A"}</Text>
               </View>
-              <View style={styles.tableCell}>{c.notes || "—"}</View>
+              <View style={styles.tableCell}><Text>{c.notes || "—"}</Text></View>
             </View>
           ))}
         </View>

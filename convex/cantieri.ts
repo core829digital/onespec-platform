@@ -447,7 +447,6 @@ export const deleteCantiere = mutation({
   handler: async (ctx, args) => {
     const cantiere = await ctx.db.get(args.cantiereId);
     if (!cantiere) throw new ConvexError("CANTIERE_NOT_FOUND");
-    await requireTenantRole(ctx, cantiere.tenantId, ["owner", "admin"]);
     const { userId } = await requireTenantRole(ctx, cantiere.tenantId, ["owner", "admin"]);
 
     // Delete associated tasks first

@@ -82,25 +82,26 @@ export function EditDossierPanel({
         onChange={handleLinks}
       />
       <div className="grid gap-3 sm:grid-cols-2">
-        <label className="text-sm">
+        <label className="text-sm" htmlFor="edit-job-type">
           {t("jobType")}
-          <select className={field} value={jobType} onChange={(e) => setJobType(e.target.value)}>
+          <select id="edit-job-type" className={field} value={jobType} onChange={(e) => setJobType(e.target.value)}>
             {jobTypes.map((j) => (
               <option key={j.key} value={j.key}>{j.label}</option>
             ))}
           </select>
         </label>
-        <label className="text-sm">
+        <label className="text-sm" htmlFor="edit-node-type">
           {t("nodeType")}
-          <select className={field} value={nodeType} onChange={(e) => setNodeType(e.target.value)}>
+          <select id="edit-node-type" className={field} value={nodeType} onChange={(e) => setNodeType(e.target.value)}>
             {nodeTypes.map((n) => (
               <option key={n.key} value={n.key}>{n.label}</option>
             ))}
           </select>
         </label>
-        <label className="text-sm">
+        <label className="text-sm" htmlFor="edit-perimeter">
           {t("perimeter")}
           <input
+            id="edit-perimeter"
             type="number"
             min={0}
             step={0.01}
@@ -109,9 +110,9 @@ export function EditDossierPanel({
             onChange={(e) => setPerimeterM(Number(e.target.value))}
           />
         </label>
-        <label className="text-sm sm:col-span-2">
+        <label className="text-sm sm:col-span-2" htmlFor="edit-notes">
           {t("notes")}
-          <textarea className={field} rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
+          <textarea id="edit-notes" className={field} rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
         </label>
       </div>
       {error && <p className="text-sm text-[var(--color-danger)]" role="alert">{error}</p>}

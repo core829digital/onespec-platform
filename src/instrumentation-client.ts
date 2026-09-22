@@ -3,13 +3,32 @@
 // https://docs.sentry.io/platforms/javascript/guides/nextjs/
 
 import * as Sentry from "@sentry/nextjs";
+import posthog from "posthog-js";
+
+posthog.init("phc_Dde7GCKF62tJfjNst4dLUEPKhrLp3vatfBWFTqgZkhVN", {
+  api_host: "https://us.i.posthog.com",
+  defaults: "2026-05-30",
+  person_profiles: "identified_only",
+  capture_exceptions: true,
+  debug: process.env.NODE_ENV === "development",
+  // Input values (names, emails, phone numbers on lead/quote forms) stay
+  // masked in session replay by default — this platform handles customer
+  // PII, do not flip this off. Only the block/ignore classes below are
+  // exceptions, and none are applied anywhere in the app yet.
+  session_recording: {
+    blockClass: "posthog-block",
+    ignoreClass: "posthog-ignore",
+  },
+});
 
 Sentry.init({
   dsn: "https://fa57662b58693934150285ca8c3ee550@o4512095204868096.ingest.us.sentry.io/4512095210242048",
   environment: process.env.NODE_ENV,
 
-  // Add optional integrations for additional features
-  integrations: [Sentry.replayIntegration()],
+  // Add optional integrations for additional features. sentryIntegration()
+  // links every Sentry error to its PostHog session replay (and vice versa)
+  // — the official posthog-js<->Sentry bridge, not a manual event hook.
+  integrations: [Sentry.replayIntegration(), posthog.sentryIntegration()],
 
   // The wizard default (1 = 100%) traces every single page load/navigation —
   // fine while wiring this up, but on real traffic it burns through the

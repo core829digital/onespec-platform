@@ -299,14 +299,14 @@ export function HandoverPDF({
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Dettaglio Elementi Consegnati</Text>
             <View style={styles.tableHeader}>
-              <View style={styles.tableHeaderCell}>Elemento</View>
-              <View style={{ ...styles.tableHeaderCell, width: "15%", textAlign: "right" }}>Qtà</View>
-              <View style={{ ...styles.tableHeaderCell, width: "25%", textAlign: "right" }}>Larghezza</View>
-              <View style={{ ...styles.tableHeaderCell, width: "25%", textAlign: "right" }}>Altezza</View>
+              <View style={styles.tableHeaderCell}><Text>Elemento</Text></View>
+              <View style={{ ...styles.tableHeaderCell, width: "15%", textAlign: "right" }}><Text>Qtà</Text></View>
+              <View style={{ ...styles.tableHeaderCell, width: "25%", textAlign: "right" }}><Text>Larghezza</Text></View>
+              <View style={{ ...styles.tableHeaderCell, width: "25%", textAlign: "right" }}><Text>Altezza</Text></View>
             </View>
             {product.items.map((item, i) => (
               <View key={i} style={styles.tableRow}>
-                <View style={styles.tableCell}>{item.label}</View>
+                <View style={styles.tableCell}><Text>{item.label}</Text></View>
                 <View style={{ ...styles.tableCell, textAlign: "right" }}>
                   <Text style={{ fontWeight: "bold" }}>{item.quantity}</Text>
                 </View>

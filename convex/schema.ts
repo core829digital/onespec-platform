@@ -549,7 +549,8 @@ export default defineSchema({
     template: v.union(v.literal("verify"), v.literal("reset"),
                       v.literal("welcome_alpha"), v.literal("welcome"),
                       v.literal("new_quote_request"), v.literal("invitation"),
-                      v.literal("admin_resend")),
+                      v.literal("admin_resend"), v.literal("purchase_receipt"),
+                      v.literal("subscription_confirmation")),
     subject: v.string(),
     status: v.union(v.literal("queued"), v.literal("sent"),
                     v.literal("noop"), v.literal("failed")),
@@ -560,7 +561,26 @@ export default defineSchema({
     createdAt: v.number(),
   })
     .index("by_tenant", ["tenantId"])
-    .index("by_to", ["to"]),
+    .index("by_to", ["to"])
+    .index("by_resend_id", ["resendId"]),
+
+  emailDeliveryLog: defineTable({
+    tenantId: v.optional(v.id("tenants")),
+    emailLogId: v.id("emailLog"),
+    event: v.union(
+      v.literal("delivered"),
+      v.literal("bounced"),
+      v.literal("complained"),
+      v.literal("opened"),
+      v.literal("clicked"),
+    ),
+    timestamp: v.number(),
+    detail: v.optional(v.any()),
+    recipient: v.string(),
+  })
+    .index("by_emailLog", ["emailLogId"])
+    .index("by_tenant", ["tenantId"])
+    .index("by_event", ["event"]),
 
   auditLog: defineTable({
     tenantId: v.optional(v.id("tenants")),

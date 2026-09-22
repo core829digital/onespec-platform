@@ -12,6 +12,7 @@ import {
   type BillingCycle,
 } from "./lib/billingPlans";
 import { regionForCountry } from "./lib/regions";
+import { createPostHogClient } from "./lib/posthog";
 
 const STRIPE_API = "https://api.stripe.com/v1";
 const stripeKey = () => process.env.STRIPE_SECRET_KEY ?? "";
@@ -83,6 +84,7 @@ export const assertOwner = internalQuery({
     const tenant = await ctx.db.get(args.tenantId);
     if (!tenant) throw new ConvexError("TENANT_NOT_FOUND");
     return {
+      userId: membership.userId,
       email: (await ctx.db.get(membership.userId))?.email ?? undefined,
       stripeCustomerId: tenant.stripeCustomerId,
       slug: tenant.slug,
@@ -122,6 +124,7 @@ export const createCheckoutSession = action({
       "subscription_data[metadata][tenantId]": args.tenantId,
       "subscription_data[metadata][plan]": planKey,
       "subscription_data[metadata][cycle]": cycle,
+      "subscription_data[metadata][ownerUserId]": owner.userId,
       success_url: `${siteUrl()}/app/account/billing?status=success`,
       cancel_url: `${siteUrl()}/app/account/billing?status=cancelled`,
       allow_promotion_codes: "true",
@@ -136,6 +139,21 @@ export const createCheckoutSession = action({
     }
 
     const session = await stripe("/checkout/sessions", params);
+    const posthog = createPostHogClient();
+    if (posthog) {
+      posthog.capture({
+        distinctId: String(owner.userId),
+        event: "checkout_started",
+        properties: {
+          tenant_id: String(args.tenantId),
+          plan: planKey,
+          billing_cycle: cycle,
+          region,
+          includes_trial: planKey === "pro" && !owner.trialStartedAt,
+        },
+      });
+      await posthog.shutdown();
+    }
     return { url: String(session.url) };
   },
 });

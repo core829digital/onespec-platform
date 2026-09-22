@@ -9,11 +9,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authErrorMessage } from "@/lib/errors";
+import { getSafeRedirect } from "@/lib/redirect-validator";
 
 function ResetPasswordContent() {
   const t = useTranslations("auth.resetPassword");
   const router = useRouter();
   const searchParams = useSearchParams();
+  const redirect = getSafeRedirect(searchParams.get("redirect"), "/auth/login");
   const { signIn } = useAuthActions();
   const email = searchParams.get("email") || "";
   const [code, setCode] = useState(searchParams.get("code") || "");
@@ -32,7 +34,7 @@ function ResetPasswordContent() {
     setLoading(true);
     try {
       await signIn("password", { email, code, newPassword: password, flow: "reset-verification" });
-      router.push("/auth/login");
+      router.push(redirect);
     } catch (err) {
       setError(authErrorMessage(err, t("error")));
     } finally {

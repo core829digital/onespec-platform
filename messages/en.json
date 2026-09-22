@@ -837,5 +837,13 @@
     "loadDraft": "Load draft",
     "draftRestored": "Draft restored: {count} pieces.",
     "discardDraft": "Discard and start over"
+  },
+  "legal": {
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "dpa": "DPA",
+    "cookie": "Cookie",
+    "lastUpdated": "Last updated",
+    "allRightsReserved": "All rights reserved."
   }
 }

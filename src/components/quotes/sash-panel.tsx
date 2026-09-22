@@ -114,8 +114,8 @@ export function SashPanel({
         <>
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className={lbl}>Ferramenta</label>
-              <select className={sel} value={sash.hardware} onChange={(e) => onPatch({ hardware: e.target.value })}>
+              <label className={lbl} htmlFor={`sash-${index}-hardware`}>Ferramenta</label>
+              <select id={`sash-${index}-hardware`} className={sel} value={sash.hardware} onChange={(e) => onPatch({ hardware: e.target.value })}>
                 {hardwareOptions.map(([k, l]) => (
                   <option key={k} value={k}>
                     {l}
@@ -124,8 +124,9 @@ export function SashPanel({
               </select>
             </div>
             <div>
-              <label className={lbl}>Colore ferramenta</label>
+              <label className={lbl} htmlFor={`sash-${index}-hardware-color`}>Colore ferramenta</label>
               <select
+                id={`sash-${index}-hardware-color`}
                 className={sel}
                 value={sash.hardwareColor}
                 onChange={(e) => onPatch({ hardwareColor: e.target.value })}
@@ -140,8 +141,9 @@ export function SashPanel({
           </div>
 
           <div>
-            <label className={lbl}>Classe di sicurezza</label>
+            <label className={lbl} htmlFor={`sash-${index}-security-class`}>Classe di sicurezza</label>
             <select
+              id={`sash-${index}-security-class`}
               className={sel}
               value={sash.securityClass ?? "standard"}
               onChange={(e) => onPatch({ securityClass: e.target.value as EditorSash["securityClass"] })}

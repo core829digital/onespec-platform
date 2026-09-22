@@ -26,6 +26,11 @@ export const listClients = query({
     let filtered = allClients;
     if (args.status) {
       filtered = filtered.filter((c) => c.status === args.status);
+    } else {
+      // "Delete" is a soft-delete (status:"lost", see deleteClient) — hide it
+      // from the default/"all" view like an archive, or the delete button
+      // would look broken (row stays, nothing visibly changes).
+      filtered = filtered.filter((c) => c.status !== "lost");
     }
 
     const clients = filtered.slice(0, limit);
@@ -294,7 +299,6 @@ export const deleteClient = mutation({
   handler: async (ctx, args) => {
     const client = await ctx.db.get(args.clientId);
     if (!client) throw new ConvexError("CLIENT_NOT_FOUND");
-    await requireTenantRole(ctx, client.tenantId, ["owner", "admin"]);
     const { userId } = await requireTenantRole(ctx, client.tenantId, ["owner", "admin"]);
 
     await ctx.db.patch(args.clientId, { status: "lost", updatedAt: Date.now() });

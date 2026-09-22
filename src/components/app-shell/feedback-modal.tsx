@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import posthog from "posthog-js";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { MessageSquarePlus } from "lucide-react";
@@ -33,6 +34,10 @@ export function FeedbackButton() {
         pagePath: typeof window !== "undefined" ? window.location.pathname : undefined,
         userAgent: typeof navigator !== "undefined" ? navigator.userAgent : undefined,
       });
+      posthog.capture("feedback_submitted", {
+        category,
+        page_path: typeof window !== "undefined" ? window.location.pathname : undefined,
+      });
       setState("sent");
       setMessage("");
       setTimeout(() => {
@@ -40,6 +45,7 @@ export function FeedbackButton() {
         setState("idle");
       }, 1400);
     } catch (e) {
+      posthog.captureException(e);
       setState("error");
       setErr(tf(e));
     }

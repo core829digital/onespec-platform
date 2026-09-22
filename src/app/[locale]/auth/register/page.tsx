@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import posthog from "posthog-js";
 import { useRouter } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -10,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authErrorMessage } from "@/lib/errors";
+import { getOptionalRedirect } from "@/lib/redirect-validator";
 
 export default function RegisterPage() {
   return (
@@ -22,8 +24,7 @@ export default function RegisterPage() {
 function RegisterForm() {
   const t = useTranslations("auth.register");
   const router = useRouter();
-  const rawRedirect = useSearchParams().get("redirect");
-  const redirect = rawRedirect && rawRedirect.startsWith("/") && !rawRedirect.startsWith("//") ? rawRedirect : null;
+  const redirect = getOptionalRedirect(useSearchParams().get("redirect"));
   const { signIn } = useAuthActions();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -42,10 +43,15 @@ function RegisterForm() {
     setLoading(true);
     try {
       await signIn("password", { name, email, password, flow: "signUp" });
+      posthog.capture("user_signed_up", {
+        auth_method: "password",
+        verification_required: true,
+      });
       const q = new URLSearchParams({ email });
       if (redirect) q.set("redirect", redirect);
       router.push(`/auth/verify?${q.toString()}`);
     } catch (err) {
+      posthog.captureException(err);
       setError(authErrorMessage(err, t("error")));
     } finally {
       setLoading(false);

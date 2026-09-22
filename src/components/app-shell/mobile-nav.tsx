@@ -55,7 +55,12 @@ export function MobileNav({
       className={cn("lg:hidden fixed inset-0 z-50 transition-opacity", open ? "opacity-100" : "pointer-events-none opacity-0")}
       aria-hidden={!open}
     >
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      <button
+        className="absolute inset-0 bg-black/50"
+        onClick={onClose}
+        onKeyDown={(e) => { if (e.key === "Escape") onClose(); }}
+        aria-label={t("menu")}
+      />
       <nav
         className={cn(
           "absolute left-0 top-0 h-full w-72 max-w-[85vw] bg-[var(--color-bg-alt)] border-r border-[var(--color-border)] p-4 transition-transform duration-200 ease-out flex flex-col",

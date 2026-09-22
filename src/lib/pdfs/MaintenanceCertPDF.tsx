@@ -301,21 +301,21 @@ export function MaintenanceCertPDF({
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Controlli Eseguiti</Text>
           <View style={styles.tableHeader}>
-            <View style={styles.tableHeaderCell}>Voce</View>
-            <View style={{ ...styles.tableHeaderCell, width: "20%", textAlign: "center" }}>Stato</View>
-            <View style={{ ...styles.tableHeaderCell, width: "40%" }}>Note</View>
+            <View style={styles.tableHeaderCell}><Text>Voce</Text></View>
+            <View style={{ ...styles.tableHeaderCell, width: "20%", textAlign: "center" }}><Text>Stato</Text></View>
+            <View style={{ ...styles.tableHeaderCell, width: "40%" }}><Text>Note</Text></View>
           </View>
           {maintenance.itemsChecked.map((c, i) => (
             <View key={i} style={styles.tableRow}>
-              <View style={styles.tableCell}>{c.item}</View>
+              <View style={styles.tableCell}><Text>{c.item}</Text></View>
               <View style={{ ...styles.tableCell, textAlign: "center", fontWeight: "bold", color:
                 c.status === "ok" ? colors.emerald[700] :
                 c.status === "attention" ? colors.gray[700] :
                 "#dc2626"
               }}>
-                {c.status === "ok" ? "✓ OK" : c.status === "attention" ? "⚠ Attenzione" : "✗ Sostituire"}
+                <Text>{c.status === "ok" ? "✓ OK" : c.status === "attention" ? "⚠ Attenzione" : "✗ Sostituire"}</Text>
               </View>
-              <View style={styles.tableCell}>{c.notes || "—"}</View>
+              <View style={styles.tableCell}><Text>{c.notes || "—"}</Text></View>
             </View>
           ))}
         </View>

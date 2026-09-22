@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import posthog from "posthog-js";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
@@ -28,7 +29,12 @@ export default function ConfiguratorsPage() {
     setPublishingId(configuratorId);
     try {
       await publishConfigurator({ configuratorId: configuratorId as Id<"configurators"> });
+      posthog.capture("configurator_published", {
+        configurator_id: configuratorId,
+        source: "configurator_list",
+      });
     } catch (err) {
+      posthog.captureException(err);
       setError(tf(err));
     } finally {
       setPublishingId(null);
@@ -41,9 +47,14 @@ export default function ConfiguratorsPage() {
     setCreating(true);
     setError("");
     try {
-      await createConfigurator({ tenantId: tenant._id, name: name.trim() });
+      const configuratorId = await createConfigurator({ tenantId: tenant._id, name: name.trim() });
+      posthog.capture("configurator_created", {
+        configurator_id: String(configuratorId),
+        source: "configurator_list",
+      });
       setName("");
     } catch (err) {
+      posthog.captureException(err);
       setError(tf(err));
     } finally {
       setCreating(false);

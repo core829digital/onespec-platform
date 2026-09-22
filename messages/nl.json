@@ -837,5 +837,13 @@
     "loadDraft": "Concept laden",
     "draftRestored": "Concept hersteld: {count} elementen.",
     "discardDraft": "Verwerpen en opnieuw beginnen"
+  },
+  "legal": {
+    "privacy": "Privacy",
+    "terms": "Voorwaarden",
+    "dpa": "DPA",
+    "cookie": "Cookies",
+    "lastUpdated": "Laatst bijgewerkt",
+    "allRightsReserved": "Alle rechten voorbehouden."
   }
 }

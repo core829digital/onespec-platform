@@ -1,6 +1,7 @@
 "use client";
 
 import { Suspense, useState } from "react";
+import posthog from "posthog-js";
 import { useRouter } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
@@ -10,10 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authErrorMessage } from "@/lib/errors";
-
-function safeRedirect(v: string | null): string {
-  return v && v.startsWith("/") && !v.startsWith("//") ? v : "/app/dashboard";
-}
+import { getSafeRedirect } from "@/lib/redirect-validator";
 
 export default function LoginPage() {
   return (
@@ -26,7 +24,7 @@ export default function LoginPage() {
 function LoginForm() {
   const t = useTranslations("auth.login");
   const router = useRouter();
-  const redirect = safeRedirect(useSearchParams().get("redirect"));
+  const redirect = getSafeRedirect(useSearchParams().get("redirect"), "/app/dashboard");
   const { signIn } = useAuthActions();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -39,8 +37,10 @@ function LoginForm() {
     setLoading(true);
     try {
       await signIn("password", { email, password, flow: "signIn" });
+      posthog.capture("user_logged_in", { auth_method: "password" });
       router.push(redirect);
     } catch (err) {
+      posthog.captureException(err);
       setError(authErrorMessage(err, t("error")));
     } finally {
       setLoading(false);

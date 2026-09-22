@@ -2,16 +2,20 @@
 
 import { useState } from "react";
 import { useRouter, Link } from "@/i18n/navigation";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authErrorMessage } from "@/lib/errors";
+import { getSafeRedirect, getOptionalRedirect } from "@/lib/redirect-validator";
 
 export default function ForgotPasswordPage() {
   const t = useTranslations("auth.forgotPassword");
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirect = getOptionalRedirect(searchParams.get("redirect"));
   const { signIn } = useAuthActions();
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
@@ -23,11 +27,12 @@ export default function ForgotPasswordPage() {
     setLoading(true);
     try {
       await signIn("password", { email, flow: "reset" });
-      // The OTP is sent by email; continue to the code-entry step.
-      router.push(`/auth/reset-password?email=${encodeURIComponent(email)}`);
+      const q = new URLSearchParams({ email });
+      if (redirect) q.set("redirect", redirect);
+      router.push(`/auth/reset-password?${q.toString()}`);
     } catch (err) {
       setError(authErrorMessage(err, t("error")));
-    } finally {
+} finally {
       setLoading(false);
     }
   }

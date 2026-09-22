@@ -1,7 +1,14 @@
 "use client";
 
+import { useEffect } from "react";
+import posthog from "posthog-js";
+
 // Root error boundary — replaces the whole document, so it must render <html>.
-export default function GlobalError({ reset }: { error: Error; reset: () => void }) {
+export default function GlobalError({ error, reset }: { error: Error; reset: () => void }) {
+  useEffect(() => {
+    posthog.captureException(error);
+  }, [error]);
+
   return (
     <html lang="it">
       <body

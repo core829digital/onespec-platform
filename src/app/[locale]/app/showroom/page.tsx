@@ -178,12 +178,12 @@ export default function ShowroomPage() {
           )}
           <div className="grid gap-3 border-t border-[var(--color-border)] pt-3 sm:grid-cols-2">
             <label className="flex items-center gap-2 text-sm sm:col-span-2">
-              <input type="checkbox" checked={isEnergyRenovation} onChange={(e) => setIsEnergyRenovation(e.target.checked)} />
+              <input id="showroom-energy-renovation" type="checkbox" checked={isEnergyRenovation} onChange={(e) => setIsEnergyRenovation(e.target.checked)} />
               {t("energyRenovation")}
             </label>
             <label className="block text-sm">
               <span className="text-[var(--color-muted-fg)]">{t("buildingAge")}</span>
-              <input type="number" min={0} value={buildingAge} onChange={(e) => setBuildingAge(Math.max(0, Number(e.target.value) || 0))} className={`${input} w-28`} />
+              <input id="showroom-building-age" type="number" min={0} value={buildingAge} onChange={(e) => setBuildingAge(Math.max(0, Number(e.target.value) || 0))} className={`${input} w-28`} />
             </label>
           </div>
         </div>
@@ -209,9 +209,18 @@ export default function ShowroomPage() {
           <div className="rounded-xl border border-[var(--color-border)] p-3 text-sm">
             <div className="mb-2 font-semibold">{t("clientTitle")}</div>
             <div className="grid grid-cols-1 gap-2">
-              <input value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder={t("clientName")} maxLength={100} className={input} />
-              <input value={clientPhone} onChange={(e) => setClientPhone(e.target.value)} placeholder={t("clientPhone")} inputMode="tel" maxLength={30} className={input} />
-              <input value={clientCity} onChange={(e) => setClientCity(e.target.value)} placeholder={t("clientCity")} maxLength={80} className={input} />
+              <label className="block">
+                <span className="text-[var(--color-muted-fg)]">{t("clientName")}</span>
+                <input id="showroom-client-name" value={clientName} onChange={(e) => setClientName(e.target.value)} placeholder={t("clientName")} maxLength={100} className={input} />
+              </label>
+              <label className="block">
+                <span className="text-[var(--color-muted-fg)]">{t("clientPhone")}</span>
+                <input id="showroom-client-phone" value={clientPhone} onChange={(e) => setClientPhone(e.target.value)} placeholder={t("clientPhone")} inputMode="tel" maxLength={30} className={input} />
+              </label>
+              <label className="block">
+                <span className="text-[var(--color-muted-fg)]">{t("clientCity")}</span>
+                <input id="showroom-client-city" value={clientCity} onChange={(e) => setClientCity(e.target.value)} placeholder={t("clientCity")} maxLength={80} className={input} />
+              </label>
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
               <button type="button" className={ghost} disabled={!calc} onClick={() => { const m = exportModel(false); if (m) download("showroom-offerta.txt", "text/plain", buildTxt(m)); }}>{t("exportTxt")}</button>

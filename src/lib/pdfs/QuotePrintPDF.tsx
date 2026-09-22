@@ -416,12 +416,12 @@ export function QuotePrintPDF({
             Dettaglio Fornitura e Posa / Détail Menuiseries & Pose
           </Text>
           <View style={styles.tableHeader}>
-            <View style={styles.tableHeaderCell}>Pos.</View>
-            <View style={styles.tableHeaderCell}>Tipologia</View>
-            <View style={styles.tableHeaderCell}>Dimensioni</View>
-            <View style={styles.tableHeaderCell}>Materiale / Vetro</View>
-            <View style={styles.tableHeaderCell}>Uw</View>
-            <View style={{ ...styles.tableHeaderCell, textAlign: "right", width: "12%" }}>Qtà</View>
+            <View style={styles.tableHeaderCell}><Text>Pos.</Text></View>
+            <View style={styles.tableHeaderCell}><Text>Tipologia</Text></View>
+            <View style={styles.tableHeaderCell}><Text>Dimensioni</Text></View>
+            <View style={styles.tableHeaderCell}><Text>Materiale / Vetro</Text></View>
+            <View style={styles.tableHeaderCell}><Text>Uw</Text></View>
+            <View style={{ ...styles.tableHeaderCell, textAlign: "right", width: "12%" }}><Text>Qtà</Text></View>
           </View>
           {items.map((item, idx) => {
             const uw = catalog ? computeItemThermal(catalog, item).uw : estimateUw(item);
@@ -443,7 +443,7 @@ export function QuotePrintPDF({
             const sashTypes = item.sashes?.map((s) => SASH_LABELS[s.type]?.[langKey] ?? s.type).join(" + ") ?? "—";
             return (
               <View key={idx} style={styles.tableRow}>
-                <View style={styles.tableCell}>{idx + 1}</View>
+                <View style={styles.tableCell}><Text>{idx + 1}</Text></View>
                 <View style={styles.tableCell}>
                   <Text>{category ? (category.labels[langKey] ?? category.labels.it) : item.productType === "balconyDoor" ? "Portafinestra / Porte-fenêtre" : "Finestra / Fenêtre"}</Text>
                   {profileLabel ? <Text style={{ fontSize: 8, color: colors.gray[500] }}>{profileLabel}</Text> : null}
@@ -482,7 +482,7 @@ export function QuotePrintPDF({
                     <Text>{uw.toFixed(catalog ? 2 : 1)} W/m²K</Text>
                   </View>
                 </View>
-                <View style={{ ...styles.tableCell, textAlign: "right" }}>{item.quantity ?? 1}</View>
+                <View style={{ ...styles.tableCell, textAlign: "right" }}><Text>{item.quantity ?? 1}</Text></View>
               </View>
             );
           })}

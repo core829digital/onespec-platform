@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import posthog from "posthog-js";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useAuthActions } from "@convex-dev/auth/react";
@@ -59,6 +60,12 @@ export default function AccountPage() {
     } catch (e) {
       setMsg(tf(e));
     }
+  }
+
+  async function handleSignOut() {
+    posthog.capture("user_logged_out");
+    posthog.reset();
+    await signOut();
   }
 
   async function download(res: { filename: string; mimeType: string; content: string }) {
@@ -285,7 +292,7 @@ export default function AccountPage() {
         </Link>
         <button
           type="button"
-          onClick={() => signOut()}
+          onClick={handleSignOut}
           className="text-sm text-[var(--color-danger)] hover:underline ml-auto"
         >
           Esci

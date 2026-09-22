@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import posthog from "posthog-js";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useRouter } from "@/i18n/navigation";
@@ -72,8 +73,15 @@ export default function OnboardingWizard() {
     setErr("");
     try {
       await complete();
+      posthog.capture("onboarding_completed", {
+        included_billing_step: flow.includes("billing"),
+        configurator_count:
+          state && "configuratorCount" in state ? state.configuratorCount : 0,
+        region: state && "region" in state ? state.region : undefined,
+      });
       router.replace("/app/dashboard");
     } catch (e) {
+      posthog.captureException(e);
       setErr(tf(e));
       setBusy(false);
     }
@@ -282,7 +290,11 @@ function FirstConfigurator({
           if (!tenantId) return;
           setCreating(true);
           try {
-            await createConfigurator({ tenantId, name: name.trim() });
+            const configuratorId = await createConfigurator({ tenantId, name: name.trim() });
+            posthog.capture("configurator_created", {
+              configurator_id: String(configuratorId),
+              source: "onboarding",
+            });
           } finally {
             setCreating(false);
           }

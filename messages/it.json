@@ -837,5 +837,13 @@
     "loadDraft": "Carica bozza",
     "draftRestored": "Bozza ripristinata: {count} pezzi.",
     "discardDraft": "Scarta e ricomincia"
+  },
+  "legal": {
+    "privacy": "Privacy",
+    "terms": "Termini",
+    "dpa": "DPA",
+    "cookie": "Cookie",
+    "lastUpdated": "Ultimo aggiornamento",
+    "allRightsReserved": "Tutti i diritti riservati."
   }
 }

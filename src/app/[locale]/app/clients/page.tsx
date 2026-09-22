@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import posthog from "posthog-js";
 import { useQuery, useMutation } from "convex/react";
 import { useTranslations, useFormatter } from "next-intl";
 import { api } from "@/convex/_generated/api";
@@ -652,9 +653,16 @@ const [editingClient, setEditingClient] = useState<
         status: data.status as "lead" | "prospect" | "active" | "inactive" | "lost",
         assignedToUserId: data.assignedToUserId as Id<"users"> | undefined,
       });
+      posthog.capture("client_created", {
+        client_type: data.type,
+        initial_status: data.status,
+        has_email: data.email.trim().length > 0,
+        has_phone: data.phone.trim().length > 0,
+      });
       setModalOpen(false);
       setEditingClient(undefined);
     } catch (e) {
+      posthog.captureException(e);
       showError(e);
     } finally {
       setSaving(false);

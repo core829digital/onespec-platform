@@ -13,7 +13,12 @@
 
 # next.js
 /.next/
+**/.next/
 /out/
+
+# apps/status-page lives in its own separate repo (status.onespec.eu) —
+# never part of this repo's history, see PROJECT_MEMORY FASE 12.
+/apps/
 
 # production
 /build

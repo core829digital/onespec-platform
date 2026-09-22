@@ -577,8 +577,8 @@ export function Widget({
             )}
           </Field>
 
-          <Field label={dict.qualityLabel}>
-            <select style={s.select} value={state.quality[state.material]} onChange={(e) => set({ quality: { ...state.quality, [state.material]: e.target.value } })}>
+          <Field label={dict.qualityLabel} id="widget-quality">
+            <select id="widget-quality" style={s.select} value={state.quality[state.material]} onChange={(e) => set({ quality: { ...state.quality, [state.material]: e.target.value } })}>
               {options.quality[state.material].map(([k, v]) => (
                 <option key={k} value={k}>
                   {v}
@@ -588,8 +588,9 @@ export function Widget({
           </Field>
 
           {hasBrand && (
-            <Field label={dict.brandLabel}>
+            <Field label={dict.brandLabel} id="widget-brand">
               <select
+                id="widget-brand"
                 style={s.select}
                 value={state.brand[state.material as "pvc" | "aluminum"]}
                 onChange={(e) => set({ brand: { ...state.brand, [state.material]: e.target.value } })}
@@ -604,8 +605,9 @@ export function Widget({
           )}
 
           <div style={s.row}>
-            <Field label={dict.widthLabel}>
+            <Field label={dict.widthLabel} id="widget-width">
               <input
+                id="widget-width"
                 style={s.input}
                 type="number"
                 inputMode="numeric"
@@ -619,8 +621,9 @@ export function Widget({
                 onBlur={(e) => set({ width: clamp(parseFloat(e.target.value), dimMin(state, "width"), dimMax(state, "width")) })}
               />
             </Field>
-            <Field label={dict.heightLabel}>
+            <Field label={dict.heightLabel} id="widget-height">
               <input
+                id="widget-height"
                 style={s.input}
                 type="number"
                 inputMode="numeric"
@@ -691,8 +694,8 @@ export function Widget({
             })}
           </div>
 
-          <Field label={dict.glazingLabel} mt>
-            <select style={s.select} value={state.glazing} onChange={(e) => set({ glazing: e.target.value })}>
+          <Field label={dict.glazingLabel} mt id="widget-glazing">
+            <select id="widget-glazing" style={s.select} value={state.glazing} onChange={(e) => set({ glazing: e.target.value })}>
               {options.glazing.map(([k, v]) => (
                 <option key={k} value={k}>
                   {v}
@@ -701,8 +704,8 @@ export function Widget({
             </select>
           </Field>
 
-          <Field label={dict.colorLabel}>
-            <select style={s.select} value={state.color} onChange={(e) => set({ color: e.target.value })}>
+          <Field label={dict.colorLabel} id="widget-color">
+            <select id="widget-color" style={s.select} value={state.color} onChange={(e) => set({ color: e.target.value })}>
               {options.color.map(([k, v]) => (
                 <option key={k} value={k}>
                   {v}
@@ -711,8 +714,8 @@ export function Widget({
             </select>
           </Field>
 
-          <Field label={dict.installationLabel}>
-            <select style={s.select} value={state.installation} onChange={(e) => set({ installation: e.target.value })}>
+          <Field label={dict.installationLabel} id="widget-installation">
+            <select id="widget-installation" style={s.select} value={state.installation} onChange={(e) => set({ installation: e.target.value })}>
               {options.installations.map(([k, v]) => (
                 <option key={k} value={k}>
                   {v}
@@ -748,24 +751,24 @@ export function Widget({
             </label>
             {state.insectScreen && (
               <div style={{ ...s.row, marginTop: 10 }}>
-                <Field label={dict.insectScreenTypeLabel}>
-                  <select style={s.select} value={state.insectScreenType} onChange={(e) => set({ insectScreenType: e.target.value })}>
-                    {options.screenTypes.map(([k, v]) => (
-                      <option key={k} value={k}>
-                        {v}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-                <Field label={dict.insectScreenColorLabel}>
-                  <select style={s.select} value={state.insectScreenColor} onChange={(e) => set({ insectScreenColor: e.target.value })}>
-                    {options.screenColors.map(([k, v]) => (
-                      <option key={k} value={k}>
-                        {v}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
+<Field label={dict.insectScreenTypeLabel} id="widget-insect-screen-type">
+                    <select id="widget-insect-screen-type" style={s.select} value={state.insectScreenType} onChange={(e) => set({ insectScreenType: e.target.value })}>
+                      {options.screenTypes.map(([k, v]) => (
+                        <option key={k} value={k}>
+                          {v}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                  <Field label={dict.insectScreenColorLabel} id="widget-insect-screen-color">
+                    <select id="widget-insect-screen-color" style={s.select} value={state.insectScreenColor} onChange={(e) => set({ insectScreenColor: e.target.value })}>
+                      {options.screenColors.map(([k, v]) => (
+                        <option key={k} value={k}>
+                          {v}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
               </div>
             )}
           </Field>
@@ -924,8 +927,8 @@ export function Widget({
 
                 {discountEnabled && (
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginTop: 10, padding: "8px 0" }}>
-                    <label style={{ fontSize: 12.5, fontWeight: 800, color: "var(--color-text)", letterSpacing: ".03em", textTransform: "uppercase" }}>{dict.discountLabel}</label>
-                    <input style={{ ...s.input, width: 84, textAlign: "right" }} type="number" min={0} max={discountMax} value={discountPct} onChange={(e) => setDiscountPct(clamp(parseFloat(e.target.value) || 0, 0, discountMax))} />
+                    <label htmlFor="widget-discount" style={{ fontSize: 12.5, fontWeight: 800, color: "var(--color-text)", letterSpacing: ".03em", textTransform: "uppercase" }}>{dict.discountLabel}</label>
+                    <input id="widget-discount" style={{ ...s.input, width: 84, textAlign: "right" }} type="number" min={0} max={discountMax} value={discountPct} onChange={(e) => setDiscountPct(clamp(parseFloat(e.target.value) || 0, 0, discountMax))} />
                   </div>
                 )}
 
@@ -1007,10 +1010,14 @@ export function Widget({
 
             {step === "lead" && (
               <div style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 8 }}>
-                <input style={s.input} placeholder={dict.leadNameLabel} value={lead.name} onChange={(e) => setLead({ ...lead, name: e.target.value })} />
-                <input style={s.input} type="email" placeholder={dict.leadEmailLabel} value={lead.email} onChange={(e) => setLead({ ...lead, email: e.target.value })} />
-                <input style={s.input} placeholder={dict.leadPhoneLabel} value={lead.phone} onChange={(e) => setLead({ ...lead, phone: e.target.value })} />
-                <textarea style={{ ...s.input, minHeight: 70 }} placeholder={dict.leadMessageLabel} value={lead.message} onChange={(e) => setLead({ ...lead, message: e.target.value })} />
+                <label htmlFor="widget-lead-name">{dict.leadNameLabel}</label>
+                <input id="widget-lead-name" style={s.input} placeholder={dict.leadNameLabel} value={lead.name} onChange={(e) => setLead({ ...lead, name: e.target.value })} />
+                <label htmlFor="widget-lead-email">{dict.leadEmailLabel}</label>
+                <input id="widget-lead-email" style={s.input} type="email" placeholder={dict.leadEmailLabel} value={lead.email} onChange={(e) => setLead({ ...lead, email: e.target.value })} />
+                <label htmlFor="widget-lead-phone">{dict.leadPhoneLabel}</label>
+                <input id="widget-lead-phone" style={s.input} placeholder={dict.leadPhoneLabel} value={lead.phone} onChange={(e) => setLead({ ...lead, phone: e.target.value })} />
+                <label htmlFor="widget-lead-message">{dict.leadMessageLabel}</label>
+                <textarea id="widget-lead-message" style={{ ...s.input, minHeight: 70 }} placeholder={dict.leadMessageLabel} value={lead.message} onChange={(e) => setLead({ ...lead, message: e.target.value })} />
                 {/* honeypot */}
                 <input
                   tabIndex={-1}
@@ -1063,10 +1070,10 @@ export function Widget({
 
 /* ---------------- sub-components ---------------- */
 
-function Field({ label, children, mt }: { label?: string; children: React.ReactNode; mt?: boolean }) {
+function Field({ label, children, mt, id }: { label?: string; children: React.ReactNode; mt?: boolean; id?: string }) {
   return (
     <div style={{ marginBottom: 16, marginTop: mt ? 4 : undefined }}>
-      {label && <label style={{ display: "block", fontSize: 13.5, fontWeight: 700, marginBottom: 6, color: "var(--color-text)" }}>{label}</label>}
+      {label && <label htmlFor={id} style={{ display: "block", fontSize: 13.5, fontWeight: 700, marginBottom: 6, color: "var(--color-text)" }}>{label}</label>}
       {children}
     </div>
   );
@@ -1101,8 +1108,8 @@ function SashFields({
   return (
     <>
       <div style={styles.row}>
-        <MiniField label={dict.openingTypeLabel}>
-          <select style={styles.select} value={sash.type} disabled={disabled} onChange={(e) => onChange({ type: e.target.value as SashType })}>
+        <MiniField label={dict.openingTypeLabel} id="sash-type">
+          <select id="sash-type" style={styles.select} value={sash.type} disabled={disabled} onChange={(e) => onChange({ type: e.target.value as SashType })}>
             {options.sashTypes.map(([k, v]) => (
               <option key={k} value={k}>
                 {v}
@@ -1110,8 +1117,8 @@ function SashFields({
             ))}
           </select>
         </MiniField>
-        <MiniField label={dict.directionLabel}>
-          <select style={styles.select} value={sash.direction} disabled={dirDisabled} onChange={(e) => onChange({ direction: e.target.value as Direction })}>
+        <MiniField label={dict.directionLabel} id="sash-direction">
+          <select id="sash-direction" style={styles.select} value={sash.direction} disabled={dirDisabled} onChange={(e) => onChange({ direction: e.target.value as Direction })}>
             {dict.directions.map(([k, v]) => (
               <option key={k} value={k}>
                 {v}
@@ -1121,8 +1128,8 @@ function SashFields({
         </MiniField>
       </div>
       <div style={styles.row}>
-        <MiniField label={dict.hardwareLabel}>
-          <select style={styles.select} value={sash.hardware} disabled={hwDisabled} onChange={(e) => onChange({ hardware: e.target.value })}>
+        <MiniField label={dict.hardwareLabel} id="sash-hardware">
+          <select id="sash-hardware" style={styles.select} value={sash.hardware} disabled={hwDisabled} onChange={(e) => onChange({ hardware: e.target.value })}>
             {options.hardware.map(([k, v]) => (
               <option key={k} value={k}>
                 {v}
@@ -1130,8 +1137,8 @@ function SashFields({
             ))}
           </select>
         </MiniField>
-        <MiniField label={dict.hardwareColorLabel}>
-          <select style={styles.select} value={sash.hardwareColor} disabled={hwDisabled} onChange={(e) => onChange({ hardwareColor: e.target.value })}>
+        <MiniField label={dict.hardwareColorLabel} id="sash-hardware-color">
+          <select id="sash-hardware-color" style={styles.select} value={sash.hardwareColor} disabled={hwDisabled} onChange={(e) => onChange({ hardwareColor: e.target.value })}>
             {options.hardwareColor.map(([k, v]) => (
               <option key={k} value={k}>
                 {v}
@@ -1144,10 +1151,10 @@ function SashFields({
   );
 }
 
-function MiniField({ label, children }: { label: string; children: React.ReactNode }) {
+function MiniField({ label, children, id }: { label: string; children: React.ReactNode; id?: string }) {
   return (
     <div style={{ marginBottom: 0 }}>
-      <label style={{ fontSize: 11.5, color: "var(--color-text-secondary)", fontWeight: 500, marginBottom: 4, display: "block" }}>{label}</label>
+      <label htmlFor={id} style={{ fontSize: 11.5, color: "var(--color-text-secondary)", fontWeight: 500, marginBottom: 4, display: "block" }}>{label}</label>
       {children}
     </div>
   );

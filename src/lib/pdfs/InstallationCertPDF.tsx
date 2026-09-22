@@ -267,12 +267,12 @@ export function InstallationCertPDF({
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Distinta Materiali di Posa</Text>
           <View style={styles.tableHeader}>
-            <View style={styles.tableHeaderCell}>Materiale</View>
-            <View style={{ ...styles.tableHeaderCell, textAlign: "right", width: "30%" }}>Quantità</View>
+            <View style={styles.tableHeaderCell}><Text>Materiale</Text></View>
+            <View style={{ ...styles.tableHeaderCell, textAlign: "right", width: "30%" }}><Text>Quantità</Text></View>
           </View>
           {dossier.materials.map((m) => (
             <View key={m.key} style={styles.tableRow}>
-              <View style={styles.tableCell}>{m.label}</View>
+              <View style={styles.tableCell}><Text>{m.label}</Text></View>
               <View style={{ ...styles.tableCell, textAlign: "right" }}>
                 <Text style={{ fontWeight: "bold" }}>{m.quantity} {m.unit}</Text>
               </View>

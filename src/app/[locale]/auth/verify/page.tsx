@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authErrorMessage } from "@/lib/errors";
+import { getSafeRedirect } from "@/lib/redirect-validator";
 
 function VerifyContent() {
   const t = useTranslations("auth.verify");
@@ -16,9 +17,7 @@ function VerifyContent() {
   const searchParams = useSearchParams();
   const { signIn } = useAuthActions();
   const email = searchParams.get("email") || "";
-  const rawRedirect = searchParams.get("redirect");
-  const redirect =
-    rawRedirect && rawRedirect.startsWith("/") && !rawRedirect.startsWith("//") ? rawRedirect : null;
+  const redirect = getSafeRedirect(searchParams.get("redirect"), "/auth/onboarding");
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);

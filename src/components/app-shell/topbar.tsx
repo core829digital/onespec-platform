@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import posthog from "posthog-js";
 import { Menu, LogOut, User, ChevronDown, Scale } from "lucide-react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Link } from "@/i18n/navigation";
@@ -15,8 +16,14 @@ export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const t = useTranslations("topbar");
   const { signOut } = useAuthActions();
 
+  async function handleSignOut() {
+    posthog.capture("user_logged_out");
+    posthog.reset();
+    await signOut();
+  }
+
   return (
-    <header className="h-16 bg-[var(--color-bg)] border-b border-[var(--color-border)] flex items-center justify-between px-4 lg:px-6">
+    <header className="sticky top-0 z-20 mx-3 mt-3 flex h-16 items-center justify-between rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-alt)]/70 px-4 shadow-[0_8px_30px_rgb(0_0_0/0.10)] backdrop-blur-xl lg:px-6">
       <div className="flex items-center gap-4">
         <button
           type="button"
@@ -79,7 +86,7 @@ export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem
-              onClick={() => signOut()}
+              onClick={handleSignOut}
               className="text-[var(--color-danger)] focus:text-[var(--color-danger)]"
             >
               <LogOut size={14} className="mr-2" />

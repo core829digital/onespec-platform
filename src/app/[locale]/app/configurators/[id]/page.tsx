@@ -1,6 +1,7 @@
 "use client";
 
 import { use, useState } from "react";
+import posthog from "posthog-js";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
@@ -164,10 +165,16 @@ function PublishButton({
     setErr("");
     try {
       await publish({ configuratorId, changeNote: note.trim() || undefined });
+      posthog.capture("configurator_published", {
+        configurator_id: String(configuratorId),
+        has_change_note: note.trim().length > 0,
+        source: "configurator_editor",
+      });
       setOpen(false);
       setNote("");
       onPublished();
     } catch (e) {
+      posthog.captureException(e);
       setErr(tf(e));
     } finally {
       setBusy(false);

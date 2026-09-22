@@ -1,4 +1,4 @@
-import { internalAction, internalMutation } from "./_generated/server";
+import { internalAction, internalMutation, internalQuery } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { v } from "convex/values";
 import { renderAuthEmail } from "./emails/auth";
@@ -11,7 +11,30 @@ const TEMPLATE = v.union(
   v.literal("new_quote_request"),
   v.literal("invitation"),
   v.literal("admin_resend"),
+  v.literal("purchase_receipt"),
+  v.literal("subscription_confirmation"),
 );
+
+function getFromAddress(template: string): string {
+  const purchasesFrom = process.env.RESEND_FROM_PURCHASES ?? "purchases@onespec.eu";
+  const noreplyFrom = process.env.RESEND_FROM_NOREPLY ?? "noreply@onespec.eu";
+  const defaultFrom = process.env.RESEND_FROM ?? "onespec <onboarding@resend.dev>";
+
+  switch (template) {
+    case "purchase_receipt":
+    case "subscription_confirmation":
+      return purchasesFrom;
+    case "verify":
+    case "reset":
+    case "welcome":
+    case "welcome_alpha":
+    case "invitation":
+    case "admin_resend":
+    case "new_quote_request":
+    default:
+      return noreplyFrom;
+  }
+}
 
 /**
  * Central transactional email sender. In noop mode (RESEND_MODE !== "live" or
@@ -30,6 +53,7 @@ export const send = internalAction({
   handler: async (ctx, args) => {
     const live = process.env.RESEND_MODE === "live" && !!process.env.AUTH_RESEND_KEY;
     const { subject, html, text } = renderAuthEmail(args.template, args.locale, args.data);
+    const from = getFromAddress(args.template);
 
     if (!live) {
       console.log(`[email:noop] ${args.template} -> ${args.to}\n${text}`);
@@ -57,7 +81,7 @@ export const send = internalAction({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          from: process.env.RESEND_FROM ?? "onespec <onboarding@resend.dev>",
+          from,
           to: args.to,
           subject,
           html,
@@ -107,5 +131,32 @@ export const log = internalMutation({
   },
   handler: async (ctx, args) => {
     await ctx.db.insert("emailLog", args);
+  },
+});
+
+export const getByResendId = internalQuery({
+  args: { resendId: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db.query("emailLog").withIndex("by_resend_id", (q) => q.eq("resendId", args.resendId)).collect();
+  },
+});
+
+export const updateStatus = internalMutation({
+  args: { emailLogId: v.id("emailLog"), status: v.union(v.literal("queued"), v.literal("sent"), v.literal("noop"), v.literal("failed")), error: v.optional(v.string()) },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.emailLogId, { status: args.status, error: args.error });
+  },
+});
+
+export const createDeliveryLog = internalMutation({
+  args: {
+    emailLogId: v.id("emailLog"),
+    event: v.union(v.literal("delivered"), v.literal("bounced"), v.literal("complained"), v.literal("opened"), v.literal("clicked")),
+    timestamp: v.number(),
+    detail: v.optional(v.any()),
+    recipient: v.string(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.insert("emailDeliveryLog", args);
   },
 });

@@ -43,23 +43,40 @@ export function Field({
 export const inputClass =
   "w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-mint)]/40";
 
-export function TextInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
-  return <input {...props} className={cn(inputClass, props.className)} />;
-}
-
-export function NumberInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
+export function TextInput(props: React.InputHTMLAttributes<HTMLInputElement> & { label?: string; id?: string }) {
+  const { label, id, ...rest } = props;
   return (
-    <input
-      type="number"
-      inputMode="decimal"
-      {...props}
-      className={cn(inputClass, "font-mono tabular-nums", props.className)}
-    />
+    <label className="block">
+      {label && <span className="block text-sm font-medium text-[var(--color-text)] mb-1.5">{label}</span>}
+      <input {...rest} id={id} className={cn(inputClass, rest.className)} />
+    </label>
   );
 }
 
-export function SelectInput(props: React.SelectHTMLAttributes<HTMLSelectElement>) {
-  return <select {...props} className={cn(inputClass, props.className)} />;
+export function NumberInput(props: React.InputHTMLAttributes<HTMLInputElement> & { label?: string; id?: string }) {
+  const { label, id, ...rest } = props;
+  return (
+    <label className="block">
+      {label && <span className="block text-sm font-medium text-[var(--color-text)] mb-1.5">{label}</span>}
+      <input
+        type="number"
+        inputMode="decimal"
+        {...rest}
+        id={id}
+        className={cn(inputClass, "font-mono tabular-nums", rest.className)}
+      />
+    </label>
+  );
+}
+
+export function SelectInput(props: React.SelectHTMLAttributes<HTMLSelectElement> & { label?: string; id?: string }) {
+  const { label, id, ...rest } = props;
+  return (
+    <label className="block">
+      {label && <span className="block text-sm font-medium text-[var(--color-text)] mb-1.5">{label}</span>}
+      <select {...rest} id={id} className={cn(inputClass, rest.className)} />
+    </label>
+  );
 }
 
 export function Toggle({

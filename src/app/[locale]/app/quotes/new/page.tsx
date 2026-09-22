@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import posthog from "posthog-js";
 import { useSearchParams } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -507,7 +508,7 @@ export default function NewFieldQuotePage() {
           depositTerms,
         });
       } else {
-        const res = await createFieldQuote({
+        res = await createFieldQuote({
           tenantId: tenant!._id,
           configuratorId: activeConfig._id,
           clientId,
@@ -546,8 +547,20 @@ export default function NewFieldQuotePage() {
       }
 
       clearDraft(draftKey);
-      router.push(`/app/quotes/${res!.quoteId}/sign`);
+      if (!res?.quoteId) {
+        throw new Error("Quote creation failed — no quoteId returned");
+      }
+      posthog.capture("quote_created", {
+        quote_id: String(res.quoteId),
+        region: regionCode,
+        item_count: items.length,
+        used_multi_supplier: hasSupplierItems,
+        from_showroom: fromShowroom > 0,
+        final_gross_cents: priceCalc.finalGrossCents,
+      });
+      router.push(`/app/quotes/${res.quoteId}/sign`);
     } catch (err: unknown) {
+      posthog.captureException(err);
       setError(tf(err));
     } finally {
       setSubmitting(false);
@@ -689,6 +702,7 @@ export default function NewFieldQuotePage() {
                   {t("fullNameLabel")}
                 </label>
                 <input
+                  name="fullName"
                   required
                   value={leadName}
                   onChange={(e) => setLeadName(e.target.value)}
@@ -701,6 +715,7 @@ export default function NewFieldQuotePage() {
                   {t("emailLabel")}
                 </label>
                 <input
+                  name="email"
                   required
                   type="email"
                   value={leadEmail}
@@ -714,6 +729,7 @@ export default function NewFieldQuotePage() {
                   {t("phoneLabel")}
                 </label>
                 <input
+                  name="phone"
                   value={leadPhone}
                   onChange={(e) => setLeadPhone(e.target.value)}
                   placeholder="+39 / +33 / +32 / +31 / +49..."
@@ -725,6 +741,7 @@ export default function NewFieldQuotePage() {
                   {t("addressLabel")}
                 </label>
                 <input
+                  name="address"
                   value={customerAddress}
                   onChange={(e) => setCustomerAddress(e.target.value)}
                   placeholder="Via Roma 12 / Rue de la Paix"
@@ -736,6 +753,7 @@ export default function NewFieldQuotePage() {
                   {t("cityLabel")}
                 </label>
                 <input
+                  name="city"
                   value={customerCity}
                   onChange={(e) => setCustomerCity(e.target.value)}
                   placeholder={regionCode === "FR" ? "Paris / Lyon" : regionCode === "NL" ? "Amsterdam / Utrecht" : regionCode === "DE" ? "München / Berlin" : "Milano / Roma"}
@@ -747,6 +765,7 @@ export default function NewFieldQuotePage() {
                   {t("postalCodeLabel")}
                 </label>
                 <input
+                  name="postalCode"
                   value={customerPostalCode}
                   onChange={(e) => setCustomerPostalCode(e.target.value)}
                   placeholder="20100 / 75001 / 1012..."
@@ -758,6 +777,7 @@ export default function NewFieldQuotePage() {
                   {t("notesLabel")}
                 </label>
                 <textarea
+                  name="notes"
                   value={leadMessage}
                   onChange={(e) => setLeadMessage(e.target.value)}
                   rows={2}

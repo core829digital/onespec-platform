@@ -349,8 +349,8 @@ export function SimpleWizardWidget({
 
         {step === 2 && (
           <div>
-            <label style={s.label}>{lang === "en" ? "Product type" : "Tipologia Prodotto"}</label>
-            <select style={s.input} value={tipologia} onChange={(e) => setTipologia(e.target.value)}>
+            <label style={s.label} htmlFor="wizard-tipologia">{lang === "en" ? "Product type" : "Tipologia Prodotto"}</label>
+            <select id="wizard-tipologia" style={s.input} value={tipologia} onChange={(e) => setTipologia(e.target.value)}>
               <option value="">{lang === "en" ? "Select a type…" : "Seleziona una tipologia…"}</option>
               {Object.keys(TIPOLOGIA_TO_CATEGORY).map((t) => (
                 <option key={t} value={t}>
@@ -360,12 +360,12 @@ export function SimpleWizardWidget({
             </select>
             <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
               <div style={{ flex: 1 }}>
-                <label style={s.label}>{lang === "en" ? "Width (cm)" : "Larghezza (cm)"}</label>
-                <input style={s.input} type="number" min={30} max={600} inputMode="numeric" placeholder="120" value={larghezza} onChange={(e) => setLarghezza(e.target.value)} />
+                <label style={s.label} htmlFor="wizard-larghezza">{lang === "en" ? "Width (cm)" : "Larghezza (cm)"}</label>
+                <input id="wizard-larghezza" style={s.input} type="number" min={30} max={600} inputMode="numeric" placeholder="120" value={larghezza} onChange={(e) => setLarghezza(e.target.value)} />
               </div>
               <div style={{ flex: 1 }}>
-                <label style={s.label}>{lang === "en" ? "Height (cm)" : "Altezza (cm)"}</label>
-                <input style={s.input} type="number" min={30} max={400} inputMode="numeric" placeholder="140" value={altezza} onChange={(e) => setAltezza(e.target.value)} />
+                <label style={s.label} htmlFor="wizard-altezza">{lang === "en" ? "Height (cm)" : "Altezza (cm)"}</label>
+                <input id="wizard-altezza" style={s.input} type="number" min={30} max={400} inputMode="numeric" placeholder="140" value={altezza} onChange={(e) => setAltezza(e.target.value)} />
               </div>
             </div>
             <p style={s.disclaimer}>
@@ -389,15 +389,15 @@ export function SimpleWizardWidget({
               setColore,
             )}
             <div style={{ marginTop: 14 }}>
-              <label style={s.label}>{lang === "en" ? "Glazing" : "Tipologia Vetro"}</label>
-              <select style={s.input} value={vetro} onChange={(e) => setVetro(e.target.value)}>
+              <label style={s.label} htmlFor="wizard-vetro">{lang === "en" ? "Glazing" : "Tipologia Vetro"}</label>
+              <select id="wizard-vetro" style={s.input} value={vetro} onChange={(e) => setVetro(e.target.value)}>
                 <option value="Doppio Vetro (Standard)">{lang === "en" ? "Double Glazing (Standard)" : "Doppio Vetro (Isolamento Standard)"}</option>
                 <option value="Triplo Vetro (Alta Efficienza)">{lang === "en" ? "Triple Glazing (High Efficiency)" : "Triplo Vetro (Massimo Isolamento)"}</option>
               </select>
             </div>
             <div style={{ marginTop: 14 }}>
-              <label style={s.label}>{lang === "en" ? "Frame type" : "Tipologia Telaio"}</label>
-              <select style={s.input} value={telaio} onChange={(e) => setTelaio(e.target.value)}>
+              <label style={s.label} htmlFor="wizard-telaio">{lang === "en" ? "Frame type" : "Tipologia Telaio"}</label>
+              <select id="wizard-telaio" style={s.input} value={telaio} onChange={(e) => setTelaio(e.target.value)}>
                 <option value="Telaio Dritto (Standard)">{lang === "en" ? "Straight Frame (Standard)" : "Telaio Dritto (Standard)"}</option>
                 <option value="Telaio di Ristrutturazione Aletta 40mm">{lang === "en" ? "Renovation Frame 40mm" : "Telaio di Ristrutturazione Aletta 40mm"}</option>
                 <option value="Telaio di Ristrutturazione Aletta 65mm">{lang === "en" ? "Renovation Frame 65mm" : "Telaio di Ristrutturazione Aletta 65mm"}</option>
@@ -419,8 +419,8 @@ export function SimpleWizardWidget({
               </label>
             </div>
             <div style={{ marginTop: 14 }}>
-              <label style={s.label}>{lang === "en" ? "Interested in tax incentives" : "Interesse Agevolazioni Fiscali"}</label>
-              <select style={s.input} value={bonus} onChange={(e) => setBonus(e.target.value)}>
+              <label style={s.label} htmlFor="wizard-bonus">{lang === "en" ? "Interested in tax incentives" : "Interesse Agevolazioni Fiscali"}</label>
+              <select id="wizard-bonus" style={s.input} value={bonus} onChange={(e) => setBonus(e.target.value)}>
                 <option value="Nessuno / Non specificato">{lang === "en" ? "Select an option…" : "Seleziona un'opzione…"}</option>
                 <option value="Bonus Casa (50%)">{lang === "en" ? "Home Bonus (Renovation)" : "Bonus Casa (Ristrutturazione)"}</option>
                 <option value="Ecobonus (50%)">{lang === "en" ? "Ecobonus (Energy Efficiency)" : "Ecobonus (Riqualificazione Energetica)"}</option>
@@ -439,20 +439,20 @@ export function SimpleWizardWidget({
               <br />• {colore} — {vetro} — {telaio}
             </div>
             <div style={{ marginBottom: 14 }}>
-              <label style={s.label}>{lang === "en" ? "Full name *" : "Nome e Cognome *"}</label>
-              <input style={s.input} type="text" required value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Mario Rossi" autoComplete="name" />
+              <label style={s.label} htmlFor="wizard-nome">{lang === "en" ? "Full name *" : "Nome e Cognome *"}</label>
+              <input id="wizard-nome" style={s.input} type="text" required value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Mario Rossi" autoComplete="name" />
             </div>
             <div style={{ marginBottom: 14 }}>
-              <label style={s.label}>{lang === "en" ? "Email *" : "Email *"}</label>
-              <input style={s.input} type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="mario.rossi@email.it" autoComplete="email" />
+              <label style={s.label} htmlFor="wizard-email">{lang === "en" ? "Email *" : "Email *"}</label>
+              <input id="wizard-email" style={s.input} type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="mario.rossi@email.it" autoComplete="email" />
             </div>
             <div style={{ marginBottom: 14 }}>
-              <label style={s.label}>{lang === "en" ? "Phone *" : "Telefono *"}</label>
-              <input style={s.input} type="tel" required value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="333 1234567" autoComplete="tel" />
+              <label style={s.label} htmlFor="wizard-telefono">{lang === "en" ? "Phone *" : "Telefono *"}</label>
+              <input id="wizard-telefono" style={s.input} type="tel" required value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="333 1234567" autoComplete="tel" />
             </div>
             <div style={{ marginBottom: 14 }}>
-              <label style={s.label}>{lang === "en" ? "Postal code / town *" : "CAP / Comune dell'intervento *"}</label>
-              <input style={s.input} type="text" required value={cap} onChange={(e) => setCap(e.target.value)} placeholder="52044" autoComplete="postal-code" />
+              <label style={s.label} htmlFor="wizard-cap">{lang === "en" ? "Postal code / town *" : "CAP / Comune dell'intervento *"}</label>
+              <input id="wizard-cap" style={s.input} type="text" required value={cap} onChange={(e) => setCap(e.target.value)} placeholder="52044" autoComplete="postal-code" />
             </div>
             <input
               type="text"

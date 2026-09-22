@@ -6,6 +6,8 @@ import { auth } from "./auth";
 import { QuoteSubmissionSchema } from "../src/shared/widget-types";
 import { verifyStripeSignature } from "./billing";
 import { hashIp } from "./lib/ipHash";
+import { resendWebhook } from "./http/resend_webhook";
+import { createPostHogClient } from "./lib/posthog";
 
 const http = httpRouter();
 
@@ -373,9 +375,12 @@ http.route({
   }),
 });
 
-// NOTE: a Resend delivery-tracking webhook is intentionally NOT mounted yet.
-// An endpoint that doesn't verify the Svix signature is worse than none; add it
-// back with `svix` verification when delivery status is actually needed.
+// Resend delivery-tracking webhook (with signature verification if RESEND_WEBHOOK_SECRET is set).
+http.route({
+  path: "/api/email/webhook",
+  method: "POST",
+  handler: resendWebhook,
+});
 
 // Stripe webhook — dormant until STRIPE_WEBHOOK_SECRET is set.
 http.route({
@@ -404,11 +409,33 @@ http.route({
       "customer.subscription.deleted",
     ];
     if (HANDLED.includes(event.type)) {
-      await ctx.runMutation(internal.billing.applyWebhookEvent, {
+      const result = await ctx.runMutation(internal.billing.applyWebhookEvent, {
         eventId: event.id,
         type: event.type,
         data: event.data,
       });
+
+      if (event.type === "checkout.session.completed" && !result.duplicate) {
+        const object = (event.data as { object?: Record<string, unknown> } | undefined)?.object;
+        const metadata = object?.metadata as Record<string, string> | undefined;
+        const tenantId =
+          (object?.client_reference_id as string | undefined) ?? metadata?.tenantId;
+        const ownerUserId = metadata?.ownerUserId;
+        const posthog = createPostHogClient();
+        if (posthog && tenantId && ownerUserId) {
+          posthog.capture({
+            distinctId: ownerUserId,
+            event: "subscription_activated",
+            properties: {
+              tenant_id: tenantId,
+              plan: metadata?.plan,
+              billing_cycle: metadata?.cycle,
+              includes_trial: metadata?.trialPlan === "pro",
+            },
+          });
+          await posthog.shutdown();
+        }
+      }
     }
     return new Response(JSON.stringify({ received: true }), {
       status: 200,
