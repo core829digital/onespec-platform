@@ -4,7 +4,7 @@ import { deflateSync } from "node:zlib";
 import { expect, test } from "vitest";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { InspectionCertPDF } from "../src/lib/pdfs/InspectionCertPDF";
-import { WindowDrawingPDF } from "../src/lib/pdfs/WindowDrawingPDF";
+import { WindowDrawingPdf } from "../src/lib/drawing";
 
 // Valid 2x2 RGB PNG built on the fly.
 function makePng(): string {
@@ -76,16 +76,17 @@ test("window drawing renders with sashes and handle heights", async () => {
       h(
         Page,
         { size: "A4" },
-        h(WindowDrawingPDF, {
-          width: 1400,
-          height: 1200,
-          material: "pvc",
-          color: "anthracite",
-          sashes: [
-            { type: "tiltturn", direction: "left", active: true, widthRatio: 0.6, handleHeightMm: 1000 },
-            { type: "fix", direction: "left", active: true },
-            { type: "sliding", direction: "right", active: false },
-          ],
+        h(WindowDrawingPdf, {
+          input: {
+            widthMm: 1400,
+            heightMm: 1200,
+            finish: "anthracite",
+            sashes: [
+              { type: "tiltturn", direction: "left", active: true, widthRatio: 0.6, handleHeightMm: 1000 },
+              { type: "fix", direction: "left", active: true },
+              { type: "sliding", direction: "right", active: false },
+            ],
+          },
         }),
       ),
     ),

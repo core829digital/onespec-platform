@@ -302,48 +302,6 @@ export async function getTenantCatalog(
   };
 }
 
-export const serverCalculate = mutation({
-  args: {
-    tenantId: v.id("tenants"),
-    items: v.array(v.any()),
-    options: v.object({
-      regionCode: v.union(v.literal("IT"), v.literal("FR"), v.literal("BE"), v.literal("NL"), v.literal("DE"), v.literal("LU")),
-      buildingAge: v.number(),
-      isEnergyRenovation: v.boolean(),
-      deductionPercent: v.number(),
-      uwAnte: v.optional(v.number()),
-    }),
-  },
-  handler: async (ctx, args): Promise<{
-    priceCents: number;
-    priceExVatCents: number;
-    vatRatePercent: number;
-    vatBreakdown: Array<{ rate: number; label: string; baseCents: number; vatCents: number; totalCents: number }>;
-    totalVatCents: number;
-    beniSignificativi: BeniSignificativiBreakdown | null;
-    uwPerItem: number[];
-    uwWeightedAverage: number;
-    uwEligible: boolean;
-    energySavingsKwhYear: number;
-    fundingDocParams: FundingDocParams | null;
-    monthlyRate24Months: number;
-    netAfterBonus50: number;
-    items: ReturnType<typeof calculatePrice>["items"];
-    calculatedAt: number;
-    catalogVersion: number;
-  }> => {
-    await requireMembership(ctx, args.tenantId);
-    await enforceForFiscalEngine(ctx, args.tenantId);
-
-    const result = await ctx.runQuery(internal.calculations.calculateInternal, {
-      tenantId: args.tenantId,
-      items: args.items,
-      options: args.options,
-    });
-
-    return result;
-  },
-});
 
 export const getCalculationPreview = query({
   args: {
@@ -386,7 +344,7 @@ export const getCalculationPreview = query({
     return result;
   },
 });
-/** Shared internal calculation logic used by both serverCalculate and getCalculationPreview. */
+/** Shared internal calculation logic used by getCalculationPreview. */
 export const calculateInternal = internalQuery({
   args: {
     tenantId: v.id("tenants"),
