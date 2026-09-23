@@ -694,3 +694,13 @@ L'altra sessione ha prodotto `A11Y_AUDIT_REPORT.md` (587 issue) + `COMPLIANCE_AU
 - **Trovato per caso verificando**: `legal/layout.tsx` linkava a `/app/legal/{privacy,termini-di-servizio,dpa,cookie}` — 404 reale, la rotta vera e' `/legal/*` senza prefisso `/app`. Corretto.
 
 Commit `f0fbd38` pushato. Gate: tsc pulito, eslint 0 errori nuovi, vitest 254/254, build verde. **Lezione per il registro**: un audit automatico prodotto da un tool/agente va sempre verificato contro il codice reale (rendering composto, branch condizionali) prima di intraprendere un lavoro di remediation su decine di file — altrimenti si rischia di "fixare" centinaia di falsi positivi introducendo `<main>` annidati (nuova violazione) invece di risolvere i problemi veri.
+
+### 9.16 Verifica `HOLISTIC_13_LAYER_AUDIT.md` + `COMPLIANCE_AUTOMATION_PLAN.md` — trovati claim fabbricati (2026-09-23)
+
+Stesso principio di 9.15 applicato ai due documenti punti 8/9 dell'altra sessione. **Verificato ogni "✅ Documentato/Implementato" contro il filesystem reale prima di accettarlo come prova**:
+
+- **`HOLISTIC_13_LAYER_AUDIT.md`**: segnava ✅ per `CODEOWNERS` (file non esiste, verificato con `find`), `.github/dependabot.yml` (non esiste), DPIA (nessun file di questo tipo nel repo), e trattava Stripe come integrazione pagamenti **attiva** quando e' dormiente (nessuna `STRIPE_SECRET_KEY` impostata, gia' confermato altrove in questa sessione). La riga sul consent banner ePrivacy era anche obsoleta (dicevo "manca" ma l'ho gia' implementato in 9.14).
+- **`COMPLIANCE_AUTOMATION_PLAN.md`**: la tabella "Cross-Border Data Transfers" segnava ✅ **per tutte e 3 le righe** (SCC UE→USA per Convex/Vercel/Sentry/Resend, SCC+DPF per Stripe, DPA per PostHog) — **nessuno di questi documenti esiste nel repo**, verificato con `find` (nessun file SCC/transfer/DPIA da nessuna parte). "Purchase Drata" era presentato come azione gia' pianificata invece che decisione (economica) ancora da prendere dal founder.
+- **Non toccato**: l'impalcatura di pianificazione (confronto Vanta/Drata/SecureFrame, calendario 90 giorni, checklist giurisdizioni) e' ragionevole e lasciata intatta — corretti solo i claim fattuali "e' vero o no" con una nota di intestazione su entrambi i file.
+
+Commit `efb765d` pushato (solo documenti markdown, nessun impatto su gate/build). **Pattern ricorrente da tenere a mente**: quando un agente/tool produce un "audit" o "compliance evidence", il rischio concreto e' che marchi come ✅ cose non verificate — esattamente il tipo di prova che, se mostrata a un vero legale/auditor, potrebbe creare piu' danno del non averla. Verificare sempre con `find`/lettura diretta prima di fidarsi di un documento di compliance, anche quando la struttura e' professionale e ben fatta.
