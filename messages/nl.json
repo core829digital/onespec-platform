@@ -246,7 +246,8 @@
     "invalidEmail": "Ongeldig e-mailadres.",
     "cannotRemoveOwner": "De eigenaar van de organisatie kan niet worden verwijderd.",
     "dpaVersion": "De tekst van de overeenkomst is bijgewerkt: laad de pagina opnieuw.",
-    "companyIncomplete": "Vul eerst de bedrijfsgegevens aan (naam, btw-nummer, adres)."
+    "companyIncomplete": "Vul eerst de bedrijfsgegevens aan (naam, btw-nummer, adres).",
+    "subscriptionRequired": "Een actief abonnement is vereist om door te gaan. Kies een abonnement om het platform te ontgrendelen."
   },
   "dashboard": {
     "title": "Dashboard",

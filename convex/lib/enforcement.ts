@@ -180,6 +180,17 @@ export async function enforceActivePlan(ctx: MutationCtx | QueryCtx, tenantId: I
   if (!tenant) throw new ConvexError("TENANT_NOT_FOUND");
   if (tenant.planStatus === "suspended") throw new ConvexError("PLAN_SUSPENDED");
   if (tenant.planStatus === "past_due") throw new ConvexError("PLAN_PAST_DUE");
+  // Once real billing is live, "trialing" only counts if Stripe actually
+  // started that trial (a real stripeSubscriptionId on file, card verified
+  // at checkout) — registerTenant sets planStatus:"trialing" for every new
+  // signup regardless of payment, so without this check a tenant could stay
+  // on a free Base plan forever just by registering, never touching Stripe.
+  // Dormant Stripe (no STRIPE_SECRET_KEY — today, pre-launch) keeps the
+  // permissive behavior so local dev/testing isn't blocked before billing
+  // is actually turned on.
+  if (process.env.STRIPE_SECRET_KEY && tenant.planStatus === "trialing" && !tenant.stripeSubscriptionId) {
+    throw new ConvexError("SUBSCRIPTION_REQUIRED");
+  }
 }
 
 /**

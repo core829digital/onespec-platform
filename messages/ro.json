@@ -246,7 +246,8 @@
     "invalidEmail": "Adresă de e-mail invalidă.",
     "cannotRemoveOwner": "Proprietarul organizației nu poate fi eliminat.",
     "dpaVersion": "Textul acordului a fost actualizat: reîncarcă pagina.",
-    "companyIncomplete": "Completează mai întâi datele companiei (denumire, CUI, adresă)."
+    "companyIncomplete": "Completează mai întâi datele companiei (denumire, CUI, adresă).",
+    "subscriptionRequired": "Este necesar un abonament activ pentru a continua. Alege un plan pentru a debloca platforma."
   },
   "dashboard": {
     "title": "Panou",

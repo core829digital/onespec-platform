@@ -296,7 +296,8 @@
     "invalidEmail": "Indirizzo email non valido.",
     "cannotRemoveOwner": "Il titolare dell'organizzazione non può essere rimosso.",
     "dpaVersion": "Il testo dell'accordo è stato aggiornato: ricarica la pagina.",
-    "companyIncomplete": "Completa prima i dati azienda (ragione sociale, P.IVA, indirizzo)."
+    "companyIncomplete": "Completa prima i dati azienda (ragione sociale, P.IVA, indirizzo).",
+    "subscriptionRequired": "Serve un abbonamento attivo per continuare. Scegli un piano per sbloccare la piattaforma."
   },
   "app": {
     "suspended": {

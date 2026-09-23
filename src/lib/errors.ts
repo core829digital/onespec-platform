@@ -21,6 +21,7 @@ export type ErrorKey =
   | "quotaExceeded"
   | "planSuspended"
   | "planPastDue"
+  | "subscriptionRequired"
   | "rateLimited"
   | "invalidInput"
   | "nameRequired"
@@ -61,6 +62,7 @@ const EXACT: Record<string, ErrorKey> = {
   NOT_FOUND: "notFound",
   PLAN_SUSPENDED: "planSuspended",
   PLAN_PAST_DUE: "planPastDue",
+  SUBSCRIPTION_REQUIRED: "subscriptionRequired",
   RATE_LIMITED: "rateLimited",
   EXPORT_RATE_LIMITED: "rateLimited",
   CUSTOMER_NAME_REQUIRED: "nameRequired",

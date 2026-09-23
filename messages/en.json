@@ -296,7 +296,8 @@
     "invalidEmail": "Invalid email address.",
     "cannotRemoveOwner": "The organization owner cannot be removed.",
     "dpaVersion": "The agreement text was updated: reload the page.",
-    "companyIncomplete": "Complete your company details first (name, VAT ID, address)."
+    "companyIncomplete": "Complete your company details first (name, VAT ID, address).",
+    "subscriptionRequired": "An active subscription is required to continue. Choose a plan to unlock the platform."
   },
   "app": {
     "suspended": {

@@ -382,13 +382,53 @@ http.route({
   handler: resendWebhook,
 });
 
-// Stripe webhook — dormant until STRIPE_WEBHOOK_SECRET is set.
+// Stripe webhook — dormant until STRIPE_WEBHOOK_SECRET is set. The path
+// itself carries a secret token (STRIPE_WEBHOOK_PATH_TOKEN) so the endpoint
+// isn't the guessable `/api/stripe/webhook` — set that env var to a random
+// slug (e.g. `openssl rand -hex 16`) and use the resulting path as the
+// endpoint URL in the Stripe Dashboard when billing goes live. Falls back to
+// the static path if unset, so nothing breaks before that env var exists.
+const STRIPE_WEBHOOK_PATH = `/api/stripe/webhook/${process.env.STRIPE_WEBHOOK_PATH_TOKEN ?? "unconfigured"}`;
+
+// Stripe's own guidance is to treat signature verification (below) as the
+// real defense and NOT hard-block on IP — their webhook-sending IP ranges
+// rotate, and a stale hardcoded allowlist would silently drop real payment
+// events (a worse outage than the abuse it prevents). Instead of guessing
+// at IP ranges (never invent security data), fetch Stripe's own published
+// list and cache it for a day; log an anomaly for later review, never
+// reject on IP alone.
+let stripeIpCache: { ips: Set<string>; fetchedAt: number } | null = null;
+const STRIPE_IP_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
+
+async function flagIfUnexpectedOrigin(req: Request): Promise<string | null> {
+  const fwd = req.headers.get("x-forwarded-for");
+  const ip = fwd ? fwd.split(",")[0].trim() : "";
+  if (!ip) return null;
+
+  if (!stripeIpCache || Date.now() - stripeIpCache.fetchedAt > STRIPE_IP_CACHE_TTL_MS) {
+    try {
+      const res = await fetch("https://stripe.com/files/ips/ips_webhooks.json");
+      const data = (await res.json()) as { WEBHOOKS?: string[] };
+      stripeIpCache = { ips: new Set(data.WEBHOOKS ?? []), fetchedAt: Date.now() };
+    } catch {
+      // Fetch failed (network hiccup) — skip the check this time rather than
+      // flag every request or block on a transient error.
+      return null;
+    }
+  }
+
+  return stripeIpCache.ips.has(ip) ? null : ip;
+}
+
 http.route({
-  path: "/api/stripe/webhook",
+  path: STRIPE_WEBHOOK_PATH,
   method: "POST",
   handler: httpAction(async (ctx, req) => {
     const secret = process.env.STRIPE_WEBHOOK_SECRET ?? "";
     if (!secret) return new Response("billing not configured", { status: 503 });
+
+    const unexpectedIp = await flagIfUnexpectedOrigin(req);
+    if (unexpectedIp) console.warn(`[stripe-webhook] request from outside Stripe's known IP prefixes: ${unexpectedIp}`);
 
     const raw = await req.text();
     const ok = await verifyStripeSignature(raw, req.headers.get("stripe-signature"), secret);

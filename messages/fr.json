@@ -246,7 +246,8 @@
     "invalidEmail": "Adresse e-mail invalide.",
     "cannotRemoveOwner": "Le propriétaire de l'organisation ne peut pas être retiré.",
     "dpaVersion": "Le texte de l'accord a été mis à jour : rechargez la page.",
-    "companyIncomplete": "Complétez d'abord les données de l'entreprise (raison sociale, n° de TVA, adresse)."
+    "companyIncomplete": "Complétez d'abord les données de l'entreprise (raison sociale, n° de TVA, adresse).",
+    "subscriptionRequired": "Un abonnement actif est requis pour continuer. Choisissez un forfait pour débloquer la plateforme."
   },
   "dashboard": {
     "title": "Tableau de bord",
