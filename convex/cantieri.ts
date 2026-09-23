@@ -259,7 +259,6 @@ export const updateCantiere = mutation({
   handler: async (ctx, args) => {
     const cantiere = await ctx.db.get(args.cantiereId);
     if (!cantiere) throw new ConvexError("CANTIERE_NOT_FOUND");
-    await requireTenantRole(ctx, cantiere.tenantId, ["owner", "admin", "member"]);
     const { userId } = await requireTenantRole(ctx, cantiere.tenantId, ["owner", "admin", "member"]);
 
     const patch: Record<string, unknown> = { updatedAt: Date.now() };
@@ -276,18 +275,28 @@ export const updateCantiere = mutation({
       }
     }
 
-    await ctx.db.patch(args.cantiereId, patch);
+    try {
+      await ctx.db.patch(args.cantiereId, patch);
 
-    await ctx.db.insert("auditLog", {
-      tenantId: cantiere.tenantId,
-      actorUserId: userId,
-      actorKind: "user",
-      action: "cantiere.update",
-      targetTable: "cantieri",
-      targetId: args.cantiereId,
-      meta: patch,
-      createdAt: Date.now(),
-    });
+      await ctx.db.insert("auditLog", {
+        tenantId: cantiere.tenantId,
+        actorUserId: userId,
+        actorKind: "user",
+        action: "cantiere.update",
+        targetTable: "cantieri",
+        targetId: args.cantiereId,
+        meta: patch,
+        createdAt: Date.now(),
+      });
+    } catch (err) {
+      console.error("cantieri:updateCantiere failed", {
+        cantiereId: args.cantiereId,
+        tenantId: cantiere.tenantId,
+        patchFields: Object.keys(patch),
+        error: err instanceof Error ? err.message : String(err),
+      });
+      throw new ConvexError("CANTIERE_UPDATE_FAILED");
+    }
 
     return { ok: true };
   },

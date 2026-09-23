@@ -584,11 +584,11 @@ export default function CantieriPage() {
   }) => {
     setSaving(true);
     try {
-      await createCantiere({ 
-        tenantId: tenant!._id, 
+      await createCantiere({
+        tenantId: tenant!._id,
         ...data,
-        clientId: data.clientId as unknown as Id<"clients">,
-        quoteId: data.quoteId as unknown as Id<"quoteRequests">,
+        clientId: data.clientId ? (data.clientId as Id<"clients">) : undefined,
+        quoteId: data.quoteId ? (data.quoteId as Id<"quoteRequests">) : undefined,
         assignedUserIds: data.assignedUserIds as unknown as Id<"users">[],
       });
       posthog.capture("cantiere_created", {
@@ -600,7 +600,6 @@ export default function CantieriPage() {
       setModalOpen(false);
       setEditingCantiere(null);
     } catch (e) {
-      posthog.captureException(e);
       showError(e);
     } finally {
       setSaving(false);
@@ -627,11 +626,11 @@ const handleUpdate = async (data: {
     setSaving(true);
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 try {
-      await updateCantiere({ 
+      await updateCantiere({
         cantiereId: editingCantiere._id as Id<"cantieri">, // eslint-disable-line @typescript-eslint/no-explicit-any
         ...data,
-        clientId: data.clientId as Id<"clients">, // eslint-disable-line @typescript-eslint/no-explicit-any
-        quoteId: data.quoteId as Id<"quoteRequests">, // eslint-disable-line @typescript-eslint/no-explicit-any
+        clientId: data.clientId ? (data.clientId as Id<"clients">) : undefined,
+        quoteId: data.quoteId ? (data.quoteId as Id<"quoteRequests">) : undefined,
         assignedUserIds: data.assignedUserIds as unknown as Id<"users">[], // eslint-disable-line @typescript-eslint/no-explicit-any
       });
       setModalOpen(false);
@@ -688,7 +687,6 @@ try {
         new_status: newStatus,
       });
     } catch (e) {
-      posthog.captureException(e);
       showError(e);
     }
   };
