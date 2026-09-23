@@ -86,10 +86,10 @@ export function AddRow({
   );
 }
 
-export function ScrollTable({ children, minWidth = 520 }: { children: React.ReactNode; minWidth?: number }) {
+export function ScrollTable({ children, minWidth = 520, ariaLabel }: { children: React.ReactNode; minWidth?: number; ariaLabel: string }) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-sm" style={{ minWidth }}>
+      <table className="w-full text-sm" style={{ minWidth }} aria-label={ariaLabel}>
         {children}
       </table>
     </div>

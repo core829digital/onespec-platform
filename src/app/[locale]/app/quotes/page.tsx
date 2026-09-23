@@ -124,7 +124,7 @@ export default function QuotesPage() {
         </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-[var(--color-border)]">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm" aria-label="Elenco preventivi">
             <thead>
               <tr className="border-b border-[var(--color-border)] bg-[var(--color-bg-alt)] text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
                 <th className="px-4 py-3 text-left">Cliente</th>

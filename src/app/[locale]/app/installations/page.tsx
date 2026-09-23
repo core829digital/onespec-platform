@@ -351,7 +351,7 @@ export default function InstallationsPage() {
                 />
               </label>
               <div className="overflow-hidden rounded-lg border border-[var(--color-border)]">
-                <table className="w-full text-sm">
+                <table className="w-full text-sm" aria-label="Materiali di posa">
                   <tbody>
                     {preview.map((m) => (
                       <tr key={m.key} className="border-b border-[var(--color-border)] last:border-0">
@@ -397,7 +397,7 @@ export default function InstallationsPage() {
       )}
 
       <div className="overflow-hidden rounded-xl border border-[var(--color-border)]">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm" aria-label="Elenco dossier di posa">
           <thead className="bg-[var(--color-muted)] text-xs text-[var(--color-muted-fg)]">
             <tr>
               <th className="px-4 py-2 text-left">Norma</th>

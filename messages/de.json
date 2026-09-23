@@ -852,5 +852,8 @@
     "learnMore": "Mehr erfahren",
     "accept": "Akzeptieren",
     "reject": "Ablehnen"
+  },
+  "a11y": {
+    "skipToContent": "Zum Hauptinhalt springen"
   }
 }

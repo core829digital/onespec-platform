@@ -68,7 +68,7 @@ export function ConfigTab({ configuratorId }: { configuratorId: Id<"configurator
 
       <Section title="Configurazione effettiva">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[520px]">
+          <table className="w-full text-sm min-w-[520px]" aria-label="Configurazione effettiva">
             <thead>
               <tr>
                 <th className="text-left px-3 py-2 font-medium text-[var(--color-text-secondary)]">Impostazione</th>
@@ -93,7 +93,7 @@ export function ConfigTab({ configuratorId }: { configuratorId: Id<"configurator
 
       <Section title="Default di piattaforma" description="Valori usati quando nessun livello superiore imposta un override.">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[320px]">
+          <table className="w-full text-sm min-w-[320px]" aria-label="Default di piattaforma">
             <tbody className="divide-y divide-[var(--color-border)]">
               {Object.entries(data.platformDefaults).map(([k, v]) => (
                 <tr key={k}>

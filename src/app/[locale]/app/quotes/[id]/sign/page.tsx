@@ -209,7 +209,7 @@ export default function SignQuotePage({ params }: Props) {
 
       {/* Quote Summary for client verification */}
       <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5 space-y-2">
-        <h3 className="text-sm font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">Riepilogo Preventivo</h3>
+        <h2 className="text-sm font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">Riepilogo Preventivo</h2>
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div>
             <span className="text-[var(--color-text-secondary)]">Cliente:</span>
@@ -250,9 +250,9 @@ export default function SignQuotePage({ params }: Props) {
 
       {/* Legal consent text */}
       <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5 space-y-3">
-        <h3 className="text-sm font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">
+        <h2 className="text-sm font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">
           Consenso e Accettazione (Art. 1326 C.C.)
-        </h3>
+        </h2>
         <p className="text-xs text-[var(--color-text-secondary)] leading-relaxed">
           Il sottoscritto <strong className="text-[var(--color-text)]">{quote.leadName}</strong> dichiara di aver preso visione
           e di accettare integralmente le condizioni del presente preventivo emesso da{" "}
@@ -270,9 +270,9 @@ export default function SignQuotePage({ params }: Props) {
       {/* Signature Canvas */}
       <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5 space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">
+          <h2 className="text-sm font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">
             Firma del Cliente ✍️
-          </h3>
+          </h2>
           {hasSignature && (
             <button
               type="button"

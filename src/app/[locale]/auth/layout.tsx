@@ -3,16 +3,18 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { BlueprintHero, BlueprintStrip } from "@/components/auth/blueprint-hero";
+import { SkipToMainContent } from "@/components/app-shell/skip-link";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   const t = useTranslations("auth");
   return (
     <div className="auth-scene min-h-dvh lg:grid lg:grid-cols-[1.05fr_1fr]">
+      <SkipToMainContent />
       <aside className="relative border-b lg:border-b-0 lg:border-r border-[var(--auth-line-dim)]">
         <BlueprintHero />
       </aside>
 
-      <main className="flex flex-col min-h-dvh bg-[var(--auth-bg)]">
+      <main id="main-content" className="flex flex-col min-h-dvh bg-[var(--auth-bg)]">
         <header className="flex items-center justify-between px-6 py-5">
           <Link
             href="/"

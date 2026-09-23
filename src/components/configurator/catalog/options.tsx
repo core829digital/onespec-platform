@@ -25,7 +25,7 @@ function PricedOptionSection({
   const { draft, setDraft, dirty, busy, run } = useCatalogEditor();
   return (
     <Section title={title} description={description}>
-      <ScrollTable>
+      <ScrollTable ariaLabel={title}>
         <thead>
           <tr>
             <th className={thCls}>Chiave</th>
@@ -174,7 +174,7 @@ export function HardwareSection({ hardware }: { hardware: Row[] }) {
         return (
           <div key={kind} className="space-y-2">
             <p className="text-sm font-medium text-[var(--color-text)]">{title}</p>
-            <ScrollTable>
+            <ScrollTable ariaLabel={title}>
               <thead>
                 <tr>
                   <th className={thCls}>Chiave</th>
@@ -251,7 +251,7 @@ export function SizeSection({ rows }: { rows: Row[] }) {
 
   return (
     <Section title="Vincoli dimensionali" description="Limiti minimi e massimi per tipo di prodotto e numero di ante (mm).">
-      <ScrollTable minWidth={640}>
+      <ScrollTable minWidth={640} ariaLabel="Vincoli dimensionali">
         <thead>
           <tr>
             <th className={thCls}>Prodotto</th>

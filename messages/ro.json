@@ -852,5 +852,8 @@
     "learnMore": "Află mai multe",
     "accept": "Accept",
     "reject": "Refuz"
+  },
+  "a11y": {
+    "skipToContent": "Salt la conținutul principal"
   }
 }

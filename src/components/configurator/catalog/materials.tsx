@@ -17,7 +17,7 @@ export function MaterialsSection({ materials }: { materials: Row[] }) {
 
   return (
     <Section title="Materiali" description="Prezzo base al m² e al metro lineare di profilo (IVA esclusa).">
-      <ScrollTable minWidth={640}>
+      <ScrollTable minWidth={640} ariaLabel="Materiali">
         <thead>
           <tr>
             <th className={thCls}>Chiave</th>
@@ -130,7 +130,7 @@ export function ProfileSystemsSection({
           return (
             <div key={m._id as string} className="space-y-2">
               <p className="text-sm font-medium text-[var(--color-text)]">{label(m.labels)}</p>
-              <ScrollTable>
+              <ScrollTable ariaLabel={`Sistemi di profilo — ${label(m.labels)}`}>
                 <thead>
                   <tr>
                     <th className={thCls}>Chiave</th>
@@ -234,7 +234,7 @@ export function QualitySection({ materials, qualityTiers }: { materials: Row[]; 
         return (
           <div key={m._id as string} className="space-y-2">
             <p className="text-sm font-medium text-[var(--color-text)]">{label(m.labels)}</p>
-            <ScrollTable>
+            <ScrollTable ariaLabel={`Livelli di qualità — ${label(m.labels)}`}>
               <thead>
                 <tr>
                   <th className={thCls}>Chiave</th>

@@ -584,7 +584,7 @@ export default function SurveysPage() {
       )}
 
       <div className="w-full overflow-hidden rounded-xl border border-[var(--color-border)]">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm" aria-label="Elenco rilievi">
           <thead className="bg-[var(--color-muted)] text-xs text-[var(--color-muted-fg)]">
             <tr>
               <th className="px-4 py-2 text-left">Cliente</th>

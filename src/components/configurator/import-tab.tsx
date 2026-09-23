@@ -177,7 +177,7 @@ export function ImportTab({ configuratorId }: { configuratorId: Id<"configurator
           </div>
 
           <div className="overflow-x-auto mt-3">
-            <table className="w-full text-xs min-w-[480px]">
+            <table className="w-full text-xs min-w-[480px]" aria-label="Anteprima importazione listino">
               <thead>
                 <tr>
                   {header.map((h, i) => (

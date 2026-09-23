@@ -138,7 +138,7 @@ export default function RequestsPage() {
       {msg ? <p className="text-sm text-[var(--color-text-secondary)]">{msg}</p> : null}
 
       <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl overflow-x-auto">
-        <table className="w-full text-sm min-w-[720px]">
+        <table className="w-full text-sm min-w-[720px]" aria-label="Elenco richieste">
 <thead className="bg-[var(--color-bg)] text-[var(--color-text-secondary)]">
               <tr>
                 <th className={th}>Cliente</th>

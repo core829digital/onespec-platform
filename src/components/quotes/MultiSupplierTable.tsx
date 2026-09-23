@@ -104,7 +104,7 @@ export function MultiSupplierTable({
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-[var(--color-border)]">
-        <table className="w-full text-sm">
+        <table className="w-full text-sm" aria-label="Righe multi-fornitore">
           <thead className="bg-[var(--color-muted)] text-xs text-[var(--color-muted-fg)]">
             <tr>
               <th className="px-3 py-2 text-left">Fornitore</th>

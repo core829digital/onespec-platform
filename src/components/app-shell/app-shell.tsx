@@ -5,6 +5,7 @@ import type { Doc } from "@/convex/_generated/dataModel";
 import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
 import { MobileNav } from "./mobile-nav";
+import { SkipToMainContent } from "./skip-link";
 
 export function AppShell({
   tenant,
@@ -17,6 +18,7 @@ export function AppShell({
 
   return (
     <div className="relative flex h-screen overflow-hidden bg-[var(--color-bg)]">
+      <SkipToMainContent />
       {/* Soft glow behind the floating glass sidebar so its translucency reads. */}
       <div
         aria-hidden="true"
@@ -28,7 +30,7 @@ export function AppShell({
       </Suspense>
       <div className="relative flex h-screen min-w-0 flex-1 flex-col">
         <Topbar onMenuClick={() => setMobileOpen(true)} />
-        <main className="flex-1 overflow-y-auto p-4 sm:p-6">{children}</main>
+        <main id="main-content" className="flex-1 overflow-y-auto p-4 sm:p-6">{children}</main>
       </div>
     </div>
   );

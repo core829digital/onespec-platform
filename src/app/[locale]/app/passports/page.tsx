@@ -427,7 +427,7 @@ export default function PassportsPage() {
           <div className="bg-[var(--color-muted)] px-4 py-2 text-xs font-semibold text-[var(--color-muted-fg)]">
             Fascicoli
           </div>
-          <table className="w-full text-sm">
+          <table className="w-full text-sm" aria-label="Fascicoli">
             <tbody>
               {passports?.map((p) => (
                 <tr key={p._id} className="border-t border-[var(--color-border)]">
@@ -469,7 +469,7 @@ export default function PassportsPage() {
           <div className="bg-[var(--color-muted)] px-4 py-2 text-xs font-semibold text-[var(--color-muted-fg)]">
             Richieste post-vendita (da QR)
           </div>
-          <table className="w-full text-sm">
+          <table className="w-full text-sm" aria-label="Richieste post-vendita">
             <tbody>
               {interventions?.map((iv) => (
                 <tr key={iv._id} className="border-t border-[var(--color-border)]">

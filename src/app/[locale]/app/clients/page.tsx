@@ -823,7 +823,7 @@ const [editingClient, setEditingClient] = useState<
           } />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm" aria-label="Elenco clienti">
               <thead className="bg-[var(--color-bg-alt)] text-xs text-[var(--color-text-secondary)] uppercase tracking-wider">
                 <tr>
                   <th className="px-4 py-3 text-left">{t("client")}</th>
