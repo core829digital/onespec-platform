@@ -27,7 +27,7 @@ export interface LegalDoc {
 const IDENTITY_INTRO: LegalSection = {
   h: "Titolare del trattamento",
   p: [
-    "Il servizio OneSpec è gestito da [[ragione sociale]], con sede legale in [[indirizzo completo]], [[P.IVA / codice fiscale]], PEC [[indirizzo PEC]].",
+    "Il servizio OneSpec è gestito da [[ragione sociale]], con sede legale in [[indirizzo completo]], [[P.IVA / codice fiscale]], telefono [[telefono]], PEC [[indirizzo PEC]].",
     "Per qualsiasi richiesta relativa ai dati personali è possibile scrivere a [[email di contatto privacy]]. Un Responsabile della protezione dei dati (DPO) [[è / non è]] stato nominato; recapiti del DPO: [[recapiti DPO oppure «non applicabile»]].",
   ],
 };
@@ -43,6 +43,13 @@ const SUBPROCESSORS: LegalSection = {
     "• PostHog (PostHog Inc.) — analisi di prodotto e registrazione della sessione (click, scroll, navigazione) per individuare e correggere malfunzionamenti; i valori digitati nei campi dei moduli restano oscurati. Attivo solo dopo il consenso esplicito tramite il banner cookie.",
     "• Sentry (Functional Software, Inc.) — rilevamento errori tecnici; la registrazione visiva della sessione (Session Replay) è attiva solo dopo lo stesso consenso, la sola segnalazione degli errori resta sempre attiva per garantire la sicurezza e la stabilità del servizio.",
     "Eventuali trasferimenti verso paesi terzi avvengono sulla base delle Clausole Contrattuali Standard della Commissione Europea. L'elenco aggiornato dei sub-responsabili con i relativi dettagli è disponibile su richiesta a [[email di contatto privacy]].",
+  ],
+};
+
+const LEGAL_CONTACT: LegalSection = {
+  h: "Contatti per questioni legali e contrattuali",
+  p: [
+    "Per questioni contrattuali, contestazioni o comunicazioni legali relative al presente documento: [[email di contatto legale]].",
   ],
 };
 
@@ -86,10 +93,9 @@ export const LEGAL_DOCS: LegalDoc[] = [
       {
         h: "Conservazione",
         p: [
-          "Dati dell'account: per tutta la durata del rapporto e cancellati entro [[numero]] giorni dalla chiusura dell'account, salvo la richiesta di cancellazione anticipata.",
-          "Richieste di preventivo: conservate finché l'organizzazione è attiva e comunque non oltre [[periodo di conservazione]].",
-          "Registro attività e log di sicurezza: [[periodo di conservazione]].",
-          "Documenti fiscali: per il periodo previsto dalla legge ([[riferimento normativo]]).",
+          "Dati dell'account: per tutta la durata del rapporto e cancellati entro [[numero]] giorni dalla richiesta di cancellazione.",
+          "Richieste di preventivo, registro attività e log di sicurezza: conservati per tutta la durata di attività dell'organizzazione sulla piattaforma; non esiste al momento una cancellazione automatica programmata di questi dati, che vengono eliminati su richiesta secondo la procedura descritta nella sezione «Diritti dell'interessato».",
+          "Documenti fiscali relativi ad abbonamenti a pagamento: per il periodo previsto dalla normativa fiscale e contabile applicabile alla sede legale del Titolare.",
         ],
       },
       SUBPROCESSORS,
@@ -327,7 +333,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
       {
         h: "Certificazioni e attestati posseduti",
         p: [
-          "[[elenco delle certificazioni con ente, numero e data di validità — lasciare vuoto se nessuna]].",
+          "Nessuna certificazione di terze parti risulta posseduta alla data di revisione. Questa sezione sarà aggiornata non appena, e solo se, una certificazione verrà effettivamente conseguita.",
         ],
       },
       {
@@ -340,6 +346,12 @@ export const LEGAL_DOCS: LegalDoc[] = [
     ],
   },
 ];
+
+// Every legal document ends with the same legal/contract contact line
+// (office@core829.net), appended once here instead of duplicated per doc.
+for (const doc of LEGAL_DOCS) {
+  doc.sections.push(LEGAL_CONTACT);
+}
 
 export function getLegalDoc(slug: string): LegalDoc | undefined {
   return LEGAL_DOCS.find((d) => d.slug === slug);
