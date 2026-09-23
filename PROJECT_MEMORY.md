@@ -680,3 +680,17 @@ Verificando le legal pages contro il vincolo "non inventare, descrivi il vero da
 Commit `01adc35` pushato. Gate: tsc pulito, eslint 0 errori, vitest 254/254, build verde. Nessun deploy Convex necessario (solo frontend).
 
 **Status page — richiesta esplicita aggiornata dall'utente**: NON nello stesso repo/progetto/dominio — repo GitHub nuovo, progetto Convex nuovo, pubblicato su `status.onespec.eu`, publishing automatico via trigger a ogni deploy. Trovato in `apps/status-page/` un abbozzo locale (Next.js standalone, solo `StatusPage.tsx`/`layout.tsx`/`page.tsx`, **nessun backend Convex**, cartella `.next` di build finita per errore nel working tree, ora esclusa da git). Questo e' materiale di partenza utile ma richiede provisioning di risorse ESTERNE NUOVE (repo GitHub sotto l'account dell'utente, progetto Convex nuovo — a pagamento/quota separata, dominio da configurare in DNS) — **azioni irreversibili/account-wide, chieste conferma esplicita all'utente prima di crearle**, non fatte alla cieca in questo turno.
+
+**Nota di conflitto**: l'altra sessione ha prodotto anche `STATUS_PAGE_DEPLOYMENT.md`, che descrive il deploy del vecchio `apps/status-page/` (dati mock, nessun backend) come export statico su Vercel — **superato** dalla implementazione reale in `onespec-status-page` (repo separato, backend Convex vero, gia' descritta sopra). L'utente deve seguire il `README.md` di quel repo, non `STATUS_PAGE_DEPLOYMENT.md`.
+
+### 9.15 Verifica audit a11y dell'altra sessione — quasi tutto falso positivo (2026-09-23)
+
+L'altra sessione ha prodotto `A11Y_AUDIT_REPORT.md` (587 issue) + `COMPLIANCE_AUTOMATION_PLAN.md` + `HOLISTIC_13_LAYER_AUDIT.md` + `RESEND_SPF_DKIM_DMARC_SETUP.md` (documenti lasciati intatti, non miei, l'utente/altra sessione decide se committarli). **Verificato ogni finding contro il rendering reale prima di agire — non fidarsi del report cieco**:
+
+- **"Manca `<main>` su ~150 pagine" (396 SERIOUS)** — **falso positivo**: tutti i 3 layout reali (`app-shell.tsx`, `auth/layout.tsx`, `legal/layout.tsx`) hanno gia' un `<main>` vero. Lo scanner analizza ogni `page.tsx` isolato, non il layout composto.
+- **"Manca `<nav>` su ~120 pagine"** — **falso positivo**, gia' segnalato come tale dal report stesso: `sidebar.tsx`/`mobile-nav.tsx` hanno gia' un `<nav>` reale.
+- **"3 pagine con doppio `<h1>`"** — **falso positivo**: ogni coppia sono due `return` condizionali mutuamente esclusivi (stato loading/errore vs stato caricato) — non renderizzano mai insieme.
+- **Reale e corretto**: skip-link mancante ovunque (nuovo `SkipToMainContent`, i18n 6 lingue), 13 tabelle senza nome accessibile (il report ne elencava 15, 2 con un percorso file inesistente), 1 vero salto di livello heading h1→h3 su `quotes/[id]/sign` (corretto a h1→h2).
+- **Trovato per caso verificando**: `legal/layout.tsx` linkava a `/app/legal/{privacy,termini-di-servizio,dpa,cookie}` — 404 reale, la rotta vera e' `/legal/*` senza prefisso `/app`. Corretto.
+
+Commit `f0fbd38` pushato. Gate: tsc pulito, eslint 0 errori nuovi, vitest 254/254, build verde. **Lezione per il registro**: un audit automatico prodotto da un tool/agente va sempre verificato contro il codice reale (rendering composto, branch condizionali) prima di intraprendere un lavoro di remediation su decine di file — altrimenti si rischia di "fixare" centinaia di falsi positivi introducendo `<main>` annidati (nuova violazione) invece di risolvere i problemi veri.
