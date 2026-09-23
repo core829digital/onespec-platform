@@ -22,7 +22,10 @@ export const LEGAL_VALUES: Record<string, string> = {
   // No DPO has actually been appointed — stating this is the true, current fact.
   "è / non è": "non è",
   "recapiti DPO oppure «non applicabile»": "non applicabile — nessun DPO nominato alla data di revisione",
-  "regione di hosting Convex": "",
+  // Confirmed by the operating company: Convex's US region. The platform is
+  // sold and used in the EU, so this is a real third-country transfer —
+  // covered by the Standard Contractual Clauses already referenced below.
+  "regione di hosting Convex": "Stati Uniti d'America",
 
   // Retention periods.
   // Matches the 30-day grace window actually implemented in convex/account.ts (requestDeletion).
