@@ -8,6 +8,7 @@ export default function LegalLayout({
   children: React.ReactNode;
 }) {
   const t = useTranslations("legal");
+  const tTopbar = useTranslations("topbar");
   return (
     <div className="min-h-screen bg-[var(--color-bg)]">
       <SkipToMainContent />
@@ -30,6 +31,14 @@ export default function LegalLayout({
               <Link href="/legal/cookie" className="text-[var(--color-text-secondary)] hover:text-[var(--color-mint)]">
                 {t("cookie")}
               </Link>
+              <a
+                href="https://cloud.onespec.eu"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--color-text-secondary)] hover:text-[var(--color-mint)]"
+              >
+                {tTopbar("status")}
+              </a>
             </div>
           </nav>
         </div>

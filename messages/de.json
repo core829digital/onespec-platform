@@ -48,7 +48,8 @@
     "logout": "Abmelden",
     "menu": "Menü",
     "legal": "Rechtliches",
-    "dpa": "AVV (DSGVO)"
+    "dpa": "AVV (DSGVO)",
+    "status": "Dienststatus"
   },
   "auth": {
     "login": {

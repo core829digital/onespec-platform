@@ -7,6 +7,7 @@ import { SkipToMainContent } from "@/components/app-shell/skip-link";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   const t = useTranslations("auth");
+  const tTopbar = useTranslations("topbar");
   return (
     <div className="auth-scene min-h-dvh lg:grid lg:grid-cols-[1.05fr_1fr]">
       <SkipToMainContent />
@@ -22,7 +23,17 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           >
             <Logo className="h-7" />
           </Link>
-          <ThemeToggle />
+          <div className="flex items-center gap-3">
+            <a
+              href="https://cloud.onespec.eu"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-[var(--auth-text-dim)] hover:text-[var(--auth-text)]"
+            >
+              {tTopbar("status")}
+            </a>
+            <ThemeToggle />
+          </div>
         </header>
 
         <div className="flex-1 flex items-center justify-center px-6 pb-10">

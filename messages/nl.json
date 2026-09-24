@@ -48,7 +48,8 @@
     "logout": "Afmelden",
     "menu": "Menu",
     "legal": "Juridisch",
-    "dpa": "DPA-overeenkomst (AVG)"
+    "dpa": "DPA-overeenkomst (AVG)",
+    "status": "Servicestatus"
   },
   "auth": {
     "login": {

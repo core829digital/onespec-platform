@@ -48,7 +48,8 @@
     "logout": "Déconnexion",
     "menu": "Menu",
     "legal": "Mentions légales",
-    "dpa": "Accord DPA (RGPD)"
+    "dpa": "Accord DPA (RGPD)",
+    "status": "État du service"
   },
   "auth": {
     "login": {

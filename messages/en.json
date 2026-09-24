@@ -98,7 +98,8 @@
     "logout": "Logout",
     "menu": "Menu",
     "legal": "Legal",
-    "dpa": "DPA agreement (GDPR)"
+    "dpa": "DPA agreement (GDPR)",
+    "status": "Service status"
   },
   "auth": {
     "footer": "© 2026 onespec. All rights reserved.",

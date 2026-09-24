@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import posthog from "posthog-js";
-import { Menu, LogOut, User, ChevronDown, Scale } from "lucide-react";
+import { Menu, LogOut, User, ChevronDown, Scale, Activity } from "lucide-react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
@@ -40,6 +40,12 @@ export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
       </div>
 
       <div className="flex items-center gap-3">
+        <Button variant="ghost" className="flex items-center gap-2 px-3 py-1.5" asChild>
+          <a href="https://cloud.onespec.eu" target="_blank" rel="noopener noreferrer" aria-label={t("status")}>
+            <Activity size={18} />
+            <span className="hidden md:block text-sm font-medium text-[var(--color-text)]">{t("status")}</span>
+          </a>
+        </Button>
         <FeedbackButton />
         <NotificationBell />
 

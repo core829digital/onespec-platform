@@ -48,7 +48,8 @@
     "logout": "Deconectare",
     "menu": "Meniu",
     "legal": "Legal",
-    "dpa": "Acord DPA (GDPR)"
+    "dpa": "Acord DPA (GDPR)",
+    "status": "Starea serviciului"
   },
   "auth": {
     "login": {
