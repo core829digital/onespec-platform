@@ -42,12 +42,14 @@ export default function SurveyDetailPage({ params }: { params: Promise<{ id: str
   const complete = useMutation(api.surveys.completeSurvey);
   const remove = useMutation(api.surveys.remove);
   const createQuote = useMutation(api.quotes.createFieldQuoteFromSurvey);
+  const saveRecommendation = useMutation(api.surveys.saveDiagnosticRecommendation);
+  const [recommendationDraft, setRecommendationDraft] = useState<string | null>(null);
 
   const { downloadPDF } = usePDFDownload(SurveyPDF, {
     filename: `rilievo-${id.slice(-6)}.pdf`,
   });
   const { ready: companyReady, company } = useCompanyPdf(data?.tenant?.name);
-  const [busy, setBusy] = useState<"" | "pdf" | "complete" | "quote" | "delete">("");
+  const [busy, setBusy] = useState<"" | "pdf" | "complete" | "quote" | "delete" | "recommendation">("");
   const [error, setError] = useState("");
 
   if (data === undefined) return <p className="text-[var(--color-text-secondary)]">{tf("loading")}</p>;
@@ -210,7 +212,6 @@ export default function SurveyDetailPage({ params }: { params: Promise<{ id: str
             [t("mould"), survey.diagnostics.mould ? t("yes") : t("no")],
             [t("existingShutter"), survey.diagnostics.existingShutter ? t("yes") : t("no")],
             [t("crane"), survey.diagnostics.craneRequired ? t("yes") : t("no")],
-            [t("recommendation"), survey.diagnostics.recommendation],
             [t("notes"), survey.diagnostics.notes],
           ] as Array<[string, string | undefined]>)
             .filter(([, v]) => v)
@@ -221,6 +222,35 @@ export default function SurveyDetailPage({ params }: { params: Promise<{ id: str
               </div>
             ))}
         </dl>
+
+        <div className="mt-3">
+          <dt className="text-xs text-[var(--color-text-secondary)]">{t("recommendation")}</dt>
+          {isCompleted ? (
+            <dd>{survey.diagnostics.recommendation}</dd>
+          ) : (
+            <div className="mt-1 flex flex-col gap-2 sm:flex-row sm:items-start">
+              <textarea
+                value={recommendationDraft ?? survey.diagnostics.recommendation ?? ""}
+                onChange={(e) => setRecommendationDraft(e.target.value)}
+                rows={2}
+                className="flex-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm"
+              />
+              <button
+                type="button"
+                disabled={busy !== "" || recommendationDraft === null}
+                onClick={() =>
+                  void run("recommendation", async () => {
+                    await saveRecommendation({ surveyId, recommendation: recommendationDraft ?? "" });
+                    setRecommendationDraft(null);
+                  })
+                }
+                className="rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm font-medium hover:bg-[var(--color-bg-alt)] disabled:opacity-50"
+              >
+                {t("save")}
+              </button>
+            </div>
+          )}
+        </div>
       </section>
 
       {survey.photos.some((p) => p.url) && (

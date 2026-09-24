@@ -87,6 +87,8 @@ export default function AdminPage() {
   const toggleRegistration = useMutation(api.registration.toggleRegistration);
   const setDpaRequired = useMutation(api.dpa.setDpaRequired);
   const setFeedbackStatus = useMutation(api.feedback.setFeedbackStatus);
+  const suspendTenant = useMutation(api.tenants.suspendTenant);
+  const reactivateTenant = useMutation(api.tenants.reactivateTenant);
 
   if (viewer === undefined) {
     return <p className="text-[var(--color-text-secondary)]">Caricamento...</p>;
@@ -153,11 +155,30 @@ export default function AdminPage() {
           <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">Caricamento...</div>
         ) : (
           tenants.map((tn) => (
-            <div key={tn._id} className="px-6 py-3 flex items-center justify-between text-sm">
+            <div key={tn._id} className="px-6 py-3 flex items-center justify-between text-sm gap-3">
               <span className="text-[var(--color-text)]">{tn.name}</span>
-              <span className="text-[var(--color-text-secondary)]">
+              <span className="text-[var(--color-text-secondary)] flex-1">
                 {tn.plan}
+                {tn.planStatus === "suspended" && (
+                  <span className="ml-2 text-xs font-semibold text-red-600">sospeso</span>
+                )}
               </span>
+              {tn.planStatus === "suspended" ? (
+                <Button size="sm" variant="ghost" onClick={() => run(reactivateTenant({ tenantId: tn._id }))}>
+                  Riattiva
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    const reason = window.prompt("Motivo della sospensione:");
+                    if (reason) run(suspendTenant({ tenantId: tn._id, reason }));
+                  }}
+                >
+                  Sospendi
+                </Button>
+              )}
             </div>
           ))
         )}

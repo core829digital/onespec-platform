@@ -705,7 +705,8 @@
     "actions": "Actions",
     "noQuoteConfig": "Publiez un configurateur pour générer le devis.",
     "linkedQuote": "Devis généré",
-    "client": "Client lié"
+    "client": "Client lié",
+    "save": "Enregistrer"
   },
   "dossierEdit": {
     "edit": "Modifier",

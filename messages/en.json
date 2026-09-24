@@ -705,7 +705,8 @@
     "actions": "Actions",
     "noQuoteConfig": "Publish a configurator to generate the quote.",
     "linkedQuote": "Generated quote",
-    "client": "Linked client"
+    "client": "Linked client",
+    "save": "Save"
   },
   "dossierEdit": {
     "edit": "Edit",

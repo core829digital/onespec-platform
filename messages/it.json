@@ -705,7 +705,8 @@
     "actions": "Azioni",
     "noQuoteConfig": "Pubblica un configuratore per generare il preventivo.",
     "linkedQuote": "Preventivo generato",
-    "client": "Cliente collegato"
+    "client": "Cliente collegato",
+    "save": "Salva"
   },
   "dossierEdit": {
     "edit": "Modifica",

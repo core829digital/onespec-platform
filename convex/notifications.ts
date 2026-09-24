@@ -37,18 +37,6 @@ export const markRead = mutation({
   },
 });
 
-export const markAllSeen = mutation({
-  handler: async (ctx) => {
-    const userId = await requireVerifiedUser(ctx);
-    const unseen = await ctx.db
-      .query("notifications")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .filter((q) => q.eq(q.field("seenAt"), undefined))
-      .collect();
-    for (const n of unseen) await ctx.db.patch(n._id, { seenAt: Date.now() });
-  },
-});
-
 export const markAllRead = mutation({
   handler: async (ctx) => {
     const userId = await requireVerifiedUser(ctx);

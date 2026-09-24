@@ -705,7 +705,8 @@
     "actions": "Acțiuni",
     "noQuoteConfig": "Publică un configurator pentru a genera oferta.",
     "linkedQuote": "Ofertă generată",
-    "client": "Client asociat"
+    "client": "Client asociat",
+    "save": "Salvează"
   },
   "dossierEdit": {
     "edit": "Editează",

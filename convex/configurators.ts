@@ -84,6 +84,9 @@ export const listConfigurators = query({
   },
 });
 
+// No src/ caller, but has real test coverage (authz.test.ts's cross-tenant
+// isolation check, configurators.test.ts's rollback assertion) — verified
+// against tests/ too before concluding a function is dead, not just src/.
 export const getConfigurator = query({
   args: { configuratorId: v.id("configurators") },
   handler: async (ctx, args) => {

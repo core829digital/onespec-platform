@@ -705,7 +705,8 @@
     "actions": "Aktionen",
     "noQuoteConfig": "Konfigurator veröffentlichen, um das Angebot zu erstellen.",
     "linkedQuote": "Erstelltes Angebot",
-    "client": "Verknüpfter Kunde"
+    "client": "Verknüpfter Kunde",
+    "save": "Speichern"
   },
   "dossierEdit": {
     "edit": "Bearbeiten",

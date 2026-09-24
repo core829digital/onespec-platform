@@ -410,3 +410,26 @@ export const suspendTenant = mutation({
   },
 });
 
+/** Undo suspendTenant — no reactivate path existed before, meaning a
+ * platform admin had no way back from a suspend except editing the
+ * database directly. */
+export const reactivateTenant = mutation({
+  args: { tenantId: v.id("tenants") },
+  handler: async (ctx, args) => {
+    await requirePlatformAdmin(ctx);
+    await ctx.db.patch(args.tenantId, {
+      suspendedAt: undefined,
+      suspendedReason: undefined,
+      planStatus: "active",
+    });
+    await ctx.db.insert("auditLog", {
+      actorKind: "admin",
+      action: "tenant.reactivate",
+      targetTable: "tenants",
+      targetId: args.tenantId,
+      meta: {},
+      createdAt: Date.now(),
+    });
+  },
+});
+

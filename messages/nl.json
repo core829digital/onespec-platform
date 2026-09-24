@@ -705,7 +705,8 @@
     "actions": "Acties",
     "noQuoteConfig": "Publiceer een configurator om de offerte te maken.",
     "linkedQuote": "Gemaakte offerte",
-    "client": "Gekoppelde klant"
+    "client": "Gekoppelde klant",
+    "save": "Opslaan"
   },
   "dossierEdit": {
     "edit": "Bewerken",
