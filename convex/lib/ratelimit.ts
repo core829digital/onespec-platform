@@ -9,6 +9,12 @@ export const RATE_LIMITS = {
   quoteGlobalPerConfigurator: { tokens: 100, refillMs: 60 * 60 * 1000 },
   exportPerTenantPerHour: { tokens: 10, refillMs: 60 * 60 * 1000 },
   guestPinPerIpPer10Min: { tokens: 10, refillMs: 10 * 60 * 1000 },
+  guestPinPerPinPerIpPer10Min: { tokens: 5, refillMs: 10 * 60 * 1000 },
+  passportInterventionPerIpPer10Min: { tokens: 5, refillMs: 10 * 60 * 1000 },
+  passportInterventionGlobalPerHour: { tokens: 20, refillMs: 60 * 60 * 1000 },
+  passportScanPerIpPerHour: { tokens: 10, refillMs: 60 * 60 * 1000 },
+  inspectionPerTokenIpPer10Min: { tokens: 30, refillMs: 10 * 60 * 1000 },
+  inspectionGlobalPerHour: { tokens: 100, refillMs: 60 * 60 * 1000 },
 };
 
 /**
@@ -22,10 +28,15 @@ export async function consumeToken(
   config: { tokens: number; refillMs: number },
 ): Promise<boolean> {
   const now = Date.now();
+  // .first() rather than .unique(): a race between two concurrent requests on
+  // the same bucketKey's first-ever insert (both read !bucket, both insert)
+  // would leave a duplicate row and make .unique() throw an uncaught error on
+  // every future request against that key — see convex/lib/auth.ts for the
+  // same pattern on membership lookups.
   const bucket = await ctx.db
     .query("rateLimits")
     .withIndex("by_key", (q) => q.eq("bucketKey", bucketKey))
-    .unique();
+    .first();
 
   if (!bucket) {
     await ctx.db.insert("rateLimits", { bucketKey, tokens: config.tokens - 1, updatedAt: now });
@@ -66,6 +77,28 @@ export const checkAllRateLimits = internalMutation({
     if (!ok10m || !okDay || !okGlobal) {
       throw new ConvexError("RATE_LIMITED");
     }
+    return true;
+  },
+});
+
+/**
+ * Generic single-bucket check for HTTP actions (passport scan/intervention,
+ * inspection writes, guest PIN). Throws RATE_LIMITED when exhausted —
+ * callers map it to 429 (or counted:false for scan).
+ */
+export const checkBucket = internalMutation({
+  args: {
+    bucketKey: v.string(),
+    tokens: v.number(),
+    refillMs: v.number(),
+  },
+  handler: async (ctx, args) => {
+    const ok = await consumeToken(
+      ctx,
+      args.bucketKey,
+      { tokens: args.tokens, refillMs: args.refillMs },
+    );
+    if (!ok) throw new ConvexError("RATE_LIMITED");
     return true;
   },
 });

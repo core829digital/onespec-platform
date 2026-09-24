@@ -121,11 +121,21 @@ export const getCantiereByGuestPin = mutation({
     const ipHash = args.ip ? await hashIp(args.ip) : "unknown";
     const ok = await consumeToken(ctx, `guestpin:${ipHash}`, RATE_LIMITS.guestPinPerIpPer10Min);
     if (!ok) return { ok: false, error: "Troppi tentativi, riprova più tardi" };
+    // Second bucket keyed on PIN+IP: slows targeted brute-force on one PIN
+    // without punishing other visitors sharing the same IP.
+    const okPin = await consumeToken(
+      ctx,
+      `guestpin:${args.pin}:${ipHash}`,
+      RATE_LIMITS.guestPinPerPinPerIpPer10Min,
+    );
+    if (!okPin) return { ok: false, error: "Troppi tentativi, riprova più tardi" };
 
+    // .first() rather than .unique(): a duplicate PIN row (possible before
+    // the generateGuestPin collision retry) must not 500 both cantieri.
     const cantiere = await ctx.db
       .query("cantieri")
       .withIndex("by_guest_pin", (q) => q.eq("guestPin", args.pin))
-      .unique();
+      .first();
 
     if (!cantiere) return { ok: false, error: "PIN non valido" };
     if (cantiere.guestPinExpiresAt && cantiere.guestPinExpiresAt < Date.now()) {
@@ -304,8 +314,23 @@ export const generateGuestPin = mutation({
     await requireTenantRole(ctx, cantiere.tenantId, ["owner", "admin", "member"]);
     const { userId } = await requireTenantRole(ctx, cantiere.tenantId, ["owner", "admin", "member"]);
 
-    // Generate 6-digit PIN
-    const pin = Math.floor(100000 + Math.random() * 900000).toString();
+    // Generate a 6-digit PIN, retrying on collision with another cantiere's
+    // still-active PIN — only 900k possible values, so as guest-PIN usage
+    // grows a collision is a real (if rare today) possibility, and the
+    // lookup at getCantiereByGuestPin would otherwise 500 for both cantieri.
+    let pin = "";
+    for (let attempt = 0; attempt < 5; attempt++) {
+      const candidate = Math.floor(100000 + Math.random() * 900000).toString();
+      const existing = await ctx.db
+        .query("cantieri")
+        .withIndex("by_guest_pin", (q) => q.eq("guestPin", candidate))
+        .first();
+      if (!existing || (existing.guestPinExpiresAt && existing.guestPinExpiresAt < Date.now())) {
+        pin = candidate;
+        break;
+      }
+    }
+    if (!pin) throw new ConvexError("GUEST_PIN_COLLISION");
     const expiresAt = Date.now() + (args.expiresInDays ?? 30) * 24 * 60 * 60 * 1000;
 
     await ctx.db.patch(args.cantiereId, {

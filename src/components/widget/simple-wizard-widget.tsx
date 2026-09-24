@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { getDict } from "./widget-i18n";
 import { readableInk, isSafeColor, resolveFontStack } from "./widget-theme";
 import { postToHost, readHostTheme } from "./host-bridge";
+import { getTurnstileToken } from "@/lib/turnstile-client";
 import type { PieceCategory } from "@/shared/configurator-model";
 
 export interface SimpleWizardWidgetProps {
@@ -258,6 +259,7 @@ export function SimpleWizardWidget({
 
     setSubmitting(true);
     try {
+      const turnstileToken = await getTurnstileToken();
       const body = {
         publicId: configurator.publicId,
         items: [item],
@@ -269,6 +271,7 @@ export function SimpleWizardWidget({
         honeypot: honeypot || undefined,
         consent: true as const,
         consentVersion: "wizard-1",
+        turnstileToken: turnstileToken ?? undefined,
       };
       const res = await fetch(`${CONVEX_SITE}/api/widget/quote`, {
         method: "POST",

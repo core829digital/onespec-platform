@@ -40,8 +40,10 @@ describe("getCantiereByGuestPin", () => {
     await seedCantiere(t, tenantId, "654321");
 
     const limit = RATE_LIMITS.guestPinPerIpPer10Min.tokens;
+    // Distinct PIN per attempt: isolates the per-IP bucket from the per-PIN
+    // bucket (same PIN 10x would trip the smaller per-PIN bucket first).
     for (let i = 0; i < limit; i++) {
-      const r = await t.mutation(api.cantieri.getCantiereByGuestPin, { pin: "wrong", ip: "9.9.9.9" });
+      const r = await t.mutation(api.cantieri.getCantiereByGuestPin, { pin: `bad${i}`, ip: "9.9.9.9" });
       expect(r.error).not.toMatch(/tentativi/);
     }
     const throttled = await t.mutation(api.cantieri.getCantiereByGuestPin, { pin: "wrong", ip: "9.9.9.9" });

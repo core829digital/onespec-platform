@@ -200,6 +200,20 @@ http.route({
       return json({ ok: false }, 400);
     }
     if (!body.token || !/^[A-Za-z0-9]{8,32}$/.test(body.token)) return json({ ok: false }, 400);
+    // Scan throttle: counted:false past the limit, never an error (page must not break).
+    try {
+      const ip0 =
+        req.headers.get("cf-connecting-ip") ||
+        (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() ||
+        "0.0.0.0";
+      await ctx.runMutation(internal.lib.ratelimit.checkBucket, {
+        bucketKey: `scan:${body.token}:${await hashIp(ip0)}`,
+        tokens: 10,
+        refillMs: 60 * 60 * 1000,
+      });
+    } catch {
+      return json({ ok: true, counted: false });
+    }
     await ctx.runMutation(api.passports.recordScan, { token: body.token });
     return json({ ok: true });
   }),
@@ -234,6 +248,24 @@ http.route({
       (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() ||
       "0.0.0.0";
     const ipHash = await hashIp(ip);
+    // Intervention throttle: per-IP bucket + global per-passport bucket (spam fan-out guard).
+    try {
+      await ctx.runMutation(internal.lib.ratelimit.checkBucket, {
+        bucketKey: `passport:${body.token}:${ipHash}`,
+        tokens: 5,
+        refillMs: 10 * 60 * 1000,
+      });
+      await ctx.runMutation(internal.lib.ratelimit.checkBucket, {
+        bucketKey: `passport:${body.token}:global`,
+        tokens: 20,
+        refillMs: 60 * 60 * 1000,
+      });
+    } catch (e) {
+      if (String(e instanceof Error ? e.message : e).includes("RATE_LIMITED")) {
+        return json({ ok: false, error: "RATE_LIMITED" }, 429);
+      }
+      throw e;
+    }
     try {
       await ctx.runMutation(internal.passports.recordInterventionFromHttp, {
         token: body.token,
@@ -272,12 +304,42 @@ for (const path of INSPECTION_PATHS) {
 
 const TOKEN_RE = /^[A-Za-z0-9]{8,32}$/;
 
+/** Shared throttle for the 4 public inspection-write endpoints. Returns a 429 Response when exhausted, else null. */
+async function checkInspectionLimit(
+  runBucket: (bucketKey: string, tokens: number, refillMs: number) => Promise<unknown>,
+  req: Request,
+  token: string,
+): Promise<Response | null> {
+  const ip =
+    req.headers.get("cf-connecting-ip") ||
+    (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() ||
+    "0.0.0.0";
+  const ipHash = await hashIp(ip);
+  try {
+    await runBucket(`insp:${token}:${ipHash}`, 30, 10 * 60 * 1000);
+    await runBucket(`insp:${token}:global`, 100, 60 * 60 * 1000);
+  } catch (e) {
+    if (String(e instanceof Error ? e.message : e).includes("RATE_LIMITED")) {
+      return json({ ok: false, error: "RATE_LIMITED" }, 429);
+    }
+    throw e;
+  }
+  return null;
+}
+
 http.route({
   path: "/api/inspection/upload-url",
   method: "POST",
   handler: httpAction(async (ctx, req) => {
     const body = (await req.json().catch(() => ({}))) as { token?: string };
     if (!body.token || !TOKEN_RE.test(body.token)) return json({ ok: false }, 400);
+    const limited = await checkInspectionLimit(
+      (bucketKey, tokens, refillMs) =>
+        ctx.runMutation(internal.lib.ratelimit.checkBucket, { bucketKey, tokens, refillMs }),
+      req,
+      body.token,
+    );
+    if (limited) return limited;
     try {
       const url = await ctx.runMutation(internal.inspections.installerUploadUrlFromHttp, {
         token: body.token,
@@ -301,6 +363,13 @@ http.route({
     if (!body.token || !TOKEN_RE.test(body.token) || !body.photoKey || !body.storageId) {
       return json({ ok: false }, 400);
     }
+    const limitedPhoto = await checkInspectionLimit(
+      (bucketKey, tokens, refillMs) =>
+        ctx.runMutation(internal.lib.ratelimit.checkBucket, { bucketKey, tokens, refillMs }),
+      req,
+      body.token,
+    );
+    if (limitedPhoto) return limitedPhoto;
     try {
       await ctx.runMutation(internal.inspections.setInstallerPhotoFromHttp, {
         token: body.token,
@@ -327,6 +396,13 @@ http.route({
     if (!body.token || !TOKEN_RE.test(body.token) || !Array.isArray(body.checks)) {
       return json({ ok: false }, 400);
     }
+    const limitedChecks = await checkInspectionLimit(
+      (bucketKey, tokens, refillMs) =>
+        ctx.runMutation(internal.lib.ratelimit.checkBucket, { bucketKey, tokens, refillMs }),
+      req,
+      body.token,
+    );
+    if (limitedChecks) return limitedChecks;
     try {
       await ctx.runMutation(internal.inspections.updateInstallerChecksFromHttp, {
         token: body.token,
@@ -358,6 +434,13 @@ http.route({
     ) {
       return json({ ok: false, error: "BAD_REQUEST" }, 400);
     }
+    const limitedSign = await checkInspectionLimit(
+      (bucketKey, tokens, refillMs) =>
+        ctx.runMutation(internal.lib.ratelimit.checkBucket, { bucketKey, tokens, refillMs }),
+      req,
+      body.token,
+    );
+    if (limitedSign) return limitedSign;
     try {
       await ctx.runMutation(internal.inspections.signByInstallerFromHttp, {
         token: body.token,

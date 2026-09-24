@@ -5,7 +5,7 @@ import { SpecDrawing } from "./spec-drawing";
 import { getDict, LOCALE_CFG, labelFromList } from "./widget-i18n";
 import { readableInk, isSafeColor, resolveFontStack } from "./widget-theme";
 import { postToHost, readHostTheme } from "./host-bridge";
-import { catalogOptions, catalogPricing, type WidgetCatalog, type WidgetOptions } from "./widget-catalog";
+import { getTurnstileToken } from "@/lib/turnstile-client";import { catalogOptions, catalogPricing, type WidgetCatalog, type WidgetOptions } from "./widget-catalog";
 import { REGION_FLAT_OPTION_KINDS } from "@/shared/pricing";
 import {
   defaultConfig,
@@ -427,6 +427,7 @@ export function Widget({
       const all = [...items, state].map(withRegionDefaults);
       const userMsg = lead.message.trim();
       const spec = buildSpecSummary(all);
+      const turnstileToken = await getTurnstileToken();
       const body = {
         publicId: configurator.publicId,
         items: all.map(toSubmitItem),
@@ -440,6 +441,7 @@ export function Widget({
         clientReportedPriceCents: Math.round(finalGrand * 100),
         consent: true as const,
         consentVersion: "widget-1",
+        turnstileToken: turnstileToken ?? undefined,
       };
       const res = await fetch(`${CONVEX_SITE}/api/widget/quote`, {
         method: "POST",
