@@ -1240,6 +1240,9 @@
     "noFeedback": "Geen feedback.",
     "statusNew": "nieuw",
     "statusTriaged": "in behandeling",
-    "statusClosed": "gesloten"
+    "statusClosed": "gesloten",
+    "fullAccess": "Volledige toegang",
+    "grantFullAccess": "Volledige toegang geven",
+    "revokeFullAccess": "Volledige toegang intrekken"
   }
 }

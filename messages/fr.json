@@ -1240,6 +1240,9 @@
     "noFeedback": "Aucun retour.",
     "statusNew": "nouveau",
     "statusTriaged": "pris en charge",
-    "statusClosed": "clôturé"
+    "statusClosed": "clôturé",
+    "fullAccess": "Accès total",
+    "grantFullAccess": "Donner accès total",
+    "revokeFullAccess": "Retirer accès total"
   }
 }

@@ -1240,6 +1240,9 @@
     "noFeedback": "Niciun feedback.",
     "statusNew": "nou",
     "statusTriaged": "preluat",
-    "statusClosed": "închis"
+    "statusClosed": "închis",
+    "fullAccess": "Acces total",
+    "grantFullAccess": "Dă acces total",
+    "revokeFullAccess": "Revocă accesul total"
   }
 }

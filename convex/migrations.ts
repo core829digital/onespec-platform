@@ -1,6 +1,7 @@
 import { internalMutation, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
 import { seedExtras } from "./lib/catalogExtras";
+import { FULL_ACCESS_EMAILS, isFullAccessEmail } from "./lib/founding";
 import type { TableNames } from "./_generated/dataModel";
 
 /**
@@ -277,7 +278,7 @@ export const overviewBeforeReset = internalQuery({
  *   (verify the output matches expectations)
  *   npx convex run migrations:resetToFoundingAdmins '{"confirm":"RESET TO FOUNDING ADMINS"}' --prod
  */
-const KEEP_EMAILS = ["contact.core829@gmail.com", "office@winex.ro"];
+const KEEP_EMAILS = FULL_ACCESS_EMAILS;
 
 export const resetToFoundingAdmins = internalMutation({
   args: { confirm: v.string(), limit: v.optional(v.number()) },
@@ -352,5 +353,46 @@ export const resetToFoundingAdmins = internalMutation({
     }
 
     return { ...report, keptTenantIds: [...keepTenantIds], perTable };
+  },
+});
+
+/**
+ * Grant founding full-access: isPlatformAdmin for both founding users +
+ * unlimitedAccess on every tenant they own. Idempotent — safe to re-run.
+ * Run AFTER deploy: npx convex run migrations:grantFullAccessToFounders --prod
+ */
+export const grantFullAccessToFounders = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const report: Record<string, number> = { adminsFlagged: 0, tenantsFlagged: 0 };
+    const users = await ctx.db.query("users").collect();
+    const founderIds = new Set(
+      users.filter((u) => isFullAccessEmail(u.email)).map((u) => u._id),
+    );
+    for (const u of users) {
+      if (founderIds.has(u._id) && !u.isPlatformAdmin) {
+        await ctx.db.patch(u._id, { isPlatformAdmin: true });
+        report.adminsFlagged++;
+      }
+    }
+    const tenants = await ctx.db.query("tenants").collect();
+    for (const t of tenants) {
+      const ownedByFounder =
+        founderIds.has(t.ownerUserId) ||
+        isFullAccessEmail((await ctx.db.get(t.ownerUserId))?.email);
+      if (ownedByFounder && t.unlimitedAccess !== true) {
+        await ctx.db.patch(t._id, { unlimitedAccess: true, updatedAt: Date.now() });
+        await ctx.db.insert("auditLog", {
+          actorKind: "system",
+          action: "tenant.grant_full_access",
+          targetTable: "tenants",
+          targetId: t._id,
+          meta: { reason: "founding account" },
+          createdAt: Date.now(),
+        });
+        report.tenantsFlagged++;
+      }
+    }
+    return report;
   },
 });

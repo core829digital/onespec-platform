@@ -44,6 +44,10 @@ export default defineSchema({
     onboardingCompletedAt: v.optional(v.number()),
     /** Grandfathering: existing Starter tenants keep 50 quotes/month instead of 20. */
     quotaOverrideQuotesPerMonth: v.optional(v.number()),
+    /** Founding/full-access tenants: every limit Infinity, every feature on,
+     * never blocked by planStatus. Set by migration + registration auto-flag,
+     * toggleable by platform admins. */
+    unlimitedAccess: v.optional(v.boolean()),
     // Billing — populated only once Stripe is configured and a subscription exists.
     stripeCustomerId: v.optional(v.string()),
     stripeSubscriptionId: v.optional(v.string()),

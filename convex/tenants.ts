@@ -11,6 +11,7 @@ import {
   requireTenantRole,
 } from "./lib/auth";
 import { nanoid } from "./lib/ids";
+import { isFullAccessEmail } from "./lib/founding";
 import { resolveTenantEntitlements, assertQuota } from "./lib/entitlements";
 import { enforceForAddTeamMember } from "./lib/enforcement";
 
@@ -39,6 +40,8 @@ export const registerTenant = mutation({
       planStatus: "pending_plan",
       createdVia: "open_signup",
       createdAt: Date.now(),
+      // Founding accounts skip every plan limit from day one.
+      unlimitedAccess: isFullAccessEmail((await ctx.db.get(userId))?.email) ? true : undefined,
     });
 
     await ctx.db.insert("memberships", {
@@ -410,6 +413,25 @@ export const suspendTenant = mutation({
   },
 });
 
+/** Toggle founding/full-access flag — platform admins only. Audit-logged. */
+export const setUnlimitedAccess = mutation({
+  args: { tenantId: v.id("tenants"), enabled: v.boolean() },
+  handler: async (ctx, args) => {
+    await requirePlatformAdmin(ctx);
+    await ctx.db.patch(args.tenantId, {
+      unlimitedAccess: args.enabled ? true : undefined,
+      updatedAt: Date.now(),
+    });
+    await ctx.db.insert("auditLog", {
+      actorKind: "admin",
+      action: args.enabled ? "tenant.grant_full_access" : "tenant.revoke_full_access",
+      targetTable: "tenants",
+      targetId: args.tenantId,
+      meta: {},
+      createdAt: Date.now(),
+    });
+  },
+});
 /** Undo suspendTenant — no reactivate path existed before, meaning a
  * platform admin had no way back from a suspend except editing the
  * database directly. */

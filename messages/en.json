@@ -1240,6 +1240,9 @@
     "noFeedback": "No feedback.",
     "statusNew": "new",
     "statusTriaged": "triaged",
-    "statusClosed": "closed"
+    "statusClosed": "closed",
+    "fullAccess": "Full access",
+    "grantFullAccess": "Grant full access",
+    "revokeFullAccess": "Revoke full access"
   }
 }

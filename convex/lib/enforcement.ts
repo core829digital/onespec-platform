@@ -178,6 +178,8 @@ export async function enforceTeamMemberQuota(ctx: ReadCtx, tenantId: Id<"tenants
 export async function enforceActivePlan(ctx: MutationCtx | QueryCtx, tenantId: Id<"tenants">): Promise<void> {
   const tenant = await ctx.db.get(tenantId);
   if (!tenant) throw new ConvexError("TENANT_NOT_FOUND");
+  // Founding/full-access tenants are never blocked by plan status.
+  if (tenant.unlimitedAccess === true) return;
   if (tenant.planStatus === "suspended") throw new ConvexError("PLAN_SUSPENDED");
   if (tenant.planStatus === "past_due") throw new ConvexError("PLAN_PAST_DUE");
   // Every tenant goes through the plan-recommendation wizard before touching

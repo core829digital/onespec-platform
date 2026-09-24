@@ -78,6 +78,23 @@ describe("resolveTenantEntitlements", () => {
     const tenant = { plan: "base" } as Doc<"tenants">;
     expect(resolveTenantEntitlements(tenant).whiteLabel).toBe(false);
   });
+  test("unlimitedAccess tenant gets everything, no limits", () => {
+    const tenant = { plan: "base", unlimitedAccess: true } as Doc<"tenants">;
+    const ent = resolveTenantEntitlements(tenant);
+    expect(ent.maxConfigurators).toBe(Infinity);
+    expect(ent.maxQuotesPerMonth).toBe(Infinity);
+    expect(ent.maxTeamMembers).toBe(Infinity);
+    expect(ent.whiteLabel).toBe(true);
+    expect(ent.publicWidget).toBe(true);
+    expect(ent.showroomCalculator).toBe(true);
+    expect(ent.multiSupplierAggregator).toBe(true);
+    expect(ent.apiAccess).toBe(true);
+    expect(ent.gaebExport).toBe(true);
+    expect(ent.crmIntegration).toBe(true);
+    expect(ent.analytics).toBe("advanced");
+    expect(ent.fieldModules).toBe("full");
+    expect(ent.fiscalEngine).toBe("full");
+  });
 });
 
 describe("quota gates", () => {

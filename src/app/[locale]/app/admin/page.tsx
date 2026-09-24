@@ -96,6 +96,7 @@ export default function AdminPage() {
   const setFeedbackStatus = useMutation(api.feedback.setFeedbackStatus);
   const suspendTenant = useMutation(api.tenants.suspendTenant);
   const reactivateTenant = useMutation(api.tenants.reactivateTenant);
+  const setUnlimitedAccess = useMutation(api.tenants.setUnlimitedAccess);
   const resendEmail = useMutation(api.admin.resendEmail);
   const signups = useQuery(api.admin.recentSignups, isAdmin ? { limit: 10 } : "skip");
   const emailLog = useQuery(api.admin.listEmails, isAdmin ? { limit: 20 } : "skip");
@@ -177,7 +178,19 @@ export default function AdminPage() {
                 {tn.planStatus === "suspended" && (
                   <span className="ml-2 text-xs font-semibold text-red-600">{t("suspended")}</span>
                 )}
+                {tn.unlimitedAccess === true && (
+                  <span className="ml-2 rounded-full bg-[var(--color-mint-light)] px-2 py-0.5 text-xs font-semibold text-[var(--color-mint)]">
+                    {t("fullAccess")}
+                  </span>
+                )}
               </span>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => run(setUnlimitedAccess({ tenantId: tn._id, enabled: tn.unlimitedAccess !== true }))}
+              >
+                {tn.unlimitedAccess === true ? t("revokeFullAccess") : t("grantFullAccess")}
+              </Button>
               {tn.planStatus === "suspended" ? (
                 <Button size="sm" variant="ghost" onClick={() => run(reactivateTenant({ tenantId: tn._id }))}>
                   {t("reactivate")}

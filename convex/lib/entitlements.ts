@@ -157,6 +157,38 @@ const ENTERPRISE: Entitlements = {
   selfServeCheckout: false,
 };
 
+/** Founding/full-access: everything on, every numeric limit Infinity. */
+const FULL_ACCESS: Entitlements = {
+  ...ENTERPRISE,
+  maxConfigurators: Infinity,
+  maxQuotesPerMonth: Infinity,
+  maxTeamMembers: Infinity,
+  whiteLabel: true,
+  advancedPricingRules: true,
+  multiCatalog: true,
+  analytics: "advanced",
+  csvImport: true,
+  bulkImportMultiSite: true,
+  customDomain: true,
+  apiAccess: true,
+  prioritySupport: true,
+  transparentWidget: true,
+  fieldModules: "full",
+  fiscalEngine: "full",
+  eSignature: true,
+  advanceInvoices: true,
+  maintenanceContracts: true,
+  multiSupplierAggregator: true,
+  showroomCalculator: true,
+  publicWidget: true,
+  gaebExport: true,
+  crmIntegration: true,
+  support: "dedicated",
+  annualBilling: true,
+  selfServeCheckout: true,
+  trialEligible: false,
+};
+
 const PLAN_ENTITLEMENTS: Record<PlanKey, Entitlements> = {
   base: BASE,
   pro: PRO,
@@ -176,6 +208,8 @@ export function entitlementsFor(plan: string): Entitlements {
 
 /** Resolve the effective entitlements for a tenant document. */
 export function resolveTenantEntitlements(tenant: Doc<"tenants">): Entitlements {
+  // Founding/full-access tenants bypass every plan limit.
+  if (tenant.unlimitedAccess === true) return { ...FULL_ACCESS };
   const base = entitlementsFor(tenant.plan);
   // Grandfathering: existing Base (ex-Starter) tenants keep 50 quotes/month instead of 20.
   const ent = { ...base };
