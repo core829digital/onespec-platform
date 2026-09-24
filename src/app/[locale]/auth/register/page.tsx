@@ -10,7 +10,7 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { authErrorMessage } from "@/lib/errors";
+import { authErrorMessage, isMaskedServerError } from "@/lib/errors";
 import { getOptionalRedirect } from "@/lib/redirect-validator";
 
 export default function RegisterPage() {
@@ -51,7 +51,9 @@ function RegisterForm() {
       if (redirect) q.set("redirect", redirect);
       router.push(`/auth/verify?${q.toString()}`);
     } catch (err) {
-      posthog.captureException(err);
+      if (!isMaskedServerError(err)) {
+        posthog.captureException(err);
+      }
       setError(authErrorMessage(err, t("error")));
     } finally {
       setLoading(false);

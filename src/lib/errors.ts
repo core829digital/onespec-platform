@@ -151,6 +151,21 @@ export function friendlyError(e: unknown, t: (key: ErrorKey) => string): string 
   return t(key);
 }
 
+const MASKED_SERVER_ERROR = /\[CONVEX|Request ID|Server Error|Uncaught/i;
+
+/**
+ * True for the opaque "[CONVEX ...] [Request ID: …] Server Error" text Convex
+ * substitutes for a real message in production. A wrong email or password
+ * throws through this same generic error, so it looks exactly like a crash —
+ * and the request ID is unique per attempt, so reporting it to error tracking
+ * as-is opens a brand-new issue for every mistyped password instead of
+ * grouping them.
+ */
+export function isMaskedServerError(e: unknown): boolean {
+  const m = e instanceof Error ? e.message : "";
+  return m !== "" && MASKED_SERVER_ERROR.test(m);
+}
+
 /**
  * Auth actions throw plain Errors; in production Convex hides their text behind
  * "[CONVEX A(auth:signIn)] [Request ID: …] Server Error". Show the message only
@@ -158,6 +173,6 @@ export function friendlyError(e: unknown, t: (key: ErrorKey) => string): string 
  */
 export function authErrorMessage(e: unknown, fallback: string): string {
   const m = e instanceof Error ? e.message : "";
-  if (!m || /\[CONVEX|Request ID|Server Error|Uncaught/i.test(m)) return fallback;
+  if (!m || isMaskedServerError(e)) return fallback;
   return m;
 }
