@@ -1,6 +1,9 @@
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { SkipToMainContent } from "@/components/app-shell/skip-link";
+import { LEGAL_DOCS } from "@/content/legal";
+import { ChevronDown } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export default function LegalLayout({
   children,
@@ -19,18 +22,19 @@ export default function LegalLayout({
               <span className="text-xl font-bold text-[var(--color-text)]">OneSpec</span>
             </Link>
             <div className="flex items-center gap-4 text-sm">
-              <Link href="/legal/privacy" className="text-[var(--color-text-secondary)] hover:text-[var(--color-mint)]">
-                {t("privacy")}
-              </Link>
-              <Link href="/legal/termini-di-servizio" className="text-[var(--color-text-secondary)] hover:text-[var(--color-mint)]">
-                {t("terms")}
-              </Link>
-              <Link href="/legal/dpa" className="text-[var(--color-text-secondary)] hover:text-[var(--color-mint)]">
-                {t("dpa")}
-              </Link>
-              <Link href="/legal/cookie" className="text-[var(--color-text-secondary)] hover:text-[var(--color-mint)]">
-                {t("cookie")}
-              </Link>
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex items-center gap-1 text-[var(--color-text-secondary)] hover:text-[var(--color-mint)]">
+                  {t("allDocuments")}
+                  <ChevronDown size={14} />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-64">
+                  {LEGAL_DOCS.map((d) => (
+                    <DropdownMenuItem key={d.slug} asChild>
+                      <Link href={`/legal/${d.slug}`} className="flex w-full">{d.title}</Link>
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
               <a
                 href="https://cloud.onespec.eu"
                 target="_blank"

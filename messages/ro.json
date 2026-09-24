@@ -841,12 +841,9 @@
     "discardDraft": "Renunță și reia"
   },
   "legal": {
-    "privacy": "Confidențialitate",
-    "terms": "Termeni",
-    "dpa": "DPA",
-    "cookie": "Cookie-uri",
     "lastUpdated": "Ultima actualizare",
-    "allRightsReserved": "Toate drepturile rezervate."
+    "allRightsReserved": "Toate drepturile rezervate.",
+    "allDocuments": "Toate documentele"
   },
   "cookieConsent": {
     "title": "Consimțământ cookie-uri",

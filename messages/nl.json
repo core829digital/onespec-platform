@@ -841,12 +841,9 @@
     "discardDraft": "Verwerpen en opnieuw beginnen"
   },
   "legal": {
-    "privacy": "Privacy",
-    "terms": "Voorwaarden",
-    "dpa": "DPA",
-    "cookie": "Cookies",
     "lastUpdated": "Laatst bijgewerkt",
-    "allRightsReserved": "Alle rechten voorbehouden."
+    "allRightsReserved": "Alle rechten voorbehouden.",
+    "allDocuments": "Alle documenten"
   },
   "cookieConsent": {
     "title": "Cookietoestemming",

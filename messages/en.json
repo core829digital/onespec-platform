@@ -841,12 +841,9 @@
     "discardDraft": "Discard and start over"
   },
   "legal": {
-    "privacy": "Privacy",
-    "terms": "Terms",
-    "dpa": "DPA",
-    "cookie": "Cookie",
     "lastUpdated": "Last updated",
-    "allRightsReserved": "All rights reserved."
+    "allRightsReserved": "All rights reserved.",
+    "allDocuments": "All documents"
   },
   "cookieConsent": {
     "title": "Cookie consent",

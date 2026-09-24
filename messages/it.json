@@ -841,12 +841,9 @@
     "discardDraft": "Scarta e ricomincia"
   },
   "legal": {
-    "privacy": "Privacy",
-    "terms": "Termini",
-    "dpa": "DPA",
-    "cookie": "Cookie",
     "lastUpdated": "Ultimo aggiornamento",
-    "allRightsReserved": "Tutti i diritti riservati."
+    "allRightsReserved": "Tutti i diritti riservati.",
+    "allDocuments": "Tutti i documenti"
   },
   "cookieConsent": {
     "title": "Consenso cookie",
