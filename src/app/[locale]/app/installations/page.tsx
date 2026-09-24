@@ -4,12 +4,14 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
+import { ComplianceBadges } from "@/components/installations/ComplianceBadges";
 import { ClientCantierePicker, type PickedLinks } from "@/components/app-shell/client-cantiere-picker";
 import { EditDossierPanel, type EditableDossier } from "@/components/installations/EditDossierPanel";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useTranslations } from "next-intl";
 import {
+  enqueue,
   flushQueue,
   subscribeSyncState,
   type SyncState,
@@ -123,17 +125,24 @@ export default function InstallationsPage() {
     }
     setSaving(true);
     setErr("");
+    const payload = {
+      tenantId: tenant._id,
+      jobType,
+      nodeType,
+      perimeterMm: Math.round(perimeterM * 1000),
+      surveyId: surveyId ? (surveyId as Id<"siteSurveys">) : undefined,
+      clientId,
+      cantiereId,
+      notes: notes.trim() || undefined,
+    };
     try {
-      await createDossier({
-        tenantId: tenant._id,
-        jobType,
-        nodeType,
-        perimeterMm: Math.round(perimeterM * 1000),
-        surveyId: surveyId ? (surveyId as Id<"siteSurveys">) : undefined,
-        clientId,
-        cantiereId,
-        notes: notes.trim() || undefined,
-      });
+      // runSync above only drains the queue; without this, going offline
+      // mid-wizard just threw instead of queuing like surveys/page.tsx does.
+      if (!navigator.onLine) {
+        await enqueue("installation.create", payload);
+      } else {
+        await createDossier(payload);
+      }
       setClientId(undefined);
       setCantiereId(undefined);
       setOpen(false);
@@ -144,23 +153,36 @@ export default function InstallationsPage() {
       setSurveyId("");
       setNotes("");
     } catch (e) {
-      setErr(tf(e));
+      // Network hiccup while "online": fall back to the local queue.
+      try {
+        await enqueue("installation.create", payload);
+        setClientId(undefined);
+        setCantiereId(undefined);
+        setOpen(false);
+        setStep(1);
+        setJobType("");
+        setNodeType("");
+        setPerimeterM(0);
+        setSurveyId("");
+        setNotes("");
+      } catch {
+        setErr(tf(e));
+      }
     } finally {
       setSaving(false);
     }
   }
 
-  // Country / region info from standard
+  // Country / region info from standard. The norm code shown alongside the
+  // country name comes from `standard.norm` (real per-market compliance
+  // registry, convex/lib/compliance.ts) rather than a second hardcoded copy
+  // — a previous local copy here listed different, unverified norm codes
+  // for BE/NL (NBN B 62-001 / NEN 2646) that diverged from the registry.
   const regionCode = standard?.regionCode ?? tenant?.country?.toUpperCase() ?? "IT";
-  const regionLabels: Record<string, string> = {
-    IT: "Italia — UNI 11673",
-    FR: "Francia — NF DTU 36.5",
-    BE: "Belgio — NBN B 62-001",
-    NL: "Paesi Bassi — NEN 2646",
-    DE: "Germania — RAL-GZ 716",
-    LU: "Lussemburgo — RAL-GZ 716",
+  const countryNames: Record<string, string> = {
+    IT: "Italia", FR: "Francia", BE: "Belgio", NL: "Paesi Bassi", DE: "Germania", LU: "Lussemburgo",
   };
-  const regionLabel = regionLabels[regionCode] ?? regionCode;
+  const regionLabel = `${countryNames[regionCode] ?? regionCode}${standard?.norm ? ` — ${standard.norm}` : ""}`;
 
   const hasCountry = !!tenant?.country;
 
@@ -196,6 +218,14 @@ export default function InstallationsPage() {
           <SyncBadge state={sync} onSync={runSync} />
         </div>
       </div>
+
+      {standard && (
+        <ComplianceBadges
+          norm={standard.norm}
+          flags={standard.complianceFlags}
+          fundingTitle={standard.fundingTitle}
+        />
+      )}
 
       <button
         onClick={() => setOpen((v) => !v)}
