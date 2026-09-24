@@ -380,18 +380,25 @@ export const grantFullAccessToFounders = internalMutation({
       const ownedByFounder =
         founderIds.has(t.ownerUserId) ||
         isFullAccessEmail((await ctx.db.get(t.ownerUserId))?.email);
-      if (ownedByFounder && t.unlimitedAccess !== true) {
-        await ctx.db.patch(t._id, { unlimitedAccess: true, updatedAt: Date.now() });
-        await ctx.db.insert("auditLog", {
-          actorKind: "system",
-          action: "tenant.grant_full_access",
-          targetTable: "tenants",
-          targetId: t._id,
-          meta: { reason: "founding account" },
-          createdAt: Date.now(),
-        });
-        report.tenantsFlagged++;
-      }
+      if (!ownedByFounder) continue;
+      const patch: Record<string, unknown> = {};
+      if (t.unlimitedAccess !== true) patch.unlimitedAccess = true;
+      // Founding accounts show as Enterprise, not just unlimited-access Base —
+      // unlimitedAccess already bypasses every limit regardless of `plan`,
+      // this is so the admin UI/plan label reflects reality, not a leftover
+      // default from registerTenant.
+      if (t.plan !== "enterprise") patch.plan = "enterprise";
+      if (Object.keys(patch).length === 0) continue;
+      await ctx.db.patch(t._id, { ...patch, updatedAt: Date.now() });
+      await ctx.db.insert("auditLog", {
+        actorKind: "system",
+        action: "tenant.grant_full_access",
+        targetTable: "tenants",
+        targetId: t._id,
+        meta: { reason: "founding account", ...patch },
+        createdAt: Date.now(),
+      });
+      report.tenantsFlagged++;
     }
     return report;
   },
