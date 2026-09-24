@@ -180,7 +180,7 @@ export const publishConfigurator = mutation({
       ctx.db.query("catalogGlazingOptions").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
       ctx.db.query("catalogFinishOptions").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
       ctx.db.query("catalogHardwareOptions").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
-      ctx.db.query("branding").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).unique(),
+      ctx.db.query("branding").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).first(),
     ]);
 
     const version = (configurator.publishedCatalogVersion || 0) + 1;
@@ -370,7 +370,7 @@ export const getEditorState = query({
       ctx.db.query("catalogGlazingOptions").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
       ctx.db.query("catalogFinishOptions").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
       ctx.db.query("catalogHardwareOptions").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
-      ctx.db.query("branding").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).unique(),
+      ctx.db.query("branding").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).first(),
     ]);
 
     const extras = await loadExtras(ctx, args.configuratorId);

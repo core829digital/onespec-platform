@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { NumberInput, TextInput } from "../editor-primitives";
+import { NumberInput, TextInput, SelectInput } from "../editor-primitives";
 
 const mintBtn =
   "rounded-md bg-[var(--color-mint)] px-2.5 py-1 text-xs font-semibold text-[var(--color-mint-dark)] transition-all hover:brightness-95 hover:shadow-sm active:brightness-90 disabled:opacity-50 disabled:hover:brightness-100 disabled:hover:shadow-none";
@@ -28,7 +28,10 @@ export function AddRow({
   fields,
   onAdd,
 }: {
-  fields: Array<{ name: string; label: string; type: "text" | "number" }>;
+  fields: Array<
+    | { name: string; label: string; type: "text" | "number" }
+    | { name: string; label: string; type: "select"; options: Array<{ value: string; label: string }> }
+  >;
   onAdd: (vals: Record<string, string>) => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -46,10 +49,26 @@ export function AddRow({
     );
   }
 
-  const complete = fields.every((f) => (vals[f.name] ?? "").trim() !== "");
+  const complete = fields.every((f) => f.type === "select" || (vals[f.name] ?? "").trim() !== "");
   return (
     <div className="flex flex-wrap items-end gap-2 border border-[var(--color-border)] rounded-lg p-3">
       {fields.map((f) => {
+        if (f.type === "select") {
+          return (
+            <label key={f.name} className="text-xs text-[var(--color-text-secondary)]">
+              {f.label}
+              <SelectInput
+                value={vals[f.name] ?? f.options[0]?.value ?? ""}
+                onChange={(e) => setVals((v) => ({ ...v, [f.name]: e.target.value }))}
+                className="h-8 py-1 mt-1 w-32"
+              >
+                {f.options.map((o) => (
+                  <option key={o.value} value={o.value}>{o.label}</option>
+                ))}
+              </SelectInput>
+            </label>
+          );
+        }
         const Comp = f.type === "number" ? NumberInput : TextInput;
         return (
           <label key={f.name} className="text-xs text-[var(--color-text-secondary)]">

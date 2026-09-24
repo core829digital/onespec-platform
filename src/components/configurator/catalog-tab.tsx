@@ -4,6 +4,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { CatalogEditorProvider, useCatalogEditor } from "./catalog/store";
 import { MaterialsSection, QualitySection, ProfileSystemsSection } from "./catalog/materials";
 import { GlazingSection, FinishSection, HardwareSection, SizeSection } from "./catalog/options";
+import { FrameTypesSection, AccessoriesSection } from "./catalog/frames-accessories";
 
 interface EditorState {
   materials: Array<Record<string, unknown>>;
@@ -13,6 +14,8 @@ interface EditorState {
   glazing: Array<Record<string, unknown>>;
   finish: Array<Record<string, unknown>>;
   hardware: Array<Record<string, unknown>>;
+  frameTypes: Array<Record<string, unknown>>;
+  accessories: Array<Record<string, unknown>>;
 }
 
 function ErrorBanner() {
@@ -43,9 +46,11 @@ export function CatalogTab({
         <MaterialsSection materials={state.materials} />
         <QualitySection materials={state.materials} qualityTiers={state.qualityTiers} />
         <ProfileSystemsSection materials={state.materials} profileSystems={state.profileSystems} />
+        <FrameTypesSection frameTypes={state.frameTypes} />
         <GlazingSection rows={state.glazing} />
         <FinishSection rows={state.finish} />
         <HardwareSection hardware={state.hardware} />
+        <AccessoriesSection accessories={state.accessories} />
         <SizeSection rows={state.sizeConstraints} />
       </div>
     </CatalogEditorProvider>
