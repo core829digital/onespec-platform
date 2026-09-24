@@ -241,21 +241,6 @@ export const saveLaserMeasurement = mutation({
   },
 });
 
-export const savePhotoCote = mutation({
-  args: {
-    surveyId: v.id("siteSurveys"),
-    photo: photoValidator,
-  },
-  handler: async (ctx, args) => {
-    const survey = await ctx.db.get(args.surveyId);
-    if (!survey) throw new ConvexError("SURVEY_NOT_FOUND");
-    await requireTenantRole(ctx, survey.tenantId, ["owner", "admin", "member"]);
-
-    const photos = [...(survey.photos ?? []), args.photo];
-    await ctx.db.patch(args.surveyId, { photos, updatedAt: Date.now() });
-  },
-});
-
 export const saveDiagnosticRecommendation = mutation({
   args: {
     surveyId: v.id("siteSurveys"),

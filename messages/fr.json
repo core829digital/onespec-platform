@@ -735,7 +735,11 @@
     "noQuoteConfig": "Publiez un configurateur pour générer le devis.",
     "linkedQuote": "Devis généré",
     "client": "Client lié",
-    "save": "Enregistrer"
+    "save": "Enregistrer",
+    "editCustomer": "Modifier les données client",
+    "cancel": "Annuler",
+    "city": "Ville",
+    "postalCode": "Code postal"
   },
   "dossierEdit": {
     "edit": "Modifier",

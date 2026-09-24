@@ -735,7 +735,11 @@
     "noQuoteConfig": "Publish a configurator to generate the quote.",
     "linkedQuote": "Generated quote",
     "client": "Linked client",
-    "save": "Save"
+    "save": "Save",
+    "editCustomer": "Edit customer data",
+    "cancel": "Cancel",
+    "city": "City",
+    "postalCode": "Postal code"
   },
   "dossierEdit": {
     "edit": "Edit",

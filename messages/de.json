@@ -735,7 +735,11 @@
     "noQuoteConfig": "Konfigurator veröffentlichen, um das Angebot zu erstellen.",
     "linkedQuote": "Erstelltes Angebot",
     "client": "Verknüpfter Kunde",
-    "save": "Speichern"
+    "save": "Speichern",
+    "editCustomer": "Kundendaten bearbeiten",
+    "cancel": "Abbrechen",
+    "city": "Stadt",
+    "postalCode": "Postleitzahl"
   },
   "dossierEdit": {
     "edit": "Bearbeiten",

@@ -735,7 +735,11 @@
     "noQuoteConfig": "Pubblica un configuratore per generare il preventivo.",
     "linkedQuote": "Preventivo generato",
     "client": "Cliente collegato",
-    "save": "Salva"
+    "save": "Salva",
+    "editCustomer": "Modifica dati cliente",
+    "cancel": "Annulla",
+    "city": "Città",
+    "postalCode": "CAP"
   },
   "dossierEdit": {
     "edit": "Modifica",

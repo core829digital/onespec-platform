@@ -735,7 +735,11 @@
     "noQuoteConfig": "Publică un configurator pentru a genera oferta.",
     "linkedQuote": "Ofertă generată",
     "client": "Client asociat",
-    "save": "Salvează"
+    "save": "Salvează",
+    "editCustomer": "Editează datele clientului",
+    "cancel": "Anulează",
+    "city": "Oraș",
+    "postalCode": "Cod poștal"
   },
   "dossierEdit": {
     "edit": "Editează",

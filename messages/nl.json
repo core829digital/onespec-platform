@@ -735,7 +735,11 @@
     "noQuoteConfig": "Publiceer een configurator om de offerte te maken.",
     "linkedQuote": "Gemaakte offerte",
     "client": "Gekoppelde klant",
-    "save": "Opslaan"
+    "save": "Opslaan",
+    "editCustomer": "Klantgegevens bewerken",
+    "cancel": "Annuleren",
+    "city": "Stad",
+    "postalCode": "Postcode"
   },
   "dossierEdit": {
     "edit": "Bewerken",

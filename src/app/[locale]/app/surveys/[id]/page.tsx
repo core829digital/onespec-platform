@@ -43,13 +43,21 @@ export default function SurveyDetailPage({ params }: { params: Promise<{ id: str
   const remove = useMutation(api.surveys.remove);
   const createQuote = useMutation(api.quotes.createFieldQuoteFromSurvey);
   const saveRecommendation = useMutation(api.surveys.saveDiagnosticRecommendation);
+  const updateSurvey = useMutation(api.surveys.update);
   const [recommendationDraft, setRecommendationDraft] = useState<string | null>(null);
+  const [editingCustomer, setEditingCustomer] = useState(false);
+  const [customerDraft, setCustomerDraft] = useState({
+    customerName: "",
+    customerAddress: "",
+    customerCity: "",
+    customerPostalCode: "",
+  });
 
   const { downloadPDF } = usePDFDownload(SurveyPDF, {
     filename: `rilievo-${id.slice(-6)}.pdf`,
   });
   const { ready: companyReady, company } = useCompanyPdf(data?.tenant?.name);
-  const [busy, setBusy] = useState<"" | "pdf" | "complete" | "quote" | "delete" | "recommendation">("");
+  const [busy, setBusy] = useState<"" | "pdf" | "complete" | "quote" | "delete" | "recommendation" | "customer">("");
   const [error, setError] = useState("");
 
   if (data === undefined) return <p className="text-[var(--color-text-secondary)]">{tf("loading")}</p>;
@@ -175,6 +183,75 @@ export default function SurveyDetailPage({ params }: { params: Promise<{ id: str
       </div>
 
       {error && <p className="text-sm text-[var(--color-danger)]" role="alert">{error}</p>}
+
+      {!isCompleted && (
+        <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4">
+          {editingCustomer ? (
+            <div className="space-y-2">
+              <h2 className="text-sm font-semibold">{t("editCustomer")}</h2>
+              {(
+                [
+                  ["customerName", t("customer"), survey.customerName],
+                  ["customerAddress", t("address"), survey.customerAddress],
+                  ["customerCity", t("city"), survey.customerCity],
+                  ["customerPostalCode", t("postalCode"), survey.customerPostalCode],
+                ] as const
+              ).map(([field, label, current]) => (
+                <label key={field} className="block text-xs text-[var(--color-text-secondary)]">
+                  {label}
+                  <input
+                    value={customerDraft[field] || (current ?? "")}
+                    onChange={(e) => setCustomerDraft((d) => ({ ...d, [field]: e.target.value }))}
+                    className="mt-0.5 block w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
+                  />
+                </label>
+              ))}
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  disabled={busy !== ""}
+                  onClick={() =>
+                    void run("customer", async () => {
+                      await updateSurvey({
+                        surveyId,
+                        customerName: customerDraft.customerName || survey.customerName,
+                        customerAddress: customerDraft.customerAddress || undefined,
+                        customerCity: customerDraft.customerCity || undefined,
+                        customerPostalCode: customerDraft.customerPostalCode || undefined,
+                      });
+                      setCustomerDraft({ customerName: "", customerAddress: "", customerCity: "", customerPostalCode: "" });
+                      setEditingCustomer(false);
+                    })
+                  }
+                  className="rounded-lg bg-[var(--color-mint)] px-3 py-2 text-sm font-semibold text-[var(--color-mint-dark)] disabled:opacity-50"
+                >
+                  {busy === "customer" ? "…" : t("save")}
+                </button>
+                <button
+                  type="button"
+                  disabled={busy !== ""}
+                  onClick={() => {
+                    setCustomerDraft({ customerName: "", customerAddress: "", customerCity: "", customerPostalCode: "" });
+                    setEditingCustomer(false);
+                  }}
+                  className="rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm disabled:opacity-50"
+                >
+                  {t("cancel")}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              disabled={busy !== ""}
+              onClick={() => setEditingCustomer(true)}
+              className="rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm font-medium hover:bg-[var(--color-bg)] disabled:opacity-50"
+            >
+              {t("editCustomer")}
+            </button>
+          )}
+        </section>
+      )}
 
       <section className="overflow-x-auto rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)]">
         <h2 className="border-b border-[var(--color-border)] px-4 py-3 text-sm font-semibold">{t("openings")}</h2>
