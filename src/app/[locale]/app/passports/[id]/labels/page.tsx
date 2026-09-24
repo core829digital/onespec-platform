@@ -3,9 +3,13 @@
 import { useQuery, useMutation } from "convex/react";
 import { useState } from "react";
 import QRCode from "qrcode";
+import { pdf } from "@react-pdf/renderer";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useFriendlyError } from "@/lib/use-friendly-error";
+import { QrLabelsPDF } from "@/lib/pdfs/QrLabelsPDF";
+import { usePDFDownload } from "@/hooks/usePDFDownload";
+import { printPdfBlob } from "@/lib/print-pdf";
 
 type PassportId = Id<"serramentoPassports">;
 
@@ -15,7 +19,11 @@ function PassportLabelsPanel({ passportId }: { passportId: PassportId }) {
   const generateQrs = useMutation(api.passports.generatePassportQrs);
   const [qrData, setQrData] = useState<{ token: string; qr: string }[]>([]);
   const [busy, setBusy] = useState(false);
+  const [printing, setPrinting] = useState(false);
   const [err, setErr] = useState("");
+  const { downloadPDF } = usePDFDownload(QrLabelsPDF, {
+    filename: `etichette-qr-${String(passportId).slice(-6)}.pdf`,
+  });
 
   async function generate() {
     setBusy(true);
@@ -69,10 +77,27 @@ function PassportLabelsPanel({ passportId }: { passportId: PassportId }) {
 
       <div className="flex gap-2 pt-2">
         <button
-          onClick={() => window.print()}
-          className="flex-1 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white"
+          onClick={() => void downloadPDF({ label: p.label, items: qrData })}
+          disabled={qrData.length === 0}
+          className="flex-1 rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm font-semibold disabled:opacity-50"
         >
-          Stampa etichette (A4)
+          Scarica PDF (A4)
+        </button>
+        <button
+          onClick={async () => {
+            setPrinting(true);
+            try {
+              printPdfBlob(await pdf(<QrLabelsPDF label={p.label} items={qrData} />).toBlob());
+            } catch (e) {
+              setErr(tf(e));
+            } finally {
+              setPrinting(false);
+            }
+          }}
+          disabled={qrData.length === 0 || printing}
+          className="flex-1 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+        >
+          {printing ? "Preparazione…" : "Stampa etichette (A4)"}
         </button>
       </div>
     </div>
