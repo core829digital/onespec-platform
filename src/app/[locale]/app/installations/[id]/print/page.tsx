@@ -11,12 +11,14 @@ import { InstallationCertPDF } from "@/lib/pdfs/InstallationCertPDF";
 import { usePDFDownload } from "@/hooks/usePDFDownload";
 import { printPdfBlob } from "@/lib/print-pdf";
 import { useCompanyPdf } from "@/lib/use-company-pdf";
+import { useTranslations } from "next-intl";
 
 interface Props {
   params: Promise<{ id: string; locale: string }>;
 }
 
 function InstallationDocument({ data, region }: { data: NonNullable<FunctionReturnType<typeof api.installations.getForPrint>>; region: string }) {
+  const t = useTranslations("installationPrint");
   const { dossier, tenant, jobLabel, nodeLabel, notes, survey, quote } = data;
   // Lazy initializer: React calls this exactly once (on mount), not on
   // every render — the sanctioned way to grab "now" for display without
@@ -112,7 +114,7 @@ function InstallationDocument({ data, region }: { data: NonNullable<FunctionRetu
       <div className="no-print mb-6 flex items-center justify-between rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4">
         <div>
           <span className="text-sm font-medium text-[var(--color-text)]">
-            Dossier #{dossier._id?.slice(-8).toUpperCase()} ({region})
+            {t("dossier", { id: dossier._id?.slice(-8).toUpperCase() ?? "", region })}
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -121,14 +123,14 @@ function InstallationDocument({ data, region }: { data: NonNullable<FunctionRetu
             disabled={!companyReady}
             className="rounded-lg bg-[var(--color-mint)] px-4 py-2 text-sm font-bold text-[var(--color-mint-dark)] hover:opacity-90"
           >
-            ⬇️ Scarica PDF
+            ⬇️ {t("download")}
           </button>
           <button
             onClick={handlePrint}
             disabled={!companyReady || printing}
             className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2 text-sm font-medium text-[var(--color-text)] hover:bg-[var(--color-bg-alt)]"
           >
-            🖨️ Stampa
+            🖨️ {t("print")}
           </button>
         </div>
       </div>

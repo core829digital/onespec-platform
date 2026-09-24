@@ -8,8 +8,10 @@ import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { ADMIN_PREVIEW_EMAIL, canPreviewMarkets, previewableRegions } from "@/lib/country-locale";
 import { useRunAction } from "@/hooks/useRunAction";
+import { useLocale, useTranslations } from "next-intl";
 
 function MarketPreview() {
+  const t = useTranslations("admin");
   const [region, setRegion] = useState("IT");
   const preview = useQuery(api.admin.getMarketPreview, { regionCode: region });
 
@@ -17,12 +19,12 @@ function MarketPreview() {
     <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg">
       <div className="px-6 py-4 flex flex-wrap items-center justify-between gap-3">
         <span className="font-bold text-[var(--color-text)]">
-          Anteprima mercato · <span className="font-mono text-xs">{ADMIN_PREVIEW_EMAIL}</span>
+          {t("marketPreview")} <span className="font-mono text-xs">{ADMIN_PREVIEW_EMAIL}</span>
         </span>
         <select
           value={region}
           onChange={(e) => setRegion(e.target.value)}
-          aria-label="Seleziona mercato"
+          aria-label={t("selectMarket")}
           className="rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1.5 text-sm text-[var(--color-text)]"
         >
           {previewableRegions().map((r) => (
@@ -33,7 +35,7 @@ function MarketPreview() {
         </select>
       </div>
       {preview === undefined ? (
-        <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">Caricamento...</div>
+        <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">{t("loading")}</div>
       ) : (
         <div className="px-6 py-4 space-y-4 text-sm">
           <div className="flex flex-wrap gap-1.5">
@@ -51,23 +53,25 @@ function MarketPreview() {
             </span>
           </div>
           <div>
-            <p className="font-semibold text-[var(--color-text)]">Posa — {preview.installation.name}</p>
+            <p className="font-semibold text-[var(--color-text)]">{t("installTitle", { name: preview.installation.name })}</p>
             <p className="text-[var(--color-text-secondary)]">
-              {preview.installation.jobTypes.length} tipi lavoro ·{" "}
-              {preview.installation.nodeTypes.length} nodi ·{" "}
-              {preview.installation.materials.length} materiali
+              {t("installLine", {
+                jobs: preview.installation.jobTypes.length,
+                nodes: preview.installation.nodeTypes.length,
+                materials: preview.installation.materials.length,
+              })}
             </p>
           </div>
           <div>
-            <p className="font-semibold text-[var(--color-text)]">Collaudo — {preview.inspection.title}</p>
+            <p className="font-semibold text-[var(--color-text)]">{t("inspectTitle", { title: preview.inspection.title })}</p>
             <p className="text-[var(--color-text-secondary)]">{preview.inspection.legalBasis}</p>
           </div>
           <div>
             <p className="font-semibold text-[var(--color-text)]">
-              Agevolazione — {preview.funding.programme}
+              {t("fundingTitle", { programme: preview.funding.programme })}
             </p>
             <p className="text-[var(--color-text-secondary)]">
-              {preview.funding.hasPortalXml ? "XML portale" : "PDF firmato"} ·{" "}
+              {preview.funding.hasPortalXml ? t("xmlPortal") : t("signedPdf")} ·{" "}
               {preview.funding.preamble[0] ?? ""}
             </p>
           </div>
@@ -78,6 +82,8 @@ function MarketPreview() {
 }
 
 export default function AdminPage() {
+  const t = useTranslations("admin");
+  const locale = useLocale();
   const run = useRunAction();
   const viewer = useQuery(api.users.viewer);
   const isAdmin = viewer?.isPlatformAdmin === true;
@@ -100,18 +106,18 @@ export default function AdminPage() {
   } = usePaginatedQuery(api.audit.listAudit, isAdmin ? {} : "skip", { initialNumItems: 15 });
 
   if (viewer === undefined) {
-    return <p className="text-[var(--color-text-secondary)]">Caricamento...</p>;
+    return <p className="text-[var(--color-text-secondary)]">{t("loading")}</p>;
   }
 
   if (!isAdmin) {
     return (
       <div className="space-y-4">
-        <h1 className="text-3xl font-bold text-[var(--color-text)]">Admin</h1>
+        <h1 className="text-3xl font-bold text-[var(--color-text)]">{t("title")}</h1>
         <p className="text-[var(--color-text-secondary)]">
-          Non hai i permessi per accedere a questa area.
+          {t("noAccess")}
         </p>
         <Link href="/app/dashboard" className="text-[var(--color-mint)] hover:underline">
-          ← Dashboard
+          {t("dashboard")}
         </Link>
       </div>
     );
@@ -119,49 +125,49 @@ export default function AdminPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-[var(--color-text)]">Admin</h1>
+      <h1 className="text-3xl font-bold text-[var(--color-text)]">{t("title")}</h1>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg p-4">
-          <p className="text-sm text-[var(--color-text-secondary)]">Stato registrazioni</p>
+          <p className="text-sm text-[var(--color-text-secondary)]">{t("regStatus")}</p>
           <p className="text-3xl font-bold text-[var(--color-text)] mt-2">
-            {registration ? (registration.open ? "Aperte" : "Chiuse") : "—"}
+            {registration ? (registration.open ? t("openState") : t("closedState")) : "—"}
           </p>
         </div>
         <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg p-4">
-          <p className="text-sm text-[var(--color-text-secondary)]">Tenant totali</p>
+          <p className="text-sm text-[var(--color-text-secondary)]">{t("totalTenants")}</p>
           <p className="text-3xl font-bold text-[var(--color-text)] mt-2">{tenants?.length ?? "—"}</p>
         </div>
         <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg p-4 flex flex-col justify-between">
-          <p className="text-sm text-[var(--color-text-secondary)]">Registrazioni</p>
+          <p className="text-sm text-[var(--color-text-secondary)]">{t("registrations")}</p>
           <div className="flex gap-2 mt-2">
             <Button size="sm" variant="ghost" onClick={() => run(toggleRegistration({ open: true }))}>
-              Apri
+              {t("open")}
             </Button>
             <Button size="sm" variant="ghost" onClick={() => run(toggleRegistration({ open: false }))}>
-              Chiudi
+              {t("close")}
             </Button>
           </div>
         </div>
         <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg p-4 flex flex-col justify-between">
           <p className="text-sm text-[var(--color-text-secondary)]">
-            Accordo DPA obbligatorio: {registration ? (registration.dpaRequired ? "attivo" : "spento") : "—"}
+            {t("dpaLabel", { state: registration ? (registration.dpaRequired ? t("dpaOn") : t("dpaOff")) : "—" })}
           </p>
           <div className="flex gap-2 mt-2">
             <Button size="sm" variant="ghost" onClick={() => run(setDpaRequired({ required: true }))}>
-              Attiva
+              {t("activate")}
             </Button>
             <Button size="sm" variant="ghost" onClick={() => run(setDpaRequired({ required: false }))}>
-              Spegni
+              {t("deactivate")}
             </Button>
           </div>
         </div>
       </div>
 
       <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg divide-y divide-[var(--color-border)]">
-        <div className="px-6 py-4 font-bold text-[var(--color-text)]">Tenant recenti</div>
+        <div className="px-6 py-4 font-bold text-[var(--color-text)]">{t("recentTenants")}</div>
         {tenants === undefined ? (
-          <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">Caricamento...</div>
+          <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">{t("loading")}</div>
         ) : (
           tenants.map((tn) => (
             <div key={tn._id} className="px-6 py-3 flex items-center justify-between text-sm gap-3">
@@ -169,23 +175,23 @@ export default function AdminPage() {
               <span className="text-[var(--color-text-secondary)] flex-1">
                 {tn.plan}
                 {tn.planStatus === "suspended" && (
-                  <span className="ml-2 text-xs font-semibold text-red-600">sospeso</span>
+                  <span className="ml-2 text-xs font-semibold text-red-600">{t("suspended")}</span>
                 )}
               </span>
               {tn.planStatus === "suspended" ? (
                 <Button size="sm" variant="ghost" onClick={() => run(reactivateTenant({ tenantId: tn._id }))}>
-                  Riattiva
+                  {t("reactivate")}
                 </Button>
               ) : (
                 <Button
                   size="sm"
                   variant="ghost"
                   onClick={() => {
-                    const reason = window.prompt("Motivo della sospensione:");
+                    const reason = window.prompt(t("suspendPrompt"));
                     if (reason) run(suspendTenant({ tenantId: tn._id, reason }));
                   }}
                 >
-                  Sospendi
+                  {t("suspend")}
                 </Button>
               )}
             </div>
@@ -197,19 +203,19 @@ export default function AdminPage() {
 
       <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg divide-y divide-[var(--color-border)]">
         <div className="px-6 py-4 font-bold text-[var(--color-text)]">
-          Ultime registrazioni{signups ? ` (${signups.length})` : ""}
+          {t("recentSignups")}{signups ? t("countParen", { count: signups.length }) : ""}
         </div>
         {signups === undefined ? (
-          <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">Caricamento...</div>
+          <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">{t("loading")}</div>
         ) : signups.length === 0 ? (
-          <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">Nessuna registrazione.</div>
+          <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">{t("noSignups")}</div>
         ) : (
           signups.map((u) => (
             <div key={u._id} className="px-6 py-3 text-sm flex items-center justify-between gap-3">
               <span className="text-[var(--color-text)]">{u.name || "—"}</span>
               <span className="text-[var(--color-text-secondary)] flex-1">{u.email}</span>
               <span className="text-[var(--color-text-secondary)] text-xs">
-                {u.emailVerificationTime ? "verificata" : "non verificata"}
+                {u.emailVerificationTime ? t("verified") : t("unverified")}
               </span>
             </div>
           ))
@@ -218,15 +224,15 @@ export default function AdminPage() {
 
       <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg divide-y divide-[var(--color-border)]">
         <div className="px-6 py-4 font-bold text-[var(--color-text)]">
-          Email transazionali recenti
+          {t("recentEmails")}
           <span className="ml-2 text-xs font-normal text-[var(--color-text-secondary)]">
-            stato “noop” = mail spente (RESEND_MODE non live), solo log
+            {t("noopHint")}
           </span>
         </div>
         {emailLog === undefined ? (
-          <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">Caricamento...</div>
+          <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">{t("loading")}</div>
         ) : emailLog.length === 0 ? (
-          <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">Nessuna email registrata.</div>
+          <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">{t("noEmails")}</div>
         ) : (
           emailLog.map((e) => (
             <div key={e._id} className="px-6 py-3 text-sm flex items-center justify-between gap-3">
@@ -244,7 +250,7 @@ export default function AdminPage() {
                 {e.status}
               </span>
               <Button size="sm" variant="ghost" onClick={() => run(resendEmail({ emailLogId: e._id }))}>
-                Reinvia
+                {t("resend")}
               </Button>
             </div>
           ))
@@ -252,11 +258,11 @@ export default function AdminPage() {
       </div>
 
       <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg divide-y divide-[var(--color-border)]">
-        <div className="px-6 py-4 font-bold text-[var(--color-text)]">Audit log</div>
+        <div className="px-6 py-4 font-bold text-[var(--color-text)]">{t("auditLog")}</div>
         {auditStatus === "LoadingFirstPage" ? (
-          <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">Caricamento...</div>
+          <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">{t("loading")}</div>
         ) : auditRows.length === 0 ? (
-          <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">Nessuna riga.</div>
+          <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">{t("noRows")}</div>
         ) : (
           auditRows.map((a) => (
             <div key={a._id} className="px-6 py-2 text-sm flex items-center justify-between gap-3">
@@ -266,7 +272,7 @@ export default function AdminPage() {
                 {a.targetTable ? ` · ${a.targetTable}` : ""}
               </span>
               <span className="text-[var(--color-text-secondary)] text-xs">
-                {new Date(a.createdAt).toLocaleString("it-IT")}
+                {new Date(a.createdAt).toLocaleString(locale)}
               </span>
             </div>
           ))
@@ -274,7 +280,7 @@ export default function AdminPage() {
         {auditStatus === "CanLoadMore" && (
           <div className="px-6 py-3 text-center">
             <Button size="sm" variant="ghost" onClick={() => loadMoreAudit(15)}>
-              Mostra meno recenti
+              {t("showOlder")}
             </Button>
           </div>
         )}
@@ -282,18 +288,18 @@ export default function AdminPage() {
 
       <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg divide-y divide-[var(--color-border)]">
         <div className="px-6 py-4 font-bold text-[var(--color-text)]">
-          Feedback utenti{feedback ? ` (${feedback.filter((f) => f.status === "new").length} nuovi)` : ""}
+          {t("feedbackTitle")}{feedback ? t("feedbackNew", { count: feedback.filter((f) => f.status === "new").length }) : ""}
         </div>
         {feedback === undefined ? (
-          <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">Caricamento...</div>
+          <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">{t("loading")}</div>
         ) : feedback.length === 0 ? (
-          <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">Nessun feedback.</div>
+          <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">{t("noFeedback")}</div>
         ) : (
           feedback.slice(0, 40).map((f) => (
             <div key={f._id} className="px-6 py-3 text-sm">
               <div className="flex items-center justify-between gap-3">
                 <span className="text-[var(--color-text-secondary)] text-xs">
-                  {f.category} · {f.userEmail ?? "—"} · {new Date(f.createdAt).toLocaleString("it-IT")}
+                  {f.category} · {f.userEmail ?? "—"} · {new Date(f.createdAt).toLocaleString(locale)}
                   {f.pagePath ? ` · ${f.pagePath}` : ""}
                 </span>
                 <select
@@ -303,9 +309,9 @@ export default function AdminPage() {
                   }
                   className="rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-1.5 py-0.5 text-xs text-[var(--color-text)]"
                 >
-                  <option value="new">nuovo</option>
-                  <option value="triaged">preso in carico</option>
-                  <option value="closed">chiuso</option>
+                  <option value="new">{t("statusNew")}</option>
+                  <option value="triaged">{t("statusTriaged")}</option>
+                  <option value="closed">{t("statusClosed")}</option>
                 </select>
               </div>
               <p className="text-[var(--color-text)] mt-1 whitespace-pre-wrap">{f.message}</p>

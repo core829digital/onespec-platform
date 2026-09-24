@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "convex/react";
+import { useLocale, useTranslations } from "next-intl";
 import QRCode from "qrcode";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
@@ -29,12 +30,14 @@ interface EneaData {
   preamble?: string[];
 }
 
-function eur(cents: number | null | undefined) {
+function eur(cents: number | null | undefined, locale = "it") {
   if (cents == null) return "—";
-  return new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(cents / 100);
+  return new Intl.NumberFormat(locale, { style: "currency", currency: "EUR" }).format(cents / 100);
 }
 
 function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenantId: Id<"tenants"> }) {
+  const t = useTranslations("passports");
+  const locale = useLocale();
   const p = useQuery(api.passports.get, { passportId });
   const genUrl = useMutation(api.passports.generateUploadUrl);
   const attach = useMutation(api.passports.attachDocument);
@@ -58,7 +61,7 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
     if (publicUrl) QRCode.toDataURL(publicUrl, { margin: 1, width: 220 }).then(setQr).catch(() => {});
   }, [publicUrl]);
 
-  if (!p) return <p className="text-sm text-[var(--color-muted-fg)]">Caricamento…</p>;
+  if (!p) return <p className="text-sm text-[var(--color-muted-fg)]">{t("loading")}</p>;
 
   async function uploadDoc(key: string, file: File) {
     setErr("");
@@ -75,6 +78,9 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
       setErr(toMessage(e));
     }
   }
+
+  const shortPrice = (cents: number) =>
+    new Intl.NumberFormat(locale, { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(cents / 100);
 
   return (
     <div className="grid gap-5 rounded-xl border border-[var(--color-border)] p-5 lg:grid-cols-[240px_1fr]">
@@ -94,12 +100,12 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
           onClick={() => navigator.clipboard?.writeText(publicUrl)}
           className="w-full rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-xs"
         >
-          Copia link fascicolo
+          {t("copyLink")}
         </button>
         <p className="text-[11px] text-[var(--color-muted-fg)]">
-          Stampa un&apos;etichetta QR 25×25 mm sul canto del telaio.
+          {t("qrHint")}
         </p>
-        <p className="text-xs">Scansioni: {p.scanCount}</p>
+        <p className="text-xs">{t("scans", { count: p.scanCount })}</p>
       </div>
 
       <div className="space-y-4">
@@ -112,7 +118,7 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
 
         <div>
           <h3 className="mb-2 text-xs font-semibold uppercase text-[var(--color-muted-fg)]">
-            Documenti del fascicolo
+            {t("docsTitle")}
           </h3>
           <div className="space-y-2">
             {p.documents.map((d) => (
@@ -132,10 +138,10 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
                       rel="noreferrer"
                       className="text-xs text-emerald-600 underline"
                     >
-                      allegato ✓
+                      {t("attached")}
                     </a>
                   ) : (
-                    <span className="text-xs text-[var(--color-muted-fg)]">mancante</span>
+                    <span className="text-xs text-[var(--color-muted-fg)]">{t("missing")}</span>
                   )}
                   <input
                     type="file"
@@ -153,13 +159,13 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
 
         <div className="rounded-lg border border-[var(--color-border)] p-3">
             <div className="flex items-center justify-between">
-              <div className="text-sm font-semibold">{p.regionCode === "IT" ? "Scheda ENEA · Allegato F" : "Documento agevolazione fiscale"}</div>
+              <div className="text-sm font-semibold">{p.regionCode === "IT" ? t("fundingIT") : t("fundingOther")}</div>
               <button
                 onClick={async () => {
                   setFundingBusy(true);
                   setErr("");
                   try {
-                    await generateFundingDoc({ 
+                    await generateFundingDoc({
                       passportId,
                       uwAnte: uwAnteInput || undefined,
                       deductionPercent: deductionPercentInput || undefined,
@@ -171,26 +177,26 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
                   }
                 }}
                 disabled={fundingBusy || !p.quoteId}
-                title={!p.quoteId ? "Collega prima un preventivo al fascicolo" : undefined}
+                title={!p.quoteId ? t("linkFirstTitle") : undefined}
                 className="rounded border border-[var(--color-border)] px-2 py-1 text-xs disabled:opacity-50"
               >
-                {fundingBusy ? "…" : p.eneaData ? "Rigenera" : "Genera da preventivo"}
+                {fundingBusy ? t("generating") : p.eneaData ? t("regenerate") : t("generate")}
               </button>
             </div>
             <div className="mt-2 grid gap-2 sm:grid-cols-2 text-xs">
               <label className="flex flex-col gap-1">
-                <span className="text-[var(--color-muted-fg)]">Uw ante operam (W/m²K, opzionale)</span>
+                <span className="text-[var(--color-muted-fg)]">{t("uwAnteLabel")}</span>
                 <input
                   type="number"
                   step="0.01"
                   value={uwAnteInput}
                   onChange={(e) => setUwAnteInput(e.target.value ? parseFloat(e.target.value) : "")}
                   className="rounded border border-[var(--color-border)] bg-transparent px-2 py-1.5"
-                  placeholder="es. 3.2"
+                  placeholder={t("uwAntePlaceholder")}
                 />
               </label>
               <label className="flex flex-col gap-1">
-                <span className="text-[var(--color-muted-fg)]">% Detrazione (opzionale)</span>
+                <span className="text-[var(--color-muted-fg)]">{t("deductionLabel")}</span>
                 <input
                   type="number"
                   min="0"
@@ -198,7 +204,7 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
                   value={deductionPercentInput}
                   onChange={(e) => setDeductionPercentInput(e.target.value ? parseInt(e.target.value, 10) : "")}
                   className="rounded border border-[var(--color-border)] bg-transparent px-2 py-1.5"
-                  placeholder="es. 50"
+                  placeholder={t("deductionPlaceholder")}
                 />
               </label>
             </div>
@@ -209,19 +215,19 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
                     Zona {(p.eneaData as EneaData).zone} · GG {(p.eneaData as EneaData).gradiGiorno} · Uw {(p.eneaData as EneaData).uwPost} ≤{" "}
                     {(p.eneaData as EneaData).uwLimit} ·{" "}
                     <span className={(p.eneaData as EneaData).conform ? "text-emerald-600" : "text-red-600"}>
-                      {(p.eneaData as EneaData).conform ? "conforme" : "non conforme"}
+                      {(p.eneaData as EneaData).conform ? t("conform") : t("nonConform")}
                     </span>
                   </div>
                 )}
                 {p.regionCode !== "IT" && (
                   <>
-                    <div>Programma: {p.eneaData.programme}</div>
-                    <div>Uw ante operam: {(p.eneaData as EneaData).uwAnte} W/m²K</div>
-                    <div>Uw post operam: {(p.eneaData as EneaData).uwPost} W/m²K</div>
-                    <div>ΔU: {(p.eneaData as EneaData).deltaU} W/m²K</div>
-                    <div>Superficie: {(p.eneaData as EneaData).superficieM2} m²</div>
-                    <div>Costo: {eur((p.eneaData as EneaData).costoCents)}</div>
-                    <div>Detrazione: {(p.eneaData as EneaData).deductionPercent}%</div>
+                    <div>{t("programme", { value: p.eneaData.programme ?? "—" })}</div>
+                    <div>{t("uwBefore", { value: (p.eneaData as EneaData).uwAnte ?? "—" })}</div>
+                    <div>{t("uwAfter", { value: (p.eneaData as EneaData).uwPost ?? "—" })}</div>
+                    <div>{t("deltaU", { value: (p.eneaData as EneaData).deltaU ?? "—" })}</div>
+                    <div>{t("area", { value: (p.eneaData as EneaData).superficieM2 ?? "—" })}</div>
+                    <div>{t("cost", { value: eur((p.eneaData as EneaData).costoCents, locale) })}</div>
+                    <div>{t("deduction", { value: (p.eneaData as EneaData).deductionPercent ?? "—" })}</div>
                     {(p.eneaData as EneaData).preamble && (
                       <div>
                         {(p.eneaData as EneaData).preamble!.map((line: string, i: number) => (
@@ -232,14 +238,14 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
                   </>
                 )}
                 {(p.eneaData as EneaData).risparmioKwhAnno && (
-                  <div>Risparmio stimato: {(p.eneaData as EneaData).risparmioKwhAnno} kWh/anno</div>
+                  <div>{t("savingEst", { value: (p.eneaData as EneaData).risparmioKwhAnno ?? "—" })}</div>
                 )}
                 {p.eneaXml && (
                   <button
                     onClick={() => navigator.clipboard?.writeText(p.eneaXml ?? "")}
                     className="rounded border border-[var(--color-border)] px-2 py-1"
                   >
-                    Copia XML per portale ENEA
+                    {t("copyXml")}
                   </button>
                 )}
               </div>
@@ -247,7 +253,7 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
             {!p.quoteId && (
               <div className="mt-2 space-y-2 rounded-lg border border-dashed border-[var(--color-border)] p-3 text-xs">
                 <p className="text-[var(--color-muted-fg)]">
-                  Collega il fascicolo a un preventivo per generare il documento agevolazione.
+                  {t("linkHint")}
                 </p>
                 <div className="flex flex-wrap items-center gap-2">
                   <select
@@ -255,10 +261,10 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
                     onChange={(e) => setQuoteToLink(e.target.value)}
                     className="rounded-lg border border-[var(--color-border)] bg-transparent px-2 py-1.5"
                   >
-                    <option value="">— scegli preventivo —</option>
+                    <option value="">{t("chooseQuote")}</option>
                     {(quotes ?? []).map((q) => (
                       <option key={q._id} value={q._id}>
-                        {q.leadName} · € {(q.priceCents / 100).toFixed(0)}
+                        {q.leadName} · {shortPrice(q.priceCents)}
                       </option>
                     ))}
                   </select>
@@ -276,7 +282,7 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
                     }}
                     className="rounded border border-[var(--color-border)] px-2 py-1 disabled:opacity-50"
                   >
-                    Collega
+                    {t("link")}
                   </button>
                 </div>
               </div>
@@ -285,7 +291,7 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
 
         <div className="rounded-lg bg-[var(--color-muted)] p-3">
           <div className="text-sm font-semibold">{p.maintenanceLabel}</div>
-          <div className="text-lg font-bold">{eur(p.maintenancePriceCents)} / anno</div>
+          <div className="text-lg font-bold">{eur(p.maintenancePriceCents, locale)} {t("perYear")}</div>
           <label className="mt-2 flex items-center gap-2 text-sm">
             <input
               type="checkbox"
@@ -298,7 +304,7 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
                 }
               }}
             />
-            Contratto di manutenzione attivo
+            {t("maintenanceActive")}
           </label>
         </div>
 
@@ -309,6 +315,8 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
 }
 
 export default function PassportsPage() {
+  const t = useTranslations("passports");
+  const locale = useLocale();
   const run = useRunAction();
   const tenant = useQuery(api.tenants.getMyTenant);
   const passports = useQuery(api.passports.list, tenant ? { tenantId: tenant._id } : "skip");
@@ -329,9 +337,12 @@ export default function PassportsPage() {
   const [selected, setSelected] = useState<PassportId | null>(null);
   const [err, setErr] = useState("");
 
+  const shortPrice = (cents: number) =>
+    new Intl.NumberFormat(locale, { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(cents / 100);
+
   async function add() {
     if (!tenant || !label.trim() || !customer.trim()) {
-      setErr("Etichetta e cliente obbligatori.");
+      setErr(t("requiredError"));
       return;
     }
     setErr("");
@@ -360,15 +371,15 @@ export default function PassportsPage() {
   return (
     <div className="w-full space-y-6">
       <div className="border-b border-[var(--color-border)] pb-4">
-        <h1 className="text-xl font-semibold">Fascicolo del Serramento · QR</h1>
+        <h1 className="text-xl font-semibold">{t("title")}</h1>
         <p className="text-sm text-[var(--color-muted-fg)]">
-          Ogni serramento ha un QR che porta a manuali, garanzia, marcatura CE e post-vendita.
+          {t("subtitle")}
         </p>
       </div>
 
       <div className="flex flex-wrap items-end gap-2 rounded-xl border border-[var(--color-border)] p-4">
         <label className="text-sm">
-          <span className="text-[var(--color-muted-fg)]">Etichetta (es. FIN-01 Soggiorno)</span>
+          <span className="text-[var(--color-muted-fg)]">{t("labelLabel")}</span>
           <input
             value={label}
             onChange={(e) => setLabel(e.target.value)}
@@ -376,7 +387,7 @@ export default function PassportsPage() {
           />
         </label>
         <label className="text-sm">
-          <span className="text-[var(--color-muted-fg)]">Cliente</span>
+          <span className="text-[var(--color-muted-fg)]">{t("customerLabel")}</span>
           <input
             value={customer}
             onChange={(e) => setCustomer(e.target.value)}
@@ -384,7 +395,7 @@ export default function PassportsPage() {
           />
         </label>
         <label className="text-sm">
-          <span className="text-[var(--color-muted-fg)]">Prodotto</span>
+          <span className="text-[var(--color-muted-fg)]">{t("productLabel")}</span>
           <input
             value={product}
             onChange={(e) => setProduct(e.target.value)}
@@ -392,7 +403,7 @@ export default function PassportsPage() {
           />
         </label>
         <label className="text-sm">
-          <span className="text-[var(--color-muted-fg)]">Preventivo (per scheda incentivi)</span>
+          <span className="text-[var(--color-muted-fg)]">{t("quoteLabel")}</span>
           <select
             value={quoteId}
             onChange={(e) => {
@@ -402,10 +413,10 @@ export default function PassportsPage() {
             }}
             className="mt-1 block rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
           >
-            <option value="">— nessuno —</option>
+            <option value="">{t("noneOption")}</option>
             {(quotesForCreate ?? []).map((q) => (
               <option key={q._id} value={q._id}>
-                {q.leadName} · € {(q.priceCents / 100).toFixed(0)}
+                {q.leadName} · {shortPrice(q.priceCents)}
               </option>
             ))}
           </select>
@@ -415,7 +426,7 @@ export default function PassportsPage() {
           disabled={creating}
           className="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-[var(--color-accent-ink)] disabled:opacity-50"
         >
-          {creating ? "…" : "+ Nuovo fascicolo"}
+          {creating ? t("generating") : t("newDossier")}
         </button>
         {err && <p className="w-full text-sm text-red-600">{err}</p>}
       </div>
@@ -425,16 +436,16 @@ export default function PassportsPage() {
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="overflow-hidden rounded-xl border border-[var(--color-border)]">
           <div className="bg-[var(--color-muted)] px-4 py-2 text-xs font-semibold text-[var(--color-muted-fg)]">
-            Fascicoli
+            {t("dossiers")}
           </div>
-          <table className="w-full text-sm" aria-label="Fascicoli">
+          <table className="w-full text-sm" aria-label={t("dossiers")}>
             <tbody>
               {passports?.map((p) => (
                 <tr key={p._id} className="border-t border-[var(--color-border)]">
                   <td className="px-4 py-3 font-medium">{p.label}</td>
                   <td className="px-4 py-3">{p.customerName}</td>
                   <td className="px-4 py-3 text-center text-xs text-[var(--color-muted-fg)]">
-                    {p.scanCount} scan
+                    {t("scansShort", { count: p.scanCount })}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex justify-end gap-1">
@@ -442,13 +453,13 @@ export default function PassportsPage() {
                         onClick={() => setSelected(p._id)}
                         className="rounded border border-[var(--color-border)] px-2 py-1 text-xs"
                       >
-                        Apri
+                        {t("open")}
                       </button>
                       <Link
                         href={`/app/passports/${p._id}/labels`}
                         className="rounded border border-[var(--color-border)] px-2 py-1 text-xs"
                       >
-                        Etichette
+                        {t("labels")}
                       </Link>
                     </div>
                   </td>
@@ -457,7 +468,7 @@ export default function PassportsPage() {
               {passports && passports.length === 0 && (
                 <tr>
                   <td className="px-4 py-8 text-center text-[var(--color-muted-fg)]">
-                    Nessun fascicolo.
+                    {t("emptyDossiers")}
                   </td>
                 </tr>
               )}
@@ -467,9 +478,9 @@ export default function PassportsPage() {
 
         <div className="overflow-hidden rounded-xl border border-[var(--color-border)]">
           <div className="bg-[var(--color-muted)] px-4 py-2 text-xs font-semibold text-[var(--color-muted-fg)]">
-            Richieste post-vendita (da QR)
+            {t("afterSales")}
           </div>
-          <table className="w-full text-sm" aria-label="Richieste post-vendita">
+          <table className="w-full text-sm" aria-label={t("afterSales")}>
             <tbody>
               {interventions?.map((iv) => (
                 <tr key={iv._id} className="border-t border-[var(--color-border)]">
@@ -498,7 +509,7 @@ export default function PassportsPage() {
               {interventions && interventions.length === 0 && (
                 <tr>
                   <td className="px-4 py-8 text-center text-[var(--color-muted-fg)]">
-                    Nessuna richiesta.
+                    {t("emptyRequests")}
                   </td>
                 </tr>
               )}

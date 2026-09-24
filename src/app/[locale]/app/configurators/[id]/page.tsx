@@ -15,6 +15,7 @@ import { ConfigTab } from "@/components/configurator/config-tab";
 import { ImportTab } from "@/components/configurator/import-tab";
 import { cn } from "@/lib/utils";
 import { useFriendlyError } from "@/lib/use-friendly-error";
+import { useLocale, useTranslations } from "next-intl";
 
 type Tab = "general" | "catalog" | "import" | "branding" | "embed" | "config" | "versions";
 
@@ -34,20 +35,21 @@ export default function ConfiguratorEditorPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
+  const t = useTranslations("configuratorDetail");
   const configuratorId = id as Id<"configurators">;
   const state = useQuery(api.configurators.getEditorState, { configuratorId });
   const [tab, setTab] = useState<Tab>("general");
   const [previewNonce, setPreviewNonce] = useState(0);
 
   if (state === undefined) {
-    return <p className="text-[var(--color-text-secondary)]">Caricamento...</p>;
+    return <p className="text-[var(--color-text-secondary)]">{t("loading")}</p>;
   }
   if (state === null) {
     return (
       <div className="space-y-4">
-        <p className="text-[var(--color-text-secondary)]">Configuratore non trovato.</p>
+        <p className="text-[var(--color-text-secondary)]">{t("notFound")}</p>
         <Link href="/app/configurators" className="text-[var(--color-mint)] hover:underline">
-          ← Torna ai configuratori
+          {t("backTo")}
         </Link>
       </div>
     );
@@ -62,7 +64,7 @@ export default function ConfiguratorEditorPage({
         <Link
           href="/app/configurators"
           className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
-          aria-label="Torna ai configuratori"
+          aria-label={t("backAria")}
         >
           ←
         </Link>
@@ -79,7 +81,7 @@ export default function ConfiguratorEditorPage({
             rel="noopener noreferrer"
             className="rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-sm text-[var(--color-text)]"
           >
-            Anteprima
+            {t("preview")}
           </a>
           <PublishButton configuratorId={configuratorId} onPublished={() => setPreviewNonce((n) => n + 1)} />
         </div>
@@ -121,22 +123,22 @@ export default function ConfiguratorEditorPage({
           <div className="rounded-xl border border-[var(--color-border)] overflow-hidden bg-[var(--color-bg-alt)]">
             <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--color-border)]">
               <span className="text-xs font-medium text-[var(--color-text-secondary)]">
-                Anteprima (bozza)
+                {t("previewDraft")}
               </span>
               <button
                 type="button"
                 onClick={() => setPreviewNonce((n) => n + 1)}
                 className="text-xs text-[var(--color-mint)] hover:underline"
               >
-                Ricarica
+                {t("reload")}
               </button>
             </div>
             <iframe
               // Also remount when a saved setting changes, so the preview follows
-              // language/theme/pricing edits without pressing Ricarica.
+              // language/theme/pricing edits without pressing reload.
               key={`${previewNonce}-${cfg.updatedAt ?? 0}-${cfg.defaultLocale}-${cfg.defaultTheme}`}
               src={`/w/${cfg.publicId}?preview=1`}
-              title="Anteprima configuratore"
+              title={t("previewTitle")}
               className="w-full h-[640px] bg-white"
             />
           </div>
@@ -154,6 +156,7 @@ function PublishButton({
   onPublished: () => void;
 }) {
   const tf = useFriendlyError();
+  const t = useTranslations("configuratorDetail");
   const publish = useMutation(api.configurators.publishConfigurator);
   const [open, setOpen] = useState(false);
   const [note, setNote] = useState("");
@@ -188,18 +191,18 @@ function PublishButton({
         onClick={() => setOpen((o) => !o)}
         className="rounded-lg bg-[var(--color-mint)] px-4 py-1.5 text-sm font-semibold text-[var(--color-mint-dark)]"
       >
-        Pubblica
+        {t("publish")}
       </button>
       {open ? (
         <div className="absolute right-0 top-full mt-2 z-10 w-72 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-3 shadow-lg space-y-2">
-      <p className="text-sm font-medium text-[var(--color-text)]">Pubblica versione</p>
+      <p className="text-sm font-medium text-[var(--color-text)]">{t("publishVersion")}</p>
       <p className="text-xs text-[var(--color-text-secondary)]">
-        Crea una nuova versione del catalogo e la rende attiva sul widget pubblico.
+        {t("publishHint")}
       </p>
       <textarea
         value={note}
         onChange={(e) => setNote(e.target.value)}
-        placeholder="Nota di modifica (opzionale)"
+        placeholder={t("changeNotePlaceholder")}
         maxLength={280}
         className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
         rows={2}
@@ -212,14 +215,14 @@ function PublishButton({
           disabled={busy}
           className="flex-1 rounded-lg bg-[var(--color-mint)] px-3 py-1.5 text-sm font-semibold text-[var(--color-mint-dark)] disabled:opacity-50"
         >
-          {busy ? "..." : "Conferma"}
+          {busy ? "..." : t("confirm")}
         </button>
         <button
           type="button"
           onClick={() => setOpen(false)}
           className="rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-sm text-[var(--color-text-secondary)]"
         >
-          Annulla
+          {t("cancel")}
         </button>
       </div>
         </div>
@@ -230,18 +233,20 @@ function PublishButton({
 
 function VersionsTab({ configuratorId }: { configuratorId: Id<"configurators"> }) {
   const tf = useFriendlyError();
+  const t = useTranslations("configuratorDetail");
+  const locale = useLocale();
   const versions = useQuery(api.configurators.listVersions, { configuratorId });
   const rollback = useMutation(api.configurators.rollbackToVersion);
   const [busy, setBusy] = useState<number | null>(null);
   const [err, setErr] = useState("");
 
   if (versions === undefined) {
-    return <p className="text-[var(--color-text-secondary)]">Caricamento...</p>;
+    return <p className="text-[var(--color-text-secondary)]">{t("loading")}</p>;
   }
   if (versions.length === 0) {
     return (
       <p className="text-sm text-[var(--color-text-secondary)]">
-        Nessuna versione pubblicata. Usa &quot;Pubblica&quot; per creare la prima.
+        {t("noVersions")}
       </p>
     );
   }
@@ -255,12 +260,12 @@ function VersionsTab({ configuratorId }: { configuratorId: Id<"configurators"> }
             <span className="font-mono text-sm text-[var(--color-text)]">v{v.version}</span>
             {v.isCurrent ? (
               <span className="rounded-full bg-[var(--color-mint-light)] border border-[var(--color-mint)]/40 px-2 py-0.5 text-xs text-[var(--color-mint)]">
-                Attiva
+                {t("active")}
               </span>
             ) : null}
             <div className="min-w-0 flex-1">
               <p className="text-xs text-[var(--color-text-secondary)] truncate">
-                {new Date(v.publishedAt).toLocaleString("it-IT")}
+                {new Date(v.publishedAt).toLocaleString(locale)}
                 {v.changeNote ? ` · ${v.changeNote}` : ""}
               </p>
             </div>
@@ -281,7 +286,7 @@ function VersionsTab({ configuratorId }: { configuratorId: Id<"configurators"> }
                 }}
                 className="rounded-lg border border-[var(--color-border)] px-3 py-1 text-xs text-[var(--color-text)]"
               >
-                {busy === v.version ? "..." : "Ripristina"}
+                {busy === v.version ? "..." : t("restore")}
               </button>
             ) : null}
           </div>

@@ -2,6 +2,7 @@
 
 import { use, useState, useMemo, useEffect } from "react";
 import { useMutation, useQuery } from "convex/react";
+import { useLocale, useTranslations } from "next-intl";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -10,16 +11,14 @@ import { QuoteFieldModules } from "@/components/field/quote-field-modules";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 
 const STATUSES = ["new", "contacted", "quoted", "won", "lost", "spam"] as const;
-const STATUS_LABEL: Record<string, string> = {
-  new: "Nuova",
-  contacted: "Contattata",
-  quoted: "Preventivo inviato",
-  won: "Vinta",
-  lost: "Persa",
-  spam: "Spam",
+const STATUS_KEY: Record<string, string> = {
+  new: "statusNew",
+  contacted: "statusContacted",
+  quoted: "statusQuoted",
+  won: "statusWon",
+  lost: "statusLost",
+  spam: "statusSpam",
 };
-
-const eur = (c: number) => `€${(c / 100).toLocaleString("it-IT", { minimumFractionDigits: 2 })}`;
 
 interface SashLike {
   type?: string;
@@ -40,6 +39,9 @@ interface ItemLike {
 }
 
 export default function RequestDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const t = useTranslations("requestDetail");
+  const tStatus = useTranslations("requests");
+  const locale = useLocale();
   const tf = useFriendlyError();
   const { id } = use(params);
   const quoteId = id as Id<"quoteRequests">;
@@ -64,6 +66,9 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
     return () => clearInterval(interval);
   }, []);
 
+  const eur = (c: number) =>
+    new Intl.NumberFormat(locale, { style: "currency", currency: "EUR" }).format(c / 100);
+
   const slaInfo = useMemo(() => {
     if (!quote) return null;
     const elapsedMinutes = Math.floor((now - quote._creationTime) / 60000);
@@ -77,20 +82,20 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
     return {
       elapsedMinutes,
       isEveningPeak,
-      timeString: creationDate.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" }),
-      dateString: creationDate.toLocaleDateString("it-IT", { day: "2-digit", month: "long" }),
+      timeString: creationDate.toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit" }),
+      dateString: creationDate.toLocaleDateString(locale, { day: "2-digit", month: "long" }),
     };
-  }, [quote, now]);
+  }, [quote, now, locale]);
 
   if (quote === undefined) {
-    return <p className="text-[var(--color-text-secondary)]">Caricamento...</p>;
+    return <p className="text-[var(--color-text-secondary)]">{t("loading")}</p>;
   }
   if (quote === null) {
     return (
       <div className="space-y-4">
-        <p className="text-[var(--color-text-secondary)]">Richiesta non trovata.</p>
+        <p className="text-[var(--color-text-secondary)]">{t("notFound")}</p>
         <Link href="/app/requests" className="text-[var(--color-mint)] hover:underline">
-          ← Torna alle richieste
+          {t("backToRequests")}
         </Link>
       </div>
     );
@@ -111,10 +116,20 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
   }
 
   const cleanPhone = quote.leadPhone?.replace(/[^0-9+]/g, "") || "";
+  // NOTE: WhatsApp template stays IT by design (sales copy, not chrome UI).
   const whatsappGreeting = `Buongiorno ${quote.leadName}, la contatto da parte di ${tenant?.name || "OneSpec"} in merito alla sua richiesta di preventivo per serramenti. Quando possiamo sentirci per fissare un sopralluogo tecnico gratuito?`;
   const whatsappUrl = cleanPhone
     ? `https://wa.me/${cleanPhone.replace("+", "")}?text=${encodeURIComponent(whatsappGreeting)}`
     : null;
+
+  const receivedLabel = !slaInfo
+    ? ""
+    : slaInfo.elapsedMinutes < 60
+      ? t("receivedMin", { count: slaInfo.elapsedMinutes })
+      : t("receivedHours", {
+          h: Math.floor(slaInfo.elapsedMinutes / 60),
+          m: slaInfo.elapsedMinutes % 60,
+        });
 
   return (
     <div className="space-y-6">
@@ -134,23 +149,25 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
             )}
             <div>
               <p className="text-sm font-bold text-[var(--color-text)] flex items-center gap-2">
-                <span>Ricevuta {slaInfo.elapsedMinutes < 60 ? `${slaInfo.elapsedMinutes} min fa` : `${Math.floor(slaInfo.elapsedMinutes / 60)}h ${slaInfo.elapsedMinutes % 60}m fa`}</span>
-                <span className="text-xs font-normal text-[var(--color-text-secondary)]">({slaInfo.dateString} alle {slaInfo.timeString})</span>
+                <span>{receivedLabel}</span>
+                <span className="text-xs font-normal text-[var(--color-text-secondary)]">
+                  {t("dateAt", { date: slaInfo.dateString, time: slaInfo.timeString })}
+                </span>
               </p>
               <p className="text-xs text-[var(--color-text-secondary)] mt-0.5">
                 {slaInfo.elapsedMinutes <= 5
-                  ? "⚡ SLA Ottimale: rispondi in <5 min per aumentare del +390% i sopralluoghi fissati!"
+                  ? t("slaOptimal")
                   : slaInfo.elapsedMinutes <= 30
-                  ? "⏱️ Risposta rapida: ricontattare entro 30 min garantisce 3x di chiusure rispetto a >24h."
-                  : "📅 Contatta il cliente il prima possibile per non perdere l'interesse all'acquisto."}
+                    ? t("slaFast")
+                    : t("slaLate")}
               </p>
             </div>
           </div>
 
           {slaInfo.isEveningPeak && (
             <span className="rounded-lg bg-indigo-500/10 border border-indigo-500/30 px-3 py-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 flex items-center gap-1.5">
-              <span>🌙 Lead Serale (20:30-23:00)</span>
-              <span className="font-normal opacity-80">· Chiama domattina 09:00–10:30</span>
+              <span>{t("eveningBadge")}</span>
+              <span className="font-normal opacity-80">{t("eveningHint")}</span>
             </span>
           )}
         </div>
@@ -162,15 +179,15 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
           <Link
             href="/app/requests"
             className="text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
-            aria-label="Torna alle richieste"
+            aria-label={t("backAria")}
           >
             ←
           </Link>
           <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-text)]">{quote.leadName}</h1>
-          <StatusBadge status={quote.status} />
+          <StatusBadge status={quote.status} label={tStatus(STATUS_KEY[quote.status] ?? quote.status)} />
           {quote.channel === "field_b2b" && (
             <span className="rounded-md bg-[var(--color-mint)]/20 px-2 py-0.5 text-xs font-bold text-[var(--color-mint)]">
-              B2B Cantiere
+              {t("b2bBadge")}
             </span>
           )}
           {quote.regionCode && (
@@ -190,7 +207,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
               className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition-colors"
             >
               <span>💬</span>
-              <span>WhatsApp 1-Click</span>
+              <span>{t("whatsapp")}</span>
             </a>
           )}
           {quote.leadPhone && (
@@ -199,7 +216,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
               className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-alt)] px-3 py-2 text-xs font-bold text-[var(--color-text)] hover:bg-[var(--color-bg)] transition-colors"
             >
               <span>📞</span>
-              <span>Chiama</span>
+              <span>{t("call")}</span>
             </a>
           )}
           <Link
@@ -207,7 +224,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
             className="inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-alt)] px-3 py-2 text-xs font-bold text-[var(--color-text)] hover:bg-[var(--color-bg)] transition-colors"
           >
             <span>🖨️</span>
-            <span>Stampa PDF</span>
+            <span>{t("printPdf")}</span>
           </Link>
           {!quote.signedAt && (
             <Link
@@ -215,7 +232,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
               className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--color-mint)] px-3 py-2 text-xs font-bold text-[var(--color-mint-dark)] shadow-sm hover:opacity-90 transition-opacity"
             >
               <span>✍️</span>
-              <span>Firma Touch</span>
+              <span>{t("signTouch")}</span>
             </Link>
           )}
         </div>
@@ -227,12 +244,12 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
         <div className="space-y-6">
           {/* Customer info */}
           <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
-            <h2 className="font-semibold text-[var(--color-text)]">Contatto & Cantiere</h2>
+            <h2 className="font-semibold text-[var(--color-text)]">{t("contactSite")}</h2>
             <dl className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
-              <Row label="Email" value={<a href={`mailto:${quote.leadEmail}`} className="text-[var(--color-mint)] hover:underline">{quote.leadEmail}</a>} />
+              <Row label={t("labelEmail")} value={<a href={`mailto:${quote.leadEmail}`} className="text-[var(--color-mint)] hover:underline">{quote.leadEmail}</a>} />
               {quote.leadPhone ? (
                 <Row
-                  label="Telefono"
+                  label={t("labelPhone")}
                   value={
                     <a href={`tel:${quote.leadPhone}`} className="text-[var(--color-text)] hover:underline font-mono">
                       {quote.leadPhone}
@@ -242,18 +259,21 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
               ) : null}
               {quote.customerAddress ? (
                 <Row
-                  label="Indirizzo Cantiere"
+                  label={t("labelAddress")}
                   value={`${quote.customerAddress}${quote.customerCity ? `, ${quote.customerCity}` : ""}${quote.customerPostalCode ? ` (${quote.customerPostalCode})` : ""}`}
                 />
               ) : null}
-              {quote.leadCompany ? <Row label="Azienda" value={quote.leadCompany} /> : null}
-              <Row label="Lingua Richiesta" value={quote.leadLocale.toUpperCase()} />
+              {quote.leadCompany ? <Row label={t("labelCompany")} value={quote.leadCompany} /> : null}
+              <Row label={t("labelLanguage")} value={quote.leadLocale.toUpperCase()} />
               {quote.signedByName && (
                 <Row
-                  label="Firma Digitale"
+                  label={t("labelSignature")}
                   value={
                     <span className="text-emerald-600 font-semibold">
-                      ✅ Firmato da {quote.signedByName} in data {new Date(quote.signedAt || 0).toLocaleDateString("it-IT")}
+                      {t("signedOn", {
+                        name: quote.signedByName,
+                        date: new Date(quote.signedAt || 0).toLocaleDateString(locale),
+                      })}
                     </span>
                   }
                 />
@@ -269,26 +289,26 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
           {/* Pricing & items */}
           <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
             <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-[var(--color-text)]">Dettaglio Economico</h2>
+              <h2 className="font-semibold text-[var(--color-text)]">{t("economyDetail")}</h2>
               <span className="text-xs text-[var(--color-text-secondary)]">
-                Catalogo v{quote.catalogVersion}
+                {t("catalogVersion", { version: quote.catalogVersion })}
               </span>
             </div>
             <dl className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2 text-sm">
-              <Row label="Imponibile Netto" value={eur(quote.priceExVatCents)} />
-              <Row label={`IVA (${quote.vatRatePercent}%)`} value={eur(quote.priceCents - quote.priceExVatCents)} />
-              <Row label="Totale Complessivo" value={<strong className="text-base text-[var(--color-mint)]">{eur(quote.priceCents)}</strong>} />
+              <Row label={t("rowNet")} value={eur(quote.priceExVatCents)} />
+              <Row label={t("rowVat", { percent: quote.vatRatePercent })} value={eur(quote.priceCents - quote.priceExVatCents)} />
+              <Row label={t("rowTotal")} value={<strong className="text-base text-[var(--color-mint)]">{eur(quote.priceCents)}</strong>} />
               {quote.installationPriceCents ? (
-                <Row label="Posa in opera" value={eur(quote.installationPriceCents)} />
+                <Row label={t("rowInstall")} value={eur(quote.installationPriceCents)} />
               ) : null}
               {quote.demolitionPriceCents ? (
-                <Row label="Smaltimento / Dépose" value={eur(quote.demolitionPriceCents)} />
+                <Row label={t("rowDisposal")} value={eur(quote.demolitionPriceCents)} />
               ) : null}
               {quote.ecobonusPercent && quote.ecobonusPercent > 0 ? (
-                <Row label={`Ecobonus ${quote.ecobonusPercent}%`} value={<span className="text-emerald-600 font-semibold">{eur(quote.ecobonusDeductionCents || 0)}</span>} />
+                <Row label={t("rowEcobonus", { percent: quote.ecobonusPercent })} value={<span className="text-emerald-600 font-semibold">{eur(quote.ecobonusDeductionCents || 0)}</span>} />
               ) : null}
               {quote.maPrimeRenovPercent && quote.maPrimeRenovPercent > 0 ? (
-                <Row label={`MaPrimeRénov' ${quote.maPrimeRenovPercent}%`} value={<span className="text-emerald-600 font-semibold">{eur(quote.maPrimeRenovDeductionCents || 0)}</span>} />
+                <Row label={t("rowMaPrime", { percent: quote.maPrimeRenovPercent })} value={<span className="text-emerald-600 font-semibold">{eur(quote.maPrimeRenovDeductionCents || 0)}</span>} />
               ) : null}
             </dl>
 
@@ -296,7 +316,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
               {items.map((it, i) => (
                 <div key={i} className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-3 text-sm">
                   <p className="font-medium text-[var(--color-text)]">
-                    {it.productType === "balconyDoor" ? "Porta-finestra" : "Finestra"} ·{" "}
+                    {it.productType === "balconyDoor" ? t("itemDoor") : t("itemWindow")} ·{" "}
                     {it.width}×{it.height} mm · ×{it.quantity ?? 1}
                   </p>
                   <p className="text-[var(--color-text-secondary)] mt-1 text-xs">
@@ -304,8 +324,8 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
                       it.material?.toUpperCase(),
                       it.glazing,
                       it.color,
-                      it.insectScreen ? "zanzariera" : null,
-                      it.sashes?.length ? `${it.sashes.length} ante` : null,
+                      it.insectScreen ? t("itemScreen") : null,
+                      it.sashes?.length ? t("itemLeaves", { count: it.sashes.length }) : null,
                     ]
                       .filter(Boolean)
                       .join(" · ")}
@@ -313,7 +333,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
                 </div>
               ))}
               {items.length === 0 ? (
-                <p className="text-sm text-[var(--color-text-secondary)]">Nessun elemento registrato.</p>
+                <p className="text-sm text-[var(--color-text-secondary)]">{t("emptyItems")}</p>
               ) : null}
             </div>
           </section>
@@ -331,19 +351,19 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
 
           {/* Internal notes */}
           <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
-            <h2 className="font-semibold text-[var(--color-text)]">Note Interne & Cronologia</h2>
+            <h2 className="font-semibold text-[var(--color-text)]">{t("notesHistory")}</h2>
             {quote.internalNotes ? (
               <pre className="mt-3 whitespace-pre-wrap text-sm text-[var(--color-text-secondary)] font-sans">
                 {quote.internalNotes.trim()}
               </pre>
             ) : (
-              <p className="mt-3 text-sm text-[var(--color-text-secondary)]">Nessuna nota presente.</p>
+              <p className="mt-3 text-sm text-[var(--color-text-secondary)]">{t("noNotes")}</p>
             )}
             <div className="mt-3 flex gap-2">
               <input
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
-                placeholder="Aggiungi una nota sul contatto o sopralluogo..."
+                placeholder={t("notePlaceholder")}
                 className="flex-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
               />
               <button
@@ -357,7 +377,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
                 }
                 className="rounded-lg bg-[var(--color-mint)] px-4 text-sm font-semibold text-[var(--color-mint-dark)] disabled:opacity-50"
               >
-                Aggiungi
+                {t("add")}
               </button>
             </div>
           </section>
@@ -366,7 +386,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
         {/* Aside / Status & Assignment */}
         <aside className="space-y-4">
           <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4">
-            <h3 className="text-sm font-semibold text-[var(--color-text)]">Stato Trattativa</h3>
+            <h3 className="text-sm font-semibold text-[var(--color-text)]">{t("dealStatus")}</h3>
             <div className="mt-2 flex flex-wrap gap-1.5">
               {STATUSES.map((s) => (
                 <button
@@ -380,14 +400,14 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
                       : "rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-2.5 py-1 text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:border-[var(--color-text-secondary)] transition-colors"
                   }
                 >
-                  {STATUS_LABEL[s]}
+                  {tStatus(STATUS_KEY[s])}
                 </button>
               ))}
             </div>
           </section>
 
           <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4">
-            <h3 className="text-sm font-semibold text-[var(--color-text)]">Assegnata a</h3>
+            <h3 className="text-sm font-semibold text-[var(--color-text)]">{t("assignedTo")}</h3>
             <select
               value={quote.assignedToUserId ?? ""}
               disabled={busy || members === undefined}
@@ -397,7 +417,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
               }}
               className="mt-2 w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
             >
-              <option value="">Non assegnata</option>
+              <option value="">{t("unassigned")}</option>
               {(members ?? [])
                 .filter((m) => m.status === "active")
                 .map((m) => (
@@ -409,11 +429,11 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
           </section>
 
           <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4 text-xs text-[var(--color-text-secondary)] space-y-1">
-            <h3 className="text-sm font-semibold text-[var(--color-text)] mb-1">Dettagli Tecnici</h3>
-            {quote.sourceOrigin ? <p>Origine: {quote.sourceOrigin}</p> : null}
-            <p>Turnstile: {quote.turnstileVerified ? "verificato" : "non verificato"}</p>
-            {quote.spamScore !== undefined ? <p>Spam score: {quote.spamScore}</p> : null}
-            <p>ID pubblico: {quote.publicId}</p>
+            <h3 className="text-sm font-semibold text-[var(--color-text)] mb-1">{t("techDetails")}</h3>
+            {quote.sourceOrigin ? <p>{t("origin", { origin: quote.sourceOrigin })}</p> : null}
+            <p>{quote.turnstileVerified ? t("turnstileOk") : t("turnstileKo")}</p>
+            {quote.spamScore !== undefined ? <p>{t("spamScore", { score: quote.spamScore })}</p> : null}
+            <p>{t("publicId", { id: quote.publicId })}</p>
           </section>
         </aside>
       </div>

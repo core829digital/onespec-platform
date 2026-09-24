@@ -10,10 +10,12 @@ import { useFriendlyError } from "@/lib/use-friendly-error";
 import { QrLabelsPDF } from "@/lib/pdfs/QrLabelsPDF";
 import { usePDFDownload } from "@/hooks/usePDFDownload";
 import { printPdfBlob } from "@/lib/print-pdf";
+import { useTranslations } from "next-intl";
 
 type PassportId = Id<"serramentoPassports">;
 
 function PassportLabelsPanel({ passportId }: { passportId: PassportId }) {
+  const t = useTranslations("passportLabels");
   const tf = useFriendlyError();
   const p = useQuery(api.passports.get, { passportId });
   const generateQrs = useMutation(api.passports.generatePassportQrs);
@@ -44,18 +46,18 @@ function PassportLabelsPanel({ passportId }: { passportId: PassportId }) {
     }
   }
 
-  if (!p) return <p className="text-sm text-[var(--color-muted-fg)]">Caricamento…</p>;
+  if (!p) return <p className="text-sm text-[var(--color-muted-fg)]">{t("loading")}</p>;
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-semibold">Etichette QR · {p.label}</h2>
+        <h2 className="text-sm font-semibold">{t("panelTitle", { label: p.label })}</h2>
         <button
           onClick={generate}
           disabled={busy}
           className="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-[var(--color-accent-ink)] disabled:opacity-50"
         >
-          {busy ? "Generazione…" : "Genera codici QR"}
+          {busy ? t("generating") : t("generate")}
         </button>
       </div>
 
@@ -81,7 +83,7 @@ function PassportLabelsPanel({ passportId }: { passportId: PassportId }) {
           disabled={qrData.length === 0}
           className="flex-1 rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm font-semibold disabled:opacity-50"
         >
-          Scarica PDF (A4)
+          {t("downloadPdf")}
         </button>
         <button
           onClick={async () => {
@@ -97,7 +99,7 @@ function PassportLabelsPanel({ passportId }: { passportId: PassportId }) {
           disabled={qrData.length === 0 || printing}
           className="flex-1 rounded-lg bg-zinc-900 px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
         >
-          {printing ? "Preparazione…" : "Stampa etichette (A4)"}
+          {printing ? t("preparing") : t("printLabels")}
         </button>
       </div>
     </div>
@@ -105,6 +107,7 @@ function PassportLabelsPanel({ passportId }: { passportId: PassportId }) {
 }
 
 function PassportLabelsPage() {
+  const t = useTranslations("passportLabels");
   const tenant = useQuery(api.tenants.getMyTenant);
   const passports = useQuery(api.passports.list, tenant ? { tenantId: tenant._id } : "skip");
 
@@ -113,11 +116,9 @@ function PassportLabelsPage() {
   return (
     <div className="w-full space-y-6">
       <div className="border-b border-[var(--color-border)] pb-4">
-        <h1 className="text-xl font-semibold">Etichette QR per Fascicoli</h1>
+        <h1 className="text-xl font-semibold">{t("title")}</h1>
         <p className="text-sm text-[var(--color-muted-fg)]">
-          Genera codici QR per ogni serramento. Stampa su un foglio A4 con griglia fissa 4×N — verifica
-          l&apos;allineamento sul tuo foglio etichette reale prima di una stampa in grande quantità (le dimensioni
-          esatte non sono certificate per un modello Avery specifico).
+          {t("subtitle")}
         </p>
       </div>
 
@@ -125,9 +126,9 @@ function PassportLabelsPage() {
         <table className="w-full text-sm">
           <thead className="bg-[var(--color-muted)] text-xs text-[var(--color-muted-fg)]">
             <tr>
-              <th className="px-4 py-2 text-left">Fascicolo</th>
-              <th className="px-4 py-2 text-left">Cliente</th>
-              <th className="px-4 py-2 text-center text-xs text-[var(--color-muted-fg)]">QR</th>
+              <th className="px-4 py-2 text-left">{t("colFile")}</th>
+              <th className="px-4 py-2 text-left">{t("colCustomer")}</th>
+              <th className="px-4 py-2 text-center text-xs text-[var(--color-muted-fg)]">{t("colQr")}</th>
               <th className="px-4 py-2 text-right" />
             </tr>
           </thead>
@@ -144,7 +145,7 @@ function PassportLabelsPage() {
                     onClick={() => setSelected(p._id)}
                     className="rounded border border-[var(--color-border)] px-2 py-1 text-xs"
                   >
-                    Etichette
+                    {t("openLabels")}
                   </button>
                 </td>
               </tr>
@@ -152,7 +153,7 @@ function PassportLabelsPage() {
             {passports && passports.length === 0 && (
               <tr>
                 <td colSpan={4} className="px-4 py-8 text-center text-[var(--color-muted-fg)]">
-                  Nessun fascicolo.
+                  {t("empty")}
                 </td>
               </tr>
             )}

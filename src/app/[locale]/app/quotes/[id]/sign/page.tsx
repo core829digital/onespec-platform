@@ -6,12 +6,15 @@ import { api } from "@/convex/_generated/api";
 import { useRouter } from "@/i18n/navigation";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useFriendlyError } from "@/lib/use-friendly-error";
+import { useLocale, useTranslations } from "next-intl";
 
 interface Props {
   params: Promise<{ id: string; locale: string }>;
 }
 
 export default function SignQuotePage({ params }: Props) {
+  const t = useTranslations("quoteSign");
+  const locale = useLocale();
   const tf = useFriendlyError();
   const router = useRouter();
   const { id } = use(params);
@@ -109,11 +112,11 @@ export default function SignQuotePage({ params }: Props) {
 
   async function handleSign() {
     if (!hasSignature) {
-      setError("Per favore apponi la firma nel riquadro sopra.");
+      setError(t("errNeedSignature"));
       return;
     }
     if (!signerName.trim()) {
-      setError("Inserisci il nome del firmatario.");
+      setError(t("errNeedName"));
       return;
     }
 
@@ -155,7 +158,7 @@ export default function SignQuotePage({ params }: Props) {
   if (!quote) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center text-[var(--color-danger)]">
-        Preventivo non trovato.
+        {t("notFound")}
       </div>
     );
   }
@@ -168,18 +171,18 @@ export default function SignQuotePage({ params }: Props) {
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
-        <h2 className="text-2xl font-bold text-[var(--color-text)]">Preventivo Firmato!</h2>
-        <p className="text-[var(--color-text-secondary)]">Apertura documento di stampa/PDF…</p>
+        <h2 className="text-2xl font-bold text-[var(--color-text)]">{t("signedTitle")}</h2>
+        <p className="text-[var(--color-text-secondary)]">{t("signedSubtitle")}</p>
       </div>
     );
   }
 
-  const totalFormatted = new Intl.NumberFormat("it-IT", {
+  const totalFormatted = new Intl.NumberFormat(locale, {
     style: "currency",
     currency: "EUR",
   }).format(quote.priceCents / 100);
 
-  const today = new Date().toLocaleDateString("it-IT", {
+  const today = new Date().toLocaleDateString(locale, {
     day: "2-digit",
     month: "long",
     year: "numeric",
@@ -191,9 +194,9 @@ export default function SignQuotePage({ params }: Props) {
       <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--color-border)] pb-4">
         <div>
           <span className="rounded-md bg-[var(--color-mint)]/20 px-2 py-0.5 text-xs font-semibold text-[var(--color-mint)] uppercase tracking-wider">
-            Accettazione Preventivo
+            {t("kicker")}
           </span>
-          <h1 className="text-2xl font-bold text-[var(--color-text)] mt-1">Firma del Cliente</h1>
+          <h1 className="text-2xl font-bold text-[var(--color-text)] mt-1">{t("title")}</h1>
           <p className="text-sm text-[var(--color-text-secondary)]">
             {tenant?.name} · {today}
           </p>
@@ -203,45 +206,47 @@ export default function SignQuotePage({ params }: Props) {
           onClick={() => router.push(`/app/quotes/${quoteId}/print`)}
           className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-alt)] px-3 py-2 text-sm text-[var(--color-text)] hover:bg-[var(--color-bg)]"
         >
-          Vai al Documento →
+          {t("goToDocument")}
         </button>
       </div>
 
       {/* Quote Summary for client verification */}
       <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5 space-y-2">
-        <h2 className="text-sm font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">Riepilogo Preventivo</h2>
+        <h2 className="text-sm font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">{t("summaryTitle")}</h2>
         <div className="grid grid-cols-2 gap-3 text-sm">
           <div>
-            <span className="text-[var(--color-text-secondary)]">Cliente:</span>
+            <span className="text-[var(--color-text-secondary)]">{t("client")}</span>
             <p className="font-medium text-[var(--color-text)]">{quote.leadName}</p>
           </div>
           {quote.customerAddress && (
             <div>
-              <span className="text-[var(--color-text-secondary)]">Indirizzo cantiere:</span>
+              <span className="text-[var(--color-text-secondary)]">{t("siteAddress")}</span>
               <p className="font-medium text-[var(--color-text)]">
                 {quote.customerAddress}{quote.customerCity ? `, ${quote.customerCity}` : ""}
               </p>
             </div>
           )}
           <div>
-            <span className="text-[var(--color-text-secondary)]">N. posizioni:</span>
+            <span className="text-[var(--color-text-secondary)]">{t("positions")}</span>
             <p className="font-medium text-[var(--color-text)]">
-              {Array.isArray(quote.items) ? (quote.items as unknown[]).length : 1} serramenti
+              {Array.isArray(quote.items) ? (quote.items as unknown[]).length : 1} {t("units")}
             </p>
           </div>
           <div>
-            <span className="text-[var(--color-text-secondary)]">Totale IVA inclusa:</span>
+            <span className="text-[var(--color-text-secondary)]">{t("totalVatIncluded")}</span>
             <p className="text-xl font-bold text-[var(--color-mint)]">{totalFormatted}</p>
           </div>
           {quote.ecobonusPercent && quote.ecobonusPercent > 0 && (
             <div className="col-span-2 rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-2.5 text-xs text-emerald-600 dark:text-emerald-400">
-              ✦ Detrazione Ecobonus {quote.ecobonusPercent}% applicabile: risparmio effettivo di{" "}
-              <strong>€{(((quote.ecobonusDeductionCents ?? 0)) / 100).toFixed(2)}</strong>
+              {t("ecobonusNote", {
+                percent: quote.ecobonusPercent,
+                amount: (((quote.ecobonusDeductionCents ?? 0)) / 100).toFixed(2),
+              })}
             </div>
           )}
           {quote.depositTerms && (
             <div className="col-span-2">
-              <span className="text-[var(--color-text-secondary)]">Condizioni di pagamento:</span>
+              <span className="text-[var(--color-text-secondary)]">{t("paymentTerms")}</span>
               <p className="font-medium text-[var(--color-text)]">{quote.depositTerms}</p>
             </div>
           )}
@@ -271,7 +276,7 @@ export default function SignQuotePage({ params }: Props) {
       <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5 space-y-3">
         <div className="flex items-center justify-between">
           <h2 className="text-sm font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">
-            Firma del Cliente ✍️
+            {t("signatureTitle")}
           </h2>
           {hasSignature && (
             <button
@@ -279,7 +284,7 @@ export default function SignQuotePage({ params }: Props) {
               onClick={clearCanvas}
               className="text-xs text-[var(--color-danger)] hover:underline"
             >
-              Cancella e Riprova
+              {t("clearRetry")}
             </button>
           )}
         </div>
@@ -287,12 +292,12 @@ export default function SignQuotePage({ params }: Props) {
         {/* Signer name */}
         <div>
           <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-            Nome e Cognome del Firmatario *
+            {t("signerNameLabel")}
           </label>
           <input
             value={signerName}
             onChange={(e) => setSignerNameEdit(e.target.value)}
-            placeholder="Nome completo del cliente"
+            placeholder={t("signerPlaceholder")}
             className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
           />
         </div>
@@ -321,8 +326,8 @@ export default function SignQuotePage({ params }: Props) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                   d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
               </svg>
-              <span className="text-sm font-medium">Firma qui</span>
-              <span className="text-xs">Usa il dito o lo stilo</span>
+              <span className="text-sm font-medium">{t("signHere")}</span>
+              <span className="text-xs">{t("signHint")}</span>
             </div>
           )}
           {/* Baseline */}
@@ -342,15 +347,15 @@ export default function SignQuotePage({ params }: Props) {
           {signing ? (
             <>
               <span className="h-5 w-5 animate-spin rounded-full border-2 border-[var(--color-mint-dark)] border-t-transparent" />
-              Salvataggio firma…
+              {t("saving")}
             </>
           ) : (
-            "✅ Conferma Accettazione e Vai al PDF"
+            t("confirm")
           )}
         </button>
 
         <p className="text-center text-xs text-[var(--color-text-secondary)]">
-          Dopo la conferma riceverai il documento PDF via email. · {tenant?.name}
+          {t("afterConfirm", { tenant: tenant?.name ?? "" })}
         </p>
       </div>
     </div>

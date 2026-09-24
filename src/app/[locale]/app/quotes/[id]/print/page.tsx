@@ -14,6 +14,7 @@ import { printPdfBlob } from "@/lib/print-pdf";
 import { QuoteExportBar } from "@/components/quotes/quote-export-bar";
 import type { CatalogPayload } from "@/shared/pricing";
 import { useCompanyPdf } from "@/lib/use-company-pdf";
+import { useTranslations } from "next-intl";
 
 interface Props {
   params: Promise<{ id: string; locale: string }>;
@@ -22,6 +23,7 @@ interface Props {
 type QuoteForPrint = NonNullable<FunctionReturnType<typeof api.quotes.getQuoteForPrint>>;
 
 function QuoteDocument({ quote, tenant, region, catalog }: { quote: NonNullable<QuoteForPrint["quote"]>; tenant: QuoteForPrint["tenant"]; region: string; catalog: CatalogPayload | null }) {
+  const t = useTranslations("quotePrint");
   // Luxembourg 1-click bilingual switch
   const [luLang, setLuLang] = useState<"fr" | "de">("fr");
 
@@ -71,19 +73,19 @@ function QuoteDocument({ quote, tenant, region, catalog }: { quote: NonNullable<
       <div className="no-print mb-6 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4">
         <div className="flex items-center gap-3">
           <Link href="/app/quotes" className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-text)]">
-            ← Elenco Preventivi
+            {t("back")}
           </Link>
           <span className="text-[var(--color-border)]">|</span>
           <span className="text-sm font-medium text-[var(--color-text)]">
-            Documento #{quote.publicId?.slice(-8).toUpperCase()} ({region})
+            {t("document", { id: quote.publicId?.slice(-8).toUpperCase() ?? "", region })}
           </span>
           {quote.signedAt ? (
             <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300">
-              ✅ Firmato da {quote.signedByName}
+              ✅ {t("signedBy", { name: quote.signedByName ?? "" })}
             </span>
           ) : (
             <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">
-              ⏳ In attesa di firma
+              ⏳ {t("pendingSignature")}
             </span>
           )}
         </div>
@@ -113,7 +115,7 @@ function QuoteDocument({ quote, tenant, region, catalog }: { quote: NonNullable<
               href={`/app/quotes/${quote._id}/sign`}
               className="rounded-lg bg-[var(--color-mint)] px-4 py-2 text-sm font-bold text-[var(--color-mint-dark)] hover:opacity-90"
             >
-              ✍️ Firma
+              ✍️ {t("sign")}
             </Link>
           )}
           <button
@@ -121,14 +123,14 @@ function QuoteDocument({ quote, tenant, region, catalog }: { quote: NonNullable<
             disabled={!companyReady}
             className="rounded-lg bg-[var(--color-mint)] px-4 py-2 text-sm font-bold text-[var(--color-mint-dark)] hover:opacity-90"
           >
-            ⬇️ Scarica PDF
+            ⬇️ {t("download")}
           </button>
           <button
             onClick={handlePrint}
             disabled={!companyReady || printing}
             className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2 text-sm font-medium text-[var(--color-text)] hover:bg-[var(--color-bg-alt)]"
           >
-            🖨️ Stampa
+            🖨️ {t("print")}
           </button>
         </div>
       </div>
@@ -156,6 +158,7 @@ function QuoteDocument({ quote, tenant, region, catalog }: { quote: NonNullable<
 }
 
 export default function PrintQuotePage({ params }: Props) {
+  const t = useTranslations("quotePrint");
   const { id } = use(params);
   const quoteId = id as Id<"quoteRequests">;
   const data = useQuery(api.quotes.getQuoteForPrint, { quoteId });
@@ -174,7 +177,7 @@ export default function PrintQuotePage({ params }: Props) {
   if (!quote) {
     return (
       <div className="flex min-h-screen items-center justify-center text-red-600">
-        Preventivo non trovato o accesso non autorizzato.
+        {t("notFound")}
       </div>
     );
   }

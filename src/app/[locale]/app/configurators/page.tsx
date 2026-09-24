@@ -9,8 +9,16 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useFriendlyError } from "@/lib/use-friendly-error";
+import { useTranslations } from "next-intl";
+
+const STATUS_KEY: Record<string, "statusDraft" | "statusPublished" | "statusArchived"> = {
+  draft: "statusDraft",
+  published: "statusPublished",
+  archived: "statusArchived",
+};
 
 export default function ConfiguratorsPage() {
+  const t = useTranslations("configurators");
   const tf = useFriendlyError();
   const tenant = useQuery(api.tenants.getMyTenant);
   const configurators = useQuery(
@@ -64,9 +72,9 @@ export default function ConfiguratorsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-bold text-[var(--color-text)]">Configuratori</h1>
+        <h1 className="text-3xl font-bold text-[var(--color-text)]">{t("title")}</h1>
         <p className="text-[var(--color-text-secondary)] mt-2">
-          Gestisci i configuratori embeddabili per il tuo sito
+          {t("subtitle")}
         </p>
       </div>
 
@@ -74,11 +82,11 @@ export default function ConfiguratorsPage() {
         <Input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Nome nuovo configuratore"
+          placeholder={t("newNamePlaceholder")}
           disabled={creating}
         />
         <Button type="submit" disabled={creating || !name.trim()}>
-          {creating ? "Creazione..." : "Nuovo"}
+          {creating ? t("creating") : t("create")}
         </Button>
       </form>
       {error && <p className="text-[var(--color-danger)] text-sm">{error}</p>}
@@ -86,11 +94,11 @@ export default function ConfiguratorsPage() {
       <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg divide-y divide-[var(--color-border)]">
         {configurators === undefined ? (
           <div className="px-6 py-8 text-center text-[var(--color-text-secondary)]">
-            Caricamento...
+            {t("loading")}
           </div>
         ) : configurators.length === 0 ? (
           <div className="px-6 py-8 text-center text-[var(--color-text-secondary)]">
-            Nessun configuratore. Creane uno per iniziare.
+            {t("empty")}
           </div>
         ) : (
           configurators.map((c) => (
@@ -101,7 +109,7 @@ export default function ConfiguratorsPage() {
               <div>
                 <p className="font-medium text-[var(--color-text)]">{c.name}</p>
                 <p className="text-sm text-[var(--color-text-secondary)]">
-                  <span className="capitalize">{c.status}</span> · /w/
+                  <span>{c.status in STATUS_KEY ? t(STATUS_KEY[c.status]) : c.status}</span> · /w/
                   {c.publicId}
                 </p>
               </div>
@@ -113,14 +121,14 @@ export default function ConfiguratorsPage() {
                     disabled={publishingId === c._id}
                     className="rounded-lg bg-[var(--color-mint)] px-4 py-2 text-sm font-semibold text-[var(--color-mint-dark)] hover:opacity-90 transition-colors disabled:opacity-50"
                   >
-                    {publishingId === c._id ? "Pubblicazione..." : "Pubblica"}
+                    {publishingId === c._id ? t("publishing") : t("publish")}
                   </button>
                 )}
                 <Link
                   href={`/app/configurators/${c._id}`}
                   className="text-[var(--color-mint)] text-sm hover:underline"
                 >
-                  Modifica
+                  {t("edit")}
                 </Link>
               </div>
             </div>

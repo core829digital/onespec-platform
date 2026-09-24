@@ -12,12 +12,14 @@ import { usePDFDownload } from "@/hooks/usePDFDownload";
 import { printPdfBlob } from "@/lib/print-pdf";
 import { useCompanyPdf } from "@/lib/use-company-pdf";
 import { usePdfImages } from "@/lib/pdf-images";
+import { useTranslations } from "next-intl";
 
 interface Props {
   params: Promise<{ id: string; locale: string }>;
 }
 
 function InspectionDocument({ data, region }: { data: NonNullable<FunctionReturnType<typeof api.inspections.getForPrint>>; region: string }) {
+  const t = useTranslations("inspectionPrint");
   const { report, tenant, title, legalBasis, warrantyLines } = data;
   const [generatedAt] = useState(() => Date.now());
 
@@ -82,7 +84,7 @@ function InspectionDocument({ data, region }: { data: NonNullable<FunctionReturn
       <div className="no-print mb-6 flex items-center justify-between rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4">
         <div>
           <span className="text-sm font-medium text-[var(--color-text)]">
-            {title} #{report._id?.slice(-8).toUpperCase()} ({region})
+            {title} {t("document", { id: report._id?.slice(-8).toUpperCase() ?? "", region })}
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -91,14 +93,14 @@ function InspectionDocument({ data, region }: { data: NonNullable<FunctionReturn
             disabled={!ready}
             className="rounded-lg bg-[var(--color-mint)] px-4 py-2 text-sm font-bold text-[var(--color-mint-dark)] hover:opacity-90"
           >
-            ⬇️ Scarica PDF
+            ⬇️ {t("download")}
           </button>
           <button
             onClick={handlePrint}
             disabled={!ready || printing}
             className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2 text-sm font-medium text-[var(--color-text)] hover:bg-[var(--color-bg-alt)]"
           >
-            🖨️ Stampa
+            🖨️ {t("print")}
           </button>
         </div>
       </div>
