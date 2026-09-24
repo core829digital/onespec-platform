@@ -8,7 +8,7 @@ jobs:
   notify:
     runs-on: ubuntu-latest
     steps:
-      - name: POST deploy event to status.onespec.eu
+      - name: POST deploy event to status page
         env:
           STATUS_PAGE_SITE_URL: ${{ vars.STATUS_PAGE_SITE_URL }}
           STATUS_ADMIN_TOKEN: ${{ secrets.STATUS_ADMIN_TOKEN }}
