@@ -305,7 +305,8 @@
     "dpaVersion": "Il testo dell'accordo è stato aggiornato: ricarica la pagina.",
     "companyIncomplete": "Completa prima i dati azienda (ragione sociale, P.IVA, indirizzo).",
     "subscriptionRequired": "Serve un abbonamento attivo per continuare. Scegli un piano per sbloccare la piattaforma.",
-    "planSelectionRequired": "Scegli un piano per continuare — completa la procedura guidata di attivazione."
+    "planSelectionRequired": "Scegli un piano per continuare — completa la procedura guidata di attivazione.",
+    "planUpgradeRequired": "Il tuo piano non include questa funzione — passa a un piano superiore per sbloccarla."
   },
   "app": {
     "suspended": {

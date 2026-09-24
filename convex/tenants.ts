@@ -14,6 +14,7 @@ import { nanoid } from "./lib/ids";
 import { isFullAccessEmail } from "./lib/founding";
 import { resolveTenantEntitlements, assertQuota } from "./lib/entitlements";
 import { enforceForAddTeamMember } from "./lib/enforcement";
+import { requirePermission } from "./lib/rbac";
 
 const COUNTRY_RE = /^[A-Za-z]{2}$/;
 
@@ -122,7 +123,7 @@ export const updateTenant = mutation({
     privacyUrl: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    await requireTenantRole(ctx, args.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, args.tenantId, "tenant.settings");
     const update: Partial<Doc<"tenants">> = { updatedAt: Date.now() };
     if (args.name !== undefined) update.name = args.name;
     if (args.country !== undefined) update.country = args.country;
@@ -225,7 +226,7 @@ export const inviteMember = mutation({
   },
   handler: async (ctx, args) => {
     await enforceForAddTeamMember(ctx, args.tenantId);
-    const { userId } = await requireTenantRole(ctx, args.tenantId, ["owner", "admin"]);
+    const { userId } = await requirePermission(ctx, args.tenantId, "team.invite");
     const email = args.email.trim().toLowerCase();
     if (!EMAIL_RE.test(email) || email.length > 200) throw new ConvexError("INVALID_EMAIL");
 
@@ -305,7 +306,7 @@ export const cancelInvitation = mutation({
   handler: async (ctx, args) => {
     const inv = await ctx.db.get(args.invitationId);
     if (!inv) return;
-    await requireTenantRole(ctx, inv.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, inv.tenantId, "team.cancelInvite");
     await ctx.db.delete(args.invitationId);
   },
 });
@@ -315,7 +316,7 @@ export const removeMember = mutation({
   handler: async (ctx, args) => {
     const membership = await ctx.db.get(args.membershipId);
     if (!membership) return;
-    const { userId } = await requireTenantRole(ctx, membership.tenantId, ["owner", "admin"]);
+    const { userId } = await requirePermission(ctx, membership.tenantId, "team.remove");
     if (membership.role === "owner") throw new ConvexError("CANNOT_REMOVE_OWNER");
     await ctx.db.delete(args.membershipId);
     await ctx.db.insert("auditLog", {

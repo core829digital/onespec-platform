@@ -305,7 +305,8 @@
     "dpaVersion": "The agreement text was updated: reload the page.",
     "companyIncomplete": "Complete your company details first (name, VAT ID, address).",
     "subscriptionRequired": "An active subscription is required to continue. Choose a plan to unlock the platform.",
-    "planSelectionRequired": "Choose a plan to continue — complete the setup wizard."
+    "planSelectionRequired": "Choose a plan to continue — complete the setup wizard.",
+    "planUpgradeRequired": "Your plan doesn't include this feature — upgrade to a higher plan to unlock it."
   },
   "app": {
     "suspended": {

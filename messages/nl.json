@@ -305,7 +305,8 @@
     "dpaVersion": "De tekst van de overeenkomst is bijgewerkt: laad de pagina opnieuw.",
     "companyIncomplete": "Vul eerst de bedrijfsgegevens aan (naam, btw-nummer, adres).",
     "subscriptionRequired": "Een actief abonnement is vereist om door te gaan. Kies een abonnement om het platform te ontgrendelen.",
-    "planSelectionRequired": "Kies een abonnement om door te gaan — voltooi de installatiewizard."
+    "planSelectionRequired": "Kies een abonnement om door te gaan — voltooi de installatiewizard.",
+    "planUpgradeRequired": "Je abonnement bevat deze functie niet — upgrade naar een hoger abonnement om het te ontgrendelen."
   },
   "app": {
     "suspended": {

@@ -305,7 +305,8 @@
     "dpaVersion": "Textul acordului a fost actualizat: reîncarcă pagina.",
     "companyIncomplete": "Completează mai întâi datele companiei (denumire, CUI, adresă).",
     "subscriptionRequired": "Este necesar un abonament activ pentru a continua. Alege un plan pentru a debloca platforma.",
-    "planSelectionRequired": "Alege un plan pentru a continua — finalizează asistentul de configurare."
+    "planSelectionRequired": "Alege un plan pentru a continua — finalizează asistentul de configurare.",
+    "planUpgradeRequired": "Planul tău nu include această funcție — treci la un plan superior pentru a o debloca."
   },
   "app": {
     "suspended": {

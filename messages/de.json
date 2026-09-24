@@ -305,7 +305,8 @@
     "dpaVersion": "Der Vertragstext wurde aktualisiert: Seite neu laden.",
     "companyIncomplete": "Ergänzen Sie zuerst die Firmendaten (Firmenname, USt-IdNr., Adresse).",
     "subscriptionRequired": "Ein aktives Abonnement ist erforderlich, um fortzufahren. Wählen Sie einen Plan, um die Plattform freizuschalten.",
-    "planSelectionRequired": "Wählen Sie einen Plan, um fortzufahren — schließen Sie den Einrichtungsassistenten ab."
+    "planSelectionRequired": "Wählen Sie einen Plan, um fortzufahren — schließen Sie den Einrichtungsassistenten ab.",
+    "planUpgradeRequired": "Ihr Plan enthält diese Funktion nicht — wechseln Sie zu einem höheren Plan, um sie freizuschalten."
   },
   "app": {
     "suspended": {

@@ -305,7 +305,8 @@
     "dpaVersion": "Le texte de l'accord a été mis à jour : rechargez la page.",
     "companyIncomplete": "Complétez d'abord les données de l'entreprise (raison sociale, n° de TVA, adresse).",
     "subscriptionRequired": "Un abonnement actif est requis pour continuer. Choisissez un forfait pour débloquer la plateforme.",
-    "planSelectionRequired": "Choisissez un forfait pour continuer — terminez l'assistant de configuration."
+    "planSelectionRequired": "Choisissez un forfait pour continuer — terminez l'assistant de configuration.",
+    "planUpgradeRequired": "Votre forfait n'inclut pas cette fonctionnalité — passez à un forfait supérieur pour la débloquer."
   },
   "app": {
     "suspended": {
