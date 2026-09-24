@@ -1,4 +1,5 @@
 import { internalMutation, query } from "./_generated/server";
+import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 import { requirePlatformAdmin } from "./lib/auth";
 
@@ -31,11 +32,10 @@ export const listAudit = query({
   args: {
     tenantId: v.optional(v.id("tenants")),
     action: v.optional(v.string()),
-    limit: v.optional(v.number()),
+    paginationOpts: paginationOptsValidator,
   },
   handler: async (ctx, args) => {
     await requirePlatformAdmin(ctx);
-    const limit = args.limit ?? 100;
 
     if (args.tenantId) {
       const tid = args.tenantId;
@@ -43,7 +43,7 @@ export const listAudit = query({
         .query("auditLog")
         .withIndex("by_tenant", (q) => q.eq("tenantId", tid))
         .order("desc")
-        .take(limit);
+        .paginate(args.paginationOpts);
     }
     if (args.action) {
       const action = args.action;
@@ -51,8 +51,8 @@ export const listAudit = query({
         .query("auditLog")
         .withIndex("by_action", (q) => q.eq("action", action))
         .order("desc")
-        .take(limit);
+        .paginate(args.paginationOpts);
     }
-    return await ctx.db.query("auditLog").order("desc").take(limit);
+    return await ctx.db.query("auditLog").order("desc").paginate(args.paginationOpts);
   },
 });

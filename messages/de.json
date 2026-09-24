@@ -182,7 +182,8 @@
       "won": "Won",
       "lost": "Lost",
       "spam": "Spam"
-    }
+    },
+    "loadMore": "Ältere anzeigen"
   },
   "common": {
     "save": "Speichern",

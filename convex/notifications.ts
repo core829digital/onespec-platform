@@ -1,4 +1,5 @@
 import { query, mutation, internalMutation } from "./_generated/server";
+import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
 import { ConvexError } from "convex/values";
@@ -8,21 +9,38 @@ export const listMine = query({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
     const userId = await requireVerifiedUser(ctx);
+    // Hard cap: per-user feed, never an unbounded scan.
+    const limit = Math.min(args.limit ?? 30, 100);
     return await ctx.db
       .query("notifications")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .order("desc")
-      .take(args.limit ?? 30);
+      .take(limit);
+  },
+});
+
+/** Cursor-paginated own feed for the full list page ("load more"). */
+export const listMinePage = query({
+  args: { paginationOpts: paginationOptsValidator },
+  handler: async (ctx, args) => {
+    const userId = await requireVerifiedUser(ctx);
+    return await ctx.db
+      .query("notifications")
+      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .order("desc")
+      .paginate(args.paginationOpts);
   },
 });
 
 export const unreadCount = query({
   handler: async (ctx) => {
     const userId = await requireVerifiedUser(ctx);
+    // Bounded: badge only needs to know "many". Full count on a huge
+    // unread backlog would be an unbounded scan.
     const unread = await ctx.db
       .query("notifications")
       .withIndex("by_user_unread", (q) => q.eq("userId", userId).eq("readAt", undefined))
-      .collect();
+      .take(500);
     return unread.length;
   },
 });
@@ -41,10 +59,12 @@ export const markAllRead = mutation({
   handler: async (ctx) => {
     const userId = await requireVerifiedUser(ctx);
     const now = Date.now();
+    // Bounded batch: same 500 cap as unreadCount. A backlog larger than
+    // that clears over consecutive taps — never one unbounded write loop.
     const unread = await ctx.db
       .query("notifications")
       .withIndex("by_user_unread", (q) => q.eq("userId", userId).eq("readAt", undefined))
-      .collect();
+      .take(500);
     for (const n of unread) await ctx.db.patch(n._id, { readAt: now, seenAt: n.seenAt ?? now });
   },
 });

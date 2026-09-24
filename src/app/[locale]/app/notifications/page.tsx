@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
+import { usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -22,7 +23,11 @@ const TYPES = [
 export default function NotificationsPage() {
   const run = useRunAction();
   const t = useTranslations("notifications");
-  const notifications = useQuery(api.notifications.listMine, { limit: 100 });
+  const { results: notifications, status: pageStatus, loadMore } = usePaginatedQuery(
+    api.notifications.listMinePage,
+    {},
+    { initialNumItems: 30 },
+  );
   const prefs = useQuery(api.notifications.getPreferences);
   const markAllRead = useMutation(api.notifications.markAllRead);
   const markRead = useMutation(api.notifications.markRead);
@@ -43,9 +48,9 @@ export default function NotificationsPage() {
   }, [prefs, setTimezone]);
 
   const rows = useMemo(() => {
-    if (!notifications) return notifications;
+    if (pageStatus === "LoadingFirstPage") return undefined;
     return unreadOnly ? notifications.filter((n) => !n.readAt) : notifications;
-  }, [notifications, unreadOnly]);
+  }, [notifications, pageStatus, unreadOnly]);
 
   return (
     <div className="space-y-6">
@@ -77,8 +82,7 @@ export default function NotificationsPage() {
         ) : rows.length === 0 ? (
           <div className="px-6 py-10 text-center text-[var(--color-text-secondary)]">{t("empty")}</div>
         ) : (
-          rows.map((n) => {
-            const body = (
+          rows.map((n) => {            const body = (
               <div className="flex items-start justify-between gap-4 w-full">
                 <p
                   className={
@@ -116,6 +120,18 @@ export default function NotificationsPage() {
           })
         )}
       </div>
+
+      {pageStatus === "CanLoadMore" && (
+        <div className="text-center">
+          <button
+            type="button"
+            onClick={() => loadMore(30)}
+            className="rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm text-[var(--color-text)]"
+          >
+            {t("loadMore")}
+          </button>
+        </div>
+      )}
 
       <section className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl p-5">
         <h2 className="font-semibold text-[var(--color-text)]">{t("preferences")}</h2>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
+import { usePaginatedQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
@@ -92,6 +93,11 @@ export default function AdminPage() {
   const resendEmail = useMutation(api.admin.resendEmail);
   const signups = useQuery(api.admin.recentSignups, isAdmin ? { limit: 10 } : "skip");
   const emailLog = useQuery(api.admin.listEmails, isAdmin ? { limit: 20 } : "skip");
+  const {
+    results: auditRows,
+    status: auditStatus,
+    loadMore: loadMoreAudit,
+  } = usePaginatedQuery(api.audit.listAudit, isAdmin ? {} : "skip", { initialNumItems: 15 });
 
   if (viewer === undefined) {
     return <p className="text-[var(--color-text-secondary)]">Caricamento...</p>;
@@ -242,6 +248,35 @@ export default function AdminPage() {
               </Button>
             </div>
           ))
+        )}
+      </div>
+
+      <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg divide-y divide-[var(--color-border)]">
+        <div className="px-6 py-4 font-bold text-[var(--color-text)]">Audit log</div>
+        {auditStatus === "LoadingFirstPage" ? (
+          <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">Caricamento...</div>
+        ) : auditRows.length === 0 ? (
+          <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">Nessuna riga.</div>
+        ) : (
+          auditRows.map((a) => (
+            <div key={a._id} className="px-6 py-2 text-sm flex items-center justify-between gap-3">
+              <span className="text-[var(--color-text)] font-mono text-xs">{a.action}</span>
+              <span className="text-[var(--color-text-secondary)] text-xs flex-1">
+                {a.actorKind}
+                {a.targetTable ? ` · ${a.targetTable}` : ""}
+              </span>
+              <span className="text-[var(--color-text-secondary)] text-xs">
+                {new Date(a.createdAt).toLocaleString("it-IT")}
+              </span>
+            </div>
+          ))
+        )}
+        {auditStatus === "CanLoadMore" && (
+          <div className="px-6 py-3 text-center">
+            <Button size="sm" variant="ghost" onClick={() => loadMoreAudit(15)}>
+              Mostra meno recenti
+            </Button>
+          </div>
         )}
       </div>
 

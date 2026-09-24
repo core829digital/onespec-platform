@@ -182,7 +182,8 @@
       "won": "Won",
       "lost": "Lost",
       "spam": "Spam"
-    }
+    },
+    "loadMore": "Toon oudere"
   },
   "common": {
     "save": "Opslaan",

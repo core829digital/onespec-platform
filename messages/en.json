@@ -232,7 +232,8 @@
       "won": "Won",
       "lost": "Lost",
       "spam": "Spam"
-    }
+    },
+    "loadMore": "Show older"
   },
   "common": {
     "save": "Save",
