@@ -313,7 +313,7 @@ export default function NewFieldQuotePage() {
     setFromShowroom(h.items.length);
     }, 0);
     return () => clearTimeout(id);
-  }, [searchParams]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   // The dealer's own published catalogue is the only source of prices and choices — the
   // same one the embeddable widget uses. Without one there is nothing to price.

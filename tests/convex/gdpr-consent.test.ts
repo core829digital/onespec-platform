@@ -37,7 +37,7 @@ describe("company privacy URL", () => {
   test("the public widget response carries the owner's privacy URL", async () => {
     const t = newDb();
     const s = await seedTenant(t, { plan: "starter" });
-    const configuratorId = await seedPublishedConfigurator(t, s.tenantId, "PRIVACY001");
+    await seedPublishedConfigurator(t, s.tenantId, "PRIVACY001");
     await t.withIdentity({ subject: s.ownerId }).mutation(api.tenants.updateTenant, {
       tenantId: s.tenantId,
       privacyUrl: "https://acme.it/privacy",

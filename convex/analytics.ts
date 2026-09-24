@@ -88,7 +88,6 @@ export const getOverview = query({
     const prevStart = cutoff - spec.windowMs;
     const prevWindow = all.filter((r) => r._creationTime >= prevStart && r._creationTime < cutoff);
     const prevReal = prevWindow.filter((r) => r.status !== "spam");
-    const prevWonWindow = prevWindow.filter((r) => r.status === "won");
 
     // Widget views in previous period (de-duplicated per-visitor counters)
     const prevMonthsInWindow = new Set<string>();
@@ -125,6 +124,7 @@ export const getOverview = query({
       widgetViews: prevWidgetViews,
       visitorConversionRate: prevVisitorConversionRate,
       avgDealCents: prevAvgDealCents,
+      pipelineValueCents: prevQuotedValueCents,
     };
 
     const byStatus: Record<string, number> = {};

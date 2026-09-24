@@ -1,4 +1,4 @@
-import { SkeletonContainer, SkeletonHeader, SkeletonCardGrid, SkeletonCard } from "@/components/ui/skeleton";
+import { SkeletonContainer, SkeletonHeader, SkeletonCardGrid } from "@/components/ui/skeleton";
 
 export default function AccountBillingLoading() {
   return (

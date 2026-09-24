@@ -1,4 +1,3 @@
-import { getLegalDoc } from "@/content/legal";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { SkipToMainContent } from "@/components/app-shell/skip-link";

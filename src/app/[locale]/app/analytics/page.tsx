@@ -2,7 +2,7 @@
 
 import { useState, Suspense, lazy } from "react";
 import { useQuery } from "convex/react";
-import { useTranslations, useFormatter, useLocale } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { api } from "@/convex/_generated/api";
 import { RangeSwitcher, RANGE_LABEL, type AnalyticsRange } from "@/components/analytics/range-switcher";
 import {
@@ -107,7 +107,6 @@ const StatsSkeleton = () => (
 
 export default function AnalyticsPage() {
   const t = useTranslations("analytics");
-  const format = useFormatter();
   const tenant = useQuery(api.tenants.getMyTenant);
   const locale = useLocale();
   const [range, setRange] = useState<AnalyticsRange>("1m");

@@ -4,14 +4,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
-import { ComplianceBadges } from "@/components/installations/ComplianceBadges";
 import { ClientCantierePicker, type PickedLinks } from "@/components/app-shell/client-cantiere-picker";
 import { EditDossierPanel, type EditableDossier } from "@/components/installations/EditDossierPanel";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useTranslations } from "next-intl";
 import {
-  enqueue,
   flushQueue,
   subscribeSyncState,
   type SyncState,

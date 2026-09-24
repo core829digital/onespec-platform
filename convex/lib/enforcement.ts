@@ -1,7 +1,7 @@
 import { ConvexError } from "convex/values";
 import type { MutationCtx, QueryCtx } from "../_generated/server";
 import type { Doc, Id } from "../_generated/dataModel";
-import { resolveTenantEntitlements, assertEntitlement, assertEntitlementValue, assertQuota, currentPeriod } from "./entitlements";
+import { resolveTenantEntitlements, assertEntitlement, assertQuota, currentPeriod } from "./entitlements";
 
 /**
  * Entitlement enforcement helpers for mutations/queries.
@@ -134,7 +134,7 @@ export async function enforceCRMIntegration(ctx: MutationCtx, tenantId: Id<"tena
 /** --- Quota gates (configurators, quotes, team members) --- */
 
 export async function enforceConfiguratorQuota(ctx: ReadCtx, tenantId: Id<"tenants">): Promise<void> {
-  const { tenant, ent } = await getTenantWithEntitlements(ctx, tenantId);
+  const { ent } = await getTenantWithEntitlements(ctx, tenantId);
   if (!Number.isFinite(ent.maxConfigurators)) return;
   const period = currentPeriod();
   // .first() rather than .unique(): a duplicate counter row for the same
@@ -150,7 +150,7 @@ export async function enforceConfiguratorQuota(ctx: ReadCtx, tenantId: Id<"tenan
 }
 
 export async function enforceQuoteQuota(ctx: ReadCtx, tenantId: Id<"tenants">): Promise<void> {
-  const { tenant, ent } = await getTenantWithEntitlements(ctx, tenantId);
+  const { ent } = await getTenantWithEntitlements(ctx, tenantId);
   if (!Number.isFinite(ent.maxQuotesPerMonth)) return;
   const period = currentPeriod();
   const counter = await ctx.db
@@ -162,7 +162,7 @@ export async function enforceQuoteQuota(ctx: ReadCtx, tenantId: Id<"tenants">): 
 }
 
 export async function enforceTeamMemberQuota(ctx: ReadCtx, tenantId: Id<"tenants">): Promise<void> {
-  const { tenant, ent } = await getTenantWithEntitlements(ctx, tenantId);
+  const { ent } = await getTenantWithEntitlements(ctx, tenantId);
   if (!Number.isFinite(ent.maxTeamMembers)) return;
   const count = await ctx.db
     .query("memberships")

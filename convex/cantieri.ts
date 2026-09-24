@@ -6,16 +6,6 @@ import { listRelated } from "./lib/links";
 import { consumeToken, RATE_LIMITS } from "./lib/ratelimit";
 import { hashIp } from "./lib/ipHash";
 
-const CANTIERE_STATUSES = [
-  "preventivo",
-  "confermato",
-  "in_produzione",
-  "pronto_consegna",
-  "in_posa",
-  "collaudo",
-  "chiuso",
-] as const;
-
 const TASK_STATUSES = ["todo", "in_progress", "review", "done"] as const;
 
 /** List cantieri for a tenant with optional filters. */
@@ -425,7 +415,6 @@ export const updateCantiereTask = mutation({
     const task = await ctx.db.get(args.taskId);
     if (!task) throw new ConvexError("TASK_NOT_FOUND");
     await requireTenantRole(ctx, task.tenantId, ["owner", "admin", "member"]);
-    const { userId } = await requireTenantRole(ctx, task.tenantId, ["owner", "admin", "member"]);
 
     const patch: Record<string, unknown> = { updatedAt: Date.now() };
     const allowedFields = ["title", "description", "status", "priority", "dueAt", "assignedUserId"];
@@ -491,7 +480,6 @@ export const deleteCantiereTask = mutation({
     const task = await ctx.db.get(args.taskId);
     if (!task) throw new ConvexError("TASK_NOT_FOUND");
     await requireTenantRole(ctx, task.tenantId, ["owner", "admin", "member"]);
-    const { userId } = await requireTenantRole(ctx, task.tenantId, ["owner", "admin", "member"]);
 
     await ctx.db.delete(args.taskId);
     await ctx.db.patch(task.cantiereId, { updatedAt: Date.now() });

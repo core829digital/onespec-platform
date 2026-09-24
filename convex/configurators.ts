@@ -5,8 +5,8 @@ import type { Doc } from "./_generated/dataModel";
 import { requireTenantRole, requireMembership } from "./lib/auth";
 import { nanoid } from "./lib/ids";
 import { loadExtras } from "./lib/catalogExtras";
-import { resolveTenantEntitlements, assertQuota, currentPeriod } from "./lib/entitlements";
-import { enforceForCreateConfigurator, enforceActivePlan } from "./lib/enforcement";
+import { resolveTenantEntitlements, currentPeriod } from "./lib/entitlements";
+import { enforceForCreateConfigurator } from "./lib/enforcement";
 import { resolveEffectiveConfig, PLATFORM_DEFAULTS, CONFIG_LAYERS } from "./lib/configResolution";
 import { internal } from "./_generated/api";
 
@@ -20,13 +20,6 @@ export const createConfigurator = mutation({
 
     const name = args.name.trim();
     if (name.length < 2 || name.length > 80) throw new ConvexError("INVALID_NAME");
-
-    const existingCount = (
-      await ctx.db
-        .query("configurators")
-        .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
-        .collect()
-    ).filter((c) => c.status !== "archived").length;
 
     const publicId = nanoid(10);
     const configuratorId = await ctx.db.insert("configurators", {

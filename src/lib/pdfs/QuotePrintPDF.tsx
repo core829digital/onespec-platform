@@ -1,4 +1,4 @@
-import { Document, Image, Page, Text, View, StyleSheet, PDFViewer } from "@react-pdf/renderer";
+import { Document, Image, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import type { ProjectItem } from "@/shared/pricing";
 import { WindowDrawingPdf } from "@/lib/drawing";
 import { CATEGORY_DEFS } from "@/shared/configurator-model";
@@ -227,7 +227,7 @@ function estimateUw(item: { material: string; glazing: string }): number {
   const A = (1200 / 1000) * (1400 / 1000);
   const aGlass = A * 0.7;
   const aFrame = A * 0.3;
-  const g = ug * aGlass + 1.5 * aFrame;
+  const g = ug * aGlass + uFrame * aFrame;
   return Math.round((g / A) * 10) / 10;
 }
 
@@ -285,21 +285,26 @@ interface QuotePrintPDFProps {
     regionalSurchargeCents?: number;
   } & { regionCode?: string };
 
-  locale?: string;
   region?: string;
+  /**
+   * Overrides the region-derived document language — needed for Luxembourg,
+   * where the same region is legally bilingual FR/DE and the customer picks
+   * which one the printed document uses.
+   */
+  lang?: "it" | "fr" | "de" | "nl";
 }
 
 export function QuotePrintPDF({
   tenant,
   quote,
   catalog,
-  locale = "it-IT",
+  lang,
 }: QuotePrintPDFProps) {
   const region = quote.regionCode || "IT";
   const items = Array.isArray(quote.items) ? quote.items : [];
 
-  // Language key for this region
-  const langKey = region === "FR" ? "fr" : region === "DE" ? "de" : region === "NL" ? "nl" : "it";
+  // Language key for this region, unless the caller overrides it (Luxembourg).
+  const langKey = lang ?? (region === "FR" ? "fr" : region === "DE" ? "de" : region === "NL" ? "nl" : "it");
   const dateLocale = langKey === "fr" ? "fr-FR" : langKey === "de" ? "de-DE" : langKey === "nl" ? "nl-NL" : "it-IT";
 
   const today = new Date().toLocaleDateString(dateLocale, {
@@ -309,10 +314,6 @@ export function QuotePrintPDF({
   });
 
   const signedDate = quote.signedAt
-    ? new Date(quote.signedAt).toLocaleDateString(dateLocale, { day: "2-digit", month: "long", year: "numeric" })
-    : null;
-
-  const signedDate2 = quote.signedAt
     ? new Date(quote.signedAt).toLocaleDateString(dateLocale, { day: "2-digit", month: "long", year: "numeric" })
     : null;
 

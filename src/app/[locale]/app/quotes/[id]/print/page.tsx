@@ -25,9 +25,6 @@ function QuoteDocument({ quote, tenant, region, catalog }: { quote: NonNullable<
   // Luxembourg 1-click bilingual switch
   const [luLang, setLuLang] = useState<"fr" | "de">("fr");
 
-  const langKey = region === "LU" ? luLang : region === "FR" || region === "BE" ? "fr" : region === "DE" ? "de" : region === "NL" ? "nl" : "it";
-  const dateLocale = langKey === "fr" ? "fr-FR" : langKey === "de" ? "de-DE" : langKey === "nl" ? "nl-NL" : "it-IT";
-
   const { ready: companyReady, company } = useCompanyPdf(tenant?.name);
 
   const pdfDoc = (
@@ -35,8 +32,8 @@ function QuoteDocument({ quote, tenant, region, catalog }: { quote: NonNullable<
       tenant={company}
       quote={quote}
       catalog={catalog}
-      locale={dateLocale}
       region={region}
+      lang={region === "LU" ? luLang : undefined}
     />
   );
 
@@ -50,8 +47,8 @@ function QuoteDocument({ quote, tenant, region, catalog }: { quote: NonNullable<
       tenant: company,
       quote,
       catalog,
-      locale: dateLocale,
       region,
+      lang: region === "LU" ? luLang : undefined,
     });
   };
 
@@ -60,7 +57,7 @@ function QuoteDocument({ quote, tenant, region, catalog }: { quote: NonNullable<
     setPrinting(true);
     try {
       const blob = await pdf(
-        <QuotePrintPDF tenant={company} quote={quote} catalog={catalog} locale={dateLocale} region={region} />,
+        <QuotePrintPDF tenant={company} quote={quote} catalog={catalog} region={region} lang={region === "LU" ? luLang : undefined} />,
       ).toBlob();
       printPdfBlob(blob);
     } finally {

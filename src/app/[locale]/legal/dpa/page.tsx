@@ -1,4 +1,3 @@
-import { useTranslations } from "next-intl";
 import { legalValue } from "@/content/legal-values";
 import { Metadata } from "next";
 
@@ -152,8 +151,6 @@ const DPA_SECTIONS = [
 ];
 
 export default function DpaPage() {
-  const t = useTranslations("legal");
-
   return (
     <article>
       <header className="mb-8">

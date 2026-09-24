@@ -20,7 +20,6 @@ type ReportId = Id<"inspectionReports">;
 
 function SyncBadge({ state, onSync }: { state: SyncState; onSync: () => void }) {
   const t = useTranslations("inspections");
-  const { isOnline, pendingCount, error } = state;
   const color = !state.isOnline
     ? "bg-amber-100 text-amber-800"
     : state.pendingCount > 0

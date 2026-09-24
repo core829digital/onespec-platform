@@ -36,14 +36,23 @@ export function Pagination({
     totalPages,
     itemsPerPage,
     totalItems: total,
-    goToPage,
-    nextPage,
-    prevPage,
-    firstPage,
-    lastPage,
+    goToPage: goToPageRaw,
     setItemsPerPage,
     pageNumbers,
   } = pagination;
+
+  // Wrap every page-changing action so a consumer passing onPageChange (e.g. to
+  // re-slice server-fetched data) is notified with the target page. State
+  // updates from the hook are async, so the target is computed here rather
+  // than read back from `pagination` right after calling the raw setter.
+  const goToPage = (page: number) => {
+    goToPageRaw(page);
+    onPageChange?.(Math.max(1, Math.min(page, totalPages)), pagination);
+  };
+  const nextPage = () => goToPage(currentPage + 1);
+  const prevPage = () => goToPage(currentPage - 1);
+  const firstPage = () => goToPage(1);
+  const lastPage = () => goToPage(totalPages);
 
   if (totalPages <= 1 && !showItemsPerPage) return null;
 
@@ -72,9 +81,8 @@ export function Pagination({
           <select
             value={itemsPerPage}
             onChange={(e) => {
-              const value = parseInt(e.target.value, 10);
-              // Find the pagination context to call setItemsPerPage
-              // We'll handle this via a custom event or context
+              setItemsPerPage(parseInt(e.target.value, 10));
+              onPageChange?.(1, pagination);
             }}
             className="ml-4 px-2 py-1 text-sm border border-[var(--color-border)] rounded bg-[var(--color-bg)]"
           >

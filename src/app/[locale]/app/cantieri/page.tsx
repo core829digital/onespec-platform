@@ -5,30 +5,19 @@ import posthog from "posthog-js";
 import { useQuery, useMutation } from "convex/react";
 import { useTranslations, useFormatter } from "next-intl";
 import { api } from "@/convex/_generated/api";
-import { Link } from "@/i18n/navigation";
 import type { Id } from "@/convex/_generated/dataModel";
 import {
   Plus,
   Search,
-  Filter,
   MapPin,
-  Calendar,
-  Euro,
   Users,
-  MoreVertical,
-  Edit,
-  Trash2,
-  Key,
   X,
-  ChevronDown,
   Lock,
   AlertCircle,
   Clock,
   Package,
   CheckCircle,
-  Link2,
 } from "lucide-react";
-import { EmptyState } from "@/components/app-shell/empty-state";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import {
   DndContext,
@@ -44,7 +33,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { SortableCantiereCard, type SortableCantiereCardProps } from "@/components/cantieri/SortableCantiereCard";
+import { SortableCantiereCard } from "@/components/cantieri/SortableCantiereCard";
 
 // Module-level constant for current time (updated on each render via useMemo in parent)
 export const NOW = Date.now();
@@ -58,13 +47,6 @@ const STATUS_CONFIG = [
   { key: "collaudo", label: "Collaudo", color: "bg-teal-100 text-teal-700", icon: AlertCircle },
   { key: "chiuso", label: "Chiuso", color: "bg-emerald-100 text-emerald-700", icon: Lock },
 ] as const;
-
-const PRIORITY_COLORS = {
-  low: "bg-gray-100 text-gray-700",
-  medium: "bg-blue-100 text-blue-700",
-  high: "bg-amber-100 text-amber-700",
-  urgent: "bg-red-100 text-red-700",
-};
 
 interface Cantiere {
   _id: string;
@@ -98,7 +80,6 @@ function KanbanColumn({
   onGeneratePin,
   onRevokePin,
   t,
-  format,
 }: {
   status: string;
   cantieri: Cantiere[];
@@ -107,7 +88,6 @@ function KanbanColumn({
   onGeneratePin: (c: Cantiere) => void;
   onRevokePin: (c: Cantiere) => void;
   t: (key: string) => string;
-  format: ReturnType<typeof useFormatter>;
 }) {
   const config = STATUS_CONFIG.find((s) => s.key === status);
 
@@ -132,7 +112,7 @@ function KanbanColumn({
               {t("noItemsInColumn")}
             </div>
           ) : (
-            cantieri.map((cantiere, index) => (
+            cantieri.map((cantiere) => (
               <SortableCantiereCard
                 key={cantiere._id}
                 cantiere={cantiere}
@@ -141,9 +121,6 @@ function KanbanColumn({
                 onGeneratePin={() => onGeneratePin(cantiere)}
                 onRevokePin={() => onRevokePin(cantiere)}
                 t={t}
-                format={format}
-                index={index}
-                items={cantieri}
               />
             ))
           )}
@@ -624,14 +601,13 @@ const handleUpdate = async (data: {
   }) => {
     if (!editingCantiere) return;
     setSaving(true);
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-try {
+    try {
       await updateCantiere({
-        cantiereId: editingCantiere._id as Id<"cantieri">, // eslint-disable-line @typescript-eslint/no-explicit-any
+        cantiereId: editingCantiere._id as Id<"cantieri">,
         ...data,
         clientId: data.clientId ? (data.clientId as Id<"clients">) : undefined,
         quoteId: data.quoteId ? (data.quoteId as Id<"quoteRequests">) : undefined,
-        assignedUserIds: data.assignedUserIds as unknown as Id<"users">[], // eslint-disable-line @typescript-eslint/no-explicit-any
+        assignedUserIds: data.assignedUserIds as unknown as Id<"users">[],
       });
       setModalOpen(false);
       setEditingCantiere(null);
@@ -763,7 +739,6 @@ try {
               onGeneratePin={handleGeneratePin}
               onRevokePin={handleRevokePin}
               t={t}
-              format={format}
             />
           ))}
         </div>

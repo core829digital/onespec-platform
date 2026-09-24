@@ -44,7 +44,10 @@ export function ShowroomWidget({
   const [width, setWidth] = useState(1200);
   const [height, setHeight] = useState(1400);
   const [material, setMaterial] = useState("pvc");
-  const [color, setColor] = useState("white");
+  // No frame-color picker exists yet (real gap, tracked separately) — fixed
+  // at the catalogue default until one is built, so this is a constant, not
+  // state with a setter nothing calls.
+  const color = "white";
   const [glazing, setGlazing] = useState("double");
   const [sashCount, setSashCount] = useState(2);
   const [accessories, setAccessories] = useState({

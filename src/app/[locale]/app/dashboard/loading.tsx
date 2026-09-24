@@ -1,4 +1,4 @@
-import { SkeletonContainer, SkeletonHeader, SkeletonKPIs, SkeletonChart, SkeletonTable, SkeletonEmptyState } from "@/components/ui/skeleton";
+import { SkeletonContainer, SkeletonHeader, SkeletonKPIs, SkeletonChart, SkeletonTable } from "@/components/ui/skeleton";
 
 export default function DashboardLoading() {
   return (

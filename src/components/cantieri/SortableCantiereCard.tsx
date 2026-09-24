@@ -2,12 +2,10 @@
 
 import { useState } from "react";
 import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, MapPin, Calendar, Euro, Users, Package, CheckCircle, AlertCircle, Clock, Key, Edit, Trash2 } from "lucide-react";
+import { Key } from "lucide-react";
 import { Link } from "@/i18n/navigation";
-import { useTranslations, useFormatter, useLocale } from "next-intl";
+import { useLocale } from "next-intl";
 import type { Cantiere } from "@/app/[locale]/app/cantieri/page";
-import type { Id } from "@/convex/_generated/dataModel";
 
 const PRIORITY_COLORS = {
   low: "bg-gray-100 text-gray-700",
@@ -16,16 +14,6 @@ const PRIORITY_COLORS = {
   urgent: "bg-red-100 text-red-700",
 };
 
-const STATUS_CONFIG = [
-  { key: "preventivo", label: "Preventivo", color: "bg-blue-100 text-blue-700" },
-  { key: "confermato", label: "Confermato", color: "bg-purple-100 text-purple-700" },
-  { key: "in_produzione", label: "In Produzione", color: "bg-amber-100 text-amber-700" },
-  { key: "pronto_consegna", label: "Pronto Consegna", color: "bg-indigo-100 text-indigo-700" },
-  { key: "in_posa", label: "In Posa", color: "bg-orange-100 text-orange-700" },
-  { key: "collaudo", label: "Collaudo", color: "bg-teal-100 text-teal-700" },
-  { key: "chiuso", label: "Chiuso", color: "bg-emerald-100 text-emerald-700" },
-] as const;
-
 export interface SortableCantiereCardProps {
   cantiere: Cantiere;
   onEdit: () => void;
@@ -33,9 +21,6 @@ export interface SortableCantiereCardProps {
   onGeneratePin: () => void;
   onRevokePin: () => void;
   t: (key: string) => string;
-  format: ReturnType<typeof useFormatter>;
-  index: number;
-  items: Cantiere[];
 }
 
 export function SortableCantiereCard({
@@ -45,11 +30,7 @@ export function SortableCantiereCard({
   onGeneratePin,
   onRevokePin,
   t,
-  format,
-  index,
-  items,
 }: SortableCantiereCardProps) {
-  const config = STATUS_CONFIG.find((s) => s.key === cantiere.status);
   // Lazy initializer: read "now" once at mount, not on every render (Date.now()
   // directly in the render body is an impure-render violation).
   const [now] = useState(() => Date.now());

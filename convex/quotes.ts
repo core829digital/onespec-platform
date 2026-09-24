@@ -2,10 +2,9 @@
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import { internal } from "./_generated/api";
-import { requireTenantRole, requireMembership, requireUser } from "./lib/auth";
+import { requireTenantRole, requireMembership } from "./lib/auth";
 import { enforceForCreateQuote, enforceForESignature, enforceForMultiSupplier } from "./lib/enforcement";
 import { calculatePrice, type ProjectItem, type CatalogPayload } from "../src/shared/pricing";
-import { getTenantCatalog } from "./calculations";
 import { currentPeriod } from "./lib/entitlements";
 import { regionForCountry } from "./lib/regions";
 import { resolveLinks, logClientActivity } from "./lib/links";
@@ -420,13 +419,6 @@ export const createFieldQuoteFromSurvey = mutation({
     const region = tenant?.country ? regionForCountry(tenant.country).code : 'IT';
 
     const baseCalc = calculatePrice(payload, items);
-
-    const installCost = 0;
-    const demolitionCost = 0;
-    const regionalSurcharge = 0;
-    const discountPct = 0;
-    const ecobonusPct = 0;
-    const maPrimePct = 0;
 
     const subtotalExVat = baseCalc.priceExVatCents;
     const discountedExVat = Math.round(subtotalExVat * (1 - 0 / 100));

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import posthog from "posthog-js";
 import { useQuery, useMutation } from "convex/react";
 import { useTranslations, useFormatter } from "next-intl";
@@ -16,12 +16,8 @@ import {
   Mail,
   Phone,
   MapPin,
-  Tag,
-  MoreVertical,
   Edit,
   Trash2,
-  Activity,
-  ArrowUpRight,
   X,
   ChevronDown,
 } from "lucide-react";

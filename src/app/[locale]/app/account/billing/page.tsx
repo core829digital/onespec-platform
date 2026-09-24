@@ -149,6 +149,30 @@ export default function BillingPage() {
         </>
       ) : (
         <>
+        <div className="flex justify-center gap-2 mb-4">
+          <button
+            type="button"
+            onClick={() => setCycle("monthly")}
+            className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${
+              cycle === "monthly"
+                ? "bg-[var(--color-mint)] text-[var(--color-mint-dark)]"
+                : "border border-[var(--color-border)] text-[var(--color-text-secondary)]"
+            }`}
+          >
+            {t("billing.monthly")}
+          </button>
+          <button
+            type="button"
+            onClick={() => setCycle("annual")}
+            className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${
+              cycle === "annual"
+                ? "bg-[var(--color-mint)] text-[var(--color-mint-dark)]"
+                : "border border-[var(--color-border)] text-[var(--color-text-secondary)]"
+            }`}
+          >
+            {t("billing.annual", { discount: "-17%" })}
+          </button>
+        </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {displayPlans.map((p) => {
             const current = p.key === state.plan;
@@ -183,7 +207,7 @@ export default function BillingPage() {
                     >
                       {t("contactSales")}
                     </a>
-                  ) : p.key === "pro" && state.plan === "base" && state.checkoutAvailable && cycle === "monthly" ? (
+                  ) : p.key === "pro" && state.plan === "base" && state.checkoutAvailable ? (
                     <button
                       type="button"
                       disabled={busy}
@@ -192,7 +216,7 @@ export default function BillingPage() {
                           checkout({
                             tenantId: tenant!._id,
                             plan: "pro",
-                            cycle: "monthly",
+                            cycle,
                           }),
                         )
                       }

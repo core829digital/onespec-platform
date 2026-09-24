@@ -18,7 +18,6 @@ const TEMPLATE = v.union(
 function getFromAddress(template: string): string {
   const purchasesFrom = process.env.RESEND_FROM_PURCHASES ?? "purchases@onespec.eu";
   const noreplyFrom = process.env.RESEND_FROM_NOREPLY ?? "noreply@onespec.eu";
-  const defaultFrom = process.env.RESEND_FROM ?? "onespec <onboarding@resend.dev>";
 
   switch (template) {
     case "purchase_receipt":

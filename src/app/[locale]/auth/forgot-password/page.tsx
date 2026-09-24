@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authErrorMessage } from "@/lib/errors";
-import { getSafeRedirect, getOptionalRedirect } from "@/lib/redirect-validator";
+import { getOptionalRedirect } from "@/lib/redirect-validator";
 
 export default function ForgotPasswordPage() {
   const t = useTranslations("auth.forgotPassword");
