@@ -192,7 +192,7 @@ export default function AccountPage() {
           <Toggle
             checked={profile.consent.productUpdates}
             onChange={(vv) => setConsent({ productUpdates: vv })}
-            label="Aggiornamenti sul prodotto e sul programma Alpha"
+            label="Aggiornamenti sul prodotto"
           />
           <Toggle
             checked={profile.consent.marketing}

@@ -188,7 +188,7 @@ export default function AdminPage() {
 
       <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg divide-y divide-[var(--color-border)]">
         <div className="px-6 py-4 font-bold text-[var(--color-text)]">
-          Feedback Alpha{feedback ? ` (${feedback.filter((f) => f.status === "new").length} nuovi)` : ""}
+          Feedback utenti{feedback ? ` (${feedback.filter((f) => f.status === "new").length} nuovi)` : ""}
         </div>
         {feedback === undefined ? (
           <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">Caricamento...</div>
