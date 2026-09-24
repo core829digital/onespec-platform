@@ -376,6 +376,29 @@
       "draftRestored": "Draft restored: {count} pieces.",
       "discardDraft": "Discard and start over",
       "draftSaved": "Draft saved automatically in this browser."
+    },
+    "list": {
+      "kicker": "Field B2B Tool",
+      "title": "Field Quotes (Fast B2B)",
+      "subtitle": "Quotes generated with an on-site digital signature, compliant with your market's regulations.",
+      "newQuote": "+ New Field Quote",
+      "statTotal": "Total Quotes",
+      "statWon": "Won",
+      "statSigned": "Signed by Customer",
+      "statValue": "Total Value",
+      "searchPlaceholder": "Search by name, email or city…",
+      "empty": "No quotes yet.",
+      "emptyHint": "Start with the button",
+      "colClient": "Customer",
+      "colCity": "City / Postcode",
+      "colWindows": "Windows",
+      "colTotal": "Total",
+      "colSignature": "Signature",
+      "colStatus": "Status",
+      "colDate": "Date",
+      "pieces": "pcs",
+      "sign": "✍️ Sign",
+      "pdf": "🖨️ PDF"
     }
   },
   "billing": {
@@ -856,5 +879,33 @@
   },
   "a11y": {
     "skipToContent": "Skip to main content"
+  },
+  "requests": {
+    "title": "Requests",
+    "subtitle": "Quotes received from the widgets",
+    "export": "Export CSV",
+    "exporting": "Exporting...",
+    "exportDone": "Exported {count} rows{truncated}.",
+    "exportTruncated": " (truncated to the maximum allowed)",
+    "all": "All",
+    "statusNew": "New",
+    "statusContacted": "Contacted",
+    "statusQuoted": "Quote sent",
+    "statusWon": "Won",
+    "statusLost": "Lost",
+    "statusSpam": "Spam",
+    "searchPlaceholder": "Search by name, email or company...",
+    "sortDate": "Most recent",
+    "sortValue": "Highest value",
+    "sortName": "Name (A-Z)",
+    "colClient": "Customer",
+    "colEmail": "Email",
+    "colPhone": "Phone",
+    "colCompany": "Company",
+    "colValue": "Value",
+    "colStatus": "Status",
+    "colDate": "Date",
+    "loading": "Loading...",
+    "empty": "No requests"
   }
 }

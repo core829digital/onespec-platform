@@ -376,6 +376,29 @@
       "draftRestored": "Ciornă restaurată: {count} elemente.",
       "discardDraft": "Renunță și reia",
       "draftSaved": "Ciorna este salvată automat în acest browser."
+    },
+    "list": {
+      "kicker": "Instrument B2B de șantier",
+      "title": "Oferte de șantier (B2B rapid)",
+      "subtitle": "Oferte generate cu semnătură digitală la fața locului, conforme cu reglementările pieței tale.",
+      "newQuote": "+ Ofertă nouă de șantier",
+      "statTotal": "Total oferte",
+      "statWon": "Câștigate",
+      "statSigned": "Semnate de client",
+      "statValue": "Valoare totală",
+      "searchPlaceholder": "Caută după nume, email sau oraș…",
+      "empty": "Încă nu există oferte.",
+      "emptyHint": "Începe cu butonul",
+      "colClient": "Client",
+      "colCity": "Oraș / Cod poștal",
+      "colWindows": "Ferestre",
+      "colTotal": "Total",
+      "colSignature": "Semnătură",
+      "colStatus": "Stare",
+      "colDate": "Data",
+      "pieces": "buc",
+      "sign": "✍️ Semnează",
+      "pdf": "🖨️ PDF"
     }
   },
   "billing": {
@@ -856,5 +879,33 @@
   },
   "a11y": {
     "skipToContent": "Salt la conținutul principal"
+  },
+  "requests": {
+    "title": "Cereri",
+    "subtitle": "Oferte primite prin widget-uri",
+    "export": "Exportă CSV",
+    "exporting": "Se exportă...",
+    "exportDone": "{count} rânduri exportate{truncated}.",
+    "exportTruncated": " (trunchiat la maximul permis)",
+    "all": "Toate",
+    "statusNew": "Noi",
+    "statusContacted": "Contactate",
+    "statusQuoted": "Ofertă trimisă",
+    "statusWon": "Câștigate",
+    "statusLost": "Pierdute",
+    "statusSpam": "Spam",
+    "searchPlaceholder": "Caută după nume, email sau companie...",
+    "sortDate": "Cele mai recente",
+    "sortValue": "Valoare mai mare",
+    "sortName": "Nume (A-Z)",
+    "colClient": "Client",
+    "colEmail": "Email",
+    "colPhone": "Telefon",
+    "colCompany": "Companie",
+    "colValue": "Valoare",
+    "colStatus": "Stare",
+    "colDate": "Data",
+    "loading": "Se încarcă...",
+    "empty": "Nicio cerere"
   }
 }

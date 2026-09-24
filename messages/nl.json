@@ -376,6 +376,29 @@
       "draftRestored": "Concept hersteld: {count} elementen.",
       "discardDraft": "Verwerpen en opnieuw beginnen",
       "draftSaved": "Concept wordt automatisch in deze browser opgeslagen."
+    },
+    "list": {
+      "kicker": "B2B-werfhulpmiddel",
+      "title": "Offertes op de werf (Snel B2B)",
+      "subtitle": "Offertes gegenereerd met digitale handtekening op locatie, conform de regels van uw markt.",
+      "newQuote": "+ Nieuwe offerte op de werf",
+      "statTotal": "Totaal offertes",
+      "statWon": "Gewonnen",
+      "statSigned": "Getekend door klant",
+      "statValue": "Totale waarde",
+      "searchPlaceholder": "Zoek op naam, e-mail of stad…",
+      "empty": "Nog geen offertes.",
+      "emptyHint": "Begin met de knop",
+      "colClient": "Klant",
+      "colCity": "Stad / Postcode",
+      "colWindows": "Ramen",
+      "colTotal": "Totaal",
+      "colSignature": "Handtekening",
+      "colStatus": "Status",
+      "colDate": "Datum",
+      "pieces": "stuks",
+      "sign": "✍️ Tekenen",
+      "pdf": "🖨️ PDF"
     }
   },
   "billing": {
@@ -856,5 +879,33 @@
   },
   "a11y": {
     "skipToContent": "Naar hoofdinhoud gaan"
+  },
+  "requests": {
+    "title": "Aanvragen",
+    "subtitle": "Offertes ontvangen via de widgets",
+    "export": "Exporteer CSV",
+    "exporting": "Exporteren...",
+    "exportDone": "{count} rijen geëxporteerd{truncated}.",
+    "exportTruncated": " (afgekapt tot het toegestane maximum)",
+    "all": "Alle",
+    "statusNew": "Nieuw",
+    "statusContacted": "Benaderd",
+    "statusQuoted": "Offerte verzonden",
+    "statusWon": "Gewonnen",
+    "statusLost": "Verloren",
+    "statusSpam": "Spam",
+    "searchPlaceholder": "Zoek op naam, e-mail of bedrijf...",
+    "sortDate": "Meest recent",
+    "sortValue": "Hoogste waarde",
+    "sortName": "Naam (A-Z)",
+    "colClient": "Klant",
+    "colEmail": "E-mail",
+    "colPhone": "Telefoon",
+    "colCompany": "Bedrijf",
+    "colValue": "Waarde",
+    "colStatus": "Status",
+    "colDate": "Datum",
+    "loading": "Laden...",
+    "empty": "Geen aanvragen"
   }
 }

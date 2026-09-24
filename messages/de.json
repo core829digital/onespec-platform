@@ -376,6 +376,29 @@
       "draftRestored": "Entwurf wiederhergestellt: {count} Elemente.",
       "discardDraft": "Verwerfen und neu beginnen",
       "draftSaved": "Entwurf wird automatisch in diesem Browser gespeichert."
+    },
+    "list": {
+      "kicker": "B2B-Baustellen-Tool",
+      "title": "Baustellen-Angebote (Schnelles B2B)",
+      "subtitle": "Angebote mit digitaler Unterschrift vor Ort, konform mit den Vorschriften Ihres Marktes.",
+      "newQuote": "+ Neues Baustellen-Angebot",
+      "statTotal": "Angebote gesamt",
+      "statWon": "Gewonnen",
+      "statSigned": "Vom Kunden unterschrieben",
+      "statValue": "Gesamtwert",
+      "searchPlaceholder": "Suche nach Name, E-Mail oder Stadt…",
+      "empty": "Noch keine Angebote.",
+      "emptyHint": "Beginnen Sie mit der Schaltfläche",
+      "colClient": "Kunde",
+      "colCity": "Stadt / PLZ",
+      "colWindows": "Fenster",
+      "colTotal": "Gesamt",
+      "colSignature": "Unterschrift",
+      "colStatus": "Status",
+      "colDate": "Datum",
+      "pieces": "Stk",
+      "sign": "✍️ Unterschreiben",
+      "pdf": "🖨️ PDF"
     }
   },
   "billing": {
@@ -856,5 +879,33 @@
   },
   "a11y": {
     "skipToContent": "Zum Hauptinhalt springen"
+  },
+  "requests": {
+    "title": "Anfragen",
+    "subtitle": "Über die Widgets erhaltene Angebote",
+    "export": "CSV exportieren",
+    "exporting": "Exportiere...",
+    "exportDone": "{count} Zeilen exportiert{truncated}.",
+    "exportTruncated": " (auf das erlaubte Maximum gekürzt)",
+    "all": "Alle",
+    "statusNew": "Neu",
+    "statusContacted": "Kontaktiert",
+    "statusQuoted": "Angebot gesendet",
+    "statusWon": "Gewonnen",
+    "statusLost": "Verloren",
+    "statusSpam": "Spam",
+    "searchPlaceholder": "Suche nach Name, E-Mail oder Firma...",
+    "sortDate": "Neueste",
+    "sortValue": "Höchster Wert",
+    "sortName": "Name (A-Z)",
+    "colClient": "Kunde",
+    "colEmail": "E-Mail",
+    "colPhone": "Telefon",
+    "colCompany": "Firma",
+    "colValue": "Wert",
+    "colStatus": "Status",
+    "colDate": "Datum",
+    "loading": "Lädt...",
+    "empty": "Keine Anfragen"
   }
 }

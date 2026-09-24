@@ -2,16 +2,17 @@
 
 import { useMemo, useState } from "react";
 import { useQuery } from "convex/react";
+import { useLocale, useTranslations } from "next-intl";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import { StatusBadge } from "@/components/app-shell/status-badge";
 import { Pagination } from "@/components/ui/Pagination";
 
-function fmt(cents: number) {
-  return new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(cents / 100);
-}
-
 export default function QuotesPage() {
+  const t = useTranslations("quotes.list");
+  const locale = useLocale();
+  const fmt = (cents: number) =>
+    new Intl.NumberFormat(locale, { style: "currency", currency: "EUR" }).format(cents / 100);
   const tenant = useQuery(api.tenants.getMyTenant);
 
   // Field quotes only: channel = "field_b2b" OR status = "quoted" / "won" (signed)
@@ -63,24 +64,19 @@ export default function QuotesPage() {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--color-border)] pb-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="rounded-md bg-[var(--color-mint)]/20 px-2 py-0.5 text-xs font-semibold text-[var(--color-mint)] uppercase tracking-wider">
-              Fase 21 · Italia (IT)
-            </span>
-            <span className="text-xs text-[var(--color-text-secondary)]">Strumento B2B da Cantiere</span>
-          </div>
+          <span className="text-xs text-[var(--color-text-secondary)]">{t("kicker")}</span>
           <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-text)] mt-1">
-            Preventivi da Cantiere (B2B Rapido)
+            {t("title")}
           </h1>
           <p className="text-sm text-[var(--color-text-secondary)]">
-            Preventivi generati con firma digitale on-site. Norma UNI 11673 · Ecobonus · IVA agevolata.
+            {t("subtitle")}
           </p>
         </div>
         <Link
           href="/app/quotes/new"
           className="rounded-xl bg-[var(--color-mint)] px-5 py-3 text-sm font-bold text-[var(--color-mint-dark)] shadow-sm hover:opacity-90 transition-opacity"
         >
-          + Nuovo Preventivo Cantiere
+          {t("newQuote")}
         </Link>
       </div>
 
@@ -88,10 +84,10 @@ export default function QuotesPage() {
       {stats && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
-            { label: "Totale Preventivi", value: stats.total, color: "" },
-            { label: "Vinti", value: stats.won, color: "text-[var(--color-mint)]" },
-            { label: "Firmati dal Cliente", value: stats.signed, color: "text-emerald-500" },
-            { label: "Valore Totale", value: fmt(stats.totalValue), color: "text-[var(--color-mint)]" },
+            { label: t("statTotal"), value: stats.total, color: "" },
+            { label: t("statWon"), value: stats.won, color: "text-[var(--color-mint)]" },
+            { label: t("statSigned"), value: stats.signed, color: "text-emerald-500" },
+            { label: t("statValue"), value: fmt(stats.totalValue), color: "text-[var(--color-mint)]" },
           ].map((s) => (
             <div key={s.label} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4">
               <p className="text-xs font-medium text-[var(--color-text-secondary)]">{s.label}</p>
@@ -108,7 +104,7 @@ export default function QuotesPage() {
         <input
           value={q}
           onChange={(e) => { setQ(e.target.value); setPage(1); }}
-          placeholder="Cerca per nome, email o città…"
+          placeholder={t("searchPlaceholder")}
           className="flex-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-alt)] px-3 py-2 text-sm text-[var(--color-text)]"
         />
       </div>
@@ -120,33 +116,33 @@ export default function QuotesPage() {
         </div>
       ) : fieldQuotes.length === 0 ? (
         <div className="rounded-xl border border-dashed border-[var(--color-border)] bg-[var(--color-bg-alt)] p-12 text-center">
-          <p className="text-lg font-medium text-[var(--color-text-secondary)]">Nessun preventivo ancora.</p>
+          <p className="text-lg font-medium text-[var(--color-text-secondary)]">{t("empty")}</p>
           <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
-            Inizia con il pulsante{" "}
+            {t("emptyHint")}{" "}
             <Link href="/app/quotes/new" className="text-[var(--color-mint)] hover:underline font-medium">
-              + Nuovo Preventivo Cantiere
+              {t("newQuote")}
             </Link>
           </p>
         </div>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-[var(--color-border)]">
-          <table className="w-full text-sm" aria-label="Elenco preventivi">
+          <table className="w-full text-sm" aria-label={t("colClient")}>
             <thead>
               <tr className="border-b border-[var(--color-border)] bg-[var(--color-bg-alt)] text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
-                <th className="px-4 py-3 text-left">Cliente</th>
-                <th className="px-4 py-3 text-left">Città / CAP</th>
-                <th className="px-4 py-3 text-left">Serramenti</th>
-                <th className="px-4 py-3 text-right">Totale</th>
-                <th className="px-4 py-3 text-center">Firma</th>
-                <th className="px-4 py-3 text-center">Stato</th>
-                <th className="px-4 py-3 text-left">Data</th>
+                <th className="px-4 py-3 text-left">{t("colClient")}</th>
+                <th className="px-4 py-3 text-left">{t("colCity")}</th>
+                <th className="px-4 py-3 text-left">{t("colWindows")}</th>
+                <th className="px-4 py-3 text-right">{t("colTotal")}</th>
+                <th className="px-4 py-3 text-center">{t("colSignature")}</th>
+                <th className="px-4 py-3 text-center">{t("colStatus")}</th>
+                <th className="px-4 py-3 text-left">{t("colDate")}</th>
                 <th className="px-4 py-3"></th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--color-border)]">
               {pagedQuotes?.map((r) => {
                 const items = Array.isArray(r.items) ? r.items : [];
-                const date = new Date(r._creationTime).toLocaleDateString("it-IT", {
+                const date = new Date(r._creationTime).toLocaleDateString(locale, {
                   day: "2-digit",
                   month: "short",
                   year: "numeric",
@@ -162,7 +158,7 @@ export default function QuotesPage() {
                       {r.customerPostalCode ? ` ${r.customerPostalCode}` : ""}
                     </td>
                     <td className="px-4 py-3 text-[var(--color-text-secondary)]">
-                      {items.length} pz
+                      {items.length} {t("pieces")}
                     </td>
                     <td className="px-4 py-3 text-right font-mono font-semibold text-[var(--color-text)]">
                       {fmt(r.priceCents)}
@@ -189,14 +185,14 @@ export default function QuotesPage() {
                             href={`/app/quotes/${r._id}/sign`}
                             className="rounded-lg border border-[var(--color-mint)] px-2 py-1 text-xs font-semibold text-[var(--color-mint)] hover:bg-[var(--color-mint)]/10"
                           >
-                            ✍️ Firma
+                            {t("sign")}
                           </Link>
                         )}
                         <Link
                           href={`/app/quotes/${r._id}/print`}
                           className="rounded-lg border border-[var(--color-border)] px-2 py-1 text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg-alt)]"
                         >
-                          🖨️ PDF
+                          {t("pdf")}
                         </Link>
                       </div>
                     </td>

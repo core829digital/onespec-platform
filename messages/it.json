@@ -376,6 +376,29 @@
       "draftRestored": "Bozza ripristinata: {count} pezzi.",
       "discardDraft": "Scarta e ricomincia",
       "draftSaved": "Bozza salvata automaticamente in questo browser."
+    },
+    "list": {
+      "kicker": "Strumento B2B da Cantiere",
+      "title": "Preventivi da Cantiere (B2B Rapido)",
+      "subtitle": "Preventivi generati con firma digitale on-site, conformi alla normativa del tuo mercato.",
+      "newQuote": "+ Nuovo Preventivo Cantiere",
+      "statTotal": "Totale Preventivi",
+      "statWon": "Vinti",
+      "statSigned": "Firmati dal Cliente",
+      "statValue": "Valore Totale",
+      "searchPlaceholder": "Cerca per nome, email o città…",
+      "empty": "Nessun preventivo ancora.",
+      "emptyHint": "Inizia con il pulsante",
+      "colClient": "Cliente",
+      "colCity": "Città / CAP",
+      "colWindows": "Serramenti",
+      "colTotal": "Totale",
+      "colSignature": "Firma",
+      "colStatus": "Stato",
+      "colDate": "Data",
+      "pieces": "pz",
+      "sign": "✍️ Firma",
+      "pdf": "🖨️ PDF"
     }
   },
   "billing": {
@@ -856,5 +879,33 @@
   },
   "a11y": {
     "skipToContent": "Vai al contenuto principale"
+  },
+  "requests": {
+    "title": "Richieste",
+    "subtitle": "Preventivi ricevuti dai widget",
+    "export": "Esporta CSV",
+    "exporting": "Esportazione...",
+    "exportDone": "Esportate {count} righe{truncated}.",
+    "exportTruncated": " (troncato al massimo consentito)",
+    "all": "Tutte",
+    "statusNew": "Nuove",
+    "statusContacted": "Contattate",
+    "statusQuoted": "Preventivo inviato",
+    "statusWon": "Vinte",
+    "statusLost": "Perse",
+    "statusSpam": "Spam",
+    "searchPlaceholder": "Cerca per nome, email o azienda...",
+    "sortDate": "Più recenti",
+    "sortValue": "Valore più alto",
+    "sortName": "Nome (A-Z)",
+    "colClient": "Cliente",
+    "colEmail": "Email",
+    "colPhone": "Telefono",
+    "colCompany": "Azienda",
+    "colValue": "Valore",
+    "colStatus": "Stato",
+    "colDate": "Data",
+    "loading": "Caricamento...",
+    "empty": "Nessuna richiesta"
   }
 }

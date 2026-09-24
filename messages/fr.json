@@ -376,6 +376,29 @@
       "draftRestored": "Brouillon restauré : {count} pièces.",
       "discardDraft": "Abandonner et recommencer",
       "draftSaved": "Brouillon enregistré automatiquement dans ce navigateur."
+    },
+    "list": {
+      "kicker": "Outil B2B de chantier",
+      "title": "Devis de chantier (B2B rapide)",
+      "subtitle": "Devis générés avec signature numérique sur site, conformes à la réglementation de votre marché.",
+      "newQuote": "+ Nouveau devis de chantier",
+      "statTotal": "Total des devis",
+      "statWon": "Gagnés",
+      "statSigned": "Signés par le client",
+      "statValue": "Valeur totale",
+      "searchPlaceholder": "Rechercher par nom, email ou ville…",
+      "empty": "Aucun devis pour l'instant.",
+      "emptyHint": "Commencez avec le bouton",
+      "colClient": "Client",
+      "colCity": "Ville / Code postal",
+      "colWindows": "Fenêtres",
+      "colTotal": "Total",
+      "colSignature": "Signature",
+      "colStatus": "Statut",
+      "colDate": "Date",
+      "pieces": "pcs",
+      "sign": "✍️ Signer",
+      "pdf": "🖨️ PDF"
     }
   },
   "billing": {
@@ -856,5 +879,33 @@
   },
   "a11y": {
     "skipToContent": "Aller au contenu principal"
+  },
+  "requests": {
+    "title": "Demandes",
+    "subtitle": "Devis reçus depuis les widgets",
+    "export": "Exporter en CSV",
+    "exporting": "Exportation...",
+    "exportDone": "{count} lignes exportées{truncated}.",
+    "exportTruncated": " (tronqué au maximum autorisé)",
+    "all": "Toutes",
+    "statusNew": "Nouvelles",
+    "statusContacted": "Contactées",
+    "statusQuoted": "Devis envoyé",
+    "statusWon": "Gagnées",
+    "statusLost": "Perdues",
+    "statusSpam": "Spam",
+    "searchPlaceholder": "Rechercher par nom, email ou entreprise...",
+    "sortDate": "Plus récentes",
+    "sortValue": "Valeur la plus élevée",
+    "sortName": "Nom (A-Z)",
+    "colClient": "Client",
+    "colEmail": "Email",
+    "colPhone": "Téléphone",
+    "colCompany": "Entreprise",
+    "colValue": "Valeur",
+    "colStatus": "Statut",
+    "colDate": "Date",
+    "loading": "Chargement...",
+    "empty": "Aucune demande"
   }
 }
