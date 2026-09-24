@@ -1,7 +1,8 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
-import { requireTenantRole, requireMembership } from "./lib/auth";
+import { requireMembership } from "./lib/auth";
+import { requirePermission } from "./lib/rbac";
 import { listRelated } from "./lib/links";
 import { consumeToken, RATE_LIMITS } from "./lib/ratelimit";
 import { hashIp } from "./lib/ipHash";
@@ -26,7 +27,7 @@ export const listCantieri = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, args.tenantId, "cantieri.use");
     const limit = Math.min(Math.max(args.limit ?? 100, 1), 500);
 
     // Fetch all cantieri for tenant, then filter in memory
@@ -188,8 +189,7 @@ export const createCantiere = mutation({
     notes: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
-    const { userId } = await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
+    const { userId } = await requirePermission(ctx, args.tenantId, "cantieri.use");
 
     const now = Date.now();
     const cantiereId = await ctx.db.insert("cantieri", {
@@ -259,7 +259,7 @@ export const updateCantiere = mutation({
   handler: async (ctx, args) => {
     const cantiere = await ctx.db.get(args.cantiereId);
     if (!cantiere) throw new ConvexError("CANTIERE_NOT_FOUND");
-    const { userId } = await requireTenantRole(ctx, cantiere.tenantId, ["owner", "admin", "member"]);
+    const { userId } = await requirePermission(ctx, cantiere.tenantId, "cantieri.use");
 
     const patch: Record<string, unknown> = { updatedAt: Date.now() };
     const allowedFields = [
@@ -311,8 +311,7 @@ export const generateGuestPin = mutation({
   handler: async (ctx, args) => {
     const cantiere = await ctx.db.get(args.cantiereId);
     if (!cantiere) throw new ConvexError("CANTIERE_NOT_FOUND");
-    await requireTenantRole(ctx, cantiere.tenantId, ["owner", "admin", "member"]);
-    const { userId } = await requireTenantRole(ctx, cantiere.tenantId, ["owner", "admin", "member"]);
+    const { userId } = await requirePermission(ctx, cantiere.tenantId, "cantieri.use");
 
     // Generate a 6-digit PIN, retrying on collision with another cantiere's
     // still-active PIN — only 900k possible values, so as guest-PIN usage
@@ -360,8 +359,7 @@ export const revokeGuestPin = mutation({
   handler: async (ctx, args) => {
     const cantiere = await ctx.db.get(args.cantiereId);
     if (!cantiere) throw new ConvexError("CANTIERE_NOT_FOUND");
-    await requireTenantRole(ctx, cantiere.tenantId, ["owner", "admin", "member"]);
-    const { userId } = await requireTenantRole(ctx, cantiere.tenantId, ["owner", "admin", "member"]);
+    const { userId } = await requirePermission(ctx, cantiere.tenantId, "cantieri.use");
 
     await ctx.db.patch(args.cantiereId, {
       guestPin: undefined,
@@ -398,8 +396,7 @@ export const createCantiereTask = mutation({
     assignedUserId: v.optional(v.id("users")),
   },
   handler: async (ctx, args) => {
-    await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
-    const { userId } = await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
+    const { userId } = await requirePermission(ctx, args.tenantId, "cantieri.use");
 
     const cantiere = await ctx.db.get(args.cantiereId);
     if (!cantiere || cantiere.tenantId !== args.tenantId) {
@@ -439,7 +436,7 @@ export const updateCantiereTask = mutation({
   handler: async (ctx, args) => {
     const task = await ctx.db.get(args.taskId);
     if (!task) throw new ConvexError("TASK_NOT_FOUND");
-    await requireTenantRole(ctx, task.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, task.tenantId, "cantieri.use");
 
     const patch: Record<string, unknown> = { updatedAt: Date.now() };
     const allowedFields = ["title", "description", "status", "priority", "dueAt", "assignedUserId"];
@@ -470,7 +467,7 @@ export const deleteCantiere = mutation({
   handler: async (ctx, args) => {
     const cantiere = await ctx.db.get(args.cantiereId);
     if (!cantiere) throw new ConvexError("CANTIERE_NOT_FOUND");
-    const { userId } = await requireTenantRole(ctx, cantiere.tenantId, ["owner", "admin"]);
+    const { userId } = await requirePermission(ctx, cantiere.tenantId, "cantieri.delete");
 
     // Delete associated tasks first
     const tasks = await ctx.db
@@ -504,7 +501,7 @@ export const deleteCantiereTask = mutation({
   handler: async (ctx, args) => {
     const task = await ctx.db.get(args.taskId);
     if (!task) throw new ConvexError("TASK_NOT_FOUND");
-    await requireTenantRole(ctx, task.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, task.tenantId, "cantieri.use");
 
     await ctx.db.delete(args.taskId);
     await ctx.db.patch(task.cantiereId, { updatedAt: Date.now() });

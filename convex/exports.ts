@@ -1,7 +1,7 @@
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
-import { requireTenantRole } from "./lib/auth";
+import { requirePermission } from "./lib/rbac";
 import { consumeToken, RATE_LIMITS } from "./lib/ratelimit";
 import { toCsv } from "./lib/csv";
 
@@ -25,7 +25,7 @@ const cents = (c: number) => (c / 100).toFixed(2);
 export const exportRequestsCsv = mutation({
   args: { tenantId: v.id("tenants"), status: v.optional(QUOTE_STATUS) },
   handler: async (ctx, args) => {
-    const { membership } = await requireTenantRole(ctx, args.tenantId, ["owner", "admin"]);
+    const { membership } = await requirePermission(ctx, args.tenantId, "export.tenantData");
 
     const ok = await consumeToken(
       ctx,

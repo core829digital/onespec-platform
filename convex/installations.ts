@@ -2,7 +2,8 @@
 
 import { query, mutation } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
-import { requireMembership, requireTenantRole } from "./lib/auth";
+import { requireMembership } from "./lib/auth";
+import { requirePermission } from "./lib/rbac";
 import { requireTenantRegion } from "./lib/fieldModules";
 import { enforceForFullFieldModules } from "./lib/enforcement";
 import { complianceForRegion, computePosaMaterials } from "./lib/compliance";
@@ -13,7 +14,7 @@ import { resolveLinks, logClientActivity } from "./lib/links";
 export const getStandard = query({
   args: { tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
-    await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, args.tenantId, "installations.use");
     const tenant = await ctx.db.get(args.tenantId);
     const region = regionForCountry(tenant?.country);
     const compliance = complianceForRegion(region.code);
@@ -30,7 +31,7 @@ export const getStandard = query({
 export const list = query({
   args: { tenantId: v.id("tenants"), limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
-    await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, args.tenantId, "installations.use");
     const limit = Math.min(Math.max(args.limit ?? 50, 1), 200);
     const dossiers = await ctx.db
       .query("installationDossiers")
@@ -177,7 +178,7 @@ export const update = mutation({
   handler: async (ctx, args) => {
     const doc = await ctx.db.get(args.dossierId);
     if (!doc) throw new ConvexError("DOSSIER_NOT_FOUND");
-    await requireTenantRole(ctx, doc.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, doc.tenantId, "installations.use");
     const region = regionForCountry(doc.regionCode).code;
     const std = complianceForRegion(region).installation;
 
@@ -216,7 +217,7 @@ export const remove = mutation({
   handler: async (ctx, args) => {
     const doc = await ctx.db.get(args.dossierId);
     if (!doc) return;
-    await requireTenantRole(ctx, doc.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, doc.tenantId, "installations.delete");
     await ctx.db.delete(args.dossierId);
   },
 });

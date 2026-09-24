@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
-import { requireMembership, requireTenantRole } from "./lib/auth";
+import { requireMembership } from "./lib/auth";
+import { requirePermission } from "./lib/rbac";
 import { resolveTenantEntitlements } from "./lib/entitlements";
 import { enforceForMultiSupplier } from "./lib/enforcement";
 
@@ -36,7 +37,7 @@ export const createSupplier = mutation({
     leadTimeDays: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    await requireTenantRole(ctx, args.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, args.tenantId, "suppliers.manage");
     await enforceForMultiSupplier(ctx, args.tenantId);
     const name = args.name.trim();
     if (name.length < 2 || name.length > 80) throw new ConvexError("INVALID_NAME");
@@ -71,7 +72,7 @@ export const setSupplierActive = mutation({
   handler: async (ctx, args) => {
     const supplier = await ctx.db.get(args.supplierId);
     if (!supplier) throw new ConvexError("NOT_FOUND");
-    await requireTenantRole(ctx, supplier.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, supplier.tenantId, "suppliers.manage");
     await ctx.db.patch(args.supplierId, { isActive: args.isActive, updatedAt: Date.now() });
   },
 });

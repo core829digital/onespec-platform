@@ -2,7 +2,8 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
-import { requireTenantRole, requireMembership } from "./lib/auth";
+import { requireMembership } from "./lib/auth";
+import { requirePermission } from "./lib/rbac";
 
 const IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
 
@@ -46,7 +47,7 @@ export const updateBranding = mutation({
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
-    await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, configurator.tenantId, "branding.manage");
 
     const branding = await ctx.db.query("branding").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).unique();
     if (!branding) throw new ConvexError("BRANDING_NOT_FOUND");
@@ -70,7 +71,7 @@ export const generateUploadUrl = mutation({
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
-    await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, configurator.tenantId, "branding.manage");
     if (!IMAGE_TYPES.includes(args.contentType)) throw new ConvexError("UNSUPPORTED_IMAGE_TYPE");
 
     const uploadUrl = await ctx.storage.generateUploadUrl();
@@ -83,7 +84,7 @@ export const setLogo = mutation({
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
-    await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, configurator.tenantId, "branding.manage");
 
     const branding = await ctx.db.query("branding").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).unique();
     if (!branding) throw new ConvexError("BRANDING_NOT_FOUND");
@@ -104,7 +105,7 @@ export const deleteLogo = mutation({
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
-    await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, configurator.tenantId, "branding.manage");
 
     const branding = await ctx.db.query("branding").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).unique();
     if (!branding) throw new ConvexError("BRANDING_NOT_FOUND");

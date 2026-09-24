@@ -2,7 +2,8 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
-import { requireTenantRole, requireMembership } from "./lib/auth";
+import { requireMembership } from "./lib/auth";
+import { requirePermission } from "./lib/rbac";
 import { nanoid } from "./lib/ids";
 import { loadExtras } from "./lib/catalogExtras";
 import { resolveTenantEntitlements, currentPeriod } from "./lib/entitlements";
@@ -13,7 +14,7 @@ import { internal } from "./_generated/api";
 export const createConfigurator = mutation({
   args: { tenantId: v.id("tenants"), name: v.string() },
   handler: async (ctx, args) => {
-    await requireTenantRole(ctx, args.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, args.tenantId, "configurators.manage");
     await enforceForCreateConfigurator(ctx, args.tenantId);
     const tenant = await ctx.db.get(args.tenantId);
     if (!tenant) throw new ConvexError("TENANT_NOT_FOUND");
@@ -143,7 +144,7 @@ export const updateConfigurator = mutation({
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
-    await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, configurator.tenantId, "configurators.manage");
 
     const update: Partial<Doc<"configurators">> = { updatedAt: Date.now() };
     if (args.name !== undefined) update.name = args.name;
@@ -170,7 +171,7 @@ export const publishConfigurator = mutation({
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
-    const { membership } = await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
+    const { membership } = await requirePermission(ctx, configurator.tenantId, "configurators.manage");
 
     const [materials, qualityTiers, profileSystems, sizeConstraints, glazing, finish, hardware, branding] = await Promise.all([
       ctx.db.query("catalogMaterials").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),
@@ -276,7 +277,7 @@ export const rollbackToVersion = mutation({
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
-    const { membership } = await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
+    const { membership } = await requirePermission(ctx, configurator.tenantId, "configurators.manage");
 
     const target = await ctx.db
       .query("catalogVersions")

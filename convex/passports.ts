@@ -2,7 +2,8 @@
 
 import { query, mutation, internalMutation } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
-import { requireMembership, requireTenantRole } from "./lib/auth";
+import { requireMembership } from "./lib/auth";
+import { requirePermission } from "./lib/rbac";
 import { requireTenantRegion } from "./lib/fieldModules";
 import { enforceForMaintenance } from "./lib/enforcement";
 import { complianceForRegion } from "./lib/compliance";
@@ -17,7 +18,7 @@ import { internal } from "./_generated/api";
 export const list = query({
   args: { tenantId: v.id("tenants"), limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
-    await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, args.tenantId, "passports.use");
     const limit = Math.min(Math.max(args.limit ?? 50, 1), 200);
     return await ctx.db
       .query("serramentoPassports")
@@ -59,7 +60,7 @@ export const get = query({
 export const generateUploadUrl = mutation({
   args: { tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
-    await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, args.tenantId, "passports.use");
     return await ctx.storage.generateUploadUrl();
   },
 });
@@ -177,7 +178,7 @@ export const generatePassportQrs = mutation({
   handler: async (ctx, args) => {
     const p = await ctx.db.get(args.passportId);
     if (!p) throw new ConvexError("PASSPORT_NOT_FOUND");
-    await requireTenantRole(ctx, p.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, p.tenantId, "passports.use");
 
     if (!p.quoteId) throw new ConvexError("PASSPORT_NO_QUOTE");
 
@@ -235,7 +236,7 @@ export const attachDocument = mutation({
   handler: async (ctx, args) => {
     const p = await ctx.db.get(args.passportId);
     if (!p) throw new ConvexError("PASSPORT_NOT_FOUND");
-    await requireTenantRole(ctx, p.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, p.tenantId, "passports.use");
     if (args.url && !/^https:\/\//i.test(args.url)) throw new ConvexError("INVALID_URL");
 
     let matched = false;
@@ -277,7 +278,7 @@ export const generateFundingDoc = mutation({
   handler: async (ctx, args) => {
     const p = await ctx.db.get(args.passportId);
     if (!p) throw new ConvexError("PASSPORT_NOT_FOUND");
-    await requireTenantRole(ctx, p.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, p.tenantId, "passports.use");
     if (!p.quoteId) throw new ConvexError("FUNDING_NEEDS_QUOTE");
 
     const quote = await ctx.db.get(p.quoteId);
@@ -376,7 +377,7 @@ export const linkQuote = mutation({
   handler: async (ctx, args) => {
     const p = await ctx.db.get(args.passportId);
     if (!p) throw new ConvexError("PASSPORT_NOT_FOUND");
-    await requireTenantRole(ctx, p.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, p.tenantId, "passports.use");
     const quote = await ctx.db.get(args.quoteId);
     if (!quote || quote.tenantId !== p.tenantId) throw new ConvexError("QUOTE_NOT_FOUND");
     await ctx.db.patch(args.passportId, { quoteId: args.quoteId, updatedAt: Date.now() });
@@ -396,7 +397,7 @@ export const setMaintenance = mutation({
   handler: async (ctx, args) => {
     const p = await ctx.db.get(args.passportId);
     if (!p) throw new ConvexError("PASSPORT_NOT_FOUND");
-    await requireTenantRole(ctx, p.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, p.tenantId, "passports.manage");
     await ctx.db.patch(args.passportId, {
       maintenanceActive: args.active,
       maintenancePriceCents:
@@ -411,7 +412,7 @@ export const setMaintenance = mutation({
 export const listInterventions = query({
   args: { tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
-    await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, args.tenantId, "passports.use");
     return await ctx.db
       .query("passportInterventions")
       .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
@@ -428,7 +429,7 @@ export const updateInterventionStatus = mutation({
   handler: async (ctx, args) => {
     const iv = await ctx.db.get(args.interventionId);
     if (!iv) throw new ConvexError("INTERVENTION_NOT_FOUND");
-    await requireTenantRole(ctx, iv.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, iv.tenantId, "passports.use");
     await ctx.db.patch(args.interventionId, { status: args.status });
   },
 });

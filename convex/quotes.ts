@@ -2,7 +2,8 @@
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import { internal } from "./_generated/api";
-import { requireTenantRole, requireMembership } from "./lib/auth";
+import { requireMembership } from "./lib/auth";
+import { requirePermission } from "./lib/rbac";
 import { enforceForCreateQuote, enforceForESignature, enforceForMultiSupplier } from "./lib/enforcement";
 import { calculatePrice, type ProjectItem, type CatalogPayload } from "../src/shared/pricing";
 import { currentPeriod } from "./lib/entitlements";
@@ -30,7 +31,7 @@ export const listRequests = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, args.tenantId, "quotes.use");
     const limit = Math.min(Math.max(args.limit ?? 50, 1), 200);
     if (args.status) {
       const status = args.status;
@@ -65,7 +66,7 @@ export const updateStatus = mutation({
   handler: async (ctx, args) => {
     const quote = await ctx.db.get(args.quoteId);
     if (!quote) throw new ConvexError("QUOTE_NOT_FOUND");
-    await requireTenantRole(ctx, quote.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, quote.tenantId, "quotes.manage");
 
     const oldStatus = quote.status;
     await ctx.db.patch(args.quoteId, { status: args.status });
@@ -94,7 +95,7 @@ export const assignRequest = mutation({
   handler: async (ctx, args) => {
     const quote = await ctx.db.get(args.quoteId);
     if (!quote) throw new ConvexError("QUOTE_NOT_FOUND");
-    await requireTenantRole(ctx, quote.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, quote.tenantId, "quotes.manage");
 
     // .first() rather than .unique() — see convex/lib/auth.ts:requireMembership
     // for why a duplicate membership row must not crash the whole mutation.
@@ -117,7 +118,7 @@ export const addNote = mutation({
   handler: async (ctx, args) => {
     const quote = await ctx.db.get(args.quoteId);
     if (!quote) throw new ConvexError("QUOTE_NOT_FOUND");
-    await requireTenantRole(ctx, quote.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, quote.tenantId, "quotes.manage");
 
     await ctx.db.patch(args.quoteId, { internalNotes: (quote.internalNotes || "") + "\n" + args.note });
   },
@@ -165,7 +166,7 @@ export const createFieldQuote = mutation({
   },
   handler: async (ctx, args) => {
     await enforceForCreateQuote(ctx, args.tenantId);
-    const { userId } = await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
+    const { userId } = await requirePermission(ctx, args.tenantId, "quotes.use");
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator || configurator.tenantId !== args.tenantId) {
       throw new ConvexError("CONFIGURATOR_NOT_FOUND");
@@ -385,7 +386,7 @@ export const createFieldQuoteFromSurvey = mutation({
   },
   handler: async (ctx, args) => {
     await enforceForCreateQuote(ctx, args.tenantId);
-    const { userId } = await requireTenantRole(ctx, args.tenantId, ['owner', 'admin', 'member']);
+    const { userId } = await requirePermission(ctx, args.tenantId, "quotes.use");
 
     // Get the survey
     const survey = await ctx.db.get(args.surveyId);
@@ -557,7 +558,7 @@ export const createQuoteWithSuppliers = mutation({
   handler: async (ctx, args) => {
     await enforceForCreateQuote(ctx, args.tenantId);
     await enforceForMultiSupplier(ctx, args.tenantId);
-    const { userId } = await requireTenantRole(ctx, args.tenantId, ['owner', 'admin', 'member']);
+    const { userId } = await requirePermission(ctx, args.tenantId, "quotes.use");
 
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator || configurator.tenantId !== args.tenantId) {

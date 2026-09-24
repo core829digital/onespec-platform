@@ -1,7 +1,8 @@
 import { mutation, query, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
-import { requireTenantRole, requireMembership } from "./lib/auth";
+import { requireMembership } from "./lib/auth";
+import { requirePermission } from "./lib/rbac";
 import { regionForCountry, type RegionCode } from "./lib/regions";
 import { loadExtras, seedExtras } from "./lib/catalogExtras";
 
@@ -201,7 +202,7 @@ export const upsertMaterial = mutation({
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
-    await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, configurator.tenantId, "catalog.manage");
 
     const existing = await ctx.db.query("catalogMaterials").withIndex("by_configurator_key", q => q.eq("configuratorId", args.configuratorId).eq("key", args.key)).unique();
     if (existing) {
@@ -217,7 +218,7 @@ export const deleteMaterial = mutation({
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
-    await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, configurator.tenantId, "catalog.manage");
 
     const existing = await ctx.db.query("catalogMaterials").withIndex("by_configurator_key", q => q.eq("configuratorId", args.configuratorId).eq("key", args.key)).unique();
     if (existing) await ctx.db.delete(existing._id);
@@ -229,7 +230,7 @@ export const upsertQualityTier = mutation({
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
-    await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, configurator.tenantId, "catalog.manage");
 
     const existing = await ctx.db.query("catalogQualityTiers").withIndex("by_configurator_material", q => q.eq("configuratorId", args.configuratorId).eq("materialKey", args.materialKey)).filter(q => q.eq(q.field("key"), args.key)).unique();
     if (existing) {
@@ -245,7 +246,7 @@ export const deleteQualityTier = mutation({
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
-    await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, configurator.tenantId, "catalog.manage");
 
     const existing = await ctx.db.query("catalogQualityTiers").withIndex("by_configurator_material", q => q.eq("configuratorId", args.configuratorId).eq("materialKey", args.materialKey)).filter(q => q.eq(q.field("key"), args.key)).unique();
     if (existing) await ctx.db.delete(existing._id);
@@ -257,7 +258,7 @@ export const upsertProfileSystem = mutation({
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
-    await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, configurator.tenantId, "catalog.manage");
 
     const existing = await ctx.db.query("catalogProfileSystems").withIndex("by_configurator_material", q => q.eq("configuratorId", args.configuratorId).eq("materialKey", args.materialKey)).filter(q => q.eq(q.field("key"), args.key)).unique();
     if (existing) {
@@ -273,7 +274,7 @@ export const deleteProfileSystem = mutation({
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
-    await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, configurator.tenantId, "catalog.manage");
 
     const existing = await ctx.db.query("catalogProfileSystems").withIndex("by_configurator_material", q => q.eq("configuratorId", args.configuratorId).eq("materialKey", args.materialKey)).filter(q => q.eq(q.field("key"), args.key)).unique();
     if (existing) await ctx.db.delete(existing._id);
@@ -285,7 +286,7 @@ export const upsertSizeConstraint = mutation({
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
-    await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, configurator.tenantId, "catalog.manage");
 
     const existing = await ctx.db.query("catalogSizeConstraints").withIndex("by_configurator_type", q => q.eq("configuratorId", args.configuratorId).eq("productType", args.productType)).filter(q => q.eq(q.field("sashCount"), args.sashCount)).unique();
     if (existing) {
@@ -301,7 +302,7 @@ export const upsertGlazingOption = mutation({
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
-    await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, configurator.tenantId, "catalog.manage");
 
     const existing = await ctx.db.query("catalogGlazingOptions").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).filter(q => q.eq(q.field("key"), args.key)).unique();
     if (existing) {
@@ -317,7 +318,7 @@ export const upsertFinishOption = mutation({
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
-    await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, configurator.tenantId, "catalog.manage");
 
     const existing = await ctx.db.query("catalogFinishOptions").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).filter(q => q.eq(q.field("key"), args.key)).unique();
     if (existing) {
@@ -333,7 +334,7 @@ export const upsertHardwareOption = mutation({
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
-    await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, configurator.tenantId, "catalog.manage");
 
     const existing = await ctx.db.query("catalogHardwareOptions").withIndex("by_configurator_kind", q => q.eq("configuratorId", args.configuratorId).eq("kind", args.kind)).filter(q => q.eq(q.field("key"), args.key)).unique();
     if (existing) {
@@ -367,7 +368,7 @@ export const getWorkingCatalog = query({
 async function ownedConfigurator(ctx: import("./_generated/server").MutationCtx, configuratorId: import("./_generated/dataModel").Id<"configurators">) {
   const configurator = await ctx.db.get(configuratorId);
   if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
-  await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
+  await requirePermission(ctx, configurator.tenantId, "catalog.manage");
   return configurator;
 }
 

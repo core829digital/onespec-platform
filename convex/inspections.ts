@@ -3,7 +3,8 @@
 import { query, mutation, internalMutation } from "./_generated/server";
 import type { QueryCtx, MutationCtx } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
-import { requireMembership, requireTenantRole } from "./lib/auth";
+import { requireMembership } from "./lib/auth";
+import { requirePermission } from "./lib/rbac";
 import { requireTenantRegion, assertSignature } from "./lib/fieldModules";
 import { complianceForRegion } from "./lib/compliance";
 import { regionForCountry } from "./lib/regions";
@@ -16,7 +17,7 @@ import { resolveLinks, logClientActivity } from "./lib/links";
 export const getTemplate = query({
   args: { tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
-    await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, args.tenantId, "inspections.use");
     const tenant = await ctx.db.get(args.tenantId);
     const region = regionForCountry(tenant?.country);
     return { regionCode: region.code, ...complianceForRegion(region.code).inspection };
@@ -26,7 +27,7 @@ export const getTemplate = query({
 export const list = query({
   args: { tenantId: v.id("tenants"), limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
-    await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, args.tenantId, "inspections.use");
     const limit = Math.min(Math.max(args.limit ?? 50, 1), 200);
     return await ctx.db
       .query("inspectionReports")
@@ -68,7 +69,7 @@ export const get = query({
 export const generateUploadUrl = mutation({
   args: { tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
-    await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, args.tenantId, "inspections.use");
     return await ctx.storage.generateUploadUrl();
   },
 });
@@ -172,7 +173,7 @@ export const assignInstaller = mutation({
   handler: async (ctx, args) => {
     const report = await ctx.db.get(args.reportId);
     if (!report) throw new ConvexError("REPORT_NOT_FOUND");
-    await requireTenantRole(ctx, report.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, report.tenantId, "inspections.use");
     await ctx.db.patch(args.reportId, {
       installerTeam: args.installerTeam?.trim() ?? report.installerTeam,
       scheduledFor: args.scheduledFor ?? report.scheduledFor,
@@ -192,7 +193,7 @@ export const setPhoto = mutation({
   handler: async (ctx, args) => {
     const report = await ctx.db.get(args.reportId);
     if (!report) throw new ConvexError("REPORT_NOT_FOUND");
-    await requireTenantRole(ctx, report.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, report.tenantId, "inspections.use");
     if (report.status === "signed") throw new ConvexError("REPORT_LOCKED");
 
     let matched = false;
@@ -219,7 +220,7 @@ export const updateChecks = mutation({
   handler: async (ctx, args) => {
     const report = await ctx.db.get(args.reportId);
     if (!report) throw new ConvexError("REPORT_NOT_FOUND");
-    await requireTenantRole(ctx, report.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, report.tenantId, "inspections.use");
     if (report.status === "signed") throw new ConvexError("REPORT_LOCKED");
 
     const passedByKey = new Map(args.checks.map((c) => [c.key, c.passed]));
@@ -285,7 +286,7 @@ export const remove = mutation({
   handler: async (ctx, args) => {
     const report = await ctx.db.get(args.reportId);
     if (!report) return;
-    await requireTenantRole(ctx, report.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, report.tenantId, "inspections.delete");
     if (report.status === "signed") throw new ConvexError("CANNOT_DELETE_SIGNED");
     for (const p of report.photos) {
       if (p.storageId) await ctx.storage.delete(p.storageId).catch(() => {});

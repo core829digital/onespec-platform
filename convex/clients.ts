@@ -1,7 +1,8 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
-import { requireTenantRole, requireMembership } from "./lib/auth";
+import { requireMembership } from "./lib/auth";
+import { requirePermission } from "./lib/rbac";
 import { listRelated } from "./lib/links";
 
 /** List clients for a tenant with optional filters. */
@@ -13,7 +14,7 @@ export const listClients = query({
     search: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, args.tenantId, "clients.use");
     const limit = Math.min(Math.max(args.limit ?? 50, 1), 200);
 
     // Fetch all clients for tenant, then filter in memory
@@ -106,8 +107,7 @@ export const createClient = mutation({
     status: v.optional(v.union(v.literal("lead"), v.literal("prospect"), v.literal("active"), v.literal("inactive"), v.literal("lost"))),
   },
   handler: async (ctx, args) => {
-    await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
-    const { userId } = await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
+    const { userId } = await requirePermission(ctx, args.tenantId, "clients.use");
 
     const now = Date.now();
     const clientId = await ctx.db.insert("clients", {
@@ -190,8 +190,7 @@ export const updateClient = mutation({
   handler: async (ctx, args) => {
     const client = await ctx.db.get(args.clientId);
     if (!client) throw new ConvexError("CLIENT_NOT_FOUND");
-    await requireTenantRole(ctx, client.tenantId, ["owner", "admin", "member"]);
-    const { userId } = await requireTenantRole(ctx, client.tenantId, ["owner", "admin", "member"]);
+    const { userId } = await requirePermission(ctx, client.tenantId, "clients.use");
 
     const patch: Record<string, unknown> = { updatedAt: Date.now() };
     const allowedFields = [
@@ -271,8 +270,7 @@ export const addClientActivity = mutation({
   handler: async (ctx, args) => {
     const client = await ctx.db.get(args.clientId);
     if (!client) throw new ConvexError("CLIENT_NOT_FOUND");
-    await requireTenantRole(ctx, client.tenantId, ["owner", "admin", "member"]);
-    const { userId } = await requireTenantRole(ctx, client.tenantId, ["owner", "admin", "member"]);
+    const { userId } = await requirePermission(ctx, client.tenantId, "clients.use");
 
     const activityId = await ctx.db.insert("clientActivities", {
       tenantId: client.tenantId,
@@ -299,7 +297,7 @@ export const deleteClient = mutation({
   handler: async (ctx, args) => {
     const client = await ctx.db.get(args.clientId);
     if (!client) throw new ConvexError("CLIENT_NOT_FOUND");
-    const { userId } = await requireTenantRole(ctx, client.tenantId, ["owner", "admin"]);
+    const { userId } = await requirePermission(ctx, client.tenantId, "clients.delete");
 
     await ctx.db.patch(args.clientId, { status: "lost", updatedAt: Date.now() });
 

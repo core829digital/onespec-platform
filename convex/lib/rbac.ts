@@ -51,8 +51,37 @@ export const PERMISSIONS = {
   "catalog.whiteLabel": { minRole: "admin", entitlement: "whiteLabel" },
   "catalog.multiCatalog": { minRole: "member", entitlement: "multiCatalog" },
   "widget.public": { minRole: "member", entitlement: "publicWidget" },
-  "suppliers.manage": { minRole: "admin", entitlement: "multiSupplierAggregator" },
-  "export.data": { minRole: "member" },
+  // multiSupplierAggregator is already enforced separately by
+  // enforceForMultiSupplier at the one call site that needs it (creating a
+  // supplier) — no entitlement attached here to avoid checking it twice via
+  // two different code paths in the same handler.
+  "suppliers.manage": { minRole: "admin" },
+  "export.tenantData": { minRole: "admin" },
+
+  // Field/CRM modules — role floor formalized 1:1 from what every call site
+  // already enforced via requireTenantRole (no behavior change, this pass is
+  // a refactor: name the action once instead of repeating a role array at
+  // every call site). ".use" = member can read/create/edit their own tenant's
+  // records; ".delete"/".manage" = admin-only destructive or configuration
+  // actions, matching the pre-existing ["owner","admin"] call sites exactly.
+  "branding.manage": { minRole: "admin" },
+  "cantieri.use": { minRole: "member" },
+  "cantieri.delete": { minRole: "admin" },
+  "catalog.manage": { minRole: "admin" },
+  "clients.use": { minRole: "member" },
+  "clients.delete": { minRole: "admin" },
+  "configurators.manage": { minRole: "admin" },
+  "dpa.accept": { minRole: "admin" },
+  "inspections.use": { minRole: "member" },
+  "inspections.delete": { minRole: "admin" },
+  "installations.use": { minRole: "member" },
+  "installations.delete": { minRole: "admin" },
+  "passports.use": { minRole: "member" },
+  "passports.manage": { minRole: "admin" },
+  "quotes.use": { minRole: "member" },
+  "quotes.manage": { minRole: "admin" },
+  "surveys.use": { minRole: "member" },
+  "surveys.delete": { minRole: "admin" },
 } satisfies Record<string, PermissionSpec>;
 
 export type PermissionKey = keyof typeof PERMISSIONS;

@@ -2,7 +2,8 @@
 
 import { query, mutation } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
-import { requireMembership, requireTenantRole } from "./lib/auth";
+import { requireMembership } from "./lib/auth";
+import { requirePermission } from "./lib/rbac";
 import { requireTenantRegion } from "./lib/fieldModules";
 import { enforceForFieldSurvey } from "./lib/enforcement";
 import { resolveLinks, logClientActivity } from "./lib/links";
@@ -46,7 +47,7 @@ const photoValidator = v.object({
 export const list = query({
   args: { tenantId: v.id("tenants"), limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
-    await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, args.tenantId, "surveys.use");
     const limit = Math.min(Math.max(args.limit ?? 50, 1), 200);
     return await ctx.db
       .query("siteSurveys")
@@ -127,7 +128,7 @@ export const getForPrint = query({
 export const generateUploadUrl = mutation({
   args: { tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
-    await requireTenantRole(ctx, args.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, args.tenantId, "surveys.use");
     return await ctx.storage.generateUploadUrl();
   },
 });
@@ -207,7 +208,7 @@ export const update = mutation({
   handler: async (ctx, args) => {
     const survey = await ctx.db.get(args.surveyId);
     if (!survey) throw new ConvexError("SURVEY_NOT_FOUND");
-    await requireTenantRole(ctx, survey.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, survey.tenantId, "surveys.use");
 
     const patch: Record<string, unknown> = { updatedAt: Date.now() };
     if (args.customerName !== undefined) patch.customerName = args.customerName.trim();
@@ -234,7 +235,7 @@ export const saveLaserMeasurement = mutation({
   handler: async (ctx, args) => {
     const survey = await ctx.db.get(args.surveyId);
     if (!survey) throw new ConvexError("SURVEY_NOT_FOUND");
-    await requireTenantRole(ctx, survey.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, survey.tenantId, "surveys.use");
 
     const measurements = [...(survey.laserMeasurements ?? []), args.measurement];
     await ctx.db.patch(args.surveyId, { laserMeasurements: measurements, updatedAt: Date.now() });
@@ -249,7 +250,7 @@ export const saveDiagnosticRecommendation = mutation({
   handler: async (ctx, args) => {
     const survey = await ctx.db.get(args.surveyId);
     if (!survey) throw new ConvexError("SURVEY_NOT_FOUND");
-    await requireTenantRole(ctx, survey.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, survey.tenantId, "surveys.use");
 
     const diagnostics = { ...survey.diagnostics, recommendation: args.recommendation };
     await ctx.db.patch(args.surveyId, { diagnostics, updatedAt: Date.now() });
@@ -261,7 +262,7 @@ export const completeSurvey = mutation({
   handler: async (ctx, args) => {
     const survey = await ctx.db.get(args.surveyId);
     if (!survey) throw new ConvexError("SURVEY_NOT_FOUND");
-    await requireTenantRole(ctx, survey.tenantId, ["owner", "admin", "member"]);
+    await requirePermission(ctx, survey.tenantId, "surveys.use");
     if (survey.status === "completed") return;
     // A survey with no usable measurement can't become a quote — refuse
     // instead of letting an empty rilievo reach 'Genera preventivo'.
@@ -282,7 +283,7 @@ export const remove = mutation({
   handler: async (ctx, args) => {
     const survey = await ctx.db.get(args.surveyId);
     if (!survey) return;
-    await requireTenantRole(ctx, survey.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, survey.tenantId, "surveys.delete");
     // Delete every stored file: per-opening photos AND the survey-level
     // photos (these used to be left behind in storage).
     for (const o of survey.openings) {

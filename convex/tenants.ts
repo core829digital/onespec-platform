@@ -8,7 +8,6 @@ import {
   requireUser,
   requirePlatformAdmin,
   requireMembership,
-  requireTenantRole,
 } from "./lib/auth";
 import { nanoid } from "./lib/ids";
 import { isFullAccessEmail } from "./lib/founding";
@@ -148,7 +147,7 @@ const LOGO_MAX_BYTES = 2 * 1024 * 1024;
 export const generateLogoUploadUrl = mutation({
   args: { tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
-    await requireTenantRole(ctx, args.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, args.tenantId, "tenant.settings");
     return await ctx.storage.generateUploadUrl();
   },
 });
@@ -156,7 +155,7 @@ export const generateLogoUploadUrl = mutation({
 export const setCompanyLogo = mutation({
   args: { tenantId: v.id("tenants"), storageId: v.union(v.id("_storage"), v.null()) },
   handler: async (ctx, args) => {
-    await requireTenantRole(ctx, args.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, args.tenantId, "tenant.settings");
     const tenant = await ctx.db.get(args.tenantId);
     if (!tenant) throw new ConvexError("NOT_FOUND");
 
@@ -207,7 +206,7 @@ const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 export const listInvitations = query({
   args: { tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
-    await requireTenantRole(ctx, args.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, args.tenantId, "tenant.settings");
     const rows = await ctx.db
       .query("invitations")
       .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))

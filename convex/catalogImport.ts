@@ -1,7 +1,8 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
-import { requireTenantRole, requireMembership } from "./lib/auth";
+import { requireMembership } from "./lib/auth";
+import { requirePermission } from "./lib/rbac";
 
 const TARGET = v.union(
   v.literal("materials"),
@@ -77,7 +78,7 @@ export const importRows = mutation({
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
-    await requireTenantRole(ctx, configurator.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, configurator.tenantId, "catalog.manage");
     if (args.rows.length === 0 || args.rows.length > 2000) throw new ConvexError("INVALID_ROW_COUNT");
 
     const target = args.target as Target;
@@ -192,7 +193,7 @@ export const undoImport = mutation({
   handler: async (ctx, args) => {
     const record = await ctx.db.get(args.importId);
     if (!record) throw new ConvexError("IMPORT_NOT_FOUND");
-    await requireTenantRole(ctx, record.tenantId, ["owner", "admin"]);
+    await requirePermission(ctx, record.tenantId, "catalog.manage");
     if (record.undone) throw new ConvexError("ALREADY_UNDONE");
 
     const table = TABLE[record.target as Target];

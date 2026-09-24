@@ -1,6 +1,7 @@
 import { mutation, query } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
-import { requireMembership, requireTenantRole, requirePlatformAdmin } from "./lib/auth";
+import { requireMembership, requirePlatformAdmin } from "./lib/auth";
+import { requirePermission } from "./lib/rbac";
 import { DPA_VERSION, controllerComplete } from "../src/shared/dpa";
 
 async function settings(ctx: { db: import("./_generated/server").QueryCtx["db"] }) {
@@ -55,7 +56,7 @@ export const acceptDpa = mutation({
     signerRole: v.string(),
   },
   handler: async (ctx, args) => {
-    const { userId } = await requireTenantRole(ctx, args.tenantId, ["owner", "admin"]);
+    const { userId } = await requirePermission(ctx, args.tenantId, "dpa.accept");
     if (args.version !== DPA_VERSION) throw new ConvexError("DPA_VERSION_MISMATCH");
     const signerName = args.signerName.trim();
     const signerRole = args.signerRole.trim();
