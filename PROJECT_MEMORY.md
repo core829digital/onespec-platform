@@ -745,3 +745,16 @@ Richiesta utente a 5 punti (billing anti-frode, audit colori configuratori, pagi
 **Bug ambientale scoperto e risolto** (non del progetto, della macchina): `package.json` aveva gia' `vitest: "^5.0.1"` non committato da un turno precedente, ma `node_modules` fisicamente installato era ancora la versione vecchia — `vitest` 5 richiede `vite` come peer dependency reale (prima non serviva), mai installato. `npm install` + `npm install -D vite@^7` risolve. **`npm ci` va evitato su questa macchina Windows**: fallisce con `EPERM` su file `.node` nativi bloccati (probabilmente antivirus) durante la cancellazione di `node_modules` — su `ubuntu-latest` (il runner CI reale) questo non succede, confermato dal log della run CI (`npm ci` e' passato li', solo lint falliva). Se serve rivalidare il lockfile in locale, reinstallare con `npm install` (non distruttivo) invece di `npm ci`.
 
 **Pulizia repo**: trovati e cancellati 6 file spazzatura da zero byte nella root (`goToPage(totalPages)`, `q.eq('tenantId'`, `q.materialKey`, `start`, `sum`, `{`) — residuo di comandi `grep`/bash con caratteri speciali (parentesi, apici) interpretati come redirezione di shell in turni precedenti di questa sessione. Nessun impatto sul codice, solo pulizia.
+
+### 9.18 FASE L — rate limiting sistemico endpoint pubblici (2026-09-24)
+
+Commit `b393dd3` (non pushato, non deployato Convex — serve consenso per prod). Solo file propri (`git add` esplicito); untracked altra sessione (`A11Y*`, `RESEND_*`, `formal-a11y`) non toccati; junk `{}` 0B cancellato.
+
+- **L-1 intervention** (`convex/http.ts`): `passport:{token}:{ipHash}` 5/10min + `passport:{token}:global` 20/ora → 429 `RATE_LIMITED`. Chiude spam notifiche infinito.
+- **L-2 scan** (`convex/http.ts`): `scan:{token}:{ipHash}` 10/ora → `{ok:true,counted:false}`, mai errore (pagina non deve rompersi).
+- **L-3 inspection** (`convex/http.ts` + helper `checkInspectionLimit`): 4 route `upload-url|photo|checks|sign` con `insp:{token}:{ipHash}` 30/10min + globale 100/ora → 429. Legge IP da header (prima zero).
+- **L-4 guest PIN** (`convex/cantieri.ts`, `k/[pin]/page.tsx`): bucket per-PIN `guestpin:{pin}:{ipHash}` 5/10min in piu'; lookup `.unique()`→`.first()` (niente piu' 500 su duplicati); `generateMetadata` senza lookup (prima bruciava 2 token per load, ora 1); retry collisione `generateGuestPin` committato (era diff pendente 9.12).
+- **L-5 Turnstile** (`src/lib/turnstile-client.ts` nuovo + `widget.tsx` + `simple-wizard-widget.tsx`): challenge invisibile, token in payload. Dormiente senza `NEXT_PUBLIC_TURNSTILE_SITE_KEY`/`TURNSTILE_SECRET` (documentati in `.env.example`). Da impostare quando vuoi il bot-check vero.
+- **Nuovi limiti** in `convex/lib/ratelimit.ts` + `checkBucket` generica riusabile. Test `rate-limit-public` (3) + fix `guest-pin` (stesso PIN 10x scatta bucket per-PIN: ora PIN distinti per testare bucket per-IP).
+- Gate: tsc pulito, eslint 0 sui file miei, vitest 262/262, build verde. `npm run lint` bare resta rosso SOLO per `apps/status-page/.next/` (build output altra sessione, non codice — da escludere in `eslint.config.mjs` o cancellare cartella quando altra sessione finisce).
+- **L-6 rimandata come deciso**: public-read SSR (`w/c/f/i`) senza bucket (query non scrivono) — solo se si vede abuso, via edge/middleware.
