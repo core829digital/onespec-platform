@@ -11,15 +11,15 @@
     "label": "Lingua"
   },
   "nav": {
-    "dashboard": "Dashboard",
+    "dashboard": "Panoramica",
     "configurators": "Configuratori",
     "requests": "Richieste",
     "quotes": "Preventivi (B2B)",
-    "pipeline": "Pipeline",
-    "analytics": "Analytics",
+    "pipeline": "Trattative",
+    "analytics": "Statistiche",
     "notifications": "Notifiche",
     "account": "Account",
-    "admin": "Admin",
+    "admin": "Amministrazione",
     "menu": "Menu",
     "plan": "Piano",
     "surveys": "Rilievi",
@@ -28,20 +28,20 @@
     "passports": "Fascicoli QR",
     "showroom": "Showroom",
     "groups": {
-      "overview": "Panoramica",
+      "overview": "Generale",
       "sales": "Vendite",
       "field": "Cantiere",
       "account": "Organizzazione"
     },
     "clients": "Clienti",
     "cantieri": "Cantieri",
-    "team": "Team",
+    "team": "Squadra",
     "billing": "Fatturazione",
     "collapse": "Comprimi il menu",
     "expand": "Espandi il menu"
   },
   "dashboard": {
-    "title": "Dashboard",
+    "title": "Panoramica",
     "subtitle": "Richieste di preventivo e attività",
     "totalRequests": "Totale Richieste",
     "pending": "In Sospeso",
@@ -63,7 +63,7 @@
     "unlinked": "Non collegati"
   },
   "analytics": {
-    "title": "Analytics",
+    "title": "Statistiche",
     "subtitle": "Insight in tempo reale dalle tue richieste di preventivo",
     "funnelDistribution": "Distribuzione Imbuto",
     "salesFunnel": "Imbuto Vendite",
@@ -93,7 +93,7 @@
   "topbar": {
     "account": "Account",
     "profile": "Profilo",
-    "team": "Team",
+    "team": "Squadra",
     "billing": "Piano e fatturazione",
     "logout": "Esci",
     "menu": "Menu",
@@ -504,7 +504,7 @@
     "contractor": "Impresa"
   },
   "cantieri": {
-    "title": "Cantieri (Kanban)",
+    "title": "Cantieri (Bacheca)",
     "subtitle": "Traccia i progetti dal preventivo alla consegna",
     "newCantiere": "Nuovo Cantiere",
     "editCantiere": "Modifica Cantiere",
@@ -934,7 +934,7 @@
     "statusArchived": "Archiviato"
   },
   "pipeline": {
-    "title": "Pipeline commerciale",
+    "title": "Trattative commerciali",
     "subtitle": "Trascina una scheda o usa i controlli per cambiare fase. Ogni spostamento è registrato.",
     "loading": "Caricamento...",
     "empty": "Vuota",
@@ -1122,7 +1122,7 @@
     "reasonPlaceholder": "Motivo (facoltativo)",
     "confirmRequest": "Conferma richiesta",
     "cancel": "Annulla",
-    "teamLink": "Team",
+    "teamLink": "Squadra",
     "billingLink": "Piano e fatturazione",
     "dpaLink": "Accordo DPA (GDPR)",
     "logout": "Esci"
@@ -1155,7 +1155,7 @@
     "signedSubtitle": "Apertura documento di stampa/PDF…"
   },
   "team": {
-    "title": "Team",
+    "title": "Squadra",
     "seats": "{used} di {max} posti",
     "inviteSent": "Invito inviato.",
     "inviteByEmail": "Invita per email",
@@ -1194,9 +1194,9 @@
     "restore": "Ripristina"
   },
   "admin": {
-    "title": "Admin",
+    "title": "Amministrazione",
     "noAccess": "Non hai i permessi per accedere a questa area.",
-    "dashboard": "← Dashboard",
+    "dashboard": "← Panoramica",
     "loading": "Caricamento...",
     "regStatus": "Stato registrazioni",
     "openState": "Aperte",

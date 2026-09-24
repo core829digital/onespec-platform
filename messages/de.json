@@ -11,15 +11,15 @@
     "label": "Sprache"
   },
   "nav": {
-    "dashboard": "Dashboard",
+    "dashboard": "Übersicht",
     "configurators": "Konfiguratoren",
     "requests": "Anfragen",
     "quotes": "Angebote (B2B)",
-    "pipeline": "Pipeline",
-    "analytics": "Analytics",
+    "pipeline": "Aufträge",
+    "analytics": "Statistiken",
     "notifications": "Benachrichtigungen",
     "account": "Konto",
-    "admin": "Admin",
+    "admin": "Verwaltung",
     "menu": "Menü",
     "plan": "Tarif",
     "surveys": "Aufmaß",
@@ -28,7 +28,7 @@
     "passports": "QR-Doku",
     "showroom": "Showroom",
     "groups": {
-      "overview": "Übersicht",
+      "overview": "Allgemein",
       "sales": "Vertrieb",
       "field": "Baustelle",
       "account": "Organisation"
@@ -41,7 +41,7 @@
     "expand": "Menü ausklappen"
   },
   "dashboard": {
-    "title": "Dashboard",
+    "title": "Übersicht",
     "subtitle": "Angebotsanfragen und Aktivität",
     "totalRequests": "Anfragen gesamt",
     "pending": "Ausstehend",
@@ -63,7 +63,7 @@
     "unlinked": "Nicht verknüpft"
   },
   "analytics": {
-    "title": "Analytics",
+    "title": "Statistiken",
     "subtitle": "Echtzeit-Insights aus Ihren Angebotsanfragen",
     "funnelDistribution": "Trichter-Verteilung",
     "salesFunnel": "Verkaufstrichter",
@@ -504,7 +504,7 @@
     "contractor": "Bauunternehmen"
   },
   "cantieri": {
-    "title": "Baustellen (Kanban)",
+    "title": "Baustellen (Tafel)",
     "subtitle": "Projekte vom Angebot bis zur Übergabe verfolgen",
     "newCantiere": "Neue Baustelle",
     "editCantiere": "Baustelle bearbeiten",
@@ -934,7 +934,7 @@
     "statusArchived": "Archiviert"
   },
   "pipeline": {
-    "title": "Vertriebspipeline",
+    "title": "Verkaufsaufträge",
     "subtitle": "Ziehen Sie eine Karte oder verwenden Sie die Steuerelemente, um die Phase zu wechseln. Jede Verschiebung wird protokolliert.",
     "loading": "Lädt...",
     "empty": "Leer",
@@ -1194,9 +1194,9 @@
     "restore": "Wiederherstellen"
   },
   "admin": {
-    "title": "Admin",
+    "title": "Verwaltung",
     "noAccess": "Du hast keine Berechtigung für diesen Bereich.",
-    "dashboard": "← Dashboard",
+    "dashboard": "← Übersicht",
     "loading": "Wird geladen...",
     "regStatus": "Registrierungsstatus",
     "openState": "Offen",

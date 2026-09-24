@@ -11,15 +11,15 @@
     "label": "Langue"
   },
   "nav": {
-    "dashboard": "Tableau de bord",
+    "dashboard": "Aperçu",
     "configurators": "Configurateurs",
     "requests": "Demandes",
     "quotes": "Devis (B2B)",
-    "pipeline": "Pipeline",
-    "analytics": "Analytics",
+    "pipeline": "Affaires",
+    "analytics": "Statistiques",
     "notifications": "Notifications",
     "account": "Compte",
-    "admin": "Admin",
+    "admin": "Administration",
     "menu": "Menu",
     "plan": "Forfait",
     "surveys": "Relevés",
@@ -28,7 +28,7 @@
     "passports": "Dossiers QR",
     "showroom": "Showroom",
     "groups": {
-      "overview": "Aperçu",
+      "overview": "Général",
       "sales": "Ventes",
       "field": "Chantier",
       "account": "Organisation"
@@ -41,7 +41,7 @@
     "expand": "Développer le menu"
   },
   "dashboard": {
-    "title": "Tableau de bord",
+    "title": "Aperçu",
     "subtitle": "Demandes de devis et activité",
     "totalRequests": "Demandes totales",
     "pending": "En attente",
@@ -63,7 +63,7 @@
     "unlinked": "Non liés"
   },
   "analytics": {
-    "title": "Analytics",
+    "title": "Statistiques",
     "subtitle": "Insights en temps réel depuis vos demandes de devis",
     "funnelDistribution": "Distribution de l'entonnoir",
     "salesFunnel": "Entonnoir de vente",
@@ -504,7 +504,7 @@
     "contractor": "Entreprise de construction"
   },
   "cantieri": {
-    "title": "Chantiers (Kanban)",
+    "title": "Chantiers (Tableau)",
     "subtitle": "Suivez les projets du devis à la livraison",
     "newCantiere": "Nouveau Chantier",
     "editCantiere": "Modifier Chantier",
@@ -934,7 +934,7 @@
     "statusArchived": "Archivé"
   },
   "pipeline": {
-    "title": "Pipeline commercial",
+    "title": "Affaires commerciales",
     "subtitle": "Glissez une carte ou utilisez les contrôles pour changer d'étape. Chaque déplacement est enregistré.",
     "loading": "Chargement...",
     "empty": "Vide",
@@ -1194,9 +1194,9 @@
     "restore": "Restaurer"
   },
   "admin": {
-    "title": "Admin",
+    "title": "Administration",
     "noAccess": "Vous n’avez pas l’autorisation d’accéder à cette zone.",
-    "dashboard": "← Tableau de bord",
+    "dashboard": "← Aperçu",
     "loading": "Chargement...",
     "regStatus": "État des inscriptions",
     "openState": "Ouvertes",

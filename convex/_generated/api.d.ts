@@ -45,6 +45,7 @@ import type * as lib_enforcement from "../lib/enforcement.js";
 import type * as lib_entitlements from "../lib/entitlements.js";
 import type * as lib_enums from "../lib/enums.js";
 import type * as lib_fieldModules from "../lib/fieldModules.js";
+import type * as lib_founding from "../lib/founding.js";
 import type * as lib_ids from "../lib/ids.js";
 import type * as lib_ipHash from "../lib/ipHash.js";
 import type * as lib_links from "../lib/links.js";
@@ -112,6 +113,7 @@ declare const fullApi: ApiFromModules<{
   "lib/entitlements": typeof lib_entitlements;
   "lib/enums": typeof lib_enums;
   "lib/fieldModules": typeof lib_fieldModules;
+  "lib/founding": typeof lib_founding;
   "lib/ids": typeof lib_ids;
   "lib/ipHash": typeof lib_ipHash;
   "lib/links": typeof lib_links;

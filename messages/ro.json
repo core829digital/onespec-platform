@@ -11,15 +11,15 @@
     "label": "Limbă"
   },
   "nav": {
-    "dashboard": "Panou",
+    "dashboard": "Prezentare generală",
     "configurators": "Configuratoare",
     "requests": "Cereri",
     "quotes": "Oferte (B2B)",
-    "pipeline": "Pipeline",
-    "analytics": "Analiză",
+    "pipeline": "Tranzacții",
+    "analytics": "Statistici",
     "notifications": "Notificări",
     "account": "Cont",
-    "admin": "Admin",
+    "admin": "Administrare",
     "menu": "Meniu",
     "plan": "Plan",
     "surveys": "Relevee",
@@ -28,7 +28,7 @@
     "passports": "Dosare QR",
     "showroom": "Showroom",
     "groups": {
-      "overview": "Prezentare",
+      "overview": "General",
       "sales": "Vânzări",
       "field": "Șantier",
       "account": "Organizație"
@@ -41,7 +41,7 @@
     "expand": "Extinde meniul"
   },
   "dashboard": {
-    "title": "Panou",
+    "title": "Prezentare generală",
     "subtitle": "Cereri de ofertă și activitate",
     "totalRequests": "Total cereri",
     "pending": "În așteptare",
@@ -63,7 +63,7 @@
     "unlinked": "Neasociate"
   },
   "analytics": {
-    "title": "Analytics",
+    "title": "Statistici",
     "subtitle": "Insights în timp real din cererile tale de ofertă",
     "funnelDistribution": "Distribuție Funil",
     "salesFunnel": "Funil Vânzări",
@@ -93,7 +93,7 @@
   "topbar": {
     "account": "Cont",
     "profile": "Profil",
-    "team": "Echipa",
+    "team": "Echipă",
     "billing": "Plan & Facturare",
     "logout": "Deconectare",
     "menu": "Meniu",
@@ -504,7 +504,7 @@
     "contractor": "Entreprinză"
   },
   "cantieri": {
-    "title": "Șantiere (Kanban)",
+    "title": "Șantiere (Panou)",
     "subtitle": "Urmărește proiectele de la ofertă la predare",
     "newCantiere": "Șantier Nou",
     "editCantiere": "Editează Șantier",
@@ -934,7 +934,7 @@
     "statusArchived": "Arhivat"
   },
   "pipeline": {
-    "title": "Pipeline de vânzări",
+    "title": "Tranzacții comerciale",
     "subtitle": "Trage un card sau folosește controalele pentru a schimba etapa. Fiecare mutare este înregistrată.",
     "loading": "Se încarcă...",
     "empty": "Gol",
@@ -1194,9 +1194,9 @@
     "restore": "Restaurează"
   },
   "admin": {
-    "title": "Admin",
+    "title": "Administrare",
     "noAccess": "Nu ai permisiunea de a accesa această zonă.",
-    "dashboard": "← Panou",
+    "dashboard": "← Prezentare generală",
     "loading": "Se încarcă...",
     "regStatus": "Starea înregistrărilor",
     "openState": "Deschise",

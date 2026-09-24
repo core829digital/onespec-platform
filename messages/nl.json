@@ -11,15 +11,15 @@
     "label": "Taal"
   },
   "nav": {
-    "dashboard": "Dashboard",
+    "dashboard": "Overzicht",
     "configurators": "Configurators",
     "requests": "Aanvragen",
     "quotes": "Offertes (B2B)",
-    "pipeline": "Pipeline",
-    "analytics": "Analytics",
+    "pipeline": "Deals",
+    "analytics": "Statistieken",
     "notifications": "Notificaties",
     "account": "Account",
-    "admin": "Admin",
+    "admin": "Beheer",
     "menu": "Menu",
     "plan": "Abonnement",
     "surveys": "Inmeting",
@@ -28,7 +28,7 @@
     "passports": "QR-dossiers",
     "showroom": "Showroom",
     "groups": {
-      "overview": "Overzicht",
+      "overview": "Algemeen",
       "sales": "Verkoop",
       "field": "Werf",
       "account": "Organisatie"
@@ -41,7 +41,7 @@
     "expand": "Menu uitklappen"
   },
   "dashboard": {
-    "title": "Dashboard",
+    "title": "Overzicht",
     "subtitle": "Offerteaanvragen en activiteit",
     "totalRequests": "Totaal aanvragen",
     "pending": "In behandeling",
@@ -63,7 +63,7 @@
     "unlinked": "Niet gekoppeld"
   },
   "analytics": {
-    "title": "Analytics",
+    "title": "Statistieken",
     "subtitle": "Realtime inzichten vanuit uw offerteaanvragen",
     "funnelDistribution": "Trechterverdeling",
     "salesFunnel": "Verkooptrechter",
@@ -504,7 +504,7 @@
     "contractor": "Aannemer"
   },
   "cantieri": {
-    "title": "Projecten (Kanban)",
+    "title": "Werven (Bord)",
     "subtitle": "Projecten volgen van offerte tot oplevering",
     "newCantiere": "Nieuw Project",
     "editCantiere": "Project bewerken",
@@ -934,7 +934,7 @@
     "statusArchived": "Gearchiveerd"
   },
   "pipeline": {
-    "title": "Verkooppijplijn",
+    "title": "Verkoopdeals",
     "subtitle": "Sleep een kaart of gebruik de bediening om van fase te wisselen. Elke verplaatsing wordt geregistreerd.",
     "loading": "Laden...",
     "empty": "Leeg",
@@ -1194,9 +1194,9 @@
     "restore": "Herstellen"
   },
   "admin": {
-    "title": "Admin",
+    "title": "Beheer",
     "noAccess": "Je hebt geen toegang tot dit gedeelte.",
-    "dashboard": "← Dashboard",
+    "dashboard": "← Overzicht",
     "loading": "Laden...",
     "regStatus": "Registratiestatus",
     "openState": "Open",

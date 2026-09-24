@@ -772,3 +772,12 @@ Commit `b393dd3` (non pushato, non deployato Convex — serve consenso per prod)
 ### 9.20 Mail accese + deploy prod (2026-09-24)
 
 Utente conferma dominio Resend verificato → `npx convex env set RESEND_MODE live` su prod + `npx convex deploy --yes` (spotted-basilisk-866, ok, nessun indice cancellato). Log prod puliti (solo refreshSession). Push GitHub `79b818c` gia' fatto prima (Vercel ripubblica frontend da solo). Da testare con utente reale: nuova registrazione → codice arriva da noreply@onespec.eu.
+
+### 9.21 Orfane + labels PDF + paginazione + J + full-access + G (2026-09-24)
+
+- `b395042` surveys: `update` collegata (Modifica dati cliente su bozze, i18n 6 lingue), `savePhotoCote` eliminata (via morta). Orfane FASE I chiuse del tutto.
+- `f441223` FASE A: `QrLabelsPDF` (griglia A4) + Scarica/Stampa via blob — ultimo `window.print()` sparito.
+- `5eebc47` FASE M: `audit.listAudit` paginata + viewer in admin; `notifications.listMinePage` + Carica altri; cap listMine 100, unread/markAll 500.
+- `4c2474d` FASE J chiusa: 13 pagine, ~300 chiavi/lingua, parita' 0 missing (citazioni legge in sign restano IT).
+- `8c6bbab` full-access fondatori: `tenants.unlimitedAccess` (tutto on + Infinity + skip planStatus), `lib/founding.ts` (2 email), auto-flag in register, `migrations:grantFullAccessToFounders` eseguita su prod (2 tenant), toggle in admin, `ADMIN_EMAILS` con entrambe. RBAC 2 ruoli: utente dice salta.
+- FASE G: Dashboard→Panoramica, Pipeline→Trattative, Analytics→Statistiche, Admin→Amministrazione, Team→Squadra, Kanban→Bacheca, in 6 lingue (Widget/Lead nomi prodotto, restano).

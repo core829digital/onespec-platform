@@ -11,15 +11,15 @@
     "label": "Language"
   },
   "nav": {
-    "dashboard": "Dashboard",
+    "dashboard": "Overview",
     "configurators": "Configurators",
     "requests": "Requests",
     "quotes": "Quotes (B2B)",
-    "pipeline": "Pipeline",
-    "analytics": "Analytics",
+    "pipeline": "Deals",
+    "analytics": "Statistics",
     "notifications": "Notifications",
     "account": "Account",
-    "admin": "Admin",
+    "admin": "Administration",
     "menu": "Menu",
     "plan": "Plan",
     "surveys": "Site surveys",
@@ -28,7 +28,7 @@
     "passports": "QR passports",
     "showroom": "Showroom",
     "groups": {
-      "overview": "Overview",
+      "overview": "General",
       "sales": "Sales",
       "field": "Field work",
       "account": "Organization"
@@ -41,7 +41,7 @@
     "expand": "Expand menu"
   },
   "dashboard": {
-    "title": "Dashboard",
+    "title": "Overview",
     "subtitle": "Quote requests and activity",
     "totalRequests": "Total Requests",
     "pending": "Pending",
@@ -63,7 +63,7 @@
     "unlinked": "Unlinked"
   },
   "analytics": {
-    "title": "Analytics",
+    "title": "Statistics",
     "subtitle": "Real-time insights from your quote requests",
     "funnelDistribution": "Funnel Distribution",
     "salesFunnel": "Sales Funnel",
@@ -504,7 +504,7 @@
     "contractor": "Contractor"
   },
   "cantieri": {
-    "title": "Construction Sites (Kanban)",
+    "title": "Worksites (Board)",
     "subtitle": "Track projects from quote to handover",
     "newCantiere": "New Site",
     "editCantiere": "Edit Site",
@@ -934,7 +934,7 @@
     "statusArchived": "Archived"
   },
   "pipeline": {
-    "title": "Sales pipeline",
+    "title": "Sales deals",
     "subtitle": "Drag a card or use the controls to change stage. Every move is logged.",
     "loading": "Loading...",
     "empty": "Empty",
@@ -1194,9 +1194,9 @@
     "restore": "Restore"
   },
   "admin": {
-    "title": "Admin",
+    "title": "Administration",
     "noAccess": "You don't have permission to access this area.",
-    "dashboard": "← Dashboard",
+    "dashboard": "← Overview",
     "loading": "Loading...",
     "regStatus": "Sign-up status",
     "openState": "Open",
