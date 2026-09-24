@@ -5,6 +5,7 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import { StatusBadge } from "@/components/app-shell/status-badge";
+import { Pagination } from "@/components/ui/Pagination";
 
 function fmt(cents: number) {
   return new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(cents / 100);
@@ -51,6 +52,11 @@ export default function QuotesPage() {
       totalValue: total,
     };
   }, [fieldQuotes]);
+
+  // Client-side pagination of the already-fetched (up to 500) list.
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const pagedQuotes = fieldQuotes?.slice((page - 1) * pageSize, page * pageSize);
 
   return (
     <div className="space-y-6">
@@ -101,7 +107,7 @@ export default function QuotesPage() {
       <div className="flex gap-3">
         <input
           value={q}
-          onChange={(e) => setQ(e.target.value)}
+          onChange={(e) => { setQ(e.target.value); setPage(1); }}
           placeholder="Cerca per nome, email o città…"
           className="flex-1 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-alt)] px-3 py-2 text-sm text-[var(--color-text)]"
         />
@@ -138,7 +144,7 @@ export default function QuotesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--color-border)]">
-              {fieldQuotes.map((r) => {
+              {pagedQuotes?.map((r) => {
                 const items = Array.isArray(r.items) ? r.items : [];
                 const date = new Date(r._creationTime).toLocaleDateString("it-IT", {
                   day: "2-digit",
@@ -200,6 +206,17 @@ export default function QuotesPage() {
             </tbody>
           </table>
         </div>
+      )}
+
+      {fieldQuotes && fieldQuotes.length > 0 && (
+        <Pagination
+          totalItems={fieldQuotes.length}
+          config={{ itemsPerPage: pageSize }}
+          onPageChange={(nextPage, nextPageSize) => {
+            setPage(nextPage);
+            setPageSize(nextPageSize);
+          }}
+        />
       )}
     </div>
   );

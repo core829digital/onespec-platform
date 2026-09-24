@@ -22,6 +22,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { EmptyState } from "@/components/app-shell/empty-state";
+import { Pagination } from "@/components/ui/Pagination";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 
 const STATUS_LABELS = {
@@ -606,12 +607,18 @@ const [editingClient, setEditingClient] = useState<
 
   const clients = useQuery(
     api.clients.listClients,
-    tenant ? { 
-      tenantId: tenant._id, 
-      status: statusFilter !== "all" ? statusFilter as "lead" | "prospect" | "active" | "inactive" | "lost" : undefined, 
-      search: search || undefined 
+    tenant ? {
+      tenantId: tenant._id,
+      status: statusFilter !== "all" ? statusFilter as "lead" | "prospect" | "active" | "inactive" | "lost" : undefined,
+      search: search || undefined
     } : "skip",
   );
+
+  // Client-side pagination of the already-fetched list — the query itself
+  // isn't cursor-paginated, this just stops rendering hundreds of rows at once.
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const pagedClients = clients?.slice((page - 1) * pageSize, page * pageSize);
 
   const createClient = useMutation(api.clients.createClient);
   const updateClient = useMutation(api.clients.updateClient);
@@ -778,7 +785,7 @@ const [editingClient, setEditingClient] = useState<
           <input
             type="text"
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             placeholder={t("searchPlaceholder")}
             className="w-full pl-10 pr-4 py-2 rounded-lg border border-[var(--color-border)] bg-white text-[var(--color-text)] placeholder-[var(--color-text-secondary)]"
           />
@@ -787,7 +794,7 @@ const [editingClient, setEditingClient] = useState<
           <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-secondary)]" />
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
             className="w-full pl-10 pr-10 py-2 rounded-lg border border-[var(--color-border)] bg-white text-[var(--color-text)] appearance-none"
           >
             <option value="all">{t("allStatus")}</option>
@@ -832,7 +839,7 @@ const [editingClient, setEditingClient] = useState<
                 </tr>
               </thead>
               <tbody>
-                {clients.map((client) => (
+                {pagedClients?.map((client) => (
                   <ClientRow
                     key={client._id}
                     client={client}
@@ -847,6 +854,17 @@ const [editingClient, setEditingClient] = useState<
           </div>
         )}
       </div>
+
+      {clients && clients.length > 0 && (
+        <Pagination
+          totalItems={clients.length}
+          config={{ itemsPerPage: pageSize }}
+          onPageChange={(nextPage, nextPageSize) => {
+            setPage(nextPage);
+            setPageSize(nextPageSize);
+          }}
+        />
+      )}
 
       {modalOpen ? (
         <ClientModal

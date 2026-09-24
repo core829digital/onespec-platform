@@ -5,6 +5,7 @@ import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useRouter } from "@/i18n/navigation";
 import { StatusBadge } from "@/components/app-shell/status-badge";
+import { Pagination } from "@/components/ui/Pagination";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 
 const STATUSES = ["new", "contacted", "quoted", "won", "lost", "spam"] as const;
@@ -57,6 +58,11 @@ export default function RequestsPage() {
     return filtered;
   }, [requests, q, sort]);
 
+  // Client-side pagination of the already-fetched (up to 200) list.
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const pagedRows = rows?.slice((page - 1) * pageSize, page * pageSize);
+
   async function handleExport() {
     if (!tenant) return;
     setExporting(true);
@@ -105,13 +111,13 @@ export default function RequestsPage() {
       <div className="flex flex-wrap items-center gap-2">
         <button
           type="button"
-          onClick={() => setStatus("all")}
+          onClick={() => { setStatus("all"); setPage(1); }}
           className={chip(status === "all")}
         >
           Tutte
         </button>
         {STATUSES.map((s) => (
-          <button key={s} type="button" onClick={() => setStatus(s)} className={chip(status === s)}>
+          <button key={s} type="button" onClick={() => { setStatus(s); setPage(1); }} className={chip(status === s)}>
             {STATUS_LABEL[s]}
           </button>
         ))}
@@ -120,7 +126,7 @@ export default function RequestsPage() {
       <div className="flex flex-wrap gap-2">
         <input
           value={q}
-          onChange={(e) => setQ(e.target.value)}
+          onChange={(e) => { setQ(e.target.value); setPage(1); }}
           placeholder="Cerca per nome, email o azienda..."
           className="flex-1 min-w-[200px] rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
         />
@@ -164,7 +170,7 @@ export default function RequestsPage() {
                 </td>
               </tr>
             ) : (
-              rows.map((r) => (
+              pagedRows?.map((r) => (
                 <tr
                   key={r._id}
                   onClick={() => router.push(`/app/requests/${r._id}`)}
@@ -189,6 +195,17 @@ export default function RequestsPage() {
           </tbody>
         </table>
       </div>
+
+      {rows && rows.length > 0 && (
+        <Pagination
+          totalItems={rows.length}
+          config={{ itemsPerPage: pageSize }}
+          onPageChange={(nextPage, nextPageSize) => {
+            setPage(nextPage);
+            setPageSize(nextPageSize);
+          }}
+        />
+      )}
     </div>
   );
 }

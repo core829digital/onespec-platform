@@ -6,7 +6,7 @@ import { usePagination, PaginationConfig } from "@/hooks/usePagination";
 interface PaginationProps {
   totalItems: number;
   config?: PaginationConfig;
-  onPageChange?: (page: number, pageInfo: ReturnType<typeof usePagination>) => void;
+  onPageChange?: (page: number, itemsPerPage: number) => void;
   className?: string;
   showItemsPerPage?: boolean;
   itemsPerPageOptions?: number[];
@@ -42,12 +42,12 @@ export function Pagination({
   } = pagination;
 
   // Wrap every page-changing action so a consumer passing onPageChange (e.g. to
-  // re-slice server-fetched data) is notified with the target page. State
-  // updates from the hook are async, so the target is computed here rather
-  // than read back from `pagination` right after calling the raw setter.
+  // re-slice an already-fetched array) is notified with the target page and
+  // the current page size as plain numbers — not a snapshot of the `pagination`
+  // object, which is stale right after calling the raw async setters below.
   const goToPage = (page: number) => {
     goToPageRaw(page);
-    onPageChange?.(Math.max(1, Math.min(page, totalPages)), pagination);
+    onPageChange?.(Math.max(1, Math.min(page, totalPages)), itemsPerPage);
   };
   const nextPage = () => goToPage(currentPage + 1);
   const prevPage = () => goToPage(currentPage - 1);
@@ -81,8 +81,9 @@ export function Pagination({
           <select
             value={itemsPerPage}
             onChange={(e) => {
-              setItemsPerPage(parseInt(e.target.value, 10));
-              onPageChange?.(1, pagination);
+              const next = parseInt(e.target.value, 10);
+              setItemsPerPage(next);
+              onPageChange?.(1, next);
             }}
             className="ml-4 px-2 py-1 text-sm border border-[var(--color-border)] rounded bg-[var(--color-bg)]"
           >
