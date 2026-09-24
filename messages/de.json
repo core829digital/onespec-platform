@@ -248,7 +248,8 @@
     "cannotRemoveOwner": "Der Inhaber der Organisation kann nicht entfernt werden.",
     "dpaVersion": "Der Vertragstext wurde aktualisiert: Seite neu laden.",
     "companyIncomplete": "Ergänzen Sie zuerst die Firmendaten (Firmenname, USt-IdNr., Adresse).",
-    "subscriptionRequired": "Ein aktives Abonnement ist erforderlich, um fortzufahren. Wählen Sie einen Plan, um die Plattform freizuschalten."
+    "subscriptionRequired": "Ein aktives Abonnement ist erforderlich, um fortzufahren. Wählen Sie einen Plan, um die Plattform freizuschalten.",
+    "planSelectionRequired": "Wählen Sie einen Plan, um fortzufahren — schließen Sie den Einrichtungsassistenten ab."
   },
   "dashboard": {
     "title": "Dashboard",

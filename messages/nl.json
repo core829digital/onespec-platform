@@ -248,7 +248,8 @@
     "cannotRemoveOwner": "De eigenaar van de organisatie kan niet worden verwijderd.",
     "dpaVersion": "De tekst van de overeenkomst is bijgewerkt: laad de pagina opnieuw.",
     "companyIncomplete": "Vul eerst de bedrijfsgegevens aan (naam, btw-nummer, adres).",
-    "subscriptionRequired": "Een actief abonnement is vereist om door te gaan. Kies een abonnement om het platform te ontgrendelen."
+    "subscriptionRequired": "Een actief abonnement is vereist om door te gaan. Kies een abonnement om het platform te ontgrendelen.",
+    "planSelectionRequired": "Kies een abonnement om door te gaan — voltooi de installatiewizard."
   },
   "dashboard": {
     "title": "Dashboard",

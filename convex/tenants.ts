@@ -36,7 +36,7 @@ export const registerTenant = mutation({
       ownerUserId: userId,
       country,
       plan: "base",
-      planStatus: "trialing",
+      planStatus: "pending_plan",
       createdVia: "open_signup",
       createdAt: Date.now(),
     });

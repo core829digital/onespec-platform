@@ -22,6 +22,7 @@ export type ErrorKey =
   | "planSuspended"
   | "planPastDue"
   | "subscriptionRequired"
+  | "planSelectionRequired"
   | "rateLimited"
   | "invalidInput"
   | "nameRequired"
@@ -63,6 +64,7 @@ const EXACT: Record<string, ErrorKey> = {
   PLAN_SUSPENDED: "planSuspended",
   PLAN_PAST_DUE: "planPastDue",
   SUBSCRIPTION_REQUIRED: "subscriptionRequired",
+  PLAN_SELECTION_REQUIRED: "planSelectionRequired",
   RATE_LIMITED: "rateLimited",
   EXPORT_RATE_LIMITED: "rateLimited",
   CUSTOMER_NAME_REQUIRED: "nameRequired",

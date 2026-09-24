@@ -180,6 +180,10 @@ export async function enforceActivePlan(ctx: MutationCtx | QueryCtx, tenantId: I
   if (!tenant) throw new ConvexError("TENANT_NOT_FOUND");
   if (tenant.planStatus === "suspended") throw new ConvexError("PLAN_SUSPENDED");
   if (tenant.planStatus === "past_due") throw new ConvexError("PLAN_PAST_DUE");
+  // Every tenant goes through the plan-recommendation wizard before touching
+  // the rest of the platform now — enforced regardless of whether Stripe is
+  // live, so the wizard itself can be tested end to end before billing is on.
+  if (tenant.planStatus === "pending_plan") throw new ConvexError("PLAN_SELECTION_REQUIRED");
   // Once real billing is live, "trialing" only counts if Stripe actually
   // started that trial (a real stripeSubscriptionId on file, card verified
   // at checkout) — registerTenant sets planStatus:"trialing" for every new

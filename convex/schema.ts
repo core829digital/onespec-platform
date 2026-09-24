@@ -27,8 +27,12 @@ export default defineSchema({
     // has run on every deployment, then removed.
     plan: v.union(v.literal("base"), v.literal("pro"), v.literal("agency"), v.literal("enterprise"),
                   v.literal("starter"), v.literal("showroom")),
+    // "pending_plan": tenant exists (account created) but hasn't gone through
+    // the plan-recommendation wizard + checkout yet — every new signup starts
+    // here now, never straight into "trialing" (that only starts once a real
+    // Stripe trial/subscription exists, see enforceActivePlan).
     planStatus: v.union(v.literal("active"), v.literal("trialing"),
-                        v.literal("past_due"), v.literal("suspended")),
+                        v.literal("past_due"), v.literal("suspended"), v.literal("pending_plan")),
     suspendedAt: v.optional(v.number()),
     suspendedReason: v.optional(v.string()),
     createdVia: v.union(v.literal("open_signup"), v.literal("admin_created")),
