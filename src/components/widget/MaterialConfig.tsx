@@ -3,6 +3,8 @@
 interface MaterialConfigProps {
   material: string;
   onMaterialChange: (m: string) => void;
+  color: string;
+  onColorChange: (c: string) => void;
   glazing: string;
   onGlazingChange: (g: string) => void;
   accessories: {
@@ -21,6 +23,15 @@ const MATERIALS = [
   { key: "wood-alu", label: "Legno-Alluminio", color: "#78350f", border: "#92400e" },
 ] as const;
 
+// Same 3 frame colors as COLOR_LABELS in src/lib/pdfs/QuotePrintPDF.tsx —
+// the only other place frame color is a real, named concept in this codebase.
+// Swatch hex values approximate the RAL codes shown in the printed quote.
+const FRAME_COLORS = [
+  { key: "white", label: "Bianco (RAL 9016)", swatch: "#f5f5f0", border: "#d4d4d4" },
+  { key: "anthracite", label: "Grigio Antracite (RAL 7016)", swatch: "#383e42", border: "#2a2e31" },
+  { key: "woodgrain", label: "Effetto Legno", swatch: "#8b5a2b", border: "#6b4620" },
+] as const;
+
 const GLAZING_OPTIONS = [
   { key: "double", label: "Doppio vetro 4-16-4 (Standard)", ug: 1.0 },
   { key: "triple", label: "Triplo vetro 4-12-4-12-4 (Ug 0.6)", ug: 0.6 },
@@ -36,6 +47,8 @@ const ACCESSORIES = [
 export function MaterialConfig({
   material,
   onMaterialChange,
+  color,
+  onColorChange,
   glazing,
   onGlazingChange,
   accessories,
@@ -66,6 +79,34 @@ export function MaterialConfig({
               />
               <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-xs font-medium text-white drop-shadow">
                 {mat.label}
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label className="block text-sm font-semibold mb-2">Colore telaio</label>
+        <div className="grid grid-cols-3 gap-2">
+          {FRAME_COLORS.map((c) => (
+            <button
+              key={c.key}
+              type="button"
+              onClick={() => onColorChange(c.key)}
+              disabled={readOnly}
+              className={`relative aspect-square rounded-xl border-4 transition-all ${
+                color === c.key
+                  ? "ring-2 ring-zinc-900 scale-[1.02]"
+                  : "border-transparent hover:border-zinc-300"
+              }`}
+              aria-pressed={color === c.key}
+            >
+              <div
+                className="w-full aspect-square rounded-lg"
+                style={{ backgroundColor: c.swatch, border: `2px solid ${c.border}` }}
+              />
+              <span className="absolute bottom-2 left-1/2 -translate-x-1/2 text-[10px] font-medium text-white drop-shadow text-center px-1">
+                {c.label}
               </span>
             </button>
           ))}
