@@ -23,6 +23,23 @@ function ResetPasswordContent() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resent, setResent] = useState(false);
+
+  async function handleResend() {
+    if (!email) return;
+    setError("");
+    setResent(false);
+    setResending(true);
+    try {
+      await signIn("password", { email, flow: "reset" });
+      setResent(true);
+    } catch (err) {
+      setError(authErrorMessage(err, t("error")));
+    } finally {
+      setResending(false);
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -110,13 +127,27 @@ function ResetPasswordContent() {
       <Button type="submit" className="w-full" disabled={loading}>
         {loading ? t("loading") : t("submit")}
       </Button>
+
+      <p className="text-center text-sm text-[var(--color-text-secondary)]">
+        <button
+          type="button"
+          onClick={handleResend}
+          disabled={resending || loading || !email}
+          className="text-[var(--color-mint)] hover:underline disabled:opacity-50"
+        >
+          {resending ? t("resendSending") : t("resendLink")}
+        </button>
+      </p>
+      {resent ? (
+        <p className="text-center text-sm text-[var(--color-mint)]">{t("resent")}</p>
+      ) : null}
     </form>
   );
 }
 
 export default function ResetPasswordPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={null}>
       <ResetPasswordContent />
     </Suspense>
   );

@@ -43,6 +43,13 @@ function RegisterForm() {
     setLoading(true);
     try {
       await signIn("password", { name, email, password, flow: "signUp" });
+      // Saved so /auth/verify can resend the code without asking the
+      // password again. Cleared on successful verification. Never a token.
+      try {
+        sessionStorage.setItem("onespec-signup", JSON.stringify({ email, password }));
+      } catch {
+        /* private mode — resend just won't be available */
+      }
       posthog.capture("user_signed_up", {
         auth_method: "password",
         verification_required: true,

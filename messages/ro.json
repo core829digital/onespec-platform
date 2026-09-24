@@ -94,7 +94,9 @@
       "submit": "Verifică",
       "loading": "Verificare...",
       "resendLink": "Nu ai primit codul? Retrimite",
-      "error": "Cod invalid sau expirat"
+      "error": "Cod invalid sau expirat",
+      "resendSending": "Trimitere...",
+      "resent": "Cod nou trimis, verifică emailul"
     },
     "forgotPassword": {
       "title": "Parolă uitată",
@@ -121,7 +123,10 @@
       "submit": "Resetează",
       "loading": "Resetare...",
       "passwordMismatch": "Parolele nu coincid",
-      "error": "Cod invalid sau expirat"
+      "error": "Cod invalid sau expirat",
+      "resendLink": "Niciun cod? Retrimite",
+      "resendSending": "Trimitere...",
+      "resent": "Cod nou trimis, verifică emailul"
     },
     "onboarding": {
       "title": "Creează-ți firma",

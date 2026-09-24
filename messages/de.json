@@ -94,7 +94,9 @@
       "submit": "Verifizieren",
       "loading": "Verifizierung...",
       "resendLink": "Kein Code erhalten? Erneut senden",
-      "error": "Ungültiger oder abgelaufener Code"
+      "error": "Ungültiger oder abgelaufener Code",
+      "resendSending": "Senden...",
+      "resent": "Neuer Code gesendet, prüfen Sie Ihre E-Mails"
     },
     "forgotPassword": {
       "title": "Passwort vergessen",
@@ -121,7 +123,10 @@
       "submit": "Zurücksetzen",
       "loading": "Zurücksetzen...",
       "passwordMismatch": "Passwörter stimmen nicht überein",
-      "error": "Ungültiger oder abgelaufener Code"
+      "error": "Ungültiger oder abgelaufener Code",
+      "resendLink": "Kein Code? Erneut senden",
+      "resendSending": "Senden...",
+      "resent": "Neuer Code gesendet, prüfen Sie Ihre E-Mails"
     },
     "onboarding": {
       "title": "Unternehmen erstellen",

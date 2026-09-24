@@ -21,6 +21,8 @@ function VerifyContent() {
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false);
+  const [resent, setResent] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -28,11 +30,37 @@ function VerifyContent() {
     setLoading(true);
     try {
       await signIn("password", { email, code, flow: "email-verification" });
+      try {
+        sessionStorage.removeItem("onespec-signup");
+      } catch {
+        /* ignore */
+      }
       router.push(redirect ?? "/auth/onboarding");
     } catch (err) {
       setError(authErrorMessage(err, t("error")));
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleResend() {
+    setError("");
+    setResent(false);
+    setResending(true);
+    try {
+      const raw = sessionStorage.getItem("onespec-signup");
+      const saved = raw ? (JSON.parse(raw) as { email?: string; password?: string }) : null;
+      if (!saved || saved.email !== email || !saved.password) {
+        // No saved credentials (expired tab, other device): go back to register.
+        router.push("/auth/register");
+        return;
+      }
+      await signIn("password", { email, password: saved.password, flow: "signUp" });
+      setResent(true);
+    } catch (err) {
+      setError(authErrorMessage(err, t("error")));
+    } finally {
+      setResending(false);
     }
   }
 
@@ -72,15 +100,25 @@ function VerifyContent() {
       </Button>
 
       <p className="text-center text-sm text-[var(--color-text-secondary)]">
-        {t("resendLink")}
+        <button
+          type="button"
+          onClick={handleResend}
+          disabled={resending || loading}
+          className="text-[var(--color-mint)] hover:underline disabled:opacity-50"
+        >
+          {resending ? t("resendSending") : t("resendLink")}
+        </button>
       </p>
+      {resent ? (
+        <p className="text-center text-sm text-[var(--color-mint)]">{t("resent")}</p>
+      ) : null}
     </form>
   );
 }
 
 export default function VerifyPage() {
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <Suspense fallback={null}>
       <VerifyContent />
     </Suspense>
   );

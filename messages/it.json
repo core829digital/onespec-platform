@@ -145,7 +145,9 @@
       "submit": "Verifica",
       "loading": "Verifica...",
       "resendLink": "Non hai ricevuto il codice? Reinvia",
-      "error": "Codice non valido o scaduto"
+      "error": "Codice non valido o scaduto",
+      "resendSending": "Invio in corso...",
+      "resent": "Nuovo codice inviato, controlla la email"
     },
     "forgotPassword": {
       "title": "Password dimenticata",
@@ -172,7 +174,10 @@
       "submit": "Reimposta",
       "loading": "Reimpostazione...",
       "passwordMismatch": "Le password non coincidono",
-      "error": "Codice non valido o scaduto"
+      "error": "Codice non valido o scaduto",
+      "resendLink": "Non hai ricevuto il codice? Reinvia",
+      "resendSending": "Invio in corso...",
+      "resent": "Nuovo codice inviato, controlla la email"
     },
     "onboarding": {
       "title": "Crea la tua azienda",

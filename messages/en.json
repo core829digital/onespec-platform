@@ -145,7 +145,9 @@
       "submit": "Verify",
       "loading": "Verifying...",
       "resendLink": "Didn't receive the code? Resend",
-      "error": "Invalid or expired code"
+      "error": "Invalid or expired code",
+      "resendSending": "Sending...",
+      "resent": "New code sent, check your email"
     },
     "forgotPassword": {
       "title": "Forgot password",
@@ -172,7 +174,10 @@
       "submit": "Reset",
       "loading": "Resetting...",
       "passwordMismatch": "Passwords do not match",
-      "error": "Invalid or expired code"
+      "error": "Invalid or expired code",
+      "resendLink": "No code? Resend",
+      "resendSending": "Sending...",
+      "resent": "New code sent, check your email"
     },
     "onboarding": {
       "title": "Create your company",

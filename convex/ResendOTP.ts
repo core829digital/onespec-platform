@@ -1,6 +1,7 @@
 import { Email } from "@convex-dev/auth/providers/Email";
 import { Resend as ResendAPI } from "resend";
 import { renderAuthEmail } from "./emails/auth";
+import { noreplyFromAddress } from "./lib/emailFrom";
 
 /**
  * Email-verification OTP provider for the Password flow.
@@ -26,12 +27,17 @@ export const ResendOTP = Email({
     }
     const resend = new ResendAPI(process.env.AUTH_RESEND_KEY!);
     const { error } = await resend.emails.send({
-      from: process.env.RESEND_FROM ?? "onespec <onboarding@resend.dev>",
+      // Never onboarding@resend.dev: Resend's test domain only delivers to
+      // the Resend account owner's own inbox — real users would get nothing.
+      from: noreplyFromAddress(),
       to: [email],
       subject,
       html,
       text,
     });
-    if (error) throw new Error(`Resend verify failed: ${JSON.stringify(error)}`);
+    if (error) {
+      console.error(`[email:send-failed] verify -> ${email}: ${JSON.stringify(error)}`);
+      throw new Error("Invio email fallito, riprova tra poco. Se persiste scrivi a hello@onespec.eu.");
+    }
   },
 });

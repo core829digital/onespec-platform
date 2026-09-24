@@ -758,3 +758,13 @@ Commit `b393dd3` (non pushato, non deployato Convex — serve consenso per prod)
 - **Nuovi limiti** in `convex/lib/ratelimit.ts` + `checkBucket` generica riusabile. Test `rate-limit-public` (3) + fix `guest-pin` (stesso PIN 10x scatta bucket per-PIN: ora PIN distinti per testare bucket per-IP).
 - Gate: tsc pulito, eslint 0 sui file miei, vitest 262/262, build verde. `npm run lint` bare resta rosso SOLO per `apps/status-page/.next/` (build output altra sessione, non codice — da escludere in `eslint.config.mjs` o cancellare cartella quando altra sessione finisce).
 - **L-6 rimandata come deciso**: public-read SSR (`w/c/f/i`) senza bucket (query non scrivono) — solo se si vede abuso, via edge/middleware.
+
+### 9.19 Auth mail + onboarding UX + audit endpoint (2026-09-24)
+
+- **Mail OTP non arrivava — 2 cause trovate**: (1) `ResendOTP/ResendPasswordReset` usavano `onboarding@resend.dev` (dominio test Resend: consegna SOLO al proprietario account → utenti reali ricevono zero); ora `convex/lib/emailFrom.ts` unico (`noreply@onespec.eu` default, come `email.ts`). (2) `RESEND_MODE=noop` in prod = mail solo in log — NON flippato da qui: serve dominio verificato in Resend + DNS (doc `RESEND_SPF_DKIM_DMARC_SETUP.md`), poi `npx convex env set RESEND_MODE live`. Errori invio ora loggati + messaggio leggibile in UI (niente piu' "Server Error" muto).
+- **Verify senza via d'uscita**: `resendLink` era testo morto → bottone reinvia funzionante (register salva email+password in sessionStorage, verify rifa signUp; senza credenziali rimanda a register). Stesso fix su `reset-password` (reinvio con sola email) + nuove chiavi i18n 6 lingue + fallback Suspense `Loading...` → null.
+- **Admin vede le mail**: `recentSignups` + `listEmails` (badge sent/noop/failed + nota "noop = spente") + `resendEmail` collegati in `/app/admin` (3 orfane FASE I chiuse).
+- **Onboarding billing**: card piani con prezzo (97/197/397), funzioni, trial 14gg Pro, link Enterprise €690 (prima solo nomi "base/pro/agency"). Prezzi mirror `billingPlans.ts`, commento sync.
+- **Entering screen**: `finish()` mostra `EnteringApp` (barra animata CSS + 3 step rotanti, aria-live) prima di `/app/dashboard` — prima bottone frozen su "…".
+- **Audit endpoint**: ID pubblici tutti `crypto.getRandomValues` non sequenziali (publicId 10 ≈ 2^59, token 16 ≈ 2^95, invite 32); OTP 6 cifre + 15min + rate-limit; IP mai salvati in chiaro (hash+salt). Nessun cambio servito.
+- Gate: tsc/eslint (miei file)/vitest 262/build verdi.

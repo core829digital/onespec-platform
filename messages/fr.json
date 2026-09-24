@@ -94,7 +94,9 @@
       "submit": "Vérifier",
       "loading": "Vérification...",
       "resendLink": "Pas reçu le code? Renvoyer",
-      "error": "Code invalide ou expiré"
+      "error": "Code invalide ou expiré",
+      "resendSending": "Envoi...",
+      "resent": "Nouveau code envoyé, vérifiez votre email"
     },
     "forgotPassword": {
       "title": "Mot de passe oublié",
@@ -121,7 +123,10 @@
       "submit": "Réinitialiser",
       "loading": "Réinitialisation...",
       "passwordMismatch": "Les mots de passe ne correspondent pas",
-      "error": "Code invalide ou expiré"
+      "error": "Code invalide ou expiré",
+      "resendLink": "Pas de code ? Renvoyer",
+      "resendSending": "Envoi...",
+      "resent": "Nouveau code envoyé, vérifiez votre email"
     },
     "onboarding": {
       "title": "Créez votre entreprise",

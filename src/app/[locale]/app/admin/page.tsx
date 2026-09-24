@@ -89,6 +89,9 @@ export default function AdminPage() {
   const setFeedbackStatus = useMutation(api.feedback.setFeedbackStatus);
   const suspendTenant = useMutation(api.tenants.suspendTenant);
   const reactivateTenant = useMutation(api.tenants.reactivateTenant);
+  const resendEmail = useMutation(api.admin.resendEmail);
+  const signups = useQuery(api.admin.recentSignups, isAdmin ? { limit: 10 } : "skip");
+  const emailLog = useQuery(api.admin.listEmails, isAdmin ? { limit: 20 } : "skip");
 
   if (viewer === undefined) {
     return <p className="text-[var(--color-text-secondary)]">Caricamento...</p>;
@@ -185,6 +188,62 @@ export default function AdminPage() {
       </div>
 
       {canPreviewMarkets(viewer?.email) && <MarketPreview />}
+
+      <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg divide-y divide-[var(--color-border)]">
+        <div className="px-6 py-4 font-bold text-[var(--color-text)]">
+          Ultime registrazioni{signups ? ` (${signups.length})` : ""}
+        </div>
+        {signups === undefined ? (
+          <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">Caricamento...</div>
+        ) : signups.length === 0 ? (
+          <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">Nessuna registrazione.</div>
+        ) : (
+          signups.map((u) => (
+            <div key={u._id} className="px-6 py-3 text-sm flex items-center justify-between gap-3">
+              <span className="text-[var(--color-text)]">{u.name || "—"}</span>
+              <span className="text-[var(--color-text-secondary)] flex-1">{u.email}</span>
+              <span className="text-[var(--color-text-secondary)] text-xs">
+                {u.emailVerificationTime ? "verificata" : "non verificata"}
+              </span>
+            </div>
+          ))
+        )}
+      </div>
+
+      <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg divide-y divide-[var(--color-border)]">
+        <div className="px-6 py-4 font-bold text-[var(--color-text)]">
+          Email transazionali recenti
+          <span className="ml-2 text-xs font-normal text-[var(--color-text-secondary)]">
+            stato “noop” = mail spente (RESEND_MODE non live), solo log
+          </span>
+        </div>
+        {emailLog === undefined ? (
+          <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">Caricamento...</div>
+        ) : emailLog.length === 0 ? (
+          <div className="px-6 py-6 text-center text-[var(--color-text-secondary)]">Nessuna email registrata.</div>
+        ) : (
+          emailLog.map((e) => (
+            <div key={e._id} className="px-6 py-3 text-sm flex items-center justify-between gap-3">
+              <span className="text-[var(--color-text)]">{e.template}</span>
+              <span className="text-[var(--color-text-secondary)] flex-1">{e.to}</span>
+              <span
+                className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+                  e.status === "sent"
+                    ? "bg-emerald-100 text-emerald-800"
+                    : e.status === "failed"
+                      ? "bg-red-100 text-red-800"
+                      : "bg-amber-100 text-amber-800"
+                }`}
+              >
+                {e.status}
+              </span>
+              <Button size="sm" variant="ghost" onClick={() => run(resendEmail({ emailLogId: e._id }))}>
+                Reinvia
+              </Button>
+            </div>
+          ))
+        )}
+      </div>
 
       <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg divide-y divide-[var(--color-border)]">
         <div className="px-6 py-4 font-bold text-[var(--color-text)]">

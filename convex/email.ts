@@ -2,6 +2,7 @@ import { internalAction, internalMutation, internalQuery } from "./_generated/se
 import { internal } from "./_generated/api";
 import { v } from "convex/values";
 import { renderAuthEmail } from "./emails/auth";
+import { noreplyFromAddress, purchasesFromAddress } from "./lib/emailFrom";
 
 const TEMPLATE = v.union(
   v.literal("verify"),
@@ -16,8 +17,8 @@ const TEMPLATE = v.union(
 );
 
 function getFromAddress(template: string): string {
-  const purchasesFrom = process.env.RESEND_FROM_PURCHASES ?? "purchases@onespec.eu";
-  const noreplyFrom = process.env.RESEND_FROM_NOREPLY ?? "noreply@onespec.eu";
+  const purchasesFrom = purchasesFromAddress();
+  const noreplyFrom = noreplyFromAddress();
 
   switch (template) {
     case "purchase_receipt":

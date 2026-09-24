@@ -12,6 +12,61 @@ import { recommendPlan, type PlanQuizAnswers, type RecommendedPlan } from "@/lib
 
 type Step = "welcome" | "planQuiz" | "billing" | "team" | "configurator";
 
+/**
+ * Plan cards shown in the billing step — prices mirror
+ * convex/lib/billingPlans.ts (Base 97 / Pro 197 / Agency 397, Enterprise 690
+ * sales-led). Keep in sync when those change.
+ */
+const PLAN_CARDS: {
+  key: "base" | "pro" | "agency";
+  name: string;
+  price: number;
+  trial: boolean;
+  features: string[];
+}[] = [
+  {
+    key: "base",
+    name: "Base",
+    price: 97,
+    trial: false,
+    features: [
+      "1 configuratore",
+      "20 richieste al mese",
+      "Fino a 2 membri",
+      "Rilievo cantiere",
+      "IVA base",
+    ],
+  },
+  {
+    key: "pro",
+    name: "Pro",
+    price: 197,
+    trial: true,
+    features: [
+      "3 configuratori",
+      "Richieste illimitate",
+      "Fino a 5 membri",
+      "Widget per il tuo sito + marchio tuo",
+      "Firma elettronica",
+      "Fisco completo + ENEA",
+    ],
+  },
+  {
+    key: "agency",
+    name: "Agency",
+    price: 397,
+    trial: false,
+    features: [
+      "10 configuratori",
+      "1000 richieste al mese",
+      "Fino a 15 membri",
+      "Tutto di Pro",
+      "Multi-fornitore + showroom",
+      "Multi-catalogo",
+    ],
+  },
+];
+
 export default function OnboardingWizard() {
   const tf = useFriendlyError();
   const router = useRouter();
@@ -25,6 +80,7 @@ export default function OnboardingWizard() {
 
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [entering, setEntering] = useState(false);
   const [recommended, setRecommended] = useState<RecommendedPlan | null>(null);
 
   // The active step: skip planQuiz/billing once a plan is already active.
@@ -82,6 +138,10 @@ export default function OnboardingWizard() {
           state && "configuratorCount" in state ? state.configuratorCount : 0,
         region: state && "region" in state ? state.region : undefined,
       });
+      // Show the entering screen (animated bar) while the app loads —
+      // router.replace resolves before the dashboard is ready, and without
+      // this the user stares at a frozen button.
+      setEntering(true);
       router.replace("/app/dashboard");
     } catch (e) {
       posthog.captureException(e);
@@ -91,6 +151,8 @@ export default function OnboardingWizard() {
   }
 
   const ent = state.entitlements;
+
+  if (entering) return <EnteringApp />;
 
   return (
     <div className="space-y-8">
@@ -135,10 +197,10 @@ export default function OnboardingWizard() {
               ? " Verrai reindirizzato qui solo dopo la conferma del pagamento."
               : " Il pagamento non è ancora attivo: il piano si attiva subito, la fatturazione arriverà quando sarà configurata."}
           </p>
-          <div className="flex flex-wrap gap-2">
-            {(["base", "pro", "agency"] as const).map((p) => (
+          <div className="grid gap-3 md:grid-cols-3">
+            {PLAN_CARDS.map((p) => (
               <button
-                key={p}
+                key={p.key}
                 type="button"
                 disabled={busy}
                 onClick={async () => {
@@ -147,10 +209,10 @@ export default function OnboardingWizard() {
                   setErr("");
                   try {
                     if (state && "stripeConfigured" in state && state.stripeConfigured) {
-                      const { url } = await checkout({ tenantId: tenant._id, plan: p });
+                      const { url } = await checkout({ tenantId: tenant._id, plan: p.key });
                       window.location.href = url;
                     } else {
-                      await selectPlan({ plan: p });
+                      await selectPlan({ plan: p.key });
                       setBusy(false);
                     }
                   } catch (e) {
@@ -158,16 +220,30 @@ export default function OnboardingWizard() {
                     setBusy(false);
                   }
                 }}
-                className={`relative rounded-lg border px-4 py-3 text-sm text-[var(--color-text)] capitalize hover:border-[var(--color-mint)] ${
-                  recommended === p ? "border-[var(--color-mint)] ring-1 ring-[var(--color-mint)]" : "border-[var(--color-border)]"
+                className={`relative rounded-xl border p-4 text-left hover:border-[var(--color-mint)] disabled:opacity-50 ${
+                  recommended === p.key ? "border-[var(--color-mint)] ring-1 ring-[var(--color-mint)]" : "border-[var(--color-border)]"
                 }`}
               >
-                {recommended === p && (
+                {recommended === p.key && (
                   <span className="absolute -top-2 left-1/2 -translate-x-1/2 rounded-full bg-[var(--color-mint)] px-2 py-0.5 text-[10px] font-semibold text-[var(--color-mint-dark)] whitespace-nowrap">
                     Consigliato per te
                   </span>
                 )}
-                Passa a {p}
+                <p className="font-bold text-[var(--color-text)] capitalize">{p.name}</p>
+                <p className="mt-1 text-2xl font-bold text-[var(--color-text)]">
+                  €{p.price}
+                  <span className="text-xs font-normal text-[var(--color-text-secondary)]">/mese</span>
+                </p>
+                {p.trial ? (
+                  <p className="mt-1 text-xs font-semibold text-[var(--color-mint)]">
+                    Prova gratis 14 giorni, poi si attiva da solo
+                  </p>
+                ) : null}
+                <ul className="mt-2 space-y-1 text-xs text-[var(--color-text-secondary)]">
+                  {p.features.map((f) => (
+                    <li key={f}>• {f}</li>
+                  ))}
+                </ul>
               </button>
             ))}
           </div>
@@ -176,7 +252,7 @@ export default function OnboardingWizard() {
               href="mailto:sales@onespec.eu"
               className="text-[var(--color-mint)] hover:underline"
             >
-              Serve il piano Enterprise? Contatta il commerciale
+              Serve il piano Enterprise (€690/mese, tutto illimitato + API)? Contatta il commerciale
             </a>
             {" · "}
             <Link href="/app/account/billing" className="text-[var(--color-mint)]">
@@ -409,8 +485,38 @@ function ChoiceRow<T extends string>({
   );
 }
 
-function Panel({ title, children }: { title: string; children: React.ReactNode }) {
+/**
+ * Full-screen entering state after the wizard completes. CSS-only animated
+ * bar (no fake percentages) + rotating reassuring steps while Next.js loads
+ * the dashboard chunk and Convex re-syncs the new tenant.
+ */
+function EnteringApp() {
+  const [step, setStep] = useState(0);
+  useEffect(() => {
+    const id = window.setInterval(() => setStep((s) => (s + 1) % 3), 1600);
+    return () => window.clearInterval(id);
+  }, []);
+  const steps = [
+    "Creiamo il tuo spazio di lavoro…",
+    "Carichiamo catalogo e listini…",
+    "Quasi fatto, apriamo la dashboard…",
+  ];
   return (
+    <section
+      aria-live="polite"
+      className="mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center gap-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-8 text-center"
+    >
+      <p className="text-xl font-bold text-[var(--color-text)]">Benvenuto a bordo 🎉</p>
+      <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--color-border)]">
+        <div className="h-full w-1/3 animate-[enter-slide_1.2s_ease-in-out_infinite] rounded-full bg-[var(--color-mint)]" />
+      </div>
+      <p className="text-sm text-[var(--color-text-secondary)]">{steps[step]}</p>
+      <style>{`@keyframes enter-slide { 0% { margin-left: -33%; } 100% { margin-left: 100%; } }`}</style>
+    </section>
+  );
+}
+
+function Panel({ title, children }: { title: string; children: React.ReactNode }) {  return (
     <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-6 space-y-4">
       <h1 className="text-xl font-bold text-[var(--color-text)]">{title}</h1>
       {children}

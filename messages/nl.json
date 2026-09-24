@@ -94,7 +94,9 @@
       "submit": "Verifiëren",
       "loading": "Verifiëren...",
       "resendLink": "Geen code ontvangen? Opnieuw sturen",
-      "error": "Ongeldige of verlopen code"
+      "error": "Ongeldige of verlopen code",
+      "resendSending": "Verzenden...",
+      "resent": "Nieuwe code verzonden, controleer je e-mail"
     },
     "forgotPassword": {
       "title": "Wachtwoord vergeten",
@@ -121,7 +123,10 @@
       "submit": "Resetten",
       "loading": "Resetten...",
       "passwordMismatch": "Wachtwoorden komen niet overeen",
-      "error": "Ongeldige of verlopen code"
+      "error": "Ongeldige of verlopen code",
+      "resendLink": "Geen code? Opnieuw sturen",
+      "resendSending": "Verzenden...",
+      "resent": "Nieuwe code verzonden, controleer je e-mail"
     },
     "onboarding": {
       "title": "Bedrijf aanmaken",
