@@ -262,7 +262,7 @@ export const overviewBeforeReset = internalQuery({
     const memberships = await ctx.db.query("memberships").collect();
     return {
       users: users.map((u) => ({ _id: u._id, email: u.email, isPlatformAdmin: u.isPlatformAdmin })),
-      tenants: tenants.map((t) => ({ _id: t._id, name: t.name, plan: t.plan, planStatus: t.planStatus, ownerUserId: t.ownerUserId })),
+      tenants: tenants.map((t) => ({ _id: t._id, name: t.name, plan: t.plan, planStatus: t.planStatus, ownerUserId: t.ownerUserId, unlimitedAccess: t.unlimitedAccess })),
       memberships: memberships.map((m) => ({ tenantId: m.tenantId, userId: m.userId, role: m.role, status: m.status })),
     };
   },
