@@ -459,6 +459,33 @@ button:disabled,
   a { text-decoration: none; color: inherit; }
 }
 
+/*
+ * QR label sheet (passports/[id]/labels). The on-screen grid is responsive
+ * (2-6 columns by breakpoint) so it was never a fixed layout at print time —
+ * printing it produced however many columns fit the current window, not a
+ * consistent sheet. This forces a fixed 4x6 grid regardless of viewport.
+ * Exact cell size is a generic square placeholder (40x40mm), NOT a verified
+ * Avery template — check it against the actual label sheet before a large
+ * print run and adjust --label-cell-mm if it doesn't line up.
+ */
+@media print {
+  .qr-label-sheet {
+    --label-cell-mm: 40mm;
+    display: grid !important;
+    grid-template-columns: repeat(4, var(--label-cell-mm)) !important;
+    gap: 2mm !important;
+  }
+  .qr-label-sheet > div {
+    width: var(--label-cell-mm);
+    height: var(--label-cell-mm);
+    break-inside: avoid;
+  }
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 8px;

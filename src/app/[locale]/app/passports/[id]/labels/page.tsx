@@ -54,7 +54,7 @@ function PassportLabelsPanel({ passportId }: { passportId: PassportId }) {
       {err && <p className="text-sm text-red-600">{err}</p>}
 
       {qrData.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+        <div className="qr-label-sheet grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
           {qrData.map((r: { token: string; qr: string }) => (
             <div key={r.token} className="flex flex-col items-center gap-1">
               <div className="bg-white p-2 rounded-lg border border-zinc-200">
@@ -90,7 +90,9 @@ function PassportLabelsPage() {
       <div className="border-b border-[var(--color-border)] pb-4">
         <h1 className="text-xl font-semibold">Etichette QR per Fascicoli</h1>
         <p className="text-sm text-[var(--color-muted-fg)]">
-          Genera codici QR 25×25 mm per ogni serramento. Stampa su etichette A4 (es. Avery L7163).
+          Genera codici QR per ogni serramento. Stampa su un foglio A4 con griglia fissa 4×N — verifica
+          l&apos;allineamento sul tuo foglio etichette reale prima di una stampa in grande quantità (le dimensioni
+          esatte non sono certificate per un modello Avery specifico).
         </p>
       </div>
 
