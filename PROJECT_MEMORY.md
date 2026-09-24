@@ -768,3 +768,7 @@ Commit `b393dd3` (non pushato, non deployato Convex — serve consenso per prod)
 - **Entering screen**: `finish()` mostra `EnteringApp` (barra animata CSS + 3 step rotanti, aria-live) prima di `/app/dashboard` — prima bottone frozen su "…".
 - **Audit endpoint**: ID pubblici tutti `crypto.getRandomValues` non sequenziali (publicId 10 ≈ 2^59, token 16 ≈ 2^95, invite 32); OTP 6 cifre + 15min + rate-limit; IP mai salvati in chiaro (hash+salt). Nessun cambio servito.
 - Gate: tsc/eslint (miei file)/vitest 262/build verdi.
+
+### 9.20 Mail accese + deploy prod (2026-09-24)
+
+Utente conferma dominio Resend verificato → `npx convex env set RESEND_MODE live` su prod + `npx convex deploy --yes` (spotted-basilisk-866, ok, nessun indice cancellato). Log prod puliti (solo refreshSession). Push GitHub `79b818c` gia' fatto prima (Vercel ripubblica frontend da solo). Da testare con utente reale: nuova registrazione → codice arriva da noreply@onespec.eu.
