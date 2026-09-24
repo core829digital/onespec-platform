@@ -1,4 +1,4 @@
-import { internalMutation } from "./_generated/server";
+import { internalMutation, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
 import { seedExtras } from "./lib/catalogExtras";
 import type { TableNames } from "./_generated/dataModel";
@@ -249,5 +249,108 @@ export const eraseAllTenantData = internalMutation({
       perTable[table] = { deleted: page.length, done: page.length < limit };
     }
     return perTable;
+  },
+});
+
+/** Read-only overview before running resetToFoundingAdmins — never delete anything blind. */
+export const overviewBeforeReset = internalQuery({
+  args: {},
+  handler: async (ctx) => {
+    const users = await ctx.db.query("users").collect();
+    const tenants = await ctx.db.query("tenants").collect();
+    const memberships = await ctx.db.query("memberships").collect();
+    return {
+      users: users.map((u) => ({ _id: u._id, email: u.email, isPlatformAdmin: u.isPlatformAdmin })),
+      tenants: tenants.map((t) => ({ _id: t._id, name: t.name, plan: t.plan, planStatus: t.planStatus, ownerUserId: t.ownerUserId })),
+      memberships: memberships.map((m) => ({ tenantId: m.tenantId, userId: m.userId, role: m.role, status: m.status })),
+    };
+  },
+});
+
+/**
+ * Founding reset — keeps ONLY the two named accounts (as platform admins,
+ * each on a lone tenant reset to "pending_plan" so they go through the new
+ * plan wizard too), deletes every other user/tenant/membership and all of
+ * their tenant-scoped data. Irreversible. Run:
+ *
+ *   npx convex run migrations:overviewBeforeReset --prod
+ *   (verify the output matches expectations)
+ *   npx convex run migrations:resetToFoundingAdmins '{"confirm":"RESET TO FOUNDING ADMINS"}' --prod
+ */
+const KEEP_EMAILS = ["contact.core829@gmail.com", "office@winex.ro"];
+
+export const resetToFoundingAdmins = internalMutation({
+  args: { confirm: v.string(), limit: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    if (args.confirm !== "RESET TO FOUNDING ADMINS") {
+      throw new Error('Refusing: pass confirm:"RESET TO FOUNDING ADMINS" exactly.');
+    }
+    const limit = args.limit ?? 1000;
+
+    const allUsers = await ctx.db.query("users").collect();
+    const keepUsers = allUsers.filter((u) => u.email && KEEP_EMAILS.includes(u.email));
+    const keepUserIds = new Set(keepUsers.map((u) => u._id));
+
+    for (const u of keepUsers) {
+      if (!u.isPlatformAdmin) await ctx.db.patch(u._id, { isPlatformAdmin: true });
+    }
+
+    const allMemberships = await ctx.db.query("memberships").collect();
+    const keepTenantIds = new Set(
+      allMemberships.filter((m) => keepUserIds.has(m.userId)).map((m) => m.tenantId),
+    );
+
+    const report: Record<string, number> = { usersDeleted: 0, membershipsDeleted: 0, tenantsDeleted: 0 };
+
+    for (const m of allMemberships) {
+      if (!keepTenantIds.has(m.tenantId)) {
+        await ctx.db.delete(m._id);
+        report.membershipsDeleted++;
+      }
+    }
+
+    for (const u of allUsers) {
+      if (!keepUserIds.has(u._id)) {
+        await ctx.db.delete(u._id);
+        report.usersDeleted++;
+      }
+    }
+
+    const allTenants = await ctx.db.query("tenants").collect();
+    for (const t of allTenants) {
+      if (!keepTenantIds.has(t._id)) {
+        await ctx.db.delete(t._id);
+        report.tenantsDeleted++;
+      } else {
+        // Kept tenants go through the plan wizard too, per "incluso il admin".
+        await ctx.db.patch(t._id, {
+          planStatus: "pending_plan",
+          suspendedAt: undefined,
+          suspendedReason: undefined,
+          onboardingCompletedAt: undefined,
+          onboardingStep: undefined,
+          stripeSubscriptionId: undefined,
+        });
+      }
+    }
+
+    // Tenant-scoped tables: delete every row whose tenantId isn't kept.
+    // Tables without a tenantId (e.g. rateLimits keyed by string) are left
+    // alone — they carry no identifying data worth wiping here.
+    const perTable: Record<string, { deleted: number; done: boolean }> = {};
+    for (const table of ERASABLE_TABLES) {
+      const page = await ctx.db.query(table).take(limit);
+      let deleted = 0;
+      for (const row of page) {
+        const tenantId = (row as unknown as { tenantId?: string }).tenantId;
+        if (tenantId && !keepTenantIds.has(tenantId as never)) {
+          await ctx.db.delete(row._id);
+          deleted++;
+        }
+      }
+      perTable[table] = { deleted, done: page.length < limit };
+    }
+
+    return { ...report, keptTenantIds: [...keepTenantIds], perTable };
   },
 });
