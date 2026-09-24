@@ -25,6 +25,16 @@ posthog.init("phc_Dde7GCKF62tJfjNst4dLUEPKhrLp3vatfBWFTqgZkhVN", {
   },
 });
 
+// `replayIntegration` ships in the separate `@sentry/replay` package,
+// re-exported through `@sentry/nextjs` only along the "browser" export
+// condition. Some bundler/runtime combinations resolve a different
+// condition for this file and leave it undefined — that used to crash
+// Sentry.init() outright (breaking plain error capture too, not just
+// replay), which is exactly the "replayIntegration is not a function"
+// error seen in production. Guard it so a missing optional integration
+// degrades instead of taking down error reporting.
+const replay = typeof Sentry.replayIntegration === "function" ? Sentry.replayIntegration() : null;
+
 Sentry.init({
   dsn: "https://fa57662b58693934150285ca8c3ee550@o4512095204868096.ingest.us.sentry.io/4512095210242048",
   environment: process.env.NODE_ENV,
@@ -32,7 +42,7 @@ Sentry.init({
   // Add optional integrations for additional features. sentryIntegration()
   // links every Sentry error to its PostHog session replay (and vice versa)
   // — the official posthog-js<->Sentry bridge, not a manual event hook.
-  integrations: [Sentry.replayIntegration(), posthog.sentryIntegration()],
+  integrations: [replay, posthog.sentryIntegration()].filter((i): i is NonNullable<typeof i> => i != null),
 
   // The wizard default (1 = 100%) traces every single page load/navigation —
   // fine while wiring this up, but on real traffic it burns through the
@@ -74,9 +84,9 @@ export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
 export function applyConsent(granted: boolean) {
   if (granted) {
     posthog.opt_in_capturing();
-    Sentry.getReplay()?.start();
+    if (typeof Sentry.getReplay === "function") Sentry.getReplay()?.start();
   } else {
     posthog.opt_out_capturing();
-    Sentry.getReplay()?.stop();
+    if (typeof Sentry.getReplay === "function") Sentry.getReplay()?.stop();
   }
 }

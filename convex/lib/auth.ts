@@ -33,10 +33,18 @@ export async function requireMembership(
   tenantId: Id<"tenants">,
 ): Promise<MembershipResult> {
   const userId = await requireVerifiedUser(ctx);
+  // .first() rather than .unique(): a duplicate membership row for the same
+  // tenant+user (e.g. from a double-submit race in tenants.ts's invite-accept
+  // flow — read-then-insert across two separate mutation calls, nothing
+  // serializes them against each other) would make .unique() throw an
+  // uncaught error and permanently 500 every operation for that user, instead
+  // of just letting them in on the first active row found (same pattern
+  // already applied to enforceConfiguratorQuota for the analogous counter
+  // race in convex/lib/enforcement.ts).
   const membership = await ctx.db
     .query("memberships")
     .withIndex("by_tenant_user", (q) => q.eq("tenantId", tenantId).eq("userId", userId))
-    .unique();
+    .first();
   if (!membership || membership.status !== "active") {
     throw new ConvexError("NOT_A_MEMBER");
   }

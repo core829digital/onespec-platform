@@ -96,12 +96,14 @@ export const assignRequest = mutation({
     if (!quote) throw new ConvexError("QUOTE_NOT_FOUND");
     await requireTenantRole(ctx, quote.tenantId, ["owner", "admin"]);
 
+    // .first() rather than .unique() — see convex/lib/auth.ts:requireMembership
+    // for why a duplicate membership row must not crash the whole mutation.
     const assigneeMembership = await ctx.db
       .query("memberships")
       .withIndex("by_tenant_user", (q) =>
         q.eq("tenantId", quote.tenantId).eq("userId", args.userId),
       )
-      .unique();
+      .first();
     if (!assigneeMembership || assigneeMembership.status !== "active") {
       throw new ConvexError("ASSIGNEE_NOT_A_MEMBER");
     }
