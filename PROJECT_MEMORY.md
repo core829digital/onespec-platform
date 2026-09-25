@@ -786,6 +786,14 @@ Utente conferma dominio Resend verificato → `npx convex env set RESEND_MODE li
 
 Chiavi utente inserite: `TURNSTILE_SECRET` su Convex prod + dev (env, mai in git); `NEXT_PUBLIC_TURNSTILE_SITE_KEY` in `.env.local` (gitignored). Server ora RIFIUTA davvero i submit widget senza gettone valido (400 TURNSTILE_FAILED); client lo chiede in automatico quando la chiave sito e' presente nella build. RESTA ALL'UTENTE: aggiungere `NEXT_PUBLIC_TURNSTILE_SITE_KEY` su Vercel (Environment Variables, tutti gli env) + redeploy — Next la cuce dentro in build, senza quello il sito live non manda gettoni e i lead VERI verrebbero rifiutati.
 
+### 9.23 Validazione Turnstile end-to-end (2026-09-24, skill turnstile-spin)
+
+- **Enforcement provato dal vivo su dev**: POST reale a `/api/widget/quote` (configuratore pubblicato VH0hs8DR4z, payload valido) senza gettone → `TURNSTILE_FAILED`, nessun lead salvato. Il cancello funziona.
+- **Success-path con gettone vero**: richiede browser (solo lui esegue il widget) → si valida dopo il passo Vercel dell'utente, con replay-check. Segreto MAI stampato in log/chat.
+- Sonda temp `convex/tmpProbe.ts` creata per trovare il publicId, poi cancellata + dev risincronizzato (verificato: funzione non piu' esistente).
+- Nota: altra sessione attiva nello stesso tree (`convex/lib/rbac.ts`, `triggers.ts` nuovi, `api.d.ts` rigenerato) — non toccati. File spazzatura 0-byte (finiti in git per sbaglio in passato) cancellati e committati.
+- File utente `Turnstile e Stripe, spiegati.html` lasciato intatto.
+
 ### 9.22 RBAC + verifica full-access + hardening race condition (2026-09-24, sessione parallela)
 
 Lavorando in parallelo all'altra sessione (stesso repo, verificato ogni file con `git log`/`git diff` prima di toccarlo — nessuna sovrascrittura). L'utente aveva detto all'altra sessione "RBAC salta" ma lo ha richiesto di nuovo a questa sessione con scope piu' preciso (ruoli tenant con sub-ruoli per piano + admin piattaforma) — confermato esplicitamente prima di procedere, per non contraddire una decisione gia' presa.
