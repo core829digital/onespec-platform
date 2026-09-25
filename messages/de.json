@@ -310,6 +310,18 @@
     "planSelectionRequired": "Wählen Sie einen Plan, um fortzufahren — schließen Sie den Einrichtungsassistenten ab.",
     "planUpgradeRequired": "Ihr Plan enthält diese Funktion nicht — wechseln Sie zu einem höheren Plan, um sie freizuschalten."
   },
+  "errorBoundary": {
+    "generic": {
+      "title": "Etwas ist schiefgelaufen",
+      "hint": "Ein unerwarteter Fehler ist aufgetreten. Versuchen Sie es erneut oder gehen Sie zurück.",
+      "retry": "Erneut versuchen"
+    },
+    "app": {
+      "title": "Diese Seite konnte nicht geladen werden",
+      "hint": "Prüfen Sie Ihre Verbindung und versuchen Sie es erneut. Kontaktieren Sie den Support, falls das Problem weiterhin besteht.",
+      "retry": "Erneut versuchen"
+    }
+  },
   "app": {
     "suspended": {
       "title": "Konto gesperrt",

@@ -310,6 +310,18 @@
     "planSelectionRequired": "Choose a plan to continue — complete the setup wizard.",
     "planUpgradeRequired": "Your plan doesn't include this feature — upgrade to a higher plan to unlock it."
   },
+  "errorBoundary": {
+    "generic": {
+      "title": "Something went wrong",
+      "hint": "An unexpected error occurred. Try again or go back.",
+      "retry": "Try again"
+    },
+    "app": {
+      "title": "This page failed to load",
+      "hint": "Check your connection and try again. If the problem continues, contact support.",
+      "retry": "Try again"
+    }
+  },
   "app": {
     "suspended": {
       "title": "Account suspended",

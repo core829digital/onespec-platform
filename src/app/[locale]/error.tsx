@@ -1,17 +1,12 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { ErrorView } from "@/components/error-view";
 
 export default function LocaleError(props: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  return (
-    <ErrorView
-      {...props}
-      title="Qualcosa è andato storto"
-      hint="Si è verificato un errore imprevisto. Riprova o torna indietro."
-      retryLabel="Riprova"
-    />
-  );
+  const t = useTranslations("errorBoundary.generic");
+  return <ErrorView {...props} title={t("title")} hint={t("hint")} retryLabel={t("retry")} />;
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useBoundaryRetry } from "@/hooks/useBoundaryRetry";
 
 /**
  * Shared visual for segment `error.tsx` boundaries. Deliberately does NOT use
@@ -20,10 +20,7 @@ export function ErrorView({
   reset: () => void;
   error: Error & { digest?: string };
 }) {
-  useEffect(() => {
-    // Surface for the browser console / error tracking; no PII in the message.
-    console.error("segment error", error.digest ?? error.message);
-  }, [error]);
+  const retry = useBoundaryRetry(error, reset);
 
   return (
     <div className="min-h-[60vh] flex items-center justify-center p-6">
@@ -32,7 +29,7 @@ export function ErrorView({
         <p className="text-[var(--color-text-secondary)] mt-2">{hint}</p>
         <button
           type="button"
-          onClick={reset}
+          onClick={retry}
           className="mt-5 inline-flex items-center rounded-lg bg-[var(--color-mint)] px-5 py-2.5 text-sm font-semibold text-[var(--color-mint-dark)] hover:opacity-90"
         >
           {retryLabel}

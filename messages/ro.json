@@ -310,6 +310,18 @@
     "planSelectionRequired": "Alege un plan pentru a continua — finalizează asistentul de configurare.",
     "planUpgradeRequired": "Planul tău nu include această funcție — treci la un plan superior pentru a o debloca."
   },
+  "errorBoundary": {
+    "generic": {
+      "title": "Ceva nu a mers bine",
+      "hint": "A apărut o eroare neașteptată. Reîncearcă sau revino la pagina anterioară.",
+      "retry": "Reîncearcă"
+    },
+    "app": {
+      "title": "Pagina nu a putut fi încărcată",
+      "hint": "Verifică conexiunea și reîncearcă. Dacă problema persistă, contactează suportul.",
+      "retry": "Reîncearcă"
+    }
+  },
   "app": {
     "suspended": {
       "title": "Cont suspendat",

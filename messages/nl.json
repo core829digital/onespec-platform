@@ -310,6 +310,18 @@
     "planSelectionRequired": "Kies een abonnement om door te gaan — voltooi de installatiewizard.",
     "planUpgradeRequired": "Je abonnement bevat deze functie niet — upgrade naar een hoger abonnement om het te ontgrendelen."
   },
+  "errorBoundary": {
+    "generic": {
+      "title": "Er ging iets mis",
+      "hint": "Er is een onverwachte fout opgetreden. Probeer het opnieuw of ga terug.",
+      "retry": "Opnieuw proberen"
+    },
+    "app": {
+      "title": "Deze pagina kon niet worden geladen",
+      "hint": "Controleer uw verbinding en probeer het opnieuw. Neem contact op met support als het probleem aanhoudt.",
+      "retry": "Opnieuw proberen"
+    }
+  },
   "app": {
     "suspended": {
       "title": "Account opgeschort",

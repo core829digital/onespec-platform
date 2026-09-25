@@ -310,6 +310,18 @@
     "planSelectionRequired": "Choisissez un forfait pour continuer — terminez l'assistant de configuration.",
     "planUpgradeRequired": "Votre forfait n'inclut pas cette fonctionnalité — passez à un forfait supérieur pour la débloquer."
   },
+  "errorBoundary": {
+    "generic": {
+      "title": "Une erreur est survenue",
+      "hint": "Une erreur inattendue s'est produite. Réessayez ou revenez en arrière.",
+      "retry": "Réessayer"
+    },
+    "app": {
+      "title": "Impossible de charger cette page",
+      "hint": "Vérifiez votre connexion et réessayez. Si le problème persiste, contactez le support.",
+      "retry": "Réessayer"
+    }
+  },
   "app": {
     "suspended": {
       "title": "Compte suspendu",
