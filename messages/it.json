@@ -310,6 +310,18 @@
     "planSelectionRequired": "Scegli un piano per continuare — completa la procedura guidata di attivazione.",
     "planUpgradeRequired": "Il tuo piano non include questa funzione — passa a un piano superiore per sbloccarla."
   },
+  "errorBoundary": {
+    "generic": {
+      "title": "Qualcosa è andato storto",
+      "hint": "Si è verificato un errore imprevisto. Riprova o torna indietro.",
+      "retry": "Riprova"
+    },
+    "app": {
+      "title": "Impossibile caricare questa pagina",
+      "hint": "Controlla la connessione e riprova. Se il problema persiste, contatta il supporto.",
+      "retry": "Riprova"
+    }
+  },
   "app": {
     "suspended": {
       "title": "Account sospeso",

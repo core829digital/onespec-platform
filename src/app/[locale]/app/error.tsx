@@ -1,17 +1,12 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { ErrorView } from "@/components/error-view";
 
 export default function AppError(props: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  return (
-    <ErrorView
-      {...props}
-      title="Impossibile caricare questa pagina"
-      hint="Controlla la connessione e riprova. Se il problema persiste, contatta il supporto."
-      retryLabel="Riprova"
-    />
-  );
+  const t = useTranslations("errorBoundary.app");
+  return <ErrorView {...props} title={t("title")} hint={t("hint")} retryLabel={t("retry")} />;
 }

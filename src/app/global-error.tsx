@@ -1,16 +1,48 @@
 "use client";
 
-import { useEffect } from "react";
-import posthog from "posthog-js";
+import { hasLocale } from "next-intl";
+import { useBoundaryRetry } from "@/hooks/useBoundaryRetry";
+import { routing, type AppLocale } from "@/i18n/routing";
+
+// Copy for the root boundary only, not the full messages catalog: this can
+// render for a crash in the locale layout itself, before NextIntlClientProvider
+// exists, so it can't rely on next-intl's React context.
+const COPY: Record<AppLocale, { title: string; body: string; retry: string }> = {
+  it: { title: "Qualcosa è andato storto", body: "Si è verificato un errore imprevisto. Riprova.", retry: "Riprova" },
+  en: { title: "Something went wrong", body: "An unexpected error occurred. Try again.", retry: "Try again" },
+  fr: {
+    title: "Une erreur est survenue",
+    body: "Une erreur inattendue s'est produite. Réessayez.",
+    retry: "Réessayer",
+  },
+  ro: { title: "Ceva nu a mers bine", body: "A apărut o eroare neașteptată. Reîncearcă.", retry: "Reîncearcă" },
+  de: {
+    title: "Etwas ist schiefgelaufen",
+    body: "Ein unerwarteter Fehler ist aufgetreten. Versuchen Sie es erneut.",
+    retry: "Erneut versuchen",
+  },
+  nl: {
+    title: "Er ging iets mis",
+    body: "Er is een onverwachte fout opgetreden. Probeer het opnieuw.",
+    retry: "Opnieuw proberen",
+  },
+};
+
+function localeFromPathname(pathname: string): AppLocale {
+  const first = pathname.split("/")[1];
+  return hasLocale(routing.locales, first) ? first : routing.defaultLocale;
+}
 
 // Root error boundary — replaces the whole document, so it must render <html>.
 export default function GlobalError({ error, reset }: { error: Error; reset: () => void }) {
-  useEffect(() => {
-    posthog.captureException(error);
-  }, [error]);
+  const retry = useBoundaryRetry(error, reset);
+  // If this boundary is served from a server-rendered error page, `window`
+  // is undefined there and we fall back to the default locale for that pass.
+  const locale = typeof window === "undefined" ? routing.defaultLocale : localeFromPathname(window.location.pathname);
+  const copy = COPY[locale];
 
   return (
-    <html lang="it">
+    <html lang={locale} suppressHydrationWarning>
       <body
         style={{
           margin: 0,
@@ -24,13 +56,11 @@ export default function GlobalError({ error, reset }: { error: Error; reset: () 
         }}
       >
         <div style={{ textAlign: "center", padding: 24, maxWidth: 420 }}>
-          <h1 style={{ fontSize: 20, marginBottom: 8 }}>Qualcosa è andato storto</h1>
-          <p style={{ color: "#9a9aa0", marginBottom: 20 }}>
-            Si è verificato un errore imprevisto. Riprova.
-          </p>
+          <h1 style={{ fontSize: 20, marginBottom: 8 }}>{copy.title}</h1>
+          <p style={{ color: "#9a9aa0", marginBottom: 20 }}>{copy.body}</p>
           <button
             type="button"
-            onClick={reset}
+            onClick={retry}
             style={{
               padding: "10px 20px",
               borderRadius: 8,
@@ -41,7 +71,7 @@ export default function GlobalError({ error, reset }: { error: Error; reset: () 
               cursor: "pointer",
             }}
           >
-            Riprova
+            {copy.retry}
           </button>
         </div>
       </body>
