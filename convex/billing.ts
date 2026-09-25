@@ -41,6 +41,18 @@ async function stripe(path: string, body: Record<string, string | undefined>) {
   return json;
 }
 
+async function stripeGet(path: string) {
+  const res = await fetch(`${STRIPE_API}${path}`, {
+    headers: { Authorization: `Bearer ${stripeKey()}` },
+  });
+  const json = (await res.json()) as Record<string, unknown>;
+  if (!res.ok) {
+    const msg = (json.error as { message?: string } | undefined)?.message ?? "STRIPE_ERROR";
+    throw new ConvexError(`STRIPE: ${msg}`);
+  }
+  return json;
+}
+
 // ---------------------------------------------------------------------------
 // Read model
 // ---------------------------------------------------------------------------
@@ -87,6 +99,8 @@ export const assertOwner = internalQuery({
       userId: membership.userId,
       email: (await ctx.db.get(membership.userId))?.email ?? undefined,
       stripeCustomerId: tenant.stripeCustomerId,
+      stripeSubscriptionId: tenant.stripeSubscriptionId ?? null,
+      plan: tenant.plan,
       slug: tenant.slug,
       country: tenant.country ?? null,
       trialStartedAt: tenant.trialStartedAt ?? null,
@@ -170,6 +184,107 @@ export const createPortalSession = action({
       return_url: `${siteUrl()}/app/account/billing`,
     });
     return { url: String(session.url) };
+  },
+});
+
+/**
+ * Resolve the current subscription's single item id — needed by Stripe to
+ * swap its price. Not stored locally (it can change independently of the
+ * subscription id), so this always reads it fresh from Stripe.
+ */
+async function currentSubscriptionItemId(subscriptionId: string): Promise<string> {
+  const sub = await stripeGet(`/subscriptions/${subscriptionId}`);
+  const itemId = (sub.items as { data?: Array<{ id?: string }> } | undefined)?.data?.[0]?.id;
+  if (!itemId) throw new ConvexError("NO_SUBSCRIPTION_ITEM");
+  return itemId;
+}
+
+/**
+ * Preview the immediate, prorated charge for switching to `plan`/`cycle` —
+ * Stripe computes this from the price difference and the days left in the
+ * current billing period, without charging anything yet.
+ */
+export const previewPlanChange = action({
+  args: {
+    tenantId: v.id("tenants"),
+    plan: v.union(v.literal("base"), v.literal("pro"), v.literal("agency")),
+    cycle: v.optional(v.union(v.literal("monthly"), v.literal("annual"))),
+  },
+  handler: async (ctx, args): Promise<{ amountDueCents: number; currency: string }> => {
+    if (!stripeKey()) throw new ConvexError("BILLING_NOT_CONFIGURED");
+    const owner = await ctx.runQuery(internal.billing.assertOwner, { tenantId: args.tenantId });
+    if (!owner.stripeSubscriptionId) throw new ConvexError("NO_SUBSCRIPTION");
+
+    const cycle: BillingCycle = args.cycle ?? "monthly";
+    const region = regionForCountry(owner.country).code;
+    const priceId = resolveStripePriceId(args.plan, cycle, region);
+    if (!priceId) throw new ConvexError("BILLING_PRICE_NOT_CONFIGURED");
+
+    const itemId = await currentSubscriptionItemId(owner.stripeSubscriptionId);
+    const preview = await stripeGet(
+      `/invoices/upcoming?${form({
+        subscription: owner.stripeSubscriptionId,
+        "subscription_items[0][id]": itemId,
+        "subscription_items[0][price]": priceId,
+        subscription_proration_behavior: "always_invoice",
+      })}`,
+    );
+    return {
+      amountDueCents: Number(preview.amount_due ?? 0),
+      currency: String(preview.currency ?? "eur").toUpperCase(),
+    };
+  },
+});
+
+/**
+ * Switch the subscription to `plan`/`cycle` right now. `proration_behavior:
+ * always_invoice` makes Stripe charge exactly the price difference prorated
+ * by the days remaining in the current period — never the new plan's full
+ * price — and issues the invoice immediately.
+ */
+export const changePlan = action({
+  args: {
+    tenantId: v.id("tenants"),
+    plan: v.union(v.literal("base"), v.literal("pro"), v.literal("agency")),
+    cycle: v.optional(v.union(v.literal("monthly"), v.literal("annual"))),
+  },
+  handler: async (ctx, args): Promise<{ ok: true }> => {
+    if (!stripeKey()) throw new ConvexError("BILLING_NOT_CONFIGURED");
+    const owner = await ctx.runQuery(internal.billing.assertOwner, { tenantId: args.tenantId });
+    if (!owner.stripeSubscriptionId) throw new ConvexError("NO_SUBSCRIPTION");
+
+    const cycle: BillingCycle = args.cycle ?? "monthly";
+    const region = regionForCountry(owner.country).code;
+    const priceId = resolveStripePriceId(args.plan, cycle, region);
+    if (!priceId) throw new ConvexError("BILLING_PRICE_NOT_CONFIGURED");
+
+    const itemId = await currentSubscriptionItemId(owner.stripeSubscriptionId);
+    await stripe(`/subscriptions/${owner.stripeSubscriptionId}`, {
+      "items[0][id]": itemId,
+      "items[0][price]": priceId,
+      proration_behavior: "always_invoice",
+      "metadata[plan]": args.plan,
+      "metadata[cycle]": cycle,
+    });
+    // The webhook (customer.subscription.updated) applies the plan/cycle
+    // patch to the tenant once Stripe confirms it — not done optimistically
+    // here, to stay the single source of truth for entitlements.
+    return { ok: true };
+  },
+});
+
+/** Cancel at the end of the current billing period — access continues until then. */
+export const cancelSubscription = action({
+  args: { tenantId: v.id("tenants") },
+  handler: async (ctx, args): Promise<{ ok: true }> => {
+    if (!stripeKey()) throw new ConvexError("BILLING_NOT_CONFIGURED");
+    const owner = await ctx.runQuery(internal.billing.assertOwner, { tenantId: args.tenantId });
+    if (!owner.stripeSubscriptionId) throw new ConvexError("NO_SUBSCRIPTION");
+
+    await stripe(`/subscriptions/${owner.stripeSubscriptionId}`, {
+      cancel_at_period_end: "true",
+    });
+    return { ok: true };
   },
 });
 

@@ -431,7 +431,9 @@
       "active": "Aktives Abonnement",
       "renews": "verlängert sich am {date}",
       "canceledAtPeriodEnd": "gekündigt zum Periodenende",
-      "manage": "Abonnement verwalten"
+      "manage": "Abonnement verwalten",
+      "cancel": "Abonnement kündigen",
+      "confirmCancel": "Kündigung bestätigen? Der Zugang bleibt bis zum Ende des bereits bezahlten Zeitraums aktiv."
     },
     "error": {
       "generic": "Fehler",
@@ -455,6 +457,9 @@
       "edit": "Firmendaten bearbeiten",
       "invoices": "Rechnungen",
       "invoicesHint": "Rechnungen erscheinen hier, sobald Ihr Abonnement aktiv ist; Sie können sie herunterladen und Ihre Zahlungsmethode verwalten."
+    },
+    "upgrade": {
+      "confirmCharge": "Es wird nur die anteilige Differenz berechnet: {amount}. Planwechsel bestätigen?"
     }
   },
   "clients": {

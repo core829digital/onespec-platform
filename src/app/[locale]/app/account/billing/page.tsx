@@ -36,6 +36,9 @@ export default function BillingPage() {
   );
   const checkout = useAction(api.billing.createCheckoutSession);
   const portal = useAction(api.billing.createPortalSession);
+  const previewPlanChange = useAction(api.billing.previewPlanChange);
+  const changePlan = useAction(api.billing.changePlan);
+  const cancelSubscription = useAction(api.billing.cancelSubscription);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [cycle, setCycle] = useState<"monthly" | "annual">("monthly");
@@ -46,6 +49,37 @@ export default function BillingPage() {
     try {
       const { url } = await fn();
       window.location.assign(url);
+    } catch (e) {
+      setErr(tf(e));
+      setBusy(false);
+    }
+  }
+
+  async function switchPlan(plan: "base" | "pro" | "agency") {
+    setBusy(true);
+    setErr("");
+    try {
+      const preview = await previewPlanChange({ tenantId: tenant!._id, plan, cycle });
+      const amount = `€${(preview.amountDueCents / 100).toLocaleString(locale, { minimumFractionDigits: 2 })}`;
+      if (!window.confirm(t("upgrade.confirmCharge", { amount }))) {
+        setBusy(false);
+        return;
+      }
+      await changePlan({ tenantId: tenant!._id, plan, cycle });
+      window.location.reload();
+    } catch (e) {
+      setErr(tf(e));
+      setBusy(false);
+    }
+  }
+
+  async function doCancel() {
+    if (!window.confirm(t("subscription.confirmCancel"))) return;
+    setBusy(true);
+    setErr("");
+    try {
+      await cancelSubscription({ tenantId: tenant!._id });
+      window.location.reload();
     } catch (e) {
       setErr(tf(e));
       setBusy(false);
@@ -100,16 +134,28 @@ export default function BillingPage() {
                 : ""}
               {state.subscription.cancelAtPeriodEnd ? ` · ${t("subscription.canceledAtPeriodEnd")}` : ""}
             </p>
-            {state.portalAvailable ? (
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => go(() => portal({ tenantId: tenant!._id }))}
-                className="mt-2 rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm text-[var(--color-text)]"
-              >
-                {t("subscription.manage")}
-              </button>
-            ) : null}
+            <div className="mt-2 flex flex-wrap gap-2">
+              {state.portalAvailable ? (
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => go(() => portal({ tenantId: tenant!._id }))}
+                  className="rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm text-[var(--color-text)]"
+                >
+                  {t("subscription.manage")}
+                </button>
+              ) : null}
+              {!state.subscription.cancelAtPeriodEnd ? (
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={doCancel}
+                  className="rounded-lg border border-[var(--color-danger)] px-4 py-2 text-sm text-[var(--color-danger)]"
+                >
+                  {t("subscription.cancel")}
+                </button>
+              ) : null}
+            </div>
           </div>
         ) : null}
   
@@ -207,7 +253,7 @@ export default function BillingPage() {
                     >
                       {t("contactSales")}
                     </a>
-                  ) : p.key === "pro" && state.plan === "base" && state.checkoutAvailable ? (
+                  ) : p.key === "pro" && state.plan === "base" && !state.subscription && state.checkoutAvailable ? (
                     <button
                       type="button"
                       disabled={busy}
@@ -224,6 +270,15 @@ export default function BillingPage() {
                     >
                       {t("startTrial")}
                     </button>
+                  ) : state.subscription && state.checkoutAvailable ? (
+                    <button
+                      type="button"
+                      disabled={busy}
+                      onClick={() => switchPlan(p.key as "base" | "pro" | "agency")}
+                      className="rounded-lg bg-[var(--color-mint)] w-full px-3 py-1.5 text-xs font-semibold text-[var(--color-mint-dark)]"
+                    >
+                      {t("upgradeTo")} {p.name}
+                    </button>
                   ) : state.checkoutAvailable ? (
                     <button
                       type="button"
@@ -239,13 +294,9 @@ export default function BillingPage() {
                       }
                       className="rounded-lg bg-[var(--color-mint)] w-full px-3 py-1.5 text-xs font-semibold text-[var(--color-mint-dark)]"
                     >
-                      {current ? t("currentPlan") : `${t("upgradeTo")} ${p.name}`}
+                      {t("upgradeTo")} {p.name}
                     </button>
-                  ) : (
-                    <span className="text-xs text-[var(--color-text-secondary)] block text-center">
-                      {t("comingSoon")}
-                    </span>
-                  )}
+                  ) : null}
                 </div>
               </div>
             );

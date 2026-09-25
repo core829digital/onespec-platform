@@ -431,7 +431,9 @@
       "active": "Abonament activ",
       "renews": "se prelungesc pe {date}",
       "canceledAtPeriodEnd": "anulat la sfârșitul perioadei",
-      "manage": "Gestionează abonamentul"
+      "manage": "Gestionează abonamentul",
+      "cancel": "Anulează abonamentul",
+      "confirmCancel": "Confirmi anularea? Accesul rămâne activ până la finalul perioadei deja plătite."
     },
     "error": {
       "generic": "Eroare",
@@ -455,6 +457,9 @@
       "edit": "Modifică datele companiei",
       "invoices": "Facturi",
       "invoicesHint": "Facturile vor apărea aici odată ce abonamentul este activ; le vei putea descărca și îți vei putea gestiona metoda de plată."
+    },
+    "upgrade": {
+      "confirmCharge": "Vei fi taxat doar cu diferența proporțională: {amount}. Confirmi schimbarea planului?"
     }
   },
   "clients": {

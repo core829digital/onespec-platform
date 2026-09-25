@@ -431,7 +431,9 @@
       "active": "Active subscription",
       "renews": "renews on {date}",
       "canceledAtPeriodEnd": "canceled at period end",
-      "manage": "Manage subscription"
+      "manage": "Manage subscription",
+      "cancel": "Cancel subscription",
+      "confirmCancel": "Confirm cancellation? Access stays active until the end of the period you already paid for."
     },
     "error": {
       "generic": "Error",
@@ -455,6 +457,9 @@
       "edit": "Edit company details",
       "invoices": "Invoices",
       "invoicesHint": "Invoices will appear here once your subscription is active; you will be able to download them and manage your payment method."
+    },
+    "upgrade": {
+      "confirmCharge": "You'll be charged only the prorated difference: {amount}. Confirm the plan change?"
     }
   },
   "clients": {

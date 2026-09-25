@@ -431,7 +431,9 @@
       "active": "Abbonamento attivo",
       "renews": "rinnovo il {date}",
       "canceledAtPeriodEnd": "disdetta a fine periodo",
-      "manage": "Gestisci abbonamento"
+      "manage": "Gestisci abbonamento",
+      "cancel": "Annulla abbonamento",
+      "confirmCancel": "Confermi la disdetta? L'accesso resta attivo fino alla fine del periodo già pagato."
     },
     "error": {
       "generic": "Errore",
@@ -455,6 +457,9 @@
       "edit": "Modifica i dati azienda",
       "invoices": "Fatture",
       "invoicesHint": "Le fatture compariranno qui non appena l'abbonamento sarà attivo; potrai scaricarle e gestire il metodo di pagamento."
+    },
+    "upgrade": {
+      "confirmCharge": "Verrà addebitata solo la differenza prorata: {amount}. Confermi il cambio piano?"
     }
   },
   "clients": {

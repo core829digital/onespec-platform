@@ -431,7 +431,9 @@
       "active": "Abonnement actif",
       "renews": "renouvellement le {date}",
       "canceledAtPeriodEnd": "résilié à la fin de la période",
-      "manage": "Gérer l'abonnement"
+      "manage": "Gérer l'abonnement",
+      "cancel": "Annuler l'abonnement",
+      "confirmCancel": "Confirmer l'annulation ? L'accès reste actif jusqu'à la fin de la période déjà payée."
     },
     "error": {
       "generic": "Erreur",
@@ -455,6 +457,9 @@
       "edit": "Modifier les données de l'entreprise",
       "invoices": "Factures",
       "invoicesHint": "Les factures apparaîtront ici dès que votre abonnement sera actif ; vous pourrez les télécharger et gérer votre moyen de paiement."
+    },
+    "upgrade": {
+      "confirmCharge": "Seule la différence proratisée sera facturée : {amount}. Confirmer le changement de forfait ?"
     }
   },
   "clients": {

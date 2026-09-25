@@ -431,7 +431,9 @@
       "active": "Actief abonnement",
       "renews": "verlengt op {date}",
       "canceledAtPeriodEnd": "opgezegd aan het einde van de periode",
-      "manage": "Abonnement beheren"
+      "manage": "Abonnement beheren",
+      "cancel": "Abonnement opzeggen",
+      "confirmCancel": "Opzegging bevestigen? Toegang blijft actief tot het einde van de al betaalde periode."
     },
     "error": {
       "generic": "Fout",
@@ -455,6 +457,9 @@
       "edit": "Bedrijfsgegevens wijzigen",
       "invoices": "Facturen",
       "invoicesHint": "Facturen verschijnen hier zodra je abonnement actief is; je kunt ze downloaden en je betaalmethode beheren."
+    },
+    "upgrade": {
+      "confirmCharge": "Er wordt alleen het naar rato verschil in rekening gebracht: {amount}. Planwijziging bevestigen?"
     }
   },
   "clients": {
