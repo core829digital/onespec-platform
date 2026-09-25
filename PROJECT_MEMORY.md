@@ -782,6 +782,10 @@ Utente conferma dominio Resend verificato → `npx convex env set RESEND_MODE li
 - `8c6bbab` full-access fondatori: `tenants.unlimitedAccess` (tutto on + Infinity + skip planStatus), `lib/founding.ts` (2 email), auto-flag in register, `migrations:grantFullAccessToFounders` eseguita su prod (2 tenant), toggle in admin, `ADMIN_EMAILS` con entrambe. RBAC 2 ruoli: utente dice salta.
 - FASE G: Dashboard→Panoramica, Pipeline→Trattative, Analytics→Statistiche, Admin→Amministrazione, Team→Squadra, Kanban→Bacheca, in 6 lingue (Widget/Lead nomi prodotto, restano).
 
+### 9.22 Turnstile live (2026-09-24)
+
+Chiavi utente inserite: `TURNSTILE_SECRET` su Convex prod + dev (env, mai in git); `NEXT_PUBLIC_TURNSTILE_SITE_KEY` in `.env.local` (gitignored). Server ora RIFIUTA davvero i submit widget senza gettone valido (400 TURNSTILE_FAILED); client lo chiede in automatico quando la chiave sito e' presente nella build. RESTA ALL'UTENTE: aggiungere `NEXT_PUBLIC_TURNSTILE_SITE_KEY` su Vercel (Environment Variables, tutti gli env) + redeploy — Next la cuce dentro in build, senza quello il sito live non manda gettoni e i lead VERI verrebbero rifiutati.
+
 ### 9.22 RBAC + verifica full-access + hardening race condition (2026-09-24, sessione parallela)
 
 Lavorando in parallelo all'altra sessione (stesso repo, verificato ogni file con `git log`/`git diff` prima di toccarlo — nessuna sovrascrittura). L'utente aveva detto all'altra sessione "RBAC salta" ma lo ha richiesto di nuovo a questa sessione con scope piu' preciso (ruoli tenant con sub-ruoli per piano + admin piattaforma) — confermato esplicitamente prima di procedere, per non contraddire una decisione gia' presa.
