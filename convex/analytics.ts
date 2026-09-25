@@ -63,14 +63,25 @@ function my(d: Date) {
 }
 
 /**
- * Tenant-scoped analytics for the dashboard. Membership-gated. All figures are
- * derived from real quoteRequests rows for this tenant — never demo data.
+ * Tenant-scoped overview for the dashboard. Membership-gated. All figures
+ * are derived from real quoteRequests rows for this tenant — never demo
+ * data. Deliberately NOT gated by enforceAnalyticsForQuery even though this
+ * file also has the entitlement-gated getPeakHours: this same query backs
+ * the main dashboard every tenant lands on right after onboarding, not
+ * just the deeper /app/analytics page. Base plan's `analytics: "none"`
+ * entitlement was blocking this query outright — a Base-tier tenant's
+ * dashboard threw an uncaught ConvexError on every load (the exact crash a
+ * new tenant hit right after finishing the plan wizard). Basic revenue/
+ * request counts are core operational data every paying tenant needs to
+ * see, not a premium analytics feature — the actual premium breakdown
+ * (getPeakHours) keeps its gate.
  */
 export const getOverview = query({
   args: { tenantId: v.id("tenants"), range: v.optional(RANGE), tzOffsetMinutes: v.optional(v.number()) },
   handler: async (ctx, args) => {
     await requireMembership(ctx, args.tenantId);
-    await enforceAnalyticsForQuery(ctx, args.tenantId);
+    const tenantDoc = await ctx.db.get(args.tenantId);
+    const analyticsLevel = tenantDoc ? resolveTenantEntitlements(tenantDoc).analytics : "none";
     const range = (args.range ?? "1m") as Range;
     const spec = RANGE_SPEC[range];
     const now = Date.now();
@@ -208,6 +219,10 @@ export const getOverview = query({
 
     return {
       range,
+      // Lets the client skip the entitlement-gated getPeakHours call
+      // entirely instead of letting it throw an uncaught error for a
+      // Base-tier tenant — see the comment on this function.
+      analyticsLevel,
       previous,
       totalRequests: inWindow.length,
       widgetViews,

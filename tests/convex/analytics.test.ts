@@ -31,6 +31,24 @@ async function quote(
 }
 
 describe("analytics.getOverview", () => {
+  // Regression test: a Base-plan tenant's dashboard called this query
+  // unconditionally and it used to hard-throw ANALYTICS_NOT_ALLOWED (Base's
+  // entitlements.analytics === "none") — an uncaught error on the very
+  // first screen after onboarding for the cheapest paying tier. Basic
+  // revenue/request counts must always resolve; only the deeper
+  // getPeakHours breakdown stays entitlement-gated.
+  test("resolves (does not throw) for a Base-plan tenant and reports its analytics level", async () => {
+    const t = newDb();
+    const { tenantId, memberId } = await seedTenant(t, { plan: "base" });
+
+    const o = await t
+      .withIdentity({ subject: memberId })
+      .query(api.analytics.getOverview, { tenantId, range: "1m" });
+
+    expect(o.analyticsLevel).toBe("none");
+    expect(o.totalRequests).toBe(0);
+  });
+
   test("aggregates status, conversion and value from real rows only", async () => {
     const t = newDb();
     const { tenantId, memberId } = await seedTenant(t, { plan: "pro" });

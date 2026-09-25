@@ -88,7 +88,9 @@
     "requestsCount": "{count, plural, one {# solicitare} other {# solicitări}}",
     "trendTotal": "Total",
     "trendPeak": "Vârf",
-    "noRequestsPeriod": "Nicio solicitare în perioada selectată."
+    "noRequestsPeriod": "Nicio solicitare în perioada selectată.",
+    "upgradeForAnalytics": "Planul tău nu include statistici avansate.",
+    "upgradePlan": "Fă upgrade la plan"
   },
   "topbar": {
     "account": "Cont",

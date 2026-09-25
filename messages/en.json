@@ -88,7 +88,9 @@
     "requestsCount": "{count, plural, one {# request} other {# requests}}",
     "trendTotal": "Total",
     "trendPeak": "Peak",
-    "noRequestsPeriod": "No requests in the selected period."
+    "noRequestsPeriod": "No requests in the selected period.",
+    "upgradeForAnalytics": "Your plan doesn't include advanced analytics.",
+    "upgradePlan": "Upgrade your plan"
   },
   "topbar": {
     "account": "Account",

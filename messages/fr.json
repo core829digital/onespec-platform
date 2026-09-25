@@ -88,7 +88,9 @@
     "requestsCount": "{count, plural, one {# demande} other {# demandes}}",
     "trendTotal": "Total",
     "trendPeak": "Pic",
-    "noRequestsPeriod": "Aucune demande sur la période sélectionnée."
+    "noRequestsPeriod": "Aucune demande sur la période sélectionnée.",
+    "upgradeForAnalytics": "Votre forfait n'inclut pas les statistiques avancées.",
+    "upgradePlan": "Passez à un forfait supérieur"
   },
   "topbar": {
     "account": "Compte",

@@ -4,6 +4,7 @@ import { useState, Suspense, lazy } from "react";
 import { useQuery } from "convex/react";
 import { useTranslations, useLocale } from "next-intl";
 import { api } from "@/convex/_generated/api";
+import { Link } from "@/i18n/navigation";
 import { RangeSwitcher, RANGE_LABEL, type AnalyticsRange } from "@/components/analytics/range-switcher";
 import {
   Eye,
@@ -52,6 +53,7 @@ const CHART_COLORS = [
 
 interface OverviewData {
   range: AnalyticsRange;
+  analyticsLevel: "none" | "basic" | "advanced";
   previous: {
     totalRequests: number;
     won: number;
@@ -116,9 +118,14 @@ export default function AnalyticsPage() {
     api.analytics.getOverview,
     tenant ? { tenantId: tenant._id, range, tzOffsetMinutes } : "skip",
   ) as OverviewData | undefined;
+  // getPeakHours is entitlement-gated (Base plan has no analytics at all) —
+  // skip the call entirely for a tenant that can't use it instead of
+  // letting it throw an uncaught error once overview confirms the level.
   const peakHours = useQuery(
     api.analytics.getPeakHours,
-    tenant ? { tenantId: tenant._id, range, tzOffsetMinutes } : "skip",
+    tenant && overview && overview.analyticsLevel !== "none"
+      ? { tenantId: tenant._id, range, tzOffsetMinutes }
+      : "skip",
   ) as PeakHourData[] | undefined;
 
   if (!tenant) return null;
@@ -295,7 +302,14 @@ export default function AnalyticsPage() {
           </div>
 
           <section key={`peak-${range}`} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
-            {peakHours === undefined ? (
+            {overview?.analyticsLevel === "none" ? (
+              <div className="flex flex-col items-center justify-center gap-2 py-10 text-center text-sm text-[var(--color-text-secondary)]">
+                <p>{t("upgradeForAnalytics")}</p>
+                <Link href="/app/account/billing" className="text-[var(--color-mint)] hover:underline font-medium">
+                  {t("upgradePlan")}
+                </Link>
+              </div>
+            ) : peakHours === undefined ? (
               <ChartSkeleton />
             ) : (
               <Suspense fallback={<ChartSkeleton />}>

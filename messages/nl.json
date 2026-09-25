@@ -88,7 +88,9 @@
     "requestsCount": "{count, plural, one {# aanvraag} other {# aanvragen}}",
     "trendTotal": "Totaal",
     "trendPeak": "Piek",
-    "noRequestsPeriod": "Geen aanvragen in de gekozen periode."
+    "noRequestsPeriod": "Geen aanvragen in de gekozen periode.",
+    "upgradeForAnalytics": "Je abonnement bevat geen geavanceerde statistieken.",
+    "upgradePlan": "Upgrade je abonnement"
   },
   "topbar": {
     "account": "Account",
