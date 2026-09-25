@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import posthog from "posthog-js";
+import { useLocale } from "next-intl";
+import { useRouter as useNextRouter } from "next/navigation";
 import { useAction, useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useRouter } from "@/i18n/navigation";
@@ -71,6 +73,8 @@ const PLAN_CARDS: {
 export default function OnboardingWizard() {
   const tf = useFriendlyError();
   const router = useRouter();
+  const nextRouter = useNextRouter();
+  const locale = useLocale();
   const state = useQuery(api.onboarding.getState);
   const tenant = useQuery(api.tenants.getMyTenant);
   const advance = useMutation(api.onboarding.advance);
@@ -143,7 +147,14 @@ export default function OnboardingWizard() {
       // router.replace resolves before the dashboard is ready, and without
       // this the user stares at a frozen button.
       setEntering(true);
-      router.replace("/app/dashboard");
+      // AppLayout's tenant check runs server-side, so the router's cache of
+      // its last render (from before complete() resolved) must be dropped —
+      // otherwise it replays the stale "onboarding not completed" redirect.
+      // Navigate with an explicit locale prefix (plain next/navigation
+      // router, not the i18n-aware one, to avoid re-prefixing an already
+      // localized path) so the follow-up request skips the locale hop too.
+      router.refresh();
+      nextRouter.replace(`/${locale}/app/dashboard`);
     } catch (e) {
       posthog.captureException(e);
       setErr(tf(e));
