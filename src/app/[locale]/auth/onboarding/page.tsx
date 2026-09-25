@@ -2,13 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authErrorMessage } from "@/lib/errors";
+import { localeForCountry } from "@/lib/country-locale";
+import { persistLocaleChoice } from "@/components/language-switcher";
+import type { AppLocale } from "@/i18n/routing";
 
 const COUNTRIES = [
   { code: "IT", label: "Italia" },
@@ -22,6 +25,7 @@ const COUNTRIES = [
 export default function OnboardingPage() {
   const t = useTranslations("auth.onboarding");
   const router = useRouter();
+  const currentLocale = useLocale() as AppLocale;
   const [companyName, setCompanyName] = useState("");
   const [country, setCountry] = useState("");
   const [detectedFrom, setDetectedFrom] = useState<string | null>(null);
@@ -70,7 +74,24 @@ export default function OnboardingPage() {
           <p className="text-[var(--color-text-secondary)]">{t("baseSubtitle", { companyName })}</p>
         </div>
 
-        <Button onClick={() => router.push("/onboarding")} className="w-full" size="lg">
+        <Button
+          onClick={() => {
+            // The country just chosen here is a deliberate business decision
+            // (not a passive geo-guess), so it wins the same way a manual
+            // pick in the language switcher does — persisted, and applied
+            // right away rather than waiting for the user to find the
+            // switcher themselves.
+            const target = localeForCountry(country);
+            if (target && target !== currentLocale) {
+              persistLocaleChoice(target);
+              router.push("/onboarding", { locale: target });
+            } else {
+              router.push("/onboarding");
+            }
+          }}
+          className="w-full"
+          size="lg"
+        >
           {t("continue")}
         </Button>
       </div>
