@@ -10,6 +10,7 @@ import type { Doc } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
 import { ChevronDown, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { NAV_GROUPS, ADMIN_NAV_ITEM, isNavItemActive, navHref, type NavItem } from "./nav-items";
+import { Logo } from "@/components/logo";
 
 const COLLAPSED_KEY = "onespec-sidebar-collapsed";
 const GROUPS_KEY = "onespec-nav-groups-closed";
@@ -105,8 +106,12 @@ export function Sidebar({ tenant }: { tenant: Doc<"tenants"> }) {
     >
       <div className="flex min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-alt)]/70 shadow-[0_8px_30px_rgb(0_0_0/0.10)] backdrop-blur-xl">
         <div className={cn("border-b border-[var(--color-border)]", collapsed ? "p-3" : "px-4 py-4")}>
-          <Link href="/app/dashboard" className="block truncate text-xl font-bold text-[var(--color-text)]" title="onespec">
-            {collapsed ? "1s" : "onespec"}
+          <Link href="/app/dashboard" className="block truncate" title="onespec">
+            {collapsed ? (
+              <span className="text-xl font-bold text-[var(--color-text)]">1s</span>
+            ) : (
+              <Logo className="h-6" />
+            )}
           </Link>
           {!collapsed ? (
             <p className="mt-1 truncate text-xs capitalize text-[var(--color-text-secondary)]">{tenant.name}</p>
