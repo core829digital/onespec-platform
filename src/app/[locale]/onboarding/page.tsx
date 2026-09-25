@@ -9,6 +9,7 @@ import { Link } from "@/i18n/navigation";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import { recommendPlan, type PlanQuizAnswers, type RecommendedPlan } from "@/lib/plan-recommendation";
+import { OneSpecLoadingScreen } from "@/components/onespec-loading-screen";
 
 type Step = "welcome" | "planQuiz" | "billing" | "team" | "configurator";
 
@@ -491,28 +492,14 @@ function ChoiceRow<T extends string>({
  * the dashboard chunk and Convex re-syncs the new tenant.
  */
 function EnteringApp() {
-  const [step, setStep] = useState(0);
-  useEffect(() => {
-    const id = window.setInterval(() => setStep((s) => (s + 1) % 3), 1600);
-    return () => window.clearInterval(id);
-  }, []);
-  const steps = [
-    "Creiamo il tuo spazio di lavoro…",
-    "Carichiamo catalogo e listini…",
-    "Quasi fatto, apriamo la dashboard…",
-  ];
   return (
-    <section
-      aria-live="polite"
-      className="mx-auto flex min-h-[50vh] max-w-md flex-col items-center justify-center gap-5 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-8 text-center"
-    >
-      <p className="text-xl font-bold text-[var(--color-text)]">Benvenuto a bordo 🎉</p>
-      <div className="h-2 w-full overflow-hidden rounded-full bg-[var(--color-border)]">
-        <div className="h-full w-1/3 animate-[enter-slide_1.2s_ease-in-out_infinite] rounded-full bg-[var(--color-mint)]" />
-      </div>
-      <p className="text-sm text-[var(--color-text-secondary)]">{steps[step]}</p>
-      <style>{`@keyframes enter-slide { 0% { margin-left: -33%; } 100% { margin-left: 100%; } }`}</style>
-    </section>
+    <OneSpecLoadingScreen
+      messages={[
+        "Creiamo il tuo spazio di lavoro…",
+        "Carichiamo catalogo e listini…",
+        "Quasi fatto, apriamo la dashboard…",
+      ]}
+    />
   );
 }
 
