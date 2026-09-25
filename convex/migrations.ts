@@ -178,6 +178,91 @@ export const seedCatalogExtras = internalMutation({
 });
 
 /**
+ * One-off backfill for the accessories/glazing/finish/hardware rows that
+ * `seedExtras` used to insert at a hardcoded priceCents: 0 (fixed in the
+ * same change as this migration — see catalogExtras.ts / configurator-model.ts).
+ * `seedExtras` itself is idempotent-by-key and only INSERTS missing rows, so
+ * it never touches a row that already exists — this patches the ones that
+ * already exist at exactly 0 for one of the known-affected natural keys.
+ * Skips any row whose price isn't 0, so a tenant who deliberately priced
+ * something free is left untouched.
+ *
+ *   npx convex run migrations:backfillZeroPricedCatalogDefaults
+ */
+const ZERO_PRICED_ACCESSORY_DEFAULTS: Record<string, number> = {
+  "zanz:carrarmato": 12000,
+  "zanz:plisettata": 8500,
+  "zanz:cerniere": 4500,
+  "zanz:fissa": 3000,
+  "zanz:molla": 6500,
+  "cass:deceuninck132": 18000,
+  "cass:rehau150": 20000,
+  "cass:aluplast80": 12000,
+  "cass:aluplast140": 16000,
+  "avv:sovrapposto": 22000,
+  "avv:applicato": 18000,
+  "avv:accessori": 4500,
+  "pers:fisse": 25000,
+  "pers:orientabili": 32000,
+};
+const ZERO_PRICED_GLAZING_DEFAULTS: Record<string, number> = {
+  acoustic: 4500,
+  satinDouble: 5500,
+  satinTriple: 12000,
+};
+const ZERO_PRICED_FINISH_DEFAULTS: Record<string, number> = {
+  anthracite: 6500,
+  bicolorRal: 7500,
+  whiteWoodExt: 7000,
+  woodIntExt: 9500,
+  whiteWoodEffect: 6000,
+  ivoryWoodEffect: 7000,
+  otherColor: 9500,
+};
+
+export const backfillZeroPricedCatalogDefaults = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    let patched = 0;
+
+    for (const row of await ctx.db.query("catalogAccessories").collect()) {
+      if (row.priceCents !== 0) continue;
+      const price = ZERO_PRICED_ACCESSORY_DEFAULTS[`${row.category}:${row.key}`];
+      if (price === undefined) continue;
+      await ctx.db.patch(row._id, { priceCents: price });
+      patched++;
+    }
+
+    for (const row of await ctx.db.query("catalogGlazingOptions").collect()) {
+      if (row.priceCents !== 0) continue;
+      const price = ZERO_PRICED_GLAZING_DEFAULTS[row.key];
+      if (price === undefined) continue;
+      await ctx.db.patch(row._id, { priceCents: price });
+      patched++;
+    }
+
+    for (const row of await ctx.db.query("catalogFinishOptions").collect()) {
+      if (row.priceCents !== 0) continue;
+      const price = ZERO_PRICED_FINISH_DEFAULTS[row.key];
+      if (price === undefined) continue;
+      await ctx.db.patch(row._id, { priceCents: price });
+      patched++;
+    }
+
+    for (const row of await ctx.db
+      .query("catalogHardwareOptions")
+      .filter((q) => q.and(q.eq(q.field("kind"), "hardware"), q.eq(q.field("key"), "hidden")))
+      .collect()) {
+      if (row.priceCents !== 0) continue;
+      await ctx.db.patch(row._id, { priceCents: 4500 });
+      patched++;
+    }
+
+    return { patched };
+  },
+});
+
+/**
  * FUTURE USE ONLY — NOT invoked by any code path, cron, or migration runner.
  * A platform-wide data reset for a pre-launch cleanup: wipes every row of
  * business/generated data across ALL tenants while keeping every account

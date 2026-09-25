@@ -21,7 +21,9 @@ describe("B2B/showroom catalogue sections", () => {
     const st = await asOwner.query(api.configurators.getEditorState, { configuratorId });
     expect(st?.frameTypes.map((f) => f.key).sort()).toEqual(["dritto", "reno40", "reno65"]);
     expect(st?.accessories).toHaveLength(14);
-    expect(st?.accessories.every((a) => a.priceCents === 0)).toBe(true);
+    // Every accessory used to seed at priceCents: 0 — fixed so a new catalog
+    // is usable out of the box instead of every row being a free upgrade.
+    expect(st?.accessories.every((a) => a.priceCents > 0)).toBe(true);
     const hw = (kind: string) => st!.hardware.filter((h) => h.kind === kind).map((h) => h.key);
     expect(hw("hardware")).toEqual(expect.arrayContaining(["standard", "rc2", "hidden"]));
     expect(hw("hardwareColor")).toEqual(expect.arrayContaining(["silver", "black"]));
@@ -30,7 +32,9 @@ describe("B2B/showroom catalogue sections", () => {
     expect(schuco?.uFrame).toBeCloseTo(0.88);
     expect(st!.profileSystems.find((p) => p.key === "rehau")?.uFrame).toBe(1);
     expect(st!.glazing.find((g) => g.key === "triple")?.psi).toBeCloseTo(0.032);
-    expect(st!.finish.find((f) => f.key === "woodIntExt")?.multiplier).toBeCloseTo(1.3);
+    // "multiplier" was dead data (finish/glazing price on flat priceCents,
+    // never a multiplier) — the seed now carries a real starting price instead.
+    expect(st!.finish.find((f) => f.key === "woodIntExt")?.priceCents).toBe(9500);
   });
 
   test("ensureCatalogExtras is idempotent and restores deleted rows without touching tenant edits", async () => {

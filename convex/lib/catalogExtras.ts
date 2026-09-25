@@ -33,7 +33,7 @@ const EXTRA_HARDWARE: Array<{
 }> = [
   { kind: "hardware", key: "standard", labels: lab("Standard", "Standard"), priceCents: 0, appliesToOperableOnly: true, sortOrder: -1 },
   { kind: "hardware", key: "rc2", labels: lab("RC2 sicurezza", "RC2 security"), priceCents: 5500, appliesToOperableOnly: true, sortOrder: 10 },
-  { kind: "hardware", key: "hidden", labels: lab("A scomparsa", "Concealed"), priceCents: 0, appliesToOperableOnly: true, sortOrder: 11 },
+  { kind: "hardware", key: "hidden", labels: lab("A scomparsa", "Concealed"), priceCents: 4500, appliesToOperableOnly: true, sortOrder: 11 },
   { kind: "hardwareColor", key: "silver", labels: lab("Argento", "Silver"), priceCents: 0, appliesToOperableOnly: true, sortOrder: 1 },
   { kind: "hardwareColor", key: "black", labels: lab("Nero", "Black"), priceCents: 1000, appliesToOperableOnly: true, sortOrder: 3 },
   { kind: "sashType", key: "tilt", labels: lab("Vasistas", "Tilt only"), priceCents: 2500, appliesToOperableOnly: true, sortOrder: 4 },
@@ -57,20 +57,27 @@ const EXTRA_PVC_PROFILES: Array<{ key: string; label: string; multiplier: number
 
 const GLAZING_PSI: Record<string, number> = { double: 0.04, triple: 0.032, tripleLowE: 0.032 };
 
-const EXTRA_GLAZING: Array<{ key: string; labels: Labels; uGlass: number; psi: number; multiplier: number; sortOrder: number }> = [
-  { key: "acoustic", labels: lab("Doppio vetro acustico 44.1/16/6", "Acoustic double glazing 44.1/16/6"), uGlass: 1.1, psi: 0.04, multiplier: 1.12, sortOrder: 10 },
-  { key: "satinDouble", labels: lab("Doppio vetro satinato", "Satin double glazing"), uGlass: 1.05, psi: 0.04, multiplier: 1.18, sortOrder: 11 },
-  { key: "satinTriple", labels: lab("Triplo vetro satinato", "Satin triple glazing"), uGlass: 0.58, psi: 0.032, multiplier: 1.32, sortOrder: 12 },
+// priceCents below are flat surcharges in the same spirit/range as the
+// sibling DEFAULT_GLAZING/DEFAULT_FINISH entries in catalog.ts (double=0,
+// triple=6000, tripleLowE=9500 / white=0, ral=5500, woodeffect=8500) — these
+// rows used to seed with a dead `multiplier` field the schema never reads
+// (glazing/finish price on flat priceCents, not a multiplier) and were
+// always inserted at priceCents: 0, so every tenant's catalog shipped with
+// premium glazing/finish options priced as free upgrades.
+const EXTRA_GLAZING: Array<{ key: string; labels: Labels; uGlass: number; psi: number; priceCents: number; sortOrder: number }> = [
+  { key: "acoustic", labels: lab("Doppio vetro acustico 44.1/16/6", "Acoustic double glazing 44.1/16/6"), uGlass: 1.1, psi: 0.04, priceCents: 4500, sortOrder: 10 },
+  { key: "satinDouble", labels: lab("Doppio vetro satinato", "Satin double glazing"), uGlass: 1.05, psi: 0.04, priceCents: 5500, sortOrder: 11 },
+  { key: "satinTriple", labels: lab("Triplo vetro satinato", "Satin triple glazing"), uGlass: 0.58, psi: 0.032, priceCents: 12000, sortOrder: 12 },
 ];
 
-const EXTRA_FINISH: Array<{ key: string; labels: Labels; swatchHex: string; multiplier: number; sortOrder: number }> = [
-  { key: "anthracite", labels: lab("Antracite RAL 7016", "Anthracite RAL 7016"), swatchHex: "#383E42", multiplier: 1.22, sortOrder: 10 },
-  { key: "bicolorRal", labels: lab("Bicolore: bianco interno / RAL esterno", "Bicolour: white inside / RAL outside"), swatchHex: "#6B7280", multiplier: 1.22, sortOrder: 11 },
-  { key: "whiteWoodExt", labels: lab("Bianco interno / effetto legno esterno", "White inside / wood effect outside"), swatchHex: "#8B5A2B", multiplier: 1.18, sortOrder: 12 },
-  { key: "woodIntExt", labels: lab("Effetto legno interno ed esterno", "Wood effect inside and outside"), swatchHex: "#A0522D", multiplier: 1.3, sortOrder: 13 },
-  { key: "whiteWoodEffect", labels: lab("Bianco effetto legno", "White wood effect"), swatchHex: "#F5F5DC", multiplier: 1.15, sortOrder: 14 },
-  { key: "ivoryWoodEffect", labels: lab("Ivory effetto legno", "Ivory wood effect"), swatchHex: "#FFFFF0", multiplier: 1.18, sortOrder: 15 },
-  { key: "otherColor", labels: lab("Altro colore", "Other colour"), swatchHex: "#B91C1C", multiplier: 1.35, sortOrder: 16 },
+const EXTRA_FINISH: Array<{ key: string; labels: Labels; swatchHex: string; priceCents: number; sortOrder: number }> = [
+  { key: "anthracite", labels: lab("Antracite RAL 7016", "Anthracite RAL 7016"), swatchHex: "#383E42", priceCents: 6500, sortOrder: 10 },
+  { key: "bicolorRal", labels: lab("Bicolore: bianco interno / RAL esterno", "Bicolour: white inside / RAL outside"), swatchHex: "#6B7280", priceCents: 7500, sortOrder: 11 },
+  { key: "whiteWoodExt", labels: lab("Bianco interno / effetto legno esterno", "White inside / wood effect outside"), swatchHex: "#8B5A2B", priceCents: 7000, sortOrder: 12 },
+  { key: "woodIntExt", labels: lab("Effetto legno interno ed esterno", "Wood effect inside and outside"), swatchHex: "#A0522D", priceCents: 9500, sortOrder: 13 },
+  { key: "whiteWoodEffect", labels: lab("Bianco effetto legno", "White wood effect"), swatchHex: "#F5F5DC", priceCents: 6000, sortOrder: 14 },
+  { key: "ivoryWoodEffect", labels: lab("Ivory effetto legno", "Ivory wood effect"), swatchHex: "#FFFFF0", priceCents: 7000, sortOrder: 15 },
+  { key: "otherColor", labels: lab("Altro colore", "Other colour"), swatchHex: "#B91C1C", priceCents: 9500, sortOrder: 16 },
 ];
 
 /**
@@ -138,14 +145,14 @@ export async function seedExtras(
   }
   for (const g of EXTRA_GLAZING) {
     if (glazing.some((x) => x.key === g.key)) continue;
-    await ctx.db.insert("catalogGlazingOptions", { ...scope, ...g, priceCents: 0, enabled: true });
+    await ctx.db.insert("catalogGlazingOptions", { ...scope, ...g, enabled: true });
     inserted++;
   }
 
   const finish = await ctx.db.query("catalogFinishOptions").withIndex("by_configurator", (q) => q.eq("configuratorId", args.configuratorId)).collect();
   for (const f of EXTRA_FINISH) {
     if (finish.some((x) => x.key === f.key)) continue;
-    await ctx.db.insert("catalogFinishOptions", { ...scope, ...f, priceCents: 0, enabled: true });
+    await ctx.db.insert("catalogFinishOptions", { ...scope, ...f, enabled: true });
     inserted++;
   }
 

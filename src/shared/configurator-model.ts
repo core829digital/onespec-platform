@@ -201,31 +201,44 @@ export interface AccessorySeed {
   enabled: boolean;
 }
 
-const acc = (category: AccessoryCategory, key: string, sortOrder: number, it: string, en: string): AccessorySeed => ({
+const acc = (
+  category: AccessoryCategory,
+  key: string,
+  sortOrder: number,
+  it: string,
+  en: string,
+  priceCents: number,
+): AccessorySeed => ({
   category,
   key,
   labels: { it, en },
   priceModel: "flat",
-  priceCents: 0, // the reference file prices every accessory at 0 — the tenant sets real prices
+  priceCents,
   sortOrder,
   enabled: true,
 });
 
+// Flat starting prices (cents) so a new catalog is usable out of the box
+// instead of every accessory sitting at €0 until the tenant prices it
+// manually — ballpark Italian market rates, in the same spirit as the
+// analogous DEFAULT_HARDWARE "screen"/"voletRoulant" entries in catalog.ts
+// (cerniera=4500, molla=6500, plissettata=8500, carrarmato=12000). The
+// tenant can edit every one of these from the catalog editor.
 export const DEFAULT_ACCESSORIES: AccessorySeed[] = [
-  acc("zanz", "carrarmato", 0, "Zanzariera tipo Carrarmato", "Reinforced insect screen"),
-  acc("zanz", "plisettata", 1, "Zanzariera Plisettata", "Pleated insect screen"),
-  acc("zanz", "cerniere", 2, "Zanzariera con Cerniere", "Hinged insect screen"),
-  acc("zanz", "fissa", 3, "Zanzariera Fissa", "Fixed insect screen"),
-  acc("zanz", "molla", 4, "Zanzariera a molla", "Roller insect screen"),
-  acc("cass", "deceuninck132", 0, "Cassonetto Deceuninck 132mm", "Deceuninck shutter box 132 mm"),
-  acc("cass", "rehau150", 1, "Cassonetto Rehau 150mm", "Rehau shutter box 150 mm"),
-  acc("cass", "aluplast80", 2, "Cassonetto Aluplast 80mm", "Aluplast shutter box 80 mm"),
-  acc("cass", "aluplast140", 3, "Cassonetto Aluplast 140mm", "Aluplast shutter box 140 mm"),
-  acc("avv", "sovrapposto", 0, "Avvolgibile sovrapposto", "Surface-mounted roller shutter"),
-  acc("avv", "applicato", 1, "Avvolgibile applicato", "Applied roller shutter"),
-  acc("avv", "accessori", 2, "Accessori avvolgibili", "Roller shutter accessories"),
-  acc("pers", "fisse", 0, "Persiana a lamelle fisse", "Fixed-louvre shutter"),
-  acc("pers", "orientabili", 1, "Persiana a lamelle orientabili", "Adjustable-louvre shutter"),
+  acc("zanz", "carrarmato", 0, "Zanzariera tipo Carrarmato", "Reinforced insect screen", 12000),
+  acc("zanz", "plisettata", 1, "Zanzariera Plisettata", "Pleated insect screen", 8500),
+  acc("zanz", "cerniere", 2, "Zanzariera con Cerniere", "Hinged insect screen", 4500),
+  acc("zanz", "fissa", 3, "Zanzariera Fissa", "Fixed insect screen", 3000),
+  acc("zanz", "molla", 4, "Zanzariera a molla", "Roller insect screen", 6500),
+  acc("cass", "deceuninck132", 0, "Cassonetto Deceuninck 132mm", "Deceuninck shutter box 132 mm", 18000),
+  acc("cass", "rehau150", 1, "Cassonetto Rehau 150mm", "Rehau shutter box 150 mm", 20000),
+  acc("cass", "aluplast80", 2, "Cassonetto Aluplast 80mm", "Aluplast shutter box 80 mm", 12000),
+  acc("cass", "aluplast140", 3, "Cassonetto Aluplast 140mm", "Aluplast shutter box 140 mm", 16000),
+  acc("avv", "sovrapposto", 0, "Avvolgibile sovrapposto", "Surface-mounted roller shutter", 22000),
+  acc("avv", "applicato", 1, "Avvolgibile applicato", "Applied roller shutter", 18000),
+  acc("avv", "accessori", 2, "Accessori avvolgibili", "Roller shutter accessories", 4500),
+  acc("pers", "fisse", 0, "Persiana a lamelle fisse", "Fixed-louvre shutter", 25000),
+  acc("pers", "orientabili", 1, "Persiana a lamelle orientabili", "Adjustable-louvre shutter", 32000),
 ];
 
 /** What a piece stores for its accessories: one catalogue key per category + the accessory's own size. */

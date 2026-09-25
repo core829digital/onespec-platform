@@ -4,7 +4,7 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Section, TextInput, NumberInput, Toggle } from "../editor-primitives";
 import { useCatalogEditor, label, toCents, thCls, tdCls, type LabelSet } from "./store";
-import { AddRow, DeleteButton, SaveButton, ScrollTable } from "./widgets";
+import { AddRow, DeleteButton, ScrollTable } from "./widgets";
 
 type Row = Record<string, unknown>;
 const sorted = (rows: Row[]) => [...rows].sort((a, b) => (a.sortOrder as number) - (b.sortOrder as number));
@@ -18,7 +18,7 @@ const sorted = (rows: Row[]) => [...rows].sort((a, b) => (a.sortOrder as number)
  * behind "non tutti i colori/accessori sono nei configuratori".
  */
 export function FrameTypesSection({ frameTypes }: { frameTypes: Row[] }) {
-  const { configuratorId, draft, setDraft, dirty, clearDraft, busy, run } = useCatalogEditor();
+  const { configuratorId, draft, setDraft, clearDraft, busy, run, autoSaveNow, autoSaveDebounced } = useCatalogEditor();
   const upsert = useMutation(api.catalog.upsertFrameType);
   const remove = useMutation(api.catalog.deleteFrameType);
   const rows = sorted(frameTypes);
@@ -55,59 +55,126 @@ export function FrameTypesSection({ frameTypes }: { frameTypes: Row[] }) {
             const disposal = String(draft(id, f, "disposal") ?? (f.disposalPerPieceCents as number) / 100);
             const scaffold = String(draft(id, f, "scaffold") ?? (f.scaffoldPerPieceCents as number) / 100);
             const enabled = Boolean(draft(id, f, "enabled") ?? f.enabled);
+            const save = (overrides: {
+              labelIt?: string;
+              multiplier?: string;
+              leaf1?: string;
+              leaf2?: string;
+              leaf3?: string;
+              disposal?: string;
+              scaffold?: string;
+              enabled?: boolean;
+            }) =>
+              upsert({
+                configuratorId,
+                key: f.key as string,
+                labels: { ...(f.labels as LabelSet), it: overrides.labelIt ?? labelIt },
+                descriptions: f.descriptions as Record<string, string> | undefined,
+                multiplier: parseFloat(overrides.multiplier ?? multiplier) || 1,
+                installByLeavesCents: [
+                  toCents(overrides.leaf1 ?? leaf1),
+                  toCents(overrides.leaf2 ?? leaf2),
+                  toCents(overrides.leaf3 ?? leaf3),
+                ],
+                disposalPerPieceCents: toCents(overrides.disposal ?? disposal),
+                scaffoldPerPieceCents: toCents(overrides.scaffold ?? scaffold),
+                sortOrder: f.sortOrder as number,
+                enabled: overrides.enabled ?? enabled,
+              }).then(() => clearDraft(id));
             return (
               <tr key={id}>
                 <td className={tdCls}>
                   <code className="text-xs text-[var(--color-text-secondary)]">{f.key as string}</code>
                 </td>
                 <td className={tdCls}>
-                  <TextInput value={labelIt} onChange={(e) => setDraft(id, "labelIt", e.target.value)} className="h-8 py-1 w-32" />
+                  <TextInput
+                    value={labelIt}
+                    onChange={(e) => {
+                      setDraft(id, "labelIt", e.target.value);
+                      autoSaveDebounced(id, () => save({ labelIt: e.target.value }));
+                    }}
+                    className="h-8 py-1 w-32"
+                  />
                 </td>
                 <td className={tdCls}>
-                  <NumberInput value={multiplier} onChange={(e) => setDraft(id, "multiplier", e.target.value)} className="h-8 py-1 w-20" step="0.01" />
+                  <NumberInput
+                    value={multiplier}
+                    onChange={(e) => {
+                      setDraft(id, "multiplier", e.target.value);
+                      autoSaveDebounced(id, () => save({ multiplier: e.target.value }));
+                    }}
+                    className="h-8 py-1 w-20"
+                    step="0.01"
+                  />
                 </td>
                 <td className={tdCls}>
-                  <NumberInput value={leaf1} onChange={(e) => setDraft(id, "leaf1", e.target.value)} className="h-8 py-1 w-20" step="0.01" />
+                  <NumberInput
+                    value={leaf1}
+                    onChange={(e) => {
+                      setDraft(id, "leaf1", e.target.value);
+                      autoSaveDebounced(id, () => save({ leaf1: e.target.value }));
+                    }}
+                    className="h-8 py-1 w-20"
+                    step="0.01"
+                  />
                 </td>
                 <td className={tdCls}>
-                  <NumberInput value={leaf2} onChange={(e) => setDraft(id, "leaf2", e.target.value)} className="h-8 py-1 w-20" step="0.01" />
+                  <NumberInput
+                    value={leaf2}
+                    onChange={(e) => {
+                      setDraft(id, "leaf2", e.target.value);
+                      autoSaveDebounced(id, () => save({ leaf2: e.target.value }));
+                    }}
+                    className="h-8 py-1 w-20"
+                    step="0.01"
+                  />
                 </td>
                 <td className={tdCls}>
-                  <NumberInput value={leaf3} onChange={(e) => setDraft(id, "leaf3", e.target.value)} className="h-8 py-1 w-20" step="0.01" />
+                  <NumberInput
+                    value={leaf3}
+                    onChange={(e) => {
+                      setDraft(id, "leaf3", e.target.value);
+                      autoSaveDebounced(id, () => save({ leaf3: e.target.value }));
+                    }}
+                    className="h-8 py-1 w-20"
+                    step="0.01"
+                  />
                 </td>
                 <td className={tdCls}>
-                  <NumberInput value={disposal} onChange={(e) => setDraft(id, "disposal", e.target.value)} className="h-8 py-1 w-20" step="0.01" />
+                  <NumberInput
+                    value={disposal}
+                    onChange={(e) => {
+                      setDraft(id, "disposal", e.target.value);
+                      autoSaveDebounced(id, () => save({ disposal: e.target.value }));
+                    }}
+                    className="h-8 py-1 w-20"
+                    step="0.01"
+                  />
                 </td>
                 <td className={tdCls}>
-                  <NumberInput value={scaffold} onChange={(e) => setDraft(id, "scaffold", e.target.value)} className="h-8 py-1 w-20" step="0.01" />
+                  <NumberInput
+                    value={scaffold}
+                    onChange={(e) => {
+                      setDraft(id, "scaffold", e.target.value);
+                      autoSaveDebounced(id, () => save({ scaffold: e.target.value }));
+                    }}
+                    className="h-8 py-1 w-20"
+                    step="0.01"
+                  />
                 </td>
                 <td className={tdCls}>
-                  <Toggle checked={enabled} onChange={(v) => setDraft(id, "enabled", v)} label="" />
+                  <Toggle
+                    checked={enabled}
+                    onChange={(v) => {
+                      setDraft(id, "enabled", v);
+                      autoSaveNow(id, () => save({ enabled: v }));
+                    }}
+                    label=""
+                  />
                 </td>
                 <td className={tdCls}>
                   <div className="flex gap-2 justify-end">
-                    {dirty(id) ? (
-                      <SaveButton
-                        busy={busy === id}
-                        onClick={() =>
-                          run(id, async () => {
-                            await upsert({
-                              configuratorId,
-                              key: f.key as string,
-                              labels: { ...(f.labels as LabelSet), it: labelIt },
-                              descriptions: f.descriptions as Record<string, string> | undefined,
-                              multiplier: parseFloat(multiplier) || 1,
-                              installByLeavesCents: [toCents(leaf1), toCents(leaf2), toCents(leaf3)],
-                              disposalPerPieceCents: toCents(disposal),
-                              scaffoldPerPieceCents: toCents(scaffold),
-                              sortOrder: f.sortOrder as number,
-                              enabled,
-                            });
-                            clearDraft(id);
-                          })
-                        }
-                      />
-                    ) : null}
+                    {busy === id ? <span className="text-xs text-[var(--color-text-secondary)]">...</span> : null}
                     <DeleteButton onClick={() => run(`del-${id}`, () => remove({ configuratorId, key: f.key as string }))} />
                   </div>
                 </td>
@@ -157,7 +224,7 @@ const ACCESSORY_CATEGORIES = [
 const PRICE_MODEL_LABEL: Record<string, string> = { flat: "Fisso", perM2: "€/m²", perMl: "€/ml" };
 
 export function AccessoriesSection({ accessories }: { accessories: Row[] }) {
-  const { configuratorId, draft, setDraft, dirty, clearDraft, busy, run } = useCatalogEditor();
+  const { configuratorId, draft, setDraft, clearDraft, busy, run, autoSaveNow, autoSaveDebounced } = useCatalogEditor();
   const upsert = useMutation(api.catalog.upsertAccessory);
   const remove = useMutation(api.catalog.deleteAccessory);
 
@@ -186,45 +253,59 @@ export function AccessoriesSection({ accessories }: { accessories: Row[] }) {
                   const priceModel = String(draft(id, a, "priceModel") ?? a.priceModel);
                   const price = String(draft(id, a, "price") ?? (a.priceCents as number) / 100);
                   const enabled = Boolean(draft(id, a, "enabled") ?? a.enabled);
+                  const save = (overrides: { labelIt?: string; price?: string; enabled?: boolean }) =>
+                    upsert({
+                      configuratorId,
+                      category: cat.key,
+                      key: a.key as string,
+                      labels: { ...(a.labels as LabelSet), it: overrides.labelIt ?? labelIt },
+                      priceModel: priceModel as "flat" | "perM2" | "perMl",
+                      priceCents: toCents(overrides.price ?? price),
+                      sortOrder: a.sortOrder as number,
+                      enabled: overrides.enabled ?? enabled,
+                    }).then(() => clearDraft(id));
                   return (
                     <tr key={id}>
                       <td className={tdCls}>
                         <code className="text-xs text-[var(--color-text-secondary)]">{a.key as string}</code>
                       </td>
                       <td className={tdCls}>
-                        <TextInput value={labelIt} onChange={(e) => setDraft(id, "labelIt", e.target.value)} className="h-8 py-1" />
+                        <TextInput
+                          value={labelIt}
+                          onChange={(e) => {
+                            setDraft(id, "labelIt", e.target.value);
+                            autoSaveDebounced(id, () => save({ labelIt: e.target.value }));
+                          }}
+                          className="h-8 py-1"
+                        />
                       </td>
                       <td className={tdCls}>
                         <span className="text-xs text-[var(--color-text-secondary)]">{PRICE_MODEL_LABEL[priceModel] ?? priceModel}</span>
                       </td>
                       <td className={tdCls}>
-                        <NumberInput value={price} onChange={(e) => setDraft(id, "price", e.target.value)} className="h-8 py-1 w-24" step="0.01" />
+                        <NumberInput
+                          value={price}
+                          onChange={(e) => {
+                            setDraft(id, "price", e.target.value);
+                            autoSaveDebounced(id, () => save({ price: e.target.value }));
+                          }}
+                          className="h-8 py-1 w-24"
+                          step="0.01"
+                        />
                       </td>
                       <td className={tdCls}>
-                        <Toggle checked={enabled} onChange={(v) => setDraft(id, "enabled", v)} label="" />
+                        <Toggle
+                          checked={enabled}
+                          onChange={(v) => {
+                            setDraft(id, "enabled", v);
+                            autoSaveNow(id, () => save({ enabled: v }));
+                          }}
+                          label=""
+                        />
                       </td>
                       <td className={tdCls}>
                         <div className="flex gap-2 justify-end">
-                          {dirty(id) ? (
-                            <SaveButton
-                              busy={busy === id}
-                              onClick={() =>
-                                run(id, async () => {
-                                  await upsert({
-                                    configuratorId,
-                                    category: cat.key,
-                                    key: a.key as string,
-                                    labels: { ...(a.labels as LabelSet), it: labelIt },
-                                    priceModel: priceModel as "flat" | "perM2" | "perMl",
-                                    priceCents: toCents(price),
-                                    sortOrder: a.sortOrder as number,
-                                    enabled,
-                                  });
-                                  clearDraft(id);
-                                })
-                              }
-                            />
-                          ) : null}
+                          {busy === id ? <span className="text-xs text-[var(--color-text-secondary)]">...</span> : null}
                           <DeleteButton
                             onClick={() =>
                               run(`del-${id}`, () => remove({ configuratorId, category: cat.key, key: a.key as string }))

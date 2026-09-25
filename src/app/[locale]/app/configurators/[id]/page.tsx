@@ -134,12 +134,18 @@ export default function ConfiguratorEditorPage({
               </button>
             </div>
             <iframe
-              // Also remount when a saved setting changes, so the preview follows
-              // language/theme/pricing edits without pressing reload.
-              key={`${previewNonce}-${cfg.updatedAt ?? 0}-${cfg.defaultLocale}-${cfg.defaultTheme}`}
+              // Remount on ANY catalog/branding/settings change so the preview
+              // follows edits live, with no click required. `state` is a
+              // reactive Convex query covering the configurator doc plus every
+              // catalog table (materials, options, hardware, frames,
+              // accessories, branding) — its JSON fingerprint changes the
+              // instant any of them is saved, which is what actually drives
+              // the remount (previewNonce/"Ricarica" stays as a manual escape
+              // hatch for edge cases, e.g. after a publish/rollback).
+              key={`${previewNonce}-${JSON.stringify(state)}`}
               src={`/w/${cfg.publicId}?preview=1`}
               title={t("previewTitle")}
-              className="w-full h-[640px] bg-white"
+              className="w-full h-[640px] bg-[var(--color-bg)]"
             />
           </div>
         </aside>

@@ -214,9 +214,12 @@ describe("installation", () => {
 });
 
 describe("seed catalogue", () => {
-  test("accessories cover the four categories and start at 0 EUR", () => {
+  test("accessories cover the four categories and ship with real starting prices", () => {
     expect(new Set(DEFAULT_ACCESSORIES.map((a) => a.category))).toEqual(new Set(["zanz", "cass", "avv", "pers"]));
-    expect(DEFAULT_ACCESSORIES.every((a) => a.priceCents === 0)).toBe(true);
+    // Every accessory used to seed at priceCents: 0 (a free upgrade until the
+    // tenant priced it manually) — fixed so a new catalog is usable out of
+    // the box; every row must now carry a real starting price.
+    expect(DEFAULT_ACCESSORIES.every((a) => a.priceCents > 0)).toBe(true);
     expect(DEFAULT_FRAME_TYPES.map((f) => f.multiplier)).toEqual([1, 1.08, 1.12]);
   });
 });

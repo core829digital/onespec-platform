@@ -1,8 +1,11 @@
 "use client";
 
-import { createContext, useContext, useMemo, useState } from "react";
+import { createContext, useContext, useMemo, useRef, useState } from "react";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useFriendlyError } from "@/lib/use-friendly-error";
+
+/** Debounce for text/number auto-save — long enough to not fire mid-keystroke. */
+const AUTOSAVE_DEBOUNCE_MS = 900;
 
 export type LabelSet = { it?: string; en?: string; fr?: string } & Record<string, string>;
 
@@ -21,6 +24,10 @@ interface CatalogCtx {
   clearDraft: (id: string) => void;
   dirty: (id: string) => boolean;
   run: (id: string, fn: () => Promise<unknown>) => Promise<void>;
+  /** Save immediately (for discrete edits like a toggle) — no debounce. */
+  autoSaveNow: (id: string, fn: () => Promise<unknown>) => void;
+  /** Save after a short debounce, replacing any pending save for the same id (for text/number typing). */
+  autoSaveDebounced: (id: string, fn: () => Promise<unknown>) => void;
 }
 
 const Ctx = createContext<CatalogCtx | null>(null);
@@ -42,23 +49,11 @@ export function CatalogEditorProvider({
   const [drafts, setDrafts] = useState<Record<string, Draft>>({});
   const [busy, setBusy] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const timers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
 
   const value = useMemo<CatalogCtx>(
-    () => ({
-      configuratorId,
-      error,
-      busy,
-      draft: (id, row, field) => drafts[id]?.[field] ?? row[field],
-      setDraft: (id, field, v) =>
-        setDrafts((d) => ({ ...d, [id]: { ...d[id], [field]: v } })),
-      clearDraft: (id) =>
-        setDrafts((d) => {
-          const n = { ...d };
-          delete n[id];
-          return n;
-        }),
-      dirty: (id) => drafts[id] !== undefined,
-      run: async (id, fn) => {
+    () => {
+      const run = async (id: string, fn: () => Promise<unknown>) => {
         setBusy(id);
         setError("");
         try {
@@ -68,8 +63,36 @@ export function CatalogEditorProvider({
         } finally {
           setBusy(null);
         }
-      },
-    }),
+      };
+      return {
+        configuratorId,
+        error,
+        busy,
+        draft: (id, row, field) => drafts[id]?.[field] ?? row[field],
+        setDraft: (id, field, v) =>
+          setDrafts((d) => ({ ...d, [id]: { ...d[id], [field]: v } })),
+        clearDraft: (id) =>
+          setDrafts((d) => {
+            const n = { ...d };
+            delete n[id];
+            return n;
+          }),
+        dirty: (id) => drafts[id] !== undefined,
+        run,
+        autoSaveNow: (id, fn) => {
+          clearTimeout(timers.current[id]);
+          delete timers.current[id];
+          void run(id, fn);
+        },
+        autoSaveDebounced: (id, fn) => {
+          clearTimeout(timers.current[id]);
+          timers.current[id] = setTimeout(() => {
+            delete timers.current[id];
+            void run(id, fn);
+          }, AUTOSAVE_DEBOUNCE_MS);
+        },
+      };
+    },
     [configuratorId, drafts, busy, error, tf],
   );
 

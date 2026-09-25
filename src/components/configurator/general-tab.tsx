@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -114,6 +114,22 @@ export function GeneralTab({
       setSaving(false);
     }
   }
+
+  // Auto-save: every field here (especially the theme/locale/widget-style
+  // toggles) used to require an explicit "Salva" click before it took
+  // effect anywhere — including in the live preview pane, which only
+  // re-renders off the saved configurator doc. Debounce instead of saving
+  // on every keystroke, so typing the name/VAT doesn't spam mutations.
+  const skipFirst = useRef(true);
+  useEffect(() => {
+    if (skipFirst.current) {
+      skipFirst.current = false;
+      return;
+    }
+    const timer = setTimeout(() => void save(), 900);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [name, defaultLocale, defaultTheme, vat, rounding, showPrices, ecoEnabled, ecoMax, discEnabled, discMax, origins, widgetStyle]);
 
   return (
     <div className="space-y-6">
@@ -281,14 +297,19 @@ export function GeneralTab({
         </div>
       </Section>
 
-      <button
-        type="button"
-        onClick={save}
-        disabled={saving}
-        className="rounded-lg bg-[var(--color-mint)] px-5 py-2.5 text-sm font-semibold text-[var(--color-mint-dark)] disabled:opacity-50"
-      >
-        {saving ? "Salvataggio..." : "Salva impostazioni"}
-      </button>
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={save}
+          disabled={saving}
+          className="rounded-lg bg-[var(--color-mint)] px-5 py-2.5 text-sm font-semibold text-[var(--color-mint-dark)] disabled:opacity-50"
+        >
+          {saving ? "Salvataggio..." : "Salva ora"}
+        </button>
+        <span className="text-xs text-[var(--color-text-secondary)]">
+          Le modifiche si salvano automaticamente.
+        </span>
+      </div>
     </div>
   );
 }

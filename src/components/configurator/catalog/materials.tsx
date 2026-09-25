@@ -4,13 +4,13 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Section, TextInput, NumberInput, Toggle } from "../editor-primitives";
 import { useCatalogEditor, label, toCents, thCls, tdCls, type LabelSet } from "./store";
-import { AddRow, DeleteButton, SaveButton, ScrollTable } from "./widgets";
+import { AddRow, DeleteButton, ScrollTable } from "./widgets";
 
 type Row = Record<string, unknown>;
 const sorted = (rows: Row[]) => [...rows].sort((a, b) => (a.sortOrder as number) - (b.sortOrder as number));
 
 export function MaterialsSection({ materials }: { materials: Row[] }) {
-  const { configuratorId, draft, setDraft, dirty, clearDraft, busy, run } = useCatalogEditor();
+  const { configuratorId, draft, setDraft, clearDraft, busy, run, autoSaveNow, autoSaveDebounced } = useCatalogEditor();
   const upsert = useMutation(api.catalog.upsertMaterial);
   const remove = useMutation(api.catalog.deleteMaterial);
   const rows = sorted(materials);
@@ -35,45 +35,67 @@ export function MaterialsSection({ materials }: { materials: Row[] }) {
             const base = String(draft(id, m, "base") ?? (m.basePerM2Cents as number) / 100);
             const profile = String(draft(id, m, "profile") ?? (m.profilePerMlCents as number) / 100);
             const enabled = Boolean(draft(id, m, "enabled") ?? m.enabled);
+            const save = (overrides: { labelIt?: string; base?: string; profile?: string; enabled?: boolean }) =>
+              upsert({
+                configuratorId,
+                key: m.key as string,
+                labels: { ...(m.labels as LabelSet), it: overrides.labelIt ?? labelIt },
+                basePerM2Cents: toCents(overrides.base ?? base),
+                profilePerMlCents: toCents(overrides.profile ?? profile),
+                uFrameBase: m.uFrameBase as number | undefined,
+                sortOrder: m.sortOrder as number,
+                enabled: overrides.enabled ?? enabled,
+              }).then(() => clearDraft(id));
             return (
               <tr key={id}>
                 <td className={tdCls}>
                   <code className="text-xs text-[var(--color-text-secondary)]">{m.key as string}</code>
                 </td>
                 <td className={tdCls}>
-                  <TextInput value={labelIt} onChange={(e) => setDraft(id, "labelIt", e.target.value)} className="h-8 py-1" />
+                  <TextInput
+                    value={labelIt}
+                    onChange={(e) => {
+                      setDraft(id, "labelIt", e.target.value);
+                      autoSaveDebounced(id, () => save({ labelIt: e.target.value }));
+                    }}
+                    className="h-8 py-1"
+                  />
                 </td>
                 <td className={tdCls}>
-                  <NumberInput value={base} onChange={(e) => setDraft(id, "base", e.target.value)} className="h-8 py-1 w-24" step="0.01" />
+                  <NumberInput
+                    value={base}
+                    onChange={(e) => {
+                      setDraft(id, "base", e.target.value);
+                      autoSaveDebounced(id, () => save({ base: e.target.value }));
+                    }}
+                    className="h-8 py-1 w-24"
+                    step="0.01"
+                  />
                 </td>
                 <td className={tdCls}>
-                  <NumberInput value={profile} onChange={(e) => setDraft(id, "profile", e.target.value)} className="h-8 py-1 w-24" step="0.01" />
+                  <NumberInput
+                    value={profile}
+                    onChange={(e) => {
+                      setDraft(id, "profile", e.target.value);
+                      autoSaveDebounced(id, () => save({ profile: e.target.value }));
+                    }}
+                    className="h-8 py-1 w-24"
+                    step="0.01"
+                  />
                 </td>
                 <td className={tdCls}>
-                  <Toggle checked={enabled} onChange={(v) => setDraft(id, "enabled", v)} label="" />
+                  <Toggle
+                    checked={enabled}
+                    onChange={(v) => {
+                      setDraft(id, "enabled", v);
+                      autoSaveNow(id, () => save({ enabled: v }));
+                    }}
+                    label=""
+                  />
                 </td>
                 <td className={tdCls}>
                   <div className="flex gap-2 justify-end">
-                    {dirty(id) ? (
-                      <SaveButton
-                        busy={busy === id}
-                        onClick={() =>
-                          run(id, async () => {
-                            await upsert({
-                              configuratorId,
-                              key: m.key as string,
-                              labels: { ...(m.labels as LabelSet), it: labelIt },
-                              basePerM2Cents: toCents(base),
-                              profilePerMlCents: toCents(profile),
-                              uFrameBase: m.uFrameBase as number | undefined,
-                              sortOrder: m.sortOrder as number,
-                              enabled,
-                            });
-                            clearDraft(id);
-                          })
-                        }
-                      />
-                    ) : null}
+                    {busy === id ? <span className="text-xs text-[var(--color-text-secondary)]">...</span> : null}
                     <DeleteButton onClick={() => run(`del-${id}`, () => remove({ configuratorId, key: m.key as string }))} />
                   </div>
                 </td>
@@ -114,7 +136,7 @@ export function ProfileSystemsSection({
   materials: Row[];
   profileSystems: Row[];
 }) {
-  const { configuratorId, draft, setDraft, dirty, clearDraft, busy, run } = useCatalogEditor();
+  const { configuratorId, draft, setDraft, clearDraft, busy, run, autoSaveNow, autoSaveDebounced } = useCatalogEditor();
   const upsert = useMutation(api.catalog.upsertProfileSystem);
   const remove = useMutation(api.catalog.deleteProfileSystem);
 
@@ -146,41 +168,55 @@ export function ProfileSystemsSection({
                     const labelIt = String(draft(id, q, "labelIt") ?? label(q.labels));
                     const multiplier = String(draft(id, q, "multiplier") ?? (q.multiplier as number));
                     const enabled = Boolean(draft(id, q, "enabled") ?? q.enabled);
+                    const save = (overrides: { labelIt?: string; multiplier?: string; enabled?: boolean }) =>
+                      upsert({
+                        configuratorId,
+                        materialKey: m.key as string,
+                        key: q.key as string,
+                        labels: { ...(q.labels as LabelSet), it: overrides.labelIt ?? labelIt },
+                        multiplier: parseFloat(overrides.multiplier ?? multiplier) || 1,
+                        sortOrder: q.sortOrder as number,
+                        enabled: overrides.enabled ?? enabled,
+                      }).then(() => clearDraft(id));
                     return (
                       <tr key={id}>
                         <td className={tdCls}>
                           <code className="text-xs text-[var(--color-text-secondary)]">{q.key as string}</code>
                         </td>
                         <td className={tdCls}>
-                          <TextInput value={labelIt} onChange={(e) => setDraft(id, "labelIt", e.target.value)} className="h-8 py-1" />
+                          <TextInput
+                            value={labelIt}
+                            onChange={(e) => {
+                              setDraft(id, "labelIt", e.target.value);
+                              autoSaveDebounced(id, () => save({ labelIt: e.target.value }));
+                            }}
+                            className="h-8 py-1"
+                          />
                         </td>
                         <td className={tdCls}>
-                          <NumberInput value={multiplier} onChange={(e) => setDraft(id, "multiplier", e.target.value)} className="h-8 py-1 w-24" step="0.01" />
+                          <NumberInput
+                            value={multiplier}
+                            onChange={(e) => {
+                              setDraft(id, "multiplier", e.target.value);
+                              autoSaveDebounced(id, () => save({ multiplier: e.target.value }));
+                            }}
+                            className="h-8 py-1 w-24"
+                            step="0.01"
+                          />
                         </td>
                         <td className={tdCls}>
-                          <Toggle checked={enabled} onChange={(v) => setDraft(id, "enabled", v)} label="" />
+                          <Toggle
+                            checked={enabled}
+                            onChange={(v) => {
+                              setDraft(id, "enabled", v);
+                              autoSaveNow(id, () => save({ enabled: v }));
+                            }}
+                            label=""
+                          />
                         </td>
                         <td className={tdCls}>
                           <div className="flex gap-2 justify-end">
-                            {dirty(id) ? (
-                              <SaveButton
-                                busy={busy === id}
-                                onClick={() =>
-                                  run(id, async () => {
-                                    await upsert({
-                                      configuratorId,
-                                      materialKey: m.key as string,
-                                      key: q.key as string,
-                                      labels: { ...(q.labels as LabelSet), it: labelIt },
-                                      multiplier: parseFloat(multiplier) || 1,
-                                      sortOrder: q.sortOrder as number,
-                                      enabled,
-                                    });
-                                    clearDraft(id);
-                                  })
-                                }
-                              />
-                            ) : null}
+                            {busy === id ? <span className="text-xs text-[var(--color-text-secondary)]">...</span> : null}
                             <DeleteButton
                               onClick={() =>
                                 run(`del-${id}`, () =>
@@ -223,7 +259,7 @@ export function ProfileSystemsSection({
 }
 
 export function QualitySection({ materials, qualityTiers }: { materials: Row[]; qualityTiers: Row[] }) {
-  const { configuratorId, draft, setDraft, dirty, clearDraft, busy, run } = useCatalogEditor();
+  const { configuratorId, draft, setDraft, clearDraft, busy, run, autoSaveNow, autoSaveDebounced } = useCatalogEditor();
   const upsert = useMutation(api.catalog.upsertQualityTier);
   const remove = useMutation(api.catalog.deleteQualityTier);
 
@@ -250,42 +286,56 @@ export function QualitySection({ materials, qualityTiers }: { materials: Row[]; 
                   const labelIt = String(draft(id, q, "labelIt") ?? label(q.labels));
                   const multiplier = String(draft(id, q, "multiplier") ?? (q.multiplier as number));
                   const enabled = Boolean(draft(id, q, "enabled") ?? q.enabled);
+                  const save = (overrides: { labelIt?: string; multiplier?: string; enabled?: boolean }) =>
+                    upsert({
+                      configuratorId,
+                      materialKey: m.key as string,
+                      key: q.key as string,
+                      labels: { ...(q.labels as LabelSet), it: overrides.labelIt ?? labelIt },
+                      multiplier: parseFloat(overrides.multiplier ?? multiplier) || 1,
+                      uAdjust: q.uAdjust as number | undefined,
+                      sortOrder: q.sortOrder as number,
+                      enabled: overrides.enabled ?? enabled,
+                    }).then(() => clearDraft(id));
                   return (
                     <tr key={id}>
                       <td className={tdCls}>
                         <code className="text-xs text-[var(--color-text-secondary)]">{q.key as string}</code>
                       </td>
                       <td className={tdCls}>
-                        <TextInput value={labelIt} onChange={(e) => setDraft(id, "labelIt", e.target.value)} className="h-8 py-1" />
+                        <TextInput
+                          value={labelIt}
+                          onChange={(e) => {
+                            setDraft(id, "labelIt", e.target.value);
+                            autoSaveDebounced(id, () => save({ labelIt: e.target.value }));
+                          }}
+                          className="h-8 py-1"
+                        />
                       </td>
                       <td className={tdCls}>
-                        <NumberInput value={multiplier} onChange={(e) => setDraft(id, "multiplier", e.target.value)} className="h-8 py-1 w-24" step="0.01" />
+                        <NumberInput
+                          value={multiplier}
+                          onChange={(e) => {
+                            setDraft(id, "multiplier", e.target.value);
+                            autoSaveDebounced(id, () => save({ multiplier: e.target.value }));
+                          }}
+                          className="h-8 py-1 w-24"
+                          step="0.01"
+                        />
                       </td>
                       <td className={tdCls}>
-                        <Toggle checked={enabled} onChange={(v) => setDraft(id, "enabled", v)} label="" />
+                        <Toggle
+                          checked={enabled}
+                          onChange={(v) => {
+                            setDraft(id, "enabled", v);
+                            autoSaveNow(id, () => save({ enabled: v }));
+                          }}
+                          label=""
+                        />
                       </td>
                       <td className={tdCls}>
                         <div className="flex gap-2 justify-end">
-                          {dirty(id) ? (
-                            <SaveButton
-                              busy={busy === id}
-                              onClick={() =>
-                                run(id, async () => {
-                                  await upsert({
-                                    configuratorId,
-                                    materialKey: m.key as string,
-                                    key: q.key as string,
-                                    labels: { ...(q.labels as LabelSet), it: labelIt },
-                                    multiplier: parseFloat(multiplier) || 1,
-                                    uAdjust: q.uAdjust as number | undefined,
-                                    sortOrder: q.sortOrder as number,
-                                    enabled,
-                                  });
-                                  clearDraft(id);
-                                })
-                              }
-                            />
-                          ) : null}
+                          {busy === id ? <span className="text-xs text-[var(--color-text-secondary)]">...</span> : null}
                           <DeleteButton
                             onClick={() =>
                               run(`del-${id}`, () =>

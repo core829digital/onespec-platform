@@ -4,7 +4,7 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Section, TextInput, NumberInput, Toggle } from "../editor-primitives";
 import { useCatalogEditor, label, toCents, thCls, tdCls, type LabelSet } from "./store";
-import { AddRow, SaveButton, ScrollTable } from "./widgets";
+import { AddRow, ScrollTable } from "./widgets";
 
 type Row = Record<string, unknown>;
 const sorted = (rows: Row[]) => [...rows].sort((a, b) => (a.sortOrder as number) - (b.sortOrder as number));
@@ -22,7 +22,7 @@ function PricedOptionSection({
   onSave: (row: Row, d: { labelIt: string; price: string; enabled: boolean }) => Promise<unknown>;
   onAdd: (vals: Record<string, string>) => Promise<unknown> | void;
 }) {
-  const { draft, setDraft, dirty, busy, run } = useCatalogEditor();
+  const { draft, setDraft, busy, run, autoSaveNow, autoSaveDebounced } = useCatalogEditor();
   return (
     <Section title={title} description={description}>
       <ScrollTable ariaLabel={title}>
@@ -41,25 +41,51 @@ function PricedOptionSection({
             const labelIt = String(draft(id, row, "labelIt") ?? label(row.labels));
             const price = String(draft(id, row, "price") ?? (row.priceCents as number) / 100);
             const enabled = Boolean(draft(id, row, "enabled") ?? row.enabled);
+            const save = (overrides: { labelIt?: string; price?: string; enabled?: boolean }) =>
+              onSave(row, {
+                labelIt: overrides.labelIt ?? labelIt,
+                price: overrides.price ?? price,
+                enabled: overrides.enabled ?? enabled,
+              });
             return (
               <tr key={id}>
                 <td className={tdCls}>
                   <code className="text-xs text-[var(--color-text-secondary)]">{row.key as string}</code>
                 </td>
                 <td className={tdCls}>
-                  <TextInput value={labelIt} onChange={(e) => setDraft(id, "labelIt", e.target.value)} className="h-8 py-1" />
+                  <TextInput
+                    value={labelIt}
+                    onChange={(e) => {
+                      setDraft(id, "labelIt", e.target.value);
+                      autoSaveDebounced(id, () => save({ labelIt: e.target.value }));
+                    }}
+                    className="h-8 py-1"
+                  />
                 </td>
                 <td className={tdCls}>
-                  <NumberInput value={price} onChange={(e) => setDraft(id, "price", e.target.value)} className="h-8 py-1 w-24" step="0.01" />
+                  <NumberInput
+                    value={price}
+                    onChange={(e) => {
+                      setDraft(id, "price", e.target.value);
+                      autoSaveDebounced(id, () => save({ price: e.target.value }));
+                    }}
+                    className="h-8 py-1 w-24"
+                    step="0.01"
+                  />
                 </td>
                 <td className={tdCls}>
-                  <Toggle checked={enabled} onChange={(v) => setDraft(id, "enabled", v)} label="" />
+                  <Toggle
+                    checked={enabled}
+                    onChange={(v) => {
+                      setDraft(id, "enabled", v);
+                      autoSaveNow(id, () => save({ enabled: v }));
+                    }}
+                    label=""
+                  />
                 </td>
                 <td className={tdCls}>
                   <div className="flex justify-end">
-                    {dirty(id) ? (
-                      <SaveButton busy={busy === id} onClick={() => run(id, () => onSave(row, { labelIt, price, enabled }))} />
-                    ) : null}
+                    {busy === id ? <span className="text-xs text-[var(--color-text-secondary)]">...</span> : null}
                   </div>
                 </td>
               </tr>
@@ -163,7 +189,7 @@ const HARDWARE_KINDS: Array<{ kind: string; title: string }> = [
 ];
 
 export function HardwareSection({ hardware }: { hardware: Row[] }) {
-  const { configuratorId, draft, setDraft, dirty, clearDraft, busy, run } = useCatalogEditor();
+  const { configuratorId, draft, setDraft, clearDraft, busy, autoSaveNow, autoSaveDebounced } = useCatalogEditor();
   const upsert = useMutation(api.catalog.upsertHardwareOption);
 
   return (
@@ -190,42 +216,56 @@ export function HardwareSection({ hardware }: { hardware: Row[] }) {
                   const labelIt = String(draft(id, h, "labelIt") ?? label(h.labels));
                   const price = String(draft(id, h, "price") ?? (h.priceCents as number) / 100);
                   const enabled = Boolean(draft(id, h, "enabled") ?? h.enabled);
+                  const save = (overrides: { labelIt?: string; price?: string; enabled?: boolean }) =>
+                    upsert({
+                      configuratorId,
+                      kind: kind as "hardware",
+                      key: h.key as string,
+                      labels: { ...(h.labels as LabelSet), it: overrides.labelIt ?? labelIt },
+                      priceCents: toCents(overrides.price ?? price),
+                      appliesToOperableOnly: h.appliesToOperableOnly as boolean,
+                      sortOrder: h.sortOrder as number,
+                      enabled: overrides.enabled ?? enabled,
+                    }).then(() => clearDraft(id));
                   return (
                     <tr key={id}>
                       <td className={tdCls}>
                         <code className="text-xs text-[var(--color-text-secondary)]">{h.key as string}</code>
                       </td>
                       <td className={tdCls}>
-                        <TextInput value={labelIt} onChange={(e) => setDraft(id, "labelIt", e.target.value)} className="h-8 py-1" />
+                        <TextInput
+                          value={labelIt}
+                          onChange={(e) => {
+                            setDraft(id, "labelIt", e.target.value);
+                            autoSaveDebounced(id, () => save({ labelIt: e.target.value }));
+                          }}
+                          className="h-8 py-1"
+                        />
                       </td>
                       <td className={tdCls}>
-                        <NumberInput value={price} onChange={(e) => setDraft(id, "price", e.target.value)} className="h-8 py-1 w-24" step="0.01" />
+                        <NumberInput
+                          value={price}
+                          onChange={(e) => {
+                            setDraft(id, "price", e.target.value);
+                            autoSaveDebounced(id, () => save({ price: e.target.value }));
+                          }}
+                          className="h-8 py-1 w-24"
+                          step="0.01"
+                        />
                       </td>
                       <td className={tdCls}>
-                        <Toggle checked={enabled} onChange={(v) => setDraft(id, "enabled", v)} label="" />
+                        <Toggle
+                          checked={enabled}
+                          onChange={(v) => {
+                            setDraft(id, "enabled", v);
+                            autoSaveNow(id, () => save({ enabled: v }));
+                          }}
+                          label=""
+                        />
                       </td>
                       <td className={tdCls}>
                         <div className="flex justify-end">
-                          {dirty(id) ? (
-                            <SaveButton
-                              busy={busy === id}
-                              onClick={() =>
-                                run(id, async () => {
-                                  await upsert({
-                                    configuratorId,
-                                    kind: kind as "hardware",
-                                    key: h.key as string,
-                                    labels: { ...(h.labels as LabelSet), it: labelIt },
-                                    priceCents: toCents(price),
-                                    appliesToOperableOnly: h.appliesToOperableOnly as boolean,
-                                    sortOrder: h.sortOrder as number,
-                                    enabled,
-                                  });
-                                  clearDraft(id);
-                                })
-                              }
-                            />
-                          ) : null}
+                          {busy === id ? <span className="text-xs text-[var(--color-text-secondary)]">...</span> : null}
                         </div>
                       </td>
                     </tr>
@@ -241,7 +281,7 @@ export function HardwareSection({ hardware }: { hardware: Row[] }) {
 }
 
 export function SizeSection({ rows }: { rows: Row[] }) {
-  const { configuratorId, draft, setDraft, dirty, clearDraft, busy, run } = useCatalogEditor();
+  const { configuratorId, draft, setDraft, clearDraft, busy, autoSaveDebounced } = useCatalogEditor();
   const upsert = useMutation(api.catalog.upsertSizeConstraint);
   const ordered = [...rows].sort(
     (a, b) =>
@@ -266,10 +306,25 @@ export function SizeSection({ rows }: { rows: Row[] }) {
         <tbody className="divide-y divide-[var(--color-border)]">
           {ordered.map((s) => {
             const id = s._id as string;
+            const g = (f: string, override?: string) =>
+              Math.round(parseFloat(override ?? String(draft(id, s, f) ?? (s[f] as number))) || 0);
+            const save = (changedField?: string, changedValue?: string) =>
+              upsert({
+                configuratorId,
+                productType: s.productType as "window" | "balconyDoor",
+                sashCount: s.sashCount as number,
+                minWidthMm: g("minWidthMm", changedField === "minWidthMm" ? changedValue : undefined),
+                maxWidthMm: g("maxWidthMm", changedField === "maxWidthMm" ? changedValue : undefined),
+                minHeightMm: g("minHeightMm", changedField === "minHeightMm" ? changedValue : undefined),
+                maxHeightMm: g("maxHeightMm", changedField === "maxHeightMm" ? changedValue : undefined),
+              }).then(() => clearDraft(id));
             const field = (f: string) => (
               <NumberInput
                 value={String(draft(id, s, f) ?? (s[f] as number))}
-                onChange={(e) => setDraft(id, f, e.target.value)}
+                onChange={(e) => {
+                  setDraft(id, f, e.target.value);
+                  autoSaveDebounced(id, () => save(f, e.target.value));
+                }}
                 className="h-8 py-1 w-20"
               />
             );
@@ -283,27 +338,7 @@ export function SizeSection({ rows }: { rows: Row[] }) {
                 <td className={tdCls}>{field("maxHeightMm")}</td>
                 <td className={tdCls}>
                   <div className="flex justify-end">
-                    {dirty(id) ? (
-                      <SaveButton
-                        busy={busy === id}
-                        onClick={() =>
-                          run(id, async () => {
-                            const g = (f: string) =>
-                              Math.round(parseFloat(String(draft(id, s, f) ?? (s[f] as number))) || 0);
-                            await upsert({
-                              configuratorId,
-                              productType: s.productType as "window" | "balconyDoor",
-                              sashCount: s.sashCount as number,
-                              minWidthMm: g("minWidthMm"),
-                              maxWidthMm: g("maxWidthMm"),
-                              minHeightMm: g("minHeightMm"),
-                              maxHeightMm: g("maxHeightMm"),
-                            });
-                            clearDraft(id);
-                          })
-                        }
-                      />
-                    ) : null}
+                    {busy === id ? <span className="text-xs text-[var(--color-text-secondary)]">...</span> : null}
                   </div>
                 </td>
               </tr>

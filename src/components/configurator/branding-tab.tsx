@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -32,38 +32,32 @@ export function BrandingTab({ configuratorId }: { configuratorId: Id<"configurat
   const [form, setForm] = useState<Record<string, string | boolean>>({});
   const [copy, setCopy] = useState<Record<string, CopyBlock> | null>(null);
 
-  if (branding === undefined) {
-    return <p className="text-[var(--color-text-secondary)]">Caricamento...</p>;
-  }
-  if (branding === null) {
-    return <p className="text-[var(--color-danger)]">Branding non trovato per questo configuratore.</p>;
-  }
-
   const val = (k: string, fallback: string | boolean) => form[k] ?? fallback;
   const set = (k: string, v: string | boolean) => setForm((f) => ({ ...f, [k]: v }));
-  const currentCopy: Record<string, CopyBlock> = copy ?? (branding.copy ?? {});
+  const currentCopy: Record<string, CopyBlock> = copy ?? (branding?.copy ?? {});
   const setCopyField = (loc: string, field: keyof CopyBlock, v: string) =>
     setCopy({ ...currentCopy, [loc]: { ...currentCopy[loc], [field]: v } });
 
   async function save() {
+    if (!branding) return;
     setSaving(true);
     setMsg(null);
     try {
       await updateBranding({
         configuratorId,
-        whiteLabel: Boolean(val("whiteLabel", branding!.whiteLabel)),
-        colorAccent: String(val("colorAccent", branding!.colorAccent)),
-        colorAccentInk: String(val("colorAccentInk", branding!.colorAccentInk)),
-        colorBg: String(val("colorBg", branding!.colorBg ?? "")) || undefined,
-        colorBgDark: String(val("colorBgDark", branding!.colorBgDark ?? "")) || undefined,
-        fontFamily: String(val("fontFamily", branding!.fontFamily)) as "geist",
+        whiteLabel: Boolean(val("whiteLabel", branding.whiteLabel)),
+        colorAccent: String(val("colorAccent", branding.colorAccent)),
+        colorAccentInk: String(val("colorAccentInk", branding.colorAccentInk)),
+        colorBg: String(val("colorBg", branding.colorBg ?? "")) || undefined,
+        colorBgDark: String(val("colorBgDark", branding.colorBgDark ?? "")) || undefined,
+        fontFamily: String(val("fontFamily", branding.fontFamily)) as "geist",
         copy: currentCopy,
         companyInfo: {
-          name: String(val("ciName", branding!.companyInfo.name)),
-          vatId: String(val("ciVat", branding!.companyInfo.vatId ?? "")) || undefined,
-          address: String(val("ciAddr", branding!.companyInfo.address ?? "")) || undefined,
-          phone: String(val("ciPhone", branding!.companyInfo.phone ?? "")) || undefined,
-          email: String(val("ciEmail", branding!.companyInfo.email ?? "")) || undefined,
+          name: String(val("ciName", branding.companyInfo.name)),
+          vatId: String(val("ciVat", branding.companyInfo.vatId ?? "")) || undefined,
+          address: String(val("ciAddr", branding.companyInfo.address ?? "")) || undefined,
+          phone: String(val("ciPhone", branding.companyInfo.phone ?? "")) || undefined,
+          email: String(val("ciEmail", branding.companyInfo.email ?? "")) || undefined,
         },
       });
       setForm({});
@@ -74,6 +68,25 @@ export function BrandingTab({ configuratorId }: { configuratorId: Id<"configurat
     } finally {
       setSaving(false);
     }
+  }
+
+  // Auto-save: colors/toggles/copy used to sit inert until "Salva branding"
+  // was clicked. Debounced so typing doesn't spam mutations; `form`/`copy`
+  // start empty/null, so this only fires once the user has actually edited
+  // something (never on the initial load render).
+  useEffect(() => {
+    if (!branding) return;
+    if (Object.keys(form).length === 0 && copy === null) return;
+    const timer = setTimeout(() => void save(), 900);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [form, copy, branding]);
+
+  if (branding === undefined) {
+    return <p className="text-[var(--color-text-secondary)]">Caricamento...</p>;
+  }
+  if (branding === null) {
+    return <p className="text-[var(--color-danger)]">Branding non trovato per questo configuratore.</p>;
   }
 
   async function uploadLogo(file: File, variant: "dark" | "light") {
@@ -210,14 +223,19 @@ export function BrandingTab({ configuratorId }: { configuratorId: Id<"configurat
         </div>
       </Section>
 
-      <button
-        type="button"
-        onClick={save}
-        disabled={saving}
-        className="rounded-lg bg-[var(--color-mint)] px-5 py-2.5 text-sm font-semibold text-[var(--color-mint-dark)] transition-all hover:brightness-95 hover:shadow-sm active:brightness-90 disabled:opacity-50 disabled:hover:brightness-100 disabled:hover:shadow-none"
-      >
-        {saving ? "Salvataggio..." : "Salva branding"}
-      </button>
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={save}
+          disabled={saving}
+          className="rounded-lg bg-[var(--color-mint)] px-5 py-2.5 text-sm font-semibold text-[var(--color-mint-dark)] transition-all hover:brightness-95 hover:shadow-sm active:brightness-90 disabled:opacity-50 disabled:hover:brightness-100 disabled:hover:shadow-none"
+        >
+          {saving ? "Salvataggio..." : "Salva ora"}
+        </button>
+        <span className="text-xs text-[var(--color-text-secondary)]">
+          Le modifiche si salvano automaticamente.
+        </span>
+      </div>
     </div>
   );
 }
