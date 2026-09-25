@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { hasLocale } from "next-intl";
 import { useBoundaryRetry } from "@/hooks/useBoundaryRetry";
 import { routing, type AppLocale } from "@/i18n/routing";
 
@@ -30,20 +30,15 @@ const COPY: Record<AppLocale, { title: string; body: string; retry: string }> = 
 
 function localeFromPathname(pathname: string): AppLocale {
   const first = pathname.split("/")[1];
-  return (routing.locales as readonly string[]).includes(first) ? (first as AppLocale) : routing.defaultLocale;
+  return hasLocale(routing.locales, first) ? first : routing.defaultLocale;
 }
 
 // Root error boundary — replaces the whole document, so it must render <html>.
 export default function GlobalError({ error, reset }: { error: Error; reset: () => void }) {
   const retry = useBoundaryRetry(error, reset);
-  // Lazy initializer instead of an effect: this must be the locale used on
-  // the very first client paint, not one applied a tick later. If this
-  // boundary is served from a server-rendered error page, `window` is
-  // undefined there and we fall back to the default locale for that pass.
-  const [locale] = useState<AppLocale>(() =>
-    typeof window === "undefined" ? routing.defaultLocale : localeFromPathname(window.location.pathname),
-  );
-
+  // If this boundary is served from a server-rendered error page, `window`
+  // is undefined there and we fall back to the default locale for that pass.
+  const locale = typeof window === "undefined" ? routing.defaultLocale : localeFromPathname(window.location.pathname);
   const copy = COPY[locale];
 
   return (

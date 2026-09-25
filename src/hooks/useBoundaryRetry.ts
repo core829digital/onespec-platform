@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import posthog from "posthog-js";
 
 // Shared by every error boundary (global-error.tsx, error-view.tsx). A Convex
@@ -11,16 +11,13 @@ import posthog from "posthog-js";
 const STORAGE_KEY = "onespec:boundary-retry";
 
 export function useBoundaryRetry(error: Error & { digest?: string }, reset: () => void) {
-  const signature = error.digest ?? error.message;
-  const alreadyRetried = useRef(false);
-
   useEffect(() => {
     posthog.captureException(error);
-    alreadyRetried.current = sessionStorage.getItem(STORAGE_KEY) === signature;
-  }, [error, signature]);
+  }, [error]);
 
   return () => {
-    if (alreadyRetried.current) {
+    const signature = error.digest ?? error.message;
+    if (sessionStorage.getItem(STORAGE_KEY) === signature) {
       sessionStorage.removeItem(STORAGE_KEY);
       window.location.reload();
       return;
