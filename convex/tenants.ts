@@ -14,6 +14,7 @@ import { isFullAccessEmail } from "./lib/founding";
 import { resolveTenantEntitlements, assertQuota } from "./lib/entitlements";
 import { enforceForAddTeamMember } from "./lib/enforcement";
 import { requirePermission } from "./lib/rbac";
+import { emit } from "./lib/triggers";
 
 const COUNTRY_RE = /^[A-Za-z]{2}$/;
 
@@ -410,6 +411,7 @@ export const suspendTenant = mutation({
       meta: { reason: args.reason },
       createdAt: Date.now(),
     });
+    await emit(ctx, { type: "tenant.suspended", tenantId: args.tenantId, reason: args.reason });
   },
 });
 

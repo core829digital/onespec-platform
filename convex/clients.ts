@@ -1,4 +1,4 @@
-import { query, mutation } from "./_generated/server";
+import { query, mutation, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import { requireMembership } from "./lib/auth";
@@ -288,6 +288,39 @@ export const addClientActivity = mutation({
     await ctx.db.patch(args.clientId, { updatedAt: Date.now() });
 
     return { activityId };
+  },
+});
+
+/**
+ * System-triggered activity log entry — called only from
+ * convex/lib/triggers.ts's "quote.won" handler, never directly by a client.
+ * A scheduled trigger runs with no authenticated user, so it can't go
+ * through the public addClientActivity (which requires membership); this
+ * is its own gate-free internal mutation instead.
+ */
+export const systemAddActivity = internalMutation({
+  args: { quoteId: v.id("quoteRequests") },
+  handler: async (ctx, args) => {
+    const quote = await ctx.db.get(args.quoteId);
+    if (!quote?.clientId) return;
+    // clientActivities always attributes to a real user — a system trigger
+    // has none, so fall back to whoever the quote is assigned to, then the
+    // tenant owner (always present).
+    const tenant = await ctx.db.get(quote.tenantId);
+    if (!tenant) return;
+    const actorUserId = quote.assignedToUserId ?? tenant.ownerUserId;
+    await ctx.db.insert("clientActivities", {
+      tenantId: quote.tenantId,
+      clientId: quote.clientId,
+      userId: actorUserId,
+      type: "quote",
+      title: "Preventivo vinto",
+      description: `Preventivo ${quote.leadName} contrassegnato come vinto`,
+      relatedTable: "quoteRequests",
+      relatedId: args.quoteId,
+      createdAt: Date.now(),
+    });
+    await ctx.db.patch(quote.clientId, { updatedAt: Date.now() });
   },
 });
 

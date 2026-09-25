@@ -1,9 +1,9 @@
 ﻿import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
-import { internal } from "./_generated/api";
 import { requireMembership } from "./lib/auth";
 import { requirePermission } from "./lib/rbac";
+import { emit } from "./lib/triggers";
 import { enforceForCreateQuote, enforceForESignature, enforceForMultiSupplier } from "./lib/enforcement";
 import { calculatePrice, type ProjectItem, type CatalogPayload } from "../src/shared/pricing";
 import { currentPeriod } from "./lib/entitlements";
@@ -71,12 +71,17 @@ export const updateStatus = mutation({
     const oldStatus = quote.status;
     await ctx.db.patch(args.quoteId, { status: args.status });
 
-    await ctx.scheduler.runAfter(0, internal.notifications.fanOutToTenant, {
+    await emit(ctx, {
+      type: "quote.status_changed",
       tenantId: quote.tenantId,
-      type: "quote_status_changed",
-      data: { quoteId: args.quoteId, oldStatus, newStatus: args.status, leadName: quote.leadName },
-      href: `/app/requests/${args.quoteId}`,
+      quoteId: args.quoteId,
+      from: oldStatus,
+      to: args.status,
+      leadName: quote.leadName,
     });
+    if (args.status === "won") {
+      await emit(ctx, { type: "quote.won", tenantId: quote.tenantId, quoteId: args.quoteId });
+    }
 
     await ctx.db.insert("auditLog", {
       tenantId: quote.tenantId,
