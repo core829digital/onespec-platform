@@ -6,9 +6,21 @@ on:
   pull_request:
     branches: [main]
 
+# Least privilege: CI only reads the repo.
+permissions:
+  contents: read
+
+# A newer push supersedes an in-flight run of the same ref (fewer runs, fewer emails).
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   ci:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      CI: "true"
     steps:
       - uses: actions/checkout@v4
 

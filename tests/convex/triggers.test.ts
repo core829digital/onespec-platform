@@ -1,7 +1,12 @@
-import { describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { newDb, seedTenant, seedPublishedConfigurator } from "./_helpers";
+
+// Fake timers stop convex-test firing scheduled functions on a real timer after
+// the test body ("Write outside of transaction" unhandled rejection -> CI exit 1).
+beforeEach(() => vi.useFakeTimers());
+afterEach(() => vi.useRealTimers());
 
 async function seedQuote(
   t: ReturnType<typeof newDb>,
@@ -29,20 +34,10 @@ async function seedQuote(
   );
 }
 
-// Same pre-existing convex-test limitation billing.test.ts already has a
-// TODO for ("Fix scheduler mock ... to avoid 'Write outside of transaction'
-// error"): the mock eventually tries to run a scheduled ctx.scheduler.
-// runAfter call outside any transaction and throws — as an unhandled
-// rejection after the test body itself has already finished and passed,
-// not as a test failure. updateStatus/suspendTenant already scheduled
-// fanOutToTenant before this file existed; wiring them through emit()
-// doesn't add a new failure mode, it just means these are the first tests
-// to exercise that scheduler path at all. These tests stay at the boundary
-// that's actually testable: the mutation that calls emit() must complete
-// and commit its own write without the scheduled trigger throwing
-// synchronously. The trigger handlers' own DB effects (notification
-// insert, client activity insert) are exercised directly instead of
-// through the scheduler mock.
+// convex-test fires scheduled functions (emit() -> fanOutToTenant) on a timer; left
+// running after the test body they throw "Write outside of transaction" as an
+// unhandled rejection, which fails `vitest run` on CI. Fake timers (above) keep
+// them from firing, and the mutation under test still commits its own write.
 describe("triggers: emit() does not break the mutation that calls it", () => {
   test("quotes.updateStatus to 'won' commits the status change", async () => {
     const t = newDb();
@@ -66,6 +61,10 @@ describe("triggers: emit() does not break the mutation that calls it", () => {
 
     const quote = await t.run((ctx) => ctx.db.get(quoteId));
     expect(quote?.status).toBe("won");
+
+    // Drain scheduler work started by emit()/fanOut so it can never run after
+    // the test (unhandled "Write outside of transaction" fails CI on Linux).
+    await t.finishInProgressScheduledFunctions();
   });
 
   test("clients.systemAddActivity (the quote.won handler) inserts a real activity attributed to the tenant owner", async () => {
@@ -117,6 +116,10 @@ describe("triggers: emit() does not break the mutation that calls it", () => {
     expect(activities).toHaveLength(1);
     expect(activities[0].userId).toBe(ownerId);
     expect(activities[0].relatedId).toBe(quoteId);
+
+    // Drain scheduler work started by emit()/fanOut so it can never run after
+    // the test (unhandled "Write outside of transaction" fails CI on Linux).
+    await t.finishInProgressScheduledFunctions();
   });
 
   test("tenants.suspendTenant commits the suspension", async () => {
@@ -131,5 +134,9 @@ describe("triggers: emit() does not break the mutation that calls it", () => {
 
     const tenant = await t.run((ctx) => ctx.db.get(tenantId));
     expect(tenant?.planStatus).toBe("suspended");
+
+    // Drain scheduler work started by emit()/fanOut so it can never run after
+    // the test (unhandled "Write outside of transaction" fails CI on Linux).
+    await t.finishInProgressScheduledFunctions();
   });
 });
