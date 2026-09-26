@@ -517,6 +517,15 @@
         "Eigen domein",
         "Prijs en contract op maat"
       ]
+    },
+    "notice": {
+      "activatedTitle": "Abonnement {plan} geactiveerd!",
+      "activatedBody": "Betaling bevestigd en de functies van je nieuwe abonnement zijn ontgrendeld.",
+      "upgradeTitle": "Upgrade voltooid: je zit nu op {plan}",
+      "upgradeBody": "Je abonnement is bijgewerkt. De nieuwe functies zijn direct beschikbaar.",
+      "downgradeTitle": "Downgrade voltooid: je zit nu op {plan}",
+      "downgradeBody": "Je abonnement is bijgewerkt. De limieten van het nieuwe abonnement gelden nu.",
+      "close": "Begrepen"
     }
   },
   "clients": {

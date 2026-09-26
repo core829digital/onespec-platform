@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { api, internal } from "../../convex/_generated/api";
-import { listPriceCents, BILLING_PLANS } from "../../convex/lib/billingPlans";
-import { appOrigin, verifyStripeSignature } from "../../convex/billing";
+import { listPriceCents, BILLING_PLANS, planFromStripePriceId } from "../../convex/lib/billingPlans";
+import { appOrigin, subscriptionPatch, verifyStripeSignature } from "../../convex/billing";
 import { newDb, seedTenant } from "./_helpers";
 
 describe("billing plan catalogue", () => {
@@ -234,5 +234,49 @@ describe("appOrigin (checkout return-URL allowlist)", () => {
     expect(appOrigin("javascript:alert(1)")).toBe("https://app.example.com");
     delete process.env.ALLOWED_APP_ORIGINS;
     expect(appOrigin("https://www.example.com")).toBe("https://app.example.com");
+  });
+});
+
+describe("subscription -> plan mapping (real Stripe shapes)", () => {
+  test("maps price ids to plan/cycle from env, and falls back to subscription metadata", () => {
+    process.env.STRIPE_PRICE_PRO_MONTHLY = "price_pro_m";
+    process.env.STRIPE_PRICE_AGENCY_ANNUAL = "price_ag_y";
+    expect(planFromStripePriceId("price_pro_m")).toEqual({ plan: "pro", cycle: "monthly", region: "" });
+    expect(planFromStripePriceId("price_ag_y")).toEqual({ plan: "agency", cycle: "annual", region: "" });
+    expect(planFromStripePriceId("price_unknown")).toBeNull();
+  });
+
+  test("trialing Pro subscription: plan=pro, item-level period end, trial dates", () => {
+    process.env.STRIPE_PRICE_PRO_MONTHLY = "price_pro_m";
+    const patch = subscriptionPatch(
+      {
+        id: "sub_1",
+        status: "trialing",
+        trial_start: 1790448631,
+        trial_end: 1791658231,
+        items: { data: [{ price: { id: "price_pro_m" }, current_period_end: 1791658231 }] },
+        metadata: { plan: "pro", cycle: "monthly", tenantId: "t1" },
+      },
+      null,
+    );
+    expect(patch).toMatchObject({
+      plan: "pro",
+      billingCycle: "monthly",
+      planStatus: "trialing",
+      stripeSubscriptionId: "sub_1",
+      subscriptionCurrentPeriodEnd: 1791658231 * 1000,
+      trialEndsAt: 1791658231 * 1000,
+      trialPlan: "pro",
+    });
+  });
+
+  test("unrecognised price falls back to the plan stamped in metadata; deleted => suspended", () => {
+    process.env.STRIPE_PRICE_PRO_MONTHLY = "price_pro_m";
+    const patch = subscriptionPatch(
+      { id: "sub_2", status: "active", items: { data: [{ price: { id: "price_other" } }] }, metadata: { plan: "agency", cycle: "annual" } },
+      null,
+    );
+    expect(patch).toMatchObject({ plan: "agency", billingCycle: "annual", planStatus: "active" });
+    expect(subscriptionPatch({ id: "sub_3", status: "canceled", items: { data: [] } }, null, true).planStatus).toBe("suspended");
   });
 });

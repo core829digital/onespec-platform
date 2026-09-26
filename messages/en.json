@@ -517,6 +517,15 @@
         "Custom domain",
         "Tailored pricing and contract"
       ]
+    },
+    "notice": {
+      "activatedTitle": "{plan} plan activated!",
+      "activatedBody": "Payment confirmed and your new plan's features are unlocked.",
+      "upgradeTitle": "Upgrade complete: you're now on {plan}",
+      "upgradeBody": "Your plan was updated successfully. The new features are available right away.",
+      "downgradeTitle": "Downgrade complete: you're now on {plan}",
+      "downgradeBody": "Your plan was updated successfully. The new plan's limits now apply.",
+      "close": "Got it"
     }
   },
   "clients": {

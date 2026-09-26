@@ -517,6 +517,15 @@
         "Eigene Domain",
         "Individueller Preis und Vertrag"
       ]
+    },
+    "notice": {
+      "activatedTitle": "Plan {plan} aktiviert!",
+      "activatedBody": "Zahlung bestätigt, die Funktionen Ihres neuen Plans sind freigeschaltet.",
+      "upgradeTitle": "Upgrade abgeschlossen: Sie nutzen jetzt {plan}",
+      "upgradeBody": "Ihr Plan wurde erfolgreich aktualisiert. Die neuen Funktionen sind sofort verfügbar.",
+      "downgradeTitle": "Downgrade abgeschlossen: Sie nutzen jetzt {plan}",
+      "downgradeBody": "Ihr Plan wurde erfolgreich aktualisiert. Die Limits des neuen Plans gelten jetzt.",
+      "close": "Verstanden"
     }
   },
   "clients": {

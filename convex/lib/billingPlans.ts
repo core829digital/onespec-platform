@@ -98,6 +98,8 @@ export function resolveStripePriceId(
   );
 }
 
+const PRICE_REGIONS = ["IT", "FR", "BE", "NL", "DE", "LU"] as const;
+
 /**
  * Reverse-map a Stripe Price ID back to (plan, cycle, region) by scanning the
  * Part D env matrix. Returns null when the price is unknown (e.g. an ad-hoc
@@ -108,16 +110,19 @@ export function planFromStripePriceId(priceId: string): {
   cycle: BillingCycle;
   region: string;
 } | null {
+  // Look each env name up explicitly instead of enumerating process.env:
+  // enumeration is not reliable in the Convex runtime, and a silent miss here
+  // leaves a paying tenant on the wrong plan.
   const env = process.env as Record<string, string | undefined>;
-  for (const [name, value] of Object.entries(env)) {
-    if (!name.startsWith("STRIPE_PRICE_") || value !== priceId) continue;
-    const m = /^STRIPE_PRICE_(BASE|PRO|AGENCY)(?:_(MONTHLY|ANNUAL)(?:_([A-Z]{2}))?)?$/.exec(name);
-    if (!m) continue;
-    return {
-      plan: m[1].toLowerCase() as PlanKey,
-      cycle: (m[2]?.toLowerCase() as BillingCycle | undefined) ?? "monthly",
-      region: m[3] ?? "",
-    };
+  const plans = ["base", "pro", "agency"] as const;
+  const cycles = ["monthly", "annual"] as const;
+  for (const plan of plans) {
+    for (const cycle of cycles) {
+      for (const region of ["", ...PRICE_REGIONS]) {
+        const name = `STRIPE_PRICE_${plan.toUpperCase()}_${cycle.toUpperCase()}${region ? "_" + region : ""}`;
+        if (env[name] === priceId) return { plan, cycle, region };
+      }
+    }
   }
   // Legacy single-price envs.
   if (priceId === env.STRIPE_PRICE_BASE) return { plan: "base", cycle: "monthly", region: "" };

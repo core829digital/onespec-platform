@@ -517,6 +517,15 @@
         "Domeniu personalizat",
         "Preț și contract personalizate"
       ]
+    },
+    "notice": {
+      "activatedTitle": "Planul {plan} este activ!",
+      "activatedBody": "Plata este confirmată, iar funcțiile noului plan sunt deblocate.",
+      "upgradeTitle": "Upgrade finalizat: ești acum pe {plan}",
+      "upgradeBody": "Planul a fost actualizat cu succes. Funcțiile noi sunt disponibile imediat.",
+      "downgradeTitle": "Downgrade finalizat: ești acum pe {plan}",
+      "downgradeBody": "Planul a fost actualizat cu succes. Limitele noului plan sunt acum în vigoare.",
+      "close": "Am înțeles"
     }
   },
   "clients": {

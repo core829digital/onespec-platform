@@ -517,6 +517,15 @@
         "Domaine personnalisé",
         "Tarif et contrat sur mesure"
       ]
+    },
+    "notice": {
+      "activatedTitle": "Plan {plan} activé !",
+      "activatedBody": "Paiement confirmé : les fonctions de votre nouveau plan sont débloquées.",
+      "upgradeTitle": "Mise à niveau terminée : vous êtes sur {plan}",
+      "upgradeBody": "Votre plan a été mis à jour. Les nouvelles fonctions sont disponibles immédiatement.",
+      "downgradeTitle": "Rétrogradation terminée : vous êtes sur {plan}",
+      "downgradeBody": "Votre plan a été mis à jour. Les limites du nouveau plan s'appliquent désormais.",
+      "close": "Compris"
     }
   },
   "clients": {

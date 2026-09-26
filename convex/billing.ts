@@ -82,6 +82,7 @@ const BILLING_LIMITS: Record<string, { tokens: number; refillMs: number }> = {
   preview: { tokens: 20, refillMs: 10 * 60 * 1000 },
   change: { tokens: 5, refillMs: 10 * 60 * 1000 },
   cancel: { tokens: 5, refillMs: 10 * 60 * 1000 },
+  sync: { tokens: 20, refillMs: 10 * 60 * 1000 },
 };
 
 async function limitBilling(ctx: ActionCtx, tenantId: string, kind: keyof typeof BILLING_LIMITS & string) {
@@ -282,14 +283,13 @@ export const previewPlanChange = action({
     if (!priceId) throw new ConvexError("BILLING_PRICE_NOT_CONFIGURED");
 
     const itemId = await currentSubscriptionItemId(owner.stripeSubscriptionId);
-    const preview = await stripeGet(
-      `/invoices/upcoming?${form({
-        subscription: owner.stripeSubscriptionId,
-        "subscription_items[0][id]": itemId,
-        "subscription_items[0][price]": priceId,
-        subscription_proration_behavior: "always_invoice",
-      })}`,
-    );
+    // GET /invoices/upcoming was removed by Stripe; create_preview replaces it.
+    const preview = await stripe("/invoices/create_preview", {
+      subscription: owner.stripeSubscriptionId,
+      "subscription_details[items][0][id]": itemId,
+      "subscription_details[items][0][price]": priceId,
+      "subscription_details[proration_behavior]": "always_invoice",
+    });
     return {
       amountDueCents: Number(preview.amount_due ?? 0),
       currency: String(preview.currency ?? "eur").toUpperCase(),
@@ -351,6 +351,78 @@ export const cancelSubscription = action({
   },
 });
 
+/**
+ * Re-read the tenant's subscription from Stripe and apply it. Safety net for
+ * webhook delay/loss and the instant path after checkout / plan change: the
+ * UI calls it on return from Stripe so the plan is correct without waiting.
+ * Owner-only; only ever applies a subscription that is already linked to this
+ * tenant (stored id) or stamped with this tenant's id in its metadata.
+ */
+export const syncSubscription = action({
+  args: { tenantId: v.id("tenants") },
+  handler: async (
+    ctx,
+    args,
+  ): Promise<{ found: boolean; plan?: string; planStatus?: string }> => {
+    if (!stripeKey()) throw new ConvexError("BILLING_NOT_CONFIGURED");
+    const owner = await ctx.runQuery(internal.billing.assertOwner, { tenantId: args.tenantId });
+    await limitBilling(ctx, args.tenantId, "sync");
+
+    let sub: Record<string, unknown> | null = null;
+    if (owner.stripeSubscriptionId) {
+      sub = await stripeGet(`/subscriptions/${owner.stripeSubscriptionId}`);
+    } else {
+      // Webhook hasn't linked the subscription yet: find it by the tenant id we
+      // stamped in its metadata at checkout.
+      const query = encodeURIComponent(`metadata['tenantId']:'${args.tenantId}'`);
+      const found = await stripeGet(`/subscriptions/search?query=${query}&limit=5`);
+      const list = ((found.data as Array<Record<string, unknown>> | undefined) ?? []);
+      const live = ["trialing", "active", "past_due"];
+      sub = list.find((x) => live.includes(String(x.status))) ?? list[0] ?? null;
+    }
+    if (!sub) return { found: false };
+
+    const applied = await ctx.runMutation(internal.billing.applySubscriptionSync, {
+      tenantId: args.tenantId,
+      subscription: sub,
+    });
+    return { found: true, ...applied };
+  },
+});
+
+export const applySubscriptionSync = internalMutation({
+  args: { tenantId: v.id("tenants"), subscription: v.any() },
+  handler: async (ctx, args): Promise<{ plan: string; planStatus: string }> => {
+    const tenant = await ctx.db.get(args.tenantId);
+    if (!tenant) throw new ConvexError("TENANT_NOT_FOUND");
+    const sub = (args.subscription ?? {}) as Record<string, unknown>;
+    const meta = (sub.metadata ?? {}) as Record<string, string>;
+    const customer = typeof sub.customer === "string" ? sub.customer : undefined;
+    const ownedById = !!tenant.stripeSubscriptionId && tenant.stripeSubscriptionId === sub.id;
+    const ownedByMeta = meta.tenantId === String(tenant._id);
+    if (!ownedById && !ownedByMeta) throw new ConvexError("SUBSCRIPTION_MISMATCH");
+    if (tenant.stripeCustomerId && customer && tenant.stripeCustomerId !== customer) {
+      throw new ConvexError("SUBSCRIPTION_MISMATCH");
+    }
+    const patch = subscriptionPatch(sub, tenant, sub.status === "canceled");
+    if (customer) patch.stripeCustomerId = customer;
+    patch.updatedAt = Date.now();
+    await ctx.db.patch(tenant._id, patch as never);
+    await ctx.db.insert("auditLog", {
+      tenantId: tenant._id,
+      actorKind: "system",
+      action: "billing.sync",
+      targetTable: "tenants",
+      targetId: tenant._id,
+      createdAt: Date.now(),
+    });
+    return {
+      plan: String(patch.plan ?? tenant.plan),
+      planStatus: String(patch.planStatus ?? tenant.planStatus),
+    };
+  },
+});
+
 // ---------------------------------------------------------------------------
 // Webhook application
 // ---------------------------------------------------------------------------
@@ -405,6 +477,62 @@ export async function verifyStripeSignature(
   return match;
 }
 
+/**
+ * Tenant fields derived from a Stripe Subscription object. Single source of
+ * truth for both the webhook and the manual sync, so the two can never
+ * disagree about what a subscription means.
+ */
+export function subscriptionPatch(
+  obj: Record<string, unknown>,
+  tenantDoc: { trialStartedAt?: number } | null,
+  deleted = false,
+): Record<string, unknown> {
+  const patch: Record<string, unknown> = {};
+  patch.stripeSubscriptionId = obj.id as string;
+  const status = obj.status as string;
+  patch.planStatus =
+    status === "active" || status === "trialing"
+      ? status
+      : status === "past_due" || status === "unpaid"
+        ? "past_due"
+        : "suspended";
+
+  const items = obj.items as
+    | { data?: Array<{ price?: { id?: string }; current_period_end?: number }> }
+    | undefined;
+  const item = items?.data?.[0];
+  // Newer Stripe API versions moved current_period_end from the subscription
+  // onto its items; accept either.
+  const periodEnd =
+    typeof obj.current_period_end === "number" ? obj.current_period_end : item?.current_period_end;
+  if (typeof periodEnd === "number") patch.subscriptionCurrentPeriodEnd = periodEnd * 1000;
+  patch.subscriptionCancelAtPeriodEnd = !!obj.cancel_at_period_end;
+
+  if (typeof obj.trial_start === "number" && !tenantDoc?.trialStartedAt) {
+    patch.trialStartedAt = obj.trial_start * 1000;
+  }
+  if (typeof obj.trial_end === "number") {
+    patch.trialEndsAt = obj.trial_end * 1000;
+    patch.trialPlan = "pro";
+  }
+  // Trial converted: clear the countdown.
+  if (status === "active") patch.trialEndsAt = undefined;
+
+  const meta = (obj.metadata ?? {}) as Record<string, string>;
+  const mapped = item?.price?.id ? planFromStripePriceId(item.price.id) : null;
+  if (mapped && (mapped.plan === "base" || mapped.plan === "pro" || mapped.plan === "agency")) {
+    patch.plan = mapped.plan;
+    patch.billingCycle = mapped.cycle;
+  } else if (meta.plan === "base" || meta.plan === "pro" || meta.plan === "agency") {
+    // Price not recognised (env mismatch): fall back to the plan we stamped on
+    // the subscription ourselves at checkout / plan change.
+    patch.plan = meta.plan;
+    if (meta.cycle === "monthly" || meta.cycle === "annual") patch.billingCycle = meta.cycle;
+  }
+  if (deleted) patch.planStatus = "suspended";
+  return patch;
+}
+
 export const applyWebhookEvent = internalMutation({
   args: { eventId: v.string(), type: v.string(), data: v.any() },
   handler: async (ctx, args) => {
@@ -453,7 +581,9 @@ export const applyWebhookEvent = internalMutation({
 
         if (args.type === "checkout.session.completed") {
           patch.stripeSubscriptionId = obj.subscription as string;
-          patch.planStatus = "active";
+          if (tenantDoc?.planStatus !== "trialing" && tenantDoc?.planStatus !== "active") {
+            patch.planStatus = "active";
+          }
           const meta = (obj.metadata ?? {}) as Record<string, string>;
           if (meta.trialPlan === "pro") {
             patch.plan = "pro";
@@ -465,42 +595,7 @@ export const applyWebhookEvent = internalMutation({
           }
         }
         if (args.type.startsWith("customer.subscription")) {
-          patch.stripeSubscriptionId = obj.id as string;
-          const status = obj.status as string;
-          patch.planStatus =
-            status === "active" || status === "trialing"
-              ? status
-              : status === "past_due" || status === "unpaid"
-                ? "past_due"
-                : "suspended";
-          if (typeof obj.current_period_end === "number")
-            patch.subscriptionCurrentPeriodEnd = obj.current_period_end * 1000;
-          patch.subscriptionCancelAtPeriodEnd = !!obj.cancel_at_period_end;
-
-          if (typeof obj.trial_start === "number" && !tenantDoc?.trialStartedAt) {
-            patch.trialStartedAt = obj.trial_start * 1000;
-          }
-          if (typeof obj.trial_end === "number") {
-            patch.trialEndsAt = obj.trial_end * 1000;
-            patch.trialPlan = "pro";
-          }
-          // Trial converted: clear the countdown.
-          if (status === "active") patch.trialEndsAt = undefined;
-
-          const priceId = (
-            (obj.items as { data?: Array<{ price?: { id?: string } }> } | undefined)?.data?.[0]?.price
-              ?.id
-          ) as string | undefined;
-          if (priceId) {
-            const mapped = planFromStripePriceId(priceId);
-            if (mapped && (mapped.plan === "base" || mapped.plan === "pro" || mapped.plan === "agency")) {
-              patch.plan = mapped.plan;
-              patch.billingCycle = mapped.cycle;
-            }
-          }
-          if (args.type === "customer.subscription.deleted") {
-            patch.planStatus = "suspended";
-          }
+          Object.assign(patch, subscriptionPatch(obj, tenantDoc, args.type === "customer.subscription.deleted"));
         }
         await ctx.db.patch(tenantId as never, patch);
       }

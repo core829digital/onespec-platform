@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAction, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
@@ -41,9 +41,40 @@ export default function BillingPage() {
   const previewPlanChange = useAction(api.billing.previewPlanChange);
   const changePlan = useAction(api.billing.changePlan);
   const cancelSubscription = useAction(api.billing.cancelSubscription);
+  const syncSubscription = useAction(api.billing.syncSubscription);
+  // Success popup after checkout / upgrade / downgrade.
+  const [notice, setNotice] = useState<null | { kind: "activated" | "upgrade" | "downgrade"; plan: string }>(null);
+  const syncedRef = useRef(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [cycle, setCycle] = useState<"monthly" | "annual">("monthly");
+
+  useEffect(() => {
+    if (checkoutStatus !== "success" || !tenant || syncedRef.current) return;
+    syncedRef.current = true;
+    let cancelled = false;
+    (async () => {
+      for (let i = 0; i < 4 && !cancelled; i++) {
+        try {
+          const r = await syncSubscription({ tenantId: tenant._id });
+          if (r.found && r.plan) {
+            if (!cancelled) {
+              setNotice({ kind: "activated", plan: r.plan });
+              // Drop ?status=success so a reload does not re-open the popup.
+              window.history.replaceState(null, "", `${window.location.pathname}?tab=plan`);
+            }
+            return;
+          }
+        } catch {
+          /* webhook will catch up; keep the pending banner */
+        }
+        await new Promise((res) => setTimeout(res, 3000));
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [checkoutStatus, tenant, syncSubscription]);
 
   // Returning from Stripe with the browser Back button restores this page from
   // the back/forward cache with stale in-memory auth tokens (already rotated by
@@ -79,7 +110,18 @@ export default function BillingPage() {
         return;
       }
       await changePlan({ tenantId: tenant!._id, plan, cycle });
-      window.location.reload();
+      // Apply immediately instead of waiting for the webhook, then confirm on screen.
+      const rank: Record<string, number> = { base: 0, pro: 1, agency: 2 };
+      const before = rank[state?.plan ?? "base"] ?? 0;
+      let applied = plan;
+      try {
+        const r = await syncSubscription({ tenantId: tenant!._id });
+        if (r.plan) applied = r.plan as typeof plan;
+      } catch {
+        /* the webhook will apply it shortly */
+      }
+      setNotice({ kind: (rank[plan] ?? 0) >= before ? "upgrade" : "downgrade", plan: applied });
+      setBusy(false);
     } catch (e) {
       setErr(tf(e));
       setBusy(false);
@@ -129,6 +171,32 @@ export default function BillingPage() {
           ) : (
             <p className="text-sm text-[var(--color-text-secondary)]">{t("checkout.welcomePending")}</p>
           )}
+        </div>
+      ) : null}
+      {notice ? (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="plan-notice-title"
+            className="w-full max-w-md rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)] p-6 text-center shadow-xl"
+          >
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-mint)]/15 text-2xl text-[var(--color-mint)]">
+              ✓
+            </div>
+            <h2 id="plan-notice-title" className="text-lg font-bold text-[var(--color-text)]">
+              {t(`notice.${notice.kind}Title`, { plan: notice.plan.charAt(0).toUpperCase() + notice.plan.slice(1) })}
+            </h2>
+            <p className="mt-2 text-sm text-[var(--color-text-secondary)]">{t(`notice.${notice.kind}Body`)}</p>
+            <button
+              type="button"
+              autoFocus
+              onClick={() => setNotice(null)}
+              className="mt-5 rounded-lg bg-[var(--color-mint)] px-5 py-2 text-sm font-semibold text-[var(--color-mint-dark)]"
+            >
+              {t("notice.close")}
+            </button>
+          </div>
         </div>
       ) : null}
       {checkoutStatus === "cancelled" ? (

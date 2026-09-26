@@ -517,6 +517,15 @@
         "Dominio personalizzato",
         "Prezzo e contratto su misura"
       ]
+    },
+    "notice": {
+      "activatedTitle": "Piano {plan} attivato!",
+      "activatedBody": "Il pagamento è confermato e le funzioni del tuo nuovo piano sono già sbloccate.",
+      "upgradeTitle": "Upgrade completato: ora sei su {plan}",
+      "upgradeBody": "Il piano è stato aggiornato con successo. Le nuove funzioni sono disponibili subito.",
+      "downgradeTitle": "Downgrade completato: ora sei su {plan}",
+      "downgradeBody": "Il piano è stato aggiornato con successo. I limiti del nuovo piano sono già in vigore.",
+      "close": "Ho capito"
     }
   },
   "clients": {
