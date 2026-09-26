@@ -22,9 +22,13 @@ export default async function OnboardingLayout({
   if (!tenant) {
     redirect(`/${locale}/auth/onboarding`);
   }
-  if (tenant.onboardingCompletedAt) {
-    redirect(`/${locale}/app/dashboard`);
-  }
+
+  // AppLayout (src/app/[locale]/app/layout.tsx) is the single authority on the
+  // onboarding gate. A mirrored "already completed" redirect here used to
+  // bounce against it: AppLayout sends an incomplete tenant to /onboarding,
+  // this layout sent a completed tenant back to /app/dashboard, and a stale
+  // client-side navigation could replay either check against the wrong
+  // tenant state and loop the two forever.
 
   return (
     <div className="min-h-dvh bg-[var(--color-bg)] text-[var(--color-text)]">
