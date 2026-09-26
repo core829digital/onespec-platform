@@ -18,6 +18,24 @@ const STRIPE_API = "https://api.stripe.com/v1";
 const stripeKey = () => process.env.STRIPE_SECRET_KEY ?? "";
 const siteUrl = () => process.env.SITE_URL ?? "";
 
+/**
+ * Origin Stripe sends the customer back to. The client may ask for the origin
+ * it is browsing on (custom domain vs *.vercel.app), because session cookies
+ * are per-origin: returning to a different host would look like a logout. It is
+ * honoured ONLY if it is in the allowlist (SITE_URL + ALLOWED_APP_ORIGINS,
+ * comma-separated) — anything else falls back to SITE_URL, so this can never
+ * become an open redirect.
+ */
+export function appOrigin(requested?: string): string {
+  const norm = (u: string) => u.trim().replace(/\/+$/, "");
+  const base = norm(siteUrl());
+  const allowed = new Set(
+    [base, ...(process.env.ALLOWED_APP_ORIGINS ?? "").split(",").map(norm)].filter(Boolean),
+  );
+  const asked = requested ? norm(requested) : "";
+  return asked && allowed.has(asked) ? asked : base;
+}
+
 function form(data: Record<string, string | undefined>): string {
   const p = new URLSearchParams();
   for (const [k, val] of Object.entries(data)) if (val !== undefined) p.set(k, val);
@@ -117,6 +135,7 @@ export const createCheckoutSession = action({
     tenantId: v.id("tenants"),
     plan: v.union(v.literal("base"), v.literal("pro"), v.literal("agency")),
     cycle: v.optional(v.union(v.literal("monthly"), v.literal("annual"))),
+    origin: v.optional(v.string()),
   },
   handler: async (ctx, args): Promise<{ url: string }> => {
     if (!stripeKey()) throw new ConvexError("BILLING_NOT_CONFIGURED");
@@ -139,8 +158,8 @@ export const createCheckoutSession = action({
       "subscription_data[metadata][plan]": planKey,
       "subscription_data[metadata][cycle]": cycle,
       "subscription_data[metadata][ownerUserId]": owner.userId,
-      success_url: `${siteUrl()}/app/account/billing?status=success`,
-      cancel_url: `${siteUrl()}/app/account/billing?status=cancelled`,
+      success_url: `${appOrigin(args.origin)}/app/account/billing?status=success`,
+      cancel_url: `${appOrigin(args.origin)}/app/account/billing?status=cancelled`,
       allow_promotion_codes: "true",
       ui_mode: "hosted_page",
       billing_address_collection: "required",
@@ -188,7 +207,7 @@ export const createCheckoutSession = action({
 });
 
 export const createPortalSession = action({
-  args: { tenantId: v.id("tenants") },
+  args: { tenantId: v.id("tenants"), origin: v.optional(v.string()) },
   handler: async (ctx, args): Promise<{ url: string }> => {
     if (!stripeKey()) throw new ConvexError("BILLING_NOT_CONFIGURED");
     const owner = await ctx.runQuery(internal.billing.assertOwner, { tenantId: args.tenantId });
@@ -196,7 +215,7 @@ export const createPortalSession = action({
 
     const session = await stripe("/billing_portal/sessions", {
       customer: owner.stripeCustomerId,
-      return_url: `${siteUrl()}/app/account/billing`,
+      return_url: `${appOrigin(args.origin)}/app/account/billing`,
     });
     return { url: String(session.url) };
   },
@@ -317,10 +336,24 @@ export async function verifyStripeSignature(
   secret: string,
   toleranceSec = 300,
 ): Promise<boolean> {
-  if (!header || !secret) return false;
-  const parts = Object.fromEntries(header.split(",").map((kv) => kv.split("=") as [string, string]));
-  const t = Number(parts.t);
-  if (!Number.isFinite(t) || Math.abs(Date.now() / 1000 - t) > toleranceSec) return false;
+  if (!header || !secret || header.length > 1024) return false;
+
+  // Parse `t=<unix>,v1=<sig>[,v1=<sig>...]`. Stripe sends several v1 entries
+  // while a signing secret is being rolled, so collect all of them (the old
+  // Object.fromEntries kept only the last). v0 (test-only) entries are ignored.
+  let ts = "";
+  const sigs: string[] = [];
+  for (const part of header.split(",")) {
+    const i = part.indexOf("=");
+    if (i < 0) continue;
+    const k = part.slice(0, i).trim();
+    const val = part.slice(i + 1).trim();
+    if (k === "t") ts = val;
+    else if (k === "v1" && /^[0-9a-f]{64}$/i.test(val)) sigs.push(val.toLowerCase());
+  }
+  const t = Number(ts);
+  if (!/^\d{9,12}$/.test(ts) || !Number.isFinite(t) || sigs.length === 0) return false;
+  if (Math.abs(Date.now() / 1000 - t) > toleranceSec) return false;
 
   const key = await crypto.subtle.importKey(
     "raw",
@@ -329,14 +362,18 @@ export async function verifyStripeSignature(
     false,
     ["sign"],
   );
-  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`${t}.${payload}`));
-  const expected = [...new Uint8Array(sig)].map((b) => b.toString(16).padStart(2, "0")).join("");
-  // constant-time-ish compare
-  const given = parts.v1 ?? "";
-  if (given.length !== expected.length) return false;
-  let diff = 0;
-  for (let i = 0; i < expected.length; i++) diff |= expected.charCodeAt(i) ^ given.charCodeAt(i);
-  return diff === 0;
+  const mac = new Uint8Array(
+    await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(`${t}.${payload}`)),
+  );
+  const expected = [...mac].map((b) => b.toString(16).padStart(2, "0")).join("");
+  // Constant-time compare against every candidate; don't short-circuit.
+  let match = false;
+  for (const given of sigs) {
+    let diff = 0;
+    for (let i = 0; i < expected.length; i++) diff |= expected.charCodeAt(i) ^ given.charCodeAt(i);
+    if (diff === 0) match = true;
+  }
+  return match;
 }
 
 export const applyWebhookEvent = internalMutation({

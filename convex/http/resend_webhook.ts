@@ -36,11 +36,15 @@ const MAX_TIMESTAMP_SKEW_SECONDS = 5 * 60;
 
 export const resendWebhook = httpAction(async (ctx, request: Request) => {
   const webhookSecret = process.env.RESEND_WEBHOOK_SECRET;
+  // Fail closed: without a signing secret this endpoint used to accept ANY
+  // request and write delivery logs / flip email statuses. Disabled until set.
+  if (!webhookSecret) return new Response("not configured", { status: 503 });
   const svixId = request.headers.get("svix-id");
   const svixTimestamp = request.headers.get("svix-timestamp");
   const svixSignature = request.headers.get("svix-signature");
 
   const rawBody = await request.text();
+  if (rawBody.length > 256 * 1024) return new Response("payload too large", { status: 413 });
   let payload: unknown;
   try {
     payload = JSON.parse(rawBody);

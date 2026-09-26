@@ -460,6 +460,13 @@
     },
     "upgrade": {
       "confirmCharge": "Er wordt alleen het naar rato verschil in rekening gebracht: {amount}. Planwijziging bevestigen?"
+    },
+    "checkout": {
+      "welcomeTitle": "Welkom bij het {plan}-abonnement!",
+      "welcomeBody": "De betaling is gelukt: je abonnement is actief en de functies van je abonnement zijn ontgrendeld.",
+      "welcomePending": "We bevestigen de betaling bij Stripe. Je toegang wordt binnen enkele seconden bijgewerkt, herladen is niet nodig.",
+      "cancelledTitle": "Betaling geannuleerd",
+      "cancelledBody": "Er is niets afgeschreven. Je kunt het op elk moment opnieuw proberen."
     }
   },
   "clients": {
@@ -1252,5 +1259,15 @@
     "fullAccess": "Volledige toegang",
     "grantFullAccess": "Volledige toegang geven",
     "revokeFullAccess": "Volledige toegang intrekken"
+  },
+  "planGate": {
+    "title": "Dit onderdeel zit niet in je abonnement",
+    "body": "\"{feature}\" is niet beschikbaar met je huidige abonnement ({plan}). Upgrade naar {required} of hoger om het te ontgrendelen.",
+    "cta": "Abonnementen bekijken",
+    "locked": "Geblokkeerd door abonnement",
+    "features": {
+      "analytics": "Statistieken",
+      "showroom": "Showroom"
+    }
   }
 }

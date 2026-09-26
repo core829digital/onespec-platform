@@ -460,6 +460,13 @@
     },
     "upgrade": {
       "confirmCharge": "Vei fi taxat doar cu diferența proporțională: {amount}. Confirmi schimbarea planului?"
+    },
+    "checkout": {
+      "welcomeTitle": "Bun venit în planul {plan}!",
+      "welcomeBody": "Plata a reușit: abonamentul tău este activ, iar funcțiile planului sunt deblocate.",
+      "welcomePending": "Confirmăm plata cu Stripe. Accesul se actualizează în câteva secunde, nu e nevoie să reîncarci.",
+      "cancelledTitle": "Plată anulată",
+      "cancelledBody": "Nu s-a făcut nicio debitare. Poți încerca din nou oricând."
     }
   },
   "clients": {
@@ -1252,5 +1259,15 @@
     "fullAccess": "Acces total",
     "grantFullAccess": "Dă acces total",
     "revokeFullAccess": "Revocă accesul total"
+  },
+  "planGate": {
+    "title": "Această secțiune nu este inclusă în planul tău",
+    "body": "„{feature}” nu este disponibilă cu planul actual ({plan}). Treci la {required} sau superior pentru a o debloca.",
+    "cta": "Vezi abonamentele",
+    "locked": "Blocat de plan",
+    "features": {
+      "analytics": "Statistici",
+      "showroom": "Showroom"
+    }
   }
 }

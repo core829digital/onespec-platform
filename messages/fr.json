@@ -460,6 +460,13 @@
     },
     "upgrade": {
       "confirmCharge": "Seule la différence proratisée sera facturée : {amount}. Confirmer le changement de forfait ?"
+    },
+    "checkout": {
+      "welcomeTitle": "Bienvenue dans le plan {plan} !",
+      "welcomeBody": "Le paiement a réussi : votre abonnement est actif et les fonctions du plan sont débloquées.",
+      "welcomePending": "Nous confirmons le paiement avec Stripe. L'accès se met à jour en quelques secondes, inutile de recharger.",
+      "cancelledTitle": "Paiement annulé",
+      "cancelledBody": "Aucun débit. Vous pouvez réessayer quand vous voulez."
     }
   },
   "clients": {
@@ -1252,5 +1259,15 @@
     "fullAccess": "Accès total",
     "grantFullAccess": "Donner accès total",
     "revokeFullAccess": "Retirer accès total"
+  },
+  "planGate": {
+    "title": "Cette section n'est pas incluse dans votre plan",
+    "body": "« {feature} » n'est pas disponible avec votre plan actuel ({plan}). Passez à {required} ou supérieur pour la débloquer.",
+    "cta": "Voir les abonnements",
+    "locked": "Bloqué par le plan",
+    "features": {
+      "analytics": "Statistiques",
+      "showroom": "Showroom"
+    }
   }
 }

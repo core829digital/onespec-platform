@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAction, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
@@ -29,7 +29,9 @@ export default function BillingPage() {
   const locale = useLocale();
   const tenant = useQuery(api.tenants.getMyTenant);
   const company = useQuery(api.tenants.getCompanyProfile);
-  const tab = useSearchParams().get("tab") === "billing" ? "billing" : "plan";
+  const params = useSearchParams();
+  const tab = params.get("tab") === "billing" ? "billing" : "plan";
+  const checkoutStatus = params.get("status");
   const state = useQuery(
     api.billing.getBillingState,
     tenant ? { tenantId: tenant._id } : "skip",
@@ -42,6 +44,17 @@ export default function BillingPage() {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [cycle, setCycle] = useState<"monthly" | "annual">("monthly");
+
+  // Returning from Stripe with the browser Back button restores this page from
+  // the back/forward cache with stale in-memory auth tokens (already rotated by
+  // the server), which signs the user out. Reload so it boots from the cookie.
+  useEffect(() => {
+    const onShow = (e: PageTransitionEvent) => {
+      if (e.persisted) window.location.reload();
+    };
+    window.addEventListener("pageshow", onShow);
+    return () => window.removeEventListener("pageshow", onShow);
+  }, []);
 
   async function go(fn: () => Promise<{ url: string }>) {
     setBusy(true);
@@ -104,6 +117,26 @@ export default function BillingPage() {
         </p>
       </div>
       {err ? <p className="text-sm text-[var(--color-danger)]">{err}</p> : null}
+      {checkoutStatus === "success" ? (
+        <div role="status" className="rounded-xl border border-[var(--color-mint)]/40 bg-[var(--color-mint)]/10 p-4">
+          {state.subscription ? (
+            <>
+              <p className="font-semibold text-[var(--color-text)]">
+                {t("checkout.welcomeTitle", { plan: state.plan.charAt(0).toUpperCase() + state.plan.slice(1) })}
+              </p>
+              <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{t("checkout.welcomeBody")}</p>
+            </>
+          ) : (
+            <p className="text-sm text-[var(--color-text-secondary)]">{t("checkout.welcomePending")}</p>
+          )}
+        </div>
+      ) : null}
+      {checkoutStatus === "cancelled" ? (
+        <div role="status" className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4">
+          <p className="font-semibold text-[var(--color-text)]">{t("checkout.cancelledTitle")}</p>
+          <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{t("checkout.cancelledBody")}</p>
+        </div>
+      ) : null}
 
       <div role="tablist" className="inline-flex rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-1">
         {(["plan", "billing"] as const).map((k) => (
@@ -139,7 +172,7 @@ export default function BillingPage() {
                 <button
                   type="button"
                   disabled={busy}
-                  onClick={() => go(() => portal({ tenantId: tenant!._id }))}
+                  onClick={() => go(() => portal({ tenantId: tenant!._id, origin: window.location.origin }))}
                   className="rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm text-[var(--color-text)]"
                 >
                   {t("subscription.manage")}
@@ -263,6 +296,7 @@ export default function BillingPage() {
                             tenantId: tenant!._id,
                             plan: "pro",
                             cycle,
+                            origin: window.location.origin,
                           }),
                         )
                       }
@@ -289,6 +323,7 @@ export default function BillingPage() {
                             tenantId: tenant!._id,
                             plan: p.key as "base" | "pro" | "agency",
                             cycle,
+                            origin: window.location.origin,
                           }),
                         )
                       }

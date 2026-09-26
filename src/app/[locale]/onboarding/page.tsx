@@ -210,7 +210,7 @@ export default function OnboardingWizard() {
                   setErr("");
                   try {
                     if (state && "stripeConfigured" in state && state.stripeConfigured) {
-                      const { url } = await checkout({ tenantId: tenant._id, plan: p.key });
+                      const { url } = await checkout({ tenantId: tenant._id, plan: p.key, origin: window.location.origin });
                       window.location.href = url;
                     } else {
                       await selectPlan({ plan: p.key });

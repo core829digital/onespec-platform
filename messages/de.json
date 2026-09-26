@@ -460,6 +460,13 @@
     },
     "upgrade": {
       "confirmCharge": "Es wird nur die anteilige Differenz berechnet: {amount}. Planwechsel bestätigen?"
+    },
+    "checkout": {
+      "welcomeTitle": "Willkommen im Plan {plan}!",
+      "welcomeBody": "Die Zahlung war erfolgreich: Ihr Abonnement ist aktiv und die Funktionen Ihres Plans sind freigeschaltet.",
+      "welcomePending": "Wir bestätigen die Zahlung mit Stripe. Der Zugriff wird in wenigen Sekunden aktualisiert, ein Neuladen ist nicht nötig.",
+      "cancelledTitle": "Zahlung abgebrochen",
+      "cancelledBody": "Es wurde nichts abgebucht. Sie können es jederzeit erneut versuchen."
     }
   },
   "clients": {
@@ -1252,5 +1259,15 @@
     "fullAccess": "Vollzugriff",
     "grantFullAccess": "Vollzugriff geben",
     "revokeFullAccess": "Vollzugriff entziehen"
+  },
+  "planGate": {
+    "title": "Dieser Bereich ist in Ihrem Plan nicht enthalten",
+    "body": "„{feature}“ ist mit Ihrem aktuellen Plan ({plan}) nicht verfügbar. Wechseln Sie zu {required} oder höher, um ihn freizuschalten.",
+    "cta": "Abonnements ansehen",
+    "locked": "Durch Plan gesperrt",
+    "features": {
+      "analytics": "Statistiken",
+      "showroom": "Showroom"
+    }
   }
 }

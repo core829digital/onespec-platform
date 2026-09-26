@@ -460,6 +460,13 @@
     },
     "upgrade": {
       "confirmCharge": "You'll be charged only the prorated difference: {amount}. Confirm the plan change?"
+    },
+    "checkout": {
+      "welcomeTitle": "Welcome to the {plan} plan!",
+      "welcomeBody": "Payment succeeded: your subscription is active and your plan's features are unlocked.",
+      "welcomePending": "We're confirming the payment with Stripe. Access updates within seconds, no need to reload.",
+      "cancelledTitle": "Payment cancelled",
+      "cancelledBody": "You were not charged. You can try again any time."
     }
   },
   "clients": {
@@ -1252,5 +1259,15 @@
     "fullAccess": "Full access",
     "grantFullAccess": "Grant full access",
     "revokeFullAccess": "Revoke full access"
+  },
+  "planGate": {
+    "title": "This section isn't included in your plan",
+    "body": "\"{feature}\" isn't available on your current plan ({plan}). Upgrade to {required} or higher to unlock it.",
+    "cta": "View plans",
+    "locked": "Locked by plan",
+    "features": {
+      "analytics": "Analytics",
+      "showroom": "Showroom"
+    }
   }
 }

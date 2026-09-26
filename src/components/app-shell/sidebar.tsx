@@ -8,7 +8,8 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Doc } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
-import { ChevronDown, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { ChevronDown, Lock, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { usePlanAccess } from "@/lib/plan-gates";
 import { NAV_GROUPS, ADMIN_NAV_ITEM, isNavItemActive, navHref, type NavItem } from "./nav-items";
 import { Logo } from "@/components/logo";
 
@@ -68,7 +69,7 @@ function useSidebarState() {
   return { collapsed, closed, toggleCollapsed, toggleGroup };
 }
 
-function NavLink({ item, active, collapsed, label }: { item: NavItem; active: boolean; collapsed: boolean; label: string }) {
+function NavLink({ item, active, collapsed, label, locked = false }: { item: NavItem; active: boolean; collapsed: boolean; label: string; locked?: boolean }) {
   const Icon = item.icon;
   return (
     <Link
@@ -85,6 +86,7 @@ function NavLink({ item, active, collapsed, label }: { item: NavItem; active: bo
     >
       <Icon size={18} aria-hidden="true" />
       {collapsed ? <span className="sr-only">{label}</span> : <span className="truncate">{label}</span>}
+      {locked ? <Lock size={13} aria-hidden="true" className={cn("shrink-0 opacity-70", !collapsed && "ml-auto")} /> : null}
     </Link>
   );
 }
@@ -95,6 +97,7 @@ export function Sidebar({ tenant }: { tenant: Doc<"tenants"> }) {
   const params = useSearchParams();
   const viewer = useQuery(api.users.viewer);
   const isPlatformAdmin = viewer?.isPlatformAdmin === true;
+  const access = usePlanAccess(tenant._id);
   const { collapsed, closed, toggleCollapsed, toggleGroup } = useSidebarState();
 
   return (
@@ -158,6 +161,7 @@ export function Sidebar({ tenant }: { tenant: Doc<"tenants"> }) {
                         active={isNavItemActive(item, pathname, params)}
                         collapsed={collapsed}
                         label={t(item.label)}
+                        locked={!!item.feature && access?.isLocked(item.feature) === true}
                       />
                     ))}
                   </div>

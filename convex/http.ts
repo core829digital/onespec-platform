@@ -471,7 +471,12 @@ http.route({
 // slug (e.g. `openssl rand -hex 16`) and use the resulting path as the
 // endpoint URL in the Stripe Dashboard when billing goes live. Falls back to
 // the static path if unset, so nothing breaks before that env var exists.
-const STRIPE_WEBHOOK_PATH = `/api/stripe/webhook/${process.env.STRIPE_WEBHOOK_PATH_TOKEN ?? "unconfigured"}`;
+// The path deliberately contains neither "api", "stripe" nor "webhook". If the
+// token is missing or too short the route is NOT registered at all (no
+// guessable fallback path) — every request to it 404s.
+const STRIPE_WEBHOOK_TOKEN = process.env.STRIPE_WEBHOOK_PATH_TOKEN ?? "";
+const STRIPE_WEBHOOK_PATH = `/ev/${STRIPE_WEBHOOK_TOKEN}`;
+const STRIPE_WEBHOOK_MAX_BYTES = 512 * 1024;
 
 // Stripe's own guidance is to treat signature verification (below) as the
 // real defense and NOT hard-block on IP — their webhook-sending IP ranges
@@ -503,7 +508,7 @@ async function flagIfUnexpectedOrigin(req: Request): Promise<string | null> {
   return stripeIpCache.ips.has(ip) ? null : ip;
 }
 
-http.route({
+if (/^[A-Za-z0-9_-]{24,128}$/.test(STRIPE_WEBHOOK_TOKEN)) http.route({
   path: STRIPE_WEBHOOK_PATH,
   method: "POST",
   handler: httpAction(async (ctx, req) => {
@@ -513,7 +518,10 @@ http.route({
     const unexpectedIp = await flagIfUnexpectedOrigin(req);
     if (unexpectedIp) console.warn(`[stripe-webhook] request from outside Stripe's known IP prefixes: ${unexpectedIp}`);
 
+    const declared = Number(req.headers.get("content-length") ?? "0");
+    if (declared > STRIPE_WEBHOOK_MAX_BYTES) return new Response("payload too large", { status: 413 });
     const raw = await req.text();
+    if (raw.length > STRIPE_WEBHOOK_MAX_BYTES) return new Response("payload too large", { status: 413 });
     const ok = await verifyStripeSignature(raw, req.headers.get("stripe-signature"), secret);
     if (!ok) return new Response("bad signature", { status: 400 });
 
@@ -544,6 +552,7 @@ http.route({
         const tenantId =
           (object?.client_reference_id as string | undefined) ?? metadata?.tenantId;
         const ownerUserId = metadata?.ownerUserId;
+        try {
         const posthog = createPostHogClient();
         if (posthog && tenantId && ownerUserId) {
           posthog.capture({
@@ -557,6 +566,9 @@ http.route({
             },
           });
           await posthog.shutdown();
+        }
+        } catch (err) {
+          console.warn("[stripe-webhook] analytics failed (ignored)", err);
         }
       }
     }

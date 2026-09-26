@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { api, internal } from "../../convex/_generated/api";
 import { listPriceCents, BILLING_PLANS } from "../../convex/lib/billingPlans";
-import { verifyStripeSignature } from "../../convex/billing";
+import { appOrigin, verifyStripeSignature } from "../../convex/billing";
 import { newDb, seedTenant } from "./_helpers";
 
 describe("billing plan catalogue", () => {
@@ -45,6 +45,25 @@ describe("verifyStripeSignature", () => {
     const stale = await sign(payload, "whsec_test", now - 10_000);
     expect(await verifyStripeSignature(payload, stale, "whsec_test")).toBe(false);
     expect(await verifyStripeSignature(payload, null, "whsec_test")).toBe(false);
+  });
+
+  test("accepts any valid v1 during secret rotation; rejects malformed headers", async () => {
+    const payload = '{"id":"evt_2"}';
+    const now = Math.floor(Date.now() / 1000);
+    const good = await sign(payload, "whsec_new", now); // t=..,v1=<good>
+    const oldSecretSig = (await sign(payload, "whsec_old", now)).split(",")[1];
+
+    // valid signature listed FIRST, a stale-secret one after it
+    expect(await verifyStripeSignature(payload, `${good},${oldSecretSig}`, "whsec_new")).toBe(true);
+    // ...and listed LAST
+    const [t, goodV1] = good.split(",");
+    expect(await verifyStripeSignature(payload, `${t},${oldSecretSig},${goodV1}`, "whsec_new")).toBe(true);
+
+    expect(await verifyStripeSignature(payload, "garbage", "whsec_new")).toBe(false);
+    expect(await verifyStripeSignature(payload, `${t},v1=deadbeef`, "whsec_new")).toBe(false);
+    expect(await verifyStripeSignature(payload, `v1=${goodV1.slice(3)}`, "whsec_new")).toBe(false); // no t=
+    expect(await verifyStripeSignature(payload, "x".repeat(2000), "whsec_new")).toBe(false);
+    expect(await verifyStripeSignature(payload, good, "")).toBe(false);
   });
 });
 
@@ -199,5 +218,21 @@ describe("billing.getBillingState + webhook", () => {
     } finally {
       delete process.env.STRIPE_PRICE_PRO_MONTHLY_IT;
     }
+  });
+});
+
+describe("appOrigin (checkout return-URL allowlist)", () => {
+  test("honours only allowlisted origins; anything else falls back to SITE_URL", () => {
+    process.env.SITE_URL = "https://app.example.com/";
+    process.env.ALLOWED_APP_ORIGINS = "https://www.example.com, https://example.com/";
+    expect(appOrigin(undefined)).toBe("https://app.example.com");
+    expect(appOrigin("https://app.example.com")).toBe("https://app.example.com");
+    expect(appOrigin("https://www.example.com/")).toBe("https://www.example.com");
+    expect(appOrigin("https://example.com")).toBe("https://example.com");
+    expect(appOrigin("https://evil.com")).toBe("https://app.example.com");
+    expect(appOrigin("https://app.example.com.evil.com")).toBe("https://app.example.com");
+    expect(appOrigin("javascript:alert(1)")).toBe("https://app.example.com");
+    delete process.env.ALLOWED_APP_ORIGINS;
+    expect(appOrigin("https://www.example.com")).toBe("https://app.example.com");
   });
 });

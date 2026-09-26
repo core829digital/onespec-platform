@@ -460,6 +460,13 @@
     },
     "upgrade": {
       "confirmCharge": "Verrà addebitata solo la differenza prorata: {amount}. Confermi il cambio piano?"
+    },
+    "checkout": {
+      "welcomeTitle": "Benvenuto nel piano {plan}!",
+      "welcomeBody": "Il pagamento è andato a buon fine: il tuo abbonamento è attivo e le funzioni del piano sono sbloccate.",
+      "welcomePending": "Stiamo confermando il pagamento con Stripe. L'accesso si aggiorna in pochi secondi, non serve ricaricare.",
+      "cancelledTitle": "Pagamento annullato",
+      "cancelledBody": "Nessun addebito. Puoi riprovare quando vuoi."
     }
   },
   "clients": {
@@ -1252,5 +1259,15 @@
     "fullAccess": "Accesso totale",
     "grantFullAccess": "Dai accesso totale",
     "revokeFullAccess": "Togli accesso totale"
+  },
+  "planGate": {
+    "title": "Sezione non inclusa nel tuo piano",
+    "body": "«{feature}» non è disponibile con il piano attuale ({plan}). Passa a {required} o superiore per sbloccarla.",
+    "cta": "Vedi gli abbonamenti",
+    "locked": "Bloccato dal piano",
+    "features": {
+      "analytics": "Statistiche",
+      "showroom": "Showroom"
+    }
   }
 }

@@ -20,8 +20,11 @@ import {
   Receipt,
   type LucideIcon,
 } from "lucide-react";
+import type { GatedFeature } from "@/lib/plan-gates";
 
 export interface NavItem {
+  /** Plan-gated section: shows a lock when the tenant's plan doesn't include it. */
+  feature?: GatedFeature;
   href: string;
   /** key under the `nav` i18n namespace */
   label: string;
@@ -41,7 +44,7 @@ export const NAV_GROUPS: NavGroup[] = [
     key: "overview",
     items: [
       { href: "/app/dashboard", label: "dashboard", icon: LayoutDashboard },
-      { href: "/app/analytics", label: "analytics", icon: BarChart3 },
+      { href: "/app/analytics", label: "analytics", icon: BarChart3, feature: "analytics" },
       { href: "/app/notifications", label: "notifications", icon: Bell },
     ],
   },
@@ -49,7 +52,7 @@ export const NAV_GROUPS: NavGroup[] = [
     key: "sales",
     items: [
       { href: "/app/configurators", label: "configurators", icon: Package },
-      { href: "/app/showroom", label: "showroom", icon: Store },
+      { href: "/app/showroom", label: "showroom", icon: Store, feature: "showroom" },
       { href: "/app/requests", label: "requests", icon: FileText },
       { href: "/app/quotes", label: "quotes", icon: PenLine },
       { href: "/app/pipeline", label: "pipeline", icon: KanbanSquare },
