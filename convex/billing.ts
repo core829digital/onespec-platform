@@ -142,6 +142,23 @@ export const createCheckoutSession = action({
       success_url: `${siteUrl()}/app/account/billing?status=success`,
       cancel_url: `${siteUrl()}/app/account/billing?status=cancelled`,
       allow_promotion_codes: "true",
+      ui_mode: "hosted_page",
+      billing_address_collection: "required",
+      "phone_number_collection[enabled]": "true",
+      "automatic_tax[enabled]": "true",
+      payment_method_collection: "always",
+      submit_type: "auto",
+      "tax_id_collection[enabled]": "true",
+      "tax_id_collection[required]": "never",
+      "consent_collection[terms_of_service]": "required",
+      "consent_collection[promotions]": "auto",
+      "name_collection[individual][enabled]": "true",
+      "name_collection[individual][optional]": "true",
+      "name_collection[business][enabled]": "true",
+      "name_collection[business][optional]": "true",
+      "saved_payment_method_options[payment_method_save]": "enabled",
+      integration_identifier: "hosted_web_0002",
+      origin_context: "web",
     };
 
     // Pro-only 14-day trial: the card is captured up front and Stripe
