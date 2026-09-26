@@ -28,7 +28,7 @@ Scenario A: the existing Checkout Session call in [convex/billing.ts](convex/bil
 | payment_method_collection | always |
 | submit_type | auto |
 | tax_id_collection | enabled: true, required: never |
-| consent_collection | terms_of_service: required, promotions: auto |
+| consent_collection | terms_of_service: required (promotions removed: not available in the account's country) |
 | name_collection | individual + business enabled, optional |
 | saved_payment_method_options | payment_method_save: enabled |
 | integration_identifier | hosted_web_0002 |
