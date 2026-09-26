@@ -22,10 +22,18 @@ export function createPostHogClient(): PostHog | null {
     return null;
   }
 
-  return new PostHog(token, {
-    host,
-    flushAt: 1,
-    flushInterval: 0,
-    enableExceptionAutocapture: true,
-  });
+  // Exception autocapture registers process.on(...) handlers, which the
+  // Convex runtime doesn't provide ("s.on is not a function") — it crashed
+  // checkout and the Stripe webhook. Analytics must never break billing.
+  try {
+    return new PostHog(token, {
+      host,
+      flushAt: 1,
+      flushInterval: 0,
+      enableExceptionAutocapture: false,
+    });
+  } catch (err) {
+    console.warn("[posthog] client init failed, skipping analytics", err);
+    return null;
+  }
 }
