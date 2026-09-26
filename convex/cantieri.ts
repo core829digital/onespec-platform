@@ -261,6 +261,20 @@ export const updateCantiere = mutation({
     if (!cantiere) throw new ConvexError("CANTIERE_NOT_FOUND");
     const { userId } = await requirePermission(ctx, cantiere.tenantId, "cantieri.use");
 
+    // Input validation (bounded strings, finite numbers) before touching the row.
+    const tooLong = (val: string | undefined, max: number) => val !== undefined && val.length > max;
+    if (
+      tooLong(args.name, 200) || tooLong(args.address, 300) || tooLong(args.city, 120) ||
+      tooLong(args.postalCode, 20) || tooLong(args.country, 2) || tooLong(args.notes, 10_000)
+    ) {
+      throw new ConvexError("INVALID_INPUT");
+    }
+    for (const n of [args.estimatedStartAt, args.estimatedEndAt, args.actualStartAt, args.actualEndAt, args.valueCents]) {
+      if (n !== undefined && !Number.isFinite(n)) throw new ConvexError("INVALID_INPUT");
+    }
+    if (args.valueCents !== undefined && args.valueCents < 0) throw new ConvexError("INVALID_INPUT");
+    if (args.assignedUserIds !== undefined && args.assignedUserIds.length > 100) throw new ConvexError("INVALID_INPUT");
+
     const patch: Record<string, unknown> = { updatedAt: Date.now() };
     const allowedFields = [
       "name", "address", "city", "postalCode", "country",

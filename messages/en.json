@@ -195,6 +195,10 @@
       "countryDetected": "Detected automatically from your connection — you can change it.",
       "baseTitle": "Company created",
       "baseSubtitle": "Your company {companyName} is registered with the Base plan."
+    },
+    "botcheck": {
+      "unavailable": "Security check unavailable. Disable any content blockers and reload the page.",
+      "failed": "Security check failed. Please try again."
     }
   },
   "notifications": {
@@ -467,6 +471,50 @@
       "welcomePending": "We're confirming the payment with Stripe. Access updates within seconds, no need to reload.",
       "cancelledTitle": "Payment cancelled",
       "cancelledBody": "You were not charged. You can try again any time."
+    },
+    "planFeatures": {
+      "base": [
+        "1 configurator",
+        "20 quotes per month",
+        "2 team members",
+        "Survey (Rilievo) module",
+        "CSV/XLSX price-list import",
+        "Basic tax engine",
+        "Email support"
+      ],
+      "pro": [
+        "Everything in Base",
+        "3 configurators",
+        "Unlimited quotes",
+        "5 team members",
+        "Embeddable public widget + white-label",
+        "Advanced pricing rules and multi-catalog",
+        "E-signature on quotes",
+        "Advance invoices and maintenance contracts",
+        "Full tax engine (Beni Significativi, ENEA)",
+        "All field modules (installation, inspection, QR dossiers)",
+        "Basic analytics",
+        "14-day free trial · priority support"
+      ],
+      "agency": [
+        "Everything in Pro",
+        "10 configurators",
+        "15 team members",
+        "Up to 1000 quotes per month",
+        "Multi-supplier aggregator",
+        "3-zone Showroom calculator",
+        "Bulk multi-site import",
+        "Advanced analytics",
+        "Dedicated support"
+      ],
+      "enterprise": [
+        "Everything in Agency",
+        "Unlimited configurators and members",
+        "API and CRM/stock integration",
+        "GAEB/DATANORM export",
+        "Custom domain",
+        "Tailored pricing and contract"
+      ]
     }
   },
   "clients": {

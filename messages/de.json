@@ -195,7 +195,11 @@
       "baseTitle": "Unternehmen erstellt",
       "baseSubtitle": "Ihr Unternehmen {companyName} ist mit dem Base-Plan registriert."
     },
-    "footer": "© 2026 onespec. Alle Rechte vorbehalten."
+    "footer": "© 2026 onespec. Alle Rechte vorbehalten.",
+    "botcheck": {
+      "unavailable": "Sicherheitsprüfung nicht verfügbar. Deaktivieren Sie Inhaltsblocker und laden Sie die Seite neu.",
+      "failed": "Sicherheitsprüfung fehlgeschlagen. Bitte erneut versuchen."
+    }
   },
   "notifications": {
     "title": "Notifications",
@@ -467,6 +471,50 @@
       "welcomePending": "Wir bestätigen die Zahlung mit Stripe. Der Zugriff wird in wenigen Sekunden aktualisiert, ein Neuladen ist nicht nötig.",
       "cancelledTitle": "Zahlung abgebrochen",
       "cancelledBody": "Es wurde nichts abgebucht. Sie können es jederzeit erneut versuchen."
+    },
+    "planFeatures": {
+      "base": [
+        "1 Konfigurator",
+        "20 Angebote pro Monat",
+        "2 Teammitglieder",
+        "Aufmaß-Modul (Rilievo)",
+        "Preislisten-Import CSV/XLSX",
+        "Einfache Steuer-Engine",
+        "E-Mail-Support"
+      ],
+      "pro": [
+        "Alles aus Base",
+        "3 Konfiguratoren",
+        "Unbegrenzte Angebote",
+        "5 Teammitglieder",
+        "Einbettbares öffentliches Widget + White-Label",
+        "Erweiterte Preisregeln und Multi-Katalog",
+        "Elektronische Signatur für Angebote",
+        "Anzahlungsrechnungen und Wartungsverträge",
+        "Volle Steuer-Engine (Beni Significativi, ENEA)",
+        "Alle Baustellenmodule (Montage, Abnahme, QR-Akten)",
+        "Basis-Statistiken",
+        "14 Tage kostenlos testen · Prioritäts-Support"
+      ],
+      "agency": [
+        "Alles aus Pro",
+        "10 Konfiguratoren",
+        "15 Teammitglieder",
+        "Bis zu 1000 Angebote pro Monat",
+        "Multi-Lieferanten-Aggregator",
+        "Showroom-Rechner mit 3 Zonen",
+        "Massenimport für mehrere Standorte",
+        "Erweiterte Statistiken",
+        "Dedizierter Support"
+      ],
+      "enterprise": [
+        "Alles aus Agency",
+        "Unbegrenzte Konfiguratoren und Mitglieder",
+        "API und CRM-/Lager-Integration",
+        "GAEB/DATANORM-Export",
+        "Eigene Domain",
+        "Individueller Preis und Vertrag"
+      ]
     }
   },
   "clients": {

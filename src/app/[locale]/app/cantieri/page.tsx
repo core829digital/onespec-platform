@@ -224,7 +224,7 @@ function CantiereModal({
       assignedUserIds: formData.assignedUserIds.filter(Boolean),
       estimatedStartAt: formData.estimatedStartAt ? new Date(formData.estimatedStartAt).getTime() : undefined,
       estimatedEndAt: formData.estimatedEndAt ? new Date(formData.estimatedEndAt).getTime() : undefined,
-      valueCents: formData.valueCents ? parseInt(formData.valueCents, 10) : undefined,
+      valueCents: formData.valueCents && Number.isFinite(parseInt(formData.valueCents, 10)) ? parseInt(formData.valueCents, 10) : undefined,
     };
     onSubmit(data);
   };
@@ -650,7 +650,17 @@ const handleUpdate = async (data: {
     if (!over) return;
 
     const cantiereId = active.id as string;
-    const newStatus = over.id as (typeof STATUS_CONFIG)[number]["key"];
+    // Cards are sortable too, so `over` can be another card (its id is a
+    // Convex document id, not a status) — resolve that to the card's column.
+    // Sending an id as `status` fails server-side argument validation, which
+    // production reports as an opaque "Server Error".
+    const statusKeys: readonly string[] = STATUS_CONFIG.map((s) => s.key);
+    const overId = String(over.id);
+    const target = statusKeys.includes(overId)
+      ? overId
+      : cantieri?.find((c) => c._id === overId)?.status;
+    if (!target || !statusKeys.includes(target)) return;
+    const newStatus = target as (typeof STATUS_CONFIG)[number]["key"];
 
     const cantiere = cantieri?.find((c) => c._id === cantiereId);
     if (!cantiere || cantiere.status === newStatus) return;

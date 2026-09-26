@@ -195,7 +195,11 @@
       "baseTitle": "Firmă creată",
       "baseSubtitle": "Firma ta {companyName} este înregistrată cu planul Base."
     },
-    "footer": "© 2026 onespec. Toate drepturile rezervate."
+    "footer": "© 2026 onespec. Toate drepturile rezervate.",
+    "botcheck": {
+      "unavailable": "Verificarea de securitate nu este disponibilă. Dezactivează blocantele de conținut și reîncarcă pagina.",
+      "failed": "Verificarea de securitate a eșuat. Încearcă din nou."
+    }
   },
   "notifications": {
     "title": "Notifications",
@@ -467,6 +471,50 @@
       "welcomePending": "Confirmăm plata cu Stripe. Accesul se actualizează în câteva secunde, nu e nevoie să reîncarci.",
       "cancelledTitle": "Plată anulată",
       "cancelledBody": "Nu s-a făcut nicio debitare. Poți încerca din nou oricând."
+    },
+    "planFeatures": {
+      "base": [
+        "1 configurator",
+        "20 de oferte pe lună",
+        "2 membri în echipă",
+        "Modul Măsurători (Rilievo)",
+        "Import liste de prețuri CSV/XLSX",
+        "Motor fiscal de bază",
+        "Suport prin e-mail"
+      ],
+      "pro": [
+        "Tot planul Base",
+        "3 configuratoare",
+        "Oferte nelimitate",
+        "5 membri în echipă",
+        "Widget public încorporabil + white-label",
+        "Reguli de preț avansate și multi-catalog",
+        "Semnătură electronică pe oferte",
+        "Facturi de avans și contracte de mentenanță",
+        "Motor fiscal complet (Beni Significativi, ENEA)",
+        "Toate modulele de șantier (montaj, recepție, dosare QR)",
+        "Statistici de bază",
+        "Probă gratuită de 14 zile · suport prioritar"
+      ],
+      "agency": [
+        "Tot planul Pro",
+        "10 configuratoare",
+        "15 membri în echipă",
+        "Până la 1000 de oferte pe lună",
+        "Agregator multi-furnizor",
+        "Calculator Showroom cu 3 zone",
+        "Import în masă multi-locație",
+        "Statistici avansate",
+        "Suport dedicat"
+      ],
+      "enterprise": [
+        "Tot planul Agency",
+        "Configuratoare și membri nelimitați",
+        "API și integrare CRM/stoc",
+        "Export GAEB/DATANORM",
+        "Domeniu personalizat",
+        "Preț și contract personalizate"
+      ]
     }
   },
   "clients": {

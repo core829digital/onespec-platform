@@ -8,6 +8,7 @@ import { verifyStripeSignature } from "./billing";
 import { hashIp } from "./lib/ipHash";
 import { resendWebhook } from "./http/resend_webhook";
 import { createPostHogClient } from "./lib/posthog";
+import { checkWebhookSource } from "./lib/webhookIp";
 
 const http = httpRouter();
 
@@ -327,6 +328,11 @@ async function checkInspectionLimit(
   return null;
 }
 
+/** Runtime type + length guard for JSON bodies (TypeScript casts don't validate). */
+function isStr(v: unknown, max: number, allowEmpty = false): v is string {
+  return typeof v === "string" && v.length <= max && (allowEmpty || v.length > 0);
+}
+
 http.route({
   path: "/api/inspection/upload-url",
   method: "POST",
@@ -363,6 +369,7 @@ http.route({
     if (!body.token || !TOKEN_RE.test(body.token) || !body.photoKey || !body.storageId) {
       return json({ ok: false }, 400);
     }
+    if (!isStr(body.photoKey, 64) || !isStr(body.storageId, 64)) return json({ ok: false, error: "BAD_REQUEST" }, 400);
     const limitedPhoto = await checkInspectionLimit(
       (bucketKey, tokens, refillMs) =>
         ctx.runMutation(internal.lib.ratelimit.checkBucket, { bucketKey, tokens, refillMs }),
@@ -395,6 +402,13 @@ http.route({
     };
     if (!body.token || !TOKEN_RE.test(body.token) || !Array.isArray(body.checks)) {
       return json({ ok: false }, 400);
+    }
+    if (
+      body.checks.length > 100 ||
+      !body.checks.every((c) => c && typeof c === "object" && isStr(c.key, 64)) ||
+      (body.installerNotes !== undefined && !isStr(body.installerNotes, 5000, true))
+    ) {
+      return json({ ok: false, error: "BAD_REQUEST" }, 400);
     }
     const limitedChecks = await checkInspectionLimit(
       (bucketKey, tokens, refillMs) =>
@@ -434,6 +448,14 @@ http.route({
     ) {
       return json({ ok: false, error: "BAD_REQUEST" }, 400);
     }
+    if (
+      !isStr(body.signatureDataUrl, 500_000) ||
+      !/^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(body.signatureDataUrl) ||
+      !isStr(body.signedByName, 200) ||
+      (body.clientRemarks !== undefined && !isStr(body.clientRemarks, 5000, true))
+    ) {
+      return json({ ok: false, error: "BAD_REQUEST" }, 400);
+    }
     const limitedSign = await checkInspectionLimit(
       (bucketKey, tokens, refillMs) =>
         ctx.runMutation(internal.lib.ratelimit.checkBucket, { bucketKey, tokens, refillMs }),
@@ -465,48 +487,13 @@ http.route({
   handler: resendWebhook,
 });
 
-// Stripe webhook — dormant until STRIPE_WEBHOOK_SECRET is set. The path
-// itself carries a secret token (STRIPE_WEBHOOK_PATH_TOKEN) so the endpoint
-// isn't the guessable `/api/stripe/webhook` — set that env var to a random
-// slug (e.g. `openssl rand -hex 16`) and use the resulting path as the
-// endpoint URL in the Stripe Dashboard when billing goes live. Falls back to
-// the static path if unset, so nothing breaks before that env var exists.
+// Stripe webhook — dormant until STRIPE_WEBHOOK_SECRET is set.
 // The path deliberately contains neither "api", "stripe" nor "webhook". If the
 // token is missing or too short the route is NOT registered at all (no
 // guessable fallback path) — every request to it 404s.
 const STRIPE_WEBHOOK_TOKEN = process.env.STRIPE_WEBHOOK_PATH_TOKEN ?? "";
 const STRIPE_WEBHOOK_PATH = `/ev/${STRIPE_WEBHOOK_TOKEN}`;
 const STRIPE_WEBHOOK_MAX_BYTES = 512 * 1024;
-
-// Stripe's own guidance is to treat signature verification (below) as the
-// real defense and NOT hard-block on IP — their webhook-sending IP ranges
-// rotate, and a stale hardcoded allowlist would silently drop real payment
-// events (a worse outage than the abuse it prevents). Instead of guessing
-// at IP ranges (never invent security data), fetch Stripe's own published
-// list and cache it for a day; log an anomaly for later review, never
-// reject on IP alone.
-let stripeIpCache: { ips: Set<string>; fetchedAt: number } | null = null;
-const STRIPE_IP_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
-
-async function flagIfUnexpectedOrigin(req: Request): Promise<string | null> {
-  const fwd = req.headers.get("x-forwarded-for");
-  const ip = fwd ? fwd.split(",")[0].trim() : "";
-  if (!ip) return null;
-
-  if (!stripeIpCache || Date.now() - stripeIpCache.fetchedAt > STRIPE_IP_CACHE_TTL_MS) {
-    try {
-      const res = await fetch("https://stripe.com/files/ips/ips_webhooks.json");
-      const data = (await res.json()) as { WEBHOOKS?: string[] };
-      stripeIpCache = { ips: new Set(data.WEBHOOKS ?? []), fetchedAt: Date.now() };
-    } catch {
-      // Fetch failed (network hiccup) — skip the check this time rather than
-      // flag every request or block on a transient error.
-      return null;
-    }
-  }
-
-  return stripeIpCache.ips.has(ip) ? null : ip;
-}
 
 if (/^[A-Za-z0-9_-]{24,128}$/.test(STRIPE_WEBHOOK_TOKEN)) http.route({
   path: STRIPE_WEBHOOK_PATH,
@@ -515,8 +502,11 @@ if (/^[A-Za-z0-9_-]{24,128}$/.test(STRIPE_WEBHOOK_TOKEN)) http.route({
     const secret = process.env.STRIPE_WEBHOOK_SECRET ?? "";
     if (!secret) return new Response("billing not configured", { status: 503 });
 
-    const unexpectedIp = await flagIfUnexpectedOrigin(req);
-    if (unexpectedIp) console.warn(`[stripe-webhook] request from outside Stripe's known IP prefixes: ${unexpectedIp}`);
+    // Source-IP allowlist from Stripe's published list (defence in depth; the
+    // HMAC signature below stays the authoritative check).
+    const src = await checkWebhookSource(req, "stripe");
+    if (src.verdict !== "allowed") console.warn(`[stripe-webhook] source ip ${src.ip || "(none)"} ${src.verdict}`);
+    if (src.reject) return new Response("forbidden", { status: 403 });
 
     const declared = Number(req.headers.get("content-length") ?? "0");
     if (declared > STRIPE_WEBHOOK_MAX_BYTES) return new Response("payload too large", { status: 413 });

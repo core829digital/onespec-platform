@@ -1,4 +1,4 @@
-import { action, internalAction, internalMutation, internalQuery, query } from "./_generated/server";
+import { action, internalAction, internalMutation, internalQuery, query, type ActionCtx } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import { internal } from "./_generated/api";
@@ -69,6 +69,30 @@ async function stripeGet(path: string) {
     throw new ConvexError(`STRIPE: ${msg}`);
   }
   return json;
+}
+
+/**
+ * Per-tenant token bucket on every billing action: they all call the Stripe
+ * API (cost + abuse surface) and are owner-only, so legitimate use is a few
+ * calls per session. Throws RATE_LIMITED, which the UI already maps.
+ */
+const BILLING_LIMITS: Record<string, { tokens: number; refillMs: number }> = {
+  checkout: { tokens: 10, refillMs: 10 * 60 * 1000 },
+  portal: { tokens: 10, refillMs: 10 * 60 * 1000 },
+  preview: { tokens: 20, refillMs: 10 * 60 * 1000 },
+  change: { tokens: 5, refillMs: 10 * 60 * 1000 },
+  cancel: { tokens: 5, refillMs: 10 * 60 * 1000 },
+};
+
+async function limitBilling(ctx: ActionCtx, tenantId: string, kind: keyof typeof BILLING_LIMITS & string) {
+  try {
+    await ctx.runMutation(internal.lib.ratelimit.checkBucket, {
+      bucketKey: `billing:${kind}:${tenantId}`,
+      ...BILLING_LIMITS[kind],
+    });
+  } catch {
+    throw new ConvexError("RATE_LIMITED");
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -143,6 +167,7 @@ export const createCheckoutSession = action({
     const cycle: BillingCycle = args.cycle ?? "monthly";
 
     const owner = await ctx.runQuery(internal.billing.assertOwner, { tenantId: args.tenantId });
+    await limitBilling(ctx, args.tenantId, "checkout");
     const region = regionForCountry(owner.country).code;
     const priceId = resolveStripePriceId(planKey, cycle, region);
     if (!priceId) throw new ConvexError("BILLING_PRICE_NOT_CONFIGURED");
@@ -211,6 +236,7 @@ export const createPortalSession = action({
   handler: async (ctx, args): Promise<{ url: string }> => {
     if (!stripeKey()) throw new ConvexError("BILLING_NOT_CONFIGURED");
     const owner = await ctx.runQuery(internal.billing.assertOwner, { tenantId: args.tenantId });
+    await limitBilling(ctx, args.tenantId, "portal");
     if (!owner.stripeCustomerId) throw new ConvexError("NO_SUBSCRIPTION");
 
     const session = await stripe("/billing_portal/sessions", {
@@ -247,6 +273,7 @@ export const previewPlanChange = action({
   handler: async (ctx, args): Promise<{ amountDueCents: number; currency: string }> => {
     if (!stripeKey()) throw new ConvexError("BILLING_NOT_CONFIGURED");
     const owner = await ctx.runQuery(internal.billing.assertOwner, { tenantId: args.tenantId });
+    await limitBilling(ctx, args.tenantId, "preview");
     if (!owner.stripeSubscriptionId) throw new ConvexError("NO_SUBSCRIPTION");
 
     const cycle: BillingCycle = args.cycle ?? "monthly";
@@ -285,6 +312,7 @@ export const changePlan = action({
   handler: async (ctx, args): Promise<{ ok: true }> => {
     if (!stripeKey()) throw new ConvexError("BILLING_NOT_CONFIGURED");
     const owner = await ctx.runQuery(internal.billing.assertOwner, { tenantId: args.tenantId });
+    await limitBilling(ctx, args.tenantId, "change");
     if (!owner.stripeSubscriptionId) throw new ConvexError("NO_SUBSCRIPTION");
 
     const cycle: BillingCycle = args.cycle ?? "monthly";
@@ -313,6 +341,7 @@ export const cancelSubscription = action({
   handler: async (ctx, args): Promise<{ ok: true }> => {
     if (!stripeKey()) throw new ConvexError("BILLING_NOT_CONFIGURED");
     const owner = await ctx.runQuery(internal.billing.assertOwner, { tenantId: args.tenantId });
+    await limitBilling(ctx, args.tenantId, "cancel");
     if (!owner.stripeSubscriptionId) throw new ConvexError("NO_SUBSCRIPTION");
 
     await stripe(`/subscriptions/${owner.stripeSubscriptionId}`, {

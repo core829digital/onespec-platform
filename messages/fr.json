@@ -195,7 +195,11 @@
       "baseTitle": "Entreprise créée",
       "baseSubtitle": "Votre entreprise {companyName} est inscrite avec le plan Base."
     },
-    "footer": "© 2026 onespec. Tous droits réservés."
+    "footer": "© 2026 onespec. Tous droits réservés.",
+    "botcheck": {
+      "unavailable": "Vérification de sécurité indisponible. Désactivez les bloqueurs de contenu et rechargez la page.",
+      "failed": "Échec de la vérification de sécurité. Réessayez."
+    }
   },
   "notifications": {
     "title": "Notifications",
@@ -467,6 +471,50 @@
       "welcomePending": "Nous confirmons le paiement avec Stripe. L'accès se met à jour en quelques secondes, inutile de recharger.",
       "cancelledTitle": "Paiement annulé",
       "cancelledBody": "Aucun débit. Vous pouvez réessayer quand vous voulez."
+    },
+    "planFeatures": {
+      "base": [
+        "1 configurateur",
+        "20 devis par mois",
+        "2 membres d'équipe",
+        "Module Relevé (chantier)",
+        "Import de tarifs CSV/XLSX",
+        "Moteur fiscal de base",
+        "Support par e-mail"
+      ],
+      "pro": [
+        "Tout le plan Base",
+        "3 configurateurs",
+        "Devis illimités",
+        "5 membres d'équipe",
+        "Widget public intégrable + marque blanche",
+        "Règles de prix avancées et multi-catalogues",
+        "Signature électronique des devis",
+        "Factures d'acompte et contrats de maintenance",
+        "Moteur fiscal complet (Beni Significativi, ENEA)",
+        "Tous les modules chantier (pose, réception, dossiers QR)",
+        "Statistiques de base",
+        "Essai gratuit de 14 jours · support prioritaire"
+      ],
+      "agency": [
+        "Tout le plan Pro",
+        "10 configurateurs",
+        "15 membres d'équipe",
+        "Jusqu'à 1000 devis par mois",
+        "Agrégateur multi-fournisseurs",
+        "Calculateur Showroom à 3 zones",
+        "Import en masse multi-sites",
+        "Statistiques avancées",
+        "Support dédié"
+      ],
+      "enterprise": [
+        "Tout le plan Agency",
+        "Configurateurs et membres illimités",
+        "API et intégration CRM/stock",
+        "Export GAEB/DATANORM",
+        "Domaine personnalisé",
+        "Tarif et contrat sur mesure"
+      ]
     }
   },
   "clients": {

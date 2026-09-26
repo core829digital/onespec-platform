@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authErrorMessage } from "@/lib/errors";
+import { useTurnstile } from "@/lib/use-turnstile";
 import { getSafeRedirect } from "@/lib/redirect-validator";
 
 export default function LoginPage() {
@@ -26,6 +27,7 @@ function LoginForm() {
   const router = useRouter();
   const redirect = getSafeRedirect(useSearchParams().get("redirect"), "/app/dashboard");
   const { signIn } = useAuthActions();
+  const ts = useTurnstile();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -36,13 +38,14 @@ function LoginForm() {
     setError("");
     setLoading(true);
     try {
-      await signIn("password", { email, password, flow: "signIn" });
+      await signIn("password", { email, password, flow: "signIn", turnstileToken: ts.token });
       posthog.capture("user_logged_in", { auth_method: "password" });
       router.push(redirect);
     } catch (err) {
       posthog.captureException(err);
       setError(authErrorMessage(err, t("error")));
     } finally {
+      ts.reset();
       setLoading(false);
     }
   }
@@ -94,7 +97,8 @@ function LoginForm() {
         </div>
       </div>
 
-      <Button type="submit" className="w-full" disabled={loading}>
+      {ts.box}
+      <Button type="submit" className="w-full" disabled={loading || !ts.ready}>
         {loading ? t("loading") : t("submit")}
       </Button>
 

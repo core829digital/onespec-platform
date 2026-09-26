@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authErrorMessage } from "@/lib/errors";
+import { useTurnstile } from "@/lib/use-turnstile";
 import { getOptionalRedirect } from "@/lib/redirect-validator";
 
 export default function ForgotPasswordPage() {
@@ -17,6 +18,7 @@ export default function ForgotPasswordPage() {
   const searchParams = useSearchParams();
   const redirect = getOptionalRedirect(searchParams.get("redirect"));
   const { signIn } = useAuthActions();
+  const ts = useTurnstile();
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -26,13 +28,14 @@ export default function ForgotPasswordPage() {
     setError("");
     setLoading(true);
     try {
-      await signIn("password", { email, flow: "reset" });
+      await signIn("password", { email, flow: "reset", turnstileToken: ts.token });
       const q = new URLSearchParams({ email });
       if (redirect) q.set("redirect", redirect);
       router.push(`/auth/reset-password?${q.toString()}`);
     } catch (err) {
       setError(authErrorMessage(err, t("error")));
 } finally {
+      ts.reset();
       setLoading(false);
     }
   }
@@ -66,7 +69,8 @@ export default function ForgotPasswordPage() {
         />
       </div>
 
-      <Button type="submit" className="w-full" disabled={loading}>
+      {ts.box}
+      <Button type="submit" className="w-full" disabled={loading || !ts.ready}>
         {loading ? t("loading") : t("submit")}
       </Button>
 

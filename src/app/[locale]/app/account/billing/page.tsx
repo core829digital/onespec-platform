@@ -276,6 +276,16 @@ export default function BillingPage() {
                     </span>
                   ) : null}
                 </p>
+                {Array.isArray(t.raw(`planFeatures.${p.key}`)) ? (
+                  <ul className="mt-3 space-y-1.5 text-xs text-[var(--color-text-secondary)]">
+                    {(t.raw(`planFeatures.${p.key}`) as string[]).map((f) => (
+                      <li key={f} className="flex gap-2">
+                        <span aria-hidden="true" className="text-[var(--color-mint)]">✓</span>
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
                 <div className="mt-3 space-y-2">
                   {current ? (
                     <span className="text-xs text-[var(--color-mint)] block">{t("currentPlan")}</span>

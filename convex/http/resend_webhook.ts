@@ -1,5 +1,6 @@
 import { httpAction } from "../_generated/server";
 import { internal } from "../_generated/api";
+import { checkWebhookSource } from "../lib/webhookIp";
 
 // Resend webhooks are signed by Svix, not a plain HMAC of the body: headers
 // are `svix-id`/`svix-timestamp`/`svix-signature`, the signed content is
@@ -39,6 +40,10 @@ export const resendWebhook = httpAction(async (ctx, request: Request) => {
   // Fail closed: without a signing secret this endpoint used to accept ANY
   // request and write delivery logs / flip email statuses. Disabled until set.
   if (!webhookSecret) return new Response("not configured", { status: 503 });
+  // Source-IP allowlist from Svix's published list (Resend sends via Svix).
+  const src = await checkWebhookSource(request, "svix");
+  if (src.verdict !== "allowed") console.warn(`[email-webhook] source ip ${src.ip || "(none)"} ${src.verdict}`);
+  if (src.reject) return new Response("forbidden", { status: 403 });
   const svixId = request.headers.get("svix-id");
   const svixTimestamp = request.headers.get("svix-timestamp");
   const svixSignature = request.headers.get("svix-signature");

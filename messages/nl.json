@@ -195,7 +195,11 @@
       "baseTitle": "Bedrijf aangemaakt",
       "baseSubtitle": "Je bedrijf {companyName} is geregistreerd met het Base-plan."
     },
-    "footer": "© 2026 onespec. Alle rechten voorbehouden."
+    "footer": "© 2026 onespec. Alle rechten voorbehouden.",
+    "botcheck": {
+      "unavailable": "Beveiligingscontrole niet beschikbaar. Schakel contentblokkers uit en herlaad de pagina.",
+      "failed": "Beveiligingscontrole mislukt. Probeer het opnieuw."
+    }
   },
   "notifications": {
     "title": "Notifications",
@@ -467,6 +471,50 @@
       "welcomePending": "We bevestigen de betaling bij Stripe. Je toegang wordt binnen enkele seconden bijgewerkt, herladen is niet nodig.",
       "cancelledTitle": "Betaling geannuleerd",
       "cancelledBody": "Er is niets afgeschreven. Je kunt het op elk moment opnieuw proberen."
+    },
+    "planFeatures": {
+      "base": [
+        "1 configurator",
+        "20 offertes per maand",
+        "2 teamleden",
+        "Opmeetmodule (Rilievo)",
+        "Prijslijst-import CSV/XLSX",
+        "Basis belastingmodule",
+        "E-mailondersteuning"
+      ],
+      "pro": [
+        "Alles van Base",
+        "3 configurators",
+        "Onbeperkt offertes",
+        "5 teamleden",
+        "Inbedbare openbare widget + white-label",
+        "Geavanceerde prijsregels en multi-catalogus",
+        "Elektronische handtekening op offertes",
+        "Voorschotfacturen en onderhoudscontracten",
+        "Volledige belastingmodule (Beni Significativi, ENEA)",
+        "Alle werfmodules (montage, oplevering, QR-dossiers)",
+        "Basisstatistieken",
+        "14 dagen gratis proberen · prioriteitsondersteuning"
+      ],
+      "agency": [
+        "Alles van Pro",
+        "10 configurators",
+        "15 teamleden",
+        "Tot 1000 offertes per maand",
+        "Multi-leverancier-aggregator",
+        "Showroomcalculator met 3 zones",
+        "Bulkimport voor meerdere vestigingen",
+        "Geavanceerde statistieken",
+        "Toegewijde ondersteuning"
+      ],
+      "enterprise": [
+        "Alles van Agency",
+        "Onbeperkt configurators en leden",
+        "API en CRM-/voorraadkoppeling",
+        "GAEB/DATANORM-export",
+        "Eigen domein",
+        "Prijs en contract op maat"
+      ]
     }
   },
   "clients": {

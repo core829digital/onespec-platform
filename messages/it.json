@@ -195,6 +195,10 @@
       "countryDetected": "Rilevato automaticamente dalla tua connessione — puoi cambiarlo.",
       "baseTitle": "Azienda creata",
       "baseSubtitle": "La tua azienda {companyName} è registrata con piano Base."
+    },
+    "botcheck": {
+      "unavailable": "Verifica di sicurezza non disponibile. Disattiva eventuali blocchi di contenuti e ricarica la pagina.",
+      "failed": "Verifica di sicurezza non superata. Riprova."
     }
   },
   "notifications": {
@@ -467,6 +471,50 @@
       "welcomePending": "Stiamo confermando il pagamento con Stripe. L'accesso si aggiorna in pochi secondi, non serve ricaricare.",
       "cancelledTitle": "Pagamento annullato",
       "cancelledBody": "Nessun addebito. Puoi riprovare quando vuoi."
+    },
+    "planFeatures": {
+      "base": [
+        "1 configuratore",
+        "20 preventivi al mese",
+        "2 membri del team",
+        "Modulo Rilievo (cantiere)",
+        "Import listini CSV/XLSX",
+        "Motore fiscale base",
+        "Supporto via email"
+      ],
+      "pro": [
+        "Tutto il piano Base",
+        "3 configuratori",
+        "Preventivi illimitati",
+        "5 membri del team",
+        "Widget pubblico incorporabile + white-label",
+        "Regole di prezzo avanzate e multi-listino",
+        "Firma elettronica sui preventivi",
+        "Fatture di acconto e contratti di manutenzione",
+        "Motore fiscale completo (Beni Significativi, ENEA)",
+        "Tutti i moduli di cantiere (posa, collaudo, fascicoli QR)",
+        "Statistiche di base",
+        "Prova gratuita di 14 giorni · supporto prioritario"
+      ],
+      "agency": [
+        "Tutto il piano Pro",
+        "10 configuratori",
+        "15 membri del team",
+        "Fino a 1000 preventivi al mese",
+        "Aggregatore multi-fornitore",
+        "Calcolatore Showroom a 3 zone",
+        "Import massivo multi-sede",
+        "Statistiche avanzate",
+        "Supporto dedicato"
+      ],
+      "enterprise": [
+        "Tutto il piano Agency",
+        "Configuratori e membri illimitati",
+        "API e integrazione CRM/magazzino",
+        "Export GAEB/DATANORM",
+        "Dominio personalizzato",
+        "Prezzo e contratto su misura"
+      ]
     }
   },
   "clients": {

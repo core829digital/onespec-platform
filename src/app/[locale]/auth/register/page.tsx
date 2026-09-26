@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authErrorMessage } from "@/lib/errors";
+import { useTurnstile } from "@/lib/use-turnstile";
 import { getOptionalRedirect } from "@/lib/redirect-validator";
 
 export default function RegisterPage() {
@@ -26,6 +27,7 @@ function RegisterForm() {
   const router = useRouter();
   const redirect = getOptionalRedirect(useSearchParams().get("redirect"));
   const { signIn } = useAuthActions();
+  const ts = useTurnstile();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -42,7 +44,7 @@ function RegisterForm() {
     setError("");
     setLoading(true);
     try {
-      await signIn("password", { name, email, password, flow: "signUp" });
+      await signIn("password", { name, email, password, flow: "signUp", turnstileToken: ts.token });
       // Saved so /auth/verify can resend the code without asking the
       // password again. Cleared on successful verification. Never a token.
       try {
@@ -61,6 +63,7 @@ function RegisterForm() {
       posthog.captureException(err);
       setError(authErrorMessage(err, t("error")));
     } finally {
+      ts.reset();
       setLoading(false);
     }
   }
@@ -145,7 +148,8 @@ function RegisterForm() {
         </div>
       </div>
 
-      <Button type="submit" className="w-full" disabled={loading}>
+      {ts.box}
+      <Button type="submit" className="w-full" disabled={loading || !ts.ready}>
         {loading ? t("loading") : t("submit")}
       </Button>
 

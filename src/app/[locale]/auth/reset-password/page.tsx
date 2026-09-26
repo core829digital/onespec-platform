@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authErrorMessage } from "@/lib/errors";
+import { useTurnstile } from "@/lib/use-turnstile";
 import { getSafeRedirect } from "@/lib/redirect-validator";
 
 function ResetPasswordContent() {
@@ -24,6 +25,7 @@ function ResetPasswordContent() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
+  const ts = useTurnstile();
   const [resent, setResent] = useState(false);
 
   async function handleResend() {
@@ -32,11 +34,12 @@ function ResetPasswordContent() {
     setResent(false);
     setResending(true);
     try {
-      await signIn("password", { email, flow: "reset" });
+      await signIn("password", { email, flow: "reset", turnstileToken: ts.token });
       setResent(true);
     } catch (err) {
       setError(authErrorMessage(err, t("error")));
     } finally {
+      ts.reset();
       setResending(false);
     }
   }
@@ -128,11 +131,12 @@ function ResetPasswordContent() {
         {loading ? t("loading") : t("submit")}
       </Button>
 
+      {ts.box}
       <p className="text-center text-sm text-[var(--color-text-secondary)]">
         <button
           type="button"
           onClick={handleResend}
-          disabled={resending || loading || !email}
+          disabled={resending || loading || !email || !ts.ready}
           className="text-[var(--color-mint)] hover:underline disabled:opacity-50"
         >
           {resending ? t("resendSending") : t("resendLink")}

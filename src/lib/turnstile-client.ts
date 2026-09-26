@@ -12,13 +12,14 @@ declare global {
       ) => string;
       execute: (widgetId: string) => void;
       reset: (widgetId: string) => void;
+      remove: (widgetId: string) => void;
     };
   }
 }
 
 let scriptPromise: Promise<void> | null = null;
 
-function loadScript(): Promise<void> {
+export function loadScript(): Promise<void> {
   if (typeof window === "undefined") return Promise.resolve();
   if (window.turnstile) return Promise.resolve();
   if (!scriptPromise) {
