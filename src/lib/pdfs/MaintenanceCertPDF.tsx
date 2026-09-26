@@ -1,3 +1,4 @@
+import "./pdf-setup";
 import { Document, Image, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 
 const colors = {
@@ -313,7 +314,7 @@ export function MaintenanceCertPDF({
                 c.status === "attention" ? colors.gray[700] :
                 "#dc2626"
               }}>
-                <Text>{c.status === "ok" ? "✓ OK" : c.status === "attention" ? "⚠ Attenzione" : "✗ Sostituire"}</Text>
+                <Text>{c.status === "ok" ? "OK" : c.status === "attention" ? "! Attenzione" : "Sostituire"}</Text>
               </View>
               <View style={styles.tableCell}><Text>{c.notes || "—"}</Text></View>
             </View>

@@ -1,3 +1,4 @@
+import "./pdf-setup";
 import { Document, Image, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import { CompanyLogo } from "./CompanyLogo";
 
@@ -282,7 +283,7 @@ export function InspectionCertPDF({
           <View style={{ marginLeft: 12 }}>
             {report.checks.map((c) => (
               <View key={c.key} style={styles.checkItem}>
-                <Text>{c.passed ? "☑" : "☐"} {c.label}</Text>
+                <Text>{c.passed ? "[x]" : "[ ]"} {c.label}</Text>
               </View>
             ))}
           </View>

@@ -1,3 +1,4 @@
+import "./pdf-setup";
 import { Document, Image, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import type { ProjectItem } from "@/shared/pricing";
 import { WindowDrawingPdf } from "@/lib/drawing";
@@ -5,6 +6,9 @@ import { CATEGORY_DEFS } from "@/shared/configurator-model";
 import { computeItemThermal, type CatalogPayload } from "@/shared/pricing";
 import { dictFor } from "@/lib/quote-export/dictionary";
 import { CompanyLogo } from "./CompanyLogo";
+
+// Item-table column widths (header and rows share them so they stay aligned).
+const COLS = ["6%", "35%", "17%", "24%", "10%", "8%"] as const;
 
 const colors = {
   black: "#111827",
@@ -116,7 +120,8 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.gray[300],
   },
   tableHeaderCell: {
-    flex: 1,
+    flexGrow: 0,
+    flexShrink: 0,
     padding: 6,
     fontWeight: "bold",
     fontSize: 9,
@@ -130,7 +135,9 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.gray[200],
   },
   tableCell: {
-    flex: 1,
+    flexGrow: 0,
+    flexShrink: 0,
+    lineHeight: 1.3,
     padding: 5,
     fontSize: 9,
     color: colors.black,
@@ -319,22 +326,22 @@ export function QuotePrintPDF({
 
   // Document Title by Region
   let documentTitle = "PREVENTIVO UFFICIALE";
-  let documentTypeBadge = "🇮🇹 ITALIA · UNI 11673";
+  let documentTypeBadge = "ITALIA · UNI 11673";
   if (region === "FR") {
     documentTitle = "DEVIS OFFICIEL & PROPOSITION COMMERCIALE";
-    documentTypeBadge = "🇫🇷 FRANCE · DTU 36.5 / RGE";
+    documentTypeBadge = "FRANCE · DTU 36.5 / RGE";
   } else if (region === "BE") {
     documentTitle = "OFFERTE / DEVIS DE MENUISERIE";
-    documentTypeBadge = "🇧🇪 BELGIQUE · TVA 6%/21%";
+    documentTypeBadge = "BELGIQUE · TVA 6%/21%";
   } else if (region === "NL") {
     documentTitle = "OFFERTE KOZIJNEN & MONTAGE";
-    documentTypeBadge = "🇳🇱 NEDERLAND · BLOKPROFIEL / HVL";
+    documentTypeBadge = "NEDERLAND · BLOKPROFIEL / HVL";
   } else if (region === "DE") {
     documentTitle = "ANGEBOT FENSTERBAU & MONTAGE";
-    documentTypeBadge = "🇩🇪 DEUTSCHLAND · RAL-MONTAGE";
+    documentTypeBadge = "DEUTSCHLAND · RAL-MONTAGE";
   } else if (region === "LU") {
     documentTitle = "DEVIS OFFICIEL / ANGEBOT (LUXEMBOURG)";
-    documentTypeBadge = "🇱🇺 LUXEMBOURG · TVA 3%";
+    documentTypeBadge = "LUXEMBOURG · TVA 3%";
   }
 
   const installationTotal = (quote.installationPriceCents ?? 0) + (quote.demolitionPriceCents ?? 0);
@@ -347,7 +354,7 @@ export function QuotePrintPDF({
       <Page size="A4" style={styles.page}>
         {/* Print action bar (hidden in print) */}
         <View style={styles.header}>
-          <View>
+          <View style={{ flex: 1, paddingRight: 16 }}>
             <CompanyLogo url={tenant?.logoUrl} />
             <Text style={styles.company}>{tenant?.name ?? "Serramenti"}</Text>
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 15, marginTop: 10 }}>
@@ -358,7 +365,7 @@ export function QuotePrintPDF({
               ) : null}
             </View>
           </View>
-          <View style={{ textAlign: "right" }}>
+          <View style={{ textAlign: "right", width: 250 }}>
             <View style={[styles.badge, { backgroundColor: "#ecfdf5", color: "#047857" }]}>
               <Text style={{ fontWeight: "bold", fontSize: 10 }}>{documentTitle}</Text>
             </View>
@@ -417,12 +424,12 @@ export function QuotePrintPDF({
             Dettaglio Fornitura e Posa / Détail Menuiseries & Pose
           </Text>
           <View style={styles.tableHeader}>
-            <View style={styles.tableHeaderCell}><Text>Pos.</Text></View>
-            <View style={styles.tableHeaderCell}><Text>Tipologia</Text></View>
-            <View style={styles.tableHeaderCell}><Text>Dimensioni</Text></View>
-            <View style={styles.tableHeaderCell}><Text>Materiale / Vetro</Text></View>
-            <View style={styles.tableHeaderCell}><Text>Uw</Text></View>
-            <View style={{ ...styles.tableHeaderCell, textAlign: "right", width: "12%" }}><Text>Qtà</Text></View>
+            <View style={{ ...styles.tableHeaderCell, width: COLS[0] }}><Text>Pos.</Text></View>
+            <View style={{ ...styles.tableHeaderCell, width: COLS[1] }}><Text>Tipologia</Text></View>
+            <View style={{ ...styles.tableHeaderCell, width: COLS[2] }}><Text>Dimensioni</Text></View>
+            <View style={{ ...styles.tableHeaderCell, width: COLS[3] }}><Text>Materiale / Vetro</Text></View>
+            <View style={{ ...styles.tableHeaderCell, width: COLS[4] }}><Text>Uw</Text></View>
+            <View style={{ ...styles.tableHeaderCell, textAlign: "right", width: COLS[5] }}><Text>Qtà</Text></View>
           </View>
           {items.map((item, idx) => {
             const uw = catalog ? computeItemThermal(catalog, item).uw : estimateUw(item);
@@ -444,46 +451,46 @@ export function QuotePrintPDF({
             const sashTypes = item.sashes?.map((s) => SASH_LABELS[s.type]?.[langKey] ?? s.type).join(" + ") ?? "—";
             return (
               <View key={idx} style={styles.tableRow}>
-                <View style={styles.tableCell}><Text>{idx + 1}</Text></View>
-                <View style={styles.tableCell}>
-                  <Text>{category ? (category.labels[langKey] ?? category.labels.it) : item.productType === "balconyDoor" ? "Portafinestra / Porte-fenêtre" : "Finestra / Fenêtre"}</Text>
-                  {profileLabel ? <Text style={{ fontSize: 8, color: colors.gray[500] }}>{profileLabel}</Text> : null}
-                  <Text style={{ fontSize: 8, color: colors.gray[500] }}>{finishLabel}</Text>
-                  {frameLabel ? <Text style={{ fontSize: 8, color: colors.gray[500] }}>{dict.frame}: {frameLabel}</Text> : null}
-                  {leafLines.length > 0 ? leafLines.map((l, li) => <Text key={li} style={{ fontSize: 7, color: colors.gray[500] }}>{l}</Text>) : <Text style={{ fontSize: 8, color: colors.gray[500] }}>{sashTypes}</Text>}
-                  {accessoryLabels.length > 0 ? <Text style={{ fontSize: 7, color: colors.gray[500] }}>{dict.accessories}: {accessoryLabels.join(", ")}</Text> : null}
-                  {item.notes ? <Text style={{ fontSize: 7, color: "#b91c1c" }}>{dict.notes}: {item.notes}</Text> : null}
+                <View style={{ ...styles.tableCell, width: COLS[0] }}><Text style={{ lineHeight: 1.3 }}>{idx + 1}</Text></View>
+                <View style={{ ...styles.tableCell, width: COLS[1] }}>
+                  <Text style={{ lineHeight: 1.3 }}>{category ? (category.labels[langKey] ?? category.labels.it) : item.productType === "balconyDoor" ? "Portafinestra / Porte-fenêtre" : "Finestra / Fenêtre"}</Text>
+                  {profileLabel ? <Text style={{ lineHeight: 1.3, fontSize: 8, color: colors.gray[500] }}>{profileLabel}</Text> : null}
+                  <Text style={{ lineHeight: 1.3, fontSize: 8, color: colors.gray[500] }}>{finishLabel}</Text>
+                  {frameLabel ? <Text style={{ lineHeight: 1.3, fontSize: 8, color: colors.gray[500] }}>{dict.frame}: {frameLabel}</Text> : null}
+                  {leafLines.length > 0 ? leafLines.map((l, li) => <Text key={li} style={{ lineHeight: 1.3, fontSize: 7, color: colors.gray[500] }}>{l}</Text>) : <Text style={{ lineHeight: 1.3, fontSize: 8, color: colors.gray[500] }}>{sashTypes}</Text>}
+                  {accessoryLabels.length > 0 ? <Text style={{ lineHeight: 1.3, fontSize: 7, color: colors.gray[500] }}>{dict.accessories}: {accessoryLabels.join(", ")}</Text> : null}
+                  {item.notes ? <Text style={{ lineHeight: 1.3, fontSize: 7, color: "#b91c1c" }}>{dict.notes}: {item.notes}</Text> : null}
                   {quote.hvlJointCount && (
-                    <Text style={{ fontSize: 8, color: colors.emerald[700], fontWeight: "bold" }}>
+                    <Text style={{ lineHeight: 1.3, fontSize: 8, color: colors.emerald[700], fontWeight: "bold" }}>
                       HVL 90° ({quote.hvlJointCount} giunti)
                     </Text>
                   )}
                   {quote.rcSecurityLevel && quote.rcSecurityLevel !== "standard" && (
-                    <Text style={{ fontSize: 8, color: colors.blue[700], fontWeight: "bold" }}>
+                    <Text style={{ lineHeight: 1.3, fontSize: 8, color: colors.blue[700], fontWeight: "bold" }}>
                       RC {quote.rcSecurityLevel} (Pilzkopf + P4A)
                     </Text>
                   )}
                 </View>
-                <View style={styles.tableCell}>
-                  <Text>{item.width} × {item.height} mm</Text>
-                  <Text style={{ fontSize: 8, color: colors.gray[500] }}>
+                <View style={{ ...styles.tableCell, width: COLS[2] }}>
+                  <Text style={{ lineHeight: 1.3 }}>{item.width} × {item.height} mm</Text>
+                  <Text style={{ lineHeight: 1.3, fontSize: 8, color: colors.gray[500] }}>
                     {((item.width / 1000) * (item.height / 1000)).toFixed(2)} m²
                   </Text>
                 </View>
-                <View style={styles.tableCell}>
-                  <Text>{matText}</Text>
-                  <Text style={{ fontSize: 8, color: colors.gray[500] }}>{catalog ? lab(catalog.glazing.find((g) => g.key === item.glazing), glazingText) : glazingText}</Text>
-                  <Text style={{ fontSize: 8, color: colors.gray[500] }}>Ug = {catalog ? (catalog.glazing.find((g) => g.key === item.glazing)?.uGlass ?? glazingInfo.ug) : glazingInfo.ug} W/m²K</Text>
+                <View style={{ ...styles.tableCell, width: COLS[3] }}>
+                  <Text style={{ lineHeight: 1.3 }}>{matText}</Text>
+                  <Text style={{ lineHeight: 1.3, fontSize: 8, color: colors.gray[500] }}>{catalog ? lab(catalog.glazing.find((g) => g.key === item.glazing), glazingText) : glazingText}</Text>
+                  <Text style={{ lineHeight: 1.3, fontSize: 8, color: colors.gray[500] }}>Ug = {catalog ? (catalog.glazing.find((g) => g.key === item.glazing)?.uGlass ?? glazingInfo.ug) : glazingInfo.ug} W/m²K</Text>
                 </View>
-                <View style={styles.tableCell}>
+                <View style={{ ...styles.tableCell, width: COLS[4] }}>
                   <View style={[
                     styles.badge,
                     uw <= 1.0 ? styles.badgeGreen : uw <= 1.4 ? styles.badgeAmber : styles.badgeRed
                   ]}>
-                    <Text>{uw.toFixed(catalog ? 2 : 1)} W/m²K</Text>
+                    <Text style={{ lineHeight: 1.3 }}>{uw.toFixed(catalog ? 2 : 1)} W/m²K</Text>
                   </View>
                 </View>
-                <View style={{ ...styles.tableCell, textAlign: "right" }}><Text>{item.quantity ?? 1}</Text></View>
+                <View style={{ ...styles.tableCell, textAlign: "right", width: COLS[5] }}><Text style={{ lineHeight: 1.3 }}>{item.quantity ?? 1}</Text></View>
               </View>
             );
           })}

@@ -1,3 +1,4 @@
+import "./pdf-setup";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 
 const formatEur = (cents: number | undefined) =>
@@ -227,7 +228,7 @@ export function FundingDocPDF({
             </View>
             <View style={{ width: "33%" }}>
               <View style={{ marginBottom: 8 }}>
-                <Text style={{ fontWeight: "bold", fontSize: 10, color: "#374151" }}>ΔU:</Text>
+                <Text style={{ fontWeight: "bold", fontSize: 10, color: "#374151" }}>Delta U:</Text>
                 <Text style={{ fontSize: 11, fontWeight: "bold", color: deltaU !== undefined && deltaU > 0 ? "#059669" : "#dc2626" }}>{deltaU?.toFixed(2) ?? "—"} W/m²K</Text>
               </View>
             </View>

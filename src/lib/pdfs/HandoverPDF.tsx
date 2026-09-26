@@ -1,3 +1,4 @@
+import "./pdf-setup";
 import { Document, Image, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 
 const colors = {
@@ -326,7 +327,7 @@ export function HandoverPDF({
           <View style={{ marginLeft: 12 }}>
             {handover.documentsDelivered.map((d, i) => (
               <View key={i} style={styles.checkItem}>
-                <Text>☑ {d}</Text>
+                <Text>[x] {d}</Text>
               </View>
             ))}
           </View>
@@ -338,7 +339,7 @@ export function HandoverPDF({
             <View style={{ marginLeft: 12 }}>
               {handover.keysDelivered.map((k, i) => (
                 <View key={i} style={styles.checkItem}>
-                  <Text>☑ {k}</Text>
+                  <Text>[x] {k}</Text>
                 </View>
               ))}
             </View>
@@ -351,7 +352,7 @@ export function HandoverPDF({
             <View style={{ marginLeft: 12 }}>
               {handover.accessCodes.map((c, i) => (
                 <View key={i} style={styles.checkItem}>
-                  <Text>☑ {c}</Text>
+                  <Text>[x] {c}</Text>
                 </View>
               ))}
             </View>

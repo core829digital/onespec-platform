@@ -1,3 +1,4 @@
+import "./pdf-setup";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 
 const colors = {
@@ -304,7 +305,7 @@ export function ComplianceCertPDF({
                 fontWeight: "bold",
                 color: c.result === "pass" ? colors.emerald[700] : c.result === "fail" ? "#dc2626" : colors.gray[500],
               }}>
-                <Text>{c.result === "pass" ? "✓ PASS" : c.result === "fail" ? "✗ FAIL" : "— N/A"}</Text>
+                <Text>{c.result === "pass" ? "PASS" : c.result === "fail" ? "FAIL" : "— N/A"}</Text>
               </View>
               <View style={styles.tableCell}><Text>{c.notes || "—"}</Text></View>
             </View>
