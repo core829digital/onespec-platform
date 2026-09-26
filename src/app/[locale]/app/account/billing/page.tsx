@@ -45,20 +45,31 @@ export default function BillingPage() {
   // Success popup after checkout / upgrade / downgrade.
   const [notice, setNotice] = useState<null | { kind: "activated" | "upgrade" | "downgrade"; plan: string }>(null);
   const syncedRef = useRef(false);
+  const unmountedRef = useRef(false);
+  useEffect(() => {
+    unmountedRef.current = false;
+    return () => {
+      unmountedRef.current = true;
+    };
+  }, []);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
   const [cycle, setCycle] = useState<"monthly" | "annual">("monthly");
 
   useEffect(() => {
-    if (checkoutStatus !== "success" || !tenant || syncedRef.current) return;
+    // Right after checkout, or whenever a subscription exists, re-read it from
+    // Stripe once per visit so a late/lost webhook can never leave a paying
+    // tenant on the wrong plan. Idempotent and rate-limited server-side.
+    const justPaid = checkoutStatus === "success";
+    if (!tenant || syncedRef.current || (!justPaid && !state?.subscription)) return;
     syncedRef.current = true;
-    let cancelled = false;
     (async () => {
-      for (let i = 0; i < 4 && !cancelled; i++) {
+      for (let i = 0; i < 4 && !unmountedRef.current; i++) {
         try {
           const r = await syncSubscription({ tenantId: tenant._id });
           if (r.found && r.plan) {
-            if (!cancelled) {
+            if (!justPaid) return;
+            if (!unmountedRef.current) {
               setNotice({ kind: "activated", plan: r.plan });
               // Drop ?status=success so a reload does not re-open the popup.
               window.history.replaceState(null, "", `${window.location.pathname}?tab=plan`);
@@ -71,10 +82,7 @@ export default function BillingPage() {
         await new Promise((res) => setTimeout(res, 3000));
       }
     })();
-    return () => {
-      cancelled = true;
-    };
-  }, [checkoutStatus, tenant, syncSubscription]);
+  }, [checkoutStatus, tenant, state?.subscription, syncSubscription]);
 
   // Returning from Stripe with the browser Back button restores this page from
   // the back/forward cache with stale in-memory auth tokens (already rotated by
