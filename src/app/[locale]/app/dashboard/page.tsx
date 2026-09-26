@@ -180,6 +180,15 @@ export default function DashboardPage() {
                   limit={planUsage.members.limit}
                 />
               </div>
+              <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--color-border)] pt-4">
+                <p className="text-xs text-[var(--color-text-secondary)]">{t("planCtaHint")}</p>
+                <Link
+                  href="/app/account/billing?tab=plan"
+                  className="inline-flex items-center rounded-lg bg-[var(--color-mint)] px-4 py-2 text-sm font-semibold text-[var(--color-mint-dark)] transition-opacity hover:opacity-90"
+                >
+                  {t("viewSubscription")}
+                </Link>
+              </div>
             </section>
           )}
           {categoryData.length > 0 && (

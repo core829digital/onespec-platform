@@ -60,7 +60,9 @@
     "configuratorsUsed": "Configurateurs actifs",
     "teamMembers": "Membres de l'équipe",
     "requestsByCategory": "Demandes par catégorie de client",
-    "unlinked": "Non liés"
+    "unlinked": "Non liés",
+    "viewSubscription": "Voir votre abonnement",
+    "planCtaHint": "Comparez les plans, changez ou gérez votre abonnement."
   },
   "analytics": {
     "title": "Statistiques",

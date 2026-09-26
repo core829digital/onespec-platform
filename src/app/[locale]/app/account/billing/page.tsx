@@ -263,7 +263,7 @@ export default function BillingPage() {
             return (
               <div
                 key={p.key}
-                className={`rounded-xl border p-4 ${
+                className={`flex flex-col rounded-xl border p-4 ${
                   current ? "border-[var(--color-mint)]" : "border-[var(--color-border)]"
                 } bg-[var(--color-bg-alt)]`}
               >
@@ -277,7 +277,7 @@ export default function BillingPage() {
                   ) : null}
                 </p>
                 {Array.isArray(t.raw(`planFeatures.${p.key}`)) ? (
-                  <ul className="mt-3 space-y-1.5 text-xs text-[var(--color-text-secondary)]">
+                  <ul className="mt-3 flex-1 space-y-1.5 text-xs text-[var(--color-text-secondary)]">
                     {(t.raw(`planFeatures.${p.key}`) as string[]).map((f) => (
                       <li key={f} className="flex gap-2">
                         <span aria-hidden="true" className="text-[var(--color-mint)]">✓</span>
@@ -286,7 +286,7 @@ export default function BillingPage() {
                     ))}
                   </ul>
                 ) : null}
-                <div className="mt-3 space-y-2">
+                <div className="mt-auto space-y-2 pt-4">
                   {current ? (
                     <span className="text-xs text-[var(--color-mint)] block">{t("currentPlan")}</span>
                   ) : p.key === "enterprise" ? (

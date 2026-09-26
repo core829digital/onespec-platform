@@ -30,7 +30,7 @@ export function AppShell({
         <MobileNav tenant={tenant} open={mobileOpen} onClose={() => setMobileOpen(false)} />
       </Suspense>
       <div className="relative flex h-screen min-w-0 flex-1 flex-col">
-        <Topbar onMenuClick={() => setMobileOpen(true)} />
+        <Topbar onMenuClick={() => setMobileOpen(true)} plan={tenant.plan} />
         <main id="main-content" className="flex-1 overflow-y-auto p-4 sm:p-6">
           <PlanGate tenant={tenant}>{children}</PlanGate>
         </main>

@@ -60,7 +60,9 @@
     "configuratorsUsed": "Actieve configurators",
     "teamMembers": "Teamleden",
     "requestsByCategory": "Aanvragen per klantcategorie",
-    "unlinked": "Niet gekoppeld"
+    "unlinked": "Niet gekoppeld",
+    "viewSubscription": "Bekijk je abonnement",
+    "planCtaHint": "Vergelijk abonnementen, upgrade of beheer je abonnement."
   },
   "analytics": {
     "title": "Statistieken",

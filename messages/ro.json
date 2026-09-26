@@ -60,7 +60,9 @@
     "configuratorsUsed": "Configuratoare active",
     "teamMembers": "Membri echipă",
     "requestsByCategory": "Cereri pe categorie client",
-    "unlinked": "Neasociate"
+    "unlinked": "Neasociate",
+    "viewSubscription": "Vezi abonamentul",
+    "planCtaHint": "Compară planurile, schimbă sau gestionează abonamentul."
   },
   "analytics": {
     "title": "Statistici",

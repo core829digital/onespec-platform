@@ -60,7 +60,9 @@
     "configuratorsUsed": "Active configurators",
     "teamMembers": "Team members",
     "requestsByCategory": "Requests by client category",
-    "unlinked": "Unlinked"
+    "unlinked": "Unlinked",
+    "viewSubscription": "View your subscription",
+    "planCtaHint": "Compare plans, upgrade or manage your subscription."
   },
   "analytics": {
     "title": "Statistics",

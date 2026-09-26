@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import posthog from "posthog-js";
-import { Menu, LogOut, User, ChevronDown, Scale, Activity } from "lucide-react";
+import { Menu, LogOut, User, ChevronDown, Scale, Activity, Gem } from "lucide-react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
@@ -12,8 +12,9 @@ import { FeedbackButton } from "./feedback-modal";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { LEGAL_DOCS } from "@/content/legal";
 
-export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
+export function Topbar({ onMenuClick, plan }: { onMenuClick?: () => void; plan?: string }) {
   const t = useTranslations("topbar");
+  const tNav = useTranslations("nav");
   const { signOut } = useAuthActions();
 
   async function handleSignOut() {
@@ -46,6 +47,14 @@ export function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
             <span className="hidden md:block text-sm font-medium text-[var(--color-text)]">{t("status")}</span>
           </a>
         </Button>
+        {plan ? (
+          <Button variant="ghost" className="flex items-center gap-2 px-3 py-1.5" asChild>
+            <Link href="/app/account/billing?tab=plan" aria-label={`${tNav("plan")}: ${plan}`}>
+              <Gem size={18} className="text-[var(--color-mint)]" />
+              <span className="hidden md:block text-sm font-medium capitalize text-[var(--color-text)]">{plan}</span>
+            </Link>
+          </Button>
+        ) : null}
         <FeedbackButton />
         <NotificationBell />
 
