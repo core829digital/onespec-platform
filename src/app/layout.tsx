@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import { Geist, Geist_Mono, Space_Grotesk, Fraunces } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -39,6 +39,16 @@ export const metadata: Metadata = {
     apple: "/onespec-logo.png",
   },
   manifest: "/manifest.json",
+};
+
+// `viewport`/`themeColor` used to live inside `metadata` (pre-Next.js-14 API).
+// Without this dedicated export the browser gets NO viewport meta tag at all,
+// so mobile browsers render at a desktop width (~980px) and zoom out — every
+// responsive Tailwind class is defeated. This is the single highest-impact
+// mobile fix in the app.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
   themeColor: "#16d19d",
 };
 
