@@ -1328,5 +1328,136 @@
       "analytics": "Statistici",
       "showroom": "Showroom"
     }
+  },
+  "onboarding": {
+    "loading": "Se încarcă…",
+    "progress": {
+      "welcome": "Bun venit",
+      "planQuiz": "Nevoile tale",
+      "billing": "Plan",
+      "team": "Echipă",
+      "configurator": "Configurator"
+    },
+    "welcome": {
+      "title": "Bun venit în OneSpec",
+      "intro": "OneSpec transformă lista ta de prețuri într-un configurator de oferte pe care clienții tăi îl folosesc de pe site-ul tău sau din social media. Solicitările ajung deja evaluate în dashboard.",
+      "configuratorsUnlimited": "Configuratoare nelimitate",
+      "configuratorsCount": "{count} configuratoare",
+      "configuratorsCountOne": "1 configurator",
+      "quotesUnlimited": "Solicitări nelimitate",
+      "quotesPerMonth": "{count} solicitări / lună",
+      "teamUnlimited": "Echipă nelimitată",
+      "teamMax": "Până la {count} membri în echipă",
+      "analyticsAdvanced": "avansate",
+      "analyticsBasic": "de bază",
+      "whiteLabelSuffix": " · white-label",
+      "multiCatalogSuffix": " · multi-catalog",
+      "analyticsLine": "Statistici {level}{whiteLabel}{multiCatalog}",
+      "market": "Piață: {region}",
+      "cta": "Începe"
+    },
+    "quiz": {
+      "title": "Să găsim planul potrivit pentru tine",
+      "questionOf": "Întrebarea {current} din {total}",
+      "q1Title": "Câte persoane vor folosi OneSpec?",
+      "q1Options": [
+        "1-2 persoane",
+        "3-5 persoane",
+        "6-15 persoane",
+        "Peste 15"
+      ],
+      "q2Title": "Câte configuratoare/branduri diferite gestionezi?",
+      "q2Options": [
+        "Doar 1",
+        "2-3",
+        "4-10",
+        "Peste 10"
+      ],
+      "q3Title": "Câte oferte primești pe lună, aproximativ?",
+      "q3Options": [
+        "Mai puțin de 20",
+        "Nu știu, câteva zeci",
+        "Sute",
+        "Peste 1000"
+      ],
+      "q4Title": "De ce ai nevoie? (alege tot ce se aplică)",
+      "q4Options": [
+        "Brandul tău, nu OneSpec (white-label)",
+        "Un widget de încorporat pe site-ul tău",
+        "Gestionare oferte multi-furnizor",
+        "Integrare CRM"
+      ],
+      "next": "Următor",
+      "seeRecommendation": "Vezi planul recomandat"
+    },
+    "billing": {
+      "title": "Alege planul tău",
+      "intro": "Activează un abonament pentru a intra pe platformă.",
+      "redirectNote": " Vei fi redirecționat aici doar după confirmarea plății.",
+      "noBillingNote": " Facturarea nu este încă activă: planul se activează imediat, facturarea va începe odată configurată.",
+      "recommendedBadge": "Recomandat pentru tine",
+      "perMonth": "/lună",
+      "trialNote": "Probă gratuită de 14 zile, apoi se activează automat",
+      "enterpriseCta": "Ai nevoie de Enterprise (690 €/lună, tot nelimitat + API)? Contactează vânzările",
+      "comparePlans": "Compară planurile și prețurile",
+      "plans": {
+        "base": {
+          "name": "Base",
+          "features": [
+            "1 configurator",
+            "20 solicitări/lună",
+            "Până la 2 membri",
+            "Modul Măsurători",
+            "TVA de bază"
+          ]
+        },
+        "pro": {
+          "name": "Pro",
+          "features": [
+            "3 configuratoare",
+            "Solicitări nelimitate",
+            "Până la 5 membri",
+            "Widget pentru site-ul tău + brandul tău",
+            "Semnătură electronică",
+            "Fiscalitate completă + ENEA"
+          ]
+        },
+        "agency": {
+          "name": "Agency",
+          "features": [
+            "10 configuratoare",
+            "1000 solicitări/lună",
+            "Până la 15 membri",
+            "Tot din Pro",
+            "Multi-furnizor + showroom",
+            "Multi-catalog"
+          ]
+        }
+      }
+    },
+    "team": {
+      "title": "Echipa ta",
+      "intro": "Dacă mai multe persoane vor lucra la același configurator pentru a face oferte, invită-le acum — sau sari peste acest pas și fă-o mai târziu din setări.",
+      "manageTeam": "Gestionează echipa",
+      "continue": "Continuă"
+    },
+    "configurator": {
+      "title": "Configuratorul tău",
+      "intro": "Creează primul tău configurator. Îl poți folosi ca pagină independentă (pentru social media) sau îl poți încorpora pe site-ul tău. Modificările ulterioare rămân mereu live — nu va trebui niciodată să lipești din nou codul.",
+      "ready": "Configurator pregătit. Folosește unul dintre acestea:",
+      "pageLabel": "Pagină",
+      "embedLabel": "Încorporare",
+      "openEditor": "Deschide editorul →",
+      "defaultName": "Configurator oferte tâmplărie",
+      "create": "Creează",
+      "goToDashboard": "Mergi la dashboard"
+    },
+    "entering": {
+      "messages": [
+        "Îți pregătim spațiul de lucru…",
+        "Se încarcă catalogul și listele de prețuri…",
+        "Aproape gata, deschidem dashboard-ul…"
+      ]
+    }
   }
 }

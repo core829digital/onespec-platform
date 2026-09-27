@@ -1328,5 +1328,136 @@
       "analytics": "Analytics",
       "showroom": "Showroom"
     }
+  },
+  "onboarding": {
+    "loading": "Loading…",
+    "progress": {
+      "welcome": "Welcome",
+      "planQuiz": "Your needs",
+      "billing": "Plan",
+      "team": "Team",
+      "configurator": "Configurator"
+    },
+    "welcome": {
+      "title": "Welcome to OneSpec",
+      "intro": "OneSpec turns your price list into a quote configurator your customers use from your website or social pages. Requests arrive already priced in your dashboard.",
+      "configuratorsUnlimited": "Unlimited configurators",
+      "configuratorsCount": "{count} configurators",
+      "configuratorsCountOne": "1 configurator",
+      "quotesUnlimited": "Unlimited requests",
+      "quotesPerMonth": "{count} requests / month",
+      "teamUnlimited": "Unlimited team",
+      "teamMax": "Up to {count} team members",
+      "analyticsAdvanced": "advanced",
+      "analyticsBasic": "basic",
+      "whiteLabelSuffix": " · white-label",
+      "multiCatalogSuffix": " · multi-catalog",
+      "analyticsLine": "{level} analytics{whiteLabel}{multiCatalog}",
+      "market": "Market: {region}",
+      "cta": "Get started"
+    },
+    "quiz": {
+      "title": "Let's find the right plan for you",
+      "questionOf": "Question {current} of {total}",
+      "q1Title": "How many people will use OneSpec?",
+      "q1Options": [
+        "1-2 people",
+        "3-5 people",
+        "6-15 people",
+        "More than 15"
+      ],
+      "q2Title": "How many different configurators/brands do you manage?",
+      "q2Options": [
+        "Just 1",
+        "2-3",
+        "4-10",
+        "More than 10"
+      ],
+      "q3Title": "Roughly how many quotes do you get per month?",
+      "q3Options": [
+        "Fewer than 20",
+        "Not sure, a few dozen",
+        "Hundreds",
+        "Over 1000"
+      ],
+      "q4Title": "What do you need? (pick everything that applies)",
+      "q4Options": [
+        "Your own brand, not OneSpec's (white-label)",
+        "A widget to embed on your site",
+        "Multi-supplier quote management",
+        "CRM integration"
+      ],
+      "next": "Next",
+      "seeRecommendation": "See the recommended plan"
+    },
+    "billing": {
+      "title": "Choose your plan",
+      "intro": "Activate a subscription to enter the platform.",
+      "redirectNote": " You'll be redirected here only after payment is confirmed.",
+      "noBillingNote": " Billing isn't live yet: the plan activates right away, invoicing will start once it's configured.",
+      "recommendedBadge": "Recommended for you",
+      "perMonth": "/mo",
+      "trialNote": "Free 14-day trial, then it activates on its own",
+      "enterpriseCta": "Need Enterprise (€690/mo, everything unlimited + API)? Talk to sales",
+      "comparePlans": "Compare plans and prices",
+      "plans": {
+        "base": {
+          "name": "Base",
+          "features": [
+            "1 configurator",
+            "20 requests/month",
+            "Up to 2 members",
+            "Field survey module",
+            "Basic tax"
+          ]
+        },
+        "pro": {
+          "name": "Pro",
+          "features": [
+            "3 configurators",
+            "Unlimited requests",
+            "Up to 5 members",
+            "Widget for your site + your brand",
+            "E-signature",
+            "Full tax + ENEA"
+          ]
+        },
+        "agency": {
+          "name": "Agency",
+          "features": [
+            "10 configurators",
+            "1000 requests/month",
+            "Up to 15 members",
+            "Everything in Pro",
+            "Multi-supplier + showroom",
+            "Multi-catalog"
+          ]
+        }
+      }
+    },
+    "team": {
+      "title": "Your team",
+      "intro": "If more people will work on the same configurator to build quotes, invite them now — or skip and do it later from settings.",
+      "manageTeam": "Manage team",
+      "continue": "Continue"
+    },
+    "configurator": {
+      "title": "Your configurator",
+      "intro": "Create your first configurator. You can use it as a standalone page (for social) or embed it on your site. Changes you make later stay live — you'll never need to re-paste the code.",
+      "ready": "Configurator ready. Use one of these:",
+      "pageLabel": "Page",
+      "embedLabel": "Embed",
+      "openEditor": "Open the editor →",
+      "defaultName": "Window quote configurator",
+      "create": "Create",
+      "goToDashboard": "Go to dashboard"
+    },
+    "entering": {
+      "messages": [
+        "Setting up your workspace…",
+        "Loading catalog and price lists…",
+        "Almost done, opening the dashboard…"
+      ]
+    }
   }
 }

@@ -1328,5 +1328,136 @@
       "analytics": "Statistiques",
       "showroom": "Showroom"
     }
+  },
+  "onboarding": {
+    "loading": "Chargement…",
+    "progress": {
+      "welcome": "Bienvenue",
+      "planQuiz": "Vos besoins",
+      "billing": "Plan",
+      "team": "Équipe",
+      "configurator": "Configurateur"
+    },
+    "welcome": {
+      "title": "Bienvenue sur OneSpec",
+      "intro": "OneSpec transforme votre tarif en configurateur de devis que vos clients utilisent depuis votre site ou vos réseaux sociaux. Les demandes arrivent déjà chiffrées dans votre tableau de bord.",
+      "configuratorsUnlimited": "Configurateurs illimités",
+      "configuratorsCount": "{count} configurateurs",
+      "configuratorsCountOne": "1 configurateur",
+      "quotesUnlimited": "Demandes illimitées",
+      "quotesPerMonth": "{count} demandes / mois",
+      "teamUnlimited": "Équipe illimitée",
+      "teamMax": "Jusqu'à {count} membres d'équipe",
+      "analyticsAdvanced": "avancées",
+      "analyticsBasic": "de base",
+      "whiteLabelSuffix": " · marque blanche",
+      "multiCatalogSuffix": " · multi-catalogue",
+      "analyticsLine": "Statistiques {level}{whiteLabel}{multiCatalog}",
+      "market": "Marché : {region}",
+      "cta": "Commencer"
+    },
+    "quiz": {
+      "title": "Trouvons le plan qui vous convient",
+      "questionOf": "Question {current} sur {total}",
+      "q1Title": "Combien de personnes utiliseront OneSpec ?",
+      "q1Options": [
+        "1-2 personnes",
+        "3-5 personnes",
+        "6-15 personnes",
+        "Plus de 15"
+      ],
+      "q2Title": "Combien de configurateurs/marques différents gérez-vous ?",
+      "q2Options": [
+        "1 seul",
+        "2-3",
+        "4-10",
+        "Plus de 10"
+      ],
+      "q3Title": "Combien de devis recevez-vous par mois, environ ?",
+      "q3Options": [
+        "Moins de 20",
+        "Je ne sais pas, quelques dizaines",
+        "Des centaines",
+        "Plus de 1000"
+      ],
+      "q4Title": "De quoi avez-vous besoin ? (cochez tout ce qui s'applique)",
+      "q4Options": [
+        "Votre propre marque, pas OneSpec (marque blanche)",
+        "Un widget à intégrer sur votre site",
+        "Gestion de devis multi-fournisseurs",
+        "Intégration CRM"
+      ],
+      "next": "Suivant",
+      "seeRecommendation": "Voir le plan recommandé"
+    },
+    "billing": {
+      "title": "Choisissez votre plan",
+      "intro": "Activez un abonnement pour accéder à la plateforme.",
+      "redirectNote": " Vous serez redirigé ici uniquement après confirmation du paiement.",
+      "noBillingNote": " La facturation n'est pas encore active : le plan s'active tout de suite, la facturation démarrera une fois configurée.",
+      "recommendedBadge": "Recommandé pour vous",
+      "perMonth": "/mois",
+      "trialNote": "Essai gratuit de 14 jours, puis activation automatique",
+      "enterpriseCta": "Besoin d'Enterprise (690 €/mois, tout illimité + API) ? Contactez les ventes",
+      "comparePlans": "Comparer les plans et les prix",
+      "plans": {
+        "base": {
+          "name": "Base",
+          "features": [
+            "1 configurateur",
+            "20 demandes/mois",
+            "Jusqu'à 2 membres",
+            "Module Relevé de chantier",
+            "TVA de base"
+          ]
+        },
+        "pro": {
+          "name": "Pro",
+          "features": [
+            "3 configurateurs",
+            "Demandes illimitées",
+            "Jusqu'à 5 membres",
+            "Widget pour votre site + votre marque",
+            "Signature électronique",
+            "Fiscalité complète + ENEA"
+          ]
+        },
+        "agency": {
+          "name": "Agency",
+          "features": [
+            "10 configurateurs",
+            "1000 demandes/mois",
+            "Jusqu'à 15 membres",
+            "Tout Pro",
+            "Multi-fournisseurs + showroom",
+            "Multi-catalogue"
+          ]
+        }
+      }
+    },
+    "team": {
+      "title": "Votre équipe",
+      "intro": "Si plusieurs personnes vont travailler sur le même configurateur pour établir des devis, invitez-les maintenant — ou passez cette étape et faites-le plus tard depuis les paramètres.",
+      "manageTeam": "Gérer l'équipe",
+      "continue": "Continuer"
+    },
+    "configurator": {
+      "title": "Votre configurateur",
+      "intro": "Créez votre premier configurateur. Vous pourrez l'utiliser comme page autonome (réseaux sociaux) ou l'intégrer sur votre site. Vos modifications resteront toujours en direct, sans jamais recoller le code.",
+      "ready": "Configurateur prêt. Utilisez l'un de ceux-ci :",
+      "pageLabel": "Page",
+      "embedLabel": "Intégration",
+      "openEditor": "Ouvrir l'éditeur →",
+      "defaultName": "Configurateur de devis fenêtres",
+      "create": "Créer",
+      "goToDashboard": "Aller au tableau de bord"
+    },
+    "entering": {
+      "messages": [
+        "Création de votre espace de travail…",
+        "Chargement du catalogue et des tarifs…",
+        "Presque terminé, ouverture du tableau de bord…"
+      ]
+    }
   }
 }

@@ -1328,5 +1328,136 @@
       "analytics": "Statistiken",
       "showroom": "Showroom"
     }
+  },
+  "onboarding": {
+    "loading": "Wird geladen…",
+    "progress": {
+      "welcome": "Willkommen",
+      "planQuiz": "Ihre Bedürfnisse",
+      "billing": "Plan",
+      "team": "Team",
+      "configurator": "Konfigurator"
+    },
+    "welcome": {
+      "title": "Willkommen bei OneSpec",
+      "intro": "OneSpec verwandelt Ihre Preisliste in einen Angebotskonfigurator, den Ihre Kunden über Ihre Website oder soziale Netzwerke nutzen. Anfragen kommen bereits bepreist in Ihrem Dashboard an.",
+      "configuratorsUnlimited": "Unbegrenzte Konfiguratoren",
+      "configuratorsCount": "{count} Konfiguratoren",
+      "configuratorsCountOne": "1 Konfigurator",
+      "quotesUnlimited": "Unbegrenzte Anfragen",
+      "quotesPerMonth": "{count} Anfragen / Monat",
+      "teamUnlimited": "Unbegrenztes Team",
+      "teamMax": "Bis zu {count} Teammitglieder",
+      "analyticsAdvanced": "erweiterte",
+      "analyticsBasic": "einfache",
+      "whiteLabelSuffix": " · White-Label",
+      "multiCatalogSuffix": " · Multi-Katalog",
+      "analyticsLine": "{level} Statistiken{whiteLabel}{multiCatalog}",
+      "market": "Markt: {region}",
+      "cta": "Loslegen"
+    },
+    "quiz": {
+      "title": "Finden wir den richtigen Plan für Sie",
+      "questionOf": "Frage {current} von {total}",
+      "q1Title": "Wie viele Personen werden OneSpec nutzen?",
+      "q1Options": [
+        "1-2 Personen",
+        "3-5 Personen",
+        "6-15 Personen",
+        "Mehr als 15"
+      ],
+      "q2Title": "Wie viele verschiedene Konfiguratoren/Marken verwalten Sie?",
+      "q2Options": [
+        "Nur 1",
+        "2-3",
+        "4-10",
+        "Mehr als 10"
+      ],
+      "q3Title": "Wie viele Angebote erhalten Sie ungefähr pro Monat?",
+      "q3Options": [
+        "Weniger als 20",
+        "Weiß nicht, ein paar Dutzend",
+        "Hunderte",
+        "Über 1000"
+      ],
+      "q4Title": "Was benötigen Sie? (alles Zutreffende auswählen)",
+      "q4Options": [
+        "Ihre eigene Marke, nicht OneSpec (White-Label)",
+        "Ein Widget zum Einbetten auf Ihrer Website",
+        "Multi-Lieferanten-Angebotsverwaltung",
+        "CRM-Integration"
+      ],
+      "next": "Weiter",
+      "seeRecommendation": "Empfohlenen Plan ansehen"
+    },
+    "billing": {
+      "title": "Wählen Sie Ihren Plan",
+      "intro": "Aktivieren Sie ein Abonnement, um die Plattform zu betreten.",
+      "redirectNote": " Sie werden erst nach Zahlungsbestätigung hierher zurückgeleitet.",
+      "noBillingNote": " Abrechnung ist noch nicht aktiv: der Plan wird sofort aktiviert, die Rechnungsstellung beginnt, sobald sie konfiguriert ist.",
+      "recommendedBadge": "Für Sie empfohlen",
+      "perMonth": "/Monat",
+      "trialNote": "14 Tage kostenlos testen, danach automatische Aktivierung",
+      "enterpriseCta": "Enterprise benötigt (690 €/Monat, alles unbegrenzt + API)? Vertrieb kontaktieren",
+      "comparePlans": "Pläne und Preise vergleichen",
+      "plans": {
+        "base": {
+          "name": "Base",
+          "features": [
+            "1 Konfigurator",
+            "20 Anfragen/Monat",
+            "Bis zu 2 Mitglieder",
+            "Aufmaß-Modul",
+            "Einfache Steuer"
+          ]
+        },
+        "pro": {
+          "name": "Pro",
+          "features": [
+            "3 Konfiguratoren",
+            "Unbegrenzte Anfragen",
+            "Bis zu 5 Mitglieder",
+            "Widget für Ihre Website + Ihre Marke",
+            "Elektronische Signatur",
+            "Volle Steuer + ENEA"
+          ]
+        },
+        "agency": {
+          "name": "Agency",
+          "features": [
+            "10 Konfiguratoren",
+            "1000 Anfragen/Monat",
+            "Bis zu 15 Mitglieder",
+            "Alles aus Pro",
+            "Multi-Lieferant + Showroom",
+            "Multi-Katalog"
+          ]
+        }
+      }
+    },
+    "team": {
+      "title": "Ihr Team",
+      "intro": "Wenn mehrere Personen am selben Konfigurator arbeiten, um Angebote zu erstellen, laden Sie sie jetzt ein — oder überspringen Sie das und erledigen es später in den Einstellungen.",
+      "manageTeam": "Team verwalten",
+      "continue": "Weiter"
+    },
+    "configurator": {
+      "title": "Ihr Konfigurator",
+      "intro": "Erstellen Sie Ihren ersten Konfigurator. Sie können ihn als eigenständige Seite (für Social Media) nutzen oder auf Ihrer Website einbetten. Spätere Änderungen bleiben live — Sie müssen den Code nie erneut einfügen.",
+      "ready": "Konfigurator bereit. Verwenden Sie einen davon:",
+      "pageLabel": "Seite",
+      "embedLabel": "Einbettung",
+      "openEditor": "Editor öffnen →",
+      "defaultName": "Fenster-Angebotskonfigurator",
+      "create": "Erstellen",
+      "goToDashboard": "Zum Dashboard"
+    },
+    "entering": {
+      "messages": [
+        "Wir richten Ihren Arbeitsbereich ein…",
+        "Katalog und Preislisten werden geladen…",
+        "Fast fertig, Dashboard wird geöffnet…"
+      ]
+    }
   }
 }

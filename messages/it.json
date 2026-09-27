@@ -1328,5 +1328,136 @@
       "analytics": "Statistiche",
       "showroom": "Showroom"
     }
+  },
+  "onboarding": {
+    "loading": "Caricamento…",
+    "progress": {
+      "welcome": "Benvenuto",
+      "planQuiz": "Le tue esigenze",
+      "billing": "Piano",
+      "team": "Team",
+      "configurator": "Configuratore"
+    },
+    "welcome": {
+      "title": "Benvenuto in OneSpec",
+      "intro": "OneSpec trasforma il tuo listino in un configuratore di preventivi che i tuoi clienti usano dal tuo sito o dai social. Ricevi le richieste già valorizzate nella dashboard.",
+      "configuratorsUnlimited": "Configuratori illimitati",
+      "configuratorsCount": "{count} configuratori",
+      "configuratorsCountOne": "1 configuratore",
+      "quotesUnlimited": "Richieste illimitate",
+      "quotesPerMonth": "{count} richieste / mese",
+      "teamUnlimited": "Team illimitato",
+      "teamMax": "Fino a {count} membri del team",
+      "analyticsAdvanced": "avanzate",
+      "analyticsBasic": "di base",
+      "whiteLabelSuffix": " · white-label",
+      "multiCatalogSuffix": " · multi-catalogo",
+      "analyticsLine": "Analytics {level}{whiteLabel}{multiCatalog}",
+      "market": "Mercato: {region}",
+      "cta": "Inizia"
+    },
+    "quiz": {
+      "title": "Aiutaci a consigliarti il piano giusto",
+      "questionOf": "Domanda {current} di {total}",
+      "q1Title": "Quante persone useranno OneSpec?",
+      "q1Options": [
+        "1-2 persone",
+        "3-5 persone",
+        "6-15 persone",
+        "Più di 15"
+      ],
+      "q2Title": "Quanti configuratori/brand diversi gestisci?",
+      "q2Options": [
+        "1 solo",
+        "2-3",
+        "4-10",
+        "Più di 10"
+      ],
+      "q3Title": "Quanti preventivi ricevi al mese, più o meno?",
+      "q3Options": [
+        "Meno di 20",
+        "Non lo so, poche decine",
+        "Centinaia",
+        "Oltre 1000"
+      ],
+      "q4Title": "Di cosa hai bisogno? (scegli tutto ciò che serve)",
+      "q4Options": [
+        "Marchio tuo, non OneSpec (white-label)",
+        "Widget da incorporare sul tuo sito",
+        "Gestione preventivi multi-fornitore",
+        "Integrazione con un CRM"
+      ],
+      "next": "Avanti",
+      "seeRecommendation": "Vedi il piano consigliato"
+    },
+    "billing": {
+      "title": "Scegli il piano",
+      "intro": "Attiva un abbonamento per entrare nella piattaforma.",
+      "redirectNote": " Verrai reindirizzato qui solo dopo la conferma del pagamento.",
+      "noBillingNote": " Il pagamento non è ancora attivo: il piano si attiva subito, la fatturazione arriverà quando sarà configurata.",
+      "recommendedBadge": "Consigliato per te",
+      "perMonth": "/mese",
+      "trialNote": "Prova gratis 14 giorni, poi si attiva da solo",
+      "enterpriseCta": "Serve il piano Enterprise (€690/mese, tutto illimitato + API)? Contatta il commerciale",
+      "comparePlans": "Confronta i piani e i prezzi",
+      "plans": {
+        "base": {
+          "name": "Base",
+          "features": [
+            "1 configuratore",
+            "20 richieste al mese",
+            "Fino a 2 membri",
+            "Rilievo cantiere",
+            "IVA base"
+          ]
+        },
+        "pro": {
+          "name": "Pro",
+          "features": [
+            "3 configuratori",
+            "Richieste illimitate",
+            "Fino a 5 membri",
+            "Widget per il tuo sito + marchio tuo",
+            "Firma elettronica",
+            "Fisco completo + ENEA"
+          ]
+        },
+        "agency": {
+          "name": "Agency",
+          "features": [
+            "10 configuratori",
+            "1000 richieste al mese",
+            "Fino a 15 membri",
+            "Tutto di Pro",
+            "Multi-fornitore + showroom",
+            "Multi-catalogo"
+          ]
+        }
+      }
+    },
+    "team": {
+      "title": "Il tuo team",
+      "intro": "Se più persone lavoreranno sullo stesso configuratore per fare i preventivi, invitale ora — oppure salta e fallo dopo dalle impostazioni.",
+      "manageTeam": "Gestisci il team",
+      "continue": "Continua"
+    },
+    "configurator": {
+      "title": "Il tuo configuratore",
+      "intro": "Crea il primo configuratore. Potrai usarlo come pagina singola (per i social) o incorporarlo sul tuo sito. Le modifiche che farai saranno sempre live: non dovrai reincollare il codice.",
+      "ready": "Configuratore pronto. Usa uno di questi:",
+      "pageLabel": "Pagina",
+      "embedLabel": "Embed",
+      "openEditor": "Apri l'editor →",
+      "defaultName": "Preventivatore serramenti",
+      "create": "Crea",
+      "goToDashboard": "Vai alla dashboard"
+    },
+    "entering": {
+      "messages": [
+        "Creiamo il tuo spazio di lavoro…",
+        "Carichiamo catalogo e listini…",
+        "Quasi fatto, apriamo la dashboard…"
+      ]
+    }
   }
 }

@@ -1328,5 +1328,136 @@
       "analytics": "Statistieken",
       "showroom": "Showroom"
     }
+  },
+  "onboarding": {
+    "loading": "Laden…",
+    "progress": {
+      "welcome": "Welkom",
+      "planQuiz": "Jouw behoeften",
+      "billing": "Abonnement",
+      "team": "Team",
+      "configurator": "Configurator"
+    },
+    "welcome": {
+      "title": "Welkom bij OneSpec",
+      "intro": "OneSpec verandert je prijslijst in een offerteconfigurator die je klanten gebruiken via je website of sociale media. Aanvragen komen al geprijsd binnen in je dashboard.",
+      "configuratorsUnlimited": "Onbeperkt configurators",
+      "configuratorsCount": "{count} configurators",
+      "configuratorsCountOne": "1 configurator",
+      "quotesUnlimited": "Onbeperkt aanvragen",
+      "quotesPerMonth": "{count} aanvragen / maand",
+      "teamUnlimited": "Onbeperkt team",
+      "teamMax": "Tot {count} teamleden",
+      "analyticsAdvanced": "geavanceerde",
+      "analyticsBasic": "basis",
+      "whiteLabelSuffix": " · white-label",
+      "multiCatalogSuffix": " · multi-catalogus",
+      "analyticsLine": "{level} statistieken{whiteLabel}{multiCatalog}",
+      "market": "Markt: {region}",
+      "cta": "Beginnen"
+    },
+    "quiz": {
+      "title": "Laten we het juiste abonnement voor jou vinden",
+      "questionOf": "Vraag {current} van {total}",
+      "q1Title": "Hoeveel mensen gaan OneSpec gebruiken?",
+      "q1Options": [
+        "1-2 personen",
+        "3-5 personen",
+        "6-15 personen",
+        "Meer dan 15"
+      ],
+      "q2Title": "Hoeveel verschillende configurators/merken beheer je?",
+      "q2Options": [
+        "Slechts 1",
+        "2-3",
+        "4-10",
+        "Meer dan 10"
+      ],
+      "q3Title": "Hoeveel offertes ontvang je ongeveer per maand?",
+      "q3Options": [
+        "Minder dan 20",
+        "Weet niet, een paar tientallen",
+        "Honderden",
+        "Meer dan 1000"
+      ],
+      "q4Title": "Wat heb je nodig? (kies alles wat van toepassing is)",
+      "q4Options": [
+        "Je eigen merk, niet OneSpec (white-label)",
+        "Een widget om op je site in te bedden",
+        "Beheer van offertes van meerdere leveranciers",
+        "CRM-integratie"
+      ],
+      "next": "Volgende",
+      "seeRecommendation": "Bekijk het aanbevolen abonnement"
+    },
+    "billing": {
+      "title": "Kies je abonnement",
+      "intro": "Activeer een abonnement om het platform te betreden.",
+      "redirectNote": " Je wordt hier pas naartoe gestuurd na bevestiging van de betaling.",
+      "noBillingNote": " Facturatie is nog niet actief: het abonnement wordt direct geactiveerd, facturatie start zodra deze is ingesteld.",
+      "recommendedBadge": "Aanbevolen voor jou",
+      "perMonth": "/maand",
+      "trialNote": "14 dagen gratis proberen, daarna automatische activering",
+      "enterpriseCta": "Enterprise nodig (€690/maand, alles onbeperkt + API)? Neem contact op met sales",
+      "comparePlans": "Vergelijk abonnementen en prijzen",
+      "plans": {
+        "base": {
+          "name": "Base",
+          "features": [
+            "1 configurator",
+            "20 aanvragen/maand",
+            "Tot 2 leden",
+            "Opmeetmodule",
+            "Basis btw"
+          ]
+        },
+        "pro": {
+          "name": "Pro",
+          "features": [
+            "3 configurators",
+            "Onbeperkt aanvragen",
+            "Tot 5 leden",
+            "Widget voor je site + eigen merk",
+            "Elektronische handtekening",
+            "Volledige belasting + ENEA"
+          ]
+        },
+        "agency": {
+          "name": "Agency",
+          "features": [
+            "10 configurators",
+            "1000 aanvragen/maand",
+            "Tot 15 leden",
+            "Alles van Pro",
+            "Multi-leverancier + showroom",
+            "Multi-catalogus"
+          ]
+        }
+      }
+    },
+    "team": {
+      "title": "Jouw team",
+      "intro": "Als meerdere mensen aan dezelfde configurator werken om offertes te maken, nodig ze dan nu uit — of sla dit over en doe het later vanuit instellingen.",
+      "manageTeam": "Team beheren",
+      "continue": "Doorgaan"
+    },
+    "configurator": {
+      "title": "Jouw configurator",
+      "intro": "Maak je eerste configurator. Je kunt hem gebruiken als losse pagina (voor social media) of insluiten op je site. Latere wijzigingen blijven altijd live — je hoeft de code nooit opnieuw te plakken.",
+      "ready": "Configurator klaar. Gebruik een van deze:",
+      "pageLabel": "Pagina",
+      "embedLabel": "Insluiten",
+      "openEditor": "Open de editor →",
+      "defaultName": "Offerteconfigurator kozijnen",
+      "create": "Aanmaken",
+      "goToDashboard": "Naar dashboard"
+    },
+    "entering": {
+      "messages": [
+        "We richten je werkruimte in…",
+        "Catalogus en prijslijsten laden…",
+        "Bijna klaar, dashboard openen…"
+      ]
+    }
   }
 }
