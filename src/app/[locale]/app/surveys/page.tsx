@@ -1,5 +1,7 @@
 "use client";
 
+import { requestConfirm } from "@/lib/confirm-dialog";
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -653,7 +655,7 @@ export default function SurveysPage() {
                   {s.status !== "completed" && (
                     <button
                       onClick={async () => {
-                        if (!window.confirm(td("completeConfirm"))) return;
+                        if (!(await requestConfirm(td("completeConfirm")))) return;
                         try {
                           await completeSurvey({ surveyId: s._id });
                         } catch (e) {

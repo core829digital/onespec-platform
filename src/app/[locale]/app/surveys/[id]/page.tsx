@@ -1,5 +1,7 @@
 "use client";
 
+import { requestConfirm } from "@/lib/confirm-dialog";
+
 import { use, useMemo, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { useLocale, useTranslations } from "next-intl";
@@ -141,8 +143,8 @@ export default function SurveyDetailPage({ params }: { params: Promise<{ id: str
           <button
             type="button"
             disabled={busy !== ""}
-            onClick={() => {
-              if (window.confirm(t("completeConfirm"))) void run("complete", () => complete({ surveyId }));
+            onClick={async () => {
+              if (await requestConfirm(t("completeConfirm"))) void run("complete", () => complete({ surveyId }));
             }}
             className="rounded-lg bg-[var(--color-mint)] px-4 py-2 text-sm font-semibold text-[var(--color-mint-dark)] disabled:opacity-50"
           >
@@ -169,8 +171,8 @@ export default function SurveyDetailPage({ params }: { params: Promise<{ id: str
         <button
           type="button"
           disabled={busy !== ""}
-          onClick={() => {
-            if (window.confirm(t("deleteConfirm")))
+          onClick={async () => {
+            if (await requestConfirm(t("deleteConfirm"), { danger: true }))
               void run("delete", async () => {
                 await remove({ surveyId });
                 router.push("/app/surveys");

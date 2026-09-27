@@ -5,6 +5,7 @@ import { getTranslations } from "next-intl/server";
 import { api } from "@/convex/_generated/api";
 import { AppShell } from "@/components/app-shell/app-shell";
 import { ActionToaster } from "@/components/app-shell/action-toaster";
+import { ConfirmDialog } from "@/components/app-shell/confirm-dialog";
 import { DpaGate } from "@/components/app-shell/dpa-gate";
 
 export default async function AppLayout({
@@ -47,6 +48,7 @@ export default async function AppLayout({
     <AppShell tenant={tenant}>
       {children}
       <ActionToaster />
+      <ConfirmDialog />
       <DpaGate />
     </AppShell>
   );

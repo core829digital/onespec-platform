@@ -1,5 +1,7 @@
 "use client";
 
+import { requestConfirm } from "@/lib/confirm-dialog";
+
 import { useEffect, useRef, useState } from "react";
 import { useAction, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -113,7 +115,7 @@ export default function BillingPage() {
     try {
       const preview = await previewPlanChange({ tenantId: tenant!._id, plan, cycle });
       const amount = `€${(preview.amountDueCents / 100).toLocaleString(locale, { minimumFractionDigits: 2 })}`;
-      if (!window.confirm(t("upgrade.confirmCharge", { amount }))) {
+      if (!(await requestConfirm(t("upgrade.confirmCharge", { amount })))) {
         setBusy(false);
         return;
       }
@@ -137,7 +139,7 @@ export default function BillingPage() {
   }
 
   async function doCancel() {
-    if (!window.confirm(t("subscription.confirmCancel"))) return;
+    if (!(await requestConfirm(t("subscription.confirmCancel"), { danger: true }))) return;
     setBusy(true);
     setErr("");
     try {

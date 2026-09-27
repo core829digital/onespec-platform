@@ -1,5 +1,7 @@
 "use client";
 
+import { requestConfirm } from "@/lib/confirm-dialog";
+
 import { useState } from "react";
 import posthog from "posthog-js";
 import { useQuery, useMutation } from "convex/react";
@@ -715,7 +717,7 @@ const [editingClient, setEditingClient] = useState<
   };
 
   const handleDelete = async (clientId: string) => {
-    if (!confirm(t("confirmDelete"))) return;
+    if (!(await requestConfirm(t("confirmDelete"), { danger: true }))) return;
     try {
       await deleteClient({ clientId: clientId as Id<"clients"> });
     } catch (e) {

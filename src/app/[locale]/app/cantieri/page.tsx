@@ -1,5 +1,7 @@
 "use client";
 
+import { requestConfirm } from "@/lib/confirm-dialog";
+
 import { useState, useCallback } from "react";
 import posthog from "posthog-js";
 import { useQuery, useMutation } from "convex/react";
@@ -619,7 +621,7 @@ const handleUpdate = async (data: {
   };
 
   const handleDelete = async (cantiereId: string) => {
-    if (!confirm(t("confirmDelete"))) return;
+    if (!(await requestConfirm(t("confirmDelete"), { danger: true }))) return;
     try {
       await deleteCantiere({ cantiereId: cantiereId as unknown as Id<"cantieri"> });
     } catch (e) {
@@ -637,7 +639,7 @@ const handleUpdate = async (data: {
   };
 
   const handleRevokePin = async (cantiere: Cantiere) => {
-    if (!confirm(t("confirmRevokePin"))) return;
+    if (!(await requestConfirm(t("confirmRevokePin"), { danger: true }))) return;
     try {
       await revokeGuestPin({ cantiereId: cantiere._id as unknown as Id<"cantieri"> });
     } catch (e) {

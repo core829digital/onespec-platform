@@ -1,5 +1,7 @@
 "use client";
 
+import { requestConfirm } from "@/lib/confirm-dialog";
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -494,7 +496,7 @@ export default function InstallationsPage() {
                     <button
                       type="button"
                       onClick={async () => {
-                        if (!window.confirm(td("deleteConfirm"))) return;
+                        if (!(await requestConfirm(td("deleteConfirm"), { danger: true }))) return;
                         try {
                           await removeDossier({ dossierId: d._id });
                         } catch (e) {

@@ -1,5 +1,7 @@
 "use client";
 
+import { requestConfirm } from "@/lib/confirm-dialog";
+
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -536,7 +538,7 @@ export default function InspectionsPage() {
                     {r.status !== "signed" && (
                       <button
                         onClick={async () => {
-                          if (!window.confirm(t("deleteConfirm"))) return;
+                          if (!(await requestConfirm(t("deleteConfirm"), { danger: true }))) return;
                           try {
                             await removeReport({ reportId: r._id });
                           } catch (e) {
