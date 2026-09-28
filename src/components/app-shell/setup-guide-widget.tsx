@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
@@ -31,21 +31,27 @@ const DISMISS_KEY_PREFIX = "onespec:setupGuideDismissed:";
 export function SetupGuideWidget({ tenantId }: { tenantId: Id<"tenants"> }) {
   const t = useTranslations("setupGuide");
   const progress = useQuery(api.setupGuide.getProgress, { tenantId });
-  const [collapsed, setCollapsed] = useState(true);
-  const [dismissed, setDismissed] = useState(false);
-
   // Per-viewer convenience only (remembered open/closed + a permanent
   // dismiss once finished) — never state the server or other viewers rely
   // on, so localStorage is fine here and never fails render if blocked.
-  useEffect(() => {
+  // Read lazily at mount (not in an effect + setState, which the React
+  // Compiler's purity rule flags as a cascading-render risk) — SSR renders
+  // the same collapsed/not-dismissed default localStorage would fall back
+  // to anyway, so there's no hydration mismatch to worry about.
+  const [collapsed, setCollapsed] = useState(() => {
     try {
-      if (localStorage.getItem(DISMISS_KEY_PREFIX + tenantId) === "1") setDismissed(true);
-      const wasOpen = localStorage.getItem("onespec:setupGuideOpen") === "1";
-      setCollapsed(!wasOpen);
+      return localStorage.getItem("onespec:setupGuideOpen") !== "1";
     } catch {
-      /* private window / blocked storage: default to collapsed, not dismissed */
+      return true;
     }
-  }, [tenantId]);
+  });
+  const [dismissed, setDismissed] = useState(() => {
+    try {
+      return localStorage.getItem(DISMISS_KEY_PREFIX + tenantId) === "1";
+    } catch {
+      return false;
+    }
+  });
 
   function toggle() {
     setCollapsed((c) => {
