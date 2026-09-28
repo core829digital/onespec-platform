@@ -38,7 +38,8 @@
     "team": "Team",
     "billing": "Abrechnung",
     "collapse": "Menü einklappen",
-    "expand": "Menü ausklappen"
+    "expand": "Menü ausklappen",
+    "logistics": "Logistik"
   },
   "dashboard": {
     "title": "Übersicht",
@@ -62,7 +63,14 @@
     "requestsByCategory": "Anfragen nach Kundenkategorie",
     "unlinked": "Nicht verknüpft",
     "viewSubscription": "Abonnement ansehen",
-    "planCtaHint": "Pläne vergleichen, wechseln oder Abonnement verwalten."
+    "planCtaHint": "Pläne vergleichen, wechseln oder Abonnement verwalten.",
+    "logisticsSummary": {
+      "title": "Logistik",
+      "upcoming": "Lieferungen (7T)",
+      "receivedMonth": "Erhalten (Monat)",
+      "inStock": "Auf Lager",
+      "viewAll": "Zur Logistik"
+    }
   },
   "analytics": {
     "title": "Statistiken",
@@ -314,7 +322,11 @@
     "companyIncomplete": "Ergänzen Sie zuerst die Firmendaten (Firmenname, USt-IdNr., Adresse).",
     "subscriptionRequired": "Ein aktives Abonnement ist erforderlich, um fortzufahren. Wählen Sie einen Plan, um die Plattform freizuschalten.",
     "planSelectionRequired": "Wählen Sie einen Plan, um fortzufahren — schließen Sie den Einrichtungsassistenten ab.",
-    "planUpgradeRequired": "Ihr Plan enthält diese Funktion nicht — wechseln Sie zu einem höheren Plan, um sie freizuschalten."
+    "planUpgradeRequired": "Ihr Plan enthält diese Funktion nicht — wechseln Sie zu einem höheren Plan, um sie freizuschalten.",
+    "supplierHasDeliveries": "Ein Lieferant mit verknüpften Lieferungen kann nicht gelöscht werden.",
+    "carrierHasDeliveries": "Ein Spediteur mit verknüpften Lieferungen kann nicht gelöscht werden.",
+    "cannotDeleteReceivedDelivery": "Eine bereits erhaltene Lieferung kann nicht gelöscht werden.",
+    "deliveryCancelled": "Diese Lieferung wurde storniert."
   },
   "app": {
     "suspended": {
@@ -1459,6 +1471,80 @@
         "Katalog und Preislisten werden geladen…",
         "Fast fertig, Dashboard wird geöffnet…"
       ]
+    }
+  },
+  "logistics": {
+    "title": "Logistik & Lager",
+    "subtitle": "Spediteure, Lieferanten, geplante Lieferungen und Lagerbestand.",
+    "tabs": {
+      "calendar": "Kalender",
+      "suppliers": "Lieferanten",
+      "carriers": "Spediteure",
+      "inventory": "Lager"
+    },
+    "calendar": {
+      "newDelivery": "Neue Lieferung",
+      "noDeliveriesDay": "Keine Lieferungen an diesem Tag.",
+      "selectDay": "Wählen Sie einen Tag, um dessen Lieferungen zu sehen.",
+      "markReceived": "Als erhalten markieren",
+      "markReceivedConfirm": "Bestätigen, dass die Ware angekommen ist? Lagerartikel werden automatisch angelegt.",
+      "driver": "Fahrer",
+      "carrier": "Spediteur",
+      "supplier": "Lieferant *",
+      "cantiere": "Baustelle",
+      "notes": "Notizen",
+      "expectedItems": "Erwartete Artikel (eine pro Zeile)",
+      "scheduledDate": "Geplantes Datum *",
+      "driverName": "Name des Fahrers",
+      "driverPhone": "Telefon des Fahrers",
+      "save": "Speichern",
+      "cancel": "Abbrechen",
+      "noSupplier": "Zuerst einen Lieferanten hinzufügen",
+      "status": {
+        "scheduled": "Geplant",
+        "in_transit": "Unterwegs",
+        "received": "Erhalten",
+        "cancelled": "Storniert"
+      },
+      "deleteConfirm": "Diese Lieferung löschen?",
+      "delete": "Löschen"
+    },
+    "suppliers": {
+      "add": "Lieferant hinzufügen",
+      "name": "Name *",
+      "contact": "Ansprechpartner",
+      "phone": "Telefon",
+      "email": "E-Mail",
+      "address": "Adresse",
+      "notes": "Notizen",
+      "empty": "Noch keine Lieferanten. Fügen Sie einen hinzu, um Lieferungen zu planen.",
+      "quotaReached": "Lieferanten-Limit Ihres Plans erreicht.",
+      "delete": "Löschen",
+      "deleteConfirm": "Diesen Lieferanten löschen?"
+    },
+    "carriers": {
+      "add": "Spediteur hinzufügen",
+      "name": "Name *",
+      "contact": "Ansprechpartner",
+      "phone": "Telefon",
+      "email": "E-Mail",
+      "notes": "Notizen",
+      "empty": "Noch keine Spediteure registriert.",
+      "quotaReached": "Spediteur-Limit Ihres Plans erreicht.",
+      "delete": "Löschen",
+      "deleteConfirm": "Diesen Spediteur löschen?"
+    },
+    "inventory": {
+      "empty": "Noch keine Artikel auf Lager. Sie kommen hinzu, sobald eine Lieferung als erhalten markiert wird.",
+      "label": "Artikel",
+      "quantity": "Menge",
+      "cantiere": "Baustelle",
+      "status": "Status",
+      "filterAll": "Alle",
+      "statusIn_stock": "Auf Lager",
+      "statusAssigned": "Zugewiesen",
+      "statusInstalled": "Installiert",
+      "received": "Erhalten am"
     }
   }
 }

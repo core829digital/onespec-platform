@@ -38,7 +38,8 @@
     "team": "Team",
     "billing": "Facturatie",
     "collapse": "Menu inklappen",
-    "expand": "Menu uitklappen"
+    "expand": "Menu uitklappen",
+    "logistics": "Logistiek"
   },
   "dashboard": {
     "title": "Overzicht",
@@ -62,7 +63,14 @@
     "requestsByCategory": "Aanvragen per klantcategorie",
     "unlinked": "Niet gekoppeld",
     "viewSubscription": "Bekijk je abonnement",
-    "planCtaHint": "Vergelijk abonnementen, upgrade of beheer je abonnement."
+    "planCtaHint": "Vergelijk abonnementen, upgrade of beheer je abonnement.",
+    "logisticsSummary": {
+      "title": "Logistiek",
+      "upcoming": "Leveringen (7d)",
+      "receivedMonth": "Ontvangen (maand)",
+      "inStock": "Op voorraad",
+      "viewAll": "Naar logistiek"
+    }
   },
   "analytics": {
     "title": "Statistieken",
@@ -314,7 +322,11 @@
     "companyIncomplete": "Vul eerst de bedrijfsgegevens aan (naam, btw-nummer, adres).",
     "subscriptionRequired": "Een actief abonnement is vereist om door te gaan. Kies een abonnement om het platform te ontgrendelen.",
     "planSelectionRequired": "Kies een abonnement om door te gaan — voltooi de installatiewizard.",
-    "planUpgradeRequired": "Je abonnement bevat deze functie niet — upgrade naar een hoger abonnement om het te ontgrendelen."
+    "planUpgradeRequired": "Je abonnement bevat deze functie niet — upgrade naar een hoger abonnement om het te ontgrendelen.",
+    "supplierHasDeliveries": "Je kunt geen leverancier met gekoppelde leveringen verwijderen.",
+    "carrierHasDeliveries": "Je kunt geen vervoerder met gekoppelde leveringen verwijderen.",
+    "cannotDeleteReceivedDelivery": "Je kunt een reeds ontvangen levering niet verwijderen.",
+    "deliveryCancelled": "Deze levering is geannuleerd."
   },
   "app": {
     "suspended": {
@@ -1459,6 +1471,80 @@
         "Catalogus en prijslijsten laden…",
         "Bijna klaar, dashboard openen…"
       ]
+    }
+  },
+  "logistics": {
+    "title": "Logistiek & magazijn",
+    "subtitle": "Vervoerders, leveranciers, geplande leveringen en voorraad.",
+    "tabs": {
+      "calendar": "Kalender",
+      "suppliers": "Leveranciers",
+      "carriers": "Vervoerders",
+      "inventory": "Magazijn"
+    },
+    "calendar": {
+      "newDelivery": "Nieuwe levering",
+      "noDeliveriesDay": "Geen leveringen op deze dag.",
+      "selectDay": "Selecteer een dag om de leveringen te zien.",
+      "markReceived": "Markeer als ontvangen",
+      "markReceivedConfirm": "Bevestig dat de goederen zijn aangekomen? Voorraaditems worden automatisch aangemaakt.",
+      "driver": "Chauffeur",
+      "carrier": "Vervoerder",
+      "supplier": "Leverancier *",
+      "cantiere": "Werf",
+      "notes": "Notities",
+      "expectedItems": "Verwachte artikelen (één per regel)",
+      "scheduledDate": "Geplande datum *",
+      "driverName": "Naam chauffeur",
+      "driverPhone": "Telefoon chauffeur",
+      "save": "Opslaan",
+      "cancel": "Annuleren",
+      "noSupplier": "Voeg eerst een leverancier toe",
+      "status": {
+        "scheduled": "Gepland",
+        "in_transit": "Onderweg",
+        "received": "Ontvangen",
+        "cancelled": "Geannuleerd"
+      },
+      "deleteConfirm": "Deze levering verwijderen?",
+      "delete": "Verwijderen"
+    },
+    "suppliers": {
+      "add": "Leverancier toevoegen",
+      "name": "Naam *",
+      "contact": "Contactpersoon",
+      "phone": "Telefoon",
+      "email": "E-mail",
+      "address": "Adres",
+      "notes": "Notities",
+      "empty": "Nog geen leveranciers. Voeg er een toe om leveringen te plannen.",
+      "quotaReached": "Leverancierslimiet van je abonnement bereikt.",
+      "delete": "Verwijderen",
+      "deleteConfirm": "Deze leverancier verwijderen?"
+    },
+    "carriers": {
+      "add": "Vervoerder toevoegen",
+      "name": "Naam *",
+      "contact": "Contactpersoon",
+      "phone": "Telefoon",
+      "email": "E-mail",
+      "notes": "Notities",
+      "empty": "Nog geen vervoerders geregistreerd.",
+      "quotaReached": "Vervoerderslimiet van je abonnement bereikt.",
+      "delete": "Verwijderen",
+      "deleteConfirm": "Deze vervoerder verwijderen?"
+    },
+    "inventory": {
+      "empty": "Nog geen artikelen op voorraad. Ze komen erbij zodra je een levering als ontvangen markeert.",
+      "label": "Artikel",
+      "quantity": "Aantal",
+      "cantiere": "Werf",
+      "status": "Status",
+      "filterAll": "Alle",
+      "statusIn_stock": "Op voorraad",
+      "statusAssigned": "Toegewezen",
+      "statusInstalled": "Geïnstalleerd",
+      "received": "Ontvangen op"
     }
   }
 }

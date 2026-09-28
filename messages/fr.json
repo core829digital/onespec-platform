@@ -38,7 +38,8 @@
     "team": "Équipe",
     "billing": "Facturation",
     "collapse": "Réduire le menu",
-    "expand": "Développer le menu"
+    "expand": "Développer le menu",
+    "logistics": "Logistique"
   },
   "dashboard": {
     "title": "Aperçu",
@@ -62,7 +63,14 @@
     "requestsByCategory": "Demandes par catégorie de client",
     "unlinked": "Non liés",
     "viewSubscription": "Voir votre abonnement",
-    "planCtaHint": "Comparez les plans, changez ou gérez votre abonnement."
+    "planCtaHint": "Comparez les plans, changez ou gérez votre abonnement.",
+    "logisticsSummary": {
+      "title": "Logistique",
+      "upcoming": "Livraisons (7j)",
+      "receivedMonth": "Reçues (mois)",
+      "inStock": "En stock",
+      "viewAll": "Voir la logistique"
+    }
   },
   "analytics": {
     "title": "Statistiques",
@@ -314,7 +322,11 @@
     "companyIncomplete": "Complétez d'abord les données de l'entreprise (raison sociale, n° de TVA, adresse).",
     "subscriptionRequired": "Un abonnement actif est requis pour continuer. Choisissez un forfait pour débloquer la plateforme.",
     "planSelectionRequired": "Choisissez un forfait pour continuer — terminez l'assistant de configuration.",
-    "planUpgradeRequired": "Votre forfait n'inclut pas cette fonctionnalité — passez à un forfait supérieur pour la débloquer."
+    "planUpgradeRequired": "Votre forfait n'inclut pas cette fonctionnalité — passez à un forfait supérieur pour la débloquer.",
+    "supplierHasDeliveries": "Impossible de supprimer un fournisseur ayant des livraisons liées.",
+    "carrierHasDeliveries": "Impossible de supprimer un transporteur ayant des livraisons liées.",
+    "cannotDeleteReceivedDelivery": "Impossible de supprimer une livraison déjà reçue.",
+    "deliveryCancelled": "Cette livraison a été annulée."
   },
   "app": {
     "suspended": {
@@ -1459,6 +1471,80 @@
         "Chargement du catalogue et des tarifs…",
         "Presque terminé, ouverture du tableau de bord…"
       ]
+    }
+  },
+  "logistics": {
+    "title": "Logistique et entrepôt",
+    "subtitle": "Transporteurs, fournisseurs, livraisons planifiées et stock.",
+    "tabs": {
+      "calendar": "Calendrier",
+      "suppliers": "Fournisseurs",
+      "carriers": "Transporteurs",
+      "inventory": "Entrepôt"
+    },
+    "calendar": {
+      "newDelivery": "Nouvelle livraison",
+      "noDeliveriesDay": "Aucune livraison ce jour.",
+      "selectDay": "Sélectionnez un jour pour voir ses livraisons.",
+      "markReceived": "Marquer comme reçue",
+      "markReceivedConfirm": "Confirmer que la marchandise est arrivée ? Les articles seront créés automatiquement en stock.",
+      "driver": "Chauffeur",
+      "carrier": "Transporteur",
+      "supplier": "Fournisseur *",
+      "cantiere": "Chantier",
+      "notes": "Notes",
+      "expectedItems": "Articles attendus (un par ligne)",
+      "scheduledDate": "Date prévue *",
+      "driverName": "Nom du chauffeur",
+      "driverPhone": "Téléphone du chauffeur",
+      "save": "Enregistrer",
+      "cancel": "Annuler",
+      "noSupplier": "Ajoutez d'abord un fournisseur",
+      "status": {
+        "scheduled": "Planifiée",
+        "in_transit": "En transit",
+        "received": "Reçue",
+        "cancelled": "Annulée"
+      },
+      "deleteConfirm": "Supprimer cette livraison ?",
+      "delete": "Supprimer"
+    },
+    "suppliers": {
+      "add": "Ajouter un fournisseur",
+      "name": "Nom *",
+      "contact": "Contact",
+      "phone": "Téléphone",
+      "email": "E-mail",
+      "address": "Adresse",
+      "notes": "Notes",
+      "empty": "Aucun fournisseur. Ajoutez-en un pour planifier des livraisons.",
+      "quotaReached": "Limite de fournisseurs de votre plan atteinte.",
+      "delete": "Supprimer",
+      "deleteConfirm": "Supprimer ce fournisseur ?"
+    },
+    "carriers": {
+      "add": "Ajouter un transporteur",
+      "name": "Nom *",
+      "contact": "Contact",
+      "phone": "Téléphone",
+      "email": "E-mail",
+      "notes": "Notes",
+      "empty": "Aucun transporteur enregistré.",
+      "quotaReached": "Limite de transporteurs de votre plan atteinte.",
+      "delete": "Supprimer",
+      "deleteConfirm": "Supprimer ce transporteur ?"
+    },
+    "inventory": {
+      "empty": "Aucun article en stock. Ils arrivent quand vous marquez une livraison reçue.",
+      "label": "Article",
+      "quantity": "Qté",
+      "cantiere": "Chantier",
+      "status": "Statut",
+      "filterAll": "Tous",
+      "statusIn_stock": "En stock",
+      "statusAssigned": "Assigné",
+      "statusInstalled": "Installé",
+      "received": "Reçu le"
     }
   }
 }

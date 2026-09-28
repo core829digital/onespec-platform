@@ -38,7 +38,8 @@
     "team": "Echipă",
     "billing": "Facturare",
     "collapse": "Restrânge meniul",
-    "expand": "Extinde meniul"
+    "expand": "Extinde meniul",
+    "logistics": "Logistică"
   },
   "dashboard": {
     "title": "Prezentare generală",
@@ -62,7 +63,14 @@
     "requestsByCategory": "Cereri pe categorie client",
     "unlinked": "Neasociate",
     "viewSubscription": "Vezi abonamentul",
-    "planCtaHint": "Compară planurile, schimbă sau gestionează abonamentul."
+    "planCtaHint": "Compară planurile, schimbă sau gestionează abonamentul.",
+    "logisticsSummary": {
+      "title": "Logistică",
+      "upcoming": "Livrări (7z)",
+      "receivedMonth": "Primite (lună)",
+      "inStock": "În stoc",
+      "viewAll": "Mergi la logistică"
+    }
   },
   "analytics": {
     "title": "Statistici",
@@ -314,7 +322,11 @@
     "companyIncomplete": "Completează mai întâi datele companiei (denumire, CUI, adresă).",
     "subscriptionRequired": "Este necesar un abonament activ pentru a continua. Alege un plan pentru a debloca platforma.",
     "planSelectionRequired": "Alege un plan pentru a continua — finalizează asistentul de configurare.",
-    "planUpgradeRequired": "Planul tău nu include această funcție — treci la un plan superior pentru a o debloca."
+    "planUpgradeRequired": "Planul tău nu include această funcție — treci la un plan superior pentru a o debloca.",
+    "supplierHasDeliveries": "Nu poți șterge un furnizor cu livrări asociate.",
+    "carrierHasDeliveries": "Nu poți șterge un transportator cu livrări asociate.",
+    "cannotDeleteReceivedDelivery": "Nu poți șterge o livrare deja primită.",
+    "deliveryCancelled": "Această livrare a fost anulată."
   },
   "app": {
     "suspended": {
@@ -1459,6 +1471,80 @@
         "Se încarcă catalogul și listele de prețuri…",
         "Aproape gata, deschidem dashboard-ul…"
       ]
+    }
+  },
+  "logistics": {
+    "title": "Logistică și depozit",
+    "subtitle": "Transportatori, furnizori, livrări programate și stoc de depozit.",
+    "tabs": {
+      "calendar": "Calendar",
+      "suppliers": "Furnizori",
+      "carriers": "Transportatori",
+      "inventory": "Depozit"
+    },
+    "calendar": {
+      "newDelivery": "Livrare nouă",
+      "noDeliveriesDay": "Nicio livrare în această zi.",
+      "selectDay": "Selectează o zi pentru a vedea livrările.",
+      "markReceived": "Marchează ca primită",
+      "markReceivedConfirm": "Confirmi că marfa a sosit? Articolele de depozit vor fi create automat.",
+      "driver": "Șofer",
+      "carrier": "Transportator",
+      "supplier": "Furnizor *",
+      "cantiere": "Șantier",
+      "notes": "Note",
+      "expectedItems": "Articole așteptate (unul pe linie)",
+      "scheduledDate": "Data programată *",
+      "driverName": "Nume șofer",
+      "driverPhone": "Telefon șofer",
+      "save": "Salvează",
+      "cancel": "Anulează",
+      "noSupplier": "Adaugă mai întâi un furnizor",
+      "status": {
+        "scheduled": "Programată",
+        "in_transit": "În tranzit",
+        "received": "Primită",
+        "cancelled": "Anulată"
+      },
+      "deleteConfirm": "Ștergi această livrare?",
+      "delete": "Șterge"
+    },
+    "suppliers": {
+      "add": "Adaugă furnizor",
+      "name": "Nume *",
+      "contact": "Persoană de contact",
+      "phone": "Telefon",
+      "email": "E-mail",
+      "address": "Adresă",
+      "notes": "Note",
+      "empty": "Niciun furnizor încă. Adaugă unul pentru a programa livrări.",
+      "quotaReached": "Limita de furnizori a planului tău a fost atinsă.",
+      "delete": "Șterge",
+      "deleteConfirm": "Ștergi acest furnizor?"
+    },
+    "carriers": {
+      "add": "Adaugă transportator",
+      "name": "Nume *",
+      "contact": "Persoană de contact",
+      "phone": "Telefon",
+      "email": "E-mail",
+      "notes": "Note",
+      "empty": "Niciun transportator înregistrat încă.",
+      "quotaReached": "Limita de transportatori a planului tău a fost atinsă.",
+      "delete": "Șterge",
+      "deleteConfirm": "Ștergi acest transportator?"
+    },
+    "inventory": {
+      "empty": "Niciun articol în stoc încă. Apar când marchezi o livrare ca primită.",
+      "label": "Articol",
+      "quantity": "Cant.",
+      "cantiere": "Șantier",
+      "status": "Stare",
+      "filterAll": "Toate",
+      "statusIn_stock": "În stoc",
+      "statusAssigned": "Alocat",
+      "statusInstalled": "Instalat",
+      "received": "Primit pe"
     }
   }
 }

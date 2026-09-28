@@ -53,7 +53,11 @@ export type ErrorKey =
   | "cannotRemoveOwner"
   | "dpaVersion"
   | "companyIncomplete"
-  | "offline";
+  | "offline"
+  | "supplierHasDeliveries"
+  | "carrierHasDeliveries"
+  | "cannotDeleteReceivedDelivery"
+  | "deliveryCancelled";
 
 const EXACT: Record<string, ErrorKey> = {
   UNAUTHENTICATED: "unauthenticated",
@@ -104,6 +108,10 @@ const EXACT: Record<string, ErrorKey> = {
   CANNOT_REMOVE_OWNER: "cannotRemoveOwner",
   DPA_VERSION_MISMATCH: "dpaVersion",
   COMPANY_PROFILE_INCOMPLETE: "companyIncomplete",
+  SUPPLIER_HAS_DELIVERIES: "supplierHasDeliveries",
+  CARRIER_HAS_DELIVERIES: "carrierHasDeliveries",
+  CANNOT_DELETE_RECEIVED_DELIVERY: "cannotDeleteReceivedDelivery",
+  DELIVERY_CANCELLED: "deliveryCancelled",
 };
 
 /** Map a backend error code to a message key (pattern fallbacks for families). */

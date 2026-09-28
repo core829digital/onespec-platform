@@ -38,7 +38,8 @@
     "team": "Team",
     "billing": "Billing",
     "collapse": "Collapse menu",
-    "expand": "Expand menu"
+    "expand": "Expand menu",
+    "logistics": "Logistics"
   },
   "dashboard": {
     "title": "Overview",
@@ -62,7 +63,14 @@
     "requestsByCategory": "Requests by client category",
     "unlinked": "Unlinked",
     "viewSubscription": "View your subscription",
-    "planCtaHint": "Compare plans, upgrade or manage your subscription."
+    "planCtaHint": "Compare plans, upgrade or manage your subscription.",
+    "logisticsSummary": {
+      "title": "Logistics",
+      "upcoming": "Deliveries (7d)",
+      "receivedMonth": "Received (month)",
+      "inStock": "In stock",
+      "viewAll": "Go to logistics"
+    }
   },
   "analytics": {
     "title": "Statistics",
@@ -314,7 +322,11 @@
     "companyIncomplete": "Complete your company details first (name, VAT ID, address).",
     "subscriptionRequired": "An active subscription is required to continue. Choose a plan to unlock the platform.",
     "planSelectionRequired": "Choose a plan to continue — complete the setup wizard.",
-    "planUpgradeRequired": "Your plan doesn't include this feature — upgrade to a higher plan to unlock it."
+    "planUpgradeRequired": "Your plan doesn't include this feature — upgrade to a higher plan to unlock it.",
+    "supplierHasDeliveries": "You cannot delete a supplier with linked deliveries.",
+    "carrierHasDeliveries": "You cannot delete a carrier with linked deliveries.",
+    "cannotDeleteReceivedDelivery": "You cannot delete a delivery that has already been received.",
+    "deliveryCancelled": "This delivery was cancelled."
   },
   "app": {
     "suspended": {
@@ -1459,6 +1471,80 @@
         "Loading catalog and price lists…",
         "Almost done, opening the dashboard…"
       ]
+    }
+  },
+  "logistics": {
+    "title": "Logistics & warehouse",
+    "subtitle": "Carriers, suppliers, scheduled deliveries and warehouse stock.",
+    "tabs": {
+      "calendar": "Calendar",
+      "suppliers": "Suppliers",
+      "carriers": "Carriers",
+      "inventory": "Warehouse"
+    },
+    "calendar": {
+      "newDelivery": "New delivery",
+      "noDeliveriesDay": "No deliveries this day.",
+      "selectDay": "Select a day to see its deliveries.",
+      "markReceived": "Mark as received",
+      "markReceivedConfirm": "Confirm the goods have arrived? Warehouse items will be created automatically.",
+      "driver": "Driver",
+      "carrier": "Carrier",
+      "supplier": "Supplier *",
+      "cantiere": "Site",
+      "notes": "Notes",
+      "expectedItems": "Expected items (one per line)",
+      "scheduledDate": "Scheduled date *",
+      "driverName": "Driver name",
+      "driverPhone": "Driver phone",
+      "save": "Save",
+      "cancel": "Cancel",
+      "noSupplier": "Add a supplier first",
+      "status": {
+        "scheduled": "Scheduled",
+        "in_transit": "In transit",
+        "received": "Received",
+        "cancelled": "Cancelled"
+      },
+      "deleteConfirm": "Delete this delivery?",
+      "delete": "Delete"
+    },
+    "suppliers": {
+      "add": "Add supplier",
+      "name": "Name *",
+      "contact": "Contact",
+      "phone": "Phone",
+      "email": "Email",
+      "address": "Address",
+      "notes": "Notes",
+      "empty": "No suppliers yet. Add one to schedule deliveries.",
+      "quotaReached": "Your plan's supplier limit is reached.",
+      "delete": "Delete",
+      "deleteConfirm": "Delete this supplier?"
+    },
+    "carriers": {
+      "add": "Add carrier",
+      "name": "Name *",
+      "contact": "Contact",
+      "phone": "Phone",
+      "email": "Email",
+      "notes": "Notes",
+      "empty": "No carriers registered yet.",
+      "quotaReached": "Your plan's carrier limit is reached.",
+      "delete": "Delete",
+      "deleteConfirm": "Delete this carrier?"
+    },
+    "inventory": {
+      "empty": "No items in stock yet. They arrive when you mark a delivery received.",
+      "label": "Item",
+      "quantity": "Qty",
+      "cantiere": "Site",
+      "status": "Status",
+      "filterAll": "All",
+      "statusIn_stock": "In stock",
+      "statusAssigned": "Assigned",
+      "statusInstalled": "Installed",
+      "received": "Received on"
     }
   }
 }

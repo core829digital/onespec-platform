@@ -18,6 +18,7 @@ import {
   Users,
   Gem,
   Receipt,
+  Truck,
   type LucideIcon,
 } from "lucide-react";
 import type { GatedFeature } from "@/lib/plan-gates";
@@ -67,6 +68,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: "/app/installations", label: "installations", icon: Layers },
       { href: "/app/inspections", label: "inspections", icon: ClipboardCheck },
       { href: "/app/passports", label: "passports", icon: QrCode },
+      { href: "/app/logistics", label: "logistics", icon: Truck },
     ],
   },
   {

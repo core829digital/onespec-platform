@@ -8,7 +8,7 @@ import { Link } from "@/i18n/navigation";
 import { StatCard } from "@/components/app-shell/stat-card";
 import { EmptyState } from "@/components/app-shell/empty-state";
 import { RangeSwitcher, RANGE_LABEL, type AnalyticsRange } from "@/components/analytics/range-switcher";
-import { Eye, FileText, Percent, Trophy, Calculator, Gauge } from "lucide-react";
+import { Eye, FileText, Percent, Trophy, Calculator, Gauge, Truck } from "lucide-react";
 
 const PieChart = lazy(() =>
   import("@/components/analytics/PieChart").then((m) => ({ default: m.PieChart })),
@@ -85,6 +85,10 @@ export default function DashboardPage() {
     api.analytics.getPlanUsage,
     tenant ? { tenantId: tenant._id } : "skip",
   );
+  const logisticsSummary = useQuery(
+    api.logistics.getLogisticsSummary,
+    tenant ? { tenantId: tenant._id } : "skip",
+  );
   const clients = useQuery(
     api.clients.listClients,
     tenant ? { tenantId: tenant._id, limit: 200 } : "skip",
@@ -150,7 +154,7 @@ export default function DashboardPage() {
         <StatCard icon={Calculator} label={t("avgValue")} value={overview ? money(overview.avgDealCents) : undefined} />
       </div>
 
-      {(planUsage !== undefined || categoryData.length > 0) && (
+      {(planUsage !== undefined || logisticsSummary !== undefined || categoryData.length > 0) && (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {planUsage && (
             <section className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl p-5">
@@ -191,6 +195,24 @@ export default function DashboardPage() {
               </div>
             </section>
           )}
+          {logisticsSummary ? (
+            <section className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl p-5">
+              <h2 className="font-semibold text-[var(--color-text)] flex items-center gap-2 mb-4">
+                <Truck className="w-4 h-4 text-[var(--color-mint)]" />
+                {t("logisticsSummary.title")}
+              </h2>
+              <div className="grid grid-cols-3 gap-3">
+                <StatCard label={t("logisticsSummary.upcoming")} value={String(logisticsSummary.upcomingDeliveries7d)} />
+                <StatCard label={t("logisticsSummary.receivedMonth")} value={String(logisticsSummary.receivedThisMonth)} />
+                <StatCard label={t("logisticsSummary.inStock")} value={String(logisticsSummary.itemsInStock)} />
+              </div>
+              <div className="mt-4 flex justify-end border-t border-[var(--color-border)] pt-4">
+                <Link href="/app/logistics" className="text-sm font-medium text-[var(--color-mint)] hover:underline">
+                  {t("logisticsSummary.viewAll")}
+                </Link>
+              </div>
+            </section>
+          ) : null}
           {categoryData.length > 0 && (
             <section className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl p-5">
               <h2 className="font-semibold text-[var(--color-text)] mb-4">

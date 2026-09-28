@@ -38,7 +38,8 @@
     "team": "Squadra",
     "billing": "Fatturazione",
     "collapse": "Comprimi il menu",
-    "expand": "Espandi il menu"
+    "expand": "Espandi il menu",
+    "logistics": "Logistica"
   },
   "dashboard": {
     "title": "Panoramica",
@@ -62,7 +63,14 @@
     "requestsByCategory": "Preventivi per categoria cliente",
     "unlinked": "Non collegati",
     "viewSubscription": "Vedi il tuo abbonamento",
-    "planCtaHint": "Confronta i piani, cambia o gestisci l'abbonamento."
+    "planCtaHint": "Confronta i piani, cambia o gestisci l'abbonamento.",
+    "logisticsSummary": {
+      "title": "Logistica",
+      "upcoming": "Consegne (7gg)",
+      "receivedMonth": "Ricevute (mese)",
+      "inStock": "In magazzino",
+      "viewAll": "Vai alla logistica"
+    }
   },
   "analytics": {
     "title": "Statistiche",
@@ -314,7 +322,11 @@
     "companyIncomplete": "Completa prima i dati azienda (ragione sociale, P.IVA, indirizzo).",
     "subscriptionRequired": "Serve un abbonamento attivo per continuare. Scegli un piano per sbloccare la piattaforma.",
     "planSelectionRequired": "Scegli un piano per continuare — completa la procedura guidata di attivazione.",
-    "planUpgradeRequired": "Il tuo piano non include questa funzione — passa a un piano superiore per sbloccarla."
+    "planUpgradeRequired": "Il tuo piano non include questa funzione — passa a un piano superiore per sbloccarla.",
+    "supplierHasDeliveries": "Non puoi eliminare un fornitore con consegne collegate.",
+    "carrierHasDeliveries": "Non puoi eliminare un corriere con consegne collegate.",
+    "cannotDeleteReceivedDelivery": "Non puoi eliminare una consegna già ricevuta.",
+    "deliveryCancelled": "Questa consegna è stata annullata."
   },
   "app": {
     "suspended": {
@@ -1459,6 +1471,80 @@
         "Carichiamo catalogo e listini…",
         "Quasi fatto, apriamo la dashboard…"
       ]
+    }
+  },
+  "logistics": {
+    "title": "Logistica e magazzino",
+    "subtitle": "Corrieri, fornitori, consegne programmate e giacenze di magazzino.",
+    "tabs": {
+      "calendar": "Calendario",
+      "suppliers": "Fornitori",
+      "carriers": "Corrieri",
+      "inventory": "Magazzino"
+    },
+    "calendar": {
+      "newDelivery": "Nuova consegna",
+      "noDeliveriesDay": "Nessuna consegna in questo giorno.",
+      "selectDay": "Seleziona un giorno per vedere le consegne.",
+      "markReceived": "Segna come ricevuta",
+      "markReceivedConfirm": "Confermi che la merce è arrivata? Verranno creati automaticamente gli articoli in magazzino.",
+      "driver": "Autista",
+      "carrier": "Corriere",
+      "supplier": "Fornitore *",
+      "cantiere": "Cantiere",
+      "notes": "Note",
+      "expectedItems": "Articoli attesi (uno per riga)",
+      "scheduledDate": "Data programmata *",
+      "driverName": "Nome autista",
+      "driverPhone": "Telefono autista",
+      "save": "Salva",
+      "cancel": "Annulla",
+      "noSupplier": "Aggiungi prima un fornitore",
+      "status": {
+        "scheduled": "Programmata",
+        "in_transit": "In transito",
+        "received": "Ricevuta",
+        "cancelled": "Annullata"
+      },
+      "deleteConfirm": "Eliminare questa consegna?",
+      "delete": "Elimina"
+    },
+    "suppliers": {
+      "add": "Aggiungi fornitore",
+      "name": "Nome *",
+      "contact": "Referente",
+      "phone": "Telefono",
+      "email": "Email",
+      "address": "Indirizzo",
+      "notes": "Note",
+      "empty": "Nessun fornitore. Aggiungine uno per programmare le consegne.",
+      "quotaReached": "Limite fornitori del tuo piano raggiunto.",
+      "delete": "Elimina",
+      "deleteConfirm": "Eliminare questo fornitore?"
+    },
+    "carriers": {
+      "add": "Aggiungi corriere",
+      "name": "Nome *",
+      "contact": "Referente",
+      "phone": "Telefono",
+      "email": "Email",
+      "notes": "Note",
+      "empty": "Nessun corriere registrato.",
+      "quotaReached": "Limite corrieri del tuo piano raggiunto.",
+      "delete": "Elimina",
+      "deleteConfirm": "Eliminare questo corriere?"
+    },
+    "inventory": {
+      "empty": "Nessun articolo in magazzino. Arriva segnando una consegna come ricevuta.",
+      "label": "Articolo",
+      "quantity": "Qtà",
+      "cantiere": "Cantiere",
+      "status": "Stato",
+      "filterAll": "Tutti",
+      "statusIn_stock": "In magazzino",
+      "statusAssigned": "Assegnato",
+      "statusInstalled": "Installato",
+      "received": "Ricevuto il"
     }
   }
 }
