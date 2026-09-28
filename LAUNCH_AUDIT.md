@@ -93,7 +93,7 @@ Nel corso della sessione mi hai incollato in chat: `rk_live_...` (chiave Stripe 
 - Un configuratore di test risultava "non disponibile": coerente con il tenant fermo sul piano Base (il widget pubblico richiede Pro) — dovrebbe risolversi da solo con il fix del punto 4.
 - **PDF preventivo:** trovate e corrette sovrapposizioni di testo reali (fino a 38 in un caso limite con 9 posizioni e nomi lunghi), un titolo che usciva dalla pagina, e simboli/bandierine emoji che stampavano caratteri illeggibili con il font Helvetica incorporato. Verificato con un'analisi automatica delle posizioni del testo (via pdf.js), non con lettura visiva del PDF (nessun visualizzatore disponibile in questo ambiente).
 - Aggiunto un test che impedisce di reintrodurre caratteri fuori dal set Windows-1252 in qualunque PDF futuro.
-- **Gli altri 12 modelli PDF** (collaudo, DoP, garanzia, manutenzione, ecc.) hanno ricevuto solo le correzioni generiche (niente sillabazione, niente simboli illeggibili) — non sono stati analizzati singolarmente per sovrapposizioni come il preventivo.
+- **Aggiornamento 28/9:** analizzati con lo stesso metodo (render con dati reali + controllo posizioni via pdf.js) anche i certificati di Conformità, Consegna e Manutenzione. Trovato e corretto lo stesso bug dell'intestazione del preventivo (nome azienda lungo che finisce sotto il badge di stato) in tutti e 3 — verificato 0 sovrapposizioni dopo la correzione. DoP e Certificato di Posa non sono stati verificati (dati di prova non compatibili con la loro struttura, non ho forzato il test); Garanzia e Fascicolo QR restano da controllare.
 
 ---
 
@@ -107,17 +107,27 @@ Esiste un rapporto precedente non tracciato da git (`A11Y_AUDIT_REPORT.md`, 22 s
 
 ## 7. Cose che restano da fare, in ordine di urgenza
 
-1. **Rigenerare `rk_live` e il segreto webhook** passati in chat.
-2. **Attivare `TURNSTILE_ENFORCE_AUTH=1`** dopo aver verificato a video che il riquadro compaia sul login.
-3. **Impostare `RESEND_WEBHOOK_SECRET`** (o accettare che il webhook Resend resti spento).
-4. **Provare un vero upgrade/downgrade/disdetta** in produzione ora che i fix del billing sono live.
-5. Decidere su `clients.subtitle` (slogan in inglese nel file italiano — voluto o svista?).
-6. Rivedere gli altri 12 modelli PDF per sovrapposizioni, uno per uno.
-7. Passata di limiti di lunghezza sui restanti campi `v.string()` esposti a form pubblici.
-8. Rimuovere `ignoreBuildErrors: true` da `next.config.mjs` (nasconde errori di tipo in build) — segnalato da sessioni precedenti, non ancora fatto.
-9. Sostituire le finestre `window.confirm()` native (7 pagine, incluso il flusso di pagamento) con un dialogo del design system.
-10. Una vera scansione di accessibilità dal vivo (axe-core in un browser reale) per confermare o smentire il rapporto del 22/9.
-11. Test manuale della UI in almeno EN e una lingua non latina d'uso (NL) per la resa visiva delle traduzioni più lunghe.
+**Aggiornamento 28/9 — chiusi in questa sessione:**
+- ✅ `TURNSTILE_ENFORCE_AUTH=1` attivo in produzione, verificato con una chiamata diretta che rifiuta un accesso senza token.
+- ✅ Segreto webhook Stripe ruotato **due volte** (la seconda per precauzione, dopo che un mio comando l'ha stampato per errore nel proprio output — mai mostrato a te, ma trattato come compromesso). Endpoint vecchi cancellati.
+- ✅ `ignoreBuildErrors: true` rimosso da `next.config.mjs` — verificato che la build resta pulita senza.
+- ✅ `window.confirm()` sostituiti su tutte le 10 chiamate (7 pagine) con un dialogo dello stesso stile della piattaforma.
+- ✅ 3 certificati PDF in più controllati e corretti (vedi sezione 5).
+- ✅ **Nuovo, trovato durante questo giro:** `passports.createBatchFromQuote` non aveva nessun controllo di piano — un tenant Base poteva creare in blocco i fascicoli QR di un intero preventivo, aggirando il limite dei contratti di manutenzione. Corretto e pubblicato.
+- ✅ **Nuovo:** verificato che l'accesso amministratore reale non usa affatto `ADMIN_EMAILS` (nota superata) ma il campo `isPlatformAdmin` sugli utenti — confermati correttamente impostati i 2 account fondatori attesi.
+- ✅ **Nuovo, dark mode:** ogni scheda della bacheca Cantieri, le finestre di modifica di Cantieri e Clienti, e le loro barre di ricerca avevano uno sfondo bianco fisso con testo che diventa chiaro in dark mode — invisibile. Corretto in tutti i punti trovati. Lasciati bianchi solo i pannelli firma e i QR code, che devono restarlo per motivi funzionali.
+
+**Restano aperti — non posso chiuderli io:**
+1. **Chiave `rk_live`:** Stripe non permette di ruotare o creare chiavi API via API, solo dalla Dashboard (a differenza del segreto webhook, per cui esiste un aggiramento). Vai su Dashboard → Developer → API keys, crea una nuova restricted key con gli stessi permessi, poi dammela o impostala tu con `npx convex env set --prod STRIPE_SECRET_KEY <nuova chiave>`. Dopo, revoca la vecchia.
+2. **`RESEND_WEBHOOK_SECRET`:** non ho accesso a Resend. Segui i passaggi che ti ho dato in precedenza (Dashboard Resend → Webhooks → Add Webhook) e mandami il valore, oppure impostalo tu direttamente.
+3. **Provare un vero upgrade/downgrade/disdetta** in produzione — richiede un addebito reale sulla tua carta, non lo eseguo senza una conferma specifica sull'importo.
+4. Decidere su `clients.subtitle` (slogan in inglese nel file italiano — voluto o svista?).
+5. Garanzia PDF e Fascicolo QR non ancora controllati per sovrapposizioni.
+6. Passata di limiti di lunghezza sui restanti campi `v.string()` esposti a form pubblici.
+7. Una vera scansione di accessibilità dal vivo (axe-core in un browser reale) per confermare o smentire il rapporto del 22/9.
+8. Test manuale della UI in almeno EN e una lingua non latina d'uso (NL) per la resa visiva delle traduzioni più lunghe.
+9. Onboarding tradotto (fatto in una sessione successiva) — verificare a video la resa nelle lingue diverse dall'italiano.
+10. Badge di priorità sulle schede Cantieri (`bg-gray-100`, `bg-blue-100`, ecc.) sono leggibili ma non seguono i colori del tema — solo un dettaglio estetico, non un bug di leggibilità.
 
 ## 8. Cosa NON posso verificare da qui
-Nessun accesso a Sentry, PostHog, alla Dashboard Stripe/Cloudflare, o a un browser con account di test reale per una prova pagamento end-to-end con conferma visiva. Questi controlli restano tuoi.
+Nessun accesso a Sentry, PostHog, alla Dashboard Stripe/Cloudflare/Resend, o a un browser con account di test reale per una prova pagamento end-to-end con conferma visiva. Questi controlli restano tuoi.
