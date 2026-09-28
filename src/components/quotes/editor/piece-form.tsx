@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { ACCESSORY_CATEGORY_LABELS, type AccessoryCategory } from "@/shared/configurator-model";
 import type { ProjectItem } from "@/shared/pricing";
@@ -27,6 +28,20 @@ export function PieceForm({ item, choices, locale, onPatch, onWidth, onHeight, o
   const acc = item.accessories ?? {};
   const setAcc = (patch: Partial<NonNullable<ProjectItem["accessories"]>>) => onPatch({ accessories: { ...acc, ...patch } });
   const anyAccessory = (["zanz", "cass", "avv", "pers"] as const).some((c) => acc[c] && acc[c] !== "none");
+
+  // The width/height override inputs below only make sense while the
+  // accessories <details> panel is open. Closing it (every category back to
+  // "none") can leave a stale out-of-range value behind in the now-hidden
+  // inputs; the browser's own constraint validation still tracks it as
+  // invalid, and a later form-wide submit that tries to auto-focus it logs
+  // "invalid form control ... is not focusable" since it's inside a closed
+  // <details>. Clear the overrides on close instead of leaving them dangling.
+  useEffect(() => {
+    if (!anyAccessory && (acc.width !== undefined || acc.height !== undefined)) {
+      setAcc({ width: undefined, height: undefined });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [anyAccessory]);
 
   const baseId = `piece-form-${item.width}-${item.height}-${item.material}`;
 
