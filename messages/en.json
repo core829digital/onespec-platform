@@ -390,7 +390,8 @@
       "autoInstallHint": "Installation, scaffold and disposal from the chosen frame and the number of leaves.",
       "draftRestored": "Draft restored: {count} pieces.",
       "discardDraft": "Discard and start over",
-      "draftSaved": "Draft saved automatically in this browser."
+      "draftSaved": "Draft saved automatically in this browser.",
+      "noPublishedCatalog": "No published catalog for this configurator — publish it to create quotes."
     },
     "list": {
       "kicker": "Field B2B Tool",

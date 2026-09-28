@@ -390,7 +390,8 @@
       "autoInstallHint": "Montage, Gerüst und Entsorgung nach gewähltem Rahmen und Flügelanzahl.",
       "draftRestored": "Entwurf wiederhergestellt: {count} Elemente.",
       "discardDraft": "Verwerfen und neu beginnen",
-      "draftSaved": "Entwurf wird automatisch in diesem Browser gespeichert."
+      "draftSaved": "Entwurf wird automatisch in diesem Browser gespeichert.",
+      "noPublishedCatalog": "Kein veröffentlichter Katalog für diesen Konfigurator — veröffentlichen Sie ihn, um Angebote zu erstellen."
     },
     "list": {
       "kicker": "B2B-Baustellen-Tool",

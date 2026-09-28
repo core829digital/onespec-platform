@@ -663,7 +663,9 @@ export default function NewFieldQuotePage() {
           <p className="text-[11px] text-[var(--color-text-secondary)]">
             {usingLiveCatalog
               ? t("pricesAligned")
-              : t("loadingCatalog")}
+              : publishedCatalog === undefined
+                ? t("loadingCatalog")
+                : t("noPublishedCatalog")}
           </p>
         </div>
       )}

@@ -390,7 +390,8 @@
       "autoInstallHint": "Montage, steiger en afvoer volgens het gekozen kozijn en het aantal vleugels.",
       "draftRestored": "Concept hersteld: {count} elementen.",
       "discardDraft": "Verwerpen en opnieuw beginnen",
-      "draftSaved": "Concept wordt automatisch in deze browser opgeslagen."
+      "draftSaved": "Concept wordt automatisch in deze browser opgeslagen.",
+      "noPublishedCatalog": "Geen gepubliceerde catalogus voor deze configurator — publiceer hem om offertes te kunnen maken."
     },
     "list": {
       "kicker": "B2B-werfhulpmiddel",

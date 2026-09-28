@@ -390,7 +390,8 @@
       "autoInstallHint": "Pose, échafaudage et dépose selon le cadre choisi et le nombre de vantaux.",
       "draftRestored": "Brouillon restauré : {count} pièces.",
       "discardDraft": "Abandonner et recommencer",
-      "draftSaved": "Brouillon enregistré automatiquement dans ce navigateur."
+      "draftSaved": "Brouillon enregistré automatiquement dans ce navigateur.",
+      "noPublishedCatalog": "Aucun catalogue publié pour ce configurateur — publiez-le pour créer des devis."
     },
     "list": {
       "kicker": "Outil B2B de chantier",

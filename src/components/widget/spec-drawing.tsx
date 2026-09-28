@@ -188,7 +188,7 @@ export function SpecDrawing({
 
     if (warn) {
       nodes.push(
-        <rect key={`warn-${i}`} x={sx + 1} y={rectY + 1} width={sashW - 2} height={rectH - 2} fill="none" stroke="#DC2626" strokeWidth={2} strokeDasharray="5 3" pointerEvents="none" />,
+        <rect key={`warn-${i}`} x={sx + 1} y={rectY + 1} width={Math.max(0, sashW - 2)} height={Math.max(0, rectH - 2)} fill="none" stroke="#DC2626" strokeWidth={2} strokeDasharray="5 3" pointerEvents="none" />,
         <circle key={`warnc-${i}`} cx={sx2 - 9} cy={rectY + 9} r={7} fill="#DC2626" pointerEvents="none" />,
         <text key={`warnt-${i}`} x={sx2 - 9} y={rectY + 12.5} textAnchor="middle" fontSize={9} fontWeight={800} fill="#FFFFFF" pointerEvents="none">
           !
@@ -196,7 +196,7 @@ export function SpecDrawing({
       );
     } else if (selected === i) {
       nodes.push(
-        <rect key={`sel-${i}`} x={sx + 2} y={rectY + 2} width={sashW - 4} height={rectH - 4} fill="none" stroke="#1E5F74" strokeWidth={2} strokeDasharray="4 3" pointerEvents="none" />,
+        <rect key={`sel-${i}`} x={sx + 2} y={rectY + 2} width={Math.max(0, sashW - 4)} height={Math.max(0, rectH - 4)} fill="none" stroke="#1E5F74" strokeWidth={2} strokeDasharray="4 3" pointerEvents="none" />,
       );
     }
 

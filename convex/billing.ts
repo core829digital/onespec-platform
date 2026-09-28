@@ -144,6 +144,7 @@ export const assertOwner = internalQuery({
       stripeCustomerId: tenant.stripeCustomerId,
       stripeSubscriptionId: tenant.stripeSubscriptionId ?? null,
       plan: tenant.plan,
+      planStatus: tenant.planStatus,
       slug: tenant.slug,
       country: tenant.country ?? null,
       trialStartedAt: tenant.trialStartedAt ?? null,
@@ -283,12 +284,17 @@ export const previewPlanChange = action({
     if (!priceId) throw new ConvexError("BILLING_PRICE_NOT_CONFIGURED");
 
     const itemId = await currentSubscriptionItemId(owner.stripeSubscriptionId);
+    // Any plan switch during a trial ends the trial immediately (see
+    // changePlan below) — preview it the same way, or the amount shown here
+    // (still trial-shielded) would understate what actually gets charged.
+    const endingTrial = owner.planStatus === "trialing";
     // GET /invoices/upcoming was removed by Stripe; create_preview replaces it.
     const preview = await stripe("/invoices/create_preview", {
       subscription: owner.stripeSubscriptionId,
       "subscription_details[items][0][id]": itemId,
       "subscription_details[items][0][price]": priceId,
       "subscription_details[proration_behavior]": "always_invoice",
+      ...(endingTrial ? { "subscription_details[trial_end]": "now" } : {}),
     });
     return {
       amountDueCents: Number(preview.amount_due ?? 0),
@@ -302,6 +308,16 @@ export const previewPlanChange = action({
  * always_invoice` makes Stripe charge exactly the price difference prorated
  * by the days remaining in the current period — never the new plan's full
  * price — and issues the invoice immediately.
+ *
+ * Trial abuse guard: only Pro carries a trial (entitlements.ts
+ * `trialEligible`). Without this, a tenant on a trialing Pro subscription
+ * could switch to Agency (or down to Base) mid-trial and keep the free ride
+ * for whatever's left of the 14 days — the item price changes, but nothing
+ * un-trials the subscription, so Stripe keeps billing nothing until the
+ * original trial_end. Any plan switch while trialing now ends the trial in
+ * the very same call (`trial_end: "now"`), so the new plan is billed for
+ * real, immediately — the person is warned of this exact amount beforehand
+ * via previewPlanChange, which mirrors this with the same flag.
  */
 export const changePlan = action({
   args: {
@@ -325,6 +341,7 @@ export const changePlan = action({
       "items[0][id]": itemId,
       "items[0][price]": priceId,
       proration_behavior: "always_invoice",
+      ...(owner.planStatus === "trialing" ? { trial_end: "now" } : {}),
       "metadata[plan]": args.plan,
       "metadata[cycle]": cycle,
     });

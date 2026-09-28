@@ -390,7 +390,8 @@
       "autoInstallHint": "Montaj, schelă și debarasare în funcție de tocul ales și numărul de canate.",
       "draftRestored": "Ciornă restaurată: {count} elemente.",
       "discardDraft": "Renunță și reia",
-      "draftSaved": "Ciorna este salvată automat în acest browser."
+      "draftSaved": "Ciorna este salvată automat în acest browser.",
+      "noPublishedCatalog": "Niciun catalog publicat pentru acest configurator — publică-l pentru a putea crea oferte."
     },
     "list": {
       "kicker": "Instrument B2B de șantier",

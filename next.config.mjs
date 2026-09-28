@@ -17,8 +17,13 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 // - Vercel Speed Insights injects /_vercel/... (same-origin) + va.vercel-scripts.com.
 const WIDGET_CSP = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://va.vercel-scripts.com",
-  "connect-src 'self' https://*.convex.cloud https://*.convex.site https://va.vercel-scripts.com https://vitals.vercel-insights.com",
+  "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://va.vercel-scripts.com https://us-assets.i.posthog.com",
+  // frame-src: the Turnstile challenge itself renders in an iframe, not just a
+  // script — without this, default-src's 'self' fallback blocks the iframe and
+  // Turnstile silently fails ("execute() on a widget that is already
+  // executing" / "Cannot find Widget" as it re-inits in a loop).
+  "frame-src https://challenges.cloudflare.com",
+  "connect-src 'self' https://*.convex.cloud https://*.convex.site https://va.vercel-scripts.com https://vitals.vercel-insights.com https://us.i.posthog.com https://us-assets.i.posthog.com",
   "img-src 'self' data: blob: https:",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",

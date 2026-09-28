@@ -73,7 +73,12 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
     onActiveChange(Math.max(0, Math.min(index, items.length - 2)));
   }
 
-  const issues = active ? pieceIssues(active, payload) : [];
+  // With no live published catalog (payload.materials empty — e.g. the
+  // configurator has nothing published yet, or its published snapshot was
+  // removed), every key trivially looks "unknown". That's not a real per-item
+  // issue; the parent page already blocks submission and shows a clear
+  // "no catalog" state, so skip the misleading per-field warnings here.
+  const issues = active && payload.materials.length > 0 ? pieceIssues(active, payload) : [];
   const thermal = active ? computeItemThermal(payload, active) : null;
   const sash = active && selectedSash !== null ? active.sashes[selectedSash] : undefined;
 

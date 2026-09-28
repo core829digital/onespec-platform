@@ -390,7 +390,8 @@
       "autoInstallHint": "Posa, ponteggio e smaltimento secondo il telaio scelto e il numero di ante.",
       "draftRestored": "Bozza ripristinata: {count} pezzi.",
       "discardDraft": "Scarta e ricomincia",
-      "draftSaved": "Bozza salvata automaticamente in questo browser."
+      "draftSaved": "Bozza salvata automaticamente in questo browser.",
+      "noPublishedCatalog": "Nessun catalogo pubblicato per questo configuratore — pubblicalo per poter creare preventivi."
     },
     "list": {
       "kicker": "Strumento B2B da Cantiere",
