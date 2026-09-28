@@ -1546,5 +1546,42 @@
       "statusInstalled": "Instalat",
       "received": "Primit pe"
     }
+  },
+  "configuratorSetup": {
+    "loading": "Se încarcă…",
+    "notFound": "Configuratorul nu a fost găsit.",
+    "backTo": "Înapoi la configuratoare",
+    "kicker": "Configurare ghidată",
+    "back": "Înapoi",
+    "next": "Următor",
+    "steps": {
+      "welcome": "Bun venit",
+      "general": "Setări",
+      "branding": "Branding",
+      "publish": "Publică"
+    },
+    "welcome": {
+      "title": "Configuratorul tău este gata de personalizat",
+      "body": "Am configurat deja totul cu valori implicite sensibile, așa că poți publica imediat și rafina ulterior.",
+      "catalogSeeded": "Catalog, materiale și prețuri deja precompletate",
+      "brandingSeeded": "Branding de bază deja setat",
+      "nextSteps": "În continuare poți personaliza numele, prețurile de bază și brandingul — sau poți sări direct la publicare."
+    },
+    "general": {
+      "intro": "Nume, piață și setări de preț de bază."
+    },
+    "branding": {
+      "intro": "Logo, culori și datele companiei afișate în widget."
+    },
+    "publish": {
+      "title": "Totul e pregătit",
+      "body": "Poți publica acum — widgetul va fi utilizabil imediat — sau poți continua personalizarea în editorul complet.",
+      "cta": "Publică acum",
+      "skip": "Mergi la editorul complet",
+      "doneTitle": "Configurator publicat",
+      "doneBody": "Configuratorul tău este live. Îl poți edita oricând — modificările rămân mereu live.",
+      "openEditor": "Deschide editorul complet",
+      "backToList": "Înapoi la configuratoare"
+    }
   }
 }

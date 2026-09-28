@@ -1546,5 +1546,42 @@
       "statusInstalled": "Installato",
       "received": "Ricevuto il"
     }
+  },
+  "configuratorSetup": {
+    "loading": "Caricamento…",
+    "notFound": "Configuratore non trovato.",
+    "backTo": "Torna ai configuratori",
+    "kicker": "Configurazione guidata",
+    "back": "Indietro",
+    "next": "Avanti",
+    "steps": {
+      "welcome": "Benvenuto",
+      "general": "Impostazioni",
+      "branding": "Branding",
+      "publish": "Pubblica"
+    },
+    "welcome": {
+      "title": "Il tuo configuratore è pronto per essere personalizzato",
+      "body": "Abbiamo già impostato tutto il necessario con valori di partenza sensati, così puoi pubblicare subito e affinare in seguito.",
+      "catalogSeeded": "Catalogo, materiali e prezzi già precompilati",
+      "brandingSeeded": "Branding di base già impostato",
+      "nextSteps": "Nei prossimi passi puoi personalizzare nome, prezzi base e marchio — oppure saltare direttamente alla pubblicazione."
+    },
+    "general": {
+      "intro": "Nome, mercato e impostazioni prezzo di base."
+    },
+    "branding": {
+      "intro": "Logo, colori e dati aziendali mostrati nel widget."
+    },
+    "publish": {
+      "title": "Tutto pronto",
+      "body": "Puoi pubblicare ora — il widget sarà subito utilizzabile — oppure continuare a personalizzare nell'editor completo.",
+      "cta": "Pubblica ora",
+      "skip": "Vai all'editor completo",
+      "doneTitle": "Configuratore pubblicato",
+      "doneBody": "Il tuo configuratore è live. Puoi continuare a modificarlo in qualsiasi momento: le modifiche restano sempre live.",
+      "openEditor": "Apri l'editor completo",
+      "backToList": "Torna ai configuratori"
+    }
   }
 }

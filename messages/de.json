@@ -1546,5 +1546,42 @@
       "statusInstalled": "Installiert",
       "received": "Erhalten am"
     }
+  },
+  "configuratorSetup": {
+    "loading": "Wird geladen…",
+    "notFound": "Konfigurator nicht gefunden.",
+    "backTo": "Zurück zu den Konfiguratoren",
+    "kicker": "Geführte Einrichtung",
+    "back": "Zurück",
+    "next": "Weiter",
+    "steps": {
+      "welcome": "Willkommen",
+      "general": "Einstellungen",
+      "branding": "Branding",
+      "publish": "Veröffentlichen"
+    },
+    "welcome": {
+      "title": "Ihr Konfigurator ist bereit zur Anpassung",
+      "body": "Wir haben bereits alles mit sinnvollen Standardwerten eingerichtet, sodass Sie sofort veröffentlichen und später verfeinern können.",
+      "catalogSeeded": "Katalog, Materialien und Preise bereits vorausgefüllt",
+      "brandingSeeded": "Basis-Branding bereits eingerichtet",
+      "nextSteps": "Als Nächstes können Sie Name, Basispreise und Branding anpassen — oder direkt zur Veröffentlichung springen."
+    },
+    "general": {
+      "intro": "Name, Markt und grundlegende Preiseinstellungen."
+    },
+    "branding": {
+      "intro": "Logo, Farben und Firmendaten, die im Widget angezeigt werden."
+    },
+    "publish": {
+      "title": "Alles bereit",
+      "body": "Sie können jetzt veröffentlichen — das Widget ist sofort nutzbar — oder im vollständigen Editor weiter anpassen.",
+      "cta": "Jetzt veröffentlichen",
+      "skip": "Zum vollständigen Editor",
+      "doneTitle": "Konfigurator veröffentlicht",
+      "doneBody": "Ihr Konfigurator ist live. Sie können ihn jederzeit weiter bearbeiten — Änderungen bleiben immer live.",
+      "openEditor": "Vollständigen Editor öffnen",
+      "backToList": "Zurück zu den Konfiguratoren"
+    }
   }
 }

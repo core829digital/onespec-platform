@@ -1546,5 +1546,42 @@
       "statusInstalled": "Geïnstalleerd",
       "received": "Ontvangen op"
     }
+  },
+  "configuratorSetup": {
+    "loading": "Laden…",
+    "notFound": "Configurator niet gevonden.",
+    "backTo": "Terug naar configurators",
+    "kicker": "Begeleide instelling",
+    "back": "Terug",
+    "next": "Volgende",
+    "steps": {
+      "welcome": "Welkom",
+      "general": "Instellingen",
+      "branding": "Branding",
+      "publish": "Publiceren"
+    },
+    "welcome": {
+      "title": "Je configurator is klaar om aan te passen",
+      "body": "We hebben al alles ingesteld met verstandige standaardwaarden, zodat je direct kunt publiceren en later kunt verfijnen.",
+      "catalogSeeded": "Catalogus, materialen en prijzen al ingevuld",
+      "brandingSeeded": "Basisbranding al ingesteld",
+      "nextSteps": "Hierna kun je de naam, basisprijzen en branding aanpassen — of direct doorgaan naar publiceren."
+    },
+    "general": {
+      "intro": "Naam, markt en basisprijsinstellingen."
+    },
+    "branding": {
+      "intro": "Logo, kleuren en bedrijfsgegevens die in de widget worden getoond."
+    },
+    "publish": {
+      "title": "Alles klaar",
+      "body": "Je kunt nu publiceren — de widget is direct bruikbaar — of verder aanpassen in de volledige editor.",
+      "cta": "Nu publiceren",
+      "skip": "Ga naar de volledige editor",
+      "doneTitle": "Configurator gepubliceerd",
+      "doneBody": "Je configurator is live. Je kunt hem op elk moment blijven bewerken — wijzigingen blijven altijd live.",
+      "openEditor": "Open de volledige editor",
+      "backToList": "Terug naar configurators"
+    }
   }
 }

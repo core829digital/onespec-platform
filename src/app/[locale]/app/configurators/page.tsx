@@ -4,7 +4,7 @@ import { useState } from "react";
 import posthog from "posthog-js";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -20,6 +20,7 @@ const STATUS_KEY: Record<string, "statusDraft" | "statusPublished" | "statusArch
 export default function ConfiguratorsPage() {
   const t = useTranslations("configurators");
   const tf = useFriendlyError();
+  const router = useRouter();
   const tenant = useQuery(api.tenants.getMyTenant);
   const configurators = useQuery(
     api.configurators.listConfigurators,
@@ -61,6 +62,12 @@ export default function ConfiguratorsPage() {
         source: "configurator_list",
       });
       setName("");
+      // New configurator: send to the guided setup instead of leaving them on
+      // the list — it already has a seeded catalog + branding, so this is
+      // orientation, not a blocking requirement (the full editor is one link
+      // away from every step).
+      router.push(`/app/configurators/${configuratorId}/setup`);
+      return;
     } catch (err) {
       posthog.captureException(err);
       setError(tf(err));
