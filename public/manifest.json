@@ -1,7 +1,7 @@
 {
-  "name": "onespec — Configuratore Infissi",
+  "name": "onespec — Gestionale per installatori infissi",
   "short_name": "onespec",
-  "description": "Widget di configurazione infissi integrabile via iframe: preventivi automatici, prezzi sempre aggiornati, brandizzabile per la tua azienda.",
+  "description": "Gestionale per installatori e rivenditori di infissi: preventivi, cantieri, clienti, logistica e configuratore prodotto in un'unica piattaforma.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0a0f0d",
