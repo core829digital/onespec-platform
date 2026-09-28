@@ -173,6 +173,28 @@ export async function enforceTeamMemberQuota(ctx: ReadCtx, tenantId: Id<"tenants
   assertQuota(count, ent.maxTeamMembers, "TEAM_QUOTA_EXCEEDED");
 }
 
+export async function enforceLogisticsSupplierQuota(ctx: ReadCtx, tenantId: Id<"tenants">): Promise<void> {
+  const { ent } = await getTenantWithEntitlements(ctx, tenantId);
+  if (!Number.isFinite(ent.maxLogisticsSuppliers)) return;
+  const count = await ctx.db
+    .query("logisticsSuppliers")
+    .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
+    .collect()
+    .then((arr) => arr.length);
+  assertQuota(count, ent.maxLogisticsSuppliers, "LOGISTICS_SUPPLIER_QUOTA_EXCEEDED");
+}
+
+export async function enforceCarrierQuota(ctx: ReadCtx, tenantId: Id<"tenants">): Promise<void> {
+  const { ent } = await getTenantWithEntitlements(ctx, tenantId);
+  if (!Number.isFinite(ent.maxCarriers)) return;
+  const count = await ctx.db
+    .query("carriers")
+    .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId))
+    .collect()
+    .then((arr) => arr.length);
+  assertQuota(count, ent.maxCarriers, "CARRIER_QUOTA_EXCEEDED");
+}
+
 /** --- Suspended / plan status gate --- */
 
 export async function enforceActivePlan(ctx: MutationCtx | QueryCtx, tenantId: Id<"tenants">): Promise<void> {

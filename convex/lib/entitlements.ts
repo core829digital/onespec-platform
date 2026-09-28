@@ -79,6 +79,10 @@ export interface Entitlements {
   selfServeCheckout: boolean;
   /** Eligible for the 14-day Pro trial. */
   trialEligible: boolean;
+  /** Logistics module: delivery suppliers a tenant may register. `Infinity` = unlimited. */
+  maxLogisticsSuppliers: number;
+  /** Logistics module: carriers a tenant may register. `Infinity` = unlimited. */
+  maxCarriers: number;
 }
 
 const BASE: Entitlements = {
@@ -109,6 +113,8 @@ const BASE: Entitlements = {
   annualBilling: true,
   selfServeCheckout: true,
   trialEligible: false,
+  maxLogisticsSuppliers: 1,
+  maxCarriers: 1,
 };
 
 const PRO: Entitlements = {
@@ -116,6 +122,8 @@ const PRO: Entitlements = {
   maxConfigurators: 3,
   maxQuotesPerMonth: Infinity,
   maxTeamMembers: 5,
+  maxLogisticsSuppliers: 3,
+  maxCarriers: 3,
   whiteLabel: true,
   advancedPricingRules: true,
   multiCatalog: true,
@@ -144,12 +152,16 @@ const AGENCY: Entitlements = {
   showroomCalculator: true,
   support: "dedicated",
   annualBilling: false,
+  maxLogisticsSuppliers: 10,
+  maxCarriers: 10,
 };
 
 const ENTERPRISE: Entitlements = {
   ...AGENCY,
   maxConfigurators: Infinity,
   maxTeamMembers: Infinity,
+  maxLogisticsSuppliers: Infinity,
+  maxCarriers: Infinity,
   customDomain: true,
   apiAccess: true,
   gaebExport: true,
@@ -187,6 +199,8 @@ const FULL_ACCESS: Entitlements = {
   annualBilling: true,
   selfServeCheckout: true,
   trialEligible: false,
+  maxLogisticsSuppliers: Infinity,
+  maxCarriers: Infinity,
 };
 
 const PLAN_ENTITLEMENTS: Record<PlanKey, Entitlements> = {

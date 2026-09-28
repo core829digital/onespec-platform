@@ -82,6 +82,8 @@ export const PERMISSIONS = {
   "quotes.manage": { minRole: "admin" },
   "surveys.use": { minRole: "member" },
   "surveys.delete": { minRole: "admin" },
+  "logistics.use": { minRole: "member" },
+  "logistics.manage": { minRole: "admin" },
 } satisfies Record<string, PermissionSpec>;
 
 export type PermissionKey = keyof typeof PERMISSIONS;

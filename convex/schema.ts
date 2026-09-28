@@ -937,4 +937,83 @@ export default defineSchema({
     .index("by_cantiere", ["cantiereId"])
     .index("by_tenant", ["tenantId"])
     .index("by_assignee", ["userId"]),
+
+  /* ---------------------------------------------------------------------- */
+  /*  Logistics + inventory — physical goods delivery, not to be confused    */
+  /*  with `catalogSuppliers` (pricing sources for quote line items).        */
+  /* ---------------------------------------------------------------------- */
+
+  /** Delivery suppliers: who ships physical goods to the installer's site. */
+  logisticsSuppliers: defineTable({
+    tenantId: v.id("tenants"),
+    name: v.string(),
+    contactName: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    email: v.optional(v.string()),
+    address: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_tenant", ["tenantId"]),
+
+  carriers: defineTable({
+    tenantId: v.id("tenants"),
+    name: v.string(),
+    contactName: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    email: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_tenant", ["tenantId"]),
+
+  /** One scheduled/tracked shipment. The calendar reads this by scheduledDate. */
+  deliveries: defineTable({
+    tenantId: v.id("tenants"),
+    supplierId: v.id("logisticsSuppliers"),
+    carrierId: v.optional(v.id("carriers")),
+    /** The factory/supplier's dedicated driver for this delivery — not a platform user. */
+    driverName: v.optional(v.string()),
+    driverPhone: v.optional(v.string()),
+    scheduledDate: v.number(),
+    status: v.union(
+      v.literal("scheduled"),
+      v.literal("in_transit"),
+      v.literal("received"),
+      v.literal("cancelled"),
+    ),
+    cantiereId: v.optional(v.id("cantieri")),
+    quoteId: v.optional(v.id("quoteRequests")),
+    notes: v.optional(v.string()),
+    /** Free-text list of what's expected — becomes the default inventory item labels on receipt. */
+    expectedItems: v.optional(v.array(v.string())),
+    receivedAt: v.optional(v.number()),
+    receivedByUserId: v.optional(v.id("users")),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_tenant_date", ["tenantId", "scheduledDate"])
+    .index("by_supplier", ["supplierId"])
+    .index("by_cantiere", ["cantiereId"]),
+
+  /** Warehouse stock. Created piece-by-piece when a delivery is marked "received". */
+  inventoryItems: defineTable({
+    tenantId: v.id("tenants"),
+    deliveryId: v.optional(v.id("deliveries")),
+    label: v.string(),
+    category: v.optional(v.string()),
+    quantity: v.number(),
+    unit: v.string(),
+    cantiereId: v.optional(v.id("cantieri")),
+    status: v.union(v.literal("in_stock"), v.literal("assigned"), v.literal("installed")),
+    receivedAt: v.number(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_delivery", ["deliveryId"])
+    .index("by_cantiere", ["cantiereId"]),
 });
