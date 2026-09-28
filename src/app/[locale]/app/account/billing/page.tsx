@@ -114,8 +114,22 @@ export default function BillingPage() {
     setErr("");
     try {
       const preview = await previewPlanChange({ tenantId: tenant!._id, plan, cycle });
-      const amount = `€${(preview.amountDueCents / 100).toLocaleString(locale, { minimumFractionDigits: 2 })}`;
-      if (!(await requestConfirm(t("upgrade.confirmCharge", { amount })))) {
+      const cents = preview.amountDueCents;
+      const amount = `€${(Math.abs(cents) / 100).toLocaleString(locale, { minimumFractionDigits: 2 })}`;
+      // Three distinct cases, each needing its own wording — a single
+      // "will charge the prorated difference" message was wrong for two of
+      // them: (1) ending a trial has nothing prior to prorate against, so
+      // Stripe charges the new plan's full price, not a small delta; (2) a
+      // paid-to-paid downgrade mid-period can legitimately net to a CREDIT
+      // (negative amount_due) rather than a charge.
+      const confirmMsg = preview.endsTrial
+        ? t("upgrade.confirmChargeEndsTrial", { amount })
+        : cents > 0
+          ? t("upgrade.confirmCharge", { amount })
+          : cents < 0
+            ? t("upgrade.confirmCredit", { amount })
+            : t("upgrade.confirmNoCharge");
+      if (!(await requestConfirm(confirmMsg))) {
         setBusy(false);
         return;
       }
@@ -168,6 +182,22 @@ export default function BillingPage() {
           {t("status")} {state.planStatus}
         </p>
       </div>
+      {state.trial ? (
+        <div
+          role="status"
+          className="rounded-xl border border-[var(--color-mint)]/40 bg-[var(--color-mint)]/10 p-4 text-sm"
+        >
+          <p className="font-semibold text-[var(--color-text)]">
+            {t("trial.daysRemaining", { days: state.trial.daysRemaining })}
+          </p>
+          <p className="mt-1 text-[var(--color-text-secondary)]">
+            {t("trial.detail", {
+              elapsed: state.trial.daysElapsed,
+              date: new Date(state.trial.endsAt).toLocaleDateString(locale),
+            })}
+          </p>
+        </div>
+      ) : null}
       {err ? <p className="text-sm text-[var(--color-danger)]">{err}</p> : null}
       {checkoutStatus === "success" ? (
         <div role="status" className="rounded-xl border border-[var(--color-mint)]/40 bg-[var(--color-mint)]/10 p-4">

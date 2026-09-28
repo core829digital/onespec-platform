@@ -100,6 +100,9 @@ function CalendarTab({ tenantId, onError }: { tenantId: Id<"tenants">; onError: 
   const [month, setMonth] = useState(() => startOfMonth(new Date()));
   const [selectedDay, setSelectedDay] = useState<Date | null>(null);
   const [formOpen, setFormOpen] = useState(false);
+  // Read once per mount (lazy initializer), not inline in the render body —
+  // Date.now() there is an impure call the React Compiler flags as an error.
+  const [now] = useState(() => Date.now());
   const [busy, setBusy] = useState(false);
 
   const from = month.getTime();
@@ -200,7 +203,7 @@ function CalendarTab({ tenantId, onError }: { tenantId: Id<"tenants">; onError: 
             const dayDeliveries = byDay.get(key) ?? [];
             const inMonth = d.getMonth() === month.getMonth();
             const isSelected = selectedDay && sameDay(key, selectedDay);
-            const isToday = sameDay(Date.now(), d);
+            const isToday = sameDay(now, d);
             return (
               <button
                 key={i}
@@ -327,7 +330,6 @@ function NewDeliveryModal({
   }) => void;
 }) {
   const t = useTranslations("logistics.calendar");
-  const tc = useTranslations("common");
   const [supplierId, setSupplierId] = useState<string>(suppliers[0]._id);
   const [carrierId, setCarrierId] = useState<string>("");
   const [driverName, setDriverName] = useState("");

@@ -478,7 +478,10 @@
       "invoicesHint": "Le fatture compariranno qui non appena l'abbonamento sarà attivo; potrai scaricarle e gestire il metodo di pagamento."
     },
     "upgrade": {
-      "confirmCharge": "Verrà addebitata solo la differenza prorata: {amount}. Confermi il cambio piano?"
+      "confirmCharge": "Verrà addebitata solo la differenza prorata: {amount}. Confermi il cambio piano?",
+      "confirmChargeEndsTrial": "Questo termina subito la prova gratuita: verrà addebitato il prezzo pieno del nuovo piano, {amount}, non una differenza prorata. Confermi?",
+      "confirmCredit": "Il cambio piano genera un credito di {amount}, applicato al prossimo rinnovo. Confermi il cambio piano?",
+      "confirmNoCharge": "Nessun addebito per questo cambio piano. Confermi?"
     },
     "checkout": {
       "welcomeTitle": "Benvenuto nel piano {plan}!",
@@ -539,6 +542,10 @@
       "downgradeTitle": "Downgrade completato: ora sei su {plan}",
       "downgradeBody": "Il piano è stato aggiornato con successo. I limiti del nuovo piano sono già in vigore.",
       "close": "Ho capito"
+    },
+    "trial": {
+      "daysRemaining": "{days, plural, =0 {Ultimo giorno di prova} one {# giorno di prova rimasto} other {# giorni di prova rimasti}}",
+      "detail": "{elapsed} giorni trascorsi · la prova termina il {date}"
     }
   },
   "clients": {

@@ -94,9 +94,12 @@ export const selectPlan = mutation({
     if (process.env.STRIPE_SECRET_KEY) {
       throw new ConvexError("BILLING_LIVE_USE_CHECKOUT");
     }
+    // Only Pro carries a trial (entitlements.ts trialEligible) — matches the
+    // same invariant billing.ts's subscriptionPatch enforces once Stripe is
+    // live: "trialing" only ever applies to plan "pro".
     await ctx.db.patch(found.tenant._id, {
       plan: args.plan,
-      planStatus: "trialing",
+      planStatus: args.plan === "pro" ? "trialing" : "active",
       onboardingStep: "team",
       updatedAt: Date.now(),
     });

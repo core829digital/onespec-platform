@@ -478,7 +478,10 @@
       "invoicesHint": "Les factures apparaîtront ici dès que votre abonnement sera actif ; vous pourrez les télécharger et gérer votre moyen de paiement."
     },
     "upgrade": {
-      "confirmCharge": "Seule la différence proratisée sera facturée : {amount}. Confirmer le changement de forfait ?"
+      "confirmCharge": "Seule la différence proratisée sera facturée : {amount}. Confirmer le changement de forfait ?",
+      "confirmChargeEndsTrial": "Cela met fin immédiatement à votre essai gratuit : le prix plein du nouveau plan, {amount}, sera facturé, pas une différence proratisée. Confirmer ?",
+      "confirmCredit": "Ce changement de plan génère un crédit de {amount}, appliqué au prochain renouvellement. Confirmer le changement de plan ?",
+      "confirmNoCharge": "Aucun frais pour ce changement de plan. Confirmer ?"
     },
     "checkout": {
       "welcomeTitle": "Bienvenue dans le plan {plan} !",
@@ -539,6 +542,10 @@
       "downgradeTitle": "Rétrogradation terminée : vous êtes sur {plan}",
       "downgradeBody": "Votre plan a été mis à jour. Les limites du nouveau plan s'appliquent désormais.",
       "close": "Compris"
+    },
+    "trial": {
+      "daysRemaining": "{days, plural, =0 {Dernier jour d'essai} one {# jour d'essai restant} other {# jours d'essai restants}}",
+      "detail": "{elapsed} jours écoulés · l'essai se termine le {date}"
     }
   },
   "clients": {

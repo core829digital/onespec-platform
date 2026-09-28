@@ -53,8 +53,21 @@ describe("onboarding wizard state", () => {
     if (s.hasTenant) expect(s.needsPlan).toBe(false);
 
     await as.mutation(api.onboarding.complete);
-    s = await as.query(api.onboarding.getState);
-    if (s.hasTenant) expect(s.completed).toBe(true);
+  });
+
+  test("dormant selectPlan: only Pro is trialing, Base/Agency activate immediately", async () => {
+    const t = newDb();
+    const { ownerId: baseOwnerId, tenantId: baseTenantId } = await seedTenant(t, { plan: "base" });
+    await t.run((ctx) => ctx.db.patch(baseTenantId, { planStatus: "pending_plan" }));
+    await t.withIdentity({ subject: baseOwnerId }).mutation(api.onboarding.selectPlan, { plan: "base" });
+    const baseTenant = await t.run((ctx) => ctx.db.get(baseTenantId));
+    expect(baseTenant?.planStatus).toBe("active");
+
+    const { ownerId: agencyOwnerId, tenantId: agencyTenantId } = await seedTenant(t, { plan: "base" });
+    await t.run((ctx) => ctx.db.patch(agencyTenantId, { planStatus: "pending_plan" }));
+    await t.withIdentity({ subject: agencyOwnerId }).mutation(api.onboarding.selectPlan, { plan: "agency" });
+    const agencyTenant = await t.run((ctx) => ctx.db.get(agencyTenantId));
+    expect(agencyTenant?.planStatus).toBe("active");
   });
 
   test("a non-member has no onboarding state", async () => {

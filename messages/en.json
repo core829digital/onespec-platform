@@ -478,7 +478,10 @@
       "invoicesHint": "Invoices will appear here once your subscription is active; you will be able to download them and manage your payment method."
     },
     "upgrade": {
-      "confirmCharge": "You'll be charged only the prorated difference: {amount}. Confirm the plan change?"
+      "confirmCharge": "You'll be charged only the prorated difference: {amount}. Confirm the plan change?",
+      "confirmChargeEndsTrial": "This ends your free trial right away: you will be charged the new plan's full price, {amount}, not a prorated difference. Confirm?",
+      "confirmCredit": "This plan change creates a {amount} credit, applied at your next renewal. Confirm the plan change?",
+      "confirmNoCharge": "No charge for this plan change. Confirm?"
     },
     "checkout": {
       "welcomeTitle": "Welcome to the {plan} plan!",
@@ -539,6 +542,10 @@
       "downgradeTitle": "Downgrade complete: you're now on {plan}",
       "downgradeBody": "Your plan was updated successfully. The new plan's limits now apply.",
       "close": "Got it"
+    },
+    "trial": {
+      "daysRemaining": "{days, plural, =0 {Last day of trial} one {# trial day left} other {# trial days left}}",
+      "detail": "{elapsed} days elapsed · trial ends on {date}"
     }
   },
   "clients": {

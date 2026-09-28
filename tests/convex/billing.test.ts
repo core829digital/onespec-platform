@@ -270,6 +270,26 @@ describe("subscription -> plan mapping (real Stripe shapes)", () => {
     });
   });
 
+  test("invariant: trialing always forces plan=pro, even if the price maps to a different plan", () => {
+    process.env.STRIPE_PRICE_PRO_MONTHLY = "price_pro_m";
+    process.env.STRIPE_PRICE_AGENCY_MONTHLY = "price_agency_m";
+    // e.g. a trialing tenant that switched plan through a path other than
+    // changePlan (which itself ends the trial) — the price now maps to
+    // Agency, but the subscription is still reporting "trialing".
+    const patch = subscriptionPatch(
+      {
+        id: "sub_2",
+        status: "trialing",
+        trial_end: 1791658231,
+        items: { data: [{ price: { id: "price_agency_m" } }] },
+        metadata: { plan: "agency", cycle: "monthly" },
+      },
+      null,
+    );
+    expect(patch.plan).toBe("pro");
+    expect(patch.planStatus).toBe("trialing");
+  });
+
   test("unrecognised price falls back to the plan stamped in metadata; deleted => suspended", () => {
     process.env.STRIPE_PRICE_PRO_MONTHLY = "price_pro_m";
     const patch = subscriptionPatch(

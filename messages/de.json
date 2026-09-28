@@ -478,7 +478,10 @@
       "invoicesHint": "Rechnungen erscheinen hier, sobald Ihr Abonnement aktiv ist; Sie können sie herunterladen und Ihre Zahlungsmethode verwalten."
     },
     "upgrade": {
-      "confirmCharge": "Es wird nur die anteilige Differenz berechnet: {amount}. Planwechsel bestätigen?"
+      "confirmCharge": "Es wird nur die anteilige Differenz berechnet: {amount}. Planwechsel bestätigen?",
+      "confirmChargeEndsTrial": "Dies beendet Ihre kostenlose Testphase sofort: Es wird der volle Preis des neuen Plans berechnet, {amount}, keine anteilige Differenz. Bestätigen?",
+      "confirmCredit": "Dieser Planwechsel erzeugt ein Guthaben von {amount}, das bei der nächsten Verlängerung angerechnet wird. Planwechsel bestätigen?",
+      "confirmNoCharge": "Keine Kosten für diesen Planwechsel. Bestätigen?"
     },
     "checkout": {
       "welcomeTitle": "Willkommen im Plan {plan}!",
@@ -539,6 +542,10 @@
       "downgradeTitle": "Downgrade abgeschlossen: Sie nutzen jetzt {plan}",
       "downgradeBody": "Ihr Plan wurde erfolgreich aktualisiert. Die Limits des neuen Plans gelten jetzt.",
       "close": "Verstanden"
+    },
+    "trial": {
+      "daysRemaining": "{days, plural, =0 {Letzter Testtag} one {# Testtag übrig} other {# Testtage übrig}}",
+      "detail": "{elapsed} Tage vergangen · Testphase endet am {date}"
     }
   },
   "clients": {

@@ -12,7 +12,6 @@ import { mutation, query } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
 import { requirePermission } from "./lib/rbac";
 import { enforceLogisticsSupplierQuota, enforceCarrierQuota } from "./lib/enforcement";
-import type { Id } from "./_generated/dataModel";
 
 const NAME_MAX = 200;
 const CONTACT_MAX = 120;

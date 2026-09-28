@@ -120,6 +120,20 @@ export const getBillingState = query({
             cancelAtPeriodEnd: tenant.subscriptionCancelAtPeriodEnd ?? false,
           }
         : null,
+      // Only Pro carries a trial (entitlements.ts trialEligible) — enforced
+      // server-side in subscriptionPatch below, so planStatus === "trialing"
+      // implies plan === "pro" by construction. Exposed separately from
+      // `subscription` since a trial can be in flight before Stripe reports
+      // a period end.
+      trial:
+        tenant.planStatus === "trialing" && tenant.trialStartedAt && tenant.trialEndsAt
+          ? {
+              startedAt: tenant.trialStartedAt,
+              endsAt: tenant.trialEndsAt,
+              daysElapsed: Math.max(0, Math.floor((Date.now() - tenant.trialStartedAt) / 86_400_000)),
+              daysRemaining: Math.max(0, Math.ceil((tenant.trialEndsAt - Date.now()) / 86_400_000)),
+            }
+          : null,
       checkoutAvailable: configured,
       portalAvailable: configured && !!tenant.stripeCustomerId,
       plans: BILLING_PLANS.map((p) => ({
@@ -272,7 +286,10 @@ export const previewPlanChange = action({
     plan: v.union(v.literal("base"), v.literal("pro"), v.literal("agency")),
     cycle: v.optional(v.union(v.literal("monthly"), v.literal("annual"))),
   },
-  handler: async (ctx, args): Promise<{ amountDueCents: number; currency: string }> => {
+  handler: async (
+    ctx,
+    args,
+  ): Promise<{ amountDueCents: number; currency: string; endsTrial: boolean }> => {
     if (!stripeKey()) throw new ConvexError("BILLING_NOT_CONFIGURED");
     const owner = await ctx.runQuery(internal.billing.assertOwner, { tenantId: args.tenantId });
     await limitBilling(ctx, args.tenantId, "preview");
@@ -299,6 +316,11 @@ export const previewPlanChange = action({
     return {
       amountDueCents: Number(preview.amount_due ?? 0),
       currency: String(preview.currency ?? "eur").toUpperCase(),
+      // Whoever renders this must NOT call it a "prorated difference" when
+      // true: ending a trial means nothing was ever invoiced yet, so there is
+      // no prior payment to prorate against — Stripe charges the new plan's
+      // full price (see the amount above), not a partial delta.
+      endsTrial: endingTrial,
     };
   },
 });
@@ -547,6 +569,16 @@ export function subscriptionPatch(
     if (meta.cycle === "monthly" || meta.cycle === "annual") patch.billingCycle = meta.cycle;
   }
   if (deleted) patch.planStatus = "suspended";
+
+  // Invariant: only Pro carries a trial (entitlements.ts trialEligible).
+  // changePlan ends the trial the instant a trialing tenant switches plan
+  // (see changePlan above), but this is the backstop for anything that
+  // reaches this function another way (a manual Dashboard price change on a
+  // still-trialing subscription, a future code path, replaying an old
+  // webhook) — Stripe reporting "trialing" always means plan "pro" here,
+  // regardless of what price the subscription is actually attached to.
+  if (patch.planStatus === "trialing") patch.plan = "pro";
+
   return patch;
 }
 

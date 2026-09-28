@@ -478,7 +478,10 @@
       "invoicesHint": "Facturile vor apărea aici odată ce abonamentul este activ; le vei putea descărca și îți vei putea gestiona metoda de plată."
     },
     "upgrade": {
-      "confirmCharge": "Vei fi taxat doar cu diferența proporțională: {amount}. Confirmi schimbarea planului?"
+      "confirmCharge": "Vei fi taxat doar cu diferența proporțională: {amount}. Confirmi schimbarea planului?",
+      "confirmChargeEndsTrial": "Aceasta încheie imediat perioada de probă gratuită: vei fi taxat cu prețul integral al noului plan, {amount}, nu o diferență proporțională. Confirmi?",
+      "confirmCredit": "Această schimbare de plan generează un credit de {amount}, aplicat la următoarea reînnoire. Confirmi schimbarea de plan?",
+      "confirmNoCharge": "Nicio taxă pentru această schimbare de plan. Confirmi?"
     },
     "checkout": {
       "welcomeTitle": "Bun venit în planul {plan}!",
@@ -539,6 +542,10 @@
       "downgradeTitle": "Downgrade finalizat: ești acum pe {plan}",
       "downgradeBody": "Planul a fost actualizat cu succes. Limitele noului plan sunt acum în vigoare.",
       "close": "Am înțeles"
+    },
+    "trial": {
+      "daysRemaining": "{days, plural, =0 {Ultima zi de probă} one {# zi de probă rămasă} other {# zile de probă rămase}}",
+      "detail": "{elapsed} zile trecute · perioada de probă se încheie pe {date}"
     }
   },
   "clients": {

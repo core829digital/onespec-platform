@@ -478,7 +478,10 @@
       "invoicesHint": "Facturen verschijnen hier zodra je abonnement actief is; je kunt ze downloaden en je betaalmethode beheren."
     },
     "upgrade": {
-      "confirmCharge": "Er wordt alleen het naar rato verschil in rekening gebracht: {amount}. Planwijziging bevestigen?"
+      "confirmCharge": "Er wordt alleen het naar rato verschil in rekening gebracht: {amount}. Planwijziging bevestigen?",
+      "confirmChargeEndsTrial": "Dit beëindigt je gratis proefperiode direct: de volledige prijs van het nieuwe abonnement, {amount}, wordt in rekening gebracht, geen verrekend verschil. Bevestigen?",
+      "confirmCredit": "Deze wijziging levert een tegoed van {amount} op, verrekend bij de volgende verlenging. Abonnementswijziging bevestigen?",
+      "confirmNoCharge": "Geen kosten voor deze abonnementswijziging. Bevestigen?"
     },
     "checkout": {
       "welcomeTitle": "Welkom bij het {plan}-abonnement!",
@@ -539,6 +542,10 @@
       "downgradeTitle": "Downgrade voltooid: je zit nu op {plan}",
       "downgradeBody": "Je abonnement is bijgewerkt. De limieten van het nieuwe abonnement gelden nu.",
       "close": "Begrepen"
+    },
+    "trial": {
+      "daysRemaining": "{days, plural, =0 {Laatste proefdag} one {# proefdag over} other {# proefdagen over}}",
+      "detail": "{elapsed} dagen verstreken · proefperiode eindigt op {date}"
     }
   },
   "clients": {

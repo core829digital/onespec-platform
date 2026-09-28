@@ -106,3 +106,33 @@ export const wipeAll = internalAction({
     return deleted;
   },
 });
+
+/**
+ * One-off migration (2026-09-28): the trialing-plan invariant fix
+ * (`subscriptionPatch` in billing.ts) forces `plan: "pro"` whenever
+ * `planStatus === "trialing"` going forward, but it does not retroactively
+ * fix tenants already drifted before the fix shipped. This corrects the one
+ * known pre-existing case (a tenant on Agency while trialing — should only
+ * ever be possible on Pro) without touching `trialStartedAt`/`trialEndsAt`,
+ * so the tenant keeps its original trial clock instead of getting a free
+ * reset. Run once via `npx convex run --prod adminCleanup:fixDriftedTrialPlan
+ * '{"tenantId":"..."}'`, then leave in place as a record of the fix (never
+ * exposed to the client).
+ */
+export const fixDriftedTrialPlan = internalMutation({
+  args: { tenantId: v.id("tenants") },
+  handler: async (ctx, args): Promise<{ before: unknown; after: unknown }> => {
+    const tenant = await ctx.db.get(args.tenantId);
+    if (!tenant) throw new Error("Tenant not found");
+    if (tenant.planStatus !== "trialing") {
+      throw new Error(`Tenant is not trialing (planStatus=${tenant.planStatus}); refusing to touch it`);
+    }
+    if (tenant.plan === "pro") {
+      throw new Error("Tenant is already on Pro; nothing to fix");
+    }
+    const before = { plan: tenant.plan, planStatus: tenant.planStatus };
+    await ctx.db.patch(args.tenantId, { plan: "pro", updatedAt: Date.now() });
+    const after = await ctx.db.get(args.tenantId);
+    return { before, after: after ? { plan: after.plan, planStatus: after.planStatus } : null };
+  },
+});
