@@ -62,6 +62,7 @@ import type * as lib_regions from "../lib/regions.js";
 import type * as lib_triggers from "../lib/triggers.js";
 import type * as lib_turnstile from "../lib/turnstile.js";
 import type * as lib_webhookIp from "../lib/webhookIp.js";
+import type * as logistics from "../logistics.js";
 import type * as migrations from "../migrations.js";
 import type * as notifications from "../notifications.js";
 import type * as onboarding from "../onboarding.js";
@@ -136,6 +137,7 @@ declare const fullApi: ApiFromModules<{
   "lib/triggers": typeof lib_triggers;
   "lib/turnstile": typeof lib_turnstile;
   "lib/webhookIp": typeof lib_webhookIp;
+  logistics: typeof logistics;
   migrations: typeof migrations;
   notifications: typeof notifications;
   onboarding: typeof onboarding;
