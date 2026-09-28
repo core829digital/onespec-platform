@@ -220,14 +220,14 @@ export function ComplianceCertPDF({
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
-          <View>
+          <View style={{ flex: 1, paddingRight: 16 }}>
             <Text style={styles.company}>{tenant.name}</Text>
             {tenant.address && <Text style={styles.subtitle}>{tenant.address}</Text>}
             {tenant.vatId && <Text style={styles.subtitle}>P.IVA: {tenant.vatId}</Text>}
             {tenant.phone && <Text style={styles.subtitle}>Tel: {tenant.phone}</Text>}
             {tenant.email && <Text style={styles.subtitle}>Email: {tenant.email}</Text>}
           </View>
-          <View style={{ textAlign: "right" }}>
+          <View style={{ textAlign: "right", width: 180 }}>
             <View style={[styles.badge, { backgroundColor: resultColors[compliance.overallResult].bg, color: resultColors[compliance.overallResult].fg }]}>
               <Text>{resultLabels[compliance.overallResult]}</Text>
             </View>
