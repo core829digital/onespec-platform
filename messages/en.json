@@ -1590,5 +1590,21 @@
       "openEditor": "Open the full editor",
       "backToList": "Back to configurators"
     }
+  },
+  "setupGuide": {
+    "title": "Getting started",
+    "allDoneTitle": "Setup complete",
+    "allDoneBody": "You've completed every setup step. Nice work!",
+    "close": "Close",
+    "hide": "Hide guide",
+    "steps": {
+      "configurator": "Create your first configurator",
+      "branding": "Customize logo and colors",
+      "catalog": "Publish your catalog",
+      "client": "Add your first client",
+      "cantiere": "Create your first project",
+      "team": "Invite a teammate",
+      "billing": "Set up billing"
+    }
   }
 }

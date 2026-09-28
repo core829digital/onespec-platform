@@ -1590,5 +1590,21 @@
       "openEditor": "Vollständigen Editor öffnen",
       "backToList": "Zurück zu den Konfiguratoren"
     }
+  },
+  "setupGuide": {
+    "title": "Erste Schritte",
+    "allDoneTitle": "Einrichtung abgeschlossen",
+    "allDoneBody": "Du hast alle Einrichtungsschritte abgeschlossen. Gut gemacht!",
+    "close": "Schließen",
+    "hide": "Anleitung ausblenden",
+    "steps": {
+      "configurator": "Erstelle deinen ersten Konfigurator",
+      "branding": "Logo und Farben anpassen",
+      "catalog": "Katalog veröffentlichen",
+      "client": "Füge deinen ersten Kunden hinzu",
+      "cantiere": "Erstelle dein erstes Projekt",
+      "team": "Ein Teammitglied einladen",
+      "billing": "Abrechnung einrichten"
+    }
   }
 }

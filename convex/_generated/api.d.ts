@@ -70,6 +70,7 @@ import type * as passports from "../passports.js";
 import type * as quotes from "../quotes.js";
 import type * as registration from "../registration.js";
 import type * as seed from "../seed.js";
+import type * as setupGuide from "../setupGuide.js";
 import type * as suppliers from "../suppliers.js";
 import type * as surveys from "../surveys.js";
 import type * as tenants from "../tenants.js";
@@ -145,6 +146,7 @@ declare const fullApi: ApiFromModules<{
   quotes: typeof quotes;
   registration: typeof registration;
   seed: typeof seed;
+  setupGuide: typeof setupGuide;
   suppliers: typeof suppliers;
   surveys: typeof surveys;
   tenants: typeof tenants;

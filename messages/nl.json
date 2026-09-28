@@ -1590,5 +1590,21 @@
       "openEditor": "Open de volledige editor",
       "backToList": "Terug naar configurators"
     }
+  },
+  "setupGuide": {
+    "title": "Aan de slag",
+    "allDoneTitle": "Instellen voltooid",
+    "allDoneBody": "Je hebt alle instapstappen voltooid. Goed gedaan!",
+    "close": "Sluiten",
+    "hide": "Gids verbergen",
+    "steps": {
+      "configurator": "Maak je eerste configurator",
+      "branding": "Pas logo en kleuren aan",
+      "catalog": "Publiceer je catalogus",
+      "client": "Voeg je eerste klant toe",
+      "cantiere": "Maak je eerste project",
+      "team": "Nodig een teamlid uit",
+      "billing": "Facturering instellen"
+    }
   }
 }

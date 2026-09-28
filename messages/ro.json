@@ -1590,5 +1590,21 @@
       "openEditor": "Deschide editorul complet",
       "backToList": "Înapoi la configuratoare"
     }
+  },
+  "setupGuide": {
+    "title": "Primii pași",
+    "allDoneTitle": "Configurare finalizată",
+    "allDoneBody": "Ai finalizat toți pașii inițiali. Bravo!",
+    "close": "Închide",
+    "hide": "Ascunde ghidul",
+    "steps": {
+      "configurator": "Creează primul tău configurator",
+      "branding": "Personalizează logo-ul și culorile",
+      "catalog": "Publică-ți catalogul",
+      "client": "Adaugă primul tău client",
+      "cantiere": "Creează primul tău șantier",
+      "team": "Invită un coleg",
+      "billing": "Configurează facturarea"
+    }
   }
 }

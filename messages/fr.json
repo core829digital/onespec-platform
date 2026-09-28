@@ -1590,5 +1590,21 @@
       "openEditor": "Ouvrir l'éditeur complet",
       "backToList": "Retour aux configurateurs"
     }
+  },
+  "setupGuide": {
+    "title": "Prise en main",
+    "allDoneTitle": "Configuration terminée",
+    "allDoneBody": "Vous avez terminé toutes les étapes. Bravo !",
+    "close": "Fermer",
+    "hide": "Masquer le guide",
+    "steps": {
+      "configurator": "Créez votre premier configurateur",
+      "branding": "Personnalisez logo et couleurs",
+      "catalog": "Publiez votre catalogue",
+      "client": "Ajoutez votre premier client",
+      "cantiere": "Créez votre premier chantier",
+      "team": "Invitez un collègue",
+      "billing": "Configurez la facturation"
+    }
   }
 }
