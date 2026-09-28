@@ -1,0 +1,377 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Turnstile e Stripe, spiegati</title>
+<style>
+  :root {
+    --bg: #f7f5f0;
+    --bg-alt: #ffffff;
+    --ink: #1c2321;
+    --ink-dim: #5a655f;
+    --line: #dcd6c8;
+    --mint: #0f9b7e;
+    --mint-ink: #ffffff;
+    --mint-soft: #e3f3ee;
+    --amber: #b5762a;
+    --amber-soft: #f6ead7;
+    --code-bg: #1c2321;
+    --code-ink: #e3f3ee;
+    --shadow: 0 1px 2px rgba(28,35,33,.06), 0 8px 24px rgba(28,35,33,.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #14181a;
+      --bg-alt: #1b2123;
+      --ink: #eef0ea;
+      --ink-dim: #a2ada6;
+      --line: #2c3436;
+      --mint: #3fd6ac;
+      --mint-ink: #0b1f19;
+      --mint-soft: #1d3a32;
+      --amber: #e3ac5e;
+      --amber-soft: #3a2f1e;
+      --code-bg: #0e1213;
+      --code-ink: #cdeee2;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14181a;
+    --bg-alt: #1b2123;
+    --ink: #eef0ea;
+    --ink-dim: #a2ada6;
+    --line: #2c3436;
+    --mint: #3fd6ac;
+    --mint-ink: #0b1f19;
+    --mint-soft: #1d3a32;
+    --amber: #e3ac5e;
+    --amber-soft: #3a2f1e;
+    --code-bg: #0e1213;
+    --code-ink: #cdeee2;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    line-height: 1.55;
+    margin: 0;
+    padding: 40px 16px 80px;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+
+  h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: clamp(28px, 6vw, 42px);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0 0 6px;
+    text-wrap: balance;
+  }
+  .subtitle {
+    color: var(--ink-dim);
+    font-size: 17px;
+    margin: 0 0 36px;
+    max-width: 56ch;
+  }
+
+  h2 {
+    font-family: "Fraunces", Georgia, serif;
+    font-size: 24px;
+    font-weight: 600;
+    margin: 0 0 4px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  .section-eyebrow {
+    display: inline-block;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--mint);
+    background: var(--mint-soft);
+    padding: 4px 10px;
+    border-radius: 999px;
+    margin-bottom: 14px;
+  }
+  section { margin-bottom: 56px; }
+  section > p.lead {
+    color: var(--ink-dim);
+    font-size: 15.5px;
+    margin: 10px 0 24px;
+    max-width: 60ch;
+  }
+
+  .card {
+    background: var(--bg-alt);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 22px 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 18px;
+  }
+
+  .analogy {
+    background: var(--mint-soft);
+    border: 1px solid var(--mint);
+    border-radius: 16px;
+    padding: 20px 24px;
+    margin: 20px 0 28px;
+  }
+  .analogy .label {
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--mint);
+    margin-bottom: 8px;
+    display: block;
+  }
+  .analogy p { margin: 0; }
+
+  .compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin: 20px 0 28px;
+  }
+  @media (max-width: 560px) { .compare { grid-template-columns: 1fr; } }
+  .compare .box {
+    border-radius: 14px;
+    padding: 18px 20px;
+    border: 1px solid var(--line);
+  }
+  .compare .box.bad { background: var(--amber-soft); border-color: var(--amber); }
+  .compare .box.good { background: var(--mint-soft); border-color: var(--mint); }
+  .compare .box .tag {
+    font-weight: 700;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    margin-bottom: 6px;
+    display: block;
+  }
+  .compare .bad .tag { color: var(--amber); }
+  .compare .good .tag { color: var(--mint); }
+  .compare .box p { margin: 0; font-size: 14.5px; color: var(--ink); }
+
+  ol.steps { list-style: none; margin: 0; padding: 0; counter-reset: step; }
+  ol.steps > li {
+    counter-increment: step;
+    position: relative;
+    padding: 4px 0 24px 46px;
+    border-left: 2px solid var(--line);
+    margin-left: 17px;
+  }
+  ol.steps > li:last-child { border-left-color: transparent; padding-bottom: 0; }
+  ol.steps > li::before {
+    content: counter(step);
+    position: absolute;
+    left: -18px;
+    top: 0;
+    width: 34px;
+    height: 34px;
+    background: var(--mint);
+    color: var(--mint-ink);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  ol.steps h3 {
+    margin: 4px 0 6px;
+    font-size: 16.5px;
+    font-weight: 700;
+  }
+  ol.steps p { margin: 0 0 8px; color: var(--ink-dim); font-size: 15px; }
+
+  code, .kv code {
+    font-family: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+    font-size: 13px;
+    background: var(--code-bg);
+    color: var(--code-ink);
+    padding: 2px 7px;
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+
+  table.prices {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 6px 0 4px;
+    font-size: 14.5px;
+  }
+  table.prices th, table.prices td {
+    text-align: left;
+    padding: 9px 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  table.prices th { color: var(--ink-dim); font-weight: 600; font-size: 12.5px; text-transform: uppercase; letter-spacing: .03em; }
+  table.prices td.num { font-variant-numeric: tabular-nums; font-weight: 600; }
+
+  .callout {
+    border-left: 4px solid var(--amber);
+    background: var(--amber-soft);
+    border-radius: 0 12px 12px 0;
+    padding: 14px 18px;
+    font-size: 14.5px;
+    margin: 18px 0;
+  }
+  .callout strong { color: var(--amber); }
+
+  .checklist { list-style: none; margin: 0; padding: 0; }
+  .checklist li {
+    display: flex;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 14.5px;
+  }
+  .checklist li:last-child { border-bottom: none; }
+  .checklist .box {
+    flex-shrink: 0;
+    width: 18px; height: 18px;
+    border: 2px solid var(--mint);
+    border-radius: 5px;
+    margin-top: 2px;
+  }
+
+  footer {
+    margin-top: 60px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    color: var(--ink-dim);
+    font-size: 13px;
+  }
+</style>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600&family=Source+Sans+3:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap">
+
+<div class="wrap">
+  <h1>Turnstile e Stripe, spiegati semplice</h1>
+  <p class="subtitle">Due servizi esterni che OneSpec usa già nel codice ma che aspettano le tue chiavi per accendersi davvero. Questa guida spiega cosa fanno e cosa devi fare tu, passo per passo.</p>
+
+  <section id="turnstile">
+    <span class="section-eyebrow">Parte 1</span>
+    <h2>🛡️ Cos'è Cloudflare Turnstile</h2>
+    <p class="lead">È il "buttafuori silenzioso" del tuo widget preventivi: controlla che chi sta compilando il form sia una persona vera, senza fargli fare nulla.</p>
+
+    <div class="analogy">
+      <span class="label">Esempio semplice</span>
+      <p>Immagina l'ingresso di un locale. Il vecchio modo (i CAPTCHA classici, tipo "seleziona tutte le immagini con semafori") è come un buttafuori che ferma <strong>ogni</strong> persona e le chiede di risolvere un piccolo enigma prima di entrare — lento, fastidioso, e la gente se ne va infastidita. Turnstile è un buttafuori che osserva <strong>come ti muovi</strong> mentre ti avvicini alla porta (in modo invisibile, in background) e ti lascia entrare senza fermarti — a meno che tu non ti comporti chiaramente come un robot, nel qual caso ti blocca prima ancora che tu bussi.</p>
+    </div>
+
+    <div class="compare">
+      <div class="box bad">
+        <span class="tag">Senza Turnstile</span>
+        <p>Un bot può inviare migliaia di finte richieste di preventivo al tuo widget in pochi minuti, intasando la tua casella "Richieste" con spazzatura e sprecando le tue quote email.</p>
+      </div>
+      <div class="box good">
+        <span class="tag">Con Turnstile</span>
+        <p>Il bot viene bloccato prima ancora che la richiesta arrivi al tuo database. I tuoi clienti veri non notano nulla — nessun puzzle, nessun click su "non sono un robot".</p>
+      </div>
+    </div>
+
+    <p><strong>A cosa ti serve esattamente:</strong> protegge il widget pubblico dei preventivi (quello che i tuoi clienti finali usano sul sito) da spam e abusi automatizzati. Il codice per attivarlo esiste già nella piattaforma — è scritto, testato, e sta solo aspettando le tue 2 chiavi per iniziare a funzionare davvero.</p>
+
+    <div class="card">
+      <h3 style="margin-top:0">Come ottenere le chiavi (5 minuti, gratis)</h3>
+      <ol class="steps">
+        <li>
+          <h3>Vai su Cloudflare</h3>
+          <p>Crea un account gratuito su <code>dash.cloudflare.com</code> se non ce l'hai già (non serve avere un dominio registrato lì).</p>
+        </li>
+        <li>
+          <h3>Apri la sezione Turnstile</h3>
+          <p>Nel menu laterale cerca <strong>Turnstile</strong> (a volte sotto "Security" o "Sicurezza").</p>
+        </li>
+        <li>
+          <h3>Aggiungi un sito</h3>
+          <p>Clicca "Add site", dai un nome (es. "OneSpec Widget"), inserisci il dominio dove vive il widget (es. <code>onespec.eu</code> o il dominio del cliente finale se lo sai già), e scegli la modalità <strong>Invisible</strong> (nessun puzzle visibile all'utente).</p>
+        </li>
+        <li>
+          <h3>Copia le due chiavi</h3>
+          <p>Cloudflare ti dà una <strong>Site Key</strong> (pubblica, va nel frontend) e una <strong>Secret Key</strong> (privata, va nel backend, non condividerla in chat pubbliche o repository).</p>
+        </li>
+        <li>
+          <h3>Dammele</h3>
+          <p>Mandami entrambe (o impostale tu direttamente come variabili d'ambiente <code>NEXT_PUBLIC_TURNSTILE_SITE_KEY</code> e <code>TURNSTILE_SECRET</code>) e il bot-check si accende da solo, senza altro codice da scrivere.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="stripe">
+    <span class="section-eyebrow">Parte 2</span>
+    <h2>💳 Come impostare Stripe</h2>
+    <p class="lead">Stripe è già collegato nel codice (verifica firma webhook, protezione anti-frode, trial 14 giorni con carta obbligatoria) — manca solo che tu crei i prodotti/prezzi reali e mi dai 3 chiavi.</p>
+
+    <div class="card">
+      <h3 style="margin-top:0">I 3 piani che il codice si aspetta di trovare</h3>
+      <table class="prices">
+        <thead>
+          <tr><th>Piano</th><th>Prezzo mensile</th><th>Prezzo annuale (2 mesi gratis)</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Base</td><td class="num">97 €/mese</td><td class="num">970 €/anno</td></tr>
+          <tr><td>Pro</td><td class="num">197 €/mese</td><td class="num">1.970 €/anno</td></tr>
+          <tr><td>Agency</td><td class="num">397 €/mese</td><td class="num">3.970 €/anno</td></tr>
+        </tbody>
+      </table>
+      <p style="color:var(--ink-dim); font-size:13.5px; margin-bottom:0">Enterprise (690 €/mese) non passa da qui — è gestito manualmente via contratto/commerciale, non da autoservizio.</p>
+    </div>
+
+    <ol class="steps">
+      <li>
+        <h3>Attiva l'account Stripe</h3>
+        <p>Su <code>dashboard.stripe.com</code>, completa i dati aziendali (CORE829 SRL) per passare dalla modalità test a quella reale — puoi comunque preparare tutto in modalità test prima.</p>
+      </li>
+      <li>
+        <h3>Crea 3 Prodotti</h3>
+        <p>In <strong>Product catalog → Add product</strong>: uno per "OneSpec Base", uno per "OneSpec Pro", uno per "OneSpec Agency".</p>
+      </li>
+      <li>
+        <h3>Aggiungi 2 Prezzi per ciascun prodotto</h3>
+        <p>Per ogni prodotto, crea un Price <strong>ricorrente mensile</strong> e uno <strong>ricorrente annuale</strong> con gli importi della tabella sopra. Ogni Price ottiene un ID che inizia con <code>price_...</code> — è quello che serve dopo.</p>
+      </li>
+      <li>
+        <h3>Trova le 2 chiavi API</h3>
+        <p>In <strong>Developers → API keys</strong>: copia la <strong>Secret key</strong> (inizia con <code>sk_live_...</code> quando esci dalla modalità test — non condividerla mai in chat pubbliche).</p>
+      </li>
+      <li>
+        <h3>Configura il Webhook</h3>
+        <p>In <strong>Developers → Webhooks → Add endpoint</strong>: per adesso basta dirmi che sei a questo punto — l'URL dell'endpoint nella piattaforma è generato automaticamente in modo non-indovinabile dal codice, te lo fornisco io quando siamo pronti a collegarlo. Dopo aver creato l'endpoint, Stripe ti dà un <strong>Signing secret</strong> (inizia con <code>whsec_...</code>).</p>
+      </li>
+      <li>
+        <h3>Mandami tutto</h3>
+        <p>Le 6 Price ID (3 piani × 2 cicli), la Secret key, e il Signing secret del webhook. Li collego io alle variabili d'ambiente già previste dal codice (<code>STRIPE_SECRET_KEY</code>, <code>STRIPE_WEBHOOK_SECRET</code>, e una per ogni prezzo tipo <code>STRIPE_PRICE_PRO_MONTHLY</code>) — nessun'altra riga di codice da scrivere, è già tutto pronto ad aspettarle.</p>
+      </li>
+    </ol>
+
+    <div class="callout">
+      <strong>Consiglio:</strong> fai tutto questo prima in modalità <em>test</em> di Stripe (dati finti, carte di prova) così possiamo verificare l'intero flusso — trial 14 giorni, carta richiesta subito, webhook che risponde — senza rischiare soldi veri. Passiamo alla modalità live solo quando funziona tutto.
+    </div>
+  </section>
+
+  <section id="riepilogo">
+    <span class="section-eyebrow">Riepilogo</span>
+    <h2>Cosa mi devi mandare</h2>
+    <ul class="checklist">
+      <li><span class="box"></span> Turnstile — Site Key (pubblica)</li>
+      <li><span class="box"></span> Turnstile — Secret Key (privata)</li>
+      <li><span class="box"></span> Stripe — Secret Key (<code>sk_live_...</code> o <code>sk_test_...</code> per iniziare)</li>
+      <li><span class="box"></span> Stripe — 6 Price ID (Base/Pro/Agency × mensile/annuale)</li>
+      <li><span class="box"></span> Stripe — Webhook Signing secret (<code>whsec_...</code>, dopo aver creato l'endpoint)</li>
+    </ul>
+  </section>
+
+  <footer>
+    Guida preparata per OneSpec · CORE829 SRL — nessuna chiave reale è mai scritta qui, solo istruzioni su dove trovarle.
+  </footer>
+</div>
+
+</body></html>
