@@ -60,9 +60,6 @@ const nextConfig = {
     };
     return config;
   },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
   async redirects() {
     return [
       {

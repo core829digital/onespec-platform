@@ -117,6 +117,10 @@ export const create = mutation({
 export const createBatchFromQuote = mutation({
   args: { tenantId: v.id("tenants"), quoteId: v.id("quoteRequests") },
   handler: async (ctx, args) => {
+    // This bulk path skipped the plan gate that the single `create` mutation
+    // above enforces — a Base-plan tenant could bypass the paywall entirely
+    // by batch-creating passports for every item on a quote.
+    await enforceForMaintenance(ctx, args.tenantId);
     const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
     const quote = await ctx.db.get(args.quoteId);
     if (!quote || quote.tenantId !== args.tenantId) throw new ConvexError("QUOTE_NOT_FOUND");

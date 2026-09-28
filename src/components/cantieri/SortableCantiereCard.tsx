@@ -50,7 +50,7 @@ export function SortableCantiereCard({
       ref={setNodeRef}
       {...listeners}
       style={style}
-      className={`bg-white border border-[var(--color-border)] rounded-lg p-3 hover:shadow-md transition-shadow ${isDragging ? "shadow-lg ring-2 ring-[var(--color-mint)]" : ""}`}
+      className={`bg-[var(--color-bg)] border border-[var(--color-border)] rounded-lg p-3 hover:shadow-md transition-shadow ${isDragging ? "shadow-lg ring-2 ring-[var(--color-mint)]" : ""}`}
     >
       <div className="flex items-start justify-between gap-2 mb-2">
         <div className="flex items-center gap-2">

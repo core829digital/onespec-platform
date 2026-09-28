@@ -314,9 +314,9 @@ function ClientModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-      <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-4 border-b border-[var(--color-border)] sticky top-0 bg-white z-10">
-          <h2 className="text-lg font-semibold">{client ? t("editClient") : t("newClient")}</h2>
+      <div className="bg-[var(--color-bg)] rounded-xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between p-4 border-b border-[var(--color-border)] sticky top-0 bg-[var(--color-bg)] z-10">
+          <h2 className="text-lg font-semibold text-[var(--color-text)]">{client ? t("editClient") : t("newClient")}</h2>
           <button onClick={onClose} className="p-2 rounded-lg hover:bg-[var(--color-bg-alt)]">
             <X className="w-5 h-5" />
           </button>
@@ -545,7 +545,7 @@ function ClientModal({
               />
             </div>
           </div>
-          <div className="flex justify-end gap-3 pt-4 border-t border-[var(--color-border)] sticky bottom-0 bg-white">
+          <div className="flex justify-end gap-3 pt-4 border-t border-[var(--color-border)] sticky bottom-0 bg-[var(--color-bg)]">
             <button
               type="button"
               onClick={onClose}
@@ -789,7 +789,7 @@ const [editingClient, setEditingClient] = useState<
             value={search}
             onChange={(e) => { setSearch(e.target.value); setPage(1); }}
             placeholder={t("searchPlaceholder")}
-            className="w-full pl-10 pr-4 py-2 rounded-lg border border-[var(--color-border)] bg-white text-[var(--color-text)] placeholder-[var(--color-text-secondary)]"
+            className="w-full pl-10 pr-4 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] placeholder-[var(--color-text-secondary)]"
           />
         </div>
         <div className="relative">
@@ -797,7 +797,7 @@ const [editingClient, setEditingClient] = useState<
           <select
             value={statusFilter}
             onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-            className="w-full pl-10 pr-10 py-2 rounded-lg border border-[var(--color-border)] bg-white text-[var(--color-text)] appearance-none"
+            className="w-full pl-10 pr-10 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] appearance-none"
           >
             <option value="all">{t("allStatus")}</option>
             <option value="lead">{STATUS_LABELS.lead}</option>
