@@ -10,7 +10,7 @@ Piano d'implementazione di riferimento: `docs/PIANO_ABBONAMENTI_WIDGET.md`.
 - **Aggiunti** 3 piani della famiglia **Widget**: Level 1 (€49,95), Level 2 (€62,44), Level 3 (€79,90). Solo mensili, niente prova gratuita, prezzi IVA esclusa.
 - **Restano attivi e vendibili**, senza modifiche ad accessi e prezzi, i 4 piani della famiglia **Piattaforma intera**: Base, Pro, Agency, Enterprise. Un test automatico fa da allarme se un permesso di questi piani cambia per errore.
 - Tutti i limiti sono applicati **lato server**: richieste, PDF, WhatsApp, Showroom, configuratori, utenti e moduli bloccati. Nascondere i pulsanti nell'interfaccia non basta a sbloccare nulla.
-- **Test: da 302 a 371, tutti verdi.** Typecheck e lint puliti.
+- **Test: da 302 a 370, tutti verdi.** Typecheck e lint puliti.
 - Durante l'audit ho trovato e corretto **9 bug reali**, 5 dei quali riguardano il sistema pagamenti (sezione 4).
 
 ## 2. Matrice dei piani
@@ -103,6 +103,6 @@ Raccomandazioni (non fatte, richiedono una sua decisione o un'azione in Stripe):
 
 ## 8. Cosa non ho potuto verificare qui (onestà)
 
-- **Test E2E nel browser con backend reale:** in questo ambiente non c'è un deployment Convex, quindi le pagine non sono state provate cliccando dal vivo. Logica e sicurezza sono coperte da 371 test sul backend reale in memoria (`convex-test`).
+- **Test E2E nel browser con backend reale:** in questo ambiente non c'è un deployment Convex, quindi le pagine non sono state provate cliccando dal vivo. Logica e sicurezza sono coperte da 370 test sul backend reale in memoria (`convex-test`).
 - **Concorrenza reale:** i test girano in sequenza. La garanzia viene dalle transazioni serializzabili di Convex, non da un test di carico.
 - **Stripe live:** i flussi di Checkout, portale e fatture vanno provati in modalità test di Stripe dopo aver creato i prezzi del punto 6.4.
