@@ -678,7 +678,10 @@ export default defineSchema({
     bucketKey: v.string(),
     tokens: v.number(),
     updatedAt: v.number(),
-  }).index("by_key", ["bucketKey"]),
+  })
+    .index("by_key", ["bucketKey"])
+    // Daily cleanup of idle buckets (see lib/ratelimit.purgeIdleBuckets).
+    .index("by_updatedAt", ["updatedAt"]),
 
   /* ---------------------------------------------------------------------- */
   /*  Phase C — B2B field modules (Rilievo, Posa, Collaudo, Fascicolo)       */

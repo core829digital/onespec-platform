@@ -39,4 +39,11 @@ crons.daily(
   internal.account.purgeOldNotifications,
 );
 
+// Rate-limit buckets idle for 2+ days are full again: drop them (bounded table).
+crons.daily(
+  "purge-idle-rate-limit-buckets",
+  { hourUTC: 4, minuteUTC: 20 },
+  internal.lib.ratelimit.purgeIdleBuckets,
+);
+
 export default crons;

@@ -7,6 +7,7 @@ import { currentPeriod, entitlementsFor, isWidgetPlan, resolveTenantEntitlements
 import { enforceActivePlan, enforceShowroomCalculator } from "./lib/enforcement";
 import { requirePermission } from "./lib/rbac";
 import { consumeMetered, showroomFingerprint, type MeterResult } from "./lib/metering";
+import { parseQuoteItems } from "./lib/quoteItems";
 
 /**
  * "Accetta ma blocca" — lifting the lock. A quota-locked request becomes
@@ -211,12 +212,14 @@ export const registerShowroomSend = mutation({
   },
   returns: v.object({ quote: meterResult, channel: meterResult }),
   handler: async (ctx, args) => {
-    if (args.items.length === 0 || args.items.length > 200) throw new ConvexError("INVALID_ITEMS");
+    // Same validation as a saved quote (schema-checked, ≤ 50 pieces); the
+    // fingerprint is taken over the parsed pieces (unknown keys stripped).
+    const items = parseQuoteItems(args.items);
     const { userId, tenant } = await requirePermission(ctx, args.tenantId, "quotes.use");
     await enforceActivePlan(ctx, args.tenantId);
     await enforceShowroomCalculator(ctx, args.tenantId);
     const ent = resolveTenantEntitlements(tenant);
-    const key = await showroomFingerprint(args.items, args.options);
+    const key = await showroomFingerprint(items, args.options);
 
     const quote = await consumeMetered(ctx, {
       tenantId: args.tenantId, userId, kind: "showroom_quote", subjectKey: key, limit: ent.maxShowroomQuotesPerMonth,

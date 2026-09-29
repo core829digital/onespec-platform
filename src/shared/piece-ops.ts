@@ -123,9 +123,12 @@ export function applyFrameToAll(items: ProjectItem[], frameType: string): Projec
   return items.map((it) => ({ ...it, frameType }));
 }
 
+/** Most pieces one quote may carry — the server rejects more (convex/lib/quoteItems). */
+export const MAX_PIECES = 50;
+
 export function duplicateItem(items: ProjectItem[], index: number): ProjectItem[] {
   const src = items[index];
-  if (!src) return items;
+  if (!src || items.length >= MAX_PIECES) return items;
   const copy: ProjectItem = JSON.parse(JSON.stringify(src));
   return [...items.slice(0, index + 1), copy, ...items.slice(index + 1)];
 }

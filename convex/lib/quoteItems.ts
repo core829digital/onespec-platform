@@ -3,6 +3,7 @@ import type { MutationCtx } from "../_generated/server";
 import type { Id } from "../_generated/dataModel";
 import { ProjectItemSchema } from "../../src/shared/widget-types";
 import type { ProjectItem } from "../../src/shared/pricing";
+import { MAX_PIECES } from "../../src/shared/piece-ops";
 
 /**
  * Validate the pieces a client sends with a quote. `items` is `v.any()` in the
@@ -11,7 +12,7 @@ import type { ProjectItem } from "../../src/shared/pricing";
  */
 export function parseQuoteItems(raw: unknown): ProjectItem[] {
   if (!Array.isArray(raw) || raw.length === 0) throw new ConvexError("NO_ITEMS");
-  if (raw.length > 50) throw new ConvexError("INVALID_ITEM");
+  if (raw.length > MAX_PIECES) throw new ConvexError("INVALID_ITEM");
   return raw.map((r) => {
     const parsed = ProjectItemSchema.safeParse(r);
     if (!parsed.success) throw new ConvexError("INVALID_ITEM");
