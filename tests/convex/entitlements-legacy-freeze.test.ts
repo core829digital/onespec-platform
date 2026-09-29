@@ -2,6 +2,11 @@ import { describe, expect, test } from "vitest";
 import { entitlementsFor } from "../../convex/lib/entitlements";
 
 /**
+ * Regression guard, NOT a sales freeze: every full-platform plan stays active
+ * and purchasable. This only alarms if a code change accidentally alters what
+ * those plans include. To change a platform plan on purpose, update the
+ * snapshot (`npx vitest run -u tests/convex/entitlements-legacy-freeze.test.ts`).
+ *
  * "Non modificare accessi" — the full-platform plans (Base / Pro / Agency /
  * Enterprise and their pre-v2 aliases) must keep exactly the access they had
  * before the widget-first plans (Essentials / Essentials+ / Max) were added.
@@ -14,7 +19,7 @@ const LEGACY = ["base", "pro", "agency", "enterprise", "starter", "showroom", "b
 const serialise = (o: object) =>
   JSON.parse(JSON.stringify(o, (_k, v) => (v === Infinity ? "Infinity" : v)));
 
-describe("legacy plan access is frozen", () => {
+describe("platform plan access is unchanged (regression guard)", () => {
   for (const plan of LEGACY) {
     test(plan, () => {
       const e = entitlementsFor(plan) as unknown as Record<string, unknown>;

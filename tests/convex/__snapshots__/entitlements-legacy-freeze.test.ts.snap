@@ -1,6 +1,6 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
-exports[`legacy plan access is frozen > agency 1`] = `
+exports[`platform plan access is unchanged (regression guard) > agency 1`] = `
 {
   "advanceInvoices": true,
   "advancedPricingRules": true,
@@ -34,7 +34,7 @@ exports[`legacy plan access is frozen > agency 1`] = `
 }
 `;
 
-exports[`legacy plan access is frozen > base 1`] = `
+exports[`platform plan access is unchanged (regression guard) > base 1`] = `
 {
   "advanceInvoices": false,
   "advancedPricingRules": false,
@@ -68,7 +68,7 @@ exports[`legacy plan access is frozen > base 1`] = `
 }
 `;
 
-exports[`legacy plan access is frozen > business 1`] = `
+exports[`platform plan access is unchanged (regression guard) > business 1`] = `
 {
   "advanceInvoices": true,
   "advancedPricingRules": true,
@@ -102,7 +102,7 @@ exports[`legacy plan access is frozen > business 1`] = `
 }
 `;
 
-exports[`legacy plan access is frozen > enterprise 1`] = `
+exports[`platform plan access is unchanged (regression guard) > enterprise 1`] = `
 {
   "advanceInvoices": true,
   "advancedPricingRules": true,
@@ -136,7 +136,7 @@ exports[`legacy plan access is frozen > enterprise 1`] = `
 }
 `;
 
-exports[`legacy plan access is frozen > pro 1`] = `
+exports[`platform plan access is unchanged (regression guard) > pro 1`] = `
 {
   "advanceInvoices": true,
   "advancedPricingRules": true,
@@ -170,7 +170,7 @@ exports[`legacy plan access is frozen > pro 1`] = `
 }
 `;
 
-exports[`legacy plan access is frozen > showroom 1`] = `
+exports[`platform plan access is unchanged (regression guard) > showroom 1`] = `
 {
   "advanceInvoices": true,
   "advancedPricingRules": true,
@@ -204,7 +204,7 @@ exports[`legacy plan access is frozen > showroom 1`] = `
 }
 `;
 
-exports[`legacy plan access is frozen > starter 1`] = `
+exports[`platform plan access is unchanged (regression guard) > starter 1`] = `
 {
   "advanceInvoices": false,
   "advancedPricingRules": false,
