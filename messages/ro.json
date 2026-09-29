@@ -236,6 +236,11 @@
     "botcheck": {
       "unavailable": "Verificarea de securitate nu este disponibilă. Dezactivează blocantele de conținut și reîncarcă pagina.",
       "failed": "Verificarea de securitate a eșuat. Încearcă din nou."
+    },
+    "hero": {
+      "titleblock": "OneSpec · vedere",
+      "aria": "Desen tehnic al unei ferestre: cota lățimii devine preț.",
+      "stripAria": "O cotă care devine preț"
     }
   },
   "notifications": {
@@ -437,7 +442,11 @@
       "draftRestored": "Ciornă restaurată: {count} elemente.",
       "discardDraft": "Renunță și reia",
       "draftSaved": "Ciorna este salvată automat în acest browser.",
-      "noPublishedCatalog": "Niciun catalog publicat pentru acest configurator — publică-l pentru a putea crea oferte."
+      "noPublishedCatalog": "Niciun catalog publicat pentru acest configurator — publică-l pentru a putea crea oferte.",
+      "errClientRequired": "Introdu numele și e-mailul clientului.",
+      "emailPlaceholder": "client@email.ro",
+      "addressPlaceholder": "Strada Victoriei 12",
+      "notIncluded": "— neinclus —"
     },
     "list": {
       "kicker": "Instrument B2B de șantier",
@@ -732,7 +741,15 @@
     "subtitle": "Ghid nod montare + listă materiale conformă standardelor.",
     "countryNotSet": "Țară nesetată",
     "countryNotSetHint": "Setați țara în Setări pentru a vedea standardul corect și cerințele de conformitate.",
-    "goToSettings": "Mergeți la Setări"
+    "goToSettings": "Mergeți la Setări",
+    "selectJobNode": "Selectează tipul de lucrare și nodul de montaj.",
+    "step1": "1 · Tipul lucrării",
+    "step2": "2 · Nodul de montaj",
+    "loadFromSurvey": "Încarcă din releveu",
+    "materialsAria": "Materiale de montaj",
+    "notesPlaceholder": "Note pentru echipa de montaj",
+    "listAria": "Lista dosarelor de montaj",
+    "empty": "Niciun dosar de montaj."
   },
   "inspections": {
     "offline": "Offline — salvare locală",
@@ -911,7 +928,12 @@
     "editCustomer": "Editează datele clientului",
     "cancel": "Anulează",
     "city": "Oraș",
-    "postalCode": "Cod poștal"
+    "postalCode": "Cod poștal",
+    "noConfigurator": "Niciun configurator publicat. Publică unul înainte de a genera o ofertă.",
+    "clientRequired": "Numele clientului este obligatoriu.",
+    "pageTitle": "Releveu de șantier",
+    "backToGallery": "Înapoi la galerie",
+    "empty": "Niciun releveu încă."
   },
   "dossierEdit": {
     "edit": "Editează",
@@ -1044,7 +1066,21 @@
     "exportDraft": "Salvează ciorna",
     "loadDraft": "Încarcă ciorna",
     "draftRestored": "Ciornă restaurată: {count} elemente.",
-    "discardDraft": "Renunță și reia"
+    "discardDraft": "Renunță și reia",
+    "fiscal": {
+      "turnkey": "Preț la cheie",
+      "financing": "Exemplu de plată în rate: {monthly} / lună în 24 de rate (orientativ)",
+      "taxable": "Valoare fără TVA",
+      "totalVat": "TVA totală",
+      "uwAvg": "U<sub>w</sub> mediu",
+      "eligible": "Eligibil pentru stimulente",
+      "notEligible": "Neeligibil",
+      "savings": "Economie de energie",
+      "savingsValue": "~{kwh} kWh/an",
+      "whatsapp": "Trimite pe WhatsApp",
+      "survey": "Solicită o vizită tehnică",
+      "addToQuote": "+ Adaugă la ofertă"
+    }
   },
   "legal": {
     "lastUpdated": "Ultima actualizare",
@@ -2099,5 +2135,108 @@
     "cancel": "Anulează",
     "sending": "Se trimite…",
     "send": "Trimite"
+  },
+  "fieldCommon": {
+    "offline": "Offline — salvare locală",
+    "pending": "{count} de sincronizat",
+    "synced": "Sincronizat",
+    "syncNow": "Sincronizează acum",
+    "openMaps": "Deschide în Google Maps",
+    "openWaze": "Deschide în Waze"
+  },
+  "diagnostic": {
+    "title": "Listă de diagnostic șantier",
+    "wallType": "Tip perete *",
+    "counterFrame": "Premontaj / toc *",
+    "floorAccess": "Acces / etaj *",
+    "mould": "Mucegai / infiltrații",
+    "shutter": "Rulou existent",
+    "notes": "Note de diagnostic",
+    "notesPlaceholder": "Observații suplimentare…",
+    "recommendation": "Recomandare:",
+    "wall0": "Cărămidă Porotherm 30 cm",
+    "wall1": "Cărămidă + termosistem EPS 10 cm",
+    "wall2": "Beton armat",
+    "wall3": "Piatră / zidărie istorică",
+    "wall4": "Gips-carton + vată",
+    "frame0": "Premontaj metalic existent",
+    "frame1": "Monobloc termoizolant",
+    "frame2": "Toc vechi din lemn (se păstrează)",
+    "frame3": "Fără premontaj — zidărie brută",
+    "floor0": "Parter — acces direct",
+    "floor1": "Etaj 1 — schelă ușoară",
+    "floor2": "Etaj 2 fără lift",
+    "floor3": "Etaj 3+ — necesită automacara",
+    "recMould": "Mucegai prezent: tratament antimucegai obligatoriu înainte de montaj",
+    "recThermal": "Perete termoizolant: bandă barieră de vapori interioară + bandă precomprimată BG1 min. 15 mm",
+    "recConcrete": "Perete din beton: amorsă de consolidare + bandă BG1",
+    "recStone": "Zidărie istorică: mortar respirabil + bandă BG1 moale",
+    "recAccess": "Acces dificil: planifică automacara / lift de materiale",
+    "recWoodFrame": "Premontaj din lemn: verifică starea, eventual al doilea toc",
+    "recMonobloc": "Monobloc termoizolant: etanșarea perimetrului cu polimer MS",
+    "recShutter": "Rulou existent: prevede casetă izolată sau exterioară",
+    "recNone": "Nicio problemă identificată"
+  },
+  "fieldTools": {
+    "photoLoading": "Se încarcă fotografia…",
+    "photoError": "Eroare la încărcare",
+    "coteHelp": "Clic pentru a începe • Trage pentru a extinde • Del pentru a șterge",
+    "coteSelected": "✓ Selectat: apasă Del pentru a elimina",
+    "btUnsupportedAlert": "Web Bluetooth nu este acceptat în acest browser. Folosește Chrome/Edge pe Android/Windows sau Chrome pe macOS.",
+    "btUnsupported": "Web Bluetooth neacceptat",
+    "btUseBrowsers": "Folosește Chrome/Edge pe Android/Windows sau Chrome pe macOS.",
+    "btManual": "Introdu măsurătorile manual în câmpurile de mai jos.",
+    "laserTitle": "Telemetru laser",
+    "connected": "Conectat",
+    "notConnected": "Neconectat",
+    "openingW": "L gol mm",
+    "openingH": "H gol mm",
+    "multiTitle": "Articole de la mai mulți furnizori",
+    "multiAria": "Rânduri de la mai mulți furnizori",
+    "supplier": "Furnizor",
+    "product": "Produs",
+    "qty": "Cant.",
+    "unitPrice": "Preț unitar",
+    "total": "Total",
+    "materialsTotal": "Total materiale:",
+    "modulesTitle": "Module de șantier",
+    "survey": "Releveu",
+    "opening1": "Gol 1",
+    "createSurvey": "Creează releveu",
+    "installation": "Montaj",
+    "openInstallWizard": "Deschide asistentul de montaj",
+    "report": "Proces-verbal",
+    "signed": "Semnat",
+    "draft": "Ciornă",
+    "createReport": "Creează proces-verbal",
+    "passport": "Pașaport QR",
+    "createPassports": "Generează pașapoartele",
+    "none": "Niciunul"
+  },
+  "sash": {
+    "kind_fix": "Fix",
+    "kind_classic": "Batantă",
+    "kind_tiltturn": "Oscilo-batantă",
+    "kind_tilt": "Rabatabilă",
+    "kind_sliding": "Glisantă",
+    "kind_liftslide": "Glisant cu ridicare",
+    "sec_standard": "Standard",
+    "sec_rc2": "RC2 (antiefracție)",
+    "sec_rc3": "RC3 (securitate ridicată)",
+    "mix_slidingOnly": "Un canat glisant se combină doar cu alte canaturi glisante.",
+    "mix_liftslideOnly": "Un canat glisant cu ridicare se combină doar cu alte canaturi de același tip.",
+    "mix_hingedVsSliding": "Nu se poate combina un canat batant cu unul glisant.",
+    "mix_hingedVsLiftslide": "Nu se poate combina un canat batant cu unul glisant cu ridicare.",
+    "openingType": "Tip de deschidere",
+    "direction": "Sens (vedere din interior)",
+    "left": "St ◄",
+    "right": "Dr ►",
+    "operable": "Canat mobil",
+    "fixedPanel": "Panou fix / orb",
+    "hardware": "Feronerie",
+    "hardwareColor": "Culoarea feroneriei",
+    "securityClass": "Clasă de securitate",
+    "handleHeight": "Înălțimea mânerului de la pardoseală",
+    "main": "Canat principal"
   }
 }

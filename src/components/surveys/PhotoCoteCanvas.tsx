@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { useRef, useEffect, useState } from "react";
 import { AnnotationToolbar, ToolType } from "./AnnotationToolbar";
 import type { Annotation } from "./AnnotationLayer";
@@ -28,6 +29,7 @@ export function PhotoCoteCanvas({
   width = 800,
   height = 600,
 }: PhotoCoteProps) {
+  const t = useTranslations("fieldTools");
   const [imageLoaded, setImageLoaded] = useState(false);
   const [stageSize, setStageSize] = useState({ width, height });
   const [imageDimensions, setImageDimensions] = useState<{ width: number; height: number } | null>(null);
@@ -195,7 +197,7 @@ export function PhotoCoteCanvas({
       <div className="w-full aspect-[4/3] bg-zinc-100 rounded-2xl flex items-center justify-center border-2 border-dashed">
         <div className="text-center text-zinc-500">
           <div className="text-4xl mb-2">📷</div>
-          <p>Caricamento foto...</p>
+          <p>{t("photoLoading")}</p>
         </div>
       </div>
     );
@@ -206,7 +208,7 @@ export function PhotoCoteCanvas({
       <div className="w-full aspect-[4/3] bg-zinc-100 rounded-2xl flex items-center justify-center border-2 border-dashed">
         <div className="text-center text-zinc-500">
           <div className="text-4xl mb-2">📷</div>
-          <p>Errore caricamento</p>
+          <p>{t("photoError")}</p>
         </div>
       </div>
     );
@@ -239,8 +241,8 @@ export function PhotoCoteCanvas({
       </div>
 
       <div className="mt-2 flex flex-wrap gap-2 text-xs text-zinc-500">
-        <span>Click per iniziare • Drag per estendere • Del per cancellare</span>
-        {selectedId && <span className="text-emerald-600">✓ Selezionato: premi Canc per rimuovere</span>}
+        <span>{t("coteHelp")}</span>
+        {selectedId && <span className="text-emerald-600">{t("coteSelected")}</span>}
       </div>
     </div>
   );

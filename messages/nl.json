@@ -236,6 +236,11 @@
     "botcheck": {
       "unavailable": "Beveiligingscontrole niet beschikbaar. Schakel contentblokkers uit en herlaad de pagina.",
       "failed": "Beveiligingscontrole mislukt. Probeer het opnieuw."
+    },
+    "hero": {
+      "titleblock": "OneSpec · aanzicht",
+      "aria": "Technische tekening van een raam: de breedtemaat wordt een prijs.",
+      "stripAria": "Een maat die een prijs wordt"
     }
   },
   "notifications": {
@@ -437,7 +442,11 @@
       "draftRestored": "Concept hersteld: {count} elementen.",
       "discardDraft": "Verwerpen en opnieuw beginnen",
       "draftSaved": "Concept wordt automatisch in deze browser opgeslagen.",
-      "noPublishedCatalog": "Geen gepubliceerde catalogus voor deze configurator — publiceer hem om offertes te kunnen maken."
+      "noPublishedCatalog": "Geen gepubliceerde catalogus voor deze configurator — publiceer hem om offertes te kunnen maken.",
+      "errClientRequired": "Vul de naam en het e-mailadres van de klant in.",
+      "emailPlaceholder": "klant@email.nl",
+      "addressPlaceholder": "Dorpsstraat 12",
+      "notIncluded": "— niet inbegrepen —"
     },
     "list": {
       "kicker": "B2B-werfhulpmiddel",
@@ -732,7 +741,15 @@
     "subtitle": "Montageknooppunt-wizard + conforme materialenlijst.",
     "countryNotSet": "Land niet ingesteld",
     "countryNotSetHint": "Stel uw land in bij Instellingen om de juiste norm en compliance-eisen te zien.",
-    "goToSettings": "Naar Instellingen"
+    "goToSettings": "Naar Instellingen",
+    "selectJobNode": "Kies het soort werk en de montagedetail.",
+    "step1": "1 · Soort werk",
+    "step2": "2 · Montagedetail",
+    "loadFromSurvey": "Laden uit inmeting",
+    "materialsAria": "Montagematerialen",
+    "notesPlaceholder": "Notities voor het montageteam",
+    "listAria": "Lijst van montagedossiers",
+    "empty": "Geen montagedossiers."
   },
   "inspections": {
     "offline": "Offline — lokaal opslaan",
@@ -911,7 +928,12 @@
     "editCustomer": "Klantgegevens bewerken",
     "cancel": "Annuleren",
     "city": "Stad",
-    "postalCode": "Postcode"
+    "postalCode": "Postcode",
+    "noConfigurator": "Geen gepubliceerde configurator. Publiceer er een voordat je een offerte maakt.",
+    "clientRequired": "De naam van de klant is verplicht.",
+    "pageTitle": "Inmeting op locatie",
+    "backToGallery": "Terug naar de galerij",
+    "empty": "Nog geen inmetingen."
   },
   "dossierEdit": {
     "edit": "Bewerken",
@@ -1044,7 +1066,21 @@
     "exportDraft": "Concept opslaan",
     "loadDraft": "Concept laden",
     "draftRestored": "Concept hersteld: {count} elementen.",
-    "discardDraft": "Verwerpen en opnieuw beginnen"
+    "discardDraft": "Verwerpen en opnieuw beginnen",
+    "fiscal": {
+      "turnkey": "Prijs sleutelklaar",
+      "financing": "Voorbeeld gespreide betaling: {monthly} / maand in 24 termijnen (indicatief)",
+      "taxable": "Bedrag excl. btw",
+      "totalVat": "Totaal btw",
+      "uwAvg": "Gemiddelde U<sub>w</sub>",
+      "eligible": "Komt in aanmerking voor subsidie",
+      "notEligible": "Komt niet in aanmerking",
+      "savings": "Energiebesparing",
+      "savingsValue": "~{kwh} kWh/jaar",
+      "whatsapp": "Via WhatsApp versturen",
+      "survey": "Inmeting aanvragen",
+      "addToQuote": "+ Toevoegen aan offerte"
+    }
   },
   "legal": {
     "lastUpdated": "Laatst bijgewerkt",
@@ -2099,5 +2135,108 @@
     "cancel": "Annuleren",
     "sending": "Versturen…",
     "send": "Versturen"
+  },
+  "fieldCommon": {
+    "offline": "Offline — lokaal opslaan",
+    "pending": "{count} te synchroniseren",
+    "synced": "Gesynchroniseerd",
+    "syncNow": "Nu synchroniseren",
+    "openMaps": "Openen in Google Maps",
+    "openWaze": "Openen in Waze"
+  },
+  "diagnostic": {
+    "title": "Diagnosechecklist project",
+    "wallType": "Type wand *",
+    "counterFrame": "Stelkozijn *",
+    "floorAccess": "Toegang / verdieping *",
+    "mould": "Schimmel / lekkages",
+    "shutter": "Bestaand rolluik",
+    "notes": "Diagnosenotities",
+    "notesPlaceholder": "Extra opmerkingen…",
+    "recommendation": "Aanbeveling:",
+    "wall0": "Porotherm-baksteen 30 cm",
+    "wall1": "Baksteen + EPS-gevelisolatie 10 cm",
+    "wall2": "Gewapend beton",
+    "wall3": "Natuursteen / historisch metselwerk",
+    "wall4": "Gipsplaat + wol",
+    "frame0": "Bestaand metalen stelkozijn",
+    "frame1": "Geïsoleerd monobloc",
+    "frame2": "Oud houten kozijn (blijft behouden)",
+    "frame3": "Geen stelkozijn — ruw metselwerk",
+    "floor0": "Begane grond — directe toegang",
+    "floor1": "1e verdieping — lichte steiger",
+    "floor2": "2e verdieping zonder lift",
+    "floor3": "3e verdieping+ — kraanwagen nodig",
+    "recMould": "Schimmel aanwezig: schimmelbehandeling verplicht vóór montage",
+    "recThermal": "Geïsoleerde wand: dampremmende tape binnen + voorgecomprimeerde BG1-band, min. 15 mm",
+    "recConcrete": "Betonwand: versterkende primer + BG1-band",
+    "recStone": "Historisch metselwerk: dampopen mortel + zachte BG1-band",
+    "recAccess": "Moeilijke toegang: kraanwagen / goederenlift inplannen",
+    "recWoodFrame": "Houten stelkozijn: staat controleren, eventueel tweede kozijn",
+    "recMonobloc": "Monobloc: omtrek afdichten met MS-polymeer",
+    "recShutter": "Bestaand rolluik: geïsoleerde of buitenliggende kast voorzien",
+    "recNone": "Geen knelpunten gevonden"
+  },
+  "fieldTools": {
+    "photoLoading": "Foto laden…",
+    "photoError": "Laadfout",
+    "coteHelp": "Klik om te beginnen • Sleep om te verlengen • Del om te verwijderen",
+    "coteSelected": "✓ Geselecteerd: druk op Del om te verwijderen",
+    "btUnsupportedAlert": "Web Bluetooth wordt niet ondersteund in deze browser. Gebruik Chrome/Edge op Android/Windows of Chrome op macOS.",
+    "btUnsupported": "Web Bluetooth niet ondersteund",
+    "btUseBrowsers": "Gebruik Chrome/Edge op Android/Windows of Chrome op macOS.",
+    "btManual": "Vul de maten handmatig in de velden hieronder in.",
+    "laserTitle": "Laserafstandsmeter",
+    "connected": "Verbonden",
+    "notConnected": "Niet verbonden",
+    "openingW": "B opening mm",
+    "openingH": "H opening mm",
+    "multiTitle": "Artikelen van meerdere leveranciers",
+    "multiAria": "Regels van meerdere leveranciers",
+    "supplier": "Leverancier",
+    "product": "Product",
+    "qty": "Aantal",
+    "unitPrice": "Stukprijs",
+    "total": "Totaal",
+    "materialsTotal": "Totaal materialen:",
+    "modulesTitle": "Projectmodules",
+    "survey": "Inmeting",
+    "opening1": "Opening 1",
+    "createSurvey": "Inmeting aanmaken",
+    "installation": "Montage",
+    "openInstallWizard": "Montagewizard openen",
+    "report": "Rapport",
+    "signed": "Ondertekend",
+    "draft": "Concept",
+    "createReport": "Rapport aanmaken",
+    "passport": "QR-paspoort",
+    "createPassports": "Paspoorten genereren",
+    "none": "Geen"
+  },
+  "sash": {
+    "kind_fix": "Vast",
+    "kind_classic": "Draai",
+    "kind_tiltturn": "Draai-kiep",
+    "kind_tilt": "Kiep",
+    "kind_sliding": "Schuif",
+    "kind_liftslide": "Hef-schuif",
+    "sec_standard": "Standaard",
+    "sec_rc2": "RC2 (inbraakwerend)",
+    "sec_rc3": "RC3 (hoge beveiliging)",
+    "mix_slidingOnly": "Een schuifvleugel kan alleen met andere schuifvleugels worden gecombineerd.",
+    "mix_liftslideOnly": "Een hef-schuifvleugel kan alleen met andere hef-schuifvleugels worden gecombineerd.",
+    "mix_hingedVsSliding": "Een draaivleugel kan niet met een schuifvleugel worden gecombineerd.",
+    "mix_hingedVsLiftslide": "Een draaivleugel kan niet met een hef-schuifvleugel worden gecombineerd.",
+    "openingType": "Type opening",
+    "direction": "Draairichting (binnenaanzicht)",
+    "left": "L ◄",
+    "right": "R ►",
+    "operable": "Draaiende vleugel",
+    "fixedPanel": "Vast / dicht paneel",
+    "hardware": "Beslag",
+    "hardwareColor": "Kleur beslag",
+    "securityClass": "Veiligheidsklasse",
+    "handleHeight": "Hoogte kruk vanaf de vloer",
+    "main": "Hoofdvleugel"
   }
 }

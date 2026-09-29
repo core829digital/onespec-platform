@@ -38,6 +38,7 @@ const eur = (cents: number, locale: string) => (cents / 100).toLocaleString(loca
 
 export function PiecesEditor({ payload, locale, items, onChange, activeIndex, onActiveChange }: Props) {
   const t = useTranslations("pieces");
+  const ts = useTranslations("sash");
   const [selectedSash, setSelectedSash] = useState<number | null>(0);
   const active = items[activeIndex] ?? items[0];
   const choices = useMemo(() => catalogChoices(payload, active?.material ?? "pvc", locale), [payload, active?.material, locale]);
@@ -90,7 +91,7 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
       case "singleLeafMax": return t("issue.singleLeafMax", { axis: t(i.axis), max: i.max });
       case "leafWidth": return t("issue.leafWidth", { leaf: i.leaf + 1, got: i.got, min: i.min });
       case "leafHeight": return t("issue.leafHeight", { leaf: i.leaf + 1, got: i.got, min: i.min });
-      case "mix": return i.reason;
+      case "mix": return i.mix ? ts(`mix_${i.mix}`) : i.reason;
       case "unknownKey": return t("issue.unknownKey", { field: i.field, key: i.key });
     }
   };

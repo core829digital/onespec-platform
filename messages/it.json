@@ -236,6 +236,11 @@
     "botcheck": {
       "unavailable": "Verifica di sicurezza non disponibile. Disattiva eventuali blocchi di contenuti e ricarica la pagina.",
       "failed": "Verifica di sicurezza non superata. Riprova."
+    },
+    "hero": {
+      "titleblock": "OneSpec · prospetto",
+      "aria": "Disegno tecnico di una finestra: la quota di larghezza si trasforma in prezzo.",
+      "stripAria": "Quota che si trasforma in prezzo"
     }
   },
   "notifications": {
@@ -437,7 +442,11 @@
       "draftRestored": "Bozza ripristinata: {count} pezzi.",
       "discardDraft": "Scarta e ricomincia",
       "draftSaved": "Bozza salvata automaticamente in questo browser.",
-      "noPublishedCatalog": "Nessun catalogo pubblicato per questo configuratore — pubblicalo per poter creare preventivi."
+      "noPublishedCatalog": "Nessun catalogo pubblicato per questo configuratore — pubblicalo per poter creare preventivi.",
+      "errClientRequired": "Inserisci il nome e l'email del cliente.",
+      "emailPlaceholder": "cliente@email.it",
+      "addressPlaceholder": "Via Roma 12",
+      "notIncluded": "— non incluso —"
     },
     "list": {
       "kicker": "Strumento B2B da Cantiere",
@@ -732,7 +741,15 @@
     "subtitle": "Wizard nodo di posa + distinta materiali conforme alla norma del mercato.",
     "countryNotSet": "Paese non impostato",
     "countryNotSetHint": "Imposta il tuo paese nelle Impostazioni per vedere la normativa e i requisiti di conformità corretti.",
-    "goToSettings": "Vai alle Impostazioni"
+    "goToSettings": "Vai alle Impostazioni",
+    "selectJobNode": "Seleziona il tipo di lavoro e il nodo di posa.",
+    "step1": "1 · Tipo di lavoro",
+    "step2": "2 · Nodo di posa",
+    "loadFromSurvey": "Carica da rilievo",
+    "materialsAria": "Materiali di posa",
+    "notesPlaceholder": "Note per la squadra di posa",
+    "listAria": "Elenco dossier di posa",
+    "empty": "Nessun dossier di posa."
   },
   "inspections": {
     "offline": "Offline — salvataggio locale",
@@ -911,7 +928,12 @@
     "editCustomer": "Modifica dati cliente",
     "cancel": "Annulla",
     "city": "Città",
-    "postalCode": "CAP"
+    "postalCode": "CAP",
+    "noConfigurator": "Nessun configuratore pubblicato. Pubblica un configuratore prima di generare un preventivo.",
+    "clientRequired": "Il nome del cliente è obbligatorio.",
+    "pageTitle": "Rilievo di cantiere",
+    "backToGallery": "Torna alla galleria",
+    "empty": "Nessun rilievo ancora."
   },
   "dossierEdit": {
     "edit": "Modifica",
@@ -1044,7 +1066,21 @@
     "exportDraft": "Salva bozza",
     "loadDraft": "Carica bozza",
     "draftRestored": "Bozza ripristinata: {count} pezzi.",
-    "discardDraft": "Scarta e ricomincia"
+    "discardDraft": "Scarta e ricomincia",
+    "fiscal": {
+      "turnkey": "Prezzo chiavi in mano",
+      "financing": "Esempio di rateizzazione: {monthly} / mese in 24 rate (indicativo)",
+      "taxable": "Imponibile",
+      "totalVat": "IVA totale",
+      "uwAvg": "U<sub>w</sub> medio",
+      "eligible": "Idoneo alle agevolazioni",
+      "notEligible": "Non idoneo",
+      "savings": "Risparmio energetico",
+      "savingsValue": "~{kwh} kWh/anno",
+      "whatsapp": "Invia su WhatsApp",
+      "survey": "Richiedi sopralluogo",
+      "addToQuote": "+ Aggiungi al preventivo"
+    }
   },
   "legal": {
     "lastUpdated": "Ultimo aggiornamento",
@@ -2099,5 +2135,108 @@
     "cancel": "Annulla",
     "sending": "Invio…",
     "send": "Invia"
+  },
+  "fieldCommon": {
+    "offline": "Offline — salvataggio locale",
+    "pending": "{count} da sincronizzare",
+    "synced": "Sincronizzato",
+    "syncNow": "Sincronizza ora",
+    "openMaps": "Apri in Google Maps",
+    "openWaze": "Apri in Waze"
+  },
+  "diagnostic": {
+    "title": "Checklist diagnostica cantiere",
+    "wallType": "Tipo parete *",
+    "counterFrame": "Controtelaio *",
+    "floorAccess": "Accesso / piano *",
+    "mould": "Muffe / infiltrazioni",
+    "shutter": "Tapparella esistente",
+    "notes": "Note diagnostiche",
+    "notesPlaceholder": "Osservazioni aggiuntive…",
+    "recommendation": "Raccomandazione:",
+    "wall0": "Laterizio Porotherm 30 cm",
+    "wall1": "Laterizio + cappotto EPS 10 cm",
+    "wall2": "Calcestruzzo armato",
+    "wall3": "Pietra / muratura storica",
+    "wall4": "Cartongesso + lana",
+    "frame0": "Controtelaio metallico esistente",
+    "frame1": "Monoblocco termico",
+    "frame2": "Telaio in legno vecchio (da mantenere)",
+    "frame3": "Nessun controtelaio — muratura grezza",
+    "floor0": "Piano terra — accesso diretto",
+    "floor1": "Piano 1 — ponteggio leggero",
+    "floor2": "Piano 2 senza ascensore",
+    "floor3": "Piano 3+ — necessaria autogrù",
+    "recMould": "Presenza muffe: trattamento antimuffa obbligatorio prima della posa",
+    "recThermal": "Parete termica: banda barriera vapore interna + nastro BG1 precompresso min. 15 mm",
+    "recConcrete": "Parete in calcestruzzo: primer consolidante + banda BG1",
+    "recStone": "Muratura storica: malta traspirante + nastro BG1 morbido",
+    "recAccess": "Accesso difficile: pianificare autogrù / montacarichi",
+    "recWoodFrame": "Controtelaio in legno: verificare lo stato di conservazione, eventuale secondo telaio",
+    "recMonobloc": "Monoblocco termico: sigillatura del perimetro con MS polimero",
+    "recShutter": "Tapparella esistente: predisporre cassonetto coibentato o esterno",
+    "recNone": "Nessuna criticità rilevata"
+  },
+  "fieldTools": {
+    "photoLoading": "Caricamento foto…",
+    "photoError": "Errore di caricamento",
+    "coteHelp": "Clic per iniziare • Trascina per estendere • Canc per eliminare",
+    "coteSelected": "✓ Selezionato: premi Canc per rimuovere",
+    "btUnsupportedAlert": "Web Bluetooth non è supportato in questo browser. Usa Chrome/Edge su Android/Windows o Chrome su macOS.",
+    "btUnsupported": "Web Bluetooth non supportato",
+    "btUseBrowsers": "Usa Chrome/Edge su Android/Windows o Chrome su macOS.",
+    "btManual": "Inserisci le misure manualmente nei campi qui sotto.",
+    "laserTitle": "Misuratore laser",
+    "connected": "Connesso",
+    "notConnected": "Non connesso",
+    "openingW": "L foro mm",
+    "openingH": "H foro mm",
+    "multiTitle": "Articoli multi-fornitore",
+    "multiAria": "Righe multi-fornitore",
+    "supplier": "Fornitore",
+    "product": "Prodotto",
+    "qty": "Q.tà",
+    "unitPrice": "Prezzo unit.",
+    "total": "Totale",
+    "materialsTotal": "Totale materiali:",
+    "modulesTitle": "Moduli cantiere",
+    "survey": "Rilievo",
+    "opening1": "Foro 1",
+    "createSurvey": "Crea rilievo",
+    "installation": "Posa",
+    "openInstallWizard": "Apri wizard posa",
+    "report": "Verbale",
+    "signed": "Firmato",
+    "draft": "Bozza",
+    "createReport": "Crea verbale",
+    "passport": "Fascicolo QR",
+    "createPassports": "Genera fascicoli",
+    "none": "Nessuno"
+  },
+  "sash": {
+    "kind_fix": "Fissa",
+    "kind_classic": "Battente",
+    "kind_tiltturn": "Anta-ribalta",
+    "kind_tilt": "Vasistas",
+    "kind_sliding": "Scorrevole",
+    "kind_liftslide": "Alzante scorrevole",
+    "sec_standard": "Standard",
+    "sec_rc2": "RC2 (antieffrazione)",
+    "sec_rc3": "RC3 (alta sicurezza)",
+    "mix_slidingOnly": "Lo scorrevole si combina solo con altri scorrevoli.",
+    "mix_liftslideOnly": "L'alzante scorrevole si combina solo con altri alzanti.",
+    "mix_hingedVsSliding": "Non si può mischiare un'anta a battente con lo scorrevole.",
+    "mix_hingedVsLiftslide": "Non si può mischiare un'anta a battente con l'alzante scorrevole.",
+    "openingType": "Tipo di apertura",
+    "direction": "Verso (vista interna)",
+    "left": "Sx ◄",
+    "right": "Dx ►",
+    "operable": "Anta apribile",
+    "fixedPanel": "Pannello fisso / cieco",
+    "hardware": "Ferramenta",
+    "hardwareColor": "Colore ferramenta",
+    "securityClass": "Classe di sicurezza",
+    "handleHeight": "Altezza maniglia dal pavimento",
+    "main": "Anta principale"
   }
 }

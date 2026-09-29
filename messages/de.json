@@ -236,6 +236,11 @@
     "botcheck": {
       "unavailable": "Sicherheitsprüfung nicht verfügbar. Deaktivieren Sie Inhaltsblocker und laden Sie die Seite neu.",
       "failed": "Sicherheitsprüfung fehlgeschlagen. Bitte erneut versuchen."
+    },
+    "hero": {
+      "titleblock": "OneSpec · Ansicht",
+      "aria": "Technische Zeichnung eines Fensters: Das Breitenmaß wird zum Preis.",
+      "stripAria": "Ein Maß wird zum Preis"
     }
   },
   "notifications": {
@@ -437,7 +442,11 @@
       "draftRestored": "Entwurf wiederhergestellt: {count} Elemente.",
       "discardDraft": "Verwerfen und neu beginnen",
       "draftSaved": "Entwurf wird automatisch in diesem Browser gespeichert.",
-      "noPublishedCatalog": "Kein veröffentlichter Katalog für diesen Konfigurator — veröffentlichen Sie ihn, um Angebote zu erstellen."
+      "noPublishedCatalog": "Kein veröffentlichter Katalog für diesen Konfigurator — veröffentlichen Sie ihn, um Angebote zu erstellen.",
+      "errClientRequired": "Geben Sie Name und E-Mail des Kunden ein.",
+      "emailPlaceholder": "kunde@email.de",
+      "addressPlaceholder": "Hauptstraße 12",
+      "notIncluded": "— nicht enthalten —"
     },
     "list": {
       "kicker": "B2B-Baustellen-Tool",
@@ -732,7 +741,15 @@
     "subtitle": "Montageknoten-Assistent + konforme Materialliste.",
     "countryNotSet": "Land nicht festgelegt",
     "countryNotSetHint": "Legen Sie Ihr Land in den Einstellungen fest, um die korrekte Norm und Compliance-Anforderungen zu sehen.",
-    "goToSettings": "Zu den Einstellungen"
+    "goToSettings": "Zu den Einstellungen",
+    "selectJobNode": "Wählen Sie die Art der Arbeiten und den Montageanschluss.",
+    "step1": "1 · Art der Arbeiten",
+    "step2": "2 · Montageanschluss",
+    "loadFromSurvey": "Aus Aufmaß laden",
+    "materialsAria": "Montagematerial",
+    "notesPlaceholder": "Hinweise für das Montageteam",
+    "listAria": "Liste der Montagedossiers",
+    "empty": "Keine Montagedossiers."
   },
   "inspections": {
     "offline": "Offline — lokale Speicherung",
@@ -911,7 +928,12 @@
     "editCustomer": "Kundendaten bearbeiten",
     "cancel": "Abbrechen",
     "city": "Stadt",
-    "postalCode": "Postleitzahl"
+    "postalCode": "Postleitzahl",
+    "noConfigurator": "Kein veröffentlichter Konfigurator. Veröffentlichen Sie einen, bevor Sie ein Angebot erstellen.",
+    "clientRequired": "Der Kundenname ist erforderlich.",
+    "pageTitle": "Baustellenaufmaß",
+    "backToGallery": "Zurück zur Galerie",
+    "empty": "Noch keine Aufmaße."
   },
   "dossierEdit": {
     "edit": "Bearbeiten",
@@ -1044,7 +1066,21 @@
     "exportDraft": "Entwurf speichern",
     "loadDraft": "Entwurf laden",
     "draftRestored": "Entwurf wiederhergestellt: {count} Elemente.",
-    "discardDraft": "Verwerfen und neu beginnen"
+    "discardDraft": "Verwerfen und neu beginnen",
+    "fiscal": {
+      "turnkey": "Schlüsselfertiger Preis",
+      "financing": "Ratenbeispiel: {monthly} / Monat in 24 Raten (unverbindlich)",
+      "taxable": "Nettobetrag",
+      "totalVat": "MwSt. gesamt",
+      "uwAvg": "Mittlerer U<sub>w</sub>",
+      "eligible": "Förderfähig",
+      "notEligible": "Nicht förderfähig",
+      "savings": "Energieeinsparung",
+      "savingsValue": "~{kwh} kWh/Jahr",
+      "whatsapp": "Per WhatsApp senden",
+      "survey": "Aufmaß vor Ort anfragen",
+      "addToQuote": "+ Zum Angebot hinzufügen"
+    }
   },
   "legal": {
     "lastUpdated": "Zuletzt aktualisiert",
@@ -2099,5 +2135,108 @@
     "cancel": "Abbrechen",
     "sending": "Wird gesendet…",
     "send": "Senden"
+  },
+  "fieldCommon": {
+    "offline": "Offline — lokale Speicherung",
+    "pending": "{count} zu synchronisieren",
+    "synced": "Synchronisiert",
+    "syncNow": "Jetzt synchronisieren",
+    "openMaps": "In Google Maps öffnen",
+    "openWaze": "In Waze öffnen"
+  },
+  "diagnostic": {
+    "title": "Diagnose-Checkliste Baustelle",
+    "wallType": "Wandtyp *",
+    "counterFrame": "Blendrahmen / Zarge *",
+    "floorAccess": "Zugang / Stockwerk *",
+    "mould": "Schimmel / Undichtigkeiten",
+    "shutter": "Vorhandener Rollladen",
+    "notes": "Diagnosenotizen",
+    "notesPlaceholder": "Weitere Anmerkungen…",
+    "recommendation": "Empfehlung:",
+    "wall0": "Porotherm-Ziegel 30 cm",
+    "wall1": "Ziegel + WDVS EPS 10 cm",
+    "wall2": "Stahlbeton",
+    "wall3": "Naturstein / historisches Mauerwerk",
+    "wall4": "Gipskarton + Dämmwolle",
+    "frame0": "Vorhandene Metallzarge",
+    "frame1": "Wärmegedämmter Monoblock",
+    "frame2": "Alter Holzrahmen (bleibt erhalten)",
+    "frame3": "Keine Zarge — Rohmauerwerk",
+    "floor0": "Erdgeschoss — direkter Zugang",
+    "floor1": "1. OG — leichtes Gerüst",
+    "floor2": "2. OG ohne Aufzug",
+    "floor3": "Ab 3. OG — Autokran erforderlich",
+    "recMould": "Schimmel vorhanden: Schimmelbehandlung vor der Montage erforderlich",
+    "recThermal": "Gedämmte Wand: innenseitiges Dampfsperrband + vorkomprimiertes Fugenband BG1, min. 15 mm",
+    "recConcrete": "Betonwand: Verfestigungsgrundierung + BG1-Band",
+    "recStone": "Historisches Mauerwerk: diffusionsoffener Mörtel + weiches BG1-Band",
+    "recAccess": "Schwieriger Zugang: Autokran / Lastenaufzug einplanen",
+    "recWoodFrame": "Holzzarge: Zustand prüfen, ggf. zweiter Rahmen",
+    "recMonobloc": "Monoblock: Umfang mit MS-Polymer abdichten",
+    "recShutter": "Vorhandener Rollladen: gedämmten oder außenliegenden Kasten vorsehen",
+    "recNone": "Keine Auffälligkeiten"
+  },
+  "fieldTools": {
+    "photoLoading": "Foto wird geladen…",
+    "photoError": "Ladefehler",
+    "coteHelp": "Klicken zum Starten • Ziehen zum Verlängern • Entf zum Löschen",
+    "coteSelected": "✓ Ausgewählt: Entf drücken zum Entfernen",
+    "btUnsupportedAlert": "Web Bluetooth wird in diesem Browser nicht unterstützt. Verwenden Sie Chrome/Edge unter Android/Windows oder Chrome unter macOS.",
+    "btUnsupported": "Web Bluetooth nicht unterstützt",
+    "btUseBrowsers": "Verwenden Sie Chrome/Edge unter Android/Windows oder Chrome unter macOS.",
+    "btManual": "Geben Sie die Maße manuell in die Felder unten ein.",
+    "laserTitle": "Laser-Entfernungsmesser",
+    "connected": "Verbunden",
+    "notConnected": "Nicht verbunden",
+    "openingW": "B Öffnung mm",
+    "openingH": "H Öffnung mm",
+    "multiTitle": "Artikel mehrerer Lieferanten",
+    "multiAria": "Positionen mehrerer Lieferanten",
+    "supplier": "Lieferant",
+    "product": "Produkt",
+    "qty": "Menge",
+    "unitPrice": "Stückpreis",
+    "total": "Gesamt",
+    "materialsTotal": "Material gesamt:",
+    "modulesTitle": "Baustellenmodule",
+    "survey": "Aufmaß",
+    "opening1": "Öffnung 1",
+    "createSurvey": "Aufmaß anlegen",
+    "installation": "Montage",
+    "openInstallWizard": "Montage-Assistent öffnen",
+    "report": "Protokoll",
+    "signed": "Unterschrieben",
+    "draft": "Entwurf",
+    "createReport": "Protokoll anlegen",
+    "passport": "QR-Fensterpass",
+    "createPassports": "Fensterpässe erzeugen",
+    "none": "Keine"
+  },
+  "sash": {
+    "kind_fix": "Festverglasung",
+    "kind_classic": "Dreh",
+    "kind_tiltturn": "Dreh-Kipp",
+    "kind_tilt": "Kipp",
+    "kind_sliding": "Schiebe",
+    "kind_liftslide": "Hebe-Schiebe",
+    "sec_standard": "Standard",
+    "sec_rc2": "RC2 (einbruchhemmend)",
+    "sec_rc3": "RC3 (hohe Sicherheit)",
+    "mix_slidingOnly": "Ein Schiebeflügel lässt sich nur mit anderen Schiebeflügeln kombinieren.",
+    "mix_liftslideOnly": "Ein Hebe-Schiebe-Flügel lässt sich nur mit anderen Hebe-Schiebe-Flügeln kombinieren.",
+    "mix_hingedVsSliding": "Ein Drehflügel kann nicht mit einem Schiebeflügel kombiniert werden.",
+    "mix_hingedVsLiftslide": "Ein Drehflügel kann nicht mit einem Hebe-Schiebe-Flügel kombiniert werden.",
+    "openingType": "Öffnungsart",
+    "direction": "Richtung (Innenansicht)",
+    "left": "L ◄",
+    "right": "R ►",
+    "operable": "Öffnungsflügel",
+    "fixedPanel": "Festes / blindes Feld",
+    "hardware": "Beschlag",
+    "hardwareColor": "Beschlagfarbe",
+    "securityClass": "Sicherheitsklasse",
+    "handleHeight": "Griffhöhe ab Boden",
+    "main": "Hauptflügel"
   }
 }

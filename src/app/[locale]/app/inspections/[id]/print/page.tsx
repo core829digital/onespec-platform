@@ -23,7 +23,7 @@ function InspectionDocument({ data, region }: { data: NonNullable<FunctionReturn
   const { report, tenant, title, legalBasis, warrantyLines } = data;
   const [generatedAt] = useState(() => Date.now());
 
-  const langKey = region === "FR" || region === "BE" ? "fr" : region === "DE" ? "de" : region === "NL" ? "nl" : "it";
+  const langKey = region === "FR" || region === "BE" || region === "LU" ? "fr" : region === "DE" ? "de" : region === "NL" ? "nl" : "it";
   const dateLocale = langKey === "fr" ? "fr-FR" : langKey === "de" ? "de-DE" : langKey === "nl" ? "nl-NL" : "it-IT";
 
   // Photos are made PDF-safe (EXIF rotation, non JPEG/PNG formats) at their

@@ -425,7 +425,7 @@ export default function NewFieldQuotePage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!leadName.trim() || !leadEmail.trim()) {
-      setError("Inserisci il nome e l'email del cliente.");
+      setError(t("errClientRequired"));
       return;
     }
     if (!activeConfig) {
@@ -722,7 +722,7 @@ export default function NewFieldQuotePage() {
                   type="email"
                   value={leadEmail}
                   onChange={(e) => setLeadEmail(e.target.value)}
-                  placeholder="cliente@email.com"
+                  placeholder={t("emailPlaceholder")}
                   className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
                 />
               </div>
@@ -746,7 +746,7 @@ export default function NewFieldQuotePage() {
                   name="address"
                   value={customerAddress}
                   onChange={(e) => setCustomerAddress(e.target.value)}
-                  placeholder="Via Roma 12 / Rue de la Paix"
+                  placeholder={t("addressPlaceholder")}
                   className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
                 />
               </div>
@@ -873,7 +873,6 @@ export default function NewFieldQuotePage() {
                     >
                       <option value={50}>50% (Bonus Casa / Ecobonus)</option>
                       <option value={36}>36% (Ordinaria)</option>
-                      <option value={65}>65% (Ecobonus rafforzato)</option>
                       <option value={0}>0% (Nessuna detrazione)</option>
                     </select>
                   </div>
@@ -1072,7 +1071,7 @@ export default function NewFieldQuotePage() {
                           onChange={(e) => updateCurrentItem({ [kind]: e.target.value } as Partial<ProjectItem>)}
                           className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-2 text-xs text-[var(--color-text)]"
                         >
-                          <option value="">— non incluso —</option>
+                          <option value="">{t("notIncluded")}</option>
                           {opts.map((o) => (
                             <option key={o.key} value={o.key}>
                               {o.label}

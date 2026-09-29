@@ -14,6 +14,7 @@ import { SurveyPDF, type SurveyPdfLabels } from "@/lib/pdfs/SurveyPDF";
 import { usePDFDownload } from "@/hooks/usePDFDownload";
 import { useCompanyPdf } from "@/lib/use-company-pdf";
 import { useFriendlyError } from "@/lib/use-friendly-error";
+import { diagnosticOptionLabel } from "@/components/surveys/DiagnosticChecklist";
 
 const LABEL_KEYS: Array<keyof SurveyPdfLabels> = [
   "title", "customer", "address", "status", "date", "openings", "colLabel", "colWidth", "colHeight",
@@ -27,6 +28,7 @@ export default function SurveyDetailPage({ params }: { params: Promise<{ id: str
   const surveyId = id as Id<"siteSurveys">;
   const t = useTranslations("surveyDoc");
   const tf = useTranslations("folder");
+  const tdg = useTranslations("diagnostic");
   const locale = useLocale();
   const router = useRouter();
   const toMessage = useFriendlyError();
@@ -285,9 +287,9 @@ export default function SurveyDetailPage({ params }: { params: Promise<{ id: str
         <h2 className="mb-3 text-sm font-semibold">{t("diagnostics")}</h2>
         <dl className="grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
           {([
-            [t("wallType"), survey.diagnostics.wallType],
-            [t("counterFrame"), survey.diagnostics.counterFrame],
-            [t("floorAccess"), survey.diagnostics.floorAccess],
+            [t("wallType"), diagnosticOptionLabel("wallType", survey.diagnostics.wallType, tdg)],
+            [t("counterFrame"), diagnosticOptionLabel("counterFrame", survey.diagnostics.counterFrame, tdg)],
+            [t("floorAccess"), diagnosticOptionLabel("floorAccess", survey.diagnostics.floorAccess, tdg)],
             [t("mould"), survey.diagnostics.mould ? t("yes") : t("no")],
             [t("existingShutter"), survey.diagnostics.existingShutter ? t("yes") : t("no")],
             [t("crane"), survey.diagnostics.craneRequired ? t("yes") : t("no")],

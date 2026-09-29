@@ -236,6 +236,11 @@
     "botcheck": {
       "unavailable": "Security check unavailable. Disable any content blockers and reload the page.",
       "failed": "Security check failed. Please try again."
+    },
+    "hero": {
+      "titleblock": "OneSpec · elevation",
+      "aria": "Technical drawing of a window: the width dimension turns into a price.",
+      "stripAria": "A dimension turning into a price"
     }
   },
   "notifications": {
@@ -437,7 +442,11 @@
       "draftRestored": "Draft restored: {count} pieces.",
       "discardDraft": "Discard and start over",
       "draftSaved": "Draft saved automatically in this browser.",
-      "noPublishedCatalog": "No published catalog for this configurator — publish it to create quotes."
+      "noPublishedCatalog": "No published catalog for this configurator — publish it to create quotes.",
+      "errClientRequired": "Enter the customer's name and email.",
+      "emailPlaceholder": "customer@email.com",
+      "addressPlaceholder": "12 High Street",
+      "notIncluded": "— not included —"
     },
     "list": {
       "kicker": "Field B2B Tool",
@@ -732,7 +741,15 @@
     "subtitle": "Installation node wizard + compliant bill of materials.",
     "countryNotSet": "Country not set",
     "countryNotSetHint": "Set your country in Settings to see the correct standard and compliance requirements.",
-    "goToSettings": "Go to Settings"
+    "goToSettings": "Go to Settings",
+    "selectJobNode": "Select the job type and the installation node.",
+    "step1": "1 · Job type",
+    "step2": "2 · Installation node",
+    "loadFromSurvey": "Load from survey",
+    "materialsAria": "Installation materials",
+    "notesPlaceholder": "Notes for the installation team",
+    "listAria": "Installation dossiers",
+    "empty": "No installation dossiers."
   },
   "inspections": {
     "offline": "Offline — local save",
@@ -911,7 +928,12 @@
     "editCustomer": "Edit customer data",
     "cancel": "Cancel",
     "city": "City",
-    "postalCode": "Postal code"
+    "postalCode": "Postal code",
+    "noConfigurator": "No published configurator. Publish one before generating a quote.",
+    "clientRequired": "The customer name is required.",
+    "pageTitle": "Site survey",
+    "backToGallery": "Back to gallery",
+    "empty": "No surveys yet."
   },
   "dossierEdit": {
     "edit": "Edit",
@@ -1044,7 +1066,21 @@
     "exportDraft": "Save draft",
     "loadDraft": "Load draft",
     "draftRestored": "Draft restored: {count} pieces.",
-    "discardDraft": "Discard and start over"
+    "discardDraft": "Discard and start over",
+    "fiscal": {
+      "turnkey": "Turnkey price",
+      "financing": "Instalment example: {monthly} / month over 24 instalments (indicative)",
+      "taxable": "Net amount",
+      "totalVat": "Total VAT",
+      "uwAvg": "Average U<sub>w</sub>",
+      "eligible": "Eligible for incentives",
+      "notEligible": "Not eligible",
+      "savings": "Energy savings",
+      "savingsValue": "~{kwh} kWh/year",
+      "whatsapp": "Send via WhatsApp",
+      "survey": "Request a site survey",
+      "addToQuote": "+ Add to quote"
+    }
   },
   "legal": {
     "lastUpdated": "Last updated",
@@ -2099,5 +2135,108 @@
     "cancel": "Cancel",
     "sending": "Sending…",
     "send": "Send"
+  },
+  "fieldCommon": {
+    "offline": "Offline — saving locally",
+    "pending": "{count} to sync",
+    "synced": "Synced",
+    "syncNow": "Sync now",
+    "openMaps": "Open in Google Maps",
+    "openWaze": "Open in Waze"
+  },
+  "diagnostic": {
+    "title": "Site diagnostic checklist",
+    "wallType": "Wall type *",
+    "counterFrame": "Sub-frame *",
+    "floorAccess": "Access / floor *",
+    "mould": "Mould / leaks",
+    "shutter": "Existing roller shutter",
+    "notes": "Diagnostic notes",
+    "notesPlaceholder": "Additional remarks…",
+    "recommendation": "Recommendation:",
+    "wall0": "Porotherm clay block 30 cm",
+    "wall1": "Clay block + 10 cm EPS insulation",
+    "wall2": "Reinforced concrete",
+    "wall3": "Stone / historic masonry",
+    "wall4": "Plasterboard + wool",
+    "frame0": "Existing metal sub-frame",
+    "frame1": "Insulated monobloc frame",
+    "frame2": "Old wooden frame (to keep)",
+    "frame3": "No sub-frame — bare masonry",
+    "floor0": "Ground floor — direct access",
+    "floor1": "1st floor — light scaffolding",
+    "floor2": "2nd floor, no lift",
+    "floor3": "3rd floor+ — crane truck needed",
+    "recMould": "Mould present: anti-mould treatment required before installation",
+    "recThermal": "Insulated wall: inner vapour-barrier tape + pre-compressed BG1 tape, min. 15 mm",
+    "recConcrete": "Concrete wall: consolidating primer + BG1 tape",
+    "recStone": "Historic masonry: breathable mortar + soft BG1 tape",
+    "recAccess": "Difficult access: plan a crane truck / goods lift",
+    "recWoodFrame": "Wooden sub-frame: check its condition, possibly a second frame",
+    "recMonobloc": "Insulated monobloc: seal the perimeter with MS polymer",
+    "recShutter": "Existing roller shutter: provide an insulated or external roller box",
+    "recNone": "No issues found"
+  },
+  "fieldTools": {
+    "photoLoading": "Loading photo…",
+    "photoError": "Loading error",
+    "coteHelp": "Click to start • Drag to extend • Delete to remove",
+    "coteSelected": "✓ Selected: press Delete to remove",
+    "btUnsupportedAlert": "Web Bluetooth is not supported in this browser. Use Chrome/Edge on Android/Windows or Chrome on macOS.",
+    "btUnsupported": "Web Bluetooth not supported",
+    "btUseBrowsers": "Use Chrome/Edge on Android/Windows or Chrome on macOS.",
+    "btManual": "Enter the measurements manually in the fields below.",
+    "laserTitle": "Laser meter",
+    "connected": "Connected",
+    "notConnected": "Not connected",
+    "openingW": "Opening W mm",
+    "openingH": "Opening H mm",
+    "multiTitle": "Multi-supplier items",
+    "multiAria": "Multi-supplier lines",
+    "supplier": "Supplier",
+    "product": "Product",
+    "qty": "Qty",
+    "unitPrice": "Unit price",
+    "total": "Total",
+    "materialsTotal": "Materials total:",
+    "modulesTitle": "Site modules",
+    "survey": "Survey",
+    "opening1": "Opening 1",
+    "createSurvey": "Create survey",
+    "installation": "Installation",
+    "openInstallWizard": "Open installation wizard",
+    "report": "Report",
+    "signed": "Signed",
+    "draft": "Draft",
+    "createReport": "Create report",
+    "passport": "QR passport",
+    "createPassports": "Generate passports",
+    "none": "None"
+  },
+  "sash": {
+    "kind_fix": "Fixed",
+    "kind_classic": "Side-hung",
+    "kind_tiltturn": "Tilt & turn",
+    "kind_tilt": "Tilt only",
+    "kind_sliding": "Sliding",
+    "kind_liftslide": "Lift-and-slide",
+    "sec_standard": "Standard",
+    "sec_rc2": "RC2 (burglar-resistant)",
+    "sec_rc3": "RC3 (high security)",
+    "mix_slidingOnly": "A sliding sash can only be combined with other sliding sashes.",
+    "mix_liftslideOnly": "A lift-and-slide sash can only be combined with other lift-and-slide sashes.",
+    "mix_hingedVsSliding": "A hinged sash cannot be mixed with a sliding one.",
+    "mix_hingedVsLiftslide": "A hinged sash cannot be mixed with a lift-and-slide one.",
+    "openingType": "Opening type",
+    "direction": "Direction (inside view)",
+    "left": "L ◄",
+    "right": "R ►",
+    "operable": "Opening sash",
+    "fixedPanel": "Fixed / blind panel",
+    "hardware": "Hardware",
+    "hardwareColor": "Hardware colour",
+    "securityClass": "Security class",
+    "handleHeight": "Handle height from the floor",
+    "main": "Main sash"
   }
 }

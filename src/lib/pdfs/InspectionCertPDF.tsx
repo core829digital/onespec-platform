@@ -1,4 +1,5 @@
 import "./pdf-setup";
+import { fieldPdfCopy } from "./field-pdf-i18n";
 import { Document, Image, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import { CompanyLogo } from "./CompanyLogo";
 
@@ -212,6 +213,7 @@ export function InspectionCertPDF({
   generatedAt,
 }: InspectionCertPDFProps) {
   const isSigned = report.status === "signed";
+  const T = fieldPdfCopy(locale);
 
   return (
     <Document>
@@ -222,12 +224,12 @@ export function InspectionCertPDF({
             <Text style={styles.company}>{tenant.name}</Text>
             <Text style={styles.subtitle}>{title}</Text>
             {tenant.address && <Text style={styles.subtitle}>{tenant.address}</Text>}
-            {tenant.vatId && <Text style={styles.subtitle}>P.IVA: {tenant.vatId}</Text>}
+            {tenant.vatId && <Text style={styles.subtitle}>{T.vatId}: {tenant.vatId}</Text>}
             {(tenant.phone || tenant.email) && <Text style={styles.subtitle}>{[tenant.phone, tenant.email].filter(Boolean).join(" · ")}</Text>}
           </View>
           <View style={{ textAlign: "right" }}>
             <View style={[styles.badge, isSigned ? styles.badgeGreen : styles.badgeAmber]}>
-              <Text>{isSigned ? "FIRMATO" : "BOZZA"}</Text>
+              <Text>{isSigned ? T.signed : T.draft}</Text>
             </View>
             <Text style={{ marginTop: 6, fontSize: 9, color: colors.gray[600] }}>
               {fmtDate(report.createdAt, locale)}
@@ -236,21 +238,21 @@ export function InspectionCertPDF({
         </View>
 
         <View style={styles.borderedBox}>
-          <Text style={styles.sectionTitle}>Dati Cliente e Cantiere</Text>
+          <Text style={styles.sectionTitle}>{T.client} · {T.site}</Text>
           <View style={styles.row}>
-            <Text style={styles.label}>Cliente:</Text>
+            <Text style={styles.label}>{T.client}:</Text>
             <Text style={styles.value}>{report.customerName}</Text>
           </View>
           {report.siteAddress && (
             <View style={styles.row}>
-              <Text style={styles.label}>Cantiere:</Text>
+              <Text style={styles.label}>{T.site}:</Text>
               <Text style={styles.value}>{report.siteAddress}</Text>
             </View>
           )}
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Documentazione Fotografica</Text>
+          <Text style={styles.sectionTitle}>{T.photosTitle}</Text>
           {report.photos.length > 0 ? (
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
               {report.photos.map((p) => (
@@ -274,12 +276,12 @@ export function InspectionCertPDF({
               ))}
             </View>
           ) : (
-            <Text style={styles.value}>Nessuna foto allegata</Text>
+            <Text style={styles.value}>{T.noPhotos}</Text>
           )}
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Prova di Funzionamento</Text>
+          <Text style={styles.sectionTitle}>{T.checksTitle}</Text>
           <View style={{ marginLeft: 12 }}>
             {report.checks.map((c) => (
               <View key={c.key} style={styles.checkItem}>
@@ -291,22 +293,22 @@ export function InspectionCertPDF({
 
         {(report.installerNotes || report.clientRemarks) && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Note e Osservazioni</Text>
+            <Text style={styles.sectionTitle}>{T.notesTitle}</Text>
             {report.installerNotes && (
               <View style={styles.noteItem}>
-                <Text><Text style={styles.label}>Note posatore: </Text>{report.installerNotes}</Text>
+                <Text><Text style={styles.label}>{T.installerNotes}: </Text>{report.installerNotes}</Text>
               </View>
             )}
             {report.clientRemarks && (
               <View style={styles.noteItem}>
-                <Text><Text style={styles.label}>Osservazioni cliente: </Text>{report.clientRemarks}</Text>
+                <Text><Text style={styles.label}>{T.clientRemarks}: </Text>{report.clientRemarks}</Text>
               </View>
             )}
           </View>
         )}
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Garanzie</Text>
+          <Text style={styles.sectionTitle}>{T.warrantyTitle}</Text>
           <View style={{ marginLeft: 12 }}>
             {warrantyLines.map((w, i) => (
               <View key={i} style={styles.noteItem}>
@@ -318,7 +320,7 @@ export function InspectionCertPDF({
 
         {isSigned && report.signatureDataUrl && (
           <View style={styles.signatureArea}>
-            <Text style={{ fontSize: 8, color: colors.gray[500], marginBottom: 8 }}>Firma del committente</Text>
+            <Text style={{ fontSize: 8, color: colors.gray[500], marginBottom: 8 }}>{T.clientSignature}</Text>
             <View style={{ height: 70, width: 200, backgroundColor: colors.gray[50], borderWidth: 1, borderColor: colors.gray[300], padding: 3 }}>
               {/* The captured signature itself (a PNG data URL) — was a text placeholder. */}
               <Image src={report.signatureDataUrl} style={{ width: "100%", height: "100%", objectFit: "contain" }} />
@@ -331,7 +333,7 @@ export function InspectionCertPDF({
         )}
 
         <View style={styles.footer}>
-          <Text>{legalBasis} · Documento generato da OneSpec · {fmtDate(generatedAt, locale)}</Text>
+          <Text>{legalBasis} · {T.generatedBy} · {fmtDate(generatedAt, locale)}</Text>
         </View>
       </Page>
     </Document>

@@ -1,4 +1,5 @@
 import type { CSSProperties } from "react";
+import { useTranslations } from "next-intl";
 
 /**
  * Auth-scene hero: a window elevation that draws itself, then the width
@@ -7,17 +8,18 @@ import type { CSSProperties } from "react";
  * the resolved state with no drawing.
  */
 export function BlueprintHero() {
+  const t = useTranslations("auth.hero");
   const v = (delay: number, len = 1600): CSSProperties =>
     ({ "--delay": `${delay}s`, "--len": String(len) }) as CSSProperties;
 
   return (
     <div className="hidden lg:flex flex-col justify-between h-full p-12">
-      <p className="auth-titleblock text-xs text-[var(--auth-text-dim)]">OneSpec · prospetto</p>
+      <p className="auth-titleblock text-xs text-[var(--auth-text-dim)]">{t("titleblock")}</p>
 
       <svg
         viewBox="0 0 380 340"
         role="img"
-        aria-label="Disegno tecnico di una finestra: la quota di larghezza si trasforma in prezzo."
+        aria-label={t("aria")}
         className="w-full max-w-[26rem] mx-auto"
         fill="none"
         strokeLinecap="square"
@@ -115,11 +117,12 @@ export function BlueprintHero() {
 
 /** Compact strip shown above the form on small screens. */
 export function BlueprintStrip() {
+  const t = useTranslations("auth.hero");
   return (
     <svg
       viewBox="0 0 320 44"
       role="img"
-      aria-label="Quota che si trasforma in prezzo"
+      aria-label={t("stripAria")}
       className="lg:hidden w-full h-11 mb-6"
       fill="none"
     >

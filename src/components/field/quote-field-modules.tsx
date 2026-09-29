@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -32,6 +33,7 @@ export function QuoteFieldModules({
   address?: string;
   items: unknown;
 }) {
+  const t = useTranslations("fieldTools");
   const tf = useFriendlyError();
   const surveys = useQuery(api.surveys.listByQuote, { quoteId });
   const dossiers = useQuery(api.installations.listByQuote, { quoteId });
@@ -70,11 +72,11 @@ export function QuoteFieldModules({
 
   return (
     <div className="rounded-xl border border-[var(--color-border)] p-4">
-      <h2 className="mb-3 text-sm font-semibold">Moduli cantiere</h2>
+      <h2 className="mb-3 text-sm font-semibold">{t("modulesTitle")}</h2>
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <ModuleCard
-          title="Rilievo"
+          title={t("survey")}
           rows={(surveys ?? []).map((s) => ({
             id: s._id,
             label: `${s.openings.length} fori · ${s.status}`,
@@ -87,31 +89,31 @@ export function QuoteFieldModules({
                 quoteId,
                 customerName: leadName,
                 customerAddress: address,
-                openings: openings.length ? openings : [{ label: "Foro 1", widthMm: 0, heightMm: 0 }],
+                openings: openings.length ? openings : [{ label: t("opening1"), widthMm: 0, heightMm: 0 }],
                 diagnostics: {},
               }),
             )
           }
           busy={busy === "survey"}
-          createLabel="Crea rilievo"
+          createLabel={t("createSurvey")}
         />
 
         <ModuleCard
-          title="Posa"
+          title={t("installation")}
           rows={(dossiers ?? []).map((d) => ({
             id: d._id,
             label: `${d.normRef} · ${d.nodeType}`,
             href: `/app/installations/${d._id}/print`,
           }))}
           createHref="/app/installations"
-          createLabel="Apri wizard posa"
+          createLabel={t("openInstallWizard")}
         />
 
         <ModuleCard
-          title="Verbale"
+          title={t("report")}
           rows={(inspections ?? []).map((r) => ({
             id: r._id,
-            label: r.status === "signed" ? "Firmato" : "Bozza",
+            label: r.status === "signed" ? t("signed") : t("draft"),
             href: `/app/inspections/${r._id}/print`,
           }))}
           onCreate={() =>
@@ -120,11 +122,11 @@ export function QuoteFieldModules({
             )
           }
           busy={busy === "inspection"}
-          createLabel="Crea verbale"
+          createLabel={t("createReport")}
         />
 
         <ModuleCard
-          title="Fascicolo QR"
+          title={t("passport")}
           rows={(passports ?? []).map((p) => ({
             id: p._id,
             label: `${p.label.slice(0, 18)} · ${p.scanCount} scan`,
@@ -146,7 +148,7 @@ export function QuoteFieldModules({
             })
           }
           busy={busy === "passport"}
-          createLabel="Genera fascicoli"
+          createLabel={t("createPassports")}
         />
       </div>
       {err && <p className="mt-2 text-sm text-red-600">{err}</p>}
@@ -169,6 +171,7 @@ function ModuleCard({
   createLabel: string;
   busy?: boolean;
 }) {
+  const t = useTranslations("fieldTools");
   return (
     <div className="rounded-lg border border-[var(--color-border)] p-3">
       <div className="text-xs font-semibold uppercase text-[var(--color-muted-fg)]">{title}</div>
@@ -183,7 +186,7 @@ function ModuleCard({
           </Link>
         ))}
         {rows.length === 0 && (
-          <div className="text-xs text-[var(--color-muted-fg)]">Nessuno</div>
+          <div className="text-xs text-[var(--color-muted-fg)]">{t("none")}</div>
         )}
       </div>
       {createHref ? (

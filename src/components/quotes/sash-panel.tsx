@@ -1,10 +1,9 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   SASH_KINDS,
-  SASH_KIND_LABEL,
   SECURITY_CLASSES,
-  SECURITY_LABEL,
   sashTypeAllowedWith,
   isOperable,
   type EditorSash,
@@ -37,6 +36,7 @@ export function SashPanel({
   onPatch,
   onClose,
 }: Props) {
+  const t = useTranslations("sash");
   const { min: handleMin, max: handleMax } = handleRange(itemHeightMm);
   const handle = sash.handleHeightMm ?? Math.round(itemHeightMm / 2);
   const operable = isOperable(sash.type);
@@ -58,7 +58,7 @@ export function SashPanel({
 
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className={lbl}>Tipo apertura</label>
+          <label className={lbl}>{t("openingType")}</label>
           <select
             className={sel}
             value={sash.type}
@@ -66,7 +66,7 @@ export function SashPanel({
               const next = e.target.value as SashKind;
               const check = sashTypeAllowedWith(siblingTypes, next);
               if (!check.ok) {
-                alert(check.reason);
+                alert(check.mix ? t(`mix_${check.mix}`) : check.reason);
                 return;
               }
               onPatch({ type: next });
@@ -74,13 +74,13 @@ export function SashPanel({
           >
             {SASH_KINDS.map((k) => (
               <option key={k} value={k}>
-                {SASH_KIND_LABEL[k]}
+                {t(`kind_${k}`)}
               </option>
             ))}
           </select>
         </div>
         <div>
-          <label className={lbl}>Verso (vista interna)</label>
+          <label className={lbl}>{t("direction")}</label>
           <div className="flex gap-1">
             {(["left", "right"] as const).map((d) => (
               <button
@@ -93,7 +93,7 @@ export function SashPanel({
                     : "border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-secondary)] hover:border-[var(--color-mint)] hover:text-[var(--color-text)]"
                 }`}
               >
-                {d === "left" ? "Sx ◄" : "Dx ►"}
+                {d === "left" ? t("left") : t("right")}
               </button>
             ))}
           </div>
@@ -107,14 +107,14 @@ export function SashPanel({
           onChange={(e) => onPatch({ active: e.target.checked })}
           className="h-4 w-4 rounded border-[var(--color-border)]"
         />
-        <span>{sash.active ? "Anta apribile" : "Pannello fisso / cieco"}</span>
+        <span>{sash.active ? t("operable") : t("fixedPanel")}</span>
       </label>
 
       {operable && sash.active && (
         <>
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <label className={lbl} htmlFor={`sash-${index}-hardware`}>Ferramenta</label>
+              <label className={lbl} htmlFor={`sash-${index}-hardware`}>{t("hardware")}</label>
               <select id={`sash-${index}-hardware`} className={sel} value={sash.hardware} onChange={(e) => onPatch({ hardware: e.target.value })}>
                 {hardwareOptions.map(([k, l]) => (
                   <option key={k} value={k}>
@@ -124,7 +124,7 @@ export function SashPanel({
               </select>
             </div>
             <div>
-              <label className={lbl} htmlFor={`sash-${index}-hardware-color`}>Colore ferramenta</label>
+              <label className={lbl} htmlFor={`sash-${index}-hardware-color`}>{t("hardwareColor")}</label>
               <select
                 id={`sash-${index}-hardware-color`}
                 className={sel}
@@ -141,7 +141,7 @@ export function SashPanel({
           </div>
 
           <div>
-            <label className={lbl} htmlFor={`sash-${index}-security-class`}>Classe di sicurezza</label>
+            <label className={lbl} htmlFor={`sash-${index}-security-class`}>{t("securityClass")}</label>
             <select
               id={`sash-${index}-security-class`}
               className={sel}
@@ -150,7 +150,7 @@ export function SashPanel({
             >
               {SECURITY_CLASSES.map((c) => (
                 <option key={c} value={c}>
-                  {SECURITY_LABEL[c]}
+                  {t(`sec_${c}`)}
                 </option>
               ))}
             </select>
@@ -158,7 +158,7 @@ export function SashPanel({
 
           <div>
             <div className="flex items-center justify-between">
-              <label className={lbl}>Altezza maniglia dal pavimento</label>
+              <label className={lbl}>{t("handleHeight")}</label>
               <span className="font-mono text-xs font-bold text-[var(--color-text)]">{handle} mm</span>
             </div>
             <input
@@ -179,7 +179,7 @@ export function SashPanel({
               onChange={(e) => onPatch({ main: e.target.checked })}
               className="h-4 w-4 rounded border-[var(--color-border)]"
             />
-            <span>Anta principale</span>
+            <span>{t("main")}</span>
           </label>
         </>
       )}

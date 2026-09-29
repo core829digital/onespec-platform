@@ -7,6 +7,7 @@ import {
   violationsFor,
   type EditorSash,
   type SashKind,
+  type SashMixCode,
 } from "./sash-rules";
 import { DIM_ABS_MAX, SINGLE_SASH_MAX_HEIGHT, SINGLE_SASH_MAX_WIDTH } from "./widget-types";
 
@@ -145,7 +146,7 @@ export type PieceIssue =
   | { code: "size"; axis: "width" | "height"; min: number; max: number }
   | { code: "leafWidth" | "leafHeight"; leaf: number; min: number; got: number }
   | { code: "singleLeafMax"; axis: "width" | "height"; max: number }
-  | { code: "mix"; reason: string }
+  | { code: "mix"; reason: string; mix?: SashMixCode }
   | { code: "unknownKey"; field: "material" | "quality" | "glazing" | "color" | "frameType" | "profileSystem" | "hardware"; key: string };
 
 /**
@@ -167,7 +168,7 @@ export function pieceIssues(item: ProjectItem, payload?: CatalogPayload): PieceI
   const types = item.sashes.map((s) => s.type as SashKind);
   types.forEach((t, i) => {
     const check = sashTypeAllowedWith(types.filter((_, j) => j !== i), t);
-    if (!check.ok && check.reason) out.push({ code: "mix", reason: check.reason });
+    if (!check.ok && check.reason) out.push({ code: "mix", reason: check.reason, mix: check.mix });
   });
   if (payload) {
     const has = (rows: Array<{ key: string; enabled: boolean }> | undefined, key: string | undefined) =>

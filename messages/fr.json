@@ -236,6 +236,11 @@
     "botcheck": {
       "unavailable": "Vérification de sécurité indisponible. Désactivez les bloqueurs de contenu et rechargez la page.",
       "failed": "Échec de la vérification de sécurité. Réessayez."
+    },
+    "hero": {
+      "titleblock": "OneSpec · élévation",
+      "aria": "Dessin technique d'une fenêtre : la cote de largeur se transforme en prix.",
+      "stripAria": "Une cote qui se transforme en prix"
     }
   },
   "notifications": {
@@ -437,7 +442,11 @@
       "draftRestored": "Brouillon restauré : {count} pièces.",
       "discardDraft": "Abandonner et recommencer",
       "draftSaved": "Brouillon enregistré automatiquement dans ce navigateur.",
-      "noPublishedCatalog": "Aucun catalogue publié pour ce configurateur — publiez-le pour créer des devis."
+      "noPublishedCatalog": "Aucun catalogue publié pour ce configurateur — publiez-le pour créer des devis.",
+      "errClientRequired": "Saisissez le nom et l'e-mail du client.",
+      "emailPlaceholder": "client@email.fr",
+      "addressPlaceholder": "12 rue de la Paix",
+      "notIncluded": "— non inclus —"
     },
     "list": {
       "kicker": "Outil B2B de chantier",
@@ -732,7 +741,15 @@
     "subtitle": "Assistant nœud de pose + nomenclature de matériaux conforme aux normes.",
     "countryNotSet": "Pays non défini",
     "countryNotSetHint": "Définissez votre pays dans les Paramètres pour voir la norme et les exigences de conformité correctes.",
-    "goToSettings": "Aller aux Paramètres"
+    "goToSettings": "Aller aux Paramètres",
+    "selectJobNode": "Sélectionnez le type de travaux et le nœud de pose.",
+    "step1": "1 · Type de travaux",
+    "step2": "2 · Nœud de pose",
+    "loadFromSurvey": "Charger depuis un relevé",
+    "materialsAria": "Matériaux de pose",
+    "notesPlaceholder": "Notes pour l'équipe de pose",
+    "listAria": "Liste des dossiers de pose",
+    "empty": "Aucun dossier de pose."
   },
   "inspections": {
     "offline": "Hors ligne — sauvegarde locale",
@@ -911,7 +928,12 @@
     "editCustomer": "Modifier les données client",
     "cancel": "Annuler",
     "city": "Ville",
-    "postalCode": "Code postal"
+    "postalCode": "Code postal",
+    "noConfigurator": "Aucun configurateur publié. Publiez-en un avant de générer un devis.",
+    "clientRequired": "Le nom du client est obligatoire.",
+    "pageTitle": "Relevé de chantier",
+    "backToGallery": "Retour à la galerie",
+    "empty": "Aucun relevé pour l'instant."
   },
   "dossierEdit": {
     "edit": "Modifier",
@@ -1044,7 +1066,21 @@
     "exportDraft": "Enregistrer le brouillon",
     "loadDraft": "Charger un brouillon",
     "draftRestored": "Brouillon restauré : {count} pièces.",
-    "discardDraft": "Abandonner et recommencer"
+    "discardDraft": "Abandonner et recommencer",
+    "fiscal": {
+      "turnkey": "Prix clés en main",
+      "financing": "Exemple d'échelonnement : {monthly} / mois en 24 mensualités (indicatif)",
+      "taxable": "Montant HT",
+      "totalVat": "TVA totale",
+      "uwAvg": "U<sub>w</sub> moyen",
+      "eligible": "Éligible aux aides",
+      "notEligible": "Non éligible",
+      "savings": "Économie d'énergie",
+      "savingsValue": "~{kwh} kWh/an",
+      "whatsapp": "Envoyer par WhatsApp",
+      "survey": "Demander une visite technique",
+      "addToQuote": "+ Ajouter au devis"
+    }
   },
   "legal": {
     "lastUpdated": "Dernière mise à jour",
@@ -2099,5 +2135,108 @@
     "cancel": "Annuler",
     "sending": "Envoi…",
     "send": "Envoyer"
+  },
+  "fieldCommon": {
+    "offline": "Hors ligne — enregistrement local",
+    "pending": "{count} à synchroniser",
+    "synced": "Synchronisé",
+    "syncNow": "Synchroniser",
+    "openMaps": "Ouvrir dans Google Maps",
+    "openWaze": "Ouvrir dans Waze"
+  },
+  "diagnostic": {
+    "title": "Check-list de diagnostic chantier",
+    "wallType": "Type de mur *",
+    "counterFrame": "Précadre *",
+    "floorAccess": "Accès / étage *",
+    "mould": "Moisissures / infiltrations",
+    "shutter": "Volet roulant existant",
+    "notes": "Notes de diagnostic",
+    "notesPlaceholder": "Observations complémentaires…",
+    "recommendation": "Recommandation :",
+    "wall0": "Brique Porotherm 30 cm",
+    "wall1": "Brique + ITE EPS 10 cm",
+    "wall2": "Béton armé",
+    "wall3": "Pierre / maçonnerie ancienne",
+    "wall4": "Plaque de plâtre + laine",
+    "frame0": "Précadre métallique existant",
+    "frame1": "Monobloc isolant",
+    "frame2": "Ancien dormant bois (à conserver)",
+    "frame3": "Pas de précadre — maçonnerie brute",
+    "floor0": "Rez-de-chaussée — accès direct",
+    "floor1": "1er étage — échafaudage léger",
+    "floor2": "2e étage sans ascenseur",
+    "floor3": "3e étage et plus — camion-grue nécessaire",
+    "recMould": "Présence de moisissures : traitement antifongique obligatoire avant la pose",
+    "recThermal": "Mur isolant : bande pare-vapeur intérieure + joint mousse précomprimé BG1 min. 15 mm",
+    "recConcrete": "Mur béton : primaire consolidant + bande BG1",
+    "recStone": "Maçonnerie ancienne : mortier perspirant + bande BG1 souple",
+    "recAccess": "Accès difficile : prévoir un camion-grue / monte-charge",
+    "recWoodFrame": "Précadre bois : vérifier son état, prévoir éventuellement un second dormant",
+    "recMonobloc": "Monobloc isolant : calfeutrement périphérique au MS polymère",
+    "recShutter": "Volet roulant existant : prévoir un coffre isolé ou extérieur",
+    "recNone": "Aucun point critique relevé"
+  },
+  "fieldTools": {
+    "photoLoading": "Chargement de la photo…",
+    "photoError": "Erreur de chargement",
+    "coteHelp": "Cliquez pour commencer • Glissez pour étendre • Suppr pour effacer",
+    "coteSelected": "✓ Sélectionné : appuyez sur Suppr pour retirer",
+    "btUnsupportedAlert": "Web Bluetooth n'est pas pris en charge par ce navigateur. Utilisez Chrome/Edge sur Android/Windows ou Chrome sur macOS.",
+    "btUnsupported": "Web Bluetooth non pris en charge",
+    "btUseBrowsers": "Utilisez Chrome/Edge sur Android/Windows ou Chrome sur macOS.",
+    "btManual": "Saisissez les mesures manuellement dans les champs ci-dessous.",
+    "laserTitle": "Télémètre laser",
+    "connected": "Connecté",
+    "notConnected": "Non connecté",
+    "openingW": "L baie mm",
+    "openingH": "H baie mm",
+    "multiTitle": "Articles multi-fournisseurs",
+    "multiAria": "Lignes multi-fournisseurs",
+    "supplier": "Fournisseur",
+    "product": "Produit",
+    "qty": "Qté",
+    "unitPrice": "Prix unit.",
+    "total": "Total",
+    "materialsTotal": "Total matériaux :",
+    "modulesTitle": "Modules chantier",
+    "survey": "Relevé",
+    "opening1": "Baie 1",
+    "createSurvey": "Créer un relevé",
+    "installation": "Pose",
+    "openInstallWizard": "Ouvrir l'assistant de pose",
+    "report": "Procès-verbal",
+    "signed": "Signé",
+    "draft": "Brouillon",
+    "createReport": "Créer le procès-verbal",
+    "passport": "Carnet QR",
+    "createPassports": "Générer les carnets",
+    "none": "Aucun"
+  },
+  "sash": {
+    "kind_fix": "Fixe",
+    "kind_classic": "Battant",
+    "kind_tiltturn": "Oscillo-battant",
+    "kind_tilt": "Soufflet",
+    "kind_sliding": "Coulissant",
+    "kind_liftslide": "Levant-coulissant",
+    "sec_standard": "Standard",
+    "sec_rc2": "RC2 (anti-effraction)",
+    "sec_rc3": "RC3 (haute sécurité)",
+    "mix_slidingOnly": "Un ouvrant coulissant ne se combine qu'avec d'autres coulissants.",
+    "mix_liftslideOnly": "Un levant-coulissant ne se combine qu'avec d'autres levants-coulissants.",
+    "mix_hingedVsSliding": "Impossible de combiner un ouvrant battant avec un coulissant.",
+    "mix_hingedVsLiftslide": "Impossible de combiner un ouvrant battant avec un levant-coulissant.",
+    "openingType": "Type d'ouverture",
+    "direction": "Sens (vue intérieure)",
+    "left": "G ◄",
+    "right": "D ►",
+    "operable": "Ouvrant",
+    "fixedPanel": "Panneau fixe / plein",
+    "hardware": "Quincaillerie",
+    "hardwareColor": "Couleur de la quincaillerie",
+    "securityClass": "Classe de sécurité",
+    "handleHeight": "Hauteur de la poignée depuis le sol",
+    "main": "Ouvrant principal"
   }
 }

@@ -58,6 +58,7 @@ function perimeterMm(openings: LaserOpening[]) {
 }
 
 function SyncBadge({ state, onSync }: { state: SyncState; onSync: () => void }) {
+  const tc = useTranslations("fieldCommon");
   const { isOnline, pendingCount, error } = state;
   const color = !isOnline
     ? "bg-amber-100 text-amber-800"
@@ -65,10 +66,10 @@ function SyncBadge({ state, onSync }: { state: SyncState; onSync: () => void }) 
       ? "bg-blue-100 text-blue-800"
       : "bg-emerald-100 text-emerald-700";
   const label = !isOnline
-    ? "Offline — salvataggio locale"
+    ? tc("offline")
     : pendingCount > 0
-      ? `${pendingCount} da sincronizzare`
-      : "Sincronizzato";
+      ? tc("pending", { count: pendingCount })
+      : tc("synced");
   return (
     <div className="flex items-center gap-2">
       <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${color}`}>
@@ -77,7 +78,7 @@ function SyncBadge({ state, onSync }: { state: SyncState; onSync: () => void }) 
       </span>
       {isOnline && pendingCount > 0 && (
         <button onClick={onSync} className="rounded border border-[var(--color-border)] px-2 py-1 text-xs">
-          Sincronizza ora
+          {tc("syncNow")}
         </button>
       )}
       {error && <span className="text-xs text-red-600">{error}</span>}
@@ -89,6 +90,7 @@ export default function SurveysPage() {
   const tf = useFriendlyError();
   const router = useRouter();
   const td = useTranslations("surveyDoc");
+  const tc = useTranslations("fieldCommon");
   const tenant = useQuery(api.tenants.getMyTenant);
   const surveys = useQuery(api.surveys.list, tenant ? { tenantId: tenant._id } : "skip");
   const createSurvey = useMutation(api.surveys.create);
@@ -143,7 +145,8 @@ export default function SurveysPage() {
   const [uploading, setUploading] = useState(false);
 
   const totalPerimeter = useMemo(() => perimeterMm(openings), [openings]);
-  const recommendation = useMemo(() => computeRecommendation(diag), [diag]);
+  const tdg = useTranslations("diagnostic");
+  const recommendation = useMemo(() => computeRecommendation(diag, (k) => tdg(k)), [diag, tdg]);
 
   const buildPayload = useCallback(() => {
     if (!tenant) return null;
@@ -222,7 +225,7 @@ export default function SurveysPage() {
 
   async function generateQuoteFromSurvey(surveyId: Id<"siteSurveys">) {
     if (!publishedConfig) {
-      setErr("Nessun configuratore pubblicato. Pubblica un configuratore prima di generare un preventivo.");
+      setErr(td("noConfigurator"));
       return;
     }
     setErr("");
@@ -285,7 +288,7 @@ export default function SurveysPage() {
   async function save() {
     if (!tenant) return;
     if (!customerName.trim()) {
-      setErr("Nome cliente obbligatorio.");
+      setErr(td("clientRequired"));
       return;
     }
     const payload = buildPayload();
@@ -318,7 +321,7 @@ export default function SurveysPage() {
     <div className="w-full space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--color-border)] pb-4">
         <div>
-          <h1 className="text-xl font-semibold">Rilievo Cantiere</h1>
+          <h1 className="text-xl font-semibold">{td("pageTitle")}</h1>
           <p className="text-sm text-[var(--color-muted-fg)]">
             Misure laser Bluetooth, foto e checklist diagnostica. Funziona offline.
           </p>
@@ -530,7 +533,7 @@ export default function SurveysPage() {
                       onClick={() => setActivePhotoIdx(null)}
                       className="text-sm text-[var(--color-muted-fg)] hover:underline"
                     >
-                      Torna alla galleria
+                      {td("backToGallery")}
                     </button>
                   </div>
                   <PhotoCoteCanvas
@@ -626,8 +629,8 @@ export default function SurveysPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="rounded-lg bg-blue-600 px-2 py-1 text-[10px] font-medium text-white hover:opacity-80 transition-opacity"
-                        title="Apri in Google Maps"
-                        aria-label="Apri in Google Maps"
+                        title={tc("openMaps")}
+                        aria-label={tc("openMaps")}
                       >
                         Maps
                       </a>
@@ -636,8 +639,8 @@ export default function SurveysPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="rounded-lg bg-[#4BB543] px-2 py-1 text-[10px] font-medium text-white hover:opacity-80 transition-opacity"
-                        title="Apri in Waze"
-                        aria-label="Apri in Waze"
+                        title={tc("openWaze")}
+                        aria-label={tc("openWaze")}
                       >
                         Waze
                       </a>
@@ -682,7 +685,7 @@ export default function SurveysPage() {
             {surveys && surveys.length === 0 && (
               <tr>
                 <td colSpan={7} className="px-4 py-8 text-center text-[var(--color-muted-fg)]">
-                  Nessun rilievo ancora.
+                  {td("empty")}
                 </td>
               </tr>
             )}

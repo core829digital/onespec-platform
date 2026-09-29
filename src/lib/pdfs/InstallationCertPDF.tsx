@@ -1,4 +1,5 @@
 import "./pdf-setup";
+import { fieldPdfCopy } from "./field-pdf-i18n";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import { CompanyLogo } from "./CompanyLogo";
 
@@ -197,6 +198,8 @@ export function InstallationCertPDF({
   locale = "it-IT",
   generatedAt,
 }: InstallationCertPDFProps) {
+  // The market's own norm is shown via dossier.normRef (UNI 11673, DTU 36.5, RAL…).
+  const T = fieldPdfCopy(locale);
   return (
     <Document>
       <Page size="A4" style={styles.page}>
@@ -204,9 +207,9 @@ export function InstallationCertPDF({
           <View>
             <CompanyLogo url={tenant.logoUrl} />
             <Text style={styles.company}>{tenant.name}</Text>
-            <Text style={styles.subtitle}>Dossier di Posa Qualificata</Text>
+            <Text style={styles.subtitle}>{T.dossierSubtitle}</Text>
             {tenant.address && <Text style={styles.subtitle}>{tenant.address}</Text>}
-            {tenant.vatId && <Text style={styles.subtitle}>P.IVA: {tenant.vatId}</Text>}
+            {tenant.vatId && <Text style={styles.subtitle}>{T.vatId}: {tenant.vatId}</Text>}
             {(tenant.phone || tenant.email) && <Text style={styles.subtitle}>{[tenant.phone, tenant.email].filter(Boolean).join(" · ")}</Text>}
           </View>
           <View style={{ textAlign: "right" }}>
@@ -221,11 +224,11 @@ export function InstallationCertPDF({
 
         {(survey || quote) && (
           <View style={styles.borderedBox}>
-            <Text style={styles.sectionTitle}>Riferimenti Progetto</Text>
+            <Text style={styles.sectionTitle}>{T.projectRefs}</Text>
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 16 }}>
               {quote && (
                 <View>
-                  <Text style={styles.label}>Cliente:</Text>
+                  <Text style={styles.label}>{T.client}:</Text>
                   <Text style={styles.value}>{quote.leadName}</Text>
                   {quote.customerAddress && (
                     <Text style={styles.value}>
@@ -236,7 +239,7 @@ export function InstallationCertPDF({
               )}
               {survey && (
                 <View>
-                  <Text style={styles.label}>Rilievo collegato:</Text>
+                  <Text style={styles.label}>{T.linkedSurvey}:</Text>
                   <Text style={styles.value}>
                     {survey.customerName} · {survey.openings.length} fori ·
                     perimetro {(survey.openings.reduce((s, o) => s + 2 * (o.widthMm + o.heightMm), 0) / 1000).toFixed(2)} m
@@ -248,28 +251,28 @@ export function InstallationCertPDF({
         )}
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Dettaglio Intervento</Text>
+          <Text style={styles.sectionTitle}>{T.jobDetail}</Text>
           <View style={styles.gridRow}>
             <View style={styles.gridCell}>
-              <Text style={styles.label}>Tipo di lavoro</Text>
+              <Text style={styles.label}>{T.jobType}</Text>
               <Text style={styles.value}>{jobLabel}</Text>
             </View>
             <View style={styles.gridCell}>
-              <Text style={styles.label}>Nodo di posa</Text>
+              <Text style={styles.label}>{T.node}</Text>
               <Text style={styles.value}>{nodeLabel}</Text>
             </View>
             <View style={styles.gridCell}>
-              <Text style={styles.label}>Perimetro aperture</Text>
+              <Text style={styles.label}>{T.perimeter}</Text>
               <Text style={styles.value}>{(dossier.perimeterMm / 1000).toFixed(2)} m</Text>
             </View>
           </View>
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Distinta Materiali di Posa</Text>
+          <Text style={styles.sectionTitle}>{T.materialsTitle}</Text>
           <View style={styles.tableHeader}>
-            <View style={styles.tableHeaderCell}><Text>Materiale</Text></View>
-            <View style={{ ...styles.tableHeaderCell, textAlign: "right", width: "30%" }}><Text>Quantità</Text></View>
+            <View style={styles.tableHeaderCell}><Text>{T.material}</Text></View>
+            <View style={{ ...styles.tableHeaderCell, textAlign: "right", width: "30%" }}><Text>{T.quantity}</Text></View>
           </View>
           {dossier.materials.map((m) => (
             <View key={m.key} style={styles.tableRow}>
@@ -292,7 +295,7 @@ export function InstallationCertPDF({
           </View>
           {dossier.notes && (
             <View style={{ marginTop: 8 }}>
-              <Text style={styles.label}>Note squadra:</Text>
+              <Text style={styles.label}>{T.teamNotes}:</Text>
               <Text style={styles.value}>{dossier.notes}</Text>
             </View>
           )}
@@ -302,16 +305,13 @@ export function InstallationCertPDF({
           <View style={[styles.badge, styles.badgeGreen]}>
             <Text>{dossier.normRef}</Text>
           </View>
-          <View style={[styles.badge, { backgroundColor: colors.amber[100], color: colors.amber[700] }]}>
-            <Text>Posa UNI 11673</Text>
-          </View>
           <View style={[styles.badge, { backgroundColor: colors.gray[100], color: colors.gray[700] }]}>
-            <Text>Marcatura CE EN 14351-1</Text>
+            <Text>{T.ceMarking}</Text>
           </View>
         </View>
 
         <View style={styles.footer}>
-          <Text>Documento generato da OneSpec · Posa conforme {dossier.normRef} · Marcatura CE EN 14351-1</Text>
+          <Text>{T.generatedBy} · {T.compliantInstall(dossier.normRef)} · {T.ceMarking}</Text>
           <Text>{fmtDate(generatedAt, locale)}</Text>
         </View>
       </Page>

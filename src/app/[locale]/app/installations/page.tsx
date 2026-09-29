@@ -21,16 +21,17 @@ import {
 import { AlertTriangle, Globe, Settings } from "lucide-react";
 
 function SyncBadge({ state, onSync }: { state: SyncState; onSync: () => void }) {
+  const tc = useTranslations("fieldCommon");
   const color = !state.isOnline
     ? "bg-amber-100 text-amber-800"
     : state.pendingCount > 0
     ? "bg-blue-100 text-blue-800"
     : "bg-emerald-100 text-emerald-700";
   const label = !state.isOnline
-    ? "Offline — salvataggio locale"
+    ? tc("offline")
     : state.pendingCount > 0
-    ? `${state.pendingCount} da sincronizzare`
-    : "Sincronizzato";
+    ? tc("pending", { count: state.pendingCount })
+    : tc("synced");
   return (
     <div className="flex items-center gap-2">
       <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${color}`}>
@@ -39,7 +40,7 @@ function SyncBadge({ state, onSync }: { state: SyncState; onSync: () => void }) 
       </span>
       {state.isOnline && state.pendingCount > 0 && (
         <button onClick={onSync} className="rounded border border-[var(--color-border)] px-2 py-1 text-xs">
-          Sincronizza ora
+          {tc("syncNow")}
         </button>
       )}
       {state.error && <span className="text-xs text-red-600">{state.error}</span>}
@@ -66,6 +67,7 @@ export default function InstallationsPage() {
   const createDossier = useMutation(api.installations.create);
   const removeDossier = useMutation(api.installations.remove);
   const td = useTranslations("dossierEdit");
+  const tc = useTranslations("fieldCommon");
   const toMessage = useFriendlyError();
   const [editing, setEditing] = useState<EditableDossier | null>(null);
 
@@ -122,7 +124,7 @@ export default function InstallationsPage() {
 
   async function save() {
     if (!tenant || !jobType || !nodeType) {
-      setErr("Seleziona tipo lavoro e nodo.");
+      setErr(t("selectJobNode"));
       return;
     }
     setSaving(true);
@@ -274,7 +276,7 @@ export default function InstallationsPage() {
 
           {step === 1 && (
             <div className="space-y-2">
-              <h2 className="text-sm font-semibold">1 · Tipo di lavoro</h2>
+              <h2 className="text-sm font-semibold">{t("step1")}</h2>
               {standard.jobTypes.map((j) => (
                 <button
                   key={j.key}
@@ -300,7 +302,7 @@ export default function InstallationsPage() {
 
           {step === 2 && (
             <div className="space-y-2">
-              <h2 className="text-sm font-semibold">2 · Nodo di posa</h2>
+              <h2 className="text-sm font-semibold">{t("step2")}</h2>
               {standard.nodeTypes.map((n) => (
                 <button
                   key={n.key}
@@ -338,7 +340,7 @@ export default function InstallationsPage() {
               <h2 className="text-sm font-semibold">3 · Distinta materiali</h2>
               {surveys && surveys.length > 0 && (
                 <label className="block text-sm">
-                  <span className="text-[var(--color-muted-fg)]">Carica da rilievo</span>
+                  <span className="text-[var(--color-muted-fg)]">{t("loadFromSurvey")}</span>
                   <select
                     value={surveyId}
                     onChange={(e) => {
@@ -381,7 +383,7 @@ export default function InstallationsPage() {
                 />
               </label>
               <div className="overflow-hidden rounded-lg border border-[var(--color-border)]">
-                <table className="w-full text-sm" aria-label="Materiali di posa">
+                <table className="w-full text-sm" aria-label={t("materialsAria")}>
                   <tbody>
                     {preview.map((m) => (
                       <tr key={m.key} className="border-b border-[var(--color-border)] last:border-0">
@@ -402,7 +404,7 @@ export default function InstallationsPage() {
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                placeholder="Note per la squadra di posa"
+                placeholder={t("notesPlaceholder")}
                 className="min-h-[60px] w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2 text-sm"
               />
               {err && <p className="text-sm text-red-600">{err}</p>}
@@ -427,7 +429,7 @@ export default function InstallationsPage() {
       )}
 
       <div className="overflow-hidden rounded-xl border border-[var(--color-border)]">
-        <table className="w-full text-sm" aria-label="Elenco dossier di posa">
+        <table className="w-full text-sm" aria-label={t("listAria")}>
           <thead className="bg-[var(--color-muted)] text-xs text-[var(--color-muted-fg)]">
             <tr>
               <th className="px-4 py-2 text-left">Norma</th>
@@ -458,8 +460,8 @@ export default function InstallationsPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="rounded-lg bg-blue-600 px-2 py-1 text-[10px] font-medium text-white hover:opacity-80 transition-opacity"
-                        title="Apri in Google Maps"
-                        aria-label="Apri in Google Maps"
+                        title={tc("openMaps")}
+                        aria-label={tc("openMaps")}
                       >
                         Maps
                       </a>
@@ -468,8 +470,8 @@ export default function InstallationsPage() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="rounded-lg bg-[#4BB543] px-2 py-1 text-[10px] font-medium text-white hover:opacity-80 transition-opacity"
-                        title="Apri in Waze"
-                        aria-label="Apri in Waze"
+                        title={tc("openWaze")}
+                        aria-label={tc("openWaze")}
                       >
                         Waze
                       </a>
@@ -514,7 +516,7 @@ export default function InstallationsPage() {
             {dossiers && dossiers.length === 0 && (
               <tr>
                 <td colSpan={7} className="px-4 py-8 text-center text-[var(--color-muted-fg)]">
-                  Nessun dossier di posa.
+                  {t("empty")}
                 </td>
               </tr>
             )}

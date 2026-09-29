@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { getLaserManager, isBluetoothSupported, LaserMeasurement, LaserConnectionState } from "@/lib/bluetooth-laser";
 
@@ -16,6 +17,7 @@ interface LaserMeasureProps {
 }
 
 export function LaserMeasure({ onMeasure, whichDimension, currentL, currentH, disabled }: LaserMeasureProps) {
+  const t = useTranslations("fieldTools");
   const [connectionState, setConnectionState] = useState<LaserConnectionState>({
     connected: false,
     deviceName: null,
@@ -43,7 +45,7 @@ export function LaserMeasure({ onMeasure, whichDimension, currentL, currentH, di
 
   const handleConnect = async () => {
     if (!isBluetoothSupported()) {
-      alert("Web Bluetooth non supportato in questo browser. Usa Chrome/Edge su Android/Windows o Chrome su macOS.");
+      alert(t("btUnsupportedAlert"));
       return;
     }
     if (connectionState.connected) {
@@ -64,16 +66,10 @@ export function LaserMeasure({ onMeasure, whichDimension, currentL, currentH, di
       <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
         <div className="flex items-center gap-2 text-amber-800 mb-2">
           <span className="text-lg">⚠️</span>
-          <strong>Web Bluetooth non supportato</strong>
+          <strong>{t("btUnsupported")}</strong>
         </div>
-        <p className="text-sm text-amber-700">
-          Il tuo browser non supporta Web Bluetooth. 
-          Usa <strong>Chrome/Edge su Android/Windows</strong> o <strong>Chrome su macOS</strong>.
-          Su iOS/Safari non è disponibile.
-        </p>
-        <div className="mt-2 p-2 bg-white rounded border border-amber-200 text-xs text-amber-700">
-          Inserisci le misure manualmente nei campi qui sotto.
-        </div>
+        <p className="text-sm text-amber-700">{t("btUseBrowsers")}</p>
+        <div className="mt-2 p-2 bg-white rounded border border-amber-200 text-xs text-amber-700">{t("btManual")}</div>
       </div>
     );
   }
@@ -81,7 +77,7 @@ export function LaserMeasure({ onMeasure, whichDimension, currentL, currentH, di
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="font-bold">Telemetru Laser</h3>
+        <h3 className="font-bold">{t("laserTitle")}</h3>
         <span className={`flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${
           connectionState.connected 
             ? "bg-emerald-100 text-emerald-700" 
@@ -90,7 +86,7 @@ export function LaserMeasure({ onMeasure, whichDimension, currentL, currentH, di
           <span className={`w-1.5 h-1.5 rounded-full ${
             connectionState.connected ? "bg-emerald-500" : "bg-zinc-400"
           }`}></span>
-          {connectionState.connected ? "Connesso" : "Non connesso"}
+          {connectionState.connected ? t("connected") : t("notConnected")}
         </span>
       </div>
 
@@ -138,7 +134,7 @@ export function LaserMeasure({ onMeasure, whichDimension, currentL, currentH, di
         <div className={`relative p-3 rounded-xl border-2 ${
           whichDimension === "L" ? "border-zinc-900 bg-zinc-50" : "border-zinc-200"
         }`}>
-          <label className="text-xs font-bold text-zinc-500">L foro mm</label>
+          <label className="text-xs font-bold text-zinc-500">{t("openingW")}</label>
           <div className="mt-1">
             <span className="mono text-2xl font-bold text-zinc-900">{currentL || "—"}</span>
             <span className="text-xs text-zinc-500 ml-1">mm</span>
@@ -152,7 +148,7 @@ export function LaserMeasure({ onMeasure, whichDimension, currentL, currentH, di
         <div className={`relative p-3 rounded-xl border-2 ${
           whichDimension === "H" ? "border-zinc-900 bg-zinc-50" : "border-zinc-200"
         }`}>
-          <label className="text-xs font-bold text-zinc-500">H foro mm</label>
+          <label className="text-xs font-bold text-zinc-500">{t("openingH")}</label>
           <div className="mt-1">
             <span className="mono text-2xl font-bold text-zinc-900">{currentH || "—"}</span>
             <span className="text-xs text-zinc-500 ml-1">mm</span>

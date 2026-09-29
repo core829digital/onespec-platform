@@ -96,10 +96,13 @@ export function normalizedRatios(sashes: EditorSash[]): number[] {
  * systems — every sash in one frame must be the same sliding family, and they
  * never mix with hinged sashes.
  */
+/** Why two sash systems cannot share a frame — a stable code the UI translates (`reason` stays as the Italian fallback). */
+export type SashMixCode = "slidingOnly" | "liftslideOnly" | "hingedVsSliding" | "hingedVsLiftslide";
+
 export function sashTypeAllowedWith(
   siblings: SashKind[],
   candidate: SashKind,
-): { ok: boolean; reason?: string } {
+): { ok: boolean; reason?: string; mix?: SashMixCode } {
   if (candidate === "fix") return { ok: true };
   const others = siblings.filter(Boolean);
   const hasSliding = others.includes("sliding");
@@ -109,18 +112,18 @@ export function sashTypeAllowedWith(
 
   if (candidate === "sliding") {
     if (hasHinged || hasLiftSlide) {
-      return { ok: false, reason: "Lo scorrevole si combina solo con altri scorrevoli." };
+      return { ok: false, mix: "slidingOnly", reason: "Lo scorrevole si combina solo con altri scorrevoli." };
     }
   } else if (candidate === "liftslide") {
     if (hasHinged || hasSliding) {
-      return { ok: false, reason: "L'alzante scorrevole si combina solo con altri alzanti." };
+      return { ok: false, mix: "liftslideOnly", reason: "L'alzante scorrevole si combina solo con altri alzanti." };
     }
   } else {
     if (hasSliding) {
-      return { ok: false, reason: "Non si può mischiare un'anta a battente con lo scorrevole." };
+      return { ok: false, mix: "hingedVsSliding", reason: "Non si può mischiare un'anta a battente con lo scorrevole." };
     }
     if (hasLiftSlide) {
-      return { ok: false, reason: "Non si può mischiare un'anta a battente con l'alzante scorrevole." };
+      return { ok: false, mix: "hingedVsLiftslide", reason: "Non si può mischiare un'anta a battente con l'alzante scorrevole." };
     }
   }
   return { ok: true };

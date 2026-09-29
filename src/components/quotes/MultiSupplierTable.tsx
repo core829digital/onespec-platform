@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 
 export interface SupplierItem {
@@ -33,6 +34,7 @@ export function MultiSupplierTable({
   suppliers,
   readOnly = false,
 }: MultiSupplierTableProps) {
+  const t = useTranslations("fieldTools");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<Record<string, { qty: string; price: string }>>({});
 
@@ -92,7 +94,7 @@ export function MultiSupplierTable({
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="font-semibold">Articoli Multi-Fornitore</h3>
+        <h3 className="font-semibold">{t("multiTitle")}</h3>
         {!readOnly && (
           <button type="button"
             onClick={addItem}
@@ -104,14 +106,14 @@ export function MultiSupplierTable({
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-[var(--color-border)]">
-        <table className="w-full text-sm" aria-label="Righe multi-fornitore">
+        <table className="w-full text-sm" aria-label={t("multiAria")}>
           <thead className="bg-[var(--color-muted)] text-xs text-[var(--color-muted-fg)]">
             <tr>
-              <th className="px-3 py-2 text-left">Fornitore</th>
-              <th className="px-3 py-2 text-left">Prodotto</th>
-              <th className="px-3 py-2 text-right">Qtà</th>
-              <th className="px-3 py-2 text-right">Prezzo unit.</th>
-              <th className="px-3 py-2 text-right">Totale</th>
+              <th className="px-3 py-2 text-left">{t("supplier")}</th>
+              <th className="px-3 py-2 text-left">{t("product")}</th>
+              <th className="px-3 py-2 text-right">{t("qty")}</th>
+              <th className="px-3 py-2 text-right">{t("unitPrice")}</th>
+              <th className="px-3 py-2 text-right">{t("total")}</th>
               <th className="px-3 py-2 text-right"></th>
             </tr>
           </thead>
@@ -224,7 +226,7 @@ export function MultiSupplierTable({
 
       <div className="flex justify-end pt-3">
         <div className="text-right">
-          <span className="text-sm text-[var(--color-muted-fg)]">Totale materiali: </span>
+          <span className="text-sm text-[var(--color-muted-fg)]">{t("materialsTotal")} </span>
           <span className="font-bold text-lg">
             {items.reduce((sum, i) => sum + i.qty * i.price, 0).toLocaleString("it-IT")}€
           </span>

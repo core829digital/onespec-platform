@@ -1,4 +1,5 @@
 import "./pdf-setup";
+import { fieldPdfCopy } from "./field-pdf-i18n";
 import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer";
 import { CompanyLogo } from "./CompanyLogo";
 
@@ -88,6 +89,7 @@ export function SiteDeliveryReportPDF({
   locale = "it-IT",
   generatedAt,
 }: SiteDeliveryReportPDFProps) {
+  const T = fieldPdfCopy(locale);
   const loadedItems = items.filter((i) => i.loaded);
   const skippedItems = items.filter((i) => !i.loaded);
 
@@ -98,46 +100,46 @@ export function SiteDeliveryReportPDF({
           <View>
             <CompanyLogo url={tenant.logoUrl} />
             <Text style={styles.company}>{tenant.name}</Text>
-            <Text style={styles.subtitle}>Report di consegna cantiere</Text>
+            <Text style={styles.subtitle}>{T.deliverySubtitle}</Text>
             {tenant.address && <Text style={styles.subtitle}>{tenant.address}</Text>}
-            {tenant.vatId && <Text style={styles.subtitle}>P.IVA: {tenant.vatId}</Text>}
+            {tenant.vatId && <Text style={styles.subtitle}>{T.vatId}: {tenant.vatId}</Text>}
           </View>
           <View style={{ textAlign: "right" }}>
             <View style={[styles.badge, status === "delivered" ? styles.badgeGreen : styles.badgeAmber]}>
-              <Text>{status === "delivered" ? "Consegnato" : status === "in_transit" ? "In transito" : status}</Text>
+              <Text>{status === "delivered" ? T.delivered : status === "in_transit" ? T.inTransit : status}</Text>
             </View>
             <Text style={{ marginTop: 6, fontSize: 9, color: colors.gray[500] }}>{fmtDate(generatedAt, locale)}</Text>
           </View>
         </View>
 
         <View style={styles.borderedBox}>
-          <Text style={styles.sectionTitle}>Cantiere</Text>
+          <Text style={styles.sectionTitle}>{T.site}</Text>
           <View style={styles.gridRow}>
             <View style={styles.gridCell}>
-              <Text style={styles.label}>Nome</Text>
+              <Text style={styles.label}>{T.name}</Text>
               <Text style={styles.value}>{cantiere.name}</Text>
             </View>
             <View style={styles.gridCell}>
-              <Text style={styles.label}>Indirizzo</Text>
+              <Text style={styles.label}>{T.address}</Text>
               <Text style={styles.value}>{cantiere.address}, {cantiere.city}</Text>
             </View>
             {clientName && (
               <View style={styles.gridCell}>
-                <Text style={styles.label}>Cliente</Text>
+                <Text style={styles.label}>{T.client}</Text>
                 <Text style={styles.value}>{clientName}</Text>
               </View>
             )}
           </View>
           {driverName && (
-            <Text style={styles.value}><Text style={styles.label}>Autista: </Text>{driverName}</Text>
+            <Text style={styles.value}><Text style={styles.label}>{T.driver}: </Text>{driverName}</Text>
           )}
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Merce caricata ({loadedItems.length}/{items.length})</Text>
           <View style={styles.tableHeader}>
-            <View style={styles.tableHeaderCell}><Text>Articolo</Text></View>
-            <View style={{ ...styles.tableHeaderCell, flex: 0.4, textAlign: "right" }}><Text>Quantità</Text></View>
+            <View style={styles.tableHeaderCell}><Text>{T.item}</Text></View>
+            <View style={{ ...styles.tableHeaderCell, flex: 0.4, textAlign: "right" }}><Text>{T.quantity}</Text></View>
           </View>
           {loadedItems.map((it, i) => (
             <View key={i} style={styles.tableRow}>
@@ -149,7 +151,7 @@ export function SiteDeliveryReportPDF({
 
         {skippedItems.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Non caricato</Text>
+            <Text style={styles.sectionTitle}>{T.notLoaded}</Text>
             {skippedItems.map((it, i) => (
               <Text key={i} style={styles.noteItem}>
                 • {it.label} ({it.quantity} {it.unit}) — {it.notLoadedReason || "motivo non specificato"}
@@ -160,7 +162,7 @@ export function SiteDeliveryReportPDF({
 
         {photoUrls.length > 0 && (
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Documentazione imballaggio</Text>
+            <Text style={styles.sectionTitle}>{T.packaging}</Text>
             <View style={styles.photoGrid}>
               {photoUrls.map((url, i) => (
                 <Image key={i} src={url} style={styles.photo} />
@@ -170,26 +172,26 @@ export function SiteDeliveryReportPDF({
         )}
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Firma e tracciamento</Text>
+          <Text style={styles.sectionTitle}>{T.signatureTracking}</Text>
           <View style={styles.gridRow}>
             <View style={styles.gridCell}>
-              <Text style={styles.label}>Partenza dal magazzino</Text>
+              <Text style={styles.label}>{T.leftWarehouse}</Text>
               <Text style={styles.value}>{fmtDate(departedAt, locale)}</Text>
             </View>
             <View style={styles.gridCell}>
-              <Text style={styles.label}>Arrivo a destinazione</Text>
+              <Text style={styles.label}>{T.arrived}</Text>
               <Text style={styles.value}>{fmtDate(deliveredAt, locale)}</Text>
             </View>
           </View>
           {signedByName && (
             <View style={styles.signatureBox}>
               {signatureDataUrl && <Image src={signatureDataUrl} style={styles.signatureImg} />}
-              <Text style={styles.label}>Firmato da: {signedByName}</Text>
+              <Text style={styles.label}>{T.signedBy(signedByName)}</Text>
               <Text style={{ ...styles.subtitle, marginBottom: 4 }}>{fmtDate(signedAt, locale)}</Text>
             </View>
           )}
           {notes && (
-            <Text style={{ ...styles.value, marginTop: 6 }}><Text style={styles.label}>Note: </Text>{notes}</Text>
+            <Text style={{ ...styles.value, marginTop: 6 }}><Text style={styles.label}>{T.notes}: </Text>{notes}</Text>
           )}
         </View>
 

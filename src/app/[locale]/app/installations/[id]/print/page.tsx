@@ -26,7 +26,7 @@ function InstallationDocument({ data, region }: { data: NonNullable<FunctionRetu
   // template's body would (see InstallationCertPDF's generatedAt prop).
   const [generatedAt] = useState(() => Date.now());
 
-  const langKey = region === "FR" || region === "BE" ? "fr" : region === "DE" ? "de" : region === "NL" ? "nl" : "it";
+  const langKey = region === "FR" || region === "BE" || region === "LU" ? "fr" : region === "DE" ? "de" : region === "NL" ? "nl" : "it";
   const dateLocale = langKey === "fr" ? "fr-FR" : langKey === "de" ? "de-DE" : langKey === "nl" ? "nl-NL" : "it-IT";
 
   const { ready: companyReady, company } = useCompanyPdf(tenant?.name);

@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useRef, useEffect, useState } from "react";
 import { Stage, Layer, Image as KonvaImage } from "react-konva";
 import Konva from "konva";
@@ -22,6 +23,7 @@ export function PhotoCanvas({
   onImageLoad,
   children,
 }: PhotoCanvasProps) {
+  const t = useTranslations("fieldTools");
   const stageRef = useRef<Konva.Stage>(null);
   const [imageLoaded, setImageLoaded] = useState(false);
   const [stageSize, setStageSize] = useState({ width, height });
@@ -54,7 +56,7 @@ export function PhotoCanvas({
       <div className="w-full aspect-[4/3] bg-zinc-100 rounded-2xl flex items-center justify-center border-2 border-dashed">
         <div className="text-center text-zinc-500">
           <div className="text-4xl mb-2">📷</div>
-          <p>{imageLoaded ? "Errore caricamento" : "Caricamento foto..."}</p>
+          <p>{imageLoaded ? t("photoError") : t("photoLoading")}</p>
         </div>
       </div>
     );
