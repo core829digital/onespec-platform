@@ -5,6 +5,7 @@ import type { Id } from "./_generated/dataModel";
 import { requireUser, type ReadCtx } from "./lib/auth";
 import { resolveTenantEntitlements } from "./lib/entitlements";
 import { regionForCountry } from "./lib/regions";
+import { unlockOnPlanChange } from "./usage";
 
 /** Ordered wizard steps. `planQuiz`/`billing` are skipped once a plan is active. */
 export const ONBOARDING_STEPS = ["welcome", "planQuiz", "billing", "team", "configurator"] as const;
@@ -86,7 +87,12 @@ export const advance = mutation({
  * the door while there is no billing to actually charge against.
  */
 export const selectPlan = mutation({
-  args: { plan: v.union(v.literal("base"), v.literal("pro"), v.literal("agency")) },
+  args: {
+    plan: v.union(
+      v.literal("essentials"), v.literal("essentials_plus"), v.literal("max"),
+      v.literal("base"), v.literal("pro"), v.literal("agency"),
+    ),
+  },
   handler: async (ctx, args) => {
     const userId = await requireUser(ctx);
     const found = await tenantOf(ctx, userId);
@@ -103,6 +109,7 @@ export const selectPlan = mutation({
       onboardingStep: "team",
       updatedAt: Date.now(),
     });
+    await unlockOnPlanChange(ctx, found.tenant._id, found.tenant.plan, args.plan);
     await ctx.db.insert("auditLog", {
       tenantId: found.tenant._id,
       actorUserId: userId,

@@ -332,7 +332,9 @@
     "pdfQuotaExceeded": "Sie haben alle in Ihrem Tarif enthaltenen PDFs für diesen Monat verbraucht. Wechseln Sie in einen höheren Tarif oder warten Sie bis zum Monatsersten.",
     "whatsappQuotaExceeded": "Sie haben alle in Ihrem Tarif enthaltenen WhatsApp-Sendungen für diesen Monat verbraucht. Wechseln Sie in einen höheren Tarif oder warten Sie bis zum Monatsersten.",
     "showroomQuotaExceeded": "Sie haben das monatliche Showroom-Limit Ihres Tarifs erreicht. Wechseln Sie in einen höheren Tarif oder warten Sie bis zum Monatsersten.",
-    "quoteLocked": "Diese Anfrage ist gesperrt, weil das Monatslimit Ihres Tarifs erreicht ist. Sie wird mit einem höheren Tarif oder zum Monatsersten freigeschaltet."
+    "quoteLocked": "Diese Anfrage ist gesperrt, weil das Monatslimit Ihres Tarifs erreicht ist. Sie wird mit einem höheren Tarif oder zum Monatsersten freigeschaltet.",
+    "alreadySubscribed": "Sie haben bereits ein aktives Abonnement: Wechseln Sie den Tarif auf der Seite „Tarif“, statt einen neuen Checkout zu starten.",
+    "annualNotAvailable": "Dieser Tarif ist nur mit monatlicher Abrechnung verfügbar."
   },
   "app": {
     "suspended": {

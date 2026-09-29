@@ -9,30 +9,46 @@
  *
  *   Base €97   Pro €197 (bestseller)   Agency €397   Enterprise €690
  *
+ * Widget-first ladder (2026-09-29), sold BEFORE the full platform and listed
+ * first — monthly only, no trial, prices VAT excluded:
+ *
+ *   Essentials €49,95   Essentials+ €62,44   Max €79,90
+ *
  * Annual billing = monthly × 10 (2 months free), unless an explicit annual
  * Stripe Price says otherwise.
  */
 
-export type BillablePlan = "base" | "pro" | "agency";
+export type BillablePlan = "essentials" | "essentials_plus" | "max" | "base" | "pro" | "agency";
+
+/** Widget = widget-exclusive plans; platform = the whole platform. */
+export type PlanFamily = "widget" | "platform";
 export type BillingCycle = "monthly" | "annual";
 
 export interface BillingPlan {
   key: BillablePlan | "enterprise";
   name: string;
+  family: PlanFamily;
   /** Flat monthly price, cents. null => custom / contact sales. */
   priceCents: number | null;
   /** Stripe Price env-key stem, e.g. "BASE" → STRIPE_PRICE_BASE_MONTHLY_IT. */
-  stripePriceKey?: "BASE" | "PRO" | "AGENCY";
+  stripePriceKey?: "ESSENTIALS" | "ESSENTIALS_PLUS" | "MAX" | "BASE" | "PRO" | "AGENCY";
 }
 
 export type PlanKey = BillablePlan | "enterprise";
 
+/** Display order = selling order: the widget ladder first, the full platform under it. */
 export const BILLING_PLANS: BillingPlan[] = [
-  { key: "base", name: "Base", priceCents: 9700, stripePriceKey: "BASE" },
-  { key: "pro", name: "Pro", priceCents: 19700, stripePriceKey: "PRO" },
-  { key: "agency", name: "Agency", priceCents: 39700, stripePriceKey: "AGENCY" },
-  { key: "enterprise", name: "Enterprise", priceCents: 69000 },
+  { key: "essentials", name: "Essentials", family: "widget", priceCents: 4995, stripePriceKey: "ESSENTIALS" },
+  { key: "essentials_plus", name: "Essentials+", family: "widget", priceCents: 6244, stripePriceKey: "ESSENTIALS_PLUS" },
+  { key: "max", name: "Max", family: "widget", priceCents: 7990, stripePriceKey: "MAX" },
+  { key: "base", name: "Base", family: "platform", priceCents: 9700, stripePriceKey: "BASE" },
+  { key: "pro", name: "Pro", family: "platform", priceCents: 19700, stripePriceKey: "PRO" },
+  { key: "agency", name: "Agency", family: "platform", priceCents: 39700, stripePriceKey: "AGENCY" },
+  { key: "enterprise", name: "Enterprise", family: "platform", priceCents: 69000 },
 ];
+
+/** Every self-serve plan key — the validator source for checkout / plan change / onboarding. */
+export const SELF_SERVE_PLANS = ["essentials", "essentials_plus", "max", "base", "pro", "agency"] as const satisfies readonly BillablePlan[];
 
 /**
  * Per-market price overrides (monthly, cents). Empty for v2 — the signed
@@ -114,7 +130,7 @@ export function planFromStripePriceId(priceId: string): {
   // enumeration is not reliable in the Convex runtime, and a silent miss here
   // leaves a paying tenant on the wrong plan.
   const env = process.env as Record<string, string | undefined>;
-  const plans = ["base", "pro", "agency"] as const;
+  const plans = SELF_SERVE_PLANS;
   const cycles = ["monthly", "annual"] as const;
   for (const plan of plans) {
     for (const cycle of cycles) {

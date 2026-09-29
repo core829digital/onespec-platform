@@ -332,7 +332,9 @@
     "pdfQuotaExceeded": "Ați folosit toate PDF-urile incluse în abonament luna aceasta. Treceți la un abonament superior sau așteptați data de 1 a lunii.",
     "whatsappQuotaExceeded": "Ați folosit toate trimiterile WhatsApp incluse în abonament luna aceasta. Treceți la un abonament superior sau așteptați data de 1 a lunii.",
     "showroomQuotaExceeded": "Ați atins limita lunară Showroom a abonamentului. Treceți la un abonament superior sau așteptați data de 1 a lunii.",
-    "quoteLocked": "Această cerere este blocată deoarece ați atins limita lunară a abonamentului. Se deblochează la trecerea la un abonament superior sau pe 1 ale lunii."
+    "quoteLocked": "Această cerere este blocată deoarece ați atins limita lunară a abonamentului. Se deblochează la trecerea la un abonament superior sau pe 1 ale lunii.",
+    "alreadySubscribed": "Aveți deja un abonament activ: schimbați planul din pagina Plan în loc să inițiați o nouă plată.",
+    "annualNotAvailable": "Acest plan este disponibil doar cu facturare lunară."
   },
   "app": {
     "suspended": {

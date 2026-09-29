@@ -3,18 +3,40 @@ import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import { internal } from "./_generated/api";
 import { requireMembership } from "./lib/auth";
-import { resolveTenantEntitlements } from "./lib/entitlements";
+import { entitlementsFor, resolveTenantEntitlements } from "./lib/entitlements";
 import {
   BILLING_PLANS,
+  SELF_SERVE_PLANS,
   listPriceCents,
   resolveStripePriceId,
   planFromStripePriceId,
+  type BillablePlan,
   type BillingCycle,
 } from "./lib/billingPlans";
+import { unlockOnPlanChange } from "./usage";
 import { regionForCountry } from "./lib/regions";
 import { createPostHogClient } from "./lib/posthog";
 
 const STRIPE_API = "https://api.stripe.com/v1";
+
+/** Self-serve plans, both families (widget-first first). */
+const selfServePlan = v.union(
+  v.literal("essentials"),
+  v.literal("essentials_plus"),
+  v.literal("max"),
+  v.literal("base"),
+  v.literal("pro"),
+  v.literal("agency"),
+);
+
+function isSelfServePlan(plan: unknown): plan is BillablePlan {
+  return typeof plan === "string" && (SELF_SERVE_PLANS as readonly string[]).includes(plan);
+}
+
+/** Annual billing only where the plan offers it (never on the widget-first plans or Agency). */
+function assertCycleAllowed(plan: BillablePlan, cycle: BillingCycle): void {
+  if (cycle === "annual" && !entitlementsFor(plan).annualBilling) throw new ConvexError("ANNUAL_NOT_AVAILABLE");
+}
 const stripeKey = () => process.env.STRIPE_SECRET_KEY ?? "";
 const siteUrl = () => process.env.SITE_URL ?? "";
 
@@ -141,9 +163,11 @@ export const getBillingState = query({
       platformBalanceCents: tenant.stripeBalanceCents ?? 0,
       checkoutAvailable: configured,
       portalAvailable: configured && !!tenant.stripeCustomerId,
+      // Widget-first plans first, then the full platform (BILLING_PLANS order).
       plans: BILLING_PLANS.map((p) => ({
         key: p.key,
         name: p.name,
+        family: p.family,
         priceCents: listPriceCents(p.key, region),
       })),
     };
@@ -194,7 +218,7 @@ export const assertOwner = internalQuery({
 export const createCheckoutSession = action({
   args: {
     tenantId: v.id("tenants"),
-    plan: v.union(v.literal("base"), v.literal("pro"), v.literal("agency")),
+    plan: selfServePlan,
     cycle: v.optional(v.union(v.literal("monthly"), v.literal("annual"))),
     origin: v.optional(v.string()),
   },
@@ -203,8 +227,14 @@ export const createCheckoutSession = action({
     const planKey = args.plan;
     const cycle: BillingCycle = args.cycle ?? "monthly";
 
+    assertCycleAllowed(planKey, cycle);
     const owner = await ctx.runQuery(internal.billing.assertOwner, { tenantId: args.tenantId });
     await limitBilling(ctx, args.tenantId, "checkout");
+    // A second Checkout would open a SECOND subscription (double billing):
+    // a tenant with a live subscription switches plan via changePlan.
+    if (owner.stripeSubscriptionId && ["active", "trialing", "past_due"].includes(owner.planStatus)) {
+      throw new ConvexError("ALREADY_SUBSCRIBED");
+    }
     const region = regionForCountry(owner.country).code;
     const priceId = resolveStripePriceId(planKey, cycle, region);
     if (!priceId) throw new ConvexError("BILLING_PRICE_NOT_CONFIGURED");
@@ -216,6 +246,11 @@ export const createCheckoutSession = action({
       customer: owner.stripeCustomerId,
       customer_email: owner.stripeCustomerId ? undefined : owner.email,
       client_reference_id: args.tenantId,
+      // Session-level metadata too: checkout.session.completed only carries
+      // the session's own metadata, not subscription_data's.
+      "metadata[tenantId]": args.tenantId,
+      "metadata[plan]": planKey,
+      "metadata[cycle]": cycle,
       "subscription_data[metadata][tenantId]": args.tenantId,
       "subscription_data[metadata][plan]": planKey,
       "subscription_data[metadata][cycle]": cycle,
@@ -246,6 +281,7 @@ export const createCheckoutSession = action({
       params["subscription_data[trial_period_days]"] = "14";
       params["payment_method_collection"] = "always";
       params["subscription_data[metadata][trialPlan]"] = "pro";
+      params["metadata[trialPlan]"] = "pro";
     }
 
     const session = await stripe("/checkout/sessions", params);
@@ -304,7 +340,7 @@ async function currentSubscriptionItemId(subscriptionId: string): Promise<string
 export const previewPlanChange = action({
   args: {
     tenantId: v.id("tenants"),
-    plan: v.union(v.literal("base"), v.literal("pro"), v.literal("agency")),
+    plan: selfServePlan,
     cycle: v.optional(v.union(v.literal("monthly"), v.literal("annual"))),
   },
   handler: async (
@@ -323,6 +359,7 @@ export const previewPlanChange = action({
     if (!owner.stripeSubscriptionId) throw new ConvexError("NO_SUBSCRIPTION");
 
     const cycle: BillingCycle = args.cycle ?? "monthly";
+    assertCycleAllowed(args.plan, cycle);
     const region = regionForCountry(owner.country).code;
     const priceId = resolveStripePriceId(args.plan, cycle, region);
     if (!priceId) throw new ConvexError("BILLING_PRICE_NOT_CONFIGURED");
@@ -406,7 +443,7 @@ export function previewAmounts(preview: Record<string, unknown>): {
 export const changePlan = action({
   args: {
     tenantId: v.id("tenants"),
-    plan: v.union(v.literal("base"), v.literal("pro"), v.literal("agency")),
+    plan: selfServePlan,
     cycle: v.optional(v.union(v.literal("monthly"), v.literal("annual"))),
   },
   handler: async (ctx, args): Promise<{ ok: true }> => {
@@ -416,6 +453,7 @@ export const changePlan = action({
     if (!owner.stripeSubscriptionId) throw new ConvexError("NO_SUBSCRIPTION");
 
     const cycle: BillingCycle = args.cycle ?? "monthly";
+    assertCycleAllowed(args.plan, cycle);
     const region = regionForCountry(owner.country).code;
     const priceId = resolveStripePriceId(args.plan, cycle, region);
     if (!priceId) throw new ConvexError("BILLING_PRICE_NOT_CONFIGURED");
@@ -527,6 +565,7 @@ export const applySubscriptionSync = internalMutation({
     if (typeof args.balanceCents === "number") patch.stripeBalanceCents = args.balanceCents;
     patch.updatedAt = Date.now();
     await ctx.db.patch(tenant._id, patch as never);
+    if (typeof patch.plan === "string") await unlockOnPlanChange(ctx, tenant._id, tenant.plan, patch.plan);
     await ctx.db.insert("auditLog", {
       tenantId: tenant._id,
       actorKind: "system",
@@ -639,10 +678,10 @@ export function subscriptionPatch(
 
   const meta = (obj.metadata ?? {}) as Record<string, string>;
   const mapped = item?.price?.id ? planFromStripePriceId(item.price.id) : null;
-  if (mapped && (mapped.plan === "base" || mapped.plan === "pro" || mapped.plan === "agency")) {
+  if (mapped && isSelfServePlan(mapped.plan)) {
     patch.plan = mapped.plan;
     patch.billingCycle = mapped.cycle;
-  } else if (meta.plan === "base" || meta.plan === "pro" || meta.plan === "agency") {
+  } else if (isSelfServePlan(meta.plan)) {
     // Price not recognised (env mismatch): fall back to the plan we stamped on
     // the subscription ourselves at checkout / plan change.
     patch.plan = meta.plan;
@@ -718,6 +757,10 @@ export const applyWebhookEvent = internalMutation({
             patch.planStatus = "active";
           }
           const meta = (obj.metadata ?? {}) as Record<string, string>;
+          // The plan that was actually paid for — otherwise the tenant would
+          // sit on its previous plan (e.g. the signup default) until the
+          // subscription event lands.
+          if (isSelfServePlan(meta.plan)) patch.plan = meta.plan;
           if (meta.trialPlan === "pro") {
             patch.plan = "pro";
             patch.trialPlan = "pro";
@@ -734,6 +777,9 @@ export const applyWebhookEvent = internalMutation({
           patch.stripeBalanceCents = obj.balance;
         }
         await ctx.db.patch(tenantId as never, patch);
+        if (tenantDoc && typeof patch.plan === "string") {
+          await unlockOnPlanChange(ctx, tenantDoc._id, tenantDoc.plan, patch.plan);
+        }
       }
     }
 

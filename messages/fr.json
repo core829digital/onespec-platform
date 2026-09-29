@@ -332,7 +332,9 @@
     "pdfQuotaExceeded": "Vous avez utilisé tous les PDF inclus dans votre offre ce mois-ci. Passez à une offre supérieure ou attendez le 1er du mois.",
     "whatsappQuotaExceeded": "Vous avez utilisé tous les envois WhatsApp inclus dans votre offre ce mois-ci. Passez à une offre supérieure ou attendez le 1er du mois.",
     "showroomQuotaExceeded": "Vous avez atteint la limite mensuelle Showroom de votre offre. Passez à une offre supérieure ou attendez le 1er du mois.",
-    "quoteLocked": "Cette demande est bloquée car vous avez atteint la limite mensuelle de votre offre. Elle se débloque en passant à une offre supérieure ou le 1er du mois."
+    "quoteLocked": "Cette demande est bloquée car vous avez atteint la limite mensuelle de votre offre. Elle se débloque en passant à une offre supérieure ou le 1er du mois.",
+    "alreadySubscribed": "Vous avez déjà un abonnement actif : changez d'offre depuis la page Offre au lieu d'ouvrir un nouveau paiement.",
+    "annualNotAvailable": "Cette offre est disponible uniquement en facturation mensuelle."
   },
   "app": {
     "suspended": {

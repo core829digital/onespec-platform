@@ -61,7 +61,9 @@ export type ErrorKey =
   | "pdfQuotaExceeded"
   | "whatsappQuotaExceeded"
   | "showroomQuotaExceeded"
-  | "quoteLocked";
+  | "quoteLocked"
+  | "alreadySubscribed"
+  | "annualNotAvailable";
 
 const EXACT: Record<string, ErrorKey> = {
   UNAUTHENTICATED: "unauthenticated",
@@ -122,6 +124,8 @@ const EXACT: Record<string, ErrorKey> = {
   SHOWROOM_PDF_QUOTA_EXCEEDED: "showroomQuotaExceeded",
   SHOWROOM_WHATSAPP_QUOTA_EXCEEDED: "showroomQuotaExceeded",
   QUOTE_LOCKED: "quoteLocked",
+  ALREADY_SUBSCRIBED: "alreadySubscribed",
+  ANNUAL_NOT_AVAILABLE: "annualNotAvailable",
 };
 
 /** Map a backend error code to a message key (pattern fallbacks for families). */
