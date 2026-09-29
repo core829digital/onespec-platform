@@ -9,7 +9,20 @@ import { usePlanAccess } from "@/lib/plan-gates";
 import { StatCard } from "@/components/app-shell/stat-card";
 import { EmptyState } from "@/components/app-shell/empty-state";
 import { RangeSwitcher, RANGE_LABEL, type AnalyticsRange } from "@/components/analytics/range-switcher";
-import { Eye, FileText, Percent, Trophy, Calculator, Gauge, Truck } from "lucide-react";
+import {
+  Eye,
+  FileText,
+  Percent,
+  Trophy,
+  Calculator,
+  Gauge,
+  Truck,
+  Users,
+  Building2,
+  PenLine,
+  Contact,
+  Package,
+} from "lucide-react";
 
 const PieChart = lazy(() =>
   import("@/components/analytics/PieChart").then((m) => ({ default: m.PieChart })),
@@ -97,6 +110,18 @@ export default function DashboardPage() {
     api.clients.listClients,
     tenant && access && !access.isLocked("crm") ? { tenantId: tenant._id, limit: 200 } : "skip",
   );
+  const members = useQuery(
+    api.tenants.listMembers,
+    tenant ? { tenantId: tenant._id } : "skip",
+  );
+  const cantieriLocked = access ? access.isLocked("cantieri") : false;
+  const cantieri = useQuery(
+    api.cantieri.listCantieri,
+    tenant && access && !cantieriLocked ? { tenantId: tenant._id, limit: 6 } : "skip",
+  );
+  // Quick actions / panels only for modules the plan includes (Level plans
+  // lock B2B quotes, CRM and cantieri — those links would open a lock page).
+  const can = (f: "fieldQuotes" | "crm" | "cantieri") => !!access && !access.isLocked(f);
 
   const money = (cents: number) =>
     format.number(cents / 100, { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
@@ -119,6 +144,23 @@ export default function DashboardPage() {
       }));
   }, [requests, clients, t]);
 
+  // How many open (non-"chiuso") cantieri each active team member is
+  // assigned to — real data from cantieri.assignedUserIds, not invented.
+  const openCantieriPerMember = useMemo(() => {
+    if (!cantieri) return new Map<string, number>();
+    const counts = new Map<string, number>();
+    for (const c of cantieri) {
+      if (c.status === "chiuso") continue;
+      for (const uid of c.assignedUserIds) counts.set(uid, (counts.get(uid) ?? 0) + 1);
+    }
+    return counts;
+  }, [cantieri]);
+
+  const clientNameById = useMemo(() => {
+    if (!clients) return new Map<string, string>();
+    return new Map(clients.map((c) => [c._id, c.name]));
+  }, [clients]);
+
   return (
     <div className="w-full space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -129,6 +171,45 @@ export default function DashboardPage() {
           </p>
         </div>
         <RangeSwitcher value={range} onChange={setRange} />
+      </div>
+
+      {/* Quick actions — Fitt's Law: the most common next steps sit right
+          under the page title, one click away, instead of buried in nav. */}
+      <div className="flex flex-wrap gap-2">
+{can("fieldQuotes") ? (
+        <Link
+          href="/app/quotes/new"
+          className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-mint)] px-4 py-2 text-sm font-semibold text-[var(--color-mint-dark)] transition-opacity hover:opacity-90"
+        >
+          <PenLine className="h-4 w-4" />
+          {t("quickActions.newQuote")}
+        </Link>
+        ) : null}
+{can("crm") ? (
+        <Link
+          href="/app/clients?new=1"
+          className="inline-flex items-center gap-2 rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm font-medium text-[var(--color-text)] transition-colors hover:bg-[var(--color-bg-alt)]"
+        >
+          <Contact className="h-4 w-4" />
+          {t("quickActions.newClient")}
+        </Link>
+        ) : null}
+{can("cantieri") ? (
+        <Link
+          href="/app/cantieri?new=1"
+          className="inline-flex items-center gap-2 rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm font-medium text-[var(--color-text)] transition-colors hover:bg-[var(--color-bg-alt)]"
+        >
+          <Building2 className="h-4 w-4" />
+          {t("quickActions.newCantiere")}
+        </Link>
+        ) : null}
+        <Link
+          href="/app/configurators"
+          className="inline-flex items-center gap-2 rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm font-medium text-[var(--color-text)] transition-colors hover:bg-[var(--color-bg-alt)]"
+        >
+          <Package className="h-4 w-4" />
+          {t("quickActions.newConfigurator")}
+        </Link>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
@@ -235,6 +316,104 @@ export default function DashboardPage() {
           )}
         </div>
       )}
+
+      {/* Team & cantieri — real data straight from tenants.listMembers and
+          cantieri.listCantieri (the same queries the Team and Cantieri
+          pages themselves use), not a separate/invented data source. */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <section className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold text-[var(--color-text)] flex items-center gap-2">
+              <Users className="w-4 h-4 text-[var(--color-mint)]" />
+              {t("team.title")}
+            </h2>
+            <Link href="/app/account/team" className="text-sm text-[var(--color-mint)] hover:underline">
+              {t("viewAll")}
+            </Link>
+          </div>
+          {members === undefined ? (
+            <div className="space-y-2">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="h-10 animate-pulse rounded-lg bg-[var(--color-bg)]" />
+              ))}
+            </div>
+          ) : members.filter((m) => m.status === "active").length === 0 ? (
+            <p className="text-sm text-[var(--color-text-secondary)]">{t("team.empty")}</p>
+          ) : (
+            <ul className="space-y-1">
+              {members
+                .filter((m) => m.status === "active")
+                .map((m) => (
+                  <li
+                    key={m._id}
+                    className="flex items-center justify-between gap-3 rounded-lg px-2 py-2 hover:bg-[var(--color-bg)]"
+                  >
+                    <div className="flex min-w-0 items-center gap-2.5">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-mint-light)] text-xs font-bold text-[var(--color-mint)]">
+                        {(m.userName ?? m.userEmail ?? "?").slice(0, 1).toUpperCase()}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium text-[var(--color-text)]">
+                          {m.userName ?? m.userEmail}
+                        </p>
+                        <p className="truncate text-xs capitalize text-[var(--color-text-secondary)]">{m.role}</p>
+                      </div>
+                    </div>
+                    {!cantieriLocked ? (
+                      <span className="shrink-0 text-xs tabular-nums text-[var(--color-text-secondary)]">
+                        {t("team.openCantieri", { count: openCantieriPerMember.get(m.userId) ?? 0 })}
+                      </span>
+                    ) : null}
+                  </li>
+                ))}
+            </ul>
+          )}
+        </section>
+
+{!cantieriLocked ? (
+        <section className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="font-semibold text-[var(--color-text)] flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-[var(--color-mint)]" />
+              {t("cantieriPanel.title")}
+            </h2>
+            <Link href="/app/cantieri" className="text-sm text-[var(--color-mint)] hover:underline">
+              {t("viewAll")}
+            </Link>
+          </div>
+          {cantieri === undefined ? (
+            <div className="space-y-2">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <div key={i} className="h-10 animate-pulse rounded-lg bg-[var(--color-bg)]" />
+              ))}
+            </div>
+          ) : cantieri.length === 0 ? (
+            <p className="text-sm text-[var(--color-text-secondary)]">{t("cantieriPanel.empty")}</p>
+          ) : (
+            <ul className="space-y-1">
+              {cantieri.map((c) => (
+                <li key={c._id}>
+                  <Link
+                    href={`/app/cantieri/${c._id}`}
+                    className="flex items-center justify-between gap-3 rounded-lg px-2 py-2 hover:bg-[var(--color-bg)]"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium text-[var(--color-text)]">{c.name}</p>
+                      <p className="truncate text-xs text-[var(--color-text-secondary)]">
+                        {c.clientId ? (clientNameById.get(c.clientId) ?? c.city) : c.city}
+                      </p>
+                    </div>
+                    <span className="shrink-0 rounded-full border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-0.5 text-xs text-[var(--color-text-secondary)]">
+                      {t(`cantieriPanel.status.${c.status}`)}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+        ) : null}
+      </div>
 
       <section className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl">
         <div className="px-5 py-4 border-b border-[var(--color-border)] flex items-center justify-between">

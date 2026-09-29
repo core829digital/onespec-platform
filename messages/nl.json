@@ -70,6 +70,30 @@
       "receivedMonth": "Ontvangen (maand)",
       "inStock": "Op voorraad",
       "viewAll": "Naar logistiek"
+    },
+    "quickActions": {
+      "newQuote": "Nieuwe offerte",
+      "newClient": "Nieuwe klant",
+      "newCantiere": "Nieuw project",
+      "newConfigurator": "Nieuwe configurator"
+    },
+    "team": {
+      "title": "Team",
+      "empty": "Nog geen actieve teamleden. Nodig je team uit via de Team-pagina.",
+      "openCantieri": "{count, plural, =0 {geen openstaande projecten} one {# openstaand project} other {# openstaande projecten}}"
+    },
+    "cantieriPanel": {
+      "title": "Projecten",
+      "empty": "Nog geen projecten. Maak er een aan via de Projecten-pagina.",
+      "status": {
+        "preventivo": "Offerte",
+        "confermato": "Bevestigd",
+        "in_produzione": "In productie",
+        "pronto_consegna": "Klaar voor levering",
+        "in_posa": "Installatie",
+        "collaudo": "Keuring",
+        "chiuso": "Afgesloten"
+      }
     }
   },
   "analytics": {
@@ -113,7 +137,8 @@
     "dpa": "DPA-overeenkomst (AVG)",
     "status": "Servicestatus",
     "balanceCreditLabel": "Je hebt een tegoed van {amount} op het platform, verrekend bij de volgende verlenging",
-    "balanceDueLabel": "Je hebt een openstaand saldo van {amount} op het platform"
+    "balanceDueLabel": "Je hebt een openstaand saldo van {amount} op het platform",
+    "balanceZeroLabel": "Platformsaldo: geen openstaand tegoed of bedrag"
   },
   "auth": {
     "login": {
@@ -1058,7 +1083,7 @@
     "title": "Configuratoren",
     "subtitle": "Beheer de insluitbare configuratoren voor je website",
     "newNamePlaceholder": "Naam nieuwe configurator",
-    "create": "Nieuw",
+    "create": "Configurator maken",
     "creating": "Maken...",
     "loading": "Laden...",
     "empty": "Geen configuratoren. Maak er een om te beginnen.",
@@ -1067,7 +1092,10 @@
     "edit": "Bewerken",
     "statusDraft": "Concept",
     "statusPublished": "Gepubliceerd",
-    "statusArchived": "Gearchiveerd"
+    "statusArchived": "Gearchiveerd",
+    "createHint": "We begeleiden je stap voor stap: naam, catalogus, branding en publicatie.",
+    "defaultName": "Nieuwe configurator",
+    "open": "Openen"
   },
   "pipeline": {
     "title": "Verkoopdeals",
@@ -1571,7 +1599,8 @@
       "calendar": "Kalender",
       "suppliers": "Leveranciers",
       "carriers": "Vervoerders",
-      "inventory": "Magazijn"
+      "inventory": "Magazijn",
+      "siteDeliveries": "Projectleveringen"
     },
     "calendar": {
       "newDelivery": "Nieuwe levering",
@@ -1635,7 +1664,61 @@
       "statusIn_stock": "Op voorraad",
       "statusAssigned": "Toegewezen",
       "statusInstalled": "Geïnstalleerd",
-      "received": "Ontvangen op"
+      "received": "Ontvangen op",
+      "statusIn_transit": "Onderweg",
+      "statusDelivered": "Geleverd"
+    },
+    "siteDeliveries": {
+      "intro": "Zendingen van het magazijn naar een project: laadchecklist, verpakkingsfoto's en digitale handtekening.",
+      "new": "Nieuwe levering",
+      "cantiere": "Project",
+      "selectCantiere": "Selecteer een project",
+      "itemsToLoad": "Te laden goederen",
+      "itemLabelPlaceholder": "Bijv. Raam 120x140",
+      "removeItem": "Item verwijderen",
+      "addItem": "Item toevoegen",
+      "creating": "Bezig met aanmaken...",
+      "create": "Aanmaken",
+      "cancel": "Annuleren",
+      "loading": "Laden...",
+      "empty": "Geen projectleveringen",
+      "emptyHint": "Maak de eerste zending van het magazijn naar een project.",
+      "itemsCount": "items",
+      "noDate": "Datum niet ingesteld",
+      "status": {
+        "preparing": "In voorbereiding",
+        "in_transit": "Onderweg",
+        "delivered": "Geleverd",
+        "cancelled": "Geannuleerd"
+      },
+      "backToList": "Terug naar lijst",
+      "notFound": "Levering niet gevonden",
+      "viewReport": "Bekijk PDF-rapport",
+      "checklistTitle": "Laadchecklist",
+      "notLoadedReasonPlaceholder": "Waarom niet geladen?",
+      "saveReason": "Opslaan",
+      "notLoadedBecause": "Niet geladen: {reason}",
+      "mediaTitle": "Verpakkingsdocumentatie",
+      "mediaHint": "Tot 4 foto's of video's — verpakking, pallet, schuimbescherming van de kozijnen.",
+      "removeMedia": "Verwijderen",
+      "addMedia": "Toevoegen",
+      "uploading": "Uploaden...",
+      "signTitle": "Ondertekenen en vertrek",
+      "checklistIncompleteHint": "Rond de checklist af (vink af of geef een reden per item) voordat je ondertekent.",
+      "signerName": "Naam ondertekenaar",
+      "signerNamePlaceholder": "Volledige naam",
+      "signAndDepart": "Ondertekenen en vertrek markeren",
+      "cancelDelivery": "Levering annuleren",
+      "confirmCancel": "Deze projectlevering annuleren? Dit kan niet ongedaan worden gemaakt.",
+      "departedOn": "Vertrokken op {date} · ondertekend door {signer}",
+      "markDelivered": "Markeren als aangekomen",
+      "deliveredOn": "Aangekomen op {date}",
+      "report": {
+        "title": "Projectlevering rapport",
+        "download": "PDF downloaden",
+        "print": "Afdrukken",
+        "notFound": "Rapport niet gevonden"
+      }
     }
   },
   "configuratorSetup": {
@@ -1711,5 +1794,9 @@
       "showroomWhatsapp": "WhatsApp vanuit de Showroom"
     },
     "lockedSuspendedBody": "Deze aanvraag kwam binnen terwijl uw abonnement was opgeschort. Hij is opgeslagen: de contactgegevens worden vrijgegeven zodra u uw abonnement heractiveert."
+  },
+  "signaturePad": {
+    "hint": "Teken hier met vinger of muis",
+    "clear": "Wissen en opnieuw tekenen"
   }
 }

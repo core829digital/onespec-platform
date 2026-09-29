@@ -4,7 +4,7 @@ import { NextIntlClientProvider } from "next-intl";
 import { notFound } from "next/navigation";
 import { ConvexClientProvider } from "@/components/providers/convex-provider";
 import { PostHogIdentity } from "@/components/providers/posthog-identity";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { ThemeToggleGate } from "@/components/theme-toggle-gate";
 import { Toaster } from "@/components/ui/sonner";
 import { MotionConfig } from "framer-motion";
 import { LocaleHtmlLang } from "@/components/locale-html-lang";
@@ -39,7 +39,7 @@ export default async function LocaleLayout({
         <RageClickDetector config={{ threshold: 7, windowMs: 2000 }}>
           <MotionConfig reducedMotion="user">
             {children}
-            <ThemeToggle />
+            <ThemeToggleGate />
             <Toaster />
             <CookieConsentBanner />
           </MotionConfig>

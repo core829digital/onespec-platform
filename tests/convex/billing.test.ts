@@ -142,14 +142,27 @@ describe("billing.getBillingState + webhook", () => {
 
     const zero = await as.query(api.billing.getBillingState, { tenantId });
     expect(zero?.platformBalanceCents).toBe(0);
+    // No Stripe Customer yet (dormant tenant, no checkout done) -> the
+    // header badge has nothing meaningful to show.
     const zeroBalance = await as.query(api.billing.getPlatformBalance, { tenantId });
     expect(zeroBalance?.balanceCents).toBe(0);
+    expect(zeroBalance?.hasBilling).toBe(false);
+
+    // A real Stripe Customer with a genuinely zero balance: badge SHOULD be
+    // shown (discoverable "€0.00", not hidden) — hasBilling flips true the
+    // moment the tenant has ever gone through checkout, independent of the
+    // balance amount itself.
+    await t.run((ctx) => ctx.db.patch(tenantId, { stripeCustomerId: "cus_zero" }));
+    const zeroWithCustomer = await as.query(api.billing.getPlatformBalance, { tenantId });
+    expect(zeroWithCustomer?.balanceCents).toBe(0);
+    expect(zeroWithCustomer?.hasBilling).toBe(true);
 
     await t.run((ctx) => ctx.db.patch(tenantId, { stripeBalanceCents: -9996 }));
     const withCredit = await as.query(api.billing.getBillingState, { tenantId });
     expect(withCredit?.platformBalanceCents).toBe(-9996);
     const creditBalance = await as.query(api.billing.getPlatformBalance, { tenantId });
     expect(creditBalance?.balanceCents).toBe(-9996);
+    expect(creditBalance?.hasBilling).toBe(true);
   });
 
   test("price is flat regardless of tenant country (no v1 regional override)", async () => {

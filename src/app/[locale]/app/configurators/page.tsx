@@ -5,8 +5,7 @@ import posthog from "posthog-js";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link, useRouter } from "@/i18n/navigation";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { ExternalLink } from "lucide-react";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import { useTranslations } from "next-intl";
@@ -28,7 +27,6 @@ export default function ConfiguratorsPage() {
   );
   const createConfigurator = useMutation(api.configurators.createConfigurator);
   const publishConfigurator = useMutation(api.configurators.publishConfigurator);
-  const [name, setName] = useState("");
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
   const [publishingId, setPublishingId] = useState<string | null>(null);
@@ -50,28 +48,39 @@ export default function ConfiguratorsPage() {
     }
   }
 
-  async function handleCreate(e: React.FormEvent) {
-    e.preventDefault();
-    if (!tenant || !name.trim()) return;
+  async function handleCreate() {
+    if (!tenant || creating) return;
     setCreating(true);
     setError("");
     try {
-      const configuratorId = await createConfigurator({ tenantId: tenant._id, name: name.trim() });
+      // No name prompt here on purpose: naming used to be a form the person
+      // had to fill in BEFORE anything existed, on this bare list page — now
+      // it's just the first thing they see once inside the guided wizard
+      // (setup's "general" step, GeneralTab's very first field), the same
+      // place every other setting lives. A placeholder default name means
+      // there's nothing blocking them from clicking straight into the
+      // wizard, which is the actual point: teach the full step-by-step flow,
+      // not front-load one field of it.
+      // Bug fix (2026-09-29): createConfigurator returns
+      // `{ configuratorId, publicId }`, not the id itself — the previous
+      // code assigned the whole object to `configuratorId` and interpolated
+      // it into the URL, producing the literal route
+      // /app/configurators/[object Object]/setup. Convex then rejected
+      // "[object Object]" as an invalid document id, which is exactly the
+      // "getEditorState Server Error" reported right after creating a new
+      // configurator. Destructure the real id instead.
+      const { configuratorId } = await createConfigurator({
+        tenantId: tenant._id,
+        name: t("defaultName"),
+      });
       posthog.capture("configurator_created", {
         configurator_id: String(configuratorId),
         source: "configurator_list",
       });
-      setName("");
-      // New configurator: send to the guided setup instead of leaving them on
-      // the list — it already has a seeded catalog + branding, so this is
-      // orientation, not a blocking requirement (the full editor is one link
-      // away from every step).
       router.push(`/app/configurators/${configuratorId}/setup`);
-      return;
     } catch (err) {
       posthog.captureException(err);
       setError(tf(err));
-    } finally {
       setCreating(false);
     }
   }
@@ -85,17 +94,17 @@ export default function ConfiguratorsPage() {
         </p>
       </div>
 
-      <form onSubmit={handleCreate} className="flex gap-2 max-w-md">
-        <Input
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder={t("newNamePlaceholder")}
+      <div className="space-y-1.5">
+        <button
+          type="button"
+          onClick={handleCreate}
           disabled={creating}
-        />
-        <Button type="submit" disabled={creating || !name.trim()}>
+          className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-mint)] px-5 py-2.5 text-sm font-semibold text-[var(--color-mint-dark)] transition-opacity hover:opacity-90 disabled:opacity-50"
+        >
           {creating ? t("creating") : t("create")}
-        </Button>
-      </form>
+        </button>
+        <p className="text-sm text-[var(--color-text-secondary)]">{t("createHint")}</p>
+      </div>
       {error && <p className="text-[var(--color-danger)] text-sm">{error}</p>}
 
       <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg divide-y divide-[var(--color-border)]">
@@ -130,6 +139,17 @@ export default function ConfiguratorsPage() {
                   >
                     {publishingId === c._id ? t("publishing") : t("publish")}
                   </button>
+                )}
+                {c.status === "published" && (
+                  <a
+                    href={`/c/${c.publicId}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--color-mint)] px-4 py-2 text-sm font-semibold text-[var(--color-mint-dark)] hover:opacity-90 transition-opacity"
+                  >
+                    {t("open")}
+                    <ExternalLink size={14} aria-hidden="true" />
+                  </a>
                 )}
                 <Link
                   href={`/app/configurators/${c._id}`}

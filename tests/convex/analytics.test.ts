@@ -100,6 +100,28 @@ describe("analytics.getOverview", () => {
     expect(o.visitorConversionRate).toBeCloseTo(0.5); // 1 request / 2 views
   });
 
+  test("spam requests do not inflate visitorConversionRate (bug fixed 2026-09-29)", async () => {
+    const t = newDb();
+    const { tenantId, ownerId } = await seedTenant(t, { plan: "showroom" });
+    const cfg = await seedPublishedConfigurator(t, tenantId);
+    // 1 genuine lead + 2 spam submissions, against 4 widget opens.
+    await quote(t, tenantId, cfg, "new", 100_00);
+    await quote(t, tenantId, cfg, "spam", 100_00);
+    await quote(t, tenantId, cfg, "spam", 100_00);
+    for (const tok of ["v1AAAAAAAA", "v2BBBBBBBB", "v3CCCCCCCC", "v4DDDDDDDD"]) {
+      await t.mutation(internal.widget.recordWidgetView, { publicId: "PUBID12345", viewToken: tok });
+    }
+
+    const o = await t
+      .withIdentity({ subject: ownerId })
+      .query(api.analytics.getOverview, { tenantId, range: "1m" });
+    expect(o.widgetViews).toBe(4);
+    expect(o.totalRequests).toBe(3); // includes spam — a separate, honest raw count
+    // Was previously (incorrectly) 3/4 = 0.75, counting the 2 spam rows as
+    // "conversions". Only the 1 genuine lead should count: 1/4 = 0.25.
+    expect(o.visitorConversionRate).toBeCloseTo(0.25);
+  });
+
   test("foreign tenant is rejected", async () => {
     const t = newDb();
     const a = await seedTenant(t);

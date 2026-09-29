@@ -418,7 +418,7 @@ export const deleteDelivery = mutation({
 export const listInventoryItems = query({
   args: {
     tenantId: v.id("tenants"),
-    status: v.optional(v.union(v.literal("in_stock"), v.literal("assigned"), v.literal("installed"))),
+    status: v.optional(v.union(v.literal("in_stock"), v.literal("assigned"), v.literal("in_transit"), v.literal("delivered"), v.literal("installed"))),
     cantiereId: v.optional(v.id("cantieri")),
     limit: v.optional(v.number()),
   },
@@ -439,7 +439,7 @@ export const listInventoryItems = query({
 export const updateInventoryItem = mutation({
   args: {
     itemId: v.id("inventoryItems"),
-    status: v.optional(v.union(v.literal("in_stock"), v.literal("assigned"), v.literal("installed"))),
+    status: v.optional(v.union(v.literal("in_stock"), v.literal("assigned"), v.literal("in_transit"), v.literal("delivered"), v.literal("installed"))),
     cantiereId: v.optional(v.id("cantieri")),
     quantity: v.optional(v.number()),
   },

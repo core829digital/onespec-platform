@@ -70,6 +70,30 @@
       "receivedMonth": "Erhalten (Monat)",
       "inStock": "Auf Lager",
       "viewAll": "Zur Logistik"
+    },
+    "quickActions": {
+      "newQuote": "Neues Angebot",
+      "newClient": "Neuer Kunde",
+      "newCantiere": "Neues Projekt",
+      "newConfigurator": "Neuer Konfigurator"
+    },
+    "team": {
+      "title": "Team",
+      "empty": "Noch keine aktiven Teammitglieder. Lade dein Team über die Team-Seite ein.",
+      "openCantieri": "{count, plural, =0 {keine offenen Projekte} one {# offenes Projekt} other {# offene Projekte}}"
+    },
+    "cantieriPanel": {
+      "title": "Projekte",
+      "empty": "Noch keine Projekte. Erstelle eines über die Projekte-Seite.",
+      "status": {
+        "preventivo": "Angebot",
+        "confermato": "Bestätigt",
+        "in_produzione": "In Produktion",
+        "pronto_consegna": "Versandbereit",
+        "in_posa": "Montage",
+        "collaudo": "Abnahme",
+        "chiuso": "Abgeschlossen"
+      }
     }
   },
   "analytics": {
@@ -113,7 +137,8 @@
     "dpa": "AVV (DSGVO)",
     "status": "Dienststatus",
     "balanceCreditLabel": "Sie haben ein Guthaben von {amount} auf der Plattform, das bei der nächsten Verlängerung angerechnet wird",
-    "balanceDueLabel": "Sie haben einen offenen Saldo von {amount} auf der Plattform"
+    "balanceDueLabel": "Sie haben einen offenen Saldo von {amount} auf der Plattform",
+    "balanceZeroLabel": "Plattformguthaben: kein Guthaben oder offener Betrag"
   },
   "auth": {
     "login": {
@@ -1058,7 +1083,7 @@
     "title": "Konfiguratoren",
     "subtitle": "Verwalten Sie die einbettbaren Konfiguratoren für Ihre Website",
     "newNamePlaceholder": "Name des neuen Konfigurators",
-    "create": "Neu",
+    "create": "Konfigurator erstellen",
     "creating": "Wird erstellt...",
     "loading": "Lädt...",
     "empty": "Keine Konfiguratoren. Erstellen Sie einen, um zu beginnen.",
@@ -1067,7 +1092,10 @@
     "edit": "Bearbeiten",
     "statusDraft": "Entwurf",
     "statusPublished": "Veröffentlicht",
-    "statusArchived": "Archiviert"
+    "statusArchived": "Archiviert",
+    "createHint": "Wir führen dich Schritt für Schritt: Name, Katalog, Branding und Veröffentlichung.",
+    "defaultName": "Neuer Konfigurator",
+    "open": "Öffnen"
   },
   "pipeline": {
     "title": "Verkaufsaufträge",
@@ -1571,7 +1599,8 @@
       "calendar": "Kalender",
       "suppliers": "Lieferanten",
       "carriers": "Spediteure",
-      "inventory": "Lager"
+      "inventory": "Lager",
+      "siteDeliveries": "Baustellenlieferungen"
     },
     "calendar": {
       "newDelivery": "Neue Lieferung",
@@ -1635,7 +1664,61 @@
       "statusIn_stock": "Auf Lager",
       "statusAssigned": "Zugewiesen",
       "statusInstalled": "Installiert",
-      "received": "Erhalten am"
+      "received": "Erhalten am",
+      "statusIn_transit": "Unterwegs",
+      "statusDelivered": "Geliefert"
+    },
+    "siteDeliveries": {
+      "intro": "Sendungen vom Lager zur Baustelle: Ladecheckliste, Verpackungsfotos und digitale Unterschrift.",
+      "new": "Neue Lieferung",
+      "cantiere": "Projekt",
+      "selectCantiere": "Projekt auswählen",
+      "itemsToLoad": "Zu ladende Ware",
+      "itemLabelPlaceholder": "Z.B. Fenster 120x140",
+      "removeItem": "Position entfernen",
+      "addItem": "Position hinzufügen",
+      "creating": "Wird erstellt...",
+      "create": "Erstellen",
+      "cancel": "Abbrechen",
+      "loading": "Wird geladen...",
+      "empty": "Keine Baustellenlieferungen",
+      "emptyHint": "Erstelle die erste Sendung vom Lager zu einem Projekt.",
+      "itemsCount": "Positionen",
+      "noDate": "Datum offen",
+      "status": {
+        "preparing": "In Vorbereitung",
+        "in_transit": "Unterwegs",
+        "delivered": "Geliefert",
+        "cancelled": "Storniert"
+      },
+      "backToList": "Zurück zur Liste",
+      "notFound": "Lieferung nicht gefunden",
+      "viewReport": "PDF-Bericht ansehen",
+      "checklistTitle": "Ladecheckliste",
+      "notLoadedReasonPlaceholder": "Warum wurde es nicht geladen?",
+      "saveReason": "Speichern",
+      "notLoadedBecause": "Nicht geladen: {reason}",
+      "mediaTitle": "Verpackungsdokumentation",
+      "mediaHint": "Bis zu 4 Fotos oder Videos — Verpackung, Palette, Schaumstoffschutz der Rahmen.",
+      "removeMedia": "Entfernen",
+      "addMedia": "Hinzufügen",
+      "uploading": "Wird hochgeladen...",
+      "signTitle": "Unterschrift und Abfahrt",
+      "checklistIncompleteHint": "Checkliste abschließen (jede Position abhaken oder begründen), bevor unterschrieben wird.",
+      "signerName": "Name des Unterzeichners",
+      "signerNamePlaceholder": "Vor- und Nachname",
+      "signAndDepart": "Unterschreiben und Abfahrt markieren",
+      "cancelDelivery": "Lieferung stornieren",
+      "confirmCancel": "Diese Baustellenlieferung stornieren? Kann nicht rückgängig gemacht werden.",
+      "departedOn": "Abgefahren am {date} · unterschrieben von {signer}",
+      "markDelivered": "Als angekommen markieren",
+      "deliveredOn": "Angekommen am {date}",
+      "report": {
+        "title": "Baustellenlieferung – Bericht",
+        "download": "PDF herunterladen",
+        "print": "Drucken",
+        "notFound": "Bericht nicht gefunden"
+      }
     }
   },
   "configuratorSetup": {
@@ -1711,5 +1794,9 @@
       "showroomWhatsapp": "WhatsApp aus dem Showroom"
     },
     "lockedSuspendedBody": "Diese Anfrage ist eingegangen, während Ihr Abonnement ausgesetzt war. Sie ist gespeichert: Die Kontaktdaten werden freigeschaltet, sobald Sie Ihr Abonnement reaktivieren."
+  },
+  "signaturePad": {
+    "hint": "Hier mit Finger oder Maus unterschreiben",
+    "clear": "Löschen und neu unterschreiben"
   }
 }

@@ -3,6 +3,7 @@
 import { requestConfirm } from "@/lib/confirm-dialog";
 
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import posthog from "posthog-js";
 import { useQuery, useMutation } from "convex/react";
 import { useTranslations, useFormatter } from "next-intl";
@@ -579,7 +580,12 @@ export default function ClientsPage() {
   const tenant = useQuery(api.tenants.getMyTenant);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [modalOpen, setModalOpen] = useState(false);
+  // Dashboard "quick actions" deep-link (/app/clients?new=1) opens the
+  // create modal directly instead of landing on the plain list. Lazy
+  // useState initializer (not an effect + setState, which the React
+  // Compiler's purity rule flags) — reads the param once at mount.
+  const params = useSearchParams();
+  const [modalOpen, setModalOpen] = useState(() => params.get("new") === "1");
 const [editingClient, setEditingClient] = useState<
   | {
       _id: string;

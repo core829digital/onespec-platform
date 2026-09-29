@@ -161,9 +161,45 @@ const EMAIL_TEMPLATE = v.union(
   v.literal("welcome"),
   v.literal("welcome_alpha"),
   v.literal("new_quote_request"),
+  v.literal("quote_status_changed"),
+  v.literal("member_joined"),
+  v.literal("configurator_published"),
+  v.literal("plan_limit"),
+  v.literal("system"),
   v.literal("invitation"),
   v.literal("admin_resend"),
 );
+type EmailTemplate =
+  | "verify"
+  | "reset"
+  | "welcome"
+  | "welcome_alpha"
+  | "new_quote_request"
+  | "quote_status_changed"
+  | "member_joined"
+  | "configurator_published"
+  | "plan_limit"
+  | "system"
+  | "invitation"
+  | "admin_resend";
+
+/**
+ * Default email template per in-app notification type, used whenever a
+ * call site doesn't explicitly pass one — see fanOutToTenant. Every type has
+ * one now, so "send an email on any update" (the 2026-09-29 ask) works
+ * uniformly instead of needing every one of the ~8 call sites across the
+ * codebase updated by hand. The per-user, per-type `mutedEmail` preference
+ * (setPreference) still applies on top of this — this only decides WHICH
+ * template to use when email is going out, not whether it does.
+ */
+const DEFAULT_EMAIL_TEMPLATE: Record<NotifType, EmailTemplate> = {
+  quote_request_new: "new_quote_request",
+  quote_status_changed: "quote_status_changed",
+  member_joined: "member_joined",
+  configurator_published: "configurator_published",
+  plan_limit: "plan_limit",
+  system: "system",
+};
 type NotifType =
   | "quote_request_new"
   | "quote_status_changed"
@@ -242,14 +278,19 @@ export const fanOutToTenant = internalMutation({
         });
       }
 
-      if (args.emailTemplate && !prefs?.mutedEmail?.includes(args.type)) {
+      // Every notification type now has a default email template (see
+      // DEFAULT_EMAIL_TEMPLATE) — an explicit `args.emailTemplate` still
+      // wins when a call site wants to override it, but nothing needs to
+      // pass one just to get an email sent anymore.
+      const emailTemplate = args.emailTemplate ?? DEFAULT_EMAIL_TEMPLATE[args.type as NotifType];
+      if (emailTemplate && !prefs?.mutedEmail?.includes(args.type)) {
         const user = await ctx.db.get(m.userId);
         if (user?.email) {
           await ctx.scheduler.runAfter(0, internal.email.send, {
-            template: args.emailTemplate,
+            template: emailTemplate,
             to: user.email,
             locale: user.locale ?? "it",
-            data,
+            data: { ...data, href: args.href },
             tenantId: args.tenantId,
             relatedEntityId: entityId,
           });

@@ -238,8 +238,15 @@ export const getOverview = query({
     const widgetViews = counters
       .filter((c) => monthsInWindow.has(c.period))
       .reduce((s, c) => s + (c.widgetViewsCount ?? 0), 0);
+    // Bug fix (2026-09-29): was `inWindow.length` (includes spam), while
+    // `prevVisitorConversionRate` above already correctly used
+    // `prevReal.length` (spam excluded) — spam submissions inflated the
+    // CURRENT period's rate but not the PREVIOUS one, making the displayed
+    // period-over-period delta/trend arrow on the dashboard and analytics
+    // page compare two differently-defined numbers. Use realLeads (spam
+    // excluded) on both sides, matching conversionRate's own definition.
     const visitorConversionRate =
-      widgetViews > 0 ? Math.min(1, inWindow.length / widgetViews) : 0;
+      widgetViews > 0 ? Math.min(1, realLeads.length / widgetViews) : 0;
 
     return {
       range,

@@ -517,7 +517,10 @@ function FirstConfigurator({
   hasOne: boolean;
   publicId: string | null;
   tenantId?: Id<"tenants">;
-  createConfigurator: (a: { tenantId: Id<"tenants">; name: string }) => Promise<unknown>;
+  createConfigurator: (a: {
+    tenantId: Id<"tenants">;
+    name: string;
+  }) => Promise<{ configuratorId: Id<"configurators">; publicId: string }>;
 }) {
   const t = useTranslations("onboarding.configurator");
   const [name, setName] = useState(t("defaultName"));
@@ -555,7 +558,13 @@ function FirstConfigurator({
           if (!tenantId) return;
           setCreating(true);
           try {
-            const configuratorId = await createConfigurator({ tenantId, name: name.trim() });
+            // createConfigurator returns { configuratorId, publicId }, not
+            // the id directly — destructure it (same bug fixed 2026-09-29 in
+            // the configurators list page, which also crashed on open since
+            // it interpolates this into a route; here it only corrupted the
+            // analytics event's configurator_id into the literal string
+            // "[object Object]").
+            const { configuratorId } = await createConfigurator({ tenantId, name: name.trim() });
             posthog.capture("configurator_created", {
               configurator_id: String(configuratorId),
               source: "onboarding",

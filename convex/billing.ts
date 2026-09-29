@@ -189,7 +189,18 @@ export const getPlatformBalance = query({
     await requireMembership(ctx, args.tenantId);
     const tenant = await ctx.db.get(args.tenantId);
     if (!tenant) return null;
-    return { balanceCents: tenant.stripeBalanceCents ?? 0 };
+    return {
+      balanceCents: tenant.stripeBalanceCents ?? 0,
+      // Whether this tenant has a real Stripe Customer at all — the
+      // precondition for a balance existing in the first place. A dormant
+      // (pre-Stripe / trialing / founder unlimitedAccess) tenant has none,
+      // so the header badge stays hidden for those instead of showing a
+      // meaningless "€0.00" — but for anyone who's actually gone through
+      // checkout, the badge is always visible (even at exactly €0.00) so
+      // it's discoverable instead of only appearing the one time it's
+      // nonzero.
+      hasBilling: !!tenant.stripeCustomerId,
+    };
   },
 });
 

@@ -2,6 +2,38 @@ import { describe, expect, test } from "vitest";
 import { api } from "../../convex/_generated/api";
 import { newDb, seedTenant, seedPublishedConfigurator } from "./_helpers";
 
+describe("configurators.createConfigurator", () => {
+  test("returns { configuratorId, publicId } (not the id directly), and getEditorState works right after creation", async () => {
+    // Regression test for a real 2026-09-29 bug: two frontend call sites
+    // (configurators/page.tsx and onboarding/page.tsx) assigned this
+    // mutation's whole return value to a variable named `configuratorId`
+    // and interpolated it straight into a route/analytics field. Since the
+    // mutation actually returns an object, that produced the literal string
+    // "[object Object]" — Convex rejected it as an invalid document id, the
+    // exact "getEditorState Server Error" reported right after creating a
+    // new configurator and being routed into its setup wizard.
+    const t = newDb();
+    const { tenantId, ownerId } = await seedTenant(t, { plan: "pro" });
+    const as = t.withIdentity({ subject: ownerId });
+
+    const result = await as.mutation(api.configurators.createConfigurator, {
+      tenantId,
+      name: "Nuovo configuratore",
+    });
+    expect(result).toHaveProperty("configuratorId");
+    expect(result).toHaveProperty("publicId");
+    expect(typeof result.configuratorId).toBe("string");
+    expect(result.configuratorId).not.toBe("[object Object]");
+
+    // The exact next step the setup wizard takes on mount.
+    const state = await as.query(api.configurators.getEditorState, {
+      configuratorId: result.configuratorId,
+    });
+    expect(state?.configurator.name).toBe("Nuovo configuratore");
+    expect(state?.configurator.publicId).toBe(result.publicId);
+  });
+});
+
 describe("configurator versions + rollback", () => {
   test("listVersions returns published versions newest-first with isCurrent flag", async () => {
     const t = newDb();

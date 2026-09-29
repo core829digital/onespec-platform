@@ -71,6 +71,7 @@ import type * as quotes from "../quotes.js";
 import type * as registration from "../registration.js";
 import type * as seed from "../seed.js";
 import type * as setupGuide from "../setupGuide.js";
+import type * as siteDeliveries from "../siteDeliveries.js";
 import type * as suppliers from "../suppliers.js";
 import type * as surveys from "../surveys.js";
 import type * as tenants from "../tenants.js";
@@ -148,6 +149,7 @@ declare const fullApi: ApiFromModules<{
   registration: typeof registration;
   seed: typeof seed;
   setupGuide: typeof setupGuide;
+  siteDeliveries: typeof siteDeliveries;
   suppliers: typeof suppliers;
   surveys: typeof surveys;
   tenants: typeof tenants;

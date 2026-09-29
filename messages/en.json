@@ -70,6 +70,30 @@
       "receivedMonth": "Received (month)",
       "inStock": "In stock",
       "viewAll": "Go to logistics"
+    },
+    "quickActions": {
+      "newQuote": "New quote",
+      "newClient": "New client",
+      "newCantiere": "New project",
+      "newConfigurator": "New configurator"
+    },
+    "team": {
+      "title": "Team",
+      "empty": "No active teammates yet. Invite your team from the Team page.",
+      "openCantieri": "{count, plural, =0 {no open projects} one {# open project} other {# open projects}}"
+    },
+    "cantieriPanel": {
+      "title": "Projects",
+      "empty": "No projects yet. Create one from the Projects page.",
+      "status": {
+        "preventivo": "Quote",
+        "confermato": "Confirmed",
+        "in_produzione": "In production",
+        "pronto_consegna": "Ready for delivery",
+        "in_posa": "Installing",
+        "collaudo": "Testing",
+        "chiuso": "Closed"
+      }
     }
   },
   "analytics": {
@@ -113,7 +137,8 @@
     "dpa": "DPA agreement (GDPR)",
     "status": "Service status",
     "balanceCreditLabel": "You have a {amount} platform credit, applied at your next renewal",
-    "balanceDueLabel": "You have a {amount} platform balance due"
+    "balanceDueLabel": "You have a {amount} platform balance due",
+    "balanceZeroLabel": "Platform balance: no pending credit or amount due"
   },
   "auth": {
     "footer": "© 2026 onespec. All rights reserved.",
@@ -1058,7 +1083,7 @@
     "title": "Configurators",
     "subtitle": "Manage the embeddable configurators for your website",
     "newNamePlaceholder": "New configurator name",
-    "create": "New",
+    "create": "Create configurator",
     "creating": "Creating...",
     "loading": "Loading...",
     "empty": "No configurators. Create one to get started.",
@@ -1067,7 +1092,10 @@
     "edit": "Edit",
     "statusDraft": "Draft",
     "statusPublished": "Published",
-    "statusArchived": "Archived"
+    "statusArchived": "Archived",
+    "createHint": "We'll guide you step by step: name, catalog, branding and publishing.",
+    "defaultName": "New configurator",
+    "open": "Open"
   },
   "pipeline": {
     "title": "Sales deals",
@@ -1571,7 +1599,8 @@
       "calendar": "Calendar",
       "suppliers": "Suppliers",
       "carriers": "Carriers",
-      "inventory": "Warehouse"
+      "inventory": "Warehouse",
+      "siteDeliveries": "Site deliveries"
     },
     "calendar": {
       "newDelivery": "New delivery",
@@ -1635,7 +1664,61 @@
       "statusIn_stock": "In stock",
       "statusAssigned": "Assigned",
       "statusInstalled": "Installed",
-      "received": "Received on"
+      "received": "Received on",
+      "statusIn_transit": "In transit",
+      "statusDelivered": "Delivered"
+    },
+    "siteDeliveries": {
+      "intro": "Shipments from the warehouse to a site: loading checklist, packaging photos and digital signature.",
+      "new": "New delivery",
+      "cantiere": "Project",
+      "selectCantiere": "Select a project",
+      "itemsToLoad": "Goods to load",
+      "itemLabelPlaceholder": "E.g. Window 120x140",
+      "removeItem": "Remove item",
+      "addItem": "Add item",
+      "creating": "Creating...",
+      "create": "Create",
+      "cancel": "Cancel",
+      "loading": "Loading...",
+      "empty": "No site deliveries",
+      "emptyHint": "Create the first shipment from the warehouse to a project.",
+      "itemsCount": "items",
+      "noDate": "Date not set",
+      "status": {
+        "preparing": "Preparing",
+        "in_transit": "In transit",
+        "delivered": "Delivered",
+        "cancelled": "Cancelled"
+      },
+      "backToList": "Back to list",
+      "notFound": "Delivery not found",
+      "viewReport": "View PDF report",
+      "checklistTitle": "Loading checklist",
+      "notLoadedReasonPlaceholder": "Why wasn't it loaded?",
+      "saveReason": "Save",
+      "notLoadedBecause": "Not loaded: {reason}",
+      "mediaTitle": "Packaging documentation",
+      "mediaHint": "Up to 4 photos or videos — packaging, pallet, foam protection on frames.",
+      "removeMedia": "Remove",
+      "addMedia": "Add",
+      "uploading": "Uploading...",
+      "signTitle": "Sign and depart",
+      "checklistIncompleteHint": "Resolve the checklist (tick or give a reason for every item) before signing.",
+      "signerName": "Signer's name",
+      "signerNamePlaceholder": "Full name",
+      "signAndDepart": "Sign and mark departed",
+      "cancelDelivery": "Cancel delivery",
+      "confirmCancel": "Cancel this site delivery? This cannot be undone.",
+      "departedOn": "Departed on {date} · signed by {signer}",
+      "markDelivered": "Mark as arrived at destination",
+      "deliveredOn": "Arrived at destination on {date}",
+      "report": {
+        "title": "Site delivery report",
+        "download": "Download PDF",
+        "print": "Print",
+        "notFound": "Report not found"
+      }
     }
   },
   "configuratorSetup": {
@@ -1711,5 +1794,9 @@
       "showroomWhatsapp": "WhatsApp from the Showroom"
     },
     "lockedSuspendedBody": "This request arrived while your subscription was suspended. It is saved: contact details unlock as soon as you reactivate your subscription."
+  },
+  "signaturePad": {
+    "hint": "Sign here with finger or mouse",
+    "clear": "Clear and re-sign"
   }
 }

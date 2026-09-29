@@ -11,6 +11,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { NotificationBell } from "./notification-bell";
 import { FeedbackButton } from "./feedback-modal";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { LEGAL_DOCS } from "@/content/legal";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -19,31 +20,42 @@ import type { Id } from "@/convex/_generated/dataModel";
  * Platform-balance badge — mirrors Stripe's Customer.balance (negative =
  * credit owed to the tenant, e.g. from a paid-to-paid downgrade's unused-
  * time proration; positive = the tenant owes more, e.g. a carried-over
- * failed invoice). Renders nothing when the balance is exactly 0, which is
- * the overwhelming common case (trialing tenants never have one — Stripe
- * has nothing to prorate against an unpaid trial).
+ * failed invoice). Always visible for any tenant that has actually gone
+ * through Stripe Checkout at least once (`hasBilling`), even at exactly
+ * €0.00 — discoverable at all times instead of only appearing the one time
+ * it happens to be nonzero, matching "the user should always be able to see
+ * this is serious/verifiable" from the original ask. A dormant tenant
+ * (trialing / pre-Stripe / founder unlimitedAccess) has no Stripe Customer
+ * at all, so there's nothing meaningful to show — hidden for those.
  */
 function PlatformBalanceBadge({ tenantId }: { tenantId: Id<"tenants"> }) {
   const t = useTranslations("topbar");
   const locale = useLocale();
   const balance = useQuery(api.billing.getPlatformBalance, { tenantId });
-  const cents = balance?.balanceCents ?? 0;
-  if (cents === 0) return null;
+  if (!balance?.hasBilling) return null;
+  const cents = balance.balanceCents;
   const amount = `€${(Math.abs(cents) / 100).toLocaleString(locale, { minimumFractionDigits: 2 })}`;
   const isCredit = cents < 0;
+  const isDue = cents > 0;
   return (
     <Button
       variant="ghost"
-      className={`flex items-center gap-2 px-3 py-1.5 ${isCredit ? "text-[var(--color-mint)]" : "text-[var(--color-danger)]"}`}
+      className={`flex items-center gap-2 px-3 py-1.5 ${isCredit ? "text-[var(--color-mint)]" : isDue ? "text-[var(--color-danger)]" : "text-[var(--color-text-secondary)]"}`}
       asChild
     >
       <Link
         href="/app/account/billing?tab=billing"
-        aria-label={isCredit ? t("balanceCreditLabel", { amount }) : t("balanceDueLabel", { amount })}
+        aria-label={
+          isCredit
+            ? t("balanceCreditLabel", { amount })
+            : isDue
+              ? t("balanceDueLabel", { amount })
+              : t("balanceZeroLabel")
+        }
       >
         <Wallet size={18} />
         <span className="hidden md:block text-sm font-medium tabular-nums">
-          {isCredit ? "+" : "-"}
+          {isCredit ? "+" : isDue ? "-" : ""}
           {amount}
         </span>
       </Link>
@@ -82,8 +94,9 @@ export function Topbar({
           <Menu size={20} />
         </button>
 
-        <div className="hidden lg:flex items-center gap-6">
+        <div className="hidden lg:flex items-center gap-3">
           <LanguageSwitcher />
+          <ThemeToggle variant="inline" />
         </div>
       </div>
 

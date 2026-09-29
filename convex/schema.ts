@@ -587,7 +587,10 @@ export default defineSchema({
     to: v.string(),
     template: v.union(v.literal("verify"), v.literal("reset"),
                       v.literal("welcome_alpha"), v.literal("welcome"),
-                      v.literal("new_quote_request"), v.literal("invitation"),
+                      v.literal("new_quote_request"), v.literal("quote_status_changed"),
+                      v.literal("member_joined"), v.literal("configurator_published"),
+                      v.literal("plan_limit"), v.literal("system"),
+                      v.literal("invitation"),
                       v.literal("admin_resend"), v.literal("purchase_receipt"),
                       v.literal("subscription_confirmation")),
     subject: v.string(),
@@ -1067,7 +1070,19 @@ export default defineSchema({
     quantity: v.number(),
     unit: v.string(),
     cantiereId: v.optional(v.id("cantieri")),
-    status: v.union(v.literal("in_stock"), v.literal("assigned"), v.literal("installed")),
+    // "in_stock" (warehouse) -> "assigned" (earmarked for a cantiere, still
+    // physically in the warehouse) -> "in_transit" (loaded on a siteDeliveries
+    // shipment heading to the cantiere — no longer warehouse stock) ->
+    // "delivered" (physically at the cantiere) -> "installed" (fitted by the
+    // crew — a separate, later, manual step). Added in_transit/delivered
+    // 2026-09-29 for the warehouse<->cantiere shipment leg (siteDeliveries).
+    status: v.union(
+      v.literal("in_stock"),
+      v.literal("assigned"),
+      v.literal("in_transit"),
+      v.literal("delivered"),
+      v.literal("installed"),
+    ),
     receivedAt: v.number(),
     createdAt: v.number(),
     updatedAt: v.number(),
@@ -1076,4 +1091,51 @@ export default defineSchema({
     .index("by_tenant_status", ["tenantId", "status"])
     .index("by_delivery", ["deliveryId"])
     .index("by_cantiere", ["cantiereId"]),
+
+  /**
+   * One shipment FROM the warehouse TO a cantiere — the outbound leg,
+   * distinct from `deliveries` (the inbound supplier->warehouse leg).
+   * Captures a loading checklist (what was/wasn't loaded and why),
+   * packaging-quality photos/video, and a digital signature — the signature
+   * is what actually moves the shipment to "in_transit" and flips its
+   * linked inventoryItems out of warehouse stock, mirroring the same
+   * base64 data-URL signature pattern as quotes.signQuote.
+   */
+  siteDeliveries: defineTable({
+    tenantId: v.id("tenants"),
+    cantiereId: v.id("cantieri"),
+    status: v.union(
+      v.literal("preparing"),
+      v.literal("in_transit"),
+      v.literal("delivered"),
+      v.literal("cancelled"),
+    ),
+    scheduledDate: v.optional(v.number()),
+    driverName: v.optional(v.string()),
+    driverPhone: v.optional(v.string()),
+    items: v.array(
+      v.object({
+        inventoryItemId: v.optional(v.id("inventoryItems")),
+        label: v.string(),
+        quantity: v.number(),
+        unit: v.string(),
+        loaded: v.boolean(),
+        notLoadedReason: v.optional(v.string()),
+      }),
+    ),
+    /** Packaging-quality documentation — up to 4, images or short video. */
+    packagingMediaIds: v.array(v.id("_storage")),
+    signedByName: v.optional(v.string()),
+    signatureDataUrl: v.optional(v.string()),
+    signedAt: v.optional(v.number()),
+    departedAt: v.optional(v.number()),
+    deliveredAt: v.optional(v.number()),
+    notes: v.optional(v.string()),
+    createdByUserId: v.id("users"),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_cantiere", ["cantiereId"])
+    .index("by_tenant_status", ["tenantId", "status"]),
 });

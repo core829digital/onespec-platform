@@ -70,6 +70,30 @@
       "receivedMonth": "Reçues (mois)",
       "inStock": "En stock",
       "viewAll": "Voir la logistique"
+    },
+    "quickActions": {
+      "newQuote": "Nouveau devis",
+      "newClient": "Nouveau client",
+      "newCantiere": "Nouveau chantier",
+      "newConfigurator": "Nouveau configurateur"
+    },
+    "team": {
+      "title": "Équipe",
+      "empty": "Aucun collègue actif. Invitez votre équipe depuis la page Équipe.",
+      "openCantieri": "{count, plural, =0 {aucun chantier ouvert} one {# chantier ouvert} other {# chantiers ouverts}}"
+    },
+    "cantieriPanel": {
+      "title": "Chantiers",
+      "empty": "Aucun chantier pour l'instant. Créez-en un depuis la page Chantiers.",
+      "status": {
+        "preventivo": "Devis",
+        "confermato": "Confirmé",
+        "in_produzione": "En production",
+        "pronto_consegna": "Prêt à livrer",
+        "in_posa": "En pose",
+        "collaudo": "Essai",
+        "chiuso": "Clôturé"
+      }
     }
   },
   "analytics": {
@@ -113,7 +137,8 @@
     "dpa": "Accord DPA (RGPD)",
     "status": "État du service",
     "balanceCreditLabel": "Vous avez un crédit de {amount} sur la plateforme, appliqué au prochain renouvellement",
-    "balanceDueLabel": "Vous avez un solde de {amount} à régler sur la plateforme"
+    "balanceDueLabel": "Vous avez un solde de {amount} à régler sur la plateforme",
+    "balanceZeroLabel": "Solde de la plateforme : aucun crédit ni montant dû"
   },
   "auth": {
     "login": {
@@ -1058,7 +1083,7 @@
     "title": "Configurateurs",
     "subtitle": "Gérez les configurateurs intégrables pour votre site",
     "newNamePlaceholder": "Nom du nouveau configurateur",
-    "create": "Nouveau",
+    "create": "Créer un configurateur",
     "creating": "Création...",
     "loading": "Chargement...",
     "empty": "Aucun configurateur. Créez-en un pour commencer.",
@@ -1067,7 +1092,10 @@
     "edit": "Modifier",
     "statusDraft": "Brouillon",
     "statusPublished": "Publié",
-    "statusArchived": "Archivé"
+    "statusArchived": "Archivé",
+    "createHint": "Nous vous guidons pas à pas : nom, catalogue, image de marque et publication.",
+    "defaultName": "Nouveau configurateur",
+    "open": "Ouvrir"
   },
   "pipeline": {
     "title": "Affaires commerciales",
@@ -1571,7 +1599,8 @@
       "calendar": "Calendrier",
       "suppliers": "Fournisseurs",
       "carriers": "Transporteurs",
-      "inventory": "Entrepôt"
+      "inventory": "Entrepôt",
+      "siteDeliveries": "Livraisons chantier"
     },
     "calendar": {
       "newDelivery": "Nouvelle livraison",
@@ -1635,7 +1664,61 @@
       "statusIn_stock": "En stock",
       "statusAssigned": "Assigné",
       "statusInstalled": "Installé",
-      "received": "Reçu le"
+      "received": "Reçu le",
+      "statusIn_transit": "En transit",
+      "statusDelivered": "Livré"
+    },
+    "siteDeliveries": {
+      "intro": "Expéditions de l'entrepôt vers un chantier : checklist de chargement, photos d'emballage et signature numérique.",
+      "new": "Nouvelle livraison",
+      "cantiere": "Chantier",
+      "selectCantiere": "Sélectionnez un chantier",
+      "itemsToLoad": "Marchandise à charger",
+      "itemLabelPlaceholder": "Ex. Fenêtre 120x140",
+      "removeItem": "Supprimer l'article",
+      "addItem": "Ajouter un article",
+      "creating": "Création...",
+      "create": "Créer",
+      "cancel": "Annuler",
+      "loading": "Chargement...",
+      "empty": "Aucune livraison chantier",
+      "emptyHint": "Créez la première expédition de l'entrepôt vers un chantier.",
+      "itemsCount": "articles",
+      "noDate": "Date à définir",
+      "status": {
+        "preparing": "En préparation",
+        "in_transit": "En transit",
+        "delivered": "Livré",
+        "cancelled": "Annulée"
+      },
+      "backToList": "Retour à la liste",
+      "notFound": "Livraison introuvable",
+      "viewReport": "Voir le rapport PDF",
+      "checklistTitle": "Checklist de chargement",
+      "notLoadedReasonPlaceholder": "Pourquoi n'a-t-il pas été chargé ?",
+      "saveReason": "Enregistrer",
+      "notLoadedBecause": "Non chargé : {reason}",
+      "mediaTitle": "Documentation de l'emballage",
+      "mediaHint": "Jusqu'à 4 photos ou vidéos — emballage, palette, protection en mousse des cadres.",
+      "removeMedia": "Supprimer",
+      "addMedia": "Ajouter",
+      "uploading": "Envoi...",
+      "signTitle": "Signature et départ",
+      "checklistIncompleteHint": "Complétez la checklist (cochez ou justifiez chaque article) avant de signer.",
+      "signerName": "Nom du signataire",
+      "signerNamePlaceholder": "Nom et prénom",
+      "signAndDepart": "Signer et marquer le départ",
+      "cancelDelivery": "Annuler la livraison",
+      "confirmCancel": "Annuler cette livraison chantier ? Action irréversible.",
+      "departedOn": "Parti le {date} · signé par {signer}",
+      "markDelivered": "Marquer comme arrivé à destination",
+      "deliveredOn": "Arrivé à destination le {date}",
+      "report": {
+        "title": "Rapport de livraison chantier",
+        "download": "Télécharger le PDF",
+        "print": "Imprimer",
+        "notFound": "Rapport introuvable"
+      }
     }
   },
   "configuratorSetup": {
@@ -1711,5 +1794,9 @@
       "showroomWhatsapp": "WhatsApp depuis le Showroom"
     },
     "lockedSuspendedBody": "Cette demande est arrivée pendant la suspension de votre abonnement. Elle est enregistrée : les coordonnées se débloquent dès la réactivation de l'abonnement."
+  },
+  "signaturePad": {
+    "hint": "Signez ici avec le doigt ou la souris",
+    "clear": "Effacer et resigner"
   }
 }

@@ -32,7 +32,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             >
               {tTopbar("status")}
             </a>
-            <ThemeToggle />
+            <ThemeToggle variant="inline" />
           </div>
         </header>
 

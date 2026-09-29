@@ -3,6 +3,7 @@
 import { requestConfirm } from "@/lib/confirm-dialog";
 
 import { useState, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import posthog from "posthog-js";
 import { useQuery, useMutation } from "convex/react";
 import { useTranslations, useFormatter } from "next-intl";
@@ -506,7 +507,12 @@ export default function CantieriPage() {
   const format = useFormatter();
   const tenant = useQuery(api.tenants.getMyTenant);
   const [search, setSearch] = useState("");
-  const [modalOpen, setModalOpen] = useState(false);
+  // Dashboard "quick actions" deep-link (/app/cantieri?new=1) opens the
+  // create modal directly instead of landing on the plain list. Lazy
+  // useState initializer (not an effect + setState, which the React
+  // Compiler's purity rule flags) — reads the param once at mount.
+  const params = useSearchParams();
+  const [modalOpen, setModalOpen] = useState(() => params.get("new") === "1");
   const [editingCantiere, setEditingCantiere] = useState<Cantiere | null>(null);
   const [pinModal, setPinModal] = useState<{ pin: string; expiresAt: number } | null>(null);
   const [saving, setSaving] = useState(false);
