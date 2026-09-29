@@ -587,6 +587,8 @@ export const applySubscriptionSync = internalMutation({
     const patch = subscriptionPatch(sub, tenant, sub.status === "canceled");
     if (customer) patch.stripeCustomerId = customer;
     if (typeof args.balanceCents === "number") patch.stripeBalanceCents = args.balanceCents;
+    // This is Stripe's CURRENT state: any webhook created before now is older.
+    patch.stripeLastEventCreated = Math.floor(Date.now() / 1000);
     patch.updatedAt = Date.now();
     await ctx.db.patch(tenant._id, patch as never);
     if (typeof patch.plan === "string") await unlockOnPlanChange(ctx, tenant._id, tenant.plan, patch.plan);
@@ -726,7 +728,7 @@ export function subscriptionPatch(
 }
 
 export const applyWebhookEvent = internalMutation({
-  args: { eventId: v.string(), type: v.string(), data: v.any() },
+  args: { eventId: v.string(), type: v.string(), data: v.any(), created: v.optional(v.number()) },
   handler: async (ctx, args) => {
     const seen = await ctx.db
       .query("billingEvents")
@@ -775,7 +777,17 @@ export const applyWebhookEvent = internalMutation({
         const patch: Record<string, unknown> = {};
         if (customerId) patch.stripeCustomerId = customerId;
 
-        if (args.type === "checkout.session.completed") {
+        // Stripe does not guarantee delivery order: a late, OLDER subscription
+        // event must not overwrite a newer state (e.g. revert an upgrade).
+        const planEvent = args.type === "checkout.session.completed" || args.type.startsWith("customer.subscription");
+        const stale =
+          planEvent &&
+          typeof args.created === "number" &&
+          typeof tenantDoc?.stripeLastEventCreated === "number" &&
+          args.created < tenantDoc.stripeLastEventCreated;
+        if (planEvent && typeof args.created === "number" && !stale) patch.stripeLastEventCreated = args.created;
+
+        if (args.type === "checkout.session.completed" && !stale) {
           patch.stripeSubscriptionId = obj.subscription as string;
           if (tenantDoc?.planStatus !== "trialing" && tenantDoc?.planStatus !== "active") {
             patch.planStatus = "active";
@@ -794,7 +806,7 @@ export const applyWebhookEvent = internalMutation({
             patch.billingCycle = meta.cycle;
           }
         }
-        if (args.type.startsWith("customer.subscription")) {
+        if (args.type.startsWith("customer.subscription") && !stale) {
           Object.assign(patch, subscriptionPatch(obj, tenantDoc, args.type === "customer.subscription.deleted"));
         }
         if (args.type === "customer.updated" && typeof obj.balance === "number") {

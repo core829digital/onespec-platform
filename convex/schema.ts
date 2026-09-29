@@ -63,6 +63,8 @@ export default defineSchema({
     // syncSubscription's safety-net sweep — never written optimistically by
     // client-facing code, Stripe is the single source of truth for this.
     stripeBalanceCents: v.optional(v.number()),
+    /** `created` (unix s) of the newest subscription/checkout event applied — older, late events are ignored. */
+    stripeLastEventCreated: v.optional(v.number()),
     // Pro-only 14-day trial (card captured up front, auto-converts via webhook).
     trialPlan: v.optional(v.literal("pro")),
     trialStartedAt: v.optional(v.number()),

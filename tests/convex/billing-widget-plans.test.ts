@@ -238,3 +238,23 @@ describe("server guards", () => {
     expect(state?.entitlements.moduleCrm).toBe(false);
   });
 });
+
+describe("event ordering", () => {
+  test("a late, older subscription event can't revert a newer plan", async () => {
+    const t = newDb();
+    const s = await seedTenant(t, { plan: "essentials" });
+    await linkCustomer(t, s.tenantId, "cus_o", "essentials");
+    const ev = (id: string, price: string, created: number) =>
+      t.mutation(internal.billing.applyWebhookEvent, {
+        eventId: id, type: "customer.subscription.updated", created,
+        data: { object: { id: "sub_x", customer: "cus_o", status: "active", items: { data: [{ price: { id: price } }] } } },
+      });
+    await ev("evt_new", "price_max_m", 2_000); // upgrade to Level 3 (newer)
+    await ev("evt_old", "price_ess_m", 1_000); // stale Level 1 state delivered late
+    const tenant = await t.run((ctx) => ctx.db.get(s.tenantId));
+    expect(tenant?.plan).toBe("max");
+    expect(tenant?.stripeLastEventCreated).toBe(2_000);
+    // The stale event is still recorded (idempotency), just not applied.
+    expect(await t.run((ctx) => ctx.db.query("billingEvents").collect())).toHaveLength(2);
+  });
+});
