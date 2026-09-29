@@ -12,6 +12,7 @@ import { guessZoneFromCap, buildAllegatoF, allegatoFToXml, type ClimateZone } fr
 import { computeOverallUw, type CatalogPayload, type ProjectItem } from "../src/shared/pricing";
 import { nanoid } from "./lib/ids";
 import { internal } from "./_generated/api";
+import { assertOwnedRefs } from "./lib/links";
 
 /* ----------------------------- dealer side ------------------------------ */
 
@@ -37,7 +38,8 @@ export const listByQuote = query({
     return await ctx.db
       .query("serramentoPassports")
       .withIndex("by_quote", (q) => q.eq("quoteId", args.quoteId))
-      .collect();
+      .take(200)
+      .then((rows) => rows.filter((r) => r.tenantId === quote.tenantId));
   },
 });
 
@@ -80,6 +82,7 @@ export const create = mutation({
     await enforceForMaintenance(ctx, args.tenantId);
     await requirePermission(ctx, args.tenantId, "passports.use");
     const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
+    await assertOwnedRefs(ctx, args.tenantId, { quoteId: args.quoteId, inspectionId: args.inspectionId });
     const label = args.label.trim();
     const customerName = args.customerName.trim();
     if (!label) throw new ConvexError("LABEL_REQUIRED");

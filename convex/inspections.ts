@@ -46,7 +46,8 @@ export const listByQuote = query({
     return await ctx.db
       .query("inspectionReports")
       .withIndex("by_quote", (q) => q.eq("quoteId", args.quoteId))
-      .collect();
+      .take(200)
+      .then((rows) => rows.filter((r) => r.tenantId === quote.tenantId));
   },
 });
 

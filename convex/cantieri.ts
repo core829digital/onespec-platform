@@ -2,7 +2,7 @@ import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import { requirePermission } from "./lib/rbac";
-import { listRelated } from "./lib/links";
+import { listRelated, assertOwnedRefs, assertActiveMembers } from "./lib/links";
 import { consumeToken, RATE_LIMITS } from "./lib/ratelimit";
 import { hashIp } from "./lib/ipHash";
 
@@ -189,6 +189,21 @@ export const createCantiere = mutation({
   },
   handler: async (ctx, args) => {
     const { userId } = await requirePermission(ctx, args.tenantId, "cantieri.use");
+    // Same bounds as updateCantiere, plus: referenced client/quote/assignees
+    // must belong to THIS tenant.
+    const tooLong = (val: string | undefined, max: number) => val !== undefined && val.length > max;
+    if (
+      !args.name.trim() || tooLong(args.name, 200) || tooLong(args.address, 300) || tooLong(args.city, 120) ||
+      tooLong(args.postalCode, 20) || tooLong(args.country, 2) || tooLong(args.notes, 10_000)
+    ) {
+      throw new ConvexError("INVALID_INPUT");
+    }
+    for (const n of [args.estimatedStartAt, args.estimatedEndAt, args.valueCents]) {
+      if (n !== undefined && !Number.isFinite(n)) throw new ConvexError("INVALID_INPUT");
+    }
+    if (args.valueCents !== undefined && args.valueCents < 0) throw new ConvexError("INVALID_INPUT");
+    await assertOwnedRefs(ctx, args.tenantId, { clientId: args.clientId, quoteId: args.quoteId });
+    await assertActiveMembers(ctx, args.tenantId, args.assignedUserIds);
 
     const now = Date.now();
     const cantiereId = await ctx.db.insert("cantieri", {
@@ -273,6 +288,8 @@ export const updateCantiere = mutation({
     }
     if (args.valueCents !== undefined && args.valueCents < 0) throw new ConvexError("INVALID_INPUT");
     if (args.assignedUserIds !== undefined && args.assignedUserIds.length > 100) throw new ConvexError("INVALID_INPUT");
+    await assertOwnedRefs(ctx, cantiere.tenantId, { clientId: args.clientId, quoteId: args.quoteId });
+    await assertActiveMembers(ctx, cantiere.tenantId, args.assignedUserIds);
 
     const patch: Record<string, unknown> = { updatedAt: Date.now() };
     const allowedFields = [

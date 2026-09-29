@@ -5,7 +5,7 @@ import { v, ConvexError } from "convex/values";
 import { requirePermission } from "./lib/rbac";
 import { requireTenantRegion } from "./lib/fieldModules";
 import { enforceForFieldSurvey } from "./lib/enforcement";
-import { resolveLinks, logClientActivity } from "./lib/links";
+import { resolveLinks, logClientActivity, assertOwnedRefs } from "./lib/links";
 
 const openingValidator = v.object({
   label: v.string(),
@@ -65,7 +65,8 @@ export const listByQuote = query({
     return await ctx.db
       .query("siteSurveys")
       .withIndex("by_quote", (q) => q.eq("quoteId", args.quoteId))
-      .collect();
+      .take(200)
+      .then((rows) => rows.filter((r) => r.tenantId === quote.tenantId));
   },
 });
 
@@ -151,6 +152,7 @@ export const create = mutation({
     await enforceForFieldSurvey(ctx, args.tenantId);
     await requirePermission(ctx, args.tenantId, "surveys.use");
     const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
+    await assertOwnedRefs(ctx, args.tenantId, { quoteId: args.quoteId });
     const links = await resolveLinks(ctx, args.tenantId, {
       clientId: args.clientId,
       cantiereId: args.cantiereId,
