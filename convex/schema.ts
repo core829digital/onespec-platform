@@ -15,7 +15,11 @@ export default defineSchema({
     /** Best-effort ISO-3166-1 alpha-2, captured at sign-up (geo header / Accept-Language). */
     country: v.optional(v.string()),
     lastSeenAt: v.optional(v.number()),
-  }).index("email", ["email"]),
+  })
+    .index("email", ["email"])
+    // Platform admins are a handful of rows: lets feedback notify them without
+    // scanning every user (10k+ at launch scale).
+    .index("by_isPlatformAdmin", ["isPlatformAdmin"]),
 
   tenants: defineTable({
     name: v.string(),

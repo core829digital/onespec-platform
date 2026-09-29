@@ -857,12 +857,19 @@ export const reconcile = internalAction({
  * and notifies once, so a lapsed trial can never silently keep Pro access.
  */
 export const trialSweep = internalMutation({
-  handler: async (ctx) => {
+  args: { cursor: v.optional(v.union(v.string(), v.null())) },
+  handler: async (ctx, args) => {
     const now = Date.now();
-    const trialing = await ctx.db
+    // Paginated: thousands of trialing tenants must not exceed one
+    // transaction's read/write limits. Each page schedules the next.
+    const page = await ctx.db
       .query("tenants")
       .withIndex("by_planStatus", (q) => q.eq("planStatus", "trialing"))
-      .collect();
+      .paginate({ numItems: 200, cursor: args.cursor ?? null });
+    if (!page.isDone) {
+      await ctx.scheduler.runAfter(0, internal.billing.trialSweep, { cursor: page.continueCursor });
+    }
+    const trialing = page.page;
     let swept = 0;
     for (const t of trialing) {
       if (t.stripeSubscriptionId) {
