@@ -21,7 +21,13 @@ function getSnapshot() {
   return document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
 }
 
-export function ThemeToggle() {
+/**
+ * `floating` (default): the big circular FAB used on public/auth/onboarding
+ * pages, unchanged.
+ * `inline`: a compact pill matching `LanguageSwitcher`'s look, meant to sit
+ * right next to it in the authenticated app header (Topbar).
+ */
+export function ThemeToggle({ variant = "floating" }: { variant?: "floating" | "inline" }) {
   const t = useTranslations("theme");
   // `undefined` server snapshot => the button renders nothing until hydrated,
   // which is fine (it's a floating affordance, not content).
@@ -38,6 +44,20 @@ export function ThemeToggle() {
       document.documentElement.setAttribute("data-theme", "light");
       localStorage.setItem(STORAGE_KEY, "light");
     }
+  }
+
+  if (variant === "inline") {
+    return (
+      <button
+        type="button"
+        onClick={toggle}
+        aria-label={isLight ? t("toDark") : t("toLight")}
+        aria-pressed={isLight}
+        className="flex cursor-pointer items-center gap-1.5 rounded-full border border-[var(--color-border)] bg-[var(--color-bg-alt)] px-3 py-1.5 text-[12px] font-medium text-[var(--color-text)] transition-colors hover:bg-[var(--color-border-subtle)]"
+      >
+        {isLight ? <Moon size={14} weight="bold" /> : <Sun size={14} weight="bold" />}
+      </button>
+    );
   }
 
   return (

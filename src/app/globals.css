@@ -57,7 +57,9 @@
   --background: var(--color-bg);
   --foreground: var(--color-text);
   --card: var(--color-bg-alt);
+  --card-foreground: var(--color-text);
   --popover: var(--color-bg-alt);
+  --popover-foreground: var(--color-text);
   --primary: var(--color-mint);
   --primary-foreground: #04150f;
   --secondary: var(--color-bg-alt);

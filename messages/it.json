@@ -70,6 +70,30 @@
       "receivedMonth": "Ricevute (mese)",
       "inStock": "In magazzino",
       "viewAll": "Vai alla logistica"
+    },
+    "quickActions": {
+      "newQuote": "Nuovo preventivo",
+      "newClient": "Nuovo cliente",
+      "newCantiere": "Nuovo cantiere",
+      "newConfigurator": "Nuovo configuratore"
+    },
+    "team": {
+      "title": "Squadra",
+      "empty": "Nessun collega attivo. Invita il tuo team dalla pagina Squadra.",
+      "openCantieri": "{count, plural, =0 {nessun cantiere aperto} one {# cantiere aperto} other {# cantieri aperti}}"
+    },
+    "cantieriPanel": {
+      "title": "Cantieri",
+      "empty": "Nessun cantiere ancora. Creane uno dalla pagina Cantieri.",
+      "status": {
+        "preventivo": "Preventivo",
+        "confermato": "Confermato",
+        "in_produzione": "In produzione",
+        "pronto_consegna": "Pronto consegna",
+        "in_posa": "In posa",
+        "collaudo": "Collaudo",
+        "chiuso": "Chiuso"
+      }
     }
   },
   "analytics": {
@@ -113,7 +137,8 @@
     "dpa": "Accordo DPA (GDPR)",
     "status": "Stato del servizio",
     "balanceCreditLabel": "Hai un credito di {amount} sulla piattaforma, applicato al prossimo rinnovo",
-    "balanceDueLabel": "Hai un saldo di {amount} da regolare sulla piattaforma"
+    "balanceDueLabel": "Hai un saldo di {amount} da regolare sulla piattaforma",
+    "balanceZeroLabel": "Saldo piattaforma: nessun credito o addebito in sospeso"
   },
   "auth": {
     "footer": "© 2026 onespec. Tutti i diritti riservati.",
@@ -1018,7 +1043,7 @@
     "title": "Configuratori",
     "subtitle": "Gestisci i configuratori embeddabili per il tuo sito",
     "newNamePlaceholder": "Nome nuovo configuratore",
-    "create": "Nuovo",
+    "create": "Crea configuratore",
     "creating": "Creazione...",
     "loading": "Caricamento...",
     "empty": "Nessun configuratore. Creane uno per iniziare.",
@@ -1027,7 +1052,10 @@
     "edit": "Modifica",
     "statusDraft": "Bozza",
     "statusPublished": "Pubblicato",
-    "statusArchived": "Archiviato"
+    "statusArchived": "Archiviato",
+    "createHint": "Ti guidiamo passo per passo: nome, catalogo, branding e pubblicazione.",
+    "defaultName": "Nuovo configuratore",
+    "open": "Apri"
   },
   "pipeline": {
     "title": "Trattative commerciali",
@@ -1489,7 +1517,8 @@
       "calendar": "Calendario",
       "suppliers": "Fornitori",
       "carriers": "Corrieri",
-      "inventory": "Magazzino"
+      "inventory": "Magazzino",
+      "siteDeliveries": "Consegne cantiere"
     },
     "calendar": {
       "newDelivery": "Nuova consegna",
@@ -1553,7 +1582,61 @@
       "statusIn_stock": "In magazzino",
       "statusAssigned": "Assegnato",
       "statusInstalled": "Installato",
-      "received": "Ricevuto il"
+      "received": "Ricevuto il",
+      "statusIn_transit": "In transito",
+      "statusDelivered": "Consegnato"
+    },
+    "siteDeliveries": {
+      "intro": "Spedizioni dal magazzino al cantiere: checklist di carico, foto imballaggio e firma digitale.",
+      "new": "Nuova consegna",
+      "cantiere": "Cantiere",
+      "selectCantiere": "Seleziona un cantiere",
+      "itemsToLoad": "Merce da caricare",
+      "itemLabelPlaceholder": "Es. Finestra 120x140",
+      "removeItem": "Rimuovi articolo",
+      "addItem": "Aggiungi articolo",
+      "creating": "Creazione...",
+      "create": "Crea",
+      "cancel": "Annulla",
+      "loading": "Caricamento...",
+      "empty": "Nessuna consegna cantiere",
+      "emptyHint": "Crea la prima spedizione dal magazzino verso un cantiere.",
+      "itemsCount": "articoli",
+      "noDate": "Data da definire",
+      "status": {
+        "preparing": "In preparazione",
+        "in_transit": "In transito",
+        "delivered": "Consegnato",
+        "cancelled": "Annullata"
+      },
+      "backToList": "Torna all'elenco",
+      "notFound": "Consegna non trovata",
+      "viewReport": "Vedi report PDF",
+      "checklistTitle": "Checklist di carico",
+      "notLoadedReasonPlaceholder": "Perché non è stato caricato?",
+      "saveReason": "Salva",
+      "notLoadedBecause": "Non caricato: {reason}",
+      "mediaTitle": "Documentazione imballaggio",
+      "mediaHint": "Fino a 4 foto o video — imballaggio, pallet, protezione in schiuma dei telai.",
+      "removeMedia": "Rimuovi",
+      "addMedia": "Aggiungi",
+      "uploading": "Caricamento...",
+      "signTitle": "Firma e partenza",
+      "checklistIncompleteHint": "Completa la checklist (spunta o motiva ogni articolo) prima di firmare.",
+      "signerName": "Nome di chi firma",
+      "signerNamePlaceholder": "Nome e cognome",
+      "signAndDepart": "Firma e segna partenza",
+      "cancelDelivery": "Annulla consegna",
+      "confirmCancel": "Annullare questa consegna cantiere? L'operazione non può essere annullata.",
+      "departedOn": "Partita il {date} · firmata da {signer}",
+      "markDelivered": "Segna come arrivata a destinazione",
+      "deliveredOn": "Arrivata a destinazione il {date}",
+      "report": {
+        "title": "Report di consegna cantiere",
+        "download": "Scarica PDF",
+        "print": "Stampa",
+        "notFound": "Report non trovato"
+      }
     }
   },
   "configuratorSetup": {
@@ -1608,5 +1691,9 @@
       "team": "Invita un collega",
       "billing": "Attiva la fatturazione"
     }
+  },
+  "signaturePad": {
+    "hint": "Firma qui con dito o mouse",
+    "clear": "Cancella e rifirma"
   }
 }

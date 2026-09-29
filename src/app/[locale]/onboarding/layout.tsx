@@ -30,7 +30,7 @@ export default async function OnboardingLayout({
     <div className="min-h-dvh bg-[var(--color-bg)] text-[var(--color-text)]">
       <header className="flex items-center justify-between px-6 py-5 max-w-3xl mx-auto">
         <Logo className="h-7" />
-        <ThemeToggle />
+        <ThemeToggle variant="inline" />
       </header>
       <main className="max-w-3xl mx-auto px-6 pb-16">{children}</main>
     </div>

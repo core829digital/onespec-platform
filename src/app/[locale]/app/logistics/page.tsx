@@ -7,11 +7,12 @@ import { useMutation, useQuery } from "convex/react";
 import { useTranslations, useFormatter, useLocale } from "next-intl";
 import { api } from "@/convex/_generated/api";
 import type { Doc, Id } from "@/convex/_generated/dataModel";
-import { Plus, Trash2, Truck, Package, CalendarDays, Warehouse } from "lucide-react";
+import { Plus, Trash2, Truck, Package, CalendarDays, Warehouse, MapPinned } from "lucide-react";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import { EmptyState } from "@/components/app-shell/empty-state";
+import { SiteDeliveriesTab } from "@/components/logistics/site-deliveries-tab";
 
-type Tab = "calendar" | "suppliers" | "carriers" | "inventory";
+type Tab = "calendar" | "suppliers" | "carriers" | "inventory" | "siteDeliveries";
 type Delivery = Doc<"deliveries">;
 
 export default function LogisticsPage() {
@@ -30,6 +31,7 @@ export default function LogisticsPage() {
     { key: "suppliers", label: t("tabs.suppliers"), icon: Truck },
     { key: "carriers", label: t("tabs.carriers"), icon: Package },
     { key: "inventory", label: t("tabs.inventory"), icon: Warehouse },
+    { key: "siteDeliveries", label: t("tabs.siteDeliveries"), icon: MapPinned },
   ];
 
   return (
@@ -66,8 +68,10 @@ export default function LogisticsPage() {
         <SuppliersTab tenantId={tenant._id} onError={showError} />
       ) : tab === "carriers" ? (
         <CarriersTab tenantId={tenant._id} onError={showError} />
-      ) : (
+      ) : tab === "inventory" ? (
         <InventoryTab tenantId={tenant._id} />
+      ) : (
+        <SiteDeliveriesTab tenantId={tenant._id} onError={showError} />
       )}
     </div>
   );
@@ -625,16 +629,23 @@ function ContactRow({
 // Inventory
 // ---------------------------------------------------------------------------
 
-const STATUS_LABEL_KEY: Record<string, "statusIn_stock" | "statusAssigned" | "statusInstalled"> = {
+const STATUS_LABEL_KEY: Record<
+  string,
+  "statusIn_stock" | "statusAssigned" | "statusIn_transit" | "statusDelivered" | "statusInstalled"
+> = {
   in_stock: "statusIn_stock",
   assigned: "statusAssigned",
+  in_transit: "statusIn_transit",
+  delivered: "statusDelivered",
   installed: "statusInstalled",
 };
 
 function InventoryTab({ tenantId }: { tenantId: Id<"tenants"> }) {
   const t = useTranslations("logistics.inventory");
   const format = useFormatter();
-  const [status, setStatus] = useState<"in_stock" | "assigned" | "installed" | "">("");
+  const [status, setStatus] = useState<"in_stock" | "assigned" | "in_transit" | "delivered" | "installed" | "">(
+    "",
+  );
   const items = useQuery(api.logistics.listInventoryItems, {
     tenantId,
     status: status || undefined,
@@ -646,8 +657,17 @@ function InventoryTab({ tenantId }: { tenantId: Id<"tenants"> }) {
         <option value="">{t("filterAll")}</option>
         <option value="in_stock">{t("statusIn_stock")}</option>
         <option value="assigned">{t("statusAssigned")}</option>
+        <option value="in_transit">{t("statusIn_transit")}</option>
+        <option value="delivered">{t("statusDelivered")}</option>
         <option value="installed">{t("statusInstalled")}</option>
       </select>
+      {/* "In magazzino" (the warehouse-count everyone actually cares about
+          day to day) is in_stock + assigned only — once a piece is
+          in_transit/delivered/installed it has physically left the
+          warehouse, so the default ("all statuses") view still shows it for
+          traceability, but it's no longer counted as warehouse stock
+          anywhere (see logistics.getLogisticsSummary's itemsInStock, which
+          only ever queries the in_stock index). */}
 
       {items === undefined ? (
         <div className="h-24 animate-pulse rounded-xl bg-[var(--color-bg-alt)]" />

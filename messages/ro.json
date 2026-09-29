@@ -70,6 +70,30 @@
       "receivedMonth": "Primite (lună)",
       "inStock": "În stoc",
       "viewAll": "Mergi la logistică"
+    },
+    "quickActions": {
+      "newQuote": "Ofertă nouă",
+      "newClient": "Client nou",
+      "newCantiere": "Șantier nou",
+      "newConfigurator": "Configurator nou"
+    },
+    "team": {
+      "title": "Echipă",
+      "empty": "Niciun coleg activ încă. Invită-ți echipa din pagina Echipă.",
+      "openCantieri": "{count, plural, =0 {niciun șantier deschis} one {# șantier deschis} other {# șantiere deschise}}"
+    },
+    "cantieriPanel": {
+      "title": "Șantiere",
+      "empty": "Niciun șantier încă. Creează unul din pagina Șantiere.",
+      "status": {
+        "preventivo": "Ofertă",
+        "confermato": "Confirmat",
+        "in_produzione": "În producție",
+        "pronto_consegna": "Gata de livrare",
+        "in_posa": "Montaj",
+        "collaudo": "Recepție",
+        "chiuso": "Închis"
+      }
     }
   },
   "analytics": {
@@ -113,7 +137,8 @@
     "dpa": "Acord DPA (GDPR)",
     "status": "Starea serviciului",
     "balanceCreditLabel": "Ai un credit de {amount} pe platformă, aplicat la următoarea reînnoire",
-    "balanceDueLabel": "Ai un sold de {amount} de achitat pe platformă"
+    "balanceDueLabel": "Ai un sold de {amount} de achitat pe platformă",
+    "balanceZeroLabel": "Sold platformă: niciun credit sau sumă restantă"
   },
   "auth": {
     "login": {
@@ -1018,7 +1043,7 @@
     "title": "Configuratoare",
     "subtitle": "Gestionează configuratoarele încorporabile pentru site-ul tău",
     "newNamePlaceholder": "Numele configuratorului nou",
-    "create": "Nou",
+    "create": "Creează configurator",
     "creating": "Se creează...",
     "loading": "Se încarcă...",
     "empty": "Niciun configurator. Creează unul pentru a începe.",
@@ -1027,7 +1052,10 @@
     "edit": "Editează",
     "statusDraft": "Ciornă",
     "statusPublished": "Publicat",
-    "statusArchived": "Arhivat"
+    "statusArchived": "Arhivat",
+    "createHint": "Te ghidăm pas cu pas: nume, catalog, branding și publicare.",
+    "defaultName": "Configurator nou",
+    "open": "Deschide"
   },
   "pipeline": {
     "title": "Tranzacții comerciale",
@@ -1489,7 +1517,8 @@
       "calendar": "Calendar",
       "suppliers": "Furnizori",
       "carriers": "Transportatori",
-      "inventory": "Depozit"
+      "inventory": "Depozit",
+      "siteDeliveries": "Livrări șantier"
     },
     "calendar": {
       "newDelivery": "Livrare nouă",
@@ -1553,7 +1582,61 @@
       "statusIn_stock": "În stoc",
       "statusAssigned": "Alocat",
       "statusInstalled": "Instalat",
-      "received": "Primit pe"
+      "received": "Primit pe",
+      "statusIn_transit": "În tranzit",
+      "statusDelivered": "Livrat"
+    },
+    "siteDeliveries": {
+      "intro": "Expedieri din depozit către un șantier: listă de verificare a încărcării, fotografii ambalaj și semnătură digitală.",
+      "new": "Livrare nouă",
+      "cantiere": "Șantier",
+      "selectCantiere": "Selectează un șantier",
+      "itemsToLoad": "Marfă de încărcat",
+      "itemLabelPlaceholder": "Ex. Fereastră 120x140",
+      "removeItem": "Elimină articolul",
+      "addItem": "Adaugă articol",
+      "creating": "Se creează...",
+      "create": "Creează",
+      "cancel": "Anulează",
+      "loading": "Se încarcă...",
+      "empty": "Nicio livrare de șantier",
+      "emptyHint": "Creează prima expediere din depozit către un șantier.",
+      "itemsCount": "articole",
+      "noDate": "Data neprecizată",
+      "status": {
+        "preparing": "În pregătire",
+        "in_transit": "În tranzit",
+        "delivered": "Livrat",
+        "cancelled": "Anulată"
+      },
+      "backToList": "Înapoi la listă",
+      "notFound": "Livrare negăsită",
+      "viewReport": "Vezi raportul PDF",
+      "checklistTitle": "Listă de verificare a încărcării",
+      "notLoadedReasonPlaceholder": "De ce nu a fost încărcat?",
+      "saveReason": "Salvează",
+      "notLoadedBecause": "Neîncărcat: {reason}",
+      "mediaTitle": "Documentare ambalaj",
+      "mediaHint": "Până la 4 fotografii sau videoclipuri — ambalaj, palet, protecție din spumă a ramelor.",
+      "removeMedia": "Elimină",
+      "addMedia": "Adaugă",
+      "uploading": "Se încarcă...",
+      "signTitle": "Semnătură și plecare",
+      "checklistIncompleteHint": "Finalizează lista (bifează sau motivează fiecare articol) înainte de a semna.",
+      "signerName": "Numele semnatarului",
+      "signerNamePlaceholder": "Nume și prenume",
+      "signAndDepart": "Semnează și marchează plecarea",
+      "cancelDelivery": "Anulează livrarea",
+      "confirmCancel": "Anulezi această livrare de șantier? Nu poate fi anulată.",
+      "departedOn": "Plecat pe {date} · semnat de {signer}",
+      "markDelivered": "Marchează ca sosit la destinație",
+      "deliveredOn": "Sosit la destinație pe {date}",
+      "report": {
+        "title": "Raport livrare șantier",
+        "download": "Descarcă PDF",
+        "print": "Printează",
+        "notFound": "Raport negăsit"
+      }
     }
   },
   "configuratorSetup": {
@@ -1608,5 +1691,9 @@
       "team": "Invită un coleg",
       "billing": "Configurează facturarea"
     }
+  },
+  "signaturePad": {
+    "hint": "Semnează aici cu degetul sau mouse-ul",
+    "clear": "Șterge și semnează din nou"
   }
 }

@@ -165,6 +165,82 @@ export function renderAuthEmail(template: string, locale: string, data: AuthEmai
         ) + `\n${base}/app/requests/${quoteId}`,
       };
 
+    case "quote_status_changed": {
+      const status = esc(data.newStatus ?? "");
+      const href = data.href ? `${base}${data.href}` : `${base}/app/requests`;
+      return {
+        subject: line(
+          it ? `Preventivo aggiornato: ${data.leadName ?? ""} → ${data.newStatus ?? ""}` : `Quote updated: ${data.leadName ?? ""} → ${data.newStatus ?? ""}`,
+        ),
+        html: shell(
+          `<h1 style="font-size:22px;font-weight:600;margin:0 0 12px">${it ? "Preventivo aggiornato" : "Quote updated"}</h1>
+           <p style="color:#9a9aa0;line-height:1.6">${it ? "Cliente" : "Lead"}: <strong>${leadName}</strong> → <strong>${status}</strong></p>
+           ${cta(href, it ? "Apri in dashboard" : "Open in dashboard")}`,
+        ),
+        text: line(`${it ? "Preventivo aggiornato" : "Quote updated"}: ${data.leadName ?? ""} -> ${data.newStatus ?? ""}`) + `\n${href}`,
+      };
+    }
+
+    case "member_joined": {
+      const href = data.href ? `${base}${data.href}` : `${base}/app/account/team`;
+      return {
+        subject: line(it ? `Nuovo membro nel team: ${data.userName ?? ""}` : `New team member: ${data.userName ?? ""}`),
+        html: shell(
+          `<h1 style="font-size:22px;font-weight:600;margin:0 0 12px">${it ? "Nuovo membro nel team" : "New team member"}</h1>
+           <p style="color:#9a9aa0;line-height:1.6">${
+             it
+               ? `<strong>${esc(data.userName ?? "")}</strong> è entrato a far parte del team.`
+               : `<strong>${esc(data.userName ?? "")}</strong> has joined the team.`
+           }</p>
+           ${cta(href, it ? "Vai al team" : "Go to team")}`,
+        ),
+        text: line(`${it ? "Nuovo membro" : "New team member"}: ${data.userName ?? ""}`) + `\n${href}`,
+      };
+    }
+
+    case "configurator_published": {
+      const href = data.href ? `${base}${data.href}` : `${base}/app/configurators`;
+      return {
+        subject: line(
+          it
+            ? `Configuratore pubblicato: ${data.configuratorName ?? ""} v${data.version ?? ""}`
+            : `Configurator published: ${data.configuratorName ?? ""} v${data.version ?? ""}`,
+        ),
+        html: shell(
+          `<h1 style="font-size:22px;font-weight:600;margin:0 0 12px">${it ? "Configuratore pubblicato" : "Configurator published"}</h1>
+           <p style="color:#9a9aa0;line-height:1.6">${it ? "Configuratore" : "Configurator"}: <strong>${configuratorName}</strong> — ${it ? "versione" : "version"} ${esc(data.version ?? "")}</p>
+           ${cta(href, it ? "Apri configuratore" : "Open configurator")}`,
+        ),
+        text: line(`${it ? "Configuratore pubblicato" : "Configurator published"}: ${data.configuratorName ?? ""} v${data.version ?? ""}`) + `\n${href}`,
+      };
+    }
+
+    case "plan_limit": {
+      const href = data.href ? `${base}${data.href}` : `${base}/app/account/billing`;
+      return {
+        subject: it ? "Limite del piano raggiunto — onespec" : "Plan limit reached — onespec",
+        html: shell(
+          `<h1 style="font-size:22px;font-weight:600;margin:0 0 12px">${it ? "Limite del piano" : "Plan limit"}</h1>
+           <p style="color:#9a9aa0;line-height:1.6">${esc(data.message ?? "")}</p>
+           ${cta(href, it ? "Gestisci piano" : "Manage plan")}`,
+        ),
+        text: line(data.message ?? "") + `\n${href}`,
+      };
+    }
+
+    case "system": {
+      const href = data.href ? `${base}${data.href}` : base;
+      return {
+        subject: it ? "Notifica — onespec" : "Notification — onespec",
+        html: shell(
+          `<h1 style="font-size:22px;font-weight:600;margin:0 0 12px">${it ? "Notifica" : "Notification"}</h1>
+           <p style="color:#9a9aa0;line-height:1.6">${esc(data.message ?? "")}</p>
+           ${data.href ? cta(href, it ? "Apri" : "Open") : ""}`,
+        ),
+        text: line(data.message ?? "onespec"),
+      };
+    }
+
     case "invitation":
       return {
         subject: line(
