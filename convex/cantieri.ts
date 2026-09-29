@@ -432,6 +432,8 @@ export const createCantiereTask = mutation({
     if (!cantiere || cantiere.tenantId !== args.tenantId) {
       throw new ConvexError("CANTIERE_NOT_FOUND");
     }
+    assertTaskText(args.title, args.description, true);
+    if (args.assignedUserId) await assertActiveMembers(ctx, args.tenantId, [args.assignedUserId]);
 
     const taskId = await ctx.db.insert("cantiereTasks", {
       tenantId: args.tenantId,
@@ -452,6 +454,12 @@ export const createCantiereTask = mutation({
   },
 });
 
+function assertTaskText(title: string | undefined, description: string | undefined, creating: boolean): void {
+  if (creating && !title?.trim()) throw new ConvexError("INVALID_INPUT");
+  if (title !== undefined && (!title.trim() || title.length > 200)) throw new ConvexError("INVALID_INPUT");
+  if (description !== undefined && description.length > 5_000) throw new ConvexError("INVALID_INPUT");
+}
+
 /** Update a cantiere task. */
 export const updateCantiereTask = mutation({
   args: {
@@ -467,14 +475,21 @@ export const updateCantiereTask = mutation({
     const task = await ctx.db.get(args.taskId);
     if (!task) throw new ConvexError("TASK_NOT_FOUND");
     await requirePermission(ctx, task.tenantId, "cantieri.use");
+    assertTaskText(args.title, args.description, false);
 
     const patch: Record<string, unknown> = { updatedAt: Date.now() };
-    const allowedFields = ["title", "description", "status", "priority", "dueAt", "assignedUserId"];
+    const allowedFields = ["title", "description", "status", "priority", "dueAt"];
 
     for (const field of allowedFields) {
       if (args[field as keyof typeof args] !== undefined) {
         patch[field] = args[field as keyof typeof args];
       }
+    }
+    // The schema field is `userId` (as createCantiereTask writes it): patching
+    // "assignedUserId" failed schema validation, so reassigning a task crashed.
+    if (args.assignedUserId !== undefined) {
+      await assertActiveMembers(ctx, task.tenantId, [args.assignedUserId]);
+      patch.userId = args.assignedUserId;
     }
 
     // Set completedAt when status changes to done
