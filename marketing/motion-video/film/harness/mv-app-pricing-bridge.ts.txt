@@ -1,0 +1,9 @@
+// TEMP — NOT to be committed.
+import { calculate as calc, defaultConfig as def, type ConfigState } from "@/components/widget/widget-pricing";
+import { catalogPricing } from "@/components/widget/widget-catalog";
+export const defaultConfig = def;
+export const catalogFallbackPricing = () => catalogPricing(undefined);
+export function calculate(state: ConfigState & { qty?: number }, pricing: ReturnType<typeof catalogPricing>) {
+  const r = calc({ ...state, quantity: state.qty ?? 1 }, pricing);
+  return { total: r.totalPrice * (1 + pricing.vatRate / 100) };
+}

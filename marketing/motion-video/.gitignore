@@ -1,5 +1,10 @@
+node_modules
 node_modules/
 frames/
 *.wav
 stills/
 video-silent.mp4
+film/film-silent.mp4
+film/seg-*.mp4
+film/segs.txt
+film/film-part.mp4

@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>onespec film</title>
+<link href="fonts/fonts.css" rel="stylesheet">
+<style>
+  /* Dark tokens from src/app/globals.css (:root, dark is the default theme). */
+  :root {
+    --bg: #0a0b0d; --bg-alt: #141618; --bg-elev: #1e2023; --text: #f5f5f7; --text-2: #9a9aa0; --text-3: #6e6e73;
+    --border: #34383c; --mint: #16d19d; --mint-dark: #04241b; --emerald: #2d7d46;
+  }
+  html, body { margin: 0; background: #000; }
+  #stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); font-family: "Inter", sans-serif; color: var(--text); }
+  .abs { position: absolute; left: 0; top: 0; }
+  #bg, #vignette, #grain, #black { position: absolute; inset: 0; pointer-events: none; }
+  #vignette { background: radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(0,0,0,0.55) 100%); }
+  #grain { opacity: 0.055; background-size: 256px 256px; }
+  #black { background: #000; }
+  .kicker { font: 600 15px/1 "Inter", sans-serif; letter-spacing: 0.26em; text-transform: uppercase; color: var(--mint); white-space: nowrap; }
+  .display { font-family: "Fraunces", serif; font-weight: 600; letter-spacing: -0.01em; color: var(--text); white-space: nowrap; }
+  .body { font-family: "Inter", sans-serif; color: var(--text-2); }
+  .device { position: absolute; left: 0; top: 0; border-radius: 16px; background: #0d0f11; border: 1px solid rgba(255,255,255,0.09);
+            box-shadow: 0 40px 120px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,0,0,0.4); overflow: hidden; transform-origin: 50% 50%; }
+  .bar { position: absolute; left: 0; top: 0; right: 0; background: #121416; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .dot { position: absolute; top: 50%; width: 11px; height: 11px; margin-top: -5.5px; border-radius: 50%; background: #2a2d31; }
+  .url { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); height: 24px; padding: 0 16px; border-radius: 8px;
+         background: #1a1c1f; color: var(--text-2); font: 500 13px/24px "Inter", sans-serif; white-space: nowrap; }
+  .screen { position: absolute; left: 0; overflow: hidden; }
+  .screen img { position: absolute; left: 0; top: 0; }
+  .cursor { position: absolute; left: 0; top: 0; width: 30px; height: 30px; transform-origin: 3px 2px; }
+  .card { position: absolute; border-radius: 18px; background: rgba(20,22,24,0.72); border: 1px solid rgba(255,255,255,0.08); }
+  .chip { display: inline-block; padding: 7px 12px; margin: 0 8px 8px 0; border-radius: 999px; border: 1px solid rgba(22,209,157,0.35);
+          background: rgba(22,209,157,0.08); color: var(--text); font: 500 17px/1 "Inter", sans-serif; white-space: nowrap; }
+  .mono { font-family: "IBM Plex Mono", monospace; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg"></div>
+  <div id="scene" class="abs" style="width:1920px;height:1080px"></div>
+  <div id="vignette"></div>
+  <div id="grain"></div>
+  <div id="black"></div>
+</div>
+<script>
+(async () => {
+"use strict";
+const DUR = 60, BEAT = 0.5, ZETA = 0.88;
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+function spring(tau, w, z = ZETA) {
+  if (tau <= 0) return 0;
+  const wd = w * Math.sqrt(1 - z * z);
+  return 1 - Math.exp(-z * w * tau) * (Math.cos(wd * tau) + (z / Math.sqrt(1 - z * z)) * Math.sin(wd * tau));
+}
+function step4(tau, w) { if (tau <= 0) return 0; const x = w * tau; return 1 - Math.exp(-x) * (1 + x + x * x / 2 + x * x * x / 6); }
+/** Non-looping track: v0 plus a sum of closed-form step responses. keys: [[t, v, w?], ...] */
+function K(v0, keys, w = 12, fn = spring) {
+  let prev = v0; const st = keys.map(([t, v, ww]) => { const d = v - prev; prev = v; return { t, d, w: ww ?? w }; });
+  return (t) => { let v = v0; for (const s of st) v += s.d * fn(t - s.t, s.w); return v; };
+}
+/** Visibility of a layer: enter at te (~70 ms after the move that carries it), faster exit at tx. */
+function vis(t, te, tx, wi = 14, wo = 26) {
+  return clamp(spring(t - te, wi, 0.92)) * (1 - clamp(spring(t - tx, wo, 0.92)));
+}
+
+// ------------------------------------------------------------ assets
+const icons = await (await fetch("assets/icons.json")).json();
+const meta = await (await fetch("shots/meta.json")).json();
+const scene = document.getElementById("scene");
+const layers = [];
+function el(tag, cls, style = {}, parent = scene, html) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  Object.assign(e.style, style);
+  if (html !== undefined) e.innerHTML = html;
+  parent.appendChild(e);
+  return e;
+}
+/** Text/icon layer with blur-in, lift and scale 0.965 → 1. */
+function layer(e, te, tx, opt = {}) { layers.push({ e, te, tx, lift: opt.lift ?? 22, wi: opt.wi ?? 14, origin: opt.origin }); e.style.willChange = "auto"; return e; }
+function icon(name, size, color) {
+  const n = icons[name];
+  const inner = n.map(([tag, a]) => `<${tag} ${Object.entries(a).map(([k, v]) => `${k}="${v}"`).join(" ")}/>`).join("");
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${inner}</svg>`;
+}
+const imgs = [];
+function img(src, parent, w, h) {
+  const i = el("img", null, { width: w + "px", height: h + "px" }, parent);
+  i.src = src; imgs.push(i); return i;
+}
+
+// ------------------------------------------------------------ background: dimmed onespec gradient
+const bgEl = document.getElementById("bg");
+const bgIn = K(0, [[0.05, 1, 3.2], [58.6, 0.0, 3.0]]);
+function drawBg(t) {
+  const a = bgIn(t);
+  const p1x = 22 + 8 * Math.sin(t * 0.11), p1y = 18 + 6 * Math.cos(t * 0.09);
+  const p2x = 82 + 7 * Math.cos(t * 0.08), p2y = 86 + 5 * Math.sin(t * 0.12);
+  const p3x = 62 + 10 * Math.sin(t * 0.06 + 1), p3y = 30 + 8 * Math.cos(t * 0.07);
+  bgEl.style.background = [
+    `radial-gradient(900px 620px at ${p1x}% ${p1y}%, rgba(22,209,157,${(0.13 * a).toFixed(3)}), transparent 70%)`,
+    `radial-gradient(1100px 760px at ${p2x}% ${p2y}%, rgba(45,125,70,${(0.16 * a).toFixed(3)}), transparent 70%)`,
+    `radial-gradient(800px 600px at ${p3x}% ${p3y}%, rgba(4,36,27,${(0.55 * a).toFixed(3)}), transparent 72%)`,
+    `linear-gradient(160deg, #0b0e10 0%, #0a0b0d 55%, #090c0b 100%)`,
+  ].join(",");
+}
+// film grain (seeded, deterministic per frame)
+{
+  const c = document.createElement("canvas"); c.width = c.height = 256;
+  const g = c.getContext("2d"), d = g.createImageData(256, 256);
+  let s = 829; const rnd = () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
+  for (let i = 0; i < d.data.length; i += 4) { const v = 128 + (rnd() - 0.5) * 255; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255; }
+  g.putImageData(d, 0, 0);
+  document.getElementById("grain").style.backgroundImage = `url(${c.toDataURL()})`;
+}
+const grainEl = document.getElementById("grain");
+// In the final render the grain is added by ffmpeg (noise filter, after tmix) so frames stay compressible.
+if (new URLSearchParams(location.search).has("nograin")) grainEl.style.display = "none";
+const blackEl = document.getElementById("black");
+const blackA = K(1, [[0.0, 0, 5], [59.1, 1, 5]]);
+
+// ------------------------------------------------------------ S1 · logo reveal (0 – 6 s)
+const LOGO_W = 820, LOGO_H = LOGO_W * 700 / 2000;
+const logoWrap = el("div", "abs", { left: (960 - LOGO_W / 2) + "px", top: (440 - LOGO_H / 2) + "px", width: LOGO_W + "px", height: LOGO_H + "px" });
+img("assets/onespec-logo.png", logoWrap, LOGO_W, LOGO_H);
+const logoP = (t) => spring(t - 0.8, 4.6, 0.96);
+const logoOut = (t) => clamp(spring(t - 5.5, 18, 0.92));
+layer(el("div", "display", { left: "960px", top: "655px", fontSize: "44px", fontWeight: 400, transform: "translateX(-50%)", position: "absolute" }, scene,
+  "Il configuratore di infissi per il tuo sito"), 2.57, 5.5, { origin: "50% 50%" }).dataset.center = "1";
+
+// ------------------------------------------------------------ S2 · statement (6 – 12.5 s)
+layer(el("div", "kicker abs", { left: "180px", top: "300px" }, scene, "onespec"), 6.07, 12.0);
+[["Preventivi automatici,", "var(--text)"], ["prezzi sempre aggiornati,", "var(--text)"], ["brandizzabile per la tua azienda.", "var(--mint)"]].forEach(([s, c], i) => {
+  layer(el("div", "display abs", { left: "176px", top: (345 + i * 92) + "px", fontSize: "78px", color: c }, scene, s), 6.27 + i * 0.5, 12.0 + i * 0.03);
+});
+layer(el("div", "body abs", { left: "180px", top: "660px", width: "1180px", fontSize: "28px", lineHeight: "1.5" }, scene,
+  "OneSpec trasforma il tuo listino in un configuratore di preventivi che i tuoi clienti usano dal tuo sito o dai social. Ricevi le richieste già valorizzate nella dashboard."), 8.07, 12.05);
+
+// ------------------------------------------------------------ devices
+function device({ cssW, cssH, k, bar, url, shots }) {
+  const Dw = cssW * k, Dh = bar + cssH * k;
+  const d = el("div", "device", { width: Dw + "px", height: Dh + "px" });
+  const b = el("div", "bar", { height: bar + "px" }, d);
+  [0, 1, 2].forEach((i) => el("div", "dot", { left: (18 + i * 19) + "px" }, b));
+  if (url) el("div", "url", {}, b, url);
+  const sc = el("div", "screen", { top: bar + "px", width: Dw + "px", height: cssH * k + "px" }, d);
+  const layersImg = shots.map((s) => img(`shots/${s}.png`, sc, Dw, cssH * k));
+  const sprite = el("div", "abs", { overflow: "hidden", borderRadius: "10px", boxShadow: "0 18px 50px rgba(0,0,0,0.6)", visibility: "hidden" }, sc);
+  const cur = el("div", "cursor", {}, sc,
+    `<svg viewBox="0 0 34 34" width="30" height="30"><path d="M3 2 L3 27 L9.2 21.4 L13.4 31 L17.8 29.1 L13.7 19.6 L22 19.6 Z" fill="#f5f5f7" stroke="#0a0b0d" stroke-width="2" stroke-linejoin="round"/></svg>`);
+  return { d, sc, imgs: layersImg, shots, sprite, cur, Dw, Dh, k, bar, cssW, cssH };
+}
+// Widget (embedded configurator, dark theme): 1440 × 900 css
+const WG = device({ cssW: 1440, cssH: 900, k: 0.84, bar: 40, url: "www.serramentidemo.it", shots: ["w-0", "w-1", "w-2", "w-3", "w-4", "w-5", "w-6", "w-7"] });
+// App (dashboard shell): 1920 × 1080 css
+const AP = device({ cssW: 1920, cssH: 1080, k: 0.72, bar: 34, url: null, shots: ["dashboard", "analytics", "pipeline-0", "pipeline-1", "quotes-0", "quotes-1", "quotes-2", "quotes-3", "quotes-4", "quotes-5"] });
+
+const W = meta.widget;
+const ctr = (r) => [r.x + r.w / 2, r.y + r.h / 2];
+
+// ------------------------------------------------------------ S3 · widget timeline (12.5 – 23.5 s)
+const WG_IN = 12.5, WG_OUT = 22.9;
+const wgShow = [[WG_IN, 0], [14.0, 1], [15.0, 2], [16.0, 3], [17.5, 4], [19.0, 5], [19.6, 6], [21.0, 7]];
+const DRAW = [1032, 355]; // centre of the technical drawing (css)
+const wgCam = {
+  // focus: local css point → screen point, scale
+  px: K(720, [[15.55, 930, 8], [19.25, 1030, 7], [20.1, 1032, 8]]),
+  py: K(450, [[15.55, DRAW[1], 8], [19.25, 450, 7], [20.1, W.cta.y - 150, 8], [21.05, W.cta.y - 60, 8]]),
+  qx: K(1225, [[15.55, 960, 8], [19.25, 1225, 7], [20.1, 1060, 8]]),
+  qy: K(560, [[15.55, 545, 8]]),
+  s: K(1, [[15.55, 1.6, 7], [19.25, 1, 7], [20.1, 1.45, 7], [21.05, 1.55, 7]]),
+};
+const wgEnter = K(0, [[WG_IN, 1, 7]]), wgExit = K(0, [[WG_OUT, 1, 9]]);
+const wgCur = { x: K(1250, [[13.1, 1250], [13.5, ctr(W.legno)[0]], [14.45, ctr(W.porta)[0]], [15.45, W.leaf2.x], [16.45, W.gripFrom.x], [17.0, W.gripTo.x], [18.0, W.gripTo.x], [18.5, W.gripBack.x], [20.25, ctr(W.cta)[0]]], 22, step4),
+               y: K(820, [[13.1, 820], [13.5, ctr(W.legno)[1]], [14.45, ctr(W.porta)[1]], [15.45, W.leaf2.y], [16.45, W.gripFrom.y], [20.25, ctr(W.cta)[1] + W.scrollY]], 22, step4) };
+const wgCurVis = (t) => vis(t, 13.1, WG_OUT - 0.2, 10, 20);
+const wgScroll = K(0, [[19.6, W.scrollY, 9]]); // page scroll to the estimate
+
+// ------------------------------------------------------------ S4–S7 · app timeline (23.5 – 47 s)
+const AP_IN = 23.5, AP_OUT = 46.9;
+const NAV = { analytics: [150, 193], pipeline: [150, 460], quotes: [150, 422] };
+const MK = meta.marketTabs;
+const TAB = ["Italia", "France", "Belgique", "Nederland", "Deutschland", "Luxembourg"];
+const CARD_FROM = { x: 964, y: 244, w: 282, h: 104 }, CARD_TO = { x: 1284, y: 244, w: 282, h: 104 };
+const apShow = [[AP_IN, 0], [29.0, 1], [33.5, 2], [36.5, 3], [38.5, 4], [40.5, 5], [41.5, 6], [42.5, 7], [43.5, 8], [44.5, 9]];
+const apCam = {
+  px: K(960, [[25.6, 1090, 7], [27.0, 1090, 7], [28.0, 960, 7], [30.6, 1100, 7], [32.5, 960, 7], [34.6, 1150, 7], [37.3, 960, 7], [40.0, 935, 7]]),
+  py: K(540, [[25.6, 230, 7], [27.0, 700, 6], [28.0, 540, 7], [30.6, 640, 7], [32.5, 540, 7], [34.6, 320, 7], [37.3, 540, 7], [40.0, 330, 7]]),
+  qx: K(960, [[25.6, 960, 7], [40.0, 1000, 7]]),
+  qy: K(600, [[25.6, 540, 7], [28.0, 600, 7], [30.6, 560, 7], [32.5, 600, 7], [34.6, 540, 7], [37.3, 600, 7], [40.0, 520, 7]]),
+  s: K(1, [[25.6, 1.42, 6], [28.0, 1, 7], [30.6, 1.3, 6], [32.5, 1, 7], [34.6, 1.45, 6], [37.3, 1, 7], [40.0, 1.28, 6]]),
+};
+const apEnter = K(0, [[AP_IN, 1, 6.5]]), apExit = K(0, [[AP_OUT, 1, 8]]);
+const tabC = (name) => ctr(MK[name]);
+const apCurKeys = [
+  [24.4, 1500, 900], [28.3, NAV.analytics[0], NAV.analytics[1]], [32.8, NAV.pipeline[0], NAV.pipeline[1]],
+  [34.9, CARD_FROM.x + 150, CARD_FROM.y + 30], [35.5, CARD_TO.x + 150, CARD_TO.y + 30],
+  [37.7, NAV.quotes[0], NAV.quotes[1]],
+  [40.0, ...tabC("France")], [41.0, ...tabC("Belgique")], [42.0, ...tabC("Nederland")], [43.0, ...tabC("Deutschland")], [44.0, ...tabC("Luxembourg")],
+  [45.2, 1500, 700],
+];
+const apCur = { x: K(1500, apCurKeys.map(([t, x]) => [t, x]), 22, step4), y: K(900, apCurKeys.map(([t, , y]) => [t, y]), 22, step4) };
+const apCurVis = (t) => vis(t, 24.4, AP_OUT - 0.2, 10, 20);
+const DRAG = [35.42, 36.5];
+
+// ------------------------------------------------------------ captions for the device scenes
+function caption(x, y, kick, lines, sub, te, tx, size = 52, subW = 440) {
+  layer(el("div", "kicker abs", { left: x + "px", top: y + "px" }, scene, kick), te, tx);
+  lines.forEach((s, i) => layer(el("div", "display abs", { left: (x - 2) + "px", top: (y + 34 + i * size * 1.14) + "px", fontSize: size + "px" }, scene, s), te + 0.08 + i * 0.1, tx + 0.02 * i));
+  if (sub) layer(el("div", "body abs", { left: x + "px", top: (y + 48 + lines.length * size * 1.14) + "px", width: subW + "px", fontSize: "22px", lineHeight: "1.5" }, scene, sub), te + 0.3, tx + 0.05);
+}
+caption(110, 330, "Configuratore", ["Widget di", "configurazione", "infissi integrabile", "via iframe"], "Prezzi immediati per serramenti in PVC, legno e alluminio", WG_IN + 0.07, 15.55);
+// app captions sit top-left above the device
+function topCaption(kick, title, sub, te, tx) {
+  layer(el("div", "kicker abs", { left: "140px", top: "58px" }, scene, kick), te, tx);
+  layer(el("div", "display abs", { left: "138px", top: "84px", fontSize: "44px" }, scene, title), te + 0.08, tx + 0.02);
+  if (sub) layer(el("div", "body abs", { left: "140px", top: "146px", fontSize: "21px", whiteSpace: "nowrap" }, scene, sub), te + 0.18, tx + 0.04);
+}
+topCaption("Panoramica", "Ricevi le richieste già valorizzate nella dashboard.", "Richieste di preventivo e attività", AP_IN + 0.3, 25.6);
+topCaption("Statistiche", "Insight in tempo reale dalle tue richieste di preventivo", null, 29.07, 30.6);
+topCaption("Trattative commerciali", "Trascina una scheda o usa i controlli per cambiare fase.", "Ogni spostamento è registrato.", 33.57, 34.6);
+topCaption("Preventivatore Rapido B2B", "Un preventivo tecnico ufficiale in 3 minuti", "con disegno quotato, posa certificata e firma del cliente.", 38.57, 40.0);
+
+// market card (real data: convex/lib/regions.ts + convex/lib/compliance.ts)
+const MARKETS = [
+  ["IT", "Italia", ["IVA ordinaria 22%", "Ristrutturazione 10%"], "UNI 11673-1:2017", "Ecobonus — detrazione sostituzione infissi"],
+  ["FR", "France", ["TVA 20% (neuf)", "TVA 10% (rénovation)", "TVA 5,5% (rénovation énergétique)"], "NF DTU 36.5", "MaPrimeRénov' / CEE"],
+  ["BE", "Belgique / België", ["TVA 21%", "TVA 6% (logement > 10 ans)"], "STS 52.1 / NBN B 25-002", "Prime Rénovation (Wallonie) / Renolution (Bruxelles)"],
+  ["NL", "Nederland", ["21% btw"], "NPR 3577 / SKG-IKOB / BRL 0801", "ISDE — isolatieglas"],
+  ["DE", "Deutschland", ["19% MwSt."], "RAL-Leitfaden zur Montage / DIN 4108-7", "BEG EM / KfW / BAFA"],
+  ["LU", "Luxembourg", ["TVA 3% (super-réduit, sur accord)", "TVA 17%"], "RAL-Leitfaden / NF DTU 36.5", "Klimabonus"],
+];
+const MK_T = [39.5, 40.5, 41.5, 42.5, 43.5, 44.5];
+MARKETS.forEach(([code, name, vat, norm, prog], i) => {
+  const te = MK_T[i] + 0.07, tx = i < 5 ? MK_T[i + 1] : AP_OUT;
+  const c = el("div", "card", { left: "96px", top: "610px", width: "640px", height: "380px", padding: "30px 34px", boxSizing: "border-box",
+    background: "rgba(13,15,17,0.94)", backdropFilter: "blur(18px)", boxShadow: "0 30px 80px rgba(0,0,0,0.55)" });
+  c.innerHTML = `<div style="display:flex;align-items:center;gap:16px">
+      <div class="mono" style="font-size:22px;color:#04150f;background:var(--mint);border-radius:10px;padding:8px 12px">${code}</div>
+      <div class="display" style="font-size:40px">${name}</div></div>
+    <div class="kicker" style="margin-top:26px;font-size:13px">IVA / TVA / Btw / MwSt.</div>
+    <div style="margin-top:12px">${vat.map((v) => `<span class="chip">${v}</span>`).join("")}</div>
+    <div class="kicker" style="margin-top:14px;font-size:13px">Posa</div>
+    <div style="margin-top:10px;font:500 21px/1.3 Inter;color:var(--text)">${norm}</div>
+    <div class="kicker" style="margin-top:18px;font-size:13px">Incentivi</div>
+    <div style="margin-top:10px;font:500 21px/1.3 Inter;color:var(--text-2)">${prog}</div>`;
+  layer(c, te, tx, { lift: 16, wi: 16 });
+});
+
+// ------------------------------------------------------------ S8 · field modules (47 – 54 s)
+layer(el("div", "kicker abs", { left: "160px", top: "175px" }, scene, "Cantiere · Showroom · Logistica"), 47.07, 53.5);
+layer(el("div", "display abs", { left: "157px", top: "207px", fontSize: "60px" }, scene, "Traccia i progetti dal preventivo alla consegna"), 47.17, 53.52);
+const MODS = [
+  ["store", "Showroom · Preventivo in 60 secondi", "Configura ogni anta, mostra il prezzo chiavi in mano e chiudi con WhatsApp o sopralluogo."],
+  ["ruler", "Rilievo Cantiere", "Misure laser Bluetooth, foto e checklist diagnostica. Funziona offline."],
+  ["layers", "Posa Qualificata", "Wizard nodo di posa + distinta materiali conforme alla norma del mercato."],
+  ["clipboard-check", "Verbale di Collaudo", "Checklist foto + firma cliente."],
+  ["qr-code", "Fascicolo del Serramento · QR", "Ogni serramento ha un QR che porta a manuali, garanzia, marcatura CE e post-vendita."],
+  ["truck", "Logistica e magazzino", "Corrieri, fornitori, consegne programmate e giacenze di magazzino."],
+];
+MODS.forEach(([ic, title, sub], i) => {
+  const col = i % 3, row = Math.floor(i / 3);
+  const c = el("div", "card", { left: (160 + col * 544) + "px", top: (355 + row * 262) + "px", width: "512px", height: "232px", padding: "30px", boxSizing: "border-box" });
+  c.innerHTML = `<div style="width:52px;height:52px;border-radius:14px;background:rgba(22,209,157,0.12);display:flex;align-items:center;justify-content:center">${icon(ic, 28, "#16d19d")}</div>
+    <div style="margin-top:22px;font:600 25px/1.2 Inter;color:var(--text)">${title}</div>
+    <div style="margin-top:10px;font:400 18px/1.45 Inter;color:var(--text-2)">${sub}</div>`;
+  layer(c, 47.57 + (i % 3) * 0.12 + row * 0.5, 53.5 + i * 0.02, { lift: 26 });
+});
+const langRow = el("div", "abs", { left: "160px", top: "905px", display: "flex", gap: "44px", alignItems: "center", font: "500 22px Inter", color: "var(--text-2)", whiteSpace: "nowrap" });
+langRow.innerHTML = `<span style="display:flex;align-items:center;gap:12px">${icon("globe", 26, "#16d19d")}<span><b style="color:var(--text);font-weight:600">6 mercati</b> · IT · FR · BE · NL · DE · LU</span></span>
+  <span style="display:flex;align-items:center;gap:12px">${icon("languages", 26, "#16d19d")}<span><b style="color:var(--text);font-weight:600">6 lingue</b> · Italiano · English · Français · Deutsch · Nederlands · Română</span></span>`;
+layer(langRow, 49.57, 53.55);
+
+// ------------------------------------------------------------ S9 · end card (54 – 60 s)
+const END_W = 640, END_H = END_W * 700 / 2000;
+const endWrap = el("div", "abs", { left: (960 - END_W / 2) + "px", top: (400 - END_H / 2) + "px", width: END_W + "px", height: END_H + "px" });
+img("assets/onespec-logo.png", endWrap, END_W, END_H);
+const endP = (t) => spring(t - 54.3, 4.6, 0.96);
+layer(el("div", "display abs", { left: "960px", top: "590px", fontSize: "40px", fontWeight: 400 }, scene, "Il configuratore di infissi per il tuo sito"), 55.07, 99).dataset.center = "1";
+layer(el("div", "abs", { left: "960px", top: "680px", font: "500 24px Inter", letterSpacing: "0.32em", color: "var(--text-2)", whiteSpace: "nowrap" }, scene, "ONESPEC.EU"), 55.6, 99).dataset.center = "1";
+
+// ------------------------------------------------------------ sounds
+const SOUNDS = [];
+for (const t of [14.0, 15.0, 16.0, 21.0, 29.0, 33.5, 38.5, 40.5, 41.5, 42.5, 43.5, 44.5]) SOUNDS.push({ t, type: "click" });
+for (const [d, u] of [[16.92, 17.5], [18.42, 19.0], DRAG]) { SOUNDS.push({ t: d, type: "press" }); SOUNDS.push({ t: u, type: "release" }); }
+SOUNDS.sort((a, b) => a.t - b.t);
+const CLICKS = SOUNDS.filter((s) => s.type === "click").map((s) => s.t);
+const HOLDS = [[16.92, 17.5], [18.42, 19.0], DRAG];
+const pressSteps = [];
+for (const c of CLICKS) pressSteps.push([c - 0.08, 1, 40], [c, 0, 30]);
+for (const [d, u] of HOLDS) pressSteps.push([d, 1, 40], [u, 0, 30]);
+pressSteps.sort((a, b) => a[0] - b[0]);
+const press = K(0, pressSteps);
+
+// ------------------------------------------------------------ seek
+function placeDevice(D, cam, enter, exit, t, dx0, dy0, extra) {
+  const S = cam.s(t);
+  const pdx = cam.px(t) * D.k, pdy = D.bar + cam.py(t) * D.k;
+  const cx = D.Dw / 2, cy = D.Dh / 2;
+  const X = cam.qx(t) - cx - S * (pdx - cx), Y = cam.qy(t) - cy - S * (pdy - cy);
+  const e = enter(t), x = exit(t);
+  const v = clamp(e) * (1 - clamp(x));
+  const ty = (1 - e) * dy0 - x * 90, tx = (1 - e) * dx0;
+  const rx = (1 - e) * extra.rx0 + x * 8, ry = (1 - e) * extra.ry0;
+  D.d.style.opacity = v.toFixed(4);
+  D.d.style.visibility = v < 0.002 ? "hidden" : "visible";
+  D.d.style.filter = v < 0.999 ? `blur(${((1 - v) * 10).toFixed(2)}px)` : "none";
+  D.d.style.transform = `translate(${X + tx}px, ${Y + ty}px) perspective(2400px) rotateX(${rx}deg) rotateY(${ry}deg) scale(${S * (0.92 + 0.08 * e) * (1 - 0.06 * x)})`;
+}
+function showShots(D, list, t, shift) {
+  let cur = 0, tc = -1;
+  for (const [ts, i] of list) if (t >= ts) { cur = i; tc = ts; }
+  let prev = 0; for (const [ts, i] of list) if (ts < tc) prev = i;
+  D.imgs.forEach((im, i) => {
+    let o = 0;
+    if (i === cur) o = clamp(spring(t - tc, 55, 0.95));
+    if (i === prev && i !== cur) o = 1;
+    if (tc < 0 && i === 0) o = 1;
+    im.style.opacity = o.toFixed(4);
+    im.style.visibility = o < 0.002 ? "hidden" : "visible";
+    im.style.transform = shift ? shift(i, t) : "none";
+  });
+}
+function seek(t) {
+  drawBg(t);
+  blackEl.style.opacity = clamp(blackA(t)).toFixed(4);
+  const f = Math.floor(t * 24);
+  grainEl.style.backgroundPosition = `${(f * 73) % 256}px ${(f * 151) % 256}px`;
+
+  // logo intro
+  const lp = logoP(t), lo = logoOut(t);
+  logoWrap.style.clipPath = `inset(0 ${((1 - clamp(lp)) * 100).toFixed(3)}% 0 0)`;
+  logoWrap.style.opacity = (clamp(lp * 1.4) * (1 - lo)).toFixed(4);
+  logoWrap.style.filter = `blur(${((1 - clamp(lp)) * 8 + lo * 10).toFixed(2)}px)`;
+  logoWrap.style.transform = `translateY(${-lo * 40}px) scale(${(1.05 - 0.05 * clamp(lp)) * (1 - 0.04 * lo)})`;
+  logoWrap.style.visibility = lo > 0.998 ? "hidden" : "visible";
+  const ep = endP(t);
+  endWrap.style.clipPath = `inset(0 ${((1 - clamp(ep)) * 100).toFixed(3)}% 0 0)`;
+  endWrap.style.opacity = clamp(ep * 1.4).toFixed(4);
+  endWrap.style.filter = `blur(${((1 - clamp(ep)) * 8).toFixed(2)}px)`;
+  endWrap.style.transform = `scale(${1.05 - 0.05 * clamp(ep)})`;
+
+  for (const L of layers) {
+    const v = vis(t, L.te, L.tx, L.wi);
+    const e = L.e;
+    e.style.opacity = v.toFixed(4);
+    e.style.visibility = v < 0.002 ? "hidden" : "visible";
+    e.style.filter = v < 0.995 ? `blur(${((1 - v) * 6).toFixed(2)}px)` : "none";
+    const pre = e.dataset.center ? "translateX(-50%) " : "";
+    e.style.transform = `${pre}translateY(${((1 - v) * L.lift).toFixed(2)}px) scale(${(0.965 + 0.035 * v).toFixed(4)})`;
+  }
+
+  // widget device
+  placeDevice(WG, wgCam, wgEnter, wgExit, t, 0, 240, { rx0: 24, ry0: -6 });
+  const sy = wgScroll(t) * WG.k;
+  showShots(WG, wgShow, t, (i) => i >= 6 ? `translateY(${(W.scrollY * WG.k - sy).toFixed(2)}px)` : `translateY(${(-sy).toFixed(2)}px)`);
+  // w-6/w-7 were captured scrolled; w-0..w-5 at the top — slide both so content stays aligned while scrolling
+  {
+    const cx = wgCur.x(t), cy = wgCur.y(t) - wgScroll(t);
+    const cv = wgCurVis(t);
+    WG.cur.style.opacity = cv.toFixed(3);
+    WG.cur.style.visibility = cv < 0.01 ? "hidden" : "visible";
+    WG.cur.style.transform = `translate(${cx * WG.k - 3}px, ${cy * WG.k - 2}px) scale(${1 - 0.14 * clamp(press(t), -0.2, 1.2)})`;
+  }
+
+  // app device
+  placeDevice(AP, apCam, apEnter, apExit, t, 260, 60, { rx0: 6, ry0: -26 });
+  showShots(AP, apShow, t);
+  {
+    const cx = apCur.x(t), cy = apCur.y(t);
+    const cv = apCurVis(t);
+    AP.cur.style.opacity = cv.toFixed(3);
+    AP.cur.style.visibility = cv < 0.01 ? "hidden" : "visible";
+    AP.cur.style.transform = `translate(${cx * AP.k - 3}px, ${cy * AP.k - 2}px) scale(${1 - 0.14 * clamp(press(t), -0.2, 1.2)})`;
+    // dragged card: pure function of the cursor relative to where it grabbed
+    const held = t >= DRAG[0] && t < DRAG[1];
+    const sp = AP.sprite;
+    if (held) {
+      const gx = apCur.x(DRAG[0]), gy = apCur.y(DRAG[0]);
+      const lift = clamp(spring(t - DRAG[0], 30));
+      sp.style.visibility = "visible";
+      sp.style.width = CARD_FROM.w * AP.k + "px"; sp.style.height = CARD_FROM.h * AP.k + "px";
+      sp.style.backgroundImage = `url(shots/pipeline-0.png)`;
+      sp.style.backgroundSize = `${AP.Dw}px ${AP.cssH * AP.k}px`;
+      sp.style.backgroundPosition = `${-CARD_FROM.x * AP.k}px ${-CARD_FROM.y * AP.k}px`;
+      sp.style.transform = `translate(${(CARD_FROM.x + cx - gx) * AP.k}px, ${(CARD_FROM.y + cy - gy) * AP.k}px) rotate(${1.5 * lift}deg) scale(${1 + 0.04 * lift})`;
+    } else sp.style.visibility = "hidden";
+  }
+  return { t, wgCur: { x: wgCur.x(t), y: wgCur.y(t) }, apCur: { x: apCur.x(t), y: apCur.y(t) } };
+}
+
+window.seek = seek;
+window.SOUNDS = SOUNDS;
+window.FILM = { DUR, BEAT, beats: DUR / BEAT, scenes: { logo: 0, statement: 6, widget: WG_IN, app: AP_IN, modules: 47, end: 54 } };
+window.READY = false;
+seek(0);
+// decode one at a time: parallel decodes of 4K PNGs can be refused by the headless browser
+for (const i of imgs) {
+  if (!i.complete) await new Promise((r, j) => { i.onload = r; i.onerror = j; });
+  for (let k = 0; k < 3; k++) { try { await i.decode(); break; } catch (e) { await new Promise((r) => setTimeout(r, 200)); } }
+  if (!i.naturalWidth) throw new Error("image failed: " + i.src);
+}
+await document.fonts.ready;
+await Promise.all(['600 40px "Fraunces"', '400 40px "Fraunces"', '400 20px "Inter"', '600 20px "Inter"', '500 20px "IBM Plex Mono"'].map((f) => document.fonts.load(f)));
+window.FONTS_OK = document.fonts.check('600 40px "Fraunces"') && document.fonts.check('400 20px "Inter"');
+seek(0);
+window.READY = true;
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+// TEMP capture harness for the motion video — NOT to be committed.
+"use client";
+import { useEffect, useState } from "react";
+import { NextIntlClientProvider } from "next-intl";
+import { ConvexProvider } from "convex/react";
+import { ConvexAuthActionsContext } from "@/../node_modules/@convex-dev/auth/dist/react/client.js";
+import { getFunctionName } from "convex/server";
+import messages from "@/../messages/it.json";
+import { AppShell } from "@/components/app-shell/app-shell";
+import { FIXTURES, TENANT } from "./fixtures";
+import Dashboard from "@/app/[locale]/app/dashboard/page";
+import Analytics from "@/app/[locale]/app/analytics/page";
+import Pipeline from "@/app/[locale]/app/pipeline/page";
+import Requests from "@/app/[locale]/app/requests/page";
+import Showroom from "@/app/[locale]/app/showroom/page";
+import Configurators from "@/app/[locale]/app/configurators/page";
+import QuotesNew from "@/app/[locale]/app/quotes/new/page";
+import Passports from "@/app/[locale]/app/passports/page";
+import Installations from "@/app/[locale]/app/installations/page";
+import Cantieri from "@/app/[locale]/app/cantieri/page";
+import Logistics from "@/app/[locale]/app/logistics/page";
+
+const VIEWS: Record<string, React.ComponentType> = {
+  dashboard: Dashboard, analytics: Analytics, pipeline: Pipeline, requests: Requests, showroom: Showroom,
+  configurators: Configurators, "quotes-new": QuotesNew, passports: Passports, installations: Installations,
+  cantieri: Cantieri, logistics: Logistics,
+};
+
+type Watch = { onUpdate: (cb: () => void) => () => void; localQueryResult: () => unknown; localQueryLogs: () => undefined; journal: () => undefined };
+const seen = new Set<string>();
+const fake = {
+  watchQuery(query: unknown, args: Record<string, unknown>): Watch {
+    const name = getFunctionName(query as never);
+    const f = FIXTURES[name];
+    if (!seen.has(name)) { seen.add(name); console.log("[mv] query", name, f ? "fixture" : "MISSING", JSON.stringify(args ?? {})); }
+    return { onUpdate: () => () => {}, localQueryResult: () => (f ? f(args ?? {}) : undefined), localQueryLogs: () => undefined, journal: () => undefined };
+  },
+  mutation: async () => null,
+  action: async () => null,
+  setAuth() {}, clearAuth() {},
+  connectionState: () => ({ isWebSocketConnected: true, hasInflightRequests: false }),
+  prewarmQuery() {},
+};
+const authActions = { signIn: async () => ({ signingIn: false }), signOut: async () => {} };
+
+export default function Harness({ view }: { view: string }) {
+  const View = VIEWS[view];
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+  return (
+    <NextIntlClientProvider locale="it" messages={messages} timeZone="Europe/Rome">
+      <ConvexProvider client={fake as never}>
+        <ConvexAuthActionsContext.Provider value={authActions as never}>
+          <AppShell tenant={TENANT as never}>{View ? <View /> : <div>unknown view</div>}</AppShell>
+        </ConvexAuthActionsContext.Provider>
+      </ConvexProvider>
+    </NextIntlClientProvider>
+  );
+}

@@ -1,0 +1,110 @@
+import { chromium } from "/home/user/onespec-platform/marketing/motion-video/node_modules/playwright/index.mjs";
+import fs from "node:fs";
+const OUT = "/home/user/onespec-platform/marketing/motion-video/film/shots";
+const meta = {};
+const b = await chromium.launch();
+const HIDE = `nextjs-portal{display:none!important}
+a[href*="tab=plan"],a[href*="tab=billing"]{display:none!important}`;
+const box = async (loc) => { const r = await loc.boundingBox(); return r && { x: r.x, y: r.y, w: r.width, h: r.height }; };
+
+async function appPage(view, navHref, fn) {
+  const c = await b.newContext({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 2, ignoreHTTPSErrors: true });
+  const p = await c.newPage();
+  await p.goto(`http://localhost:3100/c/mv-app/${view}`, { waitUntil: "networkidle", timeout: 120000 });
+  await p.addStyleTag({ content: HIDE });
+  // topbar plan badge ("Pro") — hide: it links to the plan page
+  await p.evaluate((href) => {
+    for (const a of document.querySelectorAll("header a, header button")) if (/^\s*Pro\s*$/.test(a.textContent || "")) a.style.display = "none";
+    const link = [...document.querySelectorAll("#app-sidebar-nav a")].find((a) => a.getAttribute("href")?.endsWith(href));
+    if (link) { link.className = link.className.replace("text-[var(--color-text-secondary)]", "").replace(/hover:\S+/g, "") + " bg-[var(--color-mint)]/15 text-[var(--color-mint)]"; }
+  }, navHref);
+  await p.waitForTimeout(1500);
+  await fn(p);
+  await c.close();
+}
+
+// ---- login (dark, official logo)
+if (!process.env.ONLY_REST) {
+  const c = await b.newContext({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 2, ignoreHTTPSErrors: true });
+  const p = await c.newPage();
+  await p.goto("http://localhost:3100/it/auth/login", { waitUntil: "networkidle", timeout: 120000 });
+  await p.addStyleTag({ content: HIDE });
+  await p.getByRole("button", { name: "Rifiuta" }).click().catch(() => {});
+  await p.waitForTimeout(1200);
+  await p.screenshot({ path: `${OUT}/login.png` });
+  await c.close();
+}
+
+// ---- widget (dark), 1440 wide, states
+if (!process.env.ONLY_REST) {
+  const c = await b.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 2, ignoreHTTPSErrors: true });
+  const p = await c.newPage();
+  await p.goto("http://localhost:3100/c/mv-capture?theme=dark", { waitUntil: "networkidle", timeout: 120000 });
+  await p.addStyleTag({ content: HIDE });
+  await p.waitForTimeout(1200);
+  const W = {};
+  const snap = async (n) => { await p.mouse.move(1439, 899); await p.waitForTimeout(350); await p.screenshot({ path: `${OUT}/w-${n}.png` }); };
+  await snap("0");
+  W.legno = await box(p.getByText("Legno", { exact: true }).first());
+  await p.getByText("Legno", { exact: true }).first().click(); await snap("1");
+  W.porta = await box(p.getByText("Porta balcone", { exact: true }).first());
+  await p.getByText("Porta balcone", { exact: true }).first().click(); await snap("2");
+  const svg = p.locator('svg[aria-label="dimension drawing"]');
+  let bb = await svg.boundingBox();
+  W.leaf2 = { x: bb.x + bb.width * 0.6, y: bb.y + bb.height * 0.4, w: 1, h: 1 };
+  await p.mouse.click(W.leaf2.x, W.leaf2.y); await snap("3");
+  const grip = await p.evaluate(() => { const l = [...document.querySelectorAll('svg[aria-label="dimension drawing"] line')].find((l) => l.getAttribute("stroke") === "#1E5F74"); const r = l.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2 }; });
+  W.gripFrom = grip;
+  await p.mouse.move(grip.x, grip.y); await p.mouse.down();
+  await p.mouse.move(grip.x - 34, grip.y, { steps: 10 }); await p.mouse.up();
+  W.gripTo = { x: grip.x - 34, y: grip.y };
+  await snap("4");
+  await p.mouse.move(W.gripTo.x, W.gripTo.y); await p.mouse.down();
+  await p.mouse.move(grip.x - 6, grip.y, { steps: 10 }); await p.mouse.up();
+  W.gripBack = { x: grip.x - 6, y: grip.y };
+  await snap("5");
+  // estimate + CTA (scroll so the summary is in view)
+  const cta = p.getByText("Completa e richiedi preventivo", { exact: false }).first();
+  await cta.scrollIntoViewIfNeeded(); await p.waitForTimeout(300);
+  W.scrollY = await p.evaluate(() => scrollY);
+  W.cta = await box(cta);
+  await snap("6");
+  await cta.click(); await p.waitForTimeout(300);
+  await snap("7");
+  meta.widget = W;
+  await c.close();
+}
+
+if (!process.env.ONLY_REST) {
+await appPage("dashboard", "/app/dashboard", async (p) => { await p.screenshot({ path: `${OUT}/dashboard.png` }); });
+await appPage("analytics", "/app/analytics", async (p) => { await p.screenshot({ path: `${OUT}/analytics.png` }); });
+await appPage("pipeline", "/app/pipeline", async (p) => {
+  await p.screenshot({ path: `${OUT}/pipeline-0.png` });
+  const card = p.locator("text=Luca Colombo").first();
+  meta.pipelineFrom = await box(card);
+  const sel = p.locator("select").filter({ has: p.locator("option") }).nth(0);
+  // select inside Luca Colombo's card
+  const cardSel = card.locator("xpath=ancestor::*[.//select][1]").locator("select").first();
+  await cardSel.selectOption({ label: "Vinte" }).catch((e) => console.log("sel", e.message));
+  await p.waitForTimeout(500);
+  meta.pipelineTo = await box(p.locator("text=Luca Colombo").first());
+  await p.screenshot({ path: `${OUT}/pipeline-1.png` });
+});
+}
+await appPage("quotes-new", "/app/quotes", async (p) => {
+  const tabs = ["Italia", "France", "Belgique", "Nederland", "Deutschland", "Luxembourg"];
+  meta.marketTabs = {};
+  for (const [i, t] of tabs.entries()) {
+    const btn = p.getByRole("button", { name: new RegExp(t) }).first();
+    meta.marketTabs[t] = await box(btn);
+    await btn.click().catch((e) => console.log("tab", t, e.message));
+    await p.mouse.move(1919, 1079); await p.waitForTimeout(500);
+    await p.screenshot({ path: `${OUT}/quotes-${i}.png` });
+  }
+});
+await appPage("configurators", "/app/configurators", async (p) => { await p.screenshot({ path: `${OUT}/configurators.png` }); });
+const prev = fs.existsSync(`${OUT}/meta.json`) ? JSON.parse(fs.readFileSync(`${OUT}/meta.json`)) : {};
+fs.writeFileSync(`${OUT}/meta.json`, JSON.stringify({ ...prev, ...meta }, null, 2));
+//, JSON.stringify(meta, null, 2));
+await b.close();
+console.log("ok");
