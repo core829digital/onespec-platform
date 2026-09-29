@@ -106,3 +106,57 @@ Raccomandazioni (non fatte, richiedono una sua decisione o un'azione in Stripe):
 - **Test E2E nel browser con backend reale:** in questo ambiente non c'è un deployment Convex, quindi le pagine non sono state provate cliccando dal vivo. Logica e sicurezza sono coperte da 370 test sul backend reale in memoria (`convex-test`).
 - **Concorrenza reale:** i test girano in sequenza. La garanzia viene dalle transazioni serializzabili di Convex, non da un test di carico.
 - **Stripe live:** i flussi di Checkout, portale e fatture vanno provati in modalità test di Stripe dopo aver creato i prezzi del punto 6.4.
+
+---
+
+## 9. Audit full-stack di lancio (obiettivo ≥ 10.000 utenti)
+
+Metodo:
+- Scansioni automatiche su tutto il backend: letture senza limite, scansioni di tabella intera, accodamenti che crescono nei documenti, input senza tetto, riferimenti tra tenant, IDOR, campi inesistenti negli aggiornamenti dinamici.
+- Lettura file per file dei moduli: endpoint pubblici, auth, tenant, preventivi, moduli di campo, branding, configuratori, email, admin, analytics, middleware, pagine pubbliche.
+- Ogni correzione ha il suo test. **Totale finale: 411 test verdi**; typecheck, lint e build di produzione puliti.
+
+### Sicurezza (corretti)
+| Problema | Rischio |
+|---|---|
+| Rilievi, fascicoli e cantieri accettavano id di preventivi/clienti/collaudi/utenti di **altri tenant** | un'azienda poteva agganciare i propri documenti ai dati di un'altra, e vederli comparire nelle sue schede |
+| Colori del branding liberi, finiti nello stile del widget pubblico | iniezione CSS sul sito del cliente |
+| Codici OTP (verifica email, reset password) generati con `Math.random()` | codici prevedibili |
+| Log email con il testo completo (codici, link di invito) | credenziali valide salvate nel database e nei backup |
+| White-label salvabile senza piano; file logo non verificati dopo il caricamento | aggiramento del piano; file non-immagine nello storage |
+| `recordScan` pubblica | contatori QR gonfiabili saltando il rate limit |
+
+### Scalabilità 10k (corretti)
+| Problema | Effetto a regime |
+|---|---|
+| **Panoramica** e "Orari di punta" leggevano 8.000 richieste complete | la dashboard **andava in errore** per i clienti con qualche migliaio di richieste |
+| Export CSV su 5.000 richieste in un colpo | l'export falliva proprio per i clienti migliori |
+| Feedback: scansione di tutti gli utenti a ogni invio | 10.000 letture per invio |
+| Cron prove gratuite, migrazione fondatori: tabelle intere in una transazione | superamento dei limiti Convex |
+| Tabelle senza pulizia (`rateLimits`, notifiche, log email) | milioni di righe, dati personali conservati per sempre → aggiunti 4 cron di retention |
+| Note interne, misure laser: accodamento illimitato nel documento | al limite di 1 MB **ogni** modifica alla richiesta o al rilievo falliva |
+| Limiti di pagina e `numItems` decisi dal client, cache del middleware senza tetto | letture e memoria non limitate |
+
+### Funzionali (corretti)
+- **GDPR:** le richieste di cancellazione account non venivano mai eseguite. Ora c'è un cron giornaliero che anonimizza l'account dopo 30 giorni.
+- **Attività di cantiere:** la riassegnazione andava sempre in errore (campo inesistente nello schema).
+- **Pagina link `/c/`:** errore 500 a ogni visita sui piani senza widget.
+- **Email:** nessun nuovo tentativo sugli errori temporanei. Ora 3 tentativi con attesa crescente.
+- **Inviti:** i posti utente non venivano ricontrollati all'accettazione. IVA, arrotondamento e domini del configuratore non erano validati.
+- **Pagine pubbliche** (widget, fascicolo QR, app installatore, accesso ospite): non avevano una pagina di errore dedicata. `/c/` andava in errore se Convex non rispondeva.
+- **Merge con `main`:** la nuova dashboard avrebbe mandato in errore i piani Level. Corretto.
+
+### Rischi residui e raccomandazioni (non bloccanti)
+1. **Deploy del backend Convex:** la build di Vercel (`next build`) **non** pubblica le funzioni Convex. Serve `npx convex deploy` (o un comando di build Vercel dedicato), vedi sezione 10.
+2. **Admin tenant:** la lista mostra al massimo 200 tenant, senza paginazione. Da aggiungere prima di superare qualche centinaio di clienti.
+3. **Legacy `.collect()`:** restano su insiemi piccoli per natura (catalogo di un configuratore, membri di un team). Non sono urgenti.
+4. **Etichette del catalogo** (`labels` libero): protette solo dal limite di 1 MB del documento. Riguardano solo gli admin autenticati.
+5. **Test di carico reale:** non eseguibile in questo ambiente. La garanzia viene dai limiti di transazione di Convex rispettati in tutto il codice. Consiglio un test con k6 in staging prima del lancio.
+
+## 10. Checklist di deploy
+
+1. Unire il branch su `main` (PR): la CI rifà typecheck, lint, test e build. Poi Vercel pubblica il frontend.
+2. **Pubblicare il backend Convex:** `npx convex deploy`. Contiene: nuovo schema (indici aggiunti), nuove funzioni, 5 nuovi cron.
+3. Variabili d'ambiente su Convex: `STRIPE_PRICE_ESSENTIALS_MONTHLY`, `STRIPE_PRICE_ESSENTIALS_PLUS_MONTHLY`, `STRIPE_PRICE_MAX_MONTHLY`.
+4. Stripe: disattivare il cambio piano nel portale clienti.
+5. Dopo il deploy: verifica rapida di widget pubblico, pagina Piano, checkout Level 1 in modalità test Stripe e dashboard.
