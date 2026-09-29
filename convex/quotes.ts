@@ -26,6 +26,18 @@ const QUOTE_STATUS = v.union(
   v.literal("spam"),
 );
 
+const NOTE_MAX = 5_000;
+const NOTES_TOTAL_MAX = 100_000;
+const TEXT_MAX = 2_000;
+const MONEY_MAX = 100_000_000; // €1M in cents
+
+/** Bound a free-text arg (lengths also protect the 1 MB document limit). */
+function boundedText(value: string | undefined, max = TEXT_MAX): string | undefined {
+  if (value === undefined) return undefined;
+  if (value.length > max) throw new ConvexError("INVALID_INPUT");
+  return value;
+}
+
 export const listRequests = query({
   args: {
     tenantId: v.id("tenants"),
@@ -129,7 +141,14 @@ export const addNote = mutation({
     if (!quote) throw new ConvexError("QUOTE_NOT_FOUND");
     await requirePermission(ctx, quote.tenantId, "quotes.manage");
 
-    await ctx.db.patch(args.quoteId, { internalNotes: (quote.internalNotes || "") + "\n" + args.note });
+    const note = args.note.trim();
+    if (!note) throw new ConvexError("INVALID_INPUT");
+    if (note.length > NOTE_MAX) throw new ConvexError("INVALID_INPUT");
+    // The notes live in one string field of the quote document: keep the most
+    // recent NOTES_TOTAL_MAX characters so the document can never approach
+    // Convex's 1 MB limit (which would make EVERY write to this quote fail).
+    const combined = ((quote.internalNotes || "") + "\n" + note).slice(-NOTES_TOTAL_MAX);
+    await ctx.db.patch(args.quoteId, { internalNotes: combined });
   },
 });
 
@@ -197,8 +216,12 @@ export const createFieldQuote = mutation({
     // Authoritative calculation ÔÇö server is the source of truth for price.
     const baseCalc = calculatePrice(payload, items);
 
-    const installCost = Math.max(args.installationPriceCents ?? 0, 0);
-    const demolitionCost = Math.max(args.demolitionPriceCents ?? 0, 0);
+    const installCost = Math.min(Math.max(Math.round(args.installationPriceCents ?? 0), 0), MONEY_MAX);
+    const demolitionCost = Math.min(Math.max(Math.round(args.demolitionPriceCents ?? 0), 0), MONEY_MAX);
+    for (const text of [args.leadName, args.leadEmail, args.leadPhone, args.customerAddress, args.customerCity,
+      args.customerPostalCode, args.installationType, args.depositTerms, args.poseType, args.rgeCertificate,
+      args.decennaleInsurance, args.rcSecurityLevel]) boundedText(text, 500);
+    boundedText(args.leadMessage);
     const regionalSurcharge = Math.min(Math.max(Math.round(args.regionalSurchargeCents ?? 0), 0), 100_000_000);
     const discountPct = Math.min(Math.max(args.discountPercent ?? 0, 0), 100);
     const ecobonusPct = Math.min(Math.max(args.ecobonusPercent ?? 0, 0), 100);
@@ -207,7 +230,10 @@ export const createFieldQuote = mutation({
     const subtotalExVat = baseCalc.priceExVatCents + installCost + demolitionCost + regionalSurcharge;
     const discountedExVat = Math.round(subtotalExVat * (1 - discountPct / 100));
 
-    const effectiveVat = args.vatRatePercent !== undefined ? args.vatRatePercent : configurator.vatRatePercent;
+    const effectiveVat = Math.min(
+      Math.max(args.vatRatePercent !== undefined ? args.vatRatePercent : configurator.vatRatePercent, 0),
+      100,
+    );
     const finalPriceCents = Math.round(discountedExVat * (1 + effectiveVat / 100));
     const ecobonusDeductionCents = ecobonusPct > 0 ? Math.round(finalPriceCents * (ecobonusPct / 100)) : undefined;
     const maPrimeRenovDeductionCents = maPrimePct > 0 ? Math.round(finalPriceCents * (maPrimePct / 100)) : undefined;
@@ -603,7 +629,8 @@ export const createQuoteWithSuppliers = mutation({
     const payload = versionDoc.payload as CatalogPayload;
     const items = parseQuoteItems(args.items);
 
-    // Validate supplier lines
+    // Validate supplier lines (bounded: at most a few per piece).
+    if (args.supplierLines && args.supplierLines.length > items.length * 5) throw new ConvexError("INVALID_INPUT");
     if (args.supplierLines && args.supplierLines.length > 0) {
       for (const line of args.supplierLines) {
         const supplier = await ctx.db.get(line.supplierId);
@@ -619,8 +646,12 @@ export const createQuoteWithSuppliers = mutation({
     // Authoritative calculation â€” server is the source of truth for price.
     const baseCalc = calculatePrice(payload, items);
 
-    const installCost = Math.max(args.installationPriceCents ?? 0, 0);
-    const demolitionCost = Math.max(args.demolitionPriceCents ?? 0, 0);
+    const installCost = Math.min(Math.max(Math.round(args.installationPriceCents ?? 0), 0), MONEY_MAX);
+    const demolitionCost = Math.min(Math.max(Math.round(args.demolitionPriceCents ?? 0), 0), MONEY_MAX);
+    for (const text of [args.leadName, args.leadEmail, args.leadPhone, args.customerAddress, args.customerCity,
+      args.customerPostalCode, args.installationType, args.depositTerms, args.poseType, args.rgeCertificate,
+      args.decennaleInsurance, args.rcSecurityLevel]) boundedText(text, 500);
+    boundedText(args.leadMessage);
     const regionalSurcharge = Math.min(Math.max(Math.round(args.regionalSurchargeCents ?? 0), 0), 100_000_000);
     const discountPct = Math.min(Math.max(args.discountPercent ?? 0, 0), 100);
     const ecobonusPct = Math.min(Math.max(args.ecobonusPercent ?? 0, 0), 100);
@@ -629,7 +660,10 @@ export const createQuoteWithSuppliers = mutation({
     const subtotalExVat = baseCalc.priceExVatCents + installCost + demolitionCost + regionalSurcharge;
     const discountedExVat = Math.round(subtotalExVat * (1 - discountPct / 100));
 
-    const effectiveVat = args.vatRatePercent !== undefined ? args.vatRatePercent : configurator.vatRatePercent;
+    const effectiveVat = Math.min(
+      Math.max(args.vatRatePercent !== undefined ? args.vatRatePercent : configurator.vatRatePercent, 0),
+      100,
+    );
     const finalPriceCents = Math.round(discountedExVat * (1 + effectiveVat / 100));
     const ecobonusDeductionCents = ecobonusPct > 0 ? Math.round(finalPriceCents * (ecobonusPct / 100)) : undefined;
     const maPrimeRenovDeductionCents = maPrimePct > 0 ? Math.round(finalPriceCents * (maPrimePct / 100)) : undefined;

@@ -57,3 +57,25 @@ describe("widget view counting (launch audit)", () => {
     expect(await t.mutation(internal.widget.recordWidgetView, { publicId: "VIEWBASE01", viewToken: "tokenAAAAAAAA" })).toEqual({ counted: false });
   });
 });
+
+describe("quote notes (launch audit)", () => {
+  test("notes are bounded so the quote document can never hit the 1 MB limit", async () => {
+    const { internal } = await import("../../convex/_generated/api");
+    const { seedPublishedConfigurator, sampleItem } = await import("./_helpers");
+    const t = newDb();
+    const s = await seedTenant(t, { plan: "pro" });
+    const cfg = await seedPublishedConfigurator(t, s.tenantId, "NOTES00001");
+    const quoteId = await t.mutation(internal.widget.insertQuote, {
+      publicId: "NOTES00001", configuratorId: cfg, catalogVersion: 1, items: [sampleItem],
+      leadName: "N", leadEmail: "n@example.com", leadLocale: "it",
+    });
+    const as = t.withIdentity({ subject: s.ownerId });
+    await expect(as.mutation(api.quotes.addNote, { quoteId, note: "x".repeat(6000) })).rejects.toThrow("INVALID_INPUT");
+    await expect(as.mutation(api.quotes.addNote, { quoteId, note: "   " })).rejects.toThrow("INVALID_INPUT");
+    for (let i = 0; i < 25; i++) await as.mutation(api.quotes.addNote, { quoteId, note: `${i}-` + "y".repeat(4900) });
+    const q = await t.run((ctx) => ctx.db.get(quoteId));
+    expect(q!.internalNotes!.length).toBeLessThanOrEqual(100_000);
+    expect(q!.internalNotes!.endsWith("y")).toBe(true);
+    expect(q!.internalNotes!).toContain("24-");
+  });
+});
