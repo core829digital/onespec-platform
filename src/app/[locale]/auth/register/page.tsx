@@ -4,7 +4,7 @@ import { Suspense, useState } from "react";
 import posthog from "posthog-js";
 import { useRouter } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
@@ -24,6 +24,7 @@ export default function RegisterPage() {
 
 function RegisterForm() {
   const t = useTranslations("auth.register");
+  const locale = useLocale();
   const router = useRouter();
   const redirect = getOptionalRedirect(useSearchParams().get("redirect"));
   const { signIn } = useAuthActions();
@@ -44,7 +45,7 @@ function RegisterForm() {
     setError("");
     setLoading(true);
     try {
-      await signIn("password", { name, email, password, flow: "signUp", turnstileToken: ts.token });
+      await signIn("password", { name, email, password, flow: "signUp", locale, turnstileToken: ts.token });
       // Saved so /auth/verify can resend the code without asking the
       // password again. Cleared on successful verification. Never a token.
       try {

@@ -10,6 +10,7 @@ import { resolveTenantEntitlements, currentPeriod } from "./lib/entitlements";
 import { enforceForCreateConfigurator } from "./lib/enforcement";
 import { resolveEffectiveConfig, PLATFORM_DEFAULTS, CONFIG_LAYERS } from "./lib/configResolution";
 import { internal } from "./_generated/api";
+import { regionForCountry } from "./lib/regions";
 
 export const createConfigurator = mutation({
   args: { tenantId: v.id("tenants"), name: v.string() },
@@ -22,6 +23,11 @@ export const createConfigurator = mutation({
     const name = args.name.trim();
     if (name.length < 2 || name.length > 80) throw new ConvexError("INVALID_NAME");
 
+    // Market defaults: widget language and VAT rate follow the tenant's country
+    // (a French dealer must not start with an Italian widget at 22% VAT).
+    const region = regionForCountry(tenant.country);
+    const defaultVat = region.vatRates.find((r) => r.key === region.defaultVatKey)?.percent ?? 22;
+
     const publicId = nanoid(10);
     const configuratorId = await ctx.db.insert("configurators", {
       tenantId: args.tenantId,
@@ -29,13 +35,14 @@ export const createConfigurator = mutation({
       name,
       status: "draft",
       allowedOrigins: [],
-      defaultLocale: "it",
+      defaultLocale: region.primaryLocale,
       defaultTheme: "auto",
-      vatRatePercent: 22,
+      vatRatePercent: defaultVat,
       priceRoundingStep: 1,
       showPricesToEndUser: true,
       currency: "EUR",
-      ecobonusEnabled: true,
+      // Ecobonus is Italian-only.
+      ecobonusEnabled: region.code === "IT",
       ecobonusMaxPercent: 50,
       discountEnabled: false,
       discountMaxPercent: 20,

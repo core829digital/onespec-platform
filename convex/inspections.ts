@@ -328,14 +328,17 @@ export const getByInstallerToken = query({
       })),
     );
 
-    let items: { label: string; qty: number }[] = [];
+    // Structured, not pre-labelled: the page names each element in the
+    // market's language (src/lib/field-public-i18n.ts).
+    let items: { kind: "window" | "balconyDoor"; width: number | null; height: number | null; floor: string | null; qty: number }[] = [];
     if (report.quoteId) {
       const quote = await ctx.db.get(report.quoteId);
       const raw = Array.isArray(quote?.items) ? (quote!.items as Record<string, unknown>[]) : [];
-      items = raw.map((it, i) => ({
-        label: `${it.productType === "balconyDoor" ? "Porta-finestra" : "Finestra"} ${
-          it.width ?? "?"
-        }×${it.height ?? "?"} mm${it.floor ? ` · ${it.floor}` : ""}`.trim() || `Serramento ${i + 1}`,
+      items = raw.map((it) => ({
+        kind: it.productType === "balconyDoor" ? ("balconyDoor" as const) : ("window" as const),
+        width: typeof it.width === "number" ? it.width : null,
+        height: typeof it.height === "number" ? it.height : null,
+        floor: typeof it.floor === "string" && it.floor ? it.floor : null,
         qty: Number(it.quantity ?? 1),
       }));
     }
@@ -347,6 +350,7 @@ export const getByInstallerToken = query({
       installerTeam: report.installerTeam ?? null,
       scheduledFor: report.scheduledFor ?? null,
       dealerName: tenant?.name ?? "",
+      regionCode: region,
       title: tpl.title,
       items,
       photos,

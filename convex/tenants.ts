@@ -16,6 +16,7 @@ import { enforceForAddTeamMember } from "./lib/enforcement";
 import { requirePermission } from "./lib/rbac";
 import { emit } from "./lib/triggers";
 import { unlockOnReactivation } from "./usage";
+import { regionForCountry } from "./lib/regions";
 
 const COUNTRY_RE = /^[A-Za-z]{2}$/;
 
@@ -62,10 +63,12 @@ export const registerTenant = mutation({
       acceptedAt: Date.now(),
     });
 
+    const owner = await ctx.db.get(userId);
     await ctx.scheduler.runAfter(0, internal.email.send, {
       template: "welcome",
-      to: (await ctx.db.get(userId))?.email || "",
-      locale: "it",
+      to: owner?.email || "",
+      // The language the owner signed up in; else the chosen market's language.
+      locale: owner?.locale ?? regionForCountry(country).primaryLocale,
       data: { companyName },
       tenantId,
     });
@@ -290,11 +293,13 @@ export const inviteMember = mutation({
     await ctx.scheduler.runAfter(0, internal.email.send, {
       template: "invitation",
       to: email,
-      locale: "it",
+      // The invitee has no account yet: write in the inviter's language, else the company's market language.
+      locale: inviter?.locale ?? regionForCountry(tenant.country).primaryLocale,
       data: {
         companyName: tenant.name,
         inviterName: inviter?.name ?? inviter?.email ?? undefined,
-        role: args.role === "admin" ? "amministratore" : "membro",
+        // A key, translated by the template in the email's language.
+        role: args.role,
         acceptUrl: `${process.env.SITE_URL ?? "http://localhost:3000"}/invite/${token}`,
       },
       tenantId: args.tenantId,

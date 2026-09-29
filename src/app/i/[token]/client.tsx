@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { fieldCopy, fieldLang, FIELD_DATE_LOCALE } from "@/lib/field-public-i18n";
 
 const CONVEX_SITE =
   (process.env.NEXT_PUBLIC_CONVEX_URL as string)?.replace(".convex.cloud", ".convex.site") || "";
@@ -22,8 +23,9 @@ export interface InstallerData {
   installerTeam: string | null;
   scheduledFor: number | null;
   dealerName: string;
+  regionCode: string;
   title: string;
-  items: { label: string; qty: number }[];
+  items: { kind: "window" | "balconyDoor"; width: number | null; height: number | null; floor: string | null; qty: number }[];
   photos: Photo[];
   checks: Check[];
   signedByName: string | null;
@@ -38,7 +40,7 @@ function post(path: string, body: unknown) {
   }).then((r) => r.json());
 }
 
-function SignPad({ onChange }: { onChange: (dataUrl: string | null) => void }) {
+function SignPad({ onChange, clearLabel }: { onChange: (dataUrl: string | null) => void; clearLabel: string }) {
   const ref = useRef<HTMLCanvasElement>(null);
   const drawing = useRef(false);
   const last = useRef<{ x: number; y: number } | null>(null);
@@ -112,13 +114,15 @@ function SignPad({ onChange }: { onChange: (dataUrl: string | null) => void }) {
         }}
         className="mt-1 text-xs text-zinc-500 underline"
       >
-        Cancella
+        {clearLabel}
       </button>
     </div>
   );
 }
 
 export function InstallerJob({ token, initial }: { token: string; initial: InstallerData }) {
+  const c = fieldCopy(initial.regionCode).installer;
+  const dateLocale = FIELD_DATE_LOCALE[fieldLang(initial.regionCode)];
   const [photos, setPhotos] = useState<Photo[]>(initial.photos);
   const [checks, setChecks] = useState<Check[]>(initial.checks);
   const [signed, setSigned] = useState(initial.status === "signed");
@@ -149,7 +153,7 @@ export function InstallerJob({ token, initial }: { token: string; initial: Insta
       const preview = URL.createObjectURL(file);
       setPhotos((prev) => prev.map((p) => (p.key === key ? { ...p, url: preview } : p)));
     } catch {
-      setErr("Caricamento foto non riuscito. Riprova.");
+      setErr(c.errPhoto);
     } finally {
       setBusy(null);
     }
@@ -166,8 +170,8 @@ export function InstallerJob({ token, initial }: { token: string; initial: Insta
   }
 
   async function doSign() {
-    if (!sig) return setErr("Firma mancante.");
-    if (!signer.trim()) return setErr("Nome cliente mancante.");
+    if (!sig) return setErr(c.errSignature);
+    if (!signer.trim()) return setErr(c.errSigner);
     setBusy("sign");
     setErr("");
     try {
@@ -178,11 +182,11 @@ export function InstallerJob({ token, initial }: { token: string; initial: Insta
         clientRemarks: remarks || undefined,
       });
       if (r.ok) setSigned(true);
-      else if (r.error === "PHOTOS_INCOMPLETE") setErr("Carica tutte le foto obbligatorie.");
+      else if (r.error === "PHOTOS_INCOMPLETE") setErr(c.errPhotosIncomplete);
       else if (r.error === "ALREADY_SIGNED") setSigned(true);
-      else setErr("Firma non riuscita.");
+      else setErr(c.errSign);
     } catch {
-      setErr("Errore di rete.");
+      setErr(c.errNetwork);
     } finally {
       setBusy(null);
     }
@@ -192,11 +196,8 @@ export function InstallerJob({ token, initial }: { token: string; initial: Insta
     return (
       <div className="space-y-4 rounded-2xl bg-white p-5 text-center">
         <div className="text-4xl">✅</div>
-        <h1 className="text-lg font-bold">Verbale firmato</h1>
-        <p className="text-sm text-zinc-500">
-          {initial.customerName} — protezione pagamento attiva. Il rivenditore ha ricevuto foto +
-          firma.
-        </p>
+        <h1 className="text-lg font-bold">{c.signedTitle}</h1>
+        <p className="text-sm text-zinc-500">{c.signedBody(initial.customerName)}</p>
       </div>
     );
   }
@@ -205,13 +206,13 @@ export function InstallerJob({ token, initial }: { token: string; initial: Insta
     <div className="space-y-4">
       <header className="rounded-2xl bg-zinc-900 p-4 text-white">
         <div className="text-[11px] uppercase tracking-widest text-zinc-400">
-          App Posatore · {initial.dealerName}
+          {c.header} · {initial.dealerName}
         </div>
         <h1 className="mt-1 text-lg font-bold">{initial.customerName}</h1>
         {initial.siteAddress && <p className="text-sm text-zinc-300">{initial.siteAddress}</p>}
         {initial.scheduledFor && (
           <p className="text-xs text-zinc-400">
-            {new Date(initial.scheduledFor).toLocaleString("it-IT")}
+            {new Date(initial.scheduledFor).toLocaleString(dateLocale)}
             {initial.installerTeam ? ` · ${initial.installerTeam}` : ""}
           </p>
         )}
@@ -239,11 +240,14 @@ export function InstallerJob({ token, initial }: { token: string; initial: Insta
 
       {initial.items.length > 0 && (
         <section className="rounded-2xl bg-white p-4">
-          <h2 className="mb-2 text-sm font-bold">Serramenti da posare</h2>
+          <h2 className="mb-2 text-sm font-bold">{c.items}</h2>
           <ul className="space-y-1 text-sm">
             {initial.items.map((it, i) => (
               <li key={i} className="flex justify-between">
-                <span>{it.label}</span>
+                <span>
+                  {it.kind === "balconyDoor" ? c.balconyDoor : c.window} {it.width ?? "?"}×{it.height ?? "?"} mm
+                  {it.floor ? ` · ${it.floor}` : ""}
+                </span>
                 <span className="font-mono text-zinc-500">×{it.qty}</span>
               </li>
             ))}
@@ -252,7 +256,7 @@ export function InstallerJob({ token, initial }: { token: string; initial: Insta
       )}
 
       <section className="rounded-2xl bg-white p-4">
-        <h2 className="mb-2 text-sm font-bold">Foto obbligatorie</h2>
+        <h2 className="mb-2 text-sm font-bold">{c.photos}</h2>
         <div className="grid grid-cols-2 gap-3">
           {photos.map((p) => (
             <div key={p.key} className="rounded-xl border border-zinc-200 p-2">
@@ -281,45 +285,43 @@ export function InstallerJob({ token, initial }: { token: string; initial: Insta
       </section>
 
       <section className="rounded-2xl bg-white p-4">
-        <h2 className="mb-2 text-sm font-bold">Prova di funzionamento</h2>
+        <h2 className="mb-2 text-sm font-bold">{c.checks}</h2>
         <div className="space-y-1.5">
-          {checks.map((c) => (
-            <label key={c.key} className="flex items-center gap-2 text-sm">
+          {checks.map((ck) => (
+            <label key={ck.key} className="flex items-center gap-2 text-sm">
               <input
                 type="checkbox"
-                checked={c.passed}
-                onChange={(e) => toggleCheck(c.key, e.target.checked)}
+                checked={ck.passed}
+                onChange={(e) => toggleCheck(ck.key, e.target.checked)}
               />
-              {c.label}
+              {ck.label}
             </label>
           ))}
         </div>
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
-          placeholder="Note posatore (opzionale)"
+          placeholder={c.notesPlaceholder}
           className="mt-2 min-h-[60px] w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
         />
       </section>
 
       <section className="rounded-2xl bg-white p-4">
-        <h2 className="mb-2 text-sm font-bold">Verbale di collaudo — firma cliente</h2>
+        <h2 className="mb-2 text-sm font-bold">{c.signTitle}</h2>
         {!allPhotos && (
-          <p className="mb-2 text-xs text-amber-600">
-            Carica tutte le {photos.length} foto per abilitare la firma.
-          </p>
+          <p className="mb-2 text-xs text-amber-600">{c.photosNeeded(photos.length)}</p>
         )}
         <input
           value={signer}
           onChange={(e) => setSigner(e.target.value)}
-          placeholder="Nome di chi firma"
+          placeholder={c.signerPlaceholder}
           className="mb-2 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
         />
-        <SignPad onChange={setSig} />
+        <SignPad onChange={setSig} clearLabel={c.clear} />
         <textarea
           value={remarks}
           onChange={(e) => setRemarks(e.target.value)}
-          placeholder="Osservazioni cliente (opzionale)"
+          placeholder={c.remarksPlaceholder}
           className="mt-2 min-h-[50px] w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
         />
         {err && <p className="mt-2 text-sm text-red-600">{err}</p>}
@@ -328,7 +330,7 @@ export function InstallerJob({ token, initial }: { token: string; initial: Insta
           disabled={busy === "sign" || !allPhotos}
           className="mt-3 w-full rounded-xl bg-[#ff5a1f] py-3 text-sm font-bold text-white disabled:opacity-50"
         >
-          {busy === "sign" ? "Invio…" : "Genera verbale · protezione pagamento"}
+          {busy === "sign" ? c.sending : c.signCta}
         </button>
       </section>
     </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { fieldCopy } from "@/lib/field-public-i18n";
 
 const CONVEX_SITE =
   (process.env.NEXT_PUBLIC_CONVEX_URL as string)?.replace(".convex.cloud", ".convex.site") || "";
@@ -9,15 +10,18 @@ type Kind = "adjustment" | "warranty" | "maintenance" | "other";
 
 export function FascicoloClient({
   token,
+  regionCode,
   dealerName,
   dealerPhone,
   dealerEmail,
 }: {
   token: string;
+  regionCode: string | null;
   dealerName: string;
   dealerPhone: string | null;
   dealerEmail: string | null;
 }) {
+  const c = fieldCopy(regionCode).passport;
   const [kind, setKind] = useState<Kind>("adjustment");
   const [message, setMessage] = useState("");
   const [name, setName] = useState("");
@@ -36,7 +40,7 @@ export function FascicoloClient({
 
   async function submit() {
     if (message.trim().length < 3) {
-      setErr("Descrivi brevemente la richiesta.");
+      setErr(c.errShort);
       return;
     }
     setBusy(true);
@@ -55,9 +59,9 @@ export function FascicoloClient({
       });
       const data = await res.json();
       if (data.ok) setSent(true);
-      else setErr("Invio non riuscito. Riprova.");
+      else setErr(c.errSend);
     } catch {
-      setErr("Errore di rete.");
+      setErr(c.errNetwork);
     } finally {
       setBusy(false);
     }
@@ -66,24 +70,17 @@ export function FascicoloClient({
   if (sent) {
     return (
       <section className="rounded-2xl bg-white p-4 text-sm">
-        <p className="font-semibold text-emerald-700">Richiesta inviata a {dealerName}.</p>
-        <p className="mt-1 text-zinc-500">Verrai ricontattato al più presto.</p>
+        <p className="font-semibold text-emerald-700">{c.sentTitle(dealerName)}</p>
+        <p className="mt-1 text-zinc-500">{c.sentBody}</p>
       </section>
     );
   }
 
   return (
     <section className="space-y-3 rounded-2xl bg-white p-4">
-      <h2 className="text-sm font-bold">Richiedi intervento / assistenza</h2>
+      <h2 className="text-sm font-bold">{c.requestTitle}</h2>
       <div className="flex flex-wrap gap-2">
-        {(
-          [
-            ["adjustment", "Regolazione"],
-            ["warranty", "Garanzia"],
-            ["maintenance", "Manutenzione"],
-            ["other", "Altro"],
-          ] as [Kind, string][]
-        ).map(([k, label]) => (
+        {(["adjustment", "warranty", "maintenance", "other"] as Kind[]).map((k) => (
           <button
             key={k}
             onClick={() => setKind(k)}
@@ -91,27 +88,27 @@ export function FascicoloClient({
               kind === k ? "bg-zinc-900 text-white" : "bg-zinc-100"
             }`}
           >
-            {label}
+            {c.kinds[k]}
           </button>
         ))}
       </div>
       <textarea
         value={message}
         onChange={(e) => setMessage(e.target.value)}
-        placeholder="Descrivi il problema (es. anta che sfrega, spiffero…)"
+        placeholder={c.messagePlaceholder}
         className="min-h-[80px] w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
       />
       <div className="grid grid-cols-2 gap-2">
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Nome"
+          placeholder={c.name}
           className="rounded-lg border border-zinc-200 px-3 py-2 text-sm"
         />
         <input
           value={phone}
           onChange={(e) => setPhone(e.target.value)}
-          placeholder="Telefono"
+          placeholder={c.phone}
           className="rounded-lg border border-zinc-200 px-3 py-2 text-sm"
         />
       </div>
@@ -121,7 +118,7 @@ export function FascicoloClient({
         disabled={busy}
         className="w-full rounded-xl bg-[#ff5a1f] py-3 text-sm font-bold text-white disabled:opacity-50"
       >
-        {busy ? "Invio…" : "Invia richiesta"}
+        {busy ? c.sending : c.send}
       </button>
       {(dealerPhone || dealerEmail) && (
         <p className="text-center text-xs text-zinc-500">

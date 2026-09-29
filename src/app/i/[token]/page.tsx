@@ -6,8 +6,10 @@ import { InstallerJob } from "./client";
 
 export const dynamic = "force-dynamic";
 
+// Neutral on purpose: the market (and so the language) is only known after
+// the token lookup, which the page does once.
 export function generateMetadata(): Metadata {
-  return { title: "App Posatore", robots: { index: false } };
+  return { title: "OneSpec", robots: { index: false } };
 }
 
 export default async function InstallerPage({

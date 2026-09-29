@@ -17,6 +17,20 @@ import { useCompanyPdf } from "@/lib/use-company-pdf";
 import { useTranslations } from "next-intl";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 
+/** Bilingual markets: the document language the installer can switch between (first = default). */
+const DOC_LANGS: Record<string, { lang: "fr" | "de" | "nl"; label: string }[]> = {
+  BE: [
+    { lang: "fr", label: "Français (Devis)" },
+    { lang: "nl", label: "Nederlands (Offerte)" },
+  ],
+  LU: [
+    { lang: "fr", label: "Français (Devis)" },
+    { lang: "de", label: "Deutsch (Angebot)" },
+  ],
+};
+
+const FILE_PREFIX: Record<string, string> = { it: "preventivo", fr: "devis", de: "angebot", nl: "offerte" };
+
 interface Props {
   params: Promise<{ id: string; locale: string }>;
 }
@@ -25,8 +39,12 @@ type QuoteForPrint = NonNullable<FunctionReturnType<typeof api.quotes.getQuoteFo
 
 function QuoteDocument({ quote, tenant, region, catalog }: { quote: NonNullable<QuoteForPrint["quote"]>; tenant: QuoteForPrint["tenant"]; region: string; catalog: CatalogPayload | null }) {
   const t = useTranslations("quotePrint");
-  // Luxembourg 1-click bilingual switch
-  const [luLang, setLuLang] = useState<"fr" | "de">("fr");
+  // BE / LU 1-click bilingual switch
+  const langChoices = DOC_LANGS[region];
+  const [docLang, setDocLang] = useState<"fr" | "de" | "nl" | undefined>(langChoices?.[0].lang);
+  const effectiveLang = langChoices ? docLang : undefined;
+  const filePrefix =
+    FILE_PREFIX[effectiveLang ?? (region === "FR" ? "fr" : region === "DE" ? "de" : region === "NL" ? "nl" : "it")];
 
   const { ready: companyReady, company } = useCompanyPdf(tenant?.name);
 
@@ -36,13 +54,13 @@ function QuoteDocument({ quote, tenant, region, catalog }: { quote: NonNullable<
       quote={quote}
       catalog={catalog}
       region={region}
-      lang={region === "LU" ? luLang : undefined}
+      lang={effectiveLang}
     />
   );
 
   // PDF Download hook
   const { downloadPDF } = usePDFDownload(QuotePrintPDF, {
-    filename: `preventivo-${quote.publicId?.slice(-8) || "quote"}.pdf`,
+    filename: `${filePrefix}-${quote.publicId?.slice(-8) || "quote"}.pdf`,
   });
 
   const handleDownload = async () => {
@@ -51,7 +69,7 @@ function QuoteDocument({ quote, tenant, region, catalog }: { quote: NonNullable<
       quote,
       catalog,
       region,
-      lang: region === "LU" ? luLang : undefined,
+      lang: effectiveLang,
     });
   };
 
@@ -60,7 +78,7 @@ function QuoteDocument({ quote, tenant, region, catalog }: { quote: NonNullable<
     setPrinting(true);
     try {
       const blob = await pdf(
-        <QuotePrintPDF tenant={company} quote={quote} catalog={catalog} region={region} lang={region === "LU" ? luLang : undefined} />,
+        <QuotePrintPDF tenant={company} quote={quote} catalog={catalog} region={region} lang={effectiveLang} />,
       ).toBlob();
       printPdfBlob(blob);
     } finally {
@@ -91,25 +109,22 @@ function QuoteDocument({ quote, tenant, region, catalog }: { quote: NonNullable<
           )}
         </div>
         <div className="flex items-center gap-2">
-          {/* Luxembourg 1-Click Bilingual Switch */}
-          {region === "LU" && (
+          {/* BE / LU 1-click bilingual switch */}
+          {langChoices ? (
             <div className="flex items-center rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-1 text-xs">
-              <button
-                type="button"
-                onClick={() => setLuLang("fr")}
-                className={`rounded px-2 py-1 font-bold ${luLang === "fr" ? "bg-[var(--color-mint)] text-[var(--color-mint-dark)]" : "text-[var(--color-text-secondary)]"}`}
-              >
-                Français (Devis)
-              </button>
-              <button
-                type="button"
-                onClick={() => setLuLang("de")}
-                className={`rounded px-2 py-1 font-bold ${luLang === "de" ? "bg-[var(--color-mint)] text-[var(--color-mint-dark)]" : "text-[var(--color-text-secondary)]"}`}
-              >
-                Deutsch (Angebot)
-              </button>
+              {langChoices.map((c) => (
+                <button
+                  key={c.lang}
+                  type="button"
+                  aria-pressed={docLang === c.lang}
+                  onClick={() => setDocLang(c.lang)}
+                  className={`rounded px-2 py-1 font-bold ${docLang === c.lang ? "bg-[var(--color-mint)] text-[var(--color-mint-dark)]" : "text-[var(--color-text-secondary)]"}`}
+                >
+                  {c.label}
+                </button>
+              ))}
             </div>
-          )}
+          ) : null}
 
           {!quote.signedAt && (
             <Link

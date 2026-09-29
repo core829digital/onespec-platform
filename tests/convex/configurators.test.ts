@@ -34,6 +34,31 @@ describe("configurators.createConfigurator", () => {
   });
 });
 
+describe("createConfigurator — market defaults", () => {
+  const cases = [
+    { country: undefined, locale: "it", vat: 22, eco: true },
+    { country: "IT", locale: "it", vat: 22, eco: true },
+    { country: "FR", locale: "fr", vat: 10, eco: false },
+    { country: "BE", locale: "fr", vat: 6, eco: false },
+    { country: "NL", locale: "nl", vat: 21, eco: false },
+    { country: "DE", locale: "de", vat: 19, eco: false },
+    { country: "LU", locale: "fr", vat: 17, eco: false },
+  ];
+  for (const c of cases) {
+    test(`${c.country ?? "no country"} → widget ${c.locale}, VAT ${c.vat}%, Ecobonus ${c.eco ? "on" : "off"}`, async () => {
+      const t = newDb();
+      const { tenantId, ownerId } = await seedTenant(t, { plan: "pro" });
+      if (c.country) await t.run((ctx) => ctx.db.patch(tenantId, { country: c.country }));
+      const as = t.withIdentity({ subject: ownerId });
+      const { configuratorId } = await as.mutation(api.configurators.createConfigurator, { tenantId, name: "Test" });
+      const cfg = await t.run((ctx) => ctx.db.get(configuratorId));
+      expect(cfg?.defaultLocale).toBe(c.locale);
+      expect(cfg?.vatRatePercent).toBe(c.vat);
+      expect(cfg?.ecobonusEnabled).toBe(c.eco);
+    });
+  }
+});
+
 describe("configurator versions + rollback", () => {
   test("listVersions returns published versions newest-first with isCurrent flag", async () => {
     const t = newDb();

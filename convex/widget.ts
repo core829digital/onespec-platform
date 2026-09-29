@@ -548,11 +548,9 @@ export const insertQuote = internalMutation({
       await ctx.scheduler.runAfter(0, internal.notifications.fanOutToTenant, {
         tenantId: configurator.tenantId,
         type: "plan_limit",
-        data: {
-          message: quotaLocked
-            ? `Limite mensile raggiunto (${entitlements.maxQuotesPerMonth} richieste). Le nuove richieste vengono salvate, ma i contatti restano nascosti finché non passi a un piano superiore o fino al primo del mese.`
-            : `Monthly quote limit reached (${entitlements.maxQuotesPerMonth}). New requests are still saved — upgrade to keep full analytics.`,
-        },
+        // Structured, not a pre-written sentence: the email renders it in each
+        // member's own language (convex/emails/strings.ts → planLimit).
+        data: { limit: entitlements.maxQuotesPerMonth, locked: quotaLocked },
         href: quotaLocked ? `/app/account/billing?tab=plan` : `/app/account`,
       });
     }

@@ -3,7 +3,7 @@
 import { useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "@/i18n/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import { getSafeRedirect } from "@/lib/redirect-validator";
 
 function VerifyContent() {
   const t = useTranslations("auth.verify");
+  const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
   const { signIn } = useAuthActions();
@@ -57,7 +58,7 @@ function VerifyContent() {
         router.push("/auth/register");
         return;
       }
-      await signIn("password", { email, password: saved.password, flow: "signUp", turnstileToken: ts.token });
+      await signIn("password", { email, password: saved.password, flow: "signUp", locale, turnstileToken: ts.token });
       setResent(true);
     } catch (err) {
       setError(authErrorMessage(err, t("error")));

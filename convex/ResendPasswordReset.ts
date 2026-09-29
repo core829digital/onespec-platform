@@ -3,10 +3,11 @@ import { Resend as ResendAPI } from "resend";
 import { renderAuthEmail } from "./emails/auth";
 import { noreplyFromAddress } from "./lib/emailFrom";
 import { secureSixDigitCode } from "./lib/ids";
+import { localeForAuthEmail } from "./lib/authEmailLocale";
 
 /**
  * Password-reset OTP provider for the Password flow. Same constraints as
- * ResendOTP: no Convex ctx here, direct send, noop = log to Convex logs.
+ * ResendOTP: direct send (no internal.email.send), noop = log to Convex logs.
  */
 export const ResendPasswordReset = Email({
   id: "resend-otp-reset",
@@ -14,9 +15,9 @@ export const ResendPasswordReset = Email({
   async generateVerificationToken() {
     return secureSixDigitCode();
   },
-  async sendVerificationRequest({ identifier: email, token }) {
+  async sendVerificationRequest({ identifier: email, token }, ctx?: unknown) {
     const live = process.env.RESEND_MODE === "live" && !!process.env.AUTH_RESEND_KEY;
-    const { subject, html, text } = renderAuthEmail("reset", "it", { code: token });
+    const { subject, html, text } = renderAuthEmail("reset", await localeForAuthEmail(ctx, email), { code: token });
 
     if (!live) {
       console.log(`[email:noop] reset -> ${email}\n  code: ${token}`);

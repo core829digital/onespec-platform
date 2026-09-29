@@ -3,10 +3,20 @@ import { convexAuth } from "@convex-dev/auth/server";
 import { ResendOTP } from "./ResendOTP";
 import { ResendPasswordReset } from "./ResendPasswordReset";
 import { withTurnstileGuard, type Authorize } from "./lib/authGuard";
+import { isEmailLocale } from "./emails/strings";
 
 const password = Password({
   verify: ResendOTP,
   reset: ResendPasswordReset,
+  // Same as the library default ({ email }) plus the UI language the account
+  // was created in, so the verification email and every later email are sent
+  // in that language. Only one of the six platform locales is ever stored.
+  profile(params) {
+    return {
+      email: params.email as string,
+      ...(isEmailLocale(params.locale) ? { locale: params.locale } : {}),
+    };
+  },
 });
 
 // `Password()` returns `{ id, type, authorize, options: { authorize, ... } }`;

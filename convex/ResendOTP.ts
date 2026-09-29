@@ -3,13 +3,15 @@ import { Resend as ResendAPI } from "resend";
 import { renderAuthEmail } from "./emails/auth";
 import { noreplyFromAddress } from "./lib/emailFrom";
 import { secureSixDigitCode } from "./lib/ids";
+import { localeForAuthEmail } from "./lib/authEmailLocale";
 
 /**
  * Email-verification OTP provider for the Password flow.
  *
- * Convex Auth calls `sendVerificationRequest` WITHOUT a Convex ctx (it is the
- * Auth.js signature), so we cannot call `internal.email.send` here — we send
- * directly. In noop mode (no AUTH_RESEND_KEY / RESEND_MODE !== "live") the code
+ * Convex Auth calls `sendVerificationRequest` with the Auth.js signature (the
+ * signIn action ctx only arrives as an untyped second argument, used just to
+ * read the account's language), so we do not go through `internal.email.send`
+ * — we send directly. In noop mode (no AUTH_RESEND_KEY / RESEND_MODE !== "live") the code
  * is logged to the Convex function logs instead of emailed.
  */
 export const ResendOTP = Email({
@@ -18,9 +20,9 @@ export const ResendOTP = Email({
   async generateVerificationToken() {
     return secureSixDigitCode(); // 6 digits
   },
-  async sendVerificationRequest({ identifier: email, token }) {
+  async sendVerificationRequest({ identifier: email, token }, ctx?: unknown) {
     const live = process.env.RESEND_MODE === "live" && !!process.env.AUTH_RESEND_KEY;
-    const { subject, html, text } = renderAuthEmail("verify", "it", { code: token });
+    const { subject, html, text } = renderAuthEmail("verify", await localeForAuthEmail(ctx, email), { code: token });
 
     if (!live) {
       console.log(`[email:noop] verify -> ${email}\n  code: ${token}`);

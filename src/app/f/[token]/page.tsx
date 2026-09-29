@@ -3,11 +3,13 @@ import { fetchQuery } from "convex/nextjs";
 import { notFound } from "next/navigation";
 import { api } from "@/convex/_generated/api";
 import { FascicoloClient } from "./client";
+import { fieldCopy, fieldLang, FIELD_DATE_LOCALE } from "@/lib/field-public-i18n";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
-  return { title: "Fascicolo del serramento", robots: { index: false } };
+  // Neutral on purpose: the market (and so the language) is only known after the token lookup.
+  return { title: "OneSpec", robots: { index: false } };
 }
 
 export default async function FascicoloPage({
@@ -21,16 +23,18 @@ export default async function FascicoloPage({
   const data = await fetchQuery(api.passports.getPublicByToken, { token });
   if (!data) notFound();
 
-  const eur = (c: number | null) =>
-    c == null
+  const c = fieldCopy(data.regionCode).passport;
+  const dateLocale = FIELD_DATE_LOCALE[fieldLang(data.regionCode)];
+  const eur = (cents: number | null) =>
+    cents == null
       ? null
-      : new Intl.NumberFormat("it-IT", { style: "currency", currency: "EUR" }).format(c / 100);
+      : new Intl.NumberFormat(dateLocale, { style: "currency", currency: "EUR" }).format(cents / 100);
 
   return (
     <div className="space-y-5">
       <header className="rounded-2xl bg-zinc-900 p-5 text-white">
         <div className="text-[11px] uppercase tracking-widest text-zinc-400">
-          Fascicolo Digitale · {data.dealerName}
+          {c.header} · {data.dealerName}
         </div>
         <h1 className="mt-1 text-lg font-bold">{data.label}</h1>
         {data.productSummary && (
@@ -38,13 +42,13 @@ export default async function FascicoloPage({
         )}
         {data.installedAt && (
           <p className="mt-1 text-xs text-zinc-400">
-            Installato il {new Date(data.installedAt).toLocaleDateString("it-IT")}
+            {c.installedOn(new Date(data.installedAt).toLocaleDateString(dateLocale))}
           </p>
         )}
       </header>
 
       <section className="space-y-2 rounded-2xl bg-white p-4">
-        <h2 className="text-sm font-bold">Documenti</h2>
+        <h2 className="text-sm font-bold">{c.documents}</h2>
         {data.performanceDeclaration && (
           <p className="text-xs text-zinc-500">{data.performanceDeclaration}</p>
         )}
@@ -59,10 +63,10 @@ export default async function FascicoloPage({
                   rel="noreferrer"
                   className="text-xs font-semibold text-emerald-600 underline"
                 >
-                  Apri
+                  {c.open}
                 </a>
               ) : (
-                <span className="text-xs text-zinc-400">n/d</span>
+                <span className="text-xs text-zinc-400">{c.unavailable}</span>
               )}
             </li>
           ))}
@@ -72,17 +76,17 @@ export default async function FascicoloPage({
       {data.enea && (
         <section className="rounded-2xl bg-white p-4 text-sm">
           <h2 className="font-bold">
-            {data.enea.kind === "declaration" ? "Documento agevolazione fiscale" : "Efficienza energetica · ENEA"}
+            {data.enea.kind === "declaration" ? data.enea.title || c.fundingDoc : c.energy}
           </h2>
           {data.enea.kind === "declaration" ? (
             <>
-              <p className="mt-1">Programma: {data.enea.programme}</p>
+              <p className="mt-1">{c.programme}: {data.enea.programme}</p>
               <p>Uw ante operam: {data.enea.uwAnte} W/m²K</p>
               <p>Uw post operam: {data.enea.uwPost} W/m²K</p>
               <p>ΔU: {data.enea.deltaU} W/m²K</p>
-              <p>Superficie: {data.enea.superficieM2} m²</p>
-              <p>Costo: {eur(data.enea.costoCents)}</p>
-              <p>Detrazione: {data.enea.deductionPercent}%</p>
+              <p>{c.surface}: {data.enea.superficieM2} m²</p>
+              <p>{c.cost}: {eur(data.enea.costoCents)}</p>
+              <p>{c.deduction}: {data.enea.deductionPercent}%</p>
               {data.enea.preamble && data.enea.preamble.map((line: string, i: number) => (
                 <p key={i} className="text-xs text-zinc-500">{line}</p>
               ))}
@@ -90,14 +94,14 @@ export default async function FascicoloPage({
           ) : (
             <>
               <p className="mt-1">
-                Zona {data.enea.zone} · U<sub>w</sub> {data.enea.uwPost} W/m²K ≤ limite{" "}
+                {c.zone} {data.enea.zone} · U<sub>w</sub> {data.enea.uwPost} W/m²K ≤ {c.limit}{" "}
                 {data.enea.uwLimit} ·{" "}
                 <span className={data.enea.conform ? "font-semibold text-emerald-600" : "text-red-600"}>
-                  {data.enea.conform ? "conforme detrazione fiscale" : "non conforme"}
+                  {data.enea.conform ? c.conform : c.notConform}
                 </span>
               </p>
               <p className="text-xs text-zinc-500">
-                Risparmio stimato ~{data.enea.risparmioKwhAnno} kWh/anno.
+                {c.savings(String(data.enea.risparmioKwhAnno ?? "—"))}
               </p>
             </>
           )}
@@ -109,17 +113,18 @@ export default async function FascicoloPage({
           <div className="text-sm font-bold text-emerald-800">{data.maintenanceLabel}</div>
           {eur(data.maintenancePriceCents) && (
             <div className="text-lg font-extrabold text-emerald-800">
-              {eur(data.maintenancePriceCents)} / anno
+              {eur(data.maintenancePriceCents)} {c.perYear}
             </div>
           )}
           <p className="mt-1 text-xs text-emerald-700">
-            Regolazione ferramenta, ingrassaggio guarnizioni, controllo tenuta.
+            {c.maintenanceBody}
           </p>
         </section>
       )}
 
       <FascicoloClient
         token={token}
+        regionCode={data.regionCode}
         dealerName={data.dealerName}
         dealerPhone={data.dealerPhone}
         dealerEmail={data.dealerEmail}

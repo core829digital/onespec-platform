@@ -5,6 +5,7 @@ import { SpecDrawing } from "./spec-drawing";
 import { getDict, LOCALE_CFG, labelFromList } from "./widget-i18n";
 import { readableInk, isSafeColor, resolveFontStack } from "./widget-theme";
 import { postToHost, readHostTheme } from "./host-bridge";
+import { submitErrorMessage, wizardCopy } from "./simple-wizard-model";
 import { getTurnstileToken } from "@/lib/turnstile-client";import { catalogOptions, catalogPricing, type WidgetCatalog, type WidgetOptions } from "./widget-catalog";
 import { REGION_FLAT_OPTION_KINDS } from "@/shared/pricing";
 import {
@@ -132,7 +133,9 @@ export function Widget({
   }, [catalog, vatPct]);
 
   const showPrices = configurator.showPricesToEndUser !== false;
-  const ecobonusEnabled = configurator.ecobonusEnabled !== false;
+  // Ecobonus is an Italian incentive: never offered in another market, whatever
+  // the editor toggle says (the region is server-resolved from the owner's country).
+  const ecobonusEnabled = configurator.ecobonusEnabled !== false && (configurator.region ?? "IT") === "IT";
   const ecobonusMax = clamp(configurator.ecobonusMaxPercent ?? 50, 0, 100);
   const discountEnabled = configurator.discountEnabled === true;
   const discountMax = clamp(configurator.discountMaxPercent ?? 20, 0, 100);
@@ -454,7 +457,7 @@ export function Widget({
           [
             userMsg,
             spec,
-            typeof data.referenceId === "string" ? `Rif. ${data.referenceId}` : "",
+            typeof data.referenceId === "string" ? `Ref. ${data.referenceId}` : "",
           ]
             .filter(Boolean)
             .join("\n"),
@@ -462,10 +465,11 @@ export function Widget({
         setStep("success");
         postToHost({ type: "onespec:submitted", publicId: configurator.publicId });
       } else {
-        setError(typeof data.error === "string" ? data.error : "SUBMIT_FAILED");
+        // Never surface raw server codes (RATE_LIMITED, VALIDATION…) to the visitor.
+        setError(submitErrorMessage(wizardCopy(lang), data.error));
       }
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "NETWORK_ERROR");
+    } catch {
+      setError(wizardCopy(lang).errors.GENERIC);
     } finally {
       setSubmitting(false);
     }

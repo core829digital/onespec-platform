@@ -4,7 +4,7 @@
  * which cannot reach Convex functions.
  *
  * Dark-theme HTML, onespec mint accent. Absolute logo URL from SITE_URL.
- * Locales: it + en real; fr/de/nl/ro fall back to en.
+ * Locales: it, en, fr, de, nl, ro (copy in ./strings.ts); unknown → it.
  *
  * SECURITY: every value that originates from a lead (public widget submission)
  * or a tenant (company name, inviter name, custom messages) MUST pass through
@@ -12,6 +12,8 @@
  * subject. Template literals below only ever interpolate `esc(...)`, `escUrl(...)`
  * or values built server-side from trusted sources (SITE_URL, Convex IDs).
  */
+import { emailStrings, type QuoteStatus } from "./strings";
+
 type Rendered = { subject: string; html: string; text: string };
 
 /** Data available to auth/notification email templates. */
@@ -36,6 +38,8 @@ export interface AuthEmailData {
   inviterName?: string;
   role?: string;
   acceptUrl?: string;
+  /** plan_limit: the monthly cap that was hit, rendered in the recipient's language. */
+  limit?: number;
 }
 
 /** HTML-entity-escape a string for safe interpolation into element text/attributes. */
@@ -68,13 +72,13 @@ function siteUrl() {
   return process.env.SITE_URL || "http://localhost:3000";
 }
 
-function shell(inner: string) {
+function shell(inner: string, tagline: string) {
   const logo = `${siteUrl()}/onespec-logo.png`;
   return `<div style="font-family:-apple-system,Segoe UI,system-ui,sans-serif;max-width:600px;margin:0 auto;padding:28px;background:#0a0b0d;color:#f5f5f7;border-radius:14px;border:1px solid #34383c">
   <img src="${escUrl(logo)}" alt="onespec" style="height:34px;margin-bottom:24px" />
   ${inner}
   <hr style="border:none;border-top:1px solid #34383c;margin:28px 0 14px" />
-  <p style="color:#6e6e73;font-size:12px;margin:0">onespec — configuratore infissi</p>
+  <p style="color:#6e6e73;font-size:12px;margin:0">${esc(tagline)}</p>
 </div>`;
 }
 
@@ -86,8 +90,13 @@ function cta(href: string, label: string) {
   return `<a href="${escUrl(href)}" style="display:inline-block;margin-top:20px;padding:12px 22px;background:#16d19d;color:#04231a;font-weight:600;border-radius:9px;text-decoration:none">${esc(label)}</a>`;
 }
 
+const H1 = `<h1 style="font-size:22px;font-weight:600;margin:0 0 12px">`;
+const P = `<p style="color:#9a9aa0;line-height:1.6">`;
+const QUOTE_STATUSES: QuoteStatus[] = ["new", "contacted", "quoted", "won", "lost", "spam"];
+
 export function renderAuthEmail(template: string, locale: string, data: AuthEmailData): Rendered {
-  const it = locale === "it";
+  const L = emailStrings(locale);
+  const wrap = (inner: string) => shell(inner, L.tagline);
   const base = siteUrl();
 
   const company = esc(data.companyName ?? "");
@@ -95,33 +104,32 @@ export function renderAuthEmail(template: string, locale: string, data: AuthEmai
   const leadEmail = esc(data.leadEmail ?? "");
   const configuratorName = esc(data.configuratorName ?? "—");
   const inviter = esc(data.inviterName ?? "");
-  const role = esc(data.role ?? "");
   const price = ((data.priceCents ?? 0) / 100).toFixed(2);
   const quoteId = encodeURIComponent(String(data.quoteId ?? ""));
 
   switch (template) {
     case "verify":
       return {
-        subject: it ? "Verifica la tua email — onespec" : "Verify your email — onespec",
-        html: shell(
-          `<h1 style="font-size:22px;font-weight:600;margin:0 0 12px">${it ? "Verifica la tua email" : "Verify your email"}</h1>
-           <p style="color:#9a9aa0;line-height:1.6;margin:0">${it ? "Il tuo codice di verifica:" : "Your verification code:"}</p>
+        subject: L.verify.subject,
+        html: wrap(
+          `${H1}${L.verify.title}</h1>
+           <p style="color:#9a9aa0;line-height:1.6;margin:0">${L.verify.body}</p>
            ${codeBox(data.code ?? "")}
-           <p style="color:#6e6e73;font-size:13px;margin:0">${it ? "Scade tra 15 minuti. Se non hai richiesto questo codice, ignora questa email." : "Expires in 15 minutes. If you didn't request this, ignore this email."}</p>`,
+           <p style="color:#6e6e73;font-size:13px;margin:0">${L.verify.expires}</p>`,
         ),
-        text: `${it ? "Codice di verifica" : "Verification code"}: ${line(data.code ?? "")}`,
+        text: `${L.verify.textLabel}: ${line(data.code ?? "")}`,
       };
 
     case "reset":
       return {
-        subject: it ? "Reimposta la password — onespec" : "Reset your password — onespec",
-        html: shell(
-          `<h1 style="font-size:22px;font-weight:600;margin:0 0 12px">${it ? "Reimposta la password" : "Reset your password"}</h1>
-           <p style="color:#9a9aa0;line-height:1.6;margin:0">${it ? "Codice per reimpostare la password:" : "Password reset code:"}</p>
+        subject: L.reset.subject,
+        html: wrap(
+          `${H1}${L.reset.title}</h1>
+           <p style="color:#9a9aa0;line-height:1.6;margin:0">${L.reset.body}</p>
            ${codeBox(data.code ?? "")}
-           <p style="color:#6e6e73;font-size:13px;margin:0">${it ? "Scade tra 15 minuti. Se non hai richiesto il reset, ignora questa email." : "Expires in 15 minutes. If you didn't request this, ignore this email."}</p>`,
+           <p style="color:#6e6e73;font-size:13px;margin:0">${L.reset.expires}</p>`,
         ),
-        text: `${it ? "Codice reset password" : "Password reset code"}: ${line(data.code ?? "")}`,
+        text: `${L.reset.textLabel}: ${line(data.code ?? "")}`,
       };
 
     // Legacy template key: the Alpha programme is over, so it renders the
@@ -129,142 +137,134 @@ export function renderAuthEmail(template: string, locale: string, data: AuthEmai
     case "welcome_alpha":
     case "welcome":
       return {
-        subject: it ? "Benvenuto in onespec" : "Welcome to onespec",
-        html: shell(
-          `<h1 style="font-size:22px;font-weight:600;margin:0 0 12px">${it ? "Benvenuto in onespec" : "Welcome to onespec"}</h1>
-           <p style="color:#9a9aa0;line-height:1.6">${it ? `<strong>${company}</strong> è registrata. Crea il tuo primo configuratore.` : `<strong>${company}</strong> is registered. Create your first configurator.`}</p>
-           ${cta(`${base}/app/dashboard`, it ? "Vai alla dashboard" : "Go to dashboard")}`,
+        subject: L.welcome.subject,
+        html: wrap(
+          `${H1}${L.welcome.title}</h1>
+           ${P}${L.welcome.body(company)}</p>
+           ${cta(`${base}/app/dashboard`, L.welcome.cta)}`,
         ),
-        text: `${it ? "Benvenuto in onespec" : "Welcome to onespec"}\n${base}/app/dashboard`,
+        text: `${L.welcome.title}\n${base}/app/dashboard`,
       };
 
-    case "new_quote_request":
+    case "new_quote_request": {
+      const lockedText = data.lockReason === "suspended" ? L.newQuote.lockedSuspended : L.newQuote.lockedQuota;
       return {
-        subject: line(
-          it ? `Nuova richiesta preventivo: ${data.leadName ?? ""}` : `New quote request: ${data.leadName ?? ""}`,
-        ),
-        html: shell(
-          `<h1 style="font-size:22px;font-weight:600;margin:0 0 12px">${it ? "Nuova richiesta preventivo" : "New quote request"}</h1>
+        subject: line(L.newQuote.subject(data.leadName ?? "")),
+        html: wrap(
+          `${H1}${L.newQuote.title}</h1>
            <div style="background:#141618;padding:16px;border-radius:9px;border:1px solid #34383c;margin-bottom:12px">
-             ${data.locked
-               ? `<p style="margin:0 0 6px"><strong>${it ? "Cliente" : "Lead"}:</strong> ${data.lockReason === "suspended"
-                   ? (it ? "abbonamento sospeso — i contatti si sbloccano riattivando l'abbonamento" : "subscription suspended — contact details unlock when you reactivate your subscription")
-                   : (it ? "limite mensile raggiunto — i contatti si sbloccano passando a un piano superiore o dal primo del mese" : "monthly limit reached — contact details unlock when you upgrade or on the 1st of next month")}</p>`
-               : `<p style="margin:0 0 6px"><strong>${it ? "Cliente" : "Lead"}:</strong> ${leadName} (${leadEmail})</p>`}
-             <p style="margin:0 0 6px"><strong>${it ? "Configuratore" : "Configurator"}:</strong> ${configuratorName}</p>
-             <p style="margin:0"><strong>${it ? "Valore" : "Value"}:</strong> €${price}</p>
+             <p style="margin:0 0 6px"><strong>${L.newQuote.lead}:</strong> ${data.locked ? lockedText : `${leadName} (${leadEmail})`}</p>
+             <p style="margin:0 0 6px"><strong>${L.newQuote.configurator}:</strong> ${configuratorName}</p>
+             <p style="margin:0"><strong>${L.newQuote.value}:</strong> €${price}</p>
            </div>
-           ${cta(`${base}/app/requests/${quoteId}`, it ? "Apri in dashboard" : "Open in dashboard")}`,
+           ${cta(`${base}/app/requests/${quoteId}`, L.newQuote.cta)}`,
         ),
-        text: line(
-          data.locked
-            ? `${it ? "Nuova richiesta preventivo (contatti bloccati: " : "New quote request (contact details locked: "}${data.lockReason === "suspended" ? (it ? "abbonamento sospeso" : "subscription suspended") : (it ? "limite mensile raggiunto" : "monthly limit reached")}) — €${price}`
-            : `${it ? "Nuova richiesta preventivo" : "New quote request"}: ${data.leadName ?? ""} (${data.leadEmail ?? ""}) — €${price}`,
-        ) + `\n${base}/app/requests/${quoteId}`,
+        text:
+          line(
+            data.locked
+              ? `${L.newQuote.textLocked}: ${lockedText} — €${price}`
+              : `${L.newQuote.title}: ${data.leadName ?? ""} (${data.leadEmail ?? ""}) — €${price}`,
+          ) + `\n${base}/app/requests/${quoteId}`,
       };
+    }
 
     case "quote_status_changed": {
-      const status = esc(data.newStatus ?? "");
+      const rawStatus = data.newStatus ?? "";
+      const statusLabel = (QUOTE_STATUSES as string[]).includes(rawStatus)
+        ? L.statusChanged.statuses[rawStatus as QuoteStatus]
+        : rawStatus;
       const href = data.href ? `${base}${data.href}` : `${base}/app/requests`;
       return {
-        subject: line(
-          it ? `Preventivo aggiornato: ${data.leadName ?? ""} → ${data.newStatus ?? ""}` : `Quote updated: ${data.leadName ?? ""} → ${data.newStatus ?? ""}`,
+        subject: line(L.statusChanged.subject(data.leadName ?? "", statusLabel)),
+        html: wrap(
+          `${H1}${L.statusChanged.title}</h1>
+           ${P}${L.statusChanged.lead}: <strong>${leadName}</strong> → <strong>${esc(statusLabel)}</strong></p>
+           ${cta(href, L.statusChanged.cta)}`,
         ),
-        html: shell(
-          `<h1 style="font-size:22px;font-weight:600;margin:0 0 12px">${it ? "Preventivo aggiornato" : "Quote updated"}</h1>
-           <p style="color:#9a9aa0;line-height:1.6">${it ? "Cliente" : "Lead"}: <strong>${leadName}</strong> → <strong>${status}</strong></p>
-           ${cta(href, it ? "Apri in dashboard" : "Open in dashboard")}`,
-        ),
-        text: line(`${it ? "Preventivo aggiornato" : "Quote updated"}: ${data.leadName ?? ""} -> ${data.newStatus ?? ""}`) + `\n${href}`,
+        text: line(`${L.statusChanged.title}: ${data.leadName ?? ""} -> ${statusLabel}`) + `\n${href}`,
       };
     }
 
     case "member_joined": {
       const href = data.href ? `${base}${data.href}` : `${base}/app/account/team`;
       return {
-        subject: line(it ? `Nuovo membro nel team: ${data.userName ?? ""}` : `New team member: ${data.userName ?? ""}`),
-        html: shell(
-          `<h1 style="font-size:22px;font-weight:600;margin:0 0 12px">${it ? "Nuovo membro nel team" : "New team member"}</h1>
-           <p style="color:#9a9aa0;line-height:1.6">${
-             it
-               ? `<strong>${esc(data.userName ?? "")}</strong> è entrato a far parte del team.`
-               : `<strong>${esc(data.userName ?? "")}</strong> has joined the team.`
-           }</p>
-           ${cta(href, it ? "Vai al team" : "Go to team")}`,
+        subject: line(L.memberJoined.subject(data.userName ?? "")),
+        html: wrap(
+          `${H1}${L.memberJoined.title}</h1>
+           ${P}${L.memberJoined.body(esc(data.userName ?? ""))}</p>
+           ${cta(href, L.memberJoined.cta)}`,
         ),
-        text: line(`${it ? "Nuovo membro" : "New team member"}: ${data.userName ?? ""}`) + `\n${href}`,
+        text: line(`${L.memberJoined.title}: ${data.userName ?? ""}`) + `\n${href}`,
       };
     }
 
     case "configurator_published": {
       const href = data.href ? `${base}${data.href}` : `${base}/app/configurators`;
       return {
-        subject: line(
-          it
-            ? `Configuratore pubblicato: ${data.configuratorName ?? ""} v${data.version ?? ""}`
-            : `Configurator published: ${data.configuratorName ?? ""} v${data.version ?? ""}`,
+        subject: line(L.published.subject(data.configuratorName ?? "", String(data.version ?? ""))),
+        html: wrap(
+          `${H1}${L.published.title}</h1>
+           ${P}${L.published.configurator}: <strong>${configuratorName}</strong> — ${L.published.version} ${esc(data.version ?? "")}</p>
+           ${cta(href, L.published.cta)}`,
         ),
-        html: shell(
-          `<h1 style="font-size:22px;font-weight:600;margin:0 0 12px">${it ? "Configuratore pubblicato" : "Configurator published"}</h1>
-           <p style="color:#9a9aa0;line-height:1.6">${it ? "Configuratore" : "Configurator"}: <strong>${configuratorName}</strong> — ${it ? "versione" : "version"} ${esc(data.version ?? "")}</p>
-           ${cta(href, it ? "Apri configuratore" : "Open configurator")}`,
-        ),
-        text: line(`${it ? "Configuratore pubblicato" : "Configurator published"}: ${data.configuratorName ?? ""} v${data.version ?? ""}`) + `\n${href}`,
+        text: line(`${L.published.title}: ${data.configuratorName ?? ""} v${data.version ?? ""}`) + `\n${href}`,
       };
     }
 
     case "plan_limit": {
       const href = data.href ? `${base}${data.href}` : `${base}/app/account/billing`;
+      // Structured data renders in the recipient's language; `message` is the
+      // legacy free-text fallback for rows scheduled before `limit` existed.
+      const body =
+        typeof data.limit === "number"
+          ? (data.locked ? L.planLimit.locked : L.planLimit.unlocked)(String(data.limit))
+          : String(data.message ?? "");
       return {
-        subject: it ? "Limite del piano raggiunto — onespec" : "Plan limit reached — onespec",
-        html: shell(
-          `<h1 style="font-size:22px;font-weight:600;margin:0 0 12px">${it ? "Limite del piano" : "Plan limit"}</h1>
-           <p style="color:#9a9aa0;line-height:1.6">${esc(data.message ?? "")}</p>
-           ${cta(href, it ? "Gestisci piano" : "Manage plan")}`,
+        subject: L.planLimit.subject,
+        html: wrap(
+          `${H1}${L.planLimit.title}</h1>
+           ${P}${esc(body)}</p>
+           ${cta(href, L.planLimit.cta)}`,
         ),
-        text: line(data.message ?? "") + `\n${href}`,
+        text: line(body) + `\n${href}`,
       };
     }
 
     case "system": {
       const href = data.href ? `${base}${data.href}` : base;
       return {
-        subject: it ? "Notifica — onespec" : "Notification — onespec",
-        html: shell(
-          `<h1 style="font-size:22px;font-weight:600;margin:0 0 12px">${it ? "Notifica" : "Notification"}</h1>
-           <p style="color:#9a9aa0;line-height:1.6">${esc(data.message ?? "")}</p>
-           ${data.href ? cta(href, it ? "Apri" : "Open") : ""}`,
+        subject: L.system.subject,
+        html: wrap(
+          `${H1}${L.system.title}</h1>
+           ${P}${esc(data.message ?? "")}</p>
+           ${data.href ? cta(href, L.system.open) : ""}`,
         ),
         text: line(data.message ?? "onespec"),
       };
     }
 
-    case "invitation":
+    case "invitation": {
+      // `role` is a key ("admin" | "member"); a legacy pre-translated label passes through.
+      const roleLabel =
+        data.role === "admin" || data.role === "member" ? L.invitation.roles[data.role] : data.role || L.invitation.roles.member;
       return {
-        subject: line(
-          it
-            ? `Invito a collaborare su onespec — ${data.companyName ?? ""}`
-            : `You've been invited to onespec — ${data.companyName ?? ""}`,
+        subject: line(L.invitation.subject(data.companyName ?? "")),
+        html: wrap(
+          `${H1}${L.invitation.title}</h1>
+           ${P}${L.invitation.body(inviter || L.invitation.colleague, company || L.invitation.company, esc(roleLabel))}</p>
+           ${cta(data.acceptUrl ?? base, L.invitation.cta)}
+           <p style="color:#6e6e73;font-size:13px;margin-top:14px">${L.invitation.expires}</p>`,
         ),
-        html: shell(
-          `<h1 style="font-size:22px;font-weight:600;margin:0 0 12px">${it ? "Invito a collaborare" : "Team invitation"}</h1>
-           <p style="color:#9a9aa0;line-height:1.6">${
-             it
-               ? `${inviter || "Un collega"} ti ha invitato a lavorare su <strong>${company || "un'azienda"}</strong> in onespec come <strong>${role || "membro"}</strong>.`
-               : `${inviter || "A colleague"} invited you to work on <strong>${company || "a company"}</strong> in onespec as <strong>${role || "member"}</strong>.`
-           }</p>
-           ${cta(data.acceptUrl ?? base, it ? "Accetta l'invito" : "Accept invitation")}
-           <p style="color:#6e6e73;font-size:13px;margin-top:14px">${it ? "L'invito scade tra 7 giorni." : "This invitation expires in 7 days."}</p>`,
-        ),
-        text: `${it ? "Sei stato invitato a onespec" : "You've been invited to onespec"}: ${line(data.companyName ?? "")}\n${escUrl(data.acceptUrl ?? base) === "#" ? base : data.acceptUrl ?? base}`,
+        text: `${L.invitation.text}: ${line(data.companyName ?? "")}\n${escUrl(data.acceptUrl ?? base) === "#" ? base : data.acceptUrl ?? base}`,
       };
+    }
 
     case "admin_resend":
     default:
       return {
         subject: "onespec",
-        html: shell(`<p style="color:#9a9aa0">${esc(data?.message ?? "Notification")}</p>`),
-        text: line(data?.message ?? "Notification"),
+        html: wrap(`<p style="color:#9a9aa0">${esc(data?.message ?? L.notification)}</p>`),
+        text: line(data?.message ?? L.notification),
       };
   }
 }

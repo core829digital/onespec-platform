@@ -8,6 +8,7 @@ import { ActionToaster } from "@/components/app-shell/action-toaster";
 import { ConfirmDialog } from "@/components/app-shell/confirm-dialog";
 import { DpaGate } from "@/components/app-shell/dpa-gate";
 import { SetupGuideWidget } from "@/components/app-shell/setup-guide-widget";
+import { LocaleSync } from "@/components/app-shell/locale-sync";
 
 export default async function AppLayout({
   children,
@@ -52,6 +53,7 @@ export default async function AppLayout({
       <ConfirmDialog />
       <DpaGate />
       <SetupGuideWidget tenantId={tenant._id} />
+      <LocaleSync />
     </AppShell>
   );
 }

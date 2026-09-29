@@ -311,7 +311,11 @@ export function QuotePrintPDF({
   const items = Array.isArray(quote.items) ? quote.items : [];
 
   // Language key for this region, unless the caller overrides it (Luxembourg).
-  const langKey = lang ?? (region === "FR" ? "fr" : region === "DE" ? "de" : region === "NL" ? "nl" : "it");
+  // BE and LU are French by default (their primary locale); the print page
+  // offers the second official language (nl / de) through `lang`.
+  const langKey =
+    lang ??
+    (region === "FR" || region === "BE" || region === "LU" ? "fr" : region === "DE" ? "de" : region === "NL" ? "nl" : "it");
   const dateLocale = langKey === "fr" ? "fr-FR" : langKey === "de" ? "de-DE" : langKey === "nl" ? "nl-NL" : "it-IT";
 
   const today = new Date().toLocaleDateString(dateLocale, {

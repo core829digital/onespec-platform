@@ -5,7 +5,24 @@ import { getDict } from "./widget-i18n";
 import { readableInk, isSafeColor, resolveFontStack } from "./widget-theme";
 import { postToHost, readHostTheme } from "./host-bridge";
 import { getTurnstileToken } from "@/lib/turnstile-client";
-import type { PieceCategory } from "@/shared/configurator-model";
+import {
+  buildWizardItem,
+  buildWizardNotes,
+  submitErrorMessage,
+  wizardCopy,
+  wizardLang,
+  wizardMarket,
+  COLOUR_KEYS,
+  FRAME_KEYS,
+  GLAZING_KEYS,
+  PRODUCT_KEYS,
+  type ColourKey,
+  type FrameKey,
+  type GlazingKey,
+  type IncentiveKey,
+  type ProductKey,
+  type WorkKey,
+} from "./simple-wizard-model";
 
 export interface SimpleWizardWidgetProps {
   configurator: {
@@ -16,8 +33,12 @@ export interface SimpleWizardWidgetProps {
       colorAccentInk?: string | null;
       fontFamily?: string;
       logoUrl?: string | null;
+      /** Server-resolved: the owner enabled white-label AND the plan includes it. */
+      whiteLabel?: boolean;
     };
     privacyUrl?: string | null;
+    /** Widget owner's market (server-resolved from the tenant country). */
+    region?: string;
   };
   theme: string;
   lang: string;
@@ -37,56 +58,6 @@ const CONVEX_SITE =
   (process.env.NEXT_PUBLIC_CONVEX_URL as string)?.replace(".convex.cloud", ".convex.site") ||
   "";
 
-type Intervento = "Sostituzione/Ristrutturazione" | "Nuova Costruzione" | "";
-type Colore = "Bianco Standard" | "Effetto Legno" | "Tinta Unita / RAL" | "";
-
-const TIPOLOGIA_TO_CATEGORY: Record<string, { category: PieceCategory; productType: "window" | "balconyDoor"; sashType: "classic" | "sliding" }> = {
-  "Finestra 1 Anta": { category: "finestra1", productType: "window", sashType: "classic" },
-  "Finestra 2 Ante": { category: "finestra2", productType: "window", sashType: "classic" },
-  "Porta-Finestra": { category: "porta1", productType: "balconyDoor", sashType: "classic" },
-  "Scorrevole (HST/HKS)": { category: "scorrevole", productType: "balconyDoor", sashType: "sliding" },
-  "Persiana / Scuro": { category: "pannello", productType: "window", sashType: "classic" },
-};
-
-const COLORE_SLUG: Record<string, string> = {
-  "Bianco Standard": "white",
-  "Effetto Legno": "woodgrain",
-  "Tinta Unita / RAL": "custom",
-};
-
-const STEP_COPY: Record<string, { title: string; steps: string[]; next: string; send: string; back: string }> = {
-  it: {
-    title: "Preventivo Infissi in PVC",
-    steps: [
-      "1. Tipo di intervento",
-      "2. Tipologia e dimensioni approssimative",
-      "3. Finitura e prestazioni energetiche",
-      "4. Servizi e agevolazioni fiscali",
-      "5. Dove possiamo inviare la stima?",
-    ],
-    next: "Avanti",
-    send: "Invia richiesta",
-    back: "Indietro",
-  },
-  en: {
-    title: "PVC Window Quote",
-    steps: [
-      "1. Type of work",
-      "2. Product type and approximate size",
-      "3. Finish and energy performance",
-      "4. Services and tax incentives",
-      "5. Where should we send the estimate?",
-    ],
-    next: "Next",
-    send: "Send request",
-    back: "Back",
-  },
-};
-
-function copyFor(lang: string) {
-  return STEP_COPY[lang] ?? STEP_COPY.it;
-}
-
 export function SimpleWizardWidget({
   configurator,
   theme,
@@ -96,7 +67,8 @@ export function SimpleWizardWidget({
   fontOverride,
 }: SimpleWizardWidgetProps) {
   const dict = getDict(lang);
-  const copy = copyFor(lang);
+  const copy = wizardCopy(lang);
+  const market = wizardMarket(configurator.region);
 
   const [hostTheme, setHostTheme] = useState<HostTheme>({});
   const accent = useMemo(() => {
@@ -153,16 +125,16 @@ export function SimpleWizardWidget({
 
   const [step, setStep] = useState(1);
   const totalSteps = 5;
-  const [intervento, setIntervento] = useState<Intervento>("");
-  const [tipologia, setTipologia] = useState("");
+  const [work, setWork] = useState<WorkKey | "">("");
+  const [product, setProduct] = useState<ProductKey | "">("");
   const [larghezza, setLarghezza] = useState("");
   const [altezza, setAltezza] = useState("");
-  const [colore, setColore] = useState<Colore>("");
-  const [vetro, setVetro] = useState("Doppio Vetro (Standard)");
-  const [telaio, setTelaio] = useState("Telaio Dritto (Standard)");
+  const [colour, setColour] = useState<ColourKey | "">("");
+  const [glazing, setGlazing] = useState<GlazingKey>("double");
+  const [frame, setFrame] = useState<FrameKey>("straight");
   const [smaltimento, setSmaltimento] = useState(false);
   const [posa, setPosa] = useState(true);
-  const [bonus, setBonus] = useState("Nessuno / Non specificato");
+  const [incentive, setIncentive] = useState<IncentiveKey | "">("");
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [telefono, setTelefono] = useState("");
@@ -176,16 +148,16 @@ export function SimpleWizardWidget({
 
   function validateStep(): boolean {
     setStepError("");
-    if (step === 1 && !intervento) {
-      setStepError(lang === "en" ? "Select the type of work to continue." : "Seleziona il tipo di intervento per proseguire.");
+    if (step === 1 && !work) {
+      setStepError(copy.errWork);
       return false;
     }
-    if (step === 2 && !tipologia) {
-      setStepError(lang === "en" ? "Select a product type." : "Seleziona la tipologia di prodotto.");
+    if (step === 2 && !product) {
+      setStepError(copy.errProduct);
       return false;
     }
-    if (step === 3 && !colore) {
-      setStepError(lang === "en" ? "Select a colour to continue." : "Seleziona un colore per proseguire.");
+    if (step === 3 && !colour) {
+      setStepError(copy.errColour);
       return false;
     }
     return true;
@@ -212,50 +184,30 @@ export function SimpleWizardWidget({
       return;
     }
     if (!telefono.trim() || !cap.trim()) {
-      setSubmitError(lang === "en" ? "Please fill in every required field." : "Compila tutti i campi obbligatori.");
+      setSubmitError(copy.errRequired);
       return;
     }
     if (!consent) {
       setSubmitError(dict.consentRequired);
       return;
     }
-    const map = TIPOLOGIA_TO_CATEGORY[tipologia] ?? { category: "finestra1" as PieceCategory, productType: "window" as const, sashType: "classic" as const };
-    const widthMm = Math.min(1200, Math.max(200, (parseInt(larghezza, 10) || 120) * 10));
-    const heightMm = Math.min(2800, Math.max(200, (parseInt(altezza, 10) || 140) * 10));
-    const notes = [
-      `Intervento: ${intervento}`,
-      `Prodotto: ${tipologia} — misura indicata dal cliente: ${larghezza || "?"} x ${altezza || "?"} cm`,
-      `Colore: ${colore}`,
-      `Vetro: ${vetro}`,
-      `Telaio: ${telaio}`,
-      `Smaltimento vecchi infissi: ${smaltimento ? "sì" : "no"}`,
-      `Posa qualificata richiesta: ${posa ? "sì" : "no"}`,
-      `Agevolazione fiscale: ${bonus}`,
-    ].join("\n");
-
-    const item = {
-      productType: map.productType,
-      category: map.category,
-      material: "pvc",
-      quality: {},
-      width: widthMm,
-      height: heightMm,
-      quantity: 1,
-      sashes: [
-        {
-          type: map.sashType,
-          direction: "left" as const,
-          active: true,
-          main: true,
-          hardware: "standard",
-          hardwareColor: COLORE_SLUG[colore] ?? "white",
-        },
-      ],
-      glazing: vetro.startsWith("Triplo") ? "triple" : "double",
-      color: COLORE_SLUG[colore] ?? "white",
-      insectScreen: false,
-      notes: notes.slice(0, 500),
+    if (!work || !product || !colour) return;
+    const selection = {
+      work,
+      product,
+      widthCm: larghezza,
+      heightCm: altezza,
+      colour,
+      glazing,
+      frame,
+      disposal: smaltimento,
+      installation: posa,
+      incentive,
+      postal: cap.trim(),
     };
+    const notes = buildWizardNotes(selection, market);
+    const notesCopy = wizardCopy(market.notesLang);
+    const item = buildWizardItem(selection, notes);
 
     setSubmitting(true);
     try {
@@ -266,8 +218,8 @@ export function SimpleWizardWidget({
         leadName: nome.trim(),
         leadEmail: email.trim(),
         leadPhone: telefono.trim(),
-        leadMessage: `CAP/Comune intervento: ${cap.trim()}\n\n${notes}`.slice(0, 2000),
-        leadLocale: (["it", "en", "fr", "nl", "de"].includes(lang) ? lang : "it") as "it" | "en" | "fr" | "nl" | "de",
+        leadMessage: `${notesCopy.notes.postal}: ${cap.trim()}\n\n${notes}`.slice(0, 2000),
+        leadLocale: wizardLang(lang),
         honeypot: honeypot || undefined,
         consent: true as const,
         consentVersion: "wizard-1",
@@ -283,10 +235,10 @@ export function SimpleWizardWidget({
         setDone(true);
         postToHost({ type: "onespec:submitted", publicId: configurator.publicId });
       } else {
-        setSubmitError(typeof data.error === "string" ? data.error : "SUBMIT_FAILED");
+        setSubmitError(submitErrorMessage(copy, data.error));
       }
-    } catch (e) {
-      setSubmitError(e instanceof Error ? e.message : "NETWORK_ERROR");
+    } catch {
+      setSubmitError(copy.errors.GENERIC);
     } finally {
       setSubmitting(false);
     }
@@ -317,18 +269,18 @@ export function SimpleWizardWidget({
       <div className="tw-widget-root" style={s.wrap}>
         <div style={{ ...s.panel, textAlign: "center", padding: 32 }}>
           <div style={{ fontSize: 34, marginBottom: 8, color: "#28a745" }}>✓</div>
-          <h3 style={{ margin: "0 0 8px" }}>
-            {lang === "en" ? "Request sent successfully!" : "Richiesta inviata con successo!"}
-          </h3>
+          <h3 style={{ margin: "0 0 8px" }}>{copy.successTitle}</h3>
           <p style={{ fontSize: 13.5, color: "var(--color-text-secondary)" }}>
-            {lang === "en"
-              ? `Thank you ${nome}. We'll get back to you within 24 working hours with your estimate.`
-              : `Grazie ${nome}. Ti contatteremo entro 24 ore lavorative con la stima dettagliata.`}
+            {copy.successBody.replace("{name}", nome)}
           </p>
         </div>
       </div>
     );
   }
+
+  const installationLabel = market.installationNorm
+    ? `${copy.installation} (${market.installationNorm})`
+    : copy.installation;
 
   return (
     <div className="tw-widget-root" style={s.wrap}>
@@ -341,69 +293,71 @@ export function SimpleWizardWidget({
       </div>
       <div style={s.body}>
         {step === 1 &&
-          cards<Intervento>(
+          cards<WorkKey | "">(
             [
-              { value: "Sostituzione/Ristrutturazione", label: lang === "en" ? "Replacement / Renovation" : "Sostituzione / Ristrutturazione" },
-              { value: "Nuova Costruzione", label: lang === "en" ? "New Construction" : "Nuova Costruzione" },
+              { value: "renovation", label: copy.work.renovation },
+              { value: "new", label: copy.work.new },
             ],
-            intervento,
-            setIntervento,
+            work,
+            setWork,
           )}
 
         {step === 2 && (
           <div>
-            <label style={s.label} htmlFor="wizard-tipologia">{lang === "en" ? "Product type" : "Tipologia Prodotto"}</label>
-            <select id="wizard-tipologia" style={s.input} value={tipologia} onChange={(e) => setTipologia(e.target.value)}>
-              <option value="">{lang === "en" ? "Select a type…" : "Seleziona una tipologia…"}</option>
-              {Object.keys(TIPOLOGIA_TO_CATEGORY).map((t) => (
-                <option key={t} value={t}>
-                  {t}
+            <label style={s.label} htmlFor="wizard-tipologia">{copy.productLabel}</label>
+            <select
+              id="wizard-tipologia"
+              style={s.input}
+              value={product}
+              onChange={(e) => setProduct(e.target.value as ProductKey | "")}
+            >
+              <option value="">{copy.productPlaceholder}</option>
+              {PRODUCT_KEYS.map((k) => (
+                <option key={k} value={k}>
+                  {copy.products[k]}
                 </option>
               ))}
             </select>
             <div style={{ display: "flex", gap: 10, marginTop: 14 }}>
               <div style={{ flex: 1 }}>
-                <label style={s.label} htmlFor="wizard-larghezza">{lang === "en" ? "Width (cm)" : "Larghezza (cm)"}</label>
+                <label style={s.label} htmlFor="wizard-larghezza">{copy.width}</label>
                 <input id="wizard-larghezza" style={s.input} type="number" min={30} max={600} inputMode="numeric" placeholder="120" value={larghezza} onChange={(e) => setLarghezza(e.target.value)} />
               </div>
               <div style={{ flex: 1 }}>
-                <label style={s.label} htmlFor="wizard-altezza">{lang === "en" ? "Height (cm)" : "Altezza (cm)"}</label>
+                <label style={s.label} htmlFor="wizard-altezza">{copy.height}</label>
                 <input id="wizard-altezza" style={s.input} type="number" min={30} max={400} inputMode="numeric" placeholder="140" value={altezza} onChange={(e) => setAltezza(e.target.value)} />
               </div>
             </div>
-            <p style={s.disclaimer}>
-              {lang === "en"
-                ? "* Final measurements will be taken during the technical survey."
-                : "* Le misure definitive saranno rilevate durante il sopralluogo tecnico."}
-            </p>
+            <p style={s.disclaimer}>{copy.measureDisclaimer}</p>
           </div>
         )}
 
         {step === 3 && (
           <div>
-            <label style={s.label}>{lang === "en" ? "Profile colour" : "Colore Profilo"}</label>
-            {cards<Colore>(
-              [
-                { value: "Bianco Standard", label: lang === "en" ? "Standard White" : "Bianco Standard" },
-                { value: "Effetto Legno", label: lang === "en" ? "Wood Effect" : "Effetto Legno" },
-                { value: "Tinta Unita / RAL", label: lang === "en" ? "Solid Colour / RAL" : "Tinta Unita / RAL" },
-              ],
-              colore,
-              setColore,
+            <label style={s.label}>{copy.colourLabel}</label>
+            {cards<ColourKey | "">(
+              COLOUR_KEYS.map((k) => ({ value: k, label: copy.colours[k] })),
+              colour,
+              setColour,
             )}
             <div style={{ marginTop: 14 }}>
-              <label style={s.label} htmlFor="wizard-vetro">{lang === "en" ? "Glazing" : "Tipologia Vetro"}</label>
-              <select id="wizard-vetro" style={s.input} value={vetro} onChange={(e) => setVetro(e.target.value)}>
-                <option value="Doppio Vetro (Standard)">{lang === "en" ? "Double Glazing (Standard)" : "Doppio Vetro (Isolamento Standard)"}</option>
-                <option value="Triplo Vetro (Alta Efficienza)">{lang === "en" ? "Triple Glazing (High Efficiency)" : "Triplo Vetro (Massimo Isolamento)"}</option>
+              <label style={s.label} htmlFor="wizard-vetro">{copy.glazingLabel}</label>
+              <select id="wizard-vetro" style={s.input} value={glazing} onChange={(e) => setGlazing(e.target.value as GlazingKey)}>
+                {GLAZING_KEYS.map((k) => (
+                  <option key={k} value={k}>
+                    {copy.glazings[k]}
+                  </option>
+                ))}
               </select>
             </div>
             <div style={{ marginTop: 14 }}>
-              <label style={s.label} htmlFor="wizard-telaio">{lang === "en" ? "Frame type" : "Tipologia Telaio"}</label>
-              <select id="wizard-telaio" style={s.input} value={telaio} onChange={(e) => setTelaio(e.target.value)}>
-                <option value="Telaio Dritto (Standard)">{lang === "en" ? "Straight Frame (Standard)" : "Telaio Dritto (Standard)"}</option>
-                <option value="Telaio di Ristrutturazione Aletta 40mm">{lang === "en" ? "Renovation Frame 40mm" : "Telaio di Ristrutturazione Aletta 40mm"}</option>
-                <option value="Telaio di Ristrutturazione Aletta 65mm">{lang === "en" ? "Renovation Frame 65mm" : "Telaio di Ristrutturazione Aletta 65mm"}</option>
+              <label style={s.label} htmlFor="wizard-telaio">{copy.frameLabel}</label>
+              <select id="wizard-telaio" style={s.input} value={frame} onChange={(e) => setFrame(e.target.value as FrameKey)}>
+                {FRAME_KEYS.map((k) => (
+                  <option key={k} value={k}>
+                    {copy.frames[k]}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -414,20 +368,27 @@ export function SimpleWizardWidget({
             <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
               <label style={s.checkboxLabel}>
                 <input type="checkbox" checked={smaltimento} onChange={(e) => setSmaltimento(e.target.checked)} />
-                {lang === "en" ? "Disposal and removal of old windows" : "Smaltimento e rimozione vecchi infissi"}
+                {copy.disposal}
               </label>
               <label style={s.checkboxLabel}>
                 <input type="checkbox" checked={posa} onChange={(e) => setPosa(e.target.checked)} />
-                {lang === "en" ? "Qualified installation (UNI 11673)" : "Posa in opera qualificata (UNI 11673)"}
+                {installationLabel}
               </label>
             </div>
             <div style={{ marginTop: 14 }}>
-              <label style={s.label} htmlFor="wizard-bonus">{lang === "en" ? "Interested in tax incentives" : "Interesse Agevolazioni Fiscali"}</label>
-              <select id="wizard-bonus" style={s.input} value={bonus} onChange={(e) => setBonus(e.target.value)}>
-                <option value="Nessuno / Non specificato">{lang === "en" ? "Select an option…" : "Seleziona un'opzione…"}</option>
-                <option value="Bonus Casa (50%)">{lang === "en" ? "Home Bonus (Renovation)" : "Bonus Casa (Ristrutturazione)"}</option>
-                <option value="Ecobonus (50%)">{lang === "en" ? "Ecobonus (Energy Efficiency)" : "Ecobonus (Riqualificazione Energetica)"}</option>
-                <option value="Richiesta informazioni">{lang === "en" ? "I'd like advice on active incentives" : "Vorrei consulenza sui bonus attivi"}</option>
+              <label style={s.label} htmlFor="wizard-bonus">{copy.incentiveLabel}</label>
+              <select
+                id="wizard-bonus"
+                style={s.input}
+                value={incentive}
+                onChange={(e) => setIncentive(e.target.value as IncentiveKey | "")}
+              >
+                <option value="">{copy.incentivePlaceholder}</option>
+                {market.incentives.map((k) => (
+                  <option key={k} value={k}>
+                    {copy.incentives[k]}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -436,26 +397,26 @@ export function SimpleWizardWidget({
         {step === 5 && (
           <div>
             <div style={s.summary}>
-              <strong>{lang === "en" ? "Selection summary:" : "Riepilogo selezione:"}</strong>
-              <br />• {intervento}
-              <br />• {tipologia} ({larghezza || "?"} x {altezza || "?"} cm)
-              <br />• {colore} — {vetro} — {telaio}
+              <strong>{copy.summary}</strong>
+              <br />• {work ? copy.work[work] : ""}
+              <br />• {product ? copy.products[product] : ""} ({larghezza || "?"} x {altezza || "?"} cm)
+              <br />• {colour ? copy.colours[colour] : ""} — {copy.glazings[glazing]} — {copy.frames[frame]}
             </div>
             <div style={{ marginBottom: 14 }}>
-              <label style={s.label} htmlFor="wizard-nome">{lang === "en" ? "Full name *" : "Nome e Cognome *"}</label>
-              <input id="wizard-nome" style={s.input} type="text" required value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Mario Rossi" autoComplete="name" />
+              <label style={s.label} htmlFor="wizard-nome">{copy.name}</label>
+              <input id="wizard-nome" style={s.input} type="text" required value={nome} onChange={(e) => setNome(e.target.value)} placeholder={market.placeholders.name} autoComplete="name" />
             </div>
             <div style={{ marginBottom: 14 }}>
-              <label style={s.label} htmlFor="wizard-email">{lang === "en" ? "Email *" : "Email *"}</label>
-              <input id="wizard-email" style={s.input} type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="mario.rossi@email.it" autoComplete="email" />
+              <label style={s.label} htmlFor="wizard-email">{copy.email}</label>
+              <input id="wizard-email" style={s.input} type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder={market.placeholders.email} autoComplete="email" />
             </div>
             <div style={{ marginBottom: 14 }}>
-              <label style={s.label} htmlFor="wizard-telefono">{lang === "en" ? "Phone *" : "Telefono *"}</label>
-              <input id="wizard-telefono" style={s.input} type="tel" required value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder="333 1234567" autoComplete="tel" />
+              <label style={s.label} htmlFor="wizard-telefono">{copy.phone}</label>
+              <input id="wizard-telefono" style={s.input} type="tel" required value={telefono} onChange={(e) => setTelefono(e.target.value)} placeholder={market.placeholders.phone} autoComplete="tel" />
             </div>
             <div style={{ marginBottom: 14 }}>
-              <label style={s.label} htmlFor="wizard-cap">{lang === "en" ? "Postal code / town *" : "CAP / Comune dell'intervento *"}</label>
-              <input id="wizard-cap" style={s.input} type="text" required value={cap} onChange={(e) => setCap(e.target.value)} placeholder="52044" autoComplete="postal-code" />
+              <label style={s.label} htmlFor="wizard-cap">{copy.postal}</label>
+              <input id="wizard-cap" style={s.input} type="text" required value={cap} onChange={(e) => setCap(e.target.value)} placeholder={market.placeholders.postal} autoComplete="postal-code" />
             </div>
             <input
               type="text"
@@ -499,7 +460,7 @@ export function SimpleWizardWidget({
           </button>
         </div>
       </div>
-      {preview ? null : (
+      {preview || configurator.branding?.whiteLabel ? null : (
         <p style={{ textAlign: "center", fontSize: 10, color: "var(--color-text-secondary)", padding: "0 0 10px" }}>
           Powered by OneSpec
         </p>
