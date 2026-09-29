@@ -190,13 +190,13 @@
     },
     "forgotPassword": {
       "title": "Forgot password",
-      "subtitle": "Enter your email to receive a reset link",
+      "subtitle": "Enter your email: we'll send you a 6-digit code to reset your password",
       "emailLabel": "Email",
       "emailPlaceholder": "you@email.com",
-      "submit": "Send link",
+      "submit": "Send code",
       "loading": "Sending...",
       "success": "Email sent!",
-      "checkEmail": "Check your inbox for the reset link.",
+      "checkEmail": "Check your inbox: we've sent you a 6-digit code.",
       "backToLogin": "Back to",
       "loginLink": "login",
       "error": "Error sending email"
@@ -471,7 +471,7 @@
     "contactSales": "Contact sales",
     "startTrial": "Start Pro trial (14 days)",
     "comingSoon": "Coming soon",
-    "selfServiceComingSoon": "Self-service billing activates after the Alpha phase. Until then, your plan and limits remain as shown above.",
+    "selfServiceComingSoon": "Online payment isn't active yet. Until then, your plan and its limits remain as shown above.",
     "termsOfService": "Terms of service",
     "billing": {
       "cycle": "Billing cycle",
@@ -1493,7 +1493,7 @@
       "recommendedBadge": "Recommended for you",
       "perMonth": "/mo",
       "trialNote": "Free 14-day trial, then it activates on its own",
-      "enterpriseCta": "Need Enterprise (€690/mo, everything unlimited + API)? Talk to sales",
+      "enterpriseCta": "Need Enterprise (€690/mo: unlimited configurators and users, API, CRM integration, custom domain)? Talk to sales",
       "comparePlans": "Compare plans and prices",
       "plans": {
         "base": {
@@ -1571,18 +1571,21 @@
       "title": "Your team",
       "intro": "If more people will work on the same configurator to build quotes, invite them now — or skip and do it later from settings.",
       "manageTeam": "Manage team",
-      "continue": "Continue"
+      "continue": "Continue",
+      "introSingleSeat": "Your plan includes 1 user: to invite colleagues, switch to a plan with more seats (Level 2, Level 3 or the full platform).",
+      "introSeats": "Your plan includes up to {count} users. If several people will work on quotes, invite them now — or skip and do it later from settings."
     },
     "configurator": {
       "title": "Your configurator",
-      "intro": "Create your first configurator. You can use it as a standalone page (for social) or embed it on your site. Changes you make later stay live — you'll never need to re-paste the code.",
-      "ready": "Configurator ready. Use one of these:",
+      "intro": "Create your first configurator. Once you've completed the price list and published it from the editor, you can share it as a page (link for social media and messages) or embed it on your website. Every time you republish, updates flow through automatically: no code to paste again.",
+      "ready": "Configurator created. Complete the price list and publish it from the editor: from then on these addresses will be live.",
       "pageLabel": "Page",
       "embedLabel": "Embed",
       "openEditor": "Open the editor →",
       "defaultName": "Window quote configurator",
       "create": "Create",
-      "goToDashboard": "Go to dashboard"
+      "goToDashboard": "Go to dashboard",
+      "introLinkOnly": "Create your first configurator. Once you've completed the price list and published it from the editor, you can share it as a page (link for social media and messages). Every time you republish, updates flow through automatically."
     },
     "entering": {
       "messages": [

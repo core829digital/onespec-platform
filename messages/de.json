@@ -189,13 +189,13 @@
     },
     "forgotPassword": {
       "title": "Passwort vergessen",
-      "subtitle": "Geben Sie Ihre E-Mail ein, um einen Reset-Link zu erhalten",
+      "subtitle": "Geben Sie Ihre E-Mail ein: Wir senden Ihnen einen 6-stelligen Code zum Zurücksetzen des Passworts",
       "emailLabel": "E-Mail",
       "emailPlaceholder": "du@email.de",
-      "submit": "Link senden",
+      "submit": "Code senden",
       "loading": "Senden...",
       "success": "E-Mail gesendet!",
-      "checkEmail": "Prüfen Sie Ihr Postfach auf den Reset-Link.",
+      "checkEmail": "Prüfen Sie Ihr Postfach: Wir haben Ihnen einen 6-stelligen Code gesendet.",
       "backToLogin": "Zurück zum",
       "loginLink": "Login",
       "error": "Fehler beim Senden"
@@ -471,7 +471,7 @@
     "contactSales": "Vertrieb kontaktieren",
     "startTrial": "Pro-Test starten (14 Tage)",
     "comingSoon": "Demnächst verfügbar",
-    "selfServiceComingSoon": "Self-Service-Abrechnung aktiviert sich nach der Alpha-Phase. Bis dahin bleiben Ihr Plan und die Limits wie oben angezeigt.",
+    "selfServiceComingSoon": "Die Online-Zahlung ist noch nicht aktiv. Bis dahin bleiben Ihr Tarif und seine Limits wie oben angezeigt.",
     "termsOfService": "Nutzungsbedingungen",
     "billing": {
       "cycle": "Abrechnungszyklus",
@@ -1493,7 +1493,7 @@
       "recommendedBadge": "Für Sie empfohlen",
       "perMonth": "/Monat",
       "trialNote": "14 Tage kostenlos testen, danach automatische Aktivierung",
-      "enterpriseCta": "Enterprise benötigt (690 €/Monat, alles unbegrenzt + API)? Vertrieb kontaktieren",
+      "enterpriseCta": "Enterprise benötigt (690 €/Monat: unbegrenzte Konfiguratoren und Nutzer, API, CRM-Integration, eigene Domain)? Vertrieb kontaktieren",
       "comparePlans": "Pläne und Preise vergleichen",
       "plans": {
         "base": {
@@ -1571,18 +1571,21 @@
       "title": "Ihr Team",
       "intro": "Wenn mehrere Personen am selben Konfigurator arbeiten, um Angebote zu erstellen, laden Sie sie jetzt ein — oder überspringen Sie das und erledigen es später in den Einstellungen.",
       "manageTeam": "Team verwalten",
-      "continue": "Weiter"
+      "continue": "Weiter",
+      "introSingleSeat": "Ihr Tarif umfasst 1 Nutzer: Um Kollegen einzuladen, wechseln Sie in einen Tarif mit mehr Plätzen (Level 2, Level 3 oder die komplette Plattform).",
+      "introSeats": "Ihr Tarif umfasst bis zu {count} Nutzer. Wenn mehrere Personen an Angeboten arbeiten, laden Sie sie jetzt ein — oder überspringen Sie es und tun Sie es später in den Einstellungen."
     },
     "configurator": {
       "title": "Ihr Konfigurator",
-      "intro": "Erstellen Sie Ihren ersten Konfigurator. Sie können ihn als eigenständige Seite (für Social Media) nutzen oder auf Ihrer Website einbetten. Spätere Änderungen bleiben live — Sie müssen den Code nie erneut einfügen.",
-      "ready": "Konfigurator bereit. Verwenden Sie einen davon:",
+      "intro": "Erstellen Sie Ihren ersten Konfigurator. Sobald Sie die Preisliste vervollständigt und im Editor veröffentlicht haben, können Sie ihn als Seite teilen (Link für Social Media und Nachrichten) oder auf Ihrer Website einbetten. Bei jeder erneuten Veröffentlichung kommen Änderungen automatisch an: kein Code muss neu eingefügt werden.",
+      "ready": "Konfigurator erstellt. Vervollständigen Sie die Preisliste und veröffentlichen Sie sie im Editor: Ab dann sind diese Adressen aktiv.",
       "pageLabel": "Seite",
       "embedLabel": "Einbettung",
       "openEditor": "Editor öffnen →",
       "defaultName": "Fenster-Angebotskonfigurator",
       "create": "Erstellen",
-      "goToDashboard": "Zum Dashboard"
+      "goToDashboard": "Zum Dashboard",
+      "introLinkOnly": "Erstellen Sie Ihren ersten Konfigurator. Sobald Sie die Preisliste vervollständigt und im Editor veröffentlicht haben, können Sie ihn als Seite teilen (Link für Social Media und Nachrichten). Bei jeder erneuten Veröffentlichung kommen Änderungen automatisch an."
     },
     "entering": {
       "messages": [

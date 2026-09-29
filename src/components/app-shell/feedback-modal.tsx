@@ -75,7 +75,7 @@ export function FeedbackButton() {
             className="w-full max-w-md rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5 space-y-3"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="font-semibold text-[var(--color-text)]">Feedback Alpha</h2>
+            <h2 className="font-semibold text-[var(--color-text)]">Feedback</h2>
             {state === "sent" ? (
               <p className="text-sm text-[var(--color-mint)]">Grazie! Ricevuto.</p>
             ) : (

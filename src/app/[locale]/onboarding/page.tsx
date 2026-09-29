@@ -131,6 +131,10 @@ export default function OnboardingWizard() {
       {current === "welcome" ? (
         <Panel title={t("welcome.title")}>
           <p className="text-[var(--color-text-secondary)]">{t("welcome.intro")}</p>
+          {/* Plan limits only once a plan is actually active: before the plan
+              step the tenant carries a placeholder plan, and listing its limits
+              would promise things the user hasn't chosen. */}
+          {!state.needsPlan ? (
           <ul className="text-sm text-[var(--color-text)] space-y-1.5 mt-2">
             <li>
               •{" "}
@@ -144,15 +148,18 @@ export default function OnboardingWizard() {
               • {ent.maxQuotesPerMonth === Infinity ? t("welcome.quotesUnlimited") : t("welcome.quotesPerMonth", { count: ent.maxQuotesPerMonth })}
             </li>
             <li>• {ent.maxTeamMembers === Infinity ? t("welcome.teamUnlimited") : t("welcome.teamMax", { count: ent.maxTeamMembers })}</li>
-            <li>
-              •{" "}
-              {t("welcome.analyticsLine", {
-                level: ent.analytics === "advanced" ? t("welcome.analyticsAdvanced") : t("welcome.analyticsBasic"),
-                whiteLabel: ent.whiteLabel ? t("welcome.whiteLabelSuffix") : "",
-                multiCatalog: ent.multiCatalog ? t("welcome.multiCatalogSuffix") : "",
-              })}
-            </li>
+            {ent.analytics !== "none" ? (
+              <li>
+                •{" "}
+                {t("welcome.analyticsLine", {
+                  level: ent.analytics === "advanced" ? t("welcome.analyticsAdvanced") : t("welcome.analyticsBasic"),
+                  whiteLabel: ent.whiteLabel ? t("welcome.whiteLabelSuffix") : "",
+                  multiCatalog: ent.multiCatalog ? t("welcome.multiCatalogSuffix") : "",
+                })}
+              </li>
+            ) : null}
           </ul>
+          ) : null}
           <p className="text-xs text-[var(--color-text-secondary)]">{t("welcome.market", { region: state.region })}</p>
           <NextButton onClick={goNext} busy={busy} label={t("welcome.cta")} />
         </Panel>
@@ -249,13 +256,21 @@ export default function OnboardingWizard() {
 
       {current === "team" ? (
         <Panel title={t("team.title")}>
-          <p className="text-[var(--color-text-secondary)]">{t("team.intro")}</p>
+          <p className="text-[var(--color-text-secondary)]">
+            {ent.maxTeamMembers === Infinity
+              ? t("team.intro")
+              : ent.maxTeamMembers <= 1
+                ? t("team.introSingleSeat")
+                : t("team.introSeats", { count: ent.maxTeamMembers })}
+          </p>
+          {ent.maxTeamMembers > 1 ? (
           <Link
             href="/app/account/team"
             className="inline-flex rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm text-[var(--color-text)]"
           >
             {t("team.manageTeam")}
           </Link>
+          ) : null}
           <div className="flex items-center gap-3">
             {prev ? <BackButton onClick={goBack} busy={busy} /> : null}
             <NextButton onClick={goNext} busy={busy} label={t("team.continue")} />
@@ -265,8 +280,11 @@ export default function OnboardingWizard() {
 
       {current === "configurator" ? (
         <Panel title={t("configurator.title")}>
-          <p className="text-[var(--color-text-secondary)]">{t("configurator.intro")}</p>
+          <p className="text-[var(--color-text-secondary)]">
+            {ent.publicWidget ? t("configurator.intro") : t("configurator.introLinkOnly")}
+          </p>
           <FirstConfigurator
+            canEmbed={ent.publicWidget}
             hasOne={state.configuratorCount > 0}
             publicId={state.firstPublicId}
             tenantId={tenant?._id}
@@ -509,11 +527,13 @@ function BackButton({ onClick, busy }: { onClick: () => void; busy: boolean }) {
 }
 
 function FirstConfigurator({
+  canEmbed,
   hasOne,
   publicId,
   tenantId,
   createConfigurator,
 }: {
+  canEmbed: boolean;
   hasOne: boolean;
   publicId: string | null;
   tenantId?: Id<"tenants">;
@@ -525,6 +545,8 @@ function FirstConfigurator({
   const t = useTranslations("onboarding.configurator");
   const [name, setName] = useState(t("defaultName"));
   const [creating, setCreating] = useState(false);
+  const [error, setError] = useState("");
+  const tf = useFriendlyError();
   const origin = typeof window !== "undefined" ? window.location.origin : "";
 
   if (hasOne && publicId) {
@@ -534,9 +556,11 @@ function FirstConfigurator({
         <p className="font-mono text-xs text-[var(--color-text-secondary)] break-all">
           {t("pageLabel")}: {origin}/c/{publicId}
         </p>
-        <p className="font-mono text-xs text-[var(--color-text-secondary)] break-all">
-          {t("embedLabel")}: &lt;iframe src=&quot;{origin}/w/{publicId}&quot;&gt;
-        </p>
+        {canEmbed ? (
+          <p className="font-mono text-xs text-[var(--color-text-secondary)] break-all">
+            {t("embedLabel")}: &lt;iframe src=&quot;{origin}/w/{publicId}&quot;&gt;
+          </p>
+        ) : null}
         <Link href={`/app/configurators`} className="text-[var(--color-mint)] text-xs">
           {t("openEditor")}
         </Link>
@@ -545,6 +569,8 @@ function FirstConfigurator({
   }
 
   return (
+    <div className="space-y-2">
+    {error ? <p role="alert" className="text-sm text-[var(--color-danger)]">{error}</p> : null}
     <div className="flex gap-2">
       <input
         value={name}
@@ -557,6 +583,7 @@ function FirstConfigurator({
         onClick={async () => {
           if (!tenantId) return;
           setCreating(true);
+          setError("");
           try {
             // createConfigurator returns { configuratorId, publicId }, not
             // the id directly — destructure it (same bug fixed 2026-09-29 in
@@ -569,6 +596,8 @@ function FirstConfigurator({
               configurator_id: String(configuratorId),
               source: "onboarding",
             });
+          } catch (e) {
+            setError(tf(e));
           } finally {
             setCreating(false);
           }
@@ -577,6 +606,7 @@ function FirstConfigurator({
       >
         {creating ? "…" : t("create")}
       </button>
+    </div>
     </div>
   );
 }

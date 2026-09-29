@@ -96,7 +96,6 @@ export function renderAuthEmail(template: string, locale: string, data: AuthEmai
   const configuratorName = esc(data.configuratorName ?? "—");
   const inviter = esc(data.inviterName ?? "");
   const role = esc(data.role ?? "");
-  const seat = Number.isFinite(data.seatNumber) ? Number(data.seatNumber) : "";
   const price = ((data.priceCents ?? 0) / 100).toFixed(2);
   const quoteId = encodeURIComponent(String(data.quoteId ?? ""));
 
@@ -125,20 +124,9 @@ export function renderAuthEmail(template: string, locale: string, data: AuthEmai
         text: `${it ? "Codice reset password" : "Password reset code"}: ${line(data.code ?? "")}`,
       };
 
+    // Legacy template key: the Alpha programme is over, so it renders the
+    // standard welcome (no seat badge, no discount promise).
     case "welcome_alpha":
-      return {
-        subject: it
-          ? `Benvenuto in onespec Alpha — posto #${seat}`
-          : `Welcome to onespec Alpha — seat #${seat}`,
-        html: shell(
-          `<div style="background:linear-gradient(135deg,#16d19d,#0fbf8f);color:#04231a;padding:14px;border-radius:9px;margin-bottom:20px;font-weight:700;text-align:center">Alpha Member — #${seat}</div>
-           <h1 style="font-size:22px;font-weight:600;margin:0 0 12px">${it ? "Benvenuto in onespec Alpha" : "Welcome to onespec Alpha"}</h1>
-           <p style="color:#9a9aa0;line-height:1.6">${it ? `<strong>${company}</strong> è tra i primi 250 membri Alpha. Sconto 15% bloccato a vita su Starter e Business.` : `<strong>${company}</strong> is one of the first 250 Alpha members. 15% discount locked for life on Starter and Business.`}</p>
-           ${cta(`${base}/app/dashboard`, it ? "Vai alla dashboard" : "Go to dashboard")}`,
-        ),
-        text: `${it ? "Benvenuto in onespec Alpha" : "Welcome to onespec Alpha"} — #${seat}\n${base}/app/dashboard`,
-      };
-
     case "welcome":
       return {
         subject: it ? "Benvenuto in onespec" : "Welcome to onespec",

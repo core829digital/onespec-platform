@@ -60,6 +60,7 @@ export const getState = query({
         advancedPricingRules: ent.advancedPricingRules,
         multiCatalog: ent.multiCatalog,
         analytics: ent.analytics,
+        publicWidget: ent.publicWidget,
       },
       configuratorCount: configurators.length,
       firstPublicId: configurators[0]?.publicId ?? null,

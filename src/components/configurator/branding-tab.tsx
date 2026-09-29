@@ -133,7 +133,7 @@ export function BrandingTab({ configuratorId }: { configuratorId: Id<"configurat
         <Toggle
           checked={Boolean(val("whiteLabel", branding.whiteLabel))}
           onChange={(v) => set("whiteLabel", v)}
-          label="White-label (nascondi il badge OneSpec) — richiede piano Business o superiore"
+          label="White-label (nascondi il badge OneSpec) — incluso in Pro, Level 2 e piani superiori"
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label="Colore accento" hint="Bottoni e accenti.">
