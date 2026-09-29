@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>onespec motion</title>
+<!-- Space Grotesk + IBM Plex Mono, self-hosted (Google Fonts, OFL) so renders never depend on the network. -->
+<link href="fonts/fonts.css" rel="stylesheet">
+<style>
+  /* Tokens sampled from screenshot pixels of the real widget (see INVENTORY.md). */
+  :root {
+    --page: #ffffff; --panel: #f5f5f7; --border: #d2d2d7; --ink: #1d1d1f; --muted: #6e6e73;
+    --accent: #16d19d; --accent-dark: #0fbf8f; --mint-on-panel: #d4ede8; --mint-on-page: #ddf6ef;
+    --cta-ink: #0a0b0d;
+  }
+  html, body { margin: 0; padding: 0; background: #ffffff; }
+  #stage { position: relative; width: 1440px; height: 1440px; overflow: hidden; background: #ffffff; }
+  #world { position: absolute; left: 0; top: 0; transform-origin: 0 0; }
+  #world * { box-sizing: border-box; }
+  .abs { position: absolute; }
+  .txt { position: absolute; white-space: nowrap; font-family: "Space Grotesk", sans-serif; color: var(--ink); line-height: 1; }
+  .mono { font-family: "IBM Plex Mono", monospace; }
+  .box { position: absolute; }
+  svg.layer { position: absolute; left: 0; top: 0; overflow: visible; }
+  #shape { position: absolute; border-style: solid; }
+  #cursor { position: absolute; left: 0; top: 0; width: 60px; height: 60px; transform-origin: 5.3px 3.5px; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="world"></div>
+  <svg id="cursor" viewBox="0 0 34 34" width="60" height="60" aria-hidden="true">
+    <path d="M3 2 L3 27 L9.2 21.4 L13.4 31 L17.8 29.1 L13.7 19.6 L22 19.6 Z" fill="#1d1d1f" stroke="#ffffff" stroke-width="2.2" stroke-linejoin="round"/>
+  </svg>
+</div>
+<script>
+(() => {
+"use strict";
+const T = 14;            // loop length (s)
+const BEAT = 0.5;        // 120 BPM
+const ZETA = 0.88;       // spring damping ratio (0.85–0.9)
+
+// ---------------------------------------------------------------- math
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+/** Closed-form unit step response of a damped spring, starting at rest. */
+function spring(tau, w, z = ZETA) {
+  if (tau <= 0) return 0;
+  const wd = w * Math.sqrt(1 - z * z);
+  return 1 - Math.exp(-z * w * tau) * (Math.cos(wd * tau) + (z / Math.sqrt(1 - z * z)) * Math.sin(wd * tau));
+}
+/** 4th-order critically damped step: starts from rest, never overshoots. */
+function step4(tau, w) {
+  if (tau <= 0) return 0;
+  const x = w * tau;
+  return 1 - Math.exp(-x) * (1 + x + (x * x) / 2 + (x * x * x) / 6);
+}
+/**
+ * Periodic track: sum of step responses, each step also added at t + T so the
+ * last frame matches the first in position and velocity.
+ * steps: [{t, v, w}] sorted by t, values cyclic.
+ */
+function track(steps, fn = spring) {
+  const last = steps[steps.length - 1].v;
+  const deltas = steps.map((s, i) => s.v - (i === 0 ? last : steps[i - 1].v));
+  return (t) => {
+    let v = last;
+    for (let i = 0; i < steps.length; i++) {
+      const s = steps[i];
+      v += deltas[i] * (fn(t - s.t, s.w) + fn(t - s.t + T, s.w));
+    }
+    return v;
+  };
+}
+const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
+function colorTrack(steps, w) {
+  const ch = [0, 1, 2].map((c) => track(steps.map((s) => ({ t: s.t, v: hex(s.c)[c], w: s.w ?? w }))));
+  return (t) => `rgb(${ch.map((f) => Math.round(clamp(f(t), 0, 255))).join(",")})`;
+}
+
+// ---------------------------------------------------------------- DOM helpers
+const world = document.getElementById("world");
+const layers = [];
+// World offset applied by txt()/box() while a state is being built (the tour runs as a "U").
+let OX = 0, OY = 0;
+// While set ([x, y] of the shape's resting top-left), new layers ride with the shape.
+let ANCHOR = null;
+function el(tag, cls, style = {}, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  Object.assign(e.style, style);
+  if (text !== undefined) e.textContent = text;
+  world.appendChild(e);
+  return e;
+}
+/** A text / icon layer: enters (te) ~70 ms after the shape moves, exits faster (tx). */
+function layer(e, te, tx, extra = {}) {
+  if (ANCHOR) extra = { anchor: ANCHOR, ...extra };
+  layers.push({ e, te, tx, ...extra });
+  return e;
+}
+function txt(s, x, y, size, opts = {}) {
+  const e = el("div", "txt" + (opts.mono ? " mono" : ""), {
+    left: x + OX + "px", top: y + OY + "px", fontSize: size + "px",
+    fontWeight: opts.w ?? 400, color: opts.c ?? "var(--ink)",
+    letterSpacing: opts.ls ?? "normal", fontStyle: opts.italic ? "italic" : "normal",
+  }, s);
+  if (opts.align === "center") { e.style.transform = "translateX(-50%)"; e.dataset.tx = "-50%"; }
+  if (opts.align === "right") { e.style.transform = "translateX(-100%)"; e.dataset.tx = "-100%"; }
+  return e;
+}
+function box(x, y, w, h, style) {
+  return el("div", "box", { left: x + OX + "px", top: y + OY + "px", width: w + "px", height: h + "px", ...style });
+}
+const SVGNS = "http://www.w3.org/2000/svg";
+function svgLayer() {
+  const s = document.createElementNS(SVGNS, "svg");
+  s.setAttribute("class", "layer");
+  s.setAttribute("width", "492"); s.setAttribute("height", "2000");
+  s.setAttribute("viewBox", "0 0 492 2000");
+  world.appendChild(s);
+  return s;
+}
+function sv(parent, tag, attrs) {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  parent.appendChild(e);
+  return e;
+}
+
+// ---------------------------------------------------------------- timeline
+// State starts (beats): A 0 · B 3 · C 7 · D 15 · E 19 · F 22 · G 25 · return 27
+const tA = 0, tB = 1.5, tC = 3.5, tD = 7.5, tE = 9.5, tF = 11.0, tG = 12.5, tR = 13.5;
+const IN = 0.07; // layer enter lag after the shape starts moving
+
+// ---------------------------------------------------------------- geometry (world px)
+const TAB = { pvc: [0, 0, 240, 56], legno: [252, 0, 240, 56], allu: [0, 68, 492, 56] };
+const SEG = { fin: [0, 272, 240, 48], porta: [252, 272, 240, 48] };
+const FR = { x: 153, y: 540, w: 186, h: 300 };          // door 1300 x 2100 mm, 1 svg unit = 2 world px
+const DOOR_W = 1300, DOOR_H = 2100;
+const PANEL = [0, 1060, 492, 244];
+// E, F, G run back up a second column so the loop's return to A is short.
+const EO = { x: 620, y: -300 }, FO = { x: 620, y: -890 }, GO = { x: 620, y: -1556 };
+const at = (r, o) => [r[0] + o.x, r[1] + o.y, r[2], r[3]];
+const SEL0 = [252, 1468, 240, 41], CARD0 = [0, 1640, 492, 112], CTA0 = [0, 1892, 492, 46];
+const SEL = at(SEL0, EO);
+const SEL_OPEN_H = 125;
+const CARD = at(CARD0, FO);
+const CTA = at(CTA0, GO);
+
+// ---------------------------------------------------------------- background (page → panel)
+const bg = colorTrack([
+  { t: tB, c: "#f5f5f7" },
+  { t: tR, c: "#ffffff" },
+], 12);
+
+// ---------------------------------------------------------------- camera
+const CAM = [
+  { t: tA, x: 246, y: 20, z: 2.36 },
+  { t: tB, x: 246, y: 290, z: 2.58 },
+  { t: tC, x: 246, y: 708, z: 2.52 },
+  { t: tD, x: 246, y: 1182, z: 2.62 },
+  { t: tE, x: 246 + EO.x, y: 1450 + EO.y, z: 2.62 },
+  { t: tF, x: 246 + FO.x, y: 1696 + FO.y, z: 2.62 },
+  { t: tG, x: 246 + GO.x, y: 1886 + GO.y, z: 2.62 },
+  { t: tR, x: 246, y: 20, z: 2.36 },
+];
+// The camera rides a 4th-order step: it starts every pan from rest, so the frame never jerks.
+const CAM_W = 28;
+const camX = track(CAM.slice(1).map((k) => ({ t: k.t, v: k.x, w: CAM_W })), step4);
+const camY = track(CAM.slice(1).map((k) => ({ t: k.t, v: k.y, w: CAM_W })), step4);
+const camZ = track(CAM.slice(1).map((k) => ({ t: k.t, v: k.z, w: CAM_W })), step4);
+
+// ---------------------------------------------------------------- the one shape
+// Edges (l, r, t, b) so liquid moves can drive leading / trailing edges with different stiffness.
+const W_MORPH = 15, W_LEAD = 26, W_TRAIL = 13;
+const SHAPE = [
+  // t, rect, radius, border width, fill, border colour, liquid direction (+1 right, -1 left, 0 none)
+  { t: 1.0, r: TAB.legno, rad: 12, bw: 1, fill: "#ddf6ef", bc: "#16d19d", liquid: 1 },   // click Legno
+  { t: tB, r: SEG.fin, rad: 8, bw: 1, fill: "#d4ede8", bc: "#16d19d" },                   // → Finestra indicator
+  { t: 3.0, r: SEG.porta, rad: 8, bw: 1, fill: "#d4ede8", bc: "#16d19d", liquid: 1 },    // click Porta balcone
+  { t: tC, r: [FR.x, FR.y, FR.w, FR.h], rad: 6, bw: 9, fill: "#ffffff", bc: "#c9d3d8" }, // → window frame (finish: Bianco standard)
+  { t: tD, r: PANEL, rad: 8, bw: 1.5, fill: "#d4ede8", bc: "#16d19d" },                  // → "Anta 2" editor
+  { t: tE, r: SEL, rad: 8, bw: 1, fill: "#ffffff", bc: "#d2d2d7", w: 11 },               // → VAT select (crosses columns: softer)
+  { t: 10.0, r: [SEL[0], SEL[1], SEL[2], SEL_OPEN_H], rad: 8, bw: 1, fill: "#ffffff", bc: "#d2d2d7" }, // open
+  { t: 10.5, r: SEL, rad: 8, bw: 1, fill: "#ffffff", bc: "#d2d2d7" },                    // choose 10%
+  { t: tF, r: CARD, rad: 8, bw: 0, fill: "#16d19d", bc: "#16d19d" },                     // → estimate card
+  { t: tG, r: CTA, rad: 8, bw: 0, fill: "#16d19d", bc: "#16d19d" },                      // → CTA
+  { t: tR, r: TAB.pvc, rad: 12, bw: 1, fill: "#ddf6ef", bc: "#16d19d", w: 11 },          // → back to PVC tab (loop, crosses columns)
+];
+function edgeSteps(get, leadSide) {
+  return SHAPE.map((s) => {
+    let w = s.w ?? W_MORPH;
+    if (s.liquid) w = (s.liquid > 0) === leadSide ? W_LEAD : W_TRAIL;
+    return { t: s.t, v: get(s), w };
+  });
+}
+const shL = track(edgeSteps((s) => s.r[0], false));
+const shR = track(edgeSteps((s) => s.r[0] + s.r[2], true));
+const shT = track(SHAPE.map((s) => ({ t: s.t, v: s.r[1], w: s.w ?? W_MORPH })));
+const shB = track(SHAPE.map((s) => ({ t: s.t, v: s.r[1] + s.r[3], w: s.w ?? W_MORPH })));
+const shRad = track(SHAPE.map((s) => ({ t: s.t, v: s.rad, w: s.w ?? W_MORPH })));
+const shBw = track(SHAPE.map((s) => ({ t: s.t, v: s.bw, w: s.w ?? W_MORPH })));
+const shFill = colorTrack(SHAPE.map((s) => ({ t: s.t, c: s.fill })), W_MORPH);
+const shBc = colorTrack(SHAPE.map((s) => ({ t: s.t, c: s.bc })), W_MORPH);
+
+// ---------------------------------------------------------------- cursor (4th-order steps)
+const DIV_Y = FR.y + FR.h / 2 + 30;     // grab point on the divider, below the grip mark
+const R0 = 0.5, R1 = 0.19, R2 = 0.42;   // leaf ratios: start, below minimum (247 mm), safe (546 mm)
+const SL = { x0: 14, len: 464, y: PANEL[1] + 221, min: 300, max: Math.max(400, DOOR_H - 150), v0: DOOR_H / 2, v1: 1200 };
+const slX = (v) => SL.x0 + ((v - SL.min) / (SL.max - SL.min)) * SL.len;
+const W_CUR = 24;
+const CUR = [
+  { t: 0.10, x: 372, y: 30 },                          // → Legno
+  { t: 2.00, x: 372, y: 298 },                         // → Porta balcone
+  { t: 4.40, x: 294, y: 650 },                         // → leaf 2
+  { t: 5.00, x: FR.x + R0 * FR.w, y: DIV_Y },          // → divider
+  { t: 5.50, x: FR.x + R1 * FR.w, y: DIV_Y },          // drag below the minimum
+  { t: 6.50, x: FR.x + R2 * FR.w, y: DIV_Y },          // drag back to a safe width
+  { t: 7.60, x: slX(SL.v0), y: SL.y },                 // → handle-height slider thumb
+  { t: 8.50, x: slX(SL.v1), y: SL.y },                 // drag to 1200 mm
+  { t: 9.55, x: SEL[0] + 128, y: SEL[1] + 21 },       // → VAT select
+  { t: 10.05, x: SEL[0] + 108, y: SEL[1] + 41 + 4 + 36 + 18 }, // → "Ristrutturazione 10%"
+  { t: 11.10, x: CARD[0] + 440, y: CARD[1] + 150 },    // rest beside the card
+  { t: 12.00, x: CTA[0] + 300, y: CTA[1] + 24 },       // → CTA
+  { t: 13.55, x: 440, y: 150 },                        // back to rest (loop)
+];
+const curX = track(CUR.map((k) => ({ t: k.t, v: k.x, w: W_CUR })), step4);
+const curY = track(CUR.map((k) => ({ t: k.t, v: k.y, w: W_CUR })), step4);
+// Press: mouse down 80 ms before the beat, release on the beat.
+const CLICKS = [1.0, 3.0, 5.0, 10.0, 10.5, 13.0];
+const DRAGS = [[5.42, 6.0], [6.42, 7.0], [8.42, 9.0]];
+const pressSteps = [];
+for (const c of CLICKS) pressSteps.push({ t: c - 0.08, v: 1, w: 40 }, { t: c, v: 0, w: 30 });
+for (const [d, u] of DRAGS) pressSteps.push({ t: d, v: 1, w: 40 }, { t: u, v: 0, w: 30 });
+pressSteps.sort((a, b) => a.t - b.t);
+const press = track(pressSteps);
+
+// ---------------------------------------------------------------- drags (pure functions of t)
+function dividerRatio(t) {
+  const lo = 0.08, hi = 0.92;
+  const held = (grabT, r0) => clamp(r0 + (curX(t) - curX(grabT)) / FR.w, lo, hi);
+  const rel1 = clamp(R0 + (curX(6.0) - curX(5.42)) / FR.w, lo, hi);
+  const rel2 = clamp(rel1 + (curX(7.0) - curX(6.42)) / FR.w, lo, hi);
+  if (t < 5.42) return R0;
+  if (t < 6.0) return held(5.42, R0);
+  if (t < 6.42) return rel1; // released: springs back from wherever it is (target = release value)
+  if (t < 7.0) return held(6.42, rel1);
+  if (t < 10.0) return rel2;
+  return R0;                 // reset while the drawing is off screen
+}
+const snap10 = (v) => Math.round(v / 10) * 10;
+function sliderValue(t) {
+  const held = SL.v0 + ((curX(t) - curX(8.42)) / SL.len) * (SL.max - SL.min);
+  if (t < 8.42) return SL.v0;
+  if (t < 9.0) return clamp(held, SL.min, SL.max);
+  const rel = clamp(SL.v0 + ((curX(9.0) - curX(8.42)) / SL.len) * (SL.max - SL.min), SL.min, SL.max);
+  const target = snap10(rel);
+  return rel + (target - rel) * spring(t - 9.0, 30); // spring back from wherever it was released
+}
+
+// ---------------------------------------------------------------- build the scene
+// ---- A · header + material tabs (on the page, white)
+const A_IN = tR + IN, A_OUT = tB + T;
+const logo = box(0, -100, 40, 40, { background: "#0fbf8f", borderRadius: "10px" });
+layer(logo, A_IN, A_OUT);
+layer(txt("W/D", 20, -87, 13, { w: 700, c: "#04241b", align: "center" }), A_IN, A_OUT);
+layer(txt("onespec", 54, -100, 19, { w: 600 }), A_IN, A_OUT);
+layer(txt("Prezzi immediati per serramenti in PVC, legno e alluminio", 54, -73, 13, { c: "var(--muted)" }), A_IN + 0.03, A_OUT);
+const tabBg = {};
+for (const [k, r] of Object.entries(TAB)) {
+  tabBg[k] = box(r[0], r[1], r[2], r[3], { background: "#f5f5f7", border: "1px solid #d2d2d7", borderRadius: "12px" });
+  layer(tabBg[k], A_IN, A_OUT);
+}
+const SW = { pvc: "#dceaf0", legno: "#f1e4d2", allu: "#e6e9ea" };
+const TL = { pvc: "PVC", legno: "Legno", allu: "Alluminio" };
+const tabHoverBorder = colorTrack([{ t: 0.5, c: "#1d1d1f" }, { t: 1.0, c: "#d2d2d7" }], 20);
+
+// ---- B · product type (inside the "Configurazione" panel)
+const B_IN = tB + IN, B_OUT = tC;
+layer(txt("CONFIGURAZIONE", 0, 206, 15, { w: 700, ls: "0.9px" }), B_IN, B_OUT);
+layer(txt("Tipo di prodotto", 0, 244, 13.5, { w: 700 }), B_IN + 0.03, B_OUT);
+const segBg = {};
+for (const [k, r] of Object.entries(SEG)) {
+  segBg[k] = box(r[0], r[1], r[2], r[3], { background: "#ffffff", border: "1px solid #d2d2d7", borderRadius: "8px" });
+  layer(segBg[k], B_IN, B_OUT);
+}
+const portaHoverBorder = colorTrack([{ t: 2.5, c: "#1d1d1f" }, { t: 3.0, c: "#d2d2d7" }], 20);
+
+// ---- shape (z-order: above backgrounds, below labels)
+const shape = el("div", null, {});
+shape.id = "shape";
+
+// labels drawn over the shape
+for (const [k, r] of Object.entries(TAB)) {
+  const sw = box(r[0] + 14, r[1] + 15, 26, 26, { background: SW[k], borderRadius: "6px", border: "1px solid rgba(29,29,31,0.08)" });
+  layer(sw, A_IN, A_OUT);
+  layer(txt(TL[k], r[0] + 52, r[1] + 20, 16, { w: 600 }), A_IN + 0.02, A_OUT);
+}
+const segFinTxt = txt("Finestra", SEG.fin[0] + SEG.fin[2] / 2, SEG.fin[1] + 17, 13, { w: 600, align: "center" });
+const segPortaTxt = txt("Porta balcone", SEG.porta[0] + SEG.porta[2] / 2, SEG.porta[1] + 17, 13, { w: 600, align: "center" });
+layer(segFinTxt, B_IN + 0.02, B_OUT);
+layer(segPortaTxt, B_IN + 0.02, B_OUT);
+const finCol = colorTrack([{ t: tB, c: "#16d19d" }, { t: 3.0, c: "#1d1d1f" }], 22);
+const portaCol = colorTrack([{ t: tB, c: "#1d1d1f" }, { t: 3.0, c: "#16d19d" }], 22);
+layer(txt("→ Soglia in alluminio da 18mm inclusa", 0, 334, 12, { w: 600, c: "var(--accent)" }), 3.0 + IN, B_OUT);
+
+// ---- C · technical drawing (SpecDrawing rules, white finish)
+const C_IN = tC + IN, C_OUT = tD;
+layer(txt("DISEGNO TECNICO", 0, 462, 15, { w: 700, ls: "0.9px" }), C_IN, C_OUT);
+layer(txt("Vista: interno → esterno", 246, 502, 12, { c: "var(--muted)", align: "center" }), C_IN + 0.03, C_OUT);
+// dimension lines
+const dims = svgLayer();
+const hY = FR.y + FR.h + 44, vX = FR.x - 44;
+const DIMC = "#8A9492";
+sv(dims, "line", { x1: FR.x, y1: hY, x2: FR.x + FR.w, y2: hY, stroke: DIMC, "stroke-width": 2 });
+sv(dims, "line", { x1: FR.x, y1: hY - 10, x2: FR.x, y2: hY + 10, stroke: DIMC, "stroke-width": 2 });
+sv(dims, "line", { x1: FR.x + FR.w, y1: hY - 10, x2: FR.x + FR.w, y2: hY + 10, stroke: DIMC, "stroke-width": 2 });
+sv(dims, "line", { x1: vX, y1: FR.y, x2: vX, y2: FR.y + FR.h, stroke: DIMC, "stroke-width": 2 });
+sv(dims, "line", { x1: vX - 10, y1: FR.y, x2: vX + 10, y2: FR.y, stroke: DIMC, "stroke-width": 2 });
+sv(dims, "line", { x1: vX - 10, y1: FR.y + FR.h, x2: vX + 10, y2: FR.y + FR.h, stroke: DIMC, "stroke-width": 2 });
+layer(dims, 4.0, C_OUT);
+const dimW = txt(DOOR_W + " mm", FR.x + FR.w / 2, hY + 18, 22, { mono: true, c: "#8a9a97", align: "center" });
+layer(dimW, 4.0 + 0.03, C_OUT);
+const dimH = txt(DOOR_H + " mm", vX - 22, FR.y + FR.h / 2, 22, { mono: true, c: "#8a9a97" });
+dimH.dataset.tx = "-50%, -50%";
+dimH.dataset.rot = "1";
+layer(dimH, 4.0 + 0.03, C_OUT);
+// leaves: divider + leaf 2 (Anta-ribalta, destra) glyph + grip
+const leaves = svgLayer();
+const STROKE = "#C9D3D8";
+const gDiv = sv(leaves, "line", { stroke: STROKE, "stroke-width": 6, opacity: 0.75 });
+const gSw1 = sv(leaves, "line", { stroke: STROKE, "stroke-width": 4, opacity: 0.85 });
+const gSw2 = sv(leaves, "line", { stroke: STROKE, "stroke-width": 4, opacity: 0.85 });
+const gTt = sv(leaves, "polyline", { stroke: STROKE, "stroke-width": 4.4, fill: "none" });
+const gGrip = sv(leaves, "line", { stroke: "#1E5F74", "stroke-width": 6, "stroke-linecap": "round" });
+layer(leaves, 4.5, C_OUT);
+// selection of leaf 2: dashed outline + handle-height marker (default height / 2)
+const selG = svgLayer();
+const gSel = sv(selG, "rect", { fill: "none", stroke: "#1E5F74", "stroke-width": 4, "stroke-dasharray": "8 6" });
+const gHh = sv(selG, "line", { stroke: "#2563EB", "stroke-width": 2.8, "stroke-dasharray": "8 6" });
+const gHt = sv(selG, "text", { "text-anchor": "middle", "font-family": "IBM Plex Mono, monospace", "font-size": 18, fill: "#2563EB" });
+gHt.textContent = String(Math.round(DOOR_H / 2));
+layer(selG, 5.0, C_OUT);
+// minimum-width warning on leaf 1 (Fissa, min 300 mm)
+const warnG = svgLayer();
+const gWr = sv(warnG, "rect", { fill: "none", stroke: "#DC2626", "stroke-width": 4, "stroke-dasharray": "10 6" });
+const gWc = sv(warnG, "circle", { r: 14, fill: "#DC2626" });
+const gWt = sv(warnG, "text", { "text-anchor": "middle", "font-size": 18, "font-weight": 800, fill: "#FFFFFF", "font-family": "Space Grotesk, sans-serif" });
+gWt.textContent = "!";
+layer(txt("Triangolo = lato cerniera/ribalta, freccia dritta = senso di scorrimento", 246, 940, 12, { c: "var(--muted)", align: "center" }), 4.5 + 0.03, C_OUT);
+layer(txt("Clicca su un'anta nel disegno per modificarla", 246, 962, 12, { c: "var(--muted)", align: "center" }), 4.5 + 0.06, C_OUT);
+
+// ---- D · leaf editor "Anta 2"
+const D_IN = tD + IN, D_OUT = tE;
+const px = PANEL[0], py = PANEL[1];
+ANCHOR = [px, py];
+layer(txt("Anta 2", px + 14, py + 16, 12.5, { mono: true, w: 600, c: "var(--accent)" }), D_IN, D_OUT);
+const xBtn = box(px + 492 - 14 - 26, py + 10, 26, 26, { background: "#ffffff", border: "1px solid #d2d2d7", borderRadius: "13px" });
+layer(xBtn, D_IN, D_OUT);
+layer(txt("×", px + 492 - 14 - 13, py + 16, 14, { c: "var(--muted)", align: "center" }), D_IN, D_OUT);
+const FIELDS = [
+  ["Tipo di apertura", "Anta-ribalta", 14, 46], ["Lato apertura", "Destra", 253, 46],
+  ["Ferramenta (maniglie e cerniere)", "MACO", 14, 116], ["Colore ferramenta", "Bianco", 253, 116],
+];
+FIELDS.forEach(([lab, val, fx, fy], i) => {
+  const d = D_IN + 0.5 + i * 0.03; // beat 16: fields enter
+  layer(txt(lab, px + fx, py + fy, 11.5, { w: 500, c: "var(--muted)" }), d, D_OUT);
+  layer(box(px + fx, py + fy + 18, 225, 41, { background: "#ffffff", border: "1px solid #d2d2d7", borderRadius: "8px" }), d, D_OUT);
+  layer(txt(val, px + fx + 14, py + fy + 31, 13.5), d + 0.02, D_OUT);
+  layer(txt("⌄", px + fx + 225 - 22, py + fy + 26, 14, { c: "var(--ink)" }), d + 0.02, D_OUT);
+});
+const hlab = txt("Altezza maniglia:", px + 14, py + 192, 11.5, { w: 500, c: "var(--muted)" });
+layer(hlab, D_IN + 0.55, D_OUT);
+const hval = txt("", px + 116, py + 192, 11.5, { w: 700, c: "var(--ink)" });
+layer(hval, D_IN + 0.55, D_OUT);
+const slTrack = box(px + SL.x0, SL.y - 3, SL.len, 6, { background: "#3b3b3b", borderRadius: "3px" });
+const slFill = box(px + SL.x0, SL.y - 3, 10, 6, { background: "#16d19d", borderRadius: "3px" });
+const slThumb = box(0, SL.y - 9, 18, 18, { background: "#16d19d", borderRadius: "9px" });
+layer(slTrack, D_IN + 0.58, D_OUT); layer(slFill, D_IN + 0.58, D_OUT); layer(slThumb, D_IN + 0.6, D_OUT);
+
+ANCHOR = null;
+
+// ---- E · VAT rate (Italian region policy) + surface rows + Ecobonus
+const E_IN = tE + IN, E_OUT = tF;
+OX = EO.x; OY = EO.y;
+layer(txt("PREVENTIVO", 0, 1290, 15, { w: 700, ls: "0.9px" }), E_IN, E_OUT);
+const ROWS = [["Superficie", "2,73 m²", 1326], ["Perimetro telaio", "6,80 m", 1362]];
+ROWS.forEach(([a, b, y], i) => {
+  layer(txt(a, 0, y + 8, 13, { c: "var(--muted)" }), E_IN + 0.02 + i * 0.03, E_OUT);
+  layer(txt(b, 492, y + 8, 13, { w: 500, align: "right" }), E_IN + 0.02 + i * 0.03, E_OUT);
+  layer(box(0, y + 33, 492, 1, { background: "#d2d2d7" }), E_IN + i * 0.03, E_OUT);
+});
+layer(box(0, 1414, 150, 39, { background: "#d4ede8", borderRadius: "999px" }), E_IN + 0.04, E_OUT);
+layer(txt("ECOBONUS 50%", 75, 1426, 15, { w: 700, italic: true, c: "var(--accent)", align: "center" }), E_IN + 0.06, E_OUT);
+layer(txt("ALIQUOTA IVA", 0, 1482, 13.5, { w: 700 }), E_IN + 0.05, E_OUT);
+ANCHOR = [SEL[0], SEL[1]];
+layer(txt("IVA ordinaria 22%", SEL0[0] + 16, SEL0[1] + 14, 13.5), E_IN + 0.02, 10.5);
+layer(txt("Ristrutturazione 10%", SEL0[0] + 16, SEL0[1] + 14, 13.5), 10.5 + IN, E_OUT);
+layer(txt("⌄", SEL0[0] + SEL0[2] - 24, SEL0[1] + 10, 14), E_IN + 0.02, E_OUT);
+// open list (values from convex/lib/regions.ts, IT)
+const OPT_Y = SEL0[1] + 45;
+layer(box(SEL0[0] + 4, OPT_Y, SEL0[2] - 8, 36, { background: "#ddf6ef", borderRadius: "6px" }), 10.0 + IN, 10.5);
+layer(txt("IVA ordinaria 22%", SEL0[0] + 16, OPT_Y + 11, 13.5), 10.0 + IN, 10.5);
+const opt2Bg = box(SEL0[0] + 4, OPT_Y + 40, SEL0[2] - 8, 36, { background: "#f5f5f7", borderRadius: "6px" });
+layer(opt2Bg, 10.0 + IN + 0.02, 10.5);
+layer(txt("Ristrutturazione 10%", SEL0[0] + 16, OPT_Y + 51, 13.5), 10.0 + IN + 0.02, 10.5);
+ANCHOR = null;
+
+// ---- F · estimate card (the demo € amount is left out: it comes from the fallback price table)
+const F_IN = tF + IN, F_OUT = tG;
+OX = FO.x; OY = FO.y;
+ANCHOR = [CARD[0], CARD[1]];
+layer(txt("TOTALE STIMATO IVA INCLUSA", CARD0[0] + 18, CARD0[1] + 22, 11.5, { w: 600, ls: "1.2px", c: "var(--cta-ink)" }), F_IN, F_OUT);
+layer(txt("Stima orientativa · non è un preventivo contrattuale.", CARD0[0] + 18, CARD0[1] + 56, 12.5, { c: "var(--cta-ink)" }), F_IN + 0.04, F_OUT);
+layer(txt("Posa in opera secondo norma UNI 11673-1:2017", CARD0[0] + 18, CARD0[1] + 80, 12.5, { c: "var(--cta-ink)" }), 12.0 + IN, F_OUT);
+
+// ---- G · call to action → site-visit request
+const G_IN = tG + IN, G_OUT = tR;
+OX = GO.x; OY = GO.y; ANCHOR = null;
+layer(box(0, 1830, 492, 50, { border: "1px solid #0fbf8f", borderRadius: "8px" }), G_IN, G_OUT);
+layer(txt("+ Aggiungi un'altra finestra / porta balcone", 246, 1848, 13.5, { w: 600, c: "var(--accent-dark)", align: "center" }), G_IN + 0.02, G_OUT);
+ANCHOR = [CTA[0], CTA[1]];
+layer(txt("→ Completa e richiedi preventivo", 246, CTA0[1] + 16, 13.5, { w: 700, c: "var(--cta-ink)", align: "center" }), G_IN, 13.0);
+layer(txt("Richiedi un sopralluogo", 246, CTA0[1] + 16, 13.5, { w: 700, c: "var(--cta-ink)", align: "center" }), 13.0 + IN, G_OUT);
+
+OX = 0; OY = 0; ANCHOR = null;
+
+// ---------------------------------------------------------------- sounds
+const SOUNDS = [];
+for (const c of CLICKS) SOUNDS.push({ t: c, type: "click" });
+for (const [d, u] of DRAGS) { SOUNDS.push({ t: d, type: "press" }); SOUNDS.push({ t: u, type: "release" }); }
+// slider ticks: every 10 mm step crossed while dragging
+{
+  let prev = snap10(sliderValue(8.42));
+  for (let t = 8.42; t <= 9.0; t += 1 / 960) {
+    const v = snap10(sliderValue(t));
+    if (v !== prev) { SOUNDS.push({ t: +t.toFixed(4), type: "tick" }); prev = v; }
+  }
+}
+SOUNDS.sort((a, b) => a.t - b.t);
+
+// ---------------------------------------------------------------- seek
+const stage = document.getElementById("stage");
+const cursor = document.getElementById("cursor");
+function vis(L, t) {
+  const f = (tt) => clamp(spring(tt - L.te, 18, 0.9)) * (1 - clamp(spring(tt - L.tx, 34, 0.9)));
+  return Math.max(f(t), f(t + T));
+}
+function seek(tIn) {
+  const t = ((tIn % T) + T) % T;
+  stage.style.background = bg(t);
+  const z = camZ(t), cx = camX(t), cy = camY(t);
+  world.style.transform = `translate(${720 - cx * z}px, ${720 - cy * z}px) scale(${z})`;
+
+  const sL = shL(t), sT = shT(t);
+  // text / icon layers: opacity, ~3 px (screen) blur, scale 0.965 → 1
+  for (const L of layers) {
+    const v = vis(L, t);
+    const e = L.e;
+    e.style.opacity = v.toFixed(4);
+    e.style.visibility = v < 0.002 ? "hidden" : "visible";
+    const blur = (1 - v) * 3 / z;
+    e.style.filter = blur > 0.01 ? `blur(${blur.toFixed(3)}px)` : "none";
+    const s = 0.965 + 0.035 * v;
+    const pre = e.dataset.tx ? (e.dataset.tx.includes(",") ? `translate(${e.dataset.tx}) ` : `translateX(${e.dataset.tx}) `) : "";
+    const rot = e.dataset.rot ? " rotate(-90deg)" : "";
+    const anc = L.anchor ? `translate(${(sL - L.anchor[0]).toFixed(3)}px, ${(sT - L.anchor[1]).toFixed(3)}px) ` : "";
+    e.style.transform = `${anc}${pre}scale(${s.toFixed(4)})${rot}`;
+    if (!e.style.transformOrigin) e.style.transformOrigin = e.tagName === "svg" ? "246px 700px" : "50% 50%";
+  }
+
+  // hover states
+  tabBg.legno.style.borderColor = tabHoverBorder(t);
+  segBg.porta.style.borderColor = portaHoverBorder(t);
+  segFinTxt.style.color = finCol(t);
+  segPortaTxt.style.color = portaCol(t);
+
+  // the shape
+  const l = shL(t), r = shR(t), tp = shT(t), b = shB(t);
+  Object.assign(shape.style, {
+    left: l + "px", top: tp + "px", width: Math.max(0, r - l) + "px", height: Math.max(0, b - tp) + "px",
+    borderRadius: Math.max(0, shRad(t)) + "px", borderWidth: Math.max(0, shBw(t)) + "px",
+    background: shFill(t), borderColor: shBc(t),
+  });
+
+  // drawing (live divider)
+  const ratio = dividerRatio(t);
+  const dx = FR.x + ratio * FR.w;
+  const top = FR.y, bot = FR.y + FR.h, mid = FR.y + FR.h / 2;
+  gDiv.setAttribute("x1", dx); gDiv.setAttribute("x2", dx); gDiv.setAttribute("y1", top); gDiv.setAttribute("y2", bot);
+  const sx = dx, sx2 = FR.x + FR.w, apexX = sx + 12, farX = sx2 - 12;   // direction "right": apex on the leaf's left
+  gSw1.setAttribute("x1", farX); gSw1.setAttribute("y1", top + 16); gSw1.setAttribute("x2", apexX); gSw1.setAttribute("y2", mid);
+  gSw2.setAttribute("x1", farX); gSw2.setAttribute("y1", bot - 16); gSw2.setAttribute("x2", apexX); gSw2.setAttribute("y2", mid);
+  const ccx = (sx + sx2) / 2, by = bot - 20;
+  gTt.setAttribute("points", `${ccx - 18},${by} ${ccx},${by - 20} ${ccx + 18},${by}`);
+  gGrip.setAttribute("x1", dx); gGrip.setAttribute("x2", dx); gGrip.setAttribute("y1", mid - 16); gGrip.setAttribute("y2", mid + 16);
+  gSel.setAttribute("x", sx + 4); gSel.setAttribute("y", top + 4); gSel.setAttribute("width", Math.max(0, sx2 - sx - 8)); gSel.setAttribute("height", FR.h - 8);
+  const hy = bot - (Math.round(DOOR_H / 2) / DOOR_H) * FR.h;
+  gHh.setAttribute("x1", sx + 6); gHh.setAttribute("x2", sx2 - 6); gHh.setAttribute("y1", hy); gHh.setAttribute("y2", hy);
+  gHt.setAttribute("x", ccx); gHt.setAttribute("y", hy - 8);
+  const leftMm = Math.round(DOOR_W * ratio);
+  const warn = clamp((300 - leftMm) / 6);     // real rule: fixed leaf < 300 mm
+  const warnVis = warn * vis({ te: 4.5, tx: C_OUT }, t);
+  warnG.style.opacity = warnVis.toFixed(4);
+  warnG.style.visibility = warnVis < 0.002 ? "hidden" : "visible";
+  gWr.setAttribute("x", FR.x + 2); gWr.setAttribute("y", top + 2); gWr.setAttribute("width", Math.max(0, dx - FR.x - 4)); gWr.setAttribute("height", FR.h - 4);
+  gWc.setAttribute("cx", dx - 18); gWc.setAttribute("cy", top + 18);
+  gWt.setAttribute("x", dx - 18); gWt.setAttribute("y", top + 25);
+
+  // slider
+  const sv_ = sliderValue(t);
+  const thumbX = px + slX(sv_);
+  slThumb.style.left = (thumbX - 9) + "px";
+  slFill.style.width = Math.max(0, thumbX - (px + SL.x0)) + "px";
+  hval.textContent = snap10(sv_) + " mm";
+
+  // cursor (screen space, constant size)
+  const wx = curX(t), wy = curY(t);
+  const scx = 720 + (wx - cx) * z, scy = 720 + (wy - cy) * z;
+  const ps = 1 - 0.12 * clamp(press(t), -0.2, 1.2);
+  cursor.style.transform = `translate(${scx - 5.3}px, ${scy - 3.5}px) scale(${ps})`;
+
+  return { t, cam: { x: cx, y: cy, z }, cursor: { x: scx, y: scy, wx, wy },
+           shape: { l, r, t: tp, b },
+           shapeScreen: { l: 720 + (l - cx) * z, r: 720 + (r - cx) * z, t: 720 + (tp - cy) * z, b: 720 + (b - cy) * z }, ratio, divider: { wx: dx }, slider: { v: sv_, thumbWx: thumbX } };
+}
+
+window.seek = seek;
+window.SOUNDS = SOUNDS;
+window.SCENE = { T, BEAT, CLICKS, DRAGS, tStates: { tA, tB, tC, tD, tE, tF, tG, tR } };
+window.READY = false;
+seek(0);
+document.fonts.ready.then(async () => {
+  await Promise.all([
+    document.fonts.load('600 16px "Space Grotesk"'), document.fonts.load('700 16px "Space Grotesk"'),
+    document.fonts.load('400 16px "Space Grotesk"'), document.fonts.load('500 16px "Space Grotesk"'),
+    document.fonts.load('400 16px "IBM Plex Mono"'), document.fonts.load('600 16px "IBM Plex Mono"'),
+  ]);
+  window.FONTS_OK = document.fonts.check('600 16px "Space Grotesk"') && document.fonts.check('400 16px "IBM Plex Mono"');
+  seek(0);
+  window.READY = true;
+});
+})();
+</script>
+</body>
+</html>

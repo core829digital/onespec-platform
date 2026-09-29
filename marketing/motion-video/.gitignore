@@ -1,0 +1,5 @@
+node_modules/
+frames/
+*.wav
+stills/
+video-silent.mp4

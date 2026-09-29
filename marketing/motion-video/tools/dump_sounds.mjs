@@ -1,0 +1,13 @@
+import { chromium } from "playwright";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const b = await chromium.launch();
+const p = await b.newPage();
+await p.goto(pathToFileURL(path.join(root, "scene.html")).href);
+await p.waitForFunction(() => window.READY === true);
+const data = await p.evaluate(() => ({ T: window.SCENE.T, sounds: window.SOUNDS }));
+fs.writeFileSync(path.join(root, "sounds.json"), JSON.stringify(data, null, 1));
+console.log(data.sounds.length, "events");
+await b.close();
