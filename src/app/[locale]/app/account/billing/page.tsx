@@ -9,9 +9,10 @@ import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useFriendlyError } from "@/lib/use-friendly-error";
-import { isWidgetPlanKey, planDisplayName } from "@/lib/plan-gates";
+import { planDisplayName } from "@/lib/plan-gates";
 import { UsageMeters } from "@/components/billing/usage-meters";
 import { SectionBoundary } from "@/components/section-boundary";
+import { BILLING_PLANS } from "@/convex/lib/billingPlans";
 
 type SelfServePlan = "essentials" | "essentials_plus" | "max" | "base" | "pro" | "agency";
 
@@ -188,14 +189,17 @@ export default function BillingPage() {
   if (state === null) return <p className="text-[var(--color-danger)]">{t("error.unavailable")}</p>;
 
   // Tolerant of a backend that predates the plan families (frontend deployed
-  // before `npx convex deploy`): derive the family / annual flag instead of
-  // filtering every card out.
-  const displayPlans = state.plans.map((p) => {
+  // before the Convex deploy): derive the family / annual flag, and fill in any
+  // catalogue plan the backend does not list yet, so every card always renders
+  // in catalogue order. Backend values win whenever present.
+  const backendPlans = new Map(state.plans.map((p) => [p.key as string, p]));
+  const displayPlans = BILLING_PLANS.map((c) => {
+    const p = backendPlans.get(c.key) ?? { key: c.key, name: c.name, priceCents: c.priceCents };
     const raw = p as typeof p & { family?: "widget" | "platform"; annualBilling?: boolean };
     return {
       ...p,
-      family: raw.family ?? (isWidgetPlanKey(p.key) ? ("widget" as const) : ("platform" as const)),
-      annualBilling: raw.annualBilling ?? (p.key !== "agency" && p.key !== "enterprise" && !isWidgetPlanKey(p.key)),
+      family: raw.family ?? c.family,
+      annualBilling: raw.annualBilling ?? (c.family === "platform" && c.key !== "agency" && c.key !== "enterprise"),
     };
   });
 
