@@ -5,6 +5,7 @@ import { useQuery } from "convex/react";
 import { useFormatter, useTranslations } from "next-intl";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
+import { usePlanAccess } from "@/lib/plan-gates";
 import { StatCard } from "@/components/app-shell/stat-card";
 import { EmptyState } from "@/components/app-shell/empty-state";
 import { RangeSwitcher, RANGE_LABEL, type AnalyticsRange } from "@/components/analytics/range-switcher";
@@ -98,22 +99,29 @@ export default function DashboardPage() {
     api.analytics.getPlanUsage,
     tenant ? { tenantId: tenant._id } : "skip",
   );
+  // Modules the plan locks (widget-first plans) are skipped, not queried: the
+  // server would refuse them and the dashboard must keep working.
+  const access = usePlanAccess(tenant?._id);
   const logisticsSummary = useQuery(
     api.logistics.getLogisticsSummary,
-    tenant ? { tenantId: tenant._id } : "skip",
+    tenant && access && !access.isLocked("logistics") ? { tenantId: tenant._id } : "skip",
   );
   const clients = useQuery(
     api.clients.listClients,
-    tenant ? { tenantId: tenant._id, limit: 200 } : "skip",
+    tenant && access && !access.isLocked("crm") ? { tenantId: tenant._id, limit: 200 } : "skip",
   );
   const members = useQuery(
     api.tenants.listMembers,
     tenant ? { tenantId: tenant._id } : "skip",
   );
+  const cantieriLocked = access ? access.isLocked("cantieri") : false;
   const cantieri = useQuery(
     api.cantieri.listCantieri,
-    tenant ? { tenantId: tenant._id, limit: 6 } : "skip",
+    tenant && access && !cantieriLocked ? { tenantId: tenant._id, limit: 6 } : "skip",
   );
+  // Quick actions / panels only for modules the plan includes (Level plans
+  // lock B2B quotes, CRM and cantieri — those links would open a lock page).
+  const can = (f: "fieldQuotes" | "crm" | "cantieri") => !!access && !access.isLocked(f);
 
   const money = (cents: number) =>
     format.number(cents / 100, { style: "currency", currency: "EUR", maximumFractionDigits: 0 });
@@ -168,6 +176,7 @@ export default function DashboardPage() {
       {/* Quick actions — Fitt's Law: the most common next steps sit right
           under the page title, one click away, instead of buried in nav. */}
       <div className="flex flex-wrap gap-2">
+{can("fieldQuotes") ? (
         <Link
           href="/app/quotes/new"
           className="inline-flex items-center gap-2 rounded-lg bg-[var(--color-mint)] px-4 py-2 text-sm font-semibold text-[var(--color-mint-dark)] transition-opacity hover:opacity-90"
@@ -175,6 +184,8 @@ export default function DashboardPage() {
           <PenLine className="h-4 w-4" />
           {t("quickActions.newQuote")}
         </Link>
+        ) : null}
+{can("crm") ? (
         <Link
           href="/app/clients?new=1"
           className="inline-flex items-center gap-2 rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm font-medium text-[var(--color-text)] transition-colors hover:bg-[var(--color-bg-alt)]"
@@ -182,6 +193,8 @@ export default function DashboardPage() {
           <Contact className="h-4 w-4" />
           {t("quickActions.newClient")}
         </Link>
+        ) : null}
+{can("cantieri") ? (
         <Link
           href="/app/cantieri?new=1"
           className="inline-flex items-center gap-2 rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm font-medium text-[var(--color-text)] transition-colors hover:bg-[var(--color-bg-alt)]"
@@ -189,6 +202,7 @@ export default function DashboardPage() {
           <Building2 className="h-4 w-4" />
           {t("quickActions.newCantiere")}
         </Link>
+        ) : null}
         <Link
           href="/app/configurators"
           className="inline-flex items-center gap-2 rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm font-medium text-[var(--color-text)] transition-colors hover:bg-[var(--color-bg-alt)]"
@@ -345,15 +359,18 @@ export default function DashboardPage() {
                         <p className="truncate text-xs capitalize text-[var(--color-text-secondary)]">{m.role}</p>
                       </div>
                     </div>
-                    <span className="shrink-0 text-xs tabular-nums text-[var(--color-text-secondary)]">
-                      {t("team.openCantieri", { count: openCantieriPerMember.get(m.userId) ?? 0 })}
-                    </span>
+                    {!cantieriLocked ? (
+                      <span className="shrink-0 text-xs tabular-nums text-[var(--color-text-secondary)]">
+                        {t("team.openCantieri", { count: openCantieriPerMember.get(m.userId) ?? 0 })}
+                      </span>
+                    ) : null}
                   </li>
                 ))}
             </ul>
           )}
         </section>
 
+{!cantieriLocked ? (
         <section className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-[var(--color-text)] flex items-center gap-2">
@@ -395,6 +412,7 @@ export default function DashboardPage() {
             </ul>
           )}
         </section>
+        ) : null}
       </div>
 
       <section className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl">

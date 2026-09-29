@@ -3,18 +3,40 @@ import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import { internal } from "./_generated/api";
 import { requireMembership } from "./lib/auth";
-import { resolveTenantEntitlements } from "./lib/entitlements";
+import { entitlementsFor, isWidgetPlan as isWidgetPlanKey, resolveTenantEntitlements } from "./lib/entitlements";
 import {
   BILLING_PLANS,
+  SELF_SERVE_PLANS,
   listPriceCents,
   resolveStripePriceId,
   planFromStripePriceId,
+  type BillablePlan,
   type BillingCycle,
 } from "./lib/billingPlans";
+import { unlockOnPlanChange, unlockOnReactivation } from "./usage";
 import { regionForCountry } from "./lib/regions";
 import { createPostHogClient } from "./lib/posthog";
 
 const STRIPE_API = "https://api.stripe.com/v1";
+
+/** Self-serve plans, both families (widget-first first). */
+const selfServePlan = v.union(
+  v.literal("essentials"),
+  v.literal("essentials_plus"),
+  v.literal("max"),
+  v.literal("base"),
+  v.literal("pro"),
+  v.literal("agency"),
+);
+
+function isSelfServePlan(plan: unknown): plan is BillablePlan {
+  return typeof plan === "string" && (SELF_SERVE_PLANS as readonly string[]).includes(plan);
+}
+
+/** Annual billing only where the plan offers it (never on the widget-first plans or Agency). */
+function assertCycleAllowed(plan: BillablePlan, cycle: BillingCycle): void {
+  if (cycle === "annual" && !entitlementsFor(plan).annualBilling) throw new ConvexError("ANNUAL_NOT_AVAILABLE");
+}
 const stripeKey = () => process.env.STRIPE_SECRET_KEY ?? "";
 const siteUrl = () => process.env.SITE_URL ?? "";
 
@@ -141,10 +163,15 @@ export const getBillingState = query({
       platformBalanceCents: tenant.stripeBalanceCents ?? 0,
       checkoutAvailable: configured,
       portalAvailable: configured && !!tenant.stripeCustomerId,
+      /** The one-time Pro trial was already used (the CTA must not promise it again). */
+      trialUsed: !!tenant.trialStartedAt,
+      // Widget-first plans first, then the full platform (BILLING_PLANS order).
       plans: BILLING_PLANS.map((p) => ({
         key: p.key,
         name: p.name,
+        family: p.family,
         priceCents: listPriceCents(p.key, region),
+        annualBilling: p.key === "enterprise" ? false : entitlementsFor(p.key).annualBilling,
       })),
     };
   },
@@ -194,9 +221,27 @@ export const assertOwner = internalQuery({
       slug: tenant.slug,
       country: tenant.country ?? null,
       trialStartedAt: tenant.trialStartedAt ?? null,
+      // Bounded: only compared against a widget-first plan's seat cap (≤ 3).
+      activeMembers: (
+        await ctx.db
+          .query("memberships")
+          .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+          .filter((q) => q.eq(q.field("status"), "active"))
+          .take(100)
+      ).length,
     };
   },
 });
+
+/**
+ * Moving INTO a widget-first plan with more active members than its seats
+ * would leave the tenant over its limit: refuse and ask to remove members
+ * first. (Full-platform targets keep today's behaviour.)
+ */
+function assertSeatsFit(plan: BillablePlan, activeMembers: number): void {
+  if (!isWidgetPlanKey(plan)) return;
+  if (activeMembers > entitlementsFor(plan).maxTeamMembers) throw new ConvexError("TEAM_EXCEEDS_TARGET_PLAN");
+}
 
 // ---------------------------------------------------------------------------
 // Checkout / portal (dormant until STRIPE_SECRET_KEY is set)
@@ -205,7 +250,7 @@ export const assertOwner = internalQuery({
 export const createCheckoutSession = action({
   args: {
     tenantId: v.id("tenants"),
-    plan: v.union(v.literal("base"), v.literal("pro"), v.literal("agency")),
+    plan: selfServePlan,
     cycle: v.optional(v.union(v.literal("monthly"), v.literal("annual"))),
     origin: v.optional(v.string()),
   },
@@ -214,8 +259,15 @@ export const createCheckoutSession = action({
     const planKey = args.plan;
     const cycle: BillingCycle = args.cycle ?? "monthly";
 
+    assertCycleAllowed(planKey, cycle);
     const owner = await ctx.runQuery(internal.billing.assertOwner, { tenantId: args.tenantId });
     await limitBilling(ctx, args.tenantId, "checkout");
+    // A second Checkout would open a SECOND subscription (double billing):
+    // a tenant with a live subscription switches plan via changePlan.
+    if (owner.stripeSubscriptionId && ["active", "trialing", "past_due"].includes(owner.planStatus)) {
+      throw new ConvexError("ALREADY_SUBSCRIBED");
+    }
+    assertSeatsFit(planKey, owner.activeMembers);
     const region = regionForCountry(owner.country).code;
     const priceId = resolveStripePriceId(planKey, cycle, region);
     if (!priceId) throw new ConvexError("BILLING_PRICE_NOT_CONFIGURED");
@@ -227,6 +279,11 @@ export const createCheckoutSession = action({
       customer: owner.stripeCustomerId,
       customer_email: owner.stripeCustomerId ? undefined : owner.email,
       client_reference_id: args.tenantId,
+      // Session-level metadata too: checkout.session.completed only carries
+      // the session's own metadata, not subscription_data's.
+      "metadata[tenantId]": args.tenantId,
+      "metadata[plan]": planKey,
+      "metadata[cycle]": cycle,
       "subscription_data[metadata][tenantId]": args.tenantId,
       "subscription_data[metadata][plan]": planKey,
       "subscription_data[metadata][cycle]": cycle,
@@ -257,6 +314,7 @@ export const createCheckoutSession = action({
       params["subscription_data[trial_period_days]"] = "14";
       params["payment_method_collection"] = "always";
       params["subscription_data[metadata][trialPlan]"] = "pro";
+      params["metadata[trialPlan]"] = "pro";
     }
 
     const session = await stripe("/checkout/sessions", params);
@@ -315,7 +373,7 @@ async function currentSubscriptionItemId(subscriptionId: string): Promise<string
 export const previewPlanChange = action({
   args: {
     tenantId: v.id("tenants"),
-    plan: v.union(v.literal("base"), v.literal("pro"), v.literal("agency")),
+    plan: selfServePlan,
     cycle: v.optional(v.union(v.literal("monthly"), v.literal("annual"))),
   },
   handler: async (
@@ -332,8 +390,10 @@ export const previewPlanChange = action({
     const owner = await ctx.runQuery(internal.billing.assertOwner, { tenantId: args.tenantId });
     await limitBilling(ctx, args.tenantId, "preview");
     if (!owner.stripeSubscriptionId) throw new ConvexError("NO_SUBSCRIPTION");
+    assertSeatsFit(args.plan, owner.activeMembers);
 
     const cycle: BillingCycle = args.cycle ?? "monthly";
+    assertCycleAllowed(args.plan, cycle);
     const region = regionForCountry(owner.country).code;
     const priceId = resolveStripePriceId(args.plan, cycle, region);
     if (!priceId) throw new ConvexError("BILLING_PRICE_NOT_CONFIGURED");
@@ -417,7 +477,7 @@ export function previewAmounts(preview: Record<string, unknown>): {
 export const changePlan = action({
   args: {
     tenantId: v.id("tenants"),
-    plan: v.union(v.literal("base"), v.literal("pro"), v.literal("agency")),
+    plan: selfServePlan,
     cycle: v.optional(v.union(v.literal("monthly"), v.literal("annual"))),
   },
   handler: async (ctx, args): Promise<{ ok: true }> => {
@@ -425,8 +485,10 @@ export const changePlan = action({
     const owner = await ctx.runQuery(internal.billing.assertOwner, { tenantId: args.tenantId });
     await limitBilling(ctx, args.tenantId, "change");
     if (!owner.stripeSubscriptionId) throw new ConvexError("NO_SUBSCRIPTION");
+    assertSeatsFit(args.plan, owner.activeMembers);
 
     const cycle: BillingCycle = args.cycle ?? "monthly";
+    assertCycleAllowed(args.plan, cycle);
     const region = regionForCountry(owner.country).code;
     const priceId = resolveStripePriceId(args.plan, cycle, region);
     if (!priceId) throw new ConvexError("BILLING_PRICE_NOT_CONFIGURED");
@@ -536,8 +598,12 @@ export const applySubscriptionSync = internalMutation({
     const patch = subscriptionPatch(sub, tenant, sub.status === "canceled");
     if (customer) patch.stripeCustomerId = customer;
     if (typeof args.balanceCents === "number") patch.stripeBalanceCents = args.balanceCents;
+    // This is Stripe's CURRENT state: any webhook created before now is older.
+    patch.stripeLastEventCreated = Math.floor(Date.now() / 1000);
     patch.updatedAt = Date.now();
     await ctx.db.patch(tenant._id, patch as never);
+    if (typeof patch.plan === "string") await unlockOnPlanChange(ctx, tenant._id, tenant.plan, patch.plan);
+    if (patch.planStatus !== undefined) await unlockOnReactivation(ctx, tenant._id, tenant.planStatus, patch.planStatus);
     await ctx.db.insert("auditLog", {
       tenantId: tenant._id,
       actorKind: "system",
@@ -650,10 +716,10 @@ export function subscriptionPatch(
 
   const meta = (obj.metadata ?? {}) as Record<string, string>;
   const mapped = item?.price?.id ? planFromStripePriceId(item.price.id) : null;
-  if (mapped && (mapped.plan === "base" || mapped.plan === "pro" || mapped.plan === "agency")) {
+  if (mapped && isSelfServePlan(mapped.plan)) {
     patch.plan = mapped.plan;
     patch.billingCycle = mapped.cycle;
-  } else if (meta.plan === "base" || meta.plan === "pro" || meta.plan === "agency") {
+  } else if (isSelfServePlan(meta.plan)) {
     // Price not recognised (env mismatch): fall back to the plan we stamped on
     // the subscription ourselves at checkout / plan change.
     patch.plan = meta.plan;
@@ -674,7 +740,7 @@ export function subscriptionPatch(
 }
 
 export const applyWebhookEvent = internalMutation({
-  args: { eventId: v.string(), type: v.string(), data: v.any() },
+  args: { eventId: v.string(), type: v.string(), data: v.any(), created: v.optional(v.number()) },
   handler: async (ctx, args) => {
     const seen = await ctx.db
       .query("billingEvents")
@@ -723,12 +789,26 @@ export const applyWebhookEvent = internalMutation({
         const patch: Record<string, unknown> = {};
         if (customerId) patch.stripeCustomerId = customerId;
 
-        if (args.type === "checkout.session.completed") {
+        // Stripe does not guarantee delivery order: a late, OLDER subscription
+        // event must not overwrite a newer state (e.g. revert an upgrade).
+        const planEvent = args.type === "checkout.session.completed" || args.type.startsWith("customer.subscription");
+        const stale =
+          planEvent &&
+          typeof args.created === "number" &&
+          typeof tenantDoc?.stripeLastEventCreated === "number" &&
+          args.created < tenantDoc.stripeLastEventCreated;
+        if (planEvent && typeof args.created === "number" && !stale) patch.stripeLastEventCreated = args.created;
+
+        if (args.type === "checkout.session.completed" && !stale) {
           patch.stripeSubscriptionId = obj.subscription as string;
           if (tenantDoc?.planStatus !== "trialing" && tenantDoc?.planStatus !== "active") {
             patch.planStatus = "active";
           }
           const meta = (obj.metadata ?? {}) as Record<string, string>;
+          // The plan that was actually paid for — otherwise the tenant would
+          // sit on its previous plan (e.g. the signup default) until the
+          // subscription event lands.
+          if (isSelfServePlan(meta.plan)) patch.plan = meta.plan;
           if (meta.trialPlan === "pro") {
             patch.plan = "pro";
             patch.trialPlan = "pro";
@@ -738,13 +818,19 @@ export const applyWebhookEvent = internalMutation({
             patch.billingCycle = meta.cycle;
           }
         }
-        if (args.type.startsWith("customer.subscription")) {
+        if (args.type.startsWith("customer.subscription") && !stale) {
           Object.assign(patch, subscriptionPatch(obj, tenantDoc, args.type === "customer.subscription.deleted"));
         }
         if (args.type === "customer.updated" && typeof obj.balance === "number") {
           patch.stripeBalanceCents = obj.balance;
         }
         await ctx.db.patch(tenantId as never, patch);
+        if (tenantDoc && typeof patch.plan === "string") {
+          await unlockOnPlanChange(ctx, tenantDoc._id, tenantDoc.plan, patch.plan);
+        }
+        if (tenantDoc && patch.planStatus !== undefined) {
+          await unlockOnReactivation(ctx, tenantDoc._id, tenantDoc.planStatus, patch.planStatus);
+        }
       }
     }
 
@@ -782,12 +868,19 @@ export const reconcile = internalAction({
  * and notifies once, so a lapsed trial can never silently keep Pro access.
  */
 export const trialSweep = internalMutation({
-  handler: async (ctx) => {
+  args: { cursor: v.optional(v.union(v.string(), v.null())) },
+  handler: async (ctx, args) => {
     const now = Date.now();
-    const trialing = await ctx.db
+    // Paginated: thousands of trialing tenants must not exceed one
+    // transaction's read/write limits. Each page schedules the next.
+    const page = await ctx.db
       .query("tenants")
       .withIndex("by_planStatus", (q) => q.eq("planStatus", "trialing"))
-      .collect();
+      .paginate({ numItems: 200, cursor: args.cursor ?? null });
+    if (!page.isDone) {
+      await ctx.scheduler.runAfter(0, internal.billing.trialSweep, { cursor: page.continueCursor });
+    }
+    const trialing = page.page;
     let swept = 0;
     for (const t of trialing) {
       if (t.stripeSubscriptionId) {

@@ -1,0 +1,77 @@
+{
+ "dur": 60,
+ "sounds": [
+  {
+   "t": 14,
+   "type": "click"
+  },
+  {
+   "t": 15,
+   "type": "click"
+  },
+  {
+   "t": 16,
+   "type": "click"
+  },
+  {
+   "t": 16.92,
+   "type": "press"
+  },
+  {
+   "t": 17.5,
+   "type": "release"
+  },
+  {
+   "t": 18.42,
+   "type": "press"
+  },
+  {
+   "t": 19,
+   "type": "release"
+  },
+  {
+   "t": 21,
+   "type": "click"
+  },
+  {
+   "t": 29,
+   "type": "click"
+  },
+  {
+   "t": 33.5,
+   "type": "click"
+  },
+  {
+   "t": 35.42,
+   "type": "press"
+  },
+  {
+   "t": 36.5,
+   "type": "release"
+  },
+  {
+   "t": 38.5,
+   "type": "click"
+  },
+  {
+   "t": 40.5,
+   "type": "click"
+  },
+  {
+   "t": 41.5,
+   "type": "click"
+  },
+  {
+   "t": 42.5,
+   "type": "click"
+  },
+  {
+   "t": 43.5,
+   "type": "click"
+  },
+  {
+   "t": 44.5,
+   "type": "click"
+  }
+ ]
+}

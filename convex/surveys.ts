@@ -2,11 +2,10 @@
 
 import { query, mutation } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
-import { requireMembership } from "./lib/auth";
 import { requirePermission } from "./lib/rbac";
 import { requireTenantRegion } from "./lib/fieldModules";
 import { enforceForFieldSurvey } from "./lib/enforcement";
-import { resolveLinks, logClientActivity } from "./lib/links";
+import { resolveLinks, logClientActivity, assertOwnedRefs } from "./lib/links";
 
 const openingValidator = v.object({
   label: v.string(),
@@ -29,6 +28,18 @@ const diagnosticsValidator = v.object({
   notes: v.optional(v.string()),
   recommendation: v.optional(v.string()),
 });
+
+const MAX_LASER_MEASUREMENTS = 500;
+const MAX_OPENINGS = 200;
+const MAX_PHOTOS = 100;
+
+/** Arrays stored inside the survey doc are bounded (1 MB document limit). */
+function assertSurveyArrays(a: { openings?: unknown[]; photos?: unknown[]; laserMeasurements?: unknown[] }): void {
+  if ((a.openings?.length ?? 0) > MAX_OPENINGS || (a.photos?.length ?? 0) > MAX_PHOTOS ||
+      (a.laserMeasurements?.length ?? 0) > MAX_LASER_MEASUREMENTS) {
+    throw new ConvexError("INVALID_INPUT");
+  }
+}
 
 const laserMeasurementValidator = v.object({
   L: v.number(),
@@ -62,11 +73,12 @@ export const listByQuote = query({
   handler: async (ctx, args) => {
     const quote = await ctx.db.get(args.quoteId);
     if (!quote) return [];
-    await requireMembership(ctx, quote.tenantId);
+    await requirePermission(ctx, quote.tenantId, "surveys.use");
     return await ctx.db
       .query("siteSurveys")
       .withIndex("by_quote", (q) => q.eq("quoteId", args.quoteId))
-      .collect();
+      .take(200)
+      .then((rows) => rows.filter((r) => r.tenantId === quote.tenantId));
   },
 });
 
@@ -75,7 +87,7 @@ export const get = query({
   handler: async (ctx, args) => {
     const survey = await ctx.db.get(args.surveyId);
     if (!survey) return null;
-    await requireMembership(ctx, survey.tenantId);
+    await requirePermission(ctx, survey.tenantId, "surveys.use");
 
     const openings = await Promise.all(
       survey.openings.map(async (o) => ({
@@ -103,7 +115,7 @@ export const getForPrint = query({
   handler: async (ctx, args) => {
     const survey = await ctx.db.get(args.surveyId);
     if (!survey) return null;
-    await requireMembership(ctx, survey.tenantId);
+    await requirePermission(ctx, survey.tenantId, "surveys.use");
     const tenant = await ctx.db.get(survey.tenantId);
     const openings = await Promise.all(
       survey.openings.map(async (o) => ({
@@ -150,7 +162,10 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     await enforceForFieldSurvey(ctx, args.tenantId);
+    await requirePermission(ctx, args.tenantId, "surveys.use");
+    assertSurveyArrays(args);
     const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
+    await assertOwnedRefs(ctx, args.tenantId, { quoteId: args.quoteId });
     const links = await resolveLinks(ctx, args.tenantId, {
       clientId: args.clientId,
       cantiereId: args.cantiereId,
@@ -215,6 +230,7 @@ export const update = mutation({
     if (args.customerAddress !== undefined) patch.customerAddress = args.customerAddress.trim();
     if (args.customerCity !== undefined) patch.customerCity = args.customerCity.trim();
     if (args.customerPostalCode !== undefined) patch.customerPostalCode = args.customerPostalCode.trim();
+    assertSurveyArrays(args);
     if (args.openings !== undefined) patch.openings = args.openings;
     if (args.diagnostics !== undefined) patch.diagnostics = args.diagnostics;
     if (args.laserMeasurements !== undefined) patch.laserMeasurements = args.laserMeasurements;
@@ -237,6 +253,9 @@ export const saveLaserMeasurement = mutation({
     if (!survey) throw new ConvexError("SURVEY_NOT_FOUND");
     await requirePermission(ctx, survey.tenantId, "surveys.use");
 
+    // Appended to an array field of the survey doc: bounded so a long session
+    // (or a device streaming readings) can never push it to the 1 MB limit.
+    if ((survey.laserMeasurements?.length ?? 0) >= MAX_LASER_MEASUREMENTS) throw new ConvexError("INVALID_INPUT");
     const measurements = [...(survey.laserMeasurements ?? []), args.measurement];
     await ctx.db.patch(args.surveyId, { laserMeasurements: measurements, updatedAt: Date.now() });
   },

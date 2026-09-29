@@ -115,6 +115,7 @@ export const createSiteDelivery = mutation({
     if (args.items.length > ITEMS_MAX) throw new ConvexError("TOO_MANY_ITEMS");
     for (const item of args.items) {
       assertLen(item.label, LABEL_MAX);
+      assertLen(item.unit, 20);
       if (!item.label.trim()) throw new ConvexError("INVALID_INPUT");
       if (!Number.isFinite(item.quantity) || item.quantity <= 0) throw new ConvexError("INVALID_QUANTITY");
     }

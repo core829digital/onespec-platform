@@ -77,3 +77,17 @@ describe("FASE L public rate limits", () => {
     expect(res.ok).toBe(true);
   });
 });
+
+describe("rate-limit bucket retention", () => {
+  test("idle buckets (2+ days) are purged; recent ones kept", async () => {
+    const t = newDb();
+    const now = Date.now();
+    await t.run(async (ctx) => {
+      await ctx.db.insert("rateLimits", { bucketKey: "old", tokens: 0, updatedAt: now - 3 * 86_400_000 });
+      await ctx.db.insert("rateLimits", { bucketKey: "fresh", tokens: 0, updatedAt: now - 3_600_000 });
+    });
+    expect(await t.mutation(internal.lib.ratelimit.purgeIdleBuckets, {})).toBe(1);
+    const left = await t.run((ctx) => ctx.db.query("rateLimits").collect());
+    expect(left.map((r) => r.bucketKey)).toEqual(["fresh"]);
+  });
+});

@@ -65,25 +65,30 @@ export const PERMISSIONS = {
   // records; ".delete"/".manage" = admin-only destructive or configuration
   // actions, matching the pre-existing ["owner","admin"] call sites exactly.
   "branding.manage": { minRole: "admin" },
-  "cantieri.use": { minRole: "member" },
-  "cantieri.delete": { minRole: "admin" },
+  "cantieri.use": { minRole: "member", entitlement: "moduleCantieri" },
+  "cantieri.delete": { minRole: "admin", entitlement: "moduleCantieri" },
   "catalog.manage": { minRole: "admin" },
-  "clients.use": { minRole: "member" },
-  "clients.delete": { minRole: "admin" },
+  "clients.use": { minRole: "member", entitlement: "moduleCrm" },
+  "clients.delete": { minRole: "admin", entitlement: "moduleCrm" },
   "configurators.manage": { minRole: "admin" },
   "dpa.accept": { minRole: "admin" },
-  "inspections.use": { minRole: "member" },
-  "inspections.delete": { minRole: "admin" },
-  "installations.use": { minRole: "member" },
-  "installations.delete": { minRole: "admin" },
-  "passports.use": { minRole: "member" },
-  "passports.manage": { minRole: "admin" },
+  "inspections.use": { minRole: "member", entitlement: "moduleFieldOps" },
+  "inspections.delete": { minRole: "admin", entitlement: "moduleFieldOps" },
+  "installations.use": { minRole: "member", entitlement: "moduleFieldOps" },
+  "installations.delete": { minRole: "admin", entitlement: "moduleFieldOps" },
+  "passports.use": { minRole: "member", entitlement: "moduleFieldOps" },
+  "passports.manage": { minRole: "admin", entitlement: "moduleFieldOps" },
   "quotes.use": { minRole: "member" },
+  // Preventivi B2B (installer-created field quotes) — locked on the widget-first plans.
+  "quotes.field": { minRole: "member", entitlement: "moduleFieldQuotes" },
   "quotes.manage": { minRole: "admin" },
-  "surveys.use": { minRole: "member" },
-  "surveys.delete": { minRole: "admin" },
-  "logistics.use": { minRole: "member" },
-  "logistics.manage": { minRole: "admin" },
+  "surveys.use": { minRole: "member", entitlement: "moduleFieldOps" },
+  "surveys.delete": { minRole: "admin", entitlement: "moduleFieldOps" },
+  "logistics.use": { minRole: "member", entitlement: "moduleLogistics" },
+  "logistics.manage": { minRole: "admin", entitlement: "moduleLogistics" },
+  // Module entitlements above (module*) are ON for every full-platform plan —
+  // they only close on the widget-first plans (essentials / essentials_plus /
+  // max), which is what renders those pages "locked" in the app.
 } satisfies Record<string, PermissionSpec>;
 
 export type PermissionKey = keyof typeof PERMISSIONS;

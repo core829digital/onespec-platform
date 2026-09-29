@@ -15,8 +15,16 @@ import { resolveTenantEntitlements, assertQuota } from "./lib/entitlements";
 import { enforceForAddTeamMember } from "./lib/enforcement";
 import { requirePermission } from "./lib/rbac";
 import { emit } from "./lib/triggers";
+import { unlockOnReactivation } from "./usage";
 
 const COUNTRY_RE = /^[A-Za-z]{2}$/;
+
+/** Company names: trimmed, 2–120 chars (they end up in slugs, e-mails and PDFs). */
+function cleanCompanyName(raw: string): string {
+  const name = raw.trim().replace(/\s+/g, " ");
+  if (name.length < 2 || name.length > 120) throw new ConvexError("INVALID_NAME");
+  return name;
+}
 
 export const registerTenant = mutation({
   args: { companyName: v.string(), country: v.optional(v.string()) },
@@ -24,6 +32,7 @@ export const registerTenant = mutation({
     const userId = await requireVerifiedUser(ctx);
     const existing = await ctx.db.query("memberships").withIndex("by_user", q => q.eq("userId", userId)).first();
     if (existing) throw new ConvexError("ALREADY_HAS_TENANT");
+    const companyName = cleanCompanyName(args.companyName);
 
     const country = args.country && COUNTRY_RE.test(args.country) ? args.country.toUpperCase() : undefined;
     if (country) await ctx.db.patch(userId, { country });
@@ -33,8 +42,8 @@ export const registerTenant = mutation({
     if (!settings.registrationOpen) throw new ConvexError("REGISTRATION_CLOSED");
 
     const tenantId = await ctx.db.insert("tenants", {
-      name: args.companyName,
-      slug: args.companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "-" + nanoid(6),
+      name: companyName,
+      slug: companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "-" + nanoid(6),
       ownerUserId: userId,
       country,
       plan: "base",
@@ -57,7 +66,7 @@ export const registerTenant = mutation({
       template: "welcome",
       to: (await ctx.db.get(userId))?.email || "",
       locale: "it",
-      data: { companyName: args.companyName },
+      data: { companyName },
       tenantId,
     });
 
@@ -125,8 +134,11 @@ export const updateTenant = mutation({
   handler: async (ctx, args) => {
     await requirePermission(ctx, args.tenantId, "tenant.settings");
     const update: Partial<Doc<"tenants">> = { updatedAt: Date.now() };
-    if (args.name !== undefined) update.name = args.name;
-    if (args.country !== undefined) update.country = args.country;
+    if (args.name !== undefined) update.name = cleanCompanyName(args.name);
+    if (args.country !== undefined) {
+      if (!COUNTRY_RE.test(args.country)) throw new ConvexError("INVALID_INPUT");
+      update.country = args.country.toUpperCase();
+    }
     if (args.vatId !== undefined) update.vatId = cleanCompanyText(args.vatId);
     if (args.address !== undefined) update.address = cleanCompanyText(args.address);
     if (args.phone !== undefined) update.phone = cleanCompanyText(args.phone);
@@ -373,6 +385,20 @@ export const acceptInvitation = mutation({
       .first();
     if (existing) throw new ConvexError("ALREADY_HAS_TENANT");
 
+    // Seats are re-checked at ACCEPT time too: an invitation sent before a
+    // downgrade must not push the team over the current plan's limit.
+    const tenant = await ctx.db.get(inv.tenantId);
+    if (!tenant) throw new ConvexError("TENANT_NOT_FOUND");
+    const seats = resolveTenantEntitlements(tenant).maxTeamMembers;
+    if (Number.isFinite(seats)) {
+      const active = await ctx.db
+        .query("memberships")
+        .withIndex("by_tenant", (q) => q.eq("tenantId", inv.tenantId))
+        .filter((q) => q.eq(q.field("status"), "active"))
+        .take(seats + 1);
+      assertQuota(active.length, seats, "MEMBER_LIMIT_REACHED");
+    }
+
     await ctx.db.insert("memberships", {
       tenantId: inv.tenantId,
       userId,
@@ -441,11 +467,13 @@ export const reactivateTenant = mutation({
   args: { tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
     await requirePlatformAdmin(ctx);
+    const before = await ctx.db.get(args.tenantId);
     await ctx.db.patch(args.tenantId, {
       suspendedAt: undefined,
       suspendedReason: undefined,
       planStatus: "active",
     });
+    if (before) await unlockOnReactivation(ctx, args.tenantId, before.planStatus, "active");
     await ctx.db.insert("auditLog", {
       actorKind: "admin",
       action: "tenant.reactivate",

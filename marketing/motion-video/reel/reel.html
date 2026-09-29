@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<title>onespec reel</title>
+<link href="fonts/fonts.css" rel="stylesheet">
+<style>
+  :root { --bg:#0a0b0d; --text:#f5f5f7; --text-2:#9a9aa0; --mint:#16d19d; --emerald:#2d7d46; --border:#34383c; }
+  html, body { margin: 0; background: #000; }
+  #stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--bg); font-family: "Inter", sans-serif; color: var(--text); }
+  .abs { position: absolute; left: 0; top: 0; }
+  #bg, #vignette, #grain, #black { position: absolute; inset: 0; pointer-events: none; }
+  #vignette { background: radial-gradient(120% 80% at 50% 45%, transparent 55%, rgba(0,0,0,0.55) 100%); }
+  #grain { opacity: 0.05; background-size: 256px 256px; }
+  #black { background: #000; }
+  .kicker { font: 600 26px/1 "Inter", sans-serif; letter-spacing: 0.24em; text-transform: uppercase; color: var(--mint); white-space: nowrap; }
+  .display { font-family: "Fraunces", serif; font-weight: 600; letter-spacing: -0.01em; color: var(--text); }
+  .mono { font-family: "IBM Plex Mono", monospace; }
+  .device { position: absolute; left: 0; top: 0; background: #050607; border: 2px solid #2a2d31; box-shadow: 0 50px 140px rgba(0,0,0,0.6), inset 0 0 0 10px #111316; overflow: hidden; transform-origin: 50% 50%; }
+  .screen { position: absolute; overflow: hidden; background: #0a0b0d; }
+  .screen img.page { position: absolute; left: 0; top: 0; }
+  .touch { position: absolute; left: 0; top: 0; width: 64px; height: 64px; margin: -32px 0 0 -32px; border-radius: 50%; background: rgba(245,245,247,0.28); border: 3px solid rgba(245,245,247,0.75); }
+  .bubble { position: absolute; max-width: 800px; padding: 26px 32px; border-radius: 34px; font: 500 38px/1.32 "Inter", sans-serif; }
+  .bubble.l { left: 150px; background: #1e2023; color: var(--text); border-top-left-radius: 10px; }
+  .bubble.m { right: 150px; background: #0e3a2f; color: var(--text); border: 2px solid rgba(22,209,157,0.55); border-top-right-radius: 10px; }
+  .who { position: absolute; width: 96px; height: 96px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font: 700 38px "Inter"; }
+  .who.l { left: 36px; background: #2b2e33; color: #f5f5f7; }
+  .who.m { right: 36px; background: var(--mint); color: #04150f; }
+  .role { position: absolute; font: 600 22px "Inter"; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-2); white-space: nowrap; }
+  .notif { position: absolute; left: 34px; width: 772px; border-radius: 34px; background: rgba(40,43,48,0.92); padding: 22px 26px; box-sizing: border-box; }
+  .wa { background: #0b141a; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg"></div>
+  <div id="scene" class="abs" style="width:1080px;height:1920px"></div>
+  <div id="vignette"></div>
+  <div id="grain"></div>
+  <div id="black"></div>
+</div>
+<script>
+(async () => {
+"use strict";
+const DUR = 90, ZETA = 0.88;
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const lerp = (a, b, k) => a + (b - a) * k;
+function spring(tau, w, z = ZETA) {
+  if (tau <= 0) return 0;
+  const wd = w * Math.sqrt(1 - z * z);
+  return 1 - Math.exp(-z * w * tau) * (Math.cos(wd * tau) + (z / Math.sqrt(1 - z * z)) * Math.sin(wd * tau));
+}
+function step4(tau, w) { if (tau <= 0) return 0; const x = w * tau; return 1 - Math.exp(-x) * (1 + x + x * x / 2 + x * x * x / 6); }
+function K(v0, keys, w = 12, fn = spring) {
+  let prev = v0; const st = keys.map(([t, v, ww]) => { const d = v - prev; prev = v; return { t, d, w: ww ?? w }; });
+  return (t) => { let v = v0; for (const s of st) v += s.d * fn(t - s.t, s.w); return v; };
+}
+const vis = (t, te, tx, wi = 14, wo = 24) => clamp(spring(t - te, wi, 0.92)) * (1 - clamp(spring(t - tx, wo, 0.92)));
+
+const meta = await (await fetch("shots/meta.json")).json();
+const icons = await (await fetch("assets/icons.json")).json();
+const scene = document.getElementById("scene");
+const layers = [], imgs = [];
+function el(tag, cls, style = {}, parent = scene, html) {
+  const e = document.createElement(tag); if (cls) e.className = cls; Object.assign(e.style, style);
+  if (html !== undefined) e.innerHTML = html; parent.appendChild(e); return e;
+}
+function img(src, parent, w, h, cls) { const i = el("img", cls, { width: w + "px", height: h + "px", position: "absolute" }, parent); i.src = src; imgs.push(i); return i; }
+/** layer: pops in (scale 0.94 → 1, lift, blur) ~70 ms after the beat that carries it, exits faster. */
+function layer(e, te, tx, o = {}) { layers.push({ e, te, tx, lift: o.lift ?? 34, wi: o.wi ?? 14, pop: o.pop ?? 0.06, center: o.center }); return e; }
+function text(cls, s, x, y, style = {}, center = true) {
+  const e = el("div", cls, { position: "absolute", left: x + "px", top: y + "px", whiteSpace: "nowrap", ...style }, scene, s);
+  if (center) e.dataset.center = "1"; return e;
+}
+
+// ------------------------------------------------------------ background (dimmed onespec gradient) + grain
+const bgEl = document.getElementById("bg");
+const night = K(0, [[52.8, 1, 3], [71.0, 0, 2.2]]);            // 0 day · 1 night
+const dawn = K(0, [[71.0, 1, 2.2], [83.8, 0, 3]]);
+const bgIn = K(0, [[0.02, 1, 3], [89.0, 0, 3]]);
+function drawBg(t) {
+  const a = bgIn(t), n = clamp(night(t)), d = clamp(dawn(t));
+  const x1 = 30 + 10 * Math.sin(t * 0.13), y1 = 16 + 6 * Math.cos(t * 0.1), x2 = 74 + 8 * Math.cos(t * 0.09), y2 = 84 + 5 * Math.sin(t * 0.11);
+  bgEl.style.background = [
+    `radial-gradient(760px 900px at ${x1}% ${y1}%, rgba(22,209,157,${(0.14 * a * (1 - n * 0.7)).toFixed(3)}), transparent 70%)`,
+    `radial-gradient(900px 1100px at ${x2}% ${y2}%, rgba(45,125,70,${(0.17 * a * (1 - n * 0.6)).toFixed(3)}), transparent 70%)`,
+    `radial-gradient(900px 900px at 50% 30%, rgba(40,70,140,${(0.22 * a * n).toFixed(3)}), transparent 72%)`,
+    `radial-gradient(1000px 800px at 70% 20%, rgba(255,160,90,${(0.16 * a * d).toFixed(3)}), transparent 70%)`,
+    `linear-gradient(170deg, #0b0e10 0%, #0a0b0d 55%, #090c0b 100%)`,
+  ].join(",");
+}
+{
+  const c = document.createElement("canvas"); c.width = c.height = 256; const g = c.getContext("2d"), dd = g.createImageData(256, 256);
+  let s = 829; const r = () => ((s = (s * 1664525 + 1013904223) >>> 0) / 4294967296);
+  for (let i = 0; i < dd.data.length; i += 4) { const v = 128 + (r() - 0.5) * 255; dd.data[i] = dd.data[i + 1] = dd.data[i + 2] = v; dd.data[i + 3] = 255; }
+  g.putImageData(dd, 0, 0); document.getElementById("grain").style.backgroundImage = `url(${c.toDataURL()})`;
+}
+const grainEl = document.getElementById("grain");
+if (new URLSearchParams(location.search).has("nograin")) grainEl.style.display = "none";
+const blackEl = document.getElementById("black");
+const blackA = K(1, [[0.0, 0, 5], [89.2, 1, 5]]);
+
+// ------------------------------------------------------------ S0 · hook (0 – 4.5 s)
+const LOGO_W = 330, LOGO_H = LOGO_W * 0.35;
+const topLogo = el("div", "abs", { left: (540 - LOGO_W / 2) + "px", top: "84px", width: LOGO_W + "px", height: LOGO_H + "px" });
+img("assets/onespec-logo.png", topLogo, LOGO_W, LOGO_H);
+layer(topLogo, 0.3, 4.1, { lift: 0 });
+const mark = el("div", "abs", { left: "455px", top: "26px", width: "170px", height: (170 * 0.35) + "px", opacity: 0.85 });
+img("assets/onespec-logo.png", mark, 170, 170 * 0.35);
+layer(mark, 4.57, 83.8, { lift: 0 });
+layer(text("display", "Il cliente vuole un prezzo.", 540, 720, { fontSize: "82px" }), 0.57, 4.1);
+layer(text("display", "Adesso.", 540, 830, { fontSize: "150px", color: "var(--mint)" }), 1.57, 4.15);
+const clockHook = layer(text("mono", "23:47", 540, 1060, { fontSize: "150px", color: "var(--text)" }), 2.57, 4.2);
+layer(text("", "anche a quest'ora", 540, 1250, { font: "500 40px Inter", color: "var(--text-2)" }), 2.9, 4.2);
+
+// ------------------------------------------------------------ devices
+function phoneDevice(pages, S, bezel = 18, radius = 76) {
+  const W = 390 * S, H = 844 * S;
+  const d = el("div", "device", { width: W + bezel * 2 + "px", height: H + bezel * 2 + "px", borderRadius: radius + "px" });
+  const sc = el("div", "screen", { left: bezel + "px", top: bezel + "px", width: W + "px", height: H + "px", borderRadius: (radius - bezel) + "px" }, d);
+  const layerImgs = pages.map(([src, h]) => img(src, sc, W, h * S, "page"));
+  el("div", "abs", { left: "50%", top: "14px", width: "150px", height: "40px", marginLeft: "-75px", borderRadius: "20px", background: "#000" }, sc);
+  const touch = el("div", "touch", {}, sc);
+  return { d, sc, imgs: layerImgs, touch, W, H, S, bezel, Dw: W + bezel * 2, Dh: H + bezel * 2 };
+}
+const P = meta.phone;
+const PH = phoneDevice([0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => [`shots/p-${i}.png`, P[i].h]), 1.48);
+const T_S = 1.2;
+const TB = (() => {
+  const W = 834 * T_S, H = 900 * T_S, bz = 22;
+  const d = el("div", "device", { width: W + bz * 2 + "px", height: H + bz * 2 + "px", borderRadius: "54px" });
+  const sc = el("div", "screen", { left: bz + "px", top: bz + "px", width: W + "px", height: H + "px", borderRadius: "34px" }, d);
+  const ims = [0, 1, 2].map((i) => img(`shots/s-${i}.png`, sc, W, 2981 * T_S, "page"));
+  const touch = el("div", "touch", {}, sc);
+  return { d, sc, imgs: ims, touch, W, H, S: T_S, bezel: bz, Dw: W + bz * 2, Dh: H + bz * 2 };
+})();
+
+/** Show one page image per time slot; the incoming one dissolves in over ~60 ms (a UI update). */
+function showPages(D, list, t, scrollY) {
+  let cur = list[0][1], tc = -1, prev = cur;
+  for (const [ts, i] of list) if (t >= ts) { prev = cur; cur = i; tc = ts; }
+  D.imgs.forEach((im, i) => {
+    let o = i === cur ? (tc < 0 ? 1 : clamp(spring(t - tc, 55, 0.95))) : (i === prev ? 1 : 0);
+    im.style.opacity = o.toFixed(4); im.style.visibility = o < 0.002 ? "hidden" : "visible";
+    im.style.transform = `translateY(${(-scrollY * D.S).toFixed(2)}px)`;
+  });
+}
+function placeDevice(D, t, { x, y, s, enter, exit, dy0 = 1100, rot = 0 }) {
+  const e = clamp(enter(t)), q = clamp(exit(t)), v = e * (1 - q);
+  D.d.style.opacity = v.toFixed(4); D.d.style.visibility = v < 0.002 ? "hidden" : "visible";
+  D.d.style.filter = v < 0.999 ? `blur(${((1 - v) * 10).toFixed(2)}px)` : "none";
+  const X = x(t) - D.Dw / 2, Y = y(t) - D.Dh / 2 + (1 - e) * dy0 - q * 160;
+  D.d.style.transform = `translate(${X}px, ${Y}px) perspective(2600px) rotateX(${((1 - e) * 20 + q * 10).toFixed(2)}deg) rotateZ(${rot}deg) scale(${(s(t) * (0.9 + 0.1 * e)).toFixed(4)})`;
+}
+function tap(D, t, taps, pos, scroll) {
+  let o = 0, sc = 1;
+  for (const tt of taps) { const k = t - tt; if (k > -0.12 && k < 0.45) { const a = k < 0 ? (k + 0.12) / 0.12 : 1 - k / 0.45; o = Math.max(o, clamp(a)); sc = k < 0 ? 1 : 1 + k * 1.2; } }
+  const [px, py] = pos(t);
+  D.touch.style.opacity = o.toFixed(3); D.touch.style.visibility = o < 0.01 ? "hidden" : "visible";
+  D.touch.style.transform = `translate(${px * D.S}px, ${(py - scroll) * D.S}px) scale(${sc.toFixed(3)})`;
+}
+
+// ------------------------------------------------------------ S1 · dialogue + estimator on the installer's site (4.5 – 39 s)
+const DIALOG = [
+  [5.0, "l", "Vorrei un'idea del prezzo per una portafinestra. Devo aspettare una settimana?"],
+  [7.2, "m", "No. Lo calcoli tu, adesso, dal mio sito."],
+  [11.4, "l", "E se sbaglio le misure?"],
+  [13.4, "m", "Ti avvisa se un'anta è troppo stretta. Le misure precise le prendo io al sopralluogo."],
+  [18.4, "l", "Poi però il prezzo cambia, come sempre."],
+  [20.4, "m", "Te lo dice chiaro: è una stima. Il prezzo definitivo lo confermo dopo il sopralluogo."],
+  [24.2, "l", "E le detrazioni? L'IVA?"],
+  [26.2, "m", "Ecobonus e IVA agevolata: li vedi subito."],
+  [30.0, "l", "Perfetto. Come te lo mando?"],
+  [32.0, "m", "Un tocco: richiesta inviata e riepilogo sul mio WhatsApp."],
+  [41.0, "l", "Posso vederla più grande, effetto legno?"],
+  [42.8, "m", "Fatto. Guarda."],
+  [47.4, "l", "Quindi, alla fine, quanto spendo?"],
+  [49.2, "m", "Chiavi in mano, e quanto ti resta dopo il bonus casa."],
+];
+const bubbles = [];
+DIALOG.forEach(([t0, who, s], i) => {
+  const pair = Math.floor(i / 2), next = DIALOG[(pair + 1) * 2];
+  const tx = next ? next[0] - 0.25 : 52.4;
+  const b = el("div", "bubble " + who, { top: (who === "l" ? 130 : 0) + "px" }, scene, s);
+  const av = el("div", "who " + who, { top: (who === "l" ? 130 : 0) + "px" }, scene, who === "l" ? "L" : "M");
+  const role = el("div", "role", {}, scene, who === "l" ? "Laura · cliente" : "Marco · montatore");
+  bubbles.push({ b, av, role, who, te: t0 + 0.07, tx, i });
+});
+function layoutBubbles() {
+  // Marco's reply sits under Laura's question of the same pair
+  for (let i = 0; i < bubbles.length; i += 2) {
+    const L = bubbles[i], M = bubbles[i + 1];
+    const lh = L.b.offsetHeight;
+    const mTop = 130 + lh + 70;
+    M.b.style.top = mTop + "px"; M.av.style.top = mTop + "px";
+    L.role.style.left = "150px"; L.role.style.top = "92px";
+    M.role.style.right = "150px"; M.role.style.top = (mTop - 38) + "px";
+    L.bottom = mTop + M.b.offsetHeight;
+  }
+}
+
+const phoneShow = [[4.6, 0], [8.6, 1], [9.6, 2], [14.6, 3], [16.1, 4], [17.4, 5], [28.0, 6], [33.2, 7], [34.8, 8], [36.0, 9]];
+const phScroll = K(0, [[10.3, 60, 7], [12.2, 1380, 6], [19.0, 2150, 6], [24.6, 1990, 7], [33.4, 2380, 6], [36.02, 0, 60]]);
+const phX = K(540, []), phY = K(1250, [[36.1, 1180, 7]]);
+const phS = K(1, []);
+const phEnter = K(0, [[4.6, 1, 6.5]]), phExit = K(0, [[38.5, 1, 9]]);
+const c = (r) => [r.x + r.w / 2, r.y + r.h / 2];
+const phTouchKeys = [[4.6, 300, 600], [8.2, ...c(P.legno)], [9.2, ...c(P.porta)], [14.2, P.leaf2.x, P.leaf2.y], [15.2, P.gripFrom.x, P.gripFrom.y], [15.62, P.gripTo.x, P.gripTo.y],
+  [16.6, P.gripTo.x, P.gripTo.y], [16.98, P.gripFrom.x - 4, P.gripFrom.y], [27.6, ...c(P.vat)], [32.8, ...c(P.cta)], [35.6, ...c(P.send)], [37.0, ...c(P.waBtn)]];
+const phTX = K(300, phTouchKeys.map(([t, x]) => [t, x]), 24, step4), phTY = K(600, phTouchKeys.map(([t, , y]) => [t, y]), 24, step4);
+const PH_TAPS = [8.6, 9.6, 14.6, 15.62, 16.1, 17.4, 28.0, 33.2, 36.0, 37.4];
+// highlight rings drawn over the page (page coords)
+const rings = [
+  { r: { x: P.total.x - 16, y: P.total.y + 40, w: 276, h: 96 }, te: 21.2, tx: 23.8 },     // "Stima orientativa…" lines
+  { r: { x: P.eco.x - 6, y: P.eco.y - 6, w: P.eco.w + 12, h: P.eco.h + 12 }, te: 26.8, tx: 28.4 },
+  { r: { x: P.gripTo.x - 90, y: P.drawing.y - 6, w: 110, h: P.drawing.h - 30 }, te: 16.2, tx: 17.3 },
+];
+rings.forEach((g) => { g.e = el("div", "abs", { border: "4px solid #16d19d", borderRadius: "14px", boxShadow: "0 0 0 9999px rgba(0,0,0,0.35)" }, PH.sc); });
+// WhatsApp send: a green bubble flies up out of the phone
+const waFly = el("div", "abs", { width: "120px", height: "120px", borderRadius: "60px", background: "#25D366", display: "flex", alignItems: "center", justifyContent: "center" }, scene,
+  `<svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#04231a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>`);
+
+// ------------------------------------------------------------ S2 · showroom (39 – 53 s)
+layer(text("kicker", "In showroom", 60, 1700, {}, false), 39.47, 52.4);
+layer(text("display", "Preventivo in 60 secondi.", 56, 1745, { fontSize: "64px" }, false), 39.57, 52.45);
+const tbShow = [[39.4, 0], [44.0, 1], [45.4, 2]];
+const tbScroll = K(96, [[43.0, 150, 7], [46.3, 700, 5], [47.6, 1960, 4.5]]);
+const tbEnter = K(0, [[39.4, 1, 6.5]]), tbExit = K(0, [[52.4, 1, 9]]);
+const tbY = K(1085, []), tbS = K(1, []);
+const SR = { add: meta.showroom.add, finish: meta.showroom.finish, wa: { x: 45, y: 2582.7, w: 242.6, h: 42 } };
+const tbTouchKeys = [[39.4, 400, 600], [43.6, ...c(SR.add)], [44.8, ...c(SR.finish)], [51.0, ...c(SR.wa)]];
+const tbTX = K(400, tbTouchKeys.map(([t, x]) => [t, x]), 24, step4), tbTY = K(600, tbTouchKeys.map(([t, , y]) => [t, y]), 24, step4);
+const TB_TAPS = [44.0, 45.4, 51.5];
+// 60-second ring
+const ring = el("div", "abs", { width: "220px", height: "220px" }, scene, `<svg width="220" height="220" viewBox="0 0 220 220"><circle cx="110" cy="110" r="92" stroke="rgba(255,255,255,0.12)" stroke-width="14" fill="none"/><circle id="ringArc" cx="110" cy="110" r="92" stroke="#16d19d" stroke-width="14" fill="none" stroke-linecap="round" transform="rotate(-90 110 110)" stroke-dasharray="578" stroke-dashoffset="578"/></svg><div id="ringTxt" class="mono" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:58px;color:#f5f5f7">0s</div>`);
+ring.style.left = "845px"; ring.style.top = "1660px"; ring.style.transformOrigin = "50% 50%"; ring.style.scale = "0.8";
+layer(ring, 40.1, 52.4, { lift: 0 });
+const ringArc = ring.querySelector("#ringArc"), ringTxt = ring.querySelector("#ringTxt");
+
+// ------------------------------------------------------------ S3 · night (53 – 71 s) — illustration
+const room = el("div", "abs", { width: "1080px", height: "1920px", transformOrigin: "830px 1245px" });
+room.innerHTML = `
+<svg width="1080" height="1920" viewBox="0 0 1080 1920">
+  <defs>
+    <linearGradient id="wallN" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0d1526"/><stop offset="1" stop-color="#070b14"/></linearGradient>
+    <linearGradient id="skyN" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b1a3a"/><stop offset="1" stop-color="#152a52"/></linearGradient>
+    <linearGradient id="skyD" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f7b27a"/><stop offset="0.55" stop-color="#f6d7a6"/><stop offset="1" stop-color="#bfe3dc"/></linearGradient>
+    <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#16d19d" stop-opacity="0.75"/><stop offset="1" stop-color="#16d19d" stop-opacity="0"/></radialGradient>
+    <linearGradient id="blanket" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1f5c4b"/><stop offset="1" stop-color="#123d33"/></linearGradient>
+  </defs>
+  <rect width="1080" height="1920" fill="url(#wallN)"/>
+  <g id="dayWall" opacity="0"><rect width="1080" height="1920" fill="#2a2320"/></g>
+  <!-- window -->
+  <g transform="translate(150 360)">
+    <rect x="-18" y="-18" width="516" height="636" rx="14" fill="#1b2438"/>
+    <rect width="480" height="600" rx="6" fill="url(#skyN)"/>
+    <rect id="skyDay" width="480" height="600" rx="6" fill="url(#skyD)" opacity="0"/>
+    <g id="stars" fill="#dfe8ff">
+      <circle cx="70" cy="90" r="3"/><circle cx="160" cy="60" r="2"/><circle cx="330" cy="120" r="2.5"/><circle cx="410" cy="70" r="2"/>
+      <circle cx="120" cy="230" r="2"/><circle cx="260" cy="190" r="3"/><circle cx="390" cy="260" r="2"/><circle cx="60" cy="330" r="2.5"/>
+    </g>
+    <g id="moon"><circle cx="340" cy="190" r="58" fill="#f1efe4"/><circle cx="366" cy="172" r="52" fill="#152a52"/></g>
+    <g id="sun" opacity="0"><circle cx="240" cy="470" r="70" fill="#ffd28a"/></g>
+    <rect x="236" y="0" width="8" height="600" fill="#1b2438"/><rect x="0" y="296" width="480" height="8" fill="#1b2438"/>
+  </g>
+  <!-- floor -->
+  <rect y="1480" width="1080" height="440" fill="#060910"/>
+  <!-- bed -->
+  <g transform="translate(40 1060)">
+    <rect x="0" y="40" width="34" height="420" rx="10" fill="#241c19"/>
+    <rect x="0" y="330" width="720" height="110" rx="18" fill="#2c2420"/>
+    <rect x="20" y="290" width="690" height="70" rx="24" fill="#d9dde3"/>
+    <g id="sleeper">
+      <ellipse cx="150" cy="268" rx="96" ry="42" fill="#eef1f4"/>
+      <circle cx="170" cy="226" r="54" fill="#e2b894"/>
+      <path d="M118 214 q20 -58 88 -40 q20 8 16 30 q-40 -18 -104 10z" fill="#3a2a22"/>
+      <path d="M186 236 q10 6 20 0" stroke="#5b3f33" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M170 262 C 260 200, 560 200, 700 250 L 700 330 L 150 330 Z" fill="url(#blanket)"/>
+      <path d="M170 262 C 260 200, 560 200, 700 250" stroke="#2e7d67" stroke-width="6" fill="none"/>
+    </g>
+    <g id="sitter" opacity="0">
+      <path d="M150 330 C 150 250, 190 180, 250 170 L 330 175 C 380 185, 400 250, 400 330 Z" fill="#2f6d5c"/>
+      <circle cx="280" cy="120" r="54" fill="#e2b894"/>
+      <path d="M226 108 q20 -58 88 -40 q20 8 16 30 q-40 -18 -104 10z" fill="#3a2a22"/>
+      <rect x="318" y="190" width="46" height="80" rx="9" fill="#0a0b0d" stroke="#16d19d" stroke-width="3" transform="rotate(-14 340 230)"/>
+      <path d="M300 250 q30 -10 48 -40" stroke="#e2b894" stroke-width="22" fill="none" stroke-linecap="round"/>
+      <path d="M170 262 C 300 250, 560 230, 700 250 L 700 330 L 150 330 Z" fill="url(#blanket)"/>
+    </g>
+  </g>
+  <!-- nightstand + phone + clock -->
+  <g transform="translate(770 1250)">
+    <rect x="0" y="0" width="230" height="250" rx="14" fill="#1d1714"/>
+    <rect x="16" y="60" width="198" height="14" rx="4" fill="#15100e"/>
+    <circle id="phoneGlow" cx="60" cy="-10" r="140" fill="url(#glow)" opacity="0"/>
+    <g transform="translate(34 -26) rotate(-8)"><rect width="56" height="20" rx="6" fill="#0a0b0d" stroke="#2a2d31" stroke-width="2"/><rect id="phoneScr" x="3" y="3" width="50" height="14" rx="4" fill="#16d19d" opacity="0"/></g>
+    <rect x="120" y="-78" width="96" height="60" rx="10" fill="#0a0b0d" stroke="#2a2d31" stroke-width="2"/>
+    <text id="clockTxt" x="168" y="-38" text-anchor="middle" font-family="IBM Plex Mono" font-size="26" fill="#16d19d">23:30</text>
+  </g>
+  <g id="zzz" font-family="Fraunces" font-weight="600" fill="#9fb4d8"><text id="z1" x="260" y="1200" font-size="54">z</text><text id="z2" x="300" y="1150" font-size="68">z</text><text id="z3" x="350" y="1090" font-size="84">z</text></g>
+</svg>`;
+const roomEnter = K(0, [[52.9, 1, 3.6]]), roomOut = K(0, [[62.4, 1, 10], [71.1, 0, 5], [74.6, 1, 10]]);
+const roomZoom = K(1, [[61.6, 7.5, 3.2], [71.1, 1, 60], [73.9, 7.5, 3.2]]);
+const $ = (id) => room.querySelector("#" + id);
+const nightCap = [
+  layer(text("kicker", "23:30", 540, 150), 53.37, 61.6),
+  layer(text("display", "Marco dorme.", 540, 190, { fontSize: "86px" }), 53.47, 61.62),
+  layer(text("display", "Mentre dormi,", 540, 1600, { fontSize: "74px" }), 57.57, 61.64),
+  layer(text("display", "il tuo sito fa i preventivi.", 540, 1690, { fontSize: "74px", color: "var(--mint)" }), 58.07, 61.66),
+];
+const NOTIF_T = [55.0, 55.9, 56.6, 57.3, 58.0, 58.6, 59.2, 59.8, 60.4, 61.0, 61.5];
+
+// ------------------------------------------------------------ lock screen (62.4 – 71 s)
+const LOCK = phoneDevice([], 2.1, 22, 96);
+LOCK.sc.style.background = "linear-gradient(180deg,#0b1830 0%,#0a0f1d 60%,#07090f 100%)";
+const lockTime = el("div", "abs mono", { width: "100%", top: "150px", textAlign: "center", fontSize: "150px", color: "#f5f5f7" }, LOCK.sc, "03:12");
+el("div", "abs", { width: "100%", top: "90px", textAlign: "center", font: "500 34px Inter", color: "#c9d2e6" }, LOCK.sc, "mercoledì 1 ottobre");
+const REQS = [
+  ["wa", "Laura Rossi", "Serramenti Demo — 1. Porta balcone Legno 1300×2100mm ×1 | Pino, Doppio vetro…"],
+  ["mail", "Nuova richiesta preventivo: Laura Rossi", "Cliente: Laura Rossi · Valore: €1.389"],
+  ["wa", "Giulia Ferrari", "Serramenti Demo — 1. Finestra PVC (Aluplast) 1200×1400mm ×2 | Profilo a 5 camere…"],
+  ["wa", "Paolo Greco", "Serramenti Demo — 1. Finestra Alluminio 1600×1500mm ×1 | Standard, Triplo vetro…"],
+  ["mail", "Nuova richiesta preventivo: Marco Bianchi", "Cliente: Marco Bianchi · Valore: €723"],
+  ["wa", "Chiara Marino", "Serramenti Demo — 1. Porta balcone Alluminio 1800×2300mm ×2 | Doppio vetro…"],
+  ["wa", "Simone Rizzo", "Serramenti Demo — 1. Porta balcone PVC (Rehau) 1300×2100mm ×2 | Doppio vetro…"],
+  ["wa", "Francesca Conti", "Serramenti Demo — 1. Finestra Legno 900×1400mm ×1 | Pino, Doppio vetro…"],
+  ["mail", "Nuova richiesta preventivo: Ilaria Mancini", "Cliente: Ilaria Mancini · Valore: €3.528"],
+  ["wa", "Andrea Gallo", "Serramenti Demo — 1. Finestra PVC (Aluplast) 1200×1500mm ×5 | Doppio vetro…"],
+  ["wa", "Anna Santoro", "Serramenti Demo — 1. Finestra Alluminio 1300×1400mm ×1 | Doppio vetro…"],
+  ["wa", "Matteo Caruso", "Serramenti Demo — 1. Finestra PVC (Aluplast) 1000×1300mm ×1 | Doppio vetro…"],
+];
+const LOCK_T = REQS.map((_, i) => 63.0 + i * 0.5);
+const waIcon = `<svg width="44" height="44" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#25D366"/><path d="M7 17l.8-2.6A5.5 5.5 0 1 1 10 16.6z" fill="none" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+const mailIcon = `<svg width="44" height="44" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#3b82f6"/><rect x="5" y="7" width="14" height="10" rx="1.5" fill="none" stroke="#fff" stroke-width="1.6"/><path d="M5.5 8l6.5 5 6.5-5" fill="none" stroke="#fff" stroke-width="1.6"/></svg>`;
+const notifs = REQS.map(([k, title, body], i) => {
+  const n = el("div", "notif", {}, LOCK.sc, `<div style="display:flex;gap:18px;align-items:flex-start">${k === "wa" ? waIcon : mailIcon}
+    <div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;font:500 24px Inter;color:#c9ccd3"><span>${k === "wa" ? "WhatsApp" : "Mail"}</span><span>ora</span></div>
+    <div style="font:600 30px Inter;color:#f5f5f7;margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${title}</div>
+    <div style="font:400 26px/1.3 Inter;color:#d6d8de;margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden">${body}</div></div></div>`);
+  return n;
+});
+const lockEnter = K(0, [[62.4, 1, 5]]), lockExit = K(0, [[70.8, 1, 10]]);
+const badge = el("div", "abs", { left: "50%", top: "1560px", transform: "translateX(-50%)", padding: "18px 30px", borderRadius: "999px", background: "rgba(22,209,157,0.16)", border: "2px solid rgba(22,209,157,0.6)", font: "600 34px Inter", color: "#f5f5f7", whiteSpace: "nowrap" }, LOCK.sc, "");
+
+// ------------------------------------------------------------ S4 · morning (71 – 84 s)
+const mornCap = [
+  layer(text("kicker", "07:00", 540, 150), 71.57, 73.9),
+  layer(text("display", "Marco si sveglia.", 540, 190, { fontSize: "86px" }), 71.67, 73.92),
+];
+const WA = phoneDevice([], 1.62, 20, 84);
+WA.sc.classList.add("wa");
+const waHead = el("div", "abs", { left: 0, top: 0, width: "100%", height: "150px", background: "#202c33", display: "flex", alignItems: "flex-end", padding: "0 28px 22px", boxSizing: "border-box", gap: "20px" }, WA.sc,
+  `<div style="width:66px;height:66px;border-radius:50%;background:#2b2e33;display:flex;align-items:center;justify-content:center;font:700 30px Inter">L</div><div><div style="font:600 32px Inter;color:#e9edef">Laura Rossi</div><div style="font:400 22px Inter;color:#8696a0">online</div></div>`);
+const listTitle = el("div", "abs", { left: "28px", top: "74px", font: "700 44px Inter", color: "#e9edef" }, WA.sc, "Chat");
+const chatList = el("div", "abs", { left: 0, top: "150px", width: "100%" }, WA.sc);
+["Laura Rossi", "Giulia Ferrari", "Paolo Greco", "Chiara Marino", "Simone Rizzo", "Francesca Conti", "Andrea Gallo", "Anna Santoro"].forEach((n, i) => {
+  el("div", "", { height: "118px", display: "flex", alignItems: "center", gap: "22px", padding: "0 28px", borderBottom: "1px solid #1f2c34" }, chatList,
+    `<div style="width:78px;height:78px;border-radius:50%;background:#2b2e33;display:flex;align-items:center;justify-content:center;font:700 32px Inter;color:#e9edef">${n[0]}</div>
+     <div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between"><span style="font:600 30px Inter;color:#e9edef">${n}</span><span style="font:500 22px Inter;color:#25D366">${["23:52", "00:41", "01:15", "01:58", "02:26", "02:47", "03:03", "03:12"][i]}</span></div>
+     <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px"><span style="font:400 24px Inter;color:#8696a0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:470px">Serramenti Demo — 1. …</span><span style="min-width:36px;height:36px;border-radius:18px;background:#25D366;color:#0b141a;font:700 22px/36px Inter;text-align:center">1</span></div></div>`);
+});
+const chat = el("div", "abs", { left: 0, top: "150px", width: "100%", height: "calc(100% - 150px)", background: "#0b141a" }, WA.sc);
+const SUMMARY = `Serramenti Demo<br><br>1. Porta balcone Legno 1300×2100mm ×1 | Pino, Doppio vetro, Bianco standard, Montaggio Classico | Anta: 1:Fissa/Destra, 2:Anta-ribalta/Destra<br>Posa in opera secondo norma UNI 11673-1:2017<br>Rif. SD-2931`;
+const inB = el("div", "abs", { left: "24px", top: "40px", width: "480px", padding: "20px 22px 34px", borderRadius: "18px", borderTopLeftRadius: "4px", background: "#202c33", font: "400 25px/1.4 Inter", color: "#e9edef" }, chat, `${SUMMARY}<span style="position:absolute;right:16px;bottom:8px;font:400 18px Inter;color:#8696a0">23:52</span>`);
+const GREET = "Buongiorno Laura Rossi, la contatto da parte di Serramenti Demo in merito alla sua richiesta di preventivo per serramenti. Quando possiamo sentirci per fissare un sopralluogo tecnico gratuito?";
+const outB = el("div", "abs", { right: "24px", top: "470px", width: "470px", padding: "20px 22px 34px", borderRadius: "18px", borderTopRightRadius: "4px", background: "#005c4b", font: "400 25px/1.4 Inter", color: "#e9edef" }, chat, `${GREET}<span style="position:absolute;right:16px;bottom:8px;font:400 18px Inter;color:#b7e3d5">07:04 ✓✓</span>`);
+const replyB = el("div", "abs", { left: "24px", top: "820px", padding: "20px 22px 34px", borderRadius: "18px", borderTopLeftRadius: "4px", background: "#202c33", font: "500 28px/1.4 Inter", color: "#e9edef", whiteSpace: "nowrap" }, chat, `Buongiorno! Giovedì alle 10 va benissimo.<span style="position:absolute;right:16px;bottom:8px;font:400 18px Inter;color:#8696a0">07:06</span>`);
+const waEnter = K(0, [[74.5, 1, 5]]), waExit = K(0, [[79.4, 1, 8]]);
+const WA_TAP = 75.6;
+// pipeline: leads become confirmed jobs (real screens, one card at a time)
+const KW = 616 * 1.5, KH = 720 * 1.5;
+const kan = el("div", "device", { width: KW + 36 + "px", height: KH + 36 + "px", borderRadius: "34px" });
+const kanSc = el("div", "screen", { left: "18px", top: "18px", width: KW + "px", height: KH + "px", borderRadius: "20px" }, kan);
+const kanImgs = [0, 1, 2, 3, 4].map((i) => img(`shots/k-${i}.png`, kanSc, KW, KH, "page"));
+const kanTouch = el("div", "touch", {}, kanSc);
+const KAN_T = [80.2, 80.9, 81.6, 82.3];
+const kanEnter = K(0, [[79.5, 1, 6]]), kanExit = K(0, [[83.6, 1, 9]]);
+layer(text("display", "Da richiesta", 540, 110, { fontSize: "78px" }), 79.57, 83.6);
+layer(text("display", "a lavoro confermato.", 540, 200, { fontSize: "78px", color: "var(--mint)" }), 79.77, 83.62);
+
+// ------------------------------------------------------------ S5 · end card (84 – 90 s)
+const END_W = 620, END_H = END_W * 0.35;
+const endWrap = el("div", "abs", { left: (540 - END_W / 2) + "px", top: (760 - END_H / 2) + "px", width: END_W + "px", height: END_H + "px" });
+img("assets/onespec-logo.png", endWrap, END_W, END_H);
+const endP = (t) => spring(t - 84.3, 4.6, 0.96);
+layer(text("display", "I tuoi preventivi lavorano", 540, 980, { fontSize: "62px", fontWeight: 400 }), 85.07, 99);
+layer(text("display", "anche mentre dormi.", 540, 1060, { fontSize: "62px", color: "var(--mint)" }), 85.57, 99);
+layer(text("", "ONESPEC.EU", 540, 1230, { font: "500 34px Inter", letterSpacing: "0.32em", color: "var(--text-2)" }), 86.1, 99);
+
+// ------------------------------------------------------------ sounds
+const SOUNDS = [];
+for (const t of [...PH_TAPS, ...TB_TAPS, WA_TAP, ...KAN_T]) SOUNDS.push({ t, type: "click" });
+for (const t of DIALOG.map((d) => d[0])) SOUNDS.push({ t, type: "pop" });
+for (const t of NOTIF_T) SOUNDS.push({ t, type: "ping" });
+for (const t of LOCK_T) SOUNDS.push({ t, type: "ping" });
+SOUNDS.push({ t: 71.6, type: "alarm" }, { t: 77.0, type: "sent" }, { t: 78.4, type: "ping" });
+SOUNDS.sort((a, b) => a.t - b.t);
+
+// ------------------------------------------------------------ seek
+function seek(t) {
+  drawBg(t);
+  blackEl.style.opacity = clamp(blackA(t)).toFixed(4);
+  const f = Math.floor(t * 24);
+  grainEl.style.backgroundPosition = `${(f * 73) % 256}px ${(f * 151) % 256}px`;
+  clockHook.textContent = (Math.floor(t * 2) % 2 === 0 || t < 2.6) ? "23:47" : "23 47";
+
+  for (const L of layers) {
+    const v = vis(t, L.te, L.tx, L.wi); const e = L.e;
+    e.style.opacity = v.toFixed(4); e.style.visibility = v < 0.002 ? "hidden" : "visible";
+    e.style.filter = v < 0.995 ? `blur(${((1 - v) * 8).toFixed(2)}px)` : "none";
+    const pre = e.dataset.center ? "translateX(-50%) " : "";
+    e.style.transform = `${pre}translateY(${((1 - v) * L.lift).toFixed(2)}px) scale(${(1 - L.pop + L.pop * v).toFixed(4)})`;
+  }
+  // dialogue bubbles: pop in, lift away when the next exchange starts
+  for (const B of bubbles) {
+    const v = vis(t, B.te, B.tx, 16, 20);
+    const pop = clamp(spring(t - B.te, 20, 0.7), 0, 1.2);
+    for (const e of [B.b, B.av, B.role]) {
+      e.style.opacity = v.toFixed(4); e.style.visibility = v < 0.002 ? "hidden" : "visible";
+    }
+    const s = 0.86 + 0.14 * pop, dy = (1 - clamp(spring(t - B.te, 16))) * 40 - clamp(spring(t - B.tx, 20)) * 60;
+    const ox = B.who === "l" ? "0% 0%" : "100% 0%";
+    B.b.style.transformOrigin = ox; B.b.style.transform = `translateY(${dy.toFixed(2)}px) scale(${s.toFixed(4)})`;
+    B.av.style.transform = `translateY(${dy.toFixed(2)}px) scale(${(0.7 + 0.3 * pop).toFixed(4)})`;
+    B.role.style.transform = `translateY(${dy.toFixed(2)}px)`;
+  }
+
+  // phone (estimator on the installer's site)
+  const sc = phScroll(t);
+  placeDevice(PH, t, { x: phX, y: phY, s: phS, enter: phEnter, exit: phExit });
+  showPages(PH, phoneShow, t, sc);
+  tap(PH, t, PH_TAPS, (tt) => [phTX(tt), phTY(tt)], sc);
+  for (const g of rings) {
+    const v = vis(t, g.te, g.tx, 16, 22);
+    g.e.style.opacity = v.toFixed(3); g.e.style.visibility = v < 0.01 ? "hidden" : "visible";
+    Object.assign(g.e.style, { left: g.r.x * PH.S + "px", top: (g.r.y - sc) * PH.S + "px", width: g.r.w * PH.S + "px", height: g.r.h * PH.S + "px" });
+    g.e.style.transform = `scale(${(1.06 - 0.06 * v).toFixed(4)})`;
+  }
+  {
+    const k = clamp(spring(t - 37.5, 7, 1));
+    const v = t < 37.45 ? 0 : (1 - clamp(spring(t - 38.6, 18))) * clamp(k * 3);
+    waFly.style.opacity = v.toFixed(3); waFly.style.visibility = v < 0.01 ? "hidden" : "visible";
+    waFly.style.transform = `translate(${lerp(480, 860, k)}px, ${lerp(1180, 120, k)}px) scale(${(0.5 + 0.5 * k).toFixed(3)}) rotate(${(-20 * k).toFixed(2)}deg)`;
+  }
+
+  // tablet (showroom)
+  const ts = tbScroll(t);
+  placeDevice(TB, t, { x: K(540, []), y: tbY, s: tbS, enter: tbEnter, exit: tbExit });
+  showPages(TB, tbShow, t, ts);
+  tap(TB, t, TB_TAPS, (tt) => [tbTX(tt), tbTY(tt)], ts);
+  {
+    const k = clamp((t - 40.5) / 12);
+    ringArc.setAttribute("stroke-dashoffset", (578 * (1 - k)).toFixed(1));
+    ringTxt.textContent = `${Math.round(60 * k)}s`;
+  }
+
+  // night room
+  {
+    const e = clamp(roomEnter(t)), o = clamp(roomOut(t));
+    const v = e * (1 - o);
+    room.style.opacity = v.toFixed(4); room.style.visibility = v < 0.002 ? "hidden" : "visible";
+    room.style.transform = `scale(${roomZoom(t).toFixed(4)})`;
+    room.style.filter = o > 0.001 ? `blur(${(o * 12).toFixed(2)}px)` : "none";
+    const d = clamp(dawn(t));
+    $("skyDay").setAttribute("opacity", d.toFixed(3)); $("sun").setAttribute("opacity", d.toFixed(3));
+    $("stars").setAttribute("opacity", (1 - d).toFixed(3)); $("moon").setAttribute("opacity", (1 - d).toFixed(3));
+    $("dayWall").setAttribute("opacity", (0.55 * d).toFixed(3));
+    $("sun").setAttribute("transform", `translate(0 ${(-120 * d).toFixed(1)})`);
+    const sit = clamp(spring(t - 72.8, 6));
+    $("sleeper").setAttribute("opacity", (1 - sit).toFixed(3)); $("sitter").setAttribute("opacity", sit.toFixed(3));
+    const zz = t > 53 && t < 72.6 ? 1 : 0;
+    ["z1", "z2", "z3"].forEach((id, i) => {
+      const ph = ((t * 0.45 + i / 3) % 1);
+      $(id).setAttribute("opacity", (zz * Math.sin(Math.PI * ph)).toFixed(3));
+      $(id).setAttribute("transform", `translate(${(ph * 30).toFixed(1)} ${(-ph * 90).toFixed(1)})`);
+    });
+    let g = 0; for (const nt of NOTIF_T) { const k = t - nt; if (k > 0 && k < 0.9) g = Math.max(g, Math.exp(-k * 3.5)); }
+    if (t > 71 && t < 72.6) g = Math.max(g, 0.6 + 0.4 * Math.sin(t * 25));
+    $("phoneGlow").setAttribute("opacity", g.toFixed(3)); $("phoneScr").setAttribute("opacity", Math.min(1, g * 1.5).toFixed(3));
+    // clock time-lapse 23:30 → 03:12, then 07:00
+    let mins;
+    if (t < 54) mins = 23 * 60 + 30; else if (t < 61) mins = 23 * 60 + 30 + (t - 54) / 7 * (3 * 60 + 42); else mins = 3 * 60 + 12;
+    if (t > 71) mins = 7 * 60;
+    mins = Math.floor(mins) % (24 * 60);
+    $("clockTxt").textContent = `${String(Math.floor(mins / 60)).padStart(2, "0")}:${String(mins % 60).padStart(2, "0")}`;
+  }
+
+  // lock screen with the night's requests
+  placeDevice(LOCK, t, { x: K(540, []), y: K(980, []), s: K(0.98, []), enter: lockEnter, exit: lockExit, dy0: 60 });
+  {
+    let shown = 0;
+    notifs.forEach((n, i) => {
+      const k = clamp(spring(t - LOCK_T[i], 16, 0.85), 0, 1.1);
+      if (t >= LOCK_T[i]) shown++;
+      const newer = LOCK_T.filter((x, j) => j > i && t >= x).length;
+      const slide = LOCK_T.filter((x, j) => j > i).reduce((acc, x) => acc + clamp(spring(t - x, 16, 0.9)), 0);
+      const y = 360 + slide * 186 + (1 - k) * -90;
+      const sc = 0.96 + 0.04 * clamp(k);
+      n.style.opacity = (t < LOCK_T[i] ? 0 : clamp(k) * clamp(1 - (slide - 5.2))).toFixed(3);
+      n.style.visibility = t < LOCK_T[i] ? "hidden" : "visible";
+      n.style.zIndex = String(100 + i);
+      n.style.top = "0px";
+      n.style.transform = `translateY(${y.toFixed(1)}px) scale(${sc.toFixed(3)})`;
+      n.style.transformOrigin = "50% 0%";
+    });
+    badge.textContent = `${shown} richieste di preventivo stanotte`;
+    badge.style.opacity = shown > 0 ? "1" : "0";
+  }
+
+  // morning WhatsApp
+  placeDevice(WA, t, { x: K(540, []), y: K(1000, []), s: K(1, []), enter: waEnter, exit: waExit, dy0: 80 });
+  {
+    const open = clamp(spring(t - WA_TAP, 14, 0.95));
+    chatList.style.transform = `translateX(${(-open * 100).toFixed(2)}%)`;
+    listTitle.style.opacity = (1 - open).toFixed(3);
+    chat.style.transform = `translateX(${((1 - open) * 100).toFixed(2)}%)`;
+    waHead.style.opacity = open.toFixed(3);
+    const o1 = clamp(spring(t - 77.0, 16, 0.8), 0, 1.1), o2 = clamp(spring(t - 78.4, 16, 0.8), 0, 1.1);
+    outB.style.opacity = clamp(o1).toFixed(3); outB.style.transform = `translateY(${((1 - o1) * 40).toFixed(1)}px) scale(${(0.92 + 0.08 * o1).toFixed(3)})`; outB.style.transformOrigin = "100% 100%";
+    replyB.style.opacity = clamp(o2).toFixed(3); replyB.style.transform = `translateY(${((1 - o2) * 40).toFixed(1)}px) scale(${(0.92 + 0.08 * o2).toFixed(3)})`; replyB.style.transformOrigin = "0% 100%";
+    const k = t - WA_TAP, tv = k > -0.12 && k < 0.45 ? clamp(k < 0 ? (k + 0.12) / 0.12 : 1 - k / 0.45) : 0;
+    WA.touch.style.opacity = tv.toFixed(3); WA.touch.style.visibility = tv < 0.01 ? "hidden" : "visible";
+    WA.touch.style.transform = `translate(300px, 210px) scale(${(1 + Math.max(0, k) * 1.2).toFixed(3)})`;
+  }
+  // pipeline
+  {
+    const e = clamp(kanEnter(t)), q = clamp(kanExit(t)), v = e * (1 - q);
+    kan.style.opacity = v.toFixed(4); kan.style.visibility = v < 0.002 ? "hidden" : "visible";
+    kan.style.filter = v < 0.999 ? `blur(${((1 - v) * 10).toFixed(2)}px)` : "none";
+    kan.style.transform = `translate(${540 - (KW + 36) / 2}px, ${1100 - (KH + 36) / 2 + (1 - e) * 900 - q * 160}px) perspective(2600px) rotateX(${((1 - e) * 20).toFixed(2)}deg) scale(${(0.9 + 0.1 * e).toFixed(4)})`;
+    let cur = 0, tc = -1, prev = 0;
+    KAN_T.forEach((kt, i) => { if (t >= kt) { prev = cur; cur = i + 1; tc = kt; } });
+    kanImgs.forEach((im, i) => { const o = i === cur ? (tc < 0 ? 1 : clamp(spring(t - tc, 55, 0.95))) : (i === prev ? 1 : 0); im.style.opacity = o.toFixed(3); im.style.visibility = o < 0.002 ? "hidden" : "visible"; });
+    let tv = 0, sc = 1; for (const kt of KAN_T) { const k = t - kt; if (k > -0.12 && k < 0.45) { tv = clamp(k < 0 ? (k + 0.12) / 0.12 : 1 - k / 0.45); sc = 1 + Math.max(0, k) * 1.2; } }
+    kanTouch.style.opacity = tv.toFixed(3); kanTouch.style.visibility = tv < 0.01 ? "hidden" : "visible";
+    kanTouch.style.transform = `translate(${110 * 1.5}px, ${128 * 1.5}px) scale(${sc.toFixed(3)})`;
+  }
+
+  const ep = endP(t);
+  endWrap.style.clipPath = `inset(0 ${((1 - clamp(ep)) * 100).toFixed(3)}% 0 0)`;
+  endWrap.style.opacity = clamp(ep * 1.4).toFixed(4);
+  endWrap.style.filter = `blur(${((1 - clamp(ep)) * 8).toFixed(2)}px)`;
+  endWrap.style.transform = `scale(${(1.05 - 0.05 * clamp(ep)).toFixed(4)})`;
+  return { t };
+}
+
+window.seek = seek;
+window.SOUNDS = SOUNDS;
+window.FILM = { DUR };
+window.READY = false;
+for (const i of imgs) {
+  if (!i.complete) await new Promise((r, j) => { i.onload = r; i.onerror = j; });
+  for (let k = 0; k < 3; k++) { try { await i.decode(); break; } catch (e) { await new Promise((r) => setTimeout(r, 200)); } }
+  if (!i.naturalWidth) throw new Error("image failed: " + i.src);
+}
+await document.fonts.ready;
+await Promise.all(['600 40px "Fraunces"', '400 40px "Fraunces"', '400 20px "Inter"', '600 20px "Inter"', '500 20px "IBM Plex Mono"'].map((f) => document.fonts.load(f)));
+window.FONTS_OK = document.fonts.check('600 40px "Fraunces"') && document.fonts.check('400 20px "Inter"');
+layoutBubbles();
+seek(0);
+window.READY = true;
+})();
+</script>
+</body>
+</html>

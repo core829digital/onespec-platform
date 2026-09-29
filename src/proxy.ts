@@ -33,6 +33,7 @@ const WIDGET_CSP_BASE = [
 const IS_PROD = process.env.NODE_ENV === "production";
 const EMBED_CACHE = new Map<string, { csp: string; expires: number }>();
 const EMBED_TTL_MS = 5 * 60_000;
+const EMBED_CACHE_MAX = 5_000;
 
 async function widgetCsp(publicId: string): Promise<string> {
   const cached = EMBED_CACHE.get(publicId);
@@ -53,6 +54,13 @@ async function widgetCsp(publicId: string): Promise<string> {
   }
 
   const csp = `${WIDGET_CSP_BASE}; frame-ancestors ${ancestors}`;
+  // Bounded: random publicIds (valid shape, nonexistent) must not grow this
+  // per-instance cache without limit. A Map iterates in insertion order, so
+  // the first key is the oldest entry.
+  if (EMBED_CACHE.size >= EMBED_CACHE_MAX) {
+    const oldest = EMBED_CACHE.keys().next().value;
+    if (oldest !== undefined) EMBED_CACHE.delete(oldest);
+  }
   EMBED_CACHE.set(publicId, { csp, expires: Date.now() + EMBED_TTL_MS });
   return csp;
 }

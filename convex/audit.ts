@@ -43,7 +43,7 @@ export const listAudit = query({
         .query("auditLog")
         .withIndex("by_tenant", (q) => q.eq("tenantId", tid))
         .order("desc")
-        .paginate(args.paginationOpts);
+        .paginate({ ...args.paginationOpts, numItems: Math.min(Math.max(args.paginationOpts.numItems, 1), 100) });
     }
     if (args.action) {
       const action = args.action;
@@ -51,8 +51,8 @@ export const listAudit = query({
         .query("auditLog")
         .withIndex("by_action", (q) => q.eq("action", action))
         .order("desc")
-        .paginate(args.paginationOpts);
+        .paginate({ ...args.paginationOpts, numItems: Math.min(Math.max(args.paginationOpts.numItems, 1), 100) });
     }
-    return await ctx.db.query("auditLog").order("desc").paginate(args.paginationOpts);
+    return await ctx.db.query("auditLog").order("desc").paginate({ ...args.paginationOpts, numItems: Math.min(Math.max(args.paginationOpts.numItems, 1), 100) });
   },
 });

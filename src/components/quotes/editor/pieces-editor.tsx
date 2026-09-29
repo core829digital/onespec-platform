@@ -9,6 +9,7 @@ import {
   addSash,
   applyFrameToAll,
   duplicateItem,
+  MAX_PIECES,
   moveItem,
   patchSash,
   pieceIssues,
@@ -50,6 +51,7 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
   const patchActive = (patch: Partial<ProjectItem>) => active && update(activeIndex, { ...active, ...patch });
 
   function addPiece(category: PieceCategory) {
+    if (items.length >= MAX_PIECES) return;
     const fresh = defaultItem(payload, category);
     fresh.frameType = lotFrame ?? fresh.frameType;
     onChange([...items, fresh]);
@@ -100,7 +102,7 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
         <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">{t("addPiece")}</p>
         <div className="flex flex-wrap gap-2">
           {PIECE_CATEGORIES.map((c) => (
-            <button key={c} type="button" onClick={() => addPiece(c)} className="min-h-10 rounded-full border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-1.5 text-xs font-medium text-[var(--color-text)] hover:border-[var(--color-mint)]">
+            <button key={c} type="button" disabled={items.length >= MAX_PIECES} onClick={() => addPiece(c)} className="disabled:opacity-40 min-h-10 rounded-full border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-1.5 text-xs font-medium text-[var(--color-text)] hover:border-[var(--color-mint)]">
               + {CATEGORY_DEFS[c].labels[locale] ?? CATEGORY_DEFS[c].labels.it}
             </button>
           ))}
@@ -140,7 +142,7 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
                 </button>
                 <button type="button" title={t("moveUp")} disabled={idx === 0} onClick={() => { onChange(moveItem(items, idx, idx - 1)); onActiveChange(idx - 1); }} className="px-1 disabled:opacity-30">↑</button>
                 <button type="button" title={t("moveDown")} disabled={idx === items.length - 1} onClick={() => { onChange(moveItem(items, idx, idx + 1)); onActiveChange(idx + 1); }} className="px-1 disabled:opacity-30">↓</button>
-                <button type="button" title={t("duplicate")} onClick={() => { onChange(duplicateItem(items, idx)); onActiveChange(idx + 1); }} className="px-1">⧉</button>
+                <button type="button" title={t("duplicate")} disabled={items.length >= MAX_PIECES} onClick={() => { onChange(duplicateItem(items, idx)); onActiveChange(idx + 1); }} className="px-1">⧉</button>
                 {items.length > 1 ? <button type="button" title={t("remove")} onClick={() => removePiece(idx)} className="px-1 hover:text-[var(--color-danger)]">×</button> : null}
               </div>
             );

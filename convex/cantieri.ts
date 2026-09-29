@@ -1,9 +1,8 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
-import { requireMembership } from "./lib/auth";
 import { requirePermission } from "./lib/rbac";
-import { listRelated } from "./lib/links";
+import { listRelated, assertOwnedRefs, assertActiveMembers } from "./lib/links";
 import { consumeToken, RATE_LIMITS } from "./lib/ratelimit";
 import { hashIp } from "./lib/ipHash";
 
@@ -81,7 +80,7 @@ export const getCantiere = query({
   handler: async (ctx, args) => {
     const cantiere = await ctx.db.get(args.cantiereId);
     if (!cantiere) return null;
-    await requireMembership(ctx, cantiere.tenantId);
+    await requirePermission(ctx, cantiere.tenantId, "cantieri.use");
 
     const tenant = await ctx.db.get(cantiere.tenantId);
     if (!tenant) return null;
@@ -190,6 +189,21 @@ export const createCantiere = mutation({
   },
   handler: async (ctx, args) => {
     const { userId } = await requirePermission(ctx, args.tenantId, "cantieri.use");
+    // Same bounds as updateCantiere, plus: referenced client/quote/assignees
+    // must belong to THIS tenant.
+    const tooLong = (val: string | undefined, max: number) => val !== undefined && val.length > max;
+    if (
+      !args.name.trim() || tooLong(args.name, 200) || tooLong(args.address, 300) || tooLong(args.city, 120) ||
+      tooLong(args.postalCode, 20) || tooLong(args.country, 2) || tooLong(args.notes, 10_000)
+    ) {
+      throw new ConvexError("INVALID_INPUT");
+    }
+    for (const n of [args.estimatedStartAt, args.estimatedEndAt, args.valueCents]) {
+      if (n !== undefined && !Number.isFinite(n)) throw new ConvexError("INVALID_INPUT");
+    }
+    if (args.valueCents !== undefined && args.valueCents < 0) throw new ConvexError("INVALID_INPUT");
+    await assertOwnedRefs(ctx, args.tenantId, { clientId: args.clientId, quoteId: args.quoteId });
+    await assertActiveMembers(ctx, args.tenantId, args.assignedUserIds);
 
     const now = Date.now();
     const cantiereId = await ctx.db.insert("cantieri", {
@@ -274,6 +288,8 @@ export const updateCantiere = mutation({
     }
     if (args.valueCents !== undefined && args.valueCents < 0) throw new ConvexError("INVALID_INPUT");
     if (args.assignedUserIds !== undefined && args.assignedUserIds.length > 100) throw new ConvexError("INVALID_INPUT");
+    await assertOwnedRefs(ctx, cantiere.tenantId, { clientId: args.clientId, quoteId: args.quoteId });
+    await assertActiveMembers(ctx, cantiere.tenantId, args.assignedUserIds);
 
     const patch: Record<string, unknown> = { updatedAt: Date.now() };
     const allowedFields = [
@@ -416,6 +432,8 @@ export const createCantiereTask = mutation({
     if (!cantiere || cantiere.tenantId !== args.tenantId) {
       throw new ConvexError("CANTIERE_NOT_FOUND");
     }
+    assertTaskText(args.title, args.description, true);
+    if (args.assignedUserId) await assertActiveMembers(ctx, args.tenantId, [args.assignedUserId]);
 
     const taskId = await ctx.db.insert("cantiereTasks", {
       tenantId: args.tenantId,
@@ -436,6 +454,12 @@ export const createCantiereTask = mutation({
   },
 });
 
+function assertTaskText(title: string | undefined, description: string | undefined, creating: boolean): void {
+  if (creating && !title?.trim()) throw new ConvexError("INVALID_INPUT");
+  if (title !== undefined && (!title.trim() || title.length > 200)) throw new ConvexError("INVALID_INPUT");
+  if (description !== undefined && description.length > 5_000) throw new ConvexError("INVALID_INPUT");
+}
+
 /** Update a cantiere task. */
 export const updateCantiereTask = mutation({
   args: {
@@ -451,14 +475,21 @@ export const updateCantiereTask = mutation({
     const task = await ctx.db.get(args.taskId);
     if (!task) throw new ConvexError("TASK_NOT_FOUND");
     await requirePermission(ctx, task.tenantId, "cantieri.use");
+    assertTaskText(args.title, args.description, false);
 
     const patch: Record<string, unknown> = { updatedAt: Date.now() };
-    const allowedFields = ["title", "description", "status", "priority", "dueAt", "assignedUserId"];
+    const allowedFields = ["title", "description", "status", "priority", "dueAt"];
 
     for (const field of allowedFields) {
       if (args[field as keyof typeof args] !== undefined) {
         patch[field] = args[field as keyof typeof args];
       }
+    }
+    // The schema field is `userId` (as createCantiereTask writes it): patching
+    // "assignedUserId" failed schema validation, so reassigning a task crashed.
+    if (args.assignedUserId !== undefined) {
+      await assertActiveMembers(ctx, task.tenantId, [args.assignedUserId]);
+      patch.userId = args.assignedUserId;
     }
 
     // Set completedAt when status changes to done

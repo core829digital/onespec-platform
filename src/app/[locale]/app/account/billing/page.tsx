@@ -9,6 +9,10 @@ import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useFriendlyError } from "@/lib/use-friendly-error";
+import { planDisplayName } from "@/lib/plan-gates";
+import { UsageMeters } from "@/components/billing/usage-meters";
+
+type SelfServePlan = "essentials" | "essentials_plus" | "max" | "base" | "pro" | "agency";
 
 const euro = (c: number | null, locale: string) =>
   c === null
@@ -109,11 +113,11 @@ export default function BillingPage() {
     }
   }
 
-  async function switchPlan(plan: "base" | "pro" | "agency") {
+  async function switchPlan(plan: SelfServePlan, planCycle: "monthly" | "annual") {
     setBusy(true);
     setErr("");
     try {
-      const preview = await previewPlanChange({ tenantId: tenant!._id, plan, cycle });
+      const preview = await previewPlanChange({ tenantId: tenant!._id, plan, cycle: planCycle });
       // `amountDueCents` is what Stripe would charge the card RIGHT NOW and
       // can NEVER be negative (Stripe invoices floor at 0) — it cannot by
       // itself represent a downgrade credit. `totalCents` is the real,
@@ -146,10 +150,11 @@ export default function BillingPage() {
         setBusy(false);
         return;
       }
-      await changePlan({ tenantId: tenant!._id, plan, cycle });
+      await changePlan({ tenantId: tenant!._id, plan, cycle: planCycle });
       // Apply immediately instead of waiting for the webhook, then confirm on screen.
-      const rank: Record<string, number> = { base: 0, pro: 1, agency: 2 };
-      const before = rank[state?.plan ?? "base"] ?? 0;
+      // Up/down across both families is decided by monthly list price.
+      const priceOf = (k: string) => state?.plans.find((x) => x.key === k)?.priceCents ?? 0;
+      const before = priceOf(state?.plan ?? "base");
       let applied = plan;
       try {
         const r = await syncSubscription({ tenantId: tenant!._id });
@@ -157,7 +162,7 @@ export default function BillingPage() {
       } catch {
         /* the webhook will apply it shortly */
       }
-      setNotice({ kind: (rank[plan] ?? 0) >= before ? "upgrade" : "downgrade", plan: applied });
+      setNotice({ kind: priceOf(plan) >= before ? "upgrade" : "downgrade", plan: applied });
       setBusy(false);
     } catch (e) {
       setErr(tf(e));
@@ -191,7 +196,7 @@ export default function BillingPage() {
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-text)]">{t("title")}</h1>
         <p className="text-[var(--color-text-secondary)] mt-1">
-          {t("currentPlan")} <span className="capitalize text-[var(--color-text)]">{state.plan}</span> ·
+          {t("currentPlan")} <span className="text-[var(--color-text)]">{planDisplayName(state.plan)}</span> ·
           {t("status")} {state.planStatus}
         </p>
       </div>
@@ -217,7 +222,7 @@ export default function BillingPage() {
           {state.subscription ? (
             <>
               <p className="font-semibold text-[var(--color-text)]">
-                {t("checkout.welcomeTitle", { plan: state.plan.charAt(0).toUpperCase() + state.plan.slice(1) })}
+                {t("checkout.welcomeTitle", { plan: planDisplayName(state.plan) })}
               </p>
               <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{t("checkout.welcomeBody")}</p>
             </>
@@ -238,7 +243,7 @@ export default function BillingPage() {
               ✓
             </div>
             <h2 id="plan-notice-title" className="text-lg font-bold text-[var(--color-text)]">
-              {t(`notice.${notice.kind}Title`, { plan: notice.plan.charAt(0).toUpperCase() + notice.plan.slice(1) })}
+              {t(`notice.${notice.kind}Title`, { plan: planDisplayName(notice.plan) })}
             </h2>
             <p className="mt-2 text-sm text-[var(--color-text-secondary)]">{t(`notice.${notice.kind}Body`)}</p>
             <button
@@ -349,125 +354,120 @@ export default function BillingPage() {
         </>
       ) : (
         <>
-        <div className="flex justify-center gap-2 mb-4">
-          <button
-            type="button"
-            onClick={() => setCycle("monthly")}
-            className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${
-              cycle === "monthly"
-                ? "bg-[var(--color-mint)] text-[var(--color-mint-dark)]"
-                : "border border-[var(--color-border)] text-[var(--color-text-secondary)]"
-            }`}
-          >
-            {t("billing.monthly")}
-          </button>
-          <button
-            type="button"
-            onClick={() => setCycle("annual")}
-            className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${
-              cycle === "annual"
-                ? "bg-[var(--color-mint)] text-[var(--color-mint-dark)]"
-                : "border border-[var(--color-border)] text-[var(--color-text-secondary)]"
-            }`}
-          >
-            {t("billing.annual", { discount: "-17%" })}
-          </button>
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {displayPlans.map((p) => {
-            const current = p.key === state.plan;
-            const monthlyPrice = p.priceCents;
-            const annualPrice = getAnnualPrice(monthlyPrice);
-  
-            const priceCents = cycle === "annual" ? annualPrice : monthlyPrice;
-  
-            return (
-              <div
-                key={p.key}
-                className={`flex flex-col rounded-xl border p-4 ${
-                  current ? "border-[var(--color-mint)]" : "border-[var(--color-border)]"
-                } bg-[var(--color-bg-alt)]`}
-              >
-                <p className="font-semibold text-[var(--color-text)]">{p.name}</p>
-                <p className="mt-1 text-2xl font-bold text-[var(--color-text)] tabular-nums">
-                  {euro(priceCents, locale)}
-                  {priceCents !== null ? (
-                    <span className="text-sm font-normal text-[var(--color-text-secondary)]">
-                      {cycle === "annual" ? ` ${t("billing.perYear")}` : ` ${t("billing.perMonth")}`}
-                    </span>
-                  ) : null}
-                </p>
-                {Array.isArray(t.raw(`planFeatures.${p.key}`)) ? (
-                  <ul className="mt-3 flex-1 space-y-1.5 text-xs text-[var(--color-text-secondary)]">
-                    {(t.raw(`planFeatures.${p.key}`) as string[]).map((f) => (
-                      <li key={f} className="flex gap-2">
-                        <span aria-hidden="true" className="text-[var(--color-mint)]">✓</span>
-                        <span>{f}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : null}
-                <div className="mt-auto space-y-2 pt-4">
-                  {current ? (
-                    <span className="text-xs text-[var(--color-mint)] block">{t("currentPlan")}</span>
-                  ) : p.key === "enterprise" ? (
-                    <a
-                      href="mailto:sales@onespec.eu"
-                      className="text-xs text-[var(--color-mint)] hover:underline block text-center"
-                    >
-                      {t("contactSales")}
-                    </a>
-                  ) : p.key === "pro" && state.plan === "base" && !state.subscription && state.checkoutAvailable ? (
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={() =>
-                        go(() =>
-                          checkout({
-                            tenantId: tenant!._id,
-                            plan: "pro",
-                            cycle,
-                            origin: window.location.origin,
-                          }),
-                        )
-                      }
-                      className="rounded-lg bg-[var(--color-mint)] w-full px-3 py-1.5 text-xs font-semibold text-[var(--color-mint-dark)]"
-                    >
-                      {t("startTrial")}
-                    </button>
-                  ) : state.subscription && state.checkoutAvailable ? (
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={() => switchPlan(p.key as "base" | "pro" | "agency")}
-                      className="rounded-lg bg-[var(--color-mint)] w-full px-3 py-1.5 text-xs font-semibold text-[var(--color-mint-dark)]"
-                    >
-                      {t("upgradeTo")} {p.name}
-                    </button>
-                  ) : state.checkoutAvailable ? (
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={() =>
-                        go(() =>
-                          checkout({
-                            tenantId: tenant!._id,
-                            plan: p.key as "base" | "pro" | "agency",
-                            cycle,
-                            origin: window.location.origin,
-                          }),
-                        )
-                      }
-                      className="rounded-lg bg-[var(--color-mint)] w-full px-3 py-1.5 text-xs font-semibold text-[var(--color-mint-dark)]"
-                    >
-                      {t("upgradeTo")} {p.name}
-                    </button>
-                  ) : null}
+        {tenant ? <UsageMeters tenantId={tenant._id} /> : null}
+        {(["widget", "platform"] as const).map((family) => {
+          const plans = displayPlans.filter((p) => p.family === family);
+          const hasAnnual = plans.some((p) => p.annualBilling);
+          return (
+            <section key={family} aria-labelledby={`plans-${family}`} className="space-y-3">
+              <div className="flex flex-wrap items-end justify-between gap-3">
+                <div>
+                  <h2 id={`plans-${family}`} className="text-lg font-bold text-[var(--color-text)]">{t(`families.${family}Title`)}</h2>
+                  <p className="text-sm text-[var(--color-text-secondary)]">{t(`families.${family}Body`)}</p>
                 </div>
+                {hasAnnual ? (
+                  <div className="flex gap-2">
+                    {(["monthly", "annual"] as const).map((c) => (
+                      <button
+                        key={c}
+                        type="button"
+                        aria-pressed={cycle === c}
+                        onClick={() => setCycle(c)}
+                        className={`rounded-lg px-3 py-1.5 text-xs font-semibold ${
+                          cycle === c
+                            ? "bg-[var(--color-mint)] text-[var(--color-mint-dark)]"
+                            : "border border-[var(--color-border)] text-[var(--color-text-secondary)]"
+                        }`}
+                      >
+                        {c === "monthly" ? t("billing.monthly") : t("billing.annual", { discount: "-17%" })}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
               </div>
-            );
-          })}
-        </div>
+              <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${family === "widget" ? "lg:grid-cols-3" : "lg:grid-cols-4"}`}>
+                {plans.map((p) => {
+                  const current = p.key === state.plan;
+                  // Widget-first plans (and Agency) are monthly only.
+                  const planCycle: "monthly" | "annual" = p.annualBilling ? cycle : "monthly";
+                  const priceCents = planCycle === "annual" ? getAnnualPrice(p.priceCents) : p.priceCents;
+                  const selfServe = p.key !== "enterprise";
+                  return (
+                    <div
+                      key={p.key}
+                      className={`flex flex-col rounded-xl border p-4 ${
+                        current ? "border-[var(--color-mint)]" : "border-[var(--color-border)]"
+                      } bg-[var(--color-bg-alt)]`}
+                    >
+                      <p className="font-semibold text-[var(--color-text)]">{p.name}</p>
+                      <p className="mt-1 text-2xl font-bold text-[var(--color-text)] tabular-nums">
+                        {euro(priceCents, locale)}
+                        {priceCents !== null ? (
+                          <span className="text-sm font-normal text-[var(--color-text-secondary)]">
+                            {planCycle === "annual" ? ` ${t("billing.perYear")}` : ` ${t("billing.perMonth")}`}
+                          </span>
+                        ) : null}
+                      </p>
+                      {!p.annualBilling && selfServe && cycle === "annual" ? (
+                        <p className="text-xs text-[var(--color-text-secondary)]">{t("monthlyOnly")}</p>
+                      ) : null}
+                      {Array.isArray(t.raw(`planFeatures.${p.key}`)) ? (
+                        <ul className="mt-3 flex-1 space-y-1.5 text-xs text-[var(--color-text-secondary)]">
+                          {(t.raw(`planFeatures.${p.key}`) as string[]).map((f) => (
+                            <li key={f} className="flex gap-2">
+                              <span aria-hidden="true" className="text-[var(--color-mint)]">✓</span>
+                              <span>{f}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                      <div className="mt-auto space-y-2 pt-4">
+                        {current ? (
+                          <span className="text-xs text-[var(--color-mint)] block">{t("currentPlan")}</span>
+                        ) : !selfServe ? (
+                          <a
+                            href="mailto:sales@onespec.eu"
+                            className="text-xs text-[var(--color-mint)] hover:underline block text-center"
+                          >
+                            {t("contactSales")}
+                          </a>
+                        ) : state.subscription && state.checkoutAvailable ? (
+                          <button
+                            type="button"
+                            disabled={busy}
+                            onClick={() => switchPlan(p.key as SelfServePlan, planCycle)}
+                            className="rounded-lg bg-[var(--color-mint)] w-full px-3 py-1.5 text-xs font-semibold text-[var(--color-mint-dark)]"
+                          >
+                            {t("upgradeTo")} {p.name}
+                          </button>
+                        ) : state.checkoutAvailable ? (
+                          <button
+                            type="button"
+                            disabled={busy}
+                            onClick={() =>
+                              go(() =>
+                                checkout({
+                                  tenantId: tenant!._id,
+                                  plan: p.key as SelfServePlan,
+                                  cycle: planCycle,
+                                  origin: window.location.origin,
+                                }),
+                              )
+                            }
+                            className="rounded-lg bg-[var(--color-mint)] w-full px-3 py-1.5 text-xs font-semibold text-[var(--color-mint-dark)]"
+                          >
+                            {p.key === "pro" && !state.trialUsed ? t("startTrial") : `${t("upgradeTo")} ${p.name}`}
+                          </button>
+                        ) : null}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          );
+        })}
+        <p className="text-xs text-[var(--color-text-secondary)]">{t("vatExcluded")}</p>
   
         {!state.checkoutAvailable ? (
           <p className="text-sm text-[var(--color-text-secondary)]">

@@ -1,7 +1,7 @@
 import { internalMutation, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
 import { seedExtras } from "./lib/catalogExtras";
-import { FULL_ACCESS_EMAILS, isFullAccessEmail } from "./lib/founding";
+import { FULL_ACCESS_EMAILS } from "./lib/founding";
 import type { TableNames } from "./_generated/dataModel";
 
 /**
@@ -338,7 +338,14 @@ export const eraseAllTenantData = internalMutation({
   },
 });
 
-/** Read-only overview before running resetToFoundingAdmins — never delete anything blind. */
+/**
+ * PRE-LAUNCH ONLY. overviewBeforeReset / resetToFoundingAdmins read whole
+ * tables in one transaction: they will exceed Convex's per-transaction read
+ * limits once the platform has thousands of users, and must never be run on
+ * a live customer base anyway (resetToFoundingAdmins deletes every account).
+ *
+ * Read-only overview before running resetToFoundingAdmins — never delete anything blind.
+ */
 export const overviewBeforeReset = internalQuery({
   args: {},
   handler: async (ctx) => {
@@ -450,22 +457,24 @@ export const grantFullAccessToFounders = internalMutation({
   args: {},
   handler: async (ctx) => {
     const report: Record<string, number> = { adminsFlagged: 0, tenantsFlagged: 0 };
-    const users = await ctx.db.query("users").collect();
-    const founderIds = new Set(
-      users.filter((u) => isFullAccessEmail(u.email)).map((u) => u._id),
-    );
-    for (const u of users) {
-      if (founderIds.has(u._id) && !u.isPlatformAdmin) {
+    // Indexed lookups only (email → user, owner → tenants): safe at any
+    // user count, unlike the old full-table scans.
+    const founders = [];
+    for (const email of FULL_ACCESS_EMAILS) {
+      const u = await ctx.db.query("users").withIndex("email", (q) => q.eq("email", email)).first();
+      if (u) founders.push(u);
+    }
+    for (const u of founders) {
+      if (!u.isPlatformAdmin) {
         await ctx.db.patch(u._id, { isPlatformAdmin: true });
         report.adminsFlagged++;
       }
     }
-    const tenants = await ctx.db.query("tenants").collect();
+    const tenants = [];
+    for (const u of founders) {
+      tenants.push(...(await ctx.db.query("tenants").withIndex("by_owner", (q) => q.eq("ownerUserId", u._id)).take(100)));
+    }
     for (const t of tenants) {
-      const ownedByFounder =
-        founderIds.has(t.ownerUserId) ||
-        isFullAccessEmail((await ctx.db.get(t.ownerUserId))?.email);
-      if (!ownedByFounder) continue;
       const patch: Record<string, unknown> = {};
       if (t.unlimitedAccess !== true) patch.unlimitedAccess = true;
       // Founding accounts show as Enterprise, not just unlimited-access Base —

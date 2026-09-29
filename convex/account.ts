@@ -1,10 +1,15 @@
-import { query, mutation } from "./_generated/server";
+import { query, mutation, internalMutation } from "./_generated/server";
+import { internal } from "./_generated/api";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import { getAuthSessionId } from "@convex-dev/auth/server";
 import { requireUser } from "./lib/auth";
 
 const DELETION_GRACE_DAYS = 30;
+const EXPORT_NOTIFICATION_CAP = 10_000;
+/** In-app notifications older than this are deleted by the daily retention sweep. */
+export const NOTIFICATION_RETENTION_DAYS = 365;
+const BATCH = 200;
 
 export const getProfile = query({
   handler: async (ctx) => {
@@ -149,10 +154,14 @@ export const exportMyData = mutation({
       .query("memberships")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .collect();
+    // Bounded: notifications older than NOTIFICATION_RETENTION_DAYS are
+    // purged daily, so this is the complete set in practice; the cap keeps a
+    // pathological backlog from exceeding the transaction read limit.
     const notifications = await ctx.db
       .query("notifications")
       .withIndex("by_user", (q) => q.eq("userId", userId))
-      .collect();
+      .order("desc")
+      .take(EXPORT_NOTIFICATION_CAP);
     const prefs = await ctx.db
       .query("notificationPrefs")
       .withIndex("by_user", (q) => q.eq("userId", userId))
@@ -271,5 +280,122 @@ export const cancelDeletion = mutation({
       targetId: userId,
       createdAt: Date.now(),
     });
+  },
+});
+
+/* ------------------------------------------------------------------------ */
+/*  GDPR Art. 17 — execution of due deletion requests (daily cron)          */
+/* ------------------------------------------------------------------------ */
+
+/**
+ * Executes every deletion request whose 30-day grace period has passed.
+ * The user row is ANONYMISED rather than removed — tenant records (quotes,
+ * audit log, assignments) keep a valid reference, but nothing identifies the
+ * person any more and they can no longer sign in: auth accounts, sessions,
+ * refresh tokens, verification codes, memberships, notifications, prefs and
+ * consents are deleted. A user who has meanwhile become a SOLE owner is
+ * skipped (the tenant would be orphaned) and retried the next day.
+ */
+export const processDueDeletions = internalMutation({
+  args: {},
+  returns: v.object({ processed: v.number(), skipped: v.number() }),
+  handler: async (ctx) => {
+    const now = Date.now();
+    const due = await ctx.db
+      .query("deletionRequests")
+      .withIndex("by_status", (q) => q.eq("status", "pending"))
+      .take(25);
+    let processed = 0;
+    let skipped = 0;
+    for (const req of due) {
+      if (req.scheduledFor > now) continue;
+      const done = await anonymiseUser(ctx, req.userId);
+      if (!done) {
+        skipped++;
+        continue;
+      }
+      await ctx.db.patch(req._id, { status: "completed", resolvedAt: now, email: "", reason: undefined });
+      await ctx.db.insert("auditLog", {
+        actorKind: "system",
+        action: "account.deleted",
+        targetTable: "users",
+        targetId: req.userId,
+        createdAt: now,
+      });
+      processed++;
+    }
+    if (due.length === 25 && processed > 0) {
+      await ctx.scheduler.runAfter(0, internal.account.processDueDeletions, {});
+    }
+    return { processed, skipped };
+  },
+});
+
+async function anonymiseUser(ctx: import("./_generated/server").MutationCtx, userId: import("./_generated/dataModel").Id<"users">): Promise<boolean> {
+  const memberships = await ctx.db.query("memberships").withIndex("by_user", (q) => q.eq("userId", userId)).take(100);
+  for (const m of memberships) {
+    if (m.role !== "owner" || m.status !== "active") continue;
+    const otherOwner = await ctx.db
+      .query("memberships")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", m.tenantId))
+      .filter((q) => q.and(q.eq(q.field("role"), "owner"), q.eq(q.field("status"), "active"), q.neq(q.field("userId"), userId)))
+      .first();
+    if (!otherOwner) return false;
+  }
+
+  for (const m of memberships) await ctx.db.patch(m._id, { status: "removed" });
+
+  const sessions = await ctx.db.query("authSessions").withIndex("userId", (q) => q.eq("userId", userId)).take(100);
+  for (const sess of sessions) {
+    const tokens = await ctx.db.query("authRefreshTokens").withIndex("sessionId", (q) => q.eq("sessionId", sess._id)).take(500);
+    for (const t of tokens) await ctx.db.delete(t._id);
+    await ctx.db.delete(sess._id);
+  }
+  const accounts = await ctx.db.query("authAccounts").withIndex("userIdAndProvider", (q) => q.eq("userId", userId)).take(20);
+  for (const a of accounts) {
+    const codes = await ctx.db.query("authVerificationCodes").withIndex("accountId", (q) => q.eq("accountId", a._id)).take(50);
+    for (const c of codes) await ctx.db.delete(c._id);
+    await ctx.db.delete(a._id);
+  }
+
+  const notifications = await ctx.db.query("notifications").withIndex("by_user", (q) => q.eq("userId", userId)).take(1000);
+  for (const n of notifications) await ctx.db.delete(n._id);
+  if (notifications.length === 1000) {
+    await ctx.scheduler.runAfter(0, internal.account.purgeUserNotifications, { userId });
+  }
+  const prefs = await ctx.db.query("notificationPrefs").withIndex("by_user", (q) => q.eq("userId", userId)).first();
+  if (prefs) await ctx.db.delete(prefs._id);
+  const consent = await ctx.db.query("userConsents").withIndex("by_user", (q) => q.eq("userId", userId)).first();
+  if (consent) await ctx.db.delete(consent._id);
+
+  await ctx.db.replace(userId, { name: "Utente eliminato" });
+  return true;
+}
+
+/** Continues deleting a deleted user's notifications in batches. */
+export const purgeUserNotifications = internalMutation({
+  args: { userId: v.id("users") },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const rows = await ctx.db.query("notifications").withIndex("by_user", (q) => q.eq("userId", args.userId)).take(1000);
+    for (const n of rows) await ctx.db.delete(n._id);
+    if (rows.length === 1000) await ctx.scheduler.runAfter(0, internal.account.purgeUserNotifications, args);
+    return null;
+  },
+});
+
+/** Daily retention: in-app notifications older than NOTIFICATION_RETENTION_DAYS. Batched. */
+export const purgeOldNotifications = internalMutation({
+  args: {},
+  returns: v.number(),
+  handler: async (ctx) => {
+    const cutoff = Date.now() - NOTIFICATION_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+    const rows = await ctx.db
+      .query("notifications")
+      .withIndex("by_creation_time", (q) => q.lt("_creationTime", cutoff))
+      .take(BATCH * 5);
+    for (const n of rows) await ctx.db.delete(n._id);
+    if (rows.length === BATCH * 5) await ctx.scheduler.runAfter(0, internal.account.purgeOldNotifications, {});
+    return rows.length;
   },
 });

@@ -63,5 +63,5 @@ test("Fase 22 FR: French Devis creation, DTU 36.5 pose en rénovation, TVA 5.5%,
   // Verify print payload
   const printData = await asOwner.query(api.quotes.getQuoteForPrint, { quoteId: quoteResult.quoteId });
   expect(printData).not.toBeNull();
-  expect(printData?.quote._id).toBe(quoteResult.quoteId);
+  expect(printData?.quote?._id).toBe(quoteResult.quoteId);
 });

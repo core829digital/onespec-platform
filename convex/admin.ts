@@ -6,11 +6,16 @@ import { requirePlatformAdmin } from "./lib/auth";
 import { complianceForRegion } from "./lib/compliance";
 import { REGIONS, type RegionCode } from "./lib/regions";
 
+/** Admin lists are bounded: an arbitrary `limit` must never scan a 10k+ table. */
+function capLimit(limit: number | undefined, fallback: number): number {
+  return Math.min(Math.max(Math.floor(limit || fallback), 1), 200);
+}
+
 export const listTenants = query({
   args: { limit: v.optional(v.number()), cursor: v.optional(v.string()) },
   handler: async (ctx, args) => {
     await requirePlatformAdmin(ctx);
-    const tenants = await ctx.db.query("tenants").order("desc").take(args.limit || 50);
+    const tenants = await ctx.db.query("tenants").order("desc").take(capLimit(args.limit, 50));
     return tenants;
   },
 });
@@ -19,7 +24,7 @@ export const recentSignups = query({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
     await requirePlatformAdmin(ctx);
-    const signups = await ctx.db.query("users").order("desc").take(args.limit || 20);
+    const signups = await ctx.db.query("users").order("desc").take(capLimit(args.limit, 20));
     return signups;
   },
 });
@@ -28,7 +33,7 @@ export const listEmails = query({
   args: { limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
     await requirePlatformAdmin(ctx);
-    return await ctx.db.query("emailLog").order("desc").take(args.limit || 50);
+    return await ctx.db.query("emailLog").order("desc").take(capLimit(args.limit, 50));
   },
 });
 

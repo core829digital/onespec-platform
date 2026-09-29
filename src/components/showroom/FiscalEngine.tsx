@@ -44,7 +44,8 @@ export function FiscalEngine({
   calc: FiscalCalc;
   regionCode: string;
   onWhatsApp: () => void;
-  onSopralluogo: () => void;
+  /** Omitted when the plan has no B2B quotes (widget-first plans): the button is hidden. */
+  onSopralluogo?: () => void;
   onAddToCart: () => void;
   busy?: boolean;
 }) {
@@ -141,20 +142,22 @@ export function FiscalEngine({
         </div>
       )}
 
-      <div className="grid gap-2 sm:grid-cols-3">
+      <div className={`grid gap-2 ${onSopralluogo ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
         <button
           onClick={onWhatsApp}
           className="rounded-lg bg-[#25D366] py-2.5 text-sm font-semibold text-white transition-all hover:brightness-95 hover:shadow-md active:brightness-90 active:scale-[0.98]"
         >
           Invia su WhatsApp
         </button>
-        <button
+{onSopralluogo ? (
+                <button
           onClick={onSopralluogo}
           disabled={busy}
           className="rounded-lg bg-zinc-900 py-2.5 text-sm font-semibold text-white transition-all hover:bg-zinc-800 hover:shadow-md active:scale-[0.98] disabled:opacity-50 disabled:hover:bg-zinc-900 disabled:hover:shadow-none"
         >
           {busy ? "…" : "Richiedi sopralluogo"}
         </button>
+        ) : null}
         <button
           onClick={onAddToCart}
           className="rounded-lg border border-[var(--color-border)] py-2.5 text-sm font-semibold transition-all hover:border-[var(--color-mint)] hover:bg-[var(--color-mint)]/10 hover:text-[var(--color-mint)] active:scale-[0.98]"

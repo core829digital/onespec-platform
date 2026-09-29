@@ -53,8 +53,8 @@ export const submitFeedback = mutation({
     if (membership?.tenantId) {
       const admins = await ctx.db
         .query("users")
-        .filter((q) => q.eq(q.field("isPlatformAdmin"), true))
-        .collect();
+        .withIndex("by_isPlatformAdmin", (q) => q.eq("isPlatformAdmin", true))
+        .take(50);
       const user = await ctx.db.get(userId);
       for (const a of admins) {
         await ctx.db.insert("notifications", {

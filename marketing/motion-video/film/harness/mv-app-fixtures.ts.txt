@@ -1,0 +1,110 @@
+// TEMP demo data for the motion video capture — NOT to be committed.
+// Request prices come from the real widget pricing engine (fallback demo price
+// table); overview numbers are derived with the same logic as convex/analytics.ts.
+import { calculate, defaultConfig, catalogFallbackPricing } from "./pricing-bridge";
+
+const DAY = 86_400_000;
+const NOW = Date.UTC(2026, 8, 29, 9, 0);
+export const TENANT = {
+  _id: "t_demo", _creationTime: NOW - 200 * DAY, name: "Serramenti Demo", slug: "serramenti-demo", ownerUserId: "u_demo",
+  country: "IT", plan: "pro", planStatus: "active", createdVia: "open_signup", onboardingCompletedAt: NOW - 190 * DAY, unlimitedAccess: true,
+};
+
+type Status = "new" | "contacted" | "quoted" | "won" | "lost";
+// name, company, days ago, status, config tweak
+const PEOPLE: Array<[string, string | undefined, number, Status, Record<string, unknown>]> = [
+  ["Giulia Ferrari", undefined, 0.2, "new", { material: "wood", productType: "balconyDoor", width: 1300, height: 2100 }],
+  ["Marco Bianchi", "Studio Bianchi Architetti", 0.6, "new", { material: "pvc", width: 1200, height: 1400 }],
+  ["Elena Romano", undefined, 1.3, "contacted", { material: "aluminum", width: 1600, height: 1500 }],
+  ["Luca Colombo", "Colombo Costruzioni", 2.1, "quoted", { material: "pvc", productType: "balconyDoor", width: 1400, height: 2200, qty: 3 }],
+  ["Sara Ricci", undefined, 2.8, "won", { material: "wood", width: 1000, height: 1300, qty: 4 }],
+  ["Paolo Greco", undefined, 3.5, "contacted", { material: "pvc", width: 800, height: 1200, qty: 2 }],
+  ["Chiara Marino", "Marino Immobiliare", 4.4, "quoted", { material: "aluminum", productType: "balconyDoor", width: 1800, height: 2300, qty: 2 }],
+  ["Andrea Gallo", undefined, 5.2, "won", { material: "pvc", width: 1200, height: 1500, qty: 5 }],
+  ["Francesca Conti", undefined, 6.1, "new", { material: "wood", width: 900, height: 1400 }],
+  ["Davide Costa", undefined, 7.3, "lost", { material: "pvc", width: 1000, height: 1000 }],
+  ["Martina Fontana", "Fontana Interni", 8.0, "contacted", { material: "aluminum", width: 1500, height: 1600, qty: 3 }],
+  ["Simone Rizzo", undefined, 9.4, "quoted", { material: "pvc", productType: "balconyDoor", width: 1300, height: 2100, qty: 2 }],
+  ["Valentina Moretti", undefined, 11.2, "contacted", { material: "wood", width: 1100, height: 1400, qty: 2 }],
+  ["Alessandro Barbieri", undefined, 13.0, "won", { material: "pvc", width: 1400, height: 1400, qty: 6 }],
+  ["Federica Lombardi", undefined, 15.5, "lost", { material: "aluminum", width: 1000, height: 1200 }],
+  ["Roberto Esposito", "Esposito Group", 18.2, "new", { material: "pvc", productType: "balconyDoor", width: 1500, height: 2200, qty: 4 }],
+  ["Ilaria Mancini", undefined, 21.0, "quoted", { material: "wood", width: 1200, height: 1500, qty: 3 }],
+  ["Stefano Leone", undefined, 24.6, "contacted", { material: "pvc", width: 900, height: 1200, qty: 3 }],
+  ["Anna Santoro", undefined, 27.3, "new", { material: "aluminum", width: 1300, height: 1400 }],
+  ["Matteo Caruso", undefined, 29.1, "new", { material: "pvc", width: 1000, height: 1300 }],
+];
+
+const pricing = catalogFallbackPricing();
+export const REQUESTS = PEOPLE.map(([leadName, leadCompany, daysAgo, status, tweak], i) => {
+  const cfg = { ...defaultConfig(), ...tweak };
+  const qty = (tweak.qty as number) ?? 1;
+  const unit = calculate({ ...cfg, qty } as never, pricing).total;
+  const slug = leadName.toLowerCase().replace(/[^a-z]+/g, ".");
+  return {
+    _id: `q_${i}`, _creationTime: NOW - daysAgo * DAY, tenantId: "t_demo", configuratorId: "c_main",
+    leadName, leadCompany, leadEmail: `${slug}@email.it`, leadPhone: "+39 3xx xxx xxxx",
+    priceCents: Math.round(unit * 100), status, currency: "EUR", locale: "it", sourceOrigin: "https://www.serramentidemo.it",
+    items: [], payload: cfg, qty,
+  };
+});
+
+function overview() {
+  const inWindow = REQUESTS.filter((r) => r._creationTime >= NOW - 30 * DAY);
+  const byStatus: Record<string, number> = {};
+  let wonValueCents = 0, quoted = 0;
+  for (const r of inWindow) {
+    byStatus[r.status] = (byStatus[r.status] ?? 0) + 1;
+    if (r.status === "won") wonValueCents += r.priceCents;
+    quoted += r.priceCents;
+  }
+  const won = byStatus.won ?? 0;
+  const widgetViews = 1240;
+  const trend = Array.from({ length: 30 }, (_, k) => {
+    const end = NOW - (29 - k) * DAY, start = end - DAY;
+    const rows = inWindow.filter((r) => r._creationTime >= start && r._creationTime < end);
+    const d = new Date(end);
+    return { label: `${d.getUTCDate()}/${d.getUTCMonth() + 1}`, count: rows.length, valueCents: rows.reduce((s, r) => s + r.priceCents, 0) };
+  });
+  return {
+    range: "1m", analyticsLevel: "full",
+    previous: { totalRequests: 14, won: 4, wonValueCents: Math.round(wonValueCents * 0.72), conversionRate: 4 / 14, widgetViews: 980, visitorConversionRate: 14 / 980, avgDealCents: Math.round(wonValueCents / Math.max(1, won) * 0.9), pipelineValueCents: Math.round(quoted * 0.7) },
+    totalRequests: inWindow.length, widgetViews, widgetViewsApprox: false, visitorConversionRate: inWindow.length / widgetViews,
+    realLeads: inWindow.length, won, lost: byStatus.lost ?? 0, spam: 0, conversionRate: won / inWindow.length,
+    wonValueCents, pipelineValueCents: quoted, avgDealCents: won ? Math.round(wonValueCents / won) : 0, byStatus,
+    funnel: [{ key: "new", count: byStatus.new ?? 0 }, { key: "contacted", count: byStatus.contacted ?? 0 }, { key: "quoted", count: byStatus.quoted ?? 0 }, { key: "won", count: won }],
+    trend, byConfigurator: [{ name: "Configuratore sito web", count: inWindow.length - 4, valueCents: Math.round(quoted * 0.8) }, { name: "Pagina social", count: 4, valueCents: Math.round(quoted * 0.2) }],
+    bySource: [{ host: "www.serramentidemo.it", count: inWindow.length - 5 }, { host: "instagram.com", count: 3 }, { host: "diretto / sconosciuto", count: 2 }],
+    truncated: false,
+  };
+}
+
+const CONFIGURATORS = [
+  { _id: "c_main", _creationTime: NOW - 180 * DAY, tenantId: "t_demo", name: "Configuratore sito web", publicId: "sd-web", status: "published", widgetViewsCount: 980 },
+  { _id: "c_social", _creationTime: NOW - 90 * DAY, tenantId: "t_demo", name: "Pagina social", publicId: "sd-social", status: "published", widgetViewsCount: 260 },
+];
+
+export const FIXTURES: Record<string, (args: Record<string, unknown>) => unknown> = {
+  "tenants:getMyTenant": () => TENANT,
+  "users:viewer": () => ({ _id: "u_demo", name: "Demo", email: "demo@onespec.eu", isPlatformAdmin: false }),
+  "notifications:unreadCount": () => 2,
+  "notifications:listMine": () => [],
+  "dpa:getDpaState": () => ({ accepted: true, needsAcceptance: false }),
+  "setupGuide:getProgress": () => null,
+  "billing:getPlatformBalance": () => null,
+  "billing:getBillingState": () => null,
+  "analytics:getPlanUsage": () => null,
+  "analytics:getOverview": () => overview(),
+  "analytics:getPeakHours": () => [],
+  "quotes:listRequests": (a) => REQUESTS.slice(0, (a.limit as number) ?? 200),
+  "logistics:getLogisticsSummary": () => ({ upcomingDeliveries7d: 3, receivedThisMonth: 12, itemsInStock: 48 }),
+  "clients:listClients": () => [],
+  "configurators:listConfigurators": () => CONFIGURATORS,
+  "suppliers:listSuppliers": () => [],
+  "cantieri:listCantieri": () => [],
+  "users:listUsers": () => [],
+  "passports:list": () => [],
+  "passports:listInterventions": () => [],
+  "installations:list": () => [],
+  "surveys:list": () => [],
+};

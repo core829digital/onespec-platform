@@ -1,0 +1,14 @@
+node_modules
+node_modules/
+frames/
+*.wav
+stills/
+video-silent.mp4
+film/film-silent.mp4
+film/seg-*.mp4
+film/segs.txt
+film/film-part.mp4
+reel/reel-silent.mp4
+reel/reel-part.mp4
+reel/seg-*.mp4
+reel/segs.txt

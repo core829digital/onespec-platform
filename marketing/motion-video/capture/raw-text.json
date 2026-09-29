@@ -1,0 +1,135 @@
+{
+  "default": "W/D\nonespec\n\nPrezzi immediati per serramenti in PVC, legno e alluminio\n\nPVC\nLegno\nAlluminio\nCONFIGURAZIONE\nTipo di prodotto\nFinestra\nPorta balcone\nQualità profilo\nProfilo a 5 camere\nProfilo a 7 camere (premium)\nMarca profilo\nAluplast\nRehau\nKömmerling\nDeceuninck\nSalamander\nSchüco\nGealan\nLarghezza (mm)\nAltezza (mm)\nQuantità\nNumero di ante\nOgni anta può avere un proprio tipo di apertura e lato, e può essere attivata o disattivata.\n\"Sinistra\" e \"Destra\" si intendono guardando dall'interno verso l'esterno (convenzione standard).\nANTA 1\nAttiva\nTipo di apertura\nFissa\nClassica (a battente)\nAnta-ribalta\nScorrevole\nLato apertura\nSinistra\nDestra\nFerramenta (maniglie e cerniere)\nMACO\nROTO\nSiegenia\nColore ferramenta\nBianco\nArgento\nBronzo\nANTA 2\nAttiva\nTipo di apertura\nFissa\nClassica (a battente)\nAnta-ribalta\nScorrevole\nLato apertura\nSinistra\nDestra\nFerramenta (maniglie e cerniere)\nMACO\nROTO\nSiegenia\nColore ferramenta\nBianco\nArgento\nBronzo\nVetro\nDoppio vetro\nTriplo vetro\nTriplo + basso emissivo + argon\nColore / finitura\nBianco standard\nColore RAL\nPellicola effetto legno\nMontaggio\nMontaggio Classico\nMontaggio Posa Clima\nAggiungi zanzariera\nDISEGNO TECNICO\nVista: interno → esterno\n1000 mm\n1300 mm\nTriangolo = lato cerniera/ribalta, freccia dritta = senso di scorrimento\nClicca su un'anta nel disegno per modificarla\nPREVENTIVO\nSuperficie\n1,30 m²\nPerimetro telaio\n4,60 m\nMateriale e manodopera\n234,00 €\nProfilo / telaio\n128,80 €\nOpzioni\n145,00 €\nCoefficiente Uw (indicativo)\n1,16 W/m²K\nECOBONUS 50%\nALIQUOTA IVA\nIVA ordinaria 22%\nRistrutturazione 10%\nTOTALE STIMATO IVA INCLUSA\n507,80 €\nStima orientativa · non è un preventivo contrattuale.\nPosa in opera secondo norma UNI 11673-1:2017\n+ Aggiungi un'altra finestra / porta balcone\n→ Completa e richiedi preventivo\nStima puramente indicativa. Il prezzo definitivo viene confermato dopo il sopralluogo. · preview",
+  "fonts": [
+    "Inter, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif",
+    "Inter, -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif, -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif",
+    "\"Space Grotesk\", \"Space Grotesk Fallback\", \"Segoe UI\", system-ui, sans-serif",
+    "\"Space Grotesk\", \"Space Grotesk Fallback\", sans-serif",
+    "\"IBM Plex Mono\", monospace",
+    "__nextjs-Geist, Geist, -apple-system, \"Source Sans Pro\", sans-serif"
+  ],
+  "selectOptions": [
+    {
+      "label": "Qualità profilo",
+      "options": [
+        "Profilo a 5 camere",
+        "Profilo a 7 camere (premium)"
+      ]
+    },
+    {
+      "label": "Marca profilo",
+      "options": [
+        "Aluplast",
+        "Rehau",
+        "Kömmerling",
+        "Deceuninck",
+        "Salamander",
+        "Schüco",
+        "Gealan"
+      ]
+    },
+    {
+      "label": "Tipo di apertura",
+      "options": [
+        "Fissa",
+        "Classica (a battente)",
+        "Anta-ribalta",
+        "Scorrevole"
+      ]
+    },
+    {
+      "label": "Lato apertura",
+      "options": [
+        "Sinistra",
+        "Destra"
+      ]
+    },
+    {
+      "label": "Ferramenta (maniglie e cerniere)",
+      "options": [
+        "MACO",
+        "ROTO",
+        "Siegenia"
+      ]
+    },
+    {
+      "label": "Colore ferramenta",
+      "options": [
+        "Bianco",
+        "Argento",
+        "Bronzo"
+      ]
+    },
+    {
+      "label": "Tipo di apertura",
+      "options": [
+        "Fissa",
+        "Classica (a battente)",
+        "Anta-ribalta",
+        "Scorrevole"
+      ]
+    },
+    {
+      "label": "Lato apertura",
+      "options": [
+        "Sinistra",
+        "Destra"
+      ]
+    },
+    {
+      "label": "Ferramenta (maniglie e cerniere)",
+      "options": [
+        "MACO",
+        "ROTO",
+        "Siegenia"
+      ]
+    },
+    {
+      "label": "Colore ferramenta",
+      "options": [
+        "Bianco",
+        "Argento",
+        "Bronzo"
+      ]
+    },
+    {
+      "label": "Vetro",
+      "options": [
+        "Doppio vetro",
+        "Triplo vetro",
+        "Triplo + basso emissivo + argon"
+      ]
+    },
+    {
+      "label": "Colore / finitura",
+      "options": [
+        "Bianco standard",
+        "Colore RAL",
+        "Pellicola effetto legno"
+      ]
+    },
+    {
+      "label": "Montaggio",
+      "options": [
+        "Montaggio Classico",
+        "Montaggio Posa Clima"
+      ]
+    },
+    {
+      "label": "ALIQUOTA IVA",
+      "options": [
+        "IVA ordinaria 22%",
+        "Ristrutturazione 10%"
+      ]
+    }
+  ],
+  "porta": "W/D\nonespec\n\nPrezzi immediati per serramenti in PVC, legno e alluminio\n\nPVC\nLegno\nAlluminio\nCONFIGURAZIONE\nTipo di prodotto\nFinestra\nPorta balcone\n→ Soglia in alluminio da 18mm inclusa\nQualità profilo\nProfilo a 5 camere\nProfilo a 7 camere (premium)\nMarca profilo\nAluplast\nRehau\nKömmerling\nDeceuninck\nSalamander\nSchüco\nGealan\nLarghezza (mm)\nAltezza (mm)\nQuantità\nNumero di ante\nOgni anta può avere un proprio tipo di apertura e lato, e può essere attivata o disattivata.\n\"Sinistra\" e \"Destra\" si intendono guardando dall'interno verso l'esterno (convenzione standard).\nANTA 1\nAttiva\nTipo di apertura\nFissa\nClassica (a battente)\nAnta-ribalta\nScorrevole\nLato apertura\nSinistra\nDestra\nFerramenta (maniglie e cerniere)\nMACO\nROTO\nSiegenia\nColore ferramenta\nBianco\nArgento\nBronzo\nANTA 2\nAttiva\nTipo di apertura\nFissa\nClassica (a battente)\nAnta-ribalta\nScorrevole\nLato apertura\nSinistra\nDestra\nFerramenta (maniglie e cerniere)\nMACO\nROTO\nSiegenia\nColore ferramenta\nBianco\nArgento\nBronzo\nVetro\nDoppio vetro\nTriplo vetro\nTriplo + basso emissivo + argon\nColore / finitura\nBianco standard\nColore RAL\nPellicola effetto legno\nMontaggio\nMontaggio Classico\nMontaggio Posa Clima\nAggiungi zanzariera\nDISEGNO TECNICO\nVista: interno → esterno\n1300 mm\n2100 mm\nTriangolo = lato cerniera/ribalta, freccia dritta = senso di scorrimento\nClicca su un'anta nel disegno per modificarla\nPREVENTIVO\nSuperficie\n2,73 m²\nPerimetro telaio\n6,80 m\nMateriale e manodopera\n491,40 €\nProfilo / telaio\n190,40 €\nOpzioni\n210,00 €\nCoefficiente Uw (indicativo)\n1,16 W/m²K\nECOBONUS 50%\nALIQUOTA IVA\nIVA ordinaria 22%\nRistrutturazione 10%\nTOTALE STIMATO IVA INCLUSA\n891,80 €\nStima orientativa · non è un preventivo contrattuale.\nPosa in opera secondo norma UNI 11673-1:2017\n+ Aggiungi un'altra finestra / porta balcone\n→ Completa e richiedi preventivo\nStima puramente indicativa. Il prezzo definitivo viene confermato dopo il sopralluogo. · preview",
+  "numberInputs": 4,
+  "svgBox": {
+    "x": 872.4375,
+    "y": 246,
+    "width": 320,
+    "height": 249.140625
+  },
+  "lead": "W/D\nonespec\n\nPrezzi immediati per serramenti in PVC, legno e alluminio\n\nPVC\nLegno\nAlluminio\nCONFIGURAZIONE\nTipo di prodotto\nFinestra\nPorta balcone\nQualità profilo\nProfilo a 5 camere\nProfilo a 7 camere (premium)\nMarca profilo\nAluplast\nRehau\nKömmerling\nDeceuninck\nSalamander\nSchüco\nGealan\nLarghezza (mm)\nAltezza (mm)\nQuantità\nNumero di ante\nOgni anta può avere un proprio tipo di apertura e lato, e può essere attivata o disattivata.\n\"Sinistra\" e \"Destra\" si intendono guardando dall'interno verso l'esterno (convenzione standard).\nANTA 1\nAttiva\nTipo di apertura\nFissa\nClassica (a battente)\nAnta-ribalta\nScorrevole\nLato apertura\nSinistra\nDestra\nFerramenta (maniglie e cerniere)\nMACO\nROTO\nSiegenia\nColore ferramenta\nBianco\nArgento\nBronzo\nANTA 2\nAttiva\nTipo di apertura\nFissa\nClassica (a battente)\nAnta-ribalta\nScorrevole\nLato apertura\nSinistra\nDestra\nFerramenta (maniglie e cerniere)\nMACO\nROTO\nSiegenia\nColore ferramenta\nBianco\nArgento\nBronzo\nVetro\nDoppio vetro\nTriplo vetro\nTriplo + basso emissivo + argon\nColore / finitura\nBianco standard\nColore RAL\nPellicola effetto legno\nMontaggio\nMontaggio Classico\nMontaggio Posa Clima\nAggiungi zanzariera\nDISEGNO TECNICO\nVista: interno → esterno\n1000 mm\n1300 mm\nTriangolo = lato cerniera/ribalta, freccia dritta = senso di scorrimento\nClicca su un'anta nel disegno per modificarla\nPREVENTIVO\nSuperficie\n1,30 m²\nPerimetro telaio\n4,60 m\nMateriale e manodopera\n234,00 €\nProfilo / telaio\n128,80 €\nOpzioni\n145,00 €\nCoefficiente Uw (indicativo)\n1,16 W/m²K\nECOBONUS 50%\nALIQUOTA IVA\nIVA ordinaria 22%\nRistrutturazione 10%\nTOTALE STIMATO IVA INCLUSA\n507,80 €\nStima orientativa · non è un preventivo contrattuale.\nPosa in opera secondo norma UNI 11673-1:2017\nNome\nEmail\nTelefono\nMessaggio (facoltativo)\nHo letto l' informativa privacy e acconsento al trattamento dei miei dati per ricevere questo preventivo.\nRichiedi un sopralluogo\n←\nStima puramente indicativa. Il prezzo definitivo viene confermato dopo il sopralluogo. · preview"
+}

@@ -21,6 +21,10 @@ export interface AuthEmailData {
   seatNumber?: number;
   leadName?: string;
   leadEmail?: string;
+  /** Widget-first plan over its monthly cap: contact details withheld. */
+  locked?: boolean;
+  /** Why it is locked: monthly cap, or subscription suspended. */
+  lockReason?: "quota" | "suspended";
   priceCents?: number;
   configuratorName?: string;
   quoteId?: string;
@@ -154,14 +158,20 @@ export function renderAuthEmail(template: string, locale: string, data: AuthEmai
         html: shell(
           `<h1 style="font-size:22px;font-weight:600;margin:0 0 12px">${it ? "Nuova richiesta preventivo" : "New quote request"}</h1>
            <div style="background:#141618;padding:16px;border-radius:9px;border:1px solid #34383c;margin-bottom:12px">
-             <p style="margin:0 0 6px"><strong>${it ? "Cliente" : "Lead"}:</strong> ${leadName} (${leadEmail})</p>
+             ${data.locked
+               ? `<p style="margin:0 0 6px"><strong>${it ? "Cliente" : "Lead"}:</strong> ${data.lockReason === "suspended"
+                   ? (it ? "abbonamento sospeso — i contatti si sbloccano riattivando l'abbonamento" : "subscription suspended — contact details unlock when you reactivate your subscription")
+                   : (it ? "limite mensile raggiunto — i contatti si sbloccano passando a un piano superiore o dal primo del mese" : "monthly limit reached — contact details unlock when you upgrade or on the 1st of next month")}</p>`
+               : `<p style="margin:0 0 6px"><strong>${it ? "Cliente" : "Lead"}:</strong> ${leadName} (${leadEmail})</p>`}
              <p style="margin:0 0 6px"><strong>${it ? "Configuratore" : "Configurator"}:</strong> ${configuratorName}</p>
              <p style="margin:0"><strong>${it ? "Valore" : "Value"}:</strong> €${price}</p>
            </div>
            ${cta(`${base}/app/requests/${quoteId}`, it ? "Apri in dashboard" : "Open in dashboard")}`,
         ),
         text: line(
-          `${it ? "Nuova richiesta preventivo" : "New quote request"}: ${data.leadName ?? ""} (${data.leadEmail ?? ""}) — €${price}`,
+          data.locked
+            ? `${it ? "Nuova richiesta preventivo (contatti bloccati: " : "New quote request (contact details locked: "}${data.lockReason === "suspended" ? (it ? "abbonamento sospeso" : "subscription suspended") : (it ? "limite mensile raggiunto" : "monthly limit reached")}) — €${price}`
+            : `${it ? "Nuova richiesta preventivo" : "New quote request"}: ${data.leadName ?? ""} (${data.leadEmail ?? ""}) — €${price}`,
         ) + `\n${base}/app/requests/${quoteId}`,
       };
 

@@ -353,7 +353,14 @@
     "supplierHasDeliveries": "You cannot delete a supplier with linked deliveries.",
     "carrierHasDeliveries": "You cannot delete a carrier with linked deliveries.",
     "cannotDeleteReceivedDelivery": "You cannot delete a delivery that has already been received.",
-    "deliveryCancelled": "This delivery was cancelled."
+    "deliveryCancelled": "This delivery was cancelled.",
+    "pdfQuotaExceeded": "You have used all the PDFs included in your plan this month. Upgrade or wait until the 1st of next month.",
+    "whatsappQuotaExceeded": "You have used all the WhatsApp sends included in your plan this month. Upgrade or wait until the 1st of next month.",
+    "showroomQuotaExceeded": "You have reached your plan's monthly Showroom limit. Upgrade or wait until the 1st of next month.",
+    "quoteLocked": "This request is locked because you reached your plan's monthly limit. It unlocks when you upgrade or on the 1st of next month.",
+    "alreadySubscribed": "You already have an active subscription: switch plan from the Plan page instead of starting a new checkout.",
+    "annualNotAvailable": "This plan is available with monthly billing only.",
+    "teamExceedsTargetPlan": "The chosen plan includes fewer users than your team has active. Remove the extra members under Team first, then switch plan."
   },
   "app": {
     "suspended": {
@@ -559,6 +566,31 @@
         "GAEB/DATANORM export",
         "Custom domain",
         "Tailored pricing and contract"
+      ],
+      "essentials": [
+        "Quote tool on your website + link page for social media",
+        "1 configurator",
+        "40 requests per month",
+        "15 PDFs per month (downloaded by you)",
+        "40 WhatsApp sends per month",
+        "1 user",
+        "“Powered by OneSpec” badge",
+        "No lock-in: cancel anytime"
+      ],
+      "essentials_plus": [
+        "Everything in Level 1 ×2: 80 requests, 30 PDFs and 80 WhatsApp sends per month",
+        "3 configurators",
+        "Showroom quoter: 80 quotes, 30 PDFs and 80 WhatsApp sends per month",
+        "White-label: your brand, no badge",
+        "2 users"
+      ],
+      "max": [
+        "Everything in Level 1 ×5: 200 requests, 75 PDFs and 200 WhatsApp sends per month",
+        "10 configurators",
+        "Showroom quoter: 200 quotes, 75 PDFs and 200 WhatsApp sends per month",
+        "Logistics: suppliers, carriers and deliveries",
+        "White-label",
+        "3 users"
       ]
     },
     "notice": {
@@ -573,7 +605,15 @@
     "trial": {
       "daysRemaining": "{days, plural, =0 {Last day of trial} one {# trial day left} other {# trial days left}}",
       "detail": "{elapsed} days elapsed · trial ends on {date}"
-    }
+    },
+    "families": {
+      "widgetTitle": "Online quotes",
+      "widgetBody": "Quote tool on your website and Showroom. Start here, no commitment.",
+      "platformTitle": "Full platform",
+      "platformBody": "All your work in one place: B2B quotes, clients, job sites, installation and inspections."
+    },
+    "vatExcluded": "Prices exclude VAT.",
+    "monthlyOnly": "Monthly only"
   },
   "clients": {
     "title": "Clients",
@@ -1376,7 +1416,12 @@
     "locked": "Locked by plan",
     "features": {
       "analytics": "Analytics",
-      "showroom": "Showroom"
+      "showroom": "Showroom",
+      "fieldQuotes": "B2B quotes",
+      "crm": "Clients and deals",
+      "cantieri": "Job sites",
+      "fieldOps": "Field modules",
+      "logistics": "Logistics"
     }
   },
   "onboarding": {
@@ -1482,8 +1527,45 @@
             "Multi-supplier + showroom",
             "Multi-catalog"
           ]
+        },
+        "essentials": {
+          "name": "Level 1",
+          "features": [
+            "Quote tool on your website + link page for social media",
+            "1 configurator",
+            "40 requests per month",
+            "15 PDFs per month (downloaded by you)",
+            "40 WhatsApp sends per month",
+            "1 user",
+            "“Powered by OneSpec” badge",
+            "No lock-in: cancel anytime"
+          ]
+        },
+        "essentials_plus": {
+          "name": "Level 2",
+          "features": [
+            "Everything in Level 1 ×2: 80 requests, 30 PDFs and 80 WhatsApp sends per month",
+            "3 configurators",
+            "Showroom quoter: 80 quotes, 30 PDFs and 80 WhatsApp sends per month",
+            "White-label: your brand, no badge",
+            "2 users"
+          ]
+        },
+        "max": {
+          "name": "Level 3",
+          "features": [
+            "Everything in Level 1 ×5: 200 requests, 75 PDFs and 200 WhatsApp sends per month",
+            "10 configurators",
+            "Showroom quoter: 200 quotes, 75 PDFs and 200 WhatsApp sends per month",
+            "Logistics: suppliers, carriers and deliveries",
+            "White-label",
+            "3 users"
+          ]
         }
-      }
+      },
+      "widgetTitle": "Online quotes · start here",
+      "platformTitle": "Full platform",
+      "vatExcluded": "Prices exclude VAT, billed monthly, cancel anytime."
     },
     "team": {
       "title": "Your team",
@@ -1691,6 +1773,27 @@
       "team": "Invite a teammate",
       "billing": "Set up billing"
     }
+  },
+  "usage": {
+    "pdfGateTitle": "Download this request's PDF",
+    "pdfGateBody": "Uses 1 PDF credit from your plan. This month: {used} of {limit}. Downloading the same quote again costs nothing.",
+    "pdfGateCta": "Generate PDF",
+    "lockedTitle": "Request locked",
+    "lockedBody": "You reached your plan's monthly request limit. The request is saved: contact details unlock when you upgrade or on the 1st of next month.",
+    "upgradeCta": "See plans",
+    "back": "← Back to requests",
+    "meterTitle": "This month's usage",
+    "meterReset": "Resets on the 1st of the month.",
+    "unlimited": "unlimited",
+    "meters": {
+      "requests": "Quote-tool requests",
+      "pdf": "PDFs downloaded",
+      "whatsapp": "WhatsApp sends",
+      "showroomQuotes": "Showroom quotes",
+      "showroomPdf": "Showroom documents",
+      "showroomWhatsapp": "WhatsApp from the Showroom"
+    },
+    "lockedSuspendedBody": "This request arrived while your subscription was suspended. It is saved: contact details unlock as soon as you reactivate your subscription."
   },
   "signaturePad": {
     "hint": "Sign here with finger or mouse",

@@ -1,4 +1,5 @@
-import { query } from "./_generated/server";
+import { query, type QueryCtx } from "./_generated/server";
+import type { Doc, Id } from "./_generated/dataModel";
 import { v } from "convex/values";
 import { requireMembership } from "./lib/auth";
 import { enforceAnalyticsForQuery } from "./lib/enforcement";
@@ -7,6 +8,33 @@ import { resolveTenantEntitlements, currentPeriod } from "./lib/entitlements";
 const DAY_MS = 24 * 60 * 60 * 1000;
 const HOUR_MS = 60 * 60 * 1000;
 const MAX_SCAN = 8000;
+/** Half of Convex's per-transaction read allowance (quote docs carry their pieces). */
+const READ_BUDGET_BYTES = 8 * 1024 * 1024;
+
+/**
+ * The tenant's requests created at/after `fromMs`, newest first. Uses the
+ * index range (by_tenant ends with _creationTime) so only the requested
+ * window is read, and streams with a byte budget: a busy tenant gets a
+ * `truncated` result instead of a query that exceeds the read limit and
+ * crashes the dashboard.
+ */
+async function scanWindow(
+  ctx: QueryCtx,
+  tenantId: Id<"tenants">,
+  fromMs: number,
+): Promise<{ rows: Doc<"quoteRequests">[]; truncated: boolean }> {
+  const rows: Doc<"quoteRequests">[] = [];
+  let bytes = 0;
+  for await (const r of ctx.db
+    .query("quoteRequests")
+    .withIndex("by_tenant", (q) => q.eq("tenantId", tenantId).gte("_creationTime", fromMs))
+    .order("desc")) {
+    bytes += JSON.stringify(r).length;
+    if (rows.length >= MAX_SCAN || bytes > READ_BUDGET_BYTES) return { rows, truncated: true };
+    rows.push(r);
+  }
+  return { rows, truncated: false };
+}
 
 export const RANGE = v.union(
   v.literal("24h"),
@@ -87,16 +115,12 @@ export const getOverview = query({
     const now = Date.now();
     const cutoff = now - spec.windowMs;
 
-    const all = await ctx.db
-      .query("quoteRequests")
-      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
-      .order("desc")
-      .take(MAX_SCAN);
+    // Immediately-preceding window of the same length, for period-over-period deltas.
+    const prevStart = cutoff - spec.windowMs;
+    const { rows: all, truncated } = await scanWindow(ctx, args.tenantId, prevStart);
 
     const inWindow = all.filter((r) => r._creationTime >= cutoff);
 
-    // Immediately-preceding window of the same length, for period-over-period deltas.
-    const prevStart = cutoff - spec.windowMs;
     const prevWindow = all.filter((r) => r._creationTime >= prevStart && r._creationTime < cutoff);
     const prevReal = prevWindow.filter((r) => r.status !== "spam");
 
@@ -253,7 +277,7 @@ export const getOverview = query({
       trend,
       byConfigurator,
       bySource,
-      truncated: all.length === MAX_SCAN,
+      truncated,
     };
   },
 });
@@ -269,13 +293,7 @@ export const getPeakHours = query({
     const now = Date.now();
     const cutoff = now - spec.windowMs;
 
-    const all = await ctx.db
-      .query("quoteRequests")
-      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
-      .order("desc")
-      .take(MAX_SCAN);
-
-    const inWindow = all.filter((r) => r._creationTime >= cutoff);
+    const { rows: inWindow } = await scanWindow(ctx, args.tenantId, cutoff);
 
     const cells = new Map<number, { hour: number; day: number; value: number }>();
 

@@ -9,6 +9,7 @@ import { calculatePrice, type CatalogPayload, type ProjectItem } from "../src/sh
 import { computeOverallUw } from "../src/shared/pricing";
 import { internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
+import { parseQuoteItems } from "./lib/quoteItems";
 
 function round2(n: number): number {
   return Math.round(n * 100) / 100;
@@ -333,10 +334,13 @@ export const getCalculationPreview = query({
     catalogVersion: number;
   }> => {
     await requireMembership(ctx, args.tenantId);
+    // Same validation as a saved quote: schema-checked pieces, at most 50 —
+    // malformed input must be a clean INVALID_ITEM, not a server crash.
+    const items = parseQuoteItems(args.items);
 
     const result = await ctx.runQuery(internal.calculations.calculateInternal, {
       tenantId: args.tenantId,
-      items: args.items,
+      items,
       options: args.options,
     });
 

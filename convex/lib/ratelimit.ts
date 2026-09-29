@@ -2,6 +2,10 @@ import { internalMutation } from "../_generated/server";
 import type { MutationCtx } from "../_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
+import { internal } from "../_generated/api";
+
+/** Longest refill window above (1 day): a bucket idle for longer is full again. */
+const MAX_REFILL_MS = 24 * 60 * 60 * 1000;
 
 export const RATE_LIMITS = {
   quotePerIpPer10Min: { tokens: 5, refillMs: 10 * 60 * 1000 },
@@ -100,5 +104,26 @@ export const checkBucket = internalMutation({
     );
     if (!ok) throw new ConvexError("RATE_LIMITED");
     return true;
+  },
+});
+
+/**
+ * Daily cron: delete buckets idle for more than 2× the longest refill window.
+ * Such a bucket is back to full capacity, so deleting it changes nothing for
+ * the next request (a missing bucket starts full) — it only stops the table
+ * growing by one row per visitor IP × configurator forever. Batched.
+ */
+export const purgeIdleBuckets = internalMutation({
+  args: {},
+  returns: v.number(),
+  handler: async (ctx) => {
+    const cutoff = Date.now() - 2 * MAX_REFILL_MS;
+    const rows = await ctx.db
+      .query("rateLimits")
+      .withIndex("by_updatedAt", (q) => q.lt("updatedAt", cutoff))
+      .take(1000);
+    for (const r of rows) await ctx.db.delete(r._id);
+    if (rows.length === 1000) await ctx.scheduler.runAfter(0, internal.lib.ratelimit.purgeIdleBuckets, {});
+    return rows.length;
   },
 });

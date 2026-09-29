@@ -2,7 +2,6 @@
 
 import { query, mutation } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
-import { requireMembership } from "./lib/auth";
 import { requirePermission } from "./lib/rbac";
 import { requireTenantRegion } from "./lib/fieldModules";
 import { enforceForFullFieldModules } from "./lib/enforcement";
@@ -62,7 +61,7 @@ export const get = query({
   handler: async (ctx, args) => {
     const doc = await ctx.db.get(args.dossierId);
     if (!doc) return null;
-    await requireMembership(ctx, doc.tenantId);
+    await requirePermission(ctx, doc.tenantId, "installations.use");
     return doc;
   },
 });
@@ -72,11 +71,12 @@ export const listByQuote = query({
   handler: async (ctx, args) => {
     const quote = await ctx.db.get(args.quoteId);
     if (!quote) return [];
-    await requireMembership(ctx, quote.tenantId);
+    await requirePermission(ctx, quote.tenantId, "installations.use");
     return await ctx.db
       .query("installationDossiers")
       .withIndex("by_quote", (q) => q.eq("quoteId", args.quoteId))
-      .collect();
+      .take(200)
+      .then((rows) => rows.filter((r) => r.tenantId === quote.tenantId));
   },
 });
 
@@ -85,7 +85,7 @@ export const getForPrint = query({
   handler: async (ctx, args) => {
     const dossier = await ctx.db.get(args.dossierId);
     if (!dossier) return null;
-    await requireMembership(ctx, dossier.tenantId);
+    await requirePermission(ctx, dossier.tenantId, "installations.use");
     const tenant = await ctx.db.get(dossier.tenantId);
     const region = regionForCountry(dossier.regionCode).code;
     const std = complianceForRegion(region).installation;
@@ -111,6 +111,7 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     await enforceForFullFieldModules(ctx, args.tenantId);
+    await requirePermission(ctx, args.tenantId, "installations.use");
     const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
     const std = complianceForRegion(regionCode).installation;
 

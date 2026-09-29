@@ -147,12 +147,52 @@ export const updateConfigurator = mutation({
     await requirePermission(ctx, configurator.tenantId, "configurators.manage");
 
     const update: Partial<Doc<"configurators">> = { updatedAt: Date.now() };
-    if (args.name !== undefined) update.name = args.name;
-    if (args.allowedOrigins !== undefined) update.allowedOrigins = args.allowedOrigins;
-    if (args.defaultLocale !== undefined) update.defaultLocale = args.defaultLocale;
+    if (args.name !== undefined) {
+      const name = args.name.trim();
+      if (name.length < 2 || name.length > 80) throw new ConvexError("INVALID_NAME");
+      update.name = name;
+    }
+    if (args.allowedOrigins !== undefined) {
+      // Feeds the embed CSP (frame-ancestors) and the origin check: bounded,
+      // http(s) origins only.
+      if (args.allowedOrigins.length > 25) throw new ConvexError("INVALID_INPUT");
+      const origins: string[] = [];
+      for (const raw of args.allowedOrigins) {
+        let o = raw.trim();
+        if (!o) continue;
+        // "www.example.com" → "https://www.example.com" (a scheme-less entry
+        // used to be silently dropped by the embed policy, i.e. never worked).
+        if (!/^[a-z]+:\/\//i.test(o)) o = `https://${o}`;
+        let url: URL;
+        try {
+          url = new URL(o);
+        } catch {
+          throw new ConvexError("INVALID_INPUT");
+        }
+        if (o.length > 200 || (url.protocol !== "https:" && url.protocol !== "http:")) throw new ConvexError("INVALID_INPUT");
+        origins.push(url.origin);
+      }
+      update.allowedOrigins = [...new Set(origins)];
+    }
+    if (args.defaultLocale !== undefined) {
+      if (!/^[a-z]{2}(-[A-Z]{2})?$/.test(args.defaultLocale)) throw new ConvexError("INVALID_INPUT");
+      update.defaultLocale = args.defaultLocale;
+    }
     if (args.defaultTheme !== undefined) update.defaultTheme = args.defaultTheme;
-    if (args.vatRatePercent !== undefined) update.vatRatePercent = args.vatRatePercent;
-    if (args.priceRoundingStep !== undefined) update.priceRoundingStep = args.priceRoundingStep;
+    // The public widget prices with these: never a negative / >100% VAT or a
+    // non-positive rounding step.
+    if (args.vatRatePercent !== undefined) {
+      if (!Number.isFinite(args.vatRatePercent) || args.vatRatePercent < 0 || args.vatRatePercent > 100) {
+        throw new ConvexError("INVALID_INPUT");
+      }
+      update.vatRatePercent = args.vatRatePercent;
+    }
+    if (args.priceRoundingStep !== undefined) {
+      if (!Number.isFinite(args.priceRoundingStep) || args.priceRoundingStep <= 0 || args.priceRoundingStep > 100_000) {
+        throw new ConvexError("INVALID_INPUT");
+      }
+      update.priceRoundingStep = args.priceRoundingStep;
+    }
     if (args.showPricesToEndUser !== undefined) update.showPricesToEndUser = args.showPricesToEndUser;
     if (args.ecobonusEnabled !== undefined) update.ecobonusEnabled = args.ecobonusEnabled;
     if (args.ecobonusMaxPercent !== undefined)

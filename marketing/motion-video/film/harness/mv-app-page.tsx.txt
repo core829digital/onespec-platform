@@ -1,0 +1,6 @@
+// TEMP capture harness for the motion video — NOT to be committed.
+import Harness from "./harness";
+export default async function Page({ params }: { params: Promise<{ view: string }> }) {
+  const { view } = await params;
+  return <Harness view={view} />;
+}

@@ -215,7 +215,7 @@ http.route({
     } catch {
       return json({ ok: true, counted: false });
     }
-    await ctx.runMutation(api.passports.recordScan, { token: body.token });
+    await ctx.runMutation(internal.passports.recordScan, { token: body.token });
     return json({ ok: true });
   }),
 });
@@ -515,7 +515,7 @@ if (/^[A-Za-z0-9_-]{24,128}$/.test(STRIPE_WEBHOOK_TOKEN)) http.route({
     const ok = await verifyStripeSignature(raw, req.headers.get("stripe-signature"), secret);
     if (!ok) return new Response("bad signature", { status: 400 });
 
-    let event: { id?: string; type?: string; data?: unknown };
+    let event: { id?: string; type?: string; data?: unknown; created?: number };
     try {
       event = JSON.parse(raw);
     } catch {
@@ -540,6 +540,7 @@ if (/^[A-Za-z0-9_-]{24,128}$/.test(STRIPE_WEBHOOK_TOKEN)) http.route({
         eventId: event.id,
         type: event.type,
         data: event.data,
+        created: typeof event.created === "number" ? event.created : undefined,
       });
 
       if (event.type === "checkout.session.completed" && !result.duplicate) {

@@ -1,0 +1,18 @@
+// TEMP capture harness for the motion video — NOT to be committed.
+"use client";
+import { Widget } from "@/components/widget/widget";
+export default function Client({ theme }: { theme: string }) {
+  return (
+    <Widget
+      configurator={{
+        publicId: "capture", name: "Serramenti Demo", region: "IT", widgetMode: "lead_gen",
+        vatRates: [
+          { key: "ordinaria", percent: 22, label: "IVA ordinaria 22%" },
+          { key: "ristrutturazione", percent: 10, label: "Ristrutturazione 10%" },
+        ],
+        defaultVatKey: "ordinaria", complianceFlags: ["posa_uni_11673"],
+      }}
+      theme={theme} lang="it" preview={false}
+    />
+  );
+}

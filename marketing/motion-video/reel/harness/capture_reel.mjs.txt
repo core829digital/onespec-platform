@@ -1,0 +1,105 @@
+import { chromium } from "/home/user/onespec-platform/marketing/motion-video/node_modules/playwright/index.mjs";
+import fs from "node:fs";
+const OUT = "/home/user/onespec-platform/marketing/motion-video/reel/shots";
+const meta = {};
+const b = await chromium.launch();
+const box = async (loc) => { const r = await loc.boundingBox(); return r && { x: r.x, y: r.y, w: r.width, h: r.height }; };
+const pageY = async (p, loc) => { const r = await box(loc); const sy = await p.evaluate(() => scrollY); return r && { ...r, y: r.y + sy }; };
+
+// ---------- phone: the estimator the homeowner uses on the installer's site
+{
+  const c = await b.newContext({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 3, ignoreHTTPSErrors: true, isMobile: true, hasTouch: true });
+  const p = await c.newPage();
+  await p.route("**/api/widget/quote", (r) => r.fulfill({ status: 200, contentType: "application/json", body: JSON.stringify({ ok: true, referenceId: "SD-2931" }) }));
+  await p.goto("http://localhost:3100/c/mv-capture?theme=dark", { waitUntil: "networkidle", timeout: 180000 });
+  await p.addStyleTag({ content: "nextjs-portal{display:none!important}" });
+  await p.waitForTimeout(1200);
+  const P = {};
+  const full = async (n) => { await p.waitForTimeout(350); await p.screenshot({ path: `${OUT}/p-${n}.png`, fullPage: true }); P[n] = { h: await p.evaluate(() => document.documentElement.scrollHeight) }; };
+  await full("0");
+  P.legno = await pageY(p, p.getByText("Legno", { exact: true }).first());
+  await p.getByText("Legno", { exact: true }).first().click(); await full("1");
+  P.porta = await pageY(p, p.getByText("Porta balcone", { exact: true }).first());
+  await p.getByText("Porta balcone", { exact: true }).first().click(); await full("2");
+  const svg = p.locator('svg[aria-label="dimension drawing"]');
+  await svg.scrollIntoViewIfNeeded();
+  let bb = await pageY(p, svg);
+  P.drawing = bb;
+  const sy = await p.evaluate(() => scrollY);
+  P.leaf2 = { x: bb.x + bb.w * 0.6, y: bb.y + bb.h * 0.4 };
+  await p.mouse.click(P.leaf2.x, P.leaf2.y - sy); await full("3");
+  const grip = await p.evaluate(() => { const l = [...document.querySelectorAll('svg[aria-label="dimension drawing"] line')].find((l) => l.getAttribute("stroke") === "#1E5F74"); const r = l.getBoundingClientRect(); return { x: r.x + r.width / 2, y: r.y + r.height / 2, sy: scrollY }; });
+  P.gripFrom = { x: grip.x, y: grip.y + grip.sy };
+  await p.mouse.move(grip.x, grip.y); await p.mouse.down(); await p.mouse.move(grip.x - 26, grip.y, { steps: 10 }); await p.mouse.up();
+  P.gripTo = { x: grip.x - 26, y: grip.y + grip.sy };
+  await full("4");
+  await p.mouse.move(grip.x - 26, grip.y); await p.mouse.down(); await p.mouse.move(grip.x - 4, grip.y, { steps: 10 }); await p.mouse.up();
+  await full("5");
+  // VAT → Ristrutturazione 10%
+  const vat = p.locator("select").filter({ has: p.locator("option", { hasText: "Ristrutturazione 10%" }) }).first();
+  P.vat = await pageY(p, vat);
+  P.eco = await pageY(p, p.getByText("ECOBONUS", { exact: false }).first());
+  P.total = await pageY(p, p.getByText("TOTALE STIMATO", { exact: false }).first());
+  await vat.selectOption({ label: "Ristrutturazione 10%" }); await full("6");
+  const cta = p.getByText("Completa e richiedi preventivo", { exact: false }).first();
+  P.cta = await pageY(p, cta);
+  await cta.click(); await full("7");
+  await p.getByPlaceholder("Nome").fill("Laura Rossi");
+  await p.getByPlaceholder("Email").fill("laura.rossi@email.it");
+  await p.getByPlaceholder("Telefono").fill("+39 333 000 0000");
+  await p.locator('input[type="checkbox"]').last().check().catch(() => {});
+  const send = p.getByText("Richiedi un sopralluogo", { exact: false }).first();
+  P.send = await pageY(p, send);
+  P.form = await pageY(p, p.getByPlaceholder("Nome"));
+  await full("8");
+  await send.click(); await p.waitForTimeout(800);
+  await p.evaluate(() => scrollTo(0, 0));
+  await full("9");
+  P.waBtn = await pageY(p, p.getByText("Invia riepilogo su WhatsApp", { exact: false }).first());
+  meta.phone = P;
+  await c.close();
+}
+
+// ---------- tablet: showroom
+{
+  const c = await b.newContext({ viewport: { width: 834, height: 1194 }, deviceScaleFactor: 2, ignoreHTTPSErrors: true });
+  const p = await c.newPage();
+  await p.goto("http://localhost:3100/c/mv-app/showroom", { waitUntil: "networkidle", timeout: 180000 });
+  await p.addStyleTag({ content: "nextjs-portal{display:none!important} .h-screen{height:auto!important} main{overflow:visible!important} #main-content{overflow:visible!important}" });
+  await p.waitForTimeout(2000);
+  const S = {};
+  const full = async (n) => { await p.mouse.move(833, 5); await p.waitForTimeout(500); await p.screenshot({ path: `${OUT}/s-${n}.png`, fullPage: true }); };
+  await full("0");
+  const add = p.getByRole("button", { name: "+ Portafinestra 2 ante" }).first();
+  S.add = await pageY(p, add);
+  await add.click(); await full("1");
+  const fin = p.locator("select").filter({ has: p.locator("option", { hasText: "Effetto legno" }) }).first();
+  S.finish = await pageY(p, fin);
+  await fin.selectOption({ label: "Effetto legno" }).catch((e) => console.log("fin", e.message)); await full("2");
+  S.h = await p.evaluate(() => document.documentElement.scrollHeight);
+  meta.showroom = S;
+  await c.close();
+}
+
+// ---------- desktop: trattative → Vinte, one card at a time
+{
+  const c = await b.newContext({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 2, ignoreHTTPSErrors: true });
+  const p = await c.newPage();
+  await p.goto("http://localhost:3100/c/mv-app/pipeline", { waitUntil: "networkidle", timeout: 180000 });
+  await p.addStyleTag({ content: "nextjs-portal{display:none!important}" });
+  await p.waitForTimeout(1500);
+  const clip = { x: 957, y: 180, width: 616, height: 720 };
+  await p.screenshot({ path: `${OUT}/k-0.png`, clip });
+  const names = ["Luca Colombo", "Chiara Marino", "Simone Rizzo", "Ilaria Mancini"];
+  for (const [i, n] of names.entries()) {
+    const card = p.locator(`text=${n}`).first();
+    const sel = card.locator("xpath=ancestor::*[.//select][1]").locator("select").first();
+    await sel.selectOption({ label: "Vinte" }).catch((e) => console.log("sel", n, e.message));
+    await p.waitForTimeout(400);
+    await p.screenshot({ path: `${OUT}/k-${i + 1}.png`, clip });
+  }
+  await c.close();
+}
+fs.writeFileSync(`${OUT}/meta.json`, JSON.stringify(meta, null, 2));
+await b.close();
+console.log("ok");

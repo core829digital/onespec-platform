@@ -2,7 +2,7 @@
 
 import { query, mutation, internalMutation } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
-import { requireMembership } from "./lib/auth";
+import type { Id } from "./_generated/dataModel";
 import { requirePermission } from "./lib/rbac";
 import { requireTenantRegion } from "./lib/fieldModules";
 import { enforceForMaintenance } from "./lib/enforcement";
@@ -12,6 +12,7 @@ import { guessZoneFromCap, buildAllegatoF, allegatoFToXml, type ClimateZone } fr
 import { computeOverallUw, type CatalogPayload, type ProjectItem } from "../src/shared/pricing";
 import { nanoid } from "./lib/ids";
 import { internal } from "./_generated/api";
+import { assertOwnedRefs } from "./lib/links";
 
 /* ----------------------------- dealer side ------------------------------ */
 
@@ -33,11 +34,12 @@ export const listByQuote = query({
   handler: async (ctx, args) => {
     const quote = await ctx.db.get(args.quoteId);
     if (!quote) return [];
-    await requireMembership(ctx, quote.tenantId);
+    await requirePermission(ctx, quote.tenantId, "passports.use");
     return await ctx.db
       .query("serramentoPassports")
       .withIndex("by_quote", (q) => q.eq("quoteId", args.quoteId))
-      .collect();
+      .take(200)
+      .then((rows) => rows.filter((r) => r.tenantId === quote.tenantId));
   },
 });
 
@@ -46,7 +48,7 @@ export const get = query({
   handler: async (ctx, args) => {
     const p = await ctx.db.get(args.passportId);
     if (!p) return null;
-    await requireMembership(ctx, p.tenantId);
+    await requirePermission(ctx, p.tenantId, "passports.use");
     const documents = await Promise.all(
       p.documents.map(async (d) => ({
         ...d,
@@ -78,7 +80,9 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     await enforceForMaintenance(ctx, args.tenantId);
+    await requirePermission(ctx, args.tenantId, "passports.use");
     const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
+    await assertOwnedRefs(ctx, args.tenantId, { quoteId: args.quoteId, inspectionId: args.inspectionId });
     const label = args.label.trim();
     const customerName = args.customerName.trim();
     if (!label) throw new ConvexError("LABEL_REQUIRED");
@@ -121,6 +125,7 @@ export const createBatchFromQuote = mutation({
     // above enforces — a Base-plan tenant could bypass the paywall entirely
     // by batch-creating passports for every item on a quote.
     await enforceForMaintenance(ctx, args.tenantId);
+    await requirePermission(ctx, args.tenantId, "passports.use");
     const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
     const quote = await ctx.db.get(args.quoteId);
     if (!quote || quote.tenantId !== args.tenantId) throw new ConvexError("QUOTE_NOT_FOUND");
@@ -244,13 +249,16 @@ export const attachDocument = mutation({
     if (args.url && !/^https:\/\//i.test(args.url)) throw new ConvexError("INVALID_URL");
 
     let matched = false;
+    const replaced: Id<"_storage">[] = [];
     const documents = p.documents.map((d) => {
       if (d.key !== args.key) return d;
       matched = true;
-      if (d.storageId && d.storageId !== args.storageId) ctx.storage.delete(d.storageId).catch(() => {});
+      if (d.storageId && d.storageId !== args.storageId) replaced.push(d.storageId);
       return { ...d, storageId: args.storageId, url: args.url };
     });
     if (!matched) throw new ConvexError("UNKNOWN_DOCUMENT_SLOT");
+    // Awaited (see inspections.setPhoto): never a fire-and-forget storage call in a mutation.
+    for (const id of replaced) await ctx.storage.delete(id).catch(() => {});
     await ctx.db.patch(args.passportId, { documents, updatedAt: Date.now() });
   },
 });
@@ -511,7 +519,8 @@ export const updateInterventionStatus = mutation({
    },
  });
 
-export const recordScan = mutation({
+/** Internal: only the rate-limited /api/passport/scan route may count a scan. */
+export const recordScan = internalMutation({
   args: { token: v.string() },
   handler: async (ctx, args) => {
     const p = await ctx.db

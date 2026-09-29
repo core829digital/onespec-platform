@@ -1,0 +1,145 @@
+{
+  "_source": "Verbatim from the rendered widget (src/components/widget/widget.tsx + widget-i18n.ts, lang=it) and the IT region policy (convex/lib/regions.ts). Captured 2026-09-29 with Playwright at 1440 px.",
+  "header": {
+    "name": "onespec",
+    "tagline": "Prezzi immediati per serramenti in PVC, legno e alluminio",
+    "logoFallback": "W/D"
+  },
+  "materials": [
+    "PVC",
+    "Legno",
+    "Alluminio"
+  ],
+  "configuration": {
+    "title": "CONFIGURAZIONE",
+    "productTypeLabel": "Tipo di prodotto",
+    "productTypes": [
+      "Finestra",
+      "Porta balcone"
+    ],
+    "doorHint": "→ Soglia in alluminio da 18mm inclusa",
+    "profileQuality": [
+      "Profilo a 5 camere",
+      "Profilo a 7 camere (premium)"
+    ],
+    "profileBrands": [
+      "Aluplast",
+      "Rehau",
+      "Kömmerling",
+      "Deceuninck",
+      "Salamander",
+      "Schüco",
+      "Gealan"
+    ],
+    "labels": [
+      "Larghezza (mm)",
+      "Altezza (mm)",
+      "Quantità",
+      "Numero di ante"
+    ],
+    "sashHelp": [
+      "Ogni anta può avere un proprio tipo di apertura e lato, e può essere attivata o disattivata.",
+      "\"Sinistra\" e \"Destra\" si intendono guardando dall'interno verso l'esterno (convenzione standard)."
+    ],
+    "openingTypes": [
+      "Fissa",
+      "Classica (a battente)",
+      "Anta-ribalta",
+      "Scorrevole"
+    ],
+    "sides": [
+      "Sinistra",
+      "Destra"
+    ],
+    "hardware": [
+      "MACO",
+      "ROTO",
+      "Siegenia"
+    ],
+    "hardwareColors": [
+      "Bianco",
+      "Argento",
+      "Bronzo"
+    ],
+    "glass": [
+      "Doppio vetro",
+      "Triplo vetro",
+      "Triplo + basso emissivo + argon"
+    ],
+    "finish": [
+      "Bianco standard",
+      "Colore RAL",
+      "Pellicola effetto legno"
+    ],
+    "installation": [
+      "Montaggio Classico",
+      "Montaggio Posa Clima"
+    ],
+    "insectScreen": "Aggiungi zanzariera"
+  },
+  "drawing": {
+    "title": "DISEGNO TECNICO",
+    "view": "Vista: interno → esterno",
+    "legend": "Triangolo = lato cerniera/ribalta, freccia dritta = senso di scorrimento",
+    "clickHint": "Clicca su un'anta nel disegno per modificarla"
+  },
+  "sashEditor": {
+    "label": "Anta",
+    "fields": [
+      "Tipo di apertura",
+      "Lato apertura",
+      "Ferramenta (maniglie e cerniere)",
+      "Colore ferramenta"
+    ],
+    "handleHeight": "Altezza maniglia"
+  },
+  "summary": {
+    "title": "PREVENTIVO",
+    "rows": [
+      "Superficie",
+      "Perimetro telaio",
+      "Materiale e manodopera",
+      "Profilo / telaio",
+      "Opzioni",
+      "Coefficiente Uw (indicativo)"
+    ],
+    "ecobonus": "ECOBONUS 50%",
+    "vatLabel": "ALIQUOTA IVA",
+    "vatRatesIT": [
+      "IVA ordinaria 22%",
+      "Ristrutturazione 10%"
+    ],
+    "totalLabel": "TOTALE STIMATO IVA INCLUSA",
+    "disclaimer": "Stima orientativa · non è un preventivo contrattuale.",
+    "norm": "Posa in opera secondo norma UNI 11673-1:2017",
+    "addAnother": "+ Aggiungi un'altra finestra / porta balcone",
+    "cta": "→ Completa e richiedi preventivo"
+  },
+  "leadForm": {
+    "fields": [
+      "Nome",
+      "Email",
+      "Telefono",
+      "Messaggio (facoltativo)"
+    ],
+    "consent": "Ho letto l' informativa privacy e acconsento al trattamento dei miei dati per ricevere questo preventivo.",
+    "submit": "Richiedi un sopralluogo"
+  },
+  "footer": "Stima puramente indicativa. Il prezzo definitivo viene confermato dopo il sopralluogo.",
+  "flaggedPlaceholderNumbers": {
+    "reason": "No installer catalogue is loaded in the capture, so the widget prices from its fallback demo table. These numbers are not real and are left out of the video.",
+    "values": [
+      "507,80 €",
+      "891,80 €",
+      "1.420,80 €",
+      "234,00 €",
+      "128,80 €",
+      "145,00 €",
+      "491,40 €",
+      "190,40 €",
+      "210,00 €",
+      "1,16 W/m²K (Uw from fallback table)",
+      "1.240 € (decorative, login page)"
+    ]
+  }
+}

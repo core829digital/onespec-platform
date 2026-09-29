@@ -1,9 +1,9 @@
 import { query, mutation, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
-import { requireMembership } from "./lib/auth";
 import { requirePermission } from "./lib/rbac";
 import { listRelated } from "./lib/links";
+import { assertActiveMembers } from "./lib/links";
 
 /** List clients for a tenant with optional filters. */
 export const listClients = query({
@@ -58,7 +58,7 @@ export const getClient = query({
   handler: async (ctx, args) => {
     const client = await ctx.db.get(args.clientId);
     if (!client) return null;
-    await requireMembership(ctx, client.tenantId);
+    await requirePermission(ctx, client.tenantId, "clients.use");
 
     const activities = await ctx.db
       .query("clientActivities")
@@ -108,6 +108,8 @@ export const createClient = mutation({
   },
   handler: async (ctx, args) => {
     const { userId } = await requirePermission(ctx, args.tenantId, "clients.use");
+    assertClientInput(args, true);
+    if (args.assignedToUserId) await assertActiveMembers(ctx, args.tenantId, [args.assignedToUserId]);
 
     const now = Date.now();
     const clientId = await ctx.db.insert("clients", {
@@ -162,6 +164,25 @@ export const createClient = mutation({
   },
 });
 
+/** Bounds shared by create/update: the client doc must stay far from 1 MB. */
+function assertClientInput(args: {
+  name?: string; notes?: string; tags?: string[];
+  [k: string]: unknown;
+}, creating: boolean): void {
+  const SHORT = ["contactName", "email", "phone", "billingAddress", "billingCity", "billingPostalCode",
+    "billingCountry", "siteAddress", "siteCity", "sitePostalCode", "siteCountry", "vatNumber", "fiscalCode", "source"];
+  if (creating && !args.name?.trim()) throw new ConvexError("INVALID_NAME");
+  if (args.name !== undefined && (args.name.trim().length === 0 || args.name.length > 200)) throw new ConvexError("INVALID_NAME");
+  for (const k of SHORT) {
+    const val = args[k];
+    if (typeof val === "string" && val.length > 300) throw new ConvexError("INVALID_INPUT");
+  }
+  if (args.notes !== undefined && args.notes.length > 10_000) throw new ConvexError("INVALID_INPUT");
+  if (args.tags !== undefined && (args.tags.length > 50 || args.tags.some((t) => t.length > 50))) {
+    throw new ConvexError("INVALID_INPUT");
+  }
+}
+
 /** Update a client. */
 export const updateClient = mutation({
   args: {
@@ -191,6 +212,8 @@ export const updateClient = mutation({
     const client = await ctx.db.get(args.clientId);
     if (!client) throw new ConvexError("CLIENT_NOT_FOUND");
     const { userId } = await requirePermission(ctx, client.tenantId, "clients.use");
+    assertClientInput(args, false);
+    if (args.assignedToUserId) await assertActiveMembers(ctx, client.tenantId, [args.assignedToUserId]);
 
     const patch: Record<string, unknown> = { updatedAt: Date.now() };
     const allowedFields = [

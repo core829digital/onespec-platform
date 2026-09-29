@@ -1,0 +1,113 @@
+{
+ "T": 14,
+ "sounds": [
+  {
+   "t": 1,
+   "type": "click"
+  },
+  {
+   "t": 3,
+   "type": "click"
+  },
+  {
+   "t": 5,
+   "type": "click"
+  },
+  {
+   "t": 5.42,
+   "type": "press"
+  },
+  {
+   "t": 6,
+   "type": "release"
+  },
+  {
+   "t": 6.42,
+   "type": "press"
+  },
+  {
+   "t": 7,
+   "type": "release"
+  },
+  {
+   "t": 8.42,
+   "type": "press"
+  },
+  {
+   "t": 8.5502,
+   "type": "tick"
+  },
+  {
+   "t": 8.5731,
+   "type": "tick"
+  },
+  {
+   "t": 8.5888,
+   "type": "tick"
+  },
+  {
+   "t": 8.6033,
+   "type": "tick"
+  },
+  {
+   "t": 8.6158,
+   "type": "tick"
+  },
+  {
+   "t": 8.6283,
+   "type": "tick"
+  },
+  {
+   "t": 8.6408,
+   "type": "tick"
+  },
+  {
+   "t": 8.6533,
+   "type": "tick"
+  },
+  {
+   "t": 8.6669,
+   "type": "tick"
+  },
+  {
+   "t": 8.6825,
+   "type": "tick"
+  },
+  {
+   "t": 8.6992,
+   "type": "tick"
+  },
+  {
+   "t": 8.719,
+   "type": "tick"
+  },
+  {
+   "t": 8.744,
+   "type": "tick"
+  },
+  {
+   "t": 8.7794,
+   "type": "tick"
+  },
+  {
+   "t": 8.8481,
+   "type": "tick"
+  },
+  {
+   "t": 9,
+   "type": "release"
+  },
+  {
+   "t": 10,
+   "type": "click"
+  },
+  {
+   "t": 10.5,
+   "type": "click"
+  },
+  {
+   "t": 13,
+   "type": "click"
+  }
+ ]
+}

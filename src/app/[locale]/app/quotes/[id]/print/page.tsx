@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useState, Suspense } from "react";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import type { FunctionReturnType } from "convex/server";
 import { pdf } from "@react-pdf/renderer";
 import { api } from "@/convex/_generated/api";
@@ -15,6 +15,7 @@ import { QuoteExportBar } from "@/components/quotes/quote-export-bar";
 import type { CatalogPayload } from "@/shared/pricing";
 import { useCompanyPdf } from "@/lib/use-company-pdf";
 import { useTranslations } from "next-intl";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 
 interface Props {
   params: Promise<{ id: string; locale: string }>;
@@ -135,7 +136,7 @@ function QuoteDocument({ quote, tenant, region, catalog }: { quote: NonNullable<
         </div>
       </div>
 
-      {catalog ? <QuoteExportBar quote={quote} catalog={catalog} company={company} /> : null}
+      {catalog ? <QuoteExportBar quoteId={quote._id} quote={quote} catalog={catalog} company={company} /> : null}
 
       {/* PDF Viewer */}
       <Suspense
@@ -157,6 +158,72 @@ function QuoteDocument({ quote, tenant, region, catalog }: { quote: NonNullable<
   );
 }
 
+/** Widget-first plans: the document is served once a PDF credit is taken for this request. */
+function PdfAllowanceGate({ quoteId, used, limit }: { quoteId: Id<"quoteRequests">; used: number; limit: number }) {
+  const t = useTranslations("usage");
+  const tf = useFriendlyError();
+  const requestPdf = useMutation(api.usage.requestPdfExport);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const exhausted = used >= limit;
+  return (
+    <div className="mx-auto mt-16 max-w-md space-y-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-6 text-center">
+      <h1 className="text-lg font-semibold">{t("pdfGateTitle")}</h1>
+      <p className="text-sm text-[var(--color-text-secondary)]">{t("pdfGateBody", { used, limit })}</p>
+      {err ? <p role="alert" className="text-sm text-[var(--color-danger)]">{err}</p> : null}
+      <div className="flex flex-wrap justify-center gap-2">
+        {exhausted ? (
+          <Link href="/app/account/billing?tab=plan" className="rounded-lg bg-[var(--color-mint)] px-4 py-2 text-sm font-bold text-[var(--color-mint-dark)]">
+            {t("upgradeCta")}
+          </Link>
+        ) : (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={async () => {
+              setBusy(true);
+              setErr("");
+              try {
+                // The query re-runs reactively and serves the document once this succeeds.
+                await requestPdf({ quoteId });
+              } catch (e) {
+                setErr(tf(e));
+              } finally {
+                setBusy(false);
+              }
+            }}
+            className="rounded-lg bg-[var(--color-mint)] px-4 py-2 text-sm font-bold text-[var(--color-mint-dark)] disabled:opacity-60"
+          >
+            {t("pdfGateCta")}
+          </button>
+        )}
+        <Link href={`/app/requests/${quoteId}`} className="rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm">
+          {t("back")}
+        </Link>
+      </div>
+    </div>
+  );
+}
+
+function QuotaLockedPanel() {
+  const t = useTranslations("usage");
+  return (
+    <div className="mx-auto mt-16 max-w-md space-y-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-6 text-center">
+      <div className="text-3xl" aria-hidden="true">🔒</div>
+      <h1 className="text-lg font-semibold">{t("lockedTitle")}</h1>
+      <p className="text-sm text-[var(--color-text-secondary)]">{t("lockedBody")}</p>
+      <div className="flex flex-wrap justify-center gap-2">
+        <Link href="/app/account/billing?tab=plan" className="rounded-lg bg-[var(--color-mint)] px-4 py-2 text-sm font-bold text-[var(--color-mint-dark)]">
+          {t("upgradeCta")}
+        </Link>
+        <Link href="/app/requests" className="rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm">
+          {t("back")}
+        </Link>
+      </div>
+    </div>
+  );
+}
+
 export default function PrintQuotePage({ params }: Props) {
   const t = useTranslations("quotePrint");
   const { id } = use(params);
@@ -170,6 +237,9 @@ export default function PrintQuotePage({ params }: Props) {
       </div>
     );
   }
+
+  if (data.gate === "quote_locked") return <QuotaLockedPanel />;
+  if (data.gate === "pdf_allowance") return <PdfAllowanceGate quoteId={quoteId} used={data.used} limit={data.limit} />;
 
   const { quote, tenant } = data;
   const catalog = (data.catalog as CatalogPayload | null) ?? null;

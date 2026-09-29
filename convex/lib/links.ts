@@ -14,6 +14,7 @@
 import { ConvexError } from "convex/values";
 import type { Doc, Id } from "../_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "../_generated/server";
+import { lockedSafeLeadName } from "./quotaLock";
 
 export interface ResolvedLinks {
   clientId: Id<"clients"> | undefined;
@@ -138,7 +139,7 @@ export async function listRelated(
   return {
     quotes: quotes.map((r) => ({
       _id: r._id,
-      leadName: r.leadName,
+      leadName: lockedSafeLeadName(r),
       priceCents: r.priceCents,
       status: r.status,
       publicId: r.publicId,
@@ -165,4 +166,44 @@ export async function listRelated(
       createdAt: r._creationTime,
     })),
   };
+}
+
+/**
+ * Cross-tenant guard for record references a client passes in args
+ * (quote / inspection / survey / client ids). A `v.id(...)` validator only
+ * proves the row EXISTS — without this a tenant could attach its records to
+ * another tenant's quote, and they would then show up in that tenant's views.
+ */
+export async function assertOwnedRefs(
+  ctx: QueryCtx | MutationCtx,
+  tenantId: Id<"tenants">,
+  refs: {
+    quoteId?: Id<"quoteRequests"> | null;
+    inspectionId?: Id<"inspectionReports"> | null;
+    surveyId?: Id<"siteSurveys"> | null;
+    clientId?: Id<"clients"> | null;
+  },
+): Promise<void> {
+  for (const id of [refs.quoteId, refs.inspectionId, refs.surveyId, refs.clientId]) {
+    if (!id) continue;
+    const doc = (await ctx.db.get(id)) as { tenantId?: Id<"tenants"> } | null;
+    if (!doc || doc.tenantId !== tenantId) throw new ConvexError("TENANT_MISMATCH");
+  }
+}
+
+/** Every user id must be an ACTIVE member of the tenant (e.g. cantiere assignees). */
+export async function assertActiveMembers(
+  ctx: QueryCtx | MutationCtx,
+  tenantId: Id<"tenants">,
+  userIds: Id<"users">[] | undefined,
+): Promise<void> {
+  if (!userIds) return;
+  if (userIds.length > 100) throw new ConvexError("INVALID_INPUT");
+  for (const userId of userIds) {
+    const m = await ctx.db
+      .query("memberships")
+      .withIndex("by_tenant_user", (q) => q.eq("tenantId", tenantId).eq("userId", userId))
+      .first();
+    if (!m || m.status !== "active") throw new ConvexError("TENANT_MISMATCH");
+  }
 }
