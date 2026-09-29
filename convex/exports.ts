@@ -16,6 +16,8 @@ const QUOTE_STATUS = v.union(
 );
 
 const MAX_ROWS = 5000;
+/** Half of Convex's per-transaction read allowance, as a safety margin. */
+const READ_BUDGET_BYTES = 8 * 1024 * 1024;
 const cents = (c: number) => (c / 100).toFixed(2);
 
 /**
@@ -43,8 +45,22 @@ export const exportRequestsCsv = mutation({
           )
       : ctx.db.query("quoteRequests").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId));
 
-    // Quota-locked requests ("accetta ma blocca") export without contact details.
-    const records = (await rowsQuery.order("desc").take(MAX_ROWS)).map(redactQuoteRequest);
+    // Streamed with a byte budget: a quote doc with its pieces can be several
+    // KB, so a flat .take(5000) could exceed the per-transaction read limit
+    // and make the export FAIL for exactly the busiest tenants. Stop early
+    // and report `truncated` instead. Quota-locked requests ("accetta ma
+    // blocca") export without contact details.
+    const records: ReturnType<typeof redactQuoteRequest>[] = [];
+    let bytes = 0;
+    let truncated = false;
+    for await (const r of rowsQuery.order("desc")) {
+      bytes += JSON.stringify(r).length;
+      if (records.length >= MAX_ROWS || bytes > READ_BUDGET_BYTES) {
+        truncated = true;
+        break;
+      }
+      records.push(redactQuoteRequest(r));
+    }
 
     // Resolve assignee names once.
     const assigneeIds = [
@@ -108,7 +124,7 @@ export const exportRequestsCsv = mutation({
       mimeType: "text/csv;charset=utf-8",
       content: toCsv(header, body),
       rowCount: body.length,
-      truncated: records.length === MAX_ROWS,
+      truncated,
     };
   },
 });
