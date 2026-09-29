@@ -143,3 +143,16 @@ describe("configurator settings validation (launch audit)", () => {
     expect(c?.vatRatePercent).toBe(10);
   });
 });
+
+describe("one-time codes (launch audit)", () => {
+  test("6 digits, in range, from the CSPRNG", async () => {
+    const { secureSixDigitCode } = await import("../../convex/lib/ids");
+    const seen = new Set<string>();
+    for (let i = 0; i < 2000; i++) {
+      const c = secureSixDigitCode();
+      expect(c).toMatch(/^[1-9]\d{5}$/);
+      seen.add(c);
+    }
+    expect(seen.size).toBeGreaterThan(1990);
+  });
+});

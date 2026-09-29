@@ -2,6 +2,7 @@ import { Email } from "@convex-dev/auth/providers/Email";
 import { Resend as ResendAPI } from "resend";
 import { renderAuthEmail } from "./emails/auth";
 import { noreplyFromAddress } from "./lib/emailFrom";
+import { secureSixDigitCode } from "./lib/ids";
 
 /**
  * Password-reset OTP provider for the Password flow. Same constraints as
@@ -11,7 +12,7 @@ export const ResendPasswordReset = Email({
   id: "resend-otp-reset",
   maxAge: 60 * 15,
   async generateVerificationToken() {
-    return String(Math.floor(100000 + Math.random() * 900000));
+    return secureSixDigitCode();
   },
   async sendVerificationRequest({ identifier: email, token }) {
     const live = process.env.RESEND_MODE === "live" && !!process.env.AUTH_RESEND_KEY;

@@ -2,6 +2,7 @@ import { Email } from "@convex-dev/auth/providers/Email";
 import { Resend as ResendAPI } from "resend";
 import { renderAuthEmail } from "./emails/auth";
 import { noreplyFromAddress } from "./lib/emailFrom";
+import { secureSixDigitCode } from "./lib/ids";
 
 /**
  * Email-verification OTP provider for the Password flow.
@@ -15,7 +16,7 @@ export const ResendOTP = Email({
   id: "resend-otp",
   maxAge: 60 * 15, // 15 minutes
   async generateVerificationToken() {
-    return String(Math.floor(100000 + Math.random() * 900000)); // 6 digits
+    return secureSixDigitCode(); // 6 digits
   },
   async sendVerificationRequest({ identifier: email, token }) {
     const live = process.env.RESEND_MODE === "live" && !!process.env.AUTH_RESEND_KEY;
