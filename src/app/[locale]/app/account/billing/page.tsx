@@ -114,20 +114,33 @@ export default function BillingPage() {
     setErr("");
     try {
       const preview = await previewPlanChange({ tenantId: tenant!._id, plan, cycle });
-      const cents = preview.amountDueCents;
-      const amount = `€${(Math.abs(cents) / 100).toLocaleString(locale, { minimumFractionDigits: 2 })}`;
-      // Three distinct cases, each needing its own wording — a single
-      // "will charge the prorated difference" message was wrong for two of
+      // `amountDueCents` is what Stripe would charge the card RIGHT NOW and
+      // can NEVER be negative (Stripe invoices floor at 0) — it cannot by
+      // itself represent a downgrade credit. `totalCents` is the real,
+      // unfloored total (negative = net credit, moved onto the Stripe
+      // Customer balance instead of charged); verified live against a real
+      // downgrade on this platform (amount_due=0 while total was a real
+      // -121.97€ credit). Branch on totalCents, not amountDueCents.
+      const total = preview.totalCents;
+      const fmt = (c: number) => `€${(Math.abs(c) / 100).toLocaleString(locale, { minimumFractionDigits: 2 })}`;
+      const amount = fmt(preview.endsTrial ? preview.amountDueCents : total);
+      // Credit is communicated net of VAT — VAT is a pass-through tax, not
+      // platform revenue, so the "service value" owed back to the tenant is
+      // the ex-VAT figure, not the gross Stripe-balance figure.
+      const creditAmount = fmt(preview.totalExcludingTaxCents);
+      // Four distinct cases, each needing its own wording — a single
+      // "will charge the prorated difference" message was wrong for most of
       // them: (1) ending a trial has nothing prior to prorate against, so
       // Stripe charges the new plan's full price, not a small delta; (2) a
       // paid-to-paid downgrade mid-period can legitimately net to a CREDIT
-      // (negative amount_due) rather than a charge.
+      // rather than a charge; (3) a same-price switch (e.g. cycle-only, same
+      // day) can net to exactly zero.
       const confirmMsg = preview.endsTrial
         ? t("upgrade.confirmChargeEndsTrial", { amount })
-        : cents > 0
+        : total > 0
           ? t("upgrade.confirmCharge", { amount })
-          : cents < 0
-            ? t("upgrade.confirmCredit", { amount })
+          : total < 0
+            ? t("upgrade.confirmCredit", { amount: creditAmount })
             : t("upgrade.confirmNoCharge");
       if (!(await requestConfirm(confirmMsg))) {
         setBusy(false);

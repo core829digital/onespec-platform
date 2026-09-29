@@ -111,7 +111,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
   {
     slug: "termini-di-servizio",
     title: "Termini di servizio",
-    updated: "2026-09-02",
+    updated: "2026-09-29",
     summary: "Le condizioni contrattuali tra OneSpec e l'organizzazione cliente.",
     sections: [
       {
@@ -134,6 +134,15 @@ export const LEGAL_DOCS: LegalDoc[] = [
           "I piani, i limiti e i prezzi in vigore sono quelli pubblicati nella pagina dei prezzi al momento della sottoscrizione.",
           "Condizioni economiche di dettaglio, fatturazione, imposte applicabili e modalità di pagamento: [[da completare con i termini economici definitivi]].",
           "Il mancato pagamento può comportare la sospensione dell'accesso previa comunicazione.",
+        ],
+      },
+      {
+        h: "Rimborsi",
+        p: [
+          "OneSpec è un prodotto digitale erogato in abbonamento (mensile o annuale): l'accesso alla piattaforma e alle sue funzionalità è messo a disposizione del Cliente immediatamente al momento del pagamento o del rinnovo. Per questa ragione, salvo quanto previsto inderogabilmente dalla legge applicabile, i corrispettivi versati non sono rimborsabili, né in tutto né in parte, incluso in caso di mancato utilizzo del servizio durante il periodo già pagato.",
+          "In caso di passaggio a un piano di livello inferiore (downgrade), l'eventuale differenza a credito maturata sul periodo già pagato non viene rimborsata in denaro, ma resta disponibile come credito sulla piattaforma, applicato automaticamente al successivo rinnovo o addebito — consultabile in ogni momento nella sezione «Piano e fatturazione» dell'account.",
+          "La disdetta dell'abbonamento (cancellazione del rinnovo) non dà diritto ad alcun rimborso della quota già corrisposta per il periodo in corso: l'accesso resta comunque attivo fino al termine di tale periodo, come indicato al momento della disdetta.",
+          "Restano fermi gli eventuali diritti inderogabili previsti dalla legge applicabile per i casi di mancata erogazione del servizio imputabile a OneSpec.",
         ],
       },
       {
@@ -160,6 +169,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
         h: "Durata, recesso e legge applicabile",
         p: [
           "Il contratto ha durata pari al periodo di abbonamento e si rinnova salvo disdetta.",
+          "Trattandosi di un servizio in abbonamento destinato a un'organizzazione professionale, il diritto di recesso previsto dal Codice del Consumo per i contratti a distanza con i consumatori non trova applicazione. Anche laddove applicabile, tale diritto decadrebbe comunque in relazione alla fornitura di contenuto digitale non su supporto materiale la cui esecuzione è iniziata con l'accordo espresso del Cliente, con rinuncia al diritto di recesso, al momento dell'attivazione dell'abbonamento (art. 59, lett. o, D.Lgs. 206/2005).",
           "Il rapporto è regolato dalla legge [[legge applicabile]]. Foro competente: [[foro / tribunale]].",
         ],
       },

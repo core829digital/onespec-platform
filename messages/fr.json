@@ -111,7 +111,9 @@
     "menu": "Menu",
     "legal": "Mentions légales",
     "dpa": "Accord DPA (RGPD)",
-    "status": "État du service"
+    "status": "État du service",
+    "balanceCreditLabel": "Vous avez un crédit de {amount} sur la plateforme, appliqué au prochain renouvellement",
+    "balanceDueLabel": "Vous avez un solde de {amount} à régler sur la plateforme"
   },
   "auth": {
     "login": {

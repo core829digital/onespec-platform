@@ -111,7 +111,9 @@
     "menu": "Meniu",
     "legal": "Legal",
     "dpa": "Acord DPA (GDPR)",
-    "status": "Starea serviciului"
+    "status": "Starea serviciului",
+    "balanceCreditLabel": "Ai un credit de {amount} pe platformă, aplicat la următoarea reînnoire",
+    "balanceDueLabel": "Ai un sold de {amount} de achitat pe platformă"
   },
   "auth": {
     "login": {

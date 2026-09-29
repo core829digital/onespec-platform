@@ -111,7 +111,9 @@
     "menu": "Menu",
     "legal": "Juridisch",
     "dpa": "DPA-overeenkomst (AVG)",
-    "status": "Servicestatus"
+    "status": "Servicestatus",
+    "balanceCreditLabel": "Je hebt een tegoed van {amount} op het platform, verrekend bij de volgende verlenging",
+    "balanceDueLabel": "Je hebt een openstaand saldo van {amount} op het platform"
   },
   "auth": {
     "login": {

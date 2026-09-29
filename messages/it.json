@@ -111,7 +111,9 @@
     "menu": "Menu",
     "legal": "Legale",
     "dpa": "Accordo DPA (GDPR)",
-    "status": "Stato del servizio"
+    "status": "Stato del servizio",
+    "balanceCreditLabel": "Hai un credito di {amount} sulla piattaforma, applicato al prossimo rinnovo",
+    "balanceDueLabel": "Hai un saldo di {amount} da regolare sulla piattaforma"
   },
   "auth": {
     "footer": "© 2026 onespec. Tutti i diritti riservati.",

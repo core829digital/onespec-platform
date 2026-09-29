@@ -528,6 +528,12 @@ if (/^[A-Za-z0-9_-]{24,128}$/.test(STRIPE_WEBHOOK_TOKEN)) http.route({
       "customer.subscription.created",
       "customer.subscription.updated",
       "customer.subscription.deleted",
+      // Fires whenever Stripe's Customer.balance changes — e.g. a downgrade's
+      // unused-time proration lands here as a negative balance (a credit).
+      // Must also be enabled on the live webhook endpoint's event list in the
+      // Stripe Dashboard/API, or Stripe never sends it even though this code
+      // is ready for it.
+      "customer.updated",
     ];
     if (HANDLED.includes(event.type)) {
       const result = await ctx.runMutation(internal.billing.applyWebhookEvent, {

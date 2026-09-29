@@ -111,7 +111,9 @@
     "menu": "Menü",
     "legal": "Rechtliches",
     "dpa": "AVV (DSGVO)",
-    "status": "Dienststatus"
+    "status": "Dienststatus",
+    "balanceCreditLabel": "Sie haben ein Guthaben von {amount} auf der Plattform, das bei der nächsten Verlängerung angerechnet wird",
+    "balanceDueLabel": "Sie haben einen offenen Saldo von {amount} auf der Plattform"
   },
   "auth": {
     "login": {

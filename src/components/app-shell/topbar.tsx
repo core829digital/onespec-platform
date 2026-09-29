@@ -1,8 +1,9 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import posthog from "posthog-js";
-import { Menu, LogOut, User, ChevronDown, Scale, Activity, Gem } from "lucide-react";
+import { useQuery } from "convex/react";
+import { Menu, LogOut, User, ChevronDown, Scale, Activity, Gem, Wallet } from "lucide-react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
@@ -11,8 +12,54 @@ import { NotificationBell } from "./notification-bell";
 import { FeedbackButton } from "./feedback-modal";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { LEGAL_DOCS } from "@/content/legal";
+import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
 
-export function Topbar({ onMenuClick, plan }: { onMenuClick?: () => void; plan?: string }) {
+/**
+ * Platform-balance badge — mirrors Stripe's Customer.balance (negative =
+ * credit owed to the tenant, e.g. from a paid-to-paid downgrade's unused-
+ * time proration; positive = the tenant owes more, e.g. a carried-over
+ * failed invoice). Renders nothing when the balance is exactly 0, which is
+ * the overwhelming common case (trialing tenants never have one — Stripe
+ * has nothing to prorate against an unpaid trial).
+ */
+function PlatformBalanceBadge({ tenantId }: { tenantId: Id<"tenants"> }) {
+  const t = useTranslations("topbar");
+  const locale = useLocale();
+  const balance = useQuery(api.billing.getPlatformBalance, { tenantId });
+  const cents = balance?.balanceCents ?? 0;
+  if (cents === 0) return null;
+  const amount = `€${(Math.abs(cents) / 100).toLocaleString(locale, { minimumFractionDigits: 2 })}`;
+  const isCredit = cents < 0;
+  return (
+    <Button
+      variant="ghost"
+      className={`flex items-center gap-2 px-3 py-1.5 ${isCredit ? "text-[var(--color-mint)]" : "text-[var(--color-danger)]"}`}
+      asChild
+    >
+      <Link
+        href="/app/account/billing?tab=billing"
+        aria-label={isCredit ? t("balanceCreditLabel", { amount }) : t("balanceDueLabel", { amount })}
+      >
+        <Wallet size={18} />
+        <span className="hidden md:block text-sm font-medium tabular-nums">
+          {isCredit ? "+" : "-"}
+          {amount}
+        </span>
+      </Link>
+    </Button>
+  );
+}
+
+export function Topbar({
+  onMenuClick,
+  plan,
+  tenantId,
+}: {
+  onMenuClick?: () => void;
+  plan?: string;
+  tenantId?: Id<"tenants">;
+}) {
   const t = useTranslations("topbar");
   const tNav = useTranslations("nav");
   const { signOut } = useAuthActions();
@@ -55,6 +102,7 @@ export function Topbar({ onMenuClick, plan }: { onMenuClick?: () => void; plan?:
             </Link>
           </Button>
         ) : null}
+        {tenantId ? <PlatformBalanceBadge tenantId={tenantId} /> : null}
         <FeedbackButton />
         <NotificationBell />
 

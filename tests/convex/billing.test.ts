@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { api, internal } from "../../convex/_generated/api";
 import { listPriceCents, BILLING_PLANS, planFromStripePriceId } from "../../convex/lib/billingPlans";
-import { appOrigin, subscriptionPatch, verifyStripeSignature } from "../../convex/billing";
+import { appOrigin, subscriptionPatch, verifyStripeSignature, previewAmounts } from "../../convex/billing";
 import { newDb, seedTenant } from "./_helpers";
 
 describe("billing plan catalogue", () => {
@@ -17,6 +17,61 @@ describe("billing plan catalogue", () => {
     expect(listPriceCents("pro", "IT")).toBe(19700);
     expect(listPriceCents("pro", "IT", "annual")).toBe(197000);
     expect(listPriceCents("enterprise")).toBe(69000);
+  });
+});
+
+describe("previewAmounts", () => {
+  test("downgrade: amount_due floors to 0, total/total_excluding_tax carry the real negative credit", () => {
+    // Exact response captured live 2026-09-28 from a real Pro->Base monthly
+    // downgrade preview against this platform's production Stripe account
+    // (subscription sub_1UK0gTDPkknNT3wYqTBWEaiP) — the bug this guards
+    // against: reading amount_due alone for a downgrade always shows "no
+    // charge" and silently drops the -121.97€ credit.
+    const preview = {
+      amount_due: 0,
+      total: -12197,
+      subtotal: -9997,
+      total_excluding_tax: -9996,
+      subtotal_excluding_tax: -9996,
+      starting_balance: 0,
+      ending_balance: -12197,
+      currency: "eur",
+    };
+    const amounts = previewAmounts(preview);
+    expect(amounts.amountDueCents).toBe(0);
+    expect(amounts.totalCents).toBe(-12197);
+    expect(amounts.totalExcludingTaxCents).toBe(-9996);
+    expect(amounts.currency).toBe("EUR");
+    // The credit is real (nonzero) even though amount_due says otherwise —
+    // this is exactly the case the UI must not render as "no charge".
+    expect(amounts.totalCents).toBeLessThan(0);
+  });
+
+  test("upgrade: amount_due, total and total_excluding_tax agree (a genuine positive charge)", () => {
+    const preview = {
+      amount_due: 12100,
+      total: 12100,
+      total_excluding_tax: 9918,
+      currency: "eur",
+    };
+    const amounts = previewAmounts(preview);
+    expect(amounts.amountDueCents).toBe(12100);
+    expect(amounts.totalCents).toBe(12100);
+    expect(amounts.totalExcludingTaxCents).toBe(9918);
+  });
+
+  test("no-op switch (e.g. same price, cycle-only edge case): everything is zero", () => {
+    const preview = { amount_due: 0, total: 0, total_excluding_tax: 0, currency: "eur" };
+    const amounts = previewAmounts(preview);
+    expect(amounts.amountDueCents).toBe(0);
+    expect(amounts.totalCents).toBe(0);
+    expect(amounts.totalExcludingTaxCents).toBe(0);
+  });
+
+  test("falls back gracefully when Stripe omits total_excluding_tax", () => {
+    const preview = { amount_due: 5000, total: 5000, currency: "eur" };
+    const amounts = previewAmounts(preview);
+    expect(amounts.totalExcludingTaxCents).toBe(5000);
   });
 });
 
@@ -78,6 +133,23 @@ describe("billing.getBillingState + webhook", () => {
     expect(s?.region).toBe("IT");
     // v2 prices are flat everywhere — no regional override.
     expect(s?.plans.find((p) => p.key === "pro")?.priceCents).toBe(19700);
+  });
+
+  test("getBillingState and getPlatformBalance expose the Stripe balance mirror", async () => {
+    const t = newDb();
+    const { tenantId, ownerId } = await seedTenant(t, { plan: "pro" });
+    const as = t.withIdentity({ subject: ownerId });
+
+    const zero = await as.query(api.billing.getBillingState, { tenantId });
+    expect(zero?.platformBalanceCents).toBe(0);
+    const zeroBalance = await as.query(api.billing.getPlatformBalance, { tenantId });
+    expect(zeroBalance?.balanceCents).toBe(0);
+
+    await t.run((ctx) => ctx.db.patch(tenantId, { stripeBalanceCents: -9996 }));
+    const withCredit = await as.query(api.billing.getBillingState, { tenantId });
+    expect(withCredit?.platformBalanceCents).toBe(-9996);
+    const creditBalance = await as.query(api.billing.getPlatformBalance, { tenantId });
+    expect(creditBalance?.balanceCents).toBe(-9996);
   });
 
   test("price is flat regardless of tenant country (no v1 regional override)", async () => {
@@ -161,6 +233,35 @@ describe("billing.getBillingState + webhook", () => {
     const tenant = await t.run((ctx) => ctx.db.get(tenantId));
     expect(tenant?.trialEndsAt).toBe(trialEnd * 1000);
     expect(tenant?.trialPlan).toBe("pro");
+  });
+
+  test("customer.updated syncs the platform-balance mirror (negative = credit)", async () => {
+    const t = newDb();
+    const { tenantId } = await seedTenant(t);
+    await t.run((ctx) => ctx.db.patch(tenantId, { stripeCustomerId: "cus_bal" }));
+
+    // customer.updated's object IS the Customer — its id is `id`, not
+    // `customer` (every other event handled here references a customer via
+    // a `customer` field on a different object type).
+    await t.mutation(internal.billing.applyWebhookEvent, {
+      eventId: "evt_balance_1",
+      type: "customer.updated",
+      data: { object: { id: "cus_bal", balance: -12197 } },
+    });
+
+    const tenant = await t.run((ctx) => ctx.db.get(tenantId));
+    expect(tenant?.stripeBalanceCents).toBe(-12197);
+
+    // A later event with the balance cleared (credit consumed on the next
+    // invoice) overwrites it back toward zero — this mirror always reflects
+    // Stripe's current value, never accumulates locally.
+    await t.mutation(internal.billing.applyWebhookEvent, {
+      eventId: "evt_balance_2",
+      type: "customer.updated",
+      data: { object: { id: "cus_bal", balance: 0 } },
+    });
+    const after = await t.run((ctx) => ctx.db.get(tenantId));
+    expect(after?.stripeBalanceCents).toBe(0);
   });
 
   // test("trialSweep flips abandoned pre-Stripe trials to past_due, skips active subs", async () => {

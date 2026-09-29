@@ -134,6 +134,11 @@ export const getBillingState = query({
               daysRemaining: Math.max(0, Math.ceil((tenant.trialEndsAt - Date.now()) / 86_400_000)),
             }
           : null,
+      // Stripe Customer.balance mirror, Stripe's own sign convention:
+      // negative = credit owed TO the tenant (e.g. a downgrade's unused-time
+      // proration), positive = the tenant owes more. Normally only nonzero
+      // right after a paid (non-trialing) downgrade — see the header badge.
+      platformBalanceCents: tenant.stripeBalanceCents ?? 0,
       checkoutAvailable: configured,
       portalAvailable: configured && !!tenant.stripeCustomerId,
       plans: BILLING_PLANS.map((p) => ({
@@ -142,6 +147,22 @@ export const getBillingState = query({
         priceCents: listPriceCents(p.key, region),
       })),
     };
+  },
+});
+
+/**
+ * Lightweight platform-balance read for the app-wide header badge — every
+ * page needs this, not just the billing page, so it skips the
+ * entitlements/plans work getBillingState does. Same Stripe
+ * Customer.balance mirror (negative = credit).
+ */
+export const getPlatformBalance = query({
+  args: { tenantId: v.id("tenants") },
+  handler: async (ctx, args) => {
+    await requireMembership(ctx, args.tenantId);
+    const tenant = await ctx.db.get(args.tenantId);
+    if (!tenant) return null;
+    return { balanceCents: tenant.stripeBalanceCents ?? 0 };
   },
 });
 
@@ -289,7 +310,13 @@ export const previewPlanChange = action({
   handler: async (
     ctx,
     args,
-  ): Promise<{ amountDueCents: number; currency: string; endsTrial: boolean }> => {
+  ): Promise<{
+    amountDueCents: number;
+    totalCents: number;
+    totalExcludingTaxCents: number;
+    currency: string;
+    endsTrial: boolean;
+  }> => {
     if (!stripeKey()) throw new ConvexError("BILLING_NOT_CONFIGURED");
     const owner = await ctx.runQuery(internal.billing.assertOwner, { tenantId: args.tenantId });
     await limitBilling(ctx, args.tenantId, "preview");
@@ -313,17 +340,52 @@ export const previewPlanChange = action({
       "subscription_details[proration_behavior]": "always_invoice",
       ...(endingTrial ? { "subscription_details[trial_end]": "now" } : {}),
     });
-    return {
-      amountDueCents: Number(preview.amount_due ?? 0),
-      currency: String(preview.currency ?? "eur").toUpperCase(),
-      // Whoever renders this must NOT call it a "prorated difference" when
-      // true: ending a trial means nothing was ever invoiced yet, so there is
-      // no prior payment to prorate against — Stripe charges the new plan's
-      // full price (see the amount above), not a partial delta.
-      endsTrial: endingTrial,
-    };
+    return { ...previewAmounts(preview), endsTrial: endingTrial };
   },
 });
+
+/**
+ * Pure extraction of the 3 money fields from a Stripe preview-invoice
+ * response — split out from previewPlanChange so it's unit-testable without
+ * a live Stripe call (see tests/convex/billing.test.ts, using the exact
+ * response captured from a real downgrade preview against this platform's
+ * production Stripe account on 2026-09-28).
+ */
+export function previewAmounts(preview: Record<string, unknown>): {
+  amountDueCents: number;
+  totalCents: number;
+  totalExcludingTaxCents: number;
+  currency: string;
+} {
+  return {
+    // What gets charged to the card RIGHT NOW. Stripe invoices can never
+    // have a negative amount_due (it floors at 0) — this field alone
+    // CANNOT represent a downgrade credit, only ever "will I be charged
+    // today, and how much". Verified live against Stripe: a real downgrade
+    // preview on this platform returned amount_due=0 while total=-12197
+    // (a real -121.97€ credit) — reading amount_due alone for the credit
+    // case is the bug this fixes.
+    amountDueCents: Number(preview.amount_due ?? 0),
+    // Total after tax, NOT floored — negative means a net credit that
+    // Stripe will move onto the Customer's balance (see `ending_balance`
+    // on this same preview, which mirrors this value) instead of charging
+    // anything. This is the field to branch the UI message on, not
+    // amount_due.
+    totalCents: Number(preview.total ?? preview.amount_due ?? 0),
+    // Same as totalCents but net of VAT. The platform-balance credit shown
+    // to the user (see setup-guide/header badge) is tracked net of VAT —
+    // VAT is a pass-through tax collected on behalf of the tax authority,
+    // not platform revenue, so it is not "service value" owed back to the
+    // tenant; the gross figure (totalCents) is what Stripe actually
+    // applies to the Customer balance and is used for the Stripe-side
+    // bookkeeping, while this ex-VAT figure is what's communicated as
+    // "credit for service".
+    totalExcludingTaxCents: Number(
+      preview.total_excluding_tax ?? preview.total ?? preview.amount_due ?? 0,
+    ),
+    currency: String(preview.currency ?? "eur").toUpperCase(),
+  };
+}
 
 /**
  * Switch the subscription to `plan`/`cycle` right now. `proration_behavior:
@@ -421,16 +483,33 @@ export const syncSubscription = action({
     }
     if (!sub) return { found: false };
 
+    // Balance sync piggybacks on this same safety-net sweep — same
+    // reasoning as the subscription fields above: the `customer.updated`
+    // webhook is the primary path, this is the backstop for delay/loss. One
+    // extra GET, only on the explicit "re-check with Stripe" path (rate
+    // limited the same as the rest of this action), never on every render.
+    const customerId = typeof sub.customer === "string" ? sub.customer : owner.stripeCustomerId;
+    let balanceCents: number | undefined;
+    if (customerId) {
+      try {
+        const customer = await stripeGet(`/customers/${customerId}`);
+        if (typeof customer.balance === "number") balanceCents = customer.balance;
+      } catch {
+        /* non-fatal: balance sync is a nice-to-have, subscription sync above is the real safety net */
+      }
+    }
+
     const applied = await ctx.runMutation(internal.billing.applySubscriptionSync, {
       tenantId: args.tenantId,
       subscription: sub,
+      balanceCents,
     });
     return { found: true, ...applied };
   },
 });
 
 export const applySubscriptionSync = internalMutation({
-  args: { tenantId: v.id("tenants"), subscription: v.any() },
+  args: { tenantId: v.id("tenants"), subscription: v.any(), balanceCents: v.optional(v.number()) },
   handler: async (ctx, args): Promise<{ plan: string; planStatus: string }> => {
     const tenant = await ctx.db.get(args.tenantId);
     if (!tenant) throw new ConvexError("TENANT_NOT_FOUND");
@@ -445,6 +524,7 @@ export const applySubscriptionSync = internalMutation({
     }
     const patch = subscriptionPatch(sub, tenant, sub.status === "canceled");
     if (customer) patch.stripeCustomerId = customer;
+    if (typeof args.balanceCents === "number") patch.stripeBalanceCents = args.balanceCents;
     patch.updatedAt = Date.now();
     await ctx.db.patch(tenant._id, patch as never);
     await ctx.db.insert("auditLog", {
@@ -599,7 +679,11 @@ export const applyWebhookEvent = internalMutation({
     // Resolve the tenant. A forged (but signed) event could carry a bogus
     // client_reference_id, so we only trust it when it maps to a real tenant
     // whose stripe customer matches — otherwise fall back to the customer id.
-    const customerId = obj.customer as string | undefined;
+    // `customer.updated`'s object IS the Customer itself (its id is `obj.id`,
+    // not `obj.customer` like every other event here whose object references
+    // a customer).
+    const customerId =
+      args.type === "customer.updated" ? (obj.id as string | undefined) : (obj.customer as string | undefined);
     let tenantId: string | undefined;
 
     const byCustomer = customerId
@@ -645,6 +729,9 @@ export const applyWebhookEvent = internalMutation({
         }
         if (args.type.startsWith("customer.subscription")) {
           Object.assign(patch, subscriptionPatch(obj, tenantDoc, args.type === "customer.subscription.deleted"));
+        }
+        if (args.type === "customer.updated" && typeof obj.balance === "number") {
+          patch.stripeBalanceCents = obj.balance;
         }
         await ctx.db.patch(tenantId as never, patch);
       }

@@ -53,6 +53,13 @@ export default defineSchema({
     stripeSubscriptionId: v.optional(v.string()),
     subscriptionCurrentPeriodEnd: v.optional(v.number()),
     subscriptionCancelAtPeriodEnd: v.optional(v.boolean()),
+    // Stripe Customer.balance mirror (cents, Stripe's own sign convention:
+    // negative = credit owed TO the customer e.g. from a downgrade's unused-
+    // time proration, positive = customer owes more, e.g. a failed-invoice
+    // carryover). Synced from the `customer.updated` webhook and from
+    // syncSubscription's safety-net sweep — never written optimistically by
+    // client-facing code, Stripe is the single source of truth for this.
+    stripeBalanceCents: v.optional(v.number()),
     // Pro-only 14-day trial (card captured up front, auto-converts via webhook).
     trialPlan: v.optional(v.literal("pro")),
     trialStartedAt: v.optional(v.number()),
