@@ -364,7 +364,7 @@ export const getQuoteForPrint = query({
     // only for requests whose PDF allowance was taken via usage.requestPdfExport.
     if (tenant) {
       const ent = resolveTenantEntitlements(tenant);
-      if (quote.quotaLocked === true) {
+      if (quote.quotaLocked === true || quote.suspendedLocked === true) {
         return { gate: "quote_locked" as const };
       }
       if (Number.isFinite(ent.maxPdfExportsPerMonth) && !(await hasMeteredEvent(ctx, quote.tenantId, "widget_pdf", quote._id))) {

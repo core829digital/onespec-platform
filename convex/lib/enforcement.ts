@@ -154,9 +154,9 @@ export async function countLiveConfigurators(ctx: ReadCtx, tenantId: Id<"tenants
 }
 
 /**
- * Whether the plan still serves this configurator publicly (widget-first plans
- * only; full-platform plans are unaffected):
- * - a suspended tenant (subscription cancelled / ended) serves nothing;
+ * Whether the plan still serves this configurator publicly:
+ * - a suspended tenant (subscription cancelled / ended) serves nothing — on
+ *   EVERY plan (founder's decision 2026-09-29: no free leads after cancelling);
  * - after a downgrade (e.g. Level 3 → Level 1) only the oldest
  *   `maxConfigurators` published configurators keep serving; the rest show
  *   the lock until the tenant upgrades or unpublishes.
@@ -166,8 +166,9 @@ export async function configuratorServedByPlan(
   tenant: Doc<"tenants">,
   configuratorId: Id<"configurators">,
 ): Promise<boolean> {
-  if (tenant.unlimitedAccess === true || !isWidgetPlan(tenant.plan)) return true;
+  if (tenant.unlimitedAccess === true) return true;
   if (tenant.planStatus === "suspended") return false;
+  if (!isWidgetPlan(tenant.plan)) return true;
   const cap = resolveTenantEntitlements(tenant).maxConfigurators;
   if (!Number.isFinite(cap)) return true;
   const serving = await ctx.db

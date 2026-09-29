@@ -249,7 +249,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
             <span>🖨️</span>
             <span>{t("printPdf")}</span>
           </Link>
-          {!quote.signedAt && !quote.quotaLocked && access?.isLocked("fieldQuotes") !== true && (
+          {!quote.signedAt && !quote.quotaLocked && !quote.suspendedLocked && access?.isLocked("fieldQuotes") !== true && (
             <Link
               href={`/app/quotes/${quote._id}/sign`}
               className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--color-mint)] px-3 py-2 text-xs font-bold text-[var(--color-mint-dark)] shadow-sm hover:opacity-90 transition-opacity"
@@ -261,11 +261,11 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
         </div>
       </div>
 
-      {quote.quotaLocked ? (
+      {quote.quotaLocked || quote.suspendedLocked ? (
         <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4">
           <div>
             <p className="text-sm font-bold text-[var(--color-text)]">🔒 {tu("lockedTitle")}</p>
-            <p className="mt-0.5 text-xs text-[var(--color-text-secondary)]">{tu("lockedBody")}</p>
+            <p className="mt-0.5 text-xs text-[var(--color-text-secondary)]">{quote.suspendedLocked ? tu("lockedSuspendedBody") : tu("lockedBody")}</p>
           </div>
           <Link href="/app/account/billing?tab=plan" className="rounded-lg bg-[var(--color-mint)] px-3 py-2 text-xs font-bold text-[var(--color-mint-dark)]">
             {tu("upgradeCta")}

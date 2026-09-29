@@ -180,7 +180,7 @@ export default function RequestsPage() {
                   className="hover:bg-[var(--color-bg)] cursor-pointer"
                 >
                   <td className="px-4 py-3 text-[var(--color-text)]">
-                    {r.quotaLocked ? <span aria-hidden="true" className="mr-1">🔒</span> : null}
+                    {r.quotaLocked || r.suspendedLocked ? <span aria-hidden="true" className="mr-1">🔒</span> : null}
                     {r.leadName}
                   </td>
                   <td className="px-4 py-3 text-[var(--color-text-secondary)]">{r.leadEmail}</td>

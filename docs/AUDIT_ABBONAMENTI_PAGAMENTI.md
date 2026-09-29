@@ -73,7 +73,7 @@ Transizioni verificate con test automatici:
 | Disdetta Level | a fine periodo il widget si blocca; nuovo Checkout consentito ✅ |
 | Replay di un evento / evento falsificato per un altro tenant / evento vecchio in ritardo | ignorati ✅ |
 
-**Decisione da confermare:** le richieste arrivate durante una sospensione si sbloccano comunque il mese successivo, come da regola "nuovo mese". Se preferisce, possiamo tenerle bloccate fino alla riattivazione.
+**Decisione B del fondatore (29/09) — implementata:** le richieste arrivate durante una sospensione restano bloccate finché l'abbonamento non viene riattivato (webhook Stripe, sincronizzazione o riattivazione admin); il cron mensile non le sblocca.
 
 ## 6. Audit infrastruttura pagamenti (task #11)
 
@@ -87,13 +87,13 @@ Già solido e verificato:
 Raccomandazioni (non fatte, richiedono una sua decisione o un'azione in Stripe):
 1. **Customer Portal Stripe:** disattivare il cambio piano dal portale, oppure limitarlo ai prodotti corretti. I cambi fatti lì saltano le guardie dell'app: posti utente, solo mensile.
 2. **Cron `billing.reconcile`:** oggi è vuoto. Se un webhook va perso, il piano si ri-sincronizza solo quando il proprietario apre la pagina Piano. Consiglio una sincronizzazione notturna.
-3. **Piani Piattaforma disdetti:** oggi un Pro sospeso mantiene il widget pubblico attivo. Non l'ho cambiato per la regola "non modificare accessi", ma è una perdita di ricavi. Consiglio di applicare la stessa regola dei piani Level.
+3. **Piani Piattaforma disdetti — decisione A del fondatore, implementata:** anche per Base / Pro / Agency / Enterprise, a tenant sospeso il widget pubblico mostra il lucchetto e le richieste vaganti sono salvate ma bloccate fino alla riattivazione. `past_due` (pagamento in ritentativo) continua a servire normalmente.
 4. **Prezzi Stripe da creare** (IVA esclusa: `tax_behavior = exclusive`, perché `automatic_tax` è attivo):
    - `STRIPE_PRICE_ESSENTIALS_MONTHLY` → Level 1, €49,95
    - `STRIPE_PRICE_ESSENTIALS_PLUS_MONTHLY` → Level 2, €62,44
    - `STRIPE_PRICE_MAX_MONTHLY` → Level 3, €79,90
    - Facoltativo: varianti regionali `_IT`, `_FR`, … con lo stesso schema.
-5. **Termini di servizio:** aggiungere i piani Level e la regola "accetta ma blocca".
+5. **Termini di servizio:** ✅ aggiornati in `src/content/legal.ts` (famiglie di piani, limiti Level, "accetta ma blocca", cambio piano/disdetta/sospensione). Da far validare al consulente legale; restano i segnaposto `[[…]]` già esistenti (ragione sociale, termini economici, foro).
 
 ## 7. Audit full-stack (Fase 7)
 

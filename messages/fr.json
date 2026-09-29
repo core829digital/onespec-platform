@@ -1709,6 +1709,7 @@
       "showroomQuotes": "Devis Showroom",
       "showroomPdf": "Documents Showroom",
       "showroomWhatsapp": "WhatsApp depuis le Showroom"
-    }
+    },
+    "lockedSuspendedBody": "Cette demande est arrivée pendant la suspension de votre abonnement. Elle est enregistrée : les coordonnées se débloquent dès la réactivation de l'abonnement."
   }
 }

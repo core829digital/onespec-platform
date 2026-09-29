@@ -5,7 +5,7 @@ import type { Id } from "./_generated/dataModel";
 import { requireUser, type ReadCtx } from "./lib/auth";
 import { entitlementsFor, isWidgetPlan, resolveTenantEntitlements } from "./lib/entitlements";
 import { regionForCountry } from "./lib/regions";
-import { unlockOnPlanChange } from "./usage";
+import { unlockOnPlanChange, unlockOnReactivation } from "./usage";
 
 /** Ordered wizard steps. `planQuiz`/`billing` are skipped once a plan is active. */
 export const ONBOARDING_STEPS = ["welcome", "planQuiz", "billing", "team", "configurator"] as const;
@@ -119,6 +119,7 @@ export const selectPlan = mutation({
       updatedAt: Date.now(),
     });
     await unlockOnPlanChange(ctx, found.tenant._id, found.tenant.plan, args.plan);
+    await unlockOnReactivation(ctx, found.tenant._id, found.tenant.planStatus, args.plan === "pro" ? "trialing" : "active");
     await ctx.db.insert("auditLog", {
       tenantId: found.tenant._id,
       actorUserId: userId,

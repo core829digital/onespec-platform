@@ -4,7 +4,9 @@ import type { Doc } from "../_generated/dataModel";
  * "Accetta ma blocca" (widget-first plans). A request that arrives over the
  * monthly cap is saved — the prospect is never lost — but its contact details
  * stay hidden from the tenant until it upgrades or the next month starts
- * (`usage.unlockQuotaLockedRequests` clears the flag).
+ * (`usage.unlockTenantLockedRequests` / the monthly sweep clear the flag).
+ * A request received while the subscription was SUSPENDED is locked with
+ * `suspendedLocked` instead and unlocks only on reactivation.
  *
  * Redaction happens here, server-side, on every path that hands a request to
  * a tenant user: lists, detail, print/PDF, CSV export, related records and
@@ -31,12 +33,13 @@ const PII_KEYS = [
   "userAgent",
 ] as const;
 
-export function isQuotaLocked(quote: Pick<Doc<"quoteRequests">, "quotaLocked">): boolean {
-  return quote.quotaLocked === true;
+/** Locked for either reason: over the monthly cap, or received while suspended. */
+export function isQuotaLocked(quote: Pick<Doc<"quoteRequests">, "quotaLocked" | "suspendedLocked">): boolean {
+  return quote.quotaLocked === true || quote.suspendedLocked === true;
 }
 
 /** Display name for notifications / triggers that only carry the lead name. */
-export function lockedSafeLeadName(quote: Pick<Doc<"quoteRequests">, "quotaLocked" | "leadName">): string {
+export function lockedSafeLeadName(quote: Pick<Doc<"quoteRequests">, "quotaLocked" | "suspendedLocked" | "leadName">): string {
   return isQuotaLocked(quote) ? LOCKED_LEAD_NAME : quote.leadName;
 }
 

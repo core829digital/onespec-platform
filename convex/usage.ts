@@ -49,6 +49,53 @@ export const unlockTenantLockedRequests = internalMutation({
   },
 });
 
+/** Unlock the requests a tenant received while suspended (on reactivation). Batched, self-rescheduling. */
+export const unlockSuspendedRequests = internalMutation({
+  args: { tenantId: v.id("tenants") },
+  returns: v.number(),
+  handler: async (ctx, args) => {
+    const rows = await ctx.db
+      .query("quoteRequests")
+      .withIndex("by_tenantId_and_suspendedLocked", (q) => q.eq("tenantId", args.tenantId).eq("suspendedLocked", true))
+      .take(BATCH);
+    for (const row of rows) await ctx.db.patch(row._id, { suspendedLocked: undefined });
+    if (rows.length === BATCH) {
+      await ctx.scheduler.runAfter(0, internal.usage.unlockSuspendedRequests, args);
+    }
+    if (rows.length > 0) {
+      await ctx.db.insert("auditLog", {
+        tenantId: args.tenantId,
+        actorKind: "system",
+        action: "usage.quota_unlock",
+        targetTable: "quoteRequests",
+        meta: { reason: "reactivated", count: rows.length },
+        createdAt: Date.now(),
+      });
+    }
+    return rows.length;
+  },
+});
+
+/**
+ * Call wherever `tenants.planStatus` changes. Back to a paying state
+ * (active / trialing) from anything else unlocks what arrived meanwhile.
+ */
+export async function unlockOnReactivation(
+  ctx: MutationCtx,
+  tenantId: Id<"tenants">,
+  fromStatus: string,
+  toStatus: unknown,
+): Promise<void> {
+  const paying = (s: unknown) => s === "active" || s === "trialing";
+  if (!paying(toStatus) || paying(fromStatus)) return;
+  // Schedule only when there is something to unlock (one indexed read).
+  const any = await ctx.db
+    .query("quoteRequests")
+    .withIndex("by_tenantId_and_suspendedLocked", (q) => q.eq("tenantId", tenantId).eq("suspendedLocked", true))
+    .first();
+  if (any) await ctx.scheduler.runAfter(0, internal.usage.unlockSuspendedRequests, { tenantId });
+}
+
 /** Daily sweep: unlock requests locked in a month that is now over. Batched, self-rescheduling. */
 export const unlockPreviousPeriods = internalMutation({
   args: {},
@@ -80,9 +127,12 @@ export async function unlockOnPlanChange(
   if (fromPlan === toPlan || !isWidgetPlan(fromPlan)) return;
   const upgraded =
     !isWidgetPlan(toPlan) || entitlementsFor(toPlan).maxQuotesPerMonth > entitlementsFor(fromPlan).maxQuotesPerMonth;
-  if (upgraded) {
-    await ctx.scheduler.runAfter(0, internal.usage.unlockTenantLockedRequests, { tenantId });
-  }
+  if (!upgraded) return;
+  const any = await ctx.db
+    .query("quoteRequests")
+    .withIndex("by_tenantId_and_quotaLocked", (q) => q.eq("tenantId", tenantId).eq("quotaLocked", true))
+    .first();
+  if (any) await ctx.scheduler.runAfter(0, internal.usage.unlockTenantLockedRequests, { tenantId });
 }
 
 /* ------------------------------------------------------------------------ */
@@ -102,7 +152,7 @@ async function loadRequestForMetering(ctx: MutationCtx, quoteId: Id<"quoteReques
   const { userId, tenant } = await requirePermission(ctx, quote.tenantId, "quotes.use");
   await enforceActivePlan(ctx, quote.tenantId);
   // A quota-locked request has no contact details to send or print.
-  if (quote.quotaLocked === true) throw new ConvexError("QUOTE_LOCKED");
+  if (quote.quotaLocked === true || quote.suspendedLocked === true) throw new ConvexError("QUOTE_LOCKED");
   return { quote, userId, ent: resolveTenantEntitlements(tenant) };
 }
 

@@ -131,9 +131,29 @@ export const LEGAL_DOCS: LegalDoc[] = [
       {
         h: "Piani e corrispettivi",
         p: [
-          "I piani, i limiti e i prezzi in vigore sono quelli pubblicati nella pagina dei prezzi al momento della sottoscrizione.",
+          "OneSpec offre due famiglie di abbonamento: i piani «Preventivi online» (Level 1, Level 2, Level 3), dedicati al preventivatore pubblicabile sul sito del Cliente e, dove incluso, al preventivatore Showroom; e i piani «Piattaforma completa» (Base, Pro, Agency, Enterprise), che comprendono anche i moduli di gestione del lavoro. Il Cliente sceglie liberamente la famiglia e il piano e può passare dall'una all'altra in qualsiasi momento dalla sezione «Piano e fatturazione».",
+          "I piani, i limiti e i prezzi in vigore sono quelli pubblicati nella pagina dei prezzi al momento della sottoscrizione. I prezzi sono indicati al netto dell'IVA, che viene applicata in fattura secondo la normativa vigente.",
           "Condizioni economiche di dettaglio, fatturazione, imposte applicabili e modalità di pagamento: [[da completare con i termini economici definitivi]].",
           "Il mancato pagamento può comportare la sospensione dell'accesso previa comunicazione.",
+        ],
+      },
+      {
+        h: "Piani «Preventivi online» (Level 1, Level 2, Level 3)",
+        p: [
+          "I piani Level sono fatturati esclusivamente su base mensile, non prevedono un periodo di prova gratuito e possono essere disdetti in qualsiasi momento con effetto dalla fine del periodo già pagato.",
+          "Ogni piano Level include, per ciascun mese solare, un numero massimo di: richieste di preventivo ricevute dal preventivatore pubblico; documenti PDF scaricabili dal Cliente; invii tramite WhatsApp effettuati dal Cliente dall'applicazione; e, dove previsto, preventivi, documenti e invii WhatsApp del preventivatore Showroom. Include inoltre un numero massimo di configuratori e di utenti. I valori di ciascun piano sono quelli pubblicati nella pagina dei prezzi; Level 2 e Level 3 prevedono rispettivamente il doppio e il quintuplo dei limiti mensili di Level 1.",
+          "Un documento PDF o un invio WhatsApp relativo alla stessa richiesta o allo stesso preventivo viene conteggiato una sola volta: scaricarlo o inviarlo di nuovo non consuma ulteriori unità. I contatori si azzerano il primo giorno di ogni mese solare.",
+          "Le richieste ricevute oltre il limite mensile non vanno perse: vengono registrate, ma i dati di contatto del richiedente restano visibili al Cliente solo dopo il passaggio a un piano superiore oppure dal primo giorno del mese successivo. Superato il limite mensile di PDF o di invii WhatsApp, le relative funzioni restano disponibili dal mese successivo o con un piano superiore.",
+          "I moduli non inclusi nei piani Level (tra cui preventivi B2B con firma, clienti e trattative, cantieri, rilievi, posa, collaudi, fascicoli QR, statistiche e, a seconda del piano, Showroom e logistica) restano visibili ma non utilizzabili. Il marchio «Powered by OneSpec» è mostrato nel preventivatore del piano Level 1; i piani Level 2 e Level 3 includono la personalizzazione con il marchio del Cliente (white-label).",
+          "I limiti misurano l'uso delle funzioni dell'applicazione; il Cliente si impegna a non aggirarli con mezzi tecnici (vedi «Uso accettabile»).",
+        ],
+      },
+      {
+        h: "Cambio di piano, disdetta e sospensione",
+        p: [
+          "Il passaggio a un piano superiore ha effetto immediato: i nuovi limiti si applicano subito e le richieste registrate oltre il limite del mese in corso diventano visibili. Il passaggio a un piano inferiore o da un piano «Piattaforma completa» a un piano Level non comporta la cancellazione dei dati: i moduli non inclusi nel nuovo piano restano temporaneamente non utilizzabili e tornano disponibili con un piano che li comprende.",
+          "Il passaggio a un piano con un numero di utenti inferiore a quello degli utenti attivi del Cliente è possibile solo dopo aver rimosso gli utenti in eccesso. Se il Cliente dispone di più configuratori pubblicati di quanti ne preveda il nuovo piano Level, restano accessibili al pubblico solo i configuratori più anziani entro il limite del piano.",
+          "In caso di disdetta o di sospensione dell'abbonamento, per qualsiasi piano, il preventivatore pubblico smette di essere disponibile per i visitatori al termine del periodo pagato. Le eventuali richieste pervenute durante la sospensione vengono registrate, ma i relativi dati di contatto diventano visibili solo con la riattivazione dell'abbonamento.",
         ],
       },
       {
@@ -148,7 +168,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
       {
         h: "Uso accettabile",
         p: [
-          "Il Cliente si impegna a non utilizzare il servizio per attività illecite, a non tentare di aggirare i limiti tecnici o di sicurezza e a non caricare contenuti di cui non detiene i diritti.",
+          "Il Cliente si impegna a non utilizzare il servizio per attività illecite, a non tentare di aggirare i limiti tecnici, di sicurezza o i limiti di utilizzo del proprio piano e a non caricare contenuti di cui non detiene i diritti.",
           "Il Cliente è responsabile dei contenuti, dei listini e dei dati che inserisce e della loro conformità alle normative applicabili.",
         ],
       },

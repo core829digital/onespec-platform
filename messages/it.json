@@ -1709,6 +1709,7 @@
       "showroomQuotes": "Preventivi Showroom",
       "showroomPdf": "Documenti Showroom",
       "showroomWhatsapp": "WhatsApp dallo Showroom"
-    }
+    },
+    "lockedSuspendedBody": "Questa richiesta è arrivata mentre l'abbonamento era sospeso. È salvata: i contatti si sbloccano appena riattivi l'abbonamento."
   }
 }

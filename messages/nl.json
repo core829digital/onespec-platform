@@ -1709,6 +1709,7 @@
       "showroomQuotes": "Showroom-offertes",
       "showroomPdf": "Showroom-documenten",
       "showroomWhatsapp": "WhatsApp vanuit de Showroom"
-    }
+    },
+    "lockedSuspendedBody": "Deze aanvraag kwam binnen terwijl uw abonnement was opgeschort. Hij is opgeslagen: de contactgegevens worden vrijgegeven zodra u uw abonnement heractiveert."
   }
 }

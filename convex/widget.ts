@@ -471,9 +471,14 @@ export const insertQuote = internalMutation({
     // A configurator the plan no longer serves (tenant suspended, or beyond
     // the cap after a downgrade): a submission that still reaches it is
     // saved but locked too.
+    // Suspended subscription (any plan): the widget no longer serves, and a
+    // stray submission is saved but locked until the subscription is
+    // reactivated — never unlocked by the monthly sweep.
+    const suspendedLocked = !!tenant && tenant.unlimitedAccess !== true && tenant.planStatus === "suspended";
     const overConfiguratorCap =
-      widgetPlan && !!tenant && !(await configuratorServedByPlan(ctx, tenant, configurator._id));
-    const quotaLocked = widgetPlan && (overQuota || overConfiguratorCap);
+      widgetPlan && !suspendedLocked && !!tenant && !(await configuratorServedByPlan(ctx, tenant, configurator._id));
+    const quotaLocked = widgetPlan && !suspendedLocked && (overQuota || overConfiguratorCap);
+    const locked = quotaLocked || suspendedLocked;
 
     const price = calculatePrice(version.payload, items);
 
@@ -513,6 +518,7 @@ export const insertQuote = internalMutation({
       spamScore: args.flagged ? 80 : priceMismatch ? 30 : 0,
       overQuota: overQuota || undefined,
       quotaLocked: quotaLocked || undefined,
+      suspendedLocked: suspendedLocked || undefined,
       consentAt: args.consentAt,
       consentVersion: args.consentVersion,
     });
@@ -567,11 +573,12 @@ export const insertQuote = internalMutation({
         type: "quote_request_new",
         // A quota-locked lead's contact details never leave the server —
         // not in the in-app notification, not in the e-mail.
-        data: quotaLocked
+        data: locked
           ? {
               quoteId,
               leadName: LOCKED_LEAD_NAME,
               locked: true,
+              lockReason: suspendedLocked ? "suspended" : "quota",
               priceCents: price.priceCents,
               configuratorName: configurator.name,
             }

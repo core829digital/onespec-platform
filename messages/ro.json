@@ -1709,6 +1709,7 @@
       "showroomQuotes": "Oferte Showroom",
       "showroomPdf": "Documente Showroom",
       "showroomWhatsapp": "WhatsApp din Showroom"
-    }
+    },
+    "lockedSuspendedBody": "Această cerere a sosit în timp ce abonamentul era suspendat. Este salvată: datele de contact se deblochează imediat ce reactivezi abonamentul."
   }
 }

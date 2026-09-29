@@ -1709,6 +1709,7 @@
       "showroomQuotes": "Showroom quotes",
       "showroomPdf": "Showroom documents",
       "showroomWhatsapp": "WhatsApp from the Showroom"
-    }
+    },
+    "lockedSuspendedBody": "This request arrived while your subscription was suspended. It is saved: contact details unlock as soon as you reactivate your subscription."
   }
 }

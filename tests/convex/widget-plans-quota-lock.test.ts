@@ -216,22 +216,67 @@ describe("white-label follows the CURRENT plan", () => {
   });
 });
 
-describe("cancelled subscription", () => {
-  test("a suspended widget-plan tenant's widget stops serving; stray submissions are locked", async () => {
+describe("cancelled / suspended subscription (founder's decisions A + B)", () => {
+  test("A: a suspended tenant's widget stops serving on EVERY plan; stray submissions are saved but locked", async () => {
     const t = newDb();
-    const s = await seedTenant(t, { plan: "essentials_plus" });
-    const cfg = await seedPublishedConfigurator(t, s.tenantId, "SUSP000001");
-    await t.run((ctx) => ctx.db.patch(s.tenantId, { planStatus: "suspended" }));
-    expect((await t.query(api.widget.getPublicConfigurator, { publicId: "SUSP000001" }))?.overPlanLimit).toBe(true);
-    const id = await submit(t, cfg, "SUSP000001", 1);
-    expect((await t.run((ctx) => ctx.db.get(id)))?.quotaLocked).toBe(true);
+    for (const [i, plan] of (["essentials_plus", "pro", "base", "agency"] as const).entries()) {
+      const s = await seedTenant(t, { plan });
+      const publicId = `SUSP00000${i}`;
+      const cfg = await seedPublishedConfigurator(t, s.tenantId, publicId);
+      await t.run((ctx) => ctx.db.patch(s.tenantId, { planStatus: "suspended" }));
+      expect([plan, (await t.query(api.widget.getPublicConfigurator, { publicId }))?.overPlanLimit]).toEqual([plan, true]);
+      const id = await submit(t, cfg, publicId, i);
+      const row = await t.run((ctx) => ctx.db.get(id));
+      expect(row?.suspendedLocked).toBe(true);
+      expect(row?.quotaLocked).toBeUndefined();
+      const list = await t.withIdentity({ subject: s.ownerId }).query(api.quotes.listRequests, { tenantId: s.tenantId });
+      expect(list[0].leadEmail).toBe("");
+    }
   });
 
-  test("full-platform plans keep today's behaviour when suspended (unchanged access)", async () => {
+  test("B: the monthly sweep does NOT unlock them; reactivation does", async () => {
     const t = newDb();
     const s = await seedTenant(t, { plan: "pro" });
-    await seedPublishedConfigurator(t, s.tenantId, "SUSP000002");
+    const cfg = await seedPublishedConfigurator(t, s.tenantId, "REAC000001");
+    await t.run((ctx) => ctx.db.patch(s.tenantId, { planStatus: "suspended", stripeCustomerId: "cus_reac", stripeSubscriptionId: "sub_reac" }));
+    const id = await submit(t, cfg, "REAC000001", 1);
+
+    vi.setSystemTime(new Date("2026-11-05T08:00:00Z"));
+    await t.mutation(internal.usage.unlockPreviousPeriods, {});
+    expect((await t.run((ctx) => ctx.db.get(id)))?.suspendedLocked).toBe(true);
+
+    await t.mutation(internal.billing.applyWebhookEvent, {
+      eventId: "evt_reactivate",
+      type: "customer.subscription.updated",
+      data: { object: { id: "sub_reac", customer: "cus_reac", status: "active", items: { data: [] } } },
+    });
+    await t.finishAllScheduledFunctions(vi.runAllTimers);
+    expect((await t.run((ctx) => ctx.db.get(id)))?.suspendedLocked).toBeUndefined();
+    const list = await t.withIdentity({ subject: s.ownerId }).query(api.quotes.listRequests, { tenantId: s.tenantId });
+    expect(list[0].leadEmail).toBe("cliente1@example.com");
+  });
+
+  test("B: an admin reactivation unlocks too", async () => {
+    const t = newDb();
+    const s = await seedTenant(t, { plan: "essentials" });
+    const cfg = await seedPublishedConfigurator(t, s.tenantId, "REAC000002");
     await t.run((ctx) => ctx.db.patch(s.tenantId, { planStatus: "suspended" }));
-    expect((await t.query(api.widget.getPublicConfigurator, { publicId: "SUSP000002" }))?.overPlanLimit).toBe(false);
+    const id = await submit(t, cfg, "REAC000002", 1);
+    const adminId = await t.run((ctx) => ctx.db.insert("users", { name: "pa", email: "pa@example.com", emailVerificationTime: Date.now(), isPlatformAdmin: true }));
+    await t.withIdentity({ subject: adminId }).mutation(api.tenants.reactivateTenant, { tenantId: s.tenantId });
+    await t.finishAllScheduledFunctions(vi.runAllTimers);
+    expect((await t.run((ctx) => ctx.db.get(id)))?.suspendedLocked).toBeUndefined();
+  });
+
+  test("past_due (payment retrying) keeps serving: leads arrive normally", async () => {
+    const t = newDb();
+    const s = await seedTenant(t, { plan: "essentials" });
+    const cfg = await seedPublishedConfigurator(t, s.tenantId, "PDUE000001");
+    await t.run((ctx) => ctx.db.patch(s.tenantId, { planStatus: "past_due" }));
+    expect((await t.query(api.widget.getPublicConfigurator, { publicId: "PDUE000001" }))?.overPlanLimit).toBe(false);
+    const id = await submit(t, cfg, "PDUE000001", 1);
+    const row = await t.run((ctx) => ctx.db.get(id));
+    expect(row?.suspendedLocked).toBeUndefined();
+    expect(row?.quotaLocked).toBeUndefined();
   });
 });

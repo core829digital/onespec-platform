@@ -460,6 +460,12 @@ export default defineSchema({
      * month starts. Cleared by `usage.unlockQuotaLockedRequests`, never re-set.
      */
     quotaLocked: v.optional(v.boolean()),
+    /**
+     * Arrived while the tenant's subscription was suspended: contact details
+     * stay hidden until the subscription is reactivated (NOT at month end).
+     * Cleared by `usage.unlockSuspendedRequests`.
+     */
+    suspendedLocked: v.optional(v.boolean()),
     /** Consent timestamp for the public-widget lead (GDPR Art. 13 checkbox); absent for non-widget channels. */
     consentAt: v.optional(v.number()),
     consentVersion: v.optional(v.string()),
@@ -482,7 +488,8 @@ export default defineSchema({
     .index("by_client", ["clientId"])
     .index("by_cantiere", ["cantiereId"])
     .index("by_tenantId_and_quotaLocked", ["tenantId", "quotaLocked"])
-    .index("by_quotaLocked", ["quotaLocked"]),
+    .index("by_quotaLocked", ["quotaLocked"])
+    .index("by_tenantId_and_suspendedLocked", ["tenantId", "suspendedLocked"]),
 
   notifications: defineTable({
     tenantId: v.id("tenants"),

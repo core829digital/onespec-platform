@@ -1709,6 +1709,7 @@
       "showroomQuotes": "Showroom-Angebote",
       "showroomPdf": "Showroom-Dokumente",
       "showroomWhatsapp": "WhatsApp aus dem Showroom"
-    }
+    },
+    "lockedSuspendedBody": "Diese Anfrage ist eingegangen, während Ihr Abonnement ausgesetzt war. Sie ist gespeichert: Die Kontaktdaten werden freigeschaltet, sobald Sie Ihr Abonnement reaktivieren."
   }
 }

@@ -13,7 +13,7 @@ import {
   type BillablePlan,
   type BillingCycle,
 } from "./lib/billingPlans";
-import { unlockOnPlanChange } from "./usage";
+import { unlockOnPlanChange, unlockOnReactivation } from "./usage";
 import { regionForCountry } from "./lib/regions";
 import { createPostHogClient } from "./lib/posthog";
 
@@ -592,6 +592,7 @@ export const applySubscriptionSync = internalMutation({
     patch.updatedAt = Date.now();
     await ctx.db.patch(tenant._id, patch as never);
     if (typeof patch.plan === "string") await unlockOnPlanChange(ctx, tenant._id, tenant.plan, patch.plan);
+    if (patch.planStatus !== undefined) await unlockOnReactivation(ctx, tenant._id, tenant.planStatus, patch.planStatus);
     await ctx.db.insert("auditLog", {
       tenantId: tenant._id,
       actorKind: "system",
@@ -815,6 +816,9 @@ export const applyWebhookEvent = internalMutation({
         await ctx.db.patch(tenantId as never, patch);
         if (tenantDoc && typeof patch.plan === "string") {
           await unlockOnPlanChange(ctx, tenantDoc._id, tenantDoc.plan, patch.plan);
+        }
+        if (tenantDoc && patch.planStatus !== undefined) {
+          await unlockOnReactivation(ctx, tenantDoc._id, tenantDoc.planStatus, patch.planStatus);
         }
       }
     }

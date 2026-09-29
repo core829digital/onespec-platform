@@ -15,6 +15,7 @@ import { resolveTenantEntitlements, assertQuota } from "./lib/entitlements";
 import { enforceForAddTeamMember } from "./lib/enforcement";
 import { requirePermission } from "./lib/rbac";
 import { emit } from "./lib/triggers";
+import { unlockOnReactivation } from "./usage";
 
 const COUNTRY_RE = /^[A-Za-z]{2}$/;
 
@@ -441,11 +442,13 @@ export const reactivateTenant = mutation({
   args: { tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
     await requirePlatformAdmin(ctx);
+    const before = await ctx.db.get(args.tenantId);
     await ctx.db.patch(args.tenantId, {
       suspendedAt: undefined,
       suspendedReason: undefined,
       planStatus: "active",
     });
+    if (before) await unlockOnReactivation(ctx, args.tenantId, before.planStatus, "active");
     await ctx.db.insert("auditLog", {
       actorKind: "admin",
       action: "tenant.reactivate",
