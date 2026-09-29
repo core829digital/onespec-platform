@@ -189,13 +189,13 @@
     },
     "forgotPassword": {
       "title": "Wachtwoord vergeten",
-      "subtitle": "Voer je e-mail in om een reset-link te ontvangen",
+      "subtitle": "Vul uw e-mail in: we sturen u een 6-cijferige code om uw wachtwoord te resetten",
       "emailLabel": "E-mail",
       "emailPlaceholder": "jij@email.nl",
-      "submit": "Link sturen",
+      "submit": "Code sturen",
       "loading": "Sturen...",
       "success": "E-mail verstuurd!",
-      "checkEmail": "Controleer je inbox voor de reset-link.",
+      "checkEmail": "Controleer uw inbox: we hebben u een 6-cijferige code gestuurd.",
       "backToLogin": "Terug naar",
       "loginLink": "inloggen",
       "error": "Fout bij versturen"
@@ -471,7 +471,7 @@
     "contactSales": "Contact sales",
     "startTrial": "Start Pro proef (14 dagen)",
     "comingSoon": "Binnenkort beschikbaar",
-    "selfServiceComingSoon": "Self-service facturatie activeert na de Alpha-fase. Tot dan blijven uw plan en limieten zoals boven weergegeven.",
+    "selfServiceComingSoon": "Online betalen is nog niet actief. Tot die tijd blijven uw abonnement en de limieten zoals hierboven weergegeven.",
     "termsOfService": "Servicevoorwaarden",
     "billing": {
       "cycle": "Facturatiecyclus",
@@ -1493,7 +1493,7 @@
       "recommendedBadge": "Aanbevolen voor jou",
       "perMonth": "/maand",
       "trialNote": "14 dagen gratis proberen, daarna automatische activering",
-      "enterpriseCta": "Enterprise nodig (€690/maand, alles onbeperkt + API)? Neem contact op met sales",
+      "enterpriseCta": "Enterprise nodig (€690/maand: onbeperkt configurators en gebruikers, API, CRM-integratie, eigen domein)? Neem contact op met sales",
       "comparePlans": "Vergelijk abonnementen en prijzen",
       "plans": {
         "base": {
@@ -1571,18 +1571,21 @@
       "title": "Jouw team",
       "intro": "Als meerdere mensen aan dezelfde configurator werken om offertes te maken, nodig ze dan nu uit — of sla dit over en doe het later vanuit instellingen.",
       "manageTeam": "Team beheren",
-      "continue": "Doorgaan"
+      "continue": "Doorgaan",
+      "introSingleSeat": "Uw abonnement omvat 1 gebruiker: om collega's uit te nodigen, stapt u over op een abonnement met meer plaatsen (Level 2, Level 3 of het volledige platform).",
+      "introSeats": "Uw abonnement omvat tot {count} gebruikers. Werken meerdere mensen aan offertes, nodig ze dan nu uit — of sla over en doe het later via de instellingen."
     },
     "configurator": {
       "title": "Jouw configurator",
-      "intro": "Maak je eerste configurator. Je kunt hem gebruiken als losse pagina (voor social media) of insluiten op je site. Latere wijzigingen blijven altijd live — je hoeft de code nooit opnieuw te plakken.",
-      "ready": "Configurator klaar. Gebruik een van deze:",
+      "intro": "Maak uw eerste configurator. Zodra u de prijslijst hebt aangevuld en vanuit de editor hebt gepubliceerd, kunt u hem delen als pagina (link voor sociale media en berichten) of insluiten op uw website. Bij elke nieuwe publicatie komen updates vanzelf door: geen code opnieuw plakken.",
+      "ready": "Configurator aangemaakt. Vul de prijslijst aan en publiceer hem vanuit de editor: vanaf dan zijn deze adressen actief.",
       "pageLabel": "Pagina",
       "embedLabel": "Insluiten",
       "openEditor": "Open de editor →",
       "defaultName": "Offerteconfigurator kozijnen",
       "create": "Aanmaken",
-      "goToDashboard": "Naar dashboard"
+      "goToDashboard": "Naar dashboard",
+      "introLinkOnly": "Maak uw eerste configurator. Zodra u de prijslijst hebt aangevuld en vanuit de editor hebt gepubliceerd, kunt u hem delen als pagina (link voor sociale media en berichten). Bij elke nieuwe publicatie komen updates vanzelf door."
     },
     "entering": {
       "messages": [

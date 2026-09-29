@@ -9,7 +9,7 @@ import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useFriendlyError } from "@/lib/use-friendly-error";
-import { planDisplayName } from "@/lib/plan-gates";
+import { isWidgetPlanKey, planDisplayName } from "@/lib/plan-gates";
 import { UsageMeters } from "@/components/billing/usage-meters";
 import { SectionBoundary } from "@/components/section-boundary";
 
@@ -187,7 +187,17 @@ export default function BillingPage() {
   if (state === undefined) return <p className="text-[var(--color-text-secondary)]">{t("common.loading")}</p>;
   if (state === null) return <p className="text-[var(--color-danger)]">{t("error.unavailable")}</p>;
 
-  const displayPlans = state.plans;
+  // Tolerant of a backend that predates the plan families (frontend deployed
+  // before `npx convex deploy`): derive the family / annual flag instead of
+  // filtering every card out.
+  const displayPlans = state.plans.map((p) => {
+    const raw = p as typeof p & { family?: "widget" | "platform"; annualBilling?: boolean };
+    return {
+      ...p,
+      family: raw.family ?? (isWidgetPlanKey(p.key) ? ("widget" as const) : ("platform" as const)),
+      annualBilling: raw.annualBilling ?? (p.key !== "agency" && p.key !== "enterprise" && !isWidgetPlanKey(p.key)),
+    };
+  });
 
   // Annual = monthly * 10 (2 months free)
   const getAnnualPrice = (monthly: number | null) => monthly === null ? null : monthly * 10;

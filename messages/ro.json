@@ -189,13 +189,13 @@
     },
     "forgotPassword": {
       "title": "Parolă uitată",
-      "subtitle": "Introduceți emailul pentru a primi linkul de resetare",
+      "subtitle": "Introdu emailul: îți vom trimite un cod din 6 cifre pentru resetarea parolei",
       "emailLabel": "Email",
       "emailPlaceholder": "tu@email.com",
-      "submit": "Trimite link",
+      "submit": "Trimite codul",
       "loading": "Trimitere...",
       "success": "Email trimis!",
-      "checkEmail": "Verificați inbox-ul pentru linkul de resetare.",
+      "checkEmail": "Verifică inbox-ul: ți-am trimis un cod din 6 cifre.",
       "backToLogin": "Înapoi la",
       "loginLink": "autentificare",
       "error": "Eroare la trimitere"
@@ -471,7 +471,7 @@
     "contactSales": "Contactează vânzările",
     "startTrial": "Începe încercare Pro (14 zile)",
     "comingSoon": "Disponibil în curând",
-    "selfServiceComingSoon": "Facturarea self-service se activează după faza Alpha. Până atunci, planul tău și limitele rămân cele afișate mai sus.",
+    "selfServiceComingSoon": "Plata online nu este încă activă. Până atunci, planul și limitele tale rămân cele afișate mai sus.",
     "termsOfService": "Termeni de utilizare",
     "billing": {
       "cycle": "Ciclu facturare",
@@ -1493,7 +1493,7 @@
       "recommendedBadge": "Recomandat pentru tine",
       "perMonth": "/lună",
       "trialNote": "Probă gratuită de 14 zile, apoi se activează automat",
-      "enterpriseCta": "Ai nevoie de Enterprise (690 €/lună, tot nelimitat + API)? Contactează vânzările",
+      "enterpriseCta": "Ai nevoie de Enterprise (690 €/lună: configuratoare și utilizatori nelimitați, API, integrare CRM, domeniu propriu)? Contactează vânzările",
       "comparePlans": "Compară planurile și prețurile",
       "plans": {
         "base": {
@@ -1571,18 +1571,21 @@
       "title": "Echipa ta",
       "intro": "Dacă mai multe persoane vor lucra la același configurator pentru a face oferte, invită-le acum — sau sari peste acest pas și fă-o mai târziu din setări.",
       "manageTeam": "Gestionează echipa",
-      "continue": "Continuă"
+      "continue": "Continuă",
+      "introSingleSeat": "Planul tău include 1 utilizator: pentru a invita colegi, treci la un plan cu mai multe locuri (Level 2, Level 3 sau platforma completă).",
+      "introSeats": "Planul tău include până la {count} utilizatori. Dacă mai multe persoane vor lucra la oferte, invită-le acum — sau sari peste și fă-o mai târziu din setări."
     },
     "configurator": {
       "title": "Configuratorul tău",
-      "intro": "Creează primul tău configurator. Îl poți folosi ca pagină independentă (pentru social media) sau îl poți încorpora pe site-ul tău. Modificările ulterioare rămân mereu live — nu va trebui niciodată să lipești din nou codul.",
-      "ready": "Configurator pregătit. Folosește unul dintre acestea:",
+      "intro": "Creează primul configurator. După ce completezi lista de prețuri și o publici din editor, îl poți partaja ca pagină (link pentru social media și mesaje) sau îl poți integra pe site-ul tău. De fiecare dată când republici, actualizările ajung automat: nu trebuie să lipești din nou niciun cod.",
+      "ready": "Configurator creat. Completează lista de prețuri și publică-o din editor: din acel moment aceste adrese vor fi active.",
       "pageLabel": "Pagină",
       "embedLabel": "Încorporare",
       "openEditor": "Deschide editorul →",
       "defaultName": "Configurator oferte tâmplărie",
       "create": "Creează",
-      "goToDashboard": "Mergi la dashboard"
+      "goToDashboard": "Mergi la dashboard",
+      "introLinkOnly": "Creează primul configurator. După ce completezi lista de prețuri și o publici din editor, îl poți partaja ca pagină (link pentru social media și mesaje). De fiecare dată când republici, actualizările ajung automat."
     },
     "entering": {
       "messages": [

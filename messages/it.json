@@ -190,13 +190,13 @@
     },
     "forgotPassword": {
       "title": "Password dimenticata",
-      "subtitle": "Inserisci la tua email per ricevere un link di reset",
+      "subtitle": "Inserisci la tua email: ti invieremo un codice a 6 cifre per reimpostare la password",
       "emailLabel": "Email",
       "emailPlaceholder": "tuo@email.com",
-      "submit": "Invia link",
+      "submit": "Invia codice",
       "loading": "Invio...",
       "success": "Email inviata!",
-      "checkEmail": "Controlla la tua casella di posta per il link di reset.",
+      "checkEmail": "Controlla la tua casella di posta: ti abbiamo inviato un codice a 6 cifre.",
       "backToLogin": "Torna al",
       "loginLink": "login",
       "error": "Errore durante l'invio"
@@ -471,7 +471,7 @@
     "contactSales": "Contatta il commerciale",
     "startTrial": "Avvia prova Pro (14 giorni)",
     "comingSoon": "Disponibile a breve",
-    "selfServiceComingSoon": "La fatturazione self-service si attiva al termine della fase Alpha. Nel frattempo il tuo piano e i relativi limiti restano quelli mostrati sopra.",
+    "selfServiceComingSoon": "Il pagamento online non è ancora attivo. Nel frattempo il tuo piano e i relativi limiti restano quelli mostrati sopra.",
     "termsOfService": "Termini di servizio",
     "billing": {
       "cycle": "Ciclo fatturazione",
@@ -1493,7 +1493,7 @@
       "recommendedBadge": "Consigliato per te",
       "perMonth": "/mese",
       "trialNote": "Prova gratis 14 giorni, poi si attiva da solo",
-      "enterpriseCta": "Serve il piano Enterprise (€690/mese, tutto illimitato + API)? Contatta il commerciale",
+      "enterpriseCta": "Serve il piano Enterprise (€690/mese: configuratori e utenti illimitati, API, integrazione CRM, dominio personalizzato)? Contatta il commerciale",
       "comparePlans": "Confronta i piani e i prezzi",
       "plans": {
         "base": {
@@ -1571,18 +1571,21 @@
       "title": "Il tuo team",
       "intro": "Se più persone lavoreranno sullo stesso configuratore per fare i preventivi, invitale ora — oppure salta e fallo dopo dalle impostazioni.",
       "manageTeam": "Gestisci il team",
-      "continue": "Continua"
+      "continue": "Continua",
+      "introSingleSeat": "Il tuo piano include 1 utente: per invitare colleghi passa a un piano con più posti (Level 2, Level 3 o la piattaforma completa).",
+      "introSeats": "Il tuo piano include fino a {count} utenti. Se più persone lavoreranno sui preventivi, invitale ora — oppure salta e fallo dopo dalle impostazioni."
     },
     "configurator": {
       "title": "Il tuo configuratore",
-      "intro": "Crea il primo configuratore. Potrai usarlo come pagina singola (per i social) o incorporarlo sul tuo sito. Le modifiche che farai saranno sempre live: non dovrai reincollare il codice.",
-      "ready": "Configuratore pronto. Usa uno di questi:",
+      "intro": "Crea il primo configuratore. Quando avrai completato il listino e lo avrai pubblicato dall'editor, potrai condividerlo come pagina (link per social e messaggi) o incorporarlo sul tuo sito. Ogni volta che ripubblichi, gli aggiornamenti arrivano da soli: non devi reincollare nessun codice.",
+      "ready": "Configuratore creato. Completa il listino e pubblicalo dall'editor: da quel momento questi indirizzi saranno attivi.",
       "pageLabel": "Pagina",
       "embedLabel": "Embed",
       "openEditor": "Apri l'editor →",
       "defaultName": "Preventivatore serramenti",
       "create": "Crea",
-      "goToDashboard": "Vai alla dashboard"
+      "goToDashboard": "Vai alla dashboard",
+      "introLinkOnly": "Crea il primo configuratore. Quando avrai completato il listino e lo avrai pubblicato dall'editor, potrai condividerlo come pagina (link per social e messaggi). Ogni volta che ripubblichi, gli aggiornamenti arrivano da soli."
     },
     "entering": {
       "messages": [

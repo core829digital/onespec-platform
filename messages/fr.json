@@ -189,13 +189,13 @@
     },
     "forgotPassword": {
       "title": "Mot de passe oublié",
-      "subtitle": "Entrez votre email pour recevoir un lien de réinitialisation",
+      "subtitle": "Saisissez votre e-mail : nous vous enverrons un code à 6 chiffres pour réinitialiser votre mot de passe",
       "emailLabel": "Email",
       "emailPlaceholder": "vous@email.com",
-      "submit": "Envoyer le lien",
+      "submit": "Envoyer le code",
       "loading": "Envoi...",
       "success": "Email envoyé!",
-      "checkEmail": "Vérifiez votre boîte mail pour le lien de réinitialisation.",
+      "checkEmail": "Vérifiez votre boîte mail : nous vous avons envoyé un code à 6 chiffres.",
       "backToLogin": "Retour à la",
       "loginLink": "connexion",
       "error": "Erreur d'envoi"
@@ -471,7 +471,7 @@
     "contactSales": "Contacter le commercial",
     "startTrial": "Démarrer essai Pro (14 jours)",
     "comingSoon": "Disponible bientôt",
-    "selfServiceComingSoon": "La facturation self-service s'active après la phase Alpha. En attendant, votre plan et ses limites restent ceux affichés ci-dessus.",
+    "selfServiceComingSoon": "Le paiement en ligne n'est pas encore actif. En attendant, votre offre et ses limites restent celles affichées ci-dessus.",
     "termsOfService": "Conditions d'utilisation",
     "billing": {
       "cycle": "Cycle de facturation",
@@ -1493,7 +1493,7 @@
       "recommendedBadge": "Recommandé pour vous",
       "perMonth": "/mois",
       "trialNote": "Essai gratuit de 14 jours, puis activation automatique",
-      "enterpriseCta": "Besoin d'Enterprise (690 €/mois, tout illimité + API) ? Contactez les ventes",
+      "enterpriseCta": "Besoin d'Enterprise (690 €/mois : configurateurs et utilisateurs illimités, API, intégration CRM, domaine personnalisé) ? Contactez les ventes",
       "comparePlans": "Comparer les plans et les prix",
       "plans": {
         "base": {
@@ -1571,18 +1571,21 @@
       "title": "Votre équipe",
       "intro": "Si plusieurs personnes vont travailler sur le même configurateur pour établir des devis, invitez-les maintenant — ou passez cette étape et faites-le plus tard depuis les paramètres.",
       "manageTeam": "Gérer l'équipe",
-      "continue": "Continuer"
+      "continue": "Continuer",
+      "introSingleSeat": "Votre offre inclut 1 utilisateur : pour inviter des collègues, passez à une offre avec plus de places (Level 2, Level 3 ou la plateforme complète).",
+      "introSeats": "Votre offre inclut jusqu'à {count} utilisateurs. Si plusieurs personnes travailleront sur les devis, invitez-les maintenant — ou passez et faites-le plus tard depuis les paramètres."
     },
     "configurator": {
       "title": "Votre configurateur",
-      "intro": "Créez votre premier configurateur. Vous pourrez l'utiliser comme page autonome (réseaux sociaux) ou l'intégrer sur votre site. Vos modifications resteront toujours en direct, sans jamais recoller le code.",
-      "ready": "Configurateur prêt. Utilisez l'un de ceux-ci :",
+      "intro": "Créez votre premier configurateur. Une fois la grille tarifaire complétée et publiée depuis l'éditeur, vous pourrez le partager comme page (lien pour réseaux sociaux et messages) ou l'intégrer à votre site. À chaque republication, les mises à jour arrivent automatiquement : aucun code à recoller.",
+      "ready": "Configurateur créé. Complétez la grille tarifaire et publiez-la depuis l'éditeur : dès lors, ces adresses seront actives.",
       "pageLabel": "Page",
       "embedLabel": "Intégration",
       "openEditor": "Ouvrir l'éditeur →",
       "defaultName": "Configurateur de devis fenêtres",
       "create": "Créer",
-      "goToDashboard": "Aller au tableau de bord"
+      "goToDashboard": "Aller au tableau de bord",
+      "introLinkOnly": "Créez votre premier configurateur. Une fois la grille tarifaire complétée et publiée depuis l'éditeur, vous pourrez le partager comme page (lien pour réseaux sociaux et messages). À chaque republication, les mises à jour arrivent automatiquement."
     },
     "entering": {
       "messages": [
