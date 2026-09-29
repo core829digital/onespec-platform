@@ -163,12 +163,15 @@ export const getBillingState = query({
       platformBalanceCents: tenant.stripeBalanceCents ?? 0,
       checkoutAvailable: configured,
       portalAvailable: configured && !!tenant.stripeCustomerId,
+      /** The one-time Pro trial was already used (the CTA must not promise it again). */
+      trialUsed: !!tenant.trialStartedAt,
       // Widget-first plans first, then the full platform (BILLING_PLANS order).
       plans: BILLING_PLANS.map((p) => ({
         key: p.key,
         name: p.name,
         family: p.family,
         priceCents: listPriceCents(p.key, region),
+        annualBilling: p.key === "enterprise" ? false : entitlementsFor(p.key).annualBilling,
       })),
     };
   },

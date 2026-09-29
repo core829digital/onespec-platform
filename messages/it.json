@@ -540,6 +540,31 @@
         "Export GAEB/DATANORM",
         "Dominio personalizzato",
         "Prezzo e contratto su misura"
+      ],
+      "essentials": [
+        "Preventivatore sul tuo sito + pagina link per i social",
+        "1 configuratore",
+        "40 richieste al mese",
+        "15 PDF al mese (scaricati da te)",
+        "40 invii WhatsApp al mese",
+        "1 utente",
+        "Badge «Powered by OneSpec»",
+        "Nessun vincolo: disdici quando vuoi"
+      ],
+      "essentials_plus": [
+        "Tutto Level 1 ×2: 80 richieste, 30 PDF e 80 WhatsApp al mese",
+        "3 configuratori",
+        "Preventivatore Showroom: 80 preventivi, 30 PDF e 80 WhatsApp al mese",
+        "White-label: il tuo marchio, senza badge",
+        "2 utenti"
+      ],
+      "max": [
+        "Tutto Level 1 ×5: 200 richieste, 75 PDF e 200 WhatsApp al mese",
+        "10 configuratori",
+        "Preventivatore Showroom: 200 preventivi, 75 PDF e 200 WhatsApp al mese",
+        "Logistica: fornitori, corrieri e consegne",
+        "White-label",
+        "3 utenti"
       ]
     },
     "notice": {
@@ -554,7 +579,15 @@
     "trial": {
       "daysRemaining": "{days, plural, =0 {Ultimo giorno di prova} one {# giorno di prova rimasto} other {# giorni di prova rimasti}}",
       "detail": "{elapsed} giorni trascorsi · la prova termina il {date}"
-    }
+    },
+    "families": {
+      "widgetTitle": "Preventivi online",
+      "widgetBody": "Preventivatore sul sito e Showroom. Parti da qui, senza impegno.",
+      "platformTitle": "Piattaforma completa",
+      "platformBody": "Tutto il lavoro in un posto: preventivi B2B, clienti, cantieri, posa e collaudi."
+    },
+    "vatExcluded": "Prezzi IVA esclusa.",
+    "monthlyOnly": "Solo mensile"
   },
   "clients": {
     "title": "Clienti",
@@ -1354,7 +1387,12 @@
     "locked": "Bloccato dal piano",
     "features": {
       "analytics": "Statistiche",
-      "showroom": "Showroom"
+      "showroom": "Showroom",
+      "fieldQuotes": "Preventivi B2B",
+      "crm": "Clienti e trattative",
+      "cantieri": "Cantieri",
+      "fieldOps": "Moduli di cantiere",
+      "logistics": "Logistica"
     }
   },
   "onboarding": {
@@ -1460,8 +1498,45 @@
             "Multi-fornitore + showroom",
             "Multi-catalogo"
           ]
+        },
+        "essentials": {
+          "name": "Level 1",
+          "features": [
+            "Preventivatore sul tuo sito + pagina link per i social",
+            "1 configuratore",
+            "40 richieste al mese",
+            "15 PDF al mese (scaricati da te)",
+            "40 invii WhatsApp al mese",
+            "1 utente",
+            "Badge «Powered by OneSpec»",
+            "Nessun vincolo: disdici quando vuoi"
+          ]
+        },
+        "essentials_plus": {
+          "name": "Level 2",
+          "features": [
+            "Tutto Level 1 ×2: 80 richieste, 30 PDF e 80 WhatsApp al mese",
+            "3 configuratori",
+            "Preventivatore Showroom: 80 preventivi, 30 PDF e 80 WhatsApp al mese",
+            "White-label: il tuo marchio, senza badge",
+            "2 utenti"
+          ]
+        },
+        "max": {
+          "name": "Level 3",
+          "features": [
+            "Tutto Level 1 ×5: 200 richieste, 75 PDF e 200 WhatsApp al mese",
+            "10 configuratori",
+            "Preventivatore Showroom: 200 preventivi, 75 PDF e 200 WhatsApp al mese",
+            "Logistica: fornitori, corrieri e consegne",
+            "White-label",
+            "3 utenti"
+          ]
         }
-      }
+      },
+      "widgetTitle": "Preventivi online · parti da qui",
+      "platformTitle": "Piattaforma completa",
+      "vatExcluded": "Prezzi IVA esclusa, fatturazione mensile, disdici quando vuoi."
     },
     "team": {
       "title": "Il tuo team",
@@ -1622,6 +1697,17 @@
     "lockedTitle": "Richiesta bloccata",
     "lockedBody": "Hai raggiunto il limite mensile di richieste del tuo piano. La richiesta è salvata: i contatti si sbloccano passando a un piano superiore o dal primo del mese.",
     "upgradeCta": "Vedi i piani",
-    "back": "← Torna alle richieste"
+    "back": "← Torna alle richieste",
+    "meterTitle": "Utilizzo di questo mese",
+    "meterReset": "Si azzera il primo del mese.",
+    "unlimited": "illimitato",
+    "meters": {
+      "requests": "Richieste dal preventivatore",
+      "pdf": "PDF scaricati",
+      "whatsapp": "Invii WhatsApp",
+      "showroomQuotes": "Preventivi Showroom",
+      "showroomPdf": "Documenti Showroom",
+      "showroomWhatsapp": "WhatsApp dallo Showroom"
+    }
   }
 }

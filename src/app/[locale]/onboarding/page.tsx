@@ -11,9 +11,14 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import { recommendPlan, type PlanQuizAnswers, type RecommendedPlan } from "@/lib/plan-recommendation";
 import { OneSpecLoadingScreen } from "@/components/onespec-loading-screen";
+import { BILLING_PLANS } from "@/convex/lib/billingPlans";
 
 type Step = "welcome" | "planQuiz" | "billing" | "team" | "configurator";
-type PlanKey = "base" | "pro" | "agency";
+type PlanKey = "essentials" | "essentials_plus" | "max" | "base" | "pro" | "agency";
+const PLAN_GROUPS: { titleKey: "widgetTitle" | "platformTitle"; plans: PlanKey[] }[] = [
+  { titleKey: "widgetTitle", plans: ["essentials", "essentials_plus", "max"] },
+  { titleKey: "platformTitle", plans: ["base", "pro", "agency"] },
+];
 
 export default function OnboardingWizard() {
   const t = useTranslations("onboarding");
@@ -170,9 +175,13 @@ export default function OnboardingWizard() {
             {t("billing.intro")}
             {state && "stripeConfigured" in state && state.stripeConfigured ? t("billing.redirectNote") : t("billing.noBillingNote")}
           </p>
+          {PLAN_GROUPS.map((group) => (
+          <section key={group.titleKey} className="space-y-2">
+          <h3 className="text-sm font-semibold uppercase tracking-wide text-[var(--color-text-secondary)]">{t(`billing.${group.titleKey}`)}</h3>
           <div className="grid gap-3 md:grid-cols-3">
-            {(["base", "pro", "agency"] as PlanKey[]).map((key) => {
-              const price = key === "base" ? 97 : key === "pro" ? 197 : 397;
+            {group.plans.map((key) => {
+              const cents = BILLING_PLANS.find((p) => p.key === key)?.priceCents ?? 0;
+              const price = (cents / 100).toLocaleString("it-IT", { minimumFractionDigits: cents % 100 ? 2 : 0 });
               const trial = key === "pro";
               const name = t(`billing.plans.${key}.name`);
               const features = t.raw(`billing.plans.${key}.features`) as string[];
@@ -222,6 +231,9 @@ export default function OnboardingWizard() {
               );
             })}
           </div>
+          </section>
+          ))}
+          <p className="text-xs text-[var(--color-text-secondary)]">{t("billing.vatExcluded")}</p>
           <p className="text-xs text-[var(--color-text-secondary)]">
             <a href="mailto:sales@onespec.eu" className="text-[var(--color-mint)] hover:underline">
               {t("billing.enterpriseCta")}

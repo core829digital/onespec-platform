@@ -540,6 +540,31 @@
         "GAEB/DATANORM-Export",
         "Eigene Domain",
         "Individueller Preis und Vertrag"
+      ],
+      "essentials": [
+        "Angebotsrechner auf Ihrer Website + Link-Seite für Social Media",
+        "1 Konfigurator",
+        "40 Anfragen pro Monat",
+        "15 PDFs pro Monat (von Ihnen heruntergeladen)",
+        "40 WhatsApp-Sendungen pro Monat",
+        "1 Nutzer",
+        "Badge „Powered by OneSpec“",
+        "Keine Bindung: jederzeit kündbar"
+      ],
+      "essentials_plus": [
+        "Alles aus Level 1 ×2: 80 Anfragen, 30 PDFs und 80 WhatsApp pro Monat",
+        "3 Konfiguratoren",
+        "Showroom-Rechner: 80 Angebote, 30 PDFs und 80 WhatsApp pro Monat",
+        "White-Label: Ihre Marke, ohne Badge",
+        "2 Nutzer"
+      ],
+      "max": [
+        "Alles aus Level 1 ×5: 200 Anfragen, 75 PDFs und 200 WhatsApp pro Monat",
+        "10 Konfiguratoren",
+        "Showroom-Rechner: 200 Angebote, 75 PDFs und 200 WhatsApp pro Monat",
+        "Logistik: Lieferanten, Spediteure und Lieferungen",
+        "White-Label",
+        "3 Nutzer"
       ]
     },
     "notice": {
@@ -554,7 +579,15 @@
     "trial": {
       "daysRemaining": "{days, plural, =0 {Letzter Testtag} one {# Testtag übrig} other {# Testtage übrig}}",
       "detail": "{elapsed} Tage vergangen · Testphase endet am {date}"
-    }
+    },
+    "families": {
+      "widgetTitle": "Online-Angebote",
+      "widgetBody": "Angebotsrechner auf der Website und Showroom. Starten Sie hier, ohne Bindung.",
+      "platformTitle": "Komplette Plattform",
+      "platformBody": "Ihre ganze Arbeit an einem Ort: B2B-Angebote, Kunden, Baustellen, Montage und Abnahmen."
+    },
+    "vatExcluded": "Preise zzgl. MwSt.",
+    "monthlyOnly": "Nur monatlich"
   },
   "clients": {
     "title": "Kunden",
@@ -1354,7 +1387,12 @@
     "locked": "Durch Plan gesperrt",
     "features": {
       "analytics": "Statistiken",
-      "showroom": "Showroom"
+      "showroom": "Showroom",
+      "fieldQuotes": "B2B-Angebote",
+      "crm": "Kunden und Verkaufschancen",
+      "cantieri": "Baustellen",
+      "fieldOps": "Baustellenmodule",
+      "logistics": "Logistik"
     }
   },
   "onboarding": {
@@ -1460,8 +1498,45 @@
             "Multi-Lieferant + Showroom",
             "Multi-Katalog"
           ]
+        },
+        "essentials": {
+          "name": "Level 1",
+          "features": [
+            "Angebotsrechner auf Ihrer Website + Link-Seite für Social Media",
+            "1 Konfigurator",
+            "40 Anfragen pro Monat",
+            "15 PDFs pro Monat (von Ihnen heruntergeladen)",
+            "40 WhatsApp-Sendungen pro Monat",
+            "1 Nutzer",
+            "Badge „Powered by OneSpec“",
+            "Keine Bindung: jederzeit kündbar"
+          ]
+        },
+        "essentials_plus": {
+          "name": "Level 2",
+          "features": [
+            "Alles aus Level 1 ×2: 80 Anfragen, 30 PDFs und 80 WhatsApp pro Monat",
+            "3 Konfiguratoren",
+            "Showroom-Rechner: 80 Angebote, 30 PDFs und 80 WhatsApp pro Monat",
+            "White-Label: Ihre Marke, ohne Badge",
+            "2 Nutzer"
+          ]
+        },
+        "max": {
+          "name": "Level 3",
+          "features": [
+            "Alles aus Level 1 ×5: 200 Anfragen, 75 PDFs und 200 WhatsApp pro Monat",
+            "10 Konfiguratoren",
+            "Showroom-Rechner: 200 Angebote, 75 PDFs und 200 WhatsApp pro Monat",
+            "Logistik: Lieferanten, Spediteure und Lieferungen",
+            "White-Label",
+            "3 Nutzer"
+          ]
         }
-      }
+      },
+      "widgetTitle": "Online-Angebote · hier starten",
+      "platformTitle": "Komplette Plattform",
+      "vatExcluded": "Preise zzgl. MwSt., monatliche Abrechnung, jederzeit kündbar."
     },
     "team": {
       "title": "Ihr Team",
@@ -1622,6 +1697,17 @@
     "lockedTitle": "Anfrage gesperrt",
     "lockedBody": "Das monatliche Anfragelimit Ihres Tarifs ist erreicht. Die Anfrage ist gespeichert: Die Kontaktdaten werden mit einem höheren Tarif oder zum Monatsersten freigeschaltet.",
     "upgradeCta": "Tarife ansehen",
-    "back": "← Zurück zu den Anfragen"
+    "back": "← Zurück zu den Anfragen",
+    "meterTitle": "Nutzung in diesem Monat",
+    "meterReset": "Wird am Monatsersten zurückgesetzt.",
+    "unlimited": "unbegrenzt",
+    "meters": {
+      "requests": "Anfragen über den Angebotsrechner",
+      "pdf": "Heruntergeladene PDFs",
+      "whatsapp": "WhatsApp-Sendungen",
+      "showroomQuotes": "Showroom-Angebote",
+      "showroomPdf": "Showroom-Dokumente",
+      "showroomWhatsapp": "WhatsApp aus dem Showroom"
+    }
   }
 }

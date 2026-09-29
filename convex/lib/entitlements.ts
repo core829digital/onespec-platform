@@ -14,6 +14,7 @@ import type { Doc } from "../_generated/dataModel";
  *                in-app 3-zone showroom calculator, bulk import
  *   Enterprise — "API": everything + API/CRM, GAEB export, custom domain, dedicated support
  *
+ * Display names: Level 1 / Level 2 / Level 3 (keys essentials / essentials_plus / max).
  * Widget-first ladder (2026-09-29, sold before the full platform — see
  * docs/PIANO_ABBONAMENTI_WIDGET.md):
  *   Essentials  (€49,95) — public widget, 40 requests/15 PDF/40 WhatsApp, 1 configurator

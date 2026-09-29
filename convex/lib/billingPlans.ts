@@ -12,7 +12,8 @@
  * Widget-first ladder (2026-09-29), sold BEFORE the full platform and listed
  * first — monthly only, no trial, prices VAT excluded:
  *
- *   Essentials €49,95   Essentials+ €62,44   Max €79,90
+ *   Level 1 €49,95   Level 2 €62,44   Level 3 €79,90
+ *   (display names; plan keys stay essentials / essentials_plus / max)
  *
  * Annual billing = monthly × 10 (2 months free), unless an explicit annual
  * Stripe Price says otherwise.
@@ -38,9 +39,9 @@ export type PlanKey = BillablePlan | "enterprise";
 
 /** Display order = selling order: the widget ladder first, the full platform under it. */
 export const BILLING_PLANS: BillingPlan[] = [
-  { key: "essentials", name: "Essentials", family: "widget", priceCents: 4995, stripePriceKey: "ESSENTIALS" },
-  { key: "essentials_plus", name: "Essentials+", family: "widget", priceCents: 6244, stripePriceKey: "ESSENTIALS_PLUS" },
-  { key: "max", name: "Max", family: "widget", priceCents: 7990, stripePriceKey: "MAX" },
+  { key: "essentials", name: "Level 1", family: "widget", priceCents: 4995, stripePriceKey: "ESSENTIALS" },
+  { key: "essentials_plus", name: "Level 2", family: "widget", priceCents: 6244, stripePriceKey: "ESSENTIALS_PLUS" },
+  { key: "max", name: "Level 3", family: "widget", priceCents: 7990, stripePriceKey: "MAX" },
   { key: "base", name: "Base", family: "platform", priceCents: 9700, stripePriceKey: "BASE" },
   { key: "pro", name: "Pro", family: "platform", priceCents: 19700, stripePriceKey: "PRO" },
   { key: "agency", name: "Agency", family: "platform", priceCents: 39700, stripePriceKey: "AGENCY" },

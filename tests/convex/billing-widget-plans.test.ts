@@ -54,6 +54,8 @@ describe("catalogue", () => {
       ["enterprise", "platform", 69000],
     ]);
     expect(listPriceCents("essentials_plus", "IT")).toBe(6244);
+    // Display names only (founder's update); the keys are unchanged.
+    expect(BILLING_PLANS.slice(0, 3).map((p) => p.name)).toEqual(["Level 1", "Level 2", "Level 3"]);
   });
 
   test("price ids map back to the widget plans (incl. regional)", () => {

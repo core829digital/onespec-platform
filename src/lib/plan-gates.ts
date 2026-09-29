@@ -25,9 +25,10 @@ export function isWidgetPlanKey(plan: string): boolean {
 }
 
 const PLAN_DISPLAY: Record<string, string> = {
-  essentials: "Essentials",
-  essentials_plus: "Essentials+",
-  max: "Max",
+  // Display names (2026-09-29): the plan keys stay essentials / essentials_plus / max.
+  essentials: "Level 1",
+  essentials_plus: "Level 2",
+  max: "Level 3",
   base: "Base",
   pro: "Pro",
   agency: "Agency",
@@ -51,7 +52,7 @@ interface RouteGate {
 
 export const ROUTE_GATES: RouteGate[] = [
   { prefix: "/app/analytics", feature: "analytics", requiredPlan: "Pro" },
-  { prefix: "/app/showroom", feature: "showroom", requiredPlan: "Agency", requiredWidgetPlan: "Essentials+" },
+  { prefix: "/app/showroom", feature: "showroom", requiredPlan: "Agency", requiredWidgetPlan: "Level 2" },
   { prefix: "/app/quotes", feature: "fieldQuotes", requiredPlan: "Base" },
   { prefix: "/app/pipeline", feature: "crm", requiredPlan: "Base" },
   { prefix: "/app/clients", feature: "crm", requiredPlan: "Base" },
@@ -60,7 +61,7 @@ export const ROUTE_GATES: RouteGate[] = [
   { prefix: "/app/installations", feature: "fieldOps", requiredPlan: "Base" },
   { prefix: "/app/inspections", feature: "fieldOps", requiredPlan: "Base" },
   { prefix: "/app/passports", feature: "fieldOps", requiredPlan: "Base" },
-  { prefix: "/app/logistics", feature: "logistics", requiredPlan: "Base", requiredWidgetPlan: "Max" },
+  { prefix: "/app/logistics", feature: "logistics", requiredPlan: "Base", requiredWidgetPlan: "Level 3" },
 ];
 
 /**

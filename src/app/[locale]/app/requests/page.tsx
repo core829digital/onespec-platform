@@ -179,7 +179,10 @@ export default function RequestsPage() {
                   onClick={() => router.push(`/app/requests/${r._id}`)}
                   className="hover:bg-[var(--color-bg)] cursor-pointer"
                 >
-                  <td className="px-4 py-3 text-[var(--color-text)]">{r.leadName}</td>
+                  <td className="px-4 py-3 text-[var(--color-text)]">
+                    {r.quotaLocked ? <span aria-hidden="true" className="mr-1">🔒</span> : null}
+                    {r.leadName}
+                  </td>
                   <td className="px-4 py-3 text-[var(--color-text-secondary)]">{r.leadEmail}</td>
                   <td className="px-4 py-3 text-[var(--color-text-secondary)]">{r.leadPhone ?? "—"}</td>
                   <td className="px-4 py-3 text-[var(--color-text-secondary)]">{r.leadCompany ?? "—"}</td>

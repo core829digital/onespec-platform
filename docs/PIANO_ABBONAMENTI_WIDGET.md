@@ -1,4 +1,6 @@
-# Piano d'implementazione — Abbonamenti "Widget first" (Essentials · Essentials+ · Max)
+# Piano d'implementazione — Abbonamenti "Widget first" (Level 1 · Level 2 · Level 3)
+
+> **Aggiornamento 29/09 (fondatore):** nomi commerciali dei piani → **Level 1** (ex Essentials), **Level 2** (ex Essentials+), **Level 3** (ex Max). Cambiano solo i nomi: le chiavi tecniche restano `essentials` / `essentials_plus` / `max` (Stripe: `STRIPE_PRICE_ESSENTIALS_MONTHLY`, `STRIPE_PRICE_ESSENTIALS_PLUS_MONTHLY`, `STRIPE_PRICE_MAX_MONTHLY`).
 
 > CORE829 SRL · OneSpec · redatto 2026-09-29 · stato: **decisioni prese (§4) — implementazione in corso**
 
@@ -20,11 +22,11 @@
 ### Il mio parere sui prezzi che hai scelto
 | Piano | Prezzo | Cosa sblocca | Nota |
 |---|---|---|---|
-| Essentials | 49,95 €/mese | widget pubblico (oggi disponibile solo da **Pro, 197 €**) | ottimo prezzo d'ingresso, in linea con i "20–50 €" della risposta 1 |
-| Essentials+ | 62,44 €/mese | +showroom (oggi solo da **Agency, 397 €**), 3 configuratori, limiti ×2 | con solo +12,49 € rispetto a Essentials, spinge quasi tutti verso Essentials+: di fatto Essentials fa da "esca". Va bene se è voluto |
-| Max | 79,90 €/mese | +logistica, 10 configuratori, limiti ×5 | **rischio cannibalizzazione**: chi oggi pagherebbe Agency (397 €) per widget + showroom potrebbe scegliere Max a 79,90 € |
+| Level 1 | 49,95 €/mese | widget pubblico (oggi disponibile solo da **Pro, 197 €**) | ottimo prezzo d'ingresso, in linea con i "20–50 €" della risposta 1 |
+| Level 2 | 62,44 €/mese | +showroom (oggi solo da **Agency, 397 €**), 3 configuratori, limiti ×2 | con solo +12,49 € rispetto a Level 1, spinge quasi tutti verso Level 2: di fatto Level 1 fa da "esca". Va bene se è voluto |
+| Level 3 | 79,90 €/mese | +logistica, 10 configuratori, limiti ×5 | **rischio cannibalizzazione**: chi oggi pagherebbe Agency (397 €) per widget + showroom potrebbe scegliere Level 3 a 79,90 € |
 
-**Come proteggere i piani completi (senza toccare i loro accessi):** i piani widget devono restare davvero "solo widget e showroom". Quindi restano bloccati: preventivi B2B con firma, trattative, clienti, cantieri, rilievi, posa, collaudi, fascicoli QR, statistiche. Il white-label è incluso solo da Essentials+ in su (aggiornamento del 29/09: richiesta del fondatore). Con questi confini, chi ha bisogno di gestire il lavoro passa naturalmente ai piani completi: è l'"expand".
+**Come proteggere i piani completi (senza toccare i loro accessi):** i piani widget devono restare davvero "solo widget e showroom". Quindi restano bloccati: preventivi B2B con firma, trattative, clienti, cantieri, rilievi, posa, collaudi, fascicoli QR, statistiche. Il white-label è incluso solo da Level 2 in su (aggiornamento del 29/09: richiesta del fondatore). Con questi confini, chi ha bisogno di gestire il lavoro passa naturalmente ai piani completi: è l'"expand".
 
 Osservazioni minori:
 - 62,44 € è un prezzo insolito: di solito si usano finali come ,90 o ,95 (es. 59,90 / 64,90). Resta una tua scelta di marketing: lo implemento esattamente come indicato.
@@ -53,7 +55,7 @@ Osservazioni minori:
 
 Chiavi interne: `essentials`, `essentials_plus`, `max`. Moltiplicatori calcolati sul **primo piano** (regola "×2 / ×5"), salvo decisione diversa in §4.
 
-| Limite mensile | Essentials | Essentials+ (×2) | Max (×5) |
+| Limite mensile | Level 1 | Level 2 (×2) | Level 3 (×5) |
 |---|---|---|---|
 | Richieste ricevute dal widget | 40 | 80 | 200 |
 | …di cui scaricabili in PDF dal montatore | 15 | 30 | 75 |
@@ -67,8 +69,8 @@ Chiavi interne: `essentials`, `essentials_plus`, `max`. Moltiplicatori calcolati
 | Badge "Powered by OneSpec" nel widget | visibile | white-label (rimovibile) | white-label (rimovibile) |
 | Trial gratuito | no | no | no |
 
-**Pagine aperte:** Panoramica, Notifiche, Configuratori, Richieste, Account/Squadra/Piano/Fatturazione. In più Showroom (E+ e Max) e Logistica (Max).
-**Pagine con lucchetto** (come oggi per le funzioni non incluse): Statistiche, Preventivi B2B, Trattative, Clienti, Cantieri, Rilievi, Posa UNI 11673, Collaudi, Fascicoli QR, più Showroom per Essentials e Logistica per Essentials/E+.
+**Pagine aperte:** Panoramica, Notifiche, Configuratori, Richieste, Account/Squadra/Piano/Fatturazione. In più Showroom (Level 2 e Level 3) e Logistica (Level 3).
+**Pagine con lucchetto** (come oggi per le funzioni non incluse): Statistiche, Preventivi B2B, Trattative, Clienti, Cantieri, Rilievi, Posa UNI 11673, Collaudi, Fascicoli QR, più Showroom per Level 1 e Logistica per Level 1/E+.
 
 **Invariato:** Base, Pro, Agency ed Enterprise mantengono esattamente gli accessi attuali ("non modificare accessi"). Ogni nuovo permesso aggiunto vale `true` per loro.
 
@@ -76,9 +78,9 @@ Chiavi interne: `essentials`, `essentials_plus`, `max`. Moltiplicatori calcolati
 
 ## 4. Decisioni prese (29/09/2026)
 1. **Oltre il limite il widget accetta ma blocca.** Il cliente finale invia comunque e nessun lead va perso. Il montatore vede la richiesta con i dati personali nascosti **lato server** (nome, email, telefono, messaggio) finché non sale di piano o non inizia il mese nuovo.
-2. **Moltiplicatori calcolati su Essentials**: Essentials+ vale ×2, Max vale ×5 di Essentials. I limiti showroom di Essentials+ sono quelli di Essentials (40/15/40); quelli di Max sono ×5 (200/75/200).
+2. **Moltiplicatori calcolati su Level 1**: Level 2 vale ×2, Level 3 vale ×5 di Level 1. I limiti showroom di Level 2 sono quelli di Level 1 (40/15/40); quelli di Level 3 sono ×5 (200/75/200).
 3. **WhatsApp = invii del montatore** dalla pagina Richieste (testo, senza PDF), contati sul server una volta per preventivo. Il pulsante "Invia riepilogo su WhatsApp" del cliente finale non è limitato.
-4. **Utenti 1 / 2 / 3.** Badge "Powered by OneSpec" visibile su Essentials; **white-label su Essentials+ e Max** (aggiornamento successivo del fondatore, sostituisce la risposta iniziale).
+4. **Utenti 1 / 2 / 3.** Badge "Powered by OneSpec" visibile su Level 1; **white-label su Level 2 e Level 3** (aggiornamento successivo del fondatore, sostituisce la risposta iniziale).
 
 ---
 

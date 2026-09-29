@@ -540,6 +540,31 @@
         "Export GAEB/DATANORM",
         "Domeniu personalizat",
         "Preț și contract personalizate"
+      ],
+      "essentials": [
+        "Calculator de oferte pe site-ul tău + pagină link pentru social media",
+        "1 configurator",
+        "40 de cereri pe lună",
+        "15 PDF-uri pe lună (descărcate de tine)",
+        "40 de trimiteri WhatsApp pe lună",
+        "1 utilizator",
+        "Insigna „Powered by OneSpec”",
+        "Fără obligații: anulezi oricând"
+      ],
+      "essentials_plus": [
+        "Tot din Level 1 ×2: 80 de cereri, 30 PDF-uri și 80 WhatsApp pe lună",
+        "3 configuratoare",
+        "Oferte Showroom: 80 de oferte, 30 PDF-uri și 80 WhatsApp pe lună",
+        "White-label: marca ta, fără insignă",
+        "2 utilizatori"
+      ],
+      "max": [
+        "Tot din Level 1 ×5: 200 de cereri, 75 PDF-uri și 200 WhatsApp pe lună",
+        "10 configuratoare",
+        "Oferte Showroom: 200 de oferte, 75 PDF-uri și 200 WhatsApp pe lună",
+        "Logistică: furnizori, transportatori și livrări",
+        "White-label",
+        "3 utilizatori"
       ]
     },
     "notice": {
@@ -554,7 +579,15 @@
     "trial": {
       "daysRemaining": "{days, plural, =0 {Ultima zi de probă} one {# zi de probă rămasă} other {# zile de probă rămase}}",
       "detail": "{elapsed} zile trecute · perioada de probă se încheie pe {date}"
-    }
+    },
+    "families": {
+      "widgetTitle": "Oferte online",
+      "widgetBody": "Calculator de oferte pe site și Showroom. Începe de aici, fără obligații.",
+      "platformTitle": "Platforma completă",
+      "platformBody": "Toată munca ta într-un singur loc: oferte B2B, clienți, șantiere, montaj și recepții."
+    },
+    "vatExcluded": "Prețuri fără TVA.",
+    "monthlyOnly": "Doar lunar"
   },
   "clients": {
     "title": "Clienți",
@@ -1354,7 +1387,12 @@
     "locked": "Blocat de plan",
     "features": {
       "analytics": "Statistici",
-      "showroom": "Showroom"
+      "showroom": "Showroom",
+      "fieldQuotes": "Oferte B2B",
+      "crm": "Clienți și oportunități",
+      "cantieri": "Șantiere",
+      "fieldOps": "Module de șantier",
+      "logistics": "Logistică"
     }
   },
   "onboarding": {
@@ -1460,8 +1498,45 @@
             "Multi-furnizor + showroom",
             "Multi-catalog"
           ]
+        },
+        "essentials": {
+          "name": "Level 1",
+          "features": [
+            "Calculator de oferte pe site-ul tău + pagină link pentru social media",
+            "1 configurator",
+            "40 de cereri pe lună",
+            "15 PDF-uri pe lună (descărcate de tine)",
+            "40 de trimiteri WhatsApp pe lună",
+            "1 utilizator",
+            "Insigna „Powered by OneSpec”",
+            "Fără obligații: anulezi oricând"
+          ]
+        },
+        "essentials_plus": {
+          "name": "Level 2",
+          "features": [
+            "Tot din Level 1 ×2: 80 de cereri, 30 PDF-uri și 80 WhatsApp pe lună",
+            "3 configuratoare",
+            "Oferte Showroom: 80 de oferte, 30 PDF-uri și 80 WhatsApp pe lună",
+            "White-label: marca ta, fără insignă",
+            "2 utilizatori"
+          ]
+        },
+        "max": {
+          "name": "Level 3",
+          "features": [
+            "Tot din Level 1 ×5: 200 de cereri, 75 PDF-uri și 200 WhatsApp pe lună",
+            "10 configuratoare",
+            "Oferte Showroom: 200 de oferte, 75 PDF-uri și 200 WhatsApp pe lună",
+            "Logistică: furnizori, transportatori și livrări",
+            "White-label",
+            "3 utilizatori"
+          ]
         }
-      }
+      },
+      "widgetTitle": "Oferte online · începe de aici",
+      "platformTitle": "Platforma completă",
+      "vatExcluded": "Prețuri fără TVA, facturare lunară, anulezi oricând."
     },
     "team": {
       "title": "Echipa ta",
@@ -1622,6 +1697,17 @@
     "lockedTitle": "Cerere blocată",
     "lockedBody": "Ați atins limita lunară de cereri a abonamentului. Cererea este salvată: datele de contact se deblochează la trecerea la un abonament superior sau pe 1 ale lunii.",
     "upgradeCta": "Vezi abonamentele",
-    "back": "← Înapoi la cereri"
+    "back": "← Înapoi la cereri",
+    "meterTitle": "Utilizarea din această lună",
+    "meterReset": "Se resetează pe 1 ale lunii.",
+    "unlimited": "nelimitat",
+    "meters": {
+      "requests": "Cereri din calculatorul de oferte",
+      "pdf": "PDF-uri descărcate",
+      "whatsapp": "Trimiteri WhatsApp",
+      "showroomQuotes": "Oferte Showroom",
+      "showroomPdf": "Documente Showroom",
+      "showroomWhatsapp": "WhatsApp din Showroom"
+    }
   }
 }

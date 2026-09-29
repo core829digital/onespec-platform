@@ -540,6 +540,31 @@
         "Export GAEB/DATANORM",
         "Domaine personnalisé",
         "Tarif et contrat sur mesure"
+      ],
+      "essentials": [
+        "Outil de devis sur votre site + page lien pour les réseaux sociaux",
+        "1 configurateur",
+        "40 demandes par mois",
+        "15 PDF par mois (téléchargés par vous)",
+        "40 envois WhatsApp par mois",
+        "1 utilisateur",
+        "Badge « Powered by OneSpec »",
+        "Sans engagement : résiliable à tout moment"
+      ],
+      "essentials_plus": [
+        "Tout Level 1 ×2 : 80 demandes, 30 PDF et 80 WhatsApp par mois",
+        "3 configurateurs",
+        "Devis Showroom : 80 devis, 30 PDF et 80 WhatsApp par mois",
+        "Marque blanche : votre marque, sans badge",
+        "2 utilisateurs"
+      ],
+      "max": [
+        "Tout Level 1 ×5 : 200 demandes, 75 PDF et 200 WhatsApp par mois",
+        "10 configurateurs",
+        "Devis Showroom : 200 devis, 75 PDF et 200 WhatsApp par mois",
+        "Logistique : fournisseurs, transporteurs et livraisons",
+        "Marque blanche",
+        "3 utilisateurs"
       ]
     },
     "notice": {
@@ -554,7 +579,15 @@
     "trial": {
       "daysRemaining": "{days, plural, =0 {Dernier jour d'essai} one {# jour d'essai restant} other {# jours d'essai restants}}",
       "detail": "{elapsed} jours écoulés · l'essai se termine le {date}"
-    }
+    },
+    "families": {
+      "widgetTitle": "Devis en ligne",
+      "widgetBody": "Outil de devis sur votre site et Showroom. Commencez ici, sans engagement.",
+      "platformTitle": "Plateforme complète",
+      "platformBody": "Tout votre travail au même endroit : devis B2B, clients, chantiers, pose et réception."
+    },
+    "vatExcluded": "Prix hors TVA.",
+    "monthlyOnly": "Mensuel uniquement"
   },
   "clients": {
     "title": "Clients",
@@ -1354,7 +1387,12 @@
     "locked": "Bloqué par le plan",
     "features": {
       "analytics": "Statistiques",
-      "showroom": "Showroom"
+      "showroom": "Showroom",
+      "fieldQuotes": "Devis B2B",
+      "crm": "Clients et affaires",
+      "cantieri": "Chantiers",
+      "fieldOps": "Modules chantier",
+      "logistics": "Logistique"
     }
   },
   "onboarding": {
@@ -1460,8 +1498,45 @@
             "Multi-fournisseurs + showroom",
             "Multi-catalogue"
           ]
+        },
+        "essentials": {
+          "name": "Level 1",
+          "features": [
+            "Outil de devis sur votre site + page lien pour les réseaux sociaux",
+            "1 configurateur",
+            "40 demandes par mois",
+            "15 PDF par mois (téléchargés par vous)",
+            "40 envois WhatsApp par mois",
+            "1 utilisateur",
+            "Badge « Powered by OneSpec »",
+            "Sans engagement : résiliable à tout moment"
+          ]
+        },
+        "essentials_plus": {
+          "name": "Level 2",
+          "features": [
+            "Tout Level 1 ×2 : 80 demandes, 30 PDF et 80 WhatsApp par mois",
+            "3 configurateurs",
+            "Devis Showroom : 80 devis, 30 PDF et 80 WhatsApp par mois",
+            "Marque blanche : votre marque, sans badge",
+            "2 utilisateurs"
+          ]
+        },
+        "max": {
+          "name": "Level 3",
+          "features": [
+            "Tout Level 1 ×5 : 200 demandes, 75 PDF et 200 WhatsApp par mois",
+            "10 configurateurs",
+            "Devis Showroom : 200 devis, 75 PDF et 200 WhatsApp par mois",
+            "Logistique : fournisseurs, transporteurs et livraisons",
+            "Marque blanche",
+            "3 utilisateurs"
+          ]
         }
-      }
+      },
+      "widgetTitle": "Devis en ligne · commencez ici",
+      "platformTitle": "Plateforme complète",
+      "vatExcluded": "Prix HT, facturation mensuelle, résiliable à tout moment."
     },
     "team": {
       "title": "Votre équipe",
@@ -1622,6 +1697,17 @@
     "lockedTitle": "Demande bloquée",
     "lockedBody": "Vous avez atteint la limite mensuelle de demandes de votre offre. La demande est enregistrée : les coordonnées se débloquent en passant à une offre supérieure ou le 1er du mois.",
     "upgradeCta": "Voir les offres",
-    "back": "← Retour aux demandes"
+    "back": "← Retour aux demandes",
+    "meterTitle": "Utilisation ce mois-ci",
+    "meterReset": "Remise à zéro le 1er du mois.",
+    "unlimited": "illimité",
+    "meters": {
+      "requests": "Demandes de l'outil de devis",
+      "pdf": "PDF téléchargés",
+      "whatsapp": "Envois WhatsApp",
+      "showroomQuotes": "Devis Showroom",
+      "showroomPdf": "Documents Showroom",
+      "showroomWhatsapp": "WhatsApp depuis le Showroom"
+    }
   }
 }

@@ -540,6 +540,31 @@
         "GAEB/DATANORM-export",
         "Eigen domein",
         "Prijs en contract op maat"
+      ],
+      "essentials": [
+        "Offertetool op uw website + linkpagina voor sociale media",
+        "1 configurator",
+        "40 aanvragen per maand",
+        "15 pdf's per maand (door u gedownload)",
+        "40 WhatsApp-verzendingen per maand",
+        "1 gebruiker",
+        "Badge ‘Powered by OneSpec’",
+        "Geen verplichtingen: altijd opzegbaar"
+      ],
+      "essentials_plus": [
+        "Alles uit Level 1 ×2: 80 aanvragen, 30 pdf's en 80 WhatsApp per maand",
+        "3 configurators",
+        "Showroom-offertes: 80 offertes, 30 pdf's en 80 WhatsApp per maand",
+        "White-label: uw merk, zonder badge",
+        "2 gebruikers"
+      ],
+      "max": [
+        "Alles uit Level 1 ×5: 200 aanvragen, 75 pdf's en 200 WhatsApp per maand",
+        "10 configurators",
+        "Showroom-offertes: 200 offertes, 75 pdf's en 200 WhatsApp per maand",
+        "Logistiek: leveranciers, vervoerders en leveringen",
+        "White-label",
+        "3 gebruikers"
       ]
     },
     "notice": {
@@ -554,7 +579,15 @@
     "trial": {
       "daysRemaining": "{days, plural, =0 {Laatste proefdag} one {# proefdag over} other {# proefdagen over}}",
       "detail": "{elapsed} dagen verstreken · proefperiode eindigt op {date}"
-    }
+    },
+    "families": {
+      "widgetTitle": "Online offertes",
+      "widgetBody": "Offertetool op de website en Showroom. Begin hier, zonder verplichtingen.",
+      "platformTitle": "Volledig platform",
+      "platformBody": "Al uw werk op één plek: B2B-offertes, klanten, bouwplaatsen, montage en opleveringen."
+    },
+    "vatExcluded": "Prijzen exclusief btw.",
+    "monthlyOnly": "Alleen maandelijks"
   },
   "clients": {
     "title": "Klanten",
@@ -1354,7 +1387,12 @@
     "locked": "Geblokkeerd door abonnement",
     "features": {
       "analytics": "Statistieken",
-      "showroom": "Showroom"
+      "showroom": "Showroom",
+      "fieldQuotes": "B2B-offertes",
+      "crm": "Klanten en deals",
+      "cantieri": "Bouwplaatsen",
+      "fieldOps": "Bouwplaatsmodules",
+      "logistics": "Logistiek"
     }
   },
   "onboarding": {
@@ -1460,8 +1498,45 @@
             "Multi-leverancier + showroom",
             "Multi-catalogus"
           ]
+        },
+        "essentials": {
+          "name": "Level 1",
+          "features": [
+            "Offertetool op uw website + linkpagina voor sociale media",
+            "1 configurator",
+            "40 aanvragen per maand",
+            "15 pdf's per maand (door u gedownload)",
+            "40 WhatsApp-verzendingen per maand",
+            "1 gebruiker",
+            "Badge ‘Powered by OneSpec’",
+            "Geen verplichtingen: altijd opzegbaar"
+          ]
+        },
+        "essentials_plus": {
+          "name": "Level 2",
+          "features": [
+            "Alles uit Level 1 ×2: 80 aanvragen, 30 pdf's en 80 WhatsApp per maand",
+            "3 configurators",
+            "Showroom-offertes: 80 offertes, 30 pdf's en 80 WhatsApp per maand",
+            "White-label: uw merk, zonder badge",
+            "2 gebruikers"
+          ]
+        },
+        "max": {
+          "name": "Level 3",
+          "features": [
+            "Alles uit Level 1 ×5: 200 aanvragen, 75 pdf's en 200 WhatsApp per maand",
+            "10 configurators",
+            "Showroom-offertes: 200 offertes, 75 pdf's en 200 WhatsApp per maand",
+            "Logistiek: leveranciers, vervoerders en leveringen",
+            "White-label",
+            "3 gebruikers"
+          ]
         }
-      }
+      },
+      "widgetTitle": "Online offertes · begin hier",
+      "platformTitle": "Volledig platform",
+      "vatExcluded": "Prijzen excl. btw, maandelijks gefactureerd, altijd opzegbaar."
     },
     "team": {
       "title": "Jouw team",
@@ -1622,6 +1697,17 @@
     "lockedTitle": "Aanvraag geblokkeerd",
     "lockedBody": "De maandelijkse aanvraaglimiet van uw abonnement is bereikt. De aanvraag is opgeslagen: de contactgegevens worden vrijgegeven bij een hoger abonnement of op de 1e van de maand.",
     "upgradeCta": "Abonnementen bekijken",
-    "back": "← Terug naar aanvragen"
+    "back": "← Terug naar aanvragen",
+    "meterTitle": "Gebruik deze maand",
+    "meterReset": "Wordt op de 1e van de maand gereset.",
+    "unlimited": "onbeperkt",
+    "meters": {
+      "requests": "Aanvragen via de offertetool",
+      "pdf": "Gedownloade pdf's",
+      "whatsapp": "WhatsApp-verzendingen",
+      "showroomQuotes": "Showroom-offertes",
+      "showroomPdf": "Showroom-documenten",
+      "showroomWhatsapp": "WhatsApp vanuit de Showroom"
+    }
   }
 }
