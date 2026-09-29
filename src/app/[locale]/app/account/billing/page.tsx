@@ -11,6 +11,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import { planDisplayName } from "@/lib/plan-gates";
 import { UsageMeters } from "@/components/billing/usage-meters";
+import { SectionBoundary } from "@/components/section-boundary";
 
 type SelfServePlan = "essentials" | "essentials_plus" | "max" | "base" | "pro" | "agency";
 
@@ -354,7 +355,11 @@ export default function BillingPage() {
         </>
       ) : (
         <>
-        {tenant ? <UsageMeters tenantId={tenant._id} /> : null}
+        {tenant ? (
+          <SectionBoundary>
+            <UsageMeters tenantId={tenant._id} />
+          </SectionBoundary>
+        ) : null}
         {(["widget", "platform"] as const).map((family) => {
           const plans = displayPlans.filter((p) => p.family === family);
           const hasAnnual = plans.some((p) => p.annualBilling);
