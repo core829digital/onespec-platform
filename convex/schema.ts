@@ -479,7 +479,8 @@ export default defineSchema({
     .index("by_ipHash", ["sourceIpHash"])
     .index("by_client", ["clientId"])
     .index("by_cantiere", ["cantiereId"])
-    .index("by_tenantId_and_quotaLocked", ["tenantId", "quotaLocked"]),
+    .index("by_tenantId_and_quotaLocked", ["tenantId", "quotaLocked"])
+    .index("by_quotaLocked", ["quotaLocked"]),
 
   notifications: defineTable({
     tenantId: v.id("tenants"),

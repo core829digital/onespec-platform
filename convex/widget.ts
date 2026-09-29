@@ -7,10 +7,11 @@ import type { Doc } from "./_generated/dataModel";
 import { calculatePrice, type ProjectItem, type CatalogPayload } from "../src/shared/pricing";
 import { ProjectItemSchema } from "../src/shared/widget-types";
 import { requireMembership } from "./lib/auth";
-import { resolveTenantEntitlements, currentPeriod } from "./lib/entitlements";
+import { resolveTenantEntitlements, currentPeriod, isWidgetPlan } from "./lib/entitlements";
+import { LOCKED_LEAD_NAME } from "./lib/quotaLock";
 import { consumeToken } from "./lib/ratelimit";
 import { regionForCountry, type RegionPolicy } from "./lib/regions";
-import { enforcePublicWidget } from "./lib/enforcement";
+import { configuratorWithinPlanCap, enforcePublicWidget } from "./lib/enforcement";
 
 /** Rows/objects that may carry Convex system + tenant fields. */
 type WithSystemFields = Record<string, unknown> & {
@@ -220,9 +221,12 @@ export const getPublicConfigurator = query({
       : null;
 
     const tenant = await ctx.db.get(configurator.tenantId);
+    const ent = tenant ? resolveTenantEntitlements(tenant) : null;
 
     return assembleWidgetResponse({
-      publicWidgetAllowed: tenant ? resolveTenantEntitlements(tenant).publicWidget : false,
+      publicWidgetAllowed: ent ? ent.publicWidget : false,
+      whiteLabelAllowed: ent ? ent.whiteLabel : false,
+      overPlanLimit: tenant ? !(await configuratorWithinPlanCap(ctx, tenant, configurator._id)) : false,
       configurator,
       branding,
       payload: version.payload,
@@ -251,6 +255,10 @@ function assembleWidgetResponse(args: {
   publicWidgetAllowed?: boolean;
   /** Owner's privacy notice URL for the consent checkbox (Annex D of the DPA); absent = generic wording. */
   privacyUrl?: string;
+  /** Whether the owner's CURRENT plan includes white-label (the branding row can predate a downgrade). */
+  whiteLabelAllowed?: boolean;
+  /** Widget-first plan over its configurator cap after a downgrade: this one no longer serves. */
+  overPlanLimit?: boolean;
 }) {
   const { configurator, branding, payload, catalogVersion, logoUrl, logoLightUrl, region, transparentAllowed, privacyUrl } = args;
   // The region is authoritative for widget mode: in NL a transparent price
@@ -284,12 +292,13 @@ function assembleWidgetResponse(args: {
     // null for every anonymous customer, so the public widget was locked for
     // everyone except its owner previewing it).
     publicWidgetAllowed: args.publicWidgetAllowed ?? true,
+    overPlanLimit: args.overPlanLimit ?? false,
     vatRates: region.vatRates,
     defaultVatKey: region.defaultVatKey,
     complianceFlags: region.complianceFlags,
     catalogVersion,
     branding: {
-      whiteLabel: branding?.whiteLabel ?? false,
+      whiteLabel: (branding?.whiteLabel ?? false) && (args.whiteLabelAllowed ?? true),
       colorAccent: branding?.colorAccent ?? "#16d19d",
       colorAccentInk: branding?.colorAccentInk ?? null,
       colorBg: branding?.colorBg ?? null,
@@ -382,6 +391,7 @@ export const getConfiguratorForPreview = query({
       logoLightUrl,
       region: regionForCountry(tenant?.country),
       transparentAllowed: tenant ? resolveTenantEntitlements(tenant).transparentWidget : false,
+      whiteLabelAllowed: tenant ? resolveTenantEntitlements(tenant).whiteLabel : false,
     });
   },
 });
@@ -452,6 +462,17 @@ export const insertQuote = internalMutation({
       !!entitlements &&
       Number.isFinite(entitlements.maxQuotesPerMonth) &&
       usedThisPeriod >= entitlements.maxQuotesPerMonth;
+    // Widget-first plans ("accetta ma blocca"): over the cap the lead is still
+    // saved, but its contact details stay hidden until upgrade / next month.
+    // Full-platform plans keep today's behaviour (flag only). Flagged requests
+    // count too: `flagged` derives from the tenant-controlled allowedOrigins,
+    // so exempting them would let a tenant bypass its cap.
+    const widgetPlan = !!tenant && tenant.unlimitedAccess !== true && isWidgetPlan(tenant.plan);
+    // A configurator beyond the plan's cap (after a downgrade) no longer
+    // serves; a submission that still reaches it is saved but locked too.
+    const overConfiguratorCap =
+      widgetPlan && !!tenant && !(await configuratorWithinPlanCap(ctx, tenant, configurator._id));
+    const quotaLocked = widgetPlan && (overQuota || overConfiguratorCap);
 
     const price = calculatePrice(version.payload, items);
 
@@ -490,6 +511,7 @@ export const insertQuote = internalMutation({
       turnstileVerified: args.turnstileVerified,
       spamScore: args.flagged ? 80 : priceMismatch ? 30 : 0,
       overQuota: overQuota || undefined,
+      quotaLocked: quotaLocked || undefined,
       consentAt: args.consentAt,
       consentVersion: args.consentVersion,
     });
@@ -516,9 +538,11 @@ export const insertQuote = internalMutation({
         tenantId: configurator.tenantId,
         type: "plan_limit",
         data: {
-          message: `Monthly quote limit reached (${entitlements.maxQuotesPerMonth}). New requests are still saved — upgrade to keep full analytics.`,
+          message: quotaLocked
+            ? `Limite mensile raggiunto (${entitlements.maxQuotesPerMonth} richieste). Le nuove richieste vengono salvate, ma i contatti restano nascosti finché non passi a un piano superiore o fino al primo del mese.`
+            : `Monthly quote limit reached (${entitlements.maxQuotesPerMonth}). New requests are still saved — upgrade to keep full analytics.`,
         },
-        href: `/app/account`,
+        href: quotaLocked ? `/app/account/billing?tab=plan` : `/app/account`,
       });
     }
 
@@ -540,13 +564,23 @@ export const insertQuote = internalMutation({
       await ctx.scheduler.runAfter(0, internal.notifications.fanOutToTenant, {
         tenantId: configurator.tenantId,
         type: "quote_request_new",
-        data: {
-          quoteId,
-          leadName: args.leadName,
-          leadEmail: args.leadEmail,
-          priceCents: price.priceCents,
-          configuratorName: configurator.name,
-        },
+        // A quota-locked lead's contact details never leave the server —
+        // not in the in-app notification, not in the e-mail.
+        data: quotaLocked
+          ? {
+              quoteId,
+              leadName: LOCKED_LEAD_NAME,
+              locked: true,
+              priceCents: price.priceCents,
+              configuratorName: configurator.name,
+            }
+          : {
+              quoteId,
+              leadName: args.leadName,
+              leadEmail: args.leadEmail,
+              priceCents: price.priceCents,
+              configuratorName: configurator.name,
+            },
         href: `/app/requests/${quoteId}`,
         emailTemplate: "new_quote_request",
       });

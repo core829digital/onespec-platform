@@ -4,6 +4,7 @@ import { api } from "@/convex/_generated/api";
 import { Widget } from "@/components/widget/widget";
 import { resolveWidgetLang, resolveWidgetTheme } from "@/lib/widget-params";
 import { notFound } from "next/navigation";
+import { WidgetLocked } from "@/components/widget/widget-locked";
 
 export const revalidate = 30;
 
@@ -40,6 +41,8 @@ export default async function HostedConfiguratorPage({
   if (!configurator) notFound();
   const theme = resolveWidgetTheme(sp.theme, configurator.defaultTheme);
   const lang = resolveWidgetLang(sp.lang, configurator.defaultLocale);
+  // Widget-first plan over its configurator cap (after a downgrade): locked.
+  if (configurator.overPlanLimit) return <WidgetLocked lang={lang} />;
 
   return (
     <Widget

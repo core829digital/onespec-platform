@@ -17,8 +17,8 @@ import type { Doc } from "../_generated/dataModel";
  * Widget-first ladder (2026-09-29, sold before the full platform — see
  * docs/PIANO_ABBONAMENTI_WIDGET.md):
  *   Essentials  (€49,95) — public widget, 40 requests/15 PDF/40 WhatsApp, 1 configurator
- *   Essentials+ (€62,44) — Essentials ×2 + showroom quoter, 3 configurators
- *   Max         (€79,90) — Essentials ×5 + logistics, 10 configurators
+ *   Essentials+ (€62,44) — Essentials ×2 + showroom quoter + white-label, 3 configurators
+ *   Max         (€79,90) — Essentials ×5 + logistics + white-label, 10 configurators
  * Every platform module outside the widget stays locked on these plans
  * (`module*` flags), and every metered action has its own monthly cap
  * (`max*PerMonth`). For the full-platform plans every `module*` flag is on and
@@ -286,7 +286,7 @@ const ESSENTIALS: Entitlements = {
   maxConfigurators: 1,
   maxTeamMembers: 1,
   publicWidget: true,
-  // "Powered by OneSpec" stays visible on every widget-first plan.
+  // "Powered by OneSpec" stays visible on Essentials; Essentials+ and Max are white-label.
   whiteLabel: false,
   analytics: "none",
   annualBilling: false,
@@ -307,6 +307,8 @@ const ESSENTIALS_PLUS: Entitlements = {
   maxConfigurators: 3,
   maxTeamMembers: 2,
   showroomCalculator: true,
+  // White-label (own branding, no "Powered by OneSpec") from Essentials+ up.
+  whiteLabel: true,
 };
 
 const MAX: Entitlements = {

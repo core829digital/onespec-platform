@@ -74,6 +74,7 @@ import type * as setupGuide from "../setupGuide.js";
 import type * as suppliers from "../suppliers.js";
 import type * as surveys from "../surveys.js";
 import type * as tenants from "../tenants.js";
+import type * as usage from "../usage.js";
 import type * as users from "../users.js";
 import type * as widget from "../widget.js";
 
@@ -150,6 +151,7 @@ declare const fullApi: ApiFromModules<{
   suppliers: typeof suppliers;
   surveys: typeof surveys;
   tenants: typeof tenants;
+  usage: typeof usage;
   users: typeof users;
   widget: typeof widget;
 }>;

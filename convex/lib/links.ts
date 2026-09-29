@@ -14,6 +14,7 @@
 import { ConvexError } from "convex/values";
 import type { Doc, Id } from "../_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "../_generated/server";
+import { lockedSafeLeadName } from "./quotaLock";
 
 export interface ResolvedLinks {
   clientId: Id<"clients"> | undefined;
@@ -138,7 +139,7 @@ export async function listRelated(
   return {
     quotes: quotes.map((r) => ({
       _id: r._id,
-      leadName: r.leadName,
+      leadName: lockedSafeLeadName(r),
       priceCents: r.priceCents,
       status: r.status,
       publicId: r.publicId,

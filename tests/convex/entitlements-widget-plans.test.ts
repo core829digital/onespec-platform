@@ -3,9 +3,9 @@ import { entitlementsFor, isWidgetPlan, WIDGET_PLANS } from "../../convex/lib/en
 
 /** The financial plan (docs/PIANO_ABBONAMENTI_WIDGET.md §3) as a literal table. */
 const SPEC = {
-  essentials: { quotes: 40, pdf: 15, wa: 40, configurators: 1, users: 1, showroom: false, sQuotes: 0, sPdf: 0, sWa: 0, logistics: false },
-  essentials_plus: { quotes: 80, pdf: 30, wa: 80, configurators: 3, users: 2, showroom: true, sQuotes: 80, sPdf: 30, sWa: 80, logistics: false },
-  max: { quotes: 200, pdf: 75, wa: 200, configurators: 10, users: 3, showroom: true, sQuotes: 200, sPdf: 75, sWa: 200, logistics: true },
+  essentials: { quotes: 40, pdf: 15, wa: 40, configurators: 1, users: 1, showroom: false, sQuotes: 0, sPdf: 0, sWa: 0, logistics: false, whiteLabel: false },
+  essentials_plus: { quotes: 80, pdf: 30, wa: 80, configurators: 3, users: 2, showroom: true, sQuotes: 80, sPdf: 30, sWa: 80, logistics: false, whiteLabel: true },
+  max: { quotes: 200, pdf: 75, wa: 200, configurators: 10, users: 3, showroom: true, sQuotes: 200, sPdf: 75, sWa: 200, logistics: true, whiteLabel: true },
 } as const;
 
 describe("widget-first plans match the financial plan", () => {
@@ -23,9 +23,9 @@ describe("widget-first plans match the financial plan", () => {
       expect(e.maxShowroomPdfPerMonth).toBe(s.sPdf);
       expect(e.maxShowroomWhatsappPerMonth).toBe(s.sWa);
       expect(e.moduleLogistics).toBe(s.logistics);
-      // Always: widget on, badge visible, no trial, monthly only, platform modules locked.
+      expect(e.whiteLabel).toBe(s.whiteLabel);
+      // Always: widget on, no trial, monthly only, platform modules locked.
       expect(e.publicWidget).toBe(true);
-      expect(e.whiteLabel).toBe(false);
       expect(e.trialEligible).toBe(false);
       expect(e.annualBilling).toBe(false);
       expect(e.analytics).toBe("none");

@@ -4,6 +4,7 @@ import { ConvexError } from "convex/values";
 import { requirePermission } from "./lib/rbac";
 import { consumeToken, RATE_LIMITS } from "./lib/ratelimit";
 import { toCsv } from "./lib/csv";
+import { redactQuoteRequest } from "./lib/quotaLock";
 
 const QUOTE_STATUS = v.union(
   v.literal("new"),
@@ -42,7 +43,8 @@ export const exportRequestsCsv = mutation({
           )
       : ctx.db.query("quoteRequests").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId));
 
-    const records = await rowsQuery.order("desc").take(MAX_ROWS);
+    // Quota-locked requests ("accetta ma blocca") export without contact details.
+    const records = (await rowsQuery.order("desc").take(MAX_ROWS)).map(redactQuoteRequest);
 
     // Resolve assignee names once.
     const assigneeIds = [

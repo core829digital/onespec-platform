@@ -1,7 +1,7 @@
 import { ConvexError } from "convex/values";
 import type { MutationCtx, QueryCtx } from "../_generated/server";
 import type { Doc, Id } from "../_generated/dataModel";
-import { resolveTenantEntitlements, assertEntitlement, assertQuota, currentPeriod } from "./entitlements";
+import { resolveTenantEntitlements, assertEntitlement, assertQuota, currentPeriod, isWidgetPlan } from "./entitlements";
 
 /**
  * Entitlement enforcement helpers for mutations/queries.
@@ -136,17 +136,42 @@ export async function enforceCRMIntegration(ctx: MutationCtx, tenantId: Id<"tena
 export async function enforceConfiguratorQuota(ctx: ReadCtx, tenantId: Id<"tenants">): Promise<void> {
   const { ent } = await getTenantWithEntitlements(ctx, tenantId);
   if (!Number.isFinite(ent.maxConfigurators)) return;
-  const period = currentPeriod();
-  // .first() rather than .unique(): a duplicate counter row for the same
-  // tenant+period (e.g. from a past race between two concurrent writers,
-  // see convex/quotes.ts/widget.ts upsert sites) would make .unique() throw
-  // and permanently block every configurator create for that tenant.
-  const counter = await ctx.db
-    .query("usageCounters")
-    .withIndex("by_tenant_period", (q) => q.eq("tenantId", tenantId).eq("period", period))
-    .first();
-  const used = counter?.activeConfiguratorsCount ?? 0;
+  // `maxConfigurators` caps the configurators that EXIST (draft + published),
+  // not the ones created this month: the old per-period counter reset every
+  // month, so a tenant could add another N configurators each month.
+  const used = await countLiveConfigurators(ctx, tenantId, ent.maxConfigurators);
   assertQuota(used, ent.maxConfigurators, "CONFIGURATOR_QUOTA_EXCEEDED");
+}
+
+/** Draft + published configurators, counted up to `cap` (bounded reads). */
+export async function countLiveConfigurators(ctx: ReadCtx, tenantId: Id<"tenants">, cap: number): Promise<number> {
+  const take = Math.max(0, Math.min(cap, 1000));
+  const [drafts, published] = await Promise.all([
+    ctx.db.query("configurators").withIndex("by_tenant_status", (q) => q.eq("tenantId", tenantId).eq("status", "draft")).take(take),
+    ctx.db.query("configurators").withIndex("by_tenant_status", (q) => q.eq("tenantId", tenantId).eq("status", "published")).take(take),
+  ]);
+  return drafts.length + published.length;
+}
+
+/**
+ * Widget-first plans after a downgrade (e.g. Max 10 → Essentials 1): only the
+ * oldest `maxConfigurators` published configurators keep serving the public
+ * widget/link page; the rest show the lock until the tenant upgrades or
+ * unpublishes. Full-platform plans are unaffected.
+ */
+export async function configuratorWithinPlanCap(
+  ctx: ReadCtx,
+  tenant: Doc<"tenants">,
+  configuratorId: Id<"configurators">,
+): Promise<boolean> {
+  if (tenant.unlimitedAccess === true || !isWidgetPlan(tenant.plan)) return true;
+  const cap = resolveTenantEntitlements(tenant).maxConfigurators;
+  if (!Number.isFinite(cap)) return true;
+  const serving = await ctx.db
+    .query("configurators")
+    .withIndex("by_tenant_status", (q) => q.eq("tenantId", tenant._id).eq("status", "published"))
+    .take(cap);
+  return serving.some((c) => c._id === configuratorId);
 }
 
 export async function enforceQuoteQuota(ctx: ReadCtx, tenantId: Id<"tenants">): Promise<void> {

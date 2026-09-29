@@ -17,4 +17,11 @@ crons.daily(
   internal.billing.trialSweep,
 );
 
+// "Accetta ma blocca": requests locked in a month that is over become visible.
+crons.daily(
+  "unlock-previous-period-requests",
+  { hourUTC: 0, minuteUTC: 10 },
+  internal.usage.unlockPreviousPeriods,
+);
+
 export default crons;

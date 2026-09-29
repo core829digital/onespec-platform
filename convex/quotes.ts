@@ -3,6 +3,7 @@ import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import { requireMembership } from "./lib/auth";
 import { requirePermission } from "./lib/rbac";
+import { lockedSafeLeadName, redactQuoteRequest } from "./lib/quotaLock";
 import { emit } from "./lib/triggers";
 import { enforceForCreateQuote, enforceForESignature, enforceForMultiSupplier } from "./lib/enforcement";
 import { calculatePrice, type ProjectItem, type CatalogPayload } from "../src/shared/pricing";
@@ -41,13 +42,15 @@ export const listRequests = query({
           q.eq("tenantId", args.tenantId).eq("status", status),
         )
         .order("desc")
-        .take(limit);
+        .take(limit)
+        .then((rows) => rows.map(redactQuoteRequest));
     }
     return await ctx.db
       .query("quoteRequests")
       .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
       .order("desc")
-      .take(limit);
+      .take(limit)
+      .then((rows) => rows.map(redactQuoteRequest));
   },
 });
 
@@ -57,7 +60,7 @@ export const getRequest = query({
     const quote = await ctx.db.get(args.quoteId);
     if (!quote) return null;
     await requireMembership(ctx, quote.tenantId);
-    return quote;
+    return redactQuoteRequest(quote);
   },
 });
 
@@ -77,7 +80,7 @@ export const updateStatus = mutation({
       quoteId: args.quoteId,
       from: oldStatus,
       to: args.status,
-      leadName: quote.leadName,
+      leadName: lockedSafeLeadName(quote),
     });
     if (args.status === "won") {
       await emit(ctx, { type: "quote.won", tenantId: quote.tenantId, quoteId: args.quoteId });
@@ -374,7 +377,7 @@ export const getQuoteForPrint = query({
       .unique();
 
     return {
-      quote,
+      quote: redactQuoteRequest(quote),
       tenant,
       branding,
       configurator,

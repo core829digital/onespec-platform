@@ -24,7 +24,7 @@
 | Essentials+ | 62,44 €/mese | +showroom (oggi solo da **Agency, 397 €**), 3 configuratori, limiti ×2 | con solo +12,49 € rispetto a Essentials, spinge quasi tutti verso Essentials+: di fatto Essentials fa da "esca". Va bene se è voluto |
 | Max | 79,90 €/mese | +logistica, 10 configuratori, limiti ×5 | **rischio cannibalizzazione**: chi oggi pagherebbe Agency (397 €) per widget + showroom potrebbe scegliere Max a 79,90 € |
 
-**Come proteggere i piani completi (senza toccare i loro accessi):** i piani widget devono restare davvero "solo widget e showroom". Quindi restano bloccati: preventivi B2B con firma, trattative, clienti, cantieri, rilievi, posa, collaudi, fascicoli QR, statistiche, white-label (badge "Powered by OneSpec" visibile). Con questi confini, chi ha bisogno di gestire il lavoro passa naturalmente ai piani completi: è l'"expand".
+**Come proteggere i piani completi (senza toccare i loro accessi):** i piani widget devono restare davvero "solo widget e showroom". Quindi restano bloccati: preventivi B2B con firma, trattative, clienti, cantieri, rilievi, posa, collaudi, fascicoli QR, statistiche. Il white-label è incluso solo da Essentials+ in su (aggiornamento del 29/09: richiesta del fondatore). Con questi confini, chi ha bisogno di gestire il lavoro passa naturalmente ai piani completi: è l'"expand".
 
 Osservazioni minori:
 - 62,44 € è un prezzo insolito: di solito si usano finali come ,90 o ,95 (es. 59,90 / 64,90). Resta una tua scelta di marketing: lo implemento esattamente come indicato.
@@ -64,7 +64,7 @@ Chiavi interne: `essentials`, `essentials_plus`, `max`. Moltiplicatori calcolati
 | Showroom — WhatsApp | 🔒 | 40 | 200 |
 | Logistica | 🔒 | 🔒 | ✅ |
 | Utenti del team | 1 | 2 | 3 |
-| Badge "Powered by OneSpec" nel widget | visibile | visibile | visibile |
+| Badge "Powered by OneSpec" nel widget | visibile | white-label (rimovibile) | white-label (rimovibile) |
 | Trial gratuito | no | no | no |
 
 **Pagine aperte:** Panoramica, Notifiche, Configuratori, Richieste, Account/Squadra/Piano/Fatturazione. In più Showroom (E+ e Max) e Logistica (Max).
@@ -78,7 +78,7 @@ Chiavi interne: `essentials`, `essentials_plus`, `max`. Moltiplicatori calcolati
 1. **Oltre il limite il widget accetta ma blocca.** Il cliente finale invia comunque e nessun lead va perso. Il montatore vede la richiesta con i dati personali nascosti **lato server** (nome, email, telefono, messaggio) finché non sale di piano o non inizia il mese nuovo.
 2. **Moltiplicatori calcolati su Essentials**: Essentials+ vale ×2, Max vale ×5 di Essentials. I limiti showroom di Essentials+ sono quelli di Essentials (40/15/40); quelli di Max sono ×5 (200/75/200).
 3. **WhatsApp = invii del montatore** dalla pagina Richieste (testo, senza PDF), contati sul server una volta per preventivo. Il pulsante "Invia riepilogo su WhatsApp" del cliente finale non è limitato.
-4. **Utenti 1 / 2 / 3, badge "Powered by OneSpec" visibile** su tutti e 3 i piani (il white-label resta da Pro in su).
+4. **Utenti 1 / 2 / 3.** Badge "Powered by OneSpec" visibile su Essentials; **white-label su Essentials+ e Max** (aggiornamento successivo del fondatore, sostituisce la risposta iniziale).
 
 ---
 
