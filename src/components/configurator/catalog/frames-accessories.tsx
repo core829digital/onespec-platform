@@ -1,9 +1,10 @@
 "use client";
 
 import { useMutation } from "convex/react";
+import { useTranslations } from "next-intl";
 import { api } from "@/convex/_generated/api";
 import { Section, TextInput, NumberInput, Toggle } from "../editor-primitives";
-import { useCatalogEditor, label, toCents, thCls, tdCls, type LabelSet } from "./store";
+import { useCatalogEditor, toCents, thCls, tdCls } from "./store";
 import { AddRow, DeleteButton, ScrollTable } from "./widgets";
 
 type Row = Record<string, unknown>;
@@ -18,28 +19,29 @@ const sorted = (rows: Row[]) => [...rows].sort((a, b) => (a.sortOrder as number)
  * behind "non tutti i colori/accessori sono nei configuratori".
  */
 export function FrameTypesSection({ frameTypes }: { frameTypes: Row[] }) {
-  const { configuratorId, draft, setDraft, clearDraft, busy, run, autoSaveNow, autoSaveDebounced } = useCatalogEditor();
+  const { configuratorId, draft, setDraft, clearDraft, busy, run, autoSaveNow, autoSaveDebounced, labelOf, withLabel, newLabels, labelLang } = useCatalogEditor();
+  const t = useTranslations("editor.catalog");
   const upsert = useMutation(api.catalog.upsertFrameType);
   const remove = useMutation(api.catalog.deleteFrameType);
   const rows = sorted(frameTypes);
 
   return (
     <Section
-      title="Tipo Telaio"
-      description="Moltiplicatore di prezzo per tipo di telaio, più manodopera di posa (1/2/3+ ante), smaltimento e ponteggio."
+      title={t("frameTitle")}
+      description={t("frameDesc")}
     >
-      <ScrollTable minWidth={860} ariaLabel="Tipo Telaio">
+      <ScrollTable minWidth={860} ariaLabel={t("frameTitle")}>
         <thead>
           <tr>
-            <th className={thCls}>Chiave</th>
-            <th className={thCls}>Etichetta (IT)</th>
-            <th className={thCls}>Moltiplicatore</th>
-            <th className={thCls}>Posa 1 anta</th>
-            <th className={thCls}>Posa 2 ante</th>
-            <th className={thCls}>Posa 3+ ante</th>
-            <th className={thCls}>Smaltimento</th>
-            <th className={thCls}>Ponteggio</th>
-            <th className={thCls}>Attivo</th>
+            <th className={thCls}>{t("key")}</th>
+            <th className={thCls}>{t("labelCol", { lang: labelLang.toUpperCase() })}</th>
+            <th className={thCls}>{t("multiplier")}</th>
+            <th className={thCls}>{t("leaf1")}</th>
+            <th className={thCls}>{t("leaf2")}</th>
+            <th className={thCls}>{t("leaf3")}</th>
+            <th className={thCls}>{t("disposal")}</th>
+            <th className={thCls}>{t("scaffold")}</th>
+            <th className={thCls}>{t("active")}</th>
             <th className={thCls} />
           </tr>
         </thead>
@@ -47,7 +49,7 @@ export function FrameTypesSection({ frameTypes }: { frameTypes: Row[] }) {
           {rows.map((f) => {
             const id = f._id as string;
             const leaves = (f.installByLeavesCents as number[] | undefined) ?? [0, 0, 0];
-            const labelIt = String(draft(id, f, "labelIt") ?? label(f.labels));
+            const labelIt = String(draft(id, f, "labelIt") ?? labelOf(f.labels));
             const multiplier = String(draft(id, f, "multiplier") ?? (f.multiplier as number));
             const leaf1 = String(draft(id, f, "leaf1") ?? (leaves[0] ?? 0) / 100);
             const leaf2 = String(draft(id, f, "leaf2") ?? (leaves[1] ?? 0) / 100);
@@ -68,7 +70,7 @@ export function FrameTypesSection({ frameTypes }: { frameTypes: Row[] }) {
               upsert({
                 configuratorId,
                 key: f.key as string,
-                labels: { ...(f.labels as LabelSet), it: overrides.labelIt ?? labelIt },
+                labels: withLabel(f.labels, overrides.labelIt ?? labelIt),
                 descriptions: f.descriptions as Record<string, string> | undefined,
                 multiplier: parseFloat(overrides.multiplier ?? multiplier) || 1,
                 installByLeavesCents: [
@@ -185,21 +187,21 @@ export function FrameTypesSection({ frameTypes }: { frameTypes: Row[] }) {
       </ScrollTable>
       <AddRow
         fields={[
-          { name: "key", label: "Chiave", type: "text" },
-          { name: "labelIt", label: "Etichetta IT", type: "text" },
-          { name: "multiplier", label: "Moltiplicatore", type: "number" },
-          { name: "leaf1", label: "Posa 1 anta €", type: "number" },
-          { name: "leaf2", label: "Posa 2 ante €", type: "number" },
-          { name: "leaf3", label: "Posa 3+ ante €", type: "number" },
-          { name: "disposal", label: "Smaltimento €", type: "number" },
-          { name: "scaffold", label: "Ponteggio €", type: "number" },
+          { name: "key", label: t("key"), type: "text" },
+          { name: "labelIt", label: t("labelCol", { lang: labelLang.toUpperCase() }), type: "text" },
+          { name: "multiplier", label: t("multiplier"), type: "number" },
+          { name: "leaf1", label: t("withEur", { label: t("leaf1") }), type: "number" },
+          { name: "leaf2", label: t("withEur", { label: t("leaf2") }), type: "number" },
+          { name: "leaf3", label: t("withEur", { label: t("leaf3") }), type: "number" },
+          { name: "disposal", label: t("withEur", { label: t("disposal") }), type: "number" },
+          { name: "scaffold", label: t("withEur", { label: t("scaffold") }), type: "number" },
         ]}
         onAdd={(vals) =>
           run("add-frametype", () =>
             upsert({
               configuratorId,
               key: String(vals.key).trim(),
-              labels: { it: String(vals.labelIt), en: String(vals.labelIt), fr: String(vals.labelIt) },
+              labels: newLabels(String(vals.labelIt)),
               multiplier: parseFloat(String(vals.multiplier)) || 1,
               installByLeavesCents: [toCents(vals.leaf1), toCents(vals.leaf2), toCents(vals.leaf3)],
               disposalPerPieceCents: toCents(vals.disposal),
@@ -214,42 +216,38 @@ export function FrameTypesSection({ frameTypes }: { frameTypes: Row[] }) {
   );
 }
 
-const ACCESSORY_CATEGORIES = [
-  { key: "zanz", label: "Zanzariere" },
-  { key: "cass", label: "Cassonetti" },
-  { key: "avv", label: "Avvolgibili" },
-  { key: "pers", label: "Persiane" },
-] as const;
-
-const PRICE_MODEL_LABEL: Record<string, string> = { flat: "Fisso", perM2: "€/m²", perMl: "€/ml" };
+// Titles come from editor.catalog.acc_<key>; price models from editor.catalog.pm_<model>.
+const ACCESSORY_CATEGORIES = [{ key: "zanz" }, { key: "cass" }, { key: "avv" }, { key: "pers" }] as const;
+const PRICE_MODELS = ["flat", "perM2", "perMl"];
 
 export function AccessoriesSection({ accessories }: { accessories: Row[] }) {
-  const { configuratorId, draft, setDraft, clearDraft, busy, run, autoSaveNow, autoSaveDebounced } = useCatalogEditor();
+  const { configuratorId, draft, setDraft, clearDraft, busy, run, autoSaveNow, autoSaveDebounced, labelOf, withLabel, newLabels, labelLang } = useCatalogEditor();
+  const t = useTranslations("editor.catalog");
   const upsert = useMutation(api.catalog.upsertAccessory);
   const remove = useMutation(api.catalog.deleteAccessory);
 
   return (
-    <Section title="Accessori" description="Zanzariere, cassonetti, avvolgibili e persiane, con il proprio modello di prezzo.">
+    <Section title={t("accessoriesTitle")} description={t("accessoriesDesc")}>
       {ACCESSORY_CATEGORIES.map((cat) => {
         const rows = sorted(accessories.filter((a) => a.category === cat.key));
         return (
           <div key={cat.key} className="space-y-2">
-            <p className="text-sm font-medium text-[var(--color-text)]">{cat.label}</p>
-            <ScrollTable ariaLabel={cat.label}>
+            <p className="text-sm font-medium text-[var(--color-text)]">{t(`acc_${cat.key}`)}</p>
+            <ScrollTable ariaLabel={t(`acc_${cat.key}`)}>
               <thead>
                 <tr>
-                  <th className={thCls}>Chiave</th>
-                  <th className={thCls}>Etichetta (IT)</th>
-                  <th className={thCls}>Modello</th>
-                  <th className={thCls}>Prezzo</th>
-                  <th className={thCls}>Attivo</th>
+                  <th className={thCls}>{t("key")}</th>
+                  <th className={thCls}>{t("labelCol", { lang: labelLang.toUpperCase() })}</th>
+                  <th className={thCls}>{t("model")}</th>
+                  <th className={thCls}>{t("price")}</th>
+                  <th className={thCls}>{t("active")}</th>
                   <th className={thCls} />
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--color-border)]">
                 {rows.map((a) => {
                   const id = a._id as string;
-                  const labelIt = String(draft(id, a, "labelIt") ?? label(a.labels));
+                  const labelIt = String(draft(id, a, "labelIt") ?? labelOf(a.labels));
                   const priceModel = String(draft(id, a, "priceModel") ?? a.priceModel);
                   const price = String(draft(id, a, "price") ?? (a.priceCents as number) / 100);
                   const enabled = Boolean(draft(id, a, "enabled") ?? a.enabled);
@@ -258,7 +256,7 @@ export function AccessoriesSection({ accessories }: { accessories: Row[] }) {
                       configuratorId,
                       category: cat.key,
                       key: a.key as string,
-                      labels: { ...(a.labels as LabelSet), it: overrides.labelIt ?? labelIt },
+                      labels: withLabel(a.labels, overrides.labelIt ?? labelIt),
                       priceModel: priceModel as "flat" | "perM2" | "perMl",
                       priceCents: toCents(overrides.price ?? price),
                       sortOrder: a.sortOrder as number,
@@ -280,7 +278,7 @@ export function AccessoriesSection({ accessories }: { accessories: Row[] }) {
                         />
                       </td>
                       <td className={tdCls}>
-                        <span className="text-xs text-[var(--color-text-secondary)]">{PRICE_MODEL_LABEL[priceModel] ?? priceModel}</span>
+                        <span className="text-xs text-[var(--color-text-secondary)]">{PRICE_MODELS.includes(priceModel) ? t(`pm_${priceModel}`) : priceModel}</span>
                       </td>
                       <td className={tdCls}>
                         <NumberInput
@@ -320,19 +318,19 @@ export function AccessoriesSection({ accessories }: { accessories: Row[] }) {
             </ScrollTable>
             <AddRow
               fields={[
-                { name: "key", label: "Chiave", type: "text" },
-                { name: "labelIt", label: "Etichetta IT", type: "text" },
+                { name: "key", label: t("key"), type: "text" },
+                { name: "labelIt", label: t("labelCol", { lang: labelLang.toUpperCase() }), type: "text" },
                 {
                   name: "priceModel",
-                  label: "Modello prezzo",
+                  label: t("priceModel"),
                   type: "select",
                   options: [
-                    { value: "flat", label: "Fisso" },
-                    { value: "perM2", label: "€/m²" },
-                    { value: "perMl", label: "€/ml" },
+                    { value: "flat", label: t("pm_flat") },
+                    { value: "perM2", label: t("pm_perM2") },
+                    { value: "perMl", label: t("pm_perMl") },
                   ],
                 },
-                { name: "price", label: "Prezzo €", type: "number" },
+                { name: "price", label: t("priceEur"), type: "number" },
               ]}
               onAdd={(vals) =>
                 run(`add-acc-${cat.key}`, () =>
@@ -340,7 +338,7 @@ export function AccessoriesSection({ accessories }: { accessories: Row[] }) {
                     configuratorId,
                     category: cat.key,
                     key: String(vals.key).trim(),
-                    labels: { it: String(vals.labelIt), en: String(vals.labelIt), fr: String(vals.labelIt) },
+                    labels: newLabels(String(vals.labelIt)),
                     priceModel: (vals.priceModel as "flat" | "perM2" | "perMl") || "flat",
                     priceCents: toCents(vals.price),
                     sortOrder: rows.length,

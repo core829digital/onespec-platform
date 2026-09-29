@@ -1,37 +1,39 @@
 "use client";
 
 import { useMutation } from "convex/react";
+import { useTranslations } from "next-intl";
 import { api } from "@/convex/_generated/api";
 import { Section, TextInput, NumberInput, Toggle } from "../editor-primitives";
-import { useCatalogEditor, label, toCents, thCls, tdCls, type LabelSet } from "./store";
+import { useCatalogEditor, toCents, thCls, tdCls } from "./store";
 import { AddRow, DeleteButton, ScrollTable } from "./widgets";
 
 type Row = Record<string, unknown>;
 const sorted = (rows: Row[]) => [...rows].sort((a, b) => (a.sortOrder as number) - (b.sortOrder as number));
 
 export function MaterialsSection({ materials }: { materials: Row[] }) {
-  const { configuratorId, draft, setDraft, clearDraft, busy, run, autoSaveNow, autoSaveDebounced } = useCatalogEditor();
+  const { configuratorId, draft, setDraft, clearDraft, busy, run, autoSaveNow, autoSaveDebounced, labelOf, withLabel, newLabels, labelLang } = useCatalogEditor();
+  const t = useTranslations("editor.catalog");
   const upsert = useMutation(api.catalog.upsertMaterial);
   const remove = useMutation(api.catalog.deleteMaterial);
   const rows = sorted(materials);
 
   return (
-    <Section title="Materiali" description="Prezzo base al m² e al metro lineare di profilo (IVA esclusa).">
-      <ScrollTable minWidth={640} ariaLabel="Materiali">
+    <Section title={t("materialsTitle")} description={t("materialsDesc")}>
+      <ScrollTable minWidth={640} ariaLabel={t("materialsTitle")}>
         <thead>
           <tr>
-            <th className={thCls}>Chiave</th>
-            <th className={thCls}>Etichetta (IT)</th>
-            <th className={thCls}>€/m²</th>
-            <th className={thCls}>€/ml profilo</th>
-            <th className={thCls}>Attivo</th>
+            <th className={thCls}>{t("key")}</th>
+            <th className={thCls}>{t("labelCol", { lang: labelLang.toUpperCase() })}</th>
+            <th className={thCls}>{t("perM2")}</th>
+            <th className={thCls}>{t("perMlProfile")}</th>
+            <th className={thCls}>{t("active")}</th>
             <th className={thCls} />
           </tr>
         </thead>
         <tbody className="divide-y divide-[var(--color-border)]">
           {rows.map((m) => {
             const id = m._id as string;
-            const labelIt = String(draft(id, m, "labelIt") ?? label(m.labels));
+            const labelIt = String(draft(id, m, "labelIt") ?? labelOf(m.labels));
             const base = String(draft(id, m, "base") ?? (m.basePerM2Cents as number) / 100);
             const profile = String(draft(id, m, "profile") ?? (m.profilePerMlCents as number) / 100);
             const enabled = Boolean(draft(id, m, "enabled") ?? m.enabled);
@@ -39,7 +41,7 @@ export function MaterialsSection({ materials }: { materials: Row[] }) {
               upsert({
                 configuratorId,
                 key: m.key as string,
-                labels: { ...(m.labels as LabelSet), it: overrides.labelIt ?? labelIt },
+                labels: withLabel(m.labels, overrides.labelIt ?? labelIt),
                 basePerM2Cents: toCents(overrides.base ?? base),
                 profilePerMlCents: toCents(overrides.profile ?? profile),
                 uFrameBase: m.uFrameBase as number | undefined,
@@ -106,17 +108,17 @@ export function MaterialsSection({ materials }: { materials: Row[] }) {
       </ScrollTable>
       <AddRow
         fields={[
-          { name: "key", label: "Chiave", type: "text" },
-          { name: "labelIt", label: "Etichetta IT", type: "text" },
-          { name: "base", label: "€/m²", type: "number" },
-          { name: "profile", label: "€/ml profilo", type: "number" },
+          { name: "key", label: t("key"), type: "text" },
+          { name: "labelIt", label: t("labelCol", { lang: labelLang.toUpperCase() }), type: "text" },
+          { name: "base", label: t("perM2"), type: "number" },
+          { name: "profile", label: t("perMlProfile"), type: "number" },
         ]}
         onAdd={(vals) =>
           run("add-material", () =>
             upsert({
               configuratorId,
               key: String(vals.key).trim(),
-              labels: { it: String(vals.labelIt), en: String(vals.labelIt), fr: String(vals.labelIt) },
+              labels: newLabels(String(vals.labelIt)),
               basePerM2Cents: toCents(vals.base),
               profilePerMlCents: toCents(vals.profile),
               sortOrder: rows.length,
@@ -136,14 +138,15 @@ export function ProfileSystemsSection({
   materials: Row[];
   profileSystems: Row[];
 }) {
-  const { configuratorId, draft, setDraft, clearDraft, busy, run, autoSaveNow, autoSaveDebounced } = useCatalogEditor();
+  const { configuratorId, draft, setDraft, clearDraft, busy, run, autoSaveNow, autoSaveDebounced, labelOf, withLabel, newLabels, labelLang } = useCatalogEditor();
+  const t = useTranslations("editor.catalog");
   const upsert = useMutation(api.catalog.upsertProfileSystem);
   const remove = useMutation(api.catalog.deleteProfileSystem);
 
   return (
     <Section
-      title="Sistemi di profilo / marche"
-      description="Moltiplicatore di prezzo per marca di profilo (Aluplast, Rehau, Schüco…). Solo PVC e alluminio."
+      title={t("profilesTitle")}
+      description={t("profilesDesc")}
     >
       {sorted(materials)
         .filter((m) => m.key === "pvc" || m.key === "aluminum")
@@ -151,21 +154,21 @@ export function ProfileSystemsSection({
           const tiers = sorted(profileSystems.filter((q) => q.materialKey === m.key));
           return (
             <div key={m._id as string} className="space-y-2">
-              <p className="text-sm font-medium text-[var(--color-text)]">{label(m.labels)}</p>
-              <ScrollTable ariaLabel={`Sistemi di profilo — ${label(m.labels)}`}>
+              <p className="text-sm font-medium text-[var(--color-text)]">{labelOf(m.labels)}</p>
+              <ScrollTable ariaLabel={t("sectionFor", { section: t("profilesTitle"), name: labelOf(m.labels) })}>
                 <thead>
                   <tr>
-                    <th className={thCls}>Chiave</th>
-                    <th className={thCls}>Etichetta (IT)</th>
-                    <th className={thCls}>Moltiplicatore</th>
-                    <th className={thCls}>Attivo</th>
+                    <th className={thCls}>{t("key")}</th>
+                    <th className={thCls}>{t("labelCol", { lang: labelLang.toUpperCase() })}</th>
+                    <th className={thCls}>{t("multiplier")}</th>
+                    <th className={thCls}>{t("active")}</th>
                     <th className={thCls} />
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--color-border)]">
                   {tiers.map((q) => {
                     const id = q._id as string;
-                    const labelIt = String(draft(id, q, "labelIt") ?? label(q.labels));
+                    const labelIt = String(draft(id, q, "labelIt") ?? labelOf(q.labels));
                     const multiplier = String(draft(id, q, "multiplier") ?? (q.multiplier as number));
                     const enabled = Boolean(draft(id, q, "enabled") ?? q.enabled);
                     const save = (overrides: { labelIt?: string; multiplier?: string; enabled?: boolean }) =>
@@ -173,7 +176,7 @@ export function ProfileSystemsSection({
                         configuratorId,
                         materialKey: m.key as string,
                         key: q.key as string,
-                        labels: { ...(q.labels as LabelSet), it: overrides.labelIt ?? labelIt },
+                        labels: withLabel(q.labels, overrides.labelIt ?? labelIt),
                         multiplier: parseFloat(overrides.multiplier ?? multiplier) || 1,
                         sortOrder: q.sortOrder as number,
                         enabled: overrides.enabled ?? enabled,
@@ -233,9 +236,9 @@ export function ProfileSystemsSection({
               </ScrollTable>
               <AddRow
                 fields={[
-                  { name: "key", label: "Chiave", type: "text" },
-                  { name: "labelIt", label: "Etichetta IT", type: "text" },
-                  { name: "multiplier", label: "Moltiplicatore", type: "number" },
+                  { name: "key", label: t("key"), type: "text" },
+                  { name: "labelIt", label: t("labelCol", { lang: labelLang.toUpperCase() }), type: "text" },
+                  { name: "multiplier", label: t("multiplier"), type: "number" },
                 ]}
                 onAdd={(vals) =>
                   run(`add-ps-${m._id}`, () =>
@@ -243,7 +246,7 @@ export function ProfileSystemsSection({
                       configuratorId,
                       materialKey: m.key as string,
                       key: String(vals.key).trim(),
-                      labels: { it: String(vals.labelIt), en: String(vals.labelIt), fr: String(vals.labelIt) },
+                      labels: newLabels(String(vals.labelIt)),
                       multiplier: parseFloat(String(vals.multiplier)) || 1,
                       sortOrder: tiers.length,
                       enabled: true,
@@ -259,31 +262,32 @@ export function ProfileSystemsSection({
 }
 
 export function QualitySection({ materials, qualityTiers }: { materials: Row[]; qualityTiers: Row[] }) {
-  const { configuratorId, draft, setDraft, clearDraft, busy, run, autoSaveNow, autoSaveDebounced } = useCatalogEditor();
+  const { configuratorId, draft, setDraft, clearDraft, busy, run, autoSaveNow, autoSaveDebounced, labelOf, withLabel, newLabels, labelLang } = useCatalogEditor();
+  const t = useTranslations("editor.catalog");
   const upsert = useMutation(api.catalog.upsertQualityTier);
   const remove = useMutation(api.catalog.deleteQualityTier);
 
   return (
-    <Section title="Livelli di qualità" description="Moltiplicatore di prezzo per materiale (es. numero di camere).">
+    <Section title={t("qualityTitle")} description={t("qualityDesc")}>
       {sorted(materials).map((m) => {
         const tiers = sorted(qualityTiers.filter((q) => q.materialKey === m.key));
         return (
           <div key={m._id as string} className="space-y-2">
-            <p className="text-sm font-medium text-[var(--color-text)]">{label(m.labels)}</p>
-            <ScrollTable ariaLabel={`Livelli di qualità — ${label(m.labels)}`}>
+            <p className="text-sm font-medium text-[var(--color-text)]">{labelOf(m.labels)}</p>
+            <ScrollTable ariaLabel={t("sectionFor", { section: t("qualityTitle"), name: labelOf(m.labels) })}>
               <thead>
                 <tr>
-                  <th className={thCls}>Chiave</th>
-                  <th className={thCls}>Etichetta (IT)</th>
-                  <th className={thCls}>Moltiplicatore</th>
-                  <th className={thCls}>Attivo</th>
+                  <th className={thCls}>{t("key")}</th>
+                  <th className={thCls}>{t("labelCol", { lang: labelLang.toUpperCase() })}</th>
+                  <th className={thCls}>{t("multiplier")}</th>
+                  <th className={thCls}>{t("active")}</th>
                   <th className={thCls} />
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--color-border)]">
                 {tiers.map((q) => {
                   const id = q._id as string;
-                  const labelIt = String(draft(id, q, "labelIt") ?? label(q.labels));
+                  const labelIt = String(draft(id, q, "labelIt") ?? labelOf(q.labels));
                   const multiplier = String(draft(id, q, "multiplier") ?? (q.multiplier as number));
                   const enabled = Boolean(draft(id, q, "enabled") ?? q.enabled);
                   const save = (overrides: { labelIt?: string; multiplier?: string; enabled?: boolean }) =>
@@ -291,7 +295,7 @@ export function QualitySection({ materials, qualityTiers }: { materials: Row[]; 
                       configuratorId,
                       materialKey: m.key as string,
                       key: q.key as string,
-                      labels: { ...(q.labels as LabelSet), it: overrides.labelIt ?? labelIt },
+                      labels: withLabel(q.labels, overrides.labelIt ?? labelIt),
                       multiplier: parseFloat(overrides.multiplier ?? multiplier) || 1,
                       uAdjust: q.uAdjust as number | undefined,
                       sortOrder: q.sortOrder as number,
@@ -352,9 +356,9 @@ export function QualitySection({ materials, qualityTiers }: { materials: Row[]; 
             </ScrollTable>
             <AddRow
               fields={[
-                { name: "key", label: "Chiave", type: "text" },
-                { name: "labelIt", label: "Etichetta IT", type: "text" },
-                { name: "multiplier", label: "Moltiplicatore", type: "number" },
+                { name: "key", label: t("key"), type: "text" },
+                { name: "labelIt", label: t("labelCol", { lang: labelLang.toUpperCase() }), type: "text" },
+                { name: "multiplier", label: t("multiplier"), type: "number" },
               ]}
               onAdd={(vals) =>
                 run(`add-q-${m._id}`, () =>
@@ -362,7 +366,7 @@ export function QualitySection({ materials, qualityTiers }: { materials: Row[]; 
                     configuratorId,
                     materialKey: m.key as string,
                     key: String(vals.key).trim(),
-                    labels: { it: String(vals.labelIt), en: String(vals.labelIt), fr: String(vals.labelIt) },
+                    labels: newLabels(String(vals.labelIt)),
                     multiplier: parseFloat(String(vals.multiplier)) || 1,
                     sortOrder: tiers.length,
                     enabled: true,

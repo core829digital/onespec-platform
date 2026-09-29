@@ -122,9 +122,11 @@ export default convexAuthNextjsMiddleware(
       return res;
     }
 
-    // Public Fascicolo del serramento (QR target) + App Posatore (/i/[token]):
-    // no i18n redirect, same-origin.
-    if (pathname.startsWith("/f/") || pathname.startsWith("/i/")) {
+    // Public Fascicolo del serramento (QR target), App Posatore (/i/[token]) and
+    // the guest site view (/k/[pin]): no i18n redirect — next-intl would rewrite
+    // them to /{locale}/…, where no route exists (404). Each page picks its
+    // language from the record's market.
+    if (pathname.startsWith("/f/") || pathname.startsWith("/i/") || pathname.startsWith("/k/")) {
       return NextResponse.next();
     }
 

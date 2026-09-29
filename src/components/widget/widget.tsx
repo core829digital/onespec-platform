@@ -55,6 +55,8 @@ interface WidgetProps {
       companyInfo?: { name?: string };
       logoUrl?: string | null;
       logoLightUrl?: string | null;
+      /** Owner-written headline / subheadline / CTA per widget language (Branding tab). */
+      copy?: Record<string, { headline?: string; subheadline?: string; ctaLabel?: string } | undefined>;
     };
     /** Sanitized catalogue snapshot — drives option lists and preview pricing. */
     catalog?: WidgetCatalog | null;
@@ -96,6 +98,8 @@ export function Widget({
 }: WidgetProps) {
   const dict = getDict(lang);
   const cfg = LOCALE_CFG[lang] ?? LOCALE_CFG.en;
+  // Owner's custom texts for this language; blank fields keep the defaults.
+  const ownCopy = configurator.branding?.copy?.[lang];
   const submitLocale = (["it", "en", "fr", "nl", "de"].includes(lang) ? lang : "it") as
     | "it"
     | "en"
@@ -530,9 +534,11 @@ export function Widget({
           )}
           <div>
             <h1 style={{ fontSize: 19, fontWeight: 600, margin: 0, color: "var(--color-text)" }}>
-              {configurator.name || dict.brandName}
+              {ownCopy?.headline?.trim() || configurator.name || dict.brandName}
             </h1>
-            <p style={{ fontSize: 13, color: "var(--color-text-secondary)", margin: "2px 0 0" }}>{dict.tagline}</p>
+            <p style={{ fontSize: 13, color: "var(--color-text-secondary)", margin: "2px 0 0" }}>
+              {ownCopy?.subheadline?.trim() || dict.tagline}
+            </p>
           </div>
         </div>
       </div>
@@ -1055,7 +1061,9 @@ export function Widget({
                 </label>
                 {error && <div style={{ fontSize: 12, color: "var(--color-danger)" }}>{error}</div>}
                 <button type="button" data-tw-primary disabled={submitting || !consent} onClick={submit} style={{ ...s.btnPrimary, background: accent, color: accentInk, opacity: submitting ? 0.6 : 1 }}>
-                  {submitting ? dict.submitting : isLeadGen ? dict.requestSurveyBtn : dict.submitBtn}
+                  {submitting
+                    ? dict.submitting
+                    : ownCopy?.ctaLabel?.trim() || (isLeadGen ? dict.requestSurveyBtn : dict.submitBtn)}
                 </button>
                 <button type="button" onClick={() => setStep("config")} style={{ background: "none", border: "none", color: "var(--color-text-secondary)", fontSize: 12, textDecoration: "underline", cursor: "pointer" }}>
                   ←

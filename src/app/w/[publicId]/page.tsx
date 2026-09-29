@@ -38,6 +38,10 @@ export default async function WidgetPage({
   const fontParam = typeof sp.font === "string" ? sp.font : undefined;
 
   let configurator: PublicConfigurator | null = null;
+  // True only when a signed-in member of the owning account previews the draft.
+  // `?preview=1` alone must not bypass the plan lock: anyone could otherwise
+  // embed `/w/<id>?preview=1` to get a widget their plan does not include.
+  let ownerPreview = false;
 
   if (preview) {
     const token = await convexAuthNextjsToken();
@@ -45,6 +49,7 @@ export default async function WidgetPage({
       configurator = (await safeFetch(() =>
         fetchQuery(api.widget.getConfiguratorForPreview, { publicId }, { token }),
       )) as PublicConfigurator | null;
+      ownerPreview = !!configurator;
     }
     if (!configurator) {
       configurator = await safeFetch(() => fetchQuery(api.widget.getPublicConfigurator, { publicId }));
@@ -65,7 +70,7 @@ export default async function WidgetPage({
   const publicWidgetAllowed = configurator.publicWidgetAllowed !== false;
 
   // Also locked: a configurator beyond a widget-first plan's cap (after a downgrade).
-  if (!preview && (!publicWidgetAllowed || configurator.overPlanLimit)) {
+  if (!ownerPreview && (!publicWidgetAllowed || configurator.overPlanLimit)) {
     return <WidgetLocked lang={lang} />;
   }
 
@@ -75,7 +80,7 @@ export default async function WidgetPage({
         configurator={configurator}
         theme={theme}
         lang={lang}
-        preview={preview}
+        preview={ownerPreview}
         accentOverride={accentParam}
         fontOverride={fontParam}
       />
@@ -87,7 +92,7 @@ export default async function WidgetPage({
       configurator={configurator}
       theme={theme}
       lang={lang}
-      preview={preview}
+      preview={ownerPreview}
       accentOverride={accentParam}
       fontOverride={fontParam}
     />

@@ -20,7 +20,8 @@ export async function loadExtras(ctx: QueryCtx | MutationCtx, configuratorId: Id
 }
 
 type Labels = Record<string, string>;
-const lab = (it: string, en: string): Labels => ({ it, en });
+// Every widget language: a missing one would fall back to Italian in that widget.
+const lab = (it: string, en: string, fr: string, de: string, nl: string): Labels => ({ it, en, fr, de, nl });
 
 /** Hardware rows the new leaf model refers to by key ("standard", "rc2", "hidden", black handle, tilt, lift-slide). */
 const EXTRA_HARDWARE: Array<{
@@ -31,13 +32,13 @@ const EXTRA_HARDWARE: Array<{
   appliesToOperableOnly: boolean;
   sortOrder: number;
 }> = [
-  { kind: "hardware", key: "standard", labels: lab("Standard", "Standard"), priceCents: 0, appliesToOperableOnly: true, sortOrder: -1 },
-  { kind: "hardware", key: "rc2", labels: lab("RC2 sicurezza", "RC2 security"), priceCents: 5500, appliesToOperableOnly: true, sortOrder: 10 },
-  { kind: "hardware", key: "hidden", labels: lab("A scomparsa", "Concealed"), priceCents: 4500, appliesToOperableOnly: true, sortOrder: 11 },
-  { kind: "hardwareColor", key: "silver", labels: lab("Argento", "Silver"), priceCents: 0, appliesToOperableOnly: true, sortOrder: 1 },
-  { kind: "hardwareColor", key: "black", labels: lab("Nero", "Black"), priceCents: 1000, appliesToOperableOnly: true, sortOrder: 3 },
-  { kind: "sashType", key: "tilt", labels: lab("Vasistas", "Tilt only"), priceCents: 2500, appliesToOperableOnly: true, sortOrder: 4 },
-  { kind: "sashType", key: "liftslide", labels: lab("Alzante scorrevole", "Lift-and-slide"), priceCents: 12000, appliesToOperableOnly: true, sortOrder: 5 },
+  { kind: "hardware", key: "standard", labels: lab("Standard", "Standard", "Standard", "Standard", "Standaard"), priceCents: 0, appliesToOperableOnly: true, sortOrder: -1 },
+  { kind: "hardware", key: "rc2", labels: lab("RC2 sicurezza", "RC2 security", "Sécurité RC2", "RC2-Sicherheit", "RC2-beveiliging"), priceCents: 5500, appliesToOperableOnly: true, sortOrder: 10 },
+  { kind: "hardware", key: "hidden", labels: lab("A scomparsa", "Concealed", "Invisible", "Verdeckt liegend", "Verdekt liggend"), priceCents: 4500, appliesToOperableOnly: true, sortOrder: 11 },
+  { kind: "hardwareColor", key: "silver", labels: lab("Argento", "Silver", "Argent", "Silber", "Zilver"), priceCents: 0, appliesToOperableOnly: true, sortOrder: 1 },
+  { kind: "hardwareColor", key: "black", labels: lab("Nero", "Black", "Noir", "Schwarz", "Zwart"), priceCents: 1000, appliesToOperableOnly: true, sortOrder: 3 },
+  { kind: "sashType", key: "tilt", labels: lab("Vasistas", "Tilt only", "Soufflet", "Kipp", "Kiep"), priceCents: 2500, appliesToOperableOnly: true, sortOrder: 4 },
+  { kind: "sashType", key: "liftslide", labels: lab("Alzante scorrevole", "Lift-and-slide", "Levant-coulissant", "Hebe-Schiebe", "Hef-schuif"), priceCents: 12000, appliesToOperableOnly: true, sortOrder: 5 },
 ];
 
 /** Profile series: technical data for the rows that already exist + the series that were missing. */
@@ -65,19 +66,19 @@ const GLAZING_PSI: Record<string, number> = { double: 0.04, triple: 0.032, tripl
 // always inserted at priceCents: 0, so every tenant's catalog shipped with
 // premium glazing/finish options priced as free upgrades.
 const EXTRA_GLAZING: Array<{ key: string; labels: Labels; uGlass: number; psi: number; priceCents: number; sortOrder: number }> = [
-  { key: "acoustic", labels: lab("Doppio vetro acustico 44.1/16/6", "Acoustic double glazing 44.1/16/6"), uGlass: 1.1, psi: 0.04, priceCents: 4500, sortOrder: 10 },
-  { key: "satinDouble", labels: lab("Doppio vetro satinato", "Satin double glazing"), uGlass: 1.05, psi: 0.04, priceCents: 5500, sortOrder: 11 },
-  { key: "satinTriple", labels: lab("Triplo vetro satinato", "Satin triple glazing"), uGlass: 0.58, psi: 0.032, priceCents: 12000, sortOrder: 12 },
+  { key: "acoustic", labels: lab("Doppio vetro acustico 44.1/16/6", "Acoustic double glazing 44.1/16/6", "Double vitrage acoustique 44.1/16/6", "Schallschutz-2-fach-Verglasung 44.1/16/6", "Akoestisch dubbel glas 44.1/16/6"), uGlass: 1.1, psi: 0.04, priceCents: 4500, sortOrder: 10 },
+  { key: "satinDouble", labels: lab("Doppio vetro satinato", "Satin double glazing", "Double vitrage satiné", "2-fach-Verglasung satiniert", "Gesatineerd dubbel glas"), uGlass: 1.05, psi: 0.04, priceCents: 5500, sortOrder: 11 },
+  { key: "satinTriple", labels: lab("Triplo vetro satinato", "Satin triple glazing", "Triple vitrage satiné", "3-fach-Verglasung satiniert", "Gesatineerd triple glas"), uGlass: 0.58, psi: 0.032, priceCents: 12000, sortOrder: 12 },
 ];
 
 const EXTRA_FINISH: Array<{ key: string; labels: Labels; swatchHex: string; priceCents: number; sortOrder: number }> = [
-  { key: "anthracite", labels: lab("Antracite RAL 7016", "Anthracite RAL 7016"), swatchHex: "#383E42", priceCents: 6500, sortOrder: 10 },
-  { key: "bicolorRal", labels: lab("Bicolore: bianco interno / RAL esterno", "Bicolour: white inside / RAL outside"), swatchHex: "#6B7280", priceCents: 7500, sortOrder: 11 },
-  { key: "whiteWoodExt", labels: lab("Bianco interno / effetto legno esterno", "White inside / wood effect outside"), swatchHex: "#8B5A2B", priceCents: 7000, sortOrder: 12 },
-  { key: "woodIntExt", labels: lab("Effetto legno interno ed esterno", "Wood effect inside and outside"), swatchHex: "#A0522D", priceCents: 9500, sortOrder: 13 },
-  { key: "whiteWoodEffect", labels: lab("Bianco effetto legno", "White wood effect"), swatchHex: "#F5F5DC", priceCents: 6000, sortOrder: 14 },
-  { key: "ivoryWoodEffect", labels: lab("Ivory effetto legno", "Ivory wood effect"), swatchHex: "#FFFFF0", priceCents: 7000, sortOrder: 15 },
-  { key: "otherColor", labels: lab("Altro colore", "Other colour"), swatchHex: "#B91C1C", priceCents: 9500, sortOrder: 16 },
+  { key: "anthracite", labels: lab("Antracite RAL 7016", "Anthracite RAL 7016", "Anthracite RAL 7016", "Anthrazit RAL 7016", "Antraciet RAL 7016"), swatchHex: "#383E42", priceCents: 6500, sortOrder: 10 },
+  { key: "bicolorRal", labels: lab("Bicolore: bianco interno / RAL esterno", "Bicolour: white inside / RAL outside", "Bicolore : blanc intérieur / RAL extérieur", "Zweifarbig: innen weiß / außen RAL", "Tweekleurig: binnen wit / buiten RAL"), swatchHex: "#6B7280", priceCents: 7500, sortOrder: 11 },
+  { key: "whiteWoodExt", labels: lab("Bianco interno / effetto legno esterno", "White inside / wood effect outside", "Blanc intérieur / aspect bois extérieur", "Innen weiß / außen Holzdekor", "Binnen wit / buiten houtlook"), swatchHex: "#8B5A2B", priceCents: 7000, sortOrder: 12 },
+  { key: "woodIntExt", labels: lab("Effetto legno interno ed esterno", "Wood effect inside and outside", "Aspect bois intérieur et extérieur", "Holzdekor innen und außen", "Houtlook binnen en buiten"), swatchHex: "#A0522D", priceCents: 9500, sortOrder: 13 },
+  { key: "whiteWoodEffect", labels: lab("Bianco effetto legno", "White wood effect", "Blanc aspect bois", "Weiß Holzdekor", "Wit houtlook"), swatchHex: "#F5F5DC", priceCents: 6000, sortOrder: 14 },
+  { key: "ivoryWoodEffect", labels: lab("Ivory effetto legno", "Ivory wood effect", "Ivoire aspect bois", "Elfenbein Holzdekor", "Ivoor houtlook"), swatchHex: "#FFFFF0", priceCents: 7000, sortOrder: 15 },
+  { key: "otherColor", labels: lab("Altro colore", "Other colour", "Autre couleur", "Andere Farbe", "Andere kleur"), swatchHex: "#B91C1C", priceCents: 9500, sortOrder: 16 },
 ];
 
 /**

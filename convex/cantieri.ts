@@ -5,6 +5,7 @@ import { requirePermission } from "./lib/rbac";
 import { listRelated, assertOwnedRefs, assertActiveMembers } from "./lib/links";
 import { consumeToken, RATE_LIMITS } from "./lib/ratelimit";
 import { hashIp } from "./lib/ipHash";
+import { regionForCountry } from "./lib/regions";
 
 const TASK_STATUSES = ["todo", "in_progress", "review", "done"] as const;
 
@@ -120,7 +121,7 @@ export const getCantiereByGuestPin = mutation({
   handler: async (ctx, args) => {
     const ipHash = args.ip ? await hashIp(args.ip) : "unknown";
     const ok = await consumeToken(ctx, `guestpin:${ipHash}`, RATE_LIMITS.guestPinPerIpPer10Min);
-    if (!ok) return { ok: false, error: "Troppi tentativi, riprova più tardi" };
+    if (!ok) return { ok: false as const, error: "Troppi tentativi, riprova più tardi" };
     // Second bucket keyed on PIN+IP: slows targeted brute-force on one PIN
     // without punishing other visitors sharing the same IP.
     const okPin = await consumeToken(
@@ -128,7 +129,7 @@ export const getCantiereByGuestPin = mutation({
       `guestpin:${args.pin}:${ipHash}`,
       RATE_LIMITS.guestPinPerPinPerIpPer10Min,
     );
-    if (!okPin) return { ok: false, error: "Troppi tentativi, riprova più tardi" };
+    if (!okPin) return { ok: false as const, error: "Troppi tentativi, riprova più tardi" };
 
     // .first() rather than .unique(): a duplicate PIN row (possible before
     // the generateGuestPin collision retry) must not 500 both cantieri.
@@ -137,26 +138,48 @@ export const getCantiereByGuestPin = mutation({
       .withIndex("by_guest_pin", (q) => q.eq("guestPin", args.pin))
       .first();
 
-    if (!cantiere) return { ok: false, error: "PIN non valido" };
+    if (!cantiere) return { ok: false as const, error: "PIN non valido" };
     if (cantiere.guestPinExpiresAt && cantiere.guestPinExpiresAt < Date.now()) {
-      return { ok: false, error: "PIN scaduto" };
+      return { ok: false as const, error: "PIN scaduto" };
     }
 
     const tasks = await ctx.db
       .query("cantiereTasks")
       .withIndex("by_cantiere", (q) => q.eq("cantiereId", cantiere._id))
       .order("asc")
-      .collect();
+      .take(200);
 
     const tenant = await ctx.db.get(cantiere.tenantId);
-    if (!tenant) return { ok: false, error: "Tenant non trovato" };
+    if (!tenant) return { ok: false as const, error: "Tenant non trovato" };
 
-    let client = null;
-    if (cantiere.clientId) {
-      client = await ctx.db.get(cantiere.clientId);
-    }
+    const client = cantiere.clientId ? await ctx.db.get(cantiere.clientId) : null;
 
-    return { ok: true, cantiere, tasks, tenant: { name: tenant.name }, client };
+    // Read-only view for EXTERNAL collaborators: an explicit allow-list of
+    // fields. Never the raw documents — they carry the project value, internal
+    // notes, assignees and the client's contact data.
+    return {
+      ok: true as const,
+      locale: regionForCountry(cantiere.country ?? tenant.country).primaryLocale,
+      tenantName: tenant.name,
+      cantiere: {
+        name: cantiere.name,
+        address: [cantiere.address, [cantiere.postalCode, cantiere.city].filter(Boolean).join(" ")]
+          .filter(Boolean)
+          .join(", "),
+        status: cantiere.status,
+        priority: cantiere.priority,
+        estimatedStartAt: cantiere.estimatedStartAt ?? null,
+        estimatedEndAt: cantiere.estimatedEndAt ?? null,
+        guestPinExpiresAt: cantiere.guestPinExpiresAt ?? null,
+        clientName: client?.name ?? null,
+      },
+      tasks: tasks.map((task) => ({
+        title: task.title,
+        description: task.description ?? null,
+        done: task.status === "done",
+        dueAt: task.dueAt ?? null,
+      })),
+    };
   },
 });
 

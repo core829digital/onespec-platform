@@ -55,3 +55,47 @@ describe("getCantiereByGuestPin", () => {
     expect(otherIp.ok).toBe(true);
   });
 });
+
+describe("getCantiereByGuestPin — guest view payload", () => {
+  test("returns only the read-only allow-list (no project value, notes or raw documents)", async () => {
+    const t = newDb();
+    const s = await seedTenant(t);
+    const cantiereId = await seedCantiere(t, s.tenantId, "112233");
+    await t.run(async (ctx) => {
+      await ctx.db.patch(cantiereId, { valueCents: 9_999_00, notes: "margine interno 40%", guestPinExpiresAt: Date.now() + 86_400_000 });
+      await ctx.db.insert("cantiereTasks", {
+        tenantId: s.tenantId,
+        cantiereId,
+        userId: s.ownerId,
+        title: "Posa finestre",
+        status: "done",
+        priority: "medium",
+        dueAt: 1_800_000_000_000,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+      });
+    });
+
+    const r = await t.mutation(api.cantieri.getCantiereByGuestPin, { pin: "112233", ip: "7.7.7.7" });
+    expect(r.ok).toBe(true);
+    if (!r.ok) return;
+    const json = JSON.stringify(r);
+    expect(json).not.toContain("margine interno");
+    expect(json).not.toContain("999900");
+    expect(json).not.toContain("tenantId");
+    expect(json).not.toContain("112233"); // the PIN itself is not echoed back
+    expect(r.cantiere.address).toBe("Via Roma 1, 59100 Prato");
+    expect(r.cantiere.guestPinExpiresAt).toBeGreaterThan(Date.now());
+    expect(r.tasks).toEqual([{ title: "Posa finestre", description: null, done: true, dueAt: 1_800_000_000_000 }]);
+    expect(r.locale).toBe("it");
+  });
+
+  test("the view speaks the site's market language", async () => {
+    const t = newDb();
+    const s = await seedTenant(t);
+    const cantiereId = await seedCantiere(t, s.tenantId, "445566");
+    await t.run((ctx) => ctx.db.patch(cantiereId, { country: "DE" }));
+    const r = await t.mutation(api.cantieri.getCantiereByGuestPin, { pin: "445566", ip: "8.8.8.8" });
+    expect(r.ok && r.locale).toBe("de");
+  });
+});

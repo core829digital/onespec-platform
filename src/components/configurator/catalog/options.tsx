@@ -1,9 +1,10 @@
 "use client";
 
 import { useMutation } from "convex/react";
+import { useTranslations } from "next-intl";
 import { api } from "@/convex/_generated/api";
 import { Section, TextInput, NumberInput, Toggle } from "../editor-primitives";
-import { useCatalogEditor, label, toCents, thCls, tdCls, type LabelSet } from "./store";
+import { useCatalogEditor, toCents, thCls, tdCls } from "./store";
 import { AddRow, ScrollTable } from "./widgets";
 
 type Row = Record<string, unknown>;
@@ -22,23 +23,24 @@ function PricedOptionSection({
   onSave: (row: Row, d: { labelIt: string; price: string; enabled: boolean }) => Promise<unknown>;
   onAdd: (vals: Record<string, string>) => Promise<unknown> | void;
 }) {
-  const { draft, setDraft, busy, run, autoSaveNow, autoSaveDebounced } = useCatalogEditor();
+  const { draft, setDraft, busy, run, autoSaveNow, autoSaveDebounced, labelOf, labelLang } = useCatalogEditor();
+  const t = useTranslations("editor.catalog");
   return (
     <Section title={title} description={description}>
       <ScrollTable ariaLabel={title}>
         <thead>
           <tr>
-            <th className={thCls}>Chiave</th>
-            <th className={thCls}>Etichetta (IT)</th>
-            <th className={thCls}>Prezzo €</th>
-            <th className={thCls}>Attivo</th>
+            <th className={thCls}>{t("key")}</th>
+            <th className={thCls}>{t("labelCol", { lang: labelLang.toUpperCase() })}</th>
+            <th className={thCls}>{t("priceEur")}</th>
+            <th className={thCls}>{t("active")}</th>
             <th className={thCls} />
           </tr>
         </thead>
         <tbody className="divide-y divide-[var(--color-border)]">
           {sorted(rows).map((row) => {
             const id = row._id as string;
-            const labelIt = String(draft(id, row, "labelIt") ?? label(row.labels));
+            const labelIt = String(draft(id, row, "labelIt") ?? labelOf(row.labels));
             const price = String(draft(id, row, "price") ?? (row.priceCents as number) / 100);
             const enabled = Boolean(draft(id, row, "enabled") ?? row.enabled);
             const save = (overrides: { labelIt?: string; price?: string; enabled?: boolean }) =>
@@ -95,9 +97,9 @@ function PricedOptionSection({
       </ScrollTable>
       <AddRow
         fields={[
-          { name: "key", label: "Chiave", type: "text" },
-          { name: "labelIt", label: "Etichetta IT", type: "text" },
-          { name: "price", label: "Prezzo €", type: "number" },
+          { name: "key", label: t("key"), type: "text" },
+          { name: "labelIt", label: t("labelCol", { lang: labelLang.toUpperCase() }), type: "text" },
+          { name: "price", label: t("priceEur"), type: "number" },
         ]}
         onAdd={(vals) => run("add", async () => onAdd(vals))}
       />
@@ -106,18 +108,19 @@ function PricedOptionSection({
 }
 
 export function GlazingSection({ rows }: { rows: Row[] }) {
-  const { configuratorId, clearDraft } = useCatalogEditor();
+  const { configuratorId, clearDraft, withLabel, newLabels } = useCatalogEditor();
+  const t = useTranslations("editor.catalog");
   const upsert = useMutation(api.catalog.upsertGlazingOption);
   return (
     <PricedOptionSection
-      title="Vetri"
-      description="Sovrapprezzo rispetto al vetro base."
+      title={t("glazingTitle")}
+      description={t("glazingDesc")}
       rows={rows}
       onSave={async (row, d) => {
         await upsert({
           configuratorId,
           key: row.key as string,
-          labels: { ...(row.labels as LabelSet), it: d.labelIt },
+          labels: withLabel(row.labels, d.labelIt),
           priceCents: toCents(d.price),
           uGlass: row.uGlass as number | undefined,
           sortOrder: row.sortOrder as number,
@@ -129,7 +132,7 @@ export function GlazingSection({ rows }: { rows: Row[] }) {
         upsert({
           configuratorId,
           key: String(vals.key).trim(),
-          labels: { it: String(vals.labelIt), en: String(vals.labelIt), fr: String(vals.labelIt) },
+          labels: newLabels(String(vals.labelIt)),
           priceCents: toCents(vals.price),
           sortOrder: rows.length,
           enabled: true,
@@ -140,18 +143,19 @@ export function GlazingSection({ rows }: { rows: Row[] }) {
 }
 
 export function FinishSection({ rows }: { rows: Row[] }) {
-  const { configuratorId, clearDraft } = useCatalogEditor();
+  const { configuratorId, clearDraft, withLabel, newLabels } = useCatalogEditor();
+  const t = useTranslations("editor.catalog");
   const upsert = useMutation(api.catalog.upsertFinishOption);
   return (
     <PricedOptionSection
-      title="Finiture / colori"
-      description="Colori e finiture del profilo. Non modificare le finiture tecniche esistenti senza approvazione."
+      title={t("finishTitle")}
+      description={t("finishDesc")}
       rows={rows}
       onSave={async (row, d) => {
         await upsert({
           configuratorId,
           key: row.key as string,
-          labels: { ...(row.labels as LabelSet), it: d.labelIt },
+          labels: withLabel(row.labels, d.labelIt),
           swatchHex: row.swatchHex as string | undefined,
           priceCents: toCents(d.price),
           sortOrder: row.sortOrder as number,
@@ -163,7 +167,7 @@ export function FinishSection({ rows }: { rows: Row[] }) {
         upsert({
           configuratorId,
           key: String(vals.key).trim(),
-          labels: { it: String(vals.labelIt), en: String(vals.labelIt), fr: String(vals.labelIt) },
+          labels: newLabels(String(vals.labelIt)),
           priceCents: toCents(vals.price),
           sortOrder: rows.length,
           enabled: true,
@@ -173,28 +177,31 @@ export function FinishSection({ rows }: { rows: Row[] }) {
   );
 }
 
-const HARDWARE_KINDS: Array<{ kind: string; title: string }> = [
-  { kind: "sashType", title: "Tipi di anta" },
-  { kind: "hardware", title: "Ferramenta" },
-  { kind: "hardwareColor", title: "Colore ferramenta" },
-  { kind: "screen", title: "Zanzariere (tipi)" },
-  { kind: "screenColor", title: "Colore zanzariera" },
-  { kind: "installation", title: "Montaggio / posa" },
-  { kind: "poseType", title: "Tipo di posa (FR)" },
-  { kind: "ventilationGrille", title: "Griglia di ventilazione (BE)" },
-  { kind: "voletRoulant", title: "Tapparella monoblocco (BE)" },
-  { kind: "warmEdge", title: "Distanziatore warm-edge (BE)" },
-  { kind: "threshold", title: "Soglie" },
-  { kind: "misc", title: "Accessori" },
-];
+// Group titles come from editor.catalog.hw_<kind>.
+const HARDWARE_KINDS = [
+  "sashType",
+  "hardware",
+  "hardwareColor",
+  "screen",
+  "screenColor",
+  "installation",
+  "poseType",
+  "ventilationGrille",
+  "voletRoulant",
+  "warmEdge",
+  "threshold",
+  "misc",
+] as const;
 
 export function HardwareSection({ hardware }: { hardware: Row[] }) {
-  const { configuratorId, draft, setDraft, clearDraft, busy, autoSaveNow, autoSaveDebounced } = useCatalogEditor();
+  const { configuratorId, draft, setDraft, clearDraft, busy, autoSaveNow, autoSaveDebounced, labelOf, withLabel, labelLang } = useCatalogEditor();
+  const t = useTranslations("editor.catalog");
   const upsert = useMutation(api.catalog.upsertHardwareOption);
 
   return (
-    <Section title="Ferramenta e accessori" description="Sovrapprezzi per tipo di anta, ferramenta, colore, zanzariere.">
-      {HARDWARE_KINDS.map(({ kind, title }) => {
+    <Section title={t("hardwareTitle")} description={t("hardwareDesc")}>
+      {HARDWARE_KINDS.map((kind) => {
+        const title = t(`hw_${kind}`);
         const rows = sorted(hardware.filter((h) => h.kind === kind));
         if (rows.length === 0) return null;
         return (
@@ -203,17 +210,17 @@ export function HardwareSection({ hardware }: { hardware: Row[] }) {
             <ScrollTable ariaLabel={title}>
               <thead>
                 <tr>
-                  <th className={thCls}>Chiave</th>
-                  <th className={thCls}>Etichetta (IT)</th>
-                  <th className={thCls}>Sovrapprezzo €</th>
-                  <th className={thCls}>Attivo</th>
+                  <th className={thCls}>{t("key")}</th>
+                  <th className={thCls}>{t("labelCol", { lang: labelLang.toUpperCase() })}</th>
+                  <th className={thCls}>{t("surchargeEur")}</th>
+                  <th className={thCls}>{t("active")}</th>
                   <th className={thCls} />
                 </tr>
               </thead>
               <tbody className="divide-y divide-[var(--color-border)]">
                 {rows.map((h) => {
                   const id = h._id as string;
-                  const labelIt = String(draft(id, h, "labelIt") ?? label(h.labels));
+                  const labelIt = String(draft(id, h, "labelIt") ?? labelOf(h.labels));
                   const price = String(draft(id, h, "price") ?? (h.priceCents as number) / 100);
                   const enabled = Boolean(draft(id, h, "enabled") ?? h.enabled);
                   const save = (overrides: { labelIt?: string; price?: string; enabled?: boolean }) =>
@@ -221,7 +228,7 @@ export function HardwareSection({ hardware }: { hardware: Row[] }) {
                       configuratorId,
                       kind: kind as "hardware",
                       key: h.key as string,
-                      labels: { ...(h.labels as LabelSet), it: overrides.labelIt ?? labelIt },
+                      labels: withLabel(h.labels, overrides.labelIt ?? labelIt),
                       priceCents: toCents(overrides.price ?? price),
                       appliesToOperableOnly: h.appliesToOperableOnly as boolean,
                       sortOrder: h.sortOrder as number,
@@ -282,6 +289,7 @@ export function HardwareSection({ hardware }: { hardware: Row[] }) {
 
 export function SizeSection({ rows }: { rows: Row[] }) {
   const { configuratorId, draft, setDraft, clearDraft, busy, autoSaveDebounced } = useCatalogEditor();
+  const t = useTranslations("editor.catalog");
   const upsert = useMutation(api.catalog.upsertSizeConstraint);
   const ordered = [...rows].sort(
     (a, b) =>
@@ -290,16 +298,16 @@ export function SizeSection({ rows }: { rows: Row[] }) {
   );
 
   return (
-    <Section title="Vincoli dimensionali" description="Limiti minimi e massimi per tipo di prodotto e numero di ante (mm).">
-      <ScrollTable minWidth={640} ariaLabel="Vincoli dimensionali">
+    <Section title={t("sizeTitle")} description={t("sizeDesc")}>
+      <ScrollTable minWidth={640} ariaLabel={t("sizeTitle")}>
         <thead>
           <tr>
-            <th className={thCls}>Prodotto</th>
-            <th className={thCls}>Ante</th>
-            <th className={thCls}>Larg. min</th>
-            <th className={thCls}>Larg. max</th>
-            <th className={thCls}>Alt. min</th>
-            <th className={thCls}>Alt. max</th>
+            <th className={thCls}>{t("product")}</th>
+            <th className={thCls}>{t("sashes")}</th>
+            <th className={thCls}>{t("minW")}</th>
+            <th className={thCls}>{t("maxW")}</th>
+            <th className={thCls}>{t("minH")}</th>
+            <th className={thCls}>{t("maxH")}</th>
             <th className={thCls} />
           </tr>
         </thead>
@@ -330,7 +338,7 @@ export function SizeSection({ rows }: { rows: Row[] }) {
             );
             return (
               <tr key={id}>
-                <td className={tdCls}>{s.productType === "window" ? "Finestra" : "Porta-finestra"}</td>
+                <td className={tdCls}>{s.productType === "window" ? t("window") : t("balconyDoor")}</td>
                 <td className={tdCls}>{s.sashCount as number}</td>
                 <td className={tdCls}>{field("minWidthMm")}</td>
                 <td className={tdCls}>{field("maxWidthMm")}</td>
@@ -347,8 +355,7 @@ export function SizeSection({ rows }: { rows: Row[] }) {
         </tbody>
       </ScrollTable>
       <p className="text-xs text-[var(--color-text-secondary)]">
-        Un&apos;anta singola non può comunque superare 1200 × 2800 mm: il limite è applicato dal
-        server anche se qui inserisci valori più alti.
+        {t("singleSashNote")}
       </p>
     </Section>
   );

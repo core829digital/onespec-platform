@@ -118,6 +118,8 @@ export function usePlanAccess(tenantId: Id<"tenants"> | undefined) {
   return {
     plan: state.plan,
     widgetPlan: isWidgetPlanKey(state.plan),
+    /** Embeddable widget on the dealer's own site (the hosted /c link is on every plan). */
+    publicWidget: (state.entitlements as { publicWidget?: boolean }).publicWidget !== false,
     isLocked: (feature: GatedFeature) => !isFeatureUnlocked(feature, state.entitlements),
   };
 }

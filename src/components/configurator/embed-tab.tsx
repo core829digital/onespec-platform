@@ -1,9 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { Section } from "./editor-primitives";
 
 function CopyBlock({ code }: { code: string }) {
+  const t = useTranslations("editor.embed");
   const [copied, setCopied] = useState(false);
   return (
     <div className="relative">
@@ -23,7 +26,7 @@ function CopyBlock({ code }: { code: string }) {
         }}
         className="absolute top-2 right-2 rounded-md border border-[var(--color-border)] bg-[var(--color-bg-alt)] px-2 py-1 text-xs text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-mint)] hover:text-[var(--color-mint)] active:scale-95"
       >
-        {copied ? "Copiato ✓" : "Copia"}
+        {copied ? t("copied") : t("copy")}
       </button>
     </div>
   );
@@ -34,16 +37,23 @@ export function EmbedTab({
   status,
   origin,
   configuratorId,
+  publicWidgetAllowed,
+  fieldQuotesAllowed,
 }: {
   publicId: string;
   status: string;
   origin: string;
   configuratorId: string;
+  /** The plan includes embedding on the dealer's site (the hosted /c link is on every plan). */
+  publicWidgetAllowed: boolean;
+  /** The plan includes the B2B site-quote module (full platform only). */
+  fieldQuotesAllowed: boolean;
 }) {
+  const t = useTranslations("editor.embed");
   const src = `${origin}/w/${publicId}`;
   const iframe = `<iframe
   src="${src}"
-  title="Configuratore preventivo"
+  title="${t("iframeTitle")}"
   style="width:100%;border:0;min-height:640px"
   loading="lazy"
 ></iframe>`;
@@ -63,50 +73,51 @@ export function EmbedTab({
     <div className="space-y-6">
       {status !== "published" ? (
         <p className="text-sm text-amber-500 bg-amber-500/10 border border-amber-500/30 rounded-lg px-3 py-2">
-          Questo configuratore non è ancora pubblicato. Il widget incorporato mostrerà un errore
-          finché non pubblichi dalla barra in alto.
+          {t("notPublished")}
         </p>
       ) : null}
 
-      <Section
-        title="Pagina singola (per social e messaggi)"
-        description="Link a pagina intera del configuratore. Le modifiche che pubblichi sono sempre live: non serve reincollare nulla."
-      >
+      <Section title={t("pageTitle")} description={t("pageDesc")}>
         <CopyBlock code={`${origin}/c/${publicId}`} />
       </Section>
 
-      <Section title="Codice di incorporamento (embed sul tuo sito)" description="Incolla questo snippet nella pagina del tuo sito dove vuoi mostrare il configuratore.">
-        <CopyBlock code={iframe} />
+      <Section title={t("embedTitle")} description={publicWidgetAllowed ? t("embedDesc") : undefined}>
+        {publicWidgetAllowed ? (
+          <CopyBlock code={iframe} />
+        ) : (
+          <div className="space-y-2">
+            <p className="text-sm text-[var(--color-text-secondary)]">{t("embedLocked")}</p>
+            <Link href="/app/account/billing?tab=plan" className="text-sm font-semibold text-[var(--color-mint)] hover:underline">
+              {t("comparePlans")}
+            </Link>
+          </div>
+        )}
       </Section>
 
-      <Section
-        title="Ridimensionamento automatico (opzionale)"
-        description="Aggiungi questo script alla stessa pagina per adattare l'altezza dell'iframe al contenuto. Vengono accettati solo messaggi dall'origine di OneSpec."
-      >
-        <CopyBlock code={resize} />
-      </Section>
+      {publicWidgetAllowed ? (
+        <Section title={t("resizeTitle")} description={t("resizeDesc")}>
+          <CopyBlock code={resize} />
+        </Section>
+      ) : null}
 
-      <Section title="Anteprima diretta" description="Link privato con i dati in bozza (non richiede pubblicazione).">
+      <Section title={t("previewTitle")} description={t("previewDesc")}>
         <CopyBlock code={`${origin}/w/${publicId}?preview=1`} />
       </Section>
 
-      <Section
-        title="Preventivi cantiere B2B (stesso listino)"
-        description="Il preventivatore rapido per montatori usa esattamente questo listino pubblicato. Prezzo widget del cliente = prezzo del preventivo firmato in cantiere."
-      >
-        {status === "published" ? (
-          <a
-            href={`/app/quotes/new?config=${configuratorId}`}
-            className="inline-flex rounded-lg bg-[var(--color-mint)] px-3 py-2 text-sm font-bold text-[var(--color-mint-dark)] hover:opacity-90"
-          >
-            Apri preventivatore B2B con questo configuratore →
-          </a>
-        ) : (
-          <p className="text-sm text-[var(--color-text-secondary)]">
-            Pubblica il configuratore per abilitare i preventivi cantiere collegati.
-          </p>
-        )}
-      </Section>
+      {fieldQuotesAllowed ? (
+        <Section title={t("b2bTitle")} description={t("b2bDesc")}>
+          {status === "published" ? (
+            <Link
+              href={`/app/quotes/new?config=${configuratorId}`}
+              className="inline-flex rounded-lg bg-[var(--color-mint)] px-3 py-2 text-sm font-bold text-[var(--color-mint-dark)] hover:opacity-90"
+            >
+              {t("b2bOpen")}
+            </Link>
+          ) : (
+            <p className="text-sm text-[var(--color-text-secondary)]">{t("b2bNeedsPublish")}</p>
+          )}
+        </Section>
+      ) : null}
     </div>
   );
 }

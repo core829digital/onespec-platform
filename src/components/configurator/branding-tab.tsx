@@ -6,20 +6,23 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { Section, Field, TextInput, SelectInput, Toggle, inputClass } from "./editor-primitives";
 import { useFriendlyError } from "@/lib/use-friendly-error";
+import { useTranslations } from "next-intl";
 
 const FONTS = [
-  { value: "geist", label: "Geist (default OneSpec)" },
+  { value: "geist", label: "Geist (OneSpec)" },
   { value: "inter", label: "Inter" },
   { value: "space-grotesk", label: "Space Grotesk" },
-  { value: "system", label: "Font di sistema" },
+  { value: "system", label: null },
 ];
 
 const UPLOAD_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
 const MAX_LOGO_BYTES = 2 * 1024 * 1024;
-const LOCALES = ["it", "en", "fr"] as const;
+// Every language the public widget speaks — each can carry its own texts.
+const LOCALES = ["it", "en", "fr", "de", "nl"] as const;
 type CopyBlock = { headline?: string; subheadline?: string; ctaLabel?: string };
 
 export function BrandingTab({ configuratorId }: { configuratorId: Id<"configurators"> }) {
+  const t = useTranslations("editor.branding");
   const tf = useFriendlyError();
   const branding = useQuery(api.branding.getBranding, { configuratorId });
   const updateBranding = useMutation(api.branding.updateBranding);
@@ -62,7 +65,7 @@ export function BrandingTab({ configuratorId }: { configuratorId: Id<"configurat
       });
       setForm({});
       setCopy(null);
-      setMsg({ kind: "ok", text: "Branding salvato. Pubblica per applicarlo al widget." });
+      setMsg({ kind: "ok", text: t("saved") });
     } catch (e) {
       setMsg({ kind: "err", text: tf(e) });
     } finally {
@@ -83,20 +86,20 @@ export function BrandingTab({ configuratorId }: { configuratorId: Id<"configurat
   }, [form, copy, branding]);
 
   if (branding === undefined) {
-    return <p className="text-[var(--color-text-secondary)]">Caricamento...</p>;
+    return <p className="text-[var(--color-text-secondary)]">{t("loading")}</p>;
   }
   if (branding === null) {
-    return <p className="text-[var(--color-danger)]">Branding non trovato per questo configuratore.</p>;
+    return <p className="text-[var(--color-danger)]">{t("notFound")}</p>;
   }
 
   async function uploadLogo(file: File, variant: "dark" | "light") {
     setMsg(null);
     if (!UPLOAD_TYPES.includes(file.type)) {
-      setMsg({ kind: "err", text: "Formato non supportato (PNG, JPEG, WEBP, SVG)." });
+      setMsg({ kind: "err", text: t("errFormat") });
       return;
     }
     if (file.size > MAX_LOGO_BYTES) {
-      setMsg({ kind: "err", text: "Il logo supera 2 MB." });
+      setMsg({ kind: "err", text: t("errSize") });
       return;
     }
     try {
@@ -109,7 +112,7 @@ export function BrandingTab({ configuratorId }: { configuratorId: Id<"configurat
       if (!res.ok) throw new Error("Upload fallito");
       const { storageId } = (await res.json()) as { storageId: Id<"_storage"> };
       await setLogo({ configuratorId, storageId, variant });
-      setMsg({ kind: "ok", text: "Logo caricato." });
+      setMsg({ kind: "ok", text: t("logoUploaded") });
     } catch (e) {
       setMsg({ kind: "err", text: tf(e) });
     }
@@ -129,47 +132,47 @@ export function BrandingTab({ configuratorId }: { configuratorId: Id<"configurat
         </p>
       ) : null}
 
-      <Section title="Marchio" description="Colori e font applicati al widget pubblico.">
+      <Section title={t("brandTitle")} description={t("brandDesc")}>
         <Toggle
           checked={Boolean(val("whiteLabel", branding.whiteLabel))}
           onChange={(v) => set("whiteLabel", v)}
-          label="White-label (nascondi il badge OneSpec) — incluso in Pro, Level 2 e piani superiori"
+          label={t("whiteLabel")}
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Field label="Colore accento" hint="Bottoni e accenti.">
+          <Field label={t("accent")} hint={t("accentHint")}>
             <ColorInput value={String(val("colorAccent", branding.colorAccent))} onChange={(v) => set("colorAccent", v)} />
           </Field>
-          <Field label="Testo su accento" hint="Colore del testo sopra i bottoni accento.">
+          <Field label={t("accentInk")} hint={t("accentInkHint")}>
             <ColorInput value={String(val("colorAccentInk", branding.colorAccentInk))} onChange={(v) => set("colorAccentInk", v)} />
           </Field>
-          <Field label="Sfondo (tema chiaro)" hint="Opzionale. Lascia vuoto per il default.">
-            <ColorInput value={String(val("colorBg", branding.colorBg ?? ""))} onChange={(v) => set("colorBg", v)} allowEmpty />
+          <Field label={t("bgLight")} hint={t("bgLightHint")}>
+            <ColorInput value={String(val("colorBg", branding.colorBg ?? ""))} onChange={(v) => set("colorBg", v)} emptyPlaceholder={t("defaultPlaceholder")} />
           </Field>
-          <Field label="Sfondo (tema scuro)" hint="Opzionale.">
-            <ColorInput value={String(val("colorBgDark", branding.colorBgDark ?? ""))} onChange={(v) => set("colorBgDark", v)} allowEmpty />
+          <Field label={t("bgDark")} hint={t("optional")}>
+            <ColorInput value={String(val("colorBgDark", branding.colorBgDark ?? ""))} onChange={(v) => set("colorBgDark", v)} emptyPlaceholder={t("defaultPlaceholder")} />
           </Field>
         </div>
-        <Field label="Font">
+        <Field label={t("font")}>
           <SelectInput value={String(val("fontFamily", branding.fontFamily))} onChange={(e) => set("fontFamily", e.target.value)}>
             {FONTS.map((f) => (
               <option key={f.value} value={f.value}>
-                {f.label}
+                {f.label ?? t("fontSystem")}
               </option>
             ))}
           </SelectInput>
         </Field>
       </Section>
 
-      <Section title="Logo" description="Caricato su Convex Storage. PNG, JPEG, WEBP o SVG, max 2 MB.">
+      <Section title={t("logoTitle")} description={t("logoDesc")}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <LogoSlot
-            title="Logo (sfondo chiaro)"
+            title={t("logoLightBg")}
             url={branding.logoUrl}
             onPick={(f) => uploadLogo(f, "dark")}
             onDelete={() => deleteLogo({ configuratorId, variant: "dark" })}
           />
           <LogoSlot
-            title="Logo (sfondo scuro)"
+            title={t("logoDarkBg")}
             url={branding.logoLightUrl}
             onPick={(f) => uploadLogo(f, "light")}
             onDelete={() => deleteLogo({ configuratorId, variant: "light" })}
@@ -177,24 +180,24 @@ export function BrandingTab({ configuratorId }: { configuratorId: Id<"configurat
         </div>
       </Section>
 
-      <Section title="Testi del widget" description="Titolo, sottotitolo e call-to-action per lingua. Testo semplice, nessun HTML.">
+      <Section title={t("textsTitle")} description={t("textsDesc")}>
         {LOCALES.map((loc) => (
           <div key={loc} className="space-y-2">
             <p className="text-sm font-medium text-[var(--color-text)] uppercase">{loc}</p>
             <TextInput
-              placeholder="Titolo"
+              placeholder={t("headline")}
               value={currentCopy[loc]?.headline ?? ""}
               onChange={(e) => setCopyField(loc, "headline", e.target.value)}
               maxLength={120}
             />
             <TextInput
-              placeholder="Sottotitolo"
+              placeholder={t("subheadline")}
               value={currentCopy[loc]?.subheadline ?? ""}
               onChange={(e) => setCopyField(loc, "subheadline", e.target.value)}
               maxLength={200}
             />
             <TextInput
-              placeholder="Etichetta CTA"
+              placeholder={t("ctaLabel")}
               value={currentCopy[loc]?.ctaLabel ?? ""}
               onChange={(e) => setCopyField(loc, "ctaLabel", e.target.value)}
               maxLength={40}
@@ -203,21 +206,21 @@ export function BrandingTab({ configuratorId }: { configuratorId: Id<"configurat
         ))}
       </Section>
 
-      <Section title="Dati azienda" description="Mostrati nel widget e nelle email di preventivo.">
+      <Section title={t("companyTitle")} description={t("companyDesc")}>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Field label="Ragione sociale">
+          <Field label={t("legalName")}>
             <TextInput value={String(val("ciName", branding.companyInfo.name))} onChange={(e) => set("ciName", e.target.value)} />
           </Field>
-          <Field label="Partita IVA">
+          <Field label={t("vatId")}>
             <TextInput value={String(val("ciVat", branding.companyInfo.vatId ?? ""))} onChange={(e) => set("ciVat", e.target.value)} />
           </Field>
-          <Field label="Indirizzo">
+          <Field label={t("address")}>
             <TextInput value={String(val("ciAddr", branding.companyInfo.address ?? ""))} onChange={(e) => set("ciAddr", e.target.value)} />
           </Field>
-          <Field label="Telefono">
+          <Field label={t("phone")}>
             <TextInput value={String(val("ciPhone", branding.companyInfo.phone ?? ""))} onChange={(e) => set("ciPhone", e.target.value)} />
           </Field>
-          <Field label="Email">
+          <Field label={t("email")}>
             <TextInput type="email" value={String(val("ciEmail", branding.companyInfo.email ?? ""))} onChange={(e) => set("ciEmail", e.target.value)} />
           </Field>
         </div>
@@ -230,11 +233,9 @@ export function BrandingTab({ configuratorId }: { configuratorId: Id<"configurat
           disabled={saving}
           className="rounded-lg bg-[var(--color-mint)] px-5 py-2.5 text-sm font-semibold text-[var(--color-mint-dark)] transition-all hover:brightness-95 hover:shadow-sm active:brightness-90 disabled:opacity-50 disabled:hover:brightness-100 disabled:hover:shadow-none"
         >
-          {saving ? "Salvataggio..." : "Salva ora"}
+          {saving ? t("saving") : t("saveNow")}
         </button>
-        <span className="text-xs text-[var(--color-text-secondary)]">
-          Le modifiche si salvano automaticamente.
-        </span>
+        <span className="text-xs text-[var(--color-text-secondary)]">{t("autosave")}</span>
       </div>
     </div>
   );
@@ -243,11 +244,12 @@ export function BrandingTab({ configuratorId }: { configuratorId: Id<"configurat
 function ColorInput({
   value,
   onChange,
-  allowEmpty,
+  emptyPlaceholder,
 }: {
   value: string;
   onChange: (v: string) => void;
-  allowEmpty?: boolean;
+  /** Set when the field may stay empty (falls back to the default colour). */
+  emptyPlaceholder?: string;
 }) {
   const hex = /^#[0-9a-fA-F]{6}$/.test(value) ? value : "#16d19d";
   return (
@@ -261,7 +263,7 @@ function ColorInput({
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder={allowEmpty ? "(default)" : "#16d19d"}
+        placeholder={emptyPlaceholder ?? "#16d19d"}
         className={`${inputClass} font-mono w-32`}
       />
     </div>
@@ -279,6 +281,7 @@ function LogoSlot({
   onPick: (f: File) => void;
   onDelete: () => void;
 }) {
+  const t = useTranslations("editor.branding");
   return (
     <div className="border border-[var(--color-border)] rounded-lg p-3 space-y-2">
       <p className="text-sm font-medium text-[var(--color-text)]">{title}</p>
@@ -287,12 +290,12 @@ function LogoSlot({
           // eslint-disable-next-line @next/next/no-img-element
           <img src={url} alt={title} className="max-h-16 max-w-full object-contain" />
         ) : (
-          <span className="text-xs text-[var(--color-text-secondary)]">Nessun logo</span>
+          <span className="text-xs text-[var(--color-text-secondary)]">{t("noLogo")}</span>
         )}
       </div>
       <div className="flex items-center gap-2">
         <label className="text-xs font-medium text-[var(--color-mint)] cursor-pointer hover:underline">
-          Carica
+          {t("upload")}
           <input
             type="file"
             accept={UPLOAD_TYPES.join(",")}
@@ -310,7 +313,7 @@ function LogoSlot({
             onClick={onDelete}
             className="text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-danger)]"
           >
-            Rimuovi
+            {t("remove")}
           </button>
         ) : null}
       </div>

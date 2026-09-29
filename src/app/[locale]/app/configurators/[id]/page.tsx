@@ -16,17 +16,18 @@ import { ImportTab } from "@/components/configurator/import-tab";
 import { cn } from "@/lib/utils";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import { useLocale, useTranslations } from "next-intl";
+import { usePlanAccess } from "@/lib/plan-gates";
 
 type Tab = "general" | "catalog" | "import" | "branding" | "embed" | "config" | "versions";
 
-const TABS: Array<{ id: Tab; label: string }> = [
-  { id: "general", label: "Generale" },
-  { id: "catalog", label: "Catalogo e prezzi" },
-  { id: "import", label: "Importa listino" },
-  { id: "branding", label: "Branding" },
-  { id: "embed", label: "Incorpora" },
-  { id: "config", label: "Config. effettiva" },
-  { id: "versions", label: "Versioni" },
+const TABS: Array<{ id: Tab; labelKey: string }> = [
+  { id: "general", labelKey: "tabGeneral" },
+  { id: "catalog", labelKey: "tabCatalog" },
+  { id: "import", labelKey: "tabImport" },
+  { id: "branding", labelKey: "tabBranding" },
+  { id: "embed", labelKey: "tabEmbed" },
+  { id: "config", labelKey: "tabConfig" },
+  { id: "versions", labelKey: "tabVersions" },
 ];
 
 export default function ConfiguratorEditorPage({
@@ -40,6 +41,7 @@ export default function ConfiguratorEditorPage({
   const state = useQuery(api.configurators.getEditorState, { configuratorId });
   const [tab, setTab] = useState<Tab>("general");
   const [previewNonce, setPreviewNonce] = useState(0);
+  const access = usePlanAccess(state?.configurator.tenantId);
 
   if (state === undefined) {
     return <p className="text-[var(--color-text-secondary)]">{t("loading")}</p>;
@@ -88,20 +90,20 @@ export default function ConfiguratorEditorPage({
       </div>
 
       <div className="border-b border-[var(--color-border)] flex gap-1 overflow-x-auto">
-        {TABS.map((t) => (
+        {TABS.map((tb) => (
           <button
-            key={t.id}
+            key={tb.id}
             type="button"
-            onClick={() => setTab(t.id)}
-            aria-current={tab === t.id ? "page" : undefined}
+            onClick={() => setTab(tb.id)}
+            aria-current={tab === tb.id ? "page" : undefined}
             className={cn(
               "px-3 py-2 text-sm font-medium whitespace-nowrap border-b-2 -mb-px transition-colors",
-              tab === t.id
+              tab === tb.id
                 ? "border-[var(--color-mint)] text-[var(--color-text)]"
                 : "border-transparent text-[var(--color-text-secondary)] hover:text-[var(--color-text)]",
             )}
           >
-            {t.label}
+            {t(tb.labelKey)}
           </button>
         ))}
       </div>
@@ -109,11 +111,19 @@ export default function ConfiguratorEditorPage({
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_420px] gap-6 items-start">
         <div>
           {tab === "general" && <GeneralTab configuratorId={configuratorId} configurator={cfg} />}
-          {tab === "catalog" && <CatalogTab configuratorId={configuratorId} state={state} />}
+          {tab === "catalog" && <CatalogTab configuratorId={configuratorId} state={state} labelLang={cfg.defaultLocale} />}
           {tab === "import" && <ImportTab configuratorId={configuratorId} />}
           {tab === "branding" && <BrandingTab configuratorId={configuratorId} />}
           {tab === "embed" && (
-            <EmbedTab publicId={cfg.publicId} status={cfg.status} origin={origin} configuratorId={configuratorId} />
+            <EmbedTab
+              publicId={cfg.publicId}
+              status={cfg.status}
+              origin={origin}
+              configuratorId={configuratorId}
+              // While the plan is loading, don't flash a lock at paying users.
+              publicWidgetAllowed={access ? access.publicWidget : true}
+              fieldQuotesAllowed={access ? !access.isLocked("fieldQuotes") : false}
+            />
           )}
           {tab === "config" && <ConfigTab configuratorId={configuratorId} />}
           {tab === "versions" && <VersionsTab configuratorId={configuratorId} />}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { NumberInput, TextInput, SelectInput } from "../editor-primitives";
 
 const mintBtn =
@@ -9,17 +10,19 @@ const ghostBtn =
   "rounded-md border border-[var(--color-border)] px-2.5 py-1 text-xs text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-danger)] hover:bg-[var(--color-danger)]/10 hover:text-[var(--color-danger)]";
 
 export function SaveButton({ busy, onClick }: { busy: boolean; onClick: () => void }) {
+  const t = useTranslations("editor.catalog");
   return (
     <button type="button" disabled={busy} onClick={onClick} className={mintBtn}>
-      {busy ? "..." : "Salva"}
+      {busy ? "..." : t("save")}
     </button>
   );
 }
 
 export function DeleteButton({ onClick }: { onClick: () => void }) {
+  const t = useTranslations("editor.catalog");
   return (
     <button type="button" onClick={onClick} className={ghostBtn}>
-      Elimina
+      {t("delete")}
     </button>
   );
 }
@@ -34,6 +37,7 @@ export function AddRow({
   >;
   onAdd: (vals: Record<string, string>) => void;
 }) {
+  const t = useTranslations("editor.catalog");
   const [open, setOpen] = useState(false);
   const [vals, setVals] = useState<Record<string, string>>({});
 
@@ -44,7 +48,7 @@ export function AddRow({
         onClick={() => setOpen(true)}
         className="text-xs font-medium text-[var(--color-mint)] hover:underline"
       >
-        + Aggiungi
+        {t("addPlus")}
       </button>
     );
   }
@@ -92,14 +96,14 @@ export function AddRow({
         }}
         className="rounded-md bg-[var(--color-mint)] px-3 py-1.5 text-xs font-semibold text-[var(--color-mint-dark)] disabled:opacity-40"
       >
-        Aggiungi
+        {t("add")}
       </button>
       <button
         type="button"
         onClick={() => setOpen(false)}
         className="rounded-md border border-[var(--color-border)] px-3 py-1.5 text-xs text-[var(--color-text-secondary)]"
       >
-        Annulla
+        {t("cancel")}
       </button>
     </div>
   );

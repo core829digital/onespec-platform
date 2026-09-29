@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { Section, Field, TextInput, NumberInput, SelectInput, Toggle } from "./editor-primitives";
 import { useFriendlyError } from "@/lib/use-friendly-error";
+import { useTranslations } from "next-intl";
 
 interface Configurator {
   name: string;
@@ -22,7 +23,8 @@ interface Configurator {
   widgetStyle?: "standard" | "wizard";
 }
 
-const LOCALES = ["it", "en", "fr"];
+// Every language the public widget speaks (widget-i18n + simple wizard).
+const LOCALES = ["it", "en", "fr", "de", "nl"];
 const originOk = (s: string) => {
   try {
     const u = new URL(s);
@@ -39,6 +41,7 @@ export function GeneralTab({
   configuratorId: Id<"configurators">;
   configurator: Configurator;
 }) {
+  const t = useTranslations("editor.general");
   const tf = useFriendlyError();
   const update = useMutation(api.configurators.updateConfigurator);
   const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
@@ -62,7 +65,7 @@ export function GeneralTab({
     const v = originDraft.trim().replace(/\/$/, "");
     if (!v) return;
     if (!originOk(v)) {
-      setMsg({ kind: "err", text: "Origine non valida — usa un URL completo (https://esempio.it)." });
+      setMsg({ kind: "err", text: t("errOrigin") });
       return;
     }
     if (!origins.includes(v)) setOrigins([...origins, v]);
@@ -76,19 +79,19 @@ export function GeneralTab({
     const trimmed = name.trim();
     if (trimmed.length < 2 || trimmed.length > 80) {
       setSaving(false);
-      setMsg({ kind: "err", text: "Il nome deve avere tra 2 e 80 caratteri." });
+      setMsg({ kind: "err", text: t("errName") });
       return;
     }
     const vatN = parseFloat(vat);
     const roundN = parseFloat(rounding);
     if (!Number.isFinite(vatN) || vatN < 0 || vatN > 100) {
       setSaving(false);
-      setMsg({ kind: "err", text: "Aliquota IVA non valida (0–100)." });
+      setMsg({ kind: "err", text: t("errVat") });
       return;
     }
     if (!Number.isFinite(roundN) || roundN < 1) {
       setSaving(false);
-      setMsg({ kind: "err", text: "L'arrotondamento deve essere ≥ 1." });
+      setMsg({ kind: "err", text: t("errRounding") });
       return;
     }
     try {
@@ -107,7 +110,7 @@ export function GeneralTab({
         discountMaxPercent: Math.max(0, Math.min(100, parseFloat(discMax) || 0)),
         widgetStyle,
       });
-      setMsg({ kind: "ok", text: "Impostazioni salvate." });
+      setMsg({ kind: "ok", text: t("saved") });
     } catch (e) {
       setMsg({ kind: "err", text: tf(e) });
     } finally {
@@ -145,12 +148,12 @@ export function GeneralTab({
         </p>
       ) : null}
 
-      <Section title="Generale">
-        <Field label="Nome del configuratore">
+      <Section title={t("sectionGeneral")}>
+        <Field label={t("name")}>
           <TextInput value={name} onChange={(e) => setName(e.target.value)} maxLength={80} />
         </Field>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <Field label="Lingua predefinita">
+          <Field label={t("defaultLocale")}>
             <SelectInput value={defaultLocale} onChange={(e) => setDefaultLocale(e.target.value)}>
               {LOCALES.map((l) => (
                 <option key={l} value={l}>
@@ -159,22 +162,22 @@ export function GeneralTab({
               ))}
             </SelectInput>
           </Field>
-          <Field label="Tema predefinito">
+          <Field label={t("defaultTheme")}>
             <SelectInput
               value={defaultTheme}
               onChange={(e) => setDefaultTheme(e.target.value as "light" | "dark" | "auto")}
             >
-              <option value="auto">Automatico</option>
-              <option value="light">Chiaro</option>
-              <option value="dark">Scuro</option>
+              <option value="auto">{t("themeAuto")}</option>
+              <option value="light">{t("themeLight")}</option>
+              <option value="dark">{t("themeDark")}</option>
             </SelectInput>
           </Field>
         </div>
       </Section>
 
       <Section
-        title="Stile widget"
-        description="Come si presenta il configuratore sul sito del montatore. Cambia solo la UI pubblica — catalogo, prezzi e leadgen restano gli stessi."
+        title={t("styleTitle")}
+        description={t("styleDesc")}
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <button
@@ -186,10 +189,8 @@ export function GeneralTab({
                 : "border-[var(--color-border)] bg-[var(--color-bg-alt)] hover:border-[var(--color-mint)]/50"
             }`}
           >
-            <p className="font-semibold text-[var(--color-text)]">Configuratore completo</p>
-            <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
-              Editor tecnico completo: categorie, telaio, per-anta, accessori, prezzo live. Per chi vuole un preventivo dettagliato online.
-            </p>
+            <p className="font-semibold text-[var(--color-text)]">{t("styleFull")}</p>
+            <p className="mt-1 text-xs text-[var(--color-text-secondary)]">{t("styleFullDesc")}</p>
           </button>
           <button
             type="button"
@@ -200,59 +201,57 @@ export function GeneralTab({
                 : "border-[var(--color-border)] bg-[var(--color-bg-alt)] hover:border-[var(--color-mint)]/50"
             }`}
           >
-            <p className="font-semibold text-[var(--color-text)]">Wizard semplice</p>
-            <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
-              5 passaggi rapidi, nessun prezzo mostrato: raccoglie il contatto e le preferenze, poi lo richiami tu. Per chi vuole solo generare lead.
-            </p>
+            <p className="font-semibold text-[var(--color-text)]">{t("styleWizard")}</p>
+            <p className="mt-1 text-xs text-[var(--color-text-secondary)]">{t("styleWizardDesc")}</p>
           </button>
         </div>
       </Section>
 
-      <Section title="Prezzi" description="Il server ricalcola sempre il prezzo autoritativo; questi valori impostano la presentazione.">
+      <Section title={t("pricesTitle")} description={t("pricesDesc")}>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <Field label="Aliquota IVA %">
+          <Field label={t("vat")}>
             <NumberInput value={vat} onChange={(e) => setVat(e.target.value)} step="0.1" min={0} max={100} />
           </Field>
-          <Field label="Arrotondamento (€ cent)" hint="Passo di arrotondamento del totale.">
+          <Field label={t("rounding")} hint={t("roundingHint")}>
             <NumberInput value={rounding} onChange={(e) => setRounding(e.target.value)} step="1" min={1} />
           </Field>
         </div>
         <Toggle
           checked={showPrices}
           onChange={setShowPrices}
-          label="Mostra il prezzo indicativo all'utente finale nel widget"
+          label={t("showPrices")}
         />
       </Section>
 
       <Section
-        title="Incentivi"
-        description="Politica di ecobonus e sconto mostrata nel widget. La decidi tu, non l'utente finale."
+        title={t("incentivesTitle")}
+        description={t("incentivesDesc")}
       >
         <Toggle
           checked={ecoEnabled}
           onChange={setEcoEnabled}
-          label="Mostra la stima Ecobonus nel widget"
+          label={t("ecobonus")}
         />
         {ecoEnabled ? (
-          <Field label="Percentuale Ecobonus massima" hint="Limite che l'utente può selezionare (es. 50).">
+          <Field label={t("ecobonusMax")} hint={t("ecobonusMaxHint")}>
             <NumberInput value={ecoMax} onChange={(e) => setEcoMax(e.target.value)} step="1" min={0} max={100} />
           </Field>
         ) : null}
         <Toggle
           checked={discEnabled}
           onChange={setDiscEnabled}
-          label="Consenti l'inserimento di uno sconto nel widget"
+          label={t("discount")}
         />
         {discEnabled ? (
-          <Field label="Sconto massimo %" hint="Limite dello sconto inseribile nel widget.">
+          <Field label={t("discountMax")} hint={t("discountMaxHint")}>
             <NumberInput value={discMax} onChange={(e) => setDiscMax(e.target.value)} step="1" min={0} max={100} />
           </Field>
         ) : null}
       </Section>
 
       <Section
-        title="Domini autorizzati"
-        description="Il widget accetta l'embedding e le richieste solo da questi domini. Vuoto = nessuna restrizione di origine (sconsigliato in produzione)."
+        title={t("originsTitle")}
+        description={t("originsDesc")}
       >
         <div className="flex flex-wrap gap-2">
           {origins.map((o) => (
@@ -265,14 +264,14 @@ export function GeneralTab({
                 type="button"
                 onClick={() => setOrigins(origins.filter((x) => x !== o))}
                 className="text-[var(--color-text-secondary)] hover:text-[var(--color-danger)]"
-                aria-label={`Rimuovi ${o}`}
+                aria-label={t("removeOrigin", { origin: o })}
               >
                 ×
               </button>
             </span>
           ))}
           {origins.length === 0 ? (
-            <span className="text-xs text-[var(--color-text-secondary)]">Nessun dominio</span>
+            <span className="text-xs text-[var(--color-text-secondary)]">{t("noOrigins")}</span>
           ) : null}
         </div>
         <div className="flex gap-2">
@@ -285,14 +284,14 @@ export function GeneralTab({
                 addOrigin();
               }
             }}
-            placeholder="https://www.esempio.it"
+            placeholder={t("originPlaceholder")}
           />
           <button
             type="button"
             onClick={addOrigin}
             className="rounded-lg border border-[var(--color-border)] px-4 text-sm text-[var(--color-text)]"
           >
-            Aggiungi
+            {t("add")}
           </button>
         </div>
       </Section>
@@ -304,11 +303,9 @@ export function GeneralTab({
           disabled={saving}
           className="rounded-lg bg-[var(--color-mint)] px-5 py-2.5 text-sm font-semibold text-[var(--color-mint-dark)] disabled:opacity-50"
         >
-          {saving ? "Salvataggio..." : "Salva ora"}
+          {saving ? t("saving") : t("saveNow")}
         </button>
-        <span className="text-xs text-[var(--color-text-secondary)]">
-          Le modifiche si salvano automaticamente.
-        </span>
+        <span className="text-xs text-[var(--color-text-secondary)]">{t("autosave")}</span>
       </div>
     </div>
   );

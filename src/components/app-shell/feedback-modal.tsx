@@ -6,16 +6,18 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { MessageSquarePlus } from "lucide-react";
 import { useFriendlyError } from "@/lib/use-friendly-error";
+import { useTranslations } from "next-intl";
 
 type Category = "bug" | "feature" | "general";
 
-const CATEGORIES: Array<{ v: Category; label: string }> = [
-  { v: "bug", label: "Bug" },
-  { v: "feature", label: "Suggerimento" },
-  { v: "general", label: "Altro" },
+const CATEGORIES: Array<{ v: Category; labelKey: "catBug" | "catFeature" | "catGeneral" }> = [
+  { v: "bug", labelKey: "catBug" },
+  { v: "feature", labelKey: "catFeature" },
+  { v: "general", labelKey: "catGeneral" },
 ];
 
 export function FeedbackButton() {
+  const t = useTranslations("feedback");
   const tf = useFriendlyError();
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState<Category>("bug");
@@ -57,10 +59,10 @@ export function FeedbackButton() {
         type="button"
         onClick={() => setOpen(true)}
         className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] px-2.5 py-1.5 text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
-        aria-label="Invia feedback o segnala un bug"
+        aria-label={t("open")}
       >
         <MessageSquarePlus size={14} aria-hidden="true" />
-        Feedback
+        {t("button")}
       </button>
 
       {open ? (
@@ -71,13 +73,13 @@ export function FeedbackButton() {
           <div
             role="dialog"
             aria-modal="true"
-            aria-label="Invia feedback"
+            aria-label={t("dialog")}
             className="w-full max-w-md rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5 space-y-3"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="font-semibold text-[var(--color-text)]">Feedback</h2>
+            <h2 className="font-semibold text-[var(--color-text)]">{t("title")}</h2>
             {state === "sent" ? (
-              <p className="text-sm text-[var(--color-mint)]">Grazie! Ricevuto.</p>
+              <p className="text-sm text-[var(--color-mint)]">{t("thanks")}</p>
             ) : (
               <>
                 <div className="flex gap-2">
@@ -92,7 +94,7 @@ export function FeedbackButton() {
                           : "rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-xs text-[var(--color-text-secondary)]"
                       }
                     >
-                      {c.label}
+                      {t(c.labelKey)}
                     </button>
                   ))}
                 </div>
@@ -101,7 +103,7 @@ export function FeedbackButton() {
                   onChange={(e) => setMessage(e.target.value)}
                   rows={4}
                   maxLength={4000}
-                  placeholder="Cosa è successo o cosa vorresti…"
+                  placeholder={t("placeholder")}
                   className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
                 />
                 {err ? <p className="text-xs text-[var(--color-danger)]">{err}</p> : null}
@@ -111,7 +113,7 @@ export function FeedbackButton() {
                     onClick={() => setOpen(false)}
                     className="rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm text-[var(--color-text)]"
                   >
-                    Annulla
+                    {t("cancel")}
                   </button>
                   <button
                     type="button"
@@ -119,7 +121,7 @@ export function FeedbackButton() {
                     onClick={send}
                     className="rounded-lg bg-[var(--color-mint)] px-4 py-2 text-sm font-semibold text-[var(--color-mint-dark)] disabled:opacity-50"
                   >
-                    {state === "sending" ? "Invio…" : "Invia"}
+                    {state === "sending" ? t("sending") : t("send")}
                   </button>
                 </div>
               </>

@@ -1,50 +1,33 @@
 "use client";
 
 import { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 
-interface Cantiere {
-  _id: string;
+/** Exactly what getCantiereByGuestPin returns to an external collaborator. */
+export interface GuestCantiere {
   name: string;
-  status: string;
-  priority?: string;
   address: string;
-  postalCode?: string;
-  city?: string;
-  clientName?: string;
-  estimatedStart?: number;
-  estimatedEnd?: number;
-  pinExpiresAt?: number;
-  tasks?: Array<{
-    id?: string;
-    title: string;
-    description?: string;
-    completed: boolean;
-    dueDate?: number;
-  }>;
+  status: "preventivo" | "confermato" | "in_produzione" | "pronto_consegna" | "in_posa" | "collaudo" | "chiuso";
+  priority: "low" | "medium" | "high" | "urgent";
+  estimatedStartAt: number | null;
+  estimatedEndAt: number | null;
+  guestPinExpiresAt: number | null;
+  clientName: string | null;
+}
+
+export interface GuestTask {
+  title: string;
+  description: string | null;
+  done: boolean;
+  dueAt: number | null;
 }
 
 interface CantiereGuestViewProps {
-  cantiere: Cantiere;
+  cantiere: GuestCantiere;
+  tasks: GuestTask[];
+  tenantName: string;
   pin: string;
 }
-
-const STATUS_LABELS: Record<string, string> = {
-  preventivo: "Preventivo",
-  confermato: "Confermato",
-  in_produzione: "In Produzione",
-  pronto_consegna: "Pronto Consegna",
-  in_posa: "In Posa",
-  collaudo: "Collaudo",
-  chiuso: "Chiuso",
-};
-
-const PRIORITY_LABELS: Record<string, string> = {
-  low: "Bassa",
-  medium: "Media",
-  high: "Alta",
-  urgent: "Urgente",
-};
 
 const STATUS_COLORS: Record<string, string> = {
   preventivo: "bg-blue-100 text-blue-800",
@@ -63,14 +46,12 @@ const PRIORITY_COLORS: Record<string, string> = {
   urgent: "bg-red-100 text-red-700",
 };
 
-export function CantiereGuestView({ cantiere, pin }: CantiereGuestViewProps) {
+export function CantiereGuestView({ cantiere, tasks, tenantName, pin }: CantiereGuestViewProps) {
   const t = useTranslations("cantieri");
+  const locale = useLocale();
   const [showTasks, setShowTasks] = useState(false);
 
-  const formatDate = (ts: number | undefined) =>
-    ts ? new Date(ts).toLocaleDateString("it-IT") : "—";
-
-  const tasks = cantiere.tasks ?? [];
+  const formatDate = (ts: number | null) => (ts ? new Date(ts).toLocaleDateString(locale) : "—");
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)] p-6">
@@ -84,22 +65,22 @@ export function CantiereGuestView({ cantiere, pin }: CantiereGuestViewProps) {
             <div>
               <h1 className="text-2xl font-bold text-[var(--color-text)]">{cantiere.name}</h1>
               <p className="text-sm text-[var(--color-text-secondary)]">
-                {t("guestView")} · PIN: <code className="bg-[var(--color-muted)] px-1.5 py-0.5 rounded text-xs font-mono">{pin}</code>
+                {tenantName} · {t("guestView")} · PIN: <code className="bg-[var(--color-muted)] px-1.5 py-0.5 rounded text-xs font-mono">{pin}</code>
               </p>
             </div>
           </div>
           <div className="text-right text-sm text-[var(--color-text-secondary)]">
-            <p>{t("validUntil")}: {formatDate(cantiere.pinExpiresAt)}</p>
+            <p>{t("validUntil")}: {formatDate(cantiere.guestPinExpiresAt)}</p>
           </div>
         </div>
 
         {/* Status & Priority badges */}
         <div className="flex flex-wrap gap-2 mb-4">
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[cantiere.status ?? ""] ?? "bg-gray-100 text-gray-700"}`}>
-            {STATUS_LABELS[cantiere.status ?? ""] ?? cantiere.status}
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[cantiere.status] ?? "bg-gray-100 text-gray-700"}`}>
+            {t(cantiere.status)}
           </span>
-          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${PRIORITY_COLORS[cantiere.priority ?? ""] ?? "bg-gray-100 text-gray-700"}`}>
-            {PRIORITY_LABELS[cantiere.priority ?? ""] ?? cantiere.priority}
+          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${PRIORITY_COLORS[cantiere.priority] ?? "bg-gray-100 text-gray-700"}`}>
+            {t(`priority.${cantiere.priority}`)}
           </span>
         </div>
       </header>
@@ -107,9 +88,9 @@ export function CantiereGuestView({ cantiere, pin }: CantiereGuestViewProps) {
       {/* Cantiere Info Grid */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 mb-8 max-w-4xl mx-auto">
         <InfoCard label={t("client")} value={cantiere.clientName ?? "—"} icon={<UserIcon />} />
-        <InfoCard label={t("address")} value={cantiere.address ?? "—"} icon={<MapPinIcon />} />
-        <InfoCard label={t("estimatedStart")} value={formatDate(cantiere.estimatedStart)} icon={<CalendarIcon />} />
-        <InfoCard label={t("estimatedEnd")} value={formatDate(cantiere.estimatedEnd)} icon={<CalendarIcon />} />
+        <InfoCard label={t("address")} value={cantiere.address || "—"} icon={<MapPinIcon />} />
+        <InfoCard label={t("estimatedStart")} value={formatDate(cantiere.estimatedStartAt)} icon={<CalendarIcon />} />
+        <InfoCard label={t("estimatedEnd")} value={formatDate(cantiere.estimatedEndAt)} icon={<CalendarIcon />} />
       </div>
 
       {/* Tasks Section */}
@@ -130,7 +111,7 @@ export function CantiereGuestView({ cantiere, pin }: CantiereGuestViewProps) {
           tasks.length > 0 ? (
             <div className="space-y-2">
               {tasks.map((task, idx) => (
-                <TaskCard key={task.id ?? idx} task={task} />
+                <TaskCard key={idx} task={task} dueLabel={task.dueAt ? t("dueOn", { date: formatDate(task.dueAt) }) : null} />
               ))}
             </div>
           ) : (
@@ -161,28 +142,24 @@ function InfoCard({ label, value, icon }: { label: string; value: string; icon: 
   );
 }
 
-function TaskCard({ task }: { task: { id?: string; title: string; description?: string; completed: boolean; dueDate?: number } }) {
+function TaskCard({ task, dueLabel }: { task: GuestTask; dueLabel: string | null }) {
   return (
     <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-4">
       <div className="flex items-start gap-3">
         <input
           type="checkbox"
-          checked={task.completed}
+          checked={task.done}
           disabled
           className="mt-1 w-5 h-5 text-[var(--color-mint)] rounded border-[var(--color-border)]"
         />
         <div className="flex-1 min-w-0">
-          <p className={`font-medium ${task.completed ? "line-through text-[var(--color-text-secondary)]" : "text-[var(--color-text)]"}`}>
+          <p className={`font-medium ${task.done ? "line-through text-[var(--color-text-secondary)]" : "text-[var(--color-text)]"}`}>
             {task.title}
           </p>
           {task.description && (
             <p className="text-sm text-[var(--color-text-secondary)] mt-1">{task.description}</p>
           )}
-          {task.dueDate && (
-            <p className="text-xs text-[var(--color-text-secondary)] mt-1">
-              Scadenza: {new Date(task.dueDate).toLocaleDateString("it-IT")}
-            </p>
-          )}
+          {dueLabel && <p className="text-xs text-[var(--color-text-secondary)] mt-1">{dueLabel}</p>}
         </div>
       </div>
     </div>

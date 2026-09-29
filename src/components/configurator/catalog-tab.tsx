@@ -1,6 +1,7 @@
 "use client";
 
 import type { Id } from "@/convex/_generated/dataModel";
+import { useTranslations } from "next-intl";
 import { CatalogEditorProvider, useCatalogEditor } from "./catalog/store";
 import { MaterialsSection, QualitySection, ProfileSystemsSection } from "./catalog/materials";
 import { GlazingSection, FinishSection, HardwareSection, SizeSection } from "./catalog/options";
@@ -31,18 +32,20 @@ function ErrorBanner() {
 export function CatalogTab({
   configuratorId,
   state,
+  labelLang,
 }: {
   configuratorId: Id<"configurators">;
   state: EditorState;
+  /** The configurator's default widget language — the labels edited here. */
+  labelLang: string;
 }) {
+  const t = useTranslations("editor.catalog");
+  const lang = ["it", "en", "fr", "de", "nl"].includes(labelLang) ? labelLang : "it";
   return (
-    <CatalogEditorProvider configuratorId={configuratorId}>
+    <CatalogEditorProvider configuratorId={configuratorId} labelLang={lang}>
       <div className="space-y-6">
         <ErrorBanner />
-        <p className="text-sm text-[var(--color-text-secondary)]">
-          Le modifiche al catalogo restano in bozza finché non pubblichi. Il widget pubblico continua
-          a usare l&apos;ultima versione pubblicata.
-        </p>
+        <p className="text-sm text-[var(--color-text-secondary)]">{t("draftNote", { lang: t(`lang_${lang}`) })}</p>
         <MaterialsSection materials={state.materials} />
         <QualitySection materials={state.materials} qualityTiers={state.qualityTiers} />
         <ProfileSystemsSection materials={state.materials} profileSystems={state.profileSystems} />

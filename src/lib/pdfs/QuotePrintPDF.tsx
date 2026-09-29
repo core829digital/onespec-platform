@@ -301,6 +301,50 @@ interface QuotePrintPDFProps {
   lang?: "it" | "fr" | "de" | "nl";
 }
 
+/** Document chrome per document language (market texts below stay market-specific). */
+const PDF_T = {
+  it: {
+    vatId: "P.IVA", date: "Data", validity: "Validità: 30 giorni", issuer: "Azienda emittente", client: "Cliente",
+    summaryTitle: "Riepilogo fornitura e posa", supply: "Fornitura", installDisposal: "Posa + smaltimento", quoteTotal: "Totale preventivo:",
+    itemsTitle: "Dettaglio serramenti e posa", colPos: "Pos.", colType: "Tipologia", colDims: "Dimensioni", colMat: "Materiale / vetro", colQty: "Q.tà",
+    window: "Finestra", balconyDoor: "Portafinestra", joints: (n: number) => `${n} giunti`,
+    breakdownTitle: "Dettaglio prezzo", supplyN: (n: number) => `Fornitura serramenti (${n} pz):`, regional: (r: string) => `Opzioni regionali (${r}):`,
+    discount: (p: number) => `Sconto (${p}%):`, taxable: "Imponibile:", vat: (p: number) => `IVA (${p}%):`, total: "TOTALE:",
+    notesTitle: "Note normative", payment: "Pagamento:", signaturesTitle: "Firme",
+    footer: (d: string) => `Documento generato con OneSpec · onespec.eu · ${d}`,
+  },
+  fr: {
+    vatId: "N° TVA", date: "Date", validity: "Validité : 30 jours", issuer: "Entreprise émettrice", client: "Client",
+    summaryTitle: "Récapitulatif fourniture et pose", supply: "Fourniture", installDisposal: "Pose + dépose", quoteTotal: "Total du devis :",
+    itemsTitle: "Détail des menuiseries et de la pose", colPos: "Pos.", colType: "Type", colDims: "Dimensions", colMat: "Matériau / vitrage", colQty: "Qté",
+    window: "Fenêtre", balconyDoor: "Porte-fenêtre", joints: (n: number) => `${n} assemblages`,
+    breakdownTitle: "Détail du prix", supplyN: (n: number) => `Fourniture menuiseries (${n} pcs) :`, regional: (r: string) => `Options régionales (${r}) :`,
+    discount: (p: number) => `Remise (${p} %) :`, taxable: "Total HT :", vat: (p: number) => `TVA (${p} %) :`, total: "TOTAL TTC :",
+    notesTitle: "Notes réglementaires", payment: "Modalités de paiement :", signaturesTitle: "Signatures",
+    footer: (d: string) => `Document généré avec OneSpec · onespec.eu · ${d}`,
+  },
+  de: {
+    vatId: "USt-IdNr.", date: "Datum", validity: "Gültigkeit: 30 Tage", issuer: "Anbieter", client: "Kunde",
+    summaryTitle: "Übersicht Lieferung und Montage", supply: "Lieferung", installDisposal: "Montage + Entsorgung", quoteTotal: "Angebotssumme:",
+    itemsTitle: "Positionen Fenster und Montage", colPos: "Pos.", colType: "Typ", colDims: "Maße", colMat: "Material / Verglasung", colQty: "Menge",
+    window: "Fenster", balconyDoor: "Balkontür", joints: (n: number) => `${n} Verbindungen`,
+    breakdownTitle: "Preisaufstellung", supplyN: (n: number) => `Lieferung Fenster (${n} Stk.):`, regional: (r: string) => `Regionale Optionen (${r}):`,
+    discount: (p: number) => `Rabatt (${p} %):`, taxable: "Nettobetrag:", vat: (p: number) => `MwSt. (${p} %):`, total: "GESAMT:",
+    notesTitle: "Normative Hinweise", payment: "Zahlungsbedingungen:", signaturesTitle: "Unterschriften",
+    footer: (d: string) => `Dokument erstellt mit OneSpec · onespec.eu · ${d}`,
+  },
+  nl: {
+    vatId: "Btw-nr.", date: "Datum", validity: "Geldigheid: 30 dagen", issuer: "Aanbieder", client: "Klant",
+    summaryTitle: "Overzicht levering en montage", supply: "Levering", installDisposal: "Montage + afvoer", quoteTotal: "Totaal offerte:",
+    itemsTitle: "Specificatie kozijnen en montage", colPos: "Pos.", colType: "Type", colDims: "Afmetingen", colMat: "Materiaal / beglazing", colQty: "Aantal",
+    window: "Raam", balconyDoor: "Balkondeur", joints: (n: number) => `${n} verbindingen`,
+    breakdownTitle: "Prijsopbouw", supplyN: (n: number) => `Levering kozijnen (${n} st.):`, regional: (r: string) => `Regionale opties (${r}):`,
+    discount: (p: number) => `Korting (${p}%):`, taxable: "Totaal excl. btw:", vat: (p: number) => `Btw (${p}%):`, total: "TOTAAL:",
+    notesTitle: "Normatieve opmerkingen", payment: "Betalingsvoorwaarden:", signaturesTitle: "Handtekeningen",
+    footer: (d: string) => `Document gemaakt met OneSpec · onespec.eu · ${d}`,
+  },
+} as const;
+
 export function QuotePrintPDF({
   tenant,
   quote,
@@ -317,6 +361,7 @@ export function QuotePrintPDF({
     lang ??
     (region === "FR" || region === "BE" || region === "LU" ? "fr" : region === "DE" ? "de" : region === "NL" ? "nl" : "it");
   const dateLocale = langKey === "fr" ? "fr-FR" : langKey === "de" ? "de-DE" : langKey === "nl" ? "nl-NL" : "it-IT";
+  const T = PDF_T[langKey];
 
   const today = new Date().toLocaleDateString(dateLocale, {
     day: "2-digit",
@@ -362,7 +407,7 @@ export function QuotePrintPDF({
             <CompanyLogo url={tenant?.logoUrl} />
             <Text style={styles.company}>{tenant?.name ?? "Serramenti"}</Text>
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 15, marginTop: 10 }}>
-              {tenant?.vatId ? <Text style={styles.subtitle}>P.IVA / TVA / MwSt: {tenant.vatId}</Text> : null}
+              {tenant?.vatId ? <Text style={styles.subtitle}>{T.vatId}: {tenant.vatId}</Text> : null}
               {tenant?.address ? <Text style={styles.subtitle}>{tenant.address}</Text> : null}
               {tenant?.phone || tenant?.email ? (
                 <Text style={styles.subtitle}>{[tenant.phone, tenant.email].filter(Boolean).join(" · ")}</Text>
@@ -377,20 +422,20 @@ export function QuotePrintPDF({
               {documentTypeBadge}
             </Text>
             <Text style={{ fontSize: 10, color: "#6b7280" }}>N° {quote.offerNumber ?? quote.publicId?.slice(-8).toUpperCase()}</Text>
-            <Text style={{ fontSize: 10 }}>Data / Date: {new Date().toLocaleDateString(dateLocale, { day: "2-digit", month: "long", year: "numeric" })}</Text>
-            <Text style={{ fontSize: 10 }}>Validità / Validité: 30 giorni / 30 jours</Text>
+            <Text style={{ fontSize: 10 }}>{T.date}: {today}</Text>
+            <Text style={{ fontSize: 10 }}>{T.validity}</Text>
           </View>
         </View>
 
         {/* Parties */}
         <View style={{ flexDirection: "row", justifyContent: "space-between", borderBottomWidth: 1, borderBottomColor: "#e5e7eb", paddingBottom: 8, marginBottom: 16 }}>
           <View style={{ width: "50%" }}>
-            <Text style={{ fontSize: 9, fontWeight: "bold", textTransform: "uppercase", color: "#6b7280", marginBottom: 4 }}>Azienda Emittente / Emetteur</Text>
+            <Text style={{ fontSize: 9, fontWeight: "bold", textTransform: "uppercase", color: "#6b7280", marginBottom: 4 }}>{T.issuer}</Text>
             <Text style={{ fontWeight: "bold", fontSize: 10 }}>{tenant?.name ?? "Serramenti"}</Text>
             <Text style={{ fontSize: 8, color: "#6b7280" }}>{tenant?.address ?? "—"}</Text>
           </View>
           <View style={{ textAlign: "right" }}>
-            <Text style={{ fontSize: 9, fontWeight: "bold", textTransform: "uppercase", color: "#6b7280", marginBottom: 4 }}>Cliente / Client</Text>
+            <Text style={{ fontSize: 9, fontWeight: "bold", textTransform: "uppercase", color: "#6b7280", marginBottom: 4 }}>{T.client}</Text>
             <Text style={{ fontWeight: "bold", fontSize: 10 }}>{quote.leadName}</Text>
             <Text style={{ fontSize: 9, color: "#6b7280" }}>{quote.leadEmail}</Text>
             <Text style={{ fontSize: 9 }}>{quote.leadPhone ?? "—"}</Text>
@@ -401,22 +446,22 @@ export function QuotePrintPDF({
         {/* Quote Details */}
         <View style={{ marginTop: 16, borderTopWidth: 1, borderTopColor: "#e5e7eb", paddingTop: 16 }}>
           <Text style={{ fontSize: 10, fontWeight: "bold", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8, color: "#374151" }}>
-            Dettaglio Fornitura e Posa
+            {T.summaryTitle}
           </Text>
 
           <View style={{ flexDirection: "row", marginBottom: 8 }}>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 9, fontWeight: "bold", color: "#374151", marginBottom: 2 }}>Fornitura</Text>
+              <Text style={{ fontSize: 9, fontWeight: "bold", color: "#374151", marginBottom: 2 }}>{T.supply}</Text>
               <Text style={{ fontFamily: "Courier", fontSize: 10, fontWeight: "bold" }}>{eur(supplyExVat ?? 0)}</Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ fontSize: 9, fontWeight: "bold", color: "#374151", marginBottom: 2 }}>Posa + Smaltimento</Text>
+              <Text style={{ fontSize: 9, fontWeight: "bold", color: "#374151", marginBottom: 2 }}>{T.installDisposal}</Text>
               <Text style={{ fontFamily: "Courier", fontSize: 10, fontWeight: "bold" }}>{eur(installationTotal + regionalSurchargeCents)}</Text>
             </View>
           </View>
           <View style={{ borderTopWidth: 1, borderTopColor: "#d1d5db", paddingTop: 8, marginTop: 8 }}>
             <View style={{ flexDirection: "row", justifyContent: "space-between", fontSize: 10, fontWeight: "bold", color: "#1f2937" }}>
-              <Text>Totale Preventivo:</Text>
+              <Text>{T.quoteTotal}</Text>
               <Text style={{ fontFamily: "Courier", fontWeight: "bold" }}>{eur(quote.priceCents)}</Text>
             </View>
           </View>
@@ -425,15 +470,15 @@ export function QuotePrintPDF({
         {/* Items table */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            Dettaglio Fornitura e Posa / Détail Menuiseries & Pose
+            {T.itemsTitle}
           </Text>
           <View style={styles.tableHeader}>
-            <View style={{ ...styles.tableHeaderCell, width: COLS[0] }}><Text>Pos.</Text></View>
-            <View style={{ ...styles.tableHeaderCell, width: COLS[1] }}><Text>Tipologia</Text></View>
-            <View style={{ ...styles.tableHeaderCell, width: COLS[2] }}><Text>Dimensioni</Text></View>
-            <View style={{ ...styles.tableHeaderCell, width: COLS[3] }}><Text>Materiale / Vetro</Text></View>
+            <View style={{ ...styles.tableHeaderCell, width: COLS[0] }}><Text>{T.colPos}</Text></View>
+            <View style={{ ...styles.tableHeaderCell, width: COLS[1] }}><Text>{T.colType}</Text></View>
+            <View style={{ ...styles.tableHeaderCell, width: COLS[2] }}><Text>{T.colDims}</Text></View>
+            <View style={{ ...styles.tableHeaderCell, width: COLS[3] }}><Text>{T.colMat}</Text></View>
             <View style={{ ...styles.tableHeaderCell, width: COLS[4] }}><Text>Uw</Text></View>
-            <View style={{ ...styles.tableHeaderCell, textAlign: "right", width: COLS[5] }}><Text>Qtà</Text></View>
+            <View style={{ ...styles.tableHeaderCell, textAlign: "right", width: COLS[5] }}><Text>{T.colQty}</Text></View>
           </View>
           {items.map((item, idx) => {
             const uw = catalog ? computeItemThermal(catalog, item).uw : estimateUw(item);
@@ -457,7 +502,7 @@ export function QuotePrintPDF({
               <View key={idx} style={styles.tableRow}>
                 <View style={{ ...styles.tableCell, width: COLS[0] }}><Text style={{ lineHeight: 1.3 }}>{idx + 1}</Text></View>
                 <View style={{ ...styles.tableCell, width: COLS[1] }}>
-                  <Text style={{ lineHeight: 1.3 }}>{category ? (category.labels[langKey] ?? category.labels.it) : item.productType === "balconyDoor" ? "Portafinestra / Porte-fenêtre" : "Finestra / Fenêtre"}</Text>
+                  <Text style={{ lineHeight: 1.3 }}>{category ? (category.labels[langKey] ?? category.labels.it) : item.productType === "balconyDoor" ? T.balconyDoor : T.window}</Text>
                   {profileLabel ? <Text style={{ lineHeight: 1.3, fontSize: 8, color: colors.gray[500] }}>{profileLabel}</Text> : null}
                   <Text style={{ lineHeight: 1.3, fontSize: 8, color: colors.gray[500] }}>{finishLabel}</Text>
                   {frameLabel ? <Text style={{ lineHeight: 1.3, fontSize: 8, color: colors.gray[500] }}>{dict.frame}: {frameLabel}</Text> : null}
@@ -466,7 +511,7 @@ export function QuotePrintPDF({
                   {item.notes ? <Text style={{ lineHeight: 1.3, fontSize: 7, color: "#b91c1c" }}>{dict.notes}: {item.notes}</Text> : null}
                   {quote.hvlJointCount && (
                     <Text style={{ lineHeight: 1.3, fontSize: 8, color: colors.emerald[700], fontWeight: "bold" }}>
-                      HVL 90° ({quote.hvlJointCount} giunti)
+                      HVL 90° ({T.joints(quote.hvlJointCount)})
                     </Text>
                   )}
                   {quote.rcSecurityLevel && quote.rcSecurityLevel !== "standard" && (
@@ -525,42 +570,42 @@ export function QuotePrintPDF({
 
         {/* Price breakdown */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Breakdown Prezzo / Détail Prix</Text>
+          <Text style={styles.sectionTitle}>{T.breakdownTitle}</Text>
           <View style={{ marginLeft: "auto", width: "45%" }}>
             <View style={styles.priceRow}>
-              <Text style={{ color: colors.gray[600] }}>Fornitura serramenti ({items.length} pz):</Text>
+              <Text style={{ color: colors.gray[600] }}>{T.supplyN(items.length)}</Text>
               <Text style={{ fontFamily: "Courier", fontWeight: "bold" }}>{eur(supplyExVat)}</Text>
             </View>
             {installationTotal > 0 && (
               <View style={styles.priceRow}>
-                <Text style={{ color: colors.gray[600] }}>Posa + Smaltimento / Pose + Dépose:</Text>
+                <Text style={{ color: colors.gray[600] }}>{T.installDisposal}:</Text>
                 <Text style={{ fontFamily: "Courier", fontWeight: "bold" }}>{eur(installationTotal)}</Text>
               </View>
             )}
             {regionalSurchargeCents > 0 && (
               <View style={styles.priceRow}>
-                <Text style={{ color: colors.gray[600] }}>Opzioni Regionali ({region}):</Text>
+                <Text style={{ color: colors.gray[600] }}>{T.regional(region)}</Text>
                 <Text style={{ fontFamily: "Courier", fontWeight: "bold" }}>{eur(regionalSurchargeCents)}</Text>
               </View>
             )}
             {(quote.discountPercent ?? 0) > 0 && (
               <View style={styles.priceRow}>
-                <Text style={{ color: colors.amber[600] }}>Sconto / Remise ({quote.discountPercent}%):</Text>
+                <Text style={{ color: colors.amber[600] }}>{T.discount(quote.discountPercent ?? 0)}</Text>
                 <Text style={{ fontFamily: "Courier", fontWeight: "bold", color: colors.amber[600] }}>
                   -{eur(quote.priceExVatCents - supplyExVat - installationTotal - regionalSurchargeCents)}
                 </Text>
               </View>
             )}
             <View style={styles.priceRow}>
-              <Text style={{ color: colors.gray[600] }}>Imponibile / Total HT:</Text>
+              <Text style={{ color: colors.gray[600] }}>{T.taxable}</Text>
               <Text style={{ fontFamily: "Courier", fontWeight: "bold" }}>{eur(quote.priceExVatCents)}</Text>
             </View>
             <View style={styles.priceRow}>
-              <Text style={{ color: colors.gray[600] }}>IVA / TVA / Btw ({quote.vatRatePercent ?? 20}%):</Text>
+              <Text style={{ color: colors.gray[600] }}>{T.vat(quote.vatRatePercent ?? 0)}</Text>
               <Text style={{ fontFamily: "Courier", fontWeight: "bold" }}>{eur(quote.priceCents - quote.priceExVatCents)}</Text>
             </View>
             <View style={styles.priceTotal}>
-              <Text>TOTALE / TOTAL TTC:</Text>
+              <Text>{T.total}</Text>
               <Text style={{ fontFamily: "Courier", color: colors.emerald[600] }}>{eur(quote.priceCents)}</Text>
             </View>
 
@@ -593,7 +638,7 @@ export function QuotePrintPDF({
 
         {/* Regional notes & legal */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Note Normative / Notes Réglementaires</Text>
+          <Text style={styles.sectionTitle}>{T.notesTitle}</Text>
           <View style={{ marginLeft: 12, fontSize: 8, color: colors.gray[600], lineHeight: 1.6 }}>
             {region === "FR" && (
               <>
@@ -605,13 +650,13 @@ export function QuotePrintPDF({
             {region === "BE" && (
               <>
                 <Text><Text style={styles.label}>TVA 6% (Belgique):</Text> Logement plus de 10 ans, déclaration signée par le maître d&apos;ouvrage.</Text>
-                <Text style={{ marginTop: 4 }}><Text style={styles.label}>Primes Régionales:</Text> Uw inferieur ou egal 1.5 W/m²K pour MijnVerbouwPremie (Flandre) / Primes Habitation (Wallonie).</Text>
+                <Text style={{ marginTop: 4 }}><Text style={styles.label}>Primes régionales :</Text> Uw inférieur ou égal à 1,5 W/m²K pour Mijn VerbouwPremie (Flandre) / Primes Habitation (Wallonie).</Text>
               </>
             )}
             {region === "NL" && (
               <>
                 <Text><Text style={styles.label}>VKG / SKG:</Text> Blokprofiel HVL 90° conforme VKG/SKG**.</Text>
-                <Text style={{ marginTop: 4 }}><Text style={styles.label}>ISDE Subsidie:</Text> HR++/HR+++ éligible RVO Investeringssubsidie Duurzame Energie.</Text>
+                <Text style={{ marginTop: 4 }}><Text style={styles.label}>ISDE-subsidie:</Text> HR++/HR+++ beglazing kan in aanmerking komen voor de RVO Investeringssubsidie duurzame energie en energiebesparing (ISDE).</Text>
               </>
             )}
             {region === "DE" && (
@@ -636,14 +681,14 @@ export function QuotePrintPDF({
               </>
             )}
             {quote.depositTerms && (
-              <Text style={{ marginTop: 4 }}><Text style={styles.label}>Pagamento / Modalités:</Text> {quote.depositTerms}</Text>
+              <Text style={{ marginTop: 4 }}><Text style={styles.label}>{T.payment}</Text> {quote.depositTerms}</Text>
             )}
           </View>
         </View>
 
         {/* Signature block */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Signatures / Firme</Text>
+          <Text style={styles.sectionTitle}>{T.signaturesTitle}</Text>
           <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 16 }}>
             <View style={{ width: "45%" }}>
               <Text style={{ fontSize: 8, fontWeight: "bold", textTransform: "uppercase", color: colors.gray[500], marginBottom: 8 }}>
@@ -675,7 +720,7 @@ export function QuotePrintPDF({
 
         {/* Footer */}
         <View style={styles.footer}>
-          <Text>Documento generato da OneSpec Platform · onespec-platform.vercel.app · {today}</Text>
+          <Text>{T.footer(today)}</Text>
         </View>
       </Page>
     </Document>

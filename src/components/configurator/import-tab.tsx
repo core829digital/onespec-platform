@@ -7,44 +7,25 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { parseCsv } from "@/lib/csv-parse";
 import { Section, SelectInput } from "./editor-primitives";
 import { useFriendlyError } from "@/lib/use-friendly-error";
+import { useLocale, useTranslations } from "next-intl";
 
 type Target = "materials" | "glazing" | "finish" | "hardware";
 
-const TARGETS: Array<{ v: Target; l: string }> = [
-  { v: "materials", l: "Materiali" },
-  { v: "glazing", l: "Vetri" },
-  { v: "finish", l: "Finiture" },
-  { v: "hardware", l: "Ferramenta" },
-];
+const TARGETS: Target[] = ["materials", "glazing", "finish", "hardware"];
 
-const FIELDS: Record<Target, Array<{ k: string; l: string; price?: boolean }>> = {
-  materials: [
-    { k: "key", l: "Chiave" },
-    { k: "label", l: "Etichetta" },
-    { k: "basePerM2Cents", l: "Prezzo €/m²", price: true },
-    { k: "profilePerMlCents", l: "Prezzo €/ml profilo", price: true },
-  ],
-  glazing: [
-    { k: "key", l: "Chiave" },
-    { k: "label", l: "Etichetta" },
-    { k: "priceCents", l: "Prezzo €", price: true },
-  ],
-  finish: [
-    { k: "key", l: "Chiave" },
-    { k: "label", l: "Etichetta" },
-    { k: "priceCents", l: "Prezzo €", price: true },
-  ],
-  hardware: [
-    { k: "key", l: "Chiave" },
-    { k: "label", l: "Etichetta" },
-    { k: "priceCents", l: "Prezzo €", price: true },
-    { k: "kind", l: "Tipo (hardware/hardwareColor/sashType/screen/threshold/misc)" },
-  ],
+// Labels come from editor.import.field_<k>.
+const FIELDS: Record<Target, Array<{ k: string; price?: boolean }>> = {
+  materials: [{ k: "key" }, { k: "label" }, { k: "basePerM2Cents", price: true }, { k: "profilePerMlCents", price: true }],
+  glazing: [{ k: "key" }, { k: "label" }, { k: "priceCents", price: true }],
+  finish: [{ k: "key" }, { k: "label" }, { k: "priceCents", price: true }],
+  hardware: [{ k: "key" }, { k: "label" }, { k: "priceCents", price: true }, { k: "kind" }],
 };
 
 const toCents = (s: string) => Math.round(parseFloat(String(s).replace(",", ".")) * 100);
 
 export function ImportTab({ configuratorId }: { configuratorId: Id<"configurators"> }) {
+  const t = useTranslations("editor.import");
+  const locale = useLocale();
   const tf = useFriendlyError();
   const importRows = useMutation(api.catalogImport.importRows);
   const undoImport = useMutation(api.catalogImport.undoImport);
@@ -70,7 +51,7 @@ export function ImportTab({ configuratorId }: { configuratorId: Id<"configurator
     reader.onload = () => {
       const parsed = parseCsv(String(reader.result ?? ""));
       if (parsed.length < 2) {
-        setErr("Il file non contiene righe di dati.");
+        setErr(t("errEmpty"));
         return;
       }
       setGrid(parsed);
@@ -91,7 +72,7 @@ export function ImportTab({ configuratorId }: { configuratorId: Id<"configurator
     if (!grid) return;
     const fields = FIELDS[target];
     if (fields.some((f) => map[f.k] === undefined)) {
-      setErr("Mappa tutte le colonne richieste prima di importare.");
+      setErr(t("errMap"));
       return;
     }
     setBusy(true);
@@ -118,13 +99,10 @@ export function ImportTab({ configuratorId }: { configuratorId: Id<"configurator
 
   return (
     <div className="space-y-6">
-      <p className="text-sm text-[var(--color-text-secondary)]">
-        Importa un listino da file CSV. Le colonne dei prezzi sono in euro. Chiavi già presenti vengono
-        aggiornate, le nuove vengono aggiunte. Ogni import può essere annullato.
-      </p>
+      <p className="text-sm text-[var(--color-text-secondary)]">{t("intro")}</p>
       {err ? <p className="text-sm text-[var(--color-danger)]">{err}</p> : null}
 
-      <Section title="1 · Cosa importi">
+      <Section title={t("step1")}>
         <SelectInput
           value={target}
           onChange={(e) => {
@@ -134,14 +112,14 @@ export function ImportTab({ configuratorId }: { configuratorId: Id<"configurator
             setResult(null);
           }}
         >
-          {TARGETS.map((t) => (
-            <option key={t.v} value={t.v}>
-              {t.l}
+          {TARGETS.map((tg) => (
+            <option key={tg} value={tg}>
+              {t(`target_${tg}`)}
             </option>
           ))}
         </SelectInput>
         <label className="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-mint)] cursor-pointer">
-          Scegli file CSV
+          {t("chooseFile")}
           <input
             type="file"
             accept=".csv,text/csv"
@@ -156,19 +134,19 @@ export function ImportTab({ configuratorId }: { configuratorId: Id<"configurator
       </Section>
 
       {grid ? (
-        <Section title="2 · Mappa le colonne" description={`${dataRows.length} righe rilevate.`}>
+        <Section title={t("step2")} description={t("rowsDetected", { count: dataRows.length })}>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {FIELDS[target].map((f) => (
               <label key={f.k} className="text-sm">
-                <span className="block text-[var(--color-text)] mb-1">{f.l}</span>
+                <span className="block text-[var(--color-text)] mb-1">{t(`field_${f.k}`)}</span>
                 <SelectInput
                   value={map[f.k] ?? ""}
                   onChange={(e) => setMap((m) => ({ ...m, [f.k]: Number(e.target.value) }))}
                 >
-                  <option value="">— colonna —</option>
+                  <option value="">{t("columnPlaceholder")}</option>
                   {header.map((h, i) => (
                     <option key={i} value={i}>
-                      {h || `Colonna ${i + 1}`}
+                      {h || t("columnN", { n: i + 1 })}
                     </option>
                   ))}
                 </SelectInput>
@@ -177,7 +155,7 @@ export function ImportTab({ configuratorId }: { configuratorId: Id<"configurator
           </div>
 
           <div className="overflow-x-auto mt-3">
-            <table className="w-full text-xs min-w-[480px]" aria-label="Anteprima importazione listino">
+            <table className="w-full text-xs min-w-[480px]" aria-label={t("previewAria")}>
               <thead>
                 <tr>
                   {header.map((h, i) => (
@@ -201,7 +179,7 @@ export function ImportTab({ configuratorId }: { configuratorId: Id<"configurator
             </table>
             {dataRows.length > 5 ? (
               <p className="text-xs text-[var(--color-text-secondary)] mt-1">
-                … e altre {dataRows.length - 5} righe
+                {t("moreRows", { count: dataRows.length - 5 })}
               </p>
             ) : null}
           </div>
@@ -212,22 +190,25 @@ export function ImportTab({ configuratorId }: { configuratorId: Id<"configurator
             disabled={busy}
             className="rounded-lg bg-[var(--color-mint)] px-5 py-2.5 text-sm font-semibold text-[var(--color-mint-dark)] disabled:opacity-50"
           >
-            {busy ? "Importazione..." : `Importa ${dataRows.length} righe`}
+            {busy ? t("importing") : t("importN", { count: dataRows.length })}
           </button>
         </Section>
       ) : null}
 
       {result ? (
-        <Section title="Esito importazione">
+        <Section title={t("resultTitle")}>
           <p className="text-sm text-[var(--color-text)]">
-            {result.summary.created} aggiunte · {result.summary.updated} aggiornate ·{" "}
-            {result.summary.rejected} scartate
+            {t("resultSummary", {
+              created: result.summary.created,
+              updated: result.summary.updated,
+              rejected: result.summary.rejected,
+            })}
           </p>
           {result.rejected.length > 0 ? (
             <div className="mt-2 rounded-lg border border-[var(--color-border)] divide-y divide-[var(--color-border)] text-sm">
               {result.rejected.map((r) => (
                 <p key={r.row} className="px-3 py-1.5 text-[var(--color-text-secondary)]">
-                  Riga {r.row}: {r.reason}
+                  {t("rowReason", { row: r.row, reason: r.reason })}
                 </p>
               ))}
             </div>
@@ -236,23 +217,24 @@ export function ImportTab({ configuratorId }: { configuratorId: Id<"configurator
       ) : null}
 
       {history && history.length > 0 ? (
-        <Section title="Cronologia import">
+        <Section title={t("historyTitle")}>
           <div className="rounded-lg border border-[var(--color-border)] divide-y divide-[var(--color-border)] text-sm">
             {history.map((h) => (
               <div key={h._id} className="flex items-center justify-between gap-3 px-3 py-2">
                 <span className="text-[var(--color-text)]">
-                  {new Date(h.importedAt).toLocaleString("it-IT")} · {h.target} ·{" "}
-                  {h.summary.created + h.summary.updated} righe
+                  {new Date(h.importedAt).toLocaleString(locale)} ·{" "}
+                  {TARGETS.includes(h.target as Target) ? t(`target_${h.target}`) : h.target} ·{" "}
+                  {t("historyRows", { count: h.summary.created + h.summary.updated })}
                 </span>
                 {h.undone ? (
-                  <span className="text-xs text-[var(--color-text-secondary)]">annullato</span>
+                  <span className="text-xs text-[var(--color-text-secondary)]">{t("undone")}</span>
                 ) : (
                   <button
                     type="button"
                     onClick={() => undoImport({ importId: h._id })}
                     className="rounded-lg border border-[var(--color-border)] px-3 py-1 text-xs text-[var(--color-text)]"
                   >
-                    Annulla
+                    {t("undo")}
                   </button>
                 )}
               </div>

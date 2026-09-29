@@ -35,6 +35,8 @@ export interface SimpleWizardWidgetProps {
       logoUrl?: string | null;
       /** Server-resolved: the owner enabled white-label AND the plan includes it. */
       whiteLabel?: boolean;
+      /** Owner-written headline / subheadline / CTA per widget language (Branding tab). */
+      copy?: Record<string, { headline?: string; subheadline?: string; ctaLabel?: string } | undefined>;
     };
     privacyUrl?: string | null;
     /** Widget owner's market (server-resolved from the tenant country). */
@@ -69,6 +71,8 @@ export function SimpleWizardWidget({
   const dict = getDict(lang);
   const copy = wizardCopy(lang);
   const market = wizardMarket(configurator.region);
+  // Owner's custom texts for this language; blank fields keep the defaults.
+  const ownCopy = configurator.branding?.copy?.[lang];
 
   const [hostTheme, setHostTheme] = useState<HostTheme>({});
   const accent = useMemo(() => {
@@ -285,7 +289,10 @@ export function SimpleWizardWidget({
   return (
     <div className="tw-widget-root" style={s.wrap}>
       <div style={s.header}>
-        <h2 style={{ margin: "0 0 4px", fontSize: "1.15rem" }}>{copy.title}</h2>
+        <h2 style={{ margin: "0 0 4px", fontSize: "1.15rem" }}>{ownCopy?.headline?.trim() || copy.title}</h2>
+        {ownCopy?.subheadline?.trim() ? (
+          <p style={{ margin: "0 0 4px", fontSize: "0.8rem", opacity: 0.85 }}>{ownCopy.subheadline.trim()}</p>
+        ) : null}
         <p style={{ margin: 0, fontSize: "0.85rem", opacity: 0.9 }}>{copy.steps[step - 1]}</p>
       </div>
       <div style={s.progressTrack}>
@@ -456,7 +463,7 @@ export function SimpleWizardWidget({
             <span />
           )}
           <button type="button" onClick={goNext} disabled={submitting} style={s.btnNext}>
-            {submitting ? "…" : step === totalSteps ? copy.send : copy.next}
+            {submitting ? "…" : step === totalSteps ? ownCopy?.ctaLabel?.trim() || copy.send : copy.next}
           </button>
         </div>
       </div>

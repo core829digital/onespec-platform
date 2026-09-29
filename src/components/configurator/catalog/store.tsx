@@ -7,11 +7,14 @@ import { useFriendlyError } from "@/lib/use-friendly-error";
 /** Debounce for text/number auto-save — long enough to not fire mid-keystroke. */
 const AUTOSAVE_DEBOUNCE_MS = 900;
 
-export type LabelSet = { it?: string; en?: string; fr?: string } & Record<string, string>;
+export type LabelSet = { it?: string; en?: string; fr?: string; de?: string; nl?: string } & Record<string, string>;
+
+/** Languages the public widget renders catalogue labels in. */
+export const WIDGET_LABEL_LANGS = ["it", "en", "fr", "de", "nl"] as const;
+export type LabelLang = (typeof WIDGET_LABEL_LANGS)[number];
 
 export const toCents = (s: string | number) =>
   Math.round(parseFloat(String(s).replace(",", ".")) * 100) || 0;
-export const label = (l: unknown) => (l as LabelSet)?.it ?? (l as LabelSet)?.en ?? "";
 
 type Draft = Record<string, string | number | boolean>;
 
@@ -23,6 +26,14 @@ interface CatalogCtx {
   setDraft: (id: string, field: string, value: string | number | boolean) => void;
   clearDraft: (id: string) => void;
   dirty: (id: string) => boolean;
+  /** Language whose label the editor shows and edits (the widget's default language). */
+  labelLang: LabelLang;
+  /** The label shown to a visitor in `labelLang` (same fallback chain as the widget). */
+  labelOf: (labels: unknown) => string;
+  /** `labels` with the `labelLang` entry replaced — other languages untouched. */
+  withLabel: (labels: unknown, value: string) => LabelSet;
+  /** Labels for a new row: the dealer's text in every widget language until translated. */
+  newLabels: (value: string) => LabelSet;
   run: (id: string, fn: () => Promise<unknown>) => Promise<void>;
   /** Save immediately (for discrete edits like a toggle) — no debounce. */
   autoSaveNow: (id: string, fn: () => Promise<unknown>) => void;
@@ -40,11 +51,17 @@ export function useCatalogEditor() {
 
 export function CatalogEditorProvider({
   configuratorId,
+  labelLang: rawLabelLang,
   children,
 }: {
   configuratorId: Id<"configurators">;
+  /** The configurator's default widget language. */
+  labelLang: string;
   children: React.ReactNode;
 }) {
+  const labelLang: LabelLang = (WIDGET_LABEL_LANGS as readonly string[]).includes(rawLabelLang)
+    ? (rawLabelLang as LabelLang)
+    : "it";
   const tf = useFriendlyError();
   const [drafts, setDrafts] = useState<Record<string, Draft>>({});
   const [busy, setBusy] = useState<string | null>(null);
@@ -78,6 +95,13 @@ export function CatalogEditorProvider({
             return n;
           }),
         dirty: (id) => drafts[id] !== undefined,
+        labelLang,
+        labelOf: (l) => {
+          const set = (l ?? {}) as LabelSet;
+          return set[labelLang] ?? set.it ?? set.en ?? "";
+        },
+        withLabel: (l, v) => ({ ...((l ?? {}) as LabelSet), [labelLang]: v }),
+        newLabels: (v) => Object.fromEntries(WIDGET_LABEL_LANGS.map((lang) => [lang, v])) as LabelSet,
         run,
         autoSaveNow: (id, fn) => {
           clearTimeout(timers.current[id]);
@@ -93,7 +117,7 @@ export function CatalogEditorProvider({
         },
       };
     },
-    [configuratorId, drafts, busy, error, tf],
+    [configuratorId, drafts, busy, error, tf, labelLang],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
