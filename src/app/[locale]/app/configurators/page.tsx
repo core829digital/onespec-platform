@@ -61,7 +61,15 @@ export default function ConfiguratorsPage() {
       // there's nothing blocking them from clicking straight into the
       // wizard, which is the actual point: teach the full step-by-step flow,
       // not front-load one field of it.
-      const configuratorId = await createConfigurator({
+      // Bug fix (2026-09-29): createConfigurator returns
+      // `{ configuratorId, publicId }`, not the id itself — the previous
+      // code assigned the whole object to `configuratorId` and interpolated
+      // it into the URL, producing the literal route
+      // /app/configurators/[object Object]/setup. Convex then rejected
+      // "[object Object]" as an invalid document id, which is exactly the
+      // "getEditorState Server Error" reported right after creating a new
+      // configurator. Destructure the real id instead.
+      const { configuratorId } = await createConfigurator({
         tenantId: tenant._id,
         name: t("defaultName"),
       });
