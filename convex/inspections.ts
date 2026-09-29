@@ -3,7 +3,6 @@
 import { query, mutation, internalMutation } from "./_generated/server";
 import type { QueryCtx, MutationCtx } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
-import { requireMembership } from "./lib/auth";
 import { requirePermission } from "./lib/rbac";
 import { requireTenantRegion, assertSignature } from "./lib/fieldModules";
 import { complianceForRegion } from "./lib/compliance";
@@ -42,7 +41,7 @@ export const listByQuote = query({
   handler: async (ctx, args) => {
     const quote = await ctx.db.get(args.quoteId);
     if (!quote) return [];
-    await requireMembership(ctx, quote.tenantId);
+    await requirePermission(ctx, quote.tenantId, "inspections.use");
     return await ctx.db
       .query("inspectionReports")
       .withIndex("by_quote", (q) => q.eq("quoteId", args.quoteId))
@@ -55,7 +54,7 @@ export const get = query({
   handler: async (ctx, args) => {
     const report = await ctx.db.get(args.reportId);
     if (!report) return null;
-    await requireMembership(ctx, report.tenantId);
+    await requirePermission(ctx, report.tenantId, "inspections.use");
     const photos = await Promise.all(
       report.photos.map(async (p) => ({
         ...p,
@@ -79,7 +78,7 @@ export const getForPrint = query({
   handler: async (ctx, args) => {
     const report = await ctx.db.get(args.reportId);
     if (!report) return null;
-    await requireMembership(ctx, report.tenantId);
+    await requirePermission(ctx, report.tenantId, "inspections.use");
     const tenant = await ctx.db.get(report.tenantId);
     const region = regionForCountry(report.regionCode).code;
     const tpl = complianceForRegion(region).inspection;
@@ -113,6 +112,7 @@ export const create = mutation({
   handler: async (ctx, args) => {
     await enforceForFieldSurvey(ctx, args.tenantId);
     await enforceActivePlan(ctx, args.tenantId);
+    await requirePermission(ctx, args.tenantId, "inspections.use");
     const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
     // Inherit the link from the quote this inspection closes when the caller
     // did not pick a client/cantiere explicitly.
@@ -246,7 +246,7 @@ export const sign = mutation({
   handler: async (ctx, args) => {
     const report = await ctx.db.get(args.reportId);
     if (!report) throw new ConvexError("REPORT_NOT_FOUND");
-    await requireMembership(ctx, report.tenantId);
+    await requirePermission(ctx, report.tenantId, "inspections.use");
     await enforceForESignature(ctx, report.tenantId);
     if (report.status === "signed") throw new ConvexError("ALREADY_SIGNED");
 

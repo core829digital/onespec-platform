@@ -171,7 +171,7 @@ export const createFieldQuote = mutation({
   },
   handler: async (ctx, args) => {
     await enforceForCreateQuote(ctx, args.tenantId);
-    const { userId } = await requirePermission(ctx, args.tenantId, "quotes.use");
+    const { userId } = await requirePermission(ctx, args.tenantId, "quotes.field");
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator || configurator.tenantId !== args.tenantId) {
       throw new ConvexError("CONFIGURATOR_NOT_FOUND");
@@ -391,7 +391,7 @@ export const createFieldQuoteFromSurvey = mutation({
   },
   handler: async (ctx, args) => {
     await enforceForCreateQuote(ctx, args.tenantId);
-    const { userId } = await requirePermission(ctx, args.tenantId, "quotes.use");
+    const { userId } = await requirePermission(ctx, args.tenantId, "quotes.field");
 
     // Get the survey
     const survey = await ctx.db.get(args.surveyId);
@@ -563,7 +563,7 @@ export const createQuoteWithSuppliers = mutation({
   handler: async (ctx, args) => {
     await enforceForCreateQuote(ctx, args.tenantId);
     await enforceForMultiSupplier(ctx, args.tenantId);
-    const { userId } = await requirePermission(ctx, args.tenantId, "quotes.use");
+    const { userId } = await requirePermission(ctx, args.tenantId, "quotes.field");
 
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator || configurator.tenantId !== args.tenantId) {

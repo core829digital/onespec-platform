@@ -2,7 +2,6 @@
 
 import { query, mutation, internalMutation } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
-import { requireMembership } from "./lib/auth";
 import { requirePermission } from "./lib/rbac";
 import { requireTenantRegion } from "./lib/fieldModules";
 import { enforceForMaintenance } from "./lib/enforcement";
@@ -33,7 +32,7 @@ export const listByQuote = query({
   handler: async (ctx, args) => {
     const quote = await ctx.db.get(args.quoteId);
     if (!quote) return [];
-    await requireMembership(ctx, quote.tenantId);
+    await requirePermission(ctx, quote.tenantId, "passports.use");
     return await ctx.db
       .query("serramentoPassports")
       .withIndex("by_quote", (q) => q.eq("quoteId", args.quoteId))
@@ -46,7 +45,7 @@ export const get = query({
   handler: async (ctx, args) => {
     const p = await ctx.db.get(args.passportId);
     if (!p) return null;
-    await requireMembership(ctx, p.tenantId);
+    await requirePermission(ctx, p.tenantId, "passports.use");
     const documents = await Promise.all(
       p.documents.map(async (d) => ({
         ...d,
@@ -78,6 +77,7 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     await enforceForMaintenance(ctx, args.tenantId);
+    await requirePermission(ctx, args.tenantId, "passports.use");
     const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
     const label = args.label.trim();
     const customerName = args.customerName.trim();
@@ -121,6 +121,7 @@ export const createBatchFromQuote = mutation({
     // above enforces — a Base-plan tenant could bypass the paywall entirely
     // by batch-creating passports for every item on a quote.
     await enforceForMaintenance(ctx, args.tenantId);
+    await requirePermission(ctx, args.tenantId, "passports.use");
     const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
     const quote = await ctx.db.get(args.quoteId);
     if (!quote || quote.tenantId !== args.tenantId) throw new ConvexError("QUOTE_NOT_FOUND");

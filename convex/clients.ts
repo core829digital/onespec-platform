@@ -1,7 +1,6 @@
 import { query, mutation, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
-import { requireMembership } from "./lib/auth";
 import { requirePermission } from "./lib/rbac";
 import { listRelated } from "./lib/links";
 
@@ -58,7 +57,7 @@ export const getClient = query({
   handler: async (ctx, args) => {
     const client = await ctx.db.get(args.clientId);
     if (!client) return null;
-    await requireMembership(ctx, client.tenantId);
+    await requirePermission(ctx, client.tenantId, "clients.use");
 
     const activities = await ctx.db
       .query("clientActivities")

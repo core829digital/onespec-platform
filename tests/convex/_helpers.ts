@@ -23,7 +23,10 @@ let slugCounter = 0;
 
 export async function seedTenant(
   t: T,
-  opts: { plan?: "base" | "starter" | "business" | "pro" | "agency" | "enterprise" | "showroom" } = {},
+  opts: {
+    plan?: "base" | "starter" | "business" | "pro" | "agency" | "enterprise" | "showroom"
+      | "essentials" | "essentials_plus" | "max";
+  } = {},
 ): Promise<SeededTenant> {
   const plan = opts.plan ?? "base";
   return t.run(async (ctx) => {
@@ -41,7 +44,8 @@ export async function seedTenant(
       name: `Tenant ${slugCounter}`,
       slug: `tenant-${slugCounter++}-${Date.now()}`,
       ownerUserId: ownerId,
-      plan: plan as "base" | "starter" | "pro" | "agency" | "enterprise" | "showroom",
+      plan: plan as "base" | "starter" | "pro" | "agency" | "enterprise" | "showroom"
+        | "essentials" | "essentials_plus" | "max",
       planStatus: "active",
       createdVia: "open_signup",
       createdAt: Date.now(),

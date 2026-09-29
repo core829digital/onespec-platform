@@ -1,7 +1,6 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
-import { requireMembership } from "./lib/auth";
 import { requirePermission } from "./lib/rbac";
 import { listRelated } from "./lib/links";
 import { consumeToken, RATE_LIMITS } from "./lib/ratelimit";
@@ -81,7 +80,7 @@ export const getCantiere = query({
   handler: async (ctx, args) => {
     const cantiere = await ctx.db.get(args.cantiereId);
     if (!cantiere) return null;
-    await requireMembership(ctx, cantiere.tenantId);
+    await requirePermission(ctx, cantiere.tenantId, "cantieri.use");
 
     const tenant = await ctx.db.get(cantiere.tenantId);
     if (!tenant) return null;

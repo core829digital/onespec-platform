@@ -1,4 +1,6 @@
 export const PLAN_TIERS = ["base", "pro", "agency", "enterprise"] as const;
+/** Widget-first ladder, sold before the full-platform tiers above. */
+export const WIDGET_PLAN_TIERS = ["essentials", "essentials_plus", "max"] as const;
 export type PlanTier = (typeof PLAN_TIERS)[number];
 
 /**
@@ -54,7 +56,11 @@ export const AUDIT_ACTIONS = [
   "trial.expired",
   "configurator.publish",
   "quote.create",
-  "quote.price_mismatch"
+  "quote.price_mismatch",
+  "usage.pdf_export",
+  "usage.whatsapp_send",
+  "usage.showroom_quote",
+  "usage.quota_unlock"
 ] as const;
 
 export const PRODUCT_TYPES = ["window", "balconyDoor"] as const;

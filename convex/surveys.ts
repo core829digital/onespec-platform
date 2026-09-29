@@ -2,7 +2,6 @@
 
 import { query, mutation } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
-import { requireMembership } from "./lib/auth";
 import { requirePermission } from "./lib/rbac";
 import { requireTenantRegion } from "./lib/fieldModules";
 import { enforceForFieldSurvey } from "./lib/enforcement";
@@ -62,7 +61,7 @@ export const listByQuote = query({
   handler: async (ctx, args) => {
     const quote = await ctx.db.get(args.quoteId);
     if (!quote) return [];
-    await requireMembership(ctx, quote.tenantId);
+    await requirePermission(ctx, quote.tenantId, "surveys.use");
     return await ctx.db
       .query("siteSurveys")
       .withIndex("by_quote", (q) => q.eq("quoteId", args.quoteId))
@@ -75,7 +74,7 @@ export const get = query({
   handler: async (ctx, args) => {
     const survey = await ctx.db.get(args.surveyId);
     if (!survey) return null;
-    await requireMembership(ctx, survey.tenantId);
+    await requirePermission(ctx, survey.tenantId, "surveys.use");
 
     const openings = await Promise.all(
       survey.openings.map(async (o) => ({
@@ -103,7 +102,7 @@ export const getForPrint = query({
   handler: async (ctx, args) => {
     const survey = await ctx.db.get(args.surveyId);
     if (!survey) return null;
-    await requireMembership(ctx, survey.tenantId);
+    await requirePermission(ctx, survey.tenantId, "surveys.use");
     const tenant = await ctx.db.get(survey.tenantId);
     const openings = await Promise.all(
       survey.openings.map(async (o) => ({
@@ -150,6 +149,7 @@ export const create = mutation({
   },
   handler: async (ctx, args) => {
     await enforceForFieldSurvey(ctx, args.tenantId);
+    await requirePermission(ctx, args.tenantId, "surveys.use");
     const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
     const links = await resolveLinks(ctx, args.tenantId, {
       clientId: args.clientId,

@@ -25,7 +25,10 @@ export default defineSchema({
     // v2 plan ladder (2026-09-22, per signed SaaS contracts): base/pro/agency/enterprise.
     // "starter"/"showroom" kept as transitional literals until migrations.renamePlansToV2
     // has run on every deployment, then removed.
+    // Widget-first ladder (2026-09-29): essentials / essentials_plus / max — sold
+    // before the full platform, see convex/lib/entitlements.ts.
     plan: v.union(v.literal("base"), v.literal("pro"), v.literal("agency"), v.literal("enterprise"),
+                  v.literal("essentials"), v.literal("essentials_plus"), v.literal("max"),
                   v.literal("starter"), v.literal("showroom")),
     // "pending_plan": tenant exists (account created) but hasn't gone through
     // the plan-recommendation wizard + checkout yet — every new signup starts
@@ -449,6 +452,12 @@ export default defineSchema({
     spamScore: v.optional(v.number()),
     /** Accepted while the tenant was over its monthly quota (lead never lost). */
     overQuota: v.optional(v.boolean()),
+    /**
+     * Widget-first plans: accepted over the monthly cap, so the lead's contact
+     * details stay hidden (server-side) until the tenant upgrades or the next
+     * month starts. Cleared by `usage.unlockQuotaLockedRequests`, never re-set.
+     */
+    quotaLocked: v.optional(v.boolean()),
     /** Consent timestamp for the public-widget lead (GDPR Art. 13 checkbox); absent for non-widget channels. */
     consentAt: v.optional(v.number()),
     consentVersion: v.optional(v.string()),
@@ -469,7 +478,8 @@ export default defineSchema({
     .index("by_configurator", ["configuratorId"])
     .index("by_ipHash", ["sourceIpHash"])
     .index("by_client", ["clientId"])
-    .index("by_cantiere", ["cantiereId"]),
+    .index("by_cantiere", ["cantiereId"])
+    .index("by_tenantId_and_quotaLocked", ["tenantId", "quotaLocked"]),
 
   notifications: defineTable({
     tenantId: v.id("tenants"),
@@ -622,7 +632,33 @@ export default defineSchema({
     widgetViewsCount: v.optional(v.number()),
     /** Timestamp the tenant was last warned it crossed its monthly quota. */
     overQuotaNotifiedAt: v.optional(v.number()),
+    /** Widget-first metering (one count per quote, see `meteredEvents`). */
+    pdfExportsCount: v.optional(v.number()),
+    whatsappSendsCount: v.optional(v.number()),
+    showroomQuotesCount: v.optional(v.number()),
+    showroomPdfCount: v.optional(v.number()),
+    showroomWhatsappCount: v.optional(v.number()),
   }).index("by_tenant_period", ["tenantId", "period"]),
+
+  /**
+   * One row per metered action per subject (a widget request id or a showroom
+   * draft key): makes PDF / WhatsApp / showroom metering idempotent, so
+   * re-downloading the same quote's PDF never costs a second unit.
+   */
+  meteredEvents: defineTable({
+    tenantId: v.id("tenants"),
+    kind: v.union(
+      v.literal("widget_pdf"),
+      v.literal("widget_whatsapp"),
+      v.literal("showroom_quote"),
+      v.literal("showroom_pdf"),
+      v.literal("showroom_whatsapp"),
+    ),
+    subjectKey: v.string(),
+    period: v.string(),
+    userId: v.id("users"),
+    createdAt: v.number(),
+  }).index("by_tenantId_and_kind_and_subjectKey", ["tenantId", "kind", "subjectKey"]),
 
   rateLimits: defineTable({
     bucketKey: v.string(),

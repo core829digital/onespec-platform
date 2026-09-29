@@ -14,12 +14,26 @@ import type { Doc } from "../_generated/dataModel";
  *                in-app 3-zone showroom calculator, bulk import
  *   Enterprise — "API": everything + API/CRM, GAEB export, custom domain, dedicated support
  *
+ * Widget-first ladder (2026-09-29, sold before the full platform — see
+ * docs/PIANO_ABBONAMENTI_WIDGET.md):
+ *   Essentials  (€49,95) — public widget, 40 requests/15 PDF/40 WhatsApp, 1 configurator
+ *   Essentials+ (€62,44) — Essentials ×2 + showroom quoter, 3 configurators
+ *   Max         (€79,90) — Essentials ×5 + logistics, 10 configurators
+ * Every platform module outside the widget stays locked on these plans
+ * (`module*` flags), and every metered action has its own monthly cap
+ * (`max*PerMonth`). For the full-platform plans every `module*` flag is on and
+ * every new `max*PerMonth` is Infinity, so their access is unchanged
+ * ("Non modificare accessi" — pinned by tests/convex/entitlements-legacy-freeze).
+ *
  * "starter"/"showroom" are the pre-v2 plan keys, kept resolvable here until
  * `migrations.renamePlansToV2` has run on every deployment (starter→base,
  * showroom→enterprise — see that migration for the mapping rationale).
  */
 
-export type PlanKey = "base" | "pro" | "agency" | "enterprise" | "starter" | "showroom";
+export type PlanKey =
+  | "base" | "pro" | "agency" | "enterprise"
+  | "essentials" | "essentials_plus" | "max"
+  | "starter" | "showroom";
 
 export type SupportTier = "email" | "priority" | "dedicated";
 
@@ -83,7 +97,44 @@ export interface Entitlements {
   maxLogisticsSuppliers: number;
   /** Logistics module: carriers a tenant may register. `Infinity` = unlimited. */
   maxCarriers: number;
+
+  /* --- Widget-first ladder. Legacy plans: every module on, every cap Infinity. --- */
+
+  /** Preventivi B2B: field quotes created by the installer + e-signature flow. */
+  moduleFieldQuotes: boolean;
+  /** Clienti + Trattative (CRM). */
+  moduleCrm: boolean;
+  /** Cantieri (job sites). */
+  moduleCantieri: boolean;
+  /** Rilievi, Posa, Collaudi, Fascicoli QR. */
+  moduleFieldOps: boolean;
+  /** Logistica (delivery suppliers, carriers, shipments). */
+  moduleLogistics: boolean;
+  /** Widget-request PDFs the installer may download per month. */
+  maxPdfExportsPerMonth: number;
+  /** Widget requests the installer may send to the customer on WhatsApp per month. */
+  maxWhatsappSendsPerMonth: number;
+  /** Showroom quotes registered per month. */
+  maxShowroomQuotesPerMonth: number;
+  /** Showroom-quote PDFs per month. */
+  maxShowroomPdfPerMonth: number;
+  /** Showroom quotes sent on WhatsApp per month. */
+  maxShowroomWhatsappPerMonth: number;
 }
+
+/** Every module on, every widget-ladder cap unlimited — mixed into the legacy plans. */
+const LEGACY_MODULES = {
+  moduleFieldQuotes: true,
+  moduleCrm: true,
+  moduleCantieri: true,
+  moduleFieldOps: true,
+  moduleLogistics: true,
+  maxPdfExportsPerMonth: Infinity,
+  maxWhatsappSendsPerMonth: Infinity,
+  maxShowroomQuotesPerMonth: Infinity,
+  maxShowroomPdfPerMonth: Infinity,
+  maxShowroomWhatsappPerMonth: Infinity,
+} satisfies Partial<Entitlements>;
 
 const BASE: Entitlements = {
   maxConfigurators: 1,
@@ -115,6 +166,7 @@ const BASE: Entitlements = {
   trialEligible: false,
   maxLogisticsSuppliers: 1,
   maxCarriers: 1,
+  ...LEGACY_MODULES,
 };
 
 const PRO: Entitlements = {
@@ -201,13 +253,87 @@ const FULL_ACCESS: Entitlements = {
   trialEligible: false,
   maxLogisticsSuppliers: Infinity,
   maxCarriers: Infinity,
+  ...LEGACY_MODULES,
 };
+
+/**
+ * Widget-first ladder. Essentials+ and Max are "Essentials × N" on every
+ * metered cap (the configurator count is set per plan, not multiplied).
+ */
+export const WIDGET_PLAN_MULTIPLIER = { essentials: 1, essentials_plus: 2, max: 5 } as const;
+
+const ESSENTIALS_CAPS = {
+  maxQuotesPerMonth: 40,
+  maxPdfExportsPerMonth: 15,
+  maxWhatsappSendsPerMonth: 40,
+} as const;
+
+function widgetCaps(multiplier: number, showroom: boolean) {
+  return {
+    maxQuotesPerMonth: ESSENTIALS_CAPS.maxQuotesPerMonth * multiplier,
+    maxPdfExportsPerMonth: ESSENTIALS_CAPS.maxPdfExportsPerMonth * multiplier,
+    maxWhatsappSendsPerMonth: ESSENTIALS_CAPS.maxWhatsappSendsPerMonth * multiplier,
+    // The showroom quoter carries the same caps as the widget ("stessi limiti").
+    maxShowroomQuotesPerMonth: showroom ? ESSENTIALS_CAPS.maxQuotesPerMonth * multiplier : 0,
+    maxShowroomPdfPerMonth: showroom ? ESSENTIALS_CAPS.maxPdfExportsPerMonth * multiplier : 0,
+    maxShowroomWhatsappPerMonth: showroom ? ESSENTIALS_CAPS.maxWhatsappSendsPerMonth * multiplier : 0,
+  };
+}
+
+const ESSENTIALS: Entitlements = {
+  ...BASE,
+  ...widgetCaps(WIDGET_PLAN_MULTIPLIER.essentials, false),
+  maxConfigurators: 1,
+  maxTeamMembers: 1,
+  publicWidget: true,
+  // "Powered by OneSpec" stays visible on every widget-first plan.
+  whiteLabel: false,
+  analytics: "none",
+  annualBilling: false,
+  trialEligible: false,
+  showroomCalculator: false,
+  moduleFieldQuotes: false,
+  moduleCrm: false,
+  moduleCantieri: false,
+  moduleFieldOps: false,
+  moduleLogistics: false,
+  maxLogisticsSuppliers: 0,
+  maxCarriers: 0,
+};
+
+const ESSENTIALS_PLUS: Entitlements = {
+  ...ESSENTIALS,
+  ...widgetCaps(WIDGET_PLAN_MULTIPLIER.essentials_plus, true),
+  maxConfigurators: 3,
+  maxTeamMembers: 2,
+  showroomCalculator: true,
+};
+
+const MAX: Entitlements = {
+  ...ESSENTIALS_PLUS,
+  ...widgetCaps(WIDGET_PLAN_MULTIPLIER.max, true),
+  maxConfigurators: 10,
+  maxTeamMembers: 3,
+  moduleLogistics: true,
+  maxLogisticsSuppliers: 3,
+  maxCarriers: 3,
+};
+
+/** Plans of the widget-first ladder (sold first, platform plans listed after). */
+export const WIDGET_PLANS = ["essentials", "essentials_plus", "max"] as const;
+export type WidgetPlan = (typeof WIDGET_PLANS)[number];
+export function isWidgetPlan(plan: string): plan is WidgetPlan {
+  return (WIDGET_PLANS as readonly string[]).includes(plan);
+}
 
 const PLAN_ENTITLEMENTS: Record<PlanKey, Entitlements> = {
   base: BASE,
   pro: PRO,
   agency: AGENCY,
   enterprise: ENTERPRISE,
+  essentials: ESSENTIALS,
+  essentials_plus: ESSENTIALS_PLUS,
+  max: MAX,
   // Pre-v2 keys, resolvable until `migrations.renamePlansToV2` runs everywhere.
   starter: BASE,
   showroom: ENTERPRISE,
