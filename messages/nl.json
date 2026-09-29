@@ -334,7 +334,8 @@
     "showroomQuotaExceeded": "U hebt de maandelijkse Showroom-limiet van uw abonnement bereikt. Stap over op een hoger abonnement of wacht tot de 1e van de maand.",
     "quoteLocked": "Deze aanvraag is geblokkeerd omdat de maandlimiet van uw abonnement is bereikt. Hij wordt vrijgegeven bij een hoger abonnement of op de 1e van de maand.",
     "alreadySubscribed": "U hebt al een actief abonnement: wijzig uw abonnement via de pagina Abonnement in plaats van een nieuwe betaling te starten.",
-    "annualNotAvailable": "Dit abonnement is alleen beschikbaar met maandelijkse facturering."
+    "annualNotAvailable": "Dit abonnement is alleen beschikbaar met maandelijkse facturering.",
+    "teamExceedsTargetPlan": "Het gekozen abonnement bevat minder gebruikers dan uw team actief heeft. Verwijder eerst de extra leden onder Team en wijzig daarna uw abonnement."
   },
   "app": {
     "suspended": {

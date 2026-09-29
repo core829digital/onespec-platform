@@ -63,7 +63,8 @@ export type ErrorKey =
   | "showroomQuotaExceeded"
   | "quoteLocked"
   | "alreadySubscribed"
-  | "annualNotAvailable";
+  | "annualNotAvailable"
+  | "teamExceedsTargetPlan";
 
 const EXACT: Record<string, ErrorKey> = {
   UNAUTHENTICATED: "unauthenticated",
@@ -126,6 +127,7 @@ const EXACT: Record<string, ErrorKey> = {
   QUOTE_LOCKED: "quoteLocked",
   ALREADY_SUBSCRIBED: "alreadySubscribed",
   ANNUAL_NOT_AVAILABLE: "annualNotAvailable",
+  TEAM_EXCEEDS_TARGET_PLAN: "teamExceedsTargetPlan",
 };
 
 /** Map a backend error code to a message key (pattern fallbacks for families). */

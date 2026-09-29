@@ -334,7 +334,8 @@
     "showroomQuotaExceeded": "You have reached your plan's monthly Showroom limit. Upgrade or wait until the 1st of next month.",
     "quoteLocked": "This request is locked because you reached your plan's monthly limit. It unlocks when you upgrade or on the 1st of next month.",
     "alreadySubscribed": "You already have an active subscription: switch plan from the Plan page instead of starting a new checkout.",
-    "annualNotAvailable": "This plan is available with monthly billing only."
+    "annualNotAvailable": "This plan is available with monthly billing only.",
+    "teamExceedsTargetPlan": "The chosen plan includes fewer users than your team has active. Remove the extra members under Team first, then switch plan."
   },
   "app": {
     "suspended": {

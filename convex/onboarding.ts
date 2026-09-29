@@ -3,7 +3,7 @@ import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import { requireUser, type ReadCtx } from "./lib/auth";
-import { resolveTenantEntitlements } from "./lib/entitlements";
+import { entitlementsFor, isWidgetPlan, resolveTenantEntitlements } from "./lib/entitlements";
 import { regionForCountry } from "./lib/regions";
 import { unlockOnPlanChange } from "./usage";
 
@@ -99,6 +99,15 @@ export const selectPlan = mutation({
     if (!found) throw new ConvexError("NO_TENANT");
     if (process.env.STRIPE_SECRET_KEY) {
       throw new ConvexError("BILLING_LIVE_USE_CHECKOUT");
+    }
+    // Same seat guard as billing: never move into a plan the team doesn't fit.
+    if (isWidgetPlan(args.plan)) {
+      const active = await ctx.db
+        .query("memberships")
+        .withIndex("by_tenant", (q) => q.eq("tenantId", found.tenant._id))
+        .filter((q) => q.eq(q.field("status"), "active"))
+        .take(100);
+      if (active.length > entitlementsFor(args.plan).maxTeamMembers) throw new ConvexError("TEAM_EXCEEDS_TARGET_PLAN");
     }
     // Only Pro carries a trial (entitlements.ts trialEligible) — matches the
     // same invariant billing.ts's subscriptionPatch enforces once Stripe is

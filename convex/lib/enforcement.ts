@@ -154,17 +154,20 @@ export async function countLiveConfigurators(ctx: ReadCtx, tenantId: Id<"tenants
 }
 
 /**
- * Widget-first plans after a downgrade (e.g. Max 10 → Essentials 1): only the
- * oldest `maxConfigurators` published configurators keep serving the public
- * widget/link page; the rest show the lock until the tenant upgrades or
- * unpublishes. Full-platform plans are unaffected.
+ * Whether the plan still serves this configurator publicly (widget-first plans
+ * only; full-platform plans are unaffected):
+ * - a suspended tenant (subscription cancelled / ended) serves nothing;
+ * - after a downgrade (e.g. Level 3 → Level 1) only the oldest
+ *   `maxConfigurators` published configurators keep serving; the rest show
+ *   the lock until the tenant upgrades or unpublishes.
  */
-export async function configuratorWithinPlanCap(
+export async function configuratorServedByPlan(
   ctx: ReadCtx,
   tenant: Doc<"tenants">,
   configuratorId: Id<"configurators">,
 ): Promise<boolean> {
   if (tenant.unlimitedAccess === true || !isWidgetPlan(tenant.plan)) return true;
+  if (tenant.planStatus === "suspended") return false;
   const cap = resolveTenantEntitlements(tenant).maxConfigurators;
   if (!Number.isFinite(cap)) return true;
   const serving = await ctx.db

@@ -1,6 +1,7 @@
 import { query } from "./_generated/server";
 import { v } from "convex/values";
 import { requireMembership } from "./lib/auth";
+import { resolveTenantEntitlements } from "./lib/entitlements";
 
 /**
  * Floating setup-guide widget (backlog item, dictated 2026-09-28): a
@@ -55,15 +56,18 @@ export const getProgress = query({
     const hasCantiere = firstCantiere != null;
 
     const hasBilling = tenant.stripeCustomerId != null;
+    const ent = resolveTenantEntitlements(tenant);
 
     // Steps every plan sees, in the order they're meant to be done.
     const steps = [
       { key: "configurator", done: hasConfigurator },
       { key: "branding", done: hasBranding },
       { key: "catalog", done: hasPublishedCatalog },
-      { key: "client", done: hasClient },
-      { key: "cantiere", done: hasCantiere },
-      { key: "team", done: hasInvitedTeam },
+      // Only steps the plan can actually complete: the widget-first plans lock
+      // CRM / cantieri, and Level 1 has a single seat (no one to invite).
+      ...(ent.moduleCrm ? [{ key: "client", done: hasClient }] : []),
+      ...(ent.moduleCantieri ? [{ key: "cantiere", done: hasCantiere }] : []),
+      ...(ent.maxTeamMembers > 1 ? [{ key: "team", done: hasInvitedTeam }] : []),
       // Base has no billing step of its own (nothing to set up beyond the
       // free tier); Pro/Agency/Enterprise must have an active Stripe
       // customer, which `hasBilling` already encodes.

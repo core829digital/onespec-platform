@@ -215,3 +215,23 @@ describe("white-label follows the CURRENT plan", () => {
     }
   });
 });
+
+describe("cancelled subscription", () => {
+  test("a suspended widget-plan tenant's widget stops serving; stray submissions are locked", async () => {
+    const t = newDb();
+    const s = await seedTenant(t, { plan: "essentials_plus" });
+    const cfg = await seedPublishedConfigurator(t, s.tenantId, "SUSP000001");
+    await t.run((ctx) => ctx.db.patch(s.tenantId, { planStatus: "suspended" }));
+    expect((await t.query(api.widget.getPublicConfigurator, { publicId: "SUSP000001" }))?.overPlanLimit).toBe(true);
+    const id = await submit(t, cfg, "SUSP000001", 1);
+    expect((await t.run((ctx) => ctx.db.get(id)))?.quotaLocked).toBe(true);
+  });
+
+  test("full-platform plans keep today's behaviour when suspended (unchanged access)", async () => {
+    const t = newDb();
+    const s = await seedTenant(t, { plan: "pro" });
+    await seedPublishedConfigurator(t, s.tenantId, "SUSP000002");
+    await t.run((ctx) => ctx.db.patch(s.tenantId, { planStatus: "suspended" }));
+    expect((await t.query(api.widget.getPublicConfigurator, { publicId: "SUSP000002" }))?.overPlanLimit).toBe(false);
+  });
+});

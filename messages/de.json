@@ -334,7 +334,8 @@
     "showroomQuotaExceeded": "Sie haben das monatliche Showroom-Limit Ihres Tarifs erreicht. Wechseln Sie in einen höheren Tarif oder warten Sie bis zum Monatsersten.",
     "quoteLocked": "Diese Anfrage ist gesperrt, weil das Monatslimit Ihres Tarifs erreicht ist. Sie wird mit einem höheren Tarif oder zum Monatsersten freigeschaltet.",
     "alreadySubscribed": "Sie haben bereits ein aktives Abonnement: Wechseln Sie den Tarif auf der Seite „Tarif“, statt einen neuen Checkout zu starten.",
-    "annualNotAvailable": "Dieser Tarif ist nur mit monatlicher Abrechnung verfügbar."
+    "annualNotAvailable": "Dieser Tarif ist nur mit monatlicher Abrechnung verfügbar.",
+    "teamExceedsTargetPlan": "Der gewählte Tarif enthält weniger Nutzer, als Ihr Team aktiv hat. Entfernen Sie zuerst überzählige Mitglieder unter Team und wechseln Sie dann den Tarif."
   },
   "app": {
     "suspended": {

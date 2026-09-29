@@ -205,6 +205,10 @@ describe("server guards", () => {
     await t.run((ctx) => ctx.db.patch(s.tenantId, { stripeSubscriptionId: "sub_live", planStatus: "active" }));
     await expect(as.action(api.billing.createCheckoutSession, { tenantId: s.tenantId, plan: "max" }))
       .rejects.toThrow("ALREADY_SUBSCRIBED");
+    // Seats: moving a 3-member team into Level 1 (1 seat) is refused.
+    await t.run((ctx) => ctx.db.patch(s.tenantId, { planStatus: "suspended" }));
+    await expect(as.action(api.billing.createCheckoutSession, { tenantId: s.tenantId, plan: "essentials" }))
+      .rejects.toThrow("TEAM_EXCEEDS_TARGET_PLAN");
     // Only the owner manages billing.
     await expect(t.withIdentity({ subject: s.adminId }).action(api.billing.createCheckoutSession, { tenantId: s.tenantId, plan: "max" }))
       .rejects.toThrow("OWNER_ONLY");
@@ -214,7 +218,14 @@ describe("server guards", () => {
     const t = newDb();
     const s = await seedTenant(t, { plan: "base" });
     await t.run((ctx) => ctx.db.patch(s.tenantId, { planStatus: "pending_plan" }));
-    await t.withIdentity({ subject: s.ownerId }).mutation(api.onboarding.selectPlan, { plan: "essentials_plus" });
+    const as = t.withIdentity({ subject: s.ownerId });
+    // seedTenant has 3 active members; Level 2 has 2 seats → refused until one is removed.
+    await expect(as.mutation(api.onboarding.selectPlan, { plan: "essentials_plus" })).rejects.toThrow("TEAM_EXCEEDS_TARGET_PLAN");
+    await t.run(async (ctx) => {
+      const m = await ctx.db.query("memberships").withIndex("by_tenant_user", (q) => q.eq("tenantId", s.tenantId).eq("userId", s.memberId)).first();
+      await ctx.db.patch(m!._id, { status: "removed" });
+    });
+    await as.mutation(api.onboarding.selectPlan, { plan: "essentials_plus" });
     const tenant = await t.run((ctx) => ctx.db.get(s.tenantId));
     expect(tenant).toMatchObject({ plan: "essentials_plus", planStatus: "active" });
   });

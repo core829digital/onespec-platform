@@ -3,7 +3,7 @@ import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import { internal } from "./_generated/api";
 import { requireMembership } from "./lib/auth";
-import { entitlementsFor, resolveTenantEntitlements } from "./lib/entitlements";
+import { entitlementsFor, isWidgetPlan as isWidgetPlanKey, resolveTenantEntitlements } from "./lib/entitlements";
 import {
   BILLING_PLANS,
   SELF_SERVE_PLANS,
@@ -210,9 +210,27 @@ export const assertOwner = internalQuery({
       slug: tenant.slug,
       country: tenant.country ?? null,
       trialStartedAt: tenant.trialStartedAt ?? null,
+      // Bounded: only compared against a widget-first plan's seat cap (≤ 3).
+      activeMembers: (
+        await ctx.db
+          .query("memberships")
+          .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+          .filter((q) => q.eq(q.field("status"), "active"))
+          .take(100)
+      ).length,
     };
   },
 });
+
+/**
+ * Moving INTO a widget-first plan with more active members than its seats
+ * would leave the tenant over its limit: refuse and ask to remove members
+ * first. (Full-platform targets keep today's behaviour.)
+ */
+function assertSeatsFit(plan: BillablePlan, activeMembers: number): void {
+  if (!isWidgetPlanKey(plan)) return;
+  if (activeMembers > entitlementsFor(plan).maxTeamMembers) throw new ConvexError("TEAM_EXCEEDS_TARGET_PLAN");
+}
 
 // ---------------------------------------------------------------------------
 // Checkout / portal (dormant until STRIPE_SECRET_KEY is set)
@@ -238,6 +256,7 @@ export const createCheckoutSession = action({
     if (owner.stripeSubscriptionId && ["active", "trialing", "past_due"].includes(owner.planStatus)) {
       throw new ConvexError("ALREADY_SUBSCRIBED");
     }
+    assertSeatsFit(planKey, owner.activeMembers);
     const region = regionForCountry(owner.country).code;
     const priceId = resolveStripePriceId(planKey, cycle, region);
     if (!priceId) throw new ConvexError("BILLING_PRICE_NOT_CONFIGURED");
@@ -360,6 +379,7 @@ export const previewPlanChange = action({
     const owner = await ctx.runQuery(internal.billing.assertOwner, { tenantId: args.tenantId });
     await limitBilling(ctx, args.tenantId, "preview");
     if (!owner.stripeSubscriptionId) throw new ConvexError("NO_SUBSCRIPTION");
+    assertSeatsFit(args.plan, owner.activeMembers);
 
     const cycle: BillingCycle = args.cycle ?? "monthly";
     assertCycleAllowed(args.plan, cycle);
@@ -454,6 +474,7 @@ export const changePlan = action({
     const owner = await ctx.runQuery(internal.billing.assertOwner, { tenantId: args.tenantId });
     await limitBilling(ctx, args.tenantId, "change");
     if (!owner.stripeSubscriptionId) throw new ConvexError("NO_SUBSCRIPTION");
+    assertSeatsFit(args.plan, owner.activeMembers);
 
     const cycle: BillingCycle = args.cycle ?? "monthly";
     assertCycleAllowed(args.plan, cycle);

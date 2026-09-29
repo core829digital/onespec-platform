@@ -11,7 +11,7 @@ import { resolveTenantEntitlements, currentPeriod, isWidgetPlan } from "./lib/en
 import { LOCKED_LEAD_NAME } from "./lib/quotaLock";
 import { consumeToken } from "./lib/ratelimit";
 import { regionForCountry, type RegionPolicy } from "./lib/regions";
-import { configuratorWithinPlanCap, enforcePublicWidget } from "./lib/enforcement";
+import { configuratorServedByPlan, enforcePublicWidget } from "./lib/enforcement";
 
 /** Rows/objects that may carry Convex system + tenant fields. */
 type WithSystemFields = Record<string, unknown> & {
@@ -226,7 +226,7 @@ export const getPublicConfigurator = query({
     return assembleWidgetResponse({
       publicWidgetAllowed: ent ? ent.publicWidget : false,
       whiteLabelAllowed: ent ? ent.whiteLabel : false,
-      overPlanLimit: tenant ? !(await configuratorWithinPlanCap(ctx, tenant, configurator._id)) : false,
+      overPlanLimit: tenant ? !(await configuratorServedByPlan(ctx, tenant, configurator._id)) : false,
       configurator,
       branding,
       payload: version.payload,
@@ -257,7 +257,7 @@ function assembleWidgetResponse(args: {
   privacyUrl?: string;
   /** Whether the owner's CURRENT plan includes white-label (the branding row can predate a downgrade). */
   whiteLabelAllowed?: boolean;
-  /** Widget-first plan over its configurator cap after a downgrade: this one no longer serves. */
+  /** Widget-first plan no longer serves this configurator (suspended, or over the cap after a downgrade). */
   overPlanLimit?: boolean;
 }) {
   const { configurator, branding, payload, catalogVersion, logoUrl, logoLightUrl, region, transparentAllowed, privacyUrl } = args;
@@ -468,10 +468,11 @@ export const insertQuote = internalMutation({
     // count too: `flagged` derives from the tenant-controlled allowedOrigins,
     // so exempting them would let a tenant bypass its cap.
     const widgetPlan = !!tenant && tenant.unlimitedAccess !== true && isWidgetPlan(tenant.plan);
-    // A configurator beyond the plan's cap (after a downgrade) no longer
-    // serves; a submission that still reaches it is saved but locked too.
+    // A configurator the plan no longer serves (tenant suspended, or beyond
+    // the cap after a downgrade): a submission that still reaches it is
+    // saved but locked too.
     const overConfiguratorCap =
-      widgetPlan && !!tenant && !(await configuratorWithinPlanCap(ctx, tenant, configurator._id));
+      widgetPlan && !!tenant && !(await configuratorServedByPlan(ctx, tenant, configurator._id));
     const quotaLocked = widgetPlan && (overQuota || overConfiguratorCap);
 
     const price = calculatePrice(version.payload, items);

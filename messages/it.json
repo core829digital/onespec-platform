@@ -334,7 +334,8 @@
     "showroomQuotaExceeded": "Hai raggiunto il limite mensile dello Showroom del tuo piano. Passa a un piano superiore o attendi il primo del mese.",
     "quoteLocked": "Questa richiesta è bloccata perché hai raggiunto il limite mensile del piano. Si sblocca passando a un piano superiore o dal primo del mese.",
     "alreadySubscribed": "Hai già un abbonamento attivo: cambia piano dalla pagina Piano invece di aprire un nuovo pagamento.",
-    "annualNotAvailable": "Questo piano è disponibile solo con fatturazione mensile."
+    "annualNotAvailable": "Questo piano è disponibile solo con fatturazione mensile.",
+    "teamExceedsTargetPlan": "Il piano scelto include meno utenti di quelli attivi nel tuo team. Rimuovi prima i membri in eccesso da Squadra, poi cambia piano."
   },
   "app": {
     "suspended": {

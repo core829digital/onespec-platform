@@ -102,4 +102,17 @@ describe("setupGuide.getProgress", () => {
       t.withIdentity({ subject: stranger }).query(api.setupGuide.getProgress, { tenantId }),
     ).rejects.toThrow(/NOT_A_MEMBER/);
   });
+
+  test("widget-first plans only list steps they can complete", async () => {
+    const t = newDb();
+    for (const [plan, team] of [["essentials", false], ["essentials_plus", true], ["max", true]] as const) {
+      const { ownerId, tenantId } = await seedTenant(t, { plan });
+      const p = await t.withIdentity({ subject: ownerId }).query(api.setupGuide.getProgress, { tenantId });
+      const keys = p!.steps.map((s) => s.key);
+      expect(keys).not.toContain("client");
+      expect(keys).not.toContain("cantiere");
+      expect(keys.includes("team")).toBe(team);
+      expect(keys).toContain("billing");
+    }
+  });
 });
