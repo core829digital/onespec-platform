@@ -1,0 +1,237 @@
+{
+ "dur": 90,
+ "sounds": [
+  {
+   "t": 5,
+   "type": "pop"
+  },
+  {
+   "t": 7.2,
+   "type": "pop"
+  },
+  {
+   "t": 8.6,
+   "type": "click"
+  },
+  {
+   "t": 9.6,
+   "type": "click"
+  },
+  {
+   "t": 11.4,
+   "type": "pop"
+  },
+  {
+   "t": 13.4,
+   "type": "pop"
+  },
+  {
+   "t": 14.6,
+   "type": "click"
+  },
+  {
+   "t": 15.62,
+   "type": "click"
+  },
+  {
+   "t": 16.1,
+   "type": "click"
+  },
+  {
+   "t": 17.4,
+   "type": "click"
+  },
+  {
+   "t": 18.4,
+   "type": "pop"
+  },
+  {
+   "t": 20.4,
+   "type": "pop"
+  },
+  {
+   "t": 24.2,
+   "type": "pop"
+  },
+  {
+   "t": 26.2,
+   "type": "pop"
+  },
+  {
+   "t": 28,
+   "type": "click"
+  },
+  {
+   "t": 30,
+   "type": "pop"
+  },
+  {
+   "t": 32,
+   "type": "pop"
+  },
+  {
+   "t": 33.2,
+   "type": "click"
+  },
+  {
+   "t": 36,
+   "type": "click"
+  },
+  {
+   "t": 37.4,
+   "type": "click"
+  },
+  {
+   "t": 41,
+   "type": "pop"
+  },
+  {
+   "t": 42.8,
+   "type": "pop"
+  },
+  {
+   "t": 44,
+   "type": "click"
+  },
+  {
+   "t": 45.4,
+   "type": "click"
+  },
+  {
+   "t": 47.4,
+   "type": "pop"
+  },
+  {
+   "t": 49.2,
+   "type": "pop"
+  },
+  {
+   "t": 51.5,
+   "type": "click"
+  },
+  {
+   "t": 55,
+   "type": "ping"
+  },
+  {
+   "t": 55.9,
+   "type": "ping"
+  },
+  {
+   "t": 56.6,
+   "type": "ping"
+  },
+  {
+   "t": 57.3,
+   "type": "ping"
+  },
+  {
+   "t": 58,
+   "type": "ping"
+  },
+  {
+   "t": 58.6,
+   "type": "ping"
+  },
+  {
+   "t": 59.2,
+   "type": "ping"
+  },
+  {
+   "t": 59.8,
+   "type": "ping"
+  },
+  {
+   "t": 60.4,
+   "type": "ping"
+  },
+  {
+   "t": 61,
+   "type": "ping"
+  },
+  {
+   "t": 61.5,
+   "type": "ping"
+  },
+  {
+   "t": 63,
+   "type": "ping"
+  },
+  {
+   "t": 63.5,
+   "type": "ping"
+  },
+  {
+   "t": 64,
+   "type": "ping"
+  },
+  {
+   "t": 64.5,
+   "type": "ping"
+  },
+  {
+   "t": 65,
+   "type": "ping"
+  },
+  {
+   "t": 65.5,
+   "type": "ping"
+  },
+  {
+   "t": 66,
+   "type": "ping"
+  },
+  {
+   "t": 66.5,
+   "type": "ping"
+  },
+  {
+   "t": 67,
+   "type": "ping"
+  },
+  {
+   "t": 67.5,
+   "type": "ping"
+  },
+  {
+   "t": 68,
+   "type": "ping"
+  },
+  {
+   "t": 68.5,
+   "type": "ping"
+  },
+  {
+   "t": 71.6,
+   "type": "alarm"
+  },
+  {
+   "t": 75.6,
+   "type": "click"
+  },
+  {
+   "t": 77,
+   "type": "sent"
+  },
+  {
+   "t": 78.4,
+   "type": "ping"
+  },
+  {
+   "t": 80.2,
+   "type": "click"
+  },
+  {
+   "t": 80.9,
+   "type": "click"
+  },
+  {
+   "t": 81.6,
+   "type": "click"
+  },
+  {
+   "t": 82.3,
+   "type": "click"
+  }
+ ]
+}

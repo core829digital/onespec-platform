@@ -2,8 +2,12 @@ import json, sys
 from PIL import Image, ImageDraw, ImageFont
 items = json.load(open(sys.argv[1]))
 first = Image.open(items[0]["file"])
-COLS = 8 if first.width == first.height else 6
-TW = 300 if COLS == 8 else 400
+if first.width == first.height:
+    COLS, TW = 8, 300
+elif first.height > first.width:
+    COLS, TW = 10, 240
+else:
+    COLS, TW = 6, 400
 TH = round(TW * first.height / first.width)
 rows = (len(items) + COLS - 1) // COLS
 LH = 22
