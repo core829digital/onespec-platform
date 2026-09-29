@@ -46,4 +46,11 @@ crons.daily(
   internal.lib.ratelimit.purgeIdleBuckets,
 );
 
+// Email logs hold recipients/subjects (personal data): 90-day retention.
+crons.daily(
+  "purge-old-email-logs",
+  { hourUTC: 4, minuteUTC: 50 },
+  internal.email.purgeOldEmailLogs,
+);
+
 export default crons;

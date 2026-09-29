@@ -36,6 +36,11 @@ function getFromAddress(template: string): string {
   }
 }
 
+const MAX_ATTEMPTS = 3;
+const RETRY_DELAYS_MS = [60_000, 5 * 60_000];
+/** emailLog / emailDeliveryLog rows older than this are purged daily. */
+const EMAIL_LOG_RETENTION_DAYS = 90;
+
 /**
  * Central transactional email sender. In noop mode (RESEND_MODE !== "live" or
  * no AUTH_RESEND_KEY) nothing is sent — the rendered body is logged and stored
@@ -49,9 +54,12 @@ export const send = internalAction({
     data: v.any(),
     tenantId: v.optional(v.id("tenants")),
     relatedEntityId: v.optional(v.string()),
+    /** Delivery attempt (1-based); transient provider errors are retried. */
+    attempt: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
     const live = process.env.RESEND_MODE === "live" && !!process.env.AUTH_RESEND_KEY;
+    const attempt = args.attempt ?? 1;
     const { subject, html, text } = renderAuthEmail(args.template, args.locale, args.data);
     const from = getFromAddress(args.template);
 
@@ -71,6 +79,7 @@ export const send = internalAction({
     }
 
     let ok = false;
+    let transient = false;
     let resendId: string | undefined;
     let error: string | undefined;
     try {
@@ -88,12 +97,24 @@ export const send = internalAction({
           text,
         }),
       });
-      const body = await res.json();
+      const body = await res.json().catch(() => ({}));
       ok = res.ok;
       resendId = body?.id;
-      if (!ok) error = JSON.stringify(body);
+      if (!ok) {
+        error = JSON.stringify(body).slice(0, 1000);
+        transient = res.status === 429 || res.status >= 500;
+      }
     } catch (e) {
-      error = String(e);
+      error = String(e).slice(0, 1000);
+      transient = true; // network failure
+    }
+
+    // Transient failure (rate limit, provider 5xx, network): retry with
+    // backoff instead of silently losing e.g. a new-request notification.
+    if (!ok && transient && attempt < MAX_ATTEMPTS) {
+      const { attempt: _prev, ...rest } = args;
+      void _prev;
+      await ctx.scheduler.runAfter(RETRY_DELAYS_MS[attempt - 1], internal.email.send, { ...rest, attempt: attempt + 1 });
     }
 
     await ctx.runMutation(internal.email.log, {
@@ -103,7 +124,9 @@ export const send = internalAction({
       status: ok ? "sent" : "failed",
       resendId,
       error,
-      bodyPreview: text,
+      // Live mode never stores the body: it can carry sign-in / reset codes
+      // and invitation links (credentials), and personal data. The noop
+      // (dev) mode above keeps the preview for the admin email viewer.
       tenantId: args.tenantId,
       relatedEntityId: args.relatedEntityId,
       createdAt: Date.now(),
@@ -158,5 +181,28 @@ export const createDeliveryLog = internalMutation({
   },
   handler: async (ctx, args) => {
     await ctx.db.insert("emailDeliveryLog", args);
+  },
+});
+
+/** Daily retention for the email logs (personal data: recipients, subjects). Batched. */
+export const purgeOldEmailLogs = internalMutation({
+  args: {},
+  returns: v.number(),
+  handler: async (ctx) => {
+    const cutoff = Date.now() - EMAIL_LOG_RETENTION_DAYS * 24 * 60 * 60 * 1000;
+    const logs = await ctx.db
+      .query("emailLog")
+      .withIndex("by_creation_time", (q) => q.lt("_creationTime", cutoff))
+      .take(500);
+    for (const l of logs) await ctx.db.delete(l._id);
+    const deliveries = await ctx.db
+      .query("emailDeliveryLog")
+      .withIndex("by_creation_time", (q) => q.lt("_creationTime", cutoff))
+      .take(500);
+    for (const d of deliveries) await ctx.db.delete(d._id);
+    if (logs.length === 500 || deliveries.length === 500) {
+      await ctx.scheduler.runAfter(0, internal.email.purgeOldEmailLogs, {});
+    }
+    return logs.length + deliveries.length;
   },
 });
