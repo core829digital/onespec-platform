@@ -122,3 +122,24 @@ describe("branding hardening (launch audit)", () => {
       .rejects.toThrow("INVALID_INPUT");
   });
 });
+
+describe("configurator settings validation (launch audit)", () => {
+  test("VAT, rounding, origins and name are validated; scheme-less origins are normalised", async () => {
+    const { seedPublishedConfigurator } = await import("./_helpers");
+    const t = newDb();
+    const s = await seedTenant(t, { plan: "pro" });
+    const cfg = await seedPublishedConfigurator(t, s.tenantId, "CFGSET0001");
+    const as = t.withIdentity({ subject: s.ownerId });
+    await expect(as.mutation(api.configurators.updateConfigurator, { configuratorId: cfg, vatRatePercent: -22 })).rejects.toThrow("INVALID_INPUT");
+    await expect(as.mutation(api.configurators.updateConfigurator, { configuratorId: cfg, vatRatePercent: 220 })).rejects.toThrow("INVALID_INPUT");
+    await expect(as.mutation(api.configurators.updateConfigurator, { configuratorId: cfg, priceRoundingStep: 0 })).rejects.toThrow("INVALID_INPUT");
+    await expect(as.mutation(api.configurators.updateConfigurator, { configuratorId: cfg, allowedOrigins: ["javascript:alert(1)"] })).rejects.toThrow("INVALID_INPUT");
+    await expect(as.mutation(api.configurators.updateConfigurator, { configuratorId: cfg, name: "x" })).rejects.toThrow("INVALID_NAME");
+    await as.mutation(api.configurators.updateConfigurator, {
+      configuratorId: cfg, vatRatePercent: 10, allowedOrigins: ["www.rossi-serramenti.it", "https://shop.example.com/path", ""],
+    });
+    const c = await t.run((ctx) => ctx.db.get(cfg));
+    expect(c?.allowedOrigins).toEqual(["https://www.rossi-serramenti.it", "https://shop.example.com"]);
+    expect(c?.vatRatePercent).toBe(10);
+  });
+});
