@@ -55,6 +55,6 @@ test("Fase 21 IT: Field quote creation, UNI 11673 posa, Ecobonus, and digital si
   // Verify print payload
   const printData = await asOwner.query(api.quotes.getQuoteForPrint, { quoteId: quoteResult.quoteId });
   expect(printData).not.toBeNull();
-  expect(printData?.quote._id).toBe(quoteResult.quoteId);
+  expect(printData?.quote?._id).toBe(quoteResult.quoteId);
   expect(printData?.tenant?._id).toBe(seeded.tenantId);
 });

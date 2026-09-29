@@ -4,10 +4,11 @@ import { ConvexError } from "convex/values";
 import { requireMembership } from "./lib/auth";
 import { requirePermission } from "./lib/rbac";
 import { lockedSafeLeadName, redactQuoteRequest } from "./lib/quotaLock";
+import { hasMeteredEvent } from "./lib/metering";
 import { emit } from "./lib/triggers";
 import { enforceForCreateQuote, enforceForESignature, enforceForMultiSupplier } from "./lib/enforcement";
 import { calculatePrice, type ProjectItem, type CatalogPayload } from "../src/shared/pricing";
-import { currentPeriod } from "./lib/entitlements";
+import { currentPeriod, resolveTenantEntitlements } from "./lib/entitlements";
 import { regionForCountry } from "./lib/regions";
 import { resolveLinks, logClientActivity } from "./lib/links";
 import { parseQuoteItems, nextOfferNumber } from "./lib/quoteItems";
@@ -359,6 +360,21 @@ export const getQuoteForPrint = query({
     await requireMembership(ctx, quote.tenantId);
 
     const tenant = await ctx.db.get(quote.tenantId);
+    // Widget-first plans: the printable document (and its exports) is served
+    // only for requests whose PDF allowance was taken via usage.requestPdfExport.
+    if (tenant) {
+      const ent = resolveTenantEntitlements(tenant);
+      if (quote.quotaLocked === true) {
+        return { gate: "quote_locked" as const };
+      }
+      if (Number.isFinite(ent.maxPdfExportsPerMonth) && !(await hasMeteredEvent(ctx, quote.tenantId, "widget_pdf", quote._id))) {
+        const counter = await ctx.db
+          .query("usageCounters")
+          .withIndex("by_tenant_period", (q) => q.eq("tenantId", quote.tenantId).eq("period", currentPeriod()))
+          .first();
+        return { gate: "pdf_allowance" as const, used: counter?.pdfExportsCount ?? 0, limit: ent.maxPdfExportsPerMonth };
+      }
+    }
     // Resilient to duplicate branding rows: take the most recent instead of
     // crashing with ".unique() found more than one document".
     const branding = await ctx.db
@@ -377,6 +393,7 @@ export const getQuoteForPrint = query({
       .unique();
 
     return {
+      gate: null,
       quote: redactQuoteRequest(quote),
       tenant,
       branding,

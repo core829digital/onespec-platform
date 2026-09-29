@@ -5,6 +5,7 @@ import { useQuery } from "convex/react";
 import { useFormatter, useTranslations } from "next-intl";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
+import { usePlanAccess } from "@/lib/plan-gates";
 import { StatCard } from "@/components/app-shell/stat-card";
 import { EmptyState } from "@/components/app-shell/empty-state";
 import { RangeSwitcher, RANGE_LABEL, type AnalyticsRange } from "@/components/analytics/range-switcher";
@@ -85,13 +86,16 @@ export default function DashboardPage() {
     api.analytics.getPlanUsage,
     tenant ? { tenantId: tenant._id } : "skip",
   );
+  // Modules the plan locks (widget-first plans) are skipped, not queried: the
+  // server would refuse them and the dashboard must keep working.
+  const access = usePlanAccess(tenant?._id);
   const logisticsSummary = useQuery(
     api.logistics.getLogisticsSummary,
-    tenant ? { tenantId: tenant._id } : "skip",
+    tenant && access && !access.isLocked("logistics") ? { tenantId: tenant._id } : "skip",
   );
   const clients = useQuery(
     api.clients.listClients,
-    tenant ? { tenantId: tenant._id, limit: 200 } : "skip",
+    tenant && access && !access.isLocked("crm") ? { tenantId: tenant._id, limit: 200 } : "skip",
   );
 
   const money = (cents: number) =>

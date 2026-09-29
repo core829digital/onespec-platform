@@ -328,7 +328,11 @@
     "supplierHasDeliveries": "You cannot delete a supplier with linked deliveries.",
     "carrierHasDeliveries": "You cannot delete a carrier with linked deliveries.",
     "cannotDeleteReceivedDelivery": "You cannot delete a delivery that has already been received.",
-    "deliveryCancelled": "This delivery was cancelled."
+    "deliveryCancelled": "This delivery was cancelled.",
+    "pdfQuotaExceeded": "You have used all the PDFs included in your plan this month. Upgrade or wait until the 1st of next month.",
+    "whatsappQuotaExceeded": "You have used all the WhatsApp sends included in your plan this month. Upgrade or wait until the 1st of next month.",
+    "showroomQuotaExceeded": "You have reached your plan's monthly Showroom limit. Upgrade or wait until the 1st of next month.",
+    "quoteLocked": "This request is locked because you reached your plan's monthly limit. It unlocks when you upgrade or on the 1st of next month."
   },
   "app": {
     "suspended": {
@@ -1608,5 +1612,14 @@
       "team": "Invite a teammate",
       "billing": "Set up billing"
     }
+  },
+  "usage": {
+    "pdfGateTitle": "Download this request's PDF",
+    "pdfGateBody": "Uses 1 PDF credit from your plan. This month: {used} of {limit}. Downloading the same quote again costs nothing.",
+    "pdfGateCta": "Generate PDF",
+    "lockedTitle": "Request locked",
+    "lockedBody": "You reached your plan's monthly request limit. The request is saved: contact details unlock when you upgrade or on the 1st of next month.",
+    "upgradeCta": "See plans",
+    "back": "← Back to requests"
   }
 }

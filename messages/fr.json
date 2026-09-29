@@ -328,7 +328,11 @@
     "supplierHasDeliveries": "Impossible de supprimer un fournisseur ayant des livraisons liées.",
     "carrierHasDeliveries": "Impossible de supprimer un transporteur ayant des livraisons liées.",
     "cannotDeleteReceivedDelivery": "Impossible de supprimer une livraison déjà reçue.",
-    "deliveryCancelled": "Cette livraison a été annulée."
+    "deliveryCancelled": "Cette livraison a été annulée.",
+    "pdfQuotaExceeded": "Vous avez utilisé tous les PDF inclus dans votre offre ce mois-ci. Passez à une offre supérieure ou attendez le 1er du mois.",
+    "whatsappQuotaExceeded": "Vous avez utilisé tous les envois WhatsApp inclus dans votre offre ce mois-ci. Passez à une offre supérieure ou attendez le 1er du mois.",
+    "showroomQuotaExceeded": "Vous avez atteint la limite mensuelle Showroom de votre offre. Passez à une offre supérieure ou attendez le 1er du mois.",
+    "quoteLocked": "Cette demande est bloquée car vous avez atteint la limite mensuelle de votre offre. Elle se débloque en passant à une offre supérieure ou le 1er du mois."
   },
   "app": {
     "suspended": {
@@ -1608,5 +1612,14 @@
       "team": "Invitez un collègue",
       "billing": "Configurez la facturation"
     }
+  },
+  "usage": {
+    "pdfGateTitle": "Télécharger le PDF de cette demande",
+    "pdfGateBody": "Utilise 1 crédit PDF de votre offre. Ce mois-ci : {used} sur {limit}. Retélécharger le même devis ne coûte rien.",
+    "pdfGateCta": "Générer le PDF",
+    "lockedTitle": "Demande bloquée",
+    "lockedBody": "Vous avez atteint la limite mensuelle de demandes de votre offre. La demande est enregistrée : les coordonnées se débloquent en passant à une offre supérieure ou le 1er du mois.",
+    "upgradeCta": "Voir les offres",
+    "back": "← Retour aux demandes"
   }
 }

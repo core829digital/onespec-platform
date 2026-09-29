@@ -328,7 +328,11 @@
     "supplierHasDeliveries": "Ein Lieferant mit verknüpften Lieferungen kann nicht gelöscht werden.",
     "carrierHasDeliveries": "Ein Spediteur mit verknüpften Lieferungen kann nicht gelöscht werden.",
     "cannotDeleteReceivedDelivery": "Eine bereits erhaltene Lieferung kann nicht gelöscht werden.",
-    "deliveryCancelled": "Diese Lieferung wurde storniert."
+    "deliveryCancelled": "Diese Lieferung wurde storniert.",
+    "pdfQuotaExceeded": "Sie haben alle in Ihrem Tarif enthaltenen PDFs für diesen Monat verbraucht. Wechseln Sie in einen höheren Tarif oder warten Sie bis zum Monatsersten.",
+    "whatsappQuotaExceeded": "Sie haben alle in Ihrem Tarif enthaltenen WhatsApp-Sendungen für diesen Monat verbraucht. Wechseln Sie in einen höheren Tarif oder warten Sie bis zum Monatsersten.",
+    "showroomQuotaExceeded": "Sie haben das monatliche Showroom-Limit Ihres Tarifs erreicht. Wechseln Sie in einen höheren Tarif oder warten Sie bis zum Monatsersten.",
+    "quoteLocked": "Diese Anfrage ist gesperrt, weil das Monatslimit Ihres Tarifs erreicht ist. Sie wird mit einem höheren Tarif oder zum Monatsersten freigeschaltet."
   },
   "app": {
     "suspended": {
@@ -1608,5 +1612,14 @@
       "team": "Ein Teammitglied einladen",
       "billing": "Abrechnung einrichten"
     }
+  },
+  "usage": {
+    "pdfGateTitle": "PDF dieser Anfrage herunterladen",
+    "pdfGateBody": "Verbraucht 1 PDF-Guthaben Ihres Tarifs. Diesen Monat: {used} von {limit}. Dasselbe Angebot erneut herunterzuladen kostet nichts.",
+    "pdfGateCta": "PDF erstellen",
+    "lockedTitle": "Anfrage gesperrt",
+    "lockedBody": "Das monatliche Anfragelimit Ihres Tarifs ist erreicht. Die Anfrage ist gespeichert: Die Kontaktdaten werden mit einem höheren Tarif oder zum Monatsersten freigeschaltet.",
+    "upgradeCta": "Tarife ansehen",
+    "back": "← Zurück zu den Anfragen"
   }
 }

@@ -57,7 +57,11 @@ export type ErrorKey =
   | "supplierHasDeliveries"
   | "carrierHasDeliveries"
   | "cannotDeleteReceivedDelivery"
-  | "deliveryCancelled";
+  | "deliveryCancelled"
+  | "pdfQuotaExceeded"
+  | "whatsappQuotaExceeded"
+  | "showroomQuotaExceeded"
+  | "quoteLocked";
 
 const EXACT: Record<string, ErrorKey> = {
   UNAUTHENTICATED: "unauthenticated",
@@ -112,6 +116,12 @@ const EXACT: Record<string, ErrorKey> = {
   CARRIER_HAS_DELIVERIES: "carrierHasDeliveries",
   CANNOT_DELETE_RECEIVED_DELIVERY: "cannotDeleteReceivedDelivery",
   DELIVERY_CANCELLED: "deliveryCancelled",
+  PDF_QUOTA_EXCEEDED: "pdfQuotaExceeded",
+  WHATSAPP_QUOTA_EXCEEDED: "whatsappQuotaExceeded",
+  SHOWROOM_QUOTE_QUOTA_EXCEEDED: "showroomQuotaExceeded",
+  SHOWROOM_PDF_QUOTA_EXCEEDED: "showroomQuotaExceeded",
+  SHOWROOM_WHATSAPP_QUOTA_EXCEEDED: "showroomQuotaExceeded",
+  QUOTE_LOCKED: "quoteLocked",
 };
 
 /** Map a backend error code to a message key (pattern fallbacks for families). */

@@ -1,6 +1,11 @@
 "use client";
 
+import { useState } from "react";
+import { useMutation } from "convex/react";
 import { useTranslations } from "next-intl";
+import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 import type { CatalogPayload, ProjectItem } from "@/shared/pricing";
 import { buildBackup } from "@/lib/quote-export/backup";
 import { buildHtml, buildMailto, buildTxt, buildWhatsApp, whatsAppUrl } from "@/lib/quote-export/generators";
@@ -17,6 +22,8 @@ function download(name: string, mime: string, content: string) {
 }
 
 interface Props {
+  /** The saved request: its WhatsApp send is metered server-side on the widget-first plans. */
+  quoteId: Id<"quoteRequests">;
   quote: QuoteLike;
   catalog: CatalogPayload;
   company: { name: string; address?: string; vatId?: string; phone?: string; email?: string };
@@ -25,8 +32,11 @@ interface Props {
 const btn = "rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm font-medium text-[var(--color-text)] hover:border-[var(--color-mint)]";
 
 /** TXT / HTML / WhatsApp / email / JSON backup of a saved quote, all from one export model. */
-export function QuoteExportBar({ quote, catalog, company }: Props) {
+export function QuoteExportBar({ quoteId, quote, catalog, company }: Props) {
   const t = useTranslations("quoteExport");
+  const tf = useFriendlyError();
+  const requestWhatsappSend = useMutation(api.usage.requestWhatsappSend);
+  const [err, setErr] = useState("");
   const region = quote.regionCode ?? "IT";
   const base = `${quote.offerNumber ?? "offerta"}`;
   const model = (drawings: boolean) => buildExportModel(exportInputFromQuote(quote, catalog, company, { drawings }));
@@ -39,7 +49,24 @@ export function QuoteExportBar({ quote, catalog, company }: Props) {
       <button
         type="button"
         className={btn}
-        onClick={() => window.open(whatsAppUrl(buildWhatsApp(model(false)), quote.leadPhone, region), "_blank", "noopener")}
+        onClick={async () => {
+          // Open synchronously (popup blockers), navigate once the server accepted the send.
+          const win = window.open("about:blank", "_blank");
+          setErr("");
+          try {
+            await requestWhatsappSend({ quoteId });
+            const url = whatsAppUrl(buildWhatsApp(model(false)), quote.leadPhone, region);
+            if (win) {
+              win.opener = null;
+              win.location.href = url;
+            } else {
+              window.location.href = url;
+            }
+          } catch (e) {
+            win?.close();
+            setErr(tf(e));
+          }
+        }}
       >
         {t("whatsapp")}
       </button>
@@ -57,6 +84,7 @@ export function QuoteExportBar({ quote, catalog, company }: Props) {
       >
         {t("backup")}
       </button>
+      {err ? <span role="alert" className="w-full text-xs text-[var(--color-danger)]">{err}</span> : null}
       <span className="ml-auto text-xs text-[var(--color-text-secondary)]">{localeForRegion(region).toUpperCase()}</span>
     </div>
   );

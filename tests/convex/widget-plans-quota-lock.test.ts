@@ -66,9 +66,8 @@ describe("widget-first plans: over-quota requests are saved but locked", () => {
 
     const detail = await as.query(api.quotes.getRequest, { quoteId: q41 });
     expect(JSON.stringify(detail)).not.toContain("cliente41");
-    const print = await as.query(api.quotes.getQuoteForPrint, { quoteId: q41 });
-    expect(JSON.stringify(print?.quote)).not.toContain("cliente41");
-    expect(JSON.stringify(print?.quote)).not.toContain("333 000");
+    // The printable document is never served for a locked request.
+    expect(await as.query(api.quotes.getQuoteForPrint, { quoteId: q41 })).toEqual({ gate: "quote_locked" });
 
     const csv = await as.mutation(api.exports.exportRequestsCsv, { tenantId: s.tenantId });
     expect(JSON.stringify(csv)).not.toContain("cliente41@example.com");

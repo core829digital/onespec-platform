@@ -328,7 +328,11 @@
     "supplierHasDeliveries": "Je kunt geen leverancier met gekoppelde leveringen verwijderen.",
     "carrierHasDeliveries": "Je kunt geen vervoerder met gekoppelde leveringen verwijderen.",
     "cannotDeleteReceivedDelivery": "Je kunt een reeds ontvangen levering niet verwijderen.",
-    "deliveryCancelled": "Deze levering is geannuleerd."
+    "deliveryCancelled": "Deze levering is geannuleerd.",
+    "pdfQuotaExceeded": "U hebt alle pdf's uit uw abonnement voor deze maand gebruikt. Stap over op een hoger abonnement of wacht tot de 1e van de maand.",
+    "whatsappQuotaExceeded": "U hebt alle WhatsApp-verzendingen uit uw abonnement voor deze maand gebruikt. Stap over op een hoger abonnement of wacht tot de 1e van de maand.",
+    "showroomQuotaExceeded": "U hebt de maandelijkse Showroom-limiet van uw abonnement bereikt. Stap over op een hoger abonnement of wacht tot de 1e van de maand.",
+    "quoteLocked": "Deze aanvraag is geblokkeerd omdat de maandlimiet van uw abonnement is bereikt. Hij wordt vrijgegeven bij een hoger abonnement of op de 1e van de maand."
   },
   "app": {
     "suspended": {
@@ -1608,5 +1612,14 @@
       "team": "Nodig een teamlid uit",
       "billing": "Facturering instellen"
     }
+  },
+  "usage": {
+    "pdfGateTitle": "Pdf van deze aanvraag downloaden",
+    "pdfGateBody": "Gebruikt 1 pdf-tegoed van uw abonnement. Deze maand: {used} van {limit}. Dezelfde offerte opnieuw downloaden kost niets.",
+    "pdfGateCta": "Pdf maken",
+    "lockedTitle": "Aanvraag geblokkeerd",
+    "lockedBody": "De maandelijkse aanvraaglimiet van uw abonnement is bereikt. De aanvraag is opgeslagen: de contactgegevens worden vrijgegeven bij een hoger abonnement of op de 1e van de maand.",
+    "upgradeCta": "Abonnementen bekijken",
+    "back": "← Terug naar aanvragen"
   }
 }

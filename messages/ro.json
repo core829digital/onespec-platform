@@ -328,7 +328,11 @@
     "supplierHasDeliveries": "Nu poți șterge un furnizor cu livrări asociate.",
     "carrierHasDeliveries": "Nu poți șterge un transportator cu livrări asociate.",
     "cannotDeleteReceivedDelivery": "Nu poți șterge o livrare deja primită.",
-    "deliveryCancelled": "Această livrare a fost anulată."
+    "deliveryCancelled": "Această livrare a fost anulată.",
+    "pdfQuotaExceeded": "Ați folosit toate PDF-urile incluse în abonament luna aceasta. Treceți la un abonament superior sau așteptați data de 1 a lunii.",
+    "whatsappQuotaExceeded": "Ați folosit toate trimiterile WhatsApp incluse în abonament luna aceasta. Treceți la un abonament superior sau așteptați data de 1 a lunii.",
+    "showroomQuotaExceeded": "Ați atins limita lunară Showroom a abonamentului. Treceți la un abonament superior sau așteptați data de 1 a lunii.",
+    "quoteLocked": "Această cerere este blocată deoarece ați atins limita lunară a abonamentului. Se deblochează la trecerea la un abonament superior sau pe 1 ale lunii."
   },
   "app": {
     "suspended": {
@@ -1608,5 +1612,14 @@
       "team": "Invită un coleg",
       "billing": "Configurează facturarea"
     }
+  },
+  "usage": {
+    "pdfGateTitle": "Descarcă PDF-ul acestei cereri",
+    "pdfGateBody": "Folosește 1 credit PDF din abonament. Luna aceasta: {used} din {limit}. Descărcarea din nou a aceleiași oferte nu costă nimic.",
+    "pdfGateCta": "Generează PDF",
+    "lockedTitle": "Cerere blocată",
+    "lockedBody": "Ați atins limita lunară de cereri a abonamentului. Cererea este salvată: datele de contact se deblochează la trecerea la un abonament superior sau pe 1 ale lunii.",
+    "upgradeCta": "Vezi abonamentele",
+    "back": "← Înapoi la cereri"
   }
 }

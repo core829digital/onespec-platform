@@ -4,7 +4,7 @@ import { Lock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
 import type { Doc } from "@/convex/_generated/dataModel";
-import { gateForPath, usePlanAccess } from "@/lib/plan-gates";
+import { gateForPath, planDisplayName, requiredPlanFor, usePlanAccess } from "@/lib/plan-gates";
 
 /**
  * Wraps the page area. On a plan-gated route whose feature the tenant's plan
@@ -34,8 +34,8 @@ export function PlanGate({ tenant, children }: { tenant: Doc<"tenants">; childre
       <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
         {t("body", {
           feature: t(`features.${gate.feature}`),
-          plan: access.plan,
-          required: gate.requiredPlan,
+          plan: planDisplayName(access.plan),
+          required: requiredPlanFor(gate, access.plan),
         })}
       </p>
       <Link

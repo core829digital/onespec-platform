@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { useLocale, useTranslations } from "next-intl";
 import { api } from "@/convex/_generated/api";
 import { Link, useRouter } from "@/i18n/navigation";
@@ -15,6 +15,8 @@ import { buildExportModel } from "@/lib/quote-export/model";
 import { buildTxt, buildWhatsApp, whatsAppUrl } from "@/lib/quote-export/generators";
 import { buildBackup, parseBackup } from "@/lib/quote-export/backup";
 import { clearDraft, useDraftRestore, useDraftSave } from "@/lib/use-draft";
+import { usePlanAccess } from "@/lib/plan-gates";
+import { useFriendlyError } from "@/lib/use-friendly-error";
 
 type Region = "IT" | "FR" | "BE" | "NL" | "DE" | "LU";
 
@@ -45,6 +47,10 @@ export default function ShowroomPage() {
   const [clientPhone, setClientPhone] = useState("");
   const [clientCity, setClientCity] = useState("");
   const [restoredCount, setRestoredCount] = useState(0);
+  const [sendErr, setSendErr] = useState("");
+  const registerSend = useMutation(api.usage.registerShowroomSend);
+  const access = usePlanAccess(tenant?._id);
+  const tf = useFriendlyError();
 
   const ready = catalog?.ready === true;
   const payload = ready ? (catalog.payload as CatalogPayload) : undefined;
@@ -104,9 +110,42 @@ export default function ShowroomPage() {
     router.push("/app/quotes/new?from=showroom");
   }
 
-  function whatsapp() {
+  const fiscalOptions = { regionCode: region, buildingAge, isEnergyRenovation, deductionPercent: 50 };
+
+  // Every quote that leaves the showroom is registered server-side first
+  // (monthly showroom caps on the widget-first plans; no-op on the others).
+  async function metered(channel: "pdf" | "whatsapp"): Promise<boolean> {
+    if (!tenant) return false;
+    setSendErr("");
+    try {
+      await registerSend({ tenantId: tenant._id, channel, items, options: fiscalOptions });
+      return true;
+    } catch (e) {
+      setSendErr(tf(e));
+      return false;
+    }
+  }
+
+  async function whatsapp() {
     const m = exportModel(false);
-    if (m) window.open(whatsAppUrl(buildWhatsApp(m), clientPhone, region), "_blank", "noopener");
+    if (!m) return;
+    const win = window.open("about:blank", "_blank");
+    if (!(await metered("whatsapp"))) {
+      win?.close();
+      return;
+    }
+    const url = whatsAppUrl(buildWhatsApp(m), clientPhone, region);
+    if (win) {
+      win.opener = null;
+      win.location.href = url;
+    } else {
+      window.location.href = url;
+    }
+  }
+
+  async function exportDocument() {
+    const m = exportModel(false);
+    if (m && (await metered("pdf"))) download("showroom-offerta.txt", "text/plain", buildTxt(m));
   }
 
   async function restoreFile(file: File | undefined) {
@@ -193,8 +232,8 @@ export default function ShowroomPage() {
             <FiscalEngine
               calc={calc as FiscalCalc}
               regionCode={region}
-              onWhatsApp={whatsapp}
-              onSopralluogo={requestSurvey}
+              onWhatsApp={() => void whatsapp()}
+              onSopralluogo={access && !access.isLocked("fieldQuotes") ? requestSurvey : undefined}
               onAddToCart={() => {
                 const next = duplicateItem(items, Math.min(active, items.length - 1));
                 setItems(next);
@@ -204,6 +243,7 @@ export default function ShowroomPage() {
           ) : (
             <div className="rounded-xl border border-[var(--color-border)] p-5 text-sm text-[var(--color-muted-fg)]">{t("configureToSee")}</div>
           )}
+          {sendErr ? <p role="alert" className="rounded-lg border border-[var(--color-danger)]/40 p-3 text-xs text-[var(--color-danger)]">{sendErr}</p> : null}
           {blocked ? <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-xs">{t("fixPieces")}</p> : null}
 
           <div className="rounded-xl border border-[var(--color-border)] p-3 text-sm">
@@ -223,7 +263,7 @@ export default function ShowroomPage() {
               </label>
             </div>
             <div className="mt-3 flex flex-wrap gap-2">
-              <button type="button" className={ghost} disabled={!calc} onClick={() => { const m = exportModel(false); if (m) download("showroom-offerta.txt", "text/plain", buildTxt(m)); }}>{t("exportTxt")}</button>
+              <button type="button" className={ghost} disabled={!calc} onClick={() => void exportDocument()}>{t("exportTxt")}</button>
               <button type="button" className={ghost} onClick={() => download("showroom-bozza.json", "application/json", buildBackup(items, { clientName, clientPhone, clientCity }))}>{t("exportDraft")}</button>
               <label className={`${ghost} cursor-pointer`}>
                 {t("loadDraft")}

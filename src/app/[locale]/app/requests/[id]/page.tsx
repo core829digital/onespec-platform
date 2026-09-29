@@ -9,6 +9,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { StatusBadge } from "@/components/app-shell/status-badge";
 import { QuoteFieldModules } from "@/components/field/quote-field-modules";
 import { useFriendlyError } from "@/lib/use-friendly-error";
+import { usePlanAccess } from "@/lib/plan-gates";
 
 const STATUSES = ["new", "contacted", "quoted", "won", "lost", "spam"] as const;
 const STATUS_KEY: Record<string, string> = {
@@ -55,6 +56,9 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
   const updateStatus = useMutation(api.quotes.updateStatus);
   const assignRequest = useMutation(api.quotes.assignRequest);
   const addNote = useMutation(api.quotes.addNote);
+  const requestWhatsappSend = useMutation(api.usage.requestWhatsappSend);
+  const access = usePlanAccess(tenant?._id);
+  const tu = useTranslations("usage");
 
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
@@ -121,6 +125,26 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
   const whatsappUrl = cleanPhone
     ? `https://wa.me/${cleanPhone.replace("+", "")}?text=${encodeURIComponent(whatsappGreeting)}`
     : null;
+
+  // Metered server-side (once per request on the widget-first plans). The tab
+  // is opened synchronously so the popup blocker allows it, then pointed at
+  // WhatsApp only once the server has accepted the send.
+  async function sendWhatsapp(url: string) {
+    const win = window.open("about:blank", "_blank");
+    setErr("");
+    try {
+      await requestWhatsappSend({ quoteId });
+      if (win) {
+        win.opener = null;
+        win.location.href = url;
+      } else {
+        window.location.href = url;
+      }
+    } catch (e) {
+      win?.close();
+      setErr(tf(e));
+    }
+  }
 
   const receivedLabel = !slaInfo
     ? ""
@@ -200,15 +224,14 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
         {/* 1-Click Fast Action Buttons */}
         <div className="flex flex-wrap items-center gap-2">
           {whatsappUrl && (
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
+            <button
+              type="button"
+              onClick={() => void sendWhatsapp(whatsappUrl)}
               className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-bold text-white shadow-sm hover:bg-emerald-700 transition-colors"
             >
               <span>💬</span>
               <span>{t("whatsapp")}</span>
-            </a>
+            </button>
           )}
           {quote.leadPhone && (
             <a
@@ -226,7 +249,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
             <span>🖨️</span>
             <span>{t("printPdf")}</span>
           </Link>
-          {!quote.signedAt && (
+          {!quote.signedAt && !quote.quotaLocked && access?.isLocked("fieldQuotes") !== true && (
             <Link
               href={`/app/quotes/${quote._id}/sign`}
               className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--color-mint)] px-3 py-2 text-xs font-bold text-[var(--color-mint-dark)] shadow-sm hover:opacity-90 transition-opacity"
@@ -238,7 +261,18 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
         </div>
       </div>
 
-      {err ? <p className="text-sm text-[var(--color-danger)]">{err}</p> : null}
+      {quote.quotaLocked ? (
+        <div role="status" className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-500/40 bg-amber-500/10 p-4">
+          <div>
+            <p className="text-sm font-bold text-[var(--color-text)]">🔒 {tu("lockedTitle")}</p>
+            <p className="mt-0.5 text-xs text-[var(--color-text-secondary)]">{tu("lockedBody")}</p>
+          </div>
+          <Link href="/app/account/billing?tab=plan" className="rounded-lg bg-[var(--color-mint)] px-3 py-2 text-xs font-bold text-[var(--color-mint-dark)]">
+            {tu("upgradeCta")}
+          </Link>
+        </div>
+      ) : null}
+      {err ? <p role="alert" className="text-sm text-[var(--color-danger)]">{err}</p> : null}
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6 items-start">
         <div className="space-y-6">
@@ -246,7 +280,9 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
           <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
             <h2 className="font-semibold text-[var(--color-text)]">{t("contactSite")}</h2>
             <dl className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
-              <Row label={t("labelEmail")} value={<a href={`mailto:${quote.leadEmail}`} className="text-[var(--color-mint)] hover:underline">{quote.leadEmail}</a>} />
+              {quote.leadEmail ? (
+                <Row label={t("labelEmail")} value={<a href={`mailto:${quote.leadEmail}`} className="text-[var(--color-mint)] hover:underline">{quote.leadEmail}</a>} />
+              ) : null}
               {quote.leadPhone ? (
                 <Row
                   label={t("labelPhone")}
@@ -339,7 +375,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
           </section>
 
           {/* Field modules — Rilievo / Posa / Verbale / Fascicolo */}
-          {tenant ? (
+          {tenant && access && !access.isLocked("fieldOps") ? (
             <QuoteFieldModules
               quoteId={quoteId}
               tenantId={tenant._id}

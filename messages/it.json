@@ -328,7 +328,11 @@
     "supplierHasDeliveries": "Non puoi eliminare un fornitore con consegne collegate.",
     "carrierHasDeliveries": "Non puoi eliminare un corriere con consegne collegate.",
     "cannotDeleteReceivedDelivery": "Non puoi eliminare una consegna già ricevuta.",
-    "deliveryCancelled": "Questa consegna è stata annullata."
+    "deliveryCancelled": "Questa consegna è stata annullata.",
+    "pdfQuotaExceeded": "Hai usato tutti i PDF inclusi nel piano per questo mese. Passa a un piano superiore o attendi il primo del mese.",
+    "whatsappQuotaExceeded": "Hai usato tutti gli invii WhatsApp inclusi nel piano per questo mese. Passa a un piano superiore o attendi il primo del mese.",
+    "showroomQuotaExceeded": "Hai raggiunto il limite mensile dello Showroom del tuo piano. Passa a un piano superiore o attendi il primo del mese.",
+    "quoteLocked": "Questa richiesta è bloccata perché hai raggiunto il limite mensile del piano. Si sblocca passando a un piano superiore o dal primo del mese."
   },
   "app": {
     "suspended": {
@@ -1608,5 +1612,14 @@
       "team": "Invita un collega",
       "billing": "Attiva la fatturazione"
     }
+  },
+  "usage": {
+    "pdfGateTitle": "Scarica il PDF di questa richiesta",
+    "pdfGateBody": "Usa 1 credito PDF del tuo piano. Questo mese: {used} di {limit}. Riscaricare lo stesso preventivo non consuma altri crediti.",
+    "pdfGateCta": "Genera PDF",
+    "lockedTitle": "Richiesta bloccata",
+    "lockedBody": "Hai raggiunto il limite mensile di richieste del tuo piano. La richiesta è salvata: i contatti si sbloccano passando a un piano superiore o dal primo del mese.",
+    "upgradeCta": "Vedi i piani",
+    "back": "← Torna alle richieste"
   }
 }
