@@ -28,7 +28,7 @@ export const listMinePage = query({
       .query("notifications")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .order("desc")
-      .paginate(args.paginationOpts);
+      .paginate({ ...args.paginationOpts, numItems: Math.min(Math.max(args.paginationOpts.numItems, 1), 100) });
   },
 });
 
