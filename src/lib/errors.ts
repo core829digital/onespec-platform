@@ -128,6 +128,7 @@ const EXACT: Record<string, ErrorKey> = {
   ALREADY_SUBSCRIBED: "alreadySubscribed",
   ANNUAL_NOT_AVAILABLE: "annualNotAvailable",
   TEAM_EXCEEDS_TARGET_PLAN: "teamExceedsTargetPlan",
+  MEMBER_LIMIT_REACHED: "quotaExceeded",
 };
 
 /** Map a backend error code to a message key (pattern fallbacks for families). */

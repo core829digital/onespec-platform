@@ -11,7 +11,7 @@ import { resolveTenantEntitlements, currentPeriod, isWidgetPlan } from "./lib/en
 import { LOCKED_LEAD_NAME } from "./lib/quotaLock";
 import { consumeToken } from "./lib/ratelimit";
 import { regionForCountry, type RegionPolicy } from "./lib/regions";
-import { configuratorServedByPlan, enforcePublicWidget } from "./lib/enforcement";
+import { configuratorServedByPlan } from "./lib/enforcement";
 
 /** Rows/objects that may carry Convex system + tenant fields. */
 type WithSystemFields = Record<string, unknown> & {
@@ -108,7 +108,11 @@ export const recordWidgetView = internalMutation({
       .unique();
     if (!configurator || configurator.status !== "published") return { counted: false };
 
-    await enforcePublicWidget(ctx, configurator.tenantId);
+    // Plans without the public widget (e.g. Base on the /c/ link page) simply
+    // aren't counted — a throw here turned every such page view into an HTTP
+    // 500 (log/monitoring noise, wasted calls).
+    const tenant = await ctx.db.get(configurator.tenantId);
+    if (!tenant || !resolveTenantEntitlements(tenant).publicWidget) return { counted: false };
 
     // Once per session token per ~24h.
     const fresh = await consumeToken(ctx, `view:${configurator._id}:${args.viewToken}`, {
