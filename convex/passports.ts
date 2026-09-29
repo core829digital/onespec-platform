@@ -2,6 +2,7 @@
 
 import { query, mutation, internalMutation } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
+import type { Id } from "./_generated/dataModel";
 import { requirePermission } from "./lib/rbac";
 import { requireTenantRegion } from "./lib/fieldModules";
 import { enforceForMaintenance } from "./lib/enforcement";
@@ -245,13 +246,16 @@ export const attachDocument = mutation({
     if (args.url && !/^https:\/\//i.test(args.url)) throw new ConvexError("INVALID_URL");
 
     let matched = false;
+    const replaced: Id<"_storage">[] = [];
     const documents = p.documents.map((d) => {
       if (d.key !== args.key) return d;
       matched = true;
-      if (d.storageId && d.storageId !== args.storageId) ctx.storage.delete(d.storageId).catch(() => {});
+      if (d.storageId && d.storageId !== args.storageId) replaced.push(d.storageId);
       return { ...d, storageId: args.storageId, url: args.url };
     });
     if (!matched) throw new ConvexError("UNKNOWN_DOCUMENT_SLOT");
+    // Awaited (see inspections.setPhoto): never a fire-and-forget storage call in a mutation.
+    for (const id of replaced) await ctx.storage.delete(id).catch(() => {});
     await ctx.db.patch(args.passportId, { documents, updatedAt: Date.now() });
   },
 });
@@ -512,7 +516,8 @@ export const updateInterventionStatus = mutation({
    },
  });
 
-export const recordScan = mutation({
+/** Internal: only the rate-limited /api/passport/scan route may count a scan. */
+export const recordScan = internalMutation({
   args: { token: v.string() },
   handler: async (ctx, args) => {
     const p = await ctx.db

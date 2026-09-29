@@ -215,7 +215,7 @@ http.route({
     } catch {
       return json({ ok: true, counted: false });
     }
-    await ctx.runMutation(api.passports.recordScan, { token: body.token });
+    await ctx.runMutation(internal.passports.recordScan, { token: body.token });
     return json({ ok: true });
   }),
 });

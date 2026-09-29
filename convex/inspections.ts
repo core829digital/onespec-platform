@@ -3,6 +3,7 @@
 import { query, mutation, internalMutation } from "./_generated/server";
 import type { QueryCtx, MutationCtx } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
+import type { Id } from "./_generated/dataModel";
 import { requirePermission } from "./lib/rbac";
 import { requireTenantRegion, assertSignature } from "./lib/fieldModules";
 import { complianceForRegion } from "./lib/compliance";
@@ -197,15 +198,17 @@ export const setPhoto = mutation({
     if (report.status === "signed") throw new ConvexError("REPORT_LOCKED");
 
     let matched = false;
+    const replaced: Id<"_storage">[] = [];
     const photos = report.photos.map((p) => {
       if (p.key !== args.photoKey) return p;
       matched = true;
-      if (p.storageId && p.storageId !== args.storageId) {
-        ctx.storage.delete(p.storageId).catch(() => {});
-      }
+      if (p.storageId && p.storageId !== args.storageId) replaced.push(p.storageId);
       return { ...p, storageId: args.storageId };
     });
     if (!matched) throw new ConvexError("UNKNOWN_PHOTO_SLOT");
+    // Awaited: an un-awaited storage call inside a mutation may never run,
+    // leaving the replaced file orphaned in storage.
+    for (const id of replaced) await ctx.storage.delete(id).catch(() => {});
     await ctx.db.patch(args.reportId, { photos, updatedAt: Date.now() });
   },
 });
@@ -370,15 +373,17 @@ export const setInstallerPhotoFromHttp = internalMutation({
     if (!report) throw new ConvexError("REPORT_NOT_FOUND");
     if (report.status === "signed") throw new ConvexError("REPORT_LOCKED");
     let matched = false;
+    const replaced: Id<"_storage">[] = [];
     const photos = report.photos.map((p) => {
       if (p.key !== args.photoKey) return p;
       matched = true;
-      if (p.storageId && p.storageId !== args.storageId) {
-        ctx.storage.delete(p.storageId).catch(() => {});
-      }
+      if (p.storageId && p.storageId !== args.storageId) replaced.push(p.storageId);
       return { ...p, storageId: args.storageId };
     });
     if (!matched) throw new ConvexError("UNKNOWN_PHOTO_SLOT");
+    // Awaited: an un-awaited storage call inside a mutation may never run,
+    // leaving the replaced file orphaned in storage.
+    for (const id of replaced) await ctx.storage.delete(id).catch(() => {});
     await ctx.db.patch(report._id, { photos, updatedAt: Date.now() });
   },
 });
