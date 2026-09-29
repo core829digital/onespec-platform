@@ -8,13 +8,23 @@ import { WidgetLocked } from "@/components/widget/widget-locked";
 
 export const revalidate = 30;
 
+/** A failed backend read is "no tool here" (404), never a crash on the customer's site. */
+async function safeFetch<T>(run: () => Promise<T>): Promise<T | null> {
+  try {
+    return await run();
+  } catch (e) {
+    console.error("[c/publicId] getPublicConfigurator failed", e instanceof Error ? e.message : e);
+    return null;
+  }
+}
+
 export async function generateMetadata({
   params,
 }: {
   params: Promise<{ publicId: string }>;
 }): Promise<Metadata> {
   const { publicId } = await params;
-  const cfg = await fetchQuery(api.widget.getPublicConfigurator, { publicId });
+  const cfg = await safeFetch(() => fetchQuery(api.widget.getPublicConfigurator, { publicId }));
   if (!cfg) return { title: "OneSpec" };
   const title = cfg.branding?.companyInfo?.name || cfg.name || "Preventivo serramenti";
   return {
@@ -37,7 +47,7 @@ export default async function HostedConfiguratorPage({
   const accentParam = typeof sp.accent === "string" ? sp.accent : undefined;
   const fontParam = typeof sp.font === "string" ? sp.font : undefined;
 
-  const configurator = await fetchQuery(api.widget.getPublicConfigurator, { publicId });
+  const configurator = await safeFetch(() => fetchQuery(api.widget.getPublicConfigurator, { publicId }));
   if (!configurator) notFound();
   const theme = resolveWidgetTheme(sp.theme, configurator.defaultTheme);
   const lang = resolveWidgetLang(sp.lang, configurator.defaultLocale);
