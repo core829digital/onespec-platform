@@ -31,7 +31,9 @@ export function hostOrigin(): string | null {
 export type OutboundMessage =
   | { type: "onespec:ready"; publicId: string }
   | { type: "onespec:resize"; publicId: string; height: number }
-  | { type: "onespec:submitted"; publicId: string };
+  | { type: "onespec:submitted"; publicId: string }
+  // Demo frames only: forwards the mouse wheel so the host page can keep its smooth scroll.
+  | { type: "onespec:wheel"; publicId: string; deltaY: number };
 
 export function postToHost(msg: OutboundMessage) {
   if (typeof window === "undefined" || window.parent === window) return;

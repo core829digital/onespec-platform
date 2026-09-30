@@ -10,6 +10,7 @@ import { FiscalEngine, type FiscalCalc } from "@/components/showroom/FiscalEngin
 import { computeCalculationPreview } from "@/convex/lib/calcPreview";
 import { postToHost } from "@/components/widget/host-bridge";
 import { demoCopy, demoRegisterUrl } from "@/lib/demo/demo-copy";
+import { WheelForward } from "@/components/demo/wheel-forward";
 import demo from "@/lib/demo/demo-data.json";
 
 const input = "mt-1 w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2 text-sm";
@@ -84,6 +85,7 @@ export function DemoShowroom({ lang, theme }: { lang: string; theme: "light" | "
 
   return (
     <div className="w-full space-y-4 p-3 sm:p-4">
+      <WheelForward publicId={DEMO_ID} />
       <div className="space-y-4 rounded-xl border border-[var(--color-border)] p-4">
         <PiecesEditor
           payload={payload}

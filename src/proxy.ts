@@ -127,7 +127,7 @@ export default convexAuthNextjsMiddleware(
       const res = NextResponse.next();
       res.headers.set(
         "Content-Security-Policy",
-        `${WIDGET_CSP_BASE}; frame-ancestors 'self' https://onespec.eu https://www.onespec.eu`,
+        `${WIDGET_CSP_BASE}; frame-ancestors 'self' https://onespec.eu https://www.onespec.eu${IS_PROD ? "" : " http://localhost:*"}`,
       );
       return res;
     }
