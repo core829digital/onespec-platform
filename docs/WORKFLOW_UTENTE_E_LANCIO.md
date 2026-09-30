@@ -64,7 +64,7 @@ Un test blocca il build se nel codice viene usata una chiave di traduzione che m
 | Testi legali per paese | Da verificare | Note fiscali nel PDF (Bonus Casa 50/36%, MaPrimeRénov', Klimabonus 20%, ISDE, §35c) e percentuali nel preventivatore: da far controllare a un commercialista per ogni mercato, perché cambiano ogni anno. |
 | DPA (contratto trattamento dati) | Da decidere | Esiste solo in italiano. Per clienti esteri serve una versione tradotta da un legale. |
 | Pagine d'errore pubbliche | Accettabile | Bilingue italiano/inglese. |
-| Codice non utilizzato | Pulizia futura | 6 PDF e 2 componenti widget mai usati (nessun impatto per gli utenti). |
+| Codice non utilizzato | Fatto (30/09/2026) | Rimossi 17 file mai usati (6 PDF, 5 componenti widget, calcolatori e validatori orfani). Restano 15 pacchetti npm non usati: rimozione rimandata perché il lockfile ha un collegamento locale (`@swc/core`) da sistemare prima, con un ambiente Windows. |
 | Dati già esistenti | Nessuna azione (pre-lancio) | I configuratori creati prima di oggi mantengono lingua e IVA vecchie; i cataloghi già creati non hanno le etichette DE/NL. Si correggono dall'editor. |
 
 ---
