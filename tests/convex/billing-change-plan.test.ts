@@ -30,7 +30,7 @@ beforeEach(() => {
     vi.fn(async (url: string, init?: { method?: string; body?: string }) => {
       if (init?.method === "POST") {
         posts.push({ url, body: new URLSearchParams(init.body ?? "") });
-        return new Response(JSON.stringify({ id: "sub_1", total: 1000, amount_due: 1000 }), { status: 200 });
+        return new Response(JSON.stringify({ id: "sub_1", total: 1000, amount_due: 1000, url: "https://checkout.stripe.test/s" }), { status: 200 });
       }
       return new Response(JSON.stringify({ id: "sub_1", items: { data: [{ id: "si_1" }] } }), { status: 200 });
     }),
@@ -123,5 +123,29 @@ describe("changePlan", () => {
     const asAdmin = t.withIdentity({ subject: s.adminId });
     await expect(asAdmin.action(api.billing.changePlan, { tenantId: s.tenantId, plan: "pro" })).rejects.toThrow(/OWNER_ONLY/);
     expect(posts).toHaveLength(0);
+  });
+});
+
+describe("createCheckoutSession", () => {
+  test("an existing Stripe customer may be updated (name/address) — required by tax-ID collection", async () => {
+    const { s, as } = await subscribed("pro", "suspended"); // ended subscription → re-subscribe
+    const { url } = await as.action(api.billing.createCheckoutSession, { tenantId: s.tenantId, plan: "base" });
+    expect(url).toContain("checkout.stripe.test");
+    const call = posts.find((p) => p.url.endsWith("/checkout/sessions"))!;
+    expect(call.body.get("customer")).toBe("cus_1");
+    expect(call.body.get("customer_update[name]")).toBe("auto");
+    expect(call.body.get("customer_update[address]")).toBe("auto");
+    expect(call.body.get("tax_id_collection[enabled]")).toBe("true");
+  });
+
+  test("a brand-new customer is identified by email and gets no customer_update", async () => {
+    const t = newDb();
+    const s = await seedTenant(t, { plan: "base" });
+    await t.run((ctx) => ctx.db.patch(s.tenantId, { planStatus: "pending_plan", country: "IT" }));
+    await t.withIdentity({ subject: s.ownerId }).action(api.billing.createCheckoutSession, { tenantId: s.tenantId, plan: "base" });
+    const call = posts.find((p) => p.url.endsWith("/checkout/sessions"))!;
+    expect(call.body.has("customer")).toBe(false);
+    expect(call.body.has("customer_update[name]")).toBe(false);
+    expect(call.body.get("customer_email")).toBeTruthy();
   });
 });

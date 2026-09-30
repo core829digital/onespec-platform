@@ -325,6 +325,14 @@ export const createCheckoutSession = action({
       origin_context: "web",
     };
 
+    // Stripe refuses tax-ID / name / address collection on an EXISTING customer
+    // unless it may update those fields ("Tax ID collection requires updating
+    // business name on the customer"). Every re-subscription hits this path.
+    if (owner.stripeCustomerId) {
+      params["customer_update[name]"] = "auto";
+      params["customer_update[address]"] = "auto";
+    }
+
     // Pro-only 14-day trial: the card is captured up front and Stripe
     // auto-converts at trial end (no trial = immediate charge).
     if (planKey === "pro" && !owner.trialStartedAt) {
