@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import posthog from "posthog-js";
 import { useAction, useMutation, useQuery } from "convex/react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { routing } from "@/i18n/routing";
 import { api } from "@/convex/_generated/api";
 import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
@@ -24,6 +25,7 @@ export default function OnboardingWizard() {
   const t = useTranslations("onboarding");
   const tf = useFriendlyError();
   const router = useRouter();
+  const locale = useLocale();
   const state = useQuery(api.onboarding.getState);
   const tenant = useQuery(api.tenants.getMyTenant);
   const advance = useMutation(api.onboarding.advance);
@@ -99,6 +101,9 @@ export default function OnboardingWizard() {
   async function finish() {
     setBusy(true);
     setErr("");
+    // Loading screen first: otherwise the reactive state update that follows
+    // `complete` flashes the wizard's first step before we leave the page.
+    setEntering(true);
     try {
       await complete();
       posthog.capture("onboarding_completed", {
@@ -107,14 +112,16 @@ export default function OnboardingWizard() {
           state && "configuratorCount" in state ? state.configuratorCount : 0,
         region: state && "region" in state ? state.region : undefined,
       });
-      // Show the entering screen (animated bar) while the app loads —
-      // router.replace resolves before the dashboard is ready, and without
-      // this the user stares at a frozen button.
-      setEntering(true);
-      router.replace("/app/dashboard");
+      // Full page navigation, not router.replace: the client router cache can
+      // still hold the pre-completion RSC payload of /app/dashboard (a redirect
+      // back here), which bounced the user between the two layouts in a loop.
+      // A hard load always asks the server for the current tenant state.
+      const prefix = locale === routing.defaultLocale ? "" : `/${locale}`;
+      window.location.replace(`${prefix}/app/dashboard`);
     } catch (e) {
       posthog.captureException(e);
       setErr(tf(e));
+      setEntering(false);
       setBusy(false);
     }
   }

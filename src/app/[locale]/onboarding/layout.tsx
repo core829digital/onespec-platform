@@ -22,7 +22,9 @@ export default async function OnboardingLayout({
   if (!tenant) {
     redirect(`/${locale}/auth/onboarding`);
   }
-  if (tenant.onboardingCompletedAt) {
+  // Mirror of the /app gate: a tenant without a plan must stay here, otherwise
+  // /app (→ /onboarding) and /onboarding (→ /app) redirect each other forever.
+  if (tenant.onboardingCompletedAt && tenant.planStatus !== "pending_plan") {
     redirect(`/${locale}/app/dashboard`);
   }
 
