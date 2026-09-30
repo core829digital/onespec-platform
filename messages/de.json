@@ -1475,7 +1475,10 @@
       "cantieri": "Baustellen",
       "fieldOps": "Baustellenmodule",
       "logistics": "Logistik"
-    }
+    },
+    "endedTitle": "Abonnement beendet",
+    "endedBody": "Ihr Abonnement oder Ihre kostenlose Testphase ist beendet. Wählen Sie einen Tarif, um die Plattform weiter zu nutzen: Ihre Daten sind sicher.",
+    "endedCta": "Tarif wählen"
   },
   "onboarding": {
     "loading": "Wird geladen…",

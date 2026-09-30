@@ -280,7 +280,7 @@ export default function BillingPage() {
         </div>
       ) : null}
 
-      {state.subscription ? (
+      {state.subscription && state.planStatus !== "suspended" ? (
         <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4 text-sm">
           <p className="text-[var(--color-text)]">
             {t("subscription.active")}

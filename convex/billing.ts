@@ -536,6 +536,15 @@ export const cancelSubscription = action({
     if (!owner.stripeSubscriptionId) throw new ConvexError("NO_SUBSCRIPTION");
 
     const current = await stripeGet(`/subscriptions/${owner.stripeSubscriptionId}`);
+    if (current.status === "canceled") {
+      // Already ended in Stripe (double click, retry, or a lost webhook): just
+      // bring the tenant in line with it.
+      await ctx.runMutation(internal.billing.applySubscriptionSync, {
+        tenantId: args.tenantId,
+        subscription: current,
+      });
+      return { ok: true };
+    }
     if (current.status === "trialing") {
       // Cancelling during the free trial ends access NOW. Nothing was paid, so
       // there is no "already paid period" to honour — keeping access until the
@@ -546,8 +555,9 @@ export const cancelSubscription = action({
           tenantId: args.tenantId,
           subscription: ended,
         });
-      } catch {
-        /* the customer.subscription.deleted webhook applies the same state */
+      } catch (e) {
+        // The customer.subscription.deleted webhook applies the same state.
+        console.error("cancelSubscription: immediate sync failed", e instanceof Error ? e.message : e);
       }
       return { ok: true };
     }

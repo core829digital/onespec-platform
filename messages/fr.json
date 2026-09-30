@@ -1475,7 +1475,10 @@
       "cantieri": "Chantiers",
       "fieldOps": "Modules chantier",
       "logistics": "Logistique"
-    }
+    },
+    "endedTitle": "Abonnement terminé",
+    "endedBody": "Votre abonnement ou votre essai gratuit est terminé. Choisissez un forfait pour continuer à utiliser la plateforme : vos données sont en sécurité.",
+    "endedCta": "Choisir un forfait"
   },
   "onboarding": {
     "loading": "Chargement…",

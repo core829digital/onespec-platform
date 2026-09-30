@@ -1475,7 +1475,10 @@
       "cantieri": "Bouwplaatsen",
       "fieldOps": "Bouwplaatsmodules",
       "logistics": "Logistiek"
-    }
+    },
+    "endedTitle": "Abonnement beëindigd",
+    "endedBody": "Je abonnement of gratis proefperiode is afgelopen. Kies een abonnement om het platform te blijven gebruiken: je gegevens zijn veilig.",
+    "endedCta": "Kies een abonnement"
   },
   "onboarding": {
     "loading": "Laden…",

@@ -3,6 +3,8 @@
 import { Lock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
 import type { Doc } from "@/convex/_generated/dataModel";
 import { gateForPath, planDisplayName, requiredPlanFor, usePlanAccess } from "@/lib/plan-gates";
 
@@ -16,6 +18,33 @@ export function PlanGate({ tenant, children }: { tenant: Doc<"tenants">; childre
   const pathname = usePathname();
   const gate = gateForPath(pathname);
   const access = usePlanAccess(tenant._id);
+  // Reactive, unlike the `tenant` prop (rendered once per navigation): a
+  // subscription ended in Stripe (cancelled trial, deleted subscription) must
+  // lock the platform immediately, not at the next reload.
+  const live = useQuery(api.tenants.getMyTenant);
+  const current = live ?? tenant;
+  const ended = current.planStatus === "suspended" && current.unlimitedAccess !== true;
+
+  // Billing and account pages stay open so the owner can subscribe again.
+  if (ended && !pathname.startsWith("/app/account")) {
+    return (
+      <div className="mx-auto flex max-w-lg flex-col items-center px-4 py-16 text-center" role="region" aria-labelledby="plan-ended-title">
+        <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-alt)]">
+          <Lock size={28} aria-hidden="true" className="text-[var(--color-text-secondary)]" />
+        </div>
+        <h1 id="plan-ended-title" className="text-xl font-bold text-[var(--color-text)]">
+          {t("endedTitle")}
+        </h1>
+        <p className="mt-2 text-sm text-[var(--color-text-secondary)]">{t("endedBody")}</p>
+        <Link
+          href="/app/account/billing?tab=plan"
+          className="mt-6 inline-flex items-center rounded-lg bg-[var(--color-mint)] px-5 py-2.5 text-sm font-semibold text-[var(--color-mint-dark)] transition-opacity hover:opacity-90"
+        >
+          {t("endedCta")}
+        </Link>
+      </div>
+    );
+  }
 
   if (!gate) return <>{children}</>;
   // Loading: render nothing rather than flash a page the server will reject.

@@ -1475,7 +1475,10 @@
       "cantieri": "Șantiere",
       "fieldOps": "Module de șantier",
       "logistics": "Logistică"
-    }
+    },
+    "endedTitle": "Abonament încheiat",
+    "endedBody": "Abonamentul sau perioada de probă gratuită s-a încheiat. Alege un plan pentru a continua să folosești platforma: datele tale sunt în siguranță.",
+    "endedCta": "Alege un plan"
   },
   "onboarding": {
     "loading": "Se încarcă…",

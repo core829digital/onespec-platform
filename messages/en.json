@@ -1475,7 +1475,10 @@
       "cantieri": "Job sites",
       "fieldOps": "Field modules",
       "logistics": "Logistics"
-    }
+    },
+    "endedTitle": "Subscription ended",
+    "endedBody": "Your subscription or free trial has ended. Choose a plan to keep using the platform: your data is safe.",
+    "endedCta": "Choose a plan"
   },
   "onboarding": {
     "loading": "Loading…",

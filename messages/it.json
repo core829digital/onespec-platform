@@ -1475,7 +1475,10 @@
       "cantieri": "Cantieri",
       "fieldOps": "Moduli di cantiere",
       "logistics": "Logistica"
-    }
+    },
+    "endedTitle": "Abbonamento terminato",
+    "endedBody": "Il tuo abbonamento o la prova gratuita è terminato. Scegli un piano per tornare a usare la piattaforma: i tuoi dati sono al sicuro.",
+    "endedCta": "Scegli un piano"
   },
   "onboarding": {
     "loading": "Caricamento…",
