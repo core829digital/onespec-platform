@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -15,13 +15,14 @@ export default function TeamPage() {
   const d = (ms: number) => new Date(ms).toLocaleDateString(locale);
   const run = useRunAction();
   const tf = useFriendlyError();
+  const { isAuthenticated } = useConvexAuth();
   const tenant = useQuery(api.tenants.getMyTenant);
   const members = useQuery(api.tenants.listMembers, tenant ? { tenantId: tenant._id } : "skip");
   const invitations = useQuery(
     api.tenants.listInvitations,
     tenant ? { tenantId: tenant._id } : "skip",
   );
-  const billing = useQuery(api.billing.getBillingState, tenant ? { tenantId: tenant._id } : "skip");
+  const billing = useQuery(api.billing.getBillingState, tenant && isAuthenticated ? { tenantId: tenant._id } : "skip");
 
   const inviteMember = useMutation(api.tenants.inviteMember);
   const cancelInvitation = useMutation(api.tenants.cancelInvitation);

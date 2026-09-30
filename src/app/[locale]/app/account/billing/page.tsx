@@ -3,7 +3,7 @@
 import { requestConfirm } from "@/lib/confirm-dialog";
 
 import { useEffect, useRef, useState } from "react";
-import { useAction, useQuery } from "convex/react";
+import { useAction, useConvexAuth, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
@@ -35,6 +35,7 @@ export default function BillingPage() {
   const tf = useFriendlyError();
   const t = useTranslations("billing");
   const locale = useLocale();
+  const { isAuthenticated } = useConvexAuth();
   const tenant = useQuery(api.tenants.getMyTenant);
   const company = useQuery(api.tenants.getCompanyProfile);
   const params = useSearchParams();
@@ -42,7 +43,7 @@ export default function BillingPage() {
   const checkoutStatus = params.get("status");
   const state = useQuery(
     api.billing.getBillingState,
-    tenant ? { tenantId: tenant._id } : "skip",
+    tenant && isAuthenticated ? { tenantId: tenant._id } : "skip",
   );
   const checkout = useAction(api.billing.createCheckoutSession);
   const portal = useAction(api.billing.createPortalSession);

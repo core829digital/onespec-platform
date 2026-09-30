@@ -1,4 +1,4 @@
-import { useQuery } from "convex/react";
+import { useConvexAuth, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 
@@ -112,7 +112,10 @@ export function isFeatureUnlocked(feature: GatedFeature, ent: Ent): boolean {
 
 /** `undefined` while loading; afterwards the plan name + which features are locked. */
 export function usePlanAccess(tenantId: Id<"tenants"> | undefined) {
-  const state = useQuery(api.billing.getBillingState, tenantId ? { tenantId } : "skip");
+  // Never subscribe before the auth token is confirmed: the query would run
+  // anonymously and throw UNAUTHENTICATED (token refresh, sign-out, fresh signup).
+  const { isAuthenticated } = useConvexAuth();
+  const state = useQuery(api.billing.getBillingState, tenantId && isAuthenticated ? { tenantId } : "skip");
   if (state === undefined) return undefined;
   if (state === null) return null;
   return {
