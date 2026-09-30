@@ -22,7 +22,7 @@ async function build() {
   const as = t.withIdentity({ subject: s.ownerId });
   await as.mutation(api.configurators.createConfigurator, { tenantId: s.tenantId, name: "Serramenti Demo" });
   const configuratorId = (await t.run((ctx) => ctx.db.query("configurators").first()))!._id;
-  await t.mutation(internalSeed, { configuratorId, tenantId: s.tenantId });
+  // createConfigurator already seeds the default catalogue: seeding again duplicated every option.
   await as.mutation(api.configurators.publishConfigurator, { configuratorId });
   const publicId = (await t.run((ctx) => ctx.db.get(configuratorId)))!.publicId;
   const configurator = await t.query(api.widget.getPublicConfigurator, { publicId });
@@ -35,8 +35,6 @@ async function build() {
   // The random public id also appears inside the catalogue snapshot: pin it everywhere.
   return JSON.parse(JSON.stringify(built).split(publicId).join("DEMO000000"));
 }
-import { internal } from "../../convex/_generated/api";
-const internalSeed = internal.catalog.seedDefaultCatalog;
 
 describe("demo fixture", () => {
   test("is generated from the real catalogue pipeline and stays in sync", async () => {
@@ -46,6 +44,13 @@ describe("demo fixture", () => {
       writeFileSync(FILE, JSON.stringify(built, null, 1) + "\n");
     }
     expect(built.configurator.catalog).toBeTruthy();
+    // No option may appear twice: the catalogue was once seeded two times, doubling every choice.
+    const cat = built.showroom.payload as Record<string, unknown>;
+    for (const [name, rows] of Object.entries(cat)) {
+      if (!Array.isArray(rows)) continue;
+      const ids = rows.map((r) => JSON.stringify(r));
+      expect(new Set(ids).size, `${name} has duplicated options`).toBe(ids.length);
+    }
     expect(JSON.parse(readFileSync(FILE, "utf8"))).toEqual(built);
   });
 });

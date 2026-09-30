@@ -131,13 +131,13 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
       {items.length === 0 ? (
         <p className="rounded-lg border border-dashed border-[var(--color-border)] p-6 text-center text-sm text-[var(--color-text-secondary)]">{t("empty")}</p>
       ) : (
-        <div className="flex gap-2 overflow-x-auto pb-1">
+        <div className="flex flex-wrap gap-2">
           {items.map((it, idx) => {
             const def = CATEGORY_DEFS[it.category ?? (it.productType === "balconyDoor" ? "porta1" : "finestra1")];
             const price = calculatePrice(payload, [it]).priceCents;
             return (
-              <div key={idx} className={`flex shrink-0 items-center gap-1 rounded-lg border px-2 py-1.5 text-xs ${activeIndex === idx ? "border-[var(--color-mint)] bg-[var(--color-mint)] text-[var(--color-mint-dark)]" : "border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-secondary)]"}`}>
-                <button type="button" onClick={() => { onActiveChange(idx); setSelectedSash(0); }} className="text-left font-bold">
+              <div key={idx} className={`flex max-w-full items-center gap-1 rounded-lg border px-2 py-1.5 text-xs ${activeIndex === idx ? "border-[var(--color-mint)] bg-[var(--color-mint)] text-[var(--color-mint-dark)]" : "border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-secondary)]"}`}>
+                <button type="button" onClick={() => { onActiveChange(idx); setSelectedSash(0); }} className="min-w-0 text-left font-bold">
                   {t("position", { n: idx + 1 })} · {def.labels[locale] ?? def.labels.it} · {it.width}×{it.height}
                   <span className="ml-1 font-mono font-normal">{eur(price, locale)}</span>
                 </button>
