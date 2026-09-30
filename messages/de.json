@@ -542,7 +542,7 @@
         "20 Angebote pro Monat",
         "2 Teammitglieder",
         "Aufmaß-Modul (Rilievo)",
-        "Preislisten-Import CSV/XLSX",
+        "Preislisten-Import aus CSV",
         "Einfache Steuer-Engine",
         "E-Mail-Support"
       ],
@@ -552,9 +552,8 @@
         "Unbegrenzte Angebote",
         "5 Teammitglieder",
         "Einbettbares öffentliches Widget + White-Label",
-        "Erweiterte Preisregeln und Multi-Katalog",
         "Elektronische Signatur für Angebote",
-        "Anzahlungsrechnungen und Wartungsverträge",
+        "Wartungsverträge zu den Montagedossiers",
         "Volle Steuer-Engine (Beni Significativi, ENEA)",
         "Alle Baustellenmodule (Montage, Abnahme, QR-Akten)",
         "Basis-Statistiken",
@@ -567,16 +566,12 @@
         "Bis zu 1000 Angebote pro Monat",
         "Multi-Lieferanten-Aggregator",
         "Showroom-Rechner mit 3 Zonen",
-        "Massenimport für mehrere Standorte",
         "Erweiterte Statistiken",
         "Dedizierter Support"
       ],
       "enterprise": [
         "Alles aus Agency",
         "Unbegrenzte Konfiguratoren, Mitglieder und Anfragen",
-        "API und CRM-/Lager-Integration",
-        "GAEB/DATANORM-Export",
-        "Eigene Domain",
         "Individueller Preis und Vertrag"
       ],
       "essentials": [
@@ -1506,7 +1501,7 @@
       "analyticsAdvanced": "erweiterte",
       "analyticsBasic": "einfache",
       "whiteLabelSuffix": " · White-Label",
-      "multiCatalogSuffix": " · Multi-Katalog",
+      "multiCatalogSuffix": "",
       "analyticsLine": "{level} Statistiken{whiteLabel}{multiCatalog}",
       "market": "Markt: {region}",
       "cta": "Loslegen"
@@ -1553,7 +1548,7 @@
       "recommendedBadge": "Für Sie empfohlen",
       "perMonth": "/Monat",
       "trialNote": "14 Tage kostenlos testen, danach automatische Aktivierung",
-      "enterpriseCta": "Enterprise benötigt (690 €/Monat: unbegrenzte Konfiguratoren und Nutzer, API, CRM-Integration, eigene Domain)? Vertrieb kontaktieren",
+      "enterpriseCta": "Sie brauchen den Enterprise-Tarif (690 €/Monat: unbegrenzte Konfiguratoren, Nutzer und Anfragen, individueller Vertrag)? Kontaktieren Sie den Vertrieb",
       "comparePlans": "Pläne und Preise vergleichen",
       "plans": {
         "base": {
@@ -1584,8 +1579,7 @@
             "1000 Anfragen/Monat",
             "Bis zu 15 Mitglieder",
             "Alles aus Pro",
-            "Multi-Lieferant + Showroom",
-            "Multi-Katalog"
+            "Multi-Lieferant + Showroom"
           ]
         },
         "essentials": {

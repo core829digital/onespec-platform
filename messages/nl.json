@@ -542,7 +542,7 @@
         "20 offertes per maand",
         "2 teamleden",
         "Opmeetmodule (Rilievo)",
-        "Prijslijst-import CSV/XLSX",
+        "Prijslijsten importeren uit CSV",
         "Basis belastingmodule",
         "E-mailondersteuning"
       ],
@@ -552,9 +552,8 @@
         "Onbeperkt offertes",
         "5 teamleden",
         "Inbedbare openbare widget + white-label",
-        "Geavanceerde prijsregels en multi-catalogus",
         "Elektronische handtekening op offertes",
-        "Voorschotfacturen en onderhoudscontracten",
+        "Onderhoudscontracten bij de montagedossiers",
         "Volledige belastingmodule (Beni Significativi, ENEA)",
         "Alle werfmodules (montage, oplevering, QR-dossiers)",
         "Basisstatistieken",
@@ -567,16 +566,12 @@
         "Tot 1000 offertes per maand",
         "Multi-leverancier-aggregator",
         "Showroomcalculator met 3 zones",
-        "Bulkimport voor meerdere vestigingen",
         "Geavanceerde statistieken",
         "Toegewijde ondersteuning"
       ],
       "enterprise": [
         "Alles van Agency",
         "Onbeperkt configurators, leden en aanvragen",
-        "API en CRM-/voorraadkoppeling",
-        "GAEB/DATANORM-export",
-        "Eigen domein",
         "Prijs en contract op maat"
       ],
       "essentials": [
@@ -1506,7 +1501,7 @@
       "analyticsAdvanced": "geavanceerde",
       "analyticsBasic": "basis",
       "whiteLabelSuffix": " · white-label",
-      "multiCatalogSuffix": " · multi-catalogus",
+      "multiCatalogSuffix": "",
       "analyticsLine": "{level} statistieken{whiteLabel}{multiCatalog}",
       "market": "Markt: {region}",
       "cta": "Beginnen"
@@ -1553,7 +1548,7 @@
       "recommendedBadge": "Aanbevolen voor jou",
       "perMonth": "/maand",
       "trialNote": "14 dagen gratis proberen, daarna automatische activering",
-      "enterpriseCta": "Enterprise nodig (€690/maand: onbeperkt configurators en gebruikers, API, CRM-integratie, eigen domein)? Neem contact op met sales",
+      "enterpriseCta": "Enterprise nodig (€690/maand: onbeperkt configurators, gebruikers en aanvragen, contract op maat)? Neem contact op met sales",
       "comparePlans": "Vergelijk abonnementen en prijzen",
       "plans": {
         "base": {
@@ -1584,8 +1579,7 @@
             "1000 aanvragen/maand",
             "Tot 15 leden",
             "Alles van Pro",
-            "Multi-leverancier + showroom",
-            "Multi-catalogus"
+            "Multi-leverancier + showroom"
           ]
         },
         "essentials": {

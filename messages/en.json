@@ -542,7 +542,7 @@
         "20 quotes per month",
         "2 team members",
         "Survey (Rilievo) module",
-        "CSV/XLSX price-list import",
+        "Price-list import from CSV",
         "Basic tax engine",
         "Email support"
       ],
@@ -552,9 +552,8 @@
         "Unlimited quotes",
         "5 team members",
         "Embeddable public widget + white-label",
-        "Advanced pricing rules and multi-catalog",
         "E-signature on quotes",
-        "Advance invoices and maintenance contracts",
+        "Maintenance contracts on installation records",
         "Full tax engine (Beni Significativi, ENEA)",
         "All field modules (installation, inspection, QR dossiers)",
         "Basic analytics",
@@ -567,16 +566,12 @@
         "Up to 1000 quotes per month",
         "Multi-supplier aggregator",
         "3-zone Showroom calculator",
-        "Bulk multi-site import",
         "Advanced analytics",
         "Dedicated support"
       ],
       "enterprise": [
         "Everything in Agency",
         "Unlimited configurators, members and requests",
-        "API and CRM/stock integration",
-        "GAEB/DATANORM export",
-        "Custom domain",
         "Tailored pricing and contract"
       ],
       "essentials": [
@@ -1506,7 +1501,7 @@
       "analyticsAdvanced": "advanced",
       "analyticsBasic": "basic",
       "whiteLabelSuffix": " · white-label",
-      "multiCatalogSuffix": " · multi-catalog",
+      "multiCatalogSuffix": "",
       "analyticsLine": "{level} analytics{whiteLabel}{multiCatalog}",
       "market": "Market: {region}",
       "cta": "Get started"
@@ -1553,7 +1548,7 @@
       "recommendedBadge": "Recommended for you",
       "perMonth": "/mo",
       "trialNote": "Free 14-day trial, then it activates on its own",
-      "enterpriseCta": "Need Enterprise (€690/mo: unlimited configurators and users, API, CRM integration, custom domain)? Talk to sales",
+      "enterpriseCta": "Need the Enterprise plan (€690/month: unlimited configurators, users and requests, tailored contract)? Contact sales",
       "comparePlans": "Compare plans and prices",
       "plans": {
         "base": {
@@ -1584,8 +1579,7 @@
             "1000 requests/month",
             "Up to 15 members",
             "Everything in Pro",
-            "Multi-supplier + showroom",
-            "Multi-catalog"
+            "Multi-supplier + showroom"
           ]
         },
         "essentials": {

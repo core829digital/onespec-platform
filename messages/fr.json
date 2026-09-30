@@ -542,7 +542,7 @@
         "20 devis par mois",
         "2 membres d'équipe",
         "Module Relevé (chantier)",
-        "Import de tarifs CSV/XLSX",
+        "Import de tarifs depuis CSV",
         "Moteur fiscal de base",
         "Support par e-mail"
       ],
@@ -552,9 +552,8 @@
         "Devis illimités",
         "5 membres d'équipe",
         "Widget public intégrable + marque blanche",
-        "Règles de prix avancées et multi-catalogues",
         "Signature électronique des devis",
-        "Factures d'acompte et contrats de maintenance",
+        "Contrats d'entretien sur les dossiers de pose",
         "Moteur fiscal complet (Beni Significativi, ENEA)",
         "Tous les modules chantier (pose, réception, dossiers QR)",
         "Statistiques de base",
@@ -567,16 +566,12 @@
         "Jusqu'à 1000 devis par mois",
         "Agrégateur multi-fournisseurs",
         "Calculateur Showroom à 3 zones",
-        "Import en masse multi-sites",
         "Statistiques avancées",
         "Support dédié"
       ],
       "enterprise": [
         "Tout le plan Agency",
         "Configurateurs, membres et demandes illimités",
-        "API et intégration CRM/stock",
-        "Export GAEB/DATANORM",
-        "Domaine personnalisé",
         "Tarif et contrat sur mesure"
       ],
       "essentials": [
@@ -1506,7 +1501,7 @@
       "analyticsAdvanced": "avancées",
       "analyticsBasic": "de base",
       "whiteLabelSuffix": " · marque blanche",
-      "multiCatalogSuffix": " · multi-catalogue",
+      "multiCatalogSuffix": "",
       "analyticsLine": "Statistiques {level}{whiteLabel}{multiCatalog}",
       "market": "Marché : {region}",
       "cta": "Commencer"
@@ -1553,7 +1548,7 @@
       "recommendedBadge": "Recommandé pour vous",
       "perMonth": "/mois",
       "trialNote": "Essai gratuit de 14 jours, puis activation automatique",
-      "enterpriseCta": "Besoin d'Enterprise (690 €/mois : configurateurs et utilisateurs illimités, API, intégration CRM, domaine personnalisé) ? Contactez les ventes",
+      "enterpriseCta": "Besoin du forfait Enterprise (690 €/mois : configurateurs, utilisateurs et demandes illimités, contrat sur mesure) ? Contactez les ventes",
       "comparePlans": "Comparer les plans et les prix",
       "plans": {
         "base": {
@@ -1584,8 +1579,7 @@
             "1000 demandes/mois",
             "Jusqu'à 15 membres",
             "Tout Pro",
-            "Multi-fournisseurs + showroom",
-            "Multi-catalogue"
+            "Multi-fournisseurs + showroom"
           ]
         },
         "essentials": {

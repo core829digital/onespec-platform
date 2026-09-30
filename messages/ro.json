@@ -542,7 +542,7 @@
         "20 de oferte pe lună",
         "2 membri în echipă",
         "Modul Măsurători (Rilievo)",
-        "Import liste de prețuri CSV/XLSX",
+        "Import liste de prețuri din CSV",
         "Motor fiscal de bază",
         "Suport prin e-mail"
       ],
@@ -552,9 +552,8 @@
         "Oferte nelimitate",
         "5 membri în echipă",
         "Widget public încorporabil + white-label",
-        "Reguli de preț avansate și multi-catalog",
         "Semnătură electronică pe oferte",
-        "Facturi de avans și contracte de mentenanță",
+        "Contracte de mentenanță pe dosarele de montaj",
         "Motor fiscal complet (Beni Significativi, ENEA)",
         "Toate modulele de șantier (montaj, recepție, dosare QR)",
         "Statistici de bază",
@@ -567,16 +566,12 @@
         "Până la 1000 de oferte pe lună",
         "Agregator multi-furnizor",
         "Calculator Showroom cu 3 zone",
-        "Import în masă multi-locație",
         "Statistici avansate",
         "Suport dedicat"
       ],
       "enterprise": [
         "Tot planul Agency",
         "Configuratoare, membri și solicitări nelimitate",
-        "API și integrare CRM/stoc",
-        "Export GAEB/DATANORM",
-        "Domeniu personalizat",
         "Preț și contract personalizate"
       ],
       "essentials": [
@@ -1506,7 +1501,7 @@
       "analyticsAdvanced": "avansate",
       "analyticsBasic": "de bază",
       "whiteLabelSuffix": " · white-label",
-      "multiCatalogSuffix": " · multi-catalog",
+      "multiCatalogSuffix": "",
       "analyticsLine": "Statistici {level}{whiteLabel}{multiCatalog}",
       "market": "Piață: {region}",
       "cta": "Începe"
@@ -1553,7 +1548,7 @@
       "recommendedBadge": "Recomandat pentru tine",
       "perMonth": "/lună",
       "trialNote": "Probă gratuită de 14 zile, apoi se activează automat",
-      "enterpriseCta": "Ai nevoie de Enterprise (690 €/lună: configuratoare și utilizatori nelimitați, API, integrare CRM, domeniu propriu)? Contactează vânzările",
+      "enterpriseCta": "Ai nevoie de planul Enterprise (690 €/lună: configuratoare, utilizatori și solicitări nelimitate, contract personalizat)? Contactează echipa comercială",
       "comparePlans": "Compară planurile și prețurile",
       "plans": {
         "base": {
@@ -1584,8 +1579,7 @@
             "1000 solicitări/lună",
             "Până la 15 membri",
             "Tot din Pro",
-            "Multi-furnizor + showroom",
-            "Multi-catalog"
+            "Multi-furnizor + showroom"
           ]
         },
         "essentials": {
