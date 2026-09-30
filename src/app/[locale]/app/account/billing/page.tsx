@@ -377,7 +377,8 @@ export default function BillingPage() {
         </>
       ) : (
         <>
-        {tenant ? (
+        {/* Usage is refused server-side once the subscription has ended. */}
+        {tenant && state.planStatus !== "suspended" ? (
           <SectionBoundary>
             <UsageMeters tenantId={tenant._id} />
           </SectionBoundary>
