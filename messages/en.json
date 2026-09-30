@@ -242,7 +242,8 @@
       "titleblock": "OneSpec · elevation",
       "aria": "Technical drawing of a window: the width dimension turns into a price.",
       "stripAria": "A dimension turning into a price"
-    }
+    },
+    "backToSite": "Back to website"
   },
   "notifications": {
     "title": "Notifications",

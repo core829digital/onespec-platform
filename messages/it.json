@@ -242,7 +242,8 @@
       "titleblock": "OneSpec · prospetto",
       "aria": "Disegno tecnico di una finestra: la quota di larghezza si trasforma in prezzo.",
       "stripAria": "Quota che si trasforma in prezzo"
-    }
+    },
+    "backToSite": "Torna al sito"
   },
   "notifications": {
     "title": "Notifiche",

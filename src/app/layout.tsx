@@ -21,7 +21,7 @@ const frauncesDisplay = Fraunces({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://onespec.eu"),
+  metadataBase: new URL("https://platform.onespec.eu"),
   title: {
     default: "onespec — Il configuratore di infissi per il tuo sito",
     template: "%s | onespec",

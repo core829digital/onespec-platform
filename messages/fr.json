@@ -242,7 +242,8 @@
       "titleblock": "OneSpec · élévation",
       "aria": "Dessin technique d'une fenêtre : la cote de largeur se transforme en prix.",
       "stripAria": "Une cote qui se transforme en prix"
-    }
+    },
+    "backToSite": "Retour au site"
   },
   "notifications": {
     "title": "Notifications",

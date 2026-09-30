@@ -1,13 +1,15 @@
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Link } from "@/i18n/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { BlueprintHero, BlueprintStrip } from "@/components/auth/blueprint-hero";
 import { SkipToMainContent } from "@/components/app-shell/skip-link";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   const t = useTranslations("auth");
   const tTopbar = useTranslations("topbar");
+  const locale = useLocale();
+  const siteUrl = `https://onespec.eu${locale === "it" ? "" : `/${locale}`}`;
   return (
     <div className="auth-scene min-h-dvh lg:grid lg:grid-cols-[1.05fr_1fr]">
       <SkipToMainContent />
@@ -24,6 +26,12 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             <Logo className="h-7" />
           </Link>
           <div className="flex items-center gap-3">
+            <a
+              href={siteUrl}
+              className="text-xs text-[var(--auth-text-dim)] hover:text-[var(--auth-text)]"
+            >
+              {t("backToSite")}
+            </a>
             <a
               href="https://cloud.onespec.eu"
               target="_blank"
