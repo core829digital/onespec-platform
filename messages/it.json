@@ -39,7 +39,8 @@
     "billing": "Fatturazione",
     "collapse": "Comprimi il menu",
     "expand": "Espandi il menu",
-    "logistics": "Logistica"
+    "logistics": "Logistica",
+    "planNone": "Nessuno"
   },
   "dashboard": {
     "title": "Panoramica",
@@ -622,7 +623,8 @@
       "platformBody": "Tutto il lavoro in un posto: preventivi B2B, clienti, cantieri, posa e collaudi."
     },
     "vatExcluded": "Prezzi IVA esclusa.",
-    "monthlyOnly": "Solo mensile"
+    "monthlyOnly": "Solo mensile",
+    "noActivePlan": "Nessun piano attivo — abbonamento terminato. Scegli un piano per riattivare la piattaforma."
   },
   "clients": {
     "title": "Clienti",

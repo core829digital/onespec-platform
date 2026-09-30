@@ -126,3 +126,15 @@ export function usePlanAccess(tenantId: Id<"tenants"> | undefined) {
     isLocked: (feature: GatedFeature) => !isFeatureUnlocked(feature, state.entitlements),
   };
 }
+
+/**
+ * True once the subscription is over (cancelled trial/plan, deleted in
+ * Stripe): the tenant is "suspended" and the platform is locked until it
+ * subscribes again. Reactive, so every shell component flips together.
+ */
+export function useSubscriptionEnded(initial?: { planStatus?: string; unlimitedAccess?: boolean }): boolean {
+  const { isAuthenticated } = useConvexAuth();
+  const live = useQuery(api.tenants.getMyTenant, isAuthenticated ? {} : "skip");
+  const t = live ?? initial;
+  return t?.planStatus === "suspended" && t.unlimitedAccess !== true;
+}

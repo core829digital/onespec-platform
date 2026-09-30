@@ -39,7 +39,8 @@
     "billing": "Facturation",
     "collapse": "Réduire le menu",
     "expand": "Développer le menu",
-    "logistics": "Logistique"
+    "logistics": "Logistique",
+    "planNone": "Aucun"
   },
   "dashboard": {
     "title": "Aperçu",
@@ -622,7 +623,8 @@
       "platformBody": "Tout votre travail au même endroit : devis B2B, clients, chantiers, pose et réception."
     },
     "vatExcluded": "Prix hors TVA.",
-    "monthlyOnly": "Mensuel uniquement"
+    "monthlyOnly": "Mensuel uniquement",
+    "noActivePlan": "Aucun forfait actif — abonnement terminé. Choisissez un forfait pour réactiver la plateforme."
   },
   "clients": {
     "title": "Clients",

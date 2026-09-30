@@ -7,9 +7,10 @@ import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import type { Doc } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
-import { X } from "lucide-react";
+import { Lock, X } from "lucide-react";
+import { useSubscriptionEnded } from "@/lib/plan-gates";
 import { useSearchParams } from "next/navigation";
-import { NAV_GROUPS, ADMIN_NAV_ITEM, isNavItemActive, navHref, type NavGroup } from "./nav-items";
+import { lockedInNav, NAV_GROUPS, ADMIN_NAV_ITEM, isNavItemActive, navHref, type NavGroup } from "./nav-items";
 
 export function MobileNav({
   tenant,
@@ -25,6 +26,7 @@ export function MobileNav({
   const params = useSearchParams();
   const viewer = useQuery(api.users.viewer);
   const isPlatformAdmin = viewer?.isPlatformAdmin === true;
+  const ended = useSubscriptionEnded(tenant);
 
   // Close on route change + lock scroll while open.
   useEffect(() => {
@@ -86,6 +88,7 @@ export function MobileNav({
               <div className="space-y-1">
                 {group.items.map((item) => {
                   const active = isNavItemActive(item, pathname, params);
+                  const locked = lockedInNav(item, ended);
                   return (
                     <Link
                       key={item.label}
@@ -94,6 +97,7 @@ export function MobileNav({
                       aria-current={active ? "page" : undefined}
                       className={cn(
                         "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium",
+                        locked && "opacity-45",
                         active
                           ? "bg-[var(--color-mint)]/10 text-[var(--color-mint)]"
                           : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)]",
@@ -101,6 +105,7 @@ export function MobileNav({
                     >
                       <item.icon size={18} aria-hidden="true" />
                       <span>{t(item.label)}</span>
+                      {locked ? <Lock size={13} aria-hidden="true" className="ml-auto shrink-0 opacity-70" /> : null}
                     </Link>
                   );
                 })}

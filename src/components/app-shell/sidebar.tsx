@@ -9,7 +9,8 @@ import { api } from "@/convex/_generated/api";
 import type { Doc } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
 import { ChevronDown, Lock, PanelLeftClose, PanelLeftOpen } from "lucide-react";
-import { usePlanAccess } from "@/lib/plan-gates";
+import { planDisplayName, usePlanAccess, useSubscriptionEnded } from "@/lib/plan-gates";
+import { lockedInNav } from "./nav-items";
 import { NAV_GROUPS, ADMIN_NAV_ITEM, isNavItemActive, navHref, type NavItem } from "./nav-items";
 import { Logo } from "@/components/logo";
 
@@ -69,7 +70,7 @@ function useSidebarState() {
   return { collapsed, closed, toggleCollapsed, toggleGroup };
 }
 
-function NavLink({ item, active, collapsed, label, locked = false }: { item: NavItem; active: boolean; collapsed: boolean; label: string; locked?: boolean }) {
+function NavLink({ item, active, collapsed, label, locked = false, dimmed = false }: { item: NavItem; active: boolean; collapsed: boolean; label: string; locked?: boolean; dimmed?: boolean }) {
   const Icon = item.icon;
   return (
     <Link
@@ -78,6 +79,7 @@ function NavLink({ item, active, collapsed, label, locked = false }: { item: Nav
       title={collapsed ? label : undefined}
       className={cn(
         "flex items-center rounded-xl text-sm font-medium transition-colors",
+        dimmed && "opacity-45",
         collapsed ? "justify-center p-2.5" : "gap-3 px-3 py-2",
         active
           ? "bg-[var(--color-mint)]/15 text-[var(--color-mint)]"
@@ -98,6 +100,7 @@ export function Sidebar({ tenant }: { tenant: Doc<"tenants"> }) {
   const viewer = useQuery(api.users.viewer);
   const isPlatformAdmin = viewer?.isPlatformAdmin === true;
   const access = usePlanAccess(tenant._id);
+  const ended = useSubscriptionEnded(tenant);
   const { collapsed, closed, toggleCollapsed, toggleGroup } = useSidebarState();
 
   return (
@@ -161,7 +164,8 @@ export function Sidebar({ tenant }: { tenant: Doc<"tenants"> }) {
                         active={isNavItemActive(item, pathname, params)}
                         collapsed={collapsed}
                         label={t(item.label)}
-                        locked={!!item.feature && access?.isLocked(item.feature) === true}
+                        locked={lockedInNav(item, ended) || (!!item.feature && access?.isLocked(item.feature) === true)}
+                        dimmed={lockedInNav(item, ended)}
                       />
                     ))}
                   </div>
@@ -189,7 +193,10 @@ export function Sidebar({ tenant }: { tenant: Doc<"tenants"> }) {
               href="/app/account/billing?tab=plan"
               className="mb-2 block rounded-lg px-3 py-1 text-xs text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text)]"
             >
-              {t("plan")}: <span className="font-semibold capitalize text-[var(--color-text)]">{tenant.plan}</span>
+              {t("plan")}:{" "}
+              <span className="font-semibold capitalize text-[var(--color-text)]">
+                {ended ? t("planNone") : planDisplayName(tenant.plan)}
+              </span>
             </Link>
           ) : null}
           <button

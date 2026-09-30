@@ -1,5 +1,6 @@
 "use client";
 
+import { useSubscriptionEnded } from "@/lib/plan-gates";
 import { useTranslations, useLocale } from "next-intl";
 import posthog from "posthog-js";
 import { useQuery } from "convex/react";
@@ -74,6 +75,7 @@ export function Topbar({
 }) {
   const t = useTranslations("topbar");
   const tNav = useTranslations("nav");
+  const ended = useSubscriptionEnded();
   const { signOut } = useAuthActions();
 
   async function handleSignOut() {
@@ -109,9 +111,11 @@ export function Topbar({
         </Button>
         {plan ? (
           <Button variant="ghost" className="flex items-center gap-2 px-3 py-1.5" asChild>
-            <Link href="/app/account/billing?tab=plan" aria-label={`${tNav("plan")}: ${plan}`}>
-              <Gem size={18} className="text-[var(--color-mint)]" />
-              <span className="hidden md:block text-sm font-medium capitalize text-[var(--color-text)]">{plan}</span>
+            <Link href="/app/account/billing?tab=plan" aria-label={`${tNav("plan")}: ${ended ? tNav("planNone") : plan}`}>
+              <Gem size={18} className={ended ? "text-[var(--color-text-secondary)]" : "text-[var(--color-mint)]"} />
+              <span className="hidden md:block text-sm font-medium capitalize text-[var(--color-text)]">
+                {ended ? tNav("planNone") : plan}
+              </span>
             </Link>
           </Button>
         ) : null}

@@ -3,10 +3,8 @@
 import { Lock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
-import { useQuery } from "convex/react";
-import { api } from "@/convex/_generated/api";
 import type { Doc } from "@/convex/_generated/dataModel";
-import { gateForPath, planDisplayName, requiredPlanFor, usePlanAccess } from "@/lib/plan-gates";
+import { gateForPath, planDisplayName, requiredPlanFor, usePlanAccess, useSubscriptionEnded } from "@/lib/plan-gates";
 
 /**
  * Wraps the page area. On a plan-gated route whose feature the tenant's plan
@@ -18,12 +16,7 @@ export function PlanGate({ tenant, children }: { tenant: Doc<"tenants">; childre
   const pathname = usePathname();
   const gate = gateForPath(pathname);
   const access = usePlanAccess(tenant._id);
-  // Reactive, unlike the `tenant` prop (rendered once per navigation): a
-  // subscription ended in Stripe (cancelled trial, deleted subscription) must
-  // lock the platform immediately, not at the next reload.
-  const live = useQuery(api.tenants.getMyTenant);
-  const current = live ?? tenant;
-  const ended = current.planStatus === "suspended" && current.unlimitedAccess !== true;
+  const ended = useSubscriptionEnded(tenant);
 
   // Only the billing page stays open, so the owner can subscribe again.
   if (ended && !pathname.startsWith("/app/account/billing")) {

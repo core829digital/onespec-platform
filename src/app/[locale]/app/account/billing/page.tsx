@@ -212,8 +212,14 @@ export default function BillingPage() {
       <div>
         <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-text)]">{t("title")}</h1>
         <p className="text-[var(--color-text-secondary)] mt-1">
-          {t("currentPlan")} <span className="text-[var(--color-text)]">{planDisplayName(state.plan)}</span> ·
-          {t("status")} {state.planStatus}
+          {state.planStatus === "suspended" ? (
+            <span className="text-[var(--color-danger)]">{t("noActivePlan")}</span>
+          ) : (
+            <>
+              {t("currentPlan")} <span className="text-[var(--color-text)]">{planDisplayName(state.plan)}</span> ·
+              {t("status")} {state.planStatus}
+            </>
+          )}
         </p>
       </div>
       {state.trial ? (
@@ -408,7 +414,7 @@ export default function BillingPage() {
               </div>
               <div className={`grid grid-cols-1 gap-4 sm:grid-cols-2 ${family === "widget" ? "lg:grid-cols-3" : "lg:grid-cols-4"}`}>
                 {plans.map((p) => {
-                  const current = p.key === state.plan;
+                  const current = state.planStatus !== "suspended" && p.key === state.plan;
                   // Widget-first plans (and Agency) are monthly only.
                   const planCycle: "monthly" | "annual" = p.annualBilling ? cycle : "monthly";
                   const priceCents = planCycle === "annual" ? getAnnualPrice(p.priceCents) : p.priceCents;
@@ -452,7 +458,7 @@ export default function BillingPage() {
                           >
                             {t("contactSales")}
                           </a>
-                        ) : state.subscription && state.checkoutAvailable ? (
+                        ) : state.subscription && state.planStatus !== "suspended" && state.checkoutAvailable ? (
                           <button
                             type="button"
                             disabled={busy}

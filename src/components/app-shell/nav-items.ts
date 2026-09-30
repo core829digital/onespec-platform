@@ -103,3 +103,8 @@ export function isNavItemActive(item: NavItem, pathname: string, params: URLSear
 export function navHref(item: NavItem): string {
   return item.search ? `${item.href}?${item.search}` : item.href;
 }
+
+/** With the subscription ended everything is locked except the billing pages. */
+export function lockedInNav(item: NavItem, ended: boolean): boolean {
+  return ended && item.href !== "/app/account/billing";
+}

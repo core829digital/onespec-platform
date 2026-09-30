@@ -39,7 +39,8 @@
     "billing": "Abrechnung",
     "collapse": "Menü einklappen",
     "expand": "Menü ausklappen",
-    "logistics": "Logistik"
+    "logistics": "Logistik",
+    "planNone": "Keiner"
   },
   "dashboard": {
     "title": "Übersicht",
@@ -622,7 +623,8 @@
       "platformBody": "Ihre ganze Arbeit an einem Ort: B2B-Angebote, Kunden, Baustellen, Montage und Abnahmen."
     },
     "vatExcluded": "Preise zzgl. MwSt.",
-    "monthlyOnly": "Nur monatlich"
+    "monthlyOnly": "Nur monatlich",
+    "noActivePlan": "Kein aktiver Tarif — Abonnement beendet. Wählen Sie einen Tarif, um die Plattform zu reaktivieren."
   },
   "clients": {
     "title": "Kunden",

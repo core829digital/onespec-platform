@@ -39,7 +39,8 @@
     "billing": "Billing",
     "collapse": "Collapse menu",
     "expand": "Expand menu",
-    "logistics": "Logistics"
+    "logistics": "Logistics",
+    "planNone": "None"
   },
   "dashboard": {
     "title": "Overview",
@@ -622,7 +623,8 @@
       "platformBody": "All your work in one place: B2B quotes, clients, job sites, installation and inspections."
     },
     "vatExcluded": "Prices exclude VAT.",
-    "monthlyOnly": "Monthly only"
+    "monthlyOnly": "Monthly only",
+    "noActivePlan": "No active plan — subscription ended. Choose a plan to reactivate the platform."
   },
   "clients": {
     "title": "Clients",

@@ -39,7 +39,8 @@
     "billing": "Facturare",
     "collapse": "Restrânge meniul",
     "expand": "Extinde meniul",
-    "logistics": "Logistică"
+    "logistics": "Logistică",
+    "planNone": "Niciunul"
   },
   "dashboard": {
     "title": "Prezentare generală",
@@ -622,7 +623,8 @@
       "platformBody": "Toată munca ta într-un singur loc: oferte B2B, clienți, șantiere, montaj și recepții."
     },
     "vatExcluded": "Prețuri fără TVA.",
-    "monthlyOnly": "Doar lunar"
+    "monthlyOnly": "Doar lunar",
+    "noActivePlan": "Niciun plan activ — abonament încheiat. Alege un plan pentru a reactiva platforma."
   },
   "clients": {
     "title": "Clienți",

@@ -39,7 +39,8 @@
     "billing": "Facturatie",
     "collapse": "Menu inklappen",
     "expand": "Menu uitklappen",
-    "logistics": "Logistiek"
+    "logistics": "Logistiek",
+    "planNone": "Geen"
   },
   "dashboard": {
     "title": "Overzicht",
@@ -622,7 +623,8 @@
       "platformBody": "Al uw werk op één plek: B2B-offertes, klanten, bouwplaatsen, montage en opleveringen."
     },
     "vatExcluded": "Prijzen exclusief btw.",
-    "monthlyOnly": "Alleen maandelijks"
+    "monthlyOnly": "Alleen maandelijks",
+    "noActivePlan": "Geen actief abonnement — abonnement beëindigd. Kies een abonnement om het platform te heractiveren."
   },
   "clients": {
     "title": "Klanten",
