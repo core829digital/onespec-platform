@@ -13,6 +13,7 @@ import type * as ResendPasswordReset from "../ResendPasswordReset.js";
 import type * as account from "../account.js";
 import type * as admin from "../admin.js";
 import type * as adminCleanup from "../adminCleanup.js";
+import type * as adminPurge from "../adminPurge.js";
 import type * as analytics from "../analytics.js";
 import type * as audit from "../audit.js";
 import type * as auth from "../auth.js";
@@ -91,6 +92,7 @@ declare const fullApi: ApiFromModules<{
   account: typeof account;
   admin: typeof admin;
   adminCleanup: typeof adminCleanup;
+  adminPurge: typeof adminPurge;
   analytics: typeof analytics;
   audit: typeof audit;
   auth: typeof auth;
