@@ -406,7 +406,8 @@ export const previewPlanChange = action({
     if (!stripeKey()) throw new ConvexError("BILLING_NOT_CONFIGURED");
     const owner = await ctx.runQuery(internal.billing.assertOwner, { tenantId: args.tenantId });
     await limitBilling(ctx, args.tenantId, "preview");
-    if (!owner.stripeSubscriptionId) throw new ConvexError("NO_SUBSCRIPTION");
+    // An ended subscription cannot be modified: re-subscribing goes through Checkout.
+    if (!owner.stripeSubscriptionId || owner.planStatus === "suspended") throw new ConvexError("NO_SUBSCRIPTION");
     assertSeatsFit(args.plan, owner.activeMembers);
 
     const cycle: BillingCycle = args.cycle ?? "monthly";
@@ -501,7 +502,7 @@ export const changePlan = action({
     if (!stripeKey()) throw new ConvexError("BILLING_NOT_CONFIGURED");
     const owner = await ctx.runQuery(internal.billing.assertOwner, { tenantId: args.tenantId });
     await limitBilling(ctx, args.tenantId, "change");
-    if (!owner.stripeSubscriptionId) throw new ConvexError("NO_SUBSCRIPTION");
+    if (!owner.stripeSubscriptionId || owner.planStatus === "suspended") throw new ConvexError("NO_SUBSCRIPTION");
     assertSeatsFit(args.plan, owner.activeMembers);
 
     const cycle: BillingCycle = args.cycle ?? "monthly";
@@ -516,6 +517,10 @@ export const changePlan = action({
       "items[0][price]": priceId,
       proration_behavior: "always_invoice",
       ...(owner.planStatus === "trialing" ? { trial_end: "now" } : {}),
+      // Choosing a plan is an explicit "keep the subscription": it also lifts a
+      // pending end-of-period cancellation, instead of silently cancelling the
+      // plan the customer just switched to.
+      cancel_at_period_end: "false",
       "metadata[plan]": args.plan,
       "metadata[cycle]": cycle,
     });
