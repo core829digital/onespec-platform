@@ -103,6 +103,17 @@ export default defineSchema({
     receivedAt: v.number(),
   }).index("by_event", ["stripeEventId"]),
 
+  /**
+   * Anti-abuse: the card fingerprints that already started the one-time Pro
+   * trial. A second trial on the same physical card (another account) is ended
+   * immediately. Fingerprints are Stripe's opaque per-card hash, not card data.
+   */
+  trialFingerprints: defineTable({
+    fingerprint: v.string(),
+    tenantId: v.id("tenants"),
+    createdAt: v.number(),
+  }).index("by_fingerprint", ["fingerprint"]),
+
   memberships: defineTable({
     tenantId: v.id("tenants"),
     userId: v.id("users"),

@@ -81,6 +81,23 @@ async function stripe(path: string, body: Record<string, string | undefined>) {
   return json;
 }
 
+async function stripeDelete(path: string, body: Record<string, string | undefined> = {}) {
+  const res = await fetch(`${STRIPE_API}${path}`, {
+    method: "DELETE",
+    headers: {
+      Authorization: `Bearer ${stripeKey()}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: form(body),
+  });
+  const json = (await res.json()) as Record<string, unknown>;
+  if (!res.ok) {
+    const msg = (json.error as { message?: string } | undefined)?.message ?? "STRIPE_ERROR";
+    throw new ConvexError(`STRIPE: ${msg}`);
+  }
+  return json;
+}
+
 async function stripeGet(path: string) {
   const res = await fetch(`${STRIPE_API}${path}`, {
     headers: { Authorization: `Bearer ${stripeKey()}` },
@@ -518,6 +535,24 @@ export const cancelSubscription = action({
     await limitBilling(ctx, args.tenantId, "cancel");
     if (!owner.stripeSubscriptionId) throw new ConvexError("NO_SUBSCRIPTION");
 
+    const current = await stripeGet(`/subscriptions/${owner.stripeSubscriptionId}`);
+    if (current.status === "trialing") {
+      // Cancelling during the free trial ends access NOW. Nothing was paid, so
+      // there is no "already paid period" to honour — keeping access until the
+      // trial end would let anyone chain free trials across accounts.
+      const ended = await stripeDelete(`/subscriptions/${owner.stripeSubscriptionId}`);
+      try {
+        await ctx.runMutation(internal.billing.applySubscriptionSync, {
+          tenantId: args.tenantId,
+          subscription: ended,
+        });
+      } catch {
+        /* the customer.subscription.deleted webhook applies the same state */
+      }
+      return { ok: true };
+    }
+
+    // Paid subscription: access stays until the end of the period already paid.
     await stripe(`/subscriptions/${owner.stripeSubscriptionId}`, {
       cancel_at_period_end: "true",
     });
@@ -813,6 +848,12 @@ export const applyWebhookEvent = internalMutation({
             patch.plan = "pro";
             patch.trialPlan = "pro";
             patch.trialStartedAt = Date.now();
+            if (typeof obj.subscription === "string") {
+              await ctx.scheduler.runAfter(0, internal.billing.enforceTrialOncePerCard, {
+                tenantId: tenantDoc!._id,
+                subscriptionId: obj.subscription,
+              });
+            }
           }
           if (meta.cycle === "annual" || meta.cycle === "monthly") {
             patch.billingCycle = meta.cycle;
@@ -850,6 +891,72 @@ export const applyWebhookEvent = internalMutation({
       createdAt: Date.now(),
     });
     return { duplicate: false };
+  },
+});
+
+/** Records a trial card; `reused` when another tenant already trialled with it. */
+export const claimTrialFingerprint = internalMutation({
+  args: { fingerprint: v.string(), tenantId: v.id("tenants") },
+  handler: async (ctx, args): Promise<{ reused: boolean }> => {
+    const rows = await ctx.db
+      .query("trialFingerprints")
+      .withIndex("by_fingerprint", (q) => q.eq("fingerprint", args.fingerprint))
+      .take(5);
+    if (rows.some((r) => r.tenantId !== args.tenantId)) {
+      await ctx.db.insert("auditLog", {
+        tenantId: args.tenantId,
+        actorKind: "system",
+        action: "billing.trial_card_reused",
+        targetTable: "tenants",
+        targetId: args.tenantId,
+        createdAt: Date.now(),
+      });
+      return { reused: true };
+    }
+    if (rows.length === 0) {
+      await ctx.db.insert("trialFingerprints", {
+        fingerprint: args.fingerprint,
+        tenantId: args.tenantId,
+        createdAt: Date.now(),
+      });
+    }
+    return { reused: false };
+  },
+});
+
+/**
+ * One free trial per physical card: if the card behind a new trial already
+ * started a trial for another account, the trial ends now (the first period
+ * is charged to that card). Best-effort — a Stripe hiccup never blocks signup.
+ */
+export const enforceTrialOncePerCard = internalAction({
+  args: { tenantId: v.id("tenants"), subscriptionId: v.string() },
+  handler: async (ctx, args) => {
+    if (!stripeKey()) return;
+    try {
+      const sub = await stripeGet(
+        `/subscriptions/${args.subscriptionId}?expand[]=default_payment_method&expand[]=customer.invoice_settings.default_payment_method`,
+      );
+      type Pm = { card?: { fingerprint?: string } };
+      const customer = sub.customer as { invoice_settings?: { default_payment_method?: Pm } } | string;
+      const pm =
+        (sub.default_payment_method as Pm | null) ??
+        (typeof customer === "object" ? customer.invoice_settings?.default_payment_method : undefined);
+      const fingerprint = pm?.card?.fingerprint;
+      if (!fingerprint) return;
+      const { reused } = await ctx.runMutation(internal.billing.claimTrialFingerprint, {
+        fingerprint,
+        tenantId: args.tenantId,
+      });
+      if (!reused || sub.status !== "trialing") return;
+      const updated = await stripe(`/subscriptions/${args.subscriptionId}`, { trial_end: "now" });
+      await ctx.runMutation(internal.billing.applySubscriptionSync, {
+        tenantId: args.tenantId,
+        subscription: updated,
+      });
+    } catch (e) {
+      console.error("enforceTrialOncePerCard failed", e instanceof Error ? e.message : e);
+    }
   },
 });
 

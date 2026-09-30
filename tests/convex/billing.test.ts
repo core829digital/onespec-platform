@@ -1,8 +1,12 @@
-import { describe, expect, test } from "vitest";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { api, internal } from "../../convex/_generated/api";
 import { listPriceCents, BILLING_PLANS, planFromStripePriceId } from "../../convex/lib/billingPlans";
 import { appOrigin, subscriptionPatch, verifyStripeSignature, previewAmounts } from "../../convex/billing";
 import { newDb, seedTenant } from "./_helpers";
+
+// Fake timers stop convex-test firing scheduled functions after the test body.
+beforeEach(() => vi.useFakeTimers());
+afterEach(() => vi.useRealTimers());
 
 describe("billing plan catalogue", () => {
   test("verified prices match the signed SaaS contracts (flat, no regional variance)", () => {
@@ -412,5 +416,18 @@ describe("subscription -> plan mapping (real Stripe shapes)", () => {
     );
     expect(patch).toMatchObject({ plan: "agency", billingCycle: "annual", planStatus: "active" });
     expect(subscriptionPatch({ id: "sub_3", status: "canceled", items: { data: [] } }, null, true).planStatus).toBe("suspended");
+  });
+});
+
+describe("one free trial per card", () => {
+  test("same card on a second tenant is flagged; same tenant is not", async () => {
+    const t = newDb();
+    const a = await seedTenant(t, { plan: "pro" });
+    const b = await seedTenant(t, { plan: "pro" });
+    const first = await t.mutation(internal.billing.claimTrialFingerprint, { fingerprint: "fp_1", tenantId: a.tenantId });
+    const again = await t.mutation(internal.billing.claimTrialFingerprint, { fingerprint: "fp_1", tenantId: a.tenantId });
+    const other = await t.mutation(internal.billing.claimTrialFingerprint, { fingerprint: "fp_1", tenantId: b.tenantId });
+    const fresh = await t.mutation(internal.billing.claimTrialFingerprint, { fingerprint: "fp_2", tenantId: b.tenantId });
+    expect([first.reused, again.reused, other.reused, fresh.reused]).toEqual([false, false, true, false]);
   });
 });
