@@ -87,6 +87,10 @@ http.route({
   path: "/api/widget/quote",
   method: "POST",
   handler: httpAction(async (ctx, req) => {
+    // 20 pieces + contact data fit well under 256 KB; anything bigger is abuse.
+    if (Number(req.headers.get("content-length") ?? "0") > 256 * 1024) {
+      return json({ ok: false, error: "PAYLOAD_TOO_LARGE" }, 413);
+    }
     let raw: unknown;
     try {
       raw = await req.json();

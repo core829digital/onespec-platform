@@ -15,6 +15,7 @@
 import { mutation, query } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
 import { requirePermission } from "./lib/rbac";
+import { assertStoredFile } from "./lib/uploads";
 
 const LABEL_MAX = 200;
 const NAME_MAX = 120;
@@ -199,6 +200,7 @@ export const addPackagingMedia = mutation({
     const row = await loadOwned(ctx, args.siteDeliveryId);
     await requirePermission(ctx, row.tenantId, "logistics.use");
     if (row.status !== "preparing") throw new ConvexError("SITE_DELIVERY_NOT_EDITABLE");
+    await assertStoredFile(ctx, args.storageId, { kind: "image", purgeIfInvalid: true });
     if (row.packagingMediaIds.length >= MEDIA_MAX) {
       await ctx.storage.delete(args.storageId);
       throw new ConvexError("MEDIA_LIMIT_REACHED");

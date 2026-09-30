@@ -6,6 +6,7 @@ import { requirePermission } from "./lib/rbac";
 import { requireTenantRegion } from "./lib/fieldModules";
 import { enforceForFieldSurvey } from "./lib/enforcement";
 import { resolveLinks, logClientActivity, assertOwnedRefs } from "./lib/links";
+import { assertStoredFile } from "./lib/uploads";
 
 const openingValidator = v.object({
   label: v.string(),
@@ -34,7 +35,13 @@ const MAX_OPENINGS = 200;
 const MAX_PHOTOS = 100;
 
 /** Arrays stored inside the survey doc are bounded (1 MB document limit). */
-function assertSurveyArrays(a: { openings?: unknown[]; photos?: unknown[]; laserMeasurements?: unknown[] }): void {
+function assertSurveyArrays(a: { openings?: unknown[]; photos?: Array<{ annotations?: unknown[] }>; laserMeasurements?: unknown[] }): void {
+  // Annotations are free-form drawing data: bounded per photo and in total size.
+  for (const p of a.photos ?? []) {
+    if ((p.annotations?.length ?? 0) > 200 || JSON.stringify(p.annotations ?? []).length > 100_000) {
+      throw new ConvexError("INVALID_INPUT");
+    }
+  }
   if ((a.openings?.length ?? 0) > MAX_OPENINGS || (a.photos?.length ?? 0) > MAX_PHOTOS ||
       (a.laserMeasurements?.length ?? 0) > MAX_LASER_MEASUREMENTS) {
     throw new ConvexError("INVALID_INPUT");
@@ -164,6 +171,7 @@ export const create = mutation({
     await enforceForFieldSurvey(ctx, args.tenantId);
     await requirePermission(ctx, args.tenantId, "surveys.use");
     assertSurveyArrays(args);
+    for (const p of args.photos ?? []) await assertStoredFile(ctx, p.storageId, { kind: "image" });
     const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
     await assertOwnedRefs(ctx, args.tenantId, { quoteId: args.quoteId });
     const links = await resolveLinks(ctx, args.tenantId, {
@@ -231,6 +239,7 @@ export const update = mutation({
     if (args.customerCity !== undefined) patch.customerCity = args.customerCity.trim();
     if (args.customerPostalCode !== undefined) patch.customerPostalCode = args.customerPostalCode.trim();
     assertSurveyArrays(args);
+    for (const p of args.photos ?? []) await assertStoredFile(ctx, p.storageId, { kind: "image" });
     if (args.openings !== undefined) patch.openings = args.openings;
     if (args.diagnostics !== undefined) patch.diagnostics = args.diagnostics;
     if (args.laserMeasurements !== undefined) patch.laserMeasurements = args.laserMeasurements;

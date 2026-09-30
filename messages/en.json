@@ -366,7 +366,9 @@
     "quoteLocked": "This request is locked because you reached your plan's monthly limit. It unlocks when you upgrade or on the 1st of next month.",
     "alreadySubscribed": "You already have an active subscription: switch plan from the Plan page instead of starting a new checkout.",
     "annualNotAvailable": "This plan is available with monthly billing only.",
-    "teamExceedsTargetPlan": "The chosen plan includes fewer users than your team has active. Remove the extra members under Team first, then switch plan."
+    "teamExceedsTargetPlan": "The chosen plan includes fewer users than your team has active. Remove the extra members under Team first, then switch plan.",
+    "fileType": "Unsupported file format. Use a photo (JPG, PNG, WebP, HEIC) or a PDF where requested.",
+    "fileTooLarge": "File too large (maximum 15 MB for photos, 25 MB for documents)."
   },
   "app": {
     "suspended": {

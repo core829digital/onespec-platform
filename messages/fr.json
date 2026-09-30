@@ -366,7 +366,9 @@
     "quoteLocked": "Cette demande est bloquée car vous avez atteint la limite mensuelle de votre offre. Elle se débloque en passant à une offre supérieure ou le 1er du mois.",
     "alreadySubscribed": "Vous avez déjà un abonnement actif : changez d'offre depuis la page Offre au lieu d'ouvrir un nouveau paiement.",
     "annualNotAvailable": "Cette offre est disponible uniquement en facturation mensuelle.",
-    "teamExceedsTargetPlan": "L'offre choisie inclut moins d'utilisateurs que votre équipe active. Retirez d'abord les membres en trop dans Équipe, puis changez d'offre."
+    "teamExceedsTargetPlan": "L'offre choisie inclut moins d'utilisateurs que votre équipe active. Retirez d'abord les membres en trop dans Équipe, puis changez d'offre.",
+    "fileType": "Format de fichier non pris en charge. Utilisez une photo (JPG, PNG, WebP, HEIC) ou un PDF lorsque c'est demandé.",
+    "fileTooLarge": "Fichier trop volumineux (15 Mo maximum pour les photos, 25 Mo pour les documents)."
   },
   "app": {
     "suspended": {

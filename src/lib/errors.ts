@@ -44,6 +44,8 @@ export type ErrorKey =
   | "signatureInvalid"
   | "imageType"
   | "imageTooLarge"
+  | "fileType"
+  | "fileTooLarge"
   | "alreadyMember"
   | "alreadyInvited"
   | "alreadyHasTenant"
@@ -105,6 +107,8 @@ const EXACT: Record<string, ErrorKey> = {
   SIGNATURE_TOO_LARGE: "signatureInvalid",
   UNSUPPORTED_IMAGE_TYPE: "imageType",
   IMAGE_TOO_LARGE: "imageTooLarge",
+  UNSUPPORTED_FILE_TYPE: "fileType",
+  FILE_TOO_LARGE: "fileTooLarge",
   ALREADY_MEMBER: "alreadyMember",
   ALREADY_INVITED: "alreadyInvited",
   ALREADY_HAS_TENANT: "alreadyHasTenant",

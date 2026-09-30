@@ -366,7 +366,9 @@
     "quoteLocked": "Această cerere este blocată deoarece ați atins limita lunară a abonamentului. Se deblochează la trecerea la un abonament superior sau pe 1 ale lunii.",
     "alreadySubscribed": "Aveți deja un abonament activ: schimbați planul din pagina Plan în loc să inițiați o nouă plată.",
     "annualNotAvailable": "Acest plan este disponibil doar cu facturare lunară.",
-    "teamExceedsTargetPlan": "Planul ales include mai puțini utilizatori decât are echipa ta activă. Elimină mai întâi membrii în plus din Echipă, apoi schimbă planul."
+    "teamExceedsTargetPlan": "Planul ales include mai puțini utilizatori decât are echipa ta activă. Elimină mai întâi membrii în plus din Echipă, apoi schimbă planul.",
+    "fileType": "Format de fișier neacceptat. Folosește o fotografie (JPG, PNG, WebP, HEIC) sau un PDF acolo unde se cere.",
+    "fileTooLarge": "Fișier prea mare (maximum 15 MB pentru fotografii, 25 MB pentru documente)."
   },
   "app": {
     "suspended": {

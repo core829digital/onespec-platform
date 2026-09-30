@@ -12,6 +12,7 @@ import { nanoid } from "./lib/ids";
 import { internal } from "./_generated/api";
 import { enforceForESignature, enforceForFieldSurvey, enforceActivePlan } from "./lib/enforcement";
 import { resolveLinks, logClientActivity } from "./lib/links";
+import { assertStoredFile } from "./lib/uploads";
 
 /** Per-market inspection template (title, legal basis, photo + check lists). */
 export const getTemplate = query({
@@ -197,6 +198,7 @@ export const setPhoto = mutation({
     if (!report) throw new ConvexError("REPORT_NOT_FOUND");
     await requirePermission(ctx, report.tenantId, "inspections.use");
     if (report.status === "signed") throw new ConvexError("REPORT_LOCKED");
+    await assertStoredFile(ctx, args.storageId, { kind: "image", purgeIfInvalid: true });
 
     let matched = false;
     const replaced: Id<"_storage">[] = [];
@@ -377,6 +379,7 @@ export const setInstallerPhotoFromHttp = internalMutation({
     const report = await reportByToken(ctx, args.token);
     if (!report) throw new ConvexError("REPORT_NOT_FOUND");
     if (report.status === "signed") throw new ConvexError("REPORT_LOCKED");
+    await assertStoredFile(ctx, args.storageId, { kind: "image", purgeIfInvalid: true });
     let matched = false;
     const replaced: Id<"_storage">[] = [];
     const photos = report.photos.map((p) => {

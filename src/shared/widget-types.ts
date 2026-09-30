@@ -84,14 +84,21 @@ export const ProjectItemSchema = z
     }
   });
 
+// Visitor-typed text: trimmed, and free of control characters (NUL, escape
+// sequences…) that only ever appear in malformed or hostile input. Newlines and
+// tabs stay allowed in the free-text message.
+const NO_CONTROL = /^[^\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]*$/;
+const NO_CONTROL_LINE = /^[^\u0000-\u001f\u007f]*$/;
+const lineText = (max: number) => z.string().trim().max(max).regex(NO_CONTROL_LINE, "invalid characters");
+
 export const QuoteSubmissionSchema = z.object({
   publicId: z.string().length(10),
   items: z.array(ProjectItemSchema).min(1).max(20),
-  leadName: z.string().min(1).max(100),
-  leadEmail: z.string().email().max(200),
-  leadPhone: z.string().max(30).optional(),
-  leadCompany: z.string().max(100).optional(),
-  leadMessage: z.string().max(2000).optional(),
+  leadName: lineText(100).min(1),
+  leadEmail: z.string().trim().toLowerCase().max(200).email(),
+  leadPhone: lineText(30).optional(),
+  leadCompany: lineText(100).optional(),
+  leadMessage: z.string().trim().max(2000).regex(NO_CONTROL, "invalid characters").optional(),
   leadLocale: z.enum(["it", "en", "fr", "nl", "de"]).default("it"),
   /** NL transparent mode: which action the visitor asked for. */
   requestKind: z.enum(["quote", "firm_order", "measurement"]).default("quote"),

@@ -366,7 +366,9 @@
     "quoteLocked": "Diese Anfrage ist gesperrt, weil das Monatslimit Ihres Tarifs erreicht ist. Sie wird mit einem höheren Tarif oder zum Monatsersten freigeschaltet.",
     "alreadySubscribed": "Sie haben bereits ein aktives Abonnement: Wechseln Sie den Tarif auf der Seite „Tarif“, statt einen neuen Checkout zu starten.",
     "annualNotAvailable": "Dieser Tarif ist nur mit monatlicher Abrechnung verfügbar.",
-    "teamExceedsTargetPlan": "Der gewählte Tarif enthält weniger Nutzer, als Ihr Team aktiv hat. Entfernen Sie zuerst überzählige Mitglieder unter Team und wechseln Sie dann den Tarif."
+    "teamExceedsTargetPlan": "Der gewählte Tarif enthält weniger Nutzer, als Ihr Team aktiv hat. Entfernen Sie zuerst überzählige Mitglieder unter Team und wechseln Sie dann den Tarif.",
+    "fileType": "Dateiformat nicht unterstützt. Verwenden Sie ein Foto (JPG, PNG, WebP, HEIC) oder, wo verlangt, ein PDF.",
+    "fileTooLarge": "Datei zu groß (maximal 15 MB für Fotos, 25 MB für Dokumente)."
   },
   "app": {
     "suspended": {

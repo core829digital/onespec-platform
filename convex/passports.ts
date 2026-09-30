@@ -13,6 +13,7 @@ import { computeOverallUw, type CatalogPayload, type ProjectItem } from "../src/
 import { nanoid } from "./lib/ids";
 import { internal } from "./_generated/api";
 import { assertOwnedRefs } from "./lib/links";
+import { assertStoredFile } from "./lib/uploads";
 
 /* ----------------------------- dealer side ------------------------------ */
 
@@ -247,6 +248,7 @@ export const attachDocument = mutation({
     if (!p) throw new ConvexError("PASSPORT_NOT_FOUND");
     await requirePermission(ctx, p.tenantId, "passports.use");
     if (args.url && !/^https:\/\//i.test(args.url)) throw new ConvexError("INVALID_URL");
+    if (args.storageId) await assertStoredFile(ctx, args.storageId, { kind: "document", purgeIfInvalid: true });
 
     let matched = false;
     const replaced: Id<"_storage">[] = [];

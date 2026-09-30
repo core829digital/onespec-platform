@@ -5,6 +5,7 @@ import { requireMembership } from "./lib/auth";
 import { requirePermission } from "./lib/rbac";
 import { regionForCountry, type RegionCode } from "./lib/regions";
 import { loadExtras, seedExtras } from "./lib/catalogExtras";
+import { assertCents, assertHex, assertKey, assertLabels, assertMultiplier, assertRange, assertShortText, assertSortOrder, assertThermal } from "./lib/inputs";
 
 /**
  * Country-specific hardware `kind`s that ship disabled in `DEFAULT_HARDWARE` and
@@ -203,6 +204,7 @@ export const upsertMaterial = mutation({
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
     await requirePermission(ctx, configurator.tenantId, "catalog.manage");
+    assertKey(args.key); assertLabels(args.labels); assertCents(args.basePerM2Cents); assertCents(args.profilePerMlCents); assertThermal(args.uFrameBase); assertSortOrder(args.sortOrder);
 
     const existing = await ctx.db.query("catalogMaterials").withIndex("by_configurator_key", q => q.eq("configuratorId", args.configuratorId).eq("key", args.key)).unique();
     if (existing) {
@@ -231,6 +233,7 @@ export const upsertQualityTier = mutation({
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
     await requirePermission(ctx, configurator.tenantId, "catalog.manage");
+    assertKey(args.key); assertKey(args.materialKey); assertLabels(args.labels); assertMultiplier(args.multiplier); assertThermal(args.uAdjust); assertSortOrder(args.sortOrder);
 
     const existing = await ctx.db.query("catalogQualityTiers").withIndex("by_configurator_material", q => q.eq("configuratorId", args.configuratorId).eq("materialKey", args.materialKey)).filter(q => q.eq(q.field("key"), args.key)).unique();
     if (existing) {
@@ -259,6 +262,7 @@ export const upsertProfileSystem = mutation({
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
     await requirePermission(ctx, configurator.tenantId, "catalog.manage");
+    assertKey(args.key); assertKey(args.materialKey); assertLabels(args.labels); assertMultiplier(args.multiplier); assertThermal(args.uFrame); assertShortText(args.group); assertSortOrder(args.sortOrder);
 
     const existing = await ctx.db.query("catalogProfileSystems").withIndex("by_configurator_material", q => q.eq("configuratorId", args.configuratorId).eq("materialKey", args.materialKey)).filter(q => q.eq(q.field("key"), args.key)).unique();
     if (existing) {
@@ -287,6 +291,9 @@ export const upsertSizeConstraint = mutation({
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
     await requirePermission(ctx, configurator.tenantId, "catalog.manage");
+    for (const n of [args.minWidthMm, args.maxWidthMm, args.minHeightMm, args.maxHeightMm]) assertRange(n, 0, 20_000);
+    assertRange(args.sashCount, 1, 6);
+    if (args.minWidthMm > args.maxWidthMm || args.minHeightMm > args.maxHeightMm) throw new ConvexError("INVALID_INPUT");
 
     const existing = await ctx.db.query("catalogSizeConstraints").withIndex("by_configurator_type", q => q.eq("configuratorId", args.configuratorId).eq("productType", args.productType)).filter(q => q.eq(q.field("sashCount"), args.sashCount)).unique();
     if (existing) {
@@ -303,6 +310,7 @@ export const upsertGlazingOption = mutation({
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
     await requirePermission(ctx, configurator.tenantId, "catalog.manage");
+    assertKey(args.key); assertLabels(args.labels); assertCents(args.priceCents); assertThermal(args.uGlass); assertThermal(args.psi); assertMultiplier(args.multiplier); assertSortOrder(args.sortOrder);
 
     const existing = await ctx.db.query("catalogGlazingOptions").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).filter(q => q.eq(q.field("key"), args.key)).unique();
     if (existing) {
@@ -319,6 +327,7 @@ export const upsertFinishOption = mutation({
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
     await requirePermission(ctx, configurator.tenantId, "catalog.manage");
+    assertKey(args.key); assertLabels(args.labels); assertHex(args.swatchHex); assertCents(args.priceCents); assertMultiplier(args.multiplier); assertSortOrder(args.sortOrder);
 
     const existing = await ctx.db.query("catalogFinishOptions").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).filter(q => q.eq(q.field("key"), args.key)).unique();
     if (existing) {
@@ -335,6 +344,7 @@ export const upsertHardwareOption = mutation({
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
     await requirePermission(ctx, configurator.tenantId, "catalog.manage");
+    assertKey(args.key); assertLabels(args.labels); assertCents(args.priceCents); assertSortOrder(args.sortOrder);
 
     const existing = await ctx.db.query("catalogHardwareOptions").withIndex("by_configurator_kind", q => q.eq("configuratorId", args.configuratorId).eq("kind", args.kind)).filter(q => q.eq(q.field("key"), args.key)).unique();
     if (existing) {
@@ -374,6 +384,15 @@ async function ownedConfigurator(ctx: import("./_generated/server").MutationCtx,
 
 const positive = (n: number) => Number.isFinite(n) && n >= 0;
 
+/** Frame-type descriptions: same shape as labels but longer text (≤ 1000 chars per language). */
+function assertLabelsLong(d: unknown): void {
+  if (d === null || typeof d !== "object" || Array.isArray(d)) throw new ConvexError("INVALID_INPUT");
+  const entries = Object.entries(d as Record<string, unknown>);
+  if (entries.length > 6 || entries.some(([, t]) => typeof t !== "string" || t.length > 1000 || /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/.test(t))) {
+    throw new ConvexError("INVALID_INPUT");
+  }
+}
+
 export const upsertFrameType = mutation({
   args: {
     configuratorId: v.id("configurators"),
@@ -389,6 +408,8 @@ export const upsertFrameType = mutation({
   },
   handler: async (ctx, args) => {
     const configurator = await ownedConfigurator(ctx, args.configuratorId);
+    assertKey(args.key); assertLabels(args.labels); assertSortOrder(args.sortOrder);
+    if (args.descriptions !== undefined) assertLabelsLong(args.descriptions);
     if (args.multiplier <= 0 || args.multiplier > 5) throw new ConvexError("INVALID_INPUT");
     if (args.installByLeavesCents.length !== 3 || !args.installByLeavesCents.every(positive)) throw new ConvexError("INVALID_INPUT");
     if (!positive(args.disposalPerPieceCents) || !positive(args.scaffoldPerPieceCents)) throw new ConvexError("INVALID_INPUT");
@@ -420,6 +441,7 @@ export const upsertAccessory = mutation({
   },
   handler: async (ctx, args) => {
     const configurator = await ownedConfigurator(ctx, args.configuratorId);
+    assertKey(args.key); assertLabels(args.labels); assertSortOrder(args.sortOrder); assertCents(args.priceCents);
     if (!positive(args.priceCents)) throw new ConvexError("INVALID_INPUT");
     const existing = await ctx.db.query("catalogAccessories").withIndex("by_configurator_category", (q) => q.eq("configuratorId", args.configuratorId).eq("category", args.category)).filter((q) => q.eq(q.field("key"), args.key)).unique();
     if (existing) await ctx.db.patch(existing._id, args);
