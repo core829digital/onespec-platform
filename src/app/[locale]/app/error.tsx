@@ -1,17 +1,7 @@
 "use client";
 
-import { ErrorView } from "@/components/error-view";
+import { LocalizedError } from "@/components/localized-error";
 
-export default function AppError(props: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
-  return (
-    <ErrorView
-      {...props}
-      title="Impossibile caricare questa pagina"
-      hint="Controlla la connessione e riprova. Se il problema persiste, contatta il supporto."
-      retryLabel="Riprova"
-    />
-  );
+export default function AppError(props: { error: Error & { digest?: string }; reset: () => void }) {
+  return <LocalizedError kind="app" {...props} />;
 }

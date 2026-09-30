@@ -1,19 +1,7 @@
 "use client";
 
-import { ErrorView } from "@/components/error-view";
+import { LocalizedError } from "@/components/localized-error";
 
-/**
- * Public quote tool on a customer's website: a runtime error must show a calm,
- * language-neutral message in place of the tool, never a blank iframe or the
- * app-wide error page.
- */
-export default function WidgetError(props: { error: Error & { digest?: string }; reset: () => void }) {
-  return (
-    <ErrorView
-      {...props}
-      title="Servizio momentaneamente non disponibile · Temporarily unavailable"
-      hint="Riprova tra qualche istante. · Please try again in a moment."
-      retryLabel="Riprova · Retry"
-    />
-  );
+export default function PublicError(props: { error: Error & { digest?: string }; reset: () => void }) {
+  return <LocalizedError kind="public" {...props} />;
 }

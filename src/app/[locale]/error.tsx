@@ -1,17 +1,7 @@
 "use client";
 
-import { ErrorView } from "@/components/error-view";
+import { LocalizedError } from "@/components/localized-error";
 
-export default function LocaleError(props: {
-  error: Error & { digest?: string };
-  reset: () => void;
-}) {
-  return (
-    <ErrorView
-      {...props}
-      title="Qualcosa è andato storto"
-      hint="Si è verificato un errore imprevisto. Riprova o torna indietro."
-      retryLabel="Riprova"
-    />
-  );
+export default function LocaleError(props: { error: Error & { digest?: string }; reset: () => void }) {
+  return <LocalizedError kind="page" {...props} />;
 }
