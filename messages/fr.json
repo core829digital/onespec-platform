@@ -541,6 +541,7 @@
       "base": [
         "1 configurateur",
         "20 devis par mois",
+        "Devis B2B, clients, affaires et chantiers",
         "2 membres d'équipe",
         "Module Relevé (chantier)",
         "Import de tarifs depuis CSV",
@@ -1553,69 +1554,22 @@
       "comparePlans": "Comparer les plans et les prix",
       "plans": {
         "base": {
-          "name": "Base",
-          "features": [
-            "1 configurateur",
-            "20 demandes/mois",
-            "Jusqu'à 2 membres",
-            "Module Relevé de chantier",
-            "TVA de base"
-          ]
+          "name": "Base"
         },
         "pro": {
-          "name": "Pro",
-          "features": [
-            "3 configurateurs",
-            "Demandes illimitées",
-            "Jusqu'à 5 membres",
-            "Widget pour votre site + votre marque",
-            "Signature électronique",
-            "Fiscalité complète + ENEA"
-          ]
+          "name": "Pro"
         },
         "agency": {
-          "name": "Agency",
-          "features": [
-            "10 configurateurs",
-            "1000 demandes/mois",
-            "Jusqu'à 15 membres",
-            "Tout Pro",
-            "Multi-fournisseurs + showroom"
-          ]
+          "name": "Agency"
         },
         "essentials": {
-          "name": "Level 1",
-          "features": [
-            "Outil de devis sur votre site + page lien pour les réseaux sociaux",
-            "1 configurateur",
-            "40 demandes par mois",
-            "15 PDF par mois (téléchargés par vous)",
-            "40 envois WhatsApp par mois",
-            "1 utilisateur",
-            "Badge « Powered by OneSpec »",
-            "Sans engagement : résiliable à tout moment"
-          ]
+          "name": "Level 1"
         },
         "essentials_plus": {
-          "name": "Level 2",
-          "features": [
-            "Tout Level 1 ×2 : 80 demandes, 30 PDF et 80 WhatsApp par mois",
-            "3 configurateurs",
-            "Devis Showroom : 80 devis, 30 PDF et 80 WhatsApp par mois",
-            "Marque blanche : votre marque, sans badge",
-            "2 utilisateurs"
-          ]
+          "name": "Level 2"
         },
         "max": {
-          "name": "Level 3",
-          "features": [
-            "Tout Level 1 ×5 : 200 demandes, 75 PDF et 200 WhatsApp par mois",
-            "10 configurateurs",
-            "Devis Showroom : 200 devis, 75 PDF et 200 WhatsApp par mois",
-            "Logistique : fournisseurs, transporteurs et livraisons",
-            "Marque blanche",
-            "3 utilisateurs"
-          ]
+          "name": "Level 3"
         }
       },
       "widgetTitle": "Devis en ligne · commencez ici",

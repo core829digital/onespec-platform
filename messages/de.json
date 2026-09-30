@@ -541,6 +541,7 @@
       "base": [
         "1 Konfigurator",
         "20 Angebote pro Monat",
+        "B2B-Angebote, Kunden, Vorgänge und Baustellen",
         "2 Teammitglieder",
         "Aufmaß-Modul (Rilievo)",
         "Preislisten-Import aus CSV",
@@ -1553,69 +1554,22 @@
       "comparePlans": "Pläne und Preise vergleichen",
       "plans": {
         "base": {
-          "name": "Base",
-          "features": [
-            "1 Konfigurator",
-            "20 Anfragen/Monat",
-            "Bis zu 2 Mitglieder",
-            "Aufmaß-Modul",
-            "Einfache Steuer"
-          ]
+          "name": "Base"
         },
         "pro": {
-          "name": "Pro",
-          "features": [
-            "3 Konfiguratoren",
-            "Unbegrenzte Anfragen",
-            "Bis zu 5 Mitglieder",
-            "Widget für Ihre Website + Ihre Marke",
-            "Elektronische Signatur",
-            "Volle Steuer + ENEA"
-          ]
+          "name": "Pro"
         },
         "agency": {
-          "name": "Agency",
-          "features": [
-            "10 Konfiguratoren",
-            "1000 Anfragen/Monat",
-            "Bis zu 15 Mitglieder",
-            "Alles aus Pro",
-            "Multi-Lieferant + Showroom"
-          ]
+          "name": "Agency"
         },
         "essentials": {
-          "name": "Level 1",
-          "features": [
-            "Angebotsrechner auf Ihrer Website + Link-Seite für Social Media",
-            "1 Konfigurator",
-            "40 Anfragen pro Monat",
-            "15 PDFs pro Monat (von Ihnen heruntergeladen)",
-            "40 WhatsApp-Sendungen pro Monat",
-            "1 Nutzer",
-            "Badge „Powered by OneSpec“",
-            "Keine Bindung: jederzeit kündbar"
-          ]
+          "name": "Level 1"
         },
         "essentials_plus": {
-          "name": "Level 2",
-          "features": [
-            "Alles aus Level 1 ×2: 80 Anfragen, 30 PDFs und 80 WhatsApp pro Monat",
-            "3 Konfiguratoren",
-            "Showroom-Rechner: 80 Angebote, 30 PDFs und 80 WhatsApp pro Monat",
-            "White-Label: Ihre Marke, ohne Badge",
-            "2 Nutzer"
-          ]
+          "name": "Level 2"
         },
         "max": {
-          "name": "Level 3",
-          "features": [
-            "Alles aus Level 1 ×5: 200 Anfragen, 75 PDFs und 200 WhatsApp pro Monat",
-            "10 Konfiguratoren",
-            "Showroom-Rechner: 200 Angebote, 75 PDFs und 200 WhatsApp pro Monat",
-            "Logistik: Lieferanten, Spediteure und Lieferungen",
-            "White-Label",
-            "3 Nutzer"
-          ]
+          "name": "Level 3"
         }
       },
       "widgetTitle": "Online-Angebote · hier starten",

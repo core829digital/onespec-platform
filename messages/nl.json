@@ -541,6 +541,7 @@
       "base": [
         "1 configurator",
         "20 offertes per maand",
+        "B2B-offertes, klanten, deals en bouwplaatsen",
         "2 teamleden",
         "Opmeetmodule (Rilievo)",
         "Prijslijsten importeren uit CSV",
@@ -1553,69 +1554,22 @@
       "comparePlans": "Vergelijk abonnementen en prijzen",
       "plans": {
         "base": {
-          "name": "Base",
-          "features": [
-            "1 configurator",
-            "20 aanvragen/maand",
-            "Tot 2 leden",
-            "Opmeetmodule",
-            "Basis btw"
-          ]
+          "name": "Base"
         },
         "pro": {
-          "name": "Pro",
-          "features": [
-            "3 configurators",
-            "Onbeperkt aanvragen",
-            "Tot 5 leden",
-            "Widget voor je site + eigen merk",
-            "Elektronische handtekening",
-            "Volledige belasting + ENEA"
-          ]
+          "name": "Pro"
         },
         "agency": {
-          "name": "Agency",
-          "features": [
-            "10 configurators",
-            "1000 aanvragen/maand",
-            "Tot 15 leden",
-            "Alles van Pro",
-            "Multi-leverancier + showroom"
-          ]
+          "name": "Agency"
         },
         "essentials": {
-          "name": "Level 1",
-          "features": [
-            "Offertetool op uw website + linkpagina voor sociale media",
-            "1 configurator",
-            "40 aanvragen per maand",
-            "15 pdf's per maand (door u gedownload)",
-            "40 WhatsApp-verzendingen per maand",
-            "1 gebruiker",
-            "Badge ‘Powered by OneSpec’",
-            "Geen verplichtingen: altijd opzegbaar"
-          ]
+          "name": "Level 1"
         },
         "essentials_plus": {
-          "name": "Level 2",
-          "features": [
-            "Alles uit Level 1 ×2: 80 aanvragen, 30 pdf's en 80 WhatsApp per maand",
-            "3 configurators",
-            "Showroom-offertes: 80 offertes, 30 pdf's en 80 WhatsApp per maand",
-            "White-label: uw merk, zonder badge",
-            "2 gebruikers"
-          ]
+          "name": "Level 2"
         },
         "max": {
-          "name": "Level 3",
-          "features": [
-            "Alles uit Level 1 ×5: 200 aanvragen, 75 pdf's en 200 WhatsApp per maand",
-            "10 configurators",
-            "Showroom-offertes: 200 offertes, 75 pdf's en 200 WhatsApp per maand",
-            "Logistiek: leveranciers, vervoerders en leveringen",
-            "White-label",
-            "3 gebruikers"
-          ]
+          "name": "Level 3"
         }
       },
       "widgetTitle": "Online offertes · begin hier",

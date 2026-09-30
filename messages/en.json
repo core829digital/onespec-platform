@@ -541,6 +541,7 @@
       "base": [
         "1 configurator",
         "20 quotes per month",
+        "B2B quotes, clients, deals and job sites",
         "2 team members",
         "Survey (Rilievo) module",
         "Price-list import from CSV",
@@ -1553,69 +1554,22 @@
       "comparePlans": "Compare plans and prices",
       "plans": {
         "base": {
-          "name": "Base",
-          "features": [
-            "1 configurator",
-            "20 requests/month",
-            "Up to 2 members",
-            "Field survey module",
-            "Basic tax"
-          ]
+          "name": "Base"
         },
         "pro": {
-          "name": "Pro",
-          "features": [
-            "3 configurators",
-            "Unlimited requests",
-            "Up to 5 members",
-            "Widget for your site + your brand",
-            "E-signature",
-            "Full tax + ENEA"
-          ]
+          "name": "Pro"
         },
         "agency": {
-          "name": "Agency",
-          "features": [
-            "10 configurators",
-            "1000 requests/month",
-            "Up to 15 members",
-            "Everything in Pro",
-            "Multi-supplier + showroom"
-          ]
+          "name": "Agency"
         },
         "essentials": {
-          "name": "Level 1",
-          "features": [
-            "Quote tool on your website + link page for social media",
-            "1 configurator",
-            "40 requests per month",
-            "15 PDFs per month (downloaded by you)",
-            "40 WhatsApp sends per month",
-            "1 user",
-            "“Powered by OneSpec” badge",
-            "No lock-in: cancel anytime"
-          ]
+          "name": "Level 1"
         },
         "essentials_plus": {
-          "name": "Level 2",
-          "features": [
-            "Everything in Level 1 ×2: 80 requests, 30 PDFs and 80 WhatsApp sends per month",
-            "3 configurators",
-            "Showroom quoter: 80 quotes, 30 PDFs and 80 WhatsApp sends per month",
-            "White-label: your brand, no badge",
-            "2 users"
-          ]
+          "name": "Level 2"
         },
         "max": {
-          "name": "Level 3",
-          "features": [
-            "Everything in Level 1 ×5: 200 requests, 75 PDFs and 200 WhatsApp sends per month",
-            "10 configurators",
-            "Showroom quoter: 200 quotes, 75 PDFs and 200 WhatsApp sends per month",
-            "Logistics: suppliers, carriers and deliveries",
-            "White-label",
-            "3 users"
-          ]
+          "name": "Level 3"
         }
       },
       "widgetTitle": "Online quotes · start here",

@@ -23,6 +23,7 @@ const PLAN_GROUPS: { titleKey: "widgetTitle" | "platformTitle"; plans: PlanKey[]
 
 export default function OnboardingWizard() {
   const t = useTranslations("onboarding");
+  const tPlans = useTranslations("billing");
   const tf = useFriendlyError();
   const router = useRouter();
   const locale = useLocale();
@@ -198,7 +199,8 @@ export default function OnboardingWizard() {
               const price = (cents / 100).toLocaleString("it-IT", { minimumFractionDigits: cents % 100 ? 2 : 0 });
               const trial = key === "pro";
               const name = t(`billing.plans.${key}.name`);
-              const features = t.raw(`billing.plans.${key}.features`) as string[];
+              // Same source as the Subscription page and the website (billing.planFeatures): one list per plan, never two.
+              const features = (tPlans.raw(`planFeatures.${key}`) as string[]).slice(0, 8);
               return (
                 <button
                   key={key}

@@ -541,6 +541,7 @@
       "base": [
         "1 configurator",
         "20 de oferte pe lună",
+        "Oferte B2B, clienți, tranzacții și șantiere",
         "2 membri în echipă",
         "Modul Măsurători (Rilievo)",
         "Import liste de prețuri din CSV",
@@ -1553,69 +1554,22 @@
       "comparePlans": "Compară planurile și prețurile",
       "plans": {
         "base": {
-          "name": "Base",
-          "features": [
-            "1 configurator",
-            "20 solicitări/lună",
-            "Până la 2 membri",
-            "Modul Măsurători",
-            "TVA de bază"
-          ]
+          "name": "Base"
         },
         "pro": {
-          "name": "Pro",
-          "features": [
-            "3 configuratoare",
-            "Solicitări nelimitate",
-            "Până la 5 membri",
-            "Widget pentru site-ul tău + brandul tău",
-            "Semnătură electronică",
-            "Fiscalitate completă + ENEA"
-          ]
+          "name": "Pro"
         },
         "agency": {
-          "name": "Agency",
-          "features": [
-            "10 configuratoare",
-            "1000 solicitări/lună",
-            "Până la 15 membri",
-            "Tot din Pro",
-            "Multi-furnizor + showroom"
-          ]
+          "name": "Agency"
         },
         "essentials": {
-          "name": "Level 1",
-          "features": [
-            "Calculator de oferte pe site-ul tău + pagină link pentru social media",
-            "1 configurator",
-            "40 de cereri pe lună",
-            "15 PDF-uri pe lună (descărcate de tine)",
-            "40 de trimiteri WhatsApp pe lună",
-            "1 utilizator",
-            "Insigna „Powered by OneSpec”",
-            "Fără obligații: anulezi oricând"
-          ]
+          "name": "Level 1"
         },
         "essentials_plus": {
-          "name": "Level 2",
-          "features": [
-            "Tot din Level 1 ×2: 80 de cereri, 30 PDF-uri și 80 WhatsApp pe lună",
-            "3 configuratoare",
-            "Oferte Showroom: 80 de oferte, 30 PDF-uri și 80 WhatsApp pe lună",
-            "White-label: marca ta, fără insignă",
-            "2 utilizatori"
-          ]
+          "name": "Level 2"
         },
         "max": {
-          "name": "Level 3",
-          "features": [
-            "Tot din Level 1 ×5: 200 de cereri, 75 PDF-uri și 200 WhatsApp pe lună",
-            "10 configuratoare",
-            "Oferte Showroom: 200 de oferte, 75 PDF-uri și 200 WhatsApp pe lună",
-            "Logistică: furnizori, transportatori și livrări",
-            "White-label",
-            "3 utilizatori"
-          ]
+          "name": "Level 3"
         }
       },
       "widgetTitle": "Oferte online · începe de aici",

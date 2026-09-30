@@ -541,6 +541,7 @@
       "base": [
         "1 configuratore",
         "20 preventivi al mese",
+        "Preventivi B2B, clienti, trattative e cantieri",
         "2 membri del team",
         "Modulo Rilievo (cantiere)",
         "Import listini da CSV",
@@ -1553,69 +1554,22 @@
       "comparePlans": "Confronta i piani e i prezzi",
       "plans": {
         "base": {
-          "name": "Base",
-          "features": [
-            "1 configuratore",
-            "20 richieste al mese",
-            "Fino a 2 membri",
-            "Rilievo cantiere",
-            "IVA base"
-          ]
+          "name": "Base"
         },
         "pro": {
-          "name": "Pro",
-          "features": [
-            "3 configuratori",
-            "Richieste illimitate",
-            "Fino a 5 membri",
-            "Widget per il tuo sito + marchio tuo",
-            "Firma elettronica",
-            "Fisco completo + ENEA"
-          ]
+          "name": "Pro"
         },
         "agency": {
-          "name": "Agency",
-          "features": [
-            "10 configuratori",
-            "1000 richieste al mese",
-            "Fino a 15 membri",
-            "Tutto di Pro",
-            "Multi-fornitore + showroom"
-          ]
+          "name": "Agency"
         },
         "essentials": {
-          "name": "Level 1",
-          "features": [
-            "Preventivatore sul tuo sito + pagina link per i social",
-            "1 configuratore",
-            "40 richieste al mese",
-            "15 PDF al mese (scaricati da te)",
-            "40 invii WhatsApp al mese",
-            "1 utente",
-            "Badge «Powered by OneSpec»",
-            "Nessun vincolo: disdici quando vuoi"
-          ]
+          "name": "Level 1"
         },
         "essentials_plus": {
-          "name": "Level 2",
-          "features": [
-            "Tutto Level 1 ×2: 80 richieste, 30 PDF e 80 WhatsApp al mese",
-            "3 configuratori",
-            "Preventivatore Showroom: 80 preventivi, 30 PDF e 80 WhatsApp al mese",
-            "White-label: il tuo marchio, senza badge",
-            "2 utenti"
-          ]
+          "name": "Level 2"
         },
         "max": {
-          "name": "Level 3",
-          "features": [
-            "Tutto Level 1 ×5: 200 richieste, 75 PDF e 200 WhatsApp al mese",
-            "10 configuratori",
-            "Preventivatore Showroom: 200 preventivi, 75 PDF e 200 WhatsApp al mese",
-            "Logistica: fornitori, corrieri e consegne",
-            "White-label",
-            "3 utenti"
-          ]
+          "name": "Level 3"
         }
       },
       "widgetTitle": "Preventivi online · parti da qui",
