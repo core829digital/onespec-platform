@@ -66,6 +66,7 @@ import type * as lib_webhookIp from "../lib/webhookIp.js";
 import type * as logistics from "../logistics.js";
 import type * as migrations from "../migrations.js";
 import type * as notifications from "../notifications.js";
+import type * as ops from "../ops.js";
 import type * as onboarding from "../onboarding.js";
 import type * as passports from "../passports.js";
 import type * as quotes from "../quotes.js";
@@ -145,6 +146,7 @@ declare const fullApi: ApiFromModules<{
   logistics: typeof logistics;
   migrations: typeof migrations;
   notifications: typeof notifications;
+  ops: typeof ops;
   onboarding: typeof onboarding;
   passports: typeof passports;
   quotes: typeof quotes;

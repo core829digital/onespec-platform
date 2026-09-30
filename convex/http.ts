@@ -1,5 +1,6 @@
 import { httpRouter } from "convex/server";
 import { httpAction } from "./_generated/server";
+import { ConvexError } from "convex/values";
 import { api, internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { auth } from "./auth";
@@ -155,7 +156,9 @@ http.route({
     const flagged =
       Array.isArray(allowed) && allowed.length > 0 && !allowed.includes(origin);
 
-    const referenceId = await ctx.runMutation(internal.widget.insertQuote, {
+    let referenceId: string;
+    try {
+      referenceId = await ctx.runMutation(internal.widget.insertQuote, {
       publicId: body.publicId,
       configuratorId,
       catalogVersion: configurator.catalogVersion,
@@ -175,7 +178,18 @@ http.route({
       userAgent,
       turnstileVerified: !!body.turnstileToken,
       flagged,
-    });
+      });
+    } catch (e) {
+      // Expected refusals (bad item, unknown version…) are ConvexErrors; anything
+      // else means a real visitor's quote request was lost — alert the operators.
+      if (!(e instanceof ConvexError)) {
+        await ctx.scheduler.runAfter(0, internal.ops.alert, {
+          source: "widget-quote-submit",
+          message: `Invio preventivo fallito (widget ${body.publicId}): ${e instanceof Error ? e.message : String(e)}`,
+        });
+      }
+      throw e;
+    }
 
     return json({ ok: true, referenceId });
   }),
@@ -540,12 +554,23 @@ if (/^[A-Za-z0-9_-]{24,128}$/.test(STRIPE_WEBHOOK_TOKEN)) http.route({
       "customer.updated",
     ];
     if (HANDLED.includes(event.type)) {
-      const result = await ctx.runMutation(internal.billing.applyWebhookEvent, {
-        eventId: event.id,
-        type: event.type,
-        data: event.data,
-        created: typeof event.created === "number" ? event.created : undefined,
-      });
+      let result: { duplicate: boolean };
+      try {
+        result = await ctx.runMutation(internal.billing.applyWebhookEvent, {
+          eventId: event.id,
+          type: event.type,
+          data: event.data,
+          created: typeof event.created === "number" ? event.created : undefined,
+        });
+      } catch (e) {
+        // A payment event we could not apply: a customer may have paid without
+        // getting access. Tell the operators now; Stripe will also retry (500).
+        await ctx.scheduler.runAfter(0, internal.ops.alert, {
+          source: "stripe-webhook",
+          message: `Evento ${event.type} (${event.id}) non applicato: ${e instanceof Error ? e.message : String(e)}`,
+        });
+        throw e;
+      }
 
       if (event.type === "checkout.session.completed" && !result.duplicate) {
         const object = (event.data as { object?: Record<string, unknown> } | undefined)?.object;

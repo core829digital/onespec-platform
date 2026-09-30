@@ -571,6 +571,10 @@ export const cancelSubscription = action({
       } catch (e) {
         // The customer.subscription.deleted webhook applies the same state.
         console.error("cancelSubscription: immediate sync failed", e instanceof Error ? e.message : e);
+        await ctx.scheduler.runAfter(0, internal.ops.alert, {
+          source: "cancel-sync",
+          message: `Disdetta in prova eseguita su Stripe ma non riflessa subito sul tenant ${args.tenantId}: ${e instanceof Error ? e.message : String(e)}`,
+        });
       }
       return { ok: true };
     }
@@ -982,6 +986,10 @@ export const enforceTrialOncePerCard = internalAction({
       });
     } catch (e) {
       console.error("enforceTrialOncePerCard failed", e instanceof Error ? e.message : e);
+      await ctx.scheduler.runAfter(0, internal.ops.alert, {
+        source: "trial-card-check",
+        message: `Controllo "una prova per carta" fallito per la sottoscrizione ${args.subscriptionId}: ${e instanceof Error ? e.message : String(e)}`,
+      });
     }
   },
 });
@@ -1021,6 +1029,8 @@ export const reconcile = internalAction({
     const status = args.status ?? "trialing";
     const page = await ctx.runQuery(internal.billing.listForReconcile, { status, cursor: args.cursor });
     let fixed = 0;
+    let failed = 0;
+    let lastError = "";
     for (const t of page.tenants) {
       try {
         const sub = await stripeGet(`/subscriptions/${t.subscriptionId}`);
@@ -1029,8 +1039,16 @@ export const reconcile = internalAction({
         await ctx.runMutation(internal.billing.applySubscriptionSync, { tenantId: t.id, subscription: sub });
         fixed++;
       } catch (e) {
-        console.error("reconcile failed for a tenant", e instanceof Error ? e.message : e);
+        failed++;
+        lastError = e instanceof Error ? e.message : String(e);
+        console.error("reconcile failed for a tenant", lastError);
       }
+    }
+    if (failed > 0) {
+      await ctx.scheduler.runAfter(0, internal.ops.alert, {
+        source: "stripe-reconcile",
+        message: `Verifica abbonamenti con Stripe: ${failed} su ${page.tenants.length} non verificati (${status}). Ultimo errore: ${lastError}`,
+      });
     }
     if (page.next) await ctx.scheduler.runAfter(0, internal.billing.reconcile, { status, cursor: page.next });
     return { fixed };
