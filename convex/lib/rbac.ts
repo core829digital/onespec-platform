@@ -110,6 +110,7 @@ export async function requirePermission(
   ctx: ReadCtx,
   tenantId: Id<"tenants">,
   action: PermissionKey,
+  opts: { allowSuspendedRead?: boolean } = {},
 ): Promise<PermissionResult> {
   const { userId, membership } = await requireMembership(ctx, tenantId);
   const spec: PermissionSpec = PERMISSIONS[action];
@@ -124,6 +125,13 @@ export async function requirePermission(
   // through here. Founding / full-access accounts are exempt.
   if (tenant.planStatus === "pending_plan" && tenant.unlimitedAccess !== true) {
     throw new ConvexError("PLAN_SELECTION_REQUIRED");
+  }
+  // Subscription ended (cancelled trial/plan, deleted in Stripe): nothing
+  // works — reads included, except the redacted lead list that
+  // is kept on purpose (founder decision A) — until the owner subscribes again. The billing
+  // flow uses requireMembership/assertOwner, so re-subscribing stays possible.
+  if (tenant.planStatus === "suspended" && tenant.unlimitedAccess !== true && !opts.allowSuspendedRead) {
+    throw new ConvexError("PLAN_SUSPENDED");
   }
   if (spec.entitlement && resolveTenantEntitlements(tenant)[spec.entitlement] !== true) {
     throw new ConvexError("PLAN_UPGRADE_REQUIRED");

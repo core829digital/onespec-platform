@@ -5,10 +5,13 @@ import { internal } from "./_generated/api";
 // own modules (e.g. convex/billing.ts).
 const crons = cronJobs();
 
+// Trials are the abuse target: re-verify them against Stripe every 15 minutes.
+crons.interval("billing-reconcile-trials", { minutes: 15 }, internal.billing.reconcile, { status: "trialing" });
 crons.daily(
   "billing-reconcile",
   { hourUTC: 3, minuteUTC: 15 },
   internal.billing.reconcile,
+  { status: "active" },
 );
 
 crons.daily(

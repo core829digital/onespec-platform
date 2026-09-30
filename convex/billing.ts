@@ -837,8 +837,11 @@ export const applyWebhookEvent = internalMutation({
         // Stripe does not guarantee delivery order: a late, OLDER subscription
         // event must not overwrite a newer state (e.g. revert an upgrade).
         const planEvent = args.type === "checkout.session.completed" || args.type.startsWith("customer.subscription");
+        // A deletion is terminal: it is applied even if a newer-stamped manual
+        // sync ran in between, so an ended subscription can never stay live.
         const stale =
           planEvent &&
+          args.type !== "customer.subscription.deleted" &&
           typeof args.created === "number" &&
           typeof tenantDoc?.stripeLastEventCreated === "number" &&
           args.created < tenantDoc.stripeLastEventCreated;
@@ -970,12 +973,54 @@ export const enforceTrialOncePerCard = internalAction({
   },
 });
 
-/** Daily cron target — a no-op while Stripe is not configured. */
+/** Active/trialing tenants that own a Stripe subscription, one page at a time. */
+export const listForReconcile = internalQuery({
+  args: {
+    status: v.union(v.literal("trialing"), v.literal("active")),
+    cursor: v.optional(v.union(v.string(), v.null())),
+  },
+  handler: async (ctx, args) => {
+    const page = await ctx.db
+      .query("tenants")
+      .withIndex("by_planStatus", (q) => q.eq("planStatus", args.status))
+      .paginate({ numItems: 25, cursor: args.cursor ?? null });
+    return {
+      tenants: page.page
+        .filter((t) => t.stripeSubscriptionId && t.unlimitedAccess !== true)
+        .map((t) => ({ id: t._id, subscriptionId: t.stripeSubscriptionId as string })),
+      next: page.isDone ? null : page.continueCursor,
+    };
+  },
+});
+
+/**
+ * Re-reads every live subscription from Stripe and applies what Stripe says,
+ * so a missed, ignored or delayed webhook can never leave an ended
+ * subscription with platform access. Pages itself; a no-op without Stripe.
+ */
 export const reconcile = internalAction({
-  handler: async () => {
+  args: {
+    status: v.optional(v.union(v.literal("trialing"), v.literal("active"))),
+    cursor: v.optional(v.union(v.string(), v.null())),
+  },
+  handler: async (ctx, args) => {
     if (!stripeKey()) return { skipped: "BILLING_NOT_CONFIGURED" };
-    // Placeholder for a future subscription re-sync sweep.
-    return { skipped: false };
+    const status = args.status ?? "trialing";
+    const page = await ctx.runQuery(internal.billing.listForReconcile, { status, cursor: args.cursor });
+    let fixed = 0;
+    for (const t of page.tenants) {
+      try {
+        const sub = await stripeGet(`/subscriptions/${t.subscriptionId}`);
+        const mapped = sub.status === "active" || sub.status === "trialing" ? sub.status : null;
+        if (mapped === status) continue; // already consistent
+        await ctx.runMutation(internal.billing.applySubscriptionSync, { tenantId: t.id, subscription: sub });
+        fixed++;
+      } catch (e) {
+        console.error("reconcile failed for a tenant", e instanceof Error ? e.message : e);
+      }
+    }
+    if (page.next) await ctx.scheduler.runAfter(0, internal.billing.reconcile, { status, cursor: page.next });
+    return { fixed };
   },
 });
 

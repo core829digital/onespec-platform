@@ -25,8 +25,8 @@ export function PlanGate({ tenant, children }: { tenant: Doc<"tenants">; childre
   const current = live ?? tenant;
   const ended = current.planStatus === "suspended" && current.unlimitedAccess !== true;
 
-  // Billing and account pages stay open so the owner can subscribe again.
-  if (ended && !pathname.startsWith("/app/account")) {
+  // Only the billing page stays open, so the owner can subscribe again.
+  if (ended && !pathname.startsWith("/app/account/billing")) {
     return (
       <div className="mx-auto flex max-w-lg flex-col items-center px-4 py-16 text-center" role="region" aria-labelledby="plan-ended-title">
         <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-alt)]">

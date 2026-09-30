@@ -431,3 +431,41 @@ describe("one free trial per card", () => {
     expect([first.reused, again.reused, other.reused, fresh.reused]).toEqual([false, false, true, false]);
   });
 });
+
+describe("ended subscription locks the platform", () => {
+  async function trialingTenant() {
+    const t = newDb();
+    const s = await seedTenant(t, { plan: "pro" });
+    await t.run((ctx) =>
+      ctx.db.patch(s.tenantId, {
+        planStatus: "trialing",
+        stripeCustomerId: "cus_x",
+        stripeSubscriptionId: "sub_x",
+        // A newer-stamped manual sync must not make the deletion look stale.
+        stripeLastEventCreated: Math.floor(Date.now() / 1000) + 600,
+      }),
+    );
+    return { t, s };
+  }
+
+  test("customer.subscription.deleted suspends even after a newer-stamped sync", async () => {
+    const { t, s } = await trialingTenant();
+    await t.mutation(internal.billing.applyWebhookEvent, {
+      eventId: "evt_del",
+      type: "customer.subscription.deleted",
+      created: Math.floor(Date.now() / 1000),
+      data: { object: { id: "sub_x", customer: "cus_x", status: "canceled" } },
+    });
+    const tenant = await t.run((ctx) => ctx.db.get(s.tenantId));
+    expect(tenant?.planStatus).toBe("suspended");
+  });
+
+  test("a suspended tenant is refused by permission-checked operations (reads included)", async () => {
+    const { t, s } = await trialingTenant();
+    await t.run((ctx) => ctx.db.patch(s.tenantId, { planStatus: "suspended" }));
+    const as = t.withIdentity({ subject: s.ownerId });
+    await expect(
+      as.mutation(api.clients.createClient, { tenantId: s.tenantId, name: "Cliente" }),
+    ).rejects.toThrow(/PLAN_SUSPENDED/);
+  });
+});

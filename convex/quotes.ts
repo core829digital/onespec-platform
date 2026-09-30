@@ -45,7 +45,8 @@ export const listRequests = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    await requirePermission(ctx, args.tenantId, "quotes.use");
+    // Redacted lead list stays readable while suspended (founder decision A).
+    await requirePermission(ctx, args.tenantId, "quotes.use", { allowSuspendedRead: true });
     const limit = Math.min(Math.max(args.limit ?? 50, 1), 200);
     if (args.status) {
       const status = args.status;
