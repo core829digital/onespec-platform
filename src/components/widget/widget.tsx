@@ -5,6 +5,7 @@ import { SpecDrawing } from "./spec-drawing";
 import { getDict, LOCALE_CFG, labelFromList } from "./widget-i18n";
 import { readableInk, isSafeColor, resolveFontStack } from "./widget-theme";
 import { postToHost, readHostTheme } from "./host-bridge";
+import { demoCopy, demoRegisterUrl } from "@/lib/demo/demo-copy";
 import { submitErrorMessage, wizardCopy } from "./simple-wizard-model";
 import { getTurnstileToken } from "@/lib/turnstile-client";import { catalogOptions, catalogPricing, type WidgetCatalog, type WidgetOptions } from "./widget-catalog";
 import { REGION_FLAT_OPTION_KINDS } from "@/shared/pricing";
@@ -70,6 +71,8 @@ interface WidgetProps {
   accentOverride?: string;
   /** Host-site font from the embed snippet (?font=). */
   fontOverride?: string;
+  /** Public demo on onespec.eu: fully interactive, but nothing is ever sent. */
+  demo?: boolean;
 }
 
 interface HostTheme {
@@ -95,6 +98,7 @@ export function Widget({
   preview,
   accentOverride,
   fontOverride,
+  demo = false,
 }: WidgetProps) {
   const dict = getDict(lang);
   const cfg = LOCALE_CFG[lang] ?? LOCALE_CFG.en;
@@ -173,6 +177,7 @@ export function Widget({
   const [discountPct, setDiscountPct] = useState(0);
 
   const [step, setStep] = useState<"config" | "lead" | "success">("config");
+  const [demoNotice, setDemoNotice] = useState(false);
   const [lead, setLead] = useState({ name: "", email: "", phone: "", company: "", message: "" });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
@@ -198,7 +203,7 @@ export function Widget({
 
   // ---- widget-open telemetry (skips preview; once per browser session) ----
   useEffect(() => {
-    if (preview || !CONVEX_SITE) return;
+    if (preview || demo || !CONVEX_SITE) return;
     const key = `onespec-vt-${configurator.publicId}`;
     let token: string;
     try {
@@ -216,7 +221,7 @@ export function Widget({
       body: JSON.stringify({ publicId: configurator.publicId, viewToken: token }),
       keepalive: true,
     }).catch(() => {});
-  }, [preview, configurator.publicId]);
+  }, [preview, demo, configurator.publicId]);
 
   // Push resolved accent / ink / font onto the scoped CSS vars so widget.css
   // (focus rings, links, hover) and inline styles stay in sync.
@@ -421,6 +426,11 @@ export function Widget({
 
   async function submit() {
     setError("");
+    if (demo) {
+      // Demo: never validate, never call Turnstile or the network.
+      setDemoNotice(true);
+      return;
+    }
     if (!lead.name.trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(lead.email)) {
       setError(dict.leadError);
       return;
@@ -481,6 +491,51 @@ export function Widget({
 
   // ---- styles (scoped, brand-token driven) ----
   const s = STYLES;
+
+  if (demo && demoNotice) {
+    const dc = demoCopy(lang);
+    return (
+      <div style={s.wrap}>
+        <div style={{ ...s.panel, textAlign: "center", padding: 40 }} role="status">
+          <h2 style={{ margin: "0 0 8px", color: "var(--color-text)" }}>{dc.title}</h2>
+          <p style={{ color: "var(--color-text-secondary)", margin: "0 auto", maxWidth: 420 }}>{dc.body}</p>
+          <div style={{ display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap", marginTop: 20 }}>
+            <a
+              href={demoRegisterUrl(lang)}
+              target="_top"
+              style={{
+                padding: "11px 20px",
+                borderRadius: 10,
+                background: "var(--tw-accent, var(--color-accent))",
+                color: "var(--tw-accent-ink, #fff)",
+                fontWeight: 700,
+                fontSize: 14,
+                textDecoration: "none",
+              }}
+            >
+              {dc.cta}
+            </a>
+            <button
+              type="button"
+              onClick={() => setDemoNotice(false)}
+              style={{
+                padding: "11px 20px",
+                borderRadius: 10,
+                border: "1px solid var(--color-border)",
+                background: "transparent",
+                color: "var(--color-text)",
+                fontWeight: 600,
+                fontSize: 14,
+                cursor: "pointer",
+              }}
+            >
+              {dc.back}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (step === "success") {
     return (
@@ -1060,7 +1115,7 @@ export function Widget({
                   </span>
                 </label>
                 {error && <div style={{ fontSize: 12, color: "var(--color-danger)" }}>{error}</div>}
-                <button type="button" data-tw-primary disabled={submitting || !consent} onClick={submit} style={{ ...s.btnPrimary, background: accent, color: accentInk, opacity: submitting ? 0.6 : 1 }}>
+                <button type="button" data-tw-primary disabled={submitting || (!demo && !consent)} onClick={submit} style={{ ...s.btnPrimary, background: accent, color: accentInk, opacity: submitting ? 0.6 : 1 }}>
                   {submitting
                     ? dict.submitting
                     : ownCopy?.ctaLabel?.trim() || (isLeadGen ? dict.requestSurveyBtn : dict.submitBtn)}

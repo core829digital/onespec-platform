@@ -122,6 +122,16 @@ export default convexAuthNextjsMiddleware(
       return res;
     }
 
+    // Public demo configurators (/demo/*), embedded on the marketing site only.
+    if (pathname.startsWith("/demo/")) {
+      const res = NextResponse.next();
+      res.headers.set(
+        "Content-Security-Policy",
+        `${WIDGET_CSP_BASE}; frame-ancestors 'self' https://onespec.eu https://www.onespec.eu`,
+      );
+      return res;
+    }
+
     // Public Fascicolo del serramento (QR target), App Posatore (/i/[token]) and
     // the guest site view (/k/[pin]): no i18n redirect — next-intl would rewrite
     // them to /{locale}/…, where no route exists (404). Each page picks its

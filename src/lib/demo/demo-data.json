@@ -1,0 +1,6127 @@
+{
+ "configurator": {
+  "branding": {
+   "colorAccent": "#16d19d",
+   "colorAccentInk": "#04150f",
+   "colorBg": null,
+   "colorBgDark": null,
+   "companyInfo": {
+    "name": "Serramenti Demo"
+   },
+   "copy": {},
+   "fontFamily": "geist",
+   "logoLightUrl": null,
+   "logoUrl": null,
+   "whiteLabel": true
+  },
+  "catalog": {
+   "accessories": [
+    {
+     "category": "zanz",
+     "enabled": true,
+     "key": "carrarmato",
+     "labels": {
+      "en": "Reinforced insect screen",
+      "it": "Zanzariera tipo Carrarmato"
+     },
+     "priceCents": 12000,
+     "priceModel": "flat",
+     "sortOrder": 0
+    },
+    {
+     "category": "zanz",
+     "enabled": true,
+     "key": "plisettata",
+     "labels": {
+      "en": "Pleated insect screen",
+      "it": "Zanzariera Plisettata"
+     },
+     "priceCents": 8500,
+     "priceModel": "flat",
+     "sortOrder": 1
+    },
+    {
+     "category": "zanz",
+     "enabled": true,
+     "key": "cerniere",
+     "labels": {
+      "en": "Hinged insect screen",
+      "it": "Zanzariera con Cerniere"
+     },
+     "priceCents": 4500,
+     "priceModel": "flat",
+     "sortOrder": 2
+    },
+    {
+     "category": "zanz",
+     "enabled": true,
+     "key": "fissa",
+     "labels": {
+      "en": "Fixed insect screen",
+      "it": "Zanzariera Fissa"
+     },
+     "priceCents": 3000,
+     "priceModel": "flat",
+     "sortOrder": 3
+    },
+    {
+     "category": "zanz",
+     "enabled": true,
+     "key": "molla",
+     "labels": {
+      "en": "Roller insect screen",
+      "it": "Zanzariera a molla"
+     },
+     "priceCents": 6500,
+     "priceModel": "flat",
+     "sortOrder": 4
+    },
+    {
+     "category": "cass",
+     "enabled": true,
+     "key": "deceuninck132",
+     "labels": {
+      "en": "Deceuninck shutter box 132 mm",
+      "it": "Cassonetto Deceuninck 132mm"
+     },
+     "priceCents": 18000,
+     "priceModel": "flat",
+     "sortOrder": 0
+    },
+    {
+     "category": "cass",
+     "enabled": true,
+     "key": "rehau150",
+     "labels": {
+      "en": "Rehau shutter box 150 mm",
+      "it": "Cassonetto Rehau 150mm"
+     },
+     "priceCents": 20000,
+     "priceModel": "flat",
+     "sortOrder": 1
+    },
+    {
+     "category": "cass",
+     "enabled": true,
+     "key": "aluplast80",
+     "labels": {
+      "en": "Aluplast shutter box 80 mm",
+      "it": "Cassonetto Aluplast 80mm"
+     },
+     "priceCents": 12000,
+     "priceModel": "flat",
+     "sortOrder": 2
+    },
+    {
+     "category": "cass",
+     "enabled": true,
+     "key": "aluplast140",
+     "labels": {
+      "en": "Aluplast shutter box 140 mm",
+      "it": "Cassonetto Aluplast 140mm"
+     },
+     "priceCents": 16000,
+     "priceModel": "flat",
+     "sortOrder": 3
+    },
+    {
+     "category": "avv",
+     "enabled": true,
+     "key": "sovrapposto",
+     "labels": {
+      "en": "Surface-mounted roller shutter",
+      "it": "Avvolgibile sovrapposto"
+     },
+     "priceCents": 22000,
+     "priceModel": "flat",
+     "sortOrder": 0
+    },
+    {
+     "category": "avv",
+     "enabled": true,
+     "key": "applicato",
+     "labels": {
+      "en": "Applied roller shutter",
+      "it": "Avvolgibile applicato"
+     },
+     "priceCents": 18000,
+     "priceModel": "flat",
+     "sortOrder": 1
+    },
+    {
+     "category": "avv",
+     "enabled": true,
+     "key": "accessori",
+     "labels": {
+      "en": "Roller shutter accessories",
+      "it": "Accessori avvolgibili"
+     },
+     "priceCents": 4500,
+     "priceModel": "flat",
+     "sortOrder": 2
+    },
+    {
+     "category": "pers",
+     "enabled": true,
+     "key": "fisse",
+     "labels": {
+      "en": "Fixed-louvre shutter",
+      "it": "Persiana a lamelle fisse"
+     },
+     "priceCents": 25000,
+     "priceModel": "flat",
+     "sortOrder": 0
+    },
+    {
+     "category": "pers",
+     "enabled": true,
+     "key": "orientabili",
+     "labels": {
+      "en": "Adjustable-louvre shutter",
+      "it": "Persiana a lamelle orientabili"
+     },
+     "priceCents": 32000,
+     "priceModel": "flat",
+     "sortOrder": 1
+    }
+   ],
+   "branding": {
+    "colorAccent": "#16d19d",
+    "colorAccentInk": "#04150f",
+    "companyInfo": {
+     "name": "Serramenti Demo"
+    },
+    "copy": {},
+    "fontFamily": "geist",
+    "whiteLabel": true
+   },
+   "configurator": {
+    "currency": "EUR",
+    "defaultLocale": "it",
+    "defaultTheme": "auto",
+    "discountEnabled": false,
+    "discountMaxPercent": 20,
+    "ecobonusEnabled": true,
+    "ecobonusMaxPercent": 50,
+    "name": "Serramenti Demo",
+    "priceRoundingStep": 1,
+    "publicId": "DEMO000000",
+    "showPricesToEndUser": true,
+    "vatRatePercent": 22
+   },
+   "finish": [
+    {
+     "enabled": true,
+     "key": "white",
+     "labels": {
+      "de": "Weiß",
+      "en": "White",
+      "fr": "Blanc",
+      "it": "Bianco",
+      "nl": "Wit"
+     },
+     "priceCents": 0,
+     "sortOrder": 0,
+     "swatchHex": "#FFFFFF"
+    },
+    {
+     "enabled": true,
+     "key": "ral",
+     "labels": {
+      "de": "RAL nach Wahl",
+      "en": "Custom RAL",
+      "fr": "RAL personnalisé",
+      "it": "RAL personalizzato",
+      "nl": "RAL naar keuze"
+     },
+     "priceCents": 5500,
+     "sortOrder": 1,
+     "swatchHex": "#CCCCCC"
+    },
+    {
+     "enabled": true,
+     "key": "woodeffect",
+     "labels": {
+      "de": "Holzdekor",
+      "en": "Wood effect",
+      "fr": "Effet bois",
+      "it": "Effetto legno",
+      "nl": "Houtlook"
+     },
+     "priceCents": 8500,
+     "sortOrder": 2,
+     "swatchHex": "#8B4513"
+    },
+    {
+     "enabled": true,
+     "key": "anthracite",
+     "labels": {
+      "de": "Anthrazit RAL 7016",
+      "en": "Anthracite RAL 7016",
+      "fr": "Anthracite RAL 7016",
+      "it": "Antracite RAL 7016",
+      "nl": "Antraciet RAL 7016"
+     },
+     "priceCents": 6500,
+     "sortOrder": 10,
+     "swatchHex": "#383E42"
+    },
+    {
+     "enabled": true,
+     "key": "bicolorRal",
+     "labels": {
+      "de": "Zweifarbig: innen weiß / außen RAL",
+      "en": "Bicolour: white inside / RAL outside",
+      "fr": "Bicolore : blanc intérieur / RAL extérieur",
+      "it": "Bicolore: bianco interno / RAL esterno",
+      "nl": "Tweekleurig: binnen wit / buiten RAL"
+     },
+     "priceCents": 7500,
+     "sortOrder": 11,
+     "swatchHex": "#6B7280"
+    },
+    {
+     "enabled": true,
+     "key": "whiteWoodExt",
+     "labels": {
+      "de": "Innen weiß / außen Holzdekor",
+      "en": "White inside / wood effect outside",
+      "fr": "Blanc intérieur / aspect bois extérieur",
+      "it": "Bianco interno / effetto legno esterno",
+      "nl": "Binnen wit / buiten houtlook"
+     },
+     "priceCents": 7000,
+     "sortOrder": 12,
+     "swatchHex": "#8B5A2B"
+    },
+    {
+     "enabled": true,
+     "key": "woodIntExt",
+     "labels": {
+      "de": "Holzdekor innen und außen",
+      "en": "Wood effect inside and outside",
+      "fr": "Aspect bois intérieur et extérieur",
+      "it": "Effetto legno interno ed esterno",
+      "nl": "Houtlook binnen en buiten"
+     },
+     "priceCents": 9500,
+     "sortOrder": 13,
+     "swatchHex": "#A0522D"
+    },
+    {
+     "enabled": true,
+     "key": "whiteWoodEffect",
+     "labels": {
+      "de": "Weiß Holzdekor",
+      "en": "White wood effect",
+      "fr": "Blanc aspect bois",
+      "it": "Bianco effetto legno",
+      "nl": "Wit houtlook"
+     },
+     "priceCents": 6000,
+     "sortOrder": 14,
+     "swatchHex": "#F5F5DC"
+    },
+    {
+     "enabled": true,
+     "key": "ivoryWoodEffect",
+     "labels": {
+      "de": "Elfenbein Holzdekor",
+      "en": "Ivory wood effect",
+      "fr": "Ivoire aspect bois",
+      "it": "Ivory effetto legno",
+      "nl": "Ivoor houtlook"
+     },
+     "priceCents": 7000,
+     "sortOrder": 15,
+     "swatchHex": "#FFFFF0"
+    },
+    {
+     "enabled": true,
+     "key": "otherColor",
+     "labels": {
+      "de": "Andere Farbe",
+      "en": "Other colour",
+      "fr": "Autre couleur",
+      "it": "Altro colore",
+      "nl": "Andere kleur"
+     },
+     "priceCents": 9500,
+     "sortOrder": 16,
+     "swatchHex": "#B91C1C"
+    },
+    {
+     "enabled": true,
+     "key": "white",
+     "labels": {
+      "de": "Weiß",
+      "en": "White",
+      "fr": "Blanc",
+      "it": "Bianco",
+      "nl": "Wit"
+     },
+     "priceCents": 0,
+     "sortOrder": 0,
+     "swatchHex": "#FFFFFF"
+    },
+    {
+     "enabled": true,
+     "key": "ral",
+     "labels": {
+      "de": "RAL nach Wahl",
+      "en": "Custom RAL",
+      "fr": "RAL personnalisé",
+      "it": "RAL personalizzato",
+      "nl": "RAL naar keuze"
+     },
+     "priceCents": 5500,
+     "sortOrder": 1,
+     "swatchHex": "#CCCCCC"
+    },
+    {
+     "enabled": true,
+     "key": "woodeffect",
+     "labels": {
+      "de": "Holzdekor",
+      "en": "Wood effect",
+      "fr": "Effet bois",
+      "it": "Effetto legno",
+      "nl": "Houtlook"
+     },
+     "priceCents": 8500,
+     "sortOrder": 2,
+     "swatchHex": "#8B4513"
+    }
+   ],
+   "frameTypes": [
+    {
+     "descriptions": {
+      "de": "Standardrahmen 70 mm für Neubau",
+      "en": "Standard 70 mm frame for new build",
+      "fr": "Cadre standard 70 mm pour neuf",
+      "it": "Telaio standard 70mm per nuova costruzione",
+      "nl": "Standaard kozijn 70 mm voor nieuwbouw",
+      "ro": "Toc standard 70 mm pentru construcții noi"
+     },
+     "disposalPerPieceCents": 3500,
+     "enabled": true,
+     "installByLeavesCents": [
+      16500,
+      21500,
+      29000
+     ],
+     "key": "dritto",
+     "labels": {
+      "de": "Gerader Rahmen",
+      "en": "Straight frame",
+      "fr": "Cadre droit",
+      "it": "Dritto",
+      "nl": "Rechte kozijn",
+      "ro": "Toc drept"
+     },
+     "multiplier": 1,
+     "scaffoldPerPieceCents": 5500,
+     "sortOrder": 0
+    },
+    {
+     "descriptions": {
+      "de": "Deckt bis 50 mm ab, schnell ohne Maurerarbeiten",
+      "en": "Covers up to 50 mm, quick with no masonry work",
+      "fr": "Couvre jusqu'à 50 mm, rapide sans maçonnerie",
+      "it": "Copre fino 50mm, veloce senza opere murarie",
+      "nl": "Dekt tot 50 mm, snel zonder metselwerk",
+      "ro": "Acoperă până la 50 mm, rapid, fără lucrări de zidărie"
+     },
+     "disposalPerPieceCents": 3500,
+     "enabled": true,
+     "installByLeavesCents": [
+      11500,
+      15500,
+      23000
+     ],
+     "key": "reno40",
+     "labels": {
+      "de": "Sanierung 40 mm",
+      "en": "Renovation 40 mm",
+      "fr": "Rénovation 40 mm",
+      "it": "Ristrutturazione 40mm",
+      "nl": "Renovatie 40 mm",
+      "ro": "Renovare 40 mm"
+     },
+     "multiplier": 1.08,
+     "scaffoldPerPieceCents": 5500,
+     "sortOrder": 1
+    },
+    {
+     "descriptions": {
+      "de": "Deckt bis 70 mm ab, für Gebäude der 70er-90er",
+      "en": "Covers up to 70 mm, suited to 1970-90 buildings",
+      "fr": "Couvre jusqu'à 70 mm, adapté aux bâtiments 1970-90",
+      "it": "Copre fino 70mm, consigliato per edifici anni 70-90",
+      "nl": "Dekt tot 70 mm, geschikt voor gebouwen uit 1970-90",
+      "ro": "Acoperă până la 70 mm, potrivit clădirilor din 1970-90"
+     },
+     "disposalPerPieceCents": 3500,
+     "enabled": true,
+     "installByLeavesCents": [
+      12500,
+      16500,
+      24500
+     ],
+     "key": "reno65",
+     "labels": {
+      "de": "Sanierung 65 mm",
+      "en": "Renovation 65 mm",
+      "fr": "Rénovation 65 mm",
+      "it": "Ristrutturazione 65mm",
+      "nl": "Renovatie 65 mm",
+      "ro": "Renovare 65 mm"
+     },
+     "multiplier": 1.12,
+     "scaffoldPerPieceCents": 5500,
+     "sortOrder": 2
+    }
+   ],
+   "glazing": [
+    {
+     "enabled": true,
+     "key": "double",
+     "labels": {
+      "de": "2-fach-Verglasung",
+      "en": "Double glazing",
+      "fr": "Double vitrage",
+      "it": "Doppio vetro",
+      "nl": "Dubbel glas"
+     },
+     "priceCents": 0,
+     "psi": 0.04,
+     "sortOrder": 0,
+     "uGlass": 1.1
+    },
+    {
+     "enabled": true,
+     "key": "triple",
+     "labels": {
+      "de": "3-fach-Verglasung",
+      "en": "Triple glazing",
+      "fr": "Triple vitrage",
+      "it": "Triplo vetro",
+      "nl": "Triple glas"
+     },
+     "priceCents": 6000,
+     "psi": 0.032,
+     "sortOrder": 1,
+     "uGlass": 0.6
+    },
+    {
+     "enabled": true,
+     "key": "tripleLowE",
+     "labels": {
+      "de": "3-fach Low-E",
+      "en": "Triple Low-E",
+      "fr": "Triple Low-E",
+      "it": "Triplo Low-E",
+      "nl": "Triple Low-E"
+     },
+     "priceCents": 9500,
+     "psi": 0.032,
+     "sortOrder": 2,
+     "uGlass": 0.5
+    },
+    {
+     "enabled": true,
+     "key": "acoustic",
+     "labels": {
+      "de": "Schallschutz-2-fach-Verglasung 44.1/16/6",
+      "en": "Acoustic double glazing 44.1/16/6",
+      "fr": "Double vitrage acoustique 44.1/16/6",
+      "it": "Doppio vetro acustico 44.1/16/6",
+      "nl": "Akoestisch dubbel glas 44.1/16/6"
+     },
+     "priceCents": 4500,
+     "psi": 0.04,
+     "sortOrder": 10,
+     "uGlass": 1.1
+    },
+    {
+     "enabled": true,
+     "key": "satinDouble",
+     "labels": {
+      "de": "2-fach-Verglasung satiniert",
+      "en": "Satin double glazing",
+      "fr": "Double vitrage satiné",
+      "it": "Doppio vetro satinato",
+      "nl": "Gesatineerd dubbel glas"
+     },
+     "priceCents": 5500,
+     "psi": 0.04,
+     "sortOrder": 11,
+     "uGlass": 1.05
+    },
+    {
+     "enabled": true,
+     "key": "satinTriple",
+     "labels": {
+      "de": "3-fach-Verglasung satiniert",
+      "en": "Satin triple glazing",
+      "fr": "Triple vitrage satiné",
+      "it": "Triplo vetro satinato",
+      "nl": "Gesatineerd triple glas"
+     },
+     "priceCents": 12000,
+     "psi": 0.032,
+     "sortOrder": 12,
+     "uGlass": 0.58
+    },
+    {
+     "enabled": true,
+     "key": "double",
+     "labels": {
+      "de": "2-fach-Verglasung",
+      "en": "Double glazing",
+      "fr": "Double vitrage",
+      "it": "Doppio vetro",
+      "nl": "Dubbel glas"
+     },
+     "priceCents": 0,
+     "psi": 0.04,
+     "sortOrder": 0,
+     "uGlass": 1.1
+    },
+    {
+     "enabled": true,
+     "key": "triple",
+     "labels": {
+      "de": "3-fach-Verglasung",
+      "en": "Triple glazing",
+      "fr": "Triple vitrage",
+      "it": "Triplo vetro",
+      "nl": "Triple glas"
+     },
+     "priceCents": 6000,
+     "psi": 0.032,
+     "sortOrder": 1,
+     "uGlass": 0.6
+    },
+    {
+     "enabled": true,
+     "key": "tripleLowE",
+     "labels": {
+      "de": "3-fach Low-E",
+      "en": "Triple Low-E",
+      "fr": "Triple Low-E",
+      "it": "Triplo Low-E",
+      "nl": "Triple Low-E"
+     },
+     "priceCents": 9500,
+     "psi": 0.032,
+     "sortOrder": 2,
+     "uGlass": 0.5
+    }
+   ],
+   "hardware": [
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "maco",
+     "kind": "hardware",
+     "labels": {
+      "de": "Maco",
+      "en": "Maco",
+      "fr": "Maco",
+      "it": "Maco",
+      "nl": "Maco"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "roto",
+     "kind": "hardware",
+     "labels": {
+      "de": "Roto",
+      "en": "Roto",
+      "fr": "Roto",
+      "it": "Roto",
+      "nl": "Roto"
+     },
+     "priceCents": 1500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "siegenia",
+     "kind": "hardware",
+     "labels": {
+      "de": "Siegenia",
+      "en": "Siegenia",
+      "fr": "Siegenia",
+      "it": "Siegenia",
+      "nl": "Siegenia"
+     },
+     "priceCents": 2500,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "white",
+     "kind": "hardwareColor",
+     "labels": {
+      "de": "Weiß",
+      "en": "White",
+      "fr": "Blanc",
+      "it": "Bianco",
+      "nl": "Wit"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "silver",
+     "kind": "hardwareColor",
+     "labels": {
+      "de": "Silber",
+      "en": "Silver",
+      "fr": "Argent",
+      "it": "Argento",
+      "nl": "Zilver"
+     },
+     "priceCents": 1000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "bronze",
+     "kind": "hardwareColor",
+     "labels": {
+      "de": "Bronze",
+      "en": "Bronze",
+      "fr": "Bronze",
+      "it": "Bronzo",
+      "nl": "Brons"
+     },
+     "priceCents": 2000,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": true,
+     "key": "fix",
+     "kind": "sashType",
+     "labels": {
+      "de": "Festverglasung",
+      "en": "Fixed",
+      "fr": "Fixe",
+      "it": "Fisso",
+      "nl": "Vast"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "classic",
+     "kind": "sashType",
+     "labels": {
+      "de": "Dreh",
+      "en": "Classic",
+      "fr": "Classique",
+      "it": "Classica",
+      "nl": "Draai"
+     },
+     "priceCents": 3500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "tiltturn",
+     "kind": "sashType",
+     "labels": {
+      "de": "Dreh-Kipp",
+      "en": "Tilt & Turn",
+      "fr": "Oscillo-battant",
+      "it": "Vasistas/Battente",
+      "nl": "Draai-kiep"
+     },
+     "priceCents": 6500,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "sliding",
+     "kind": "sashType",
+     "labels": {
+      "de": "Schiebe",
+      "en": "Sliding",
+      "fr": "Coulissant",
+      "it": "Scorrevole",
+      "nl": "Schuif"
+     },
+     "priceCents": 8500,
+     "sortOrder": 3
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "cerniera",
+     "kind": "screen",
+     "labels": {
+      "de": "Insektenschutz-Drehtür",
+      "en": "Hinged screen",
+      "fr": "Moustiquaire à charnière",
+      "it": "Zanzariera a cerniera",
+      "nl": "Hordeur met scharnieren"
+     },
+     "priceCents": 4500,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "molla",
+     "kind": "screen",
+     "labels": {
+      "de": "Insektenschutzrollo",
+      "en": "Roller screen",
+      "fr": "Moustiquaire à ressort",
+      "it": "Zanzariera a molla",
+      "nl": "Rolhor"
+     },
+     "priceCents": 6500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "plissettata",
+     "kind": "screen",
+     "labels": {
+      "de": "Insektenschutz-Plissee",
+      "en": "Pleated screen",
+      "fr": "Moustiquaire plissée",
+      "it": "Zanzariera plissettata",
+      "nl": "Plissé hor"
+     },
+     "priceCents": 8500,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "carrarmato",
+     "kind": "screen",
+     "labels": {
+      "de": "Verstärkter Insektenschutz",
+      "en": "Reinforced screen",
+      "fr": "Moustiquaire renforcée",
+      "it": "Zanzariera carrarmato",
+      "nl": "Versterkte hor"
+     },
+     "priceCents": 12000,
+     "sortOrder": 3
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "white",
+     "kind": "screenColor",
+     "labels": {
+      "de": "Weiß",
+      "en": "White",
+      "fr": "Blanc",
+      "it": "Bianco",
+      "nl": "Wit"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "brown",
+     "kind": "screenColor",
+     "labels": {
+      "de": "Braun",
+      "en": "Brown",
+      "fr": "Marron",
+      "it": "Marrone",
+      "nl": "Bruin"
+     },
+     "priceCents": 1000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "woodeffect",
+     "kind": "screenColor",
+     "labels": {
+      "de": "Holzdekor",
+      "en": "Wood effect",
+      "fr": "Effet bois",
+      "it": "Effetto legno",
+      "nl": "Houtlook"
+     },
+     "priceCents": 2000,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": true,
+     "key": "classico",
+     "kind": "installation",
+     "labels": {
+      "de": "Standardmontage",
+      "en": "Standard installation",
+      "fr": "Pose standard",
+      "it": "Montaggio classico",
+      "nl": "Standaard montage"
+     },
+     "priceCents": 8000,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": true,
+     "key": "posaClima",
+     "kind": "installation",
+     "labels": {
+      "de": "Zertifizierte Montage",
+      "en": "Certified (posa clima) installation",
+      "fr": "Pose certifiée",
+      "it": "Montaggio posa clima",
+      "nl": "Gecertificeerde montage"
+     },
+     "priceCents": 15000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "renovation",
+     "kind": "poseType",
+     "labels": {
+      "de": "Renovierungsmontage (auf Altrahmen)",
+      "en": "Renovation (over existing frame)",
+      "fr": "Pose en rénovation (dépose incluse)",
+      "it": "Posa in ristrutturazione",
+      "nl": "Renovatiemontage (over bestaand kozijn)"
+     },
+     "priceCents": 9000,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "feuillure",
+     "kind": "poseType",
+     "labels": {
+      "de": "Montage im Anschlag",
+      "en": "Rebate fit",
+      "fr": "Pose en feuillure",
+      "it": "Posa in battuta",
+      "nl": "Montage in de sponning"
+     },
+     "priceCents": 6000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "applique",
+     "kind": "poseType",
+     "labels": {
+      "de": "Aufgesetzte Montage",
+      "en": "Face-fixed (applique)",
+      "fr": "Pose en applique",
+      "it": "Posa in applique",
+      "nl": "Opbouwmontage"
+     },
+     "priceCents": 7500,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "none",
+     "kind": "ventilationGrille",
+     "labels": {
+      "de": "Keine",
+      "en": "None",
+      "fr": "Aucune",
+      "it": "Nessuna",
+      "nl": "Geen"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "renson_standard",
+     "kind": "ventilationGrille",
+     "labels": {
+      "de": "Renson-Lüftungsgitter Standard",
+      "en": "Renson standard grille",
+      "fr": "Grille de ventilation Renson standard",
+      "it": "Griglia Renson standard",
+      "nl": "Renson standaard ventilatierooster"
+     },
+     "priceCents": 12000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "renson_acoustic",
+     "kind": "ventilationGrille",
+     "labels": {
+      "de": "Renson-Lüftungsgitter akustisch",
+      "en": "Renson acoustic grille",
+      "fr": "Grille de ventilation Renson acoustique",
+      "it": "Griglia Renson acustica",
+      "nl": "Renson akoestisch ventilatierooster"
+     },
+     "priceCents": 18000,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "none",
+     "kind": "voletRoulant",
+     "labels": {
+      "de": "Keine",
+      "en": "None",
+      "fr": "Aucun",
+      "it": "Nessuna",
+      "nl": "Geen"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "monobloc_pvc",
+     "kind": "voletRoulant",
+     "labels": {
+      "de": "Kunststoff-Vorbaurollladen Monoblock",
+      "en": "PVC monobloc roller shutter",
+      "fr": "Volet roulant monobloc PVC",
+      "it": "Tapparella monoblocco PVC",
+      "nl": "PVC monobloc rolluik"
+     },
+     "priceCents": 22000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "monobloc_alu",
+     "kind": "voletRoulant",
+     "labels": {
+      "de": "Aluminium-Vorbaurollladen Monoblock",
+      "en": "Aluminium monobloc roller shutter",
+      "fr": "Volet roulant monobloc aluminium",
+      "it": "Tapparella monoblocco alluminio",
+      "nl": "Aluminium monobloc rolluik"
+     },
+     "priceCents": 29000,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "standard",
+     "kind": "warmEdge",
+     "labels": {
+      "de": "Standard-Abstandhalter",
+      "en": "Standard spacer",
+      "fr": "Intercalaire standard",
+      "it": "Distanziatore standard",
+      "nl": "Standaard spacer"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "warm_edge",
+     "kind": "warmEdge",
+     "labels": {
+      "de": "Warme Kante",
+      "en": "Warm-edge spacer",
+      "fr": "Intercalaire warm-edge",
+      "it": "Distanziatore warm-edge",
+      "nl": "Warm-edge spacer"
+     },
+     "priceCents": 3500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "d115",
+     "kind": "profileDepth",
+     "labels": {
+      "de": "Profil 115 mm",
+      "en": "115 mm profile",
+      "fr": "Profilé 115 mm",
+      "it": "Profilo 115 mm",
+      "nl": "Blokprofiel 115 mm"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "d120",
+     "kind": "profileDepth",
+     "labels": {
+      "de": "Profil 120 mm",
+      "en": "120 mm profile",
+      "fr": "Profilé 120 mm",
+      "it": "Profilo 120 mm",
+      "nl": "Blokprofiel 120 mm"
+     },
+     "priceCents": 4500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "standard",
+     "kind": "cornerJoint",
+     "labels": {
+      "de": "Standardverbindung",
+      "en": "Standard joint",
+      "fr": "Assemblage standard",
+      "it": "Giunto standard",
+      "nl": "Standaard verbinding"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "hvl_90",
+     "kind": "cornerJoint",
+     "labels": {
+      "de": "HVL-90°-Eckverbindung",
+      "en": "HVL 90° corner joint",
+      "fr": "Assemblage d'angle HVL 90°",
+      "it": "Giunto angolo HVL 90°",
+      "nl": "HVL 90° hoekverbinding"
+     },
+     "priceCents": 6000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "hr_plus_plus",
+     "kind": "ugTier",
+     "labels": {
+      "de": "HR++-Verglasung",
+      "en": "HR++ glazing",
+      "fr": "Vitrage HR++",
+      "it": "Vetro HR++",
+      "nl": "HR++ beglazing"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "hr_plus_plus_plus",
+     "kind": "ugTier",
+     "labels": {
+      "de": "HR+++-3-fach-Verglasung",
+      "en": "HR+++ triple glazing",
+      "fr": "Vitrage HR+++ (triple)",
+      "it": "Vetro HR+++ (triplo)",
+      "nl": "HR+++ triple beglazing"
+     },
+     "priceCents": 14000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "ral9016",
+     "kind": "colorPreset",
+     "labels": {
+      "de": "RAL 9016 Verkehrsweiß",
+      "en": "RAL 9016 white",
+      "fr": "Blanc RAL 9016",
+      "it": "Bianco RAL 9016",
+      "nl": "RAL 9016 wit"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "ral7016",
+     "kind": "colorPreset",
+     "labels": {
+      "de": "RAL 7016 Anthrazitgrau",
+      "en": "RAL 7016 anthracite",
+      "fr": "Anthracite RAL 7016",
+      "it": "Grigio antracite RAL 7016",
+      "nl": "RAL 7016 antraciet"
+     },
+     "priceCents": 2500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "ral6009",
+     "kind": "colorPreset",
+     "labels": {
+      "de": "RAL 6009 Tannengrün",
+      "en": "RAL 6009 fir green",
+      "fr": "Vert sapin RAL 6009",
+      "it": "Verde abete RAL 6009",
+      "nl": "RAL 6009 dennengroen"
+     },
+     "priceCents": 2500,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "ral9001",
+     "kind": "colorPreset",
+     "labels": {
+      "de": "RAL 9001 Cremeweiß",
+      "en": "RAL 9001 cream",
+      "fr": "Blanc crème RAL 9001",
+      "it": "Bianco crema RAL 9001",
+      "nl": "RAL 9001 crème"
+     },
+     "priceCents": 2500,
+     "sortOrder": 3
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "none",
+     "kind": "inmeetservice",
+     "labels": {
+      "de": "Keine",
+      "en": "None",
+      "fr": "Aucun",
+      "it": "Nessuno",
+      "nl": "Geen"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "paid",
+     "kind": "inmeetservice",
+     "labels": {
+      "de": "Aufmaßservice",
+      "en": "Measurement service",
+      "fr": "Service de métrage",
+      "it": "Servizio di rilievo misure",
+      "nl": "Inmeetservice (verrekenbaar)"
+     },
+     "priceCents": 9500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "none",
+     "kind": "sunProtection",
+     "labels": {
+      "de": "Keiner",
+      "en": "None",
+      "fr": "Aucun",
+      "it": "Nessuno",
+      "nl": "Geen"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "aufsatzrollladen",
+     "kind": "sunProtection",
+     "labels": {
+      "de": "Aufsatzrollladen",
+      "en": "Built-on roller shutter",
+      "fr": "Volet roulant en applique",
+      "it": "Cassonetto sovrapposto",
+      "nl": "Opbouwrolluik"
+     },
+     "priceCents": 24000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "vorbaurollladen",
+     "kind": "sunProtection",
+     "labels": {
+      "de": "Vorbaurollladen",
+      "en": "Front-mounted roller shutter",
+      "fr": "Volet roulant en façade",
+      "it": "Cassonetto frontale",
+      "nl": "Voorzetrolluik"
+     },
+     "priceCents": 28000,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "raffstore",
+     "kind": "sunProtection",
+     "labels": {
+      "de": "Raffstore / Jalousie",
+      "en": "External venetian blind",
+      "fr": "Brise-soleil orientable",
+      "it": "Frangisole orientabile",
+      "nl": "Buitenjaloezie"
+     },
+     "priceCents": 39000,
+     "sortOrder": 3
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": false,
+     "key": "standard",
+     "kind": "securityClass",
+     "labels": {
+      "de": "Standardbeschlag",
+      "en": "Standard fittings",
+      "fr": "Ferrures standard",
+      "it": "Standard",
+      "nl": "Standaard beslag"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": false,
+     "key": "rc2",
+     "kind": "securityClass",
+     "labels": {
+      "de": "RC2 (Pilzkopf + P4A)",
+      "en": "RC2 burglary resistance",
+      "fr": "Anti-effraction RC2",
+      "it": "RC2 (antieffrazione)",
+      "nl": "RC2 inbraakwerend"
+     },
+     "priceCents": 6500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": false,
+     "key": "rc3",
+     "kind": "securityClass",
+     "labels": {
+      "de": "RC3 (Hochsicherheit)",
+      "en": "RC3 high security",
+      "fr": "Haute sécurité RC3",
+      "it": "RC3 (alta sicurezza)",
+      "nl": "RC3 hoge beveiliging"
+     },
+     "priceCents": 12000,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "standard",
+     "kind": "montageSystem",
+     "labels": {
+      "de": "Standardmontage",
+      "en": "Standard installation",
+      "fr": "Pose standard",
+      "it": "Montaggio standard",
+      "nl": "Standaard montage"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "ral",
+     "kind": "montageSystem",
+     "labels": {
+      "de": "RAL-gütegesicherte Montage",
+      "en": "RAL-certified installation",
+      "fr": "Pose certifiée RAL",
+      "it": "Montaggio RAL (Compriband + barriere vapore)",
+      "nl": "RAL-gecertificeerde montage"
+     },
+     "priceCents": 4500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "balconyDoorThreshold",
+     "kind": "threshold",
+     "labels": {
+      "de": "Balkonschwelle",
+      "en": "Balcony threshold",
+      "fr": "Seuil balcon",
+      "it": "Soglia balcone",
+      "nl": "Balkondorpel"
+     },
+     "priceCents": 6500,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "standard",
+     "kind": "hardware",
+     "labels": {
+      "de": "Standard",
+      "en": "Standard",
+      "fr": "Standard",
+      "it": "Standard",
+      "nl": "Standaard"
+     },
+     "priceCents": 0,
+     "sortOrder": -1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "rc2",
+     "kind": "hardware",
+     "labels": {
+      "de": "RC2-Sicherheit",
+      "en": "RC2 security",
+      "fr": "Sécurité RC2",
+      "it": "RC2 sicurezza",
+      "nl": "RC2-beveiliging"
+     },
+     "priceCents": 5500,
+     "sortOrder": 10
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "hidden",
+     "kind": "hardware",
+     "labels": {
+      "de": "Verdeckt liegend",
+      "en": "Concealed",
+      "fr": "Invisible",
+      "it": "A scomparsa",
+      "nl": "Verdekt liggend"
+     },
+     "priceCents": 4500,
+     "sortOrder": 11
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "black",
+     "kind": "hardwareColor",
+     "labels": {
+      "de": "Schwarz",
+      "en": "Black",
+      "fr": "Noir",
+      "it": "Nero",
+      "nl": "Zwart"
+     },
+     "priceCents": 1000,
+     "sortOrder": 3
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "tilt",
+     "kind": "sashType",
+     "labels": {
+      "de": "Kipp",
+      "en": "Tilt only",
+      "fr": "Soufflet",
+      "it": "Vasistas",
+      "nl": "Kiep"
+     },
+     "priceCents": 2500,
+     "sortOrder": 4
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "liftslide",
+     "kind": "sashType",
+     "labels": {
+      "de": "Hebe-Schiebe",
+      "en": "Lift-and-slide",
+      "fr": "Levant-coulissant",
+      "it": "Alzante scorrevole",
+      "nl": "Hef-schuif"
+     },
+     "priceCents": 12000,
+     "sortOrder": 5
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "maco",
+     "kind": "hardware",
+     "labels": {
+      "de": "Maco",
+      "en": "Maco",
+      "fr": "Maco",
+      "it": "Maco",
+      "nl": "Maco"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "roto",
+     "kind": "hardware",
+     "labels": {
+      "de": "Roto",
+      "en": "Roto",
+      "fr": "Roto",
+      "it": "Roto",
+      "nl": "Roto"
+     },
+     "priceCents": 1500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "siegenia",
+     "kind": "hardware",
+     "labels": {
+      "de": "Siegenia",
+      "en": "Siegenia",
+      "fr": "Siegenia",
+      "it": "Siegenia",
+      "nl": "Siegenia"
+     },
+     "priceCents": 2500,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "white",
+     "kind": "hardwareColor",
+     "labels": {
+      "de": "Weiß",
+      "en": "White",
+      "fr": "Blanc",
+      "it": "Bianco",
+      "nl": "Wit"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "silver",
+     "kind": "hardwareColor",
+     "labels": {
+      "de": "Silber",
+      "en": "Silver",
+      "fr": "Argent",
+      "it": "Argento",
+      "nl": "Zilver"
+     },
+     "priceCents": 1000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "bronze",
+     "kind": "hardwareColor",
+     "labels": {
+      "de": "Bronze",
+      "en": "Bronze",
+      "fr": "Bronze",
+      "it": "Bronzo",
+      "nl": "Brons"
+     },
+     "priceCents": 2000,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": true,
+     "key": "fix",
+     "kind": "sashType",
+     "labels": {
+      "de": "Festverglasung",
+      "en": "Fixed",
+      "fr": "Fixe",
+      "it": "Fisso",
+      "nl": "Vast"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "classic",
+     "kind": "sashType",
+     "labels": {
+      "de": "Dreh",
+      "en": "Classic",
+      "fr": "Classique",
+      "it": "Classica",
+      "nl": "Draai"
+     },
+     "priceCents": 3500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "tiltturn",
+     "kind": "sashType",
+     "labels": {
+      "de": "Dreh-Kipp",
+      "en": "Tilt & Turn",
+      "fr": "Oscillo-battant",
+      "it": "Vasistas/Battente",
+      "nl": "Draai-kiep"
+     },
+     "priceCents": 6500,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "sliding",
+     "kind": "sashType",
+     "labels": {
+      "de": "Schiebe",
+      "en": "Sliding",
+      "fr": "Coulissant",
+      "it": "Scorrevole",
+      "nl": "Schuif"
+     },
+     "priceCents": 8500,
+     "sortOrder": 3
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "cerniera",
+     "kind": "screen",
+     "labels": {
+      "de": "Insektenschutz-Drehtür",
+      "en": "Hinged screen",
+      "fr": "Moustiquaire à charnière",
+      "it": "Zanzariera a cerniera",
+      "nl": "Hordeur met scharnieren"
+     },
+     "priceCents": 4500,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "molla",
+     "kind": "screen",
+     "labels": {
+      "de": "Insektenschutzrollo",
+      "en": "Roller screen",
+      "fr": "Moustiquaire à ressort",
+      "it": "Zanzariera a molla",
+      "nl": "Rolhor"
+     },
+     "priceCents": 6500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "plissettata",
+     "kind": "screen",
+     "labels": {
+      "de": "Insektenschutz-Plissee",
+      "en": "Pleated screen",
+      "fr": "Moustiquaire plissée",
+      "it": "Zanzariera plissettata",
+      "nl": "Plissé hor"
+     },
+     "priceCents": 8500,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "carrarmato",
+     "kind": "screen",
+     "labels": {
+      "de": "Verstärkter Insektenschutz",
+      "en": "Reinforced screen",
+      "fr": "Moustiquaire renforcée",
+      "it": "Zanzariera carrarmato",
+      "nl": "Versterkte hor"
+     },
+     "priceCents": 12000,
+     "sortOrder": 3
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "white",
+     "kind": "screenColor",
+     "labels": {
+      "de": "Weiß",
+      "en": "White",
+      "fr": "Blanc",
+      "it": "Bianco",
+      "nl": "Wit"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "brown",
+     "kind": "screenColor",
+     "labels": {
+      "de": "Braun",
+      "en": "Brown",
+      "fr": "Marron",
+      "it": "Marrone",
+      "nl": "Bruin"
+     },
+     "priceCents": 1000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "woodeffect",
+     "kind": "screenColor",
+     "labels": {
+      "de": "Holzdekor",
+      "en": "Wood effect",
+      "fr": "Effet bois",
+      "it": "Effetto legno",
+      "nl": "Houtlook"
+     },
+     "priceCents": 2000,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": true,
+     "key": "classico",
+     "kind": "installation",
+     "labels": {
+      "de": "Standardmontage",
+      "en": "Standard installation",
+      "fr": "Pose standard",
+      "it": "Montaggio classico",
+      "nl": "Standaard montage"
+     },
+     "priceCents": 8000,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": true,
+     "key": "posaClima",
+     "kind": "installation",
+     "labels": {
+      "de": "Zertifizierte Montage",
+      "en": "Certified (posa clima) installation",
+      "fr": "Pose certifiée",
+      "it": "Montaggio posa clima",
+      "nl": "Gecertificeerde montage"
+     },
+     "priceCents": 15000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "renovation",
+     "kind": "poseType",
+     "labels": {
+      "de": "Renovierungsmontage (auf Altrahmen)",
+      "en": "Renovation (over existing frame)",
+      "fr": "Pose en rénovation (dépose incluse)",
+      "it": "Posa in ristrutturazione",
+      "nl": "Renovatiemontage (over bestaand kozijn)"
+     },
+     "priceCents": 9000,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "feuillure",
+     "kind": "poseType",
+     "labels": {
+      "de": "Montage im Anschlag",
+      "en": "Rebate fit",
+      "fr": "Pose en feuillure",
+      "it": "Posa in battuta",
+      "nl": "Montage in de sponning"
+     },
+     "priceCents": 6000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "applique",
+     "kind": "poseType",
+     "labels": {
+      "de": "Aufgesetzte Montage",
+      "en": "Face-fixed (applique)",
+      "fr": "Pose en applique",
+      "it": "Posa in applique",
+      "nl": "Opbouwmontage"
+     },
+     "priceCents": 7500,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "none",
+     "kind": "ventilationGrille",
+     "labels": {
+      "de": "Keine",
+      "en": "None",
+      "fr": "Aucune",
+      "it": "Nessuna",
+      "nl": "Geen"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "renson_standard",
+     "kind": "ventilationGrille",
+     "labels": {
+      "de": "Renson-Lüftungsgitter Standard",
+      "en": "Renson standard grille",
+      "fr": "Grille de ventilation Renson standard",
+      "it": "Griglia Renson standard",
+      "nl": "Renson standaard ventilatierooster"
+     },
+     "priceCents": 12000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "renson_acoustic",
+     "kind": "ventilationGrille",
+     "labels": {
+      "de": "Renson-Lüftungsgitter akustisch",
+      "en": "Renson acoustic grille",
+      "fr": "Grille de ventilation Renson acoustique",
+      "it": "Griglia Renson acustica",
+      "nl": "Renson akoestisch ventilatierooster"
+     },
+     "priceCents": 18000,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "none",
+     "kind": "voletRoulant",
+     "labels": {
+      "de": "Keine",
+      "en": "None",
+      "fr": "Aucun",
+      "it": "Nessuna",
+      "nl": "Geen"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "monobloc_pvc",
+     "kind": "voletRoulant",
+     "labels": {
+      "de": "Kunststoff-Vorbaurollladen Monoblock",
+      "en": "PVC monobloc roller shutter",
+      "fr": "Volet roulant monobloc PVC",
+      "it": "Tapparella monoblocco PVC",
+      "nl": "PVC monobloc rolluik"
+     },
+     "priceCents": 22000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "monobloc_alu",
+     "kind": "voletRoulant",
+     "labels": {
+      "de": "Aluminium-Vorbaurollladen Monoblock",
+      "en": "Aluminium monobloc roller shutter",
+      "fr": "Volet roulant monobloc aluminium",
+      "it": "Tapparella monoblocco alluminio",
+      "nl": "Aluminium monobloc rolluik"
+     },
+     "priceCents": 29000,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "standard",
+     "kind": "warmEdge",
+     "labels": {
+      "de": "Standard-Abstandhalter",
+      "en": "Standard spacer",
+      "fr": "Intercalaire standard",
+      "it": "Distanziatore standard",
+      "nl": "Standaard spacer"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "warm_edge",
+     "kind": "warmEdge",
+     "labels": {
+      "de": "Warme Kante",
+      "en": "Warm-edge spacer",
+      "fr": "Intercalaire warm-edge",
+      "it": "Distanziatore warm-edge",
+      "nl": "Warm-edge spacer"
+     },
+     "priceCents": 3500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "d115",
+     "kind": "profileDepth",
+     "labels": {
+      "de": "Profil 115 mm",
+      "en": "115 mm profile",
+      "fr": "Profilé 115 mm",
+      "it": "Profilo 115 mm",
+      "nl": "Blokprofiel 115 mm"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "d120",
+     "kind": "profileDepth",
+     "labels": {
+      "de": "Profil 120 mm",
+      "en": "120 mm profile",
+      "fr": "Profilé 120 mm",
+      "it": "Profilo 120 mm",
+      "nl": "Blokprofiel 120 mm"
+     },
+     "priceCents": 4500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "standard",
+     "kind": "cornerJoint",
+     "labels": {
+      "de": "Standardverbindung",
+      "en": "Standard joint",
+      "fr": "Assemblage standard",
+      "it": "Giunto standard",
+      "nl": "Standaard verbinding"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "hvl_90",
+     "kind": "cornerJoint",
+     "labels": {
+      "de": "HVL-90°-Eckverbindung",
+      "en": "HVL 90° corner joint",
+      "fr": "Assemblage d'angle HVL 90°",
+      "it": "Giunto angolo HVL 90°",
+      "nl": "HVL 90° hoekverbinding"
+     },
+     "priceCents": 6000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "hr_plus_plus",
+     "kind": "ugTier",
+     "labels": {
+      "de": "HR++-Verglasung",
+      "en": "HR++ glazing",
+      "fr": "Vitrage HR++",
+      "it": "Vetro HR++",
+      "nl": "HR++ beglazing"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "hr_plus_plus_plus",
+     "kind": "ugTier",
+     "labels": {
+      "de": "HR+++-3-fach-Verglasung",
+      "en": "HR+++ triple glazing",
+      "fr": "Vitrage HR+++ (triple)",
+      "it": "Vetro HR+++ (triplo)",
+      "nl": "HR+++ triple beglazing"
+     },
+     "priceCents": 14000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "ral9016",
+     "kind": "colorPreset",
+     "labels": {
+      "de": "RAL 9016 Verkehrsweiß",
+      "en": "RAL 9016 white",
+      "fr": "Blanc RAL 9016",
+      "it": "Bianco RAL 9016",
+      "nl": "RAL 9016 wit"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "ral7016",
+     "kind": "colorPreset",
+     "labels": {
+      "de": "RAL 7016 Anthrazitgrau",
+      "en": "RAL 7016 anthracite",
+      "fr": "Anthracite RAL 7016",
+      "it": "Grigio antracite RAL 7016",
+      "nl": "RAL 7016 antraciet"
+     },
+     "priceCents": 2500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "ral6009",
+     "kind": "colorPreset",
+     "labels": {
+      "de": "RAL 6009 Tannengrün",
+      "en": "RAL 6009 fir green",
+      "fr": "Vert sapin RAL 6009",
+      "it": "Verde abete RAL 6009",
+      "nl": "RAL 6009 dennengroen"
+     },
+     "priceCents": 2500,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "ral9001",
+     "kind": "colorPreset",
+     "labels": {
+      "de": "RAL 9001 Cremeweiß",
+      "en": "RAL 9001 cream",
+      "fr": "Blanc crème RAL 9001",
+      "it": "Bianco crema RAL 9001",
+      "nl": "RAL 9001 crème"
+     },
+     "priceCents": 2500,
+     "sortOrder": 3
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "none",
+     "kind": "inmeetservice",
+     "labels": {
+      "de": "Keine",
+      "en": "None",
+      "fr": "Aucun",
+      "it": "Nessuno",
+      "nl": "Geen"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "paid",
+     "kind": "inmeetservice",
+     "labels": {
+      "de": "Aufmaßservice",
+      "en": "Measurement service",
+      "fr": "Service de métrage",
+      "it": "Servizio di rilievo misure",
+      "nl": "Inmeetservice (verrekenbaar)"
+     },
+     "priceCents": 9500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "none",
+     "kind": "sunProtection",
+     "labels": {
+      "de": "Keiner",
+      "en": "None",
+      "fr": "Aucun",
+      "it": "Nessuno",
+      "nl": "Geen"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "aufsatzrollladen",
+     "kind": "sunProtection",
+     "labels": {
+      "de": "Aufsatzrollladen",
+      "en": "Built-on roller shutter",
+      "fr": "Volet roulant en applique",
+      "it": "Cassonetto sovrapposto",
+      "nl": "Opbouwrolluik"
+     },
+     "priceCents": 24000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "vorbaurollladen",
+     "kind": "sunProtection",
+     "labels": {
+      "de": "Vorbaurollladen",
+      "en": "Front-mounted roller shutter",
+      "fr": "Volet roulant en façade",
+      "it": "Cassonetto frontale",
+      "nl": "Voorzetrolluik"
+     },
+     "priceCents": 28000,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "raffstore",
+     "kind": "sunProtection",
+     "labels": {
+      "de": "Raffstore / Jalousie",
+      "en": "External venetian blind",
+      "fr": "Brise-soleil orientable",
+      "it": "Frangisole orientabile",
+      "nl": "Buitenjaloezie"
+     },
+     "priceCents": 39000,
+     "sortOrder": 3
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": false,
+     "key": "standard",
+     "kind": "securityClass",
+     "labels": {
+      "de": "Standardbeschlag",
+      "en": "Standard fittings",
+      "fr": "Ferrures standard",
+      "it": "Standard",
+      "nl": "Standaard beslag"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": false,
+     "key": "rc2",
+     "kind": "securityClass",
+     "labels": {
+      "de": "RC2 (Pilzkopf + P4A)",
+      "en": "RC2 burglary resistance",
+      "fr": "Anti-effraction RC2",
+      "it": "RC2 (antieffrazione)",
+      "nl": "RC2 inbraakwerend"
+     },
+     "priceCents": 6500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": false,
+     "key": "rc3",
+     "kind": "securityClass",
+     "labels": {
+      "de": "RC3 (Hochsicherheit)",
+      "en": "RC3 high security",
+      "fr": "Haute sécurité RC3",
+      "it": "RC3 (alta sicurezza)",
+      "nl": "RC3 hoge beveiliging"
+     },
+     "priceCents": 12000,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "standard",
+     "kind": "montageSystem",
+     "labels": {
+      "de": "Standardmontage",
+      "en": "Standard installation",
+      "fr": "Pose standard",
+      "it": "Montaggio standard",
+      "nl": "Standaard montage"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "ral",
+     "kind": "montageSystem",
+     "labels": {
+      "de": "RAL-gütegesicherte Montage",
+      "en": "RAL-certified installation",
+      "fr": "Pose certifiée RAL",
+      "it": "Montaggio RAL (Compriband + barriere vapore)",
+      "nl": "RAL-gecertificeerde montage"
+     },
+     "priceCents": 4500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "balconyDoorThreshold",
+     "kind": "threshold",
+     "labels": {
+      "de": "Balkonschwelle",
+      "en": "Balcony threshold",
+      "fr": "Seuil balcon",
+      "it": "Soglia balcone",
+      "nl": "Balkondorpel"
+     },
+     "priceCents": 6500,
+     "sortOrder": 0
+    }
+   ],
+   "materials": [
+    {
+     "basePerM2Cents": 18000,
+     "enabled": true,
+     "key": "pvc",
+     "labels": {
+      "de": "Kunststoff (PVC)",
+      "en": "PVC",
+      "fr": "PVC",
+      "it": "PVC",
+      "nl": "Kunststof (PVC)"
+     },
+     "profilePerMlCents": 2800,
+     "sortOrder": 0,
+     "uFrameBase": 1.3
+    },
+    {
+     "basePerM2Cents": 32000,
+     "enabled": true,
+     "key": "wood",
+     "labels": {
+      "de": "Holz",
+      "en": "Wood",
+      "fr": "Bois",
+      "it": "Legno",
+      "nl": "Hout"
+     },
+     "profilePerMlCents": 4500,
+     "sortOrder": 1,
+     "uFrameBase": 1.2
+    },
+    {
+     "basePerM2Cents": 26000,
+     "enabled": true,
+     "key": "aluminum",
+     "labels": {
+      "de": "Aluminium",
+      "en": "Aluminum",
+      "fr": "Aluminium",
+      "it": "Alluminio",
+      "nl": "Aluminium"
+     },
+     "profilePerMlCents": 3800,
+     "sortOrder": 2,
+     "uFrameBase": 1.6
+    },
+    {
+     "basePerM2Cents": 18000,
+     "enabled": true,
+     "key": "pvc",
+     "labels": {
+      "de": "Kunststoff (PVC)",
+      "en": "PVC",
+      "fr": "PVC",
+      "it": "PVC",
+      "nl": "Kunststof (PVC)"
+     },
+     "profilePerMlCents": 2800,
+     "sortOrder": 0,
+     "uFrameBase": 1.3
+    },
+    {
+     "basePerM2Cents": 32000,
+     "enabled": true,
+     "key": "wood",
+     "labels": {
+      "de": "Holz",
+      "en": "Wood",
+      "fr": "Bois",
+      "it": "Legno",
+      "nl": "Hout"
+     },
+     "profilePerMlCents": 4500,
+     "sortOrder": 1,
+     "uFrameBase": 1.2
+    },
+    {
+     "basePerM2Cents": 26000,
+     "enabled": true,
+     "key": "aluminum",
+     "labels": {
+      "de": "Aluminium",
+      "en": "Aluminum",
+      "fr": "Aluminium",
+      "it": "Alluminio",
+      "nl": "Aluminium"
+     },
+     "profilePerMlCents": 3800,
+     "sortOrder": 2,
+     "uFrameBase": 1.6
+    }
+   ],
+   "productBase": [],
+   "profileSystems": [
+    {
+     "enabled": true,
+     "key": "standard",
+     "labels": {
+      "de": "Standard",
+      "en": "Standard",
+      "fr": "Standard",
+      "it": "Standard",
+      "nl": "Standaard"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1,
+     "sortOrder": 0
+    },
+    {
+     "enabled": true,
+     "group": "tab1",
+     "key": "aluplast",
+     "labels": {
+      "de": "Aluplast",
+      "en": "Aluplast",
+      "fr": "Aluplast",
+      "it": "Aluplast",
+      "nl": "Aluplast"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1,
+     "sortOrder": 1,
+     "uFrame": 1.3
+    },
+    {
+     "enabled": true,
+     "group": "tab2",
+     "key": "rehau",
+     "labels": {
+      "de": "Rehau",
+      "en": "Rehau",
+      "fr": "Rehau",
+      "it": "Rehau",
+      "nl": "Rehau"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1.08,
+     "sortOrder": 2,
+     "uFrame": 1
+    },
+    {
+     "enabled": true,
+     "group": "tab1",
+     "key": "kommerling",
+     "labels": {
+      "de": "Kömmerling",
+      "en": "Kömmerling",
+      "fr": "Kömmerling",
+      "it": "Kömmerling",
+      "nl": "Kömmerling"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1.1,
+     "sortOrder": 3,
+     "uFrame": 1.3
+    },
+    {
+     "enabled": true,
+     "group": "tab2",
+     "key": "deceuninck",
+     "labels": {
+      "de": "Deceuninck",
+      "en": "Deceuninck",
+      "fr": "Deceuninck",
+      "it": "Deceuninck",
+      "nl": "Deceuninck"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1.06,
+     "sortOrder": 4,
+     "uFrame": 1
+    },
+    {
+     "enabled": true,
+     "group": "tab2",
+     "key": "salamander",
+     "labels": {
+      "de": "Salamander",
+      "en": "Salamander",
+      "fr": "Salamander",
+      "it": "Salamander",
+      "nl": "Salamander"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1.05,
+     "sortOrder": 5,
+     "uFrame": 0.92
+    },
+    {
+     "enabled": true,
+     "key": "standard",
+     "labels": {
+      "de": "Standard",
+      "en": "Standard",
+      "fr": "Standard",
+      "it": "Standard",
+      "nl": "Standaard"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1,
+     "sortOrder": 0
+    },
+    {
+     "enabled": true,
+     "key": "schuco",
+     "labels": {
+      "de": "Schüco",
+      "en": "Schüco",
+      "fr": "Schüco",
+      "it": "Schüco",
+      "nl": "Schüco"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1.15,
+     "sortOrder": 1
+    },
+    {
+     "enabled": true,
+     "key": "reynaers",
+     "labels": {
+      "de": "Reynaers",
+      "en": "Reynaers",
+      "fr": "Reynaers",
+      "it": "Reynaers",
+      "nl": "Reynaers"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1.12,
+     "sortOrder": 2
+    },
+    {
+     "enabled": true,
+     "key": "aluprof",
+     "labels": {
+      "de": "Aluprof",
+      "en": "Aluprof",
+      "fr": "Aluprof",
+      "it": "Aluprof",
+      "nl": "Aluprof"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1,
+     "sortOrder": 3
+    },
+    {
+     "enabled": true,
+     "key": "cortizo",
+     "labels": {
+      "de": "Cortizo",
+      "en": "Cortizo",
+      "fr": "Cortizo",
+      "it": "Cortizo",
+      "nl": "Cortizo"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1.08,
+     "sortOrder": 4
+    },
+    {
+     "enabled": true,
+     "group": "tab1",
+     "key": "aluplastEnergeto76",
+     "labels": {
+      "en": "Aluplast ENERGETO 76",
+      "fr": "Aluplast ENERGETO 76",
+      "it": "Aluplast ENERGETO 76"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1.05,
+     "sortOrder": 10,
+     "uFrame": 1.1
+    },
+    {
+     "enabled": true,
+     "group": "tab1",
+     "key": "kommerling76",
+     "labels": {
+      "en": "Kömmerling 76 MD",
+      "fr": "Kömmerling 76 MD",
+      "it": "Kömmerling 76 MD"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1.14,
+     "sortOrder": 11,
+     "uFrame": 1.1
+    },
+    {
+     "enabled": true,
+     "group": "tab2",
+     "key": "schuco",
+     "labels": {
+      "en": "Schüco AWS 75.SI+",
+      "fr": "Schüco AWS 75.SI+",
+      "it": "Schüco AWS 75.SI+"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1.15,
+     "sortOrder": 12,
+     "uFrame": 0.88
+    },
+    {
+     "enabled": true,
+     "key": "standard",
+     "labels": {
+      "de": "Standard",
+      "en": "Standard",
+      "fr": "Standard",
+      "it": "Standard",
+      "nl": "Standaard"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1,
+     "sortOrder": 0
+    },
+    {
+     "enabled": true,
+     "group": "tab1",
+     "key": "aluplast",
+     "labels": {
+      "de": "Aluplast",
+      "en": "Aluplast",
+      "fr": "Aluplast",
+      "it": "Aluplast",
+      "nl": "Aluplast"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1,
+     "sortOrder": 1,
+     "uFrame": 1.3
+    },
+    {
+     "enabled": true,
+     "group": "tab2",
+     "key": "rehau",
+     "labels": {
+      "de": "Rehau",
+      "en": "Rehau",
+      "fr": "Rehau",
+      "it": "Rehau",
+      "nl": "Rehau"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1.08,
+     "sortOrder": 2,
+     "uFrame": 1
+    },
+    {
+     "enabled": true,
+     "group": "tab1",
+     "key": "kommerling",
+     "labels": {
+      "de": "Kömmerling",
+      "en": "Kömmerling",
+      "fr": "Kömmerling",
+      "it": "Kömmerling",
+      "nl": "Kömmerling"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1.1,
+     "sortOrder": 3,
+     "uFrame": 1.3
+    },
+    {
+     "enabled": true,
+     "group": "tab2",
+     "key": "deceuninck",
+     "labels": {
+      "de": "Deceuninck",
+      "en": "Deceuninck",
+      "fr": "Deceuninck",
+      "it": "Deceuninck",
+      "nl": "Deceuninck"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1.06,
+     "sortOrder": 4,
+     "uFrame": 1
+    },
+    {
+     "enabled": true,
+     "group": "tab2",
+     "key": "salamander",
+     "labels": {
+      "de": "Salamander",
+      "en": "Salamander",
+      "fr": "Salamander",
+      "it": "Salamander",
+      "nl": "Salamander"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1.05,
+     "sortOrder": 5,
+     "uFrame": 0.92
+    },
+    {
+     "enabled": true,
+     "key": "standard",
+     "labels": {
+      "de": "Standard",
+      "en": "Standard",
+      "fr": "Standard",
+      "it": "Standard",
+      "nl": "Standaard"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1,
+     "sortOrder": 0
+    },
+    {
+     "enabled": true,
+     "key": "schuco",
+     "labels": {
+      "de": "Schüco",
+      "en": "Schüco",
+      "fr": "Schüco",
+      "it": "Schüco",
+      "nl": "Schüco"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1.15,
+     "sortOrder": 1
+    },
+    {
+     "enabled": true,
+     "key": "reynaers",
+     "labels": {
+      "de": "Reynaers",
+      "en": "Reynaers",
+      "fr": "Reynaers",
+      "it": "Reynaers",
+      "nl": "Reynaers"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1.12,
+     "sortOrder": 2
+    },
+    {
+     "enabled": true,
+     "key": "aluprof",
+     "labels": {
+      "de": "Aluprof",
+      "en": "Aluprof",
+      "fr": "Aluprof",
+      "it": "Aluprof",
+      "nl": "Aluprof"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1,
+     "sortOrder": 3
+    },
+    {
+     "enabled": true,
+     "key": "cortizo",
+     "labels": {
+      "de": "Cortizo",
+      "en": "Cortizo",
+      "fr": "Cortizo",
+      "it": "Cortizo",
+      "nl": "Cortizo"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1.08,
+     "sortOrder": 4
+    }
+   ],
+   "qualityTiers": [
+    {
+     "enabled": true,
+     "key": "chamber5",
+     "labels": {
+      "de": "5 Kammern",
+      "en": "5 chambers",
+      "fr": "5 chambres",
+      "it": "5 camere",
+      "nl": "5 kamers"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1,
+     "sortOrder": 0,
+     "uAdjust": 0
+    },
+    {
+     "enabled": true,
+     "key": "chamber7",
+     "labels": {
+      "de": "7 Kammern",
+      "en": "7 chambers",
+      "fr": "7 chambres",
+      "it": "7 camere",
+      "nl": "7 kamers"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1.15,
+     "sortOrder": 1,
+     "uAdjust": -0.15
+    },
+    {
+     "enabled": true,
+     "key": "pine",
+     "labels": {
+      "de": "Kiefer",
+      "en": "Pine",
+      "fr": "Pin",
+      "it": "Pino",
+      "nl": "Grenen"
+     },
+     "materialKey": "wood",
+     "multiplier": 1,
+     "sortOrder": 0,
+     "uAdjust": 0
+    },
+    {
+     "enabled": true,
+     "key": "oak",
+     "labels": {
+      "de": "Eiche",
+      "en": "Oak",
+      "fr": "Chêne",
+      "it": "Rovere",
+      "nl": "Eiken"
+     },
+     "materialKey": "wood",
+     "multiplier": 1.35,
+     "sortOrder": 1,
+     "uAdjust": -0.05
+    },
+    {
+     "enabled": true,
+     "key": "standard",
+     "labels": {
+      "de": "Standard",
+      "en": "Standard",
+      "fr": "Standard",
+      "it": "Standard",
+      "nl": "Standaard"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1,
+     "sortOrder": 0,
+     "uAdjust": 0
+    },
+    {
+     "enabled": true,
+     "key": "thermalbreak",
+     "labels": {
+      "de": "Thermisch getrennt",
+      "en": "Thermal break",
+      "fr": "Rupture de pont thermique",
+      "it": "Taglio termico",
+      "nl": "Thermisch onderbroken"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1.25,
+     "sortOrder": 1,
+     "uAdjust": -0.5
+    },
+    {
+     "enabled": true,
+     "key": "chamber5",
+     "labels": {
+      "de": "5 Kammern",
+      "en": "5 chambers",
+      "fr": "5 chambres",
+      "it": "5 camere",
+      "nl": "5 kamers"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1,
+     "sortOrder": 0,
+     "uAdjust": 0
+    },
+    {
+     "enabled": true,
+     "key": "chamber7",
+     "labels": {
+      "de": "7 Kammern",
+      "en": "7 chambers",
+      "fr": "7 chambres",
+      "it": "7 camere",
+      "nl": "7 kamers"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1.15,
+     "sortOrder": 1,
+     "uAdjust": -0.15
+    },
+    {
+     "enabled": true,
+     "key": "pine",
+     "labels": {
+      "de": "Kiefer",
+      "en": "Pine",
+      "fr": "Pin",
+      "it": "Pino",
+      "nl": "Grenen"
+     },
+     "materialKey": "wood",
+     "multiplier": 1,
+     "sortOrder": 0,
+     "uAdjust": 0
+    },
+    {
+     "enabled": true,
+     "key": "oak",
+     "labels": {
+      "de": "Eiche",
+      "en": "Oak",
+      "fr": "Chêne",
+      "it": "Rovere",
+      "nl": "Eiken"
+     },
+     "materialKey": "wood",
+     "multiplier": 1.35,
+     "sortOrder": 1,
+     "uAdjust": -0.05
+    },
+    {
+     "enabled": true,
+     "key": "standard",
+     "labels": {
+      "de": "Standard",
+      "en": "Standard",
+      "fr": "Standard",
+      "it": "Standard",
+      "nl": "Standaard"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1,
+     "sortOrder": 0,
+     "uAdjust": 0
+    },
+    {
+     "enabled": true,
+     "key": "thermalbreak",
+     "labels": {
+      "de": "Thermisch getrennt",
+      "en": "Thermal break",
+      "fr": "Rupture de pont thermique",
+      "it": "Taglio termico",
+      "nl": "Thermisch onderbroken"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1.25,
+     "sortOrder": 1,
+     "uAdjust": -0.5
+    }
+   ],
+   "sizeConstraints": [
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 1200,
+     "minHeightMm": 300,
+     "minWidthMm": 450,
+     "productType": "window",
+     "sashCount": 1
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 2400,
+     "minHeightMm": 300,
+     "minWidthMm": 600,
+     "productType": "window",
+     "sashCount": 2
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 3600,
+     "minHeightMm": 300,
+     "minWidthMm": 900,
+     "productType": "window",
+     "sashCount": 3
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 4000,
+     "minHeightMm": 300,
+     "minWidthMm": 1200,
+     "productType": "window",
+     "sashCount": 4
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 1200,
+     "minHeightMm": 1700,
+     "minWidthMm": 450,
+     "productType": "balconyDoor",
+     "sashCount": 1
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 2400,
+     "minHeightMm": 1700,
+     "minWidthMm": 600,
+     "productType": "balconyDoor",
+     "sashCount": 2
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 3600,
+     "minHeightMm": 1700,
+     "minWidthMm": 900,
+     "productType": "balconyDoor",
+     "sashCount": 3
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 4000,
+     "minHeightMm": 1700,
+     "minWidthMm": 1200,
+     "productType": "balconyDoor",
+     "sashCount": 4
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 1200,
+     "minHeightMm": 300,
+     "minWidthMm": 450,
+     "productType": "window",
+     "sashCount": 1
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 2400,
+     "minHeightMm": 300,
+     "minWidthMm": 600,
+     "productType": "window",
+     "sashCount": 2
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 3600,
+     "minHeightMm": 300,
+     "minWidthMm": 900,
+     "productType": "window",
+     "sashCount": 3
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 4000,
+     "minHeightMm": 300,
+     "minWidthMm": 1200,
+     "productType": "window",
+     "sashCount": 4
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 1200,
+     "minHeightMm": 1700,
+     "minWidthMm": 450,
+     "productType": "balconyDoor",
+     "sashCount": 1
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 2400,
+     "minHeightMm": 1700,
+     "minWidthMm": 600,
+     "productType": "balconyDoor",
+     "sashCount": 2
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 3600,
+     "minHeightMm": 1700,
+     "minWidthMm": 900,
+     "productType": "balconyDoor",
+     "sashCount": 3
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 4000,
+     "minHeightMm": 1700,
+     "minWidthMm": 1200,
+     "productType": "balconyDoor",
+     "sashCount": 4
+    }
+   ]
+  },
+  "catalogVersion": 1,
+  "complianceFlags": [
+   "posa_uni_11673"
+  ],
+  "currency": "EUR",
+  "defaultLocale": "it",
+  "defaultTheme": "auto",
+  "defaultVatKey": "ordinaria",
+  "discountEnabled": false,
+  "discountMaxPercent": 20,
+  "ecobonusEnabled": true,
+  "ecobonusMaxPercent": 50,
+  "name": "Serramenti Demo",
+  "overPlanLimit": false,
+  "priceRoundingStep": 1,
+  "privacyUrl": null,
+  "publicId": "DEMO000000",
+  "publicWidgetAllowed": true,
+  "region": "IT",
+  "showPricesToEndUser": true,
+  "transparentAllowed": true,
+  "vatRatePercent": 22,
+  "vatRates": [
+   {
+    "key": "ordinaria",
+    "label": "IVA ordinaria 22%",
+    "percent": 22
+   },
+   {
+    "key": "ristrutturazione",
+    "label": "Ristrutturazione 10%",
+    "percent": 10
+   }
+  ],
+  "widgetMode": "lead_gen",
+  "widgetStyle": "standard"
+ },
+ "showroom": {
+  "regionCode": "IT",
+  "payload": {
+   "accessories": [
+    {
+     "category": "zanz",
+     "enabled": true,
+     "key": "carrarmato",
+     "labels": {
+      "en": "Reinforced insect screen",
+      "it": "Zanzariera tipo Carrarmato"
+     },
+     "priceCents": 12000,
+     "priceModel": "flat",
+     "sortOrder": 0
+    },
+    {
+     "category": "zanz",
+     "enabled": true,
+     "key": "plisettata",
+     "labels": {
+      "en": "Pleated insect screen",
+      "it": "Zanzariera Plisettata"
+     },
+     "priceCents": 8500,
+     "priceModel": "flat",
+     "sortOrder": 1
+    },
+    {
+     "category": "zanz",
+     "enabled": true,
+     "key": "cerniere",
+     "labels": {
+      "en": "Hinged insect screen",
+      "it": "Zanzariera con Cerniere"
+     },
+     "priceCents": 4500,
+     "priceModel": "flat",
+     "sortOrder": 2
+    },
+    {
+     "category": "zanz",
+     "enabled": true,
+     "key": "fissa",
+     "labels": {
+      "en": "Fixed insect screen",
+      "it": "Zanzariera Fissa"
+     },
+     "priceCents": 3000,
+     "priceModel": "flat",
+     "sortOrder": 3
+    },
+    {
+     "category": "zanz",
+     "enabled": true,
+     "key": "molla",
+     "labels": {
+      "en": "Roller insect screen",
+      "it": "Zanzariera a molla"
+     },
+     "priceCents": 6500,
+     "priceModel": "flat",
+     "sortOrder": 4
+    },
+    {
+     "category": "cass",
+     "enabled": true,
+     "key": "deceuninck132",
+     "labels": {
+      "en": "Deceuninck shutter box 132 mm",
+      "it": "Cassonetto Deceuninck 132mm"
+     },
+     "priceCents": 18000,
+     "priceModel": "flat",
+     "sortOrder": 0
+    },
+    {
+     "category": "cass",
+     "enabled": true,
+     "key": "rehau150",
+     "labels": {
+      "en": "Rehau shutter box 150 mm",
+      "it": "Cassonetto Rehau 150mm"
+     },
+     "priceCents": 20000,
+     "priceModel": "flat",
+     "sortOrder": 1
+    },
+    {
+     "category": "cass",
+     "enabled": true,
+     "key": "aluplast80",
+     "labels": {
+      "en": "Aluplast shutter box 80 mm",
+      "it": "Cassonetto Aluplast 80mm"
+     },
+     "priceCents": 12000,
+     "priceModel": "flat",
+     "sortOrder": 2
+    },
+    {
+     "category": "cass",
+     "enabled": true,
+     "key": "aluplast140",
+     "labels": {
+      "en": "Aluplast shutter box 140 mm",
+      "it": "Cassonetto Aluplast 140mm"
+     },
+     "priceCents": 16000,
+     "priceModel": "flat",
+     "sortOrder": 3
+    },
+    {
+     "category": "avv",
+     "enabled": true,
+     "key": "sovrapposto",
+     "labels": {
+      "en": "Surface-mounted roller shutter",
+      "it": "Avvolgibile sovrapposto"
+     },
+     "priceCents": 22000,
+     "priceModel": "flat",
+     "sortOrder": 0
+    },
+    {
+     "category": "avv",
+     "enabled": true,
+     "key": "applicato",
+     "labels": {
+      "en": "Applied roller shutter",
+      "it": "Avvolgibile applicato"
+     },
+     "priceCents": 18000,
+     "priceModel": "flat",
+     "sortOrder": 1
+    },
+    {
+     "category": "avv",
+     "enabled": true,
+     "key": "accessori",
+     "labels": {
+      "en": "Roller shutter accessories",
+      "it": "Accessori avvolgibili"
+     },
+     "priceCents": 4500,
+     "priceModel": "flat",
+     "sortOrder": 2
+    },
+    {
+     "category": "pers",
+     "enabled": true,
+     "key": "fisse",
+     "labels": {
+      "en": "Fixed-louvre shutter",
+      "it": "Persiana a lamelle fisse"
+     },
+     "priceCents": 25000,
+     "priceModel": "flat",
+     "sortOrder": 0
+    },
+    {
+     "category": "pers",
+     "enabled": true,
+     "key": "orientabili",
+     "labels": {
+      "en": "Adjustable-louvre shutter",
+      "it": "Persiana a lamelle orientabili"
+     },
+     "priceCents": 32000,
+     "priceModel": "flat",
+     "sortOrder": 1
+    }
+   ],
+   "branding": {
+    "colorAccent": "#16d19d",
+    "colorAccentInk": "#04150f",
+    "companyInfo": {
+     "name": "Serramenti Demo"
+    },
+    "copy": {},
+    "fontFamily": "geist",
+    "whiteLabel": true
+   },
+   "configurator": {
+    "currency": "EUR",
+    "defaultLocale": "it",
+    "defaultTheme": "auto",
+    "discountEnabled": false,
+    "discountMaxPercent": 20,
+    "ecobonusEnabled": true,
+    "ecobonusMaxPercent": 50,
+    "name": "Serramenti Demo",
+    "priceRoundingStep": 1,
+    "publicId": "DEMO000000",
+    "showPricesToEndUser": true,
+    "vatRatePercent": 22
+   },
+   "finish": [
+    {
+     "enabled": true,
+     "key": "white",
+     "labels": {
+      "de": "Weiß",
+      "en": "White",
+      "fr": "Blanc",
+      "it": "Bianco",
+      "nl": "Wit"
+     },
+     "priceCents": 0,
+     "sortOrder": 0,
+     "swatchHex": "#FFFFFF"
+    },
+    {
+     "enabled": true,
+     "key": "ral",
+     "labels": {
+      "de": "RAL nach Wahl",
+      "en": "Custom RAL",
+      "fr": "RAL personnalisé",
+      "it": "RAL personalizzato",
+      "nl": "RAL naar keuze"
+     },
+     "priceCents": 5500,
+     "sortOrder": 1,
+     "swatchHex": "#CCCCCC"
+    },
+    {
+     "enabled": true,
+     "key": "woodeffect",
+     "labels": {
+      "de": "Holzdekor",
+      "en": "Wood effect",
+      "fr": "Effet bois",
+      "it": "Effetto legno",
+      "nl": "Houtlook"
+     },
+     "priceCents": 8500,
+     "sortOrder": 2,
+     "swatchHex": "#8B4513"
+    },
+    {
+     "enabled": true,
+     "key": "anthracite",
+     "labels": {
+      "de": "Anthrazit RAL 7016",
+      "en": "Anthracite RAL 7016",
+      "fr": "Anthracite RAL 7016",
+      "it": "Antracite RAL 7016",
+      "nl": "Antraciet RAL 7016"
+     },
+     "priceCents": 6500,
+     "sortOrder": 10,
+     "swatchHex": "#383E42"
+    },
+    {
+     "enabled": true,
+     "key": "bicolorRal",
+     "labels": {
+      "de": "Zweifarbig: innen weiß / außen RAL",
+      "en": "Bicolour: white inside / RAL outside",
+      "fr": "Bicolore : blanc intérieur / RAL extérieur",
+      "it": "Bicolore: bianco interno / RAL esterno",
+      "nl": "Tweekleurig: binnen wit / buiten RAL"
+     },
+     "priceCents": 7500,
+     "sortOrder": 11,
+     "swatchHex": "#6B7280"
+    },
+    {
+     "enabled": true,
+     "key": "whiteWoodExt",
+     "labels": {
+      "de": "Innen weiß / außen Holzdekor",
+      "en": "White inside / wood effect outside",
+      "fr": "Blanc intérieur / aspect bois extérieur",
+      "it": "Bianco interno / effetto legno esterno",
+      "nl": "Binnen wit / buiten houtlook"
+     },
+     "priceCents": 7000,
+     "sortOrder": 12,
+     "swatchHex": "#8B5A2B"
+    },
+    {
+     "enabled": true,
+     "key": "woodIntExt",
+     "labels": {
+      "de": "Holzdekor innen und außen",
+      "en": "Wood effect inside and outside",
+      "fr": "Aspect bois intérieur et extérieur",
+      "it": "Effetto legno interno ed esterno",
+      "nl": "Houtlook binnen en buiten"
+     },
+     "priceCents": 9500,
+     "sortOrder": 13,
+     "swatchHex": "#A0522D"
+    },
+    {
+     "enabled": true,
+     "key": "whiteWoodEffect",
+     "labels": {
+      "de": "Weiß Holzdekor",
+      "en": "White wood effect",
+      "fr": "Blanc aspect bois",
+      "it": "Bianco effetto legno",
+      "nl": "Wit houtlook"
+     },
+     "priceCents": 6000,
+     "sortOrder": 14,
+     "swatchHex": "#F5F5DC"
+    },
+    {
+     "enabled": true,
+     "key": "ivoryWoodEffect",
+     "labels": {
+      "de": "Elfenbein Holzdekor",
+      "en": "Ivory wood effect",
+      "fr": "Ivoire aspect bois",
+      "it": "Ivory effetto legno",
+      "nl": "Ivoor houtlook"
+     },
+     "priceCents": 7000,
+     "sortOrder": 15,
+     "swatchHex": "#FFFFF0"
+    },
+    {
+     "enabled": true,
+     "key": "otherColor",
+     "labels": {
+      "de": "Andere Farbe",
+      "en": "Other colour",
+      "fr": "Autre couleur",
+      "it": "Altro colore",
+      "nl": "Andere kleur"
+     },
+     "priceCents": 9500,
+     "sortOrder": 16,
+     "swatchHex": "#B91C1C"
+    },
+    {
+     "enabled": true,
+     "key": "white",
+     "labels": {
+      "de": "Weiß",
+      "en": "White",
+      "fr": "Blanc",
+      "it": "Bianco",
+      "nl": "Wit"
+     },
+     "priceCents": 0,
+     "sortOrder": 0,
+     "swatchHex": "#FFFFFF"
+    },
+    {
+     "enabled": true,
+     "key": "ral",
+     "labels": {
+      "de": "RAL nach Wahl",
+      "en": "Custom RAL",
+      "fr": "RAL personnalisé",
+      "it": "RAL personalizzato",
+      "nl": "RAL naar keuze"
+     },
+     "priceCents": 5500,
+     "sortOrder": 1,
+     "swatchHex": "#CCCCCC"
+    },
+    {
+     "enabled": true,
+     "key": "woodeffect",
+     "labels": {
+      "de": "Holzdekor",
+      "en": "Wood effect",
+      "fr": "Effet bois",
+      "it": "Effetto legno",
+      "nl": "Houtlook"
+     },
+     "priceCents": 8500,
+     "sortOrder": 2,
+     "swatchHex": "#8B4513"
+    }
+   ],
+   "frameTypes": [
+    {
+     "descriptions": {
+      "de": "Standardrahmen 70 mm für Neubau",
+      "en": "Standard 70 mm frame for new build",
+      "fr": "Cadre standard 70 mm pour neuf",
+      "it": "Telaio standard 70mm per nuova costruzione",
+      "nl": "Standaard kozijn 70 mm voor nieuwbouw",
+      "ro": "Toc standard 70 mm pentru construcții noi"
+     },
+     "disposalPerPieceCents": 3500,
+     "enabled": true,
+     "installByLeavesCents": [
+      16500,
+      21500,
+      29000
+     ],
+     "key": "dritto",
+     "labels": {
+      "de": "Gerader Rahmen",
+      "en": "Straight frame",
+      "fr": "Cadre droit",
+      "it": "Dritto",
+      "nl": "Rechte kozijn",
+      "ro": "Toc drept"
+     },
+     "multiplier": 1,
+     "scaffoldPerPieceCents": 5500,
+     "sortOrder": 0
+    },
+    {
+     "descriptions": {
+      "de": "Deckt bis 50 mm ab, schnell ohne Maurerarbeiten",
+      "en": "Covers up to 50 mm, quick with no masonry work",
+      "fr": "Couvre jusqu'à 50 mm, rapide sans maçonnerie",
+      "it": "Copre fino 50mm, veloce senza opere murarie",
+      "nl": "Dekt tot 50 mm, snel zonder metselwerk",
+      "ro": "Acoperă până la 50 mm, rapid, fără lucrări de zidărie"
+     },
+     "disposalPerPieceCents": 3500,
+     "enabled": true,
+     "installByLeavesCents": [
+      11500,
+      15500,
+      23000
+     ],
+     "key": "reno40",
+     "labels": {
+      "de": "Sanierung 40 mm",
+      "en": "Renovation 40 mm",
+      "fr": "Rénovation 40 mm",
+      "it": "Ristrutturazione 40mm",
+      "nl": "Renovatie 40 mm",
+      "ro": "Renovare 40 mm"
+     },
+     "multiplier": 1.08,
+     "scaffoldPerPieceCents": 5500,
+     "sortOrder": 1
+    },
+    {
+     "descriptions": {
+      "de": "Deckt bis 70 mm ab, für Gebäude der 70er-90er",
+      "en": "Covers up to 70 mm, suited to 1970-90 buildings",
+      "fr": "Couvre jusqu'à 70 mm, adapté aux bâtiments 1970-90",
+      "it": "Copre fino 70mm, consigliato per edifici anni 70-90",
+      "nl": "Dekt tot 70 mm, geschikt voor gebouwen uit 1970-90",
+      "ro": "Acoperă până la 70 mm, potrivit clădirilor din 1970-90"
+     },
+     "disposalPerPieceCents": 3500,
+     "enabled": true,
+     "installByLeavesCents": [
+      12500,
+      16500,
+      24500
+     ],
+     "key": "reno65",
+     "labels": {
+      "de": "Sanierung 65 mm",
+      "en": "Renovation 65 mm",
+      "fr": "Rénovation 65 mm",
+      "it": "Ristrutturazione 65mm",
+      "nl": "Renovatie 65 mm",
+      "ro": "Renovare 65 mm"
+     },
+     "multiplier": 1.12,
+     "scaffoldPerPieceCents": 5500,
+     "sortOrder": 2
+    }
+   ],
+   "glazing": [
+    {
+     "enabled": true,
+     "key": "double",
+     "labels": {
+      "de": "2-fach-Verglasung",
+      "en": "Double glazing",
+      "fr": "Double vitrage",
+      "it": "Doppio vetro",
+      "nl": "Dubbel glas"
+     },
+     "priceCents": 0,
+     "psi": 0.04,
+     "sortOrder": 0,
+     "uGlass": 1.1
+    },
+    {
+     "enabled": true,
+     "key": "triple",
+     "labels": {
+      "de": "3-fach-Verglasung",
+      "en": "Triple glazing",
+      "fr": "Triple vitrage",
+      "it": "Triplo vetro",
+      "nl": "Triple glas"
+     },
+     "priceCents": 6000,
+     "psi": 0.032,
+     "sortOrder": 1,
+     "uGlass": 0.6
+    },
+    {
+     "enabled": true,
+     "key": "tripleLowE",
+     "labels": {
+      "de": "3-fach Low-E",
+      "en": "Triple Low-E",
+      "fr": "Triple Low-E",
+      "it": "Triplo Low-E",
+      "nl": "Triple Low-E"
+     },
+     "priceCents": 9500,
+     "psi": 0.032,
+     "sortOrder": 2,
+     "uGlass": 0.5
+    },
+    {
+     "enabled": true,
+     "key": "acoustic",
+     "labels": {
+      "de": "Schallschutz-2-fach-Verglasung 44.1/16/6",
+      "en": "Acoustic double glazing 44.1/16/6",
+      "fr": "Double vitrage acoustique 44.1/16/6",
+      "it": "Doppio vetro acustico 44.1/16/6",
+      "nl": "Akoestisch dubbel glas 44.1/16/6"
+     },
+     "priceCents": 4500,
+     "psi": 0.04,
+     "sortOrder": 10,
+     "uGlass": 1.1
+    },
+    {
+     "enabled": true,
+     "key": "satinDouble",
+     "labels": {
+      "de": "2-fach-Verglasung satiniert",
+      "en": "Satin double glazing",
+      "fr": "Double vitrage satiné",
+      "it": "Doppio vetro satinato",
+      "nl": "Gesatineerd dubbel glas"
+     },
+     "priceCents": 5500,
+     "psi": 0.04,
+     "sortOrder": 11,
+     "uGlass": 1.05
+    },
+    {
+     "enabled": true,
+     "key": "satinTriple",
+     "labels": {
+      "de": "3-fach-Verglasung satiniert",
+      "en": "Satin triple glazing",
+      "fr": "Triple vitrage satiné",
+      "it": "Triplo vetro satinato",
+      "nl": "Gesatineerd triple glas"
+     },
+     "priceCents": 12000,
+     "psi": 0.032,
+     "sortOrder": 12,
+     "uGlass": 0.58
+    },
+    {
+     "enabled": true,
+     "key": "double",
+     "labels": {
+      "de": "2-fach-Verglasung",
+      "en": "Double glazing",
+      "fr": "Double vitrage",
+      "it": "Doppio vetro",
+      "nl": "Dubbel glas"
+     },
+     "priceCents": 0,
+     "psi": 0.04,
+     "sortOrder": 0,
+     "uGlass": 1.1
+    },
+    {
+     "enabled": true,
+     "key": "triple",
+     "labels": {
+      "de": "3-fach-Verglasung",
+      "en": "Triple glazing",
+      "fr": "Triple vitrage",
+      "it": "Triplo vetro",
+      "nl": "Triple glas"
+     },
+     "priceCents": 6000,
+     "psi": 0.032,
+     "sortOrder": 1,
+     "uGlass": 0.6
+    },
+    {
+     "enabled": true,
+     "key": "tripleLowE",
+     "labels": {
+      "de": "3-fach Low-E",
+      "en": "Triple Low-E",
+      "fr": "Triple Low-E",
+      "it": "Triplo Low-E",
+      "nl": "Triple Low-E"
+     },
+     "priceCents": 9500,
+     "psi": 0.032,
+     "sortOrder": 2,
+     "uGlass": 0.5
+    }
+   ],
+   "hardware": [
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "maco",
+     "kind": "hardware",
+     "labels": {
+      "de": "Maco",
+      "en": "Maco",
+      "fr": "Maco",
+      "it": "Maco",
+      "nl": "Maco"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "roto",
+     "kind": "hardware",
+     "labels": {
+      "de": "Roto",
+      "en": "Roto",
+      "fr": "Roto",
+      "it": "Roto",
+      "nl": "Roto"
+     },
+     "priceCents": 1500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "siegenia",
+     "kind": "hardware",
+     "labels": {
+      "de": "Siegenia",
+      "en": "Siegenia",
+      "fr": "Siegenia",
+      "it": "Siegenia",
+      "nl": "Siegenia"
+     },
+     "priceCents": 2500,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "white",
+     "kind": "hardwareColor",
+     "labels": {
+      "de": "Weiß",
+      "en": "White",
+      "fr": "Blanc",
+      "it": "Bianco",
+      "nl": "Wit"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "silver",
+     "kind": "hardwareColor",
+     "labels": {
+      "de": "Silber",
+      "en": "Silver",
+      "fr": "Argent",
+      "it": "Argento",
+      "nl": "Zilver"
+     },
+     "priceCents": 1000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "bronze",
+     "kind": "hardwareColor",
+     "labels": {
+      "de": "Bronze",
+      "en": "Bronze",
+      "fr": "Bronze",
+      "it": "Bronzo",
+      "nl": "Brons"
+     },
+     "priceCents": 2000,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": true,
+     "key": "fix",
+     "kind": "sashType",
+     "labels": {
+      "de": "Festverglasung",
+      "en": "Fixed",
+      "fr": "Fixe",
+      "it": "Fisso",
+      "nl": "Vast"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "classic",
+     "kind": "sashType",
+     "labels": {
+      "de": "Dreh",
+      "en": "Classic",
+      "fr": "Classique",
+      "it": "Classica",
+      "nl": "Draai"
+     },
+     "priceCents": 3500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "tiltturn",
+     "kind": "sashType",
+     "labels": {
+      "de": "Dreh-Kipp",
+      "en": "Tilt & Turn",
+      "fr": "Oscillo-battant",
+      "it": "Vasistas/Battente",
+      "nl": "Draai-kiep"
+     },
+     "priceCents": 6500,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "sliding",
+     "kind": "sashType",
+     "labels": {
+      "de": "Schiebe",
+      "en": "Sliding",
+      "fr": "Coulissant",
+      "it": "Scorrevole",
+      "nl": "Schuif"
+     },
+     "priceCents": 8500,
+     "sortOrder": 3
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "cerniera",
+     "kind": "screen",
+     "labels": {
+      "de": "Insektenschutz-Drehtür",
+      "en": "Hinged screen",
+      "fr": "Moustiquaire à charnière",
+      "it": "Zanzariera a cerniera",
+      "nl": "Hordeur met scharnieren"
+     },
+     "priceCents": 4500,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "molla",
+     "kind": "screen",
+     "labels": {
+      "de": "Insektenschutzrollo",
+      "en": "Roller screen",
+      "fr": "Moustiquaire à ressort",
+      "it": "Zanzariera a molla",
+      "nl": "Rolhor"
+     },
+     "priceCents": 6500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "plissettata",
+     "kind": "screen",
+     "labels": {
+      "de": "Insektenschutz-Plissee",
+      "en": "Pleated screen",
+      "fr": "Moustiquaire plissée",
+      "it": "Zanzariera plissettata",
+      "nl": "Plissé hor"
+     },
+     "priceCents": 8500,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "carrarmato",
+     "kind": "screen",
+     "labels": {
+      "de": "Verstärkter Insektenschutz",
+      "en": "Reinforced screen",
+      "fr": "Moustiquaire renforcée",
+      "it": "Zanzariera carrarmato",
+      "nl": "Versterkte hor"
+     },
+     "priceCents": 12000,
+     "sortOrder": 3
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "white",
+     "kind": "screenColor",
+     "labels": {
+      "de": "Weiß",
+      "en": "White",
+      "fr": "Blanc",
+      "it": "Bianco",
+      "nl": "Wit"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "brown",
+     "kind": "screenColor",
+     "labels": {
+      "de": "Braun",
+      "en": "Brown",
+      "fr": "Marron",
+      "it": "Marrone",
+      "nl": "Bruin"
+     },
+     "priceCents": 1000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "woodeffect",
+     "kind": "screenColor",
+     "labels": {
+      "de": "Holzdekor",
+      "en": "Wood effect",
+      "fr": "Effet bois",
+      "it": "Effetto legno",
+      "nl": "Houtlook"
+     },
+     "priceCents": 2000,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": true,
+     "key": "classico",
+     "kind": "installation",
+     "labels": {
+      "de": "Standardmontage",
+      "en": "Standard installation",
+      "fr": "Pose standard",
+      "it": "Montaggio classico",
+      "nl": "Standaard montage"
+     },
+     "priceCents": 8000,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": true,
+     "key": "posaClima",
+     "kind": "installation",
+     "labels": {
+      "de": "Zertifizierte Montage",
+      "en": "Certified (posa clima) installation",
+      "fr": "Pose certifiée",
+      "it": "Montaggio posa clima",
+      "nl": "Gecertificeerde montage"
+     },
+     "priceCents": 15000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "renovation",
+     "kind": "poseType",
+     "labels": {
+      "de": "Renovierungsmontage (auf Altrahmen)",
+      "en": "Renovation (over existing frame)",
+      "fr": "Pose en rénovation (dépose incluse)",
+      "it": "Posa in ristrutturazione",
+      "nl": "Renovatiemontage (over bestaand kozijn)"
+     },
+     "priceCents": 9000,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "feuillure",
+     "kind": "poseType",
+     "labels": {
+      "de": "Montage im Anschlag",
+      "en": "Rebate fit",
+      "fr": "Pose en feuillure",
+      "it": "Posa in battuta",
+      "nl": "Montage in de sponning"
+     },
+     "priceCents": 6000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "applique",
+     "kind": "poseType",
+     "labels": {
+      "de": "Aufgesetzte Montage",
+      "en": "Face-fixed (applique)",
+      "fr": "Pose en applique",
+      "it": "Posa in applique",
+      "nl": "Opbouwmontage"
+     },
+     "priceCents": 7500,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "none",
+     "kind": "ventilationGrille",
+     "labels": {
+      "de": "Keine",
+      "en": "None",
+      "fr": "Aucune",
+      "it": "Nessuna",
+      "nl": "Geen"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "renson_standard",
+     "kind": "ventilationGrille",
+     "labels": {
+      "de": "Renson-Lüftungsgitter Standard",
+      "en": "Renson standard grille",
+      "fr": "Grille de ventilation Renson standard",
+      "it": "Griglia Renson standard",
+      "nl": "Renson standaard ventilatierooster"
+     },
+     "priceCents": 12000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "renson_acoustic",
+     "kind": "ventilationGrille",
+     "labels": {
+      "de": "Renson-Lüftungsgitter akustisch",
+      "en": "Renson acoustic grille",
+      "fr": "Grille de ventilation Renson acoustique",
+      "it": "Griglia Renson acustica",
+      "nl": "Renson akoestisch ventilatierooster"
+     },
+     "priceCents": 18000,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "none",
+     "kind": "voletRoulant",
+     "labels": {
+      "de": "Keine",
+      "en": "None",
+      "fr": "Aucun",
+      "it": "Nessuna",
+      "nl": "Geen"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "monobloc_pvc",
+     "kind": "voletRoulant",
+     "labels": {
+      "de": "Kunststoff-Vorbaurollladen Monoblock",
+      "en": "PVC monobloc roller shutter",
+      "fr": "Volet roulant monobloc PVC",
+      "it": "Tapparella monoblocco PVC",
+      "nl": "PVC monobloc rolluik"
+     },
+     "priceCents": 22000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "monobloc_alu",
+     "kind": "voletRoulant",
+     "labels": {
+      "de": "Aluminium-Vorbaurollladen Monoblock",
+      "en": "Aluminium monobloc roller shutter",
+      "fr": "Volet roulant monobloc aluminium",
+      "it": "Tapparella monoblocco alluminio",
+      "nl": "Aluminium monobloc rolluik"
+     },
+     "priceCents": 29000,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "standard",
+     "kind": "warmEdge",
+     "labels": {
+      "de": "Standard-Abstandhalter",
+      "en": "Standard spacer",
+      "fr": "Intercalaire standard",
+      "it": "Distanziatore standard",
+      "nl": "Standaard spacer"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "warm_edge",
+     "kind": "warmEdge",
+     "labels": {
+      "de": "Warme Kante",
+      "en": "Warm-edge spacer",
+      "fr": "Intercalaire warm-edge",
+      "it": "Distanziatore warm-edge",
+      "nl": "Warm-edge spacer"
+     },
+     "priceCents": 3500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "d115",
+     "kind": "profileDepth",
+     "labels": {
+      "de": "Profil 115 mm",
+      "en": "115 mm profile",
+      "fr": "Profilé 115 mm",
+      "it": "Profilo 115 mm",
+      "nl": "Blokprofiel 115 mm"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "d120",
+     "kind": "profileDepth",
+     "labels": {
+      "de": "Profil 120 mm",
+      "en": "120 mm profile",
+      "fr": "Profilé 120 mm",
+      "it": "Profilo 120 mm",
+      "nl": "Blokprofiel 120 mm"
+     },
+     "priceCents": 4500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "standard",
+     "kind": "cornerJoint",
+     "labels": {
+      "de": "Standardverbindung",
+      "en": "Standard joint",
+      "fr": "Assemblage standard",
+      "it": "Giunto standard",
+      "nl": "Standaard verbinding"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "hvl_90",
+     "kind": "cornerJoint",
+     "labels": {
+      "de": "HVL-90°-Eckverbindung",
+      "en": "HVL 90° corner joint",
+      "fr": "Assemblage d'angle HVL 90°",
+      "it": "Giunto angolo HVL 90°",
+      "nl": "HVL 90° hoekverbinding"
+     },
+     "priceCents": 6000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "hr_plus_plus",
+     "kind": "ugTier",
+     "labels": {
+      "de": "HR++-Verglasung",
+      "en": "HR++ glazing",
+      "fr": "Vitrage HR++",
+      "it": "Vetro HR++",
+      "nl": "HR++ beglazing"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "hr_plus_plus_plus",
+     "kind": "ugTier",
+     "labels": {
+      "de": "HR+++-3-fach-Verglasung",
+      "en": "HR+++ triple glazing",
+      "fr": "Vitrage HR+++ (triple)",
+      "it": "Vetro HR+++ (triplo)",
+      "nl": "HR+++ triple beglazing"
+     },
+     "priceCents": 14000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "ral9016",
+     "kind": "colorPreset",
+     "labels": {
+      "de": "RAL 9016 Verkehrsweiß",
+      "en": "RAL 9016 white",
+      "fr": "Blanc RAL 9016",
+      "it": "Bianco RAL 9016",
+      "nl": "RAL 9016 wit"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "ral7016",
+     "kind": "colorPreset",
+     "labels": {
+      "de": "RAL 7016 Anthrazitgrau",
+      "en": "RAL 7016 anthracite",
+      "fr": "Anthracite RAL 7016",
+      "it": "Grigio antracite RAL 7016",
+      "nl": "RAL 7016 antraciet"
+     },
+     "priceCents": 2500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "ral6009",
+     "kind": "colorPreset",
+     "labels": {
+      "de": "RAL 6009 Tannengrün",
+      "en": "RAL 6009 fir green",
+      "fr": "Vert sapin RAL 6009",
+      "it": "Verde abete RAL 6009",
+      "nl": "RAL 6009 dennengroen"
+     },
+     "priceCents": 2500,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "ral9001",
+     "kind": "colorPreset",
+     "labels": {
+      "de": "RAL 9001 Cremeweiß",
+      "en": "RAL 9001 cream",
+      "fr": "Blanc crème RAL 9001",
+      "it": "Bianco crema RAL 9001",
+      "nl": "RAL 9001 crème"
+     },
+     "priceCents": 2500,
+     "sortOrder": 3
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "none",
+     "kind": "inmeetservice",
+     "labels": {
+      "de": "Keine",
+      "en": "None",
+      "fr": "Aucun",
+      "it": "Nessuno",
+      "nl": "Geen"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "paid",
+     "kind": "inmeetservice",
+     "labels": {
+      "de": "Aufmaßservice",
+      "en": "Measurement service",
+      "fr": "Service de métrage",
+      "it": "Servizio di rilievo misure",
+      "nl": "Inmeetservice (verrekenbaar)"
+     },
+     "priceCents": 9500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "none",
+     "kind": "sunProtection",
+     "labels": {
+      "de": "Keiner",
+      "en": "None",
+      "fr": "Aucun",
+      "it": "Nessuno",
+      "nl": "Geen"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "aufsatzrollladen",
+     "kind": "sunProtection",
+     "labels": {
+      "de": "Aufsatzrollladen",
+      "en": "Built-on roller shutter",
+      "fr": "Volet roulant en applique",
+      "it": "Cassonetto sovrapposto",
+      "nl": "Opbouwrolluik"
+     },
+     "priceCents": 24000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "vorbaurollladen",
+     "kind": "sunProtection",
+     "labels": {
+      "de": "Vorbaurollladen",
+      "en": "Front-mounted roller shutter",
+      "fr": "Volet roulant en façade",
+      "it": "Cassonetto frontale",
+      "nl": "Voorzetrolluik"
+     },
+     "priceCents": 28000,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "raffstore",
+     "kind": "sunProtection",
+     "labels": {
+      "de": "Raffstore / Jalousie",
+      "en": "External venetian blind",
+      "fr": "Brise-soleil orientable",
+      "it": "Frangisole orientabile",
+      "nl": "Buitenjaloezie"
+     },
+     "priceCents": 39000,
+     "sortOrder": 3
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": false,
+     "key": "standard",
+     "kind": "securityClass",
+     "labels": {
+      "de": "Standardbeschlag",
+      "en": "Standard fittings",
+      "fr": "Ferrures standard",
+      "it": "Standard",
+      "nl": "Standaard beslag"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": false,
+     "key": "rc2",
+     "kind": "securityClass",
+     "labels": {
+      "de": "RC2 (Pilzkopf + P4A)",
+      "en": "RC2 burglary resistance",
+      "fr": "Anti-effraction RC2",
+      "it": "RC2 (antieffrazione)",
+      "nl": "RC2 inbraakwerend"
+     },
+     "priceCents": 6500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": false,
+     "key": "rc3",
+     "kind": "securityClass",
+     "labels": {
+      "de": "RC3 (Hochsicherheit)",
+      "en": "RC3 high security",
+      "fr": "Haute sécurité RC3",
+      "it": "RC3 (alta sicurezza)",
+      "nl": "RC3 hoge beveiliging"
+     },
+     "priceCents": 12000,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "standard",
+     "kind": "montageSystem",
+     "labels": {
+      "de": "Standardmontage",
+      "en": "Standard installation",
+      "fr": "Pose standard",
+      "it": "Montaggio standard",
+      "nl": "Standaard montage"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "ral",
+     "kind": "montageSystem",
+     "labels": {
+      "de": "RAL-gütegesicherte Montage",
+      "en": "RAL-certified installation",
+      "fr": "Pose certifiée RAL",
+      "it": "Montaggio RAL (Compriband + barriere vapore)",
+      "nl": "RAL-gecertificeerde montage"
+     },
+     "priceCents": 4500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "balconyDoorThreshold",
+     "kind": "threshold",
+     "labels": {
+      "de": "Balkonschwelle",
+      "en": "Balcony threshold",
+      "fr": "Seuil balcon",
+      "it": "Soglia balcone",
+      "nl": "Balkondorpel"
+     },
+     "priceCents": 6500,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "standard",
+     "kind": "hardware",
+     "labels": {
+      "de": "Standard",
+      "en": "Standard",
+      "fr": "Standard",
+      "it": "Standard",
+      "nl": "Standaard"
+     },
+     "priceCents": 0,
+     "sortOrder": -1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "rc2",
+     "kind": "hardware",
+     "labels": {
+      "de": "RC2-Sicherheit",
+      "en": "RC2 security",
+      "fr": "Sécurité RC2",
+      "it": "RC2 sicurezza",
+      "nl": "RC2-beveiliging"
+     },
+     "priceCents": 5500,
+     "sortOrder": 10
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "hidden",
+     "kind": "hardware",
+     "labels": {
+      "de": "Verdeckt liegend",
+      "en": "Concealed",
+      "fr": "Invisible",
+      "it": "A scomparsa",
+      "nl": "Verdekt liggend"
+     },
+     "priceCents": 4500,
+     "sortOrder": 11
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "black",
+     "kind": "hardwareColor",
+     "labels": {
+      "de": "Schwarz",
+      "en": "Black",
+      "fr": "Noir",
+      "it": "Nero",
+      "nl": "Zwart"
+     },
+     "priceCents": 1000,
+     "sortOrder": 3
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "tilt",
+     "kind": "sashType",
+     "labels": {
+      "de": "Kipp",
+      "en": "Tilt only",
+      "fr": "Soufflet",
+      "it": "Vasistas",
+      "nl": "Kiep"
+     },
+     "priceCents": 2500,
+     "sortOrder": 4
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "liftslide",
+     "kind": "sashType",
+     "labels": {
+      "de": "Hebe-Schiebe",
+      "en": "Lift-and-slide",
+      "fr": "Levant-coulissant",
+      "it": "Alzante scorrevole",
+      "nl": "Hef-schuif"
+     },
+     "priceCents": 12000,
+     "sortOrder": 5
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "maco",
+     "kind": "hardware",
+     "labels": {
+      "de": "Maco",
+      "en": "Maco",
+      "fr": "Maco",
+      "it": "Maco",
+      "nl": "Maco"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "roto",
+     "kind": "hardware",
+     "labels": {
+      "de": "Roto",
+      "en": "Roto",
+      "fr": "Roto",
+      "it": "Roto",
+      "nl": "Roto"
+     },
+     "priceCents": 1500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "siegenia",
+     "kind": "hardware",
+     "labels": {
+      "de": "Siegenia",
+      "en": "Siegenia",
+      "fr": "Siegenia",
+      "it": "Siegenia",
+      "nl": "Siegenia"
+     },
+     "priceCents": 2500,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "white",
+     "kind": "hardwareColor",
+     "labels": {
+      "de": "Weiß",
+      "en": "White",
+      "fr": "Blanc",
+      "it": "Bianco",
+      "nl": "Wit"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "silver",
+     "kind": "hardwareColor",
+     "labels": {
+      "de": "Silber",
+      "en": "Silver",
+      "fr": "Argent",
+      "it": "Argento",
+      "nl": "Zilver"
+     },
+     "priceCents": 1000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "bronze",
+     "kind": "hardwareColor",
+     "labels": {
+      "de": "Bronze",
+      "en": "Bronze",
+      "fr": "Bronze",
+      "it": "Bronzo",
+      "nl": "Brons"
+     },
+     "priceCents": 2000,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": true,
+     "key": "fix",
+     "kind": "sashType",
+     "labels": {
+      "de": "Festverglasung",
+      "en": "Fixed",
+      "fr": "Fixe",
+      "it": "Fisso",
+      "nl": "Vast"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "classic",
+     "kind": "sashType",
+     "labels": {
+      "de": "Dreh",
+      "en": "Classic",
+      "fr": "Classique",
+      "it": "Classica",
+      "nl": "Draai"
+     },
+     "priceCents": 3500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "tiltturn",
+     "kind": "sashType",
+     "labels": {
+      "de": "Dreh-Kipp",
+      "en": "Tilt & Turn",
+      "fr": "Oscillo-battant",
+      "it": "Vasistas/Battente",
+      "nl": "Draai-kiep"
+     },
+     "priceCents": 6500,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "sliding",
+     "kind": "sashType",
+     "labels": {
+      "de": "Schiebe",
+      "en": "Sliding",
+      "fr": "Coulissant",
+      "it": "Scorrevole",
+      "nl": "Schuif"
+     },
+     "priceCents": 8500,
+     "sortOrder": 3
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "cerniera",
+     "kind": "screen",
+     "labels": {
+      "de": "Insektenschutz-Drehtür",
+      "en": "Hinged screen",
+      "fr": "Moustiquaire à charnière",
+      "it": "Zanzariera a cerniera",
+      "nl": "Hordeur met scharnieren"
+     },
+     "priceCents": 4500,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "molla",
+     "kind": "screen",
+     "labels": {
+      "de": "Insektenschutzrollo",
+      "en": "Roller screen",
+      "fr": "Moustiquaire à ressort",
+      "it": "Zanzariera a molla",
+      "nl": "Rolhor"
+     },
+     "priceCents": 6500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "plissettata",
+     "kind": "screen",
+     "labels": {
+      "de": "Insektenschutz-Plissee",
+      "en": "Pleated screen",
+      "fr": "Moustiquaire plissée",
+      "it": "Zanzariera plissettata",
+      "nl": "Plissé hor"
+     },
+     "priceCents": 8500,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "carrarmato",
+     "kind": "screen",
+     "labels": {
+      "de": "Verstärkter Insektenschutz",
+      "en": "Reinforced screen",
+      "fr": "Moustiquaire renforcée",
+      "it": "Zanzariera carrarmato",
+      "nl": "Versterkte hor"
+     },
+     "priceCents": 12000,
+     "sortOrder": 3
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "white",
+     "kind": "screenColor",
+     "labels": {
+      "de": "Weiß",
+      "en": "White",
+      "fr": "Blanc",
+      "it": "Bianco",
+      "nl": "Wit"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "brown",
+     "kind": "screenColor",
+     "labels": {
+      "de": "Braun",
+      "en": "Brown",
+      "fr": "Marron",
+      "it": "Marrone",
+      "nl": "Bruin"
+     },
+     "priceCents": 1000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "woodeffect",
+     "kind": "screenColor",
+     "labels": {
+      "de": "Holzdekor",
+      "en": "Wood effect",
+      "fr": "Effet bois",
+      "it": "Effetto legno",
+      "nl": "Houtlook"
+     },
+     "priceCents": 2000,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": true,
+     "key": "classico",
+     "kind": "installation",
+     "labels": {
+      "de": "Standardmontage",
+      "en": "Standard installation",
+      "fr": "Pose standard",
+      "it": "Montaggio classico",
+      "nl": "Standaard montage"
+     },
+     "priceCents": 8000,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": true,
+     "key": "posaClima",
+     "kind": "installation",
+     "labels": {
+      "de": "Zertifizierte Montage",
+      "en": "Certified (posa clima) installation",
+      "fr": "Pose certifiée",
+      "it": "Montaggio posa clima",
+      "nl": "Gecertificeerde montage"
+     },
+     "priceCents": 15000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "renovation",
+     "kind": "poseType",
+     "labels": {
+      "de": "Renovierungsmontage (auf Altrahmen)",
+      "en": "Renovation (over existing frame)",
+      "fr": "Pose en rénovation (dépose incluse)",
+      "it": "Posa in ristrutturazione",
+      "nl": "Renovatiemontage (over bestaand kozijn)"
+     },
+     "priceCents": 9000,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "feuillure",
+     "kind": "poseType",
+     "labels": {
+      "de": "Montage im Anschlag",
+      "en": "Rebate fit",
+      "fr": "Pose en feuillure",
+      "it": "Posa in battuta",
+      "nl": "Montage in de sponning"
+     },
+     "priceCents": 6000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "applique",
+     "kind": "poseType",
+     "labels": {
+      "de": "Aufgesetzte Montage",
+      "en": "Face-fixed (applique)",
+      "fr": "Pose en applique",
+      "it": "Posa in applique",
+      "nl": "Opbouwmontage"
+     },
+     "priceCents": 7500,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "none",
+     "kind": "ventilationGrille",
+     "labels": {
+      "de": "Keine",
+      "en": "None",
+      "fr": "Aucune",
+      "it": "Nessuna",
+      "nl": "Geen"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "renson_standard",
+     "kind": "ventilationGrille",
+     "labels": {
+      "de": "Renson-Lüftungsgitter Standard",
+      "en": "Renson standard grille",
+      "fr": "Grille de ventilation Renson standard",
+      "it": "Griglia Renson standard",
+      "nl": "Renson standaard ventilatierooster"
+     },
+     "priceCents": 12000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "renson_acoustic",
+     "kind": "ventilationGrille",
+     "labels": {
+      "de": "Renson-Lüftungsgitter akustisch",
+      "en": "Renson acoustic grille",
+      "fr": "Grille de ventilation Renson acoustique",
+      "it": "Griglia Renson acustica",
+      "nl": "Renson akoestisch ventilatierooster"
+     },
+     "priceCents": 18000,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "none",
+     "kind": "voletRoulant",
+     "labels": {
+      "de": "Keine",
+      "en": "None",
+      "fr": "Aucun",
+      "it": "Nessuna",
+      "nl": "Geen"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "monobloc_pvc",
+     "kind": "voletRoulant",
+     "labels": {
+      "de": "Kunststoff-Vorbaurollladen Monoblock",
+      "en": "PVC monobloc roller shutter",
+      "fr": "Volet roulant monobloc PVC",
+      "it": "Tapparella monoblocco PVC",
+      "nl": "PVC monobloc rolluik"
+     },
+     "priceCents": 22000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "monobloc_alu",
+     "kind": "voletRoulant",
+     "labels": {
+      "de": "Aluminium-Vorbaurollladen Monoblock",
+      "en": "Aluminium monobloc roller shutter",
+      "fr": "Volet roulant monobloc aluminium",
+      "it": "Tapparella monoblocco alluminio",
+      "nl": "Aluminium monobloc rolluik"
+     },
+     "priceCents": 29000,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "standard",
+     "kind": "warmEdge",
+     "labels": {
+      "de": "Standard-Abstandhalter",
+      "en": "Standard spacer",
+      "fr": "Intercalaire standard",
+      "it": "Distanziatore standard",
+      "nl": "Standaard spacer"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "warm_edge",
+     "kind": "warmEdge",
+     "labels": {
+      "de": "Warme Kante",
+      "en": "Warm-edge spacer",
+      "fr": "Intercalaire warm-edge",
+      "it": "Distanziatore warm-edge",
+      "nl": "Warm-edge spacer"
+     },
+     "priceCents": 3500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "d115",
+     "kind": "profileDepth",
+     "labels": {
+      "de": "Profil 115 mm",
+      "en": "115 mm profile",
+      "fr": "Profilé 115 mm",
+      "it": "Profilo 115 mm",
+      "nl": "Blokprofiel 115 mm"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "d120",
+     "kind": "profileDepth",
+     "labels": {
+      "de": "Profil 120 mm",
+      "en": "120 mm profile",
+      "fr": "Profilé 120 mm",
+      "it": "Profilo 120 mm",
+      "nl": "Blokprofiel 120 mm"
+     },
+     "priceCents": 4500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "standard",
+     "kind": "cornerJoint",
+     "labels": {
+      "de": "Standardverbindung",
+      "en": "Standard joint",
+      "fr": "Assemblage standard",
+      "it": "Giunto standard",
+      "nl": "Standaard verbinding"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "hvl_90",
+     "kind": "cornerJoint",
+     "labels": {
+      "de": "HVL-90°-Eckverbindung",
+      "en": "HVL 90° corner joint",
+      "fr": "Assemblage d'angle HVL 90°",
+      "it": "Giunto angolo HVL 90°",
+      "nl": "HVL 90° hoekverbinding"
+     },
+     "priceCents": 6000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "hr_plus_plus",
+     "kind": "ugTier",
+     "labels": {
+      "de": "HR++-Verglasung",
+      "en": "HR++ glazing",
+      "fr": "Vitrage HR++",
+      "it": "Vetro HR++",
+      "nl": "HR++ beglazing"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "hr_plus_plus_plus",
+     "kind": "ugTier",
+     "labels": {
+      "de": "HR+++-3-fach-Verglasung",
+      "en": "HR+++ triple glazing",
+      "fr": "Vitrage HR+++ (triple)",
+      "it": "Vetro HR+++ (triplo)",
+      "nl": "HR+++ triple beglazing"
+     },
+     "priceCents": 14000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "ral9016",
+     "kind": "colorPreset",
+     "labels": {
+      "de": "RAL 9016 Verkehrsweiß",
+      "en": "RAL 9016 white",
+      "fr": "Blanc RAL 9016",
+      "it": "Bianco RAL 9016",
+      "nl": "RAL 9016 wit"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "ral7016",
+     "kind": "colorPreset",
+     "labels": {
+      "de": "RAL 7016 Anthrazitgrau",
+      "en": "RAL 7016 anthracite",
+      "fr": "Anthracite RAL 7016",
+      "it": "Grigio antracite RAL 7016",
+      "nl": "RAL 7016 antraciet"
+     },
+     "priceCents": 2500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "ral6009",
+     "kind": "colorPreset",
+     "labels": {
+      "de": "RAL 6009 Tannengrün",
+      "en": "RAL 6009 fir green",
+      "fr": "Vert sapin RAL 6009",
+      "it": "Verde abete RAL 6009",
+      "nl": "RAL 6009 dennengroen"
+     },
+     "priceCents": 2500,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "ral9001",
+     "kind": "colorPreset",
+     "labels": {
+      "de": "RAL 9001 Cremeweiß",
+      "en": "RAL 9001 cream",
+      "fr": "Blanc crème RAL 9001",
+      "it": "Bianco crema RAL 9001",
+      "nl": "RAL 9001 crème"
+     },
+     "priceCents": 2500,
+     "sortOrder": 3
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "none",
+     "kind": "inmeetservice",
+     "labels": {
+      "de": "Keine",
+      "en": "None",
+      "fr": "Aucun",
+      "it": "Nessuno",
+      "nl": "Geen"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "paid",
+     "kind": "inmeetservice",
+     "labels": {
+      "de": "Aufmaßservice",
+      "en": "Measurement service",
+      "fr": "Service de métrage",
+      "it": "Servizio di rilievo misure",
+      "nl": "Inmeetservice (verrekenbaar)"
+     },
+     "priceCents": 9500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "none",
+     "kind": "sunProtection",
+     "labels": {
+      "de": "Keiner",
+      "en": "None",
+      "fr": "Aucun",
+      "it": "Nessuno",
+      "nl": "Geen"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "aufsatzrollladen",
+     "kind": "sunProtection",
+     "labels": {
+      "de": "Aufsatzrollladen",
+      "en": "Built-on roller shutter",
+      "fr": "Volet roulant en applique",
+      "it": "Cassonetto sovrapposto",
+      "nl": "Opbouwrolluik"
+     },
+     "priceCents": 24000,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "vorbaurollladen",
+     "kind": "sunProtection",
+     "labels": {
+      "de": "Vorbaurollladen",
+      "en": "Front-mounted roller shutter",
+      "fr": "Volet roulant en façade",
+      "it": "Cassonetto frontale",
+      "nl": "Voorzetrolluik"
+     },
+     "priceCents": 28000,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "raffstore",
+     "kind": "sunProtection",
+     "labels": {
+      "de": "Raffstore / Jalousie",
+      "en": "External venetian blind",
+      "fr": "Brise-soleil orientable",
+      "it": "Frangisole orientabile",
+      "nl": "Buitenjaloezie"
+     },
+     "priceCents": 39000,
+     "sortOrder": 3
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": false,
+     "key": "standard",
+     "kind": "securityClass",
+     "labels": {
+      "de": "Standardbeschlag",
+      "en": "Standard fittings",
+      "fr": "Ferrures standard",
+      "it": "Standard",
+      "nl": "Standaard beslag"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": false,
+     "key": "rc2",
+     "kind": "securityClass",
+     "labels": {
+      "de": "RC2 (Pilzkopf + P4A)",
+      "en": "RC2 burglary resistance",
+      "fr": "Anti-effraction RC2",
+      "it": "RC2 (antieffrazione)",
+      "nl": "RC2 inbraakwerend"
+     },
+     "priceCents": 6500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": false,
+     "key": "rc3",
+     "kind": "securityClass",
+     "labels": {
+      "de": "RC3 (Hochsicherheit)",
+      "en": "RC3 high security",
+      "fr": "Haute sécurité RC3",
+      "it": "RC3 (alta sicurezza)",
+      "nl": "RC3 hoge beveiliging"
+     },
+     "priceCents": 12000,
+     "sortOrder": 2
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "standard",
+     "kind": "montageSystem",
+     "labels": {
+      "de": "Standardmontage",
+      "en": "Standard installation",
+      "fr": "Pose standard",
+      "it": "Montaggio standard",
+      "nl": "Standaard montage"
+     },
+     "priceCents": 0,
+     "sortOrder": 0
+    },
+    {
+     "appliesToOperableOnly": false,
+     "enabled": false,
+     "key": "ral",
+     "kind": "montageSystem",
+     "labels": {
+      "de": "RAL-gütegesicherte Montage",
+      "en": "RAL-certified installation",
+      "fr": "Pose certifiée RAL",
+      "it": "Montaggio RAL (Compriband + barriere vapore)",
+      "nl": "RAL-gecertificeerde montage"
+     },
+     "priceCents": 4500,
+     "sortOrder": 1
+    },
+    {
+     "appliesToOperableOnly": true,
+     "enabled": true,
+     "key": "balconyDoorThreshold",
+     "kind": "threshold",
+     "labels": {
+      "de": "Balkonschwelle",
+      "en": "Balcony threshold",
+      "fr": "Seuil balcon",
+      "it": "Soglia balcone",
+      "nl": "Balkondorpel"
+     },
+     "priceCents": 6500,
+     "sortOrder": 0
+    }
+   ],
+   "materials": [
+    {
+     "basePerM2Cents": 18000,
+     "enabled": true,
+     "key": "pvc",
+     "labels": {
+      "de": "Kunststoff (PVC)",
+      "en": "PVC",
+      "fr": "PVC",
+      "it": "PVC",
+      "nl": "Kunststof (PVC)"
+     },
+     "profilePerMlCents": 2800,
+     "sortOrder": 0,
+     "uFrameBase": 1.3
+    },
+    {
+     "basePerM2Cents": 32000,
+     "enabled": true,
+     "key": "wood",
+     "labels": {
+      "de": "Holz",
+      "en": "Wood",
+      "fr": "Bois",
+      "it": "Legno",
+      "nl": "Hout"
+     },
+     "profilePerMlCents": 4500,
+     "sortOrder": 1,
+     "uFrameBase": 1.2
+    },
+    {
+     "basePerM2Cents": 26000,
+     "enabled": true,
+     "key": "aluminum",
+     "labels": {
+      "de": "Aluminium",
+      "en": "Aluminum",
+      "fr": "Aluminium",
+      "it": "Alluminio",
+      "nl": "Aluminium"
+     },
+     "profilePerMlCents": 3800,
+     "sortOrder": 2,
+     "uFrameBase": 1.6
+    },
+    {
+     "basePerM2Cents": 18000,
+     "enabled": true,
+     "key": "pvc",
+     "labels": {
+      "de": "Kunststoff (PVC)",
+      "en": "PVC",
+      "fr": "PVC",
+      "it": "PVC",
+      "nl": "Kunststof (PVC)"
+     },
+     "profilePerMlCents": 2800,
+     "sortOrder": 0,
+     "uFrameBase": 1.3
+    },
+    {
+     "basePerM2Cents": 32000,
+     "enabled": true,
+     "key": "wood",
+     "labels": {
+      "de": "Holz",
+      "en": "Wood",
+      "fr": "Bois",
+      "it": "Legno",
+      "nl": "Hout"
+     },
+     "profilePerMlCents": 4500,
+     "sortOrder": 1,
+     "uFrameBase": 1.2
+    },
+    {
+     "basePerM2Cents": 26000,
+     "enabled": true,
+     "key": "aluminum",
+     "labels": {
+      "de": "Aluminium",
+      "en": "Aluminum",
+      "fr": "Aluminium",
+      "it": "Alluminio",
+      "nl": "Aluminium"
+     },
+     "profilePerMlCents": 3800,
+     "sortOrder": 2,
+     "uFrameBase": 1.6
+    }
+   ],
+   "productBase": [],
+   "profileSystems": [
+    {
+     "enabled": true,
+     "key": "standard",
+     "labels": {
+      "de": "Standard",
+      "en": "Standard",
+      "fr": "Standard",
+      "it": "Standard",
+      "nl": "Standaard"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1,
+     "sortOrder": 0
+    },
+    {
+     "enabled": true,
+     "group": "tab1",
+     "key": "aluplast",
+     "labels": {
+      "de": "Aluplast",
+      "en": "Aluplast",
+      "fr": "Aluplast",
+      "it": "Aluplast",
+      "nl": "Aluplast"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1,
+     "sortOrder": 1,
+     "uFrame": 1.3
+    },
+    {
+     "enabled": true,
+     "group": "tab2",
+     "key": "rehau",
+     "labels": {
+      "de": "Rehau",
+      "en": "Rehau",
+      "fr": "Rehau",
+      "it": "Rehau",
+      "nl": "Rehau"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1.08,
+     "sortOrder": 2,
+     "uFrame": 1
+    },
+    {
+     "enabled": true,
+     "group": "tab1",
+     "key": "kommerling",
+     "labels": {
+      "de": "Kömmerling",
+      "en": "Kömmerling",
+      "fr": "Kömmerling",
+      "it": "Kömmerling",
+      "nl": "Kömmerling"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1.1,
+     "sortOrder": 3,
+     "uFrame": 1.3
+    },
+    {
+     "enabled": true,
+     "group": "tab2",
+     "key": "deceuninck",
+     "labels": {
+      "de": "Deceuninck",
+      "en": "Deceuninck",
+      "fr": "Deceuninck",
+      "it": "Deceuninck",
+      "nl": "Deceuninck"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1.06,
+     "sortOrder": 4,
+     "uFrame": 1
+    },
+    {
+     "enabled": true,
+     "group": "tab2",
+     "key": "salamander",
+     "labels": {
+      "de": "Salamander",
+      "en": "Salamander",
+      "fr": "Salamander",
+      "it": "Salamander",
+      "nl": "Salamander"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1.05,
+     "sortOrder": 5,
+     "uFrame": 0.92
+    },
+    {
+     "enabled": true,
+     "key": "standard",
+     "labels": {
+      "de": "Standard",
+      "en": "Standard",
+      "fr": "Standard",
+      "it": "Standard",
+      "nl": "Standaard"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1,
+     "sortOrder": 0
+    },
+    {
+     "enabled": true,
+     "key": "schuco",
+     "labels": {
+      "de": "Schüco",
+      "en": "Schüco",
+      "fr": "Schüco",
+      "it": "Schüco",
+      "nl": "Schüco"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1.15,
+     "sortOrder": 1
+    },
+    {
+     "enabled": true,
+     "key": "reynaers",
+     "labels": {
+      "de": "Reynaers",
+      "en": "Reynaers",
+      "fr": "Reynaers",
+      "it": "Reynaers",
+      "nl": "Reynaers"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1.12,
+     "sortOrder": 2
+    },
+    {
+     "enabled": true,
+     "key": "aluprof",
+     "labels": {
+      "de": "Aluprof",
+      "en": "Aluprof",
+      "fr": "Aluprof",
+      "it": "Aluprof",
+      "nl": "Aluprof"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1,
+     "sortOrder": 3
+    },
+    {
+     "enabled": true,
+     "key": "cortizo",
+     "labels": {
+      "de": "Cortizo",
+      "en": "Cortizo",
+      "fr": "Cortizo",
+      "it": "Cortizo",
+      "nl": "Cortizo"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1.08,
+     "sortOrder": 4
+    },
+    {
+     "enabled": true,
+     "group": "tab1",
+     "key": "aluplastEnergeto76",
+     "labels": {
+      "en": "Aluplast ENERGETO 76",
+      "fr": "Aluplast ENERGETO 76",
+      "it": "Aluplast ENERGETO 76"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1.05,
+     "sortOrder": 10,
+     "uFrame": 1.1
+    },
+    {
+     "enabled": true,
+     "group": "tab1",
+     "key": "kommerling76",
+     "labels": {
+      "en": "Kömmerling 76 MD",
+      "fr": "Kömmerling 76 MD",
+      "it": "Kömmerling 76 MD"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1.14,
+     "sortOrder": 11,
+     "uFrame": 1.1
+    },
+    {
+     "enabled": true,
+     "group": "tab2",
+     "key": "schuco",
+     "labels": {
+      "en": "Schüco AWS 75.SI+",
+      "fr": "Schüco AWS 75.SI+",
+      "it": "Schüco AWS 75.SI+"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1.15,
+     "sortOrder": 12,
+     "uFrame": 0.88
+    },
+    {
+     "enabled": true,
+     "key": "standard",
+     "labels": {
+      "de": "Standard",
+      "en": "Standard",
+      "fr": "Standard",
+      "it": "Standard",
+      "nl": "Standaard"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1,
+     "sortOrder": 0
+    },
+    {
+     "enabled": true,
+     "group": "tab1",
+     "key": "aluplast",
+     "labels": {
+      "de": "Aluplast",
+      "en": "Aluplast",
+      "fr": "Aluplast",
+      "it": "Aluplast",
+      "nl": "Aluplast"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1,
+     "sortOrder": 1,
+     "uFrame": 1.3
+    },
+    {
+     "enabled": true,
+     "group": "tab2",
+     "key": "rehau",
+     "labels": {
+      "de": "Rehau",
+      "en": "Rehau",
+      "fr": "Rehau",
+      "it": "Rehau",
+      "nl": "Rehau"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1.08,
+     "sortOrder": 2,
+     "uFrame": 1
+    },
+    {
+     "enabled": true,
+     "group": "tab1",
+     "key": "kommerling",
+     "labels": {
+      "de": "Kömmerling",
+      "en": "Kömmerling",
+      "fr": "Kömmerling",
+      "it": "Kömmerling",
+      "nl": "Kömmerling"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1.1,
+     "sortOrder": 3,
+     "uFrame": 1.3
+    },
+    {
+     "enabled": true,
+     "group": "tab2",
+     "key": "deceuninck",
+     "labels": {
+      "de": "Deceuninck",
+      "en": "Deceuninck",
+      "fr": "Deceuninck",
+      "it": "Deceuninck",
+      "nl": "Deceuninck"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1.06,
+     "sortOrder": 4,
+     "uFrame": 1
+    },
+    {
+     "enabled": true,
+     "group": "tab2",
+     "key": "salamander",
+     "labels": {
+      "de": "Salamander",
+      "en": "Salamander",
+      "fr": "Salamander",
+      "it": "Salamander",
+      "nl": "Salamander"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1.05,
+     "sortOrder": 5,
+     "uFrame": 0.92
+    },
+    {
+     "enabled": true,
+     "key": "standard",
+     "labels": {
+      "de": "Standard",
+      "en": "Standard",
+      "fr": "Standard",
+      "it": "Standard",
+      "nl": "Standaard"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1,
+     "sortOrder": 0
+    },
+    {
+     "enabled": true,
+     "key": "schuco",
+     "labels": {
+      "de": "Schüco",
+      "en": "Schüco",
+      "fr": "Schüco",
+      "it": "Schüco",
+      "nl": "Schüco"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1.15,
+     "sortOrder": 1
+    },
+    {
+     "enabled": true,
+     "key": "reynaers",
+     "labels": {
+      "de": "Reynaers",
+      "en": "Reynaers",
+      "fr": "Reynaers",
+      "it": "Reynaers",
+      "nl": "Reynaers"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1.12,
+     "sortOrder": 2
+    },
+    {
+     "enabled": true,
+     "key": "aluprof",
+     "labels": {
+      "de": "Aluprof",
+      "en": "Aluprof",
+      "fr": "Aluprof",
+      "it": "Aluprof",
+      "nl": "Aluprof"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1,
+     "sortOrder": 3
+    },
+    {
+     "enabled": true,
+     "key": "cortizo",
+     "labels": {
+      "de": "Cortizo",
+      "en": "Cortizo",
+      "fr": "Cortizo",
+      "it": "Cortizo",
+      "nl": "Cortizo"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1.08,
+     "sortOrder": 4
+    }
+   ],
+   "qualityTiers": [
+    {
+     "enabled": true,
+     "key": "chamber5",
+     "labels": {
+      "de": "5 Kammern",
+      "en": "5 chambers",
+      "fr": "5 chambres",
+      "it": "5 camere",
+      "nl": "5 kamers"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1,
+     "sortOrder": 0,
+     "uAdjust": 0
+    },
+    {
+     "enabled": true,
+     "key": "chamber7",
+     "labels": {
+      "de": "7 Kammern",
+      "en": "7 chambers",
+      "fr": "7 chambres",
+      "it": "7 camere",
+      "nl": "7 kamers"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1.15,
+     "sortOrder": 1,
+     "uAdjust": -0.15
+    },
+    {
+     "enabled": true,
+     "key": "pine",
+     "labels": {
+      "de": "Kiefer",
+      "en": "Pine",
+      "fr": "Pin",
+      "it": "Pino",
+      "nl": "Grenen"
+     },
+     "materialKey": "wood",
+     "multiplier": 1,
+     "sortOrder": 0,
+     "uAdjust": 0
+    },
+    {
+     "enabled": true,
+     "key": "oak",
+     "labels": {
+      "de": "Eiche",
+      "en": "Oak",
+      "fr": "Chêne",
+      "it": "Rovere",
+      "nl": "Eiken"
+     },
+     "materialKey": "wood",
+     "multiplier": 1.35,
+     "sortOrder": 1,
+     "uAdjust": -0.05
+    },
+    {
+     "enabled": true,
+     "key": "standard",
+     "labels": {
+      "de": "Standard",
+      "en": "Standard",
+      "fr": "Standard",
+      "it": "Standard",
+      "nl": "Standaard"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1,
+     "sortOrder": 0,
+     "uAdjust": 0
+    },
+    {
+     "enabled": true,
+     "key": "thermalbreak",
+     "labels": {
+      "de": "Thermisch getrennt",
+      "en": "Thermal break",
+      "fr": "Rupture de pont thermique",
+      "it": "Taglio termico",
+      "nl": "Thermisch onderbroken"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1.25,
+     "sortOrder": 1,
+     "uAdjust": -0.5
+    },
+    {
+     "enabled": true,
+     "key": "chamber5",
+     "labels": {
+      "de": "5 Kammern",
+      "en": "5 chambers",
+      "fr": "5 chambres",
+      "it": "5 camere",
+      "nl": "5 kamers"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1,
+     "sortOrder": 0,
+     "uAdjust": 0
+    },
+    {
+     "enabled": true,
+     "key": "chamber7",
+     "labels": {
+      "de": "7 Kammern",
+      "en": "7 chambers",
+      "fr": "7 chambres",
+      "it": "7 camere",
+      "nl": "7 kamers"
+     },
+     "materialKey": "pvc",
+     "multiplier": 1.15,
+     "sortOrder": 1,
+     "uAdjust": -0.15
+    },
+    {
+     "enabled": true,
+     "key": "pine",
+     "labels": {
+      "de": "Kiefer",
+      "en": "Pine",
+      "fr": "Pin",
+      "it": "Pino",
+      "nl": "Grenen"
+     },
+     "materialKey": "wood",
+     "multiplier": 1,
+     "sortOrder": 0,
+     "uAdjust": 0
+    },
+    {
+     "enabled": true,
+     "key": "oak",
+     "labels": {
+      "de": "Eiche",
+      "en": "Oak",
+      "fr": "Chêne",
+      "it": "Rovere",
+      "nl": "Eiken"
+     },
+     "materialKey": "wood",
+     "multiplier": 1.35,
+     "sortOrder": 1,
+     "uAdjust": -0.05
+    },
+    {
+     "enabled": true,
+     "key": "standard",
+     "labels": {
+      "de": "Standard",
+      "en": "Standard",
+      "fr": "Standard",
+      "it": "Standard",
+      "nl": "Standaard"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1,
+     "sortOrder": 0,
+     "uAdjust": 0
+    },
+    {
+     "enabled": true,
+     "key": "thermalbreak",
+     "labels": {
+      "de": "Thermisch getrennt",
+      "en": "Thermal break",
+      "fr": "Rupture de pont thermique",
+      "it": "Taglio termico",
+      "nl": "Thermisch onderbroken"
+     },
+     "materialKey": "aluminum",
+     "multiplier": 1.25,
+     "sortOrder": 1,
+     "uAdjust": -0.5
+    }
+   ],
+   "sizeConstraints": [
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 1200,
+     "minHeightMm": 300,
+     "minWidthMm": 450,
+     "productType": "window",
+     "sashCount": 1
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 2400,
+     "minHeightMm": 300,
+     "minWidthMm": 600,
+     "productType": "window",
+     "sashCount": 2
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 3600,
+     "minHeightMm": 300,
+     "minWidthMm": 900,
+     "productType": "window",
+     "sashCount": 3
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 4000,
+     "minHeightMm": 300,
+     "minWidthMm": 1200,
+     "productType": "window",
+     "sashCount": 4
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 1200,
+     "minHeightMm": 1700,
+     "minWidthMm": 450,
+     "productType": "balconyDoor",
+     "sashCount": 1
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 2400,
+     "minHeightMm": 1700,
+     "minWidthMm": 600,
+     "productType": "balconyDoor",
+     "sashCount": 2
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 3600,
+     "minHeightMm": 1700,
+     "minWidthMm": 900,
+     "productType": "balconyDoor",
+     "sashCount": 3
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 4000,
+     "minHeightMm": 1700,
+     "minWidthMm": 1200,
+     "productType": "balconyDoor",
+     "sashCount": 4
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 1200,
+     "minHeightMm": 300,
+     "minWidthMm": 450,
+     "productType": "window",
+     "sashCount": 1
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 2400,
+     "minHeightMm": 300,
+     "minWidthMm": 600,
+     "productType": "window",
+     "sashCount": 2
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 3600,
+     "minHeightMm": 300,
+     "minWidthMm": 900,
+     "productType": "window",
+     "sashCount": 3
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 4000,
+     "minHeightMm": 300,
+     "minWidthMm": 1200,
+     "productType": "window",
+     "sashCount": 4
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 1200,
+     "minHeightMm": 1700,
+     "minWidthMm": 450,
+     "productType": "balconyDoor",
+     "sashCount": 1
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 2400,
+     "minHeightMm": 1700,
+     "minWidthMm": 600,
+     "productType": "balconyDoor",
+     "sashCount": 2
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 3600,
+     "minHeightMm": 1700,
+     "minWidthMm": 900,
+     "productType": "balconyDoor",
+     "sashCount": 3
+    },
+    {
+     "maxHeightMm": 2800,
+     "maxWidthMm": 4000,
+     "minHeightMm": 1700,
+     "minWidthMm": 1200,
+     "productType": "balconyDoor",
+     "sashCount": 4
+    }
+   ]
+  }
+ }
+}
