@@ -212,6 +212,7 @@ const AGENCY: Entitlements = {
 const ENTERPRISE: Entitlements = {
   ...AGENCY,
   maxConfigurators: Infinity,
+  maxQuotesPerMonth: Infinity,
   maxTeamMembers: Infinity,
   maxLogisticsSuppliers: Infinity,
   maxCarriers: Infinity,

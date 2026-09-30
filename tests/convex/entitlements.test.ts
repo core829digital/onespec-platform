@@ -40,6 +40,12 @@ describe("entitlement matrix matches the signed SaaS contracts (v2 ladder)", () 
     expect(e.publicWidget).toBe(true);
     expect(e.whiteLabel).toBe(true);
   });
+  test("enterprise is fully unlimited: configurators, members and quote requests", () => {
+    const e = entitlementsFor("enterprise");
+    expect(e.maxConfigurators).toBe(Infinity);
+    expect(e.maxTeamMembers).toBe(Infinity);
+    expect(e.maxQuotesPerMonth).toBe(Infinity);
+  });
   test("agency (\"MultiBrand\") adds multi-supplier + showroom calculator", () => {
     const e = entitlementsFor("agency");
     expect(e.maxConfigurators).toBe(10);
