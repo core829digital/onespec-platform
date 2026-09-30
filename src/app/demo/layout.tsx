@@ -17,9 +17,12 @@ export const metadata: Metadata = { robots: { index: false, follow: false } };
 export default function DemoLayout({ children }: { children: React.ReactNode }) {
   return (
     <div
-      className={`${spaceGrotesk.variable} ${inter.variable} ${ibmPlexMono.variable} tw-widget-root min-h-screen`}
+      className={`${spaceGrotesk.variable} ${inter.variable} ${ibmPlexMono.variable} tw-widget-root`}
       style={{ background: "var(--color-bg)" }}
     >
+      {/* Framed at its full content height by onespec.eu: the frame itself must never
+          scroll, otherwise it swallows the mouse wheel instead of scrolling the page. */}
+      <style>{"html,body{overflow:hidden!important;overscroll-behavior:auto}"}</style>
       {children}
     </div>
   );
