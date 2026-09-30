@@ -225,12 +225,12 @@
       "submit": "Unternehmen erstellen",
       "loading": "Erstellung...",
       "error": "Fehler bei der Erstellung",
-      "continue": "Zum Dashboard",
+      "continue": "Tarif wählen",
       "countryLabel": "Country",
       "countryPlaceholder": "Select your country",
       "countryDetected": "Detected automatically from your connection — you can change it.",
-      "baseTitle": "Unternehmen erstellt",
-      "baseSubtitle": "Ihr Unternehmen {companyName} ist mit dem Base-Plan registriert."
+      "baseTitle": "Unternehmen angelegt",
+      "baseSubtitle": "Ihr Unternehmen {companyName} wurde angelegt. Letzter Schritt: Wählen Sie einen Tarif, um die Plattform zu aktivieren."
     },
     "footer": "© 2026 onespec. Alle Rechte vorbehalten.",
     "botcheck": {

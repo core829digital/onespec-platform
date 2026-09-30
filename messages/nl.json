@@ -225,12 +225,12 @@
       "submit": "Bedrijf aanmaken",
       "loading": "Aanmaken...",
       "error": "Fout bij aanmaken",
-      "continue": "Naar dashboard",
+      "continue": "Kies je abonnement",
       "countryLabel": "Country",
       "countryPlaceholder": "Select your country",
       "countryDetected": "Detected automatically from your connection — you can change it.",
       "baseTitle": "Bedrijf aangemaakt",
-      "baseSubtitle": "Je bedrijf {companyName} is geregistreerd met het Base-plan."
+      "baseSubtitle": "Je bedrijf {companyName} is aangemaakt. Laatste stap: kies een abonnement om het platform te activeren."
     },
     "footer": "© 2026 onespec. Alle rechten voorbehouden.",
     "botcheck": {

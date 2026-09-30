@@ -226,12 +226,12 @@
       "submit": "Create company",
       "loading": "Creating...",
       "error": "Error creating company",
-      "continue": "Go to dashboard",
+      "continue": "Choose your plan",
       "countryLabel": "Country",
       "countryPlaceholder": "Select your country",
       "countryDetected": "Detected automatically from your connection — you can change it.",
       "baseTitle": "Company created",
-      "baseSubtitle": "Your company {companyName} is registered with the Base plan."
+      "baseSubtitle": "Your company {companyName} has been created. Last step: choose a plan to activate the platform."
     },
     "botcheck": {
       "unavailable": "Security check unavailable. Disable any content blockers and reload the page.",

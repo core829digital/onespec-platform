@@ -226,6 +226,16 @@ export async function enforceCarrierQuota(ctx: ReadCtx, tenantId: Id<"tenants">)
 
 /** --- Suspended / plan status gate --- */
 
+/**
+ * Free self-service onboarding (a plan "picked" with no payment) is a DEV/TEST
+ * convenience only. It fails CLOSED: it needs the explicit opt-in flag below AND
+ * no Stripe key. Production never sets the flag, so a missing or mistyped
+ * STRIPE_SECRET_KEY can no longer open the platform for free.
+ */
+export function freeOnboardingAllowed(): boolean {
+  return !process.env.STRIPE_SECRET_KEY && process.env.ONESPEC_ALLOW_FREE_ONBOARDING === "1";
+}
+
 export async function enforceActivePlan(ctx: MutationCtx | QueryCtx, tenantId: Id<"tenants">): Promise<void> {
   const tenant = await ctx.db.get(tenantId);
   if (!tenant) throw new ConvexError("TENANT_NOT_FOUND");
@@ -245,7 +255,7 @@ export async function enforceActivePlan(ctx: MutationCtx | QueryCtx, tenantId: I
   // Dormant Stripe (no STRIPE_SECRET_KEY — today, pre-launch) keeps the
   // permissive behavior so local dev/testing isn't blocked before billing
   // is actually turned on.
-  if (process.env.STRIPE_SECRET_KEY && tenant.planStatus === "trialing" && !tenant.stripeSubscriptionId) {
+  if (!freeOnboardingAllowed() && tenant.planStatus === "trialing" && !tenant.stripeSubscriptionId) {
     throw new ConvexError("SUBSCRIPTION_REQUIRED");
   }
 }

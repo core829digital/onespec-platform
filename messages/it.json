@@ -226,12 +226,12 @@
       "submit": "Crea azienda",
       "loading": "Creazione...",
       "error": "Errore durante la creazione",
-      "continue": "Vai alla dashboard",
+      "continue": "Scegli il piano",
       "countryLabel": "Paese",
       "countryPlaceholder": "Seleziona il paese",
       "countryDetected": "Rilevato automaticamente dalla tua connessione — puoi cambiarlo.",
       "baseTitle": "Azienda creata",
-      "baseSubtitle": "La tua azienda {companyName} è registrata con piano Base."
+      "baseSubtitle": "La tua azienda {companyName} è stata creata. Ultimo passaggio: scegli il piano per attivare la piattaforma."
     },
     "botcheck": {
       "unavailable": "Verifica di sicurezza non disponibile. Disattiva eventuali blocchi di contenuti e ricarica la pagina.",

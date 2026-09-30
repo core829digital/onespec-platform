@@ -225,12 +225,12 @@
       "submit": "Creează firmă",
       "loading": "Creare...",
       "error": "Eroare la creare",
-      "continue": "Du-te la panou",
+      "continue": "Alege planul",
       "countryLabel": "Country",
       "countryPlaceholder": "Select your country",
       "countryDetected": "Detected automatically from your connection — you can change it.",
       "baseTitle": "Firmă creată",
-      "baseSubtitle": "Firma ta {companyName} este înregistrată cu planul Base."
+      "baseSubtitle": "Firma ta {companyName} a fost creată. Ultimul pas: alege un plan pentru a activa platforma."
     },
     "footer": "© 2026 onespec. Toate drepturile rezervate.",
     "botcheck": {

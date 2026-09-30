@@ -225,12 +225,12 @@
       "submit": "Créer l'entreprise",
       "loading": "Création...",
       "error": "Erreur de création",
-      "continue": "Aller au tableau de bord",
+      "continue": "Choisir l'offre",
       "countryLabel": "Pays",
       "countryPlaceholder": "Sélectionnez votre pays",
       "countryDetected": "Détecté automatiquement depuis votre connexion — modifiable.",
       "baseTitle": "Entreprise créée",
-      "baseSubtitle": "Votre entreprise {companyName} est inscrite avec le plan Base."
+      "baseSubtitle": "Votre entreprise {companyName} a été créée. Dernière étape : choisissez une offre pour activer la plateforme."
     },
     "footer": "© 2026 onespec. Tous droits réservés.",
     "botcheck": {

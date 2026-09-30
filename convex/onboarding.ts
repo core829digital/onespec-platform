@@ -5,6 +5,7 @@ import type { Id } from "./_generated/dataModel";
 import { requireUser, type ReadCtx } from "./lib/auth";
 import { entitlementsFor, isWidgetPlan, resolveTenantEntitlements } from "./lib/entitlements";
 import { regionForCountry } from "./lib/regions";
+import { freeOnboardingAllowed } from "./lib/enforcement";
 import { unlockOnPlanChange, unlockOnReactivation } from "./usage";
 
 /** Ordered wizard steps. `planQuiz`/`billing` are skipped once a plan is active. */
@@ -98,7 +99,8 @@ export const selectPlan = mutation({
     const userId = await requireUser(ctx);
     const found = await tenantOf(ctx, userId);
     if (!found) throw new ConvexError("NO_TENANT");
-    if (process.env.STRIPE_SECRET_KEY) {
+    // Fails closed: without the explicit dev opt-in every plan goes through Stripe checkout.
+    if (!freeOnboardingAllowed()) {
       throw new ConvexError("BILLING_LIVE_USE_CHECKOUT");
     }
     // Same seat guard as billing: never move into a plan the team doesn't fit.

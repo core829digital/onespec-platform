@@ -118,6 +118,13 @@ export async function requirePermission(
   }
   const tenant = await ctx.db.get(tenantId);
   if (!tenant) throw new ConvexError("TENANT_NOT_FOUND");
+  // No plan, no platform: every permission-checked operation (team, catalogue,
+  // publishing, clients, field modules, …) is refused until a plan is active.
+  // The plan step itself (plan quiz, checkout, billing state) does not go
+  // through here. Founding / full-access accounts are exempt.
+  if (tenant.planStatus === "pending_plan" && tenant.unlimitedAccess !== true) {
+    throw new ConvexError("PLAN_SELECTION_REQUIRED");
+  }
   if (spec.entitlement && resolveTenantEntitlements(tenant)[spec.entitlement] !== true) {
     throw new ConvexError("PLAN_UPGRADE_REQUIRED");
   }

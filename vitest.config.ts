@@ -15,5 +15,8 @@ export default defineConfig({
     environment: "edge-runtime",
     server: { deps: { inline: ["convex-test"] } },
     include: ["tests/**/*.test.ts"],
+    // Dev/test opt-in for free onboarding. Production never sets it; the
+    // fail-closed behaviour is asserted in tests/convex/plan-gate.test.ts.
+    env: { ONESPEC_ALLOW_FREE_ONBOARDING: "1" },
   },
 });
