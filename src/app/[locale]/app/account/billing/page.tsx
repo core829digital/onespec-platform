@@ -280,6 +280,40 @@ export default function BillingPage() {
         </div>
       ) : null}
 
+      {state.subscription ? (
+        <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4 text-sm">
+          <p className="text-[var(--color-text)]">
+            {t("subscription.active")}
+            {state.subscription.currentPeriodEnd
+              ? ` · ${t("subscription.renews", { date: new Date(state.subscription.currentPeriodEnd).toLocaleDateString(locale) })}`
+              : ""}
+            {state.subscription.cancelAtPeriodEnd ? ` · ${t("subscription.canceledAtPeriodEnd")}` : ""}
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {state.portalAvailable ? (
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => go(() => portal({ tenantId: tenant!._id, origin: window.location.origin }))}
+                className="rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm text-[var(--color-text)]"
+              >
+                {t("subscription.manage")}
+              </button>
+            ) : null}
+          {!state.subscription.cancelAtPeriodEnd ? (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={doCancel}
+              className="rounded-lg border border-[var(--color-danger)] px-4 py-2 text-sm text-[var(--color-danger)]"
+            >
+              {t("subscription.cancel")}
+            </button>
+          ) : null}
+        </div>
+      </div>
+    ) : null}
+
       <div role="tablist" className="inline-flex rounded-lg border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-1">
         {(["plan", "billing"] as const).map((k) => (
           <Link
@@ -300,39 +334,6 @@ export default function BillingPage() {
 
       {tab === "billing" ? (
         <>
-        {state.subscription ? (
-          <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4 text-sm">
-            <p className="text-[var(--color-text)]">
-              {t("subscription.active")}
-              {state.subscription.currentPeriodEnd
-                ? ` · ${t("subscription.renews", { date: new Date(state.subscription.currentPeriodEnd).toLocaleDateString(locale) })}`
-                : ""}
-              {state.subscription.cancelAtPeriodEnd ? ` · ${t("subscription.canceledAtPeriodEnd")}` : ""}
-            </p>
-            <div className="mt-2 flex flex-wrap gap-2">
-              {state.portalAvailable ? (
-                <button
-                  type="button"
-                  disabled={busy}
-                  onClick={() => go(() => portal({ tenantId: tenant!._id, origin: window.location.origin }))}
-                  className="rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm text-[var(--color-text)]"
-                >
-                  {t("subscription.manage")}
-                </button>
-              ) : null}
-              {!state.subscription.cancelAtPeriodEnd ? (
-                <button
-                  type="button"
-                  disabled={busy}
-                  onClick={doCancel}
-                  className="rounded-lg border border-[var(--color-danger)] px-4 py-2 text-sm text-[var(--color-danger)]"
-                >
-                  {t("subscription.cancel")}
-                </button>
-              ) : null}
-            </div>
-          </div>
-        ) : null}
   
   
           {!state.subscription ? (
