@@ -127,11 +127,11 @@ describe("opening symbols", () => {
     return { apex: a.x2, left: glass.x, right: glass.x + glass.w };
   };
 
-  test("casement apex is on the hinge side", () => {
-    const l = apexSide("left");
-    expect(l.apex).toBeCloseTo(l.left, 2);
+  test("casement triangle tip points to the handle side (inside of a pair)", () => {
+    const l = apexSide("left"); // hinged left -> tip on the right (handle side)
+    expect(l.apex).toBeCloseTo(l.right, 2);
     const r = apexSide("right");
-    expect(r.apex).toBeCloseTo(r.right, 2);
+    expect(r.apex).toBeCloseTo(r.left, 2);
   });
 
   test("hinges sit on the hinge side and the handle on the opposite side", () => {

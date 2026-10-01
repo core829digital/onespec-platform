@@ -13,10 +13,13 @@ function handleSide(s: DrawingSash): "left" | "right" {
   return s.direction === "left" ? "right" : "left";
 }
 
-// DIN 1356: the two legs of the casement triangle converge on the HINGE side.
+// Casement symbol: the two legs converge on the HANDLE side (towards the inside of a
+// pair), the open base sits on the hinge side. `hingeLeft` is the configured hinge side;
+// hinges and handles themselves are drawn on their real sides, only the triangle's tip
+// points to the handle, as customers expect to read it.
 function casementSymbol(area: Box, hingeLeft: boolean, tag: Tag): Primitive[] {
-  const apexX = hingeLeft ? area.x : area.x + area.w;
-  const farX = hingeLeft ? area.x + area.w : area.x;
+  const apexX = hingeLeft ? area.x + area.w : area.x;
+  const farX = hingeLeft ? area.x : area.x + area.w;
   const midY = area.y + area.h / 2;
   return [
     line(tag, farX, area.y, apexX, midY, SYMBOL),

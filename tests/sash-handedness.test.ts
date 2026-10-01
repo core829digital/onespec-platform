@@ -46,7 +46,7 @@ describe("default leaf handedness", () => {
   });
 });
 
-describe("drawing of a pair: symbol apex on the hinge, handle towards the middle", () => {
+describe("drawing of a pair: triangle tips inside, hinges outside, handles in the middle", () => {
   test("2-leaf window", () => {
     const sashes = defaultSashesFor("finestra2", 1400) as DrawingSash[];
     const scene = buildScene({ widthMm: 1200, heightMm: 1400, category: "finestra2", sashes });
@@ -55,8 +55,10 @@ describe("drawing of a pair: symbol apex on the hinge, handle towards the middle
     // apex = the shared end point of the two legs
     const apexX = (i: number) => bySash(i)[0].x2;
     const farX = (i: number) => bySash(i)[0].x1;
-    expect(apexX(0)).toBeLessThan(farX(0)); // left leaf: apex on its left edge
-    expect(apexX(1)).toBeGreaterThan(farX(1)); // right leaf: apex on its right edge
+    // tips point to the inside: left leaf's tip on its right edge, right leaf's on its left edge
+    expect(apexX(0)).toBeGreaterThan(farX(0));
+    expect(apexX(1)).toBeLessThan(farX(1));
+    expect(apexX(0)).toBeLessThan(apexX(1));
     const handles = scene.primitives.filter((p) => p.role === "handle" && p.type === "rect") as Array<{ x: number; sashIndex?: number }>;
     const hx = (i: number) => handles.find((h) => h.sashIndex === i)!.x;
     // handles sit next to each other at the middle (hinged outwards), not at the outer edges
