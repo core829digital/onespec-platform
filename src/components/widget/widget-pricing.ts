@@ -144,7 +144,7 @@ export function defaultPricing(): Pricing {
 
 export function defaultSashPreset(): Sash[] {
   return [
-    { type: "fix", direction: "right", active: true, hardware: "maco", hardwareColor: "white" },
+    { type: "fix", direction: "left", active: true, hardware: "maco", hardwareColor: "white" },
     { type: "tiltturn", direction: "right", active: true, hardware: "maco", hardwareColor: "white" },
   ];
 }

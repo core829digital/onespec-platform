@@ -82,7 +82,7 @@ export function defaultSashesFor(category: PieceCategory, heightMm: number): Def
       return [
         { ...base, type: "classic", direction: "left", widthRatio: 1 / 3, handleHeightMm: 700, main: false },
         { ...base, type: "tiltturn", direction: "right", widthRatio: 1 / 3, handleHeightMm: 700, main: true },
-        { ...base, type: "classic", direction: "left", widthRatio: 1 / 3, handleHeightMm: 700, main: false },
+        { ...base, type: "classic", direction: "right", widthRatio: 1 / 3, handleHeightMm: 700, main: false },
       ];
     case "porta1":
     case "porta":
@@ -96,7 +96,7 @@ export function defaultSashesFor(category: PieceCategory, heightMm: number): Def
       return [
         { ...base, type: "classic", direction: "left", widthRatio: 1 / 3, handleHeightMm: door, main: false },
         { ...base, type: "classic", direction: "right", widthRatio: 1 / 3, handleHeightMm: door, main: true },
-        { ...base, type: "classic", direction: "left", widthRatio: 1 / 3, handleHeightMm: door, main: false },
+        { ...base, type: "classic", direction: "right", widthRatio: 1 / 3, handleHeightMm: door, main: false },
       ];
     case "scorrevole":
       return [

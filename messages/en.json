@@ -2184,7 +2184,7 @@
     "mix_hingedVsSliding": "A hinged sash cannot be mixed with a sliding one.",
     "mix_hingedVsLiftslide": "A hinged sash cannot be mixed with a lift-and-slide one.",
     "openingType": "Opening type",
-    "direction": "Direction (inside view)",
+    "direction": "Hinges / sliding side (inside view)",
     "left": "L ◄",
     "right": "R ►",
     "operable": "Opening sash",

@@ -322,7 +322,8 @@ export function Widget({
       let sashes = s.sashes.slice();
       if (n > sashes.length) {
         for (let i = sashes.length; i < n; i++) {
-          sashes.push({ type: "tiltturn", direction: i % 2 === 0 ? "right" : "left", active: true, hardware: "maco", hardwareColor: "white" });
+          // Outermost leaf on the right: hinge right, handle towards the middle.
+          sashes.push({ type: "tiltturn", direction: "right", active: true, hardware: "maco", hardwareColor: "white" });
         }
       } else if (n < sashes.length) {
         sashes = sashes.slice(0, n);

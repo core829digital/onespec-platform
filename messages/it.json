@@ -2184,7 +2184,7 @@
     "mix_hingedVsSliding": "Non si può mischiare un'anta a battente con lo scorrevole.",
     "mix_hingedVsLiftslide": "Non si può mischiare un'anta a battente con l'alzante scorrevole.",
     "openingType": "Tipo di apertura",
-    "direction": "Verso (vista interna)",
+    "direction": "Cerniere / scorrimento (vista interna)",
     "left": "Sx ◄",
     "right": "Dx ►",
     "operable": "Anta apribile",

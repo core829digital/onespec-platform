@@ -60,7 +60,9 @@ export function addSash(item: ProjectItem, payloadDefaults?: { hardware?: string
   const last = item.sashes[item.sashes.length - 1];
   const sash: Sash = {
     type,
-    direction: last?.direction === "left" ? "right" : "left",
+    // A new leaf is the outermost one on the right: hinge on the right edge, handle
+    // towards the middle, so the passage between the leaves stays free.
+    direction: "right",
     active: true,
     hardware: payloadDefaults?.hardware ?? last?.hardware ?? "standard",
     hardwareColor: payloadDefaults?.hardwareColor ?? last?.hardwareColor ?? "silver",
@@ -68,7 +70,12 @@ export function addSash(item: ProjectItem, payloadDefaults?: { hardware?: string
     handleHeightMm: Math.round(item.height / 2),
     main: false,
   };
-  const scaled = item.sashes.map((s) => ({ ...s, widthRatio: (s.widthRatio ?? 1 / item.sashes.length) * (1 - 1 / n) }));
+  const scaled = item.sashes.map((s, i) => ({
+    ...s,
+    // Going from one leaf to a pair: the first leaf hinges on the left (outer) edge.
+    ...(n === 2 && i === 0 && type === "classic" && s.type !== "sliding" ? { direction: "left" as const } : {}),
+    widthRatio: (s.widthRatio ?? 1 / item.sashes.length) * (1 - 1 / n),
+  }));
   return { ...item, sashes: electMain(withNormalizedRatios([...scaled, sash])) };
 }
 

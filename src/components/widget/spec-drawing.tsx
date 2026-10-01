@@ -143,8 +143,10 @@ export function SpecDrawing({
         <line key={`hatch-${i}`} x1={sx + 6} y1={rectY + rectH - 6} x2={sx2 - 6} y2={rectY + 6} stroke="#8A9492" strokeWidth={1} opacity={0.7} />,
       );
     } else if (sash.type === "classic" || sash.type === "tiltturn") {
-      const apexX = sash.direction === "left" ? sx2 - 6 : sx + 6;
-      const farX = sash.direction === "left" ? sx + 6 : sx2 - 6;
+      // DIN 1356: the triangle's apex is on the HINGE side. `direction` is the hinge
+      // side seen from inside, exactly as in the platform drawings and the PDFs.
+      const apexX = sash.direction === "left" ? sx + 6 : sx2 - 6;
+      const farX = sash.direction === "left" ? sx2 - 6 : sx + 6;
       nodes.push(
         <line key={`sw1-${i}`} x1={farX} y1={rectY + 8} x2={apexX} y2={midY} stroke={colors.stroke} strokeWidth={2} opacity={0.85} />,
         <line key={`sw2-${i}`} x1={farX} y1={rectY + rectH - 8} x2={apexX} y2={midY} stroke={colors.stroke} strokeWidth={2} opacity={0.85} />,
@@ -162,9 +164,9 @@ export function SpecDrawing({
       const padIn = 10;
       const shaftX1 = sx + padIn;
       const shaftX2 = sx2 - padIn;
-      const tipX = sash.direction === "left" ? shaftX2 : shaftX1;
-      const tailX = sash.direction === "left" ? shaftX1 : shaftX2;
-      const tipDir = sash.direction === "left" ? 1 : -1;
+      const tipX = sash.direction === "left" ? shaftX1 : shaftX2;
+      const tailX = sash.direction === "left" ? shaftX2 : shaftX1;
+      const tipDir = sash.direction === "left" ? -1 : 1;
       nodes.push(
         <line key={`sl1-${i}`} x1={tailX} y1={arrowY} x2={tipX} y2={arrowY} stroke={colors.stroke} strokeWidth={2.2} opacity={0.9} />,
         <line key={`sl2-${i}`} x1={tipX} y1={arrowY} x2={tipX - tipDir * 7} y2={arrowY - 5} stroke={colors.stroke} strokeWidth={2.2} opacity={0.9} />,
