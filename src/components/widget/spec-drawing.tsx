@@ -151,6 +151,13 @@ export function SpecDrawing({
         <line key={`sw1-${i}`} x1={farX} y1={rectY + 8} x2={apexX} y2={midY} stroke={colors.stroke} strokeWidth={2} opacity={0.85} />,
         <line key={`sw2-${i}`} x1={farX} y1={rectY + rectH - 8} x2={apexX} y2={midY} stroke={colors.stroke} strokeWidth={2} opacity={0.85} />,
       );
+      // Handle on the side opposite the hinge (towards the middle on outward-hinged pairs).
+      const hMm = sash.handleHeightMm && sash.handleHeightMm > 0 ? sash.handleHeightMm : Math.round(height / 2);
+      const hy0 = rectY + rectH - (Math.min(height - 40, Math.max(40, hMm)) / height) * rectH;
+      const hx0 = sash.direction === "left" ? sx2 - 11 : sx + 7;
+      nodes.push(
+        <rect key={`hd-${i}`} x={hx0} y={hy0 - 9} width={4.5} height={18} rx={2} fill={colors.stroke} opacity={0.95} pointerEvents="none" />,
+      );
       if (sash.type === "tiltturn") {
         const cx = sx + sashW / 2;
         const by = rectY + rectH - 10;
