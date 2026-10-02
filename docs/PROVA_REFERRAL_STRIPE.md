@@ -22,7 +22,7 @@ Obiettivo: verificare l'intero giro (invito → sconto → pagamento → 30 gior
 2. In una finestra anonima apri il link, registra l'account B con un'email di **dominio diverso** (non lo stesso dominio aziendale) e una carta di prova diversa.
 3. Da B scegli un piano a pagamento: nel Checkout deve comparire lo sconto del 10%. Paga con `4242 4242 4242 4242`.
 4. In **/app/admin/referrals** l'invito passa a "Qualificato" dopo il primo pagamento reale.
-5. Per non aspettare 30 giorni, in Convex dashboard sposta indietro la data di qualifica (campo `qualifiedAt` del referral) di 31 giorni; il cron `referral-reward` (ogni 6 ore) può essere lanciato a mano dalla dashboard.
+5. Per non aspettare 30 giorni, in Convex dashboard porta `holdUntil` del referral a una data già passata (ad es. ieri); il cron `referral-reward` (ogni 6 ore) può essere lanciato a mano dalla dashboard.
 6. Premio in **credito**: sul cliente Stripe di A compare un saldo negativo pari al 10% del listino (IVA esclusa).
 7. Premio in **denaro**: in A scegli "Denaro", premi "Collega conto Stripe", completa l'onboarding di prova, torna alla pagina (stato "Pronto"). Rilancia il cron: in Stripe → Connect → Transfers compare il trasferimento.
 8. Storno: rimborsa il pagamento di B entro 60 giorni dal qualificante e rilancia `referral-clawback`: credito riaddebitato o trasferimento stornato.
@@ -30,7 +30,7 @@ Obiettivo: verificare l'intero giro (invito → sconto → pagamento → 30 gior
 ## 4. Cosa controllare
 - Nessun doppio premio rilanciando i cron più volte.
 - Email ricevute in lingua corretta (invitato, invito registrato, premio).
-- Con `REFERRALS_ENABLED` rimosso: nessun codice nuovo, nessuno sconto, menu comunque visibile ma pagina informativa.
+- Con `REFERRALS_ENABLED` rimosso: nessun codice nuovo, nessuno sconto, la pagina mostra che il programma non è attivo.
 
 ## 5. Prima di andare in produzione
 - Ripeti i punti 1–2 con le chiavi live; verifica che i fondi sul saldo piattaforma coprano i premi in denaro.
