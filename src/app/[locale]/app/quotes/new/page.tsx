@@ -625,7 +625,7 @@ export default function NewFieldQuotePage() {
         <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-700 dark:text-amber-400 space-y-2">
           <p className="font-semibold">{t("noPublishedConfig")}</p>
           <p className="text-[var(--color-text-secondary)]">
-            {t("sharedCatalogHint")}
+            {t.rich("sharedCatalogHint", { strong: (chunks) => <strong>{chunks}</strong> })}
           </p>
           <Link
             href="/app/configurators"
