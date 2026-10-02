@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import posthog from "posthog-js";
 import { useRouter } from "@/i18n/navigation";
 import { useSearchParams } from "next/navigation";
@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { authErrorMessage } from "@/lib/errors";
 import { useTurnstile } from "@/lib/use-turnstile";
 import { getOptionalRedirect } from "@/lib/redirect-validator";
+import { captureReferralFromUrl } from "@/lib/referral-capture";
 
 export default function RegisterPage() {
   return (
@@ -35,6 +36,11 @@ function RegisterForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Remember an invitation link (?ref=…) until the account is created after verification.
+  useEffect(() => {
+    captureReferralFromUrl();
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

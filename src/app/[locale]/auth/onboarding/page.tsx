@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { authErrorMessage } from "@/lib/errors";
 import { localeForCountry } from "@/lib/country-locale";
 import { persistLocaleChoice } from "@/components/language-switcher";
+import { clearStoredReferral, readStoredReferral } from "@/lib/referral-capture";
 import type { AppLocale } from "@/i18n/routing";
 
 const COUNTRIES = [
@@ -57,7 +58,8 @@ export default function OnboardingPage() {
     setError("");
     setLoading(true);
     try {
-      const res = await registerTenant({ companyName, country: country || undefined });
+      const res = await registerTenant({ companyName, country: country || undefined, referralCode: readStoredReferral() });
+      clearStoredReferral();
       setResult(res);
       setLoading(false);
     } catch (err) {

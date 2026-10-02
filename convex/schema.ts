@@ -67,6 +67,8 @@ export default defineSchema({
     // syncSubscription's safety-net sweep — never written optimistically by
     // client-facing code, Stripe is the single source of truth for this.
     stripeBalanceCents: v.optional(v.number()),
+    /** Set when this account signed up through a referral code (see convex/referrals.ts). */
+    referredBy: v.optional(v.id("referrals")),
     /** `created` (unix s) of the newest subscription/checkout event applied — older, late events are ignored. */
     stripeLastEventCreated: v.optional(v.number()),
     // Pro-only 14-day trial (card captured up front, auto-converts via webhook).
@@ -102,6 +104,41 @@ export default defineSchema({
     payloadSummary: v.optional(v.any()),
     receivedAt: v.number(),
   }).index("by_event", ["stripeEventId"]),
+
+  /** One personal referral code per paying account (docs/PIANO_REFERRAL.md). */
+  referralCodes: defineTable({
+    tenantId: v.id("tenants"),
+    code: v.string(),
+    createdAt: v.number(),
+    disabledAt: v.optional(v.number()),
+  })
+    .index("by_code", ["code"])
+    .index("by_tenant", ["tenantId"]),
+
+  /**
+   * One row per invited account (`referredTenantId` appears at most once). A row also
+   * records attempts refused by the anti-fraud rules (status "rejected" + reason),
+   * so platform admins can review them. Later phases move accepted rows through
+   * qualified -> rewarded (or clawback) when the invited account pays.
+   */
+  referrals: defineTable({
+    referrerTenantId: v.id("tenants"),
+    referredTenantId: v.id("tenants"),
+    code: v.string(),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("qualified"),
+      v.literal("rewarded"),
+      v.literal("rejected"),
+      v.literal("expired"),
+      v.literal("clawback"),
+    ),
+    rejectionReason: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_referred", ["referredTenantId"])
+    .index("by_referrer", ["referrerTenantId"])
+    .index("by_referrer_and_status", ["referrerTenantId", "status"]),
 
   /**
    * Anti-abuse: the card fingerprints that already started the one-time Pro

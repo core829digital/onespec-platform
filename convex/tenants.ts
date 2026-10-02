@@ -17,6 +17,7 @@ import { requirePermission } from "./lib/rbac";
 import { emit } from "./lib/triggers";
 import { unlockOnReactivation } from "./usage";
 import { regionForCountry } from "./lib/regions";
+import { attachReferral } from "./referrals";
 
 const COUNTRY_RE = /^[A-Za-z]{2}$/;
 
@@ -28,7 +29,7 @@ function cleanCompanyName(raw: string): string {
 }
 
 export const registerTenant = mutation({
-  args: { companyName: v.string(), country: v.optional(v.string()) },
+  args: { companyName: v.string(), country: v.optional(v.string()), referralCode: v.optional(v.string()) },
   handler: async (ctx, args) => {
     const userId = await requireVerifiedUser(ctx);
     const existing = await ctx.db.query("memberships").withIndex("by_user", q => q.eq("userId", userId)).first();
@@ -62,6 +63,16 @@ export const registerTenant = mutation({
       status: "active",
       acceptedAt: Date.now(),
     });
+
+    // Referral link (no-op unless REFERRALS_ENABLED). A bad code or any failure here must
+    // never get in the way of creating the account.
+    if (args.referralCode) {
+      try {
+        await attachReferral(ctx, { referredTenantId: tenantId, referredUserId: userId, rawCode: args.referralCode });
+      } catch {
+        /* signup wins over referral */
+      }
+    }
 
     const owner = await ctx.db.get(userId);
     await ctx.scheduler.runAfter(0, internal.email.send, {

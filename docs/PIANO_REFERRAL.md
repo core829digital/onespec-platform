@@ -1,6 +1,12 @@
 # Piano del sistema referral di OneSpec
 
-Stato: **proposta da approvare** (nessun codice scritto). Data: 2026-10-02.
+Stato: **R1 implementata** (codici e collegamento alla registrazione, spenta di default); R2–R5 da fare. Piano da approvare nelle parti economiche. Data: 2026-10-02.
+
+### Stato di implementazione
+
+- **R1 (fatta):** tabelle `referralCodes` e `referrals`, campo `tenants.referredBy`, codice `OS-XXXXXX`, collegamento in `registerTenant`, regole anti auto-invito (stessa persona, stessa azienda, email usa-e-getta, invitante non pagante), cattura di `?ref=` nel browser (30 giorni), 31 test nuovi.
+- **Interruttore:** tutto è **spento** finché non imposti `REFERRALS_ENABLED=1` nelle variabili Convex (`npx convex env set REFERRALS_ENABLED 1`). Spento: nessun codice si crea, ogni `?ref=` viene ignorato e la registrazione funziona come prima.
+- **Non ancora fatto:** sconto al Checkout, qualifica dal pagamento, premio dopo 30 giorni, stesso Stripe customer / stessa carta, interfaccia, email, sito, limite per IP (R2–R5).
 Obiettivo: far portare nuovi clienti dai clienti attuali, a costo basso e senza aprire falle (frodi, costi fuori controllo, problemi legali).
 
 ---
