@@ -40,7 +40,8 @@
     "collapse": "Collapse menu",
     "expand": "Expand menu",
     "logistics": "Logistics",
-    "planNone": "None"
+    "planNone": "None",
+    "referral": "Invite & save"
   },
   "dashboard": {
     "title": "Overview",
@@ -1461,7 +1462,8 @@
     "statusClosed": "closed",
     "fullAccess": "Full access",
     "grantFullAccess": "Grant full access",
-    "revokeFullAccess": "Revoke full access"
+    "revokeFullAccess": "Revoke full access",
+    "referralsLink": "Invitations (referral)"
   },
   "planGate": {
     "title": "This section isn't included in your plan",
@@ -2194,5 +2196,82 @@
     "securityClass": "Security class",
     "handleHeight": "Handle height from the floor",
     "main": "Main sash"
+  },
+  "referral": {
+    "loading": "Loading…",
+    "title": "Invite & save",
+    "subtitle": "Invite another company: you receive {referrer}% of its subscription price (VAT excluded) as credit on your subscription, and it gets {invitee}% off its first payment.",
+    "unavailableTitle": "Programme not available",
+    "unavailableBody": "The invitation programme is for owners and admins of accounts with an active subscription, and is not open to everyone yet.",
+    "seePlans": "See plans",
+    "yourCode": "Your invitation code",
+    "yourLink": "Your link to share",
+    "copyCode": "Copy code",
+    "copyLink": "Copy link",
+    "copied": "Copied ✓",
+    "creatingCode": "Creating your code…",
+    "shareWhatsApp": "Share on WhatsApp",
+    "shareEmail": "Send by email",
+    "shareSubject": "I recommend OneSpec",
+    "shareText": "I use OneSpec for window configurators on my website. Sign up with my link and get a discount on your first payment: {link}",
+    "statsTitle": "Your numbers",
+    "statInvited": "Companies invited",
+    "statWaiting": "Waiting",
+    "statWaitingHint": "{days} days after the first payment",
+    "statEarned": "Credit received",
+    "statPending": "Credit coming",
+    "leftThisYear": "Rewards still available in 12 months: {left} of {max}.",
+    "howTitle": "How it works",
+    "steps": [
+      "Share your link or code with another company.",
+      "The company signs up and picks a plan: it gets the discount automatically at payment.",
+      "After the first payment and {days} days without refunds, your credit is added.",
+      "The credit reduces your next subscription invoices: it cannot be converted into cash."
+    ],
+    "amountsTitle": "What you receive",
+    "amountsNote": "{percent}% of the list price of the chosen plan, VAT excluded, once for each invited company.",
+    "colPlan": "Invited company's plan",
+    "colMonthly": "Monthly payment",
+    "colAnnual": "Yearly payment",
+    "historyTitle": "Your invitations",
+    "historyEmpty": "No invitations yet. Share your link to get started.",
+    "waitingUntil": "credit from {date}",
+    "status": {
+      "registered": "Signed up",
+      "waiting": "Waiting",
+      "rewarded": "Credit added",
+      "expired": "Expired",
+      "cancelled": "Cancelled"
+    },
+    "footnote": "To protect the programme, invitations between accounts of the same person or company, or using the same payment card, do not earn credit."
+  },
+  "adminReferrals": {
+    "loading": "Loading…",
+    "forbidden": "This page is for platform administrators.",
+    "back": "Back to administration",
+    "title": "Invitation review",
+    "filter": "Filter by status",
+    "all": "All statuses",
+    "exportCsv": "Export CSV",
+    "hint": "Invitations refused by the anti-fraud rules stay here with the reason. \"Reopen\" puts them back in the flow; \"Reject\" cancels an invitation that has not been paid; \"Disable code\" blocks new invitations from that account.",
+    "empty": "No invitations.",
+    "referrer": "Inviter",
+    "referred": "Invited",
+    "credit": "Credit",
+    "holdUntil": "Waiting until",
+    "reject": "Reject",
+    "reopen": "Reopen",
+    "disableCode": "Disable code",
+    "enableCode": "Enable code",
+    "confirmReject": "Reject this invitation? No credit will be paid.",
+    "confirmDisable": "Disable this account's code? Invitations already registered are unchanged.",
+    "status": {
+      "pending": "Registered",
+      "qualified": "Waiting 30 days",
+      "rewarded": "Paid",
+      "rejected": "Rejected",
+      "expired": "Expired",
+      "clawback": "Reversed"
+    }
   }
 }

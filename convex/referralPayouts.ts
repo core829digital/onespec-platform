@@ -3,7 +3,7 @@ import { internal } from "./_generated/api";
 import type { Scheduler } from "convex/server";
 import { v } from "convex/values";
 import type { Doc, Id } from "./_generated/dataModel";
-import { canInvite, referralsEnabled } from "./referrals";
+import { canInvite, notifyOwner, referralsEnabled } from "./referrals";
 import {
   CLAIM_RETRY_MS,
   CLAWBACK_WINDOW_DAYS,
@@ -11,7 +11,7 @@ import {
   EXPIRE_AFTER_HOLD_DAYS,
   MAX_REWARDS_PER_12_MONTHS,
   REFERRAL_HOLD_DAYS,
-  rewardFor,
+  referrerCreditCents,
 } from "./lib/referralRewards";
 import { stripeConfigured, stripeErrorMessage, stripeRest } from "./lib/stripeRest";
 
@@ -104,8 +104,9 @@ export const markQualified = internalMutation({
     const r = await ctx.db.get(args.referralId);
     if (!r || r.status !== "pending") return { status: "ignored" };
     const referred = await ctx.db.get(r.referredTenantId);
-    const reward = referred ? rewardFor(referred.plan) : null;
-    if (!reward) {
+    // 10% of the plan's list price (VAT excluded) for the billing cycle actually bought.
+    const creditCents = referred ? referrerCreditCents(referred.plan, referred.billingCycle ?? "monthly") : null;
+    if (!creditCents || creditCents <= 0) {
       await ctx.db.patch(r._id, { status: "rejected", rejectionReason: "PLAN_NOT_ELIGIBLE" });
       await audit(ctx, r.referredTenantId, "referral.rejected", r._id, { reason: "PLAN_NOT_ELIGIBLE" });
       return { status: "rejected" };
@@ -116,9 +117,9 @@ export const markQualified = internalMutation({
       holdUntil: args.paidAtMs + REFERRAL_HOLD_DAYS * DAY_MS,
       firstInvoiceId: args.invoiceId,
       firstInvoicePaidCents: args.paidCents,
-      rewardCents: reward.referrerCreditCents,
+      rewardCents: creditCents,
     });
-    await audit(ctx, r.referredTenantId, "referral.qualified", r._id, { invoiceId: args.invoiceId, paidCents: args.paidCents, rewardCents: reward.referrerCreditCents });
+    await audit(ctx, r.referredTenantId, "referral.qualified", r._id, { invoiceId: args.invoiceId, paidCents: args.paidCents, rewardCents: creditCents });
     return { status: "qualified" };
   },
 });
@@ -202,6 +203,7 @@ export const markRewarded = internalMutation({
     if (!r || r.status !== "qualified") return false;
     await ctx.db.patch(r._id, { status: "rewarded", rewardedAt: Date.now(), stripeBalanceTxnId: args.txnId });
     await audit(ctx, r.referrerTenantId, "referral.rewarded", r._id, { txnId: args.txnId, rewardCents: r.rewardCents });
+    if (r.rewardCents) await notifyOwner(ctx, r.referrerTenantId, "referral_rewarded", { amountCents: r.rewardCents });
     return true;
   },
 });

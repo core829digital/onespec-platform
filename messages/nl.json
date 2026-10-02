@@ -40,7 +40,8 @@
     "collapse": "Menu inklappen",
     "expand": "Menu uitklappen",
     "logistics": "Logistiek",
-    "planNone": "Geen"
+    "planNone": "Geen",
+    "referral": "Nodig uit en bespaar"
   },
   "dashboard": {
     "title": "Overzicht",
@@ -1461,7 +1462,8 @@
     "statusClosed": "gesloten",
     "fullAccess": "Volledige toegang",
     "grantFullAccess": "Volledige toegang geven",
-    "revokeFullAccess": "Volledige toegang intrekken"
+    "revokeFullAccess": "Volledige toegang intrekken",
+    "referralsLink": "Uitnodigingen (referral)"
   },
   "planGate": {
     "title": "Dit onderdeel zit niet in je abonnement",
@@ -2194,5 +2196,82 @@
     "securityClass": "Veiligheidsklasse",
     "handleHeight": "Hoogte kruk vanaf de vloer",
     "main": "Hoofdvleugel"
+  },
+  "referral": {
+    "loading": "Laden…",
+    "title": "Nodig uit en bespaar",
+    "subtitle": "Nodig een ander bedrijf uit: jij ontvangt {referrer}% van de abonnementsprijs (excl. btw) als tegoed op je abonnement, en het bedrijf krijgt {invitee}% korting op de eerste betaling.",
+    "unavailableTitle": "Programma niet beschikbaar",
+    "unavailableBody": "Het uitnodigingsprogramma is voor eigenaren en beheerders van accounts met een actief abonnement en staat nog niet open voor iedereen.",
+    "seePlans": "Bekijk de abonnementen",
+    "yourCode": "Je uitnodigingscode",
+    "yourLink": "Je link om te delen",
+    "copyCode": "Code kopiëren",
+    "copyLink": "Link kopiëren",
+    "copied": "Gekopieerd ✓",
+    "creatingCode": "Je code wordt aangemaakt…",
+    "shareWhatsApp": "Delen via WhatsApp",
+    "shareEmail": "Versturen per e-mail",
+    "shareSubject": "Ik raad OneSpec aan",
+    "shareText": "Ik gebruik OneSpec voor raamconfigurators op mijn website. Meld je aan via mijn link en krijg korting op je eerste betaling: {link}",
+    "statsTitle": "Jouw cijfers",
+    "statInvited": "Uitgenodigde bedrijven",
+    "statWaiting": "In afwachting",
+    "statWaitingHint": "{days} dagen na de eerste betaling",
+    "statEarned": "Ontvangen tegoed",
+    "statPending": "Tegoed onderweg",
+    "leftThisYear": "Nog beschikbare beloningen in 12 maanden: {left} van {max}.",
+    "howTitle": "Zo werkt het",
+    "steps": [
+      "Deel je link of code met een ander bedrijf.",
+      "Het bedrijf meldt zich aan en kiest een abonnement: de korting wordt automatisch toegepast bij betaling.",
+      "Na de eerste betaling en {days} dagen zonder terugbetaling wordt je tegoed bijgeschreven.",
+      "Het tegoed verlaagt je volgende abonnementsfacturen: het kan niet in geld worden omgezet."
+    ],
+    "amountsTitle": "Wat je ontvangt",
+    "amountsNote": "{percent}% van de catalogusprijs van het gekozen abonnement, excl. btw, eenmaal per uitgenodigd bedrijf.",
+    "colPlan": "Abonnement van het uitgenodigde bedrijf",
+    "colMonthly": "Maandelijkse betaling",
+    "colAnnual": "Jaarlijkse betaling",
+    "historyTitle": "Je uitnodigingen",
+    "historyEmpty": "Nog geen uitnodigingen. Deel je link om te beginnen.",
+    "waitingUntil": "tegoed vanaf {date}",
+    "status": {
+      "registered": "Aangemeld",
+      "waiting": "In afwachting",
+      "rewarded": "Tegoed bijgeschreven",
+      "expired": "Verlopen",
+      "cancelled": "Geannuleerd"
+    },
+    "footnote": "Om het programma te beschermen geven uitnodigingen tussen accounts van dezelfde persoon of hetzelfde bedrijf, of met dezelfde betaalkaart, geen recht op tegoed."
+  },
+  "adminReferrals": {
+    "loading": "Laden…",
+    "forbidden": "Deze pagina is voor platformbeheerders.",
+    "back": "Terug naar beheer",
+    "title": "Uitnodigingen beoordelen",
+    "filter": "Filter op status",
+    "all": "Alle statussen",
+    "exportCsv": "CSV exporteren",
+    "hint": "Uitnodigingen die door de frauderegels zijn geweigerd blijven hier met de reden. \"Heropenen\" zet ze terug in de flow; \"Afwijzen\" annuleert een nog niet betaalde uitnodiging; \"Code uitschakelen\" blokkeert nieuwe uitnodigingen van dat account.",
+    "empty": "Geen uitnodigingen.",
+    "referrer": "Uitnodiger",
+    "referred": "Uitgenodigd",
+    "credit": "Tegoed",
+    "holdUntil": "Wachten tot",
+    "reject": "Afwijzen",
+    "reopen": "Heropenen",
+    "disableCode": "Code uitschakelen",
+    "enableCode": "Code inschakelen",
+    "confirmReject": "Deze uitnodiging afwijzen? Er wordt geen tegoed uitbetaald.",
+    "confirmDisable": "De code van dit account uitschakelen? Reeds geregistreerde uitnodigingen blijven ongewijzigd.",
+    "status": {
+      "pending": "Aangemeld",
+      "qualified": "Wacht 30 dagen",
+      "rewarded": "Betaald",
+      "rejected": "Afgewezen",
+      "expired": "Verlopen",
+      "clawback": "Teruggedraaid"
+    }
   }
 }

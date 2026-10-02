@@ -109,3 +109,16 @@ export function referralPairProblem(
   if (da === db && !FREE_EMAIL_DOMAINS.has(da)) return "SAME_ORGANIZATION";
   return null;
 }
+
+/**
+ * A company name shown to the inviter without giving it away: first two letters of the
+ * first word, then "***", and a short last word (a legal form such as "Srl" or "GmbH") is kept.
+ *   "Serramenti Rossi Srl" -> "Se*** Srl"      "Acme" -> "Ac***"
+ */
+export function maskCompanyName(name: string | null | undefined): string {
+  const words = (name ?? "").trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "***";
+  const head = Array.from(words[0]).slice(0, 2).join("") + "***";
+  const last = words.length > 1 ? words[words.length - 1] : "";
+  return last && Array.from(last).length <= 5 ? `${head} ${last}` : head;
+}

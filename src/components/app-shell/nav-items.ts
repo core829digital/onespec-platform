@@ -19,6 +19,7 @@ import {
   Gem,
   Receipt,
   Truck,
+  Gift,
   type LucideIcon,
 } from "lucide-react";
 import type { GatedFeature } from "@/lib/plan-gates";
@@ -32,6 +33,8 @@ export interface NavItem {
   icon: LucideIcon;
   /** Optional query string that distinguishes items sharing one route (e.g. "tab=billing"). */
   search?: string;
+  /** Shown only when the named condition holds (resolved by the shell, e.g. the referral programme). */
+  onlyIf?: "referral";
 }
 
 export interface NavGroup {
@@ -77,10 +80,16 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: "/app/account/team", label: "team", icon: Users },
       { href: "/app/account/billing", label: "plan", icon: Gem, search: "tab=plan" },
       { href: "/app/account/billing", label: "billing", icon: Receipt, search: "tab=billing" },
+      { href: "/app/account/referral", label: "referral", icon: Gift, onlyIf: "referral" },
       { href: "/app/account", label: "account", icon: Settings },
     ],
   },
 ];
+
+/** The items of a group that apply to this account (hides conditional ones). */
+export function visibleNavItems(items: NavItem[], flags: { referral: boolean }): NavItem[] {
+  return items.filter((i) => !i.onlyIf || flags[i.onlyIf]);
+}
 
 export const ADMIN_NAV_ITEM: NavItem = { href: "/app/admin", label: "admin", icon: Shield };
 

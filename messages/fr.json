@@ -40,7 +40,8 @@
     "collapse": "Réduire le menu",
     "expand": "Développer le menu",
     "logistics": "Logistique",
-    "planNone": "Aucun"
+    "planNone": "Aucun",
+    "referral": "Inviter et économiser"
   },
   "dashboard": {
     "title": "Aperçu",
@@ -1461,7 +1462,8 @@
     "statusClosed": "clôturé",
     "fullAccess": "Accès total",
     "grantFullAccess": "Donner accès total",
-    "revokeFullAccess": "Retirer accès total"
+    "revokeFullAccess": "Retirer accès total",
+    "referralsLink": "Invitations (parrainage)"
   },
   "planGate": {
     "title": "Cette section n'est pas incluse dans votre plan",
@@ -2194,5 +2196,82 @@
     "securityClass": "Classe de sécurité",
     "handleHeight": "Hauteur de la poignée depuis le sol",
     "main": "Ouvrant principal"
+  },
+  "referral": {
+    "loading": "Chargement…",
+    "title": "Inviter et économiser",
+    "subtitle": "Invitez une autre entreprise : vous recevez {referrer} % du prix de son abonnement (hors TVA) en crédit sur votre abonnement, et elle bénéficie de {invitee} % de remise sur son premier paiement.",
+    "unavailableTitle": "Programme indisponible",
+    "unavailableBody": "Le programme d'invitation est réservé aux propriétaires et administrateurs de comptes avec un abonnement actif, et n'est pas encore ouvert à tous.",
+    "seePlans": "Voir les offres",
+    "yourCode": "Votre code d'invitation",
+    "yourLink": "Votre lien à partager",
+    "copyCode": "Copier le code",
+    "copyLink": "Copier le lien",
+    "copied": "Copié ✓",
+    "creatingCode": "Création de votre code…",
+    "shareWhatsApp": "Partager sur WhatsApp",
+    "shareEmail": "Envoyer par e-mail",
+    "shareSubject": "Je vous recommande OneSpec",
+    "shareText": "J'utilise OneSpec pour les configurateurs de fenêtres sur mon site. Inscrivez-vous avec mon lien et profitez d'une remise sur votre premier paiement : {link}",
+    "statsTitle": "Vos chiffres",
+    "statInvited": "Entreprises invitées",
+    "statWaiting": "En attente",
+    "statWaitingHint": "{days} jours après le premier paiement",
+    "statEarned": "Crédit reçu",
+    "statPending": "Crédit à venir",
+    "leftThisYear": "Récompenses encore disponibles sur 12 mois : {left} sur {max}.",
+    "howTitle": "Comment ça marche",
+    "steps": [
+      "Partagez votre lien ou votre code avec une autre entreprise.",
+      "L'entreprise s'inscrit et choisit une offre : elle reçoit la remise automatiquement au paiement.",
+      "Après le premier paiement et {days} jours sans remboursement, votre crédit est ajouté.",
+      "Le crédit réduit vos prochaines factures d'abonnement : il n'est pas convertible en argent."
+    ],
+    "amountsTitle": "Ce que vous recevez",
+    "amountsNote": "{percent} % du prix catalogue de l'offre choisie, hors TVA, une fois pour chaque entreprise invitée.",
+    "colPlan": "Offre de l'entreprise invitée",
+    "colMonthly": "Paiement mensuel",
+    "colAnnual": "Paiement annuel",
+    "historyTitle": "Vos invitations",
+    "historyEmpty": "Aucune invitation pour le moment. Partagez votre lien pour commencer.",
+    "waitingUntil": "crédit à partir du {date}",
+    "status": {
+      "registered": "Inscrite",
+      "waiting": "En attente",
+      "rewarded": "Crédit ajouté",
+      "expired": "Expiré",
+      "cancelled": "Annulé"
+    },
+    "footnote": "Pour protéger le programme, les invitations entre comptes d'une même personne ou entreprise, ou avec la même carte de paiement, ne donnent pas droit au crédit."
+  },
+  "adminReferrals": {
+    "loading": "Chargement…",
+    "forbidden": "Page réservée aux administrateurs de la plateforme.",
+    "back": "Retour à l'administration",
+    "title": "Revue des invitations",
+    "filter": "Filtrer par statut",
+    "all": "Tous les statuts",
+    "exportCsv": "Exporter en CSV",
+    "hint": "Les invitations refusées par les règles anti-fraude restent ici avec le motif. « Rouvrir » les remet en traitement ; « Rejeter » annule une invitation non payée ; « Désactiver le code » bloque de nouvelles invitations de ce compte.",
+    "empty": "Aucune invitation.",
+    "referrer": "Parrain",
+    "referred": "Invité",
+    "credit": "Crédit",
+    "holdUntil": "Attente jusqu'au",
+    "reject": "Rejeter",
+    "reopen": "Rouvrir",
+    "disableCode": "Désactiver le code",
+    "enableCode": "Réactiver le code",
+    "confirmReject": "Rejeter cette invitation ? Aucun crédit ne sera versé.",
+    "confirmDisable": "Désactiver le code de ce compte ? Les invitations déjà enregistrées ne changent pas.",
+    "status": {
+      "pending": "Inscrit",
+      "qualified": "Attente 30 jours",
+      "rewarded": "Payé",
+      "rejected": "Rejeté",
+      "expired": "Expiré",
+      "clawback": "Annulé"
+    }
   }
 }

@@ -25,9 +25,9 @@ beforeEach(() => {
         if (init?.method === "POST") {
           posts.push({ url, body: new URLSearchParams(init.body ?? "") });
           couponExists = true;
-          return ok({ id: "onespec-ref-1940" });
+          return ok({ id: "onespec-ref-pct-10" });
         }
-        return couponExists ? ok({ id: "onespec-ref-1940" }) : new Response(JSON.stringify({ error: { message: "No such coupon" } }), { status: 404 });
+        return couponExists ? ok({ id: "onespec-ref-pct-10" }) : new Response(JSON.stringify({ error: { message: "No such coupon" } }), { status: 404 });
       }
       if (init?.method === "POST") {
         posts.push({ url, body: new URLSearchParams(init.body ?? "") });
@@ -64,11 +64,11 @@ async function invited(status: "pending" | "qualified" = "pending") {
 const checkoutCall = () => posts.find((p) => p.url.endsWith("/checkout/sessions"))!;
 
 describe("checkout for an invited account", () => {
-  test("gets the one-off discount and no promotion-code box", async () => {
+  test("gets the one-off 10% discount and no promotion-code box", async () => {
     const { s, as } = await invited();
     const { url } = await as.action(api.billing.createCheckoutSession, { tenantId: s.tenantId, plan: "base" });
     expect(url).toContain("checkout.stripe.test");
-    expect(checkoutCall().body.get("discounts[0][coupon]")).toBe("onespec-ref-1940");
+    expect(checkoutCall().body.get("discounts[0][coupon]")).toBe("onespec-ref-pct-10");
     expect(checkoutCall().body.has("allow_promotion_codes")).toBe(false);
     expect(posts.filter((p) => p.url.endsWith("/coupons"))).toHaveLength(1);
   });

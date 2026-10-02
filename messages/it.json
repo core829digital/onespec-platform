@@ -40,7 +40,8 @@
     "collapse": "Comprimi il menu",
     "expand": "Espandi il menu",
     "logistics": "Logistica",
-    "planNone": "Nessuno"
+    "planNone": "Nessuno",
+    "referral": "Invita e risparmia"
   },
   "dashboard": {
     "title": "Panoramica",
@@ -1461,7 +1462,8 @@
     "statusClosed": "chiuso",
     "fullAccess": "Accesso totale",
     "grantFullAccess": "Dai accesso totale",
-    "revokeFullAccess": "Togli accesso totale"
+    "revokeFullAccess": "Togli accesso totale",
+    "referralsLink": "Inviti (referral)"
   },
   "planGate": {
     "title": "Sezione non inclusa nel tuo piano",
@@ -2194,5 +2196,82 @@
     "securityClass": "Classe di sicurezza",
     "handleHeight": "Altezza maniglia dal pavimento",
     "main": "Anta principale"
+  },
+  "referral": {
+    "loading": "Caricamento…",
+    "title": "Invita e risparmia",
+    "subtitle": "Invita un'altra azienda: tu ricevi il {referrer}% del prezzo del suo abbonamento (IVA esclusa) come credito sul tuo abbonamento, lei ha il {invitee}% di sconto sul primo pagamento.",
+    "unavailableTitle": "Programma non disponibile",
+    "unavailableBody": "Il programma inviti è riservato a proprietari e amministratori di account con un abbonamento attivo, e non è ancora aperto a tutti.",
+    "seePlans": "Vedi i piani",
+    "yourCode": "Il tuo codice invito",
+    "yourLink": "Il tuo link da condividere",
+    "copyCode": "Copia codice",
+    "copyLink": "Copia link",
+    "copied": "Copiato ✓",
+    "creatingCode": "Sto creando il tuo codice…",
+    "shareWhatsApp": "Condividi su WhatsApp",
+    "shareEmail": "Invia per email",
+    "shareSubject": "Ti consiglio OneSpec",
+    "shareText": "Uso OneSpec per i configuratori di infissi sul mio sito. Registrati con il mio link e avrai uno sconto sul primo pagamento: {link}",
+    "statsTitle": "I tuoi numeri",
+    "statInvited": "Aziende invitate",
+    "statWaiting": "In attesa",
+    "statWaitingHint": "{days} giorni dopo il primo pagamento",
+    "statEarned": "Credito ricevuto",
+    "statPending": "Credito in arrivo",
+    "leftThisYear": "Premi ancora disponibili in 12 mesi: {left} su {max}.",
+    "howTitle": "Come funziona",
+    "steps": [
+      "Condividi il tuo link o il tuo codice con un'altra azienda.",
+      "L'azienda si registra e sceglie un piano: riceve lo sconto in automatico al pagamento.",
+      "Dopo il primo pagamento e {days} giorni senza rimborsi, il tuo credito viene accreditato.",
+      "Il credito riduce le tue prossime fatture dell'abbonamento: non è convertibile in denaro."
+    ],
+    "amountsTitle": "Quanto ricevi",
+    "amountsNote": "Il {percent}% del prezzo di listino del piano scelto, IVA esclusa, una volta per ogni azienda invitata.",
+    "colPlan": "Piano dell'azienda invitata",
+    "colMonthly": "Pagamento mensile",
+    "colAnnual": "Pagamento annuale",
+    "historyTitle": "I tuoi inviti",
+    "historyEmpty": "Nessun invito ancora. Condividi il tuo link per iniziare.",
+    "waitingUntil": "credito dal {date}",
+    "status": {
+      "registered": "Registrata",
+      "waiting": "In attesa",
+      "rewarded": "Credito accreditato",
+      "expired": "Scaduto",
+      "cancelled": "Annullato"
+    },
+    "footnote": "Per proteggere il programma, gli inviti fra account della stessa persona o della stessa azienda, o con la stessa carta di pagamento, non danno diritto al credito."
+  },
+  "adminReferrals": {
+    "loading": "Caricamento…",
+    "forbidden": "Pagina riservata agli amministratori della piattaforma.",
+    "back": "Torna all'amministrazione",
+    "title": "Revisione inviti",
+    "filter": "Filtra per stato",
+    "all": "Tutti gli stati",
+    "exportCsv": "Esporta CSV",
+    "hint": "Gli inviti respinti dalle regole anti-frode restano qui con il motivo. «Riapri» li rimette in lavorazione; «Respingi» annulla un invito non ancora pagato; «Disattiva codice» blocca nuovi inviti di quell'account.",
+    "empty": "Nessun invito.",
+    "referrer": "Invitante",
+    "referred": "Invitato",
+    "credit": "Credito",
+    "holdUntil": "Attesa fino al",
+    "reject": "Respingi",
+    "reopen": "Riapri",
+    "disableCode": "Disattiva codice",
+    "enableCode": "Riattiva codice",
+    "confirmReject": "Respingere questo invito? Non verrà pagato alcun credito.",
+    "confirmDisable": "Disattivare il codice di questo account? Gli inviti già registrati non cambiano.",
+    "status": {
+      "pending": "Registrato",
+      "qualified": "In attesa 30 giorni",
+      "rewarded": "Pagato",
+      "rejected": "Respinto",
+      "expired": "Scaduto",
+      "clawback": "Stornato"
+    }
   }
 }

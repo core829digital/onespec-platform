@@ -61,6 +61,11 @@ export interface EmailStrings {
     expires: string;
     text: string;
   };
+  referral: {
+    invited: { subject: string; title: string; body: (percent: string) => string; cta: string };
+    registered: { subject: string; title: string; body: string; cta: string };
+    rewarded: { subject: (amount: string) => string; title: string; body: (amount: string) => string; cta: string };
+  };
   notification: string;
 }
 
@@ -137,6 +142,26 @@ const it: EmailStrings = {
     cta: "Accetta l'invito",
     expires: "L'invito scade tra 7 giorni.",
     text: "Sei stato invitato a onespec",
+  },
+  referral: {
+    invited: {
+      subject: "Il tuo sconto invito — onespec",
+      title: "Hai uno sconto sul primo pagamento",
+      body: (p) => `Ti sei registrato con l'invito di un'altra azienda: avrai il ${p}% di sconto sul primo pagamento, applicato in automatico quando scegli il piano.`,
+      cta: "Scegli il piano",
+    },
+    registered: {
+      subject: "Un'azienda si è registrata con il tuo invito — onespec",
+      title: "Il tuo invito ha funzionato",
+      body: "Una nuova azienda si è registrata con il tuo codice. Quando farà il primo pagamento e saranno trascorsi 30 giorni senza rimborsi, riceverai il tuo credito sull'abbonamento.",
+      cta: "Vedi i tuoi inviti",
+    },
+    rewarded: {
+      subject: (a) => `Hai ricevuto ${a} di credito — onespec`,
+      title: "Credito invito accreditato",
+      body: (a) => `Abbiamo aggiunto ${a} di credito al tuo account: verrà scalato dalle prossime fatture dell'abbonamento. Grazie per aver portato un nuovo cliente.`,
+      cta: "Vedi i tuoi inviti",
+    },
   },
   notification: "Notifica",
 };
@@ -215,6 +240,26 @@ const en: EmailStrings = {
     expires: "This invitation expires in 7 days.",
     text: "You've been invited to onespec",
   },
+  referral: {
+    invited: {
+      subject: "Your invitation discount — onespec",
+      title: "You have a discount on your first payment",
+      body: (p) => `You signed up through another company's invitation: you get ${p}% off your first payment, applied automatically when you choose your plan.`,
+      cta: "Choose your plan",
+    },
+    registered: {
+      subject: "A company signed up with your invitation — onespec",
+      title: "Your invitation worked",
+      body: "A new company signed up with your code. Once it makes its first payment and 30 days pass without refunds, you will receive your subscription credit.",
+      cta: "See your invitations",
+    },
+    rewarded: {
+      subject: (a) => `You received ${a} of credit — onespec`,
+      title: "Invitation credit added",
+      body: (a) => `We added ${a} of credit to your account: it will be deducted from your next subscription invoices. Thank you for bringing in a new customer.`,
+      cta: "See your invitations",
+    },
+  },
   notification: "Notification",
 };
 
@@ -291,6 +336,26 @@ const fr: EmailStrings = {
     cta: "Accepter l'invitation",
     expires: "Cette invitation expire dans 7 jours.",
     text: "Vous êtes invité sur onespec",
+  },
+  referral: {
+    invited: {
+      subject: "Votre remise d'invitation — onespec",
+      title: "Vous avez une remise sur votre premier paiement",
+      body: (p) => `Vous vous êtes inscrit grâce à l'invitation d'une autre entreprise : vous bénéficiez de ${p} % de remise sur votre premier paiement, appliquée automatiquement lors du choix de votre offre.`,
+      cta: "Choisir mon offre",
+    },
+    registered: {
+      subject: "Une entreprise s'est inscrite avec votre invitation — onespec",
+      title: "Votre invitation a fonctionné",
+      body: "Une nouvelle entreprise s'est inscrite avec votre code. Dès son premier paiement, et après 30 jours sans remboursement, vous recevrez votre crédit sur l'abonnement.",
+      cta: "Voir mes invitations",
+    },
+    rewarded: {
+      subject: (a) => `Vous avez reçu ${a} de crédit — onespec`,
+      title: "Crédit d'invitation ajouté",
+      body: (a) => `Nous avons ajouté ${a} de crédit à votre compte : il sera déduit de vos prochaines factures d'abonnement. Merci d'avoir amené un nouveau client.`,
+      cta: "Voir mes invitations",
+    },
   },
   notification: "Notification",
 };
@@ -369,6 +434,26 @@ const de: EmailStrings = {
     expires: "Diese Einladung läuft in 7 Tagen ab.",
     text: "Sie wurden zu onespec eingeladen",
   },
+  referral: {
+    invited: {
+      subject: "Ihr Einladungsrabatt — onespec",
+      title: "Sie erhalten einen Rabatt auf die erste Zahlung",
+      body: (p) => `Sie haben sich über die Einladung eines anderen Unternehmens registriert: Sie erhalten ${p} % Rabatt auf Ihre erste Zahlung, automatisch angewendet, sobald Sie Ihren Tarif wählen.`,
+      cta: "Tarif wählen",
+    },
+    registered: {
+      subject: "Ein Unternehmen hat sich mit Ihrer Einladung registriert — onespec",
+      title: "Ihre Einladung hat funktioniert",
+      body: "Ein neues Unternehmen hat sich mit Ihrem Code registriert. Nach der ersten Zahlung und 30 Tagen ohne Rückerstattung erhalten Sie Ihr Guthaben auf das Abonnement.",
+      cta: "Meine Einladungen ansehen",
+    },
+    rewarded: {
+      subject: (a) => `Sie haben ${a} Guthaben erhalten — onespec`,
+      title: "Einladungsguthaben gutgeschrieben",
+      body: (a) => `Wir haben Ihrem Konto ${a} Guthaben gutgeschrieben: Es wird von Ihren nächsten Abonnement-Rechnungen abgezogen. Danke, dass Sie einen neuen Kunden gewonnen haben.`,
+      cta: "Meine Einladungen ansehen",
+    },
+  },
   notification: "Benachrichtigung",
 };
 
@@ -446,6 +531,26 @@ const nl: EmailStrings = {
     expires: "Deze uitnodiging verloopt over 7 dagen.",
     text: "Je bent uitgenodigd voor onespec",
   },
+  referral: {
+    invited: {
+      subject: "Je uitnodigingskorting — onespec",
+      title: "Je hebt korting op je eerste betaling",
+      body: (p) => `Je hebt je aangemeld via de uitnodiging van een ander bedrijf: je krijgt ${p}% korting op je eerste betaling, automatisch toegepast zodra je je abonnement kiest.`,
+      cta: "Kies je abonnement",
+    },
+    registered: {
+      subject: "Een bedrijf heeft zich aangemeld met jouw uitnodiging — onespec",
+      title: "Je uitnodiging werkt",
+      body: "Een nieuw bedrijf heeft zich aangemeld met jouw code. Na de eerste betaling en 30 dagen zonder terugbetaling ontvang je je tegoed op het abonnement.",
+      cta: "Bekijk je uitnodigingen",
+    },
+    rewarded: {
+      subject: (a) => `Je hebt ${a} tegoed ontvangen — onespec`,
+      title: "Uitnodigingstegoed bijgeschreven",
+      body: (a) => `We hebben ${a} tegoed aan je account toegevoegd: het wordt van je volgende abonnementsfacturen afgetrokken. Bedankt voor het aanbrengen van een nieuwe klant.`,
+      cta: "Bekijk je uitnodigingen",
+    },
+  },
   notification: "Melding",
 };
 
@@ -522,6 +627,26 @@ const ro: EmailStrings = {
     cta: "Acceptă invitația",
     expires: "Invitația expiră în 7 zile.",
     text: "Ai fost invitat în onespec",
+  },
+  referral: {
+    invited: {
+      subject: "Reducerea ta de invitație — onespec",
+      title: "Ai o reducere la prima plată",
+      body: (p) => `Te-ai înregistrat prin invitația altei companii: primești ${p}% reducere la prima plată, aplicată automat când alegi planul.`,
+      cta: "Alege planul",
+    },
+    registered: {
+      subject: "O companie s-a înregistrat cu invitația ta — onespec",
+      title: "Invitația ta a funcționat",
+      body: "O companie nouă s-a înregistrat cu codul tău. După prima plată și 30 de zile fără rambursări, vei primi creditul pe abonament.",
+      cta: "Vezi invitațiile tale",
+    },
+    rewarded: {
+      subject: (a) => `Ai primit ${a} credit — onespec`,
+      title: "Credit de invitație adăugat",
+      body: (a) => `Am adăugat ${a} credit în contul tău: va fi dedus din următoarele facturi de abonament. Mulțumim că ai adus un client nou.`,
+      cta: "Vezi invitațiile tale",
+    },
   },
   notification: "Notificare",
 };

@@ -40,7 +40,8 @@
     "collapse": "Menü einklappen",
     "expand": "Menü ausklappen",
     "logistics": "Logistik",
-    "planNone": "Keiner"
+    "planNone": "Keiner",
+    "referral": "Einladen & sparen"
   },
   "dashboard": {
     "title": "Übersicht",
@@ -1461,7 +1462,8 @@
     "statusClosed": "geschlossen",
     "fullAccess": "Vollzugriff",
     "grantFullAccess": "Vollzugriff geben",
-    "revokeFullAccess": "Vollzugriff entziehen"
+    "revokeFullAccess": "Vollzugriff entziehen",
+    "referralsLink": "Einladungen (Referral)"
   },
   "planGate": {
     "title": "Dieser Bereich ist in Ihrem Plan nicht enthalten",
@@ -2194,5 +2196,82 @@
     "securityClass": "Sicherheitsklasse",
     "handleHeight": "Griffhöhe ab Boden",
     "main": "Hauptflügel"
+  },
+  "referral": {
+    "loading": "Wird geladen…",
+    "title": "Einladen & sparen",
+    "subtitle": "Laden Sie ein anderes Unternehmen ein: Sie erhalten {referrer} % des Abo-Preises (ohne MwSt.) als Guthaben auf Ihr Abonnement, das Unternehmen erhält {invitee} % Rabatt auf die erste Zahlung.",
+    "unavailableTitle": "Programm nicht verfügbar",
+    "unavailableBody": "Das Einladungsprogramm ist für Inhaber und Administratoren von Konten mit aktivem Abonnement gedacht und noch nicht für alle geöffnet.",
+    "seePlans": "Tarife ansehen",
+    "yourCode": "Ihr Einladungscode",
+    "yourLink": "Ihr Link zum Teilen",
+    "copyCode": "Code kopieren",
+    "copyLink": "Link kopieren",
+    "copied": "Kopiert ✓",
+    "creatingCode": "Ihr Code wird erstellt…",
+    "shareWhatsApp": "Auf WhatsApp teilen",
+    "shareEmail": "Per E-Mail senden",
+    "shareSubject": "Ich empfehle OneSpec",
+    "shareText": "Ich nutze OneSpec für Fenster-Konfiguratoren auf meiner Website. Registrieren Sie sich über meinen Link und erhalten Sie einen Rabatt auf Ihre erste Zahlung: {link}",
+    "statsTitle": "Ihre Zahlen",
+    "statInvited": "Eingeladene Unternehmen",
+    "statWaiting": "Wartend",
+    "statWaitingHint": "{days} Tage nach der ersten Zahlung",
+    "statEarned": "Erhaltenes Guthaben",
+    "statPending": "Ausstehendes Guthaben",
+    "leftThisYear": "Noch verfügbare Prämien in 12 Monaten: {left} von {max}.",
+    "howTitle": "So funktioniert es",
+    "steps": [
+      "Teilen Sie Ihren Link oder Code mit einem anderen Unternehmen.",
+      "Das Unternehmen registriert sich und wählt einen Tarif: Der Rabatt wird bei der Zahlung automatisch angewendet.",
+      "Nach der ersten Zahlung und {days} Tagen ohne Rückerstattung wird Ihr Guthaben gutgeschrieben.",
+      "Das Guthaben mindert Ihre nächsten Abo-Rechnungen: Es kann nicht in Bargeld umgewandelt werden."
+    ],
+    "amountsTitle": "Das erhalten Sie",
+    "amountsNote": "{percent} % des Listenpreises des gewählten Tarifs, ohne MwSt., einmal pro eingeladenem Unternehmen.",
+    "colPlan": "Tarif des eingeladenen Unternehmens",
+    "colMonthly": "Monatszahlung",
+    "colAnnual": "Jahreszahlung",
+    "historyTitle": "Ihre Einladungen",
+    "historyEmpty": "Noch keine Einladungen. Teilen Sie Ihren Link, um zu starten.",
+    "waitingUntil": "Guthaben ab {date}",
+    "status": {
+      "registered": "Registriert",
+      "waiting": "Wartend",
+      "rewarded": "Guthaben gutgeschrieben",
+      "expired": "Abgelaufen",
+      "cancelled": "Storniert"
+    },
+    "footnote": "Zum Schutz des Programms geben Einladungen zwischen Konten derselben Person oder desselben Unternehmens oder mit derselben Zahlungskarte kein Anrecht auf Guthaben."
+  },
+  "adminReferrals": {
+    "loading": "Wird geladen…",
+    "forbidden": "Diese Seite ist Plattform-Administratoren vorbehalten.",
+    "back": "Zurück zur Administration",
+    "title": "Einladungsprüfung",
+    "filter": "Nach Status filtern",
+    "all": "Alle Status",
+    "exportCsv": "CSV exportieren",
+    "hint": "Von den Betrugsregeln abgelehnte Einladungen bleiben hier mit Begründung. „Wieder öffnen“ nimmt sie wieder in den Ablauf auf; „Ablehnen“ storniert eine noch nicht bezahlte Einladung; „Code deaktivieren“ sperrt neue Einladungen dieses Kontos.",
+    "empty": "Keine Einladungen.",
+    "referrer": "Einladender",
+    "referred": "Eingeladen",
+    "credit": "Guthaben",
+    "holdUntil": "Wartezeit bis",
+    "reject": "Ablehnen",
+    "reopen": "Wieder öffnen",
+    "disableCode": "Code deaktivieren",
+    "enableCode": "Code aktivieren",
+    "confirmReject": "Diese Einladung ablehnen? Es wird kein Guthaben ausgezahlt.",
+    "confirmDisable": "Den Code dieses Kontos deaktivieren? Bereits registrierte Einladungen bleiben unverändert.",
+    "status": {
+      "pending": "Registriert",
+      "qualified": "Wartet 30 Tage",
+      "rewarded": "Bezahlt",
+      "rejected": "Abgelehnt",
+      "expired": "Abgelaufen",
+      "clawback": "Storniert"
+    }
   }
 }

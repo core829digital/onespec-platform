@@ -126,7 +126,12 @@ export default function AdminPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-3xl font-bold text-[var(--color-text)]">{t("title")}</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-3xl font-bold text-[var(--color-text)]">{t("title")}</h1>
+        <Link href="/app/admin/referrals" className="rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm font-medium text-[var(--color-text)] hover:border-[var(--color-mint)]">
+          {t("referralsLink")}
+        </Link>
+      </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-lg p-4">

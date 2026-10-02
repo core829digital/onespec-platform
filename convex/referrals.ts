@@ -1,9 +1,20 @@
-import { internalQuery, mutation, query, type MutationCtx } from "./_generated/server";
+import { internalQuery, mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
+import { internal } from "./_generated/api";
 import { v, ConvexError } from "convex/values";
 import type { Doc, Id } from "./_generated/dataModel";
-import { requireTenantRole } from "./lib/auth";
-import { generateReferralCode, normalizeReferralCode, referralPairProblem } from "./lib/referral";
-import { rewardFor } from "./lib/referralRewards";
+import { getUserId, requirePlatformAdmin, requireTenantRole } from "./lib/auth";
+import { regionForCountry } from "./lib/regions";
+import { generateReferralCode, maskCompanyName, normalizeReferralCode, referralPairProblem } from "./lib/referral";
+import {
+  DAY_MS,
+  INVITEE_DISCOUNT_PERCENT,
+  MAX_REWARDS_PER_12_MONTHS,
+  REFERRAL_HOLD_DAYS,
+  REFERRER_CREDIT_PERCENT,
+  isBillable,
+  referrerCreditCents,
+} from "./lib/referralRewards";
+import { BILLING_PLANS, SELF_SERVE_PLANS } from "./lib/billingPlans";
 
 /**
  * Referral system, phase R1 (docs/PIANO_REFERRAL.md): personal codes and attaching a
@@ -54,6 +65,38 @@ export const ensureMyReferralCode = mutation({
   },
 });
 
+/** Public base of the shareable link; the marketing site forwards `?ref=` to the platform. */
+const SHARE_BASE = "https://onespec.eu";
+
+/**
+ * Whether the account should see the "Invite and save" section at all. Never throws (it
+ * feeds the sidebar for every member): anything unexpected simply means "no".
+ */
+export const referralNavVisible = query({
+  args: { tenantId: v.id("tenants") },
+  handler: async (ctx: QueryCtx, args): Promise<boolean> => {
+    if (!referralsEnabled()) return false;
+    const userId = await getUserId(ctx);
+    if (!userId) return false;
+    const membership = await ctx.db
+      .query("memberships")
+      .withIndex("by_tenant_user", (q) => q.eq("tenantId", args.tenantId).eq("userId", userId))
+      .first();
+    if (!membership || membership.status !== "active" || !MANAGERS.includes(membership.role)) return false;
+    const tenant = await ctx.db.get(args.tenantId);
+    return !!tenant && canInvite(tenant);
+  },
+});
+
+type HistoryStatus = "registered" | "waiting" | "rewarded" | "expired" | "cancelled";
+const HISTORY_STATUS: Partial<Record<Doc<"referrals">["status"], HistoryStatus>> = {
+  pending: "registered",
+  qualified: "waiting",
+  rewarded: "rewarded",
+  expired: "expired",
+  clawback: "cancelled",
+};
+
 export const getMyReferral = query({
   args: { tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
@@ -62,18 +105,49 @@ export const getMyReferral = query({
     if (!tenant) throw new ConvexError("TENANT_NOT_FOUND");
     const enabled = referralsEnabled();
     const codeRow = await ctx.db.query("referralCodes").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).first();
-    const count = async (status: Doc<"referrals">["status"]) =>
-      (
-        await ctx.db
-          .query("referrals")
-          .withIndex("by_referrer_and_status", (q) => q.eq("referrerTenantId", args.tenantId).eq("status", status))
-          .take(500)
-      ).length;
+    const rows = await ctx.db.query("referrals").withIndex("by_referrer", (q) => q.eq("referrerTenantId", args.tenantId)).order("desc").take(200);
+
+    // Attempts refused by the anti-fraud rules are not shown to the inviter.
+    const visible = rows.filter((r) => HISTORY_STATUS[r.status]);
+    const now = Date.now();
+    const yearAgo = now - 365 * DAY_MS;
+    const history = await Promise.all(
+      visible.slice(0, 30).map(async (r) => ({
+        id: r._id,
+        status: HISTORY_STATUS[r.status] as HistoryStatus,
+        company: maskCompanyName((await ctx.db.get(r.referredTenantId))?.name),
+        createdAt: r.createdAt,
+        holdUntil: r.status === "qualified" ? (r.holdUntil ?? null) : null,
+        rewardCents: r.status === "rewarded" || r.status === "qualified" ? (r.rewardCents ?? null) : null,
+      })),
+    );
+    const sum = (status: Doc<"referrals">["status"]) => rows.filter((r) => r.status === status).reduce((n, r) => n + (r.rewardCents ?? 0), 0);
     return {
       enabled,
       eligible: canInvite(tenant),
       code: codeRow && !codeRow.disabledAt ? codeRow.code : null,
-      counts: { pending: await count("pending"), qualified: await count("qualified"), rewarded: await count("rewarded") },
+      shareBase: SHARE_BASE,
+      counts: {
+        invited: visible.length,
+        registered: rows.filter((r) => r.status === "pending").length,
+        waiting: rows.filter((r) => r.status === "qualified").length,
+        rewarded: rows.filter((r) => r.status === "rewarded").length,
+      },
+      earnedCents: sum("rewarded"),
+      pendingCents: sum("qualified"),
+      rewardsLeftThisYear: Math.max(0, MAX_REWARDS_PER_12_MONTHS - rows.filter((r) => r.status === "rewarded" && (r.rewardedAt ?? 0) >= yearAgo).length),
+      rules: { holdDays: REFERRAL_HOLD_DAYS, maxPerYear: MAX_REWARDS_PER_12_MONTHS },
+      rewards: {
+        referrerPercent: REFERRER_CREDIT_PERCENT,
+        inviteePercent: INVITEE_DISCOUNT_PERCENT,
+        plans: SELF_SERVE_PLANS.map((plan) => ({
+          plan,
+          name: BILLING_PLANS.find((b) => b.key === plan)?.name ?? plan,
+          monthlyCreditCents: referrerCreditCents(plan, "monthly") ?? 0,
+          annualCreditCents: referrerCreditCents(plan, "annual") ?? 0,
+        })),
+      },
+      history,
     };
   },
 });
@@ -84,16 +158,46 @@ export const getMyReferral = query({
  */
 export const checkoutDiscount = internalQuery({
   args: { tenantId: v.id("tenants"), plan: v.string() },
-  handler: async (ctx, args): Promise<{ amountCents: number } | null> => {
+  handler: async (ctx, args): Promise<{ percentOff: number } | null> => {
     if (!referralsEnabled()) return null;
     const tenant = await ctx.db.get(args.tenantId);
     if (!tenant?.referredBy) return null;
     const referral = await ctx.db.get(tenant.referredBy);
     if (!referral || referral.status !== "pending") return null;
-    const reward = rewardFor(args.plan);
-    return reward ? { amountCents: reward.inviteeDiscountCents } : null;
+    return isBillable(args.plan) ? { percentOff: INVITEE_DISCOUNT_PERCENT } : null;
   },
 });
+
+/**
+ * Sends a referral email to the owner of `tenantId` in their language. Never throws: an
+ * email problem must not undo a referral step.
+ */
+export async function notifyOwner(
+  ctx: MutationCtx,
+  tenantId: Id<"tenants">,
+  template: "referral_invited" | "referral_registered" | "referral_rewarded",
+  data: { amountCents?: number; percent?: number },
+): Promise<void> {
+  try {
+    const tenant = await ctx.db.get(tenantId);
+    const owner = tenant ? await ctx.db.get(tenant.ownerUserId) : null;
+    if (!tenant || !owner?.email) return;
+    const locale = owner.locale ?? regionForCountry(tenant.country).primaryLocale;
+    const amount =
+      typeof data.amountCents === "number"
+        ? new Intl.NumberFormat(locale, { style: "currency", currency: "EUR" }).format(data.amountCents / 100)
+        : undefined;
+    await ctx.scheduler.runAfter(0, internal.email.send, {
+      template,
+      to: owner.email,
+      locale,
+      data: { amount, percent: data.percent },
+      tenantId,
+    });
+  } catch {
+    /* best effort */
+  }
+}
 
 export type AttachResult =
   | { status: "attached"; referralId: Id<"referrals"> }
@@ -166,5 +270,110 @@ export async function attachReferral(
     meta: { referrerTenantId: referrer._id },
     createdAt: Date.now(),
   });
+  await notifyOwner(ctx, args.referredTenantId, "referral_invited", { percent: INVITEE_DISCOUNT_PERCENT });
+  await notifyOwner(ctx, referrer._id, "referral_registered", {});
   return { status: "attached", referralId };
 }
+
+/* --------------------------- platform admin review --------------------------- */
+
+const STATUS = v.union(
+  v.literal("pending"), v.literal("qualified"), v.literal("rewarded"),
+  v.literal("rejected"), v.literal("expired"), v.literal("clawback"),
+);
+
+/** Referrals with both accounts' names and the reason a rule refused them, newest first. */
+export const adminListReferrals = query({
+  args: { status: v.optional(STATUS) },
+  handler: async (ctx, args) => {
+    await requirePlatformAdmin(ctx);
+    const rows = args.status
+      ? await ctx.db.query("referrals").withIndex("by_status", (q) => q.eq("status", args.status!)).order("desc").take(200)
+      : await ctx.db.query("referrals").order("desc").take(200);
+    const who = async (tenantId: Id<"tenants">) => {
+      const t = await ctx.db.get(tenantId);
+      const owner = t ? await ctx.db.get(t.ownerUserId) : null;
+      return { tenantId, name: t?.name ?? "—", email: owner?.email ?? "—", plan: t?.plan ?? "—", planStatus: t?.planStatus ?? "—" };
+    };
+    return await Promise.all(
+      rows.map(async (r) => ({
+        id: r._id,
+        status: r.status,
+        reason: r.rejectionReason ?? null,
+        code: r.code,
+        createdAt: r.createdAt,
+        qualifiedAt: r.qualifiedAt ?? null,
+        holdUntil: r.holdUntil ?? null,
+        rewardCents: r.rewardCents ?? null,
+        rewardedAt: r.rewardedAt ?? null,
+        clawbackNote: r.clawbackNote ?? null,
+        referrer: await who(r.referrerTenantId),
+        referred: await who(r.referredTenantId),
+      })),
+    );
+  },
+});
+
+async function adminAudit(ctx: MutationCtx, adminId: Id<"users">, action: string, referral: Doc<"referrals">, meta?: Record<string, unknown>) {
+  await ctx.db.insert("auditLog", {
+    tenantId: referral.referredTenantId,
+    actorUserId: adminId,
+    actorKind: "admin",
+    action,
+    targetTable: "referrals",
+    targetId: String(referral._id),
+    meta,
+    createdAt: Date.now(),
+  });
+}
+
+/** Cancels a pending or qualified referral (nothing is paid for it). */
+export const adminReject = mutation({
+  args: { referralId: v.id("referrals"), reason: v.optional(v.string()) },
+  handler: async (ctx, args): Promise<void> => {
+    const adminId = await requirePlatformAdmin(ctx);
+    const r = await ctx.db.get(args.referralId);
+    if (!r) throw new ConvexError("NOT_FOUND");
+    if (r.status !== "pending" && r.status !== "qualified") throw new ConvexError("INVALID_STATE");
+    const reason = (args.reason ?? "ADMIN").trim().slice(0, 80) || "ADMIN";
+    await ctx.db.patch(r._id, { status: "rejected", rejectionReason: reason });
+    await adminAudit(ctx, adminId, "referral.admin_rejected", r, { reason });
+  },
+});
+
+/**
+ * Gives a refused or expired referral another chance (the rules were too strict for a real
+ * customer). It goes back to `pending`, so it qualifies and is paid like any other.
+ */
+export const adminReopen = mutation({
+  args: { referralId: v.id("referrals") },
+  handler: async (ctx, args): Promise<void> => {
+    const adminId = await requirePlatformAdmin(ctx);
+    const r = await ctx.db.get(args.referralId);
+    if (!r) throw new ConvexError("NOT_FOUND");
+    if (r.status !== "rejected" && r.status !== "expired") throw new ConvexError("INVALID_STATE");
+    await ctx.db.patch(r._id, { status: "pending", rejectionReason: undefined });
+    await ctx.db.patch(r.referredTenantId, { referredBy: r._id });
+    await adminAudit(ctx, adminId, "referral.admin_reopened", r, { previous: r.status, reason: r.rejectionReason ?? null });
+  },
+});
+
+/** Switches an account's code off (abuse) or back on. Existing referrals are untouched. */
+export const adminSetCodeDisabled = mutation({
+  args: { tenantId: v.id("tenants"), disabled: v.boolean() },
+  handler: async (ctx, args): Promise<void> => {
+    const adminId = await requirePlatformAdmin(ctx);
+    const row = await ctx.db.query("referralCodes").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).first();
+    if (!row) throw new ConvexError("NOT_FOUND");
+    await ctx.db.patch(row._id, { disabledAt: args.disabled ? Date.now() : undefined });
+    await ctx.db.insert("auditLog", {
+      tenantId: args.tenantId,
+      actorUserId: adminId,
+      actorKind: "admin",
+      action: args.disabled ? "referral.code_disabled" : "referral.code_enabled",
+      targetTable: "referralCodes",
+      targetId: String(row._id),
+      createdAt: Date.now(),
+    });
+  },
+});

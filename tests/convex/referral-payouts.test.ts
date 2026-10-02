@@ -5,7 +5,7 @@ import type { MutationCtx } from "../../convex/_generated/server";
 import { newDb, seedTenant } from "./_helpers";
 import { cardFingerprints, firstRealPayment, hasRefundOrDispute, sharesAny } from "../../convex/referralPayouts";
 import { ensureReferralCoupon } from "../../convex/lib/referralCoupon";
-import { DAY_MS } from "../../convex/lib/referralRewards";
+import { DAY_MS, referrerCreditCents } from "../../convex/lib/referralRewards";
 
 const T0 = new Date("2026-10-01T00:00:00Z").getTime();
 type Db = ReturnType<typeof newDb>;
@@ -138,10 +138,11 @@ describe("pure helpers", () => {
 });
 
 describe("checkout discount", () => {
-  test("pending referral gets the plan's discount; nothing once it has qualified", async () => {
+  test("pending referral gets 10% off on every self-serve plan; nothing once it has qualified", async () => {
     const s = await scenario();
-    expect(await s.t.query(internal.referrals.checkoutDiscount, { tenantId: s.referredId, plan: "base" })).toEqual({ amountCents: 1940 });
-    expect(await s.t.query(internal.referrals.checkoutDiscount, { tenantId: s.referredId, plan: "pro" })).toEqual({ amountCents: 3940 });
+    for (const plan of ["essentials", "essentials_plus", "max", "base", "pro", "agency"]) {
+      expect(await s.t.query(internal.referrals.checkoutDiscount, { tenantId: s.referredId, plan })).toEqual({ percentOff: 10 });
+    }
     expect(await s.t.query(internal.referrals.checkoutDiscount, { tenantId: s.referredId, plan: "enterprise" })).toBeNull();
     await s.t.run((ctx) => ctx.db.patch(s.referralId, { status: "qualified" }));
     expect(await s.t.query(internal.referrals.checkoutDiscount, { tenantId: s.referredId, plan: "base" })).toBeNull();
@@ -153,19 +154,20 @@ describe("checkout discount", () => {
     expect(await s.t.query(internal.referrals.checkoutDiscount, { tenantId: s.referredId, plan: "base" })).toBeNull();
   });
   test("coupon is created once and then reused", async () => {
-    expect(await ensureReferralCoupon(1940)).toBe("onespec-ref-1940");
-    expect(await ensureReferralCoupon(1940)).toBe("onespec-ref-1940");
+    expect(await ensureReferralCoupon(10)).toBe("onespec-ref-pct-10");
+    expect(await ensureReferralCoupon(10)).toBe("onespec-ref-pct-10");
     const creations = stripe.posts.filter((p) => p.path === "/coupons");
     expect(creations).toHaveLength(1);
-    expect(creations[0].body.get("amount_off")).toBe("1940");
-    expect(creations[0].body.get("currency")).toBe("eur");
+    expect(creations[0].body.get("percent_off")).toBe("10");
+    expect(creations[0].body.has("amount_off")).toBe(false);
     expect(creations[0].body.get("duration")).toBe("repeating");
     expect(creations[0].body.get("duration_in_months")).toBe("1");
   });
-  test("coupon helper refuses nonsense amounts", async () => {
+  test("coupon helper refuses nonsense percentages", async () => {
     expect(await ensureReferralCoupon(0)).toBeNull();
     expect(await ensureReferralCoupon(-5)).toBeNull();
     expect(await ensureReferralCoupon(12.5)).toBeNull();
+    expect(await ensureReferralCoupon(101)).toBeNull();
     expect(stripe.posts).toHaveLength(0);
   });
 });
@@ -175,14 +177,31 @@ describe("qualification", () => {
     const s = await scenario();
     await qualify(s, T0 - 2 * DAY_MS);
     const r = await referral(s);
-    expect(r).toMatchObject({ status: "qualified", firstInvoiceId: "in_1", firstInvoicePaidCents: 9700, rewardCents: 3000 });
+    expect(r).toMatchObject({ status: "qualified", firstInvoiceId: "in_1", firstInvoicePaidCents: 9700, rewardCents: 970 }); // 10% of the Base list price (97 EUR, VAT excluded)
     expect(r?.holdUntil).toBe(T0 - 2 * DAY_MS + 30 * DAY_MS);
   });
 
-  test("the reward follows the plan the invited account is on (Pro = 60 EUR)", async () => {
+  test("the reward is 10% of the list price (VAT excluded) of the plan bought", async () => {
     const s = await scenario({ referredPlan: "pro" });
     await qualify(s);
-    expect((await referral(s))?.rewardCents).toBe(6000);
+    expect((await referral(s))?.rewardCents).toBe(1970); // Pro: 197 EUR
+  });
+
+  test("yearly billing: 10% of the yearly price (monthly x 10)", async () => {
+    const s = await scenario();
+    await s.t.run((ctx) => ctx.db.patch(s.referredId, { billingCycle: "annual" }));
+    await qualify(s);
+    expect((await referral(s))?.rewardCents).toBe(9700); // Base yearly: 970 EUR
+  });
+
+  test("credit amounts per plan and cycle", () => {
+    expect(referrerCreditCents("essentials")).toBe(500); // 49.95 -> 4.995 -> 5.00
+    expect(referrerCreditCents("essentials_plus")).toBe(624); // 62.44 -> 6.244
+    expect(referrerCreditCents("max")).toBe(799);
+    expect(referrerCreditCents("agency")).toBe(3970);
+    expect(referrerCreditCents("agency", "annual")).toBe(39700);
+    expect(referrerCreditCents("enterprise")).toBeNull();
+    expect(referrerCreditCents("starter")).toBeNull();
   });
 
   test("a free trial (0 EUR invoice) does not qualify", async () => {
@@ -257,12 +276,16 @@ describe("reward", () => {
     await s.t.action(internal.referralPayouts.rewardSweep, {});
     expect(creditPosts()).toHaveLength(1);
     expect(creditPosts()[0].path).toBe("/customers/cus_ref/balance_transactions");
-    expect(creditPosts()[0].body.get("amount")).toBe("-3000"); // negative = credit
+    expect(creditPosts()[0].body.get("amount")).toBe("-970"); // negative = credit
     expect(creditPosts()[0].body.get("currency")).toBe("eur");
     expect(creditPosts()[0].key).toBe(`referral-reward-${s.referralId}`);
     const r = await referral(s);
     expect(r?.status).toBe("rewarded");
     expect(r?.stripeBalanceTxnId).toMatch(/^cbtxn_/);
+    // the inviter is told about the credit
+    await s.t.finishAllScheduledFunctions(vi.runAllTimers);
+    const mails = await s.t.run((ctx) => ctx.db.query("emailLog").collect());
+    expect(mails.filter((m) => m.template === "referral_rewarded")).toHaveLength(1);
     // a second run, or an overlapping one, never pays again
     await s.t.action(internal.referralPayouts.rewardSweep, {});
     expect(creditPosts()).toHaveLength(1);
@@ -270,7 +293,7 @@ describe("reward", () => {
 
   test("a credit that already reached Stripe (crash before saving) is found, not duplicated", async () => {
     const s = await qualified();
-    stripe.txns["cus_ref"] = [{ id: "cbtxn_old", amount: -3000, metadata: { referralId: String(s.referralId) } }];
+    stripe.txns["cus_ref"] = [{ id: "cbtxn_old", amount: -970, metadata: { referralId: String(s.referralId) } }];
     vi.setSystemTime(T0 + 31 * DAY_MS);
     await s.t.action(internal.referralPayouts.rewardSweep, {});
     expect(creditPosts()).toHaveLength(0);
@@ -395,7 +418,7 @@ describe("clawback", () => {
     expect((await referral(s))?.status).toBe("clawback");
     const reversals = creditPosts().filter((p) => p.body.get("metadata[clawbackOf]"));
     expect(reversals).toHaveLength(1);
-    expect(reversals[0].body.get("amount")).toBe("3000"); // positive = takes the credit back
+    expect(reversals[0].body.get("amount")).toBe("970"); // positive = takes the credit back
     expect(stripe.balances["cus_ref"]).toBe(0);
     // idempotent: another run changes nothing
     await s.t.action(internal.referralPayouts.clawbackSweep, {});
@@ -404,7 +427,7 @@ describe("clawback", () => {
 
   test("credit already used: marked as clawback, nothing reversed automatically", async () => {
     const s = await rewarded();
-    stripe.balances["cus_ref"] = -1000; // part of the credit already consumed by an invoice
+    stripe.balances["cus_ref"] = -400; // part of the credit already consumed by an invoice
     stripe.charges["cus_new"] = [{ disputed: true }];
     await s.t.action(internal.referralPayouts.clawbackSweep, {});
     expect((await referral(s))?.status).toBe("clawback");

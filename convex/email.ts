@@ -19,6 +19,9 @@ const TEMPLATE = v.union(
   v.literal("admin_resend"),
   v.literal("purchase_receipt"),
   v.literal("subscription_confirmation"),
+  v.literal("referral_invited"),
+  v.literal("referral_registered"),
+  v.literal("referral_rewarded"),
 );
 
 function getFromAddress(template: string): string {

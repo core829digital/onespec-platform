@@ -40,7 +40,8 @@
     "collapse": "Restrânge meniul",
     "expand": "Extinde meniul",
     "logistics": "Logistică",
-    "planNone": "Niciunul"
+    "planNone": "Niciunul",
+    "referral": "Invită și economisește"
   },
   "dashboard": {
     "title": "Prezentare generală",
@@ -1461,7 +1462,8 @@
     "statusClosed": "închis",
     "fullAccess": "Acces total",
     "grantFullAccess": "Dă acces total",
-    "revokeFullAccess": "Revocă accesul total"
+    "revokeFullAccess": "Revocă accesul total",
+    "referralsLink": "Invitații (referral)"
   },
   "planGate": {
     "title": "Această secțiune nu este inclusă în planul tău",
@@ -2194,5 +2196,82 @@
     "securityClass": "Clasă de securitate",
     "handleHeight": "Înălțimea mânerului de la pardoseală",
     "main": "Canat principal"
+  },
+  "referral": {
+    "loading": "Se încarcă…",
+    "title": "Invită și economisește",
+    "subtitle": "Invită o altă companie: primești {referrer}% din prețul abonamentului ei (fără TVA) ca credit pe abonamentul tău, iar ea primește {invitee}% reducere la prima plată.",
+    "unavailableTitle": "Program indisponibil",
+    "unavailableBody": "Programul de invitații este rezervat proprietarilor și administratorilor conturilor cu abonament activ și nu este încă deschis tuturor.",
+    "seePlans": "Vezi planurile",
+    "yourCode": "Codul tău de invitație",
+    "yourLink": "Linkul tău de distribuit",
+    "copyCode": "Copiază codul",
+    "copyLink": "Copiază linkul",
+    "copied": "Copiat ✓",
+    "creatingCode": "Se creează codul tău…",
+    "shareWhatsApp": "Distribuie pe WhatsApp",
+    "shareEmail": "Trimite pe e-mail",
+    "shareSubject": "Îți recomand OneSpec",
+    "shareText": "Folosesc OneSpec pentru configuratoare de ferestre pe site-ul meu. Înregistrează-te cu linkul meu și primești o reducere la prima plată: {link}",
+    "statsTitle": "Cifrele tale",
+    "statInvited": "Companii invitate",
+    "statWaiting": "În așteptare",
+    "statWaitingHint": "{days} zile după prima plată",
+    "statEarned": "Credit primit",
+    "statPending": "Credit în drum",
+    "leftThisYear": "Recompense încă disponibile în 12 luni: {left} din {max}.",
+    "howTitle": "Cum funcționează",
+    "steps": [
+      "Distribuie linkul sau codul tău unei alte companii.",
+      "Compania se înregistrează și alege un plan: primește reducerea automat la plată.",
+      "După prima plată și {days} zile fără rambursări, creditul tău este adăugat.",
+      "Creditul reduce următoarele tale facturi de abonament: nu poate fi convertit în numerar."
+    ],
+    "amountsTitle": "Cât primești",
+    "amountsNote": "{percent}% din prețul de listă al planului ales, fără TVA, o singură dată pentru fiecare companie invitată.",
+    "colPlan": "Planul companiei invitate",
+    "colMonthly": "Plată lunară",
+    "colAnnual": "Plată anuală",
+    "historyTitle": "Invitațiile tale",
+    "historyEmpty": "Nicio invitație încă. Distribuie linkul tău pentru a începe.",
+    "waitingUntil": "credit din {date}",
+    "status": {
+      "registered": "Înregistrată",
+      "waiting": "În așteptare",
+      "rewarded": "Credit adăugat",
+      "expired": "Expirat",
+      "cancelled": "Anulat"
+    },
+    "footnote": "Pentru a proteja programul, invitațiile între conturi ale aceleiași persoane sau companii, sau cu același card de plată, nu dau dreptul la credit."
+  },
+  "adminReferrals": {
+    "loading": "Se încarcă…",
+    "forbidden": "Pagină rezervată administratorilor platformei.",
+    "back": "Înapoi la administrare",
+    "title": "Revizuire invitații",
+    "filter": "Filtrează după stare",
+    "all": "Toate stările",
+    "exportCsv": "Exportă CSV",
+    "hint": "Invitațiile respinse de regulile anti-fraudă rămân aici cu motivul. „Redeschide” le readuce în flux; „Respinge” anulează o invitație încă neplătită; „Dezactivează codul” blochează invitații noi de la acel cont.",
+    "empty": "Nicio invitație.",
+    "referrer": "Cel care invită",
+    "referred": "Invitat",
+    "credit": "Credit",
+    "holdUntil": "Așteptare până la",
+    "reject": "Respinge",
+    "reopen": "Redeschide",
+    "disableCode": "Dezactivează codul",
+    "enableCode": "Reactivează codul",
+    "confirmReject": "Respingi această invitație? Nu se va plăti niciun credit.",
+    "confirmDisable": "Dezactivezi codul acestui cont? Invitațiile deja înregistrate nu se schimbă.",
+    "status": {
+      "pending": "Înregistrat",
+      "qualified": "Așteaptă 30 de zile",
+      "rewarded": "Plătit",
+      "rejected": "Respins",
+      "expired": "Expirat",
+      "clawback": "Stornat"
+    }
   }
 }

@@ -48,7 +48,7 @@ describe("codes", () => {
     expect(a.code).toMatch(/^OS-[A-Z0-9]{6}$/);
     expect(b.code).toBe(a.code);
     const info = await as.query(api.referrals.getMyReferral, { tenantId: s.tenantId });
-    expect(info).toMatchObject({ enabled: true, eligible: true, code: a.code, counts: { pending: 0, qualified: 0, rewarded: 0 } });
+    expect(info).toMatchObject({ enabled: true, eligible: true, code: a.code, counts: { invited: 0, registered: 0, waiting: 0, rewarded: 0 } });
   });
 
   test("plain members cannot create or read the code", async () => {
@@ -104,9 +104,29 @@ describe("attaching a code at registration", () => {
     const tenant = await t.run((ctx) => ctx.db.get(tenantId));
     expect(tenant?.referredBy).toBe(rows[0]._id);
     const info = await t.withIdentity({ subject: ref.ownerId }).query(api.referrals.getMyReferral, { tenantId: ref.tenantId });
-    expect(info.counts.pending).toBe(1);
+    expect(info.counts.registered).toBe(1);
+    expect(info.counts.invited).toBe(1);
+    expect(info.history).toHaveLength(1);
+    expect(info.history[0]).toMatchObject({ status: "registered", company: "Nu*** Srl" });
     const audit = await t.run((ctx) => ctx.db.query("auditLog").withIndex("by_action", (q) => q.eq("action", "referral.attached")).collect());
     expect(audit).toHaveLength(1);
+  });
+
+  test("both sides get an email in their language (invitee: discount; inviter: someone registered)", async () => {
+    const { t, code } = await setup();
+    await signUp(t, "luca@beta.it", code);
+    await t.finishAllScheduledFunctions(vi.runAllTimers);
+    const log = await t.run((ctx) => ctx.db.query("emailLog").collect());
+    const referralMails = log.filter((m) => m.template.startsWith("referral_"));
+    expect(referralMails.map((m) => `${m.template}:${m.to}`).sort()).toEqual(["referral_invited:luca@beta.it", "referral_registered:anna@acme.it"]);
+  });
+
+  test("a rejected attempt sends no email", async () => {
+    const { t, code } = await setup();
+    await signUp(t, "marco@acme.it", code); // same company domain
+    await t.finishAllScheduledFunctions(vi.runAllTimers);
+    const log = await t.run((ctx) => ctx.db.query("emailLog").collect());
+    expect(log.filter((m) => m.template.startsWith("referral_"))).toHaveLength(0);
   });
 
   test("the code is accepted typed loosely (lower case, no prefix)", async () => {
@@ -195,5 +215,102 @@ describe("attaching a code at registration", () => {
     });
     expect(await referralsOf(t, tenantId)).toHaveLength(1);
     expect(ref.tenantId).toBeTruthy();
+  });
+});
+
+describe("platform admin review", () => {
+  async function withAdmin() {
+    const t = newDb();
+    await openRegistration(t);
+    const ref = await seedReferrer(t);
+    const { code } = await t.withIdentity({ subject: ref.ownerId }).mutation(api.referrals.ensureMyReferralCode, { tenantId: ref.tenantId });
+    const adminId = await t.run((ctx) => ctx.db.insert("users", { name: "Admin", email: "boss@core829.net", emailVerificationTime: Date.now(), isPlatformAdmin: true }));
+    return { t, ref, code, admin: t.withIdentity({ subject: adminId }), adminId };
+  }
+
+  test("only platform admins can list or change referrals", async () => {
+    const { t, ref, code } = await withAdmin();
+    const { tenantId } = await signUp(t, "marco@acme.it", code); // rejected: same company
+    const [row] = await referralsOf(t, tenantId);
+    const as = t.withIdentity({ subject: ref.ownerId });
+    await expect(as.query(api.referrals.adminListReferrals, {})).rejects.toThrow();
+    await expect(as.mutation(api.referrals.adminReopen, { referralId: row._id })).rejects.toThrow();
+    await expect(as.mutation(api.referrals.adminReject, { referralId: row._id })).rejects.toThrow();
+    await expect(as.mutation(api.referrals.adminSetCodeDisabled, { tenantId: ref.tenantId, disabled: true })).rejects.toThrow();
+  });
+
+  test("the list shows both accounts and the refusal reason, filterable by status", async () => {
+    const { t, admin, code } = await withAdmin();
+    await signUp(t, "marco@acme.it", code); // rejected
+    await signUp(t, "luca@beta.it", code); // pending
+    const all = await admin.query(api.referrals.adminListReferrals, {});
+    expect(all).toHaveLength(2);
+    const rejected = await admin.query(api.referrals.adminListReferrals, { status: "rejected" });
+    expect(rejected).toHaveLength(1);
+    expect(rejected[0]).toMatchObject({ status: "rejected", reason: "SAME_ORGANIZATION", code });
+    expect(rejected[0].referrer.email).toBe("anna@acme.it");
+    expect(rejected[0].referred.email).toBe("marco@acme.it");
+  });
+
+  test("reopen gives a refused referral another chance; it is audited", async () => {
+    const { t, admin, adminId, code } = await withAdmin();
+    const { tenantId } = await signUp(t, "marco@acme.it", code);
+    const [row] = await referralsOf(t, tenantId);
+    await admin.mutation(api.referrals.adminReopen, { referralId: row._id });
+    const after = await t.run((ctx) => ctx.db.get(row._id));
+    expect(after?.status).toBe("pending");
+    expect(after?.rejectionReason).toBeUndefined();
+    expect((await t.run((ctx) => ctx.db.get(tenantId)))?.referredBy).toBe(row._id);
+    const audit = await t.run((ctx) => ctx.db.query("auditLog").withIndex("by_action", (q) => q.eq("action", "referral.admin_reopened")).collect());
+    expect(audit).toHaveLength(1);
+    expect(audit[0]).toMatchObject({ actorKind: "admin", actorUserId: adminId });
+    // a pending one cannot be "reopened"
+    await expect(admin.mutation(api.referrals.adminReopen, { referralId: row._id })).rejects.toThrow();
+  });
+
+  test("reject cancels a pending referral but never a rewarded one", async () => {
+    const { t, admin, code } = await withAdmin();
+    const { tenantId } = await signUp(t, "luca@beta.it", code);
+    const [row] = await referralsOf(t, tenantId);
+    await admin.mutation(api.referrals.adminReject, { referralId: row._id, reason: "FAKE_COMPANY" });
+    expect(await t.run((ctx) => ctx.db.get(row._id))).toMatchObject({ status: "rejected", rejectionReason: "FAKE_COMPANY" });
+    await t.run((ctx) => ctx.db.patch(row._id, { status: "rewarded" }));
+    await expect(admin.mutation(api.referrals.adminReject, { referralId: row._id })).rejects.toThrow();
+  });
+
+  test("disabling a code stops new invitations with it, enabling restores it", async () => {
+    const { t, admin, ref, code } = await withAdmin();
+    await admin.mutation(api.referrals.adminSetCodeDisabled, { tenantId: ref.tenantId, disabled: true });
+    const a = await signUp(t, "luca@beta.it", code);
+    expect(await referralsOf(t, a.tenantId)).toHaveLength(0);
+    await admin.mutation(api.referrals.adminSetCodeDisabled, { tenantId: ref.tenantId, disabled: false });
+    const b = await signUp(t, "mia@gamma.it", code);
+    expect((await referralsOf(t, b.tenantId))[0]?.status).toBe("pending");
+  });
+});
+
+describe("sidebar visibility", () => {
+  test("only owners/admins of an eligible account see it, and it never throws", async () => {
+    const t = newDb();
+    const s = await seedReferrer(t);
+    const q = (subject?: Id<"users">) => (subject ? t.withIdentity({ subject }) : t).query(api.referrals.referralNavVisible, { tenantId: s.tenantId });
+    expect(await q(s.ownerId)).toBe(true);
+    expect(await q(s.adminId)).toBe(true);
+    expect(await q(s.memberId)).toBe(false); // plain member
+    expect(await q()).toBe(false); // signed out
+    await t.run((ctx) => ctx.db.patch(s.tenantId, { planStatus: "trialing" }));
+    expect(await q(s.ownerId)).toBe(false); // not paying yet
+    await t.run((ctx) => ctx.db.patch(s.tenantId, { planStatus: "active", unlimitedAccess: true }));
+    expect(await q(s.ownerId)).toBe(false); // founding account
+    await t.run((ctx) => ctx.db.patch(s.tenantId, { unlimitedAccess: undefined }));
+    vi.stubEnv("REFERRALS_ENABLED", "0");
+    expect(await q(s.ownerId)).toBe(false); // switched off
+  });
+
+  test("a stranger from another account does not see this account's entry", async () => {
+    const t = newDb();
+    const a = await seedReferrer(t, "a@acme.it");
+    const b = await seedReferrer(t, "b@beta.it");
+    expect(await t.withIdentity({ subject: b.ownerId }).query(api.referrals.referralNavVisible, { tenantId: a.tenantId })).toBe(false);
   });
 });

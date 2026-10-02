@@ -1,20 +1,19 @@
 # Piano del sistema referral di OneSpec
 
-Stato: **R1 e R2 implementate** (codici, collegamento, sconto, qualifica, premio, storno; spente di default); R3–R5 da fare. Piano da approvare nelle parti economiche. Data: 2026-10-02.
+Stato: **R1, R2 e R3 implementate** (codici, collegamento, sconto, qualifica, premio, storno, pagina utente, email, pagina admin; spente di default); R4–R5 da fare. Piano da approvare nelle parti economiche. Data: 2026-10-02.
 
 ### Stato di implementazione
 
-- **R1 (fatta):** tabelle `referralCodes` e `referrals`, campo `tenants.referredBy`, codice `OS-XXXXXX`, collegamento in `registerTenant`, regole anti auto-invito (stessa persona, stessa azienda, email usa-e-getta, invitante non pagante), cattura di `?ref=` nel browser (30 giorni).
-- **R2 (fatta):**
-  - **Sconto all'invitato** al Checkout: coupon Stripe a importo fisso (tabella importi sotto), valido un mese di abbonamento, così copre anche la prima fattura a pagamento dopo la prova gratuita del Pro. Il coupon si crea da solo la prima volta (`onespec-ref-<centesimi>`). Per gli invitati il campo "codice promozionale" è nascosto (Stripe non permette entrambi). Qualsiasi problema = Checkout normale.
-  - **Qualifica** (controllo ogni 6 ore): primo pagamento reale > 0 dell'invitato, letto da Stripe; carta o cliente Stripe uguali a quelli dell'invitante = respinto. Parte l'attesa di 30 giorni.
-  - **Premio**: dopo 30 giorni, se l'invitato è ancora attivo, senza rimborsi né contestazioni, e l'invitante è ancora attivo e sotto il tetto (10 in 12 mesi), il credito va sul **saldo cliente Stripe** dell'invitante (negativo = credito). Un solo pagamento possibile: prenotazione atomica nel database, chiave di idempotenza Stripe e ricerca di un credito già emesso.
-  - **Storno**: rimborso o contestazione entro 60 giorni dal primo pagamento dopo il premio → stato `clawback`, credito riportato indietro solo se ancora intatto sul saldo, altrimenti avviso agli operatori per decisione manuale.
-  - **Scadenze:** invitante non più attivo / tetto raggiunto = si attende fino a 90 giorni dopo l'attesa, poi `expired`. Invitato disdetto = `expired` subito.
-  - Nessun nuovo evento Stripe da attivare: tutto si legge via API.
-- **Importi usati (da confermare):** nel solo file `convex/lib/referralRewards.ts`. Credito invitante / sconto invitato: Level 1 15/10 €, Level 2 20/12,50 €, Level 3 25/16 €, Base 30/19,40 €, Pro 60/39,40 €, Agency 100/79,40 €. Enterprise escluso.
-- **Interruttore:** tutto è **spento** finché non imposti `REFERRALS_ENABLED=1` nelle variabili Convex. Spento: nessun codice nuovo, nessuno sconto, nessuna nuova qualifica; i premi già maturati vengono comunque accreditati.
-- **Non ancora fatto:** interfaccia, email, sito, limite di registrazioni per IP (R3–R5).
+- **Decisione economica (2026-10-02, Stefan):** l'invitante riceve il **10%** del prezzo di listino dell'abbonamento dell'invitato, **IVA esclusa**, una volta per ogni azienda invitata; l'invitato ha il **10% di sconto** sul primo pagamento. Il costo totale è il 20% di un periodo di fatturazione e il primo periodo dell'invitato porta comunque l'80% del prezzo. Il calcolo è sul listino del piano e del ciclo acquistati (annuale = mensile × 10). Il premio resta **credito sul saldo Stripe** (non denaro: vedi sezione 1); se in futuro si vorrà pagare in denaro, va valutato con il commercialista (compenso a terzi, fatture, ritenute).
+- **R1 (fatta):** tabelle `referralCodes` e `referrals`, campo `tenants.referredBy`, codice `OS-XXXXXX`, collegamento in `registerTenant`, regole anti auto-invito, cattura di `?ref=` nel browser (30 giorni).
+- **R2 (fatta):** coupon Stripe del 10% (valido un mese di abbonamento, così copre anche la prima fattura dopo la prova gratuita del Pro e l'unica fattura annuale), qualifica dal primo pagamento reale con controllo stessa carta/stesso cliente, attesa di 30 giorni, credito sul saldo Stripe idempotente, tetto 10 premi in 12 mesi, storno su rimborso/contestazione, scadenze. Tutto via API Stripe, nessun nuovo webhook.
+- **R3 (fatta):**
+  - Pagina **Account → "Invita e risparmia"** (`/app/account/referral`): codice, link con copia, WhatsApp/email, contatori, credito ricevuto e in arrivo, tabella importi per piano, storico con nomi mascherati. Compare nel menu solo a proprietari/amministratori di un account con abbonamento attivo e solo se il programma è acceso.
+  - **Tre email** nelle 6 lingue: all'invitato ("hai il 10% di sconto"), all'invitante ("un'azienda si è registrata", senza dati personali dell'invitato), all'invitante ("credito accreditato").
+  - **Pagina admin** `/app/admin/referrals`: elenco con i motivi di rifiuto, filtro per stato, Riapri / Respingi / Disattiva-riattiva codice, esportazione CSV. Ogni azione è registrata nell'audit.
+- **Importi:** nessuna tabella fissa; solo le due percentuali in `convex/lib/referralRewards.ts`.
+- **Interruttore:** tutto è **spento** finché non imposti `REFERRALS_ENABLED=1` nelle variabili Convex. Spento: nessun codice nuovo, nessuno sconto, nessuna nuova qualifica, nessun menu; i premi già maturati vengono comunque accreditati.
+- **Non ancora fatto:** passaggio del `?ref=` dal sito e pagina "Programma invito" sul sito (R4), regolamento legale del programma, limite di registrazioni per IP, pilota con 10 clienti (R5).
 
 ---
 
@@ -22,8 +21,8 @@ Stato: **R1 e R2 implementate** (codici, collegamento, sconto, qualifica, premio
 
 | # | Decisione | Mia raccomandazione |
 |---|-----------|---------------------|
-| 1 | Cosa riceve **chi invita** | **Credito sul proprio abbonamento** (non denaro). Importo fisso per piano dell'invitato, vedi tabella sotto. |
-| 2 | Cosa riceve **chi viene invitato** | **−20% sul primo mese** (sconto Stripe una tantum). Sul Pro resta anche la prova gratuita già esistente. |
+| 1 | Cosa riceve **chi invita** | **10% del prezzo (IVA esclusa) come credito sul proprio abbonamento** (non denaro). |
+| 2 | Cosa riceve **chi viene invitato** | **−10% sul primo pagamento** (coupon Stripe). Sul Pro resta anche la prova gratuita già esistente. |
 | 3 | Quando scatta il premio | Dopo il **primo pagamento reale** dell'invitato (non alla registrazione, non durante la prova) **e** dopo **30 giorni** senza rimborsi né contestazioni. |
 | 4 | Limiti | Max **10 premi per cliente ogni 12 mesi**; credito mai convertibile in denaro. |
 | 5 | Chi può invitare | Solo account con **abbonamento attivo** (non in prova, non sospesi, non "accesso completo" fondatore). |
@@ -31,19 +30,7 @@ Stato: **R1 e R2 implementate** (codici, collegamento, sconto, qualifica, premio
 
 **Perché credito e non denaro.** Il pagamento in denaro apre obblighi fiscali e contabili (compenso a terzi, ritenute, fatture dell'invitante) e attira chi cerca solo il premio. Il credito è uno sconto sul prezzo: più semplice, già supportato da Stripe, e i clienti che lo ricevono restano.
 
-**Importi proposti (da confermare, sono ordini di grandezza).**
-
-| Piano dell'invitato | Prezzo/mese | Credito all'invitante | Sconto all'invitato (1° mese) | Costo massimo per te |
-|---|---|---|---|---|
-| Level 1 | €49,95 | €15 | €10 | €25 |
-| Level 2 | €62,44 | €20 | €12,50 | €32,50 |
-| Level 3 | €79,90 | €25 | €16 | €41 |
-| Base | €97 | €30 | €19,40 | €49,40 |
-| Pro | €197 | €60 | €39,40 | €99,40 |
-| Agency | €397 | €100 | €79,40 | €179,40 |
-| Enterprise (€690) | trattativa commerciale, fuori dal referral automatico |
-
-Regola di sicurezza: il costo totale del premio non supera mai **un mese di abbonamento del nuovo cliente**. Un cliente che resta 12 mesi rende 12 volte quel costo.
+**Importi (decisi il 2026-10-02): 10% e 10%.** L'invitante riceve il 10% del prezzo di listino dell'abbonamento dell'invitato, IVA esclusa, una volta per azienda; l'invitato ha il 10% di sconto sul primo pagamento. Esempi con pagamento mensile: Base 97 € → credito 9,70 €; Pro 197 € → 19,70 €; Agency 397 € → 39,70 €. Con pagamento annuale (mensile × 10): Base 970 € → 97 €; Pro 1.970 € → 197 €. Costo totale per OneSpec: il 20% di un periodo di fatturazione; il primo periodo porta comunque l'80% del prezzo. Enterprise (690 €) è fuori dal referral automatico.
 
 **Cosa non farei all'inizio:** provvigioni ricorrenti (% a vita), più livelli (chi invita chi invita), pagamenti in denaro. Per agenzie e posatori che portano molti clienti, conviene un **programma partner** separato, più avanti.
 
@@ -54,7 +41,7 @@ Regola di sicurezza: il costo totale del premio non supera mai **un mese di abbo
 1. **Codice personale.** Ogni cliente con abbonamento attivo ha un codice (es. `OS-7K4M2Q`, senza caratteri ambigui) e un link `https://onespec.eu/?ref=OS-7K4M2Q`.
 2. **Arrivo dal sito.** Il sito legge `?ref=` e lo conserva 30 giorni nel browser (solo memoria locale, nessun cookie di tracciamento). Tutti i pulsanti verso la piattaforma ("Inizia ora", "Registrati") aggiungono `?ref=…` al link.
 3. **Registrazione.** La piattaforma salva il codice sul nuovo account (`referredBy`). Controlli: il codice esiste, è attivo, non è dello stesso account.
-4. **Checkout.** Se l'account è stato invitato, il Checkout Stripe applica automaticamente il coupon −20% (una tantum). Nota tecnica: Stripe non permette di usare insieme un coupon automatico e il campo "codice promozionale", quindi per gli invitati si usa il coupon e si nasconde il campo.
+4. **Checkout.** Se l'account è stato invitato, il Checkout Stripe applica automaticamente il coupon −10% (una tantum). Nota tecnica: Stripe non permette di usare insieme un coupon automatico e il campo "codice promozionale", quindi per gli invitati si usa il coupon e si nasconde il campo.
 5. **Qualifica.** Quando arriva il primo pagamento non a zero dell'invitato (evento Stripe `invoice.paid`), il referral passa a *qualificato* e parte l'attesa di 30 giorni.
 6. **Premio.** Un controllo giornaliero (cron) verifica che, dopo 30 giorni, l'invitato sia ancora attivo e senza rimborsi o contestazioni. Se sì, accredita all'invitante il credito sul **saldo cliente Stripe** (lo stesso meccanismo già mostrato dal badge "saldo" nell'app). Stripe lo scala dalla fattura successiva. Email di conferma.
 7. **Se l'invitante non ha ancora un cliente Stripe** (caso raro), il credito resta in coda nel nostro registro e viene applicato appena esiste.

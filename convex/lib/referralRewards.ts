@@ -1,24 +1,19 @@
-import type { BillablePlan } from "./billingPlans";
+import { listPriceCents, SELF_SERVE_PLANS, type BillablePlan, type BillingCycle } from "./billingPlans";
 
 /**
  * Economics of the referral system — the ONLY place the numbers live
- * (docs/PIANO_REFERRAL.md, section 1). Proposed defaults, to be confirmed by the
- * founder: change them here and nowhere else. Amounts are euro cents.
+ * (docs/PIANO_REFERRAL.md, section 1). Decided by the founder on 2026-10-02:
  *
- *   referrerCreditCents  credit on the inviter's Stripe balance (never cash)
- *   inviteeDiscountCents  discount on the invited account's first paid invoice
+ *   - the inviter earns 10% of the subscription price, VAT excluded, once per invited
+ *     account (paid as credit on the Stripe balance, never cash);
+ *   - the invited account gets 10% off its first paid invoice.
  *
- * Rule of thumb that keeps the cost bounded: credit + discount stays below one month
- * of the new customer's plan.
+ * Both are computed on the LIST price of the plan and billing cycle actually bought
+ * (annual = monthly x 10), so the total cost is 20% of one billing period and the
+ * invited account's first period still brings in 80% of its price.
  */
-export const REFERRAL_REWARDS: Record<BillablePlan, { referrerCreditCents: number; inviteeDiscountCents: number }> = {
-  essentials: { referrerCreditCents: 1500, inviteeDiscountCents: 1000 },
-  essentials_plus: { referrerCreditCents: 2000, inviteeDiscountCents: 1250 },
-  max: { referrerCreditCents: 2500, inviteeDiscountCents: 1600 },
-  base: { referrerCreditCents: 3000, inviteeDiscountCents: 1940 },
-  pro: { referrerCreditCents: 6000, inviteeDiscountCents: 3940 },
-  agency: { referrerCreditCents: 10000, inviteeDiscountCents: 7940 },
-};
+export const REFERRER_CREDIT_PERCENT = 10;
+export const INVITEE_DISCOUNT_PERCENT = 10;
 
 /** Days between the invited account's first real payment and the reward. */
 export const REFERRAL_HOLD_DAYS = 30;
@@ -33,6 +28,17 @@ export const CLAIM_RETRY_MS = 60 * 60 * 1000;
 
 export const DAY_MS = 24 * 60 * 60 * 1000;
 
-export function rewardFor(plan: string): { referrerCreditCents: number; inviteeDiscountCents: number } | null {
-  return Object.prototype.hasOwnProperty.call(REFERRAL_REWARDS, plan) ? REFERRAL_REWARDS[plan as BillablePlan] : null;
+/**
+ * The inviter's credit (cents) for an invited account that bought `plan` on `cycle`, or null
+ * when the plan has no list price (Enterprise is handled by hand).
+ */
+export function referrerCreditCents(plan: string, cycle: BillingCycle = "monthly"): number | null {
+  if (!isBillable(plan)) return null;
+  const price = listPriceCents(plan, null, cycle);
+  return price === null ? null : Math.round((price * REFERRER_CREDIT_PERCENT) / 100);
+}
+
+/** Self-serve plans only: Enterprise is sales-led and outside the automatic referral. */
+export function isBillable(plan: string): plan is BillablePlan {
+  return (SELF_SERVE_PLANS as readonly string[]).includes(plan);
 }

@@ -40,6 +40,9 @@ export interface AuthEmailData {
   acceptUrl?: string;
   /** plan_limit: the monthly cap that was hit, rendered in the recipient's language. */
   limit?: number;
+  /** Referral emails: a ready-to-print money amount (already formatted) and a discount percentage. */
+  amount?: string;
+  percent?: number;
 }
 
 /** HTML-entity-escape a string for safe interpolation into element text/attributes. */
@@ -256,6 +259,46 @@ export function renderAuthEmail(template: string, locale: string, data: AuthEmai
            <p style="color:#6e6e73;font-size:13px;margin-top:14px">${L.invitation.expires}</p>`,
         ),
         text: `${L.invitation.text}: ${line(data.companyName ?? "")}\n${escUrl(data.acceptUrl ?? base) === "#" ? base : data.acceptUrl ?? base}`,
+      };
+    }
+
+    case "referral_invited": {
+      const href = `${base}/app/account/billing?tab=plan`;
+      return {
+        subject: line(L.referral.invited.subject),
+        html: wrap(
+          `${H1}${L.referral.invited.title}</h1>
+           ${P}${L.referral.invited.body(esc(String(Number(data.percent ?? 0))))}</p>
+           ${cta(href, L.referral.invited.cta)}`,
+        ),
+        text: `${L.referral.invited.title}\n${href}`,
+      };
+    }
+
+    case "referral_registered": {
+      const href = `${base}/app/account/referral`;
+      return {
+        subject: line(L.referral.registered.subject),
+        html: wrap(
+          `${H1}${L.referral.registered.title}</h1>
+           ${P}${L.referral.registered.body}</p>
+           ${cta(href, L.referral.registered.cta)}`,
+        ),
+        text: `${L.referral.registered.title}\n${href}`,
+      };
+    }
+
+    case "referral_rewarded": {
+      const href = `${base}/app/account/referral`;
+      const amount = String(data.amount ?? "");
+      return {
+        subject: line(L.referral.rewarded.subject(amount)),
+        html: wrap(
+          `${H1}${L.referral.rewarded.title}</h1>
+           ${P}${L.referral.rewarded.body(esc(amount))}</p>
+           ${cta(href, L.referral.rewarded.cta)}`,
+        ),
+        text: `${line(L.referral.rewarded.subject(amount))}\n${href}`,
       };
     }
 

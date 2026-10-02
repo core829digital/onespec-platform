@@ -350,7 +350,7 @@ export const createCheckoutSession = action({
     try {
       const referralDiscount = await ctx.runQuery(internal.referrals.checkoutDiscount, { tenantId: args.tenantId, plan: planKey });
       if (referralDiscount) {
-        const couponId = await ensureReferralCoupon(referralDiscount.amountCents);
+        const couponId = await ensureReferralCoupon(referralDiscount.percentOff);
         if (couponId) {
           params["discounts[0][coupon]"] = couponId;
           params["allow_promotion_codes"] = undefined;

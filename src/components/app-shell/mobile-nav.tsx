@@ -10,7 +10,8 @@ import { cn } from "@/lib/utils";
 import { Lock, X } from "lucide-react";
 import { useSubscriptionEnded } from "@/lib/plan-gates";
 import { useSearchParams } from "next/navigation";
-import { lockedInNav, NAV_GROUPS, ADMIN_NAV_ITEM, isNavItemActive, navHref, type NavGroup } from "./nav-items";
+import { lockedInNav, NAV_GROUPS, ADMIN_NAV_ITEM, isNavItemActive, navHref, visibleNavItems, type NavGroup } from "./nav-items";
+import { useReferralVisible } from "@/lib/use-referral-visible";
 
 export function MobileNav({
   tenant,
@@ -27,6 +28,7 @@ export function MobileNav({
   const viewer = useQuery(api.users.viewer);
   const isPlatformAdmin = viewer?.isPlatformAdmin === true;
   const ended = useSubscriptionEnded(tenant);
+  const referralVisible = useReferralVisible(tenant._id);
 
   // Close on route change + lock scroll while open.
   useEffect(() => {
@@ -86,7 +88,7 @@ export function MobileNav({
                 </p>
               ) : null}
               <div className="space-y-1">
-                {group.items.map((item) => {
+                {visibleNavItems(group.items, { referral: referralVisible }).map((item) => {
                   const active = isNavItemActive(item, pathname, params);
                   const locked = lockedInNav(item, ended);
                   return (

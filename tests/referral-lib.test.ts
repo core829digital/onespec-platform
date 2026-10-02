@@ -4,6 +4,7 @@ import {
   canonicalEmail,
   generateReferralCode,
   isDisposableEmail,
+  maskCompanyName,
   normalizeReferralCode,
   referralPairProblem,
 } from "../convex/lib/referral";
@@ -68,5 +69,16 @@ describe("email canonicalisation and pair rules", () => {
   test("missing email on either side is refused", () => {
     expect(referralPairProblem(undefined, "luca@beta.it")).toBe("MISSING_EMAIL");
     expect(referralPairProblem("anna@acme.it", null)).toBe("MISSING_EMAIL");
+  });
+});
+
+describe("company name masking", () => {
+  test("keeps only the first two letters and a short legal form", () => {
+    expect(maskCompanyName("Serramenti Rossi Srl")).toBe("Se*** Srl");
+    expect(maskCompanyName("Acme")).toBe("Ac***");
+    expect(maskCompanyName("Fenster Müller GmbH")).toBe("Fe*** GmbH");
+    expect(maskCompanyName("Infissi Bianchi Costruzioni Moderne")).toBe("In***");
+    expect(maskCompanyName("")).toBe("***");
+    expect(maskCompanyName(undefined)).toBe("***");
   });
 });
