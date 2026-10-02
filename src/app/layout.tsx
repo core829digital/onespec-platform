@@ -29,15 +29,21 @@ export const metadata: Metadata = {
   description:
     "Widget di configurazione infissi integrabile via iframe: preventivi automatici, prezzi sempre aggiornati, brandizzabile per la tua azienda.",
   icons: {
+    // Light/dark artwork picked by the browser from prefers-color-scheme.
     icon: [
-      { url: "/onespec-logo.png", sizes: "512x512", type: "image/png" },
-      { url: "/onespec-logo.png", sizes: "192x192", type: "image/png" },
-      { url: "/onespec-logo.png", sizes: "32x32", type: "image/png" },
-      { url: "/onespec-logo.png", sizes: "16x16", type: "image/png" },
+      { url: "/icon-light-32.png", sizes: "32x32", type: "image/png", media: "(prefers-color-scheme: light)" },
+      { url: "/icon-dark-32.png", sizes: "32x32", type: "image/png", media: "(prefers-color-scheme: dark)" },
+      { url: "/icon-light-16.png", sizes: "16x16", type: "image/png", media: "(prefers-color-scheme: light)" },
+      { url: "/icon-dark-16.png", sizes: "16x16", type: "image/png", media: "(prefers-color-scheme: dark)" },
     ],
-    shortcut: "/onespec-logo.png",
-    apple: "/onespec-logo.png",
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" }],
   },
+  openGraph: {
+    type: "website",
+    siteName: "onespec",
+    images: [{ url: "/og-image.png", width: 1200, height: 630, alt: "onespec" }],
+  },
+  twitter: { card: "summary_large_image", images: ["/og-image.png"] },
   manifest: "/manifest.json",
 };
 
