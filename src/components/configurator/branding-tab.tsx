@@ -1,5 +1,6 @@
 "use client";
 
+import { ConvexError } from "convex/values";
 import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -109,7 +110,7 @@ export function BrandingTab({ configuratorId }: { configuratorId: Id<"configurat
         headers: { "Content-Type": file.type },
         body: file,
       });
-      if (!res.ok) throw new Error(t("uploadFailed"));
+      if (!res.ok) throw new ConvexError("UPLOAD_FAILED");
       const { storageId } = (await res.json()) as { storageId: Id<"_storage"> };
       await setLogo({ configuratorId, storageId, variant });
       setMsg({ kind: "ok", text: t("logoUploaded") });

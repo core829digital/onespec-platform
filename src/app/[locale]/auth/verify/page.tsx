@@ -8,12 +8,13 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { authErrorMessage } from "@/lib/errors";
+import { useAuthErrorMessage } from "@/lib/use-friendly-error";
 import { useTurnstile } from "@/lib/use-turnstile";
 import { getSafeRedirect } from "@/lib/redirect-validator";
 
 function VerifyContent() {
   const t = useTranslations("auth.verify");
+  const authMsg = useAuthErrorMessage();
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -40,7 +41,7 @@ function VerifyContent() {
       }
       router.push(redirect ?? "/auth/onboarding");
     } catch (err) {
-      setError(authErrorMessage(err, t("error")));
+      setError(authMsg(err, t("error")));
     } finally {
       setLoading(false);
     }
@@ -61,7 +62,7 @@ function VerifyContent() {
       await signIn("password", { email, password: saved.password, flow: "signUp", locale, turnstileToken: ts.token });
       setResent(true);
     } catch (err) {
-      setError(authErrorMessage(err, t("error")));
+      setError(authMsg(err, t("error")));
     } finally {
       ts.reset();
       setResending(false);

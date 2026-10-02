@@ -10,7 +10,7 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { authErrorMessage } from "@/lib/errors";
+import { useAuthErrorMessage } from "@/lib/use-friendly-error";
 import { useTurnstile } from "@/lib/use-turnstile";
 import { getOptionalRedirect } from "@/lib/redirect-validator";
 import { captureReferralFromUrl } from "@/lib/referral-capture";
@@ -25,6 +25,7 @@ export default function RegisterPage() {
 
 function RegisterForm() {
   const t = useTranslations("auth.register");
+  const authMsg = useAuthErrorMessage();
   const locale = useLocale();
   const router = useRouter();
   const redirect = getOptionalRedirect(useSearchParams().get("redirect"));
@@ -68,7 +69,7 @@ function RegisterForm() {
       router.push(`/auth/verify?${q.toString()}`);
     } catch (err) {
       posthog.captureException(err);
-      setError(authErrorMessage(err, t("error")));
+      setError(authMsg(err, t("error")));
     } finally {
       ts.reset();
       setLoading(false);

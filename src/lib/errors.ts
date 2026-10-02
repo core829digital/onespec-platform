@@ -66,7 +66,32 @@ export type ErrorKey =
   | "quoteLocked"
   | "alreadySubscribed"
   | "annualNotAvailable"
-  | "teamExceedsTargetPlan";
+  | "teamExceedsTargetPlan"
+  | "useMarkReceived"
+  | "alreadyUndone"
+  | "noTenant"
+  | "billingUseCheckout"
+  | "cannotComputeUw"
+  | "fieldRequired"
+  | "referralsDisabled"
+  | "subscriptionMismatch"
+  | "cantiereUpdateFailed"
+  | "guestPinCollision"
+  | "referralCodeUnavailable"
+  | "referralNotEligible"
+  | "assigneeNotMember"
+  | "tooManyItems"
+  | "inventoryNotAvailable"
+  | "deliveryNotEditable"
+  | "mediaLimit"
+  | "checklistIncomplete"
+  | "notInTransit"
+  | "alreadyDelivered"
+  | "cannotDeleteActiveDelivery"
+  | "turnstileFailed"
+  | "uploadFailed"
+  | "noSupplierLines"
+  | "quoteCreateFailed";
 
 const EXACT: Record<string, ErrorKey> = {
   UNAUTHENTICATED: "unauthenticated",
@@ -133,6 +158,37 @@ const EXACT: Record<string, ErrorKey> = {
   ANNUAL_NOT_AVAILABLE: "annualNotAvailable",
   TEAM_EXCEEDS_TARGET_PLAN: "teamExceedsTargetPlan",
   MEMBER_LIMIT_REACHED: "quotaExceeded",
+  USE_MARK_RECEIVED: "useMarkReceived",
+  ALREADY_UNDONE: "alreadyUndone",
+  NO_TENANT: "noTenant",
+  BILLING_LIVE_USE_CHECKOUT: "billingUseCheckout",
+  CANNOT_COMPUTE_UW: "cannotComputeUw",
+  LABEL_REQUIRED: "fieldRequired",
+  MESSAGE_REQUIRED: "fieldRequired",
+  NAME_REQUIRED: "nameRequired",
+  REFERRALS_DISABLED: "referralsDisabled",
+  NO_SUBSCRIPTION_ITEM: "subscriptionMismatch",
+  SUBSCRIPTION_MISMATCH: "subscriptionMismatch",
+  CANTIERE_UPDATE_FAILED: "cantiereUpdateFailed",
+  GUEST_PIN_COLLISION: "guestPinCollision",
+  REFERRAL_CODE_UNAVAILABLE: "referralCodeUnavailable",
+  REFERRAL_NOT_ELIGIBLE: "referralNotEligible",
+  ASSIGNEE_NOT_A_MEMBER: "assigneeNotMember",
+  TOO_MANY_ITEMS: "tooManyItems",
+  INVENTORY_ITEM_NOT_AVAILABLE: "inventoryNotAvailable",
+  SITE_DELIVERY_NOT_EDITABLE: "deliveryNotEditable",
+  ITEM_INDEX_OUT_OF_RANGE: "invalidInput",
+  UNSUPPORTED_MEDIA_TYPE: "fileType",
+  MEDIA_LIMIT_REACHED: "mediaLimit",
+  CHECKLIST_INCOMPLETE: "checklistIncomplete",
+  NOT_IN_TRANSIT: "notInTransit",
+  ALREADY_DELIVERED: "alreadyDelivered",
+  CANNOT_DELETE_ACTIVE_DELIVERY: "cannotDeleteActiveDelivery",
+  TURNSTILE_FAILED: "turnstileFailed",
+  UPLOAD_FAILED: "uploadFailed",
+  NO_SUPPLIER_LINES: "noSupplierLines",
+  QUOTE_CREATE_FAILED: "quoteCreateFailed",
+  INVALID_SIGNATURE_FORMAT: "signatureInvalid",
 };
 
 /** Map a backend error code to a message key (pattern fallbacks for families). */
@@ -187,7 +243,13 @@ export function friendlyError(e: unknown, t: (key: ErrorKey) => string): string 
  * "[CONVEX A(auth:signIn)] [Request ID: …] Server Error". Show the message only
  * when it is a real, readable one, otherwise the page's own fallback.
  */
-export function authErrorMessage(e: unknown, fallback: string): string {
+export function authErrorMessage(e: unknown, fallback: string, t?: (key: ErrorKey) => string): string {
+  // A deliberate, coded error (bot check failed, rate limit, ...) gets its own message.
+  const code = errorCode(e);
+  if (code && t) {
+    const key = keyForCode(code);
+    if (key !== "generic") return t(key);
+  }
   const m = e instanceof Error ? e.message : "";
   if (!m || /\[CONVEX|Request ID|Server Error|Uncaught/i.test(m)) return fallback;
   return m;

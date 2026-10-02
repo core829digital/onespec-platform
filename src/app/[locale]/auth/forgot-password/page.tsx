@@ -8,12 +8,13 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { authErrorMessage } from "@/lib/errors";
+import { useAuthErrorMessage } from "@/lib/use-friendly-error";
 import { useTurnstile } from "@/lib/use-turnstile";
 import { getOptionalRedirect } from "@/lib/redirect-validator";
 
 export default function ForgotPasswordPage() {
   const t = useTranslations("auth.forgotPassword");
+  const authMsg = useAuthErrorMessage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = getOptionalRedirect(searchParams.get("redirect"));
@@ -33,7 +34,7 @@ export default function ForgotPasswordPage() {
       if (redirect) q.set("redirect", redirect);
       router.push(`/auth/reset-password?${q.toString()}`);
     } catch (err) {
-      setError(authErrorMessage(err, t("error")));
+      setError(authMsg(err, t("error")));
 } finally {
       ts.reset();
       setLoading(false);

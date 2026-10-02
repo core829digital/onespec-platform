@@ -1,3 +1,4 @@
+import { ConvexError } from "convex/values";
 import { verifyTurnstileToken } from "./turnstile";
 
 /**
@@ -21,7 +22,7 @@ export function withTurnstileGuard(inner: Authorize): Authorize {
     const enforced = !!process.env.TURNSTILE_SECRET && process.env.TURNSTILE_ENFORCE_AUTH === "1";
     if (enforced && GUARDED_FLOWS.has(String(params.flow))) {
       const token = typeof params.turnstileToken === "string" ? params.turnstileToken : "";
-      if (!(await verifyTurnstileToken(token))) throw new Error("TURNSTILE_FAILED");
+      if (!(await verifyTurnstileToken(token))) throw new ConvexError("TURNSTILE_FAILED");
     }
     return inner(params, ctx);
   };

@@ -374,7 +374,32 @@
     "annualNotAvailable": "Dieser Tarif ist nur mit monatlicher Abrechnung verfügbar.",
     "teamExceedsTargetPlan": "Der gewählte Tarif enthält weniger Nutzer, als Ihr Team aktiv hat. Entfernen Sie zuerst überzählige Mitglieder unter Team und wechseln Sie dann den Tarif.",
     "fileType": "Dateiformat nicht unterstützt. Verwenden Sie ein Foto (JPG, PNG, WebP, HEIC) oder, wo verlangt, ein PDF.",
-    "fileTooLarge": "Datei zu groß (maximal 15 MB für Fotos, 25 MB für Dokumente)."
+    "fileTooLarge": "Datei zu groß (maximal 15 MB für Fotos, 25 MB für Dokumente).",
+    "useMarkReceived": "Um die Lieferung als erhalten zu markieren, verwenden Sie die Schaltfläche „Als erhalten markieren“.",
+    "alreadyUndone": "Dieser Import wurde bereits rückgängig gemacht.",
+    "noTenant": "Für Ihr Konto wurde keine Organisation gefunden. Schließen Sie zuerst die Registrierung ab.",
+    "billingUseCheckout": "Der Tarif wird durch die Zahlung aktiviert: Wählen Sie einen Tarif und schließen Sie den Checkout ab.",
+    "cannotComputeUw": "Der Wärmedurchgangskoeffizient (Uw) kann mit den eingegebenen Daten nicht berechnet werden. Prüfen Sie die Positionen des verknüpften Angebots.",
+    "fieldRequired": "Bitte füllen Sie die Pflichtfelder aus.",
+    "referralsDisabled": "Das Empfehlungsprogramm ist noch nicht aktiv.",
+    "subscriptionMismatch": "Ihr Abonnement ist nicht mit dem Zahlungssystem abgeglichen. Bitte kontaktieren Sie den Support.",
+    "cantiereUpdateFailed": "Die Baustelle konnte nicht aktualisiert werden. Bitte erneut versuchen.",
+    "guestPinCollision": "Es konnte keine eindeutige PIN erzeugt werden. Bitte erneut versuchen.",
+    "referralCodeUnavailable": "Der Einladungscode ist derzeit nicht verfügbar. Bitte versuchen Sie es gleich erneut.",
+    "referralNotEligible": "Ihr Konto kann das Empfehlungsprogramm noch nicht nutzen: Ein aktives Abonnement ist erforderlich.",
+    "assigneeNotMember": "Die ausgewählte Person gehört nicht zum Team.",
+    "tooManyItems": "Zu viele Positionen: Reduzieren Sie die Anzahl der Artikel.",
+    "inventoryNotAvailable": "Einer der Artikel ist nicht mehr auf Lager.",
+    "deliveryNotEditable": "Diese Lieferung kann nicht mehr bearbeitet werden.",
+    "mediaLimit": "Sie haben die maximale Anzahl an Fotos für diese Lieferung erreicht.",
+    "checklistIncomplete": "Vervollständigen Sie die Checkliste: Jeder Artikel muss als verladen markiert oder begründet werden.",
+    "notInTransit": "Die Lieferung ist nicht unterwegs.",
+    "alreadyDelivered": "Diese Lieferung wurde bereits zugestellt.",
+    "cannotDeleteActiveDelivery": "Eine laufende Lieferung kann nicht gelöscht werden: Stornieren Sie sie zuerst.",
+    "turnstileFailed": "Sicherheitsprüfung fehlgeschlagen. Laden Sie die Seite neu und versuchen Sie es erneut.",
+    "uploadFailed": "Datei-Upload fehlgeschlagen. Bitte erneut versuchen.",
+    "noSupplierLines": "Für die Mehrlieferanten-Positionen wurde kein gültiger Lieferant gefunden.",
+    "quoteCreateFailed": "Das Angebot konnte nicht erstellt werden. Bitte erneut versuchen."
   },
   "app": {
     "suspended": {
@@ -458,8 +483,7 @@
       "notIncluded": "— nicht enthalten —",
       "newSupplier": "Neuer Lieferant",
       "errNoConfigurator": "Kein Konfigurator veröffentlicht. Erstellen und veröffentlichen Sie einen Konfigurator auf der Seite Konfiguratoren: dieselbe Preisliste wird hier und im Widget Ihrer Website verwendet.",
-      "errCatalogNotReady": "Die veröffentlichte Preisliste ist noch nicht verfügbar. Warten Sie auf das Laden oder veröffentlichen Sie den Konfigurator erneut.",
-      "errNoSupplierLines": "Für die Mehrlieferanten-Positionen wurde kein gültiger Lieferant gefunden."
+      "errCatalogNotReady": "Die veröffentlichte Preisliste ist noch nicht verfügbar. Warten Sie auf das Laden oder veröffentlichen Sie den Konfigurator erneut."
     },
     "list": {
       "kicker": "B2B-Baustellen-Tool",
@@ -1937,8 +1961,7 @@
       "defaultPlaceholder": "(Standard)",
       "saving": "Wird gespeichert…",
       "saveNow": "Jetzt speichern",
-      "autosave": "Änderungen werden automatisch gespeichert.",
-      "uploadFailed": "Hochladen fehlgeschlagen"
+      "autosave": "Änderungen werden automatisch gespeichert."
     },
     "embed": {
       "copied": "Kopiert ✓",

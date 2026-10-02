@@ -10,7 +10,7 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { authErrorMessage } from "@/lib/errors";
+import { useAuthErrorMessage } from "@/lib/use-friendly-error";
 import { useTurnstile } from "@/lib/use-turnstile";
 import { getSafeRedirect } from "@/lib/redirect-validator";
 
@@ -24,6 +24,7 @@ export default function LoginPage() {
 
 function LoginForm() {
   const t = useTranslations("auth.login");
+  const authMsg = useAuthErrorMessage();
   const router = useRouter();
   const redirect = getSafeRedirect(useSearchParams().get("redirect"), "/app/dashboard");
   const { signIn } = useAuthActions();
@@ -43,7 +44,7 @@ function LoginForm() {
       router.push(redirect);
     } catch (err) {
       posthog.captureException(err);
-      setError(authErrorMessage(err, t("error")));
+      setError(authMsg(err, t("error")));
     } finally {
       ts.reset();
       setLoading(false);

@@ -374,7 +374,32 @@
     "annualNotAvailable": "This plan is available with monthly billing only.",
     "teamExceedsTargetPlan": "The chosen plan includes fewer users than your team has active. Remove the extra members under Team first, then switch plan.",
     "fileType": "Unsupported file format. Use a photo (JPG, PNG, WebP, HEIC) or a PDF where requested.",
-    "fileTooLarge": "File too large (maximum 15 MB for photos, 25 MB for documents)."
+    "fileTooLarge": "File too large (maximum 15 MB for photos, 25 MB for documents).",
+    "useMarkReceived": "To mark the delivery as received, use the “Mark as received” button.",
+    "alreadyUndone": "This import has already been undone.",
+    "noTenant": "No organization found for your account. Complete registration first.",
+    "billingUseCheckout": "The plan is activated through payment: choose a plan and complete checkout.",
+    "cannotComputeUw": "Unable to calculate the thermal transmittance (Uw) with the data entered. Check the linked quote's items.",
+    "fieldRequired": "Please fill in the required fields.",
+    "referralsDisabled": "The referral program is not active yet.",
+    "subscriptionMismatch": "Your subscription is out of sync with the payment system. Please contact support.",
+    "cantiereUpdateFailed": "The site could not be updated. Please try again.",
+    "guestPinCollision": "A unique PIN could not be generated. Please try again.",
+    "referralCodeUnavailable": "The invitation code is not available right now. Please try again shortly.",
+    "referralNotEligible": "Your account cannot use the referral program yet: an active subscription is required.",
+    "assigneeNotMember": "The selected person is not part of the team.",
+    "tooManyItems": "Too many lines: reduce the number of items.",
+    "inventoryNotAvailable": "One of the items is no longer available in stock.",
+    "deliveryNotEditable": "This delivery can no longer be edited.",
+    "mediaLimit": "You have reached the maximum number of photos for this delivery.",
+    "checklistIncomplete": "Complete the checklist: each item must be marked as loaded or given a reason.",
+    "notInTransit": "The delivery is not in transit.",
+    "alreadyDelivered": "This delivery has already been delivered.",
+    "cannotDeleteActiveDelivery": "You cannot delete a delivery in progress: cancel it first.",
+    "turnstileFailed": "Security check failed. Reload the page and try again.",
+    "uploadFailed": "File upload failed. Please try again.",
+    "noSupplierLines": "No valid supplier found for the multi-supplier lines.",
+    "quoteCreateFailed": "The quote could not be created. Please try again."
   },
   "app": {
     "suspended": {
@@ -458,8 +483,7 @@
       "notIncluded": "— not included —",
       "newSupplier": "New supplier",
       "errNoConfigurator": "No configurator published. Create and publish a configurator from the Configurators page: the same price list is used here and in the website widget.",
-      "errCatalogNotReady": "The published price list is not available yet. Wait for it to load or republish the configurator.",
-      "errNoSupplierLines": "No valid supplier found for the multi-supplier lines."
+      "errCatalogNotReady": "The published price list is not available yet. Wait for it to load or republish the configurator."
     },
     "list": {
       "kicker": "Field B2B Tool",
@@ -1937,8 +1961,7 @@
       "defaultPlaceholder": "(default)",
       "saving": "Saving…",
       "saveNow": "Save now",
-      "autosave": "Changes are saved automatically.",
-      "uploadFailed": "Upload failed"
+      "autosave": "Changes are saved automatically."
     },
     "embed": {
       "copied": "Copied ✓",

@@ -1,5 +1,6 @@
 "use client";
 
+import { ConvexError } from "convex/values";
 import { useRef, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { useTranslations } from "next-intl";
@@ -63,7 +64,7 @@ export function CompanyProfileSection({ tenantId, country }: { tenantId: Id<"ten
     try {
       const url = await genUrl({ tenantId });
       const res = await fetch(url, { method: "POST", headers: { "Content-Type": file.type }, body: file });
-      if (!res.ok) throw new Error("upload");
+      if (!res.ok) throw new ConvexError("UPLOAD_FAILED");
       const { storageId } = (await res.json()) as { storageId: Id<"_storage"> };
       await setLogo({ tenantId, storageId });
     } catch (e) {

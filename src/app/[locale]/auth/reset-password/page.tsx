@@ -8,12 +8,13 @@ import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { authErrorMessage } from "@/lib/errors";
+import { useAuthErrorMessage } from "@/lib/use-friendly-error";
 import { useTurnstile } from "@/lib/use-turnstile";
 import { getSafeRedirect } from "@/lib/redirect-validator";
 
 function ResetPasswordContent() {
   const t = useTranslations("auth.resetPassword");
+  const authMsg = useAuthErrorMessage();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirect = getSafeRedirect(searchParams.get("redirect"), "/auth/login");
@@ -37,7 +38,7 @@ function ResetPasswordContent() {
       await signIn("password", { email, flow: "reset", turnstileToken: ts.token });
       setResent(true);
     } catch (err) {
-      setError(authErrorMessage(err, t("error")));
+      setError(authMsg(err, t("error")));
     } finally {
       ts.reset();
       setResending(false);
@@ -56,7 +57,7 @@ function ResetPasswordContent() {
       await signIn("password", { email, code, newPassword: password, flow: "reset-verification" });
       router.push(redirect);
     } catch (err) {
-      setError(authErrorMessage(err, t("error")));
+      setError(authMsg(err, t("error")));
     } finally {
       setLoading(false);
     }

@@ -374,7 +374,32 @@
     "annualNotAvailable": "Acest plan este disponibil doar cu facturare lunară.",
     "teamExceedsTargetPlan": "Planul ales include mai puțini utilizatori decât are echipa ta activă. Elimină mai întâi membrii în plus din Echipă, apoi schimbă planul.",
     "fileType": "Format de fișier neacceptat. Folosește o fotografie (JPG, PNG, WebP, HEIC) sau un PDF acolo unde se cere.",
-    "fileTooLarge": "Fișier prea mare (maximum 15 MB pentru fotografii, 25 MB pentru documente)."
+    "fileTooLarge": "Fișier prea mare (maximum 15 MB pentru fotografii, 25 MB pentru documente).",
+    "useMarkReceived": "Pentru a marca livrarea ca primită, folosiți butonul „Marchează ca primită”.",
+    "alreadyUndone": "Acest import a fost deja anulat.",
+    "noTenant": "Nu s-a găsit nicio organizație pentru contul dvs. Finalizați mai întâi înregistrarea.",
+    "billingUseCheckout": "Planul se activează prin plată: alegeți un plan și finalizați plata.",
+    "cannotComputeUw": "Nu pot calcula transmitanța termică (Uw) cu datele introduse. Verificați pozițiile ofertei asociate.",
+    "fieldRequired": "Completați câmpurile obligatorii.",
+    "referralsDisabled": "Programul de invitații nu este încă activ.",
+    "subscriptionMismatch": "Abonamentul nu este sincronizat cu sistemul de plată. Contactați suportul.",
+    "cantiereUpdateFailed": "Șantierul nu a putut fi actualizat. Încercați din nou.",
+    "guestPinCollision": "Nu s-a putut genera un PIN unic. Încercați din nou.",
+    "referralCodeUnavailable": "Codul de invitație nu este disponibil momentan. Încercați din nou în curând.",
+    "referralNotEligible": "Contul dvs. nu poate folosi încă programul de invitații: este necesar un abonament activ.",
+    "assigneeNotMember": "Persoana aleasă nu face parte din echipă.",
+    "tooManyItems": "Prea multe rânduri: reduceți numărul de articole.",
+    "inventoryNotAvailable": "Unul dintre articole nu mai este disponibil în stoc.",
+    "deliveryNotEditable": "Această livrare nu mai poate fi modificată.",
+    "mediaLimit": "Ați atins numărul maxim de fotografii pentru această livrare.",
+    "checklistIncomplete": "Completați lista de verificare: fiecare articol trebuie marcat ca încărcat sau însoțit de un motiv.",
+    "notInTransit": "Livrarea nu este în tranzit.",
+    "alreadyDelivered": "Această livrare a fost deja predată.",
+    "cannotDeleteActiveDelivery": "Nu puteți șterge o livrare în curs: anulați-o mai întâi.",
+    "turnstileFailed": "Verificarea de securitate a eșuat. Reîncărcați pagina și încercați din nou.",
+    "uploadFailed": "Încărcarea fișierului a eșuat. Încercați din nou.",
+    "noSupplierLines": "Nu s-a găsit niciun furnizor valid pentru liniile multi-furnizor.",
+    "quoteCreateFailed": "Oferta nu a putut fi creată. Încercați din nou."
   },
   "app": {
     "suspended": {
@@ -458,8 +483,7 @@
       "notIncluded": "— neinclus —",
       "newSupplier": "Furnizor nou",
       "errNoConfigurator": "Niciun configurator publicat. Creați și publicați un configurator din pagina Configuratoare: aceeași listă de prețuri va fi folosită aici și în widgetul site-ului.",
-      "errCatalogNotReady": "Lista de prețuri publicată nu este încă disponibilă. Așteptați încărcarea sau republicați configuratorul.",
-      "errNoSupplierLines": "Nu s-a găsit niciun furnizor valid pentru liniile multi-furnizor."
+      "errCatalogNotReady": "Lista de prețuri publicată nu este încă disponibilă. Așteptați încărcarea sau republicați configuratorul."
     },
     "list": {
       "kicker": "Instrument B2B de șantier",
@@ -1937,8 +1961,7 @@
       "defaultPlaceholder": "(implicit)",
       "saving": "Se salvează…",
       "saveNow": "Salvează acum",
-      "autosave": "Modificările se salvează automat.",
-      "uploadFailed": "Încărcarea a eșuat"
+      "autosave": "Modificările se salvează automat."
     },
     "embed": {
       "copied": "Copiat ✓",

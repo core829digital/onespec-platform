@@ -374,7 +374,32 @@
     "annualNotAvailable": "Dit abonnement is alleen beschikbaar met maandelijkse facturering.",
     "teamExceedsTargetPlan": "Het gekozen abonnement bevat minder gebruikers dan uw team actief heeft. Verwijder eerst de extra leden onder Team en wijzig daarna uw abonnement.",
     "fileType": "Bestandsformaat niet ondersteund. Gebruik een foto (JPG, PNG, WebP, HEIC) of waar gevraagd een pdf.",
-    "fileTooLarge": "Bestand te groot (maximaal 15 MB voor foto's, 25 MB voor documenten)."
+    "fileTooLarge": "Bestand te groot (maximaal 15 MB voor foto's, 25 MB voor documenten).",
+    "useMarkReceived": "Gebruik de knop “Markeren als ontvangen” om de levering als ontvangen te markeren.",
+    "alreadyUndone": "Deze import is al ongedaan gemaakt.",
+    "noTenant": "Geen organisatie gevonden voor uw account. Rond eerst de registratie af.",
+    "billingUseCheckout": "Het abonnement wordt geactiveerd via betaling: kies een abonnement en rond de checkout af.",
+    "cannotComputeUw": "De warmtedoorgangscoëfficiënt (Uw) kan met de ingevoerde gegevens niet worden berekend. Controleer de regels van de gekoppelde offerte.",
+    "fieldRequired": "Vul de verplichte velden in.",
+    "referralsDisabled": "Het uitnodigingsprogramma is nog niet actief.",
+    "subscriptionMismatch": "Uw abonnement is niet gesynchroniseerd met het betalingssysteem. Neem contact op met support.",
+    "cantiereUpdateFailed": "De werf kon niet worden bijgewerkt. Probeer het opnieuw.",
+    "guestPinCollision": "Er kon geen unieke pincode worden gegenereerd. Probeer het opnieuw.",
+    "referralCodeUnavailable": "De uitnodigingscode is momenteel niet beschikbaar. Probeer het straks opnieuw.",
+    "referralNotEligible": "Uw account kan het uitnodigingsprogramma nog niet gebruiken: een actief abonnement is vereist.",
+    "assigneeNotMember": "De gekozen persoon maakt geen deel uit van het team.",
+    "tooManyItems": "Te veel regels: verminder het aantal artikelen.",
+    "inventoryNotAvailable": "Een van de artikelen is niet meer op voorraad.",
+    "deliveryNotEditable": "Deze levering kan niet meer worden gewijzigd.",
+    "mediaLimit": "U hebt het maximale aantal foto's voor deze levering bereikt.",
+    "checklistIncomplete": "Vul de checklist aan: elk artikel moet als geladen worden gemarkeerd of een reden krijgen.",
+    "notInTransit": "De levering is niet onderweg.",
+    "alreadyDelivered": "Deze levering is al afgeleverd.",
+    "cannotDeleteActiveDelivery": "U kunt een lopende levering niet verwijderen: annuleer deze eerst.",
+    "turnstileFailed": "Beveiligingscontrole mislukt. Herlaad de pagina en probeer het opnieuw.",
+    "uploadFailed": "Bestand uploaden mislukt. Probeer het opnieuw.",
+    "noSupplierLines": "Geen geldige leverancier gevonden voor de regels met meerdere leveranciers.",
+    "quoteCreateFailed": "De offerte kon niet worden aangemaakt. Probeer het opnieuw."
   },
   "app": {
     "suspended": {
@@ -458,8 +483,7 @@
       "notIncluded": "— niet inbegrepen —",
       "newSupplier": "Nieuwe leverancier",
       "errNoConfigurator": "Geen configurator gepubliceerd. Maak en publiceer een configurator op de pagina Configurators: dezelfde prijslijst wordt hier en in de website-widget gebruikt.",
-      "errCatalogNotReady": "De gepubliceerde prijslijst is nog niet beschikbaar. Wacht tot hij geladen is of publiceer de configurator opnieuw.",
-      "errNoSupplierLines": "Geen geldige leverancier gevonden voor de regels met meerdere leveranciers."
+      "errCatalogNotReady": "De gepubliceerde prijslijst is nog niet beschikbaar. Wacht tot hij geladen is of publiceer de configurator opnieuw."
     },
     "list": {
       "kicker": "B2B-werfhulpmiddel",
@@ -1937,8 +1961,7 @@
       "defaultPlaceholder": "(standaard)",
       "saving": "Opslaan…",
       "saveNow": "Nu opslaan",
-      "autosave": "Wijzigingen worden automatisch opgeslagen.",
-      "uploadFailed": "Uploaden mislukt"
+      "autosave": "Wijzigingen worden automatisch opgeslagen."
     },
     "embed": {
       "copied": "Gekopieerd ✓",

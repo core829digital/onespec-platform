@@ -374,7 +374,32 @@
     "annualNotAvailable": "Cette offre est disponible uniquement en facturation mensuelle.",
     "teamExceedsTargetPlan": "L'offre choisie inclut moins d'utilisateurs que votre équipe active. Retirez d'abord les membres en trop dans Équipe, puis changez d'offre.",
     "fileType": "Format de fichier non pris en charge. Utilisez une photo (JPG, PNG, WebP, HEIC) ou un PDF lorsque c'est demandé.",
-    "fileTooLarge": "Fichier trop volumineux (15 Mo maximum pour les photos, 25 Mo pour les documents)."
+    "fileTooLarge": "Fichier trop volumineux (15 Mo maximum pour les photos, 25 Mo pour les documents).",
+    "useMarkReceived": "Pour marquer la livraison comme reçue, utilisez le bouton « Marquer comme reçue ».",
+    "alreadyUndone": "Cet import a déjà été annulé.",
+    "noTenant": "Aucune organisation trouvée pour votre compte. Terminez d'abord l'inscription.",
+    "billingUseCheckout": "Le forfait s'active par le paiement : choisissez un forfait et terminez le paiement.",
+    "cannotComputeUw": "Impossible de calculer le coefficient Uw avec les données saisies. Vérifiez les lignes du devis lié.",
+    "fieldRequired": "Veuillez remplir les champs obligatoires.",
+    "referralsDisabled": "Le programme de parrainage n'est pas encore actif.",
+    "subscriptionMismatch": "Votre abonnement n'est pas synchronisé avec le système de paiement. Contactez le support.",
+    "cantiereUpdateFailed": "Le chantier n'a pas pu être mis à jour. Réessayez.",
+    "guestPinCollision": "Impossible de générer un code PIN unique. Réessayez.",
+    "referralCodeUnavailable": "Le code de parrainage n'est pas disponible pour le moment. Réessayez dans un instant.",
+    "referralNotEligible": "Votre compte ne peut pas encore utiliser le programme de parrainage : un abonnement actif est requis.",
+    "assigneeNotMember": "La personne choisie ne fait pas partie de l'équipe.",
+    "tooManyItems": "Trop de lignes : réduisez le nombre d'articles.",
+    "inventoryNotAvailable": "L'un des articles n'est plus disponible en stock.",
+    "deliveryNotEditable": "Cette livraison ne peut plus être modifiée.",
+    "mediaLimit": "Vous avez atteint le nombre maximal de photos pour cette livraison.",
+    "checklistIncomplete": "Complétez la liste de contrôle : chaque article doit être marqué comme chargé ou justifié.",
+    "notInTransit": "La livraison n'est pas en transit.",
+    "alreadyDelivered": "Cette livraison a déjà été livrée.",
+    "cannotDeleteActiveDelivery": "Vous ne pouvez pas supprimer une livraison en cours : annulez-la d'abord.",
+    "turnstileFailed": "La vérification de sécurité a échoué. Rechargez la page et réessayez.",
+    "uploadFailed": "Échec du téléversement du fichier. Réessayez.",
+    "noSupplierLines": "Aucun fournisseur valide trouvé pour les lignes multi-fournisseurs.",
+    "quoteCreateFailed": "Le devis n'a pas pu être créé. Réessayez."
   },
   "app": {
     "suspended": {
@@ -458,8 +483,7 @@
       "notIncluded": "— non inclus —",
       "newSupplier": "Nouveau fournisseur",
       "errNoConfigurator": "Aucun configurateur publié. Créez et publiez un configurateur depuis la page Configurateurs : la même liste de prix sera utilisée ici et dans le widget du site.",
-      "errCatalogNotReady": "La liste de prix publiée n'est pas encore disponible. Attendez le chargement ou republiez le configurateur.",
-      "errNoSupplierLines": "Aucun fournisseur valide trouvé pour les lignes multi-fournisseurs."
+      "errCatalogNotReady": "La liste de prix publiée n'est pas encore disponible. Attendez le chargement ou republiez le configurateur."
     },
     "list": {
       "kicker": "Outil B2B de chantier",
@@ -1937,8 +1961,7 @@
       "defaultPlaceholder": "(par défaut)",
       "saving": "Enregistrement…",
       "saveNow": "Enregistrer",
-      "autosave": "Les modifications sont enregistrées automatiquement.",
-      "uploadFailed": "Échec du téléversement"
+      "autosave": "Les modifications sont enregistrées automatiquement."
     },
     "embed": {
       "copied": "Copié ✓",

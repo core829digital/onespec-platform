@@ -8,7 +8,7 @@ import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { authErrorMessage } from "@/lib/errors";
+import { useAuthErrorMessage } from "@/lib/use-friendly-error";
 import { localeForCountry } from "@/lib/country-locale";
 import { persistLocaleChoice } from "@/components/language-switcher";
 import { clearStoredReferral, readStoredReferral } from "@/lib/referral-capture";
@@ -25,6 +25,7 @@ const COUNTRIES = [
 
 export default function OnboardingPage() {
   const t = useTranslations("auth.onboarding");
+  const authMsg = useAuthErrorMessage();
   const router = useRouter();
   const currentLocale = useLocale() as AppLocale;
   const [companyName, setCompanyName] = useState("");
@@ -63,7 +64,7 @@ export default function OnboardingPage() {
       setResult(res);
       setLoading(false);
     } catch (err) {
-      setError(authErrorMessage(err, t("error")));
+      setError(authMsg(err, t("error")));
       setLoading(false);
     }
   }

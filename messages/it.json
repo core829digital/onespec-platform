@@ -374,7 +374,32 @@
     "annualNotAvailable": "Questo piano è disponibile solo con fatturazione mensile.",
     "teamExceedsTargetPlan": "Il piano scelto include meno utenti di quelli attivi nel tuo team. Rimuovi prima i membri in eccesso da Squadra, poi cambia piano.",
     "fileType": "Formato file non supportato. Usa una foto (JPG, PNG, WebP, HEIC) o un PDF dove richiesto.",
-    "fileTooLarge": "File troppo grande (massimo 15 MB per le foto, 25 MB per i documenti)."
+    "fileTooLarge": "File troppo grande (massimo 15 MB per le foto, 25 MB per i documenti).",
+    "useMarkReceived": "Per segnare la consegna come ricevuta usa il pulsante «Segna come ricevuta».",
+    "alreadyUndone": "Questa importazione è già stata annullata.",
+    "noTenant": "Non risulta nessuna organizzazione per il tuo account. Completa prima la registrazione.",
+    "billingUseCheckout": "Il piano si attiva con il pagamento: scegli un piano e completa il checkout.",
+    "cannotComputeUw": "Non riesco a calcolare la trasmittanza (Uw) con i dati inseriti. Controlla le voci del preventivo collegato.",
+    "fieldRequired": "Compila i campi obbligatori.",
+    "referralsDisabled": "Il programma inviti non è ancora attivo.",
+    "subscriptionMismatch": "L'abbonamento non risulta allineato con il sistema di pagamento. Contatta il supporto.",
+    "cantiereUpdateFailed": "Non è stato possibile aggiornare il cantiere. Riprova.",
+    "guestPinCollision": "Non è stato possibile generare un PIN univoco. Riprova.",
+    "referralCodeUnavailable": "Il codice invito non è disponibile in questo momento. Riprova tra poco.",
+    "referralNotEligible": "Il tuo account non può ancora usare il programma inviti: serve un abbonamento attivo.",
+    "assigneeNotMember": "La persona scelta non fa parte del team.",
+    "tooManyItems": "Troppe righe: riduci il numero di articoli.",
+    "inventoryNotAvailable": "Uno degli articoli non è più disponibile a magazzino.",
+    "deliveryNotEditable": "Questa consegna non può più essere modificata.",
+    "mediaLimit": "Hai raggiunto il numero massimo di foto per questa consegna.",
+    "checklistIncomplete": "Completa la lista di controllo: ogni articolo va segnato come caricato o con un motivo.",
+    "notInTransit": "La consegna non è in transito.",
+    "alreadyDelivered": "Questa consegna è già stata consegnata.",
+    "cannotDeleteActiveDelivery": "Non puoi eliminare una consegna in corso: annullala prima.",
+    "turnstileFailed": "Verifica di sicurezza non riuscita. Ricarica la pagina e riprova.",
+    "uploadFailed": "Caricamento del file non riuscito. Riprova.",
+    "noSupplierLines": "Nessun fornitore valido trovato per le righe multi-fornitore.",
+    "quoteCreateFailed": "Non è stato possibile creare il preventivo. Riprova."
   },
   "app": {
     "suspended": {
@@ -458,8 +483,7 @@
       "notIncluded": "— non incluso —",
       "newSupplier": "Nuovo fornitore",
       "errNoConfigurator": "Nessun configuratore pubblicato. Crea e pubblica un configuratore dalla pagina Configuratori: quello stesso listino verrà usato sia qui che nel widget del sito.",
-      "errCatalogNotReady": "Il listino pubblicato non è ancora disponibile. Attendi il caricamento o ripubblica il configuratore.",
-      "errNoSupplierLines": "Nessun fornitore valido trovato per le righe multi-fornitore."
+      "errCatalogNotReady": "Il listino pubblicato non è ancora disponibile. Attendi il caricamento o ripubblica il configuratore."
     },
     "list": {
       "kicker": "Strumento B2B da Cantiere",
@@ -1937,8 +1961,7 @@
       "defaultPlaceholder": "(predefinito)",
       "saving": "Salvataggio…",
       "saveNow": "Salva ora",
-      "autosave": "Le modifiche si salvano automaticamente.",
-      "uploadFailed": "Caricamento non riuscito"
+      "autosave": "Le modifiche si salvano automaticamente."
     },
     "embed": {
       "copied": "Copiato ✓",

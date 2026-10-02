@@ -1,5 +1,6 @@
 "use client";
 
+import { ConvexError } from "convex/values";
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import posthog from "posthog-js";
 import { useSearchParams } from "next/navigation";
@@ -463,7 +464,7 @@ export default function NewFieldQuotePage() {
         }).filter((line): line is NonNullable<typeof line> => line !== null);
 
         if (supplierLines.length === 0) {
-          throw new Error(t("errNoSupplierLines"));
+          throw new ConvexError("NO_SUPPLIER_LINES");
         }
 
         res = await createQuoteWithSuppliers({
@@ -544,7 +545,7 @@ export default function NewFieldQuotePage() {
 
       clearDraft(draftKey);
       if (!res?.quoteId) {
-        throw new Error("Quote creation failed — no quoteId returned");
+        throw new ConvexError("QUOTE_CREATE_FAILED");
       }
       posthog.capture("quote_created", {
         quote_id: String(res.quoteId),

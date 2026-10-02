@@ -1,5 +1,5 @@
 import { query, internalQuery } from "./_generated/server";
-import { v } from "convex/values";
+import { v, ConvexError } from "convex/values";
 import { requireMembership, type ReadCtx } from "./lib/auth";
 import { publicPayload } from "./lib/payload";
 import { resolveTenantEntitlements } from "./lib/entitlements";
@@ -107,7 +107,7 @@ export const calculateInternal = internalQuery({
   },
   handler: async (ctx, args) => {
     const catalogData = await getTenantCatalog(ctx, args.tenantId);
-    if (!catalogData) throw new Error("NO_CATALOG");
+    if (!catalogData) throw new ConvexError("NO_CATALOG_VERSION");
     return computeCalculationPreview(catalogData.payload, catalogData.version, args.items as ProjectItem[], args.options);
   },
 });

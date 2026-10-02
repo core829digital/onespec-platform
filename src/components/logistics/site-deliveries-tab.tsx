@@ -1,5 +1,6 @@
 "use client";
 
+import { ConvexError } from "convex/values";
 import { useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { useTranslations, useFormatter } from "next-intl";
@@ -277,7 +278,7 @@ function SiteDeliveryDetail({
     try {
       const { uploadUrl } = await generateUploadUrl({ siteDeliveryId, contentType: file.type });
       const res = await fetch(uploadUrl, { method: "POST", headers: { "Content-Type": file.type }, body: file });
-      if (!res.ok) throw new Error("UPLOAD_FAILED");
+      if (!res.ok) throw new ConvexError("UPLOAD_FAILED");
       const { storageId } = (await res.json()) as { storageId: Id<"_storage"> };
       await addPackagingMedia({ siteDeliveryId, storageId });
     } catch (e) {
