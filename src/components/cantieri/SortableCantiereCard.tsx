@@ -65,7 +65,7 @@ export function SortableCantiereCard({
           </span>
           <h3 className="font-semibold text-[var(--color-text)] truncate">
             {cantiere._id ? (
-              <Link href={`/app/cantieri/${cantiere._id}`} className="hover:text-[var(--color-mint)] hover:underline">
+              <Link href={`/app/cantieri/${cantiere._id}`} className="hover:text-[var(--color-mint-text)] hover:underline">
                 {cantiere.name}
               </Link>
             ) : (

@@ -14,7 +14,7 @@ const STATUSES: Status[] = ["pending", "qualified", "rewarded", "rejected", "exp
 const TONE: Record<Status, string> = {
   pending: "bg-[var(--color-bg)] text-[var(--color-text-secondary)]",
   qualified: "bg-amber-500/15 text-amber-500",
-  rewarded: "bg-[var(--color-mint)]/15 text-[var(--color-mint)]",
+  rewarded: "bg-[var(--color-mint)]/15 text-[var(--color-mint-text)]",
   rejected: "bg-[var(--color-danger)]/15 text-[var(--color-danger)]",
   expired: "bg-[var(--color-bg)] text-[var(--color-text-secondary)]",
   clawback: "bg-[var(--color-danger)]/15 text-[var(--color-danger)]",

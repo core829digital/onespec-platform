@@ -23,7 +23,7 @@ export default function LegalLayout({
             </Link>
             <div className="flex items-center gap-4 text-sm">
               <DropdownMenu>
-                <DropdownMenuTrigger className="flex items-center gap-1 text-[var(--color-text-secondary)] hover:text-[var(--color-mint)]">
+                <DropdownMenuTrigger className="flex items-center gap-1 text-[var(--color-text-secondary)] hover:text-[var(--color-mint-text)]">
                   {t("allDocuments")}
                   <ChevronDown size={14} />
                 </DropdownMenuTrigger>
@@ -39,7 +39,7 @@ export default function LegalLayout({
                 href="https://cloud.onespec.eu"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[var(--color-text-secondary)] hover:text-[var(--color-mint)]"
+                className="text-[var(--color-text-secondary)] hover:text-[var(--color-mint-text)]"
               >
                 {tTopbar("status")}
               </a>

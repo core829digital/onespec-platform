@@ -575,7 +575,7 @@ export default function NewFieldQuotePage() {
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--color-border)] pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="rounded-md bg-[var(--color-mint)]/20 px-2.5 py-0.5 text-xs font-bold text-[var(--color-mint)] uppercase tracking-wider flex items-center gap-1.5">
+            <span className="rounded-md bg-[var(--color-mint)]/20 px-2.5 py-0.5 text-xs font-bold text-[var(--color-mint-text)] uppercase tracking-wider flex items-center gap-1.5">
               <span>{activeMeta.flag}</span>
               <span>{activeMeta.name} ({activeMeta.code})</span>
             </span>
@@ -654,7 +654,7 @@ export default function NewFieldQuotePage() {
             {activeConfig ? (
               <Link
                 href={`/app/configurators/${activeConfig._id}`}
-                className="text-xs font-semibold text-[var(--color-mint)] hover:underline"
+                className="text-xs font-semibold text-[var(--color-mint-text)] hover:underline"
               >
                 {t("editCatalog")}
               </Link>
@@ -1004,7 +1004,7 @@ export default function NewFieldQuotePage() {
                       type="checkbox"
                       checked={isostoneSill}
                       onChange={(e) => setIsostoneSill(e.target.checked)}
-                      className="rounded border-[var(--color-border)] text-[var(--color-mint)]"
+                      className="rounded border-[var(--color-border)] text-[var(--color-mint-text)]"
                     />
                     <span>IsoStone Onderdorpel (Soglia Pietra Sintetica +95€)</span>
                   </label>
@@ -1034,7 +1034,7 @@ export default function NewFieldQuotePage() {
                           type="checkbox"
                           checked={ralMontage}
                           onChange={(e) => setRalMontage(e.target.checked)}
-                          className="rounded border-[var(--color-border)] text-[var(--color-mint)]"
+                          className="rounded border-[var(--color-border)] text-[var(--color-mint-text)]"
                         />
                         <span>RAL-Montage (+45€/pz)</span>
                       </label>
@@ -1046,7 +1046,7 @@ export default function NewFieldQuotePage() {
                         type="checkbox"
                         checked={klimabonusEligible}
                         onChange={(e) => setKlimabonusEligible(e.target.checked)}
-                        className="rounded border-[var(--color-border)] text-[var(--color-mint)]"
+                        className="rounded border-[var(--color-border)] text-[var(--color-mint-text)]"
                       />
                       <span>Klimabonus éligible / Klimabonus-berechtigt (subvention −20%)</span>
                     </label>
@@ -1255,7 +1255,7 @@ export default function NewFieldQuotePage() {
               </div>
               <div className="flex justify-between text-base font-bold text-[var(--color-text)] border-t border-[var(--color-border)] pt-2">
                 <span>{t("totalQuote")}</span>
-                <span className="text-[var(--color-mint)] font-mono">
+                <span className="text-[var(--color-mint-text)] font-mono">
                   €{(priceCalc.finalGrossCents / 100).toFixed(2)}
                 </span>
               </div>

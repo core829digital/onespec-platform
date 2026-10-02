@@ -20,7 +20,7 @@ function interpolateLegalText(text: string) {
     const v = legalValue(key);
     parts.push(
       v ? (
-        <span key={key} className="text-[var(--color-mint)] font-medium">
+        <span key={key} className="text-[var(--color-mint-text)] font-medium">
           {v}
         </span>
       ) : (

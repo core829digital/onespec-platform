@@ -24,7 +24,7 @@ function CopyBlock({ code }: { code: string }) {
             /* clipboard unavailable */
           }
         }}
-        className="absolute top-2 right-2 rounded-md border border-[var(--color-border)] bg-[var(--color-bg-alt)] px-2 py-1 text-xs text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-mint)] hover:text-[var(--color-mint)] active:scale-95"
+        className="absolute top-2 right-2 rounded-md border border-[var(--color-border)] bg-[var(--color-bg-alt)] px-2 py-1 text-xs text-[var(--color-text-secondary)] transition-colors hover:border-[var(--color-mint)] hover:text-[var(--color-mint-text)] active:scale-95"
       >
         {copied ? t("copied") : t("copy")}
       </button>
@@ -87,7 +87,7 @@ export function EmbedTab({
         ) : (
           <div className="space-y-2">
             <p className="text-sm text-[var(--color-text-secondary)]">{t("embedLocked")}</p>
-            <Link href="/app/account/billing?tab=plan" className="text-sm font-semibold text-[var(--color-mint)] hover:underline">
+            <Link href="/app/account/billing?tab=plan" className="text-sm font-semibold text-[var(--color-mint-text)] hover:underline">
               {t("comparePlans")}
             </Link>
           </div>

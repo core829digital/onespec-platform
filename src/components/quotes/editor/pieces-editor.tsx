@@ -167,7 +167,7 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
               ))}
             </select>
             {active.category ? (
-              <button type="button" onClick={() => update(activeIndex, setCategory(active, active.category!, keys))} className="text-xs text-[var(--color-mint)] hover:underline">{t("resetLeaves")}</button>
+              <button type="button" onClick={() => update(activeIndex, setCategory(active, active.category!, keys))} className="text-xs text-[var(--color-mint-text)] hover:underline">{t("resetLeaves")}</button>
             ) : null}
           </div>
 
@@ -214,7 +214,7 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
                 <button type="button" disabled={active.sashes.length <= 1 || selectedSash === null} onClick={() => { if (selectedSash !== null) { update(activeIndex, removeSash(active, selectedSash)); setSelectedSash(0); } }} className="rounded-md border border-[var(--color-border)] px-2 py-1 disabled:opacity-40">− {t("removeLeaf")}</button>
               </div>
               {thermal && thermal.uw > 0 ? (
-                <span className={`rounded-md px-2 py-0.5 font-mono font-bold ${thermal.uw <= 1.3 ? "bg-emerald-500/15 text-emerald-600" : "bg-amber-500/15 text-amber-600"}`} title={`Uf ${thermal.uf.toFixed(2)} · Ug ${thermal.ug.toFixed(2)} · Ψ ${thermal.psi}`}>
+                <span className={`rounded-md px-2 py-0.5 font-mono font-bold ${thermal.uw <= 1.3 ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-400" : "bg-amber-500/15 text-amber-700 dark:text-amber-400"}`} title={`Uf ${thermal.uf.toFixed(2)} · Ug ${thermal.ug.toFixed(2)} · Ψ ${thermal.psi}`}>
                   Uw {thermal.uw.toFixed(3)} W/m²K
                 </span>
               ) : null}

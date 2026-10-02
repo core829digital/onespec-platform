@@ -99,7 +99,7 @@ export function MobileNav({
                         "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium",
                         locked && "opacity-45",
                         active
-                          ? "bg-[var(--color-mint)]/10 text-[var(--color-mint)]"
+                          ? "bg-[var(--color-mint)]/10 text-[var(--color-mint-text)]"
                           : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)]",
                       )}
                     >

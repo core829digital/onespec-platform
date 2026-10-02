@@ -117,7 +117,7 @@ export default function AdminPage() {
         <p className="text-[var(--color-text-secondary)]">
           {t("noAccess")}
         </p>
-        <Link href="/app/dashboard" className="text-[var(--color-mint)] hover:underline">
+        <Link href="/app/dashboard" className="text-[var(--color-mint-text)] hover:underline">
           {t("dashboard")}
         </Link>
       </div>
@@ -184,7 +184,7 @@ export default function AdminPage() {
                   <span className="ml-2 text-xs font-semibold text-red-600">{t("suspended")}</span>
                 )}
                 {tn.unlimitedAccess === true && (
-                  <span className="ml-2 rounded-full bg-[var(--color-mint-light)] px-2 py-0.5 text-xs font-semibold text-[var(--color-mint)]">
+                  <span className="ml-2 rounded-full bg-[var(--color-mint-light)] px-2 py-0.5 text-xs font-semibold text-[var(--color-mint-text)]">
                     {t("fullAccess")}
                   </span>
                 )}

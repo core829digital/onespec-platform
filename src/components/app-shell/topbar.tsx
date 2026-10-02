@@ -41,7 +41,7 @@ function PlatformBalanceBadge({ tenantId }: { tenantId: Id<"tenants"> }) {
   return (
     <Button
       variant="ghost"
-      className={`flex items-center gap-2 px-3 py-1.5 ${isCredit ? "text-[var(--color-mint)]" : isDue ? "text-[var(--color-danger)]" : "text-[var(--color-text-secondary)]"}`}
+      className={`flex items-center gap-2 px-3 py-1.5 ${isCredit ? "text-[var(--color-mint-text)]" : isDue ? "text-[var(--color-danger)]" : "text-[var(--color-text-secondary)]"}`}
       asChild
     >
       <Link
@@ -112,7 +112,7 @@ export function Topbar({
         {plan ? (
           <Button variant="ghost" className="flex items-center gap-2 px-3 py-1.5" asChild>
             <Link href="/app/account/billing?tab=plan" aria-label={`${tNav("plan")}: ${ended ? tNav("planNone") : plan}`}>
-              <Gem size={18} className={ended ? "text-[var(--color-text-secondary)]" : "text-[var(--color-mint)]"} />
+              <Gem size={18} className={ended ? "text-[var(--color-text-secondary)]" : "text-[var(--color-mint-text)]"} />
               <span className="hidden md:block text-sm font-medium capitalize text-[var(--color-text)]">
                 {ended ? tNav("planNone") : plan}
               </span>

@@ -167,7 +167,7 @@ export default function SignQuotePage({ params }: Props) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 text-center">
         <div className="flex h-20 w-20 items-center justify-center rounded-full bg-[var(--color-mint)]/20">
-          <svg className="h-10 w-10 text-[var(--color-mint)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg className="h-10 w-10 text-[var(--color-mint-text)]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
           </svg>
         </div>
@@ -193,7 +193,7 @@ export default function SignQuotePage({ params }: Props) {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3 border-b border-[var(--color-border)] pb-4">
         <div>
-          <span className="rounded-md bg-[var(--color-mint)]/20 px-2 py-0.5 text-xs font-semibold text-[var(--color-mint)] uppercase tracking-wider">
+          <span className="rounded-md bg-[var(--color-mint)]/20 px-2 py-0.5 text-xs font-semibold text-[var(--color-mint-text)] uppercase tracking-wider">
             {t("kicker")}
           </span>
           <h1 className="text-2xl font-bold text-[var(--color-text)] mt-1">{t("title")}</h1>
@@ -234,7 +234,7 @@ export default function SignQuotePage({ params }: Props) {
           </div>
           <div>
             <span className="text-[var(--color-text-secondary)]">{t("totalVatIncluded")}</span>
-            <p className="text-xl font-bold text-[var(--color-mint)]">{totalFormatted}</p>
+            <p className="text-xl font-bold text-[var(--color-mint-text)]">{totalFormatted}</p>
           </div>
           {quote.ecobonusPercent && quote.ecobonusPercent > 0 && (
             <div className="col-span-2 rounded-lg bg-emerald-500/10 border border-emerald-500/30 p-2.5 text-xs text-emerald-600 dark:text-emerald-400">

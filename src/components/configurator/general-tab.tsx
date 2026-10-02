@@ -140,7 +140,7 @@ export function GeneralTab({
         <p
           className={
             msg.kind === "ok"
-              ? "text-sm text-[var(--color-mint)] bg-[var(--color-mint-light)] border border-[var(--color-mint)]/30 rounded-lg px-3 py-2"
+              ? "text-sm text-[var(--color-mint-text)] bg-[var(--color-mint-light)] border border-[var(--color-mint)]/30 rounded-lg px-3 py-2"
               : "text-sm text-[var(--color-danger)] bg-[var(--color-danger)]/10 border border-[var(--color-danger)]/30 rounded-lg px-3 py-2"
           }
         >

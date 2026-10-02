@@ -12,7 +12,7 @@ function renderText(text: string, keyBase: string) {
       return (
         <mark
           key={`${keyBase}-${i}`}
-          className="rounded bg-amber-500/15 text-amber-600 dark:text-amber-400 px-1 py-0.5 text-[0.9em] font-medium"
+          className="rounded bg-amber-500/15 text-amber-700 dark:text-amber-400 px-1 py-0.5 text-[0.9em] font-medium"
         >
           da completare: {m[1]}
         </mark>

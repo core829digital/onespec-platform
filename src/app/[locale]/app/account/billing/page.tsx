@@ -261,7 +261,7 @@ export default function BillingPage() {
             aria-labelledby="plan-notice-title"
             className="w-full max-w-md rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)] p-6 text-center shadow-xl"
           >
-            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-mint)]/15 text-2xl text-[var(--color-mint)]">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-[var(--color-mint)]/15 text-2xl text-[var(--color-mint-text)]">
               ✓
             </div>
             <h2 id="plan-notice-title" className="text-lg font-bold text-[var(--color-text)]">
@@ -365,7 +365,7 @@ export default function BillingPage() {
                 </div>
               ))}
             </dl>
-            <Link href="/app/account" className="mt-3 inline-block text-[var(--color-mint)] hover:underline">
+            <Link href="/app/account" className="mt-3 inline-block text-[var(--color-mint-text)] hover:underline">
               {t("invoicing.edit")}
             </Link>
           </section>
@@ -443,7 +443,7 @@ export default function BillingPage() {
                         <ul className="mt-3 flex-1 space-y-1.5 text-xs text-[var(--color-text-secondary)]">
                           {(t.raw(`planFeatures.${p.key}`) as string[]).map((f) => (
                             <li key={f} className="flex gap-2">
-                              <span aria-hidden="true" className="text-[var(--color-mint)]">✓</span>
+                              <span aria-hidden="true" className="text-[var(--color-mint-text)]">✓</span>
                               <span>{f}</span>
                             </li>
                           ))}
@@ -451,11 +451,11 @@ export default function BillingPage() {
                       ) : null}
                       <div className="mt-auto space-y-2 pt-4">
                         {current ? (
-                          <span className="text-xs text-[var(--color-mint)] block">{t("currentPlan")}</span>
+                          <span className="text-xs text-[var(--color-mint-text)] block">{t("currentPlan")}</span>
                         ) : !selfServe ? (
                           <a
                             href="mailto:sales@onespec.eu"
-                            className="text-xs text-[var(--color-mint)] hover:underline block text-center"
+                            className="text-xs text-[var(--color-mint-text)] hover:underline block text-center"
                           >
                             {t("contactSales")}
                           </a>
@@ -506,7 +506,7 @@ export default function BillingPage() {
           </>
       )}
 
-      <Link href="/legal/termini-di-servizio" className="text-sm text-[var(--color-mint)] hover:underline">
+      <Link href="/legal/termini-di-servizio" className="text-sm text-[var(--color-mint-text)] hover:underline">
         {t("termsOfService")}
       </Link>
     </div>

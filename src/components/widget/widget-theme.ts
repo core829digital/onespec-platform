@@ -26,7 +26,7 @@ export function luminance(rgb: [number, number, number]): number {
     const c = v / 255;
     return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
   });
-  return 0.2126 * chan[0] + 0.7152 * chan[1] + 0.4222 * chan[2];
+  return 0.2126 * chan[0] + 0.7152 * chan[1] + 0.0722 * chan[2];
 }
 
 /**

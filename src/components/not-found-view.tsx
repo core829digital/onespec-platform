@@ -20,7 +20,7 @@ export function NotFoundView({
       className={`${fullScreen ? "min-h-screen" : "min-h-[60vh]"} flex items-center justify-center p-8 bg-[var(--color-bg)] text-[var(--color-text)]`}
     >
       <div className="max-w-sm text-center">
-        {configurator ? null : <p className="text-5xl font-bold text-[var(--color-mint)]">404</p>}
+        {configurator ? null : <p className="text-5xl font-bold text-[var(--color-mint-text)]">404</p>}
         <h1 className={configurator ? "text-lg font-semibold" : "mt-3 text-xl font-semibold"}>
           {configurator ? c.configuratorMissingTitle : c.notFoundTitle}
         </h1>

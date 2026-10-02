@@ -12,7 +12,7 @@ const LAYER_TONE: Record<string, string> = {
   plan: "text-sky-500",
   region: "text-violet-500",
   tenant: "text-amber-500",
-  configurator: "text-[var(--color-mint)]",
+  configurator: "text-[var(--color-mint-text)]",
   widget: "text-pink-500",
 };
 

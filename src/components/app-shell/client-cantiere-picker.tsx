@@ -87,7 +87,7 @@ export function ClientCantierePicker({
     <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4 space-y-3">
       <div className="flex items-center justify-between gap-2">
         <p className="text-sm font-semibold text-[var(--color-text)]">{t("title")}</p>
-        <Link href="/app/clients" className="text-xs text-[var(--color-mint)] hover:underline">
+        <Link href="/app/clients" className="text-xs text-[var(--color-mint-text)] hover:underline">
           {t("manage")}
         </Link>
       </div>

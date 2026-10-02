@@ -137,13 +137,13 @@ function ResetPasswordContent() {
           type="button"
           onClick={handleResend}
           disabled={resending || loading || !email || !ts.ready}
-          className="text-[var(--color-mint)] hover:underline disabled:opacity-50"
+          className="text-[var(--color-mint-text)] hover:underline disabled:opacity-50"
         >
           {resending ? t("resendSending") : t("resendLink")}
         </button>
       </p>
       {resent ? (
-        <p className="text-center text-sm text-[var(--color-mint)]">{t("resent")}</p>
+        <p className="text-center text-sm text-[var(--color-mint-text)]">{t("resent")}</p>
       ) : null}
     </form>
   );

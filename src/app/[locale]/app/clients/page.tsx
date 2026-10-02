@@ -101,7 +101,7 @@ function ClientRow({
           <div>
             <Link
               href={`/app/clients/${client._id}`}
-              className="font-medium text-[var(--color-text)] hover:text-[var(--color-mint)] hover:underline"
+              className="font-medium text-[var(--color-text)] hover:text-[var(--color-mint-text)] hover:underline"
             >
               {client.name}
             </Link>

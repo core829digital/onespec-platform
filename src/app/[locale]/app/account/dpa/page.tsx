@@ -33,7 +33,7 @@ function DpaBody({ tenant, state }: { tenant: Doc<"tenants">; state: DpaState })
 
       {state.acceptance ? (
         <div className="rounded-xl border border-[var(--color-mint)]/40 bg-[var(--color-mint-light)] p-4 text-sm">
-          <p className="font-semibold text-[var(--color-mint)]">{t("acceptedTitle")}</p>
+          <p className="font-semibold text-[var(--color-mint-text)]">{t("acceptedTitle")}</p>
           <p className="mt-1 text-[var(--color-text)]">
             {t("acceptedBy", {
               name: state.acceptance.signerName,

@@ -40,7 +40,7 @@ export function CookieConsentBanner() {
       <div className="mx-auto flex max-w-4xl flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm text-[var(--color-text)]">
           {t("body")}{" "}
-          <Link href="/legal/cookie" className="text-[var(--color-mint)] hover:underline">
+          <Link href="/legal/cookie" className="text-[var(--color-mint-text)] hover:underline">
             {t("learnMore")}
           </Link>
         </p>

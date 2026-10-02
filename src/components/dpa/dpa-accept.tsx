@@ -49,7 +49,7 @@ export function DpaAcceptForm({ tenantId, version, companyName, controllerComple
       {!controllerComplete ? (
         <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-[var(--color-text)]">
           {t("companyIncomplete")}{" "}
-          <Link href="/app/account" className="font-semibold text-[var(--color-mint)] hover:underline">
+          <Link href="/app/account" className="font-semibold text-[var(--color-mint-text)] hover:underline">
             {t("goToCompany")}
           </Link>
         </p>

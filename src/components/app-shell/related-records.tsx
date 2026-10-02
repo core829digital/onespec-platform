@@ -144,7 +144,7 @@ export function RelatedRecords({
               </div>
               <div className="flex shrink-0 items-center gap-3 text-xs">
                 {r.badge}
-                <Link href={r.href} className="text-[var(--color-mint)] hover:underline">
+                <Link href={r.href} className="text-[var(--color-mint-text)] hover:underline">
                   {t("open")}
                 </Link>
               </div>

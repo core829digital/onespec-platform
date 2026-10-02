@@ -106,13 +106,13 @@ function LoginForm() {
         {t("noAccount")}{" "}
         <Link
           href={redirect === "/app/dashboard" ? "/auth/register" : `/auth/register?redirect=${encodeURIComponent(redirect)}`}
-          className="text-[var(--color-mint)] hover:underline"
+          className="text-[var(--color-mint-text)] underline underline-offset-2"
         >
           {t("registerLink")}
         </Link>
       </p>
       <p className="text-center text-sm text-[var(--color-text-secondary)]">
-        <Link href="/auth/forgot-password" className="text-[var(--color-mint)] hover:underline">{t("forgotPassword")}</Link>
+        <Link href="/auth/forgot-password" className="text-[var(--color-mint-text)] underline underline-offset-2">{t("forgotPassword")}</Link>
       </p>
     </form>
   );

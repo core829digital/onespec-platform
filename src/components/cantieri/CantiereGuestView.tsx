@@ -59,7 +59,7 @@ export function CantiereGuestView({ cantiere, tasks, tenantName, pin }: Cantiere
       <header className="mb-8 max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <svg className="w-10 h-10 text-[var(--color-mint)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-10 h-10 text-[var(--color-mint-text)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
             </svg>
             <div>
@@ -101,7 +101,7 @@ export function CantiereGuestView({ cantiere, tasks, tenantName, pin }: Cantiere
           </h2>
           <button
             onClick={() => setShowTasks(!showTasks)}
-            className="text-sm text-[var(--color-mint)] hover:underline"
+            className="text-sm text-[var(--color-mint-text)] hover:underline"
           >
             {showTasks ? t("hideTasks") : t("showTasks")}
           </button>
@@ -134,7 +134,7 @@ function InfoCard({ label, value, icon }: { label: string; value: string; icon: 
   return (
     <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4">
       <div className="flex items-center gap-2 text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-        <span className="text-[var(--color-mint)]">{icon}</span>
+        <span className="text-[var(--color-mint-text)]">{icon}</span>
         {label}
       </div>
       <p className="text-base font-medium text-[var(--color-text)] whitespace-pre-line">{value}</p>
@@ -150,7 +150,7 @@ function TaskCard({ task, dueLabel }: { task: GuestTask; dueLabel: string | null
           type="checkbox"
           checked={task.done}
           disabled
-          className="mt-1 w-5 h-5 text-[var(--color-mint)] rounded border-[var(--color-border)]"
+          className="mt-1 w-5 h-5 text-[var(--color-mint-text)] rounded border-[var(--color-border)]"
         />
         <div className="flex-1 min-w-0">
           <p className={`font-medium ${task.done ? "line-through text-[var(--color-text-secondary)]" : "text-[var(--color-text)]"}`}>

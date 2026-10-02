@@ -79,7 +79,7 @@ export function FeedbackButton() {
           >
             <h2 className="font-semibold text-[var(--color-text)]">{t("title")}</h2>
             {state === "sent" ? (
-              <p className="text-sm text-[var(--color-mint)]">{t("thanks")}</p>
+              <p className="text-sm text-[var(--color-mint-text)]">{t("thanks")}</p>
             ) : (
               <>
                 <div className="flex gap-2">
@@ -90,7 +90,7 @@ export function FeedbackButton() {
                       onClick={() => setCategory(c.v)}
                       className={
                         category === c.v
-                          ? "rounded-lg border border-[var(--color-mint)] bg-[var(--color-mint-light)] px-3 py-1.5 text-xs text-[var(--color-mint)]"
+                          ? "rounded-lg border border-[var(--color-mint)] bg-[var(--color-mint-light)] px-3 py-1.5 text-xs text-[var(--color-mint-text)]"
                           : "rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-xs text-[var(--color-text-secondary)]"
                       }
                     >

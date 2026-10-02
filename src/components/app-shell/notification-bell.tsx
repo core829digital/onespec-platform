@@ -105,7 +105,7 @@ export function NotificationBell() {
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
-            <DropdownMenuItem asChild className="text-center text-[var(--color-mint)]">
+            <DropdownMenuItem asChild className="text-center text-[var(--color-mint-text)]">
               <Link href="/app/notifications" className="flex w-full items-center justify-center gap-1">
                 {t("seeAll")}
                 <ExternalLink size={12} />

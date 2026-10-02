@@ -237,7 +237,7 @@ export default function OnboardingWizard() {
                     €{price}
                     <span className="text-xs font-normal text-[var(--color-text-secondary)]">{t("billing.perMonth")}</span>
                   </p>
-                  {trial ? <p className="mt-1 text-xs font-semibold text-[var(--color-mint)]">{t("billing.trialNote")}</p> : null}
+                  {trial ? <p className="mt-1 text-xs font-semibold text-[var(--color-mint-text)]">{t("billing.trialNote")}</p> : null}
                   <ul className="mt-2 space-y-1 text-xs text-[var(--color-text-secondary)]">
                     {features.map((f) => (
                       <li key={f}>• {f}</li>
@@ -251,11 +251,11 @@ export default function OnboardingWizard() {
           ))}
           <p className="text-xs text-[var(--color-text-secondary)]">{t("billing.vatExcluded")}</p>
           <p className="text-xs text-[var(--color-text-secondary)]">
-            <a href="mailto:sales@onespec.eu" className="text-[var(--color-mint)] hover:underline">
+            <a href="mailto:sales@onespec.eu" className="text-[var(--color-mint-text)] hover:underline">
               {t("billing.enterpriseCta")}
             </a>
             {" · "}
-            <Link href="/app/account/billing" className="text-[var(--color-mint)]">
+            <Link href="/app/account/billing" className="text-[var(--color-mint-text)]">
               {t("billing.comparePlans")}
             </Link>
           </p>
@@ -326,7 +326,7 @@ function Progress({ flow, current }: { flow: Step[]; current: Step }) {
           key={s}
           className={
             i <= idx
-              ? "rounded-full border border-[var(--color-mint)] bg-[var(--color-mint-light)] px-3 py-1 text-[var(--color-mint)]"
+              ? "rounded-full border border-[var(--color-mint)] bg-[var(--color-mint-light)] px-3 py-1 text-[var(--color-mint-text)]"
               : "rounded-full border border-[var(--color-border)] px-3 py-1 text-[var(--color-text-secondary)]"
           }
         >
@@ -478,7 +478,7 @@ function ChoiceRow<T extends string>({
           onClick={() => onChange(key)}
           className={`rounded-lg border px-3 py-2 text-sm ${
             value === key
-              ? "border-[var(--color-mint)] bg-[var(--color-mint-light)] text-[var(--color-mint)]"
+              ? "border-[var(--color-mint)] bg-[var(--color-mint-light)] text-[var(--color-mint-text)]"
               : "border-[var(--color-border)] text-[var(--color-text)] hover:border-[var(--color-mint)]"
           }`}
         >
@@ -570,7 +570,7 @@ function FirstConfigurator({
             {t("embedLabel")}: &lt;iframe src=&quot;{origin}/w/{publicId}&quot;&gt;
           </p>
         ) : null}
-        <Link href={`/app/configurators`} className="text-[var(--color-mint)] text-xs">
+        <Link href={`/app/configurators`} className="text-[var(--color-mint-text)] text-xs">
           {t("openEditor")}
         </Link>
       </div>

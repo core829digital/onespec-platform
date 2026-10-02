@@ -61,8 +61,9 @@ export function SashPanel({
 
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className={lbl}>{t("openingType")}</label>
+          <label className={lbl} htmlFor={`sash-${index}-type`}>{t("openingType")}</label>
           <select
+            id={`sash-${index}-type`}
             className={sel}
             value={sash.type}
             onChange={(e) => {
@@ -168,10 +169,11 @@ export function SashPanel({
 
           <div>
             <div className="flex items-center justify-between">
-              <label className={lbl}>{t("handleHeight")}</label>
+              <label className={lbl} htmlFor={`sash-${index}-handle`}>{t("handleHeight")}</label>
               <span className="font-mono text-xs font-bold text-[var(--color-text)]">{handle} mm</span>
             </div>
             <input
+              id={`sash-${index}-handle`}
               type="range"
               min={handleMin}
               max={handleMax}

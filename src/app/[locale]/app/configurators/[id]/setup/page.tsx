@@ -41,7 +41,7 @@ export default function ConfiguratorSetupPage({ params }: { params: Promise<{ id
     return (
       <div className="space-y-4">
         <p className="text-[var(--color-text-secondary)]">{t("notFound")}</p>
-        <Link href="/app/configurators" className="text-[var(--color-mint)] hover:underline">
+        <Link href="/app/configurators" className="text-[var(--color-mint-text)] hover:underline">
           {t("backTo")}
         </Link>
       </div>
@@ -76,7 +76,7 @@ export default function ConfiguratorSetupPage({ params }: { params: Promise<{ id
             key={s}
             className={
               i <= idx
-                ? "rounded-full border border-[var(--color-mint)] bg-[var(--color-mint-light)] px-3 py-1 text-[var(--color-mint)]"
+                ? "rounded-full border border-[var(--color-mint)] bg-[var(--color-mint-light)] px-3 py-1 text-[var(--color-mint-text)]"
                 : "rounded-full border border-[var(--color-border)] px-3 py-1 text-[var(--color-text-secondary)]"
             }
           >
@@ -94,11 +94,11 @@ export default function ConfiguratorSetupPage({ params }: { params: Promise<{ id
             <p className="text-[var(--color-text-secondary)]">{t("welcome.body")}</p>
             <ul className="space-y-1.5 text-sm text-[var(--color-text)]">
               <li className="flex items-center gap-2">
-                <CheckCircle2 size={16} className="text-[var(--color-mint)]" aria-hidden="true" />
+                <CheckCircle2 size={16} className="text-[var(--color-mint-text)]" aria-hidden="true" />
                 {t("welcome.catalogSeeded")}
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle2 size={16} className="text-[var(--color-mint)]" aria-hidden="true" />
+                <CheckCircle2 size={16} className="text-[var(--color-mint-text)]" aria-hidden="true" />
                 {t("welcome.brandingSeeded")}
               </li>
             </ul>
@@ -118,7 +118,7 @@ export default function ConfiguratorSetupPage({ params }: { params: Promise<{ id
           </>
         ) : published ? (
           <div className="space-y-3 text-center">
-            <CheckCircle2 size={40} className="mx-auto text-[var(--color-mint)]" aria-hidden="true" />
+            <CheckCircle2 size={40} className="mx-auto text-[var(--color-mint-text)]" aria-hidden="true" />
             <h2 className="text-xl font-bold text-[var(--color-text)]">{t("publish.doneTitle")}</h2>
             <p className="text-[var(--color-text-secondary)]">{t("publish.doneBody")}</p>
             <div className="flex justify-center gap-3 pt-2">

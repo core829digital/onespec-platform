@@ -119,7 +119,7 @@ export function FiscalEngine({
           </div>
           <span
             className={`mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-bold ${
-              calc.uwEligible ? "bg-emerald-500 text-white" : "bg-red-500 text-white"
+              calc.uwEligible ? "bg-emerald-700 text-white" : "bg-red-700 text-white"
             }`}
           >
             {calc.uwEligible ? t("eligible") : t("notEligible")}
@@ -135,18 +135,18 @@ export function FiscalEngine({
 
       {isIT && calc.netAfterBonus50 > 0 && (
         <div className="rounded-lg bg-[var(--color-accent)] p-3 text-center text-[var(--color-accent-ink)]">
-          <div className="text-xs uppercase tracking-wide opacity-80">
+          <div className="text-xs uppercase tracking-wide">
             Costo effettivo dopo Bonus Casa
           </div>
           <div className="text-2xl font-extrabold">{eur(calc.netAfterBonus50)}</div>
-          <div className="text-[11px] opacity-80">recupero fiscale in 10 anni</div>
+          <div className="text-[11px]">recupero fiscale in 10 anni</div>
         </div>
       )}
 
       <div className={`grid gap-2 ${onSopralluogo ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
         <button
           onClick={onWhatsApp}
-          className="rounded-lg bg-[#25D366] py-2.5 text-sm font-semibold text-white transition-all hover:brightness-95 hover:shadow-md active:brightness-90 active:scale-[0.98]"
+          className="rounded-lg bg-[#25D366] py-2.5 text-sm font-semibold text-[#04231a] transition-all hover:brightness-95 hover:shadow-md active:brightness-90 active:scale-[0.98]"
         >
           {t("whatsapp")}
         </button>
@@ -161,7 +161,7 @@ export function FiscalEngine({
         ) : null}
         <button
           onClick={onAddToCart}
-          className="rounded-lg border border-[var(--color-border)] py-2.5 text-sm font-semibold transition-all hover:border-[var(--color-mint)] hover:bg-[var(--color-mint)]/10 hover:text-[var(--color-mint)] active:scale-[0.98]"
+          className="rounded-lg border border-[var(--color-border)] py-2.5 text-sm font-semibold transition-all hover:border-[var(--color-mint)] hover:bg-[var(--color-mint)]/10 hover:text-[var(--color-mint-text)] active:scale-[0.98]"
         >
           {t("addToQuote")}
         </button>

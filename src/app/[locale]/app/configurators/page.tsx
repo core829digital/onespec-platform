@@ -153,7 +153,7 @@ export default function ConfiguratorsPage() {
                 )}
                 <Link
                   href={`/app/configurators/${c._id}`}
-                  className="text-[var(--color-mint)] text-sm hover:underline"
+                  className="text-[var(--color-mint-text)] text-sm hover:underline"
                 >
                   {t("edit")}
                 </Link>

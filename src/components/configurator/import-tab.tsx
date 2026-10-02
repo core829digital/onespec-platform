@@ -118,7 +118,7 @@ export function ImportTab({ configuratorId }: { configuratorId: Id<"configurator
             </option>
           ))}
         </SelectInput>
-        <label className="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-mint)] cursor-pointer">
+        <label className="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-mint-text)] cursor-pointer">
           {t("chooseFile")}
           <input
             type="file"

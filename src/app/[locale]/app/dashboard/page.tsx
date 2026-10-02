@@ -245,10 +245,10 @@ export default function DashboardPage() {
             <section className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl p-5">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="font-semibold text-[var(--color-text)] flex items-center gap-2">
-                  <Gauge className="w-4 h-4 text-[var(--color-mint)]" />
+                  <Gauge className="w-4 h-4 text-[var(--color-mint-text)]" />
                   {t("planUsage")}
                 </h2>
-                <span className="rounded-full bg-[var(--color-mint-light)] px-3 py-1 text-xs font-bold uppercase tracking-wide text-[var(--color-mint)]">
+                <span className="rounded-full bg-[var(--color-mint-light)] px-3 py-1 text-xs font-bold uppercase tracking-wide text-[var(--color-mint-text)]">
                   {planUsage.plan}
                 </span>
               </div>
@@ -283,7 +283,7 @@ export default function DashboardPage() {
           {logisticsSummary ? (
             <section className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl p-5">
               <h2 className="font-semibold text-[var(--color-text)] flex items-center gap-2 mb-4">
-                <Truck className="w-4 h-4 text-[var(--color-mint)]" />
+                <Truck className="w-4 h-4 text-[var(--color-mint-text)]" />
                 {t("logisticsSummary.title")}
               </h2>
               <div className="grid grid-cols-3 gap-3">
@@ -292,7 +292,7 @@ export default function DashboardPage() {
                 <StatCard label={t("logisticsSummary.inStock")} value={String(logisticsSummary.itemsInStock)} />
               </div>
               <div className="mt-4 flex justify-end border-t border-[var(--color-border)] pt-4">
-                <Link href="/app/logistics" className="text-sm font-medium text-[var(--color-mint)] hover:underline">
+                <Link href="/app/logistics" className="text-sm font-medium text-[var(--color-mint-text)] hover:underline">
                   {t("logisticsSummary.viewAll")}
                 </Link>
               </div>
@@ -324,10 +324,10 @@ export default function DashboardPage() {
         <section className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-[var(--color-text)] flex items-center gap-2">
-              <Users className="w-4 h-4 text-[var(--color-mint)]" />
+              <Users className="w-4 h-4 text-[var(--color-mint-text)]" />
               {t("team.title")}
             </h2>
-            <Link href="/app/account/team" className="text-sm text-[var(--color-mint)] hover:underline">
+            <Link href="/app/account/team" className="text-sm text-[var(--color-mint-text)] hover:underline">
               {t("viewAll")}
             </Link>
           </div>
@@ -349,7 +349,7 @@ export default function DashboardPage() {
                     className="flex items-center justify-between gap-3 rounded-lg px-2 py-2 hover:bg-[var(--color-bg)]"
                   >
                     <div className="flex min-w-0 items-center gap-2.5">
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-mint-light)] text-xs font-bold text-[var(--color-mint)]">
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[var(--color-mint-light)] text-xs font-bold text-[var(--color-mint-text)]">
                         {(m.userName ?? m.userEmail ?? "?").slice(0, 1).toUpperCase()}
                       </span>
                       <div className="min-w-0">
@@ -374,10 +374,10 @@ export default function DashboardPage() {
         <section className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-[var(--color-text)] flex items-center gap-2">
-              <Building2 className="w-4 h-4 text-[var(--color-mint)]" />
+              <Building2 className="w-4 h-4 text-[var(--color-mint-text)]" />
               {t("cantieriPanel.title")}
             </h2>
-            <Link href="/app/cantieri" className="text-sm text-[var(--color-mint)] hover:underline">
+            <Link href="/app/cantieri" className="text-sm text-[var(--color-mint-text)] hover:underline">
               {t("viewAll")}
             </Link>
           </div>
@@ -418,7 +418,7 @@ export default function DashboardPage() {
       <section className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl">
         <div className="px-5 py-4 border-b border-[var(--color-border)] flex items-center justify-between">
           <h2 className="font-semibold text-[var(--color-text)]">{t("recentRequests")}</h2>
-          <Link href="/app/requests" className="text-sm text-[var(--color-mint)] hover:underline">
+          <Link href="/app/requests" className="text-sm text-[var(--color-mint-text)] hover:underline">
             {t("viewAll")}
           </Link>
         </div>

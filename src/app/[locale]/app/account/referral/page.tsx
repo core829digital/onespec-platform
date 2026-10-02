@@ -145,7 +145,7 @@ export default function ReferralPage() {
         {info.code ? (
           <div className="mt-3 space-y-4">
             <div className="flex flex-wrap items-center gap-3">
-              <code className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2 font-mono text-xl font-bold tracking-wider text-[var(--color-mint)]">{info.code}</code>
+              <code className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-4 py-2 font-mono text-xl font-bold tracking-wider text-[var(--color-mint-text)]">{info.code}</code>
               <button type="button" className={ghost} onClick={() => void copy("code", info.code as string)}>
                 {copied === "code" ? t("copied") : t("copyCode")}
               </button>
@@ -210,7 +210,7 @@ export default function ReferralPage() {
           {payout.method === "stripe" ? (
             <div className="mt-4 space-y-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-4">
               <p className="text-sm text-[var(--color-text)]">
-                <span className={`mr-2 inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${payout.ready ? "bg-[var(--color-mint)]/15 text-[var(--color-mint)]" : "bg-amber-500/15 text-amber-500"}`}>
+                <span className={`mr-2 inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${payout.ready ? "bg-[var(--color-mint)]/15 text-[var(--color-mint-text)]" : "bg-amber-500/15 text-amber-500"}`}>
                   {payout.ready ? t("payout.statusReady") : payout.hasAccount ? t("payout.statusIncomplete") : t("payout.statusNone")}
                 </span>
                 {payout.ready ? t("payout.readyHint") : t("payout.notReadyHint", { days: info.rules.holdDays })}
@@ -239,7 +239,7 @@ export default function ReferralPage() {
         <ol className="mt-3 space-y-2 text-sm text-[var(--color-text-secondary)]">
           {steps.map((s, i) => (
             <li key={i} className="flex gap-3">
-              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--color-mint)]/15 text-xs font-bold text-[var(--color-mint)]">{i + 1}</span>
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[var(--color-mint)]/15 text-xs font-bold text-[var(--color-mint-text)]">{i + 1}</span>
               <span>{s.replace("{days}", String(info.rules.holdDays))}</span>
             </li>
           ))}

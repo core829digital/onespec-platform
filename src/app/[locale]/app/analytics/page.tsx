@@ -308,7 +308,7 @@ export default function AnalyticsPage() {
             {overview?.analyticsLevel === "none" ? (
               <div className="flex flex-col items-center justify-center gap-2 py-10 text-center text-sm text-[var(--color-text-secondary)]">
                 <p>{t("upgradeForAnalytics")}</p>
-                <Link href="/app/account/billing" className="text-[var(--color-mint)] hover:underline font-medium">
+                <Link href="/app/account/billing" className="text-[var(--color-mint-text)] hover:underline font-medium">
                   {t("upgradePlan")}
                 </Link>
               </div>

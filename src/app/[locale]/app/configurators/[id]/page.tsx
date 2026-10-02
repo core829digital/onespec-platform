@@ -50,7 +50,7 @@ export default function ConfiguratorEditorPage({
     return (
       <div className="space-y-4">
         <p className="text-[var(--color-text-secondary)]">{t("notFound")}</p>
-        <Link href="/app/configurators" className="text-[var(--color-mint)] hover:underline">
+        <Link href="/app/configurators" className="text-[var(--color-mint-text)] hover:underline">
           {t("backTo")}
         </Link>
       </div>
@@ -138,7 +138,7 @@ export default function ConfiguratorEditorPage({
               <button
                 type="button"
                 onClick={() => setPreviewNonce((n) => n + 1)}
-                className="text-xs text-[var(--color-mint)] hover:underline"
+                className="text-xs text-[var(--color-mint-text)] hover:underline"
               >
                 {t("reload")}
               </button>
@@ -275,7 +275,7 @@ function VersionsTab({ configuratorId }: { configuratorId: Id<"configurators"> }
           <div key={v._id} className="flex items-center gap-3 px-4 py-3">
             <span className="font-mono text-sm text-[var(--color-text)]">v{v.version}</span>
             {v.isCurrent ? (
-              <span className="rounded-full bg-[var(--color-mint-light)] border border-[var(--color-mint)]/40 px-2 py-0.5 text-xs text-[var(--color-mint)]">
+              <span className="rounded-full bg-[var(--color-mint-light)] border border-[var(--color-mint)]/40 px-2 py-0.5 text-xs text-[var(--color-mint-text)]">
                 {t("active")}
               </span>
             ) : null}

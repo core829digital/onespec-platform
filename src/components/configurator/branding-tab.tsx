@@ -124,7 +124,7 @@ export function BrandingTab({ configuratorId }: { configuratorId: Id<"configurat
         <p
           className={
             msg.kind === "ok"
-              ? "text-sm text-[var(--color-mint)] bg-[var(--color-mint-light)] border border-[var(--color-mint)]/30 rounded-lg px-3 py-2"
+              ? "text-sm text-[var(--color-mint-text)] bg-[var(--color-mint-light)] border border-[var(--color-mint)]/30 rounded-lg px-3 py-2"
               : "text-sm text-[var(--color-danger)] bg-[var(--color-danger)]/10 border border-[var(--color-danger)]/30 rounded-lg px-3 py-2"
           }
         >
@@ -294,7 +294,7 @@ function LogoSlot({
         )}
       </div>
       <div className="flex items-center gap-2">
-        <label className="text-xs font-medium text-[var(--color-mint)] cursor-pointer hover:underline">
+        <label className="text-xs font-medium text-[var(--color-mint-text)] cursor-pointer hover:underline">
           {t("upload")}
           <input
             type="file"

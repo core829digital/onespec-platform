@@ -145,7 +145,7 @@ export default function AccountPage() {
                 <p className="text-[var(--color-text)]">
                   {s.current ? t("thisDevice") : t("session")}
                   {s.current ? (
-                    <span className="ml-2 rounded-full bg-[var(--color-mint-light)] px-1.5 py-0.5 text-xs text-[var(--color-mint)]">
+                    <span className="ml-2 rounded-full bg-[var(--color-mint-light)] px-1.5 py-0.5 text-xs text-[var(--color-mint-text)]">
                       {t("active")}
                     </span>
                   ) : null}
@@ -282,13 +282,13 @@ export default function AccountPage() {
       </Section>
 
       <div className="flex gap-3">
-        <Link href="/app/account/team" className="text-sm text-[var(--color-mint)] hover:underline">
+        <Link href="/app/account/team" className="text-sm text-[var(--color-mint-text)] hover:underline">
           {t("teamLink")}
         </Link>
-        <Link href="/app/account/billing" className="text-sm text-[var(--color-mint)] hover:underline">
+        <Link href="/app/account/billing" className="text-sm text-[var(--color-mint-text)] hover:underline">
           {t("billingLink")}
         </Link>
-        <Link href="/app/account/dpa" className="text-sm text-[var(--color-mint)] hover:underline">
+        <Link href="/app/account/dpa" className="text-sm text-[var(--color-mint-text)] hover:underline">
           {t("dpaLink")}
         </Link>
         <button

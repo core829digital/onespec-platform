@@ -160,7 +160,7 @@ export function SiteDeliveriesTab({ tenantId, onError }: { tenantId: Id<"tenants
             <button
               type="button"
               onClick={() => setItemDrafts([...itemDrafts, { label: "", quantity: "1", unit: "pz" }])}
-              className="text-xs text-[var(--color-mint)] hover:underline"
+              className="text-xs text-[var(--color-mint-text)] hover:underline"
             >
               + {t("addItem")}
             </button>
@@ -324,7 +324,7 @@ function SiteDeliveryDetail({
 
   return (
     <div className="space-y-4">
-      <button type="button" onClick={onBack} className="text-sm text-[var(--color-mint)] hover:underline">
+      <button type="button" onClick={onBack} className="text-sm text-[var(--color-mint-text)] hover:underline">
         ← {t("backToList")}
       </button>
 

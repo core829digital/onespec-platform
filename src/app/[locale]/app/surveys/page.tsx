@@ -607,7 +607,7 @@ export default function SurveysPage() {
             {surveys?.map((s) => (
               <tr key={s._id} className="border-t border-[var(--color-border)]">
                 <td className="px-4 py-3 font-medium">
-                  <Link href={`/app/surveys/${s._id}`} className="hover:text-[var(--color-mint)] hover:underline">
+                  <Link href={`/app/surveys/${s._id}`} className="hover:text-[var(--color-mint-text)] hover:underline">
                     {s.customerName}
                   </Link>
                 </td>

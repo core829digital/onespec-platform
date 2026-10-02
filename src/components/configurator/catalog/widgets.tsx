@@ -46,7 +46,7 @@ export function AddRow({
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="text-xs font-medium text-[var(--color-mint)] hover:underline"
+        className="text-xs font-medium text-[var(--color-mint-text)] hover:underline"
       >
         {t("addPlus")}
       </button>

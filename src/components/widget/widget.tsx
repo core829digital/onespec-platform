@@ -158,6 +158,9 @@ export function Widget({
     return candidates.find((c) => isSafeColor(c)) ?? "#16d19d";
   }, [hostTheme.accent, accentOverride, configurator.branding?.colorAccent]);
 
+  // The accent as TEXT on the widget surface: pulled towards the theme text colour so it keeps AA contrast.
+  const accentText = `color-mix(in srgb, ${accent} 45%, var(--color-text))`;
+
   // Ink is explicit-or-auto: use the tenant's configured ink if any, else derive
   // a readable colour from the resolved accent (WCAG luminance).
   const accentInk = useMemo(() => {
@@ -638,7 +641,7 @@ export function Widget({
                   onClick={() => changeProductType(pt)}
                   style={{
                     ...s.typeBtn,
-                    ...(state.productType === pt ? { borderColor: accent, background: "var(--color-mint-light)", color: accent } : {}),
+                    ...(state.productType === pt ? { borderColor: accent, background: "var(--color-mint-light)", color: accentText } : {}),
                   }}
                 >
                   {pt === "window" ? dict.productTypeWindow : dict.productTypeDoor}
@@ -646,7 +649,7 @@ export function Widget({
               ))}
             </div>
             {state.productType === "balconyDoor" && (
-              <div style={{ marginTop: 8, fontSize: 11.5, color: accent, fontWeight: 600 }}>{dict.thresholdNote}</div>
+              <div style={{ marginTop: 8, fontSize: 11.5, color: accentText, fontWeight: 600 }}>{dict.thresholdNote}</div>
             )}
           </Field>
 
@@ -713,8 +716,9 @@ export function Widget({
           </div>
 
           <div style={s.row}>
-            <Field label={dict.quantityLabel}>
+            <Field label={dict.quantityLabel} id="widget-quantity">
               <input
+                id="widget-quantity"
                 style={s.input}
                 type="number"
                 inputMode="numeric"
@@ -728,8 +732,9 @@ export function Widget({
                 onBlur={(e) => set({ quantity: clamp(Math.round(parseFloat(e.target.value)), QTY_MIN, QTY_MAX) })}
               />
             </Field>
-            <Field label={dict.sashCountLabel}>
+            <Field label={dict.sashCountLabel} id="widget-sash-count">
               <input
+                id="widget-sash-count"
                 style={s.input}
                 type="number"
                 inputMode="numeric"
@@ -743,7 +748,7 @@ export function Widget({
           <div style={s.hint}>{dict.sashCountHint}</div>
           <div style={s.hint}>{dict.viewNote}</div>
           {state.sashes.length === 1 && (
-            <div style={{ ...s.hint, color: accent, fontWeight: 600 }}>{dict.singleSashCapHint}</div>
+            <div style={{ ...s.hint, color: accentText, fontWeight: 600 }}>{dict.singleSashCapHint}</div>
           )}
 
           {/* sash cards */}
@@ -753,7 +758,7 @@ export function Widget({
               return (
                 <div key={i} style={{ ...s.sashCard, opacity: isActive ? 1 : 0.5 }}>
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                    <span style={{ fontFamily: "var(--font-ibm-plex-mono), monospace", fontSize: 11.5, fontWeight: 600, color: accent, textTransform: "uppercase", letterSpacing: ".05em" }}>
+                    <span style={{ fontFamily: "var(--font-ibm-plex-mono), monospace", fontSize: 11.5, fontWeight: 600, color: accentText, textTransform: "uppercase", letterSpacing: ".05em" }}>
                       {dict.sashLabel} {i + 1}
                     </span>
                     <label style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: 600, color: "var(--color-text-secondary)", cursor: "pointer" }}>
@@ -884,7 +889,7 @@ export function Widget({
             {selectedSash !== null && state.sashes[selectedSash] && (
               <div style={{ marginTop: 12, border: `1.5px solid ${accent}`, borderRadius: 8, background: "var(--color-mint-light)", padding: 12 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                  <span style={{ fontFamily: "var(--font-ibm-plex-mono), monospace", fontSize: 12, fontWeight: 600, color: accent }}>
+                  <span style={{ fontFamily: "var(--font-ibm-plex-mono), monospace", fontSize: 12, fontWeight: 600, color: accentText }}>
                     {dict.sashLabel} {selectedSash + 1}
                   </span>
                   <button type="button" onClick={() => setSelectedSash(null)} style={s.iconBtn} aria-label="Close">
@@ -977,14 +982,15 @@ export function Widget({
                     <button
                       type="button"
                       onClick={() => setEcobonusOpen((o) => !o)}
-                      style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "var(--color-mint-light)", border: "none", borderRadius: 999, padding: "8px 16px", margin: "10px 0 4px", cursor: "pointer", fontWeight: 800, fontStyle: "italic", fontSize: 15, color: accent }}
+                      style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "var(--color-mint-light)", border: "none", borderRadius: 999, padding: "8px 16px", margin: "10px 0 4px", cursor: "pointer", fontWeight: 800, fontStyle: "italic", fontSize: 15, color: accentText }}
                     >
                       {dict.ecobonusToggle}
                     </button>
                     {ecobonusOpen && (
                       <div style={{ padding: "10px 12px 4px", marginBottom: 8, borderLeft: `3px solid ${accent}`, background: "var(--color-mint-light)" }}>
-                        <Field label={dict.ecobonusPercentLabel}>
+                        <Field label={dict.ecobonusPercentLabel} id="widget-ecobonus">
                           <input
+                            id="widget-ecobonus"
                             style={s.input}
                             type="number"
                             min={0}
@@ -1006,11 +1012,12 @@ export function Widget({
                 )}
 
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: "8px 0" }}>
-                  <label style={{ fontSize: 12.5, fontWeight: 800, color: "var(--color-text)", letterSpacing: ".03em", textTransform: "uppercase" }}>
+                  <label htmlFor="widget-vat" style={{ fontSize: 12.5, fontWeight: 800, color: "var(--color-text)", letterSpacing: ".03em", textTransform: "uppercase" }}>
                     {vatRates.length > 0 ? dict.vatRateLabel : dict.vatPercentLabel}
                   </label>
                   {vatRates.length > 0 ? (
                     <select
+                      id="widget-vat"
                       style={{ ...s.input, width: 200, textAlign: "right" }}
                       value={vatPct}
                       onChange={(e) => setVatPct(parseFloat(e.target.value))}
@@ -1021,6 +1028,7 @@ export function Widget({
                     </select>
                   ) : (
                     <input
+                      id="widget-vat"
                       style={{ ...s.input, width: 84, textAlign: "right" }}
                       type="number"
                       min={0}
@@ -1263,7 +1271,7 @@ const STYLES = {
   sashCard: { border: "1.5px solid var(--color-border)", borderRadius: 8, background: "var(--color-bg)", padding: 12 } as React.CSSProperties,
   typeBtn: { flex: 1, padding: "10px 12px", borderRadius: 8, border: "1.5px solid var(--color-border)", background: "var(--color-bg)", cursor: "pointer", fontSize: 13, fontWeight: 600, textAlign: "center", color: "var(--color-text)" } as React.CSSProperties,
   sumRow: { display: "flex", justifyContent: "space-between", alignItems: "baseline", fontSize: 13, padding: "7px 0", borderBottom: "1px solid var(--color-border)" } as React.CSSProperties,
-  btnSecondary: { width: "100%", padding: 11, borderRadius: 8, border: "1.5px solid var(--color-mint)", background: "transparent", color: "var(--color-mint)", fontWeight: 600, fontSize: 13.5, cursor: "pointer", fontFamily: "var(--font-space-grotesk), sans-serif" } as React.CSSProperties,
+  btnSecondary: { width: "100%", padding: 11, borderRadius: 8, border: "1.5px solid var(--color-mint)", background: "transparent", color: "var(--color-mint-text)", fontWeight: 600, fontSize: 13.5, cursor: "pointer", fontFamily: "var(--font-space-grotesk), sans-serif" } as React.CSSProperties,
   btnPrimary: { width: "100%", padding: 11, borderRadius: 8, border: "none", fontWeight: 700, fontSize: 13.5, cursor: "pointer", fontFamily: "var(--tw-font, var(--font-space-grotesk), sans-serif)" } as React.CSSProperties,
   iconBtn: { width: 22, height: 22, borderRadius: "50%", border: "none", background: "var(--color-bg-alt)", color: "var(--color-text-secondary)", fontSize: 13, lineHeight: 1, cursor: "pointer", flexShrink: 0 } as React.CSSProperties,
 };

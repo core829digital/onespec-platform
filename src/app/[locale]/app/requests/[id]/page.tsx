@@ -98,7 +98,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
     return (
       <div className="space-y-4">
         <p className="text-[var(--color-text-secondary)]">{t("notFound")}</p>
-        <Link href="/app/requests" className="text-[var(--color-mint)] hover:underline">
+        <Link href="/app/requests" className="text-[var(--color-mint-text)] hover:underline">
           {t("backToRequests")}
         </Link>
       </div>
@@ -210,7 +210,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
           <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-text)]">{quote.leadName}</h1>
           <StatusBadge status={quote.status} label={tStatus(STATUS_KEY[quote.status] ?? quote.status)} />
           {quote.channel === "field_b2b" && (
-            <span className="rounded-md bg-[var(--color-mint)]/20 px-2 py-0.5 text-xs font-bold text-[var(--color-mint)]">
+            <span className="rounded-md bg-[var(--color-mint)]/20 px-2 py-0.5 text-xs font-bold text-[var(--color-mint-text)]">
               {t("b2bBadge")}
             </span>
           )}
@@ -281,7 +281,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
             <h2 className="font-semibold text-[var(--color-text)]">{t("contactSite")}</h2>
             <dl className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
               {quote.leadEmail ? (
-                <Row label={t("labelEmail")} value={<a href={`mailto:${quote.leadEmail}`} className="text-[var(--color-mint)] hover:underline">{quote.leadEmail}</a>} />
+                <Row label={t("labelEmail")} value={<a href={`mailto:${quote.leadEmail}`} className="text-[var(--color-mint-text)] hover:underline">{quote.leadEmail}</a>} />
               ) : null}
               {quote.leadPhone ? (
                 <Row
@@ -333,7 +333,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
             <dl className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2 text-sm">
               <Row label={t("rowNet")} value={eur(quote.priceExVatCents)} />
               <Row label={t("rowVat", { percent: quote.vatRatePercent })} value={eur(quote.priceCents - quote.priceExVatCents)} />
-              <Row label={t("rowTotal")} value={<strong className="text-base text-[var(--color-mint)]">{eur(quote.priceCents)}</strong>} />
+              <Row label={t("rowTotal")} value={<strong className="text-base text-[var(--color-mint-text)]">{eur(quote.priceCents)}</strong>} />
               {quote.installationPriceCents ? (
                 <Row label={t("rowInstall")} value={eur(quote.installationPriceCents)} />
               ) : null}

@@ -38,7 +38,7 @@ export default function CantiereFolderPage({ params }: { params: Promise<{ id: s
     return (
       <EmptyState
         title={t("notFound")}
-        action={<Link href="/app/cantieri" className="text-[var(--color-mint)] hover:underline">{t("backCantieri")}</Link>}
+        action={<Link href="/app/cantieri" className="text-[var(--color-mint-text)] hover:underline">{t("backCantieri")}</Link>}
       />
     );
   }
@@ -74,7 +74,7 @@ export default function CantiereFolderPage({ params }: { params: Promise<{ id: s
         </Link>
         <div className="mt-2 flex flex-wrap items-center gap-3">
           <h1 className="text-2xl font-bold text-[var(--color-text)] sm:text-3xl">{cantiere.name}</h1>
-          <span className="rounded-full bg-[var(--color-mint-light)] px-2.5 py-0.5 text-xs font-medium text-[var(--color-mint)]">
+          <span className="rounded-full bg-[var(--color-mint-light)] px-2.5 py-0.5 text-xs font-medium text-[var(--color-mint-text)]">
             {tc(cantiere.status as "preventivo")}
           </span>
           <span className="rounded-full border border-[var(--color-border)] px-2.5 py-0.5 text-xs text-[var(--color-text-secondary)]">
@@ -122,7 +122,7 @@ export default function CantiereFolderPage({ params }: { params: Promise<{ id: s
               <p className="flex items-center gap-2 text-sm">
                 <User className="h-4 w-4 shrink-0" />
                 <span className="text-[var(--color-text-secondary)]">{t("linkedClient")}:</span>
-                <Link href={`/app/clients/${client._id}`} className="text-[var(--color-mint)] hover:underline">
+                <Link href={`/app/clients/${client._id}`} className="text-[var(--color-mint-text)] hover:underline">
                   {client.name}
                 </Link>
               </p>
@@ -130,7 +130,7 @@ export default function CantiereFolderPage({ params }: { params: Promise<{ id: s
             {quote && (
               <p className="text-sm">
                 <span className="text-[var(--color-text-secondary)]">{t("linkedQuote")}: </span>
-                <Link href={`/app/quotes/${quote._id}/print`} className="text-[var(--color-mint)] hover:underline">
+                <Link href={`/app/quotes/${quote._id}/print`} className="text-[var(--color-mint-text)] hover:underline">
                   {quote.leadName}
                 </Link>
               </p>

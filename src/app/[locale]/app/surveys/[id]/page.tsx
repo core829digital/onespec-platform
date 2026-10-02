@@ -69,7 +69,7 @@ export default function SurveyDetailPage({ params }: { params: Promise<{ id: str
     return (
       <EmptyState
         title={tf("notFound")}
-        action={<Link href="/app/surveys" className="text-[var(--color-mint)] hover:underline">{t("back")}</Link>}
+        action={<Link href="/app/surveys" className="text-[var(--color-mint-text)] hover:underline">{t("back")}</Link>}
       />
     );
   }
@@ -110,12 +110,12 @@ export default function SurveyDetailPage({ params }: { params: Promise<{ id: str
             {isCompleted ? t("statusCompleted") : t("statusDraft")}
           </span>
           {survey.clientId && (
-            <Link href={`/app/clients/${survey.clientId}`} className="text-sm text-[var(--color-mint)] hover:underline">
+            <Link href={`/app/clients/${survey.clientId}`} className="text-sm text-[var(--color-mint-text)] hover:underline">
               {t("client")}
             </Link>
           )}
           {survey.quoteId && (
-            <Link href={`/app/quotes/${survey.quoteId}/print`} className="text-sm text-[var(--color-mint)] hover:underline">
+            <Link href={`/app/quotes/${survey.quoteId}/print`} className="text-sm text-[var(--color-mint-text)] hover:underline">
               {t("linkedQuote")}
             </Link>
           )}

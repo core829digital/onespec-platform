@@ -85,9 +85,9 @@ export default function QuotesPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
             { label: t("statTotal"), value: stats.total, color: "" },
-            { label: t("statWon"), value: stats.won, color: "text-[var(--color-mint)]" },
+            { label: t("statWon"), value: stats.won, color: "text-[var(--color-mint-text)]" },
             { label: t("statSigned"), value: stats.signed, color: "text-emerald-500" },
-            { label: t("statValue"), value: fmt(stats.totalValue), color: "text-[var(--color-mint)]" },
+            { label: t("statValue"), value: fmt(stats.totalValue), color: "text-[var(--color-mint-text)]" },
           ].map((s) => (
             <div key={s.label} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4">
               <p className="text-xs font-medium text-[var(--color-text-secondary)]">{s.label}</p>
@@ -119,7 +119,7 @@ export default function QuotesPage() {
           <p className="text-lg font-medium text-[var(--color-text-secondary)]">{t("empty")}</p>
           <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
             {t("emptyHint")}{" "}
-            <Link href="/app/quotes/new" className="text-[var(--color-mint)] hover:underline font-medium">
+            <Link href="/app/quotes/new" className="text-[var(--color-mint-text)] hover:underline font-medium">
               {t("newQuote")}
             </Link>
           </p>
@@ -183,7 +183,7 @@ export default function QuotesPage() {
                         {!r.signedAt && (
                           <Link
                             href={`/app/quotes/${r._id}/sign`}
-                            className="rounded-lg border border-[var(--color-mint)] px-2 py-1 text-xs font-semibold text-[var(--color-mint)] hover:bg-[var(--color-mint)]/10"
+                            className="rounded-lg border border-[var(--color-mint)] px-2 py-1 text-xs font-semibold text-[var(--color-mint-text)] hover:bg-[var(--color-mint)]/10"
                           >
                             {t("sign")}
                           </Link>

@@ -82,7 +82,7 @@ function NavLink({ item, active, collapsed, label, locked = false, dimmed = fals
         dimmed && "opacity-45",
         collapsed ? "justify-center p-2.5" : "gap-3 px-3 py-2",
         active
-          ? "bg-[var(--color-mint)]/15 text-[var(--color-mint)]"
+          ? "bg-[var(--color-mint)]/15 text-[var(--color-mint-text)]"
           : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)]/70 hover:text-[var(--color-text)]",
       )}
     >

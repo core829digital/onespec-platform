@@ -44,7 +44,7 @@ export default function ClientFolderPage({ params }: { params: Promise<{ id: str
     return <p className="text-[var(--color-text-secondary)]">{t("loading")}</p>;
   }
   if (data === null) {
-    return <EmptyState title={t("notFound")} action={<Link href="/app/clients" className="text-[var(--color-mint)] hover:underline">{t("backClients")}</Link>} />;
+    return <EmptyState title={t("notFound")} action={<Link href="/app/clients" className="text-[var(--color-mint-text)] hover:underline">{t("backClients")}</Link>} />;
   }
 
   const { client, activities, cantieri } = data;
@@ -86,7 +86,7 @@ export default function ClientFolderPage({ params }: { params: Promise<{ id: str
         </Link>
         <div className="mt-2 flex flex-wrap items-center gap-3">
           <h1 className="text-2xl font-bold text-[var(--color-text)] sm:text-3xl">{client.name}</h1>
-          <span className="rounded-full bg-[var(--color-mint-light)] px-2.5 py-0.5 text-xs font-medium text-[var(--color-mint)]">
+          <span className="rounded-full bg-[var(--color-mint-light)] px-2.5 py-0.5 text-xs font-medium text-[var(--color-mint-text)]">
             {tc(client.type)}
           </span>
           <span className="rounded-full border border-[var(--color-border)] px-2.5 py-0.5 text-xs text-[var(--color-text-secondary)]">
@@ -184,7 +184,7 @@ export default function ClientFolderPage({ params }: { params: Promise<{ id: str
                       {c.address}, {c.postalCode} {c.city}
                     </p>
                   </div>
-                  <Link href={`/app/cantieri/${c._id}`} className="shrink-0 text-xs text-[var(--color-mint)] hover:underline">
+                  <Link href={`/app/cantieri/${c._id}`} className="shrink-0 text-xs text-[var(--color-mint-text)] hover:underline">
                     {t("open")}
                   </Link>
                 </li>
