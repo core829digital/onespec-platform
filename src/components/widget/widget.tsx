@@ -9,6 +9,7 @@ import { demoCopy, demoRegisterUrl } from "@/lib/demo/demo-copy";
 import { submitErrorMessage, wizardCopy } from "./simple-wizard-model";
 import { getTurnstileToken } from "@/lib/turnstile-client";import { catalogOptions, catalogPricing, type WidgetCatalog, type WidgetOptions } from "./widget-catalog";
 import { REGION_FLAT_OPTION_KINDS } from "@/shared/pricing";
+import { retypeSash, typeForAddedSash } from "@/shared/sash-rules";
 import {
   defaultConfig,
   defaultSashPreset,
@@ -312,7 +313,10 @@ export function Widget({
 
   const setSash = (i: number, patch: Partial<Sash>) =>
     setState((s) => {
-      const sashes = s.sashes.map((sash, idx) => (idx === i ? { ...sash, ...patch } : sash));
+      const { type, ...rest } = patch;
+      let sashes = s.sashes.map((sash, idx) => (idx === i ? { ...sash, ...rest } : sash));
+      // A different opening family drags the other moving leaves along (no sliding + hinged in one frame).
+      if (type && type !== s.sashes[i]?.type) sashes = retypeSash(sashes, i, type) as Sash[];
       return { ...s, sashes };
     });
 
@@ -323,7 +327,8 @@ export function Widget({
       if (n > sashes.length) {
         for (let i = sashes.length; i < n; i++) {
           // Outermost leaf on the right: hinge right, handle towards the middle.
-          sashes.push({ type: "tiltturn", direction: "right", active: true, hardware: "maco", hardwareColor: "white" });
+          const type: SashType = typeForAddedSash(sashes.map((x) => x.type)) === "sliding" ? "sliding" : "tiltturn";
+          sashes.push({ type, direction: type === "tiltturn" ? "right" : "left", active: true, hardware: "maco", hardwareColor: "white" });
         }
       } else if (n < sashes.length) {
         sashes = sashes.slice(0, n);

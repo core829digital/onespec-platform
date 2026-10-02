@@ -129,6 +129,28 @@ export function sashTypeAllowedWith(
   return { ok: true };
 }
 
+/**
+ * Set leaf `index` to `next` and keep the frame physically possible: sliding / lift-slide
+ * systems never share a frame with hinged leaves (or with each other). A customer-facing
+ * form cannot refuse the click with an alert, so the other moving leaves follow the new
+ * family instead; fixed leaves never change.
+ */
+export function retypeSash<T extends { type: SashKind }>(sashes: T[], index: number, next: SashKind): T[] {
+  const others = sashes.filter((_, j) => j !== index).map((x) => x.type);
+  const conflict = !sashTypeAllowedWith(others, next).ok;
+  return sashes.map((sash, j) => {
+    if (j === index) return { ...sash, type: next };
+    if (!conflict || sash.type === "fix") return sash;
+    return { ...sash, type: next };
+  });
+}
+
+/** Type for a leaf added to a frame: it follows the moving leaves already there. */
+export function typeForAddedSash(existing: SashKind[]): SashKind {
+  const moving = existing.find((t) => t !== "fix");
+  return moving === "sliding" || moving === "liftslide" ? moving : "tiltturn";
+}
+
 export interface SashViolation {
   sashIndex: number;
   axis: "width" | "height";
