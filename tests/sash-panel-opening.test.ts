@@ -9,21 +9,18 @@ import type { EditorSash } from "../src/shared/sash-rules";
 
 function render(sash: Partial<EditorSash>): string {
   const full: EditorSash = { type: "classic", direction: "left", active: true, hardware: "maco", hardwareColor: "white", ...sash };
+  const panel = h(SashPanel, {
+    sash: full,
+    index: 0,
+    siblingTypes: [full.type],
+    itemHeightMm: 1400,
+    hardwareOptions: [["maco", "MACO"]],
+    hardwareColorOptions: [["white", "Bianco"]],
+    onPatch: () => {},
+    onClose: () => {},
+  });
   return renderToStaticMarkup(
-    h(
-      NextIntlClientProvider,
-      { locale: "it", messages: it as never, timeZone: "UTC" },
-      h(SashPanel, {
-        sash: full,
-        index: 0,
-        siblingTypes: [full.type],
-        itemHeightMm: 1400,
-        hardwareOptions: [["maco", "MACO"]],
-        hardwareColorOptions: [["white", "Bianco"]],
-        onPatch: () => {},
-        onClose: () => {},
-      }),
-    ),
+    h(NextIntlClientProvider, { locale: "it", messages: it as never, timeZone: "UTC", children: panel }),
   );
 }
 
