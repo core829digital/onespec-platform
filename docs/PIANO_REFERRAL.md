@@ -1,13 +1,20 @@
 # Piano del sistema referral di OneSpec
 
-Stato: **R1 implementata** (codici e collegamento alla registrazione, spenta di default); R2–R5 da fare. Piano da approvare nelle parti economiche. Data: 2026-10-02.
+Stato: **R1 e R2 implementate** (codici, collegamento, sconto, qualifica, premio, storno; spente di default); R3–R5 da fare. Piano da approvare nelle parti economiche. Data: 2026-10-02.
 
 ### Stato di implementazione
 
-- **R1 (fatta):** tabelle `referralCodes` e `referrals`, campo `tenants.referredBy`, codice `OS-XXXXXX`, collegamento in `registerTenant`, regole anti auto-invito (stessa persona, stessa azienda, email usa-e-getta, invitante non pagante), cattura di `?ref=` nel browser (30 giorni), 31 test nuovi.
-- **Interruttore:** tutto è **spento** finché non imposti `REFERRALS_ENABLED=1` nelle variabili Convex (`npx convex env set REFERRALS_ENABLED 1`). Spento: nessun codice si crea, ogni `?ref=` viene ignorato e la registrazione funziona come prima.
-- **Non ancora fatto:** sconto al Checkout, qualifica dal pagamento, premio dopo 30 giorni, stesso Stripe customer / stessa carta, interfaccia, email, sito, limite per IP (R2–R5).
-Obiettivo: far portare nuovi clienti dai clienti attuali, a costo basso e senza aprire falle (frodi, costi fuori controllo, problemi legali).
+- **R1 (fatta):** tabelle `referralCodes` e `referrals`, campo `tenants.referredBy`, codice `OS-XXXXXX`, collegamento in `registerTenant`, regole anti auto-invito (stessa persona, stessa azienda, email usa-e-getta, invitante non pagante), cattura di `?ref=` nel browser (30 giorni).
+- **R2 (fatta):**
+  - **Sconto all'invitato** al Checkout: coupon Stripe a importo fisso (tabella importi sotto), valido un mese di abbonamento, così copre anche la prima fattura a pagamento dopo la prova gratuita del Pro. Il coupon si crea da solo la prima volta (`onespec-ref-<centesimi>`). Per gli invitati il campo "codice promozionale" è nascosto (Stripe non permette entrambi). Qualsiasi problema = Checkout normale.
+  - **Qualifica** (controllo ogni 6 ore): primo pagamento reale > 0 dell'invitato, letto da Stripe; carta o cliente Stripe uguali a quelli dell'invitante = respinto. Parte l'attesa di 30 giorni.
+  - **Premio**: dopo 30 giorni, se l'invitato è ancora attivo, senza rimborsi né contestazioni, e l'invitante è ancora attivo e sotto il tetto (10 in 12 mesi), il credito va sul **saldo cliente Stripe** dell'invitante (negativo = credito). Un solo pagamento possibile: prenotazione atomica nel database, chiave di idempotenza Stripe e ricerca di un credito già emesso.
+  - **Storno**: rimborso o contestazione entro 60 giorni dal primo pagamento dopo il premio → stato `clawback`, credito riportato indietro solo se ancora intatto sul saldo, altrimenti avviso agli operatori per decisione manuale.
+  - **Scadenze:** invitante non più attivo / tetto raggiunto = si attende fino a 90 giorni dopo l'attesa, poi `expired`. Invitato disdetto = `expired` subito.
+  - Nessun nuovo evento Stripe da attivare: tutto si legge via API.
+- **Importi usati (da confermare):** nel solo file `convex/lib/referralRewards.ts`. Credito invitante / sconto invitato: Level 1 15/10 €, Level 2 20/12,50 €, Level 3 25/16 €, Base 30/19,40 €, Pro 60/39,40 €, Agency 100/79,40 €. Enterprise escluso.
+- **Interruttore:** tutto è **spento** finché non imposti `REFERRALS_ENABLED=1` nelle variabili Convex. Spento: nessun codice nuovo, nessuno sconto, nessuna nuova qualifica; i premi già maturati vengono comunque accreditati.
+- **Non ancora fatto:** interfaccia, email, sito, limite di registrazioni per IP (R3–R5).
 
 ---
 

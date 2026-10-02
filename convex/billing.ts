@@ -16,6 +16,7 @@ import {
 import { unlockOnPlanChange, unlockOnReactivation } from "./usage";
 import { regionForCountry } from "./lib/regions";
 import { createPostHogClient } from "./lib/posthog";
+import { ensureReferralCoupon } from "./lib/referralCoupon";
 
 const STRIPE_API = "https://api.stripe.com/v1";
 
@@ -340,6 +341,23 @@ export const createCheckoutSession = action({
       params["payment_method_collection"] = "always";
       params["subscription_data[metadata][trialPlan]"] = "pro";
       params["metadata[trialPlan]"] = "pro";
+    }
+
+    // Referral: an invited account that has not paid yet gets a one-off discount
+    // (convex/referrals.ts). Stripe does not allow a ready-made discount together with the
+    // promotion-code box, so the box is hidden for that checkout. Any problem here means a
+    // normal checkout, never a failed one.
+    try {
+      const referralDiscount = await ctx.runQuery(internal.referrals.checkoutDiscount, { tenantId: args.tenantId, plan: planKey });
+      if (referralDiscount) {
+        const couponId = await ensureReferralCoupon(referralDiscount.amountCents);
+        if (couponId) {
+          params["discounts[0][coupon]"] = couponId;
+          params["allow_promotion_codes"] = undefined;
+        }
+      }
+    } catch (e) {
+      console.warn("[referral] discount skipped", e instanceof Error ? e.message : String(e));
     }
 
     const session = await stripe("/checkout/sessions", params);

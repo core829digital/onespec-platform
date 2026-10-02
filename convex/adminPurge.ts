@@ -67,6 +67,7 @@ export const TENANT_TABLES = [
   "deliveries",
   "inventoryItems",
   "siteDeliveries",
+  "referralCodes",
 ] as const;
 
 /** Tables keyed by `userId` — wiped for every user being deleted. */

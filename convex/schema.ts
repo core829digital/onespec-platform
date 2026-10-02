@@ -135,10 +135,24 @@ export default defineSchema({
     ),
     rejectionReason: v.optional(v.string()),
     createdAt: v.number(),
+    /** First real payment (> 0) of the invited account; the 30-day hold starts here. */
+    qualifiedAt: v.optional(v.number()),
+    holdUntil: v.optional(v.number()),
+    firstInvoiceId: v.optional(v.string()),
+    firstInvoicePaidCents: v.optional(v.number()),
+    /** Credit for the inviter, fixed when the referral qualifies (cents). */
+    rewardCents: v.optional(v.number()),
+    /** Set atomically before the Stripe credit is attempted (prevents two runs paying twice). */
+    rewardClaimedAt: v.optional(v.number()),
+    rewardedAt: v.optional(v.number()),
+    stripeBalanceTxnId: v.optional(v.string()),
+    clawbackAt: v.optional(v.number()),
+    clawbackNote: v.optional(v.string()),
   })
     .index("by_referred", ["referredTenantId"])
     .index("by_referrer", ["referrerTenantId"])
-    .index("by_referrer_and_status", ["referrerTenantId", "status"]),
+    .index("by_referrer_and_status", ["referrerTenantId", "status"])
+    .index("by_status", ["status"]),
 
   /**
    * Anti-abuse: the card fingerprints that already started the one-time Pro

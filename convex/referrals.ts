@@ -1,8 +1,9 @@
-import { mutation, query, type MutationCtx } from "./_generated/server";
+import { internalQuery, mutation, query, type MutationCtx } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
 import type { Doc, Id } from "./_generated/dataModel";
 import { requireTenantRole } from "./lib/auth";
 import { generateReferralCode, normalizeReferralCode, referralPairProblem } from "./lib/referral";
+import { rewardFor } from "./lib/referralRewards";
 
 /**
  * Referral system, phase R1 (docs/PIANO_REFERRAL.md): personal codes and attaching a
@@ -74,6 +75,23 @@ export const getMyReferral = query({
       code: codeRow && !codeRow.disabledAt ? codeRow.code : null,
       counts: { pending: await count("pending"), qualified: await count("qualified"), rewarded: await count("rewarded") },
     };
+  },
+});
+
+/**
+ * The discount an invited account gets at checkout, or null. Only while its referral is
+ * still `pending` (it has not paid anything yet), only on plans with a defined reward.
+ */
+export const checkoutDiscount = internalQuery({
+  args: { tenantId: v.id("tenants"), plan: v.string() },
+  handler: async (ctx, args): Promise<{ amountCents: number } | null> => {
+    if (!referralsEnabled()) return null;
+    const tenant = await ctx.db.get(args.tenantId);
+    if (!tenant?.referredBy) return null;
+    const referral = await ctx.db.get(tenant.referredBy);
+    if (!referral || referral.status !== "pending") return null;
+    const reward = rewardFor(args.plan);
+    return reward ? { amountCents: reward.inviteeDiscountCents } : null;
   },
 });
 

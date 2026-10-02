@@ -56,4 +56,10 @@ crons.daily(
   internal.email.purgeOldEmailLogs,
 );
 
+// Referral money flow (docs/PIANO_REFERRAL.md). Each step reads Stripe and is a no-op
+// without it; qualification also stops when REFERRALS_ENABLED is off, payouts do not.
+crons.interval("referral-qualify", { hours: 6 }, internal.referralPayouts.qualifySweep, {});
+crons.interval("referral-reward", { hours: 6 }, internal.referralPayouts.rewardSweep, {});
+crons.interval("referral-clawback", { hours: 12 }, internal.referralPayouts.clawbackSweep, {});
+
 export default crons;
