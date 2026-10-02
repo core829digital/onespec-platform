@@ -2186,7 +2186,7 @@
     "mix_hingedVsSliding": "Ein Drehflügel kann nicht mit einem Schiebeflügel kombiniert werden.",
     "mix_hingedVsLiftslide": "Ein Drehflügel kann nicht mit einem Hebe-Schiebe-Flügel kombiniert werden.",
     "openingType": "Öffnungsart",
-    "direction": "Scharniere / Schiebeseite (Innenansicht)",
+    "direction": "Griff / Schiebeseite (Innenansicht)",
     "left": "L ◄",
     "right": "R ►",
     "operable": "Öffnungsflügel",

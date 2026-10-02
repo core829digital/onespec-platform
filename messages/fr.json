@@ -2186,7 +2186,7 @@
     "mix_hingedVsSliding": "Impossible de combiner un ouvrant battant avec un coulissant.",
     "mix_hingedVsLiftslide": "Impossible de combiner un ouvrant battant avec un levant-coulissant.",
     "openingType": "Type d'ouverture",
-    "direction": "Charnières / coulissement (vue intérieure)",
+    "direction": "Poignée / coulissement (vue intérieure)",
     "left": "G ◄",
     "right": "D ►",
     "operable": "Ouvrant",

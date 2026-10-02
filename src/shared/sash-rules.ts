@@ -14,6 +14,24 @@ export type SashKind =
   | "sliding"
   | "liftslide";
 
+type Side = "left" | "right";
+
+/**
+ * `direction` is stored as the HINGE side for hinged leaves and the SLIDING side for sliding
+ * ones (data, pricing and PDFs rely on that). The controls, however, show the side the
+ * customer sees on the drawing: the opening triangle's tip and the handle, which sit opposite
+ * the hinges; for sliding leaves that is the arrow, i.e. the stored side itself.
+ */
+export function shownSide(type: SashKind, direction: Side): Side {
+  if (type === "sliding" || type === "liftslide") return direction;
+  return direction === "left" ? "right" : "left";
+}
+
+/** Inverse of `shownSide`: the stored direction for the side picked in a control. */
+export function directionFromShownSide(type: SashKind, side: Side): Side {
+  return shownSide(type, side); // the mapping is its own inverse
+}
+
 export type SecurityClass = "standard" | "rc2" | "rc3";
 
 /** The sash shape the editor reads/writes. A superset of the widget `Sash`. */
