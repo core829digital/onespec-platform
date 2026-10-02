@@ -9,7 +9,7 @@ import { demoCopy, demoRegisterUrl } from "@/lib/demo/demo-copy";
 import { submitErrorMessage, wizardCopy } from "./simple-wizard-model";
 import { getTurnstileToken } from "@/lib/turnstile-client";import { catalogOptions, catalogPricing, type WidgetCatalog, type WidgetOptions } from "./widget-catalog";
 import { REGION_FLAT_OPTION_KINDS } from "@/shared/pricing";
-import { retypeSash, typeForAddedSash } from "@/shared/sash-rules";
+import { directionFromOpening, hasOpeningDirection, openingSide, retypeSash, typeForAddedSash } from "@/shared/sash-rules";
 import {
   defaultConfig,
   defaultSashPreset,
@@ -386,7 +386,7 @@ export function Widget({
       const sashDesc = it.sashes
         .map(
           (s, si) =>
-            `${si + 1}:${labelFromList(dict.sashTypes, s.type)}/${labelFromList(s.type === "sliding" ? dict.directionsSlide : dict.directions, s.direction).split(" (")[0]}${s.active ? "" : "(off)"}`,
+            `${si + 1}:${labelFromList(dict.sashTypes, s.type)}/${labelFromList(dict.directions, openingSide(s.type, s.direction)).split(" (")[0]}${s.active ? "" : "(off)"}`,
         )
         .join(", ");
       const screen = it.insectScreen
@@ -1186,7 +1186,7 @@ function SashFields({
   onChange: (patch: Partial<Sash>) => void;
   styles: typeof STYLES;
 }) {
-  const dirDisabled = disabled || sash.type === "fix" || (sash.type as string) === "tilt";
+  const dirDisabled = disabled || !hasOpeningDirection(sash.type);
   const hwDisabled = disabled || sash.type === "fix";
   return (
     <>
@@ -1201,8 +1201,8 @@ function SashFields({
           </select>
         </MiniField>
         <MiniField label={dict.directionLabel} id="sash-direction">
-          <select id="sash-direction" style={styles.select} value={sash.direction} disabled={dirDisabled} onChange={(e) => onChange({ direction: e.target.value as Direction })}>
-            {(sash.type === "sliding" ? dict.directionsSlide : dict.directions).map(([k, v]) => (
+          <select id="sash-direction" style={styles.select} value={openingSide(sash.type, sash.direction)} disabled={dirDisabled} onChange={(e) => onChange({ direction: directionFromOpening(sash.type, e.target.value as Direction) })}>
+            {dict.directions.map(([k, v]) => (
               <option key={k} value={k}>
                 {v}
               </option>

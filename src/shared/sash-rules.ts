@@ -135,13 +135,19 @@ export function sashTypeAllowedWith(
  * form cannot refuse the click with an alert, so the other moving leaves follow the new
  * family instead; fixed leaves never change.
  */
-export function retypeSash<T extends { type: SashKind }>(sashes: T[], index: number, next: SashKind): T[] {
+export function retypeSash<T extends { type: SashKind; direction?: Side }>(sashes: T[], index: number, next: SashKind): T[] {
   const others = sashes.filter((_, j) => j !== index).map((x) => x.type);
   const conflict = !sashTypeAllowedWith(others, next).ok;
+  // A changed leaf keeps the opening the customer picked ("Right" stays "Right"), whatever the family.
+  const change = (sash: T): T => ({
+    ...sash,
+    type: next,
+    ...(sash.direction ? { direction: directionOnRetype(sash.type, sash.direction, next) } : {}),
+  });
   return sashes.map((sash, j) => {
-    if (j === index) return { ...sash, type: next };
+    if (j === index) return change(sash);
     if (!conflict || sash.type === "fix") return sash;
-    return { ...sash, type: next };
+    return change(sash);
   });
 }
 
@@ -149,6 +155,35 @@ export function retypeSash<T extends { type: SashKind }>(sashes: T[], index: num
 export function typeForAddedSash(existing: SashKind[]): SashKind {
   const moving = existing.find((t) => t !== "fix");
   return moving === "sliding" || moving === "liftslide" ? moving : "tiltturn";
+}
+
+type Side = "left" | "right";
+
+/** Leaf types that have a left/right opening to pick. Tilt-only (vasistas) and fixed leaves have none. */
+export function hasOpeningDirection(type: string): boolean {
+  return type === "classic" || type === "tiltturn" || type === "sliding" || type === "liftslide";
+}
+
+/**
+ * The opening named in the UI and on paper: "Right" = the leaf opens FROM the right TO the left
+ * (it starts on the right side), "Left" = from left to right. Hinged leaves store the hinge side,
+ * which is the starting side already. Sliding leaves store the side the arrow points to, so their
+ * starting side is the opposite one. The stored value never changes (saved quotes keep drawing
+ * exactly as before); this is only how it is named and picked.
+ */
+export function openingSide(type: string, direction: Side): Side {
+  if (type === "sliding" || type === "liftslide") return direction === "left" ? "right" : "left";
+  return direction;
+}
+
+/** Inverse of `openingSide` (the mapping is its own inverse): stored direction for a picked opening. */
+export function directionFromOpening(type: string, side: Side): Side {
+  return openingSide(type, side);
+}
+
+/** Stored direction after a type change that keeps the picked opening (e.g. classic "Right" -> sliding "Right"). */
+export function directionOnRetype(prevType: string, prevDirection: Side, nextType: string): Side {
+  return directionFromOpening(nextType, openingSide(prevType, prevDirection));
 }
 
 export interface SashViolation {

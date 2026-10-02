@@ -5,6 +5,7 @@ import type { CatalogPayload, ProjectItem } from "../src/shared/pricing";
 import { buildBackup, parseBackup } from "../src/lib/quote-export/backup";
 import { buildHtml, buildMailto, buildTxt, buildWhatsApp, whatsAppDigits, whatsAppUrl } from "../src/lib/quote-export/generators";
 import { buildExportModel } from "../src/lib/quote-export/model";
+import { dictFor, openingLabel } from "../src/lib/quote-export/dictionary";
 
 const payload = {
   configurator: { vatRatePercent: 10, priceRoundingStep: 1, currency: "EUR" },
@@ -51,7 +52,7 @@ describe("export model", () => {
     expect(p.frame).toBe("Ristrutturazione 40mm");
     expect(p.accessories).toEqual(["Zanzariera Plisettata"]);
     expect(p.leaves).toHaveLength(2);
-    expect(p.leaves[1]).toMatchObject({ hinge: "DX", type: "Anta-ribalta", main: true, handleMm: 700, widthMm: 600 });
+    expect(p.leaves[1]).toMatchObject({ opening: "Apertura destra", type: "Anta-ribalta", main: true, handleMm: 700, widthMm: 600 });
     expect(m.overallUw).toBeGreaterThan(0.5);
     expect(p.totalCents).toBeGreaterThan(0);
   });
@@ -62,13 +63,35 @@ describe("export model", () => {
   });
 });
 
+describe("opening text", () => {
+  const d = dictFor("it");
+  test("hinged leaves keep the stored side, sliding leaves are named by where they start", () => {
+    expect(openingLabel(d, "classic", "right")).toBe("Apertura destra");
+    expect(openingLabel(d, "tiltturn", "left")).toBe("Apertura sinistra");
+    // stored direction of a sliding leaf = side the arrow points to; "Apertura destra" starts on the right
+    expect(openingLabel(d, "sliding", "left")).toBe("Apertura destra");
+    expect(openingLabel(d, "liftslide", "right")).toBe("Apertura sinistra");
+  });
+  test("fixed and vasistas leaves have no opening", () => {
+    expect(openingLabel(d, "fix", "left")).toBe("");
+    expect(openingLabel(d, "tilt", "right")).toBe("");
+  });
+  test("every language names the opening", () => {
+    for (const l of ["it", "en", "fr", "de", "nl", "ro"]) {
+      const x = dictFor(l);
+      expect(openingLabel(x, "classic", "left")).not.toBe("");
+      expect(x.openingLeft).not.toBe(x.openingRight);
+    }
+  });
+});
+
 describe("text exports", () => {
   test("TXT carries offer number, pieces, leaves, accessories, notes, totals and the incentive", () => {
     const txt = buildTxt(model());
     expect(txt).toContain("Q-2026-0007");
     expect(txt).toContain("Mario Rossi");
     expect(txt).toContain("1. Finestra 2 ante 1200x1400 mm × 1 — Rehau Synego");
-    expect(txt).toContain("Anta 2: DX Anta-ribalta (principale) · 600 mm · maniglia 700 mm");
+    expect(txt).toContain("Anta 2: Anta-ribalta · Apertura destra (principale) · 600 mm · maniglia 700 mm");
     expect(txt).toContain("Accessori: Zanzariera Plisettata");
     expect(txt).toContain("Osservazioni: senza zanzariera");
     expect(txt).toContain("COEFFICIENTE TERMICO GENERALE");

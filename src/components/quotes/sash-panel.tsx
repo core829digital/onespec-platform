@@ -5,6 +5,10 @@ import {
   SASH_KINDS,
   SECURITY_CLASSES,
   sashTypeAllowedWith,
+  openingSide,
+  directionFromOpening,
+  directionOnRetype,
+  hasOpeningDirection,
   isOperable,
   type EditorSash,
   type SashKind,
@@ -41,8 +45,8 @@ export function SashPanel({
   const handle = sash.handleHeightMm ?? Math.round(itemHeightMm / 2);
   const operable = isOperable(sash.type);
   // A tilt-only (vasistas) or fixed leaf has a single way of moving: no direction to pick.
-  const sliding = sash.type === "sliding" || sash.type === "liftslide";
-  const hasDirection = sash.active && sash.type !== "fix" && sash.type !== "tilt";
+  const hasDirection = sash.active && hasOpeningDirection(sash.type);
+  const picked = openingSide(sash.type, sash.direction);
 
   return (
     <div className="rounded-lg border border-[var(--color-mint)]/40 bg-[var(--color-mint)]/5 p-3 space-y-3">
@@ -73,7 +77,7 @@ export function SashPanel({
                 alert(check.mix ? t(`mix_${check.mix}`) : check.reason);
                 return;
               }
-              onPatch({ type: next });
+              onPatch({ type: next, direction: directionOnRetype(sash.type, sash.direction, next) });
             }}
           >
             {SASH_KINDS.map((k) => (
@@ -91,20 +95,20 @@ export function SashPanel({
                 <button
                   key={d}
                   type="button"
-                  aria-pressed={sash.direction === d}
-                  title={t(sliding ? "slideHint" : "directionHint")}
-                  onClick={() => onPatch({ direction: d })}
+                  aria-pressed={picked === d}
+                  title={t("directionHint")}
+                  onClick={() => onPatch({ direction: directionFromOpening(sash.type, d) })}
                   className={`flex-1 rounded-lg border px-2 py-2 text-xs font-bold transition-colors ${
-                    sash.direction === d
+                    picked === d
                       ? "border-[var(--color-mint)] bg-[var(--color-mint)] text-[var(--color-mint-dark)]"
                       : "border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-secondary)] hover:border-[var(--color-mint)] hover:text-[var(--color-text)]"
                   }`}
                 >
-                  {sliding ? (d === "left" ? t("slideLeft") : t("slideRight")) : d === "left" ? t("left") : t("right")}
+                  {d === "left" ? t("left") : t("right")}
                 </button>
               ))}
             </div>
-            <p className="mt-1 text-[11px] leading-snug text-[var(--color-text-secondary)]">{t(sliding ? "slideHint" : "directionHint")}</p>
+            <p className="mt-1 text-[11px] leading-snug text-[var(--color-text-secondary)]">{t("directionHint")}</p>
           </div>
         ) : sash.type === "tilt" && sash.active ? (
           <p className="self-end pb-2 text-[11px] leading-snug text-[var(--color-text-secondary)]">{t("tiltNote")}</p>

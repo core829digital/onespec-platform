@@ -11,7 +11,7 @@ const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replac
 function leafLine(m: ExportModel, piece: ExportPiece): string[] {
   const d = dictFor(m.locale);
   return piece.leaves.map((l) => {
-    const parts = [`${d.leaf} ${l.n}: ${l.hinge} ${l.type}${l.main ? ` (${d.principal})` : ""}`, `${l.widthMm} mm`];
+    const parts = [`${d.leaf} ${l.n}: ${l.type}${l.opening ? ` · ${l.opening}` : ""}${l.main ? ` (${d.principal})` : ""}`, `${l.widthMm} mm`];
     if (l.handleMm !== null) parts.push(`${d.handle} ${l.handleMm} mm`);
     return parts.join(" · ");
   });

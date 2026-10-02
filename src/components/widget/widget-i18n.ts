@@ -30,8 +30,6 @@ export interface WidgetDict {
   sashTypes: Pair[];
   directionLabel: string;
   directions: Pair[];
-  /** Same sides for sliding leaves, where the side is the direction of travel. */
-  directionsSlide: Pair[];
   hardwareLabel: string;
   hardwareBrands: Pair[];
   hardwareColorLabel: string;
@@ -133,7 +131,6 @@ const en: WidgetDict = {
   sashTypes: [["fix", "Fixed"], ["classic", "Classic (casement)"], ["tiltturn", "Tilt & turn"], ["sliding", "Sliding"]],
   directionLabel: "Opening",
   directions: [["left", "Left (left to right)"], ["right", "Right (right to left)"]],
-  directionsSlide: [["left", "Slides left"], ["right", "Slides right"]],
   hardwareLabel: "Hardware (handles & hinges)",
   hardwareBrands: [["maco", "MACO"], ["roto", "ROTO"], ["siegenia", "Siegenia"]],
   hardwareColorLabel: "Hardware colour",
@@ -251,7 +248,6 @@ const it: WidgetDict = {
   sashTypes: [["fix", "Fissa"], ["classic", "Classica (a battente)"], ["tiltturn", "Anta-ribalta"], ["sliding", "Scorrevole"]],
   directionLabel: "Apertura",
   directions: [["left", "Sinistra (da sx a dx)"], ["right", "Destra (da dx a sx)"]],
-  directionsSlide: [["left", "Scorre a sinistra"], ["right", "Scorre a destra"]],
   hardwareLabel: "Ferramenta (maniglie e cerniere)",
   hardwareColorLabel: "Colore ferramenta",
   hardwareColors: [["white", "Bianco"], ["silver", "Argento"], ["bronze", "Bronzo"]],
@@ -365,7 +361,6 @@ const fr: WidgetDict = {
   sashTypes: [["fix", "Fixe"], ["classic", "Classique (à la française)"], ["tiltturn", "Oscillo-battant"], ["sliding", "Coulissant"]],
   directionLabel: "Ouverture",
   directions: [["left", "Gauche (de gauche à droite)"], ["right", "Droite (de droite à gauche)"]],
-  directionsSlide: [["left", "Coulisse à gauche"], ["right", "Coulisse à droite"]],
   hardwareLabel: "Quincaillerie (poignées et charnières)",
   hardwareColorLabel: "Couleur de la quincaillerie",
   hardwareColors: [["white", "Blanc"], ["silver", "Argenté"], ["bronze", "Bronze"]],
@@ -479,7 +474,6 @@ const de: WidgetDict = {
   sashTypes: [["fix", "Feststehend"], ["classic", "Drehflügel"], ["tiltturn", "Dreh-Kipp"], ["sliding", "Schiebeflügel"]],
   directionLabel: "Öffnung",
   directions: [["left", "Links (von links nach rechts)"], ["right", "Rechts (von rechts nach links)"]],
-  directionsSlide: [["left", "Schiebt nach links"], ["right", "Schiebt nach rechts"]],
   hardwareLabel: "Beschlag (Griffe & Scharniere)",
   hardwareColorLabel: "Beschlagfarbe",
   hardwareColors: [["white", "Weiß"], ["silver", "Silber"], ["bronze", "Bronze"]],
@@ -593,7 +587,6 @@ const nl: WidgetDict = {
   sashTypes: [["fix", "Vast"], ["classic", "Klassiek (draai)"], ["tiltturn", "Draai-kiep"], ["sliding", "Schuif"]],
   directionLabel: "Opening",
   directions: [["left", "Links (van links naar rechts)"], ["right", "Rechts (van rechts naar links)"]],
-  directionsSlide: [["left", "Schuift naar links"], ["right", "Schuift naar rechts"]],
   hardwareLabel: "Beslag (grepen & scharnieren)",
   hardwareColorLabel: "Beschlagkleur",
   hardwareColors: [["white", "Wit"], ["silver", "Zilver"], ["bronze", "Bruin"]],

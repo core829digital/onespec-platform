@@ -44,9 +44,11 @@ describe("sash panel: opening direction", () => {
     expect(render({ type: "fix" })).not.toContain("Apertura (vista interna)");
   });
 
-  test("sliding: the side is the direction of travel", () => {
+  test("sliding uses the same words: Right = from right to left", () => {
+    // stored direction "left" = the arrow points left = the leaf starts on the right
     const html = render({ type: "sliding", direction: "left" });
-    expect(html).toContain("scorre verso sinistra");
-    expect(html).not.toContain("da sinistra a destra");
+    expect(html).toContain("da destra a sinistra");
+    expect(html).toContain("da sinistra a destra");
+    expect(html).not.toContain("scorre verso");
   });
 });

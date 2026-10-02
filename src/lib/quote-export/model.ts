@@ -3,7 +3,7 @@ import { calculatePrice, computeItemThermal, computeOverallUw, type CatalogPaylo
 import { normalizedRatios, type EditorSash } from "@/shared/sash-rules";
 import { buildScene } from "@/lib/drawing/build-scene";
 import { sceneToSvg } from "@/lib/drawing/to-svg";
-import { dictFor } from "./dictionary";
+import { dictFor, openingLabel } from "./dictionary";
 
 interface Labelled {
   key: string;
@@ -15,7 +15,8 @@ const lab = (row: Labelled | undefined, locale: string, fallback = "") =>
 
 export interface ExportLeaf {
   n: number;
-  hinge: string;
+  /** "Apertura destra" etc.; empty for fixed and tilt-only leaves. */
+  opening: string;
   type: string;
   main: boolean;
   handleMm: number | null;
@@ -83,7 +84,7 @@ export function buildExportModel(input: ExportInput): ExportModel {
     const ratios = normalizedRatios(item.sashes as unknown as EditorSash[]);
     const leaves = item.sashes.map((s, i): ExportLeaf => ({
       n: i + 1,
-      hinge: s.direction === "left" ? dict.hingeLeft : dict.hingeRight,
+      opening: openingLabel(dict, s.type, s.direction),
       type: dict.sashTypes[s.type] ?? s.type,
       main: s.main === true,
       handleMm: s.type === "fix" ? null : s.handleHeightMm ?? Math.round(item.height / 2),

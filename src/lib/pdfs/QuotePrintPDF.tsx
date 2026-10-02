@@ -4,7 +4,7 @@ import type { ProjectItem } from "@/shared/pricing";
 import { WindowDrawingPdf } from "@/lib/drawing";
 import { CATEGORY_DEFS } from "@/shared/configurator-model";
 import { computeItemThermal, type CatalogPayload } from "@/shared/pricing";
-import { dictFor } from "@/lib/quote-export/dictionary";
+import { dictFor, openingLabel } from "@/lib/quote-export/dictionary";
 import { CompanyLogo } from "./CompanyLogo";
 
 // Item-table column widths (header and rows share them so they stay aligned).
@@ -493,7 +493,7 @@ export function QuotePrintPDF({
               const key = item.accessories?.[c];
               return key && key !== "none" ? [lab(catalog?.accessories?.find((a) => a.category === c && a.key === key), key)] : [];
             });
-            const leafLines = (item.sashes ?? []).map((sh, i) => `${dict.leaf} ${i + 1}: ${sh.direction === "left" ? dict.hingeLeft : dict.hingeRight} ${dict.sashTypes[sh.type] ?? sh.type}${sh.main ? ` (${dict.principal})` : ""}${sh.type !== "fix" ? ` · ${dict.handle} ${sh.handleHeightMm ?? Math.round(item.height / 2)} mm` : ""}`);
+            const leafLines = (item.sashes ?? []).map((sh, i) => `${dict.leaf} ${i + 1}: ${dict.sashTypes[sh.type] ?? sh.type}${openingLabel(dict, sh.type, sh.direction) ? ` · ${openingLabel(dict, sh.type, sh.direction)}` : ""}${sh.main ? ` (${dict.principal})` : ""}${sh.type !== "fix" ? ` · ${dict.handle} ${sh.handleHeightMm ?? Math.round(item.height / 2)} mm` : ""}`);
             const matText = MATERIAL_LABELS[item.material]?.[langKey] ?? MATERIAL_LABELS[item.material]?.it ?? item.material;
             const glazingInfo = GLAZING_LABELS[item.glazing] ?? { label: { it: item.glazing }, ug: 1.1 };
             const glazingText = glazingInfo.label[langKey] ?? glazingInfo.label.it;
