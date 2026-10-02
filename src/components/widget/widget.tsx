@@ -378,7 +378,7 @@ export function Widget({
       const sashDesc = it.sashes
         .map(
           (s, si) =>
-            `${si + 1}:${labelFromList(dict.sashTypes, s.type)}/${labelFromList(dict.directions, s.direction)}${s.active ? "" : "(off)"}`,
+            `${si + 1}:${labelFromList(dict.sashTypes, s.type)}/${labelFromList(s.type === "sliding" ? dict.directionsSlide : dict.directions, s.direction).split(" (")[0]}${s.active ? "" : "(off)"}`,
         )
         .join(", ");
       const screen = it.insectScreen
@@ -1173,7 +1173,7 @@ function SashFields({
   onChange: (patch: Partial<Sash>) => void;
   styles: typeof STYLES;
 }) {
-  const dirDisabled = disabled || sash.type === "fix";
+  const dirDisabled = disabled || sash.type === "fix" || (sash.type as string) === "tilt";
   const hwDisabled = disabled || sash.type === "fix";
   return (
     <>
@@ -1189,7 +1189,7 @@ function SashFields({
         </MiniField>
         <MiniField label={dict.directionLabel} id="sash-direction">
           <select id="sash-direction" style={styles.select} value={sash.direction} disabled={dirDisabled} onChange={(e) => onChange({ direction: e.target.value as Direction })}>
-            {dict.directions.map(([k, v]) => (
+            {(sash.type === "sliding" ? dict.directionsSlide : dict.directions).map(([k, v]) => (
               <option key={k} value={k}>
                 {v}
               </option>

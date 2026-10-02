@@ -40,6 +40,9 @@ export function SashPanel({
   const { min: handleMin, max: handleMax } = handleRange(itemHeightMm);
   const handle = sash.handleHeightMm ?? Math.round(itemHeightMm / 2);
   const operable = isOperable(sash.type);
+  // A tilt-only (vasistas) or fixed leaf has a single way of moving: no direction to pick.
+  const sliding = sash.type === "sliding" || sash.type === "liftslide";
+  const hasDirection = sash.active && sash.type !== "fix" && sash.type !== "tilt";
 
   return (
     <div className="rounded-lg border border-[var(--color-mint)]/40 bg-[var(--color-mint)]/5 p-3 space-y-3">
@@ -79,25 +82,32 @@ export function SashPanel({
             ))}
           </select>
         </div>
-        <div>
-          <label className={lbl}>{t("direction")}</label>
-          <div className="flex gap-1">
-            {(["left", "right"] as const).map((d) => (
-              <button
-                key={d}
-                type="button"
-                onClick={() => onPatch({ direction: d })}
-                className={`flex-1 rounded-lg border px-2 py-2 text-xs font-bold transition-colors ${
-                  sash.direction === d
-                    ? "border-[var(--color-mint)] bg-[var(--color-mint)] text-[var(--color-mint-dark)]"
-                    : "border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-secondary)] hover:border-[var(--color-mint)] hover:text-[var(--color-text)]"
-                }`}
-              >
-                {d === "left" ? t("left") : t("right")}
-              </button>
-            ))}
+        {hasDirection ? (
+          <div>
+            <label className={lbl}>{t("direction")}</label>
+            <div className="flex gap-1">
+              {(["left", "right"] as const).map((d) => (
+                <button
+                  key={d}
+                  type="button"
+                  aria-pressed={sash.direction === d}
+                  title={t(sliding ? "slideHint" : "directionHint")}
+                  onClick={() => onPatch({ direction: d })}
+                  className={`flex-1 rounded-lg border px-2 py-2 text-xs font-bold transition-colors ${
+                    sash.direction === d
+                      ? "border-[var(--color-mint)] bg-[var(--color-mint)] text-[var(--color-mint-dark)]"
+                      : "border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-secondary)] hover:border-[var(--color-mint)] hover:text-[var(--color-text)]"
+                  }`}
+                >
+                  {sliding ? (d === "left" ? t("slideLeft") : t("slideRight")) : d === "left" ? t("left") : t("right")}
+                </button>
+              ))}
+            </div>
+            <p className="mt-1 text-[11px] leading-snug text-[var(--color-text-secondary)]">{t(sliding ? "slideHint" : "directionHint")}</p>
           </div>
-        </div>
+        ) : sash.type === "tilt" && sash.active ? (
+          <p className="self-end pb-2 text-[11px] leading-snug text-[var(--color-text-secondary)]">{t("tiltNote")}</p>
+        ) : null}
       </div>
 
       <label className="flex items-center gap-2 text-xs text-[var(--color-text)]">

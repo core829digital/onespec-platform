@@ -159,11 +159,11 @@ export function SpecDrawing({
         <rect key={`hd-${i}`} x={hx0} y={hy0 - 9} width={4.5} height={18} rx={2} fill={colors.stroke} opacity={0.95} pointerEvents="none" />,
       );
       if (sash.type === "tiltturn") {
+        // Tilt triangle, same as the platform drawings: base on the bottom corners, tip at the top centre.
         const cx = sx + sashW / 2;
-        const by = rectY + rectH - 10;
         nodes.push(
-          <line key={`tt1-${i}`} x1={cx - 9} y1={by} x2={cx} y2={by - 10} stroke={colors.stroke} strokeWidth={2.2} />,
-          <line key={`tt2-${i}`} x1={cx + 9} y1={by} x2={cx} y2={by - 10} stroke={colors.stroke} strokeWidth={2.2} />,
+          <line key={`tt1-${i}`} x1={sx + 6} y1={rectY + rectH - 6} x2={cx} y2={rectY + 6} stroke={colors.stroke} strokeWidth={2} opacity={0.85} />,
+          <line key={`tt2-${i}`} x1={sx2 - 6} y1={rectY + rectH - 6} x2={cx} y2={rectY + 6} stroke={colors.stroke} strokeWidth={2} opacity={0.85} />,
         );
       }
     } else if (sash.type === "sliding") {
