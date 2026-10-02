@@ -771,7 +771,7 @@ const [editingClient, setEditingClient] = useState<
           className="fixed left-1/2 top-4 z-[100] flex max-w-[90vw] -translate-x-1/2 items-start gap-3 rounded-lg border border-[var(--color-danger)] bg-[var(--color-bg)] px-4 py-3 text-sm text-[var(--color-danger)] shadow-lg"
         >
           <span>{actionError}</span>
-          <button type="button" onClick={() => setActionError("")} aria-label="Close" className="font-bold leading-none">
+          <button type="button" onClick={() => setActionError("")} aria-label={t("closeAria")} className="font-bold leading-none">
             ×
           </button>
         </div>
@@ -834,7 +834,7 @@ const [editingClient, setEditingClient] = useState<
           } />
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm" aria-label="Elenco clienti">
+            <table className="w-full text-sm" aria-label={t("listAria")}>
               <thead className="bg-[var(--color-bg-alt)] text-xs text-[var(--color-text-secondary)] uppercase tracking-wider">
                 <tr>
                   <th className="px-4 py-3 text-left">{t("client")}</th>

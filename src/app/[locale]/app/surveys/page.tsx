@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link, useRouter } from "@/i18n/navigation";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import type { Id } from "@/convex/_generated/dataModel";
 import { LaserMeasure } from "@/components/surveys/LaserMeasure";
 import { useFriendlyError } from "@/lib/use-friendly-error";
@@ -36,7 +36,7 @@ type LaserOpening = {
 type SurveyPhoto = { storageId: Id<"_storage">; uploadedAt: number; url?: string; label?: string };
 
 const EMPTY_OPENING: LaserOpening = {
-  label: "Foro 1",
+  label: "",
   widthMm: 0,
   heightMm: 0,
   room: "",
@@ -91,6 +91,7 @@ export default function SurveysPage() {
   const router = useRouter();
   const td = useTranslations("surveyDoc");
   const tc = useTranslations("fieldCommon");
+  const locale = useLocale();
   const tenant = useQuery(api.tenants.getMyTenant);
   const surveys = useQuery(api.surveys.list, tenant ? { tenantId: tenant._id } : "skip");
   const createSurvey = useMutation(api.surveys.create);
@@ -159,7 +160,7 @@ export default function SurveysPage() {
       customerCity: customerCity.trim() || undefined,
       customerPostalCode: customerPostalCode.trim() || undefined,
       openings: openings.map((o) => ({
-        label: o.label.trim() || "Foro",
+        label: o.label.trim() || `${td("colLabel")} ${openings.indexOf(o) + 1}`,
         widthMm: Math.round(o.widthMm),
         heightMm: Math.round(o.heightMm),
         room: o.room.trim() || undefined,
@@ -190,6 +191,7 @@ export default function SurveysPage() {
     diag,
     recommendation,
     photos,
+    td,
   ]);
 
   const runSync = useCallback(() => {
@@ -323,7 +325,7 @@ export default function SurveysPage() {
         <div>
           <h1 className="text-xl font-semibold">{td("pageTitle")}</h1>
           <p className="text-sm text-[var(--color-muted-fg)]">
-            Misure laser Bluetooth, foto e checklist diagnostica. Funziona offline.
+            {td("subtitle")}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -332,7 +334,7 @@ export default function SurveysPage() {
             onClick={() => setOpen((v) => !v)}
             className="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-[var(--color-accent-ink)]"
           >
-            {open ? "Chiudi" : "+ Nuovo rilievo"}
+            {open ? td("close") : td("newSurvey")}
           </button>
         </div>
       </div>
@@ -347,8 +349,7 @@ export default function SurveysPage() {
               currentH={openings[activeIdx]?.heightMm ?? 0}
             />
             <div className="rounded-lg bg-[var(--color-muted)] p-3 text-xs text-[var(--color-muted-fg)]">
-              Foro attivo: <b>{openings[activeIdx]?.label}</b> — la lettura del laser compila L/H di
-              questo foro.
+              {td("activeOpening", { label: openings[activeIdx]?.label || `${td("colLabel")} ${activeIdx + 1}` })}
             </div>
           </div>
 
@@ -361,7 +362,7 @@ export default function SurveysPage() {
             />
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <label className="text-sm">
-                <span className="text-[var(--color-muted-fg)]">Cliente *</span>
+                <span className="text-[var(--color-muted-fg)]">{td("customer")} *</span>
                 <input
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
@@ -369,7 +370,7 @@ export default function SurveysPage() {
                 />
               </label>
               <label className="text-sm">
-                <span className="text-[var(--color-muted-fg)]">Indirizzo</span>
+                <span className="text-[var(--color-muted-fg)]">{td("address")}</span>
                 <input
                   value={customerAddress}
                   onChange={(e) => setCustomerAddress(e.target.value)}
@@ -377,7 +378,7 @@ export default function SurveysPage() {
                 />
               </label>
               <label className="text-sm">
-                <span className="text-[var(--color-muted-fg)]">Comune</span>
+                <span className="text-[var(--color-muted-fg)]">{td("city")}</span>
                 <input
                   value={customerCity}
                   onChange={(e) => setCustomerCity(e.target.value)}
@@ -414,7 +415,7 @@ export default function SurveysPage() {
                   <input
                     value={o.label}
                     onChange={(e) => patchOpening(i, { label: e.target.value })}
-                    placeholder="Etichetta"
+                    placeholder={td("labelPh")}
                     className="rounded border border-[var(--color-border)] bg-transparent px-2 py-1.5 text-sm"
                   />
                   <input
@@ -436,13 +437,13 @@ export default function SurveysPage() {
                   <input
                     value={o.room}
                     onChange={(e) => patchOpening(i, { room: e.target.value })}
-                    placeholder="Locale"
+                    placeholder={td("colRoom")}
                     className="rounded border border-[var(--color-border)] bg-transparent px-2 py-1.5 text-sm"
                   />
                   <input
                     value={o.notes}
                     onChange={(e) => patchOpening(i, { notes: e.target.value })}
-                    placeholder="Note (rulou, glaf, precadru…)"
+                    placeholder={td("notesPh")}
                     className="rounded border border-[var(--color-border)] bg-transparent px-2 py-1.5 text-sm"
                   />
                   <button
@@ -462,12 +463,12 @@ export default function SurveysPage() {
                 onClick={() =>
                   setOpenings((prev) => [
                     ...prev,
-                    { ...EMPTY_OPENING, label: `Foro ${prev.length + 1}` },
+                    { ...EMPTY_OPENING },
                   ])
                 }
                 className="rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-sm"
               >
-                + Aggiungi foro
+                {td("addOpening")}
               </button>
             </div>
 
@@ -581,7 +582,7 @@ export default function SurveysPage() {
                 disabled={saving || uploading}
                 className="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-[var(--color-accent-ink)] disabled:opacity-50"
               >
-                {saving ? "Salvataggio…" : navigator.onLine ? "Salva rilievo" : "Salva offline"}
+                {saving ? td("saving") : navigator.onLine ? td("saveSurvey") : td("saveOffline")}
               </button>
             </div>
           </div>
@@ -589,17 +590,17 @@ export default function SurveysPage() {
       )}
 
       <div className="w-full overflow-hidden rounded-xl border border-[var(--color-border)]">
-        <table className="w-full text-sm" aria-label="Elenco rilievi">
+        <table className="w-full text-sm" aria-label={td("listAria")}>
           <thead className="bg-[var(--color-muted)] text-xs text-[var(--color-muted-fg)]">
             <tr>
-              <th className="px-4 py-2 text-left">Cliente</th>
-              <th className="px-4 py-2 text-left">Comune</th>
-              <th className="px-4 py-2 text-center">Fori</th>
-              <th className="px-4 py-2 text-center">Foto</th>
-              <th className="px-4 py-2 text-center">Stato</th>
-              <th className="px-4 py-2 text-right">Data</th>
-              <th className="px-4 py-2 text-center">Mappe</th>
-              <th className="px-4 py-2 text-center">Azioni</th>
+              <th className="px-4 py-2 text-left">{td("customer")}</th>
+              <th className="px-4 py-2 text-left">{td("city")}</th>
+              <th className="px-4 py-2 text-center">{td("openingsShort")}</th>
+              <th className="px-4 py-2 text-center">{td("photos")}</th>
+              <th className="px-4 py-2 text-center">{td("status")}</th>
+              <th className="px-4 py-2 text-right">{td("date")}</th>
+              <th className="px-4 py-2 text-center">{td("maps")}</th>
+              <th className="px-4 py-2 text-center">{td("actions")}</th>
             </tr>
           </thead>
           <tbody>
@@ -619,7 +620,7 @@ export default function SurveysPage() {
                   </span>
                 </td>
                 <td className="px-4 py-3 text-right text-[var(--color-muted-fg)]">
-                  {new Date(s.createdAt).toLocaleDateString("it-IT")}
+                  {new Date(s.createdAt).toLocaleDateString(locale)}
                 </td>
                 <td className="px-4 py-3 text-center">
                   {(s.customerAddress || s.customerCity || s.customerPostalCode) && (

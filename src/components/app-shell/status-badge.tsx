@@ -1,3 +1,6 @@
+"use client";
+
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 type Tone = "neutral" | "info" | "warn" | "good" | "bad";
@@ -38,6 +41,10 @@ export function StatusBadge({
 }) {
   const map = kind === "configurator" ? CONFIGURATOR_STATUS : QUOTE_STATUS;
   const entry = map[status] ?? { tone: "neutral" as Tone, label: status };
+  const t = useTranslations();
+  // Translated label when the catalogue has one; the Italian text above is only the last resort.
+  const key = kind === "configurator" ? `configurators.status${status.charAt(0).toUpperCase()}${status.slice(1)}` : `notifications.status.${status}`;
+  const translated = t.has(key as never) ? t(key as never) : undefined;
   return (
     <span
       className={cn(
@@ -45,7 +52,7 @@ export function StatusBadge({
         TONE[entry.tone],
       )}
     >
-      {label ?? entry.label}
+      {label ?? translated ?? entry.label}
     </span>
   );
 }

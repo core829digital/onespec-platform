@@ -23,14 +23,14 @@ const PeakHoursChart = lazy(() => import("@/components/analytics/charts").then((
 const TrendChart = lazy(() => import("@/components/analytics/charts").then((m) => ({ default: m.TrendChart })));
 const StatsGrid = lazy(() => import("@/components/analytics/PieChart").then((m) => ({ default: m.StatsGrid })));
 
-const eur = (c: number) => `€${(c / 100).toLocaleString("it-IT", { maximumFractionDigits: 0 })}`;
+const makeEur = (locale: string) => (c: number) => `€${(c / 100).toLocaleString(locale, { maximumFractionDigits: 0 })}`;
 const pct = (n: number) => `${(n * 100).toFixed(1)}%`;
 
-const FUNNEL_LABEL: Record<string, string> = {
-  new: "Nuove",
-  contacted: "Contattate",
-  quoted: "Preventivo inviato",
-  won: "Vinte",
+const FUNNEL_LABEL_KEY: Record<string, "statusNew" | "statusContacted" | "statusQuoted" | "statusWon"> = {
+  new: "statusNew",
+  contacted: "statusContacted",
+  quoted: "statusQuoted",
+  won: "statusWon",
 };
 
 const FUNNEL_COLORS = {
@@ -109,8 +109,11 @@ const StatsSkeleton = () => (
 
 export default function AnalyticsPage() {
   const t = useTranslations("analytics");
+  const tReq = useTranslations("requests");
+  const funnelLabel = (key: string) => (FUNNEL_LABEL_KEY[key] ? tReq(FUNNEL_LABEL_KEY[key]) : key);
   const tenant = useQuery(api.tenants.getMyTenant);
   const locale = useLocale();
+  const eur = makeEur(locale);
   const [range, setRange] = useState<AnalyticsRange>("1m");
   // The server runs in UTC; send the viewer's offset so hours/days/labels are local.
   const [tzOffsetMinutes] = useState(() => new Date().getTimezoneOffset());
@@ -177,13 +180,13 @@ export default function AnalyticsPage() {
   ] : [];
 
   const funnelData = overview ? overview.funnel.map((f: { key: string; count: number }) => ({
-    label: FUNNEL_LABEL[f.key] || f.key,
+    label: funnelLabel(f.key),
     value: f.count,
     color: FUNNEL_COLORS[f.key as keyof typeof FUNNEL_COLORS] || CHART_COLORS[0],
   })) : [];
 
   const pieData = overview ? overview.funnel.map((f: { key: string; count: number }, i: number) => ({
-    label: FUNNEL_LABEL[f.key] || f.key,
+    label: funnelLabel(f.key),
     value: f.count,
     color: CHART_COLORS[i % CHART_COLORS.length],
   })) : [];

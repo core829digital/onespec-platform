@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
+import { useTranslations } from "next-intl";
 
 interface SkeletonProps {
   className?: string;
@@ -8,8 +9,9 @@ interface SkeletonProps {
 }
 
 export function SkeletonContainer({ className = "", children }: SkeletonProps) {
+  const t = useTranslations("common");
   return (
-    <div className={`w-full space-y-6 animate-pulse ${className}`} aria-busy="true" aria-label="Caricamento">
+    <div className={`w-full space-y-6 animate-pulse ${className}`} aria-busy="true" aria-label={t("loadingAria")}>
       {children}
     </div>
   );

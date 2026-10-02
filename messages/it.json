@@ -126,7 +126,9 @@
     "trendPeak": "Picco",
     "noRequestsPeriod": "Nessuna richiesta nel periodo selezionato.",
     "upgradeForAnalytics": "Il tuo piano non include le statistiche avanzate.",
-    "upgradePlan": "Fai upgrade del piano"
+    "upgradePlan": "Fai upgrade del piano",
+    "newBadge": "Nuovo",
+    "totalLabel": "Totale"
   },
   "topbar": {
     "account": "Account",
@@ -314,7 +316,9 @@
     "upload": "Carica",
     "select": "Seleziona",
     "optional": "Opzionale",
-    "required": "Obbligatorio"
+    "required": "Obbligatorio",
+    "loadingAria": "Caricamento",
+    "menu": "Menu"
   },
   "errors": {
     "generic": "Qualcosa è andato storto. Riprova tra un attimo; se continua, contatta il supporto.",
@@ -451,7 +455,8 @@
       "errClientRequired": "Inserisci il nome e l'email del cliente.",
       "emailPlaceholder": "cliente@email.it",
       "addressPlaceholder": "Via Roma 12",
-      "notIncluded": "— non incluso —"
+      "notIncluded": "— non incluso —",
+      "newSupplier": "Nuovo fornitore"
     },
     "list": {
       "kicker": "Strumento B2B da Cantiere",
@@ -673,7 +678,9 @@
     "company": "Azienda",
     "developer": "Costruttore",
     "architect": "Architetto",
-    "contractor": "Impresa"
+    "contractor": "Impresa",
+    "listAria": "Elenco clienti",
+    "closeAria": "Chiudi"
   },
   "cantieri": {
     "title": "Cantieri (Bacheca)",
@@ -751,7 +758,22 @@
     "materialsAria": "Materiali di posa",
     "notesPlaceholder": "Note per la squadra di posa",
     "listAria": "Elenco dossier di posa",
-    "empty": "Nessun dossier di posa."
+    "empty": "Nessun dossier di posa.",
+    "close": "Chiudi wizard",
+    "newDossier": "+ Nuovo dossier di posa",
+    "next": "Continua →",
+    "generateBom": "Genera distinta →",
+    "step3": "3 · Distinta materiali",
+    "manual": "— manuale —",
+    "openingsCount": "{count} fori",
+    "saving": "Salvataggio…",
+    "saveDossier": "Salva dossier",
+    "colNorm": "Norma",
+    "colJob": "Lavoro",
+    "colNode": "Nodo",
+    "colPerimeter": "Perimetro",
+    "colDate": "Data",
+    "colMaps": "Mappe"
   },
   "inspections": {
     "offline": "Offline — salvataggio locale",
@@ -935,7 +957,20 @@
     "clientRequired": "Il nome del cliente è obbligatorio.",
     "pageTitle": "Rilievo di cantiere",
     "backToGallery": "Torna alla galleria",
-    "empty": "Nessun rilievo ancora."
+    "empty": "Nessun rilievo ancora.",
+    "subtitle": "Misure laser Bluetooth, foto e checklist diagnostica. Funziona offline.",
+    "newSurvey": "+ Nuovo rilievo",
+    "close": "Chiudi",
+    "activeOpening": "Foro attivo: {label} — la lettura del laser compila L/H di questo foro.",
+    "labelPh": "Etichetta",
+    "notesPh": "Note (tapparella, davanzale, imbotte…)",
+    "addOpening": "+ Aggiungi foro",
+    "saving": "Salvataggio…",
+    "saveSurvey": "Salva rilievo",
+    "saveOffline": "Salva offline",
+    "listAria": "Elenco rilievi",
+    "maps": "Mappe",
+    "openingsShort": "Fori"
   },
   "dossierEdit": {
     "edit": "Modifica",
@@ -2169,7 +2204,21 @@
     "createReport": "Crea verbale",
     "passport": "Fascicolo QR",
     "createPassports": "Genera fascicoli",
-    "none": "Nessuno"
+    "none": "Nessuno",
+    "addItem": "+ Aggiungi articolo",
+    "itemSave": "Salva",
+    "itemCancel": "Annulla",
+    "itemEdit": "Modifica",
+    "itemRemove": "Rimuovi",
+    "itemsEmpty": "Nessun articolo. Clicca «Aggiungi articolo» per iniziare.",
+    "laserDisconnect": "Disconnetti laser",
+    "laserConnect": "Connetti Leica DISTO / Bosch GLM via Bluetooth",
+    "measureW": "Misura Larghezza (L)",
+    "measureH": "Misura Altezza (H)",
+    "laserHint": "Premi il tasto sul laser DISTO/GLM → la cota si compila automaticamente.",
+    "laserOffline": "Funziona offline • si sincronizza al segnale",
+    "lastReading": "Ultima lettura: {l} mm · {time}",
+    "laserConnecting": "Connessione in corso..."
   },
   "sash": {
     "kind_fix": "Fissa",
@@ -2200,7 +2249,9 @@
     "hardwareColor": "Colore ferramenta",
     "securityClass": "Classe di sicurezza",
     "handleHeight": "Altezza maniglia dal pavimento",
-    "main": "Anta principale"
+    "main": "Anta principale",
+    "leaf": "Anta {n}",
+    "close": "Chiudi"
   },
   "referral": {
     "loading": "Caricamento…",
@@ -2303,5 +2354,18 @@
       "credit": "credito",
       "stripe": "denaro Stripe"
     }
+  },
+  "pagination": {
+    "page": "Pagina",
+    "of": "di",
+    "itemsPerPage": "Elementi per pagina",
+    "items": "elementi",
+    "showing": "Mostra",
+    "to": "a",
+    "results": "risultati",
+    "first": "Prima pagina",
+    "prev": "Pagina precedente",
+    "next": "Pagina successiva",
+    "last": "Ultima pagina"
   }
 }

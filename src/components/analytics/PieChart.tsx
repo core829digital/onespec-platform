@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { motion } from "framer-motion";
 
@@ -67,6 +68,7 @@ export function PieChart({
   size = 200,
   innerRadius = 80,
 }: PieChartProps) {
+  const t = useTranslations("analytics");
   const [hovered, setHovered] = useState<number | null>(null);
   const total = data.reduce((sum, d) => sum + d.value, 0);
   const segments = data.map((d, i) => {
@@ -234,7 +236,7 @@ export function PieChart({
               <div className="text-xl font-bold text-[var(--color-text)] tabular-nums leading-tight">
                 {total.toLocaleString()}
               </div>
-              <div className="text-[11px] text-[var(--color-text-secondary)]">Totale</div>
+              <div className="text-[11px] text-[var(--color-text-secondary)]">{t("totalLabel")}</div>
             </div>
           ) : null}
         </div>
@@ -379,6 +381,7 @@ export function StatsGrid({
   stats,
   columns = 6,
 }: StatsGridProps) {
+  const t = useTranslations("analytics");
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -414,7 +417,7 @@ export function StatsGrid({
                 <span className={`text-xs font-medium flex items-center gap-0.5 ${
                   stat.trend === "up" ? "text-emerald-600" : "text-red-600"
                 }`}>
-                  {isMeaningless ? "Nuovo" : (
+                  {isMeaningless ? t("newBadge") : (
                     <>{stat.trend === "up" ? "↑" : "↓"} {abs.toFixed(1)}%</>
                   )}
                 </span>

@@ -11,7 +11,7 @@ import { ClientCantierePicker, type PickedLinks } from "@/components/app-shell/c
 import { EditDossierPanel, type EditableDossier } from "@/components/installations/EditDossierPanel";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import type { Id } from "@/convex/_generated/dataModel";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import {
   enqueue,
   flushQueue,
@@ -51,6 +51,7 @@ function SyncBadge({ state, onSync }: { state: SyncState; onSync: () => void }) 
 export default function InstallationsPage() {
   const tf = useFriendlyError();
   const t = useTranslations("installations");
+  const locale = useLocale();
   const tenant = useQuery(api.tenants.getMyTenant);
   const standard = useQuery(
     api.installations.getStandard,
@@ -235,7 +236,7 @@ export default function InstallationsPage() {
         onClick={() => setOpen((v) => !v)}
         className="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-[var(--color-accent-ink)]"
       >
-        {open ? "Chiudi wizard" : "+ Nuovo dossier di posa"}
+        {open ? t("close") : t("newDossier")}
       </button>
 
       {editing && standard && (
@@ -295,7 +296,7 @@ export default function InstallationsPage() {
                 disabled={!jobType}
                 className="mt-2 rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-[var(--color-accent-ink)] disabled:opacity-40"
               >
-                Continua →
+                {t("next")}
               </button>
             </div>
           )}
@@ -329,7 +330,7 @@ export default function InstallationsPage() {
                   disabled={!nodeType}
                   className="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-[var(--color-accent-ink)] disabled:opacity-40"
                 >
-                  Genera distinta →
+                  {t("generateBom")}
                 </button>
               </div>
             </div>
@@ -337,7 +338,7 @@ export default function InstallationsPage() {
 
           {step === 3 && (
             <div className="space-y-3">
-              <h2 className="text-sm font-semibold">3 · Distinta materiali</h2>
+              <h2 className="text-sm font-semibold">{t("step3")}</h2>
               {surveys && surveys.length > 0 && (
                 <label className="block text-sm">
                   <span className="text-[var(--color-muted-fg)]">{t("loadFromSurvey")}</span>
@@ -358,10 +359,10 @@ export default function InstallationsPage() {
                     }}
                     className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
                   >
-                    <option value="">— manuale —</option>
+                    <option value="">{t("manual")}</option>
                     {surveys.map((s) => (
                       <option key={s._id} value={s._id}>
-                        {s.customerName} · {s.openings.length} fori
+                        {s.customerName} · {t("openingsCount", { count: s.openings.length })}
                       </option>
                     ))}
                   </select>
@@ -420,7 +421,7 @@ export default function InstallationsPage() {
                   disabled={saving}
                   className="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-[var(--color-accent-ink)] disabled:opacity-50"
                 >
-                  {saving ? "Salvataggio…" : "Salva dossier"}
+                  {saving ? t("saving") : t("saveDossier")}
                 </button>
               </div>
             </div>
@@ -432,12 +433,12 @@ export default function InstallationsPage() {
         <table className="w-full text-sm" aria-label={t("listAria")}>
           <thead className="bg-[var(--color-muted)] text-xs text-[var(--color-muted-fg)]">
             <tr>
-              <th className="px-4 py-2 text-left">Norma</th>
-              <th className="px-4 py-2 text-left">Lavoro</th>
-              <th className="px-4 py-2 text-left">Nodo</th>
-              <th className="px-4 py-2 text-right">Perimetro</th>
-              <th className="px-4 py-2 text-right">Data</th>
-              <th className="px-4 py-2 text-center">Mappe</th>
+              <th className="px-4 py-2 text-left">{t("colNorm")}</th>
+              <th className="px-4 py-2 text-left">{t("colJob")}</th>
+              <th className="px-4 py-2 text-left">{t("colNode")}</th>
+              <th className="px-4 py-2 text-right">{t("colPerimeter")}</th>
+              <th className="px-4 py-2 text-right">{t("colDate")}</th>
+              <th className="px-4 py-2 text-center">{t("colMaps")}</th>
               <th className="px-4 py-2" />
             </tr>
           </thead>
@@ -449,7 +450,7 @@ export default function InstallationsPage() {
                 <td className="px-4 py-3">{d.nodeType}</td>
                 <td className="px-4 py-3 text-right">{(d.perimeterMm / 1000).toFixed(2)} m</td>
                 <td className="px-4 py-3 text-right text-[var(--color-muted-fg)]">
-                  {new Date(d.createdAt).toLocaleDateString("it-IT")}
+                  {new Date(d.createdAt).toLocaleDateString(locale)}
                 </td>
                 <td className="px-4 py-3 text-center">
                   {/* Maps/Waze buttons for installations with survey data */}

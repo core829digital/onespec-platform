@@ -1,6 +1,9 @@
+import { useTranslations } from "next-intl";
+
 export default function AppLoading() {
+  const t = useTranslations("common");
   return (
-    <div className="w-full space-y-6 animate-pulse" aria-busy="true" aria-label="Caricamento">
+    <div className="w-full space-y-6 animate-pulse" aria-busy="true" aria-label={t("loadingAria")}>
       <div className="border-b border-[var(--color-border)] pb-4">
         <div className="h-7 w-56 rounded-lg bg-[var(--color-bg-alt)]" />
         <div className="mt-2 h-4 w-80 max-w-full rounded bg-[var(--color-bg-alt)]" />

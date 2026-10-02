@@ -1184,7 +1184,7 @@ export default function NewFieldQuotePage() {
             <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5 space-y-4">
               <div className="flex flex-wrap items-end gap-2">
                 <label className="text-sm">
-                  <span className="mb-1 block text-[var(--color-text-secondary)]">Nuovo fornitore</span>
+                  <span className="mb-1 block text-[var(--color-text-secondary)]">{t("newSupplier")}</span>
                   <input
                     value={newSupplier}
                     onChange={(e) => setNewSupplier(e.target.value)}

@@ -196,7 +196,7 @@ export default function OnboardingWizard() {
           <div className="grid gap-3 md:grid-cols-3">
             {group.plans.map((key) => {
               const cents = BILLING_PLANS.find((p) => p.key === key)?.priceCents ?? 0;
-              const price = (cents / 100).toLocaleString("it-IT", { minimumFractionDigits: cents % 100 ? 2 : 0 });
+              const price = (cents / 100).toLocaleString(locale, { minimumFractionDigits: cents % 100 ? 2 : 0 });
               const trial = key === "pro";
               const name = t(`billing.plans.${key}.name`);
               // Same source as the Subscription page and the website (billing.planFeatures): one list per plan, never two.

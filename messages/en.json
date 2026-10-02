@@ -126,7 +126,9 @@
     "trendPeak": "Peak",
     "noRequestsPeriod": "No requests in the selected period.",
     "upgradeForAnalytics": "Your plan doesn't include advanced analytics.",
-    "upgradePlan": "Upgrade your plan"
+    "upgradePlan": "Upgrade your plan",
+    "newBadge": "New",
+    "totalLabel": "Total"
   },
   "topbar": {
     "account": "Account",
@@ -314,7 +316,9 @@
     "upload": "Upload",
     "select": "Select",
     "optional": "Optional",
-    "required": "Required"
+    "required": "Required",
+    "loadingAria": "Loading",
+    "menu": "Menu"
   },
   "errors": {
     "generic": "Something went wrong. Try again in a moment; if it keeps happening, contact support.",
@@ -451,7 +455,8 @@
       "errClientRequired": "Enter the customer's name and email.",
       "emailPlaceholder": "customer@email.com",
       "addressPlaceholder": "12 High Street",
-      "notIncluded": "— not included —"
+      "notIncluded": "— not included —",
+      "newSupplier": "New supplier"
     },
     "list": {
       "kicker": "Field B2B Tool",
@@ -673,7 +678,9 @@
     "company": "Company",
     "developer": "Developer",
     "architect": "Architect",
-    "contractor": "Contractor"
+    "contractor": "Contractor",
+    "listAria": "Client list",
+    "closeAria": "Close"
   },
   "cantieri": {
     "title": "Worksites (Board)",
@@ -751,7 +758,22 @@
     "materialsAria": "Installation materials",
     "notesPlaceholder": "Notes for the installation team",
     "listAria": "Installation dossiers",
-    "empty": "No installation dossiers."
+    "empty": "No installation dossiers.",
+    "close": "Close wizard",
+    "newDossier": "+ New installation file",
+    "next": "Continue →",
+    "generateBom": "Generate bill of materials →",
+    "step3": "3 · Bill of materials",
+    "manual": "— manual —",
+    "openingsCount": "{count} openings",
+    "saving": "Saving…",
+    "saveDossier": "Save file",
+    "colNorm": "Standard",
+    "colJob": "Job",
+    "colNode": "Joint",
+    "colPerimeter": "Perimeter",
+    "colDate": "Date",
+    "colMaps": "Maps"
   },
   "inspections": {
     "offline": "Offline — local save",
@@ -935,7 +957,20 @@
     "clientRequired": "The customer name is required.",
     "pageTitle": "Site survey",
     "backToGallery": "Back to gallery",
-    "empty": "No surveys yet."
+    "empty": "No surveys yet.",
+    "subtitle": "Bluetooth laser measurements, photos and diagnostic checklist. Works offline.",
+    "newSurvey": "+ New survey",
+    "close": "Close",
+    "activeOpening": "Active opening: {label} — the laser reading fills in W/H of this opening.",
+    "labelPh": "Label",
+    "notesPh": "Notes (shutter, sill, reveal…)",
+    "addOpening": "+ Add opening",
+    "saving": "Saving…",
+    "saveSurvey": "Save survey",
+    "saveOffline": "Save offline",
+    "listAria": "Survey list",
+    "maps": "Maps",
+    "openingsShort": "Openings"
   },
   "dossierEdit": {
     "edit": "Edit",
@@ -2169,7 +2204,21 @@
     "createReport": "Create report",
     "passport": "QR passport",
     "createPassports": "Generate passports",
-    "none": "None"
+    "none": "None",
+    "addItem": "+ Add item",
+    "itemSave": "Save",
+    "itemCancel": "Cancel",
+    "itemEdit": "Edit",
+    "itemRemove": "Remove",
+    "itemsEmpty": "No items. Click “Add item” to start.",
+    "laserDisconnect": "Disconnect laser",
+    "laserConnect": "Connect Leica DISTO / Bosch GLM via Bluetooth",
+    "measureW": "Measure width (W)",
+    "measureH": "Measure height (H)",
+    "laserHint": "Press the button on the DISTO/GLM laser → the dimension fills in automatically.",
+    "laserOffline": "Works offline • syncs when back online",
+    "lastReading": "Last reading: {l} mm · {time}",
+    "laserConnecting": "Connecting..."
   },
   "sash": {
     "kind_fix": "Fixed",
@@ -2200,7 +2249,9 @@
     "hardwareColor": "Hardware colour",
     "securityClass": "Security class",
     "handleHeight": "Handle height from the floor",
-    "main": "Main sash"
+    "main": "Main sash",
+    "leaf": "Leaf {n}",
+    "close": "Close"
   },
   "referral": {
     "loading": "Loading…",
@@ -2303,5 +2354,18 @@
       "credit": "credit",
       "stripe": "Stripe money"
     }
+  },
+  "pagination": {
+    "page": "Page",
+    "of": "of",
+    "itemsPerPage": "Items per page",
+    "items": "items",
+    "showing": "Showing",
+    "to": "to",
+    "results": "results",
+    "first": "First page",
+    "prev": "Previous page",
+    "next": "Next page",
+    "last": "Last page"
   }
 }

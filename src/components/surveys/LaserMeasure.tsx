@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useRef, useState } from "react";
 import { getLaserManager, isBluetoothSupported, LaserMeasurement, LaserConnectionState } from "@/lib/bluetooth-laser";
 
@@ -18,6 +18,7 @@ interface LaserMeasureProps {
 
 export function LaserMeasure({ onMeasure, whichDimension, currentL, currentH, disabled }: LaserMeasureProps) {
   const t = useTranslations("fieldTools");
+  const locale = useLocale();
   const [connectionState, setConnectionState] = useState<LaserConnectionState>({
     connected: false,
     deviceName: null,
@@ -111,15 +112,15 @@ export function LaserMeasure({ onMeasure, whichDimension, currentL, currentH, di
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
             </svg>
-            Connessione in corso...
+            {t("laserConnecting")}
           </>
         ) : connectionState.connected ? (
           <>
-            <span>📡</span> Disconnetti laser
+            <span>📡</span> {t("laserDisconnect")}
           </>
         ) : (
           <>
-            <span>📡</span> Connetti Leica DISTO / Bosch GLM via Bluetooth
+            <span>📡</span> {t("laserConnect")}
           </>
         )}
       </button>
@@ -171,7 +172,7 @@ export function LaserMeasure({ onMeasure, whichDimension, currentL, currentH, di
           }`}
           disabled={disabled}
         >
-          Misura Larghezza (L)
+          {t("measureW")}
         </button>
         <button
           onClick={() => onMeasure("H", 0)}
@@ -182,18 +183,18 @@ export function LaserMeasure({ onMeasure, whichDimension, currentL, currentH, di
           }`}
           disabled={disabled}
         >
-          Misura Altezza (H)
+          {t("measureH")}
         </button>
       </div>
 
       <p className="text-[11px] text-zinc-500 text-center">
-        Premi il tasto sul laser DISTO/GLM → la cota si compila automaticamente.<br />
-        Funziona offline • si sincronizza al segnale
+        {t("laserHint")}<br />
+        {t("laserOffline")}
       </p>
 
       {connectionState.lastMeasurement && (
         <div className="text-xs text-zinc-500 text-center">
-          Ultima lettura: {connectionState.lastMeasurement.L} mm · {new Date(connectionState.lastMeasurement.timestamp).toLocaleTimeString("it-IT")}
+          {t("lastReading", { l: connectionState.lastMeasurement.L, time: new Date(connectionState.lastMeasurement.timestamp).toLocaleTimeString(locale) })}
         </div>
       )}
     </div>

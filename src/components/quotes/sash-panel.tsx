@@ -48,14 +48,14 @@ export function SashPanel({
     <div className="rounded-lg border border-[var(--color-mint)]/40 bg-[var(--color-mint)]/5 p-3 space-y-3">
       <div className="flex items-center justify-between">
         <span className="text-xs font-bold uppercase tracking-wider text-[var(--color-text-secondary)]">
-          Anta {index + 1}
+          {t("leaf", { n: index + 1 })}
         </span>
         <button
           type="button"
           onClick={onClose}
           className="text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
         >
-          Chiudi
+          {t("close")}
         </button>
       </div>
 

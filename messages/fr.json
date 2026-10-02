@@ -126,7 +126,9 @@
     "trendPeak": "Pic",
     "noRequestsPeriod": "Aucune demande sur la période sélectionnée.",
     "upgradeForAnalytics": "Votre forfait n'inclut pas les statistiques avancées.",
-    "upgradePlan": "Passez à un forfait supérieur"
+    "upgradePlan": "Passez à un forfait supérieur",
+    "newBadge": "Nouveau",
+    "totalLabel": "Total"
   },
   "topbar": {
     "account": "Compte",
@@ -314,7 +316,9 @@
     "upload": "Téléverser",
     "select": "Sélectionner",
     "optional": "Optionnel",
-    "required": "Requis"
+    "required": "Requis",
+    "loadingAria": "Chargement",
+    "menu": "Menu"
   },
   "errors": {
     "generic": "Une erreur est survenue. Réessayez dans un instant ; si cela persiste, contactez le support.",
@@ -451,7 +455,8 @@
       "errClientRequired": "Saisissez le nom et l'e-mail du client.",
       "emailPlaceholder": "client@email.fr",
       "addressPlaceholder": "12 rue de la Paix",
-      "notIncluded": "— non inclus —"
+      "notIncluded": "— non inclus —",
+      "newSupplier": "Nouveau fournisseur"
     },
     "list": {
       "kicker": "Outil B2B de chantier",
@@ -673,7 +678,9 @@
     "company": "Entreprise",
     "developer": "Promoteur",
     "architect": "Architecte",
-    "contractor": "Entreprise de construction"
+    "contractor": "Entreprise de construction",
+    "listAria": "Liste des clients",
+    "closeAria": "Fermer"
   },
   "cantieri": {
     "title": "Chantiers (Tableau)",
@@ -751,7 +758,22 @@
     "materialsAria": "Matériaux de pose",
     "notesPlaceholder": "Notes pour l'équipe de pose",
     "listAria": "Liste des dossiers de pose",
-    "empty": "Aucun dossier de pose."
+    "empty": "Aucun dossier de pose.",
+    "close": "Fermer l'assistant",
+    "newDossier": "+ Nouveau dossier de pose",
+    "next": "Continuer →",
+    "generateBom": "Générer la nomenclature →",
+    "step3": "3 · Nomenclature des matériaux",
+    "manual": "— manuel —",
+    "openingsCount": "{count} ouvertures",
+    "saving": "Enregistrement…",
+    "saveDossier": "Enregistrer le dossier",
+    "colNorm": "Norme",
+    "colJob": "Travaux",
+    "colNode": "Nœud",
+    "colPerimeter": "Périmètre",
+    "colDate": "Date",
+    "colMaps": "Cartes"
   },
   "inspections": {
     "offline": "Hors ligne — sauvegarde locale",
@@ -935,7 +957,20 @@
     "clientRequired": "Le nom du client est obligatoire.",
     "pageTitle": "Relevé de chantier",
     "backToGallery": "Retour à la galerie",
-    "empty": "Aucun relevé pour l'instant."
+    "empty": "Aucun relevé pour l'instant.",
+    "subtitle": "Mesures laser Bluetooth, photos et checklist de diagnostic. Fonctionne hors ligne.",
+    "newSurvey": "+ Nouveau relevé",
+    "close": "Fermer",
+    "activeOpening": "Ouverture active : {label} — la lecture du laser renseigne L/H de cette ouverture.",
+    "labelPh": "Libellé",
+    "notesPh": "Notes (volet, appui, ébrasement…)",
+    "addOpening": "+ Ajouter une ouverture",
+    "saving": "Enregistrement…",
+    "saveSurvey": "Enregistrer le relevé",
+    "saveOffline": "Enregistrer hors ligne",
+    "listAria": "Liste des relevés",
+    "maps": "Cartes",
+    "openingsShort": "Ouvertures"
   },
   "dossierEdit": {
     "edit": "Modifier",
@@ -2169,7 +2204,21 @@
     "createReport": "Créer le procès-verbal",
     "passport": "Carnet QR",
     "createPassports": "Générer les carnets",
-    "none": "Aucun"
+    "none": "Aucun",
+    "addItem": "+ Ajouter un article",
+    "itemSave": "Enregistrer",
+    "itemCancel": "Annuler",
+    "itemEdit": "Modifier",
+    "itemRemove": "Retirer",
+    "itemsEmpty": "Aucun article. Cliquez sur « Ajouter un article » pour commencer.",
+    "laserDisconnect": "Déconnecter le laser",
+    "laserConnect": "Connecter Leica DISTO / Bosch GLM via Bluetooth",
+    "measureW": "Mesurer la largeur (L)",
+    "measureH": "Mesurer la hauteur (H)",
+    "laserHint": "Appuyez sur le bouton du laser DISTO/GLM → la cote se remplit automatiquement.",
+    "laserOffline": "Fonctionne hors ligne • se synchronise au retour du réseau",
+    "lastReading": "Dernière lecture : {l} mm · {time}",
+    "laserConnecting": "Connexion en cours..."
   },
   "sash": {
     "kind_fix": "Fixe",
@@ -2200,7 +2249,9 @@
     "hardwareColor": "Couleur de la quincaillerie",
     "securityClass": "Classe de sécurité",
     "handleHeight": "Hauteur de la poignée depuis le sol",
-    "main": "Ouvrant principal"
+    "main": "Ouvrant principal",
+    "leaf": "Vantail {n}",
+    "close": "Fermer"
   },
   "referral": {
     "loading": "Chargement…",
@@ -2303,5 +2354,18 @@
       "credit": "crédit",
       "stripe": "argent Stripe"
     }
+  },
+  "pagination": {
+    "page": "Page",
+    "of": "sur",
+    "itemsPerPage": "Éléments par page",
+    "items": "éléments",
+    "showing": "Affichage",
+    "to": "à",
+    "results": "résultats",
+    "first": "Première page",
+    "prev": "Page précédente",
+    "next": "Page suivante",
+    "last": "Dernière page"
   }
 }

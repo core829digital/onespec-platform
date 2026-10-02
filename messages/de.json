@@ -126,7 +126,9 @@
     "trendPeak": "Spitze",
     "noRequestsPeriod": "Keine Anfragen im gewählten Zeitraum.",
     "upgradeForAnalytics": "Ihr Plan enthält keine erweiterten Statistiken.",
-    "upgradePlan": "Plan upgraden"
+    "upgradePlan": "Plan upgraden",
+    "newBadge": "Neu",
+    "totalLabel": "Gesamt"
   },
   "topbar": {
     "account": "Konto",
@@ -314,7 +316,9 @@
     "upload": "Hochladen",
     "select": "Auswählen",
     "optional": "Optional",
-    "required": "Erforderlich"
+    "required": "Erforderlich",
+    "loadingAria": "Wird geladen",
+    "menu": "Menü"
   },
   "errors": {
     "generic": "Etwas ist schiefgelaufen. Gleich erneut versuchen; bei Wiederholung den Support kontaktieren.",
@@ -451,7 +455,8 @@
       "errClientRequired": "Geben Sie Name und E-Mail des Kunden ein.",
       "emailPlaceholder": "kunde@email.de",
       "addressPlaceholder": "Hauptstraße 12",
-      "notIncluded": "— nicht enthalten —"
+      "notIncluded": "— nicht enthalten —",
+      "newSupplier": "Neuer Lieferant"
     },
     "list": {
       "kicker": "B2B-Baustellen-Tool",
@@ -673,7 +678,9 @@
     "company": "Unternehmen",
     "developer": "Bauträger",
     "architect": "Architekt",
-    "contractor": "Bauunternehmen"
+    "contractor": "Bauunternehmen",
+    "listAria": "Kundenliste",
+    "closeAria": "Schließen"
   },
   "cantieri": {
     "title": "Baustellen (Tafel)",
@@ -751,7 +758,22 @@
     "materialsAria": "Montagematerial",
     "notesPlaceholder": "Hinweise für das Montageteam",
     "listAria": "Liste der Montagedossiers",
-    "empty": "Keine Montagedossiers."
+    "empty": "Keine Montagedossiers.",
+    "close": "Assistent schließen",
+    "newDossier": "+ Neue Montageakte",
+    "next": "Weiter →",
+    "generateBom": "Stückliste erstellen →",
+    "step3": "3 · Materialstückliste",
+    "manual": "— manuell —",
+    "openingsCount": "{count} Öffnungen",
+    "saving": "Speichern…",
+    "saveDossier": "Akte speichern",
+    "colNorm": "Norm",
+    "colJob": "Arbeiten",
+    "colNode": "Anschluss",
+    "colPerimeter": "Umfang",
+    "colDate": "Datum",
+    "colMaps": "Karten"
   },
   "inspections": {
     "offline": "Offline — lokale Speicherung",
@@ -935,7 +957,20 @@
     "clientRequired": "Der Kundenname ist erforderlich.",
     "pageTitle": "Baustellenaufmaß",
     "backToGallery": "Zurück zur Galerie",
-    "empty": "Noch keine Aufmaße."
+    "empty": "Noch keine Aufmaße.",
+    "subtitle": "Bluetooth-Lasermessung, Fotos und Diagnose-Checkliste. Funktioniert offline.",
+    "newSurvey": "+ Neue Aufnahme",
+    "close": "Schließen",
+    "activeOpening": "Aktive Öffnung: {label} — der Laserwert füllt B/H dieser Öffnung aus.",
+    "labelPh": "Bezeichnung",
+    "notesPh": "Notizen (Rollladen, Fensterbank, Laibung…)",
+    "addOpening": "+ Öffnung hinzufügen",
+    "saving": "Speichern…",
+    "saveSurvey": "Aufnahme speichern",
+    "saveOffline": "Offline speichern",
+    "listAria": "Aufnahmeliste",
+    "maps": "Karten",
+    "openingsShort": "Öffnungen"
   },
   "dossierEdit": {
     "edit": "Bearbeiten",
@@ -2169,7 +2204,21 @@
     "createReport": "Protokoll anlegen",
     "passport": "QR-Fensterpass",
     "createPassports": "Fensterpässe erzeugen",
-    "none": "Keine"
+    "none": "Keine",
+    "addItem": "+ Artikel hinzufügen",
+    "itemSave": "Speichern",
+    "itemCancel": "Abbrechen",
+    "itemEdit": "Bearbeiten",
+    "itemRemove": "Entfernen",
+    "itemsEmpty": "Keine Artikel. Klicken Sie auf „Artikel hinzufügen“, um zu beginnen.",
+    "laserDisconnect": "Laser trennen",
+    "laserConnect": "Leica DISTO / Bosch GLM per Bluetooth verbinden",
+    "measureW": "Breite messen (B)",
+    "measureH": "Höhe messen (H)",
+    "laserHint": "Taste am DISTO/GLM-Laser drücken → das Maß wird automatisch eingetragen.",
+    "laserOffline": "Funktioniert offline • synchronisiert bei Verbindung",
+    "lastReading": "Letzte Messung: {l} mm · {time}",
+    "laserConnecting": "Verbindung wird hergestellt..."
   },
   "sash": {
     "kind_fix": "Festverglasung",
@@ -2200,7 +2249,9 @@
     "hardwareColor": "Beschlagfarbe",
     "securityClass": "Sicherheitsklasse",
     "handleHeight": "Griffhöhe ab Boden",
-    "main": "Hauptflügel"
+    "main": "Hauptflügel",
+    "leaf": "Flügel {n}",
+    "close": "Schließen"
   },
   "referral": {
     "loading": "Wird geladen…",
@@ -2303,5 +2354,18 @@
       "credit": "Guthaben",
       "stripe": "Stripe-Geld"
     }
+  },
+  "pagination": {
+    "page": "Seite",
+    "of": "von",
+    "itemsPerPage": "Einträge pro Seite",
+    "items": "Einträge",
+    "showing": "Anzeige",
+    "to": "bis",
+    "results": "Ergebnisse",
+    "first": "Erste Seite",
+    "prev": "Vorherige Seite",
+    "next": "Nächste Seite",
+    "last": "Letzte Seite"
   }
 }

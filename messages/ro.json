@@ -126,7 +126,9 @@
     "trendPeak": "Vârf",
     "noRequestsPeriod": "Nicio solicitare în perioada selectată.",
     "upgradeForAnalytics": "Planul tău nu include statistici avansate.",
-    "upgradePlan": "Fă upgrade la plan"
+    "upgradePlan": "Fă upgrade la plan",
+    "newBadge": "Nou",
+    "totalLabel": "Total"
   },
   "topbar": {
     "account": "Cont",
@@ -314,7 +316,9 @@
     "upload": "Încarcă",
     "select": "Selectează",
     "optional": "Opțional",
-    "required": "Obligatoriu"
+    "required": "Obligatoriu",
+    "loadingAria": "Se încarcă",
+    "menu": "Meniu"
   },
   "errors": {
     "generic": "Ceva nu a mers. Reîncearcă în câteva clipe; dacă persistă, contactează suportul.",
@@ -451,7 +455,8 @@
       "errClientRequired": "Introdu numele și e-mailul clientului.",
       "emailPlaceholder": "client@email.ro",
       "addressPlaceholder": "Strada Victoriei 12",
-      "notIncluded": "— neinclus —"
+      "notIncluded": "— neinclus —",
+      "newSupplier": "Furnizor nou"
     },
     "list": {
       "kicker": "Instrument B2B de șantier",
@@ -673,7 +678,9 @@
     "company": "Firmă",
     "developer": "Dezvoltator",
     "architect": "Arhitect",
-    "contractor": "Entreprinză"
+    "contractor": "Entreprinză",
+    "listAria": "Lista clienților",
+    "closeAria": "Închide"
   },
   "cantieri": {
     "title": "Șantiere (Panou)",
@@ -751,7 +758,22 @@
     "materialsAria": "Materiale de montaj",
     "notesPlaceholder": "Note pentru echipa de montaj",
     "listAria": "Lista dosarelor de montaj",
-    "empty": "Niciun dosar de montaj."
+    "empty": "Niciun dosar de montaj.",
+    "close": "Închide asistentul",
+    "newDossier": "+ Dosar de montaj nou",
+    "next": "Continuă →",
+    "generateBom": "Generează lista de materiale →",
+    "step3": "3 · Listă de materiale",
+    "manual": "— manual —",
+    "openingsCount": "{count} deschideri",
+    "saving": "Se salvează…",
+    "saveDossier": "Salvează dosarul",
+    "colNorm": "Normă",
+    "colJob": "Lucrare",
+    "colNode": "Nod",
+    "colPerimeter": "Perimetru",
+    "colDate": "Data",
+    "colMaps": "Hărți"
   },
   "inspections": {
     "offline": "Offline — salvare locală",
@@ -935,7 +957,20 @@
     "clientRequired": "Numele clientului este obligatoriu.",
     "pageTitle": "Releveu de șantier",
     "backToGallery": "Înapoi la galerie",
-    "empty": "Niciun releveu încă."
+    "empty": "Niciun releveu încă.",
+    "subtitle": "Măsurători laser Bluetooth, fotografii și listă de verificare diagnostică. Funcționează offline.",
+    "newSurvey": "+ Măsurătoare nouă",
+    "close": "Închide",
+    "activeOpening": "Deschidere activă: {label} — citirea laserului completează L/H pentru această deschidere.",
+    "labelPh": "Etichetă",
+    "notesPh": "Note (rulou, glaf, precadru…)",
+    "addOpening": "+ Adaugă deschidere",
+    "saving": "Se salvează…",
+    "saveSurvey": "Salvează măsurătoarea",
+    "saveOffline": "Salvează offline",
+    "listAria": "Lista măsurătorilor",
+    "maps": "Hărți",
+    "openingsShort": "Deschideri"
   },
   "dossierEdit": {
     "edit": "Editează",
@@ -2169,7 +2204,21 @@
     "createReport": "Creează proces-verbal",
     "passport": "Pașaport QR",
     "createPassports": "Generează pașapoartele",
-    "none": "Niciunul"
+    "none": "Niciunul",
+    "addItem": "+ Adaugă articol",
+    "itemSave": "Salvează",
+    "itemCancel": "Anulează",
+    "itemEdit": "Modifică",
+    "itemRemove": "Elimină",
+    "itemsEmpty": "Niciun articol. Apăsați „Adaugă articol” pentru a începe.",
+    "laserDisconnect": "Deconectează laserul",
+    "laserConnect": "Conectează Leica DISTO / Bosch GLM prin Bluetooth",
+    "measureW": "Măsoară lățimea (L)",
+    "measureH": "Măsoară înălțimea (H)",
+    "laserHint": "Apăsați butonul laserului DISTO/GLM → cota se completează automat.",
+    "laserOffline": "Funcționează offline • se sincronizează când revine semnalul",
+    "lastReading": "Ultima citire: {l} mm · {time}",
+    "laserConnecting": "Se conectează..."
   },
   "sash": {
     "kind_fix": "Fix",
@@ -2200,7 +2249,9 @@
     "hardwareColor": "Culoarea feroneriei",
     "securityClass": "Clasă de securitate",
     "handleHeight": "Înălțimea mânerului de la pardoseală",
-    "main": "Canat principal"
+    "main": "Canat principal",
+    "leaf": "Canat {n}",
+    "close": "Închide"
   },
   "referral": {
     "loading": "Se încarcă…",
@@ -2303,5 +2354,18 @@
       "credit": "credit",
       "stripe": "bani Stripe"
     }
+  },
+  "pagination": {
+    "page": "Pagina",
+    "of": "din",
+    "itemsPerPage": "Elemente pe pagină",
+    "items": "elemente",
+    "showing": "Afișare",
+    "to": "la",
+    "results": "rezultate",
+    "first": "Prima pagină",
+    "prev": "Pagina anterioară",
+    "next": "Pagina următoare",
+    "last": "Ultima pagină"
   }
 }

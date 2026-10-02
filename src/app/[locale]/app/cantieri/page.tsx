@@ -99,7 +99,7 @@ function KanbanColumn({
       <div className="flex items-center justify-between mb-4">
 <div className="flex items-center gap-2">
             {config?.icon && <config.icon className="w-5 h-5" />}
-            <h3 className="font-semibold text-[var(--color-text)]">{config?.label || status}</h3>
+            <h3 className="font-semibold text-[var(--color-text)]">{config ? t(config.key) : status}</h3>
           <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-bg)] text-[var(--color-text-secondary)]">
             {cantieri.length}
           </span>
@@ -347,7 +347,7 @@ function CantiereModal({
                   className="w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
                 >
                   {STATUS_CONFIG.map((s) => (
-                    <option key={s.key} value={s.key}>{s.label}</option>
+                    <option key={s.key} value={s.key}>{t(s.key)}</option>
                   ))}
                 </select>
               </div>

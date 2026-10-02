@@ -126,7 +126,9 @@
     "trendPeak": "Piek",
     "noRequestsPeriod": "Geen aanvragen in de gekozen periode.",
     "upgradeForAnalytics": "Je abonnement bevat geen geavanceerde statistieken.",
-    "upgradePlan": "Upgrade je abonnement"
+    "upgradePlan": "Upgrade je abonnement",
+    "newBadge": "Nieuw",
+    "totalLabel": "Totaal"
   },
   "topbar": {
     "account": "Account",
@@ -314,7 +316,9 @@
     "upload": "Uploaden",
     "select": "Selecteren",
     "optional": "Optioneel",
-    "required": "Verplicht"
+    "required": "Verplicht",
+    "loadingAria": "Laden",
+    "menu": "Menu"
   },
   "errors": {
     "generic": "Er ging iets mis. Probeer het zo opnieuw; blijft het gebeuren, neem dan contact op met support.",
@@ -451,7 +455,8 @@
       "errClientRequired": "Vul de naam en het e-mailadres van de klant in.",
       "emailPlaceholder": "klant@email.nl",
       "addressPlaceholder": "Dorpsstraat 12",
-      "notIncluded": "— niet inbegrepen —"
+      "notIncluded": "— niet inbegrepen —",
+      "newSupplier": "Nieuwe leverancier"
     },
     "list": {
       "kicker": "B2B-werfhulpmiddel",
@@ -673,7 +678,9 @@
     "company": "Bedrijf",
     "developer": "Projectontwikkelaar",
     "architect": "Architect",
-    "contractor": "Aannemer"
+    "contractor": "Aannemer",
+    "listAria": "Klantenlijst",
+    "closeAria": "Sluiten"
   },
   "cantieri": {
     "title": "Werven (Bord)",
@@ -751,7 +758,22 @@
     "materialsAria": "Montagematerialen",
     "notesPlaceholder": "Notities voor het montageteam",
     "listAria": "Lijst van montagedossiers",
-    "empty": "Geen montagedossiers."
+    "empty": "Geen montagedossiers.",
+    "close": "Wizard sluiten",
+    "newDossier": "+ Nieuw montagedossier",
+    "next": "Doorgaan →",
+    "generateBom": "Stuklijst maken →",
+    "step3": "3 · Materiaallijst",
+    "manual": "— handmatig —",
+    "openingsCount": "{count} openingen",
+    "saving": "Opslaan…",
+    "saveDossier": "Dossier opslaan",
+    "colNorm": "Norm",
+    "colJob": "Werk",
+    "colNode": "Aansluiting",
+    "colPerimeter": "Omtrek",
+    "colDate": "Datum",
+    "colMaps": "Kaarten"
   },
   "inspections": {
     "offline": "Offline — lokaal opslaan",
@@ -935,7 +957,20 @@
     "clientRequired": "De naam van de klant is verplicht.",
     "pageTitle": "Inmeting op locatie",
     "backToGallery": "Terug naar de galerij",
-    "empty": "Nog geen inmetingen."
+    "empty": "Nog geen inmetingen.",
+    "subtitle": "Bluetooth-lasermetingen, foto's en diagnostische checklist. Werkt offline.",
+    "newSurvey": "+ Nieuwe opmeting",
+    "close": "Sluiten",
+    "activeOpening": "Actieve opening: {label} — de laserlezing vult B/H van deze opening in.",
+    "labelPh": "Label",
+    "notesPh": "Notities (rolluik, vensterbank, dagkant…)",
+    "addOpening": "+ Opening toevoegen",
+    "saving": "Opslaan…",
+    "saveSurvey": "Opmeting opslaan",
+    "saveOffline": "Offline opslaan",
+    "listAria": "Lijst met opmetingen",
+    "maps": "Kaarten",
+    "openingsShort": "Openingen"
   },
   "dossierEdit": {
     "edit": "Bewerken",
@@ -2169,7 +2204,21 @@
     "createReport": "Rapport aanmaken",
     "passport": "QR-paspoort",
     "createPassports": "Paspoorten genereren",
-    "none": "Geen"
+    "none": "Geen",
+    "addItem": "+ Artikel toevoegen",
+    "itemSave": "Opslaan",
+    "itemCancel": "Annuleren",
+    "itemEdit": "Bewerken",
+    "itemRemove": "Verwijderen",
+    "itemsEmpty": "Geen artikelen. Klik op “Artikel toevoegen” om te beginnen.",
+    "laserDisconnect": "Laser loskoppelen",
+    "laserConnect": "Leica DISTO / Bosch GLM verbinden via Bluetooth",
+    "measureW": "Breedte meten (B)",
+    "measureH": "Hoogte meten (H)",
+    "laserHint": "Druk op de knop van de DISTO/GLM-laser → de maat wordt automatisch ingevuld.",
+    "laserOffline": "Werkt offline • synchroniseert bij verbinding",
+    "lastReading": "Laatste meting: {l} mm · {time}",
+    "laserConnecting": "Verbinden..."
   },
   "sash": {
     "kind_fix": "Vast",
@@ -2200,7 +2249,9 @@
     "hardwareColor": "Kleur beslag",
     "securityClass": "Veiligheidsklasse",
     "handleHeight": "Hoogte kruk vanaf de vloer",
-    "main": "Hoofdvleugel"
+    "main": "Hoofdvleugel",
+    "leaf": "Vleugel {n}",
+    "close": "Sluiten"
   },
   "referral": {
     "loading": "Laden…",
@@ -2303,5 +2354,18 @@
       "credit": "tegoed",
       "stripe": "Stripe-geld"
     }
+  },
+  "pagination": {
+    "page": "Pagina",
+    "of": "van",
+    "itemsPerPage": "Items per pagina",
+    "items": "items",
+    "showing": "Weergave",
+    "to": "tot",
+    "results": "resultaten",
+    "first": "Eerste pagina",
+    "prev": "Vorige pagina",
+    "next": "Volgende pagina",
+    "last": "Laatste pagina"
   }
 }

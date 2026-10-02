@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, ChevronFirst, ChevronLast } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { usePagination, PaginationConfig } from "@/hooks/usePagination";
 
 interface PaginationProps {
@@ -30,6 +31,7 @@ export function Pagination({
   itemsPerPageOptions = [10, 25, 50, 100],
   t = {},
 }: PaginationProps) {
+  const tp = useTranslations("pagination");
   const pagination = usePagination(totalItems, config);
   const {
     currentPage,
@@ -57,13 +59,13 @@ export function Pagination({
   if (totalPages <= 1 && !showItemsPerPage) return null;
 
   const labels = {
-    page: t.page || "Pagina",
-    of: t.of || "di",
-    itemsPerPage: t.itemsPerPage || "Elementi per pagina",
-    items: t.items || "elementi",
-    showing: t.showing || "Mostra",
-    to: t.to || "a",
-    results: t.results || "risultati",
+    page: t.page || tp("page"),
+    of: t.of || tp("of"),
+    itemsPerPage: t.itemsPerPage || tp("itemsPerPage"),
+    items: t.items || tp("items"),
+    showing: t.showing || tp("showing"),
+    to: t.to || tp("to"),
+    results: t.results || tp("results"),
   };
 
   const startItem = (currentPage - 1) * itemsPerPage + 1;
@@ -101,7 +103,7 @@ export function Pagination({
           onClick={firstPage}
           disabled={currentPage === 1}
           className="p-2 rounded border border-[var(--color-border)] bg-[var(--color-bg)] transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[var(--color-bg-alt)] hover:border-[var(--color-mint)] disabled:hover:bg-[var(--color-bg)] disabled:hover:border-[var(--color-border)]"
-          aria-label="Prima pagina"
+          aria-label={tp("first")}
         >
           <ChevronFirst className="w-4 h-4" />
         </button>
@@ -109,7 +111,7 @@ export function Pagination({
           onClick={prevPage}
           disabled={currentPage === 1}
           className="p-2 rounded border border-[var(--color-border)] bg-[var(--color-bg)] transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[var(--color-bg-alt)] hover:border-[var(--color-mint)] disabled:hover:bg-[var(--color-bg)] disabled:hover:border-[var(--color-border)]"
-          aria-label="Pagina precedente"
+          aria-label={tp("prev")}
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
@@ -137,7 +139,7 @@ export function Pagination({
           onClick={nextPage}
           disabled={currentPage === totalPages}
           className="p-2 rounded border border-[var(--color-border)] bg-[var(--color-bg)] transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[var(--color-bg-alt)] hover:border-[var(--color-mint)] disabled:hover:bg-[var(--color-bg)] disabled:hover:border-[var(--color-border)]"
-          aria-label="Pagina successiva"
+          aria-label={tp("next")}
         >
           <ChevronRight className="w-4 h-4" />
         </button>
@@ -145,7 +147,7 @@ export function Pagination({
           onClick={lastPage}
           disabled={currentPage === totalPages}
           className="p-2 rounded border border-[var(--color-border)] bg-[var(--color-bg)] transition-colors disabled:opacity-30 disabled:cursor-not-allowed hover:bg-[var(--color-bg-alt)] hover:border-[var(--color-mint)] disabled:hover:bg-[var(--color-bg)] disabled:hover:border-[var(--color-border)]"
-          aria-label="Ultima pagina"
+          aria-label={tp("last")}
         >
           <ChevronLast className="w-4 h-4" />
         </button>
