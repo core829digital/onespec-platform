@@ -11,8 +11,7 @@ import { cn } from "@/lib/utils";
 import { ChevronDown, Lock, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { planDisplayName, usePlanAccess, useSubscriptionEnded } from "@/lib/plan-gates";
 import { lockedInNav } from "./nav-items";
-import { NAV_GROUPS, ADMIN_NAV_ITEM, isNavItemActive, navHref, visibleNavItems, type NavItem } from "./nav-items";
-import { useReferralVisible } from "@/lib/use-referral-visible";
+import { NAV_GROUPS, ADMIN_NAV_ITEM, isNavItemActive, navHref, type NavItem } from "./nav-items";
 import { Logo } from "@/components/logo";
 
 const COLLAPSED_KEY = "onespec-sidebar-collapsed";
@@ -102,7 +101,6 @@ export function Sidebar({ tenant }: { tenant: Doc<"tenants"> }) {
   const isPlatformAdmin = viewer?.isPlatformAdmin === true;
   const access = usePlanAccess(tenant._id);
   const ended = useSubscriptionEnded(tenant);
-  const referralVisible = useReferralVisible(tenant._id);
   const { collapsed, closed, toggleCollapsed, toggleGroup } = useSidebarState();
 
   return (
@@ -159,7 +157,7 @@ export function Sidebar({ tenant }: { tenant: Doc<"tenants"> }) {
                   )}
                 >
                   <div className="min-h-0 space-y-0.5 overflow-hidden" inert={!open}>
-                    {visibleNavItems(group.items, { referral: referralVisible }).map((item) => (
+                    {group.items.map((item) => (
                       <NavLink
                         key={item.label}
                         item={item}

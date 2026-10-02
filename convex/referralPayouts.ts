@@ -155,7 +155,8 @@ export const listDue = internalQuery({
 export type ClaimResult =
   | { kind: "skip"; reason: string }
   | { kind: "ended"; reason: string }
-  | { kind: "go"; amountCents: number; referrerCustomerId: string };
+  | { kind: "go"; method: "credit"; amountCents: number; referrerCustomerId: string }
+  | { kind: "go"; method: "stripe"; amountCents: number; accountId: string };
 
 /** Decides whether a due referral can be paid now and, if so, claims it atomically. */
 export const claimReward = internalMutation({
@@ -181,8 +182,17 @@ export const claimReward = internalMutation({
     // The invited account must still be a paying customer after the hold.
     if (referred.planStatus === "suspended") return end("REFERRED_CANCELLED");
     if (referred.planStatus !== "active") return waitOrEnd("REFERRED_NOT_ACTIVE");
-    if (!canInvite(referrer) || !referrer.stripeCustomerId) return waitOrEnd("REFERRER_NOT_ELIGIBLE");
+    if (!canInvite(referrer)) return waitOrEnd("REFERRER_NOT_ELIGIBLE");
     if (!r.rewardCents || r.rewardCents <= 0) return end("NO_REWARD_AMOUNT");
+
+    // How the inviter wants to be rewarded: subscription credit (default) or money on their Connect account.
+    const payout = await ctx.db.query("referralPayoutAccounts").withIndex("by_tenant", (q) => q.eq("tenantId", r.referrerTenantId)).first();
+    const method = payout?.method ?? "credit";
+    if (method === "stripe") {
+      if (!payout?.stripeAccountId || payout.transfersActive !== true) return waitOrEnd("PAYOUT_ACCOUNT_NOT_READY");
+    } else if (!referrer.stripeCustomerId) {
+      return waitOrEnd("REFERRER_NOT_ELIGIBLE");
+    }
 
     const yearAgo = now - 365 * DAY_MS;
     const rewarded = await ctx.db
@@ -192,19 +202,39 @@ export const claimReward = internalMutation({
     if (rewarded.filter((x) => (x.rewardedAt ?? 0) >= yearAgo).length >= MAX_REWARDS_PER_12_MONTHS) return waitOrEnd("CAP_REACHED");
 
     await ctx.db.patch(r._id, { rewardClaimedAt: now });
-    return { kind: "go", amountCents: r.rewardCents, referrerCustomerId: referrer.stripeCustomerId };
+    if (method === "stripe") return { kind: "go", method: "stripe", amountCents: r.rewardCents, accountId: payout!.stripeAccountId as string };
+    return { kind: "go", method: "credit", amountCents: r.rewardCents, referrerCustomerId: referrer.stripeCustomerId as string };
   },
 });
 
 export const markRewarded = internalMutation({
-  args: { referralId: v.id("referrals"), txnId: v.string() },
+  args: { referralId: v.id("referrals"), txnId: v.string(), method: v.optional(v.union(v.literal("credit"), v.literal("stripe"))) },
   handler: async (ctx, args): Promise<boolean> => {
     const r = await ctx.db.get(args.referralId);
     if (!r || r.status !== "qualified") return false;
-    await ctx.db.patch(r._id, { status: "rewarded", rewardedAt: Date.now(), stripeBalanceTxnId: args.txnId });
-    await audit(ctx, r.referrerTenantId, "referral.rewarded", r._id, { txnId: args.txnId, rewardCents: r.rewardCents });
-    if (r.rewardCents) await notifyOwner(ctx, r.referrerTenantId, "referral_rewarded", { amountCents: r.rewardCents });
+    const method = args.method ?? "credit";
+    await ctx.db.patch(r._id, {
+      status: "rewarded",
+      rewardedAt: Date.now(),
+      payoutMethod: method,
+      ...(method === "stripe" ? { stripeTransferId: args.txnId } : { stripeBalanceTxnId: args.txnId }),
+    });
+    await audit(ctx, r.referrerTenantId, "referral.rewarded", r._id, { txnId: args.txnId, method, rewardCents: r.rewardCents });
+    if (r.rewardCents) await notifyOwner(ctx, r.referrerTenantId, "referral_rewarded", { amountCents: r.rewardCents, payout: method });
     return true;
+  },
+});
+
+/** The inviter's Connect account could not receive the transfer: wait for them to finish setup. */
+export const markPayoutAccountNotReady = internalMutation({
+  args: { referralId: v.id("referrals") },
+  handler: async (ctx, args): Promise<void> => {
+    const r = await ctx.db.get(args.referralId);
+    if (!r) return;
+    const row = await ctx.db.query("referralPayoutAccounts").withIndex("by_tenant", (q) => q.eq("tenantId", r.referrerTenantId)).first();
+    if (row) await ctx.db.patch(row._id, { transfersActive: false, checkedAt: Date.now() });
+    // Release the claim so the next sweep can look again once the account is ready.
+    await ctx.db.patch(r._id, { rewardClaimedAt: undefined });
   },
 });
 
@@ -213,12 +243,12 @@ export const listRewardedInWindow = internalQuery({
   handler: async (ctx) => {
     const since = Date.now() - CLAWBACK_WINDOW_DAYS * DAY_MS;
     const rows = await ctx.db.query("referrals").withIndex("by_status", (q) => q.eq("status", "rewarded")).order("desc").take(200);
-    const out: Array<{ referralId: Id<"referrals">; referredCustomerId: string; referrerCustomerId: string | null; qualifiedAt: number; rewardCents: number }> = [];
+    const out: Array<{ referralId: Id<"referrals">; referredCustomerId: string; referrerCustomerId: string | null; qualifiedAt: number; rewardCents: number; payoutMethod: "credit" | "stripe"; transferId: string | null }> = [];
     for (const r of rows) {
       if ((r.qualifiedAt ?? 0) < since || !r.rewardCents) continue;
       const [referred, referrer] = await Promise.all([ctx.db.get(r.referredTenantId), ctx.db.get(r.referrerTenantId)]);
       if (!referred?.stripeCustomerId) continue;
-      out.push({ referralId: r._id, referredCustomerId: referred.stripeCustomerId, referrerCustomerId: referrer?.stripeCustomerId ?? null, qualifiedAt: r.qualifiedAt as number, rewardCents: r.rewardCents });
+      out.push({ referralId: r._id, referredCustomerId: referred.stripeCustomerId, referrerCustomerId: referrer?.stripeCustomerId ?? null, qualifiedAt: r.qualifiedAt as number, rewardCents: r.rewardCents, payoutMethod: r.payoutMethod ?? "credit", transferId: r.stripeTransferId ?? null });
       if (out.length >= BATCH) break;
     }
     return out;
@@ -316,31 +346,65 @@ export const rewardSweep = internalAction({
         const claim = await ctx.runMutation(internal.referralPayouts.claimReward, { referralId: d.referralId });
         if (claim.kind !== "go") continue;
 
-        // A previous attempt may have reached Stripe and died before we recorded it (an
-        // idempotency key only lives 24h): look for it before writing again.
         let txnId: string | null = null;
-        const existing = await stripeRest("GET", `/customers/${encodeURIComponent(claim.referrerCustomerId)}/balance_transactions?limit=100`);
-        if (!existing.ok) throw new Error(stripeErrorMessage(existing));
-        const found = (existing.json.data as Array<{ id?: string; metadata?: Record<string, string> }> | undefined)?.find(
-          (t) => t.metadata?.referralId === String(d.referralId) && !t.metadata?.clawbackOf,
-        );
-        if (found?.id) txnId = found.id;
-        if (!txnId) {
-          const made = await stripeRest(
-            "POST",
-            `/customers/${encodeURIComponent(claim.referrerCustomerId)}/balance_transactions`,
-            {
-              amount: String(-claim.amountCents), // negative = credit to the customer
-              currency: "eur",
-              description: "Credito invito OneSpec",
-              "metadata[referralId]": String(d.referralId),
-            },
-            `referral-reward-${d.referralId}`,
+        if (claim.method === "stripe") {
+          // Money to the inviter's own Stripe account. Re-check the account live first.
+          const acct = await stripeRest("GET", `/accounts/${encodeURIComponent(claim.accountId)}`);
+          if (!acct.ok) throw new Error(stripeErrorMessage(acct));
+          if ((acct.json.capabilities as { transfers?: string } | undefined)?.transfers !== "active") {
+            await ctx.runMutation(internal.referralPayouts.markPayoutAccountNotReady, { referralId: d.referralId });
+            continue;
+          }
+          // A previous attempt may have reached Stripe and died before we recorded it.
+          const existing = await stripeRest("GET", `/transfers?destination=${encodeURIComponent(claim.accountId)}&limit=100`);
+          if (!existing.ok) throw new Error(stripeErrorMessage(existing));
+          const found = (existing.json.data as Array<{ id?: string; metadata?: Record<string, string> }> | undefined)?.find(
+            (t) => t.metadata?.referralId === String(d.referralId),
           );
-          if (!made.ok) throw new Error(stripeErrorMessage(made));
-          txnId = String(made.json.id);
+          if (found?.id) txnId = found.id;
+          if (!txnId) {
+            const made = await stripeRest(
+              "POST",
+              "/transfers",
+              {
+                amount: String(claim.amountCents),
+                currency: "eur",
+                destination: claim.accountId,
+                description: "Premio invito OneSpec",
+                transfer_group: `referral-${d.referralId}`,
+                "metadata[referralId]": String(d.referralId),
+              },
+              `referral-transfer-${d.referralId}`,
+            );
+            if (!made.ok) throw new Error(stripeErrorMessage(made));
+            txnId = String(made.json.id);
+          }
+        } else {
+          // Credit on the inviter's Stripe customer balance. A previous attempt may have
+          // reached Stripe and died before we recorded it (an idempotency key only lives 24h).
+          const existing = await stripeRest("GET", `/customers/${encodeURIComponent(claim.referrerCustomerId)}/balance_transactions?limit=100`);
+          if (!existing.ok) throw new Error(stripeErrorMessage(existing));
+          const found = (existing.json.data as Array<{ id?: string; metadata?: Record<string, string> }> | undefined)?.find(
+            (t) => t.metadata?.referralId === String(d.referralId) && !t.metadata?.clawbackOf,
+          );
+          if (found?.id) txnId = found.id;
+          if (!txnId) {
+            const made = await stripeRest(
+              "POST",
+              `/customers/${encodeURIComponent(claim.referrerCustomerId)}/balance_transactions`,
+              {
+                amount: String(-claim.amountCents), // negative = credit to the customer
+                currency: "eur",
+                description: "Credito invito OneSpec",
+                "metadata[referralId]": String(d.referralId),
+              },
+              `referral-reward-${d.referralId}`,
+            );
+            if (!made.ok) throw new Error(stripeErrorMessage(made));
+            txnId = String(made.json.id);
+          }
         }
-        if (await ctx.runMutation(internal.referralPayouts.markRewarded, { referralId: d.referralId, txnId })) rewarded++;
+        if (await ctx.runMutation(internal.referralPayouts.markRewarded, { referralId: d.referralId, txnId, method: claim.method })) rewarded++;
       } catch (e) {
         failed++;
         lastError = errText(e);
@@ -365,9 +429,22 @@ export const clawbackSweep = internalAction({
         if (!(await ctx.runMutation(internal.referralPayouts.markClawback, { referralId: r.referralId, note: "Rimborso o contestazione sul primo pagamento" }))) continue;
         clawedBack++;
 
-        // Take the credit back only if it is still all there; otherwise a person decides.
         let outcome = "da verificare a mano (credito già usato o non leggibile)";
-        if (r.referrerCustomerId) {
+        if (r.payoutMethod === "stripe") {
+          // Money already sent: try to pull it back from the inviter's Connect account.
+          if (r.transferId) {
+            const back = await stripeRest(
+              "POST",
+              `/transfers/${encodeURIComponent(r.transferId)}/reversals`,
+              { amount: String(r.rewardCents), description: "Storno premio invito OneSpec (rimborso/contestazione)", "metadata[clawbackOf]": String(r.referralId) },
+              `referral-reversal-${r.referralId}`,
+            );
+            outcome = back.ok ? "pagamento stornato automaticamente" : `storno automatico non riuscito (${stripeErrorMessage(back)}): da recuperare a mano`;
+          } else {
+            outcome = "trasferimento non trovato: da verificare a mano";
+          }
+        } else if (r.referrerCustomerId) {
+          // Take the credit back only if it is still all there; otherwise a person decides.
           const cust = await stripeRest("GET", `/customers/${encodeURIComponent(r.referrerCustomerId)}`);
           const balance = typeof cust.json.balance === "number" ? cust.json.balance : 0;
           if (cust.ok && balance <= -r.rewardCents) {

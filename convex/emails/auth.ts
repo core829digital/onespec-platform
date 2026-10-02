@@ -43,6 +43,8 @@ export interface AuthEmailData {
   /** Referral emails: a ready-to-print money amount (already formatted) and a discount percentage. */
   amount?: string;
   percent?: number;
+  /** referral_rewarded: how the reward was paid ("credit" on the subscription, or "stripe" = money). */
+  payout?: string;
 }
 
 /** HTML-entity-escape a string for safe interpolation into element text/attributes. */
@@ -291,14 +293,15 @@ export function renderAuthEmail(template: string, locale: string, data: AuthEmai
     case "referral_rewarded": {
       const href = `${base}/app/account/referral`;
       const amount = String(data.amount ?? "");
+      const T = data.payout === "stripe" ? L.referral.paid : L.referral.rewarded;
       return {
-        subject: line(L.referral.rewarded.subject(amount)),
+        subject: line(T.subject(amount)),
         html: wrap(
-          `${H1}${L.referral.rewarded.title}</h1>
-           ${P}${L.referral.rewarded.body(esc(amount))}</p>
-           ${cta(href, L.referral.rewarded.cta)}`,
+          `${H1}${T.title}</h1>
+           ${P}${T.body(esc(amount))}</p>
+           ${cta(href, T.cta)}`,
         ),
-        text: `${line(L.referral.rewarded.subject(amount))}\n${href}`,
+        text: `${line(T.subject(amount))}\n${href}`,
       };
     }
 

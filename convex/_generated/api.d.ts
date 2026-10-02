@@ -75,6 +75,7 @@ import type * as ops from "../ops.js";
 import type * as onboarding from "../onboarding.js";
 import type * as passports from "../passports.js";
 import type * as quotes from "../quotes.js";
+import type * as referralPayoutAccount from "../referralPayoutAccount.js";
 import type * as referralPayouts from "../referralPayouts.js";
 import type * as referrals from "../referrals.js";
 import type * as registration from "../registration.js";
@@ -162,6 +163,7 @@ declare const fullApi: ApiFromModules<{
   onboarding: typeof onboarding;
   passports: typeof passports;
   quotes: typeof quotes;
+  referralPayoutAccount: typeof referralPayoutAccount;
   referralPayouts: typeof referralPayouts;
   referrals: typeof referrals;
   registration: typeof registration;

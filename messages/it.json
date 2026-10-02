@@ -2200,7 +2200,7 @@
   "referral": {
     "loading": "Caricamento…",
     "title": "Invita e risparmia",
-    "subtitle": "Invita un'altra azienda: tu ricevi il {referrer}% del prezzo del suo abbonamento (IVA esclusa) come credito sul tuo abbonamento, lei ha il {invitee}% di sconto sul primo pagamento.",
+    "subtitle": "Invita un'altra azienda: tu ricevi il {referrer}% del prezzo del suo abbonamento (IVA esclusa), come credito o come denaro sul tuo conto Stripe, lei ha il {invitee}% di sconto sul primo pagamento.",
     "unavailableTitle": "Programma non disponibile",
     "unavailableBody": "Il programma inviti è riservato a proprietari e amministratori di account con un abbonamento attivo, e non è ancora aperto a tutti.",
     "seePlans": "Vedi i piani",
@@ -2226,7 +2226,7 @@
       "Condividi il tuo link o il tuo codice con un'altra azienda.",
       "L'azienda si registra e sceglie un piano: riceve lo sconto in automatico al pagamento.",
       "Dopo il primo pagamento e {days} giorni senza rimborsi, il tuo credito viene accreditato.",
-      "Il credito riduce le tue prossime fatture dell'abbonamento: non è convertibile in denaro."
+      "Il premio arriva come credito sull'abbonamento oppure, se preferisci, come denaro sul tuo conto Stripe: scegli qui sotto."
     ],
     "amountsTitle": "Quanto ricevi",
     "amountsNote": "Il {percent}% del prezzo di listino del piano scelto, IVA esclusa, una volta per ogni azienda invitata.",
@@ -2243,7 +2243,28 @@
       "expired": "Scaduto",
       "cancelled": "Annullato"
     },
-    "footnote": "Per proteggere il programma, gli inviti fra account della stessa persona o della stessa azienda, o con la stessa carta di pagamento, non danno diritto al credito."
+    "footnote": "Per proteggere il programma, gli inviti fra account della stessa persona o della stessa azienda, o con la stessa carta di pagamento, non danno diritto al credito.",
+    "payout": {
+      "title": "Come vuoi ricevere il premio",
+      "credit": {
+        "title": "Credito sull'abbonamento",
+        "body": "Il premio riduce le tue prossime fatture. Nessun adempimento: è l'opzione più semplice."
+      },
+      "stripe": {
+        "title": "Denaro sul tuo conto (Stripe)",
+        "body": "Il premio viene trasferito sul tuo conto Stripe e poi sul tuo conto bancario. Serve collegare un conto Stripe."
+      },
+      "ownerOnly": "Solo il titolare dell'account può cambiare il metodo e collegare il conto.",
+      "statusReady": "Conto collegato",
+      "statusIncomplete": "Da completare",
+      "statusNone": "Nessun conto collegato",
+      "readyHint": "I premi maturati vengono trasferiti sul tuo conto Stripe.",
+      "notReadyHint": "Finché il conto non è pronto, i premi maturati restano in attesa (fino a 90 giorni dopo i {days} giorni di attesa, poi scadono).",
+      "connect": "Collega il conto Stripe",
+      "continue": "Completa la configurazione",
+      "check": "Verifica lo stato",
+      "taxNote": "Un premio in denaro è un compenso per la tua segnalazione: la gestione fiscale (fattura o ricevuta, secondo la tua forma giuridica) è a tuo carico. OneSpec può chiederti i dati fiscali necessari."
+    }
   },
   "adminReferrals": {
     "loading": "Caricamento…",
@@ -2272,6 +2293,10 @@
       "rejected": "Respinto",
       "expired": "Scaduto",
       "clawback": "Stornato"
+    },
+    "method": {
+      "credit": "credito",
+      "stripe": "denaro Stripe"
     }
   }
 }

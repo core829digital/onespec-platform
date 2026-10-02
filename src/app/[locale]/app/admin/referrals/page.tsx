@@ -106,7 +106,7 @@ export default function AdminReferralsPage() {
               </div>
               {r.rewardCents !== null || r.holdUntil || r.clawbackNote ? (
                 <p className="mt-2 text-xs text-[var(--color-text-secondary)]">
-                  {r.rewardCents !== null ? `${t("credit")}: ${eur(r.rewardCents)}` : ""}
+                  {r.rewardCents !== null ? `${t("credit")}: ${eur(r.rewardCents)}${r.payoutMethod ? ` (${t(`method.${r.payoutMethod}`)})` : ""}` : ""}
                   {r.holdUntil ? ` · ${t("holdUntil")}: ${day(r.holdUntil)}` : ""}
                   {r.clawbackNote ? ` · ${r.clawbackNote}` : ""}
                 </p>

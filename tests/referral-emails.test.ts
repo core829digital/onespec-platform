@@ -38,4 +38,15 @@ describe("referral emails", () => {
     const m = renderAuthEmail("referral_invited", "en", { percent: "<b>x</b>" as unknown as number });
     expect(m.html).not.toContain("<b>x</b>");
   });
+
+  test("a reward paid as money has its own wording in every language", () => {
+    for (const l of LOCALES) {
+      const credit = renderAuthEmail("referral_rewarded", l, { amount: "€9.70" });
+      const money = renderAuthEmail("referral_rewarded", l, { amount: "€9.70", payout: "stripe" });
+      expect(money.subject).toContain("€9.70");
+      expect(money.subject).not.toBe(credit.subject);
+      expect(money.html).not.toBe(credit.html);
+      expect(money.html).toContain("Stripe");
+    }
+  });
 });

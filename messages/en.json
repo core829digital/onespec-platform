@@ -2200,7 +2200,7 @@
   "referral": {
     "loading": "Loading…",
     "title": "Invite & save",
-    "subtitle": "Invite another company: you receive {referrer}% of its subscription price (VAT excluded) as credit on your subscription, and it gets {invitee}% off its first payment.",
+    "subtitle": "Invite another company: you receive {referrer}% of its subscription price (VAT excluded), as credit or as money in your Stripe account, and it gets {invitee}% off its first payment.",
     "unavailableTitle": "Programme not available",
     "unavailableBody": "The invitation programme is for owners and admins of accounts with an active subscription, and is not open to everyone yet.",
     "seePlans": "See plans",
@@ -2226,7 +2226,7 @@
       "Share your link or code with another company.",
       "The company signs up and picks a plan: it gets the discount automatically at payment.",
       "After the first payment and {days} days without refunds, your credit is added.",
-      "The credit reduces your next subscription invoices: it cannot be converted into cash."
+      "The reward arrives as credit on your subscription or, if you prefer, as money in your Stripe account: choose below."
     ],
     "amountsTitle": "What you receive",
     "amountsNote": "{percent}% of the list price of the chosen plan, VAT excluded, once for each invited company.",
@@ -2243,7 +2243,28 @@
       "expired": "Expired",
       "cancelled": "Cancelled"
     },
-    "footnote": "To protect the programme, invitations between accounts of the same person or company, or using the same payment card, do not earn credit."
+    "footnote": "To protect the programme, invitations between accounts of the same person or company, or using the same payment card, do not earn credit.",
+    "payout": {
+      "title": "How you want to be rewarded",
+      "credit": {
+        "title": "Credit on your subscription",
+        "body": "The reward reduces your next invoices. No paperwork: it is the simplest option."
+      },
+      "stripe": {
+        "title": "Money to your account (Stripe)",
+        "body": "The reward is transferred to your Stripe account and then to your bank account. You need to connect a Stripe account."
+      },
+      "ownerOnly": "Only the account owner can change the method and connect the account.",
+      "statusReady": "Account connected",
+      "statusIncomplete": "To complete",
+      "statusNone": "No account connected",
+      "readyHint": "Matured rewards are transferred to your Stripe account.",
+      "notReadyHint": "Until the account is ready, matured rewards wait (up to 90 days after the {days}-day wait, then they expire).",
+      "connect": "Connect Stripe account",
+      "continue": "Complete the setup",
+      "check": "Check status",
+      "taxNote": "A cash reward is a fee for your referral: tax treatment (invoice or receipt, depending on your legal form) is your responsibility. OneSpec may ask you for the necessary tax details."
+    }
   },
   "adminReferrals": {
     "loading": "Loading…",
@@ -2272,6 +2293,10 @@
       "rejected": "Rejected",
       "expired": "Expired",
       "clawback": "Reversed"
+    },
+    "method": {
+      "credit": "credit",
+      "stripe": "Stripe money"
     }
   }
 }

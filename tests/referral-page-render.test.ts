@@ -10,13 +10,23 @@ import de from "../messages/de.json";
 import nl from "../messages/nl.json";
 import ro from "../messages/ro.json";
 
-const state = vi.hoisted(() => ({ tenant: undefined as unknown, info: undefined as unknown, visible: true }));
+const state = vi.hoisted(() => ({ tenant: undefined as unknown, info: undefined as unknown, payout: undefined as unknown, visible: true }));
 
-vi.mock("convex/react", () => ({
-  useQuery: (_fn: unknown, args: unknown) => (args === "skip" ? undefined : args && typeof args === "object" && "tenantId" in (args as object) ? state.info : state.tenant),
-  useMutation: () => async () => ({ code: "OS-NEW234" }),
-  useConvexAuth: () => ({ isAuthenticated: true }),
-}));
+vi.mock("convex/react", async () => {
+  const { getFunctionName } = await import("convex/server");
+  return {
+    useQuery: (fn: Parameters<typeof getFunctionName>[0], args: unknown) => {
+      if (args === "skip") return undefined;
+      const name = getFunctionName(fn);
+      if (name === "referralPayoutAccount:getPayoutSettings") return state.payout;
+      if (name === "referrals:getMyReferral") return state.info;
+      return state.tenant;
+    },
+    useMutation: () => async () => ({ code: "OS-NEW234" }),
+    useAction: () => async () => ({ url: "https://connect.stripe.test/x", ready: false, hasAccount: true }),
+    useConvexAuth: () => ({ isAuthenticated: true }),
+  };
+});
 vi.mock("@/i18n/navigation", () => ({ Link: (p: { href: string; children?: unknown; className?: string }) => h("a", { href: p.href, className: p.className }, p.children as never) }));
 vi.mock("@/lib/use-referral-visible", () => ({ useReferralVisible: () => state.visible }));
 vi.mock("@/lib/use-friendly-error", () => ({ useFriendlyError: () => () => "error" }));
@@ -77,6 +87,7 @@ function render(locale: Loc) {
 beforeEach(() => {
   state.tenant = { _id: "t1" };
   state.info = INFO;
+  state.payout = { canEdit: true, method: "credit", hasAccount: false, ready: false, checkedAt: null };
   state.visible = true;
 });
 
@@ -125,5 +136,39 @@ describe("referral page", () => {
   test("empty history", () => {
     state.info = { ...INFO, history: [], counts: { invited: 0, registered: 0, waiting: 0, rewarded: 0 } };
     expect(render("en")).toContain("No invitations yet");
+  });
+
+  test("payout choice: credit by default, no Stripe setup shown", () => {
+    const html = render("it");
+    expect(html).toContain("Come vuoi ricevere il premio");
+    expect(html).toContain("Credito sull&#x27;abbonamento");
+    expect(html).not.toContain("Collega il conto Stripe");
+  });
+
+  test("money option chosen: shows the connect button and the tax note", () => {
+    state.payout = { canEdit: true, method: "stripe", hasAccount: false, ready: false, checkedAt: null };
+    const html = render("it");
+    expect(html).toContain("Collega il conto Stripe");
+    expect(html).toContain("Nessun conto collegato");
+    expect(html).toContain("gestione fiscale");
+  });
+
+  test("account started but not ready, and ready", () => {
+    state.payout = { canEdit: true, method: "stripe", hasAccount: true, ready: false, checkedAt: 1 };
+    let html = render("it");
+    expect(html).toContain("Completa la configurazione");
+    expect(html).toContain("Verifica lo stato");
+    expect(html).toContain("Da completare");
+    state.payout = { canEdit: true, method: "stripe", hasAccount: true, ready: true, checkedAt: 1 };
+    html = render("it");
+    expect(html).toContain("Conto collegato");
+  });
+
+  test("only the owner can change it: admins see the choice disabled and no buttons", () => {
+    state.payout = { canEdit: false, method: "stripe", hasAccount: true, ready: false, checkedAt: 1 };
+    const html = render("en");
+    expect(html).toContain("Only the account owner");
+    expect(html).not.toContain("Complete the setup");
+    expect(html).toContain("disabled");
   });
 });

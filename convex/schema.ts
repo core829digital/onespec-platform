@@ -116,6 +116,22 @@ export default defineSchema({
     .index("by_tenant", ["tenantId"]),
 
   /**
+   * How an inviter wants to be rewarded: "credit" on the subscription (default, no row needed)
+   * or "stripe" = money transferred to their own Stripe Connect (Express) account.
+   * `transfersActive` mirrors Stripe's `transfers` capability, re-checked right before paying.
+   */
+  referralPayoutAccounts: defineTable({
+    tenantId: v.id("tenants"),
+    method: v.union(v.literal("credit"), v.literal("stripe")),
+    stripeAccountId: v.optional(v.string()),
+    transfersActive: v.optional(v.boolean()),
+    checkedAt: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_account", ["stripeAccountId"]),
+
+  /**
    * One row per invited account (`referredTenantId` appears at most once). A row also
    * records attempts refused by the anti-fraud rules (status "rejected" + reason),
    * so platform admins can review them. Later phases move accepted rows through
@@ -146,6 +162,9 @@ export default defineSchema({
     rewardClaimedAt: v.optional(v.number()),
     rewardedAt: v.optional(v.number()),
     stripeBalanceTxnId: v.optional(v.string()),
+    /** How the reward was paid: credit on the Stripe balance, or a transfer to a Connect account. */
+    payoutMethod: v.optional(v.union(v.literal("credit"), v.literal("stripe"))),
+    stripeTransferId: v.optional(v.string()),
     clawbackAt: v.optional(v.number()),
     clawbackNote: v.optional(v.string()),
   })

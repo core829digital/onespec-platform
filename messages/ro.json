@@ -2200,7 +2200,7 @@
   "referral": {
     "loading": "Se încarcă…",
     "title": "Invită și economisește",
-    "subtitle": "Invită o altă companie: primești {referrer}% din prețul abonamentului ei (fără TVA) ca credit pe abonamentul tău, iar ea primește {invitee}% reducere la prima plată.",
+    "subtitle": "Invită o altă companie: primești {referrer}% din prețul abonamentului ei (fără TVA), ca credit sau ca bani în contul tău Stripe, iar ea primește {invitee}% reducere la prima plată.",
     "unavailableTitle": "Program indisponibil",
     "unavailableBody": "Programul de invitații este rezervat proprietarilor și administratorilor conturilor cu abonament activ și nu este încă deschis tuturor.",
     "seePlans": "Vezi planurile",
@@ -2226,7 +2226,7 @@
       "Distribuie linkul sau codul tău unei alte companii.",
       "Compania se înregistrează și alege un plan: primește reducerea automat la plată.",
       "După prima plată și {days} zile fără rambursări, creditul tău este adăugat.",
-      "Creditul reduce următoarele tale facturi de abonament: nu poate fi convertit în numerar."
+      "Recompensa vine ca credit pe abonament sau, dacă preferi, ca bani în contul tău Stripe: alege mai jos."
     ],
     "amountsTitle": "Cât primești",
     "amountsNote": "{percent}% din prețul de listă al planului ales, fără TVA, o singură dată pentru fiecare companie invitată.",
@@ -2243,7 +2243,28 @@
       "expired": "Expirat",
       "cancelled": "Anulat"
     },
-    "footnote": "Pentru a proteja programul, invitațiile între conturi ale aceleiași persoane sau companii, sau cu același card de plată, nu dau dreptul la credit."
+    "footnote": "Pentru a proteja programul, invitațiile între conturi ale aceleiași persoane sau companii, sau cu același card de plată, nu dau dreptul la credit.",
+    "payout": {
+      "title": "Cum vrei să primești recompensa",
+      "credit": {
+        "title": "Credit pe abonament",
+        "body": "Recompensa îți reduce următoarele facturi. Fără formalități: este cea mai simplă variantă."
+      },
+      "stripe": {
+        "title": "Bani în contul tău (Stripe)",
+        "body": "Recompensa este transferată în contul tău Stripe și apoi în contul tău bancar. Trebuie să conectezi un cont Stripe."
+      },
+      "ownerOnly": "Doar proprietarul contului poate schimba metoda și conecta contul.",
+      "statusReady": "Cont conectat",
+      "statusIncomplete": "De completat",
+      "statusNone": "Niciun cont conectat",
+      "readyHint": "Recompensele câștigate sunt transferate în contul tău Stripe.",
+      "notReadyHint": "Cât timp contul nu este pregătit, recompensele câștigate rămân în așteptare (până la 90 de zile după perioada de {days} zile, apoi expiră).",
+      "connect": "Conectează contul Stripe",
+      "continue": "Finalizează configurarea",
+      "check": "Verifică starea",
+      "taxNote": "O recompensă în bani este o remunerație pentru recomandarea ta: tratamentul fiscal (factură sau chitanță, în funcție de forma ta juridică) îți aparține. OneSpec îți poate cere datele fiscale necesare."
+    }
   },
   "adminReferrals": {
     "loading": "Se încarcă…",
@@ -2272,6 +2293,10 @@
       "rejected": "Respins",
       "expired": "Expirat",
       "clawback": "Stornat"
+    },
+    "method": {
+      "credit": "credit",
+      "stripe": "bani Stripe"
     }
   }
 }

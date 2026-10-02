@@ -176,7 +176,7 @@ export async function notifyOwner(
   ctx: MutationCtx,
   tenantId: Id<"tenants">,
   template: "referral_invited" | "referral_registered" | "referral_rewarded",
-  data: { amountCents?: number; percent?: number },
+  data: { amountCents?: number; percent?: number; payout?: "credit" | "stripe" },
 ): Promise<void> {
   try {
     const tenant = await ctx.db.get(tenantId);
@@ -191,7 +191,7 @@ export async function notifyOwner(
       template,
       to: owner.email,
       locale,
-      data: { amount, percent: data.percent },
+      data: { amount, percent: data.percent, payout: data.payout },
       tenantId,
     });
   } catch {
@@ -306,6 +306,7 @@ export const adminListReferrals = query({
         holdUntil: r.holdUntil ?? null,
         rewardCents: r.rewardCents ?? null,
         rewardedAt: r.rewardedAt ?? null,
+        payoutMethod: r.payoutMethod ?? null,
         clawbackNote: r.clawbackNote ?? null,
         referrer: await who(r.referrerTenantId),
         referred: await who(r.referredTenantId),

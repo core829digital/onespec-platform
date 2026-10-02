@@ -65,6 +65,8 @@ export interface EmailStrings {
     invited: { subject: string; title: string; body: (percent: string) => string; cta: string };
     registered: { subject: string; title: string; body: string; cta: string };
     rewarded: { subject: (amount: string) => string; title: string; body: (amount: string) => string; cta: string };
+    /** Reward paid as money to the inviter's Stripe account. */
+    paid: { subject: (amount: string) => string; title: string; body: (amount: string) => string; cta: string };
   };
   notification: string;
 }
@@ -160,6 +162,12 @@ const it: EmailStrings = {
       subject: (a) => `Hai ricevuto ${a} di credito — onespec`,
       title: "Credito invito accreditato",
       body: (a) => `Abbiamo aggiunto ${a} di credito al tuo account: verrà scalato dalle prossime fatture dell'abbonamento. Grazie per aver portato un nuovo cliente.`,
+      cta: "Vedi i tuoi inviti",
+    },
+    paid: {
+      subject: (a) => `Ti abbiamo inviato ${a} — onespec`,
+      title: "Premio invito pagato",
+      body: (a) => `Abbiamo trasferito ${a} sul tuo conto Stripe collegato: lo vedrai tra i tuoi pagamenti Stripe nei prossimi giorni. Grazie per aver portato un nuovo cliente.`,
       cta: "Vedi i tuoi inviti",
     },
   },
@@ -259,6 +267,12 @@ const en: EmailStrings = {
       body: (a) => `We added ${a} of credit to your account: it will be deducted from your next subscription invoices. Thank you for bringing in a new customer.`,
       cta: "See your invitations",
     },
+    paid: {
+      subject: (a) => `We sent you ${a} — onespec`,
+      title: "Invitation reward paid",
+      body: (a) => `We transferred ${a} to your connected Stripe account: you will see it among your Stripe payouts in the next few days. Thank you for bringing in a new customer.`,
+      cta: "See your invitations",
+    },
   },
   notification: "Notification",
 };
@@ -354,6 +368,12 @@ const fr: EmailStrings = {
       subject: (a) => `Vous avez reçu ${a} de crédit — onespec`,
       title: "Crédit d'invitation ajouté",
       body: (a) => `Nous avons ajouté ${a} de crédit à votre compte : il sera déduit de vos prochaines factures d'abonnement. Merci d'avoir amené un nouveau client.`,
+      cta: "Voir mes invitations",
+    },
+    paid: {
+      subject: (a) => `Nous vous avons envoyé ${a} — onespec`,
+      title: "Récompense d'invitation versée",
+      body: (a) => `Nous avons transféré ${a} sur votre compte Stripe connecté : vous le verrez parmi vos versements Stripe dans les prochains jours. Merci d'avoir amené un nouveau client.`,
       cta: "Voir mes invitations",
     },
   },
@@ -453,6 +473,12 @@ const de: EmailStrings = {
       body: (a) => `Wir haben Ihrem Konto ${a} Guthaben gutgeschrieben: Es wird von Ihren nächsten Abonnement-Rechnungen abgezogen. Danke, dass Sie einen neuen Kunden gewonnen haben.`,
       cta: "Meine Einladungen ansehen",
     },
+    paid: {
+      subject: (a) => `Wir haben Ihnen ${a} gesendet — onespec`,
+      title: "Einladungsprämie ausgezahlt",
+      body: (a) => `Wir haben ${a} auf Ihr verbundenes Stripe-Konto überwiesen: Sie sehen den Betrag in den nächsten Tagen unter Ihren Stripe-Auszahlungen. Danke, dass Sie einen neuen Kunden gewonnen haben.`,
+      cta: "Meine Einladungen ansehen",
+    },
   },
   notification: "Benachrichtigung",
 };
@@ -550,6 +576,12 @@ const nl: EmailStrings = {
       body: (a) => `We hebben ${a} tegoed aan je account toegevoegd: het wordt van je volgende abonnementsfacturen afgetrokken. Bedankt voor het aanbrengen van een nieuwe klant.`,
       cta: "Bekijk je uitnodigingen",
     },
+    paid: {
+      subject: (a) => `We hebben je ${a} gestuurd — onespec`,
+      title: "Uitnodigingsbeloning uitbetaald",
+      body: (a) => `We hebben ${a} overgemaakt naar je gekoppelde Stripe-account: je ziet het de komende dagen tussen je Stripe-uitbetalingen. Bedankt voor het aanbrengen van een nieuwe klant.`,
+      cta: "Bekijk je uitnodigingen",
+    },
   },
   notification: "Melding",
 };
@@ -645,6 +677,12 @@ const ro: EmailStrings = {
       subject: (a) => `Ai primit ${a} credit — onespec`,
       title: "Credit de invitație adăugat",
       body: (a) => `Am adăugat ${a} credit în contul tău: va fi dedus din următoarele facturi de abonament. Mulțumim că ai adus un client nou.`,
+      cta: "Vezi invitațiile tale",
+    },
+    paid: {
+      subject: (a) => `Ți-am trimis ${a} — onespec`,
+      title: "Recompensă de invitație plătită",
+      body: (a) => `Am transferat ${a} în contul tău Stripe conectat: îl vei vedea printre plățile tale Stripe în următoarele zile. Mulțumim că ai adus un client nou.`,
       cta: "Vezi invitațiile tale",
     },
   },

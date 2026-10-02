@@ -2200,7 +2200,7 @@
   "referral": {
     "loading": "Chargement…",
     "title": "Inviter et économiser",
-    "subtitle": "Invitez une autre entreprise : vous recevez {referrer} % du prix de son abonnement (hors TVA) en crédit sur votre abonnement, et elle bénéficie de {invitee} % de remise sur son premier paiement.",
+    "subtitle": "Invitez une autre entreprise : vous recevez {referrer} % du prix de son abonnement (hors TVA), en crédit ou en argent sur votre compte Stripe, et elle bénéficie de {invitee} % de remise sur son premier paiement.",
     "unavailableTitle": "Programme indisponible",
     "unavailableBody": "Le programme d'invitation est réservé aux propriétaires et administrateurs de comptes avec un abonnement actif, et n'est pas encore ouvert à tous.",
     "seePlans": "Voir les offres",
@@ -2226,7 +2226,7 @@
       "Partagez votre lien ou votre code avec une autre entreprise.",
       "L'entreprise s'inscrit et choisit une offre : elle reçoit la remise automatiquement au paiement.",
       "Après le premier paiement et {days} jours sans remboursement, votre crédit est ajouté.",
-      "Le crédit réduit vos prochaines factures d'abonnement : il n'est pas convertible en argent."
+      "La récompense arrive sous forme de crédit sur l'abonnement ou, si vous préférez, d'argent sur votre compte Stripe : choisissez ci-dessous."
     ],
     "amountsTitle": "Ce que vous recevez",
     "amountsNote": "{percent} % du prix catalogue de l'offre choisie, hors TVA, une fois pour chaque entreprise invitée.",
@@ -2243,7 +2243,28 @@
       "expired": "Expiré",
       "cancelled": "Annulé"
     },
-    "footnote": "Pour protéger le programme, les invitations entre comptes d'une même personne ou entreprise, ou avec la même carte de paiement, ne donnent pas droit au crédit."
+    "footnote": "Pour protéger le programme, les invitations entre comptes d'une même personne ou entreprise, ou avec la même carte de paiement, ne donnent pas droit au crédit.",
+    "payout": {
+      "title": "Comment souhaitez-vous recevoir la récompense",
+      "credit": {
+        "title": "Crédit sur votre abonnement",
+        "body": "La récompense réduit vos prochaines factures. Aucune démarche : c'est l'option la plus simple."
+      },
+      "stripe": {
+        "title": "Argent sur votre compte (Stripe)",
+        "body": "La récompense est transférée sur votre compte Stripe puis sur votre compte bancaire. Il faut connecter un compte Stripe."
+      },
+      "ownerOnly": "Seul le propriétaire du compte peut changer le mode et connecter le compte.",
+      "statusReady": "Compte connecté",
+      "statusIncomplete": "À compléter",
+      "statusNone": "Aucun compte connecté",
+      "readyHint": "Les récompenses acquises sont transférées sur votre compte Stripe.",
+      "notReadyHint": "Tant que le compte n'est pas prêt, les récompenses acquises restent en attente (jusqu'à 90 jours après l'attente de {days} jours, puis elles expirent).",
+      "connect": "Connecter le compte Stripe",
+      "continue": "Terminer la configuration",
+      "check": "Vérifier l'état",
+      "taxNote": "Une récompense en argent est une rémunération de votre recommandation : le traitement fiscal (facture ou reçu, selon votre forme juridique) est à votre charge. OneSpec peut vous demander les informations fiscales nécessaires."
+    }
   },
   "adminReferrals": {
     "loading": "Chargement…",
@@ -2272,6 +2293,10 @@
       "rejected": "Rejeté",
       "expired": "Expiré",
       "clawback": "Annulé"
+    },
+    "method": {
+      "credit": "crédit",
+      "stripe": "argent Stripe"
     }
   }
 }

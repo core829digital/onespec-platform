@@ -2200,7 +2200,7 @@
   "referral": {
     "loading": "Wird geladen…",
     "title": "Einladen & sparen",
-    "subtitle": "Laden Sie ein anderes Unternehmen ein: Sie erhalten {referrer} % des Abo-Preises (ohne MwSt.) als Guthaben auf Ihr Abonnement, das Unternehmen erhält {invitee} % Rabatt auf die erste Zahlung.",
+    "subtitle": "Laden Sie ein anderes Unternehmen ein: Sie erhalten {referrer} % des Abo-Preises (ohne MwSt.) als Guthaben oder als Geld auf Ihr Stripe-Konto, das Unternehmen erhält {invitee} % Rabatt auf die erste Zahlung.",
     "unavailableTitle": "Programm nicht verfügbar",
     "unavailableBody": "Das Einladungsprogramm ist für Inhaber und Administratoren von Konten mit aktivem Abonnement gedacht und noch nicht für alle geöffnet.",
     "seePlans": "Tarife ansehen",
@@ -2226,7 +2226,7 @@
       "Teilen Sie Ihren Link oder Code mit einem anderen Unternehmen.",
       "Das Unternehmen registriert sich und wählt einen Tarif: Der Rabatt wird bei der Zahlung automatisch angewendet.",
       "Nach der ersten Zahlung und {days} Tagen ohne Rückerstattung wird Ihr Guthaben gutgeschrieben.",
-      "Das Guthaben mindert Ihre nächsten Abo-Rechnungen: Es kann nicht in Bargeld umgewandelt werden."
+      "Die Prämie kommt als Guthaben auf das Abonnement oder, wenn Sie möchten, als Geld auf Ihr Stripe-Konto: wählen Sie unten."
     ],
     "amountsTitle": "Das erhalten Sie",
     "amountsNote": "{percent} % des Listenpreises des gewählten Tarifs, ohne MwSt., einmal pro eingeladenem Unternehmen.",
@@ -2243,7 +2243,28 @@
       "expired": "Abgelaufen",
       "cancelled": "Storniert"
     },
-    "footnote": "Zum Schutz des Programms geben Einladungen zwischen Konten derselben Person oder desselben Unternehmens oder mit derselben Zahlungskarte kein Anrecht auf Guthaben."
+    "footnote": "Zum Schutz des Programms geben Einladungen zwischen Konten derselben Person oder desselben Unternehmens oder mit derselben Zahlungskarte kein Anrecht auf Guthaben.",
+    "payout": {
+      "title": "Wie möchten Sie die Prämie erhalten",
+      "credit": {
+        "title": "Guthaben auf Ihr Abonnement",
+        "body": "Die Prämie senkt Ihre nächsten Rechnungen. Kein Aufwand: die einfachste Option."
+      },
+      "stripe": {
+        "title": "Geld auf Ihr Konto (Stripe)",
+        "body": "Die Prämie wird auf Ihr Stripe-Konto und von dort auf Ihr Bankkonto überwiesen. Dafür muss ein Stripe-Konto verbunden werden."
+      },
+      "ownerOnly": "Nur der Kontoinhaber kann die Methode ändern und das Konto verbinden.",
+      "statusReady": "Konto verbunden",
+      "statusIncomplete": "Zu vervollständigen",
+      "statusNone": "Kein Konto verbunden",
+      "readyHint": "Fällige Prämien werden auf Ihr Stripe-Konto überwiesen.",
+      "notReadyHint": "Solange das Konto nicht bereit ist, warten fällige Prämien (bis zu 90 Tage nach der Wartezeit von {days} Tagen, danach verfallen sie).",
+      "connect": "Stripe-Konto verbinden",
+      "continue": "Einrichtung abschließen",
+      "check": "Status prüfen",
+      "taxNote": "Eine Geldprämie ist eine Vergütung für Ihre Empfehlung: die steuerliche Behandlung (Rechnung oder Beleg, je nach Rechtsform) liegt bei Ihnen. OneSpec kann die nötigen Steuerdaten bei Ihnen anfordern."
+    }
   },
   "adminReferrals": {
     "loading": "Wird geladen…",
@@ -2272,6 +2293,10 @@
       "rejected": "Abgelehnt",
       "expired": "Abgelaufen",
       "clawback": "Storniert"
+    },
+    "method": {
+      "credit": "Guthaben",
+      "stripe": "Stripe-Geld"
     }
   }
 }

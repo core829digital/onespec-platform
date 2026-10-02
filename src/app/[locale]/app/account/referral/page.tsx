@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useAction, useMutation, useQuery } from "convex/react";
 import { useLocale, useTranslations } from "next-intl";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
@@ -20,6 +20,12 @@ export default function ReferralPage() {
   const visible = useReferralVisible(tenant?._id);
   const info = useQuery(api.referrals.getMyReferral, tenant && visible ? { tenantId: tenant._id } : "skip");
   const ensureCode = useMutation(api.referrals.ensureMyReferralCode);
+  const payout = useQuery(api.referralPayoutAccount.getPayoutSettings, tenant && visible ? { tenantId: tenant._id } : "skip");
+  const setMethod = useMutation(api.referralPayoutAccount.setPayoutMethod);
+  const startOnboarding = useAction(api.referralPayoutAccount.startPayoutOnboarding);
+  const refreshStatus = useAction(api.referralPayoutAccount.refreshPayoutStatus);
+  const [payoutBusy, setPayoutBusy] = useState(false);
+  const refreshedOnReturn = useRef(false);
   const [copied, setCopied] = useState<"code" | "link" | null>(null);
   const [error, setError] = useState("");
   const asked = useRef(false);
@@ -35,6 +41,14 @@ export default function ReferralPage() {
       ensureCode({ tenantId: tenant._id }).catch((e) => setError(tf(e)));
     }
   }, [tenant, info, ensureCode, tf]);
+
+  // Coming back from Stripe's onboarding: read the account status once.
+  useEffect(() => {
+    if (!tenant || !payout?.hasAccount || refreshedOnReturn.current) return;
+    if (new URLSearchParams(window.location.search).get("payout") !== "return") return;
+    refreshedOnReturn.current = true;
+    refreshStatus({ tenantId: tenant._id }).catch((e) => setError(tf(e)));
+  }, [tenant, payout?.hasAccount, refreshStatus, tf]);
 
   if (tenant === undefined) return <p className="text-sm text-[var(--color-text-secondary)]">{t("loading")}</p>;
 
@@ -66,6 +80,42 @@ export default function ReferralPage() {
       setTimeout(() => setCopied(null), 2000);
     } catch {
       /* clipboard blocked: the text is selectable on screen */
+    }
+  }
+
+  async function choose(method: "credit" | "stripe") {
+    if (!tenant) return;
+    setError("");
+    try {
+      await setMethod({ tenantId: tenant._id, method });
+    } catch (e) {
+      setError(tf(e));
+    }
+  }
+
+  async function connect() {
+    if (!tenant) return;
+    setPayoutBusy(true);
+    setError("");
+    try {
+      const { url } = await startOnboarding({ tenantId: tenant._id, origin: window.location.origin });
+      window.location.href = url;
+    } catch (e) {
+      setError(tf(e));
+      setPayoutBusy(false);
+    }
+  }
+
+  async function check() {
+    if (!tenant) return;
+    setPayoutBusy(true);
+    setError("");
+    try {
+      await refreshStatus({ tenantId: tenant._id });
+    } catch (e) {
+      setError(tf(e));
+    } finally {
+      setPayoutBusy(false);
     }
   }
 
@@ -131,6 +181,57 @@ export default function ReferralPage() {
         {stat(t("statPending"), eur(info.pendingCents))}
       </section>
       <p className="-mt-3 text-xs text-[var(--color-text-secondary)]">{t("leftThisYear", { left: info.rewardsLeftThisYear, max: info.rules.maxPerYear })}</p>
+
+      {/* How to be rewarded */}
+      {payout ? (
+        <section className={card} aria-labelledby="ref-payout">
+          <h2 id="ref-payout" className="text-sm font-semibold text-[var(--color-text)]">{t("payout.title")}</h2>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2" role="radiogroup" aria-labelledby="ref-payout">
+            {(["credit", "stripe"] as const).map((m) => {
+              const active = payout.method === m;
+              return (
+                <button
+                  key={m}
+                  type="button"
+                  role="radio"
+                  aria-checked={active}
+                  disabled={!payout.canEdit}
+                  onClick={() => void choose(m)}
+                  className={`rounded-lg border p-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-70 ${active ? "border-[var(--color-mint)] bg-[var(--color-mint)]/10" : "border-[var(--color-border)] bg-[var(--color-bg)] hover:border-[var(--color-mint)]"}`}
+                >
+                  <span className="block text-sm font-semibold text-[var(--color-text)]">{t(`payout.${m}.title`)}</span>
+                  <span className="mt-1 block text-xs text-[var(--color-text-secondary)]">{t(`payout.${m}.body`)}</span>
+                </button>
+              );
+            })}
+          </div>
+          {!payout.canEdit ? <p className="mt-2 text-xs text-[var(--color-text-secondary)]">{t("payout.ownerOnly")}</p> : null}
+
+          {payout.method === "stripe" ? (
+            <div className="mt-4 space-y-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-4">
+              <p className="text-sm text-[var(--color-text)]">
+                <span className={`mr-2 inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold ${payout.ready ? "bg-[var(--color-mint)]/15 text-[var(--color-mint)]" : "bg-amber-500/15 text-amber-500"}`}>
+                  {payout.ready ? t("payout.statusReady") : payout.hasAccount ? t("payout.statusIncomplete") : t("payout.statusNone")}
+                </span>
+                {payout.ready ? t("payout.readyHint") : t("payout.notReadyHint", { days: info.rules.holdDays })}
+              </p>
+              {payout.canEdit ? (
+                <div className="flex flex-wrap gap-2">
+                  <button type="button" disabled={payoutBusy} onClick={() => void connect()} className={`${ghost} disabled:opacity-60`}>
+                    {payout.hasAccount ? t("payout.continue") : t("payout.connect")}
+                  </button>
+                  {payout.hasAccount ? (
+                    <button type="button" disabled={payoutBusy} onClick={() => void check()} className={`${ghost} disabled:opacity-60`}>
+                      {t("payout.check")}
+                    </button>
+                  ) : null}
+                </div>
+              ) : null}
+              <p className="text-xs text-[var(--color-text-secondary)]">{t("payout.taxNote")}</p>
+            </div>
+          ) : null}
+        </section>
+      ) : null}
 
       {/* How it works */}
       <section className={card} aria-labelledby="ref-how">

@@ -2200,7 +2200,7 @@
   "referral": {
     "loading": "Laden…",
     "title": "Nodig uit en bespaar",
-    "subtitle": "Nodig een ander bedrijf uit: jij ontvangt {referrer}% van de abonnementsprijs (excl. btw) als tegoed op je abonnement, en het bedrijf krijgt {invitee}% korting op de eerste betaling.",
+    "subtitle": "Nodig een ander bedrijf uit: jij ontvangt {referrer}% van de abonnementsprijs (excl. btw), als tegoed of als geld op je Stripe-account, en het bedrijf krijgt {invitee}% korting op de eerste betaling.",
     "unavailableTitle": "Programma niet beschikbaar",
     "unavailableBody": "Het uitnodigingsprogramma is voor eigenaren en beheerders van accounts met een actief abonnement en staat nog niet open voor iedereen.",
     "seePlans": "Bekijk de abonnementen",
@@ -2226,7 +2226,7 @@
       "Deel je link of code met een ander bedrijf.",
       "Het bedrijf meldt zich aan en kiest een abonnement: de korting wordt automatisch toegepast bij betaling.",
       "Na de eerste betaling en {days} dagen zonder terugbetaling wordt je tegoed bijgeschreven.",
-      "Het tegoed verlaagt je volgende abonnementsfacturen: het kan niet in geld worden omgezet."
+      "De beloning komt als tegoed op je abonnement of, als je dat liever hebt, als geld op je Stripe-account: kies hieronder."
     ],
     "amountsTitle": "Wat je ontvangt",
     "amountsNote": "{percent}% van de catalogusprijs van het gekozen abonnement, excl. btw, eenmaal per uitgenodigd bedrijf.",
@@ -2243,7 +2243,28 @@
       "expired": "Verlopen",
       "cancelled": "Geannuleerd"
     },
-    "footnote": "Om het programma te beschermen geven uitnodigingen tussen accounts van dezelfde persoon of hetzelfde bedrijf, of met dezelfde betaalkaart, geen recht op tegoed."
+    "footnote": "Om het programma te beschermen geven uitnodigingen tussen accounts van dezelfde persoon of hetzelfde bedrijf, of met dezelfde betaalkaart, geen recht op tegoed.",
+    "payout": {
+      "title": "Hoe wil je de beloning ontvangen",
+      "credit": {
+        "title": "Tegoed op je abonnement",
+        "body": "De beloning verlaagt je volgende facturen. Geen administratie: de eenvoudigste optie."
+      },
+      "stripe": {
+        "title": "Geld op je rekening (Stripe)",
+        "body": "De beloning wordt overgemaakt naar je Stripe-account en daarna naar je bankrekening. Je moet een Stripe-account koppelen."
+      },
+      "ownerOnly": "Alleen de eigenaar van het account kan de methode wijzigen en het account koppelen.",
+      "statusReady": "Account gekoppeld",
+      "statusIncomplete": "Af te ronden",
+      "statusNone": "Geen account gekoppeld",
+      "readyHint": "Verdiende beloningen worden overgemaakt naar je Stripe-account.",
+      "notReadyHint": "Zolang het account niet klaar is, wachten verdiende beloningen (tot 90 dagen na de wachttijd van {days} dagen, daarna vervallen ze).",
+      "connect": "Stripe-account koppelen",
+      "continue": "Instelling afronden",
+      "check": "Status controleren",
+      "taxNote": "Een beloning in geld is een vergoeding voor je aanbeveling: de fiscale behandeling (factuur of kwitantie, afhankelijk van je rechtsvorm) is voor jouw rekening. OneSpec kan je om de nodige fiscale gegevens vragen."
+    }
   },
   "adminReferrals": {
     "loading": "Laden…",
@@ -2272,6 +2293,10 @@
       "rejected": "Afgewezen",
       "expired": "Verlopen",
       "clawback": "Teruggedraaid"
+    },
+    "method": {
+      "credit": "tegoed",
+      "stripe": "Stripe-geld"
     }
   }
 }
