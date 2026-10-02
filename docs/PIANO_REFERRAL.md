@@ -1,6 +1,6 @@
 # Piano del sistema referral di OneSpec
 
-Stato: **R1, R2 e R3 implementate** (codici, collegamento, sconto, qualifica, premio, storno, pagina utente, email, pagina admin; spente di default); R4–R5 da fare. Piano da approvare nelle parti economiche. Data: 2026-10-02.
+Stato: **R1–R4 implementate** (codici, collegamento, sconto, qualifica, premio in credito o in denaro via Stripe Connect, storno, pagina utente, email, pagina admin, sito, regolamento in bozza; tutto spento di default); R5 = prova in modalità test e pilota (vedi `docs/PROVA_REFERRAL_STRIPE.md`). Piano da approvare nelle parti economiche. Data: 2026-10-02.
 
 ### Stato di implementazione
 
@@ -13,7 +13,10 @@ Stato: **R1, R2 e R3 implementate** (codici, collegamento, sconto, qualifica, pr
   - **Pagina admin** `/app/admin/referrals`: elenco con i motivi di rifiuto, filtro per stato, Riapri / Respingi / Disattiva-riattiva codice, esportazione CSV. Ogni azione è registrata nell'audit.
 - **Importi:** nessuna tabella fissa; solo le due percentuali in `convex/lib/referralRewards.ts`.
 - **Interruttore:** tutto è **spento** finché non imposti `REFERRALS_ENABLED=1` nelle variabili Convex. Spento: nessun codice nuovo, nessuno sconto, nessuna nuova qualifica, nessun menu; i premi già maturati vengono comunque accreditati.
-- **Non ancora fatto:** passaggio del `?ref=` dal sito e pagina "Programma invito" sul sito (R4), regolamento legale del programma, limite di registrazioni per IP, pilota con 10 clienti (R5).
+- **Pagamento in denaro (Stripe Connect Express):** il titolare dell'invitante sceglie "Credito" o "Denaro" nella pagina; per il denaro collega un conto Stripe (onboarding ospitato da Stripe). Il premio diventa un trasferimento idempotente (chiave `referral-transfer-<id>` + ricerca per `metadata.referralId`); lo storno è un reversal del trasferimento. Se il conto non è attivo il premio attende e riprova, non va perso. Richiede Connect abilitato sull'account Stripe di OneSpec e fondi sul saldo piattaforma.
+- **R4 (fatta):** il sito conserva `?ref=` per 30 giorni e lo aggiunge a tutti i link verso la piattaforma; pagina `/inviti` nelle 6 lingue (passi, tabella importi dal listino, regole), link nel footer e nella sitemap. **Regolamento** `regolamento-inviti` in bozza nei due repo (da far rivedere a un legale; punto fiscale lasciato come campo da completare) e riga sul codice invito nella pagina cookie.
+- **Limite per IP:** non implementato di proposito. Le mutazioni Convex non vedono l'IP del visitatore; servirebbe un passaggio da una route HTTP del server, con costo e rischio sulla registrazione. Le difese attuali (email canonica, dominio aziendale, usa e getta, stessa carta/cliente Stripe, attesa 30 giorni, tetto annuo, revisione admin) coprono il caso reale. Da rivalutare solo se in pilota compaiono abusi.
+- **Ancora da fare (azioni tue):** abilitare Connect su Stripe, prova in modalità test, parere del commercialista sul premio in denaro, revisione legale del regolamento, pilota con 10 clienti.
 
 ---
 

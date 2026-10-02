@@ -250,6 +250,12 @@ export const LEGAL_DOCS: LegalDoc[] = [
         ],
       },
       {
+        h: "Codice invito (archiviazione locale)",
+        p: [
+          "Se arrivi su OneSpec da un link d'invito (contenente «?ref=…»), il codice invito viene salvato nel browser tramite localStorage con la chiave «onespec-ref» per 30 giorni, al solo scopo di collegare la tua registrazione a chi ti ha invitato. Non è un cookie, non contiene dati personali e non viene inviato a terzi; puoi cancellarlo in qualsiasi momento svuotando i dati del sito.",
+        ],
+      },
+      {
         h: "Misurazione delle prestazioni",
         p: [
           "Le prestazioni delle pagine sono misurate tramite Vercel Speed Insights, che non utilizza cookie e non traccia i singoli utenti.",
@@ -345,6 +351,62 @@ export const LEGAL_DOCS: LegalDoc[] = [
           "Scansione delle dipendenze e dei segreti, aggiornamenti e revisione di sicurezza prima dei rilasci.",
           "Runbook di risposta agli incidenti e tempi di notifica: [[da completare]].",
           "Per segnalazioni di sicurezza: [[email di contatto sicurezza]].",
+        ],
+      },
+    ],
+  },
+  {
+    slug: "regolamento-inviti",
+    title: "Regolamento del programma inviti",
+    updated: "2026-10-02",
+    summary: "Come funzionano premi, sconti, pagamenti e controlli del programma «Invita e risparmia».",
+    sections: [
+      {
+        h: "Cos'è il programma",
+        p: [
+          "Il programma «Invita e risparmia» permette a un'organizzazione cliente di OneSpec (l'«invitante») di invitare un'altra azienda (l'«invitato») tramite il proprio codice o link personale. Il programma è un'iniziativa commerciale di OneSpec, può essere attivato, modificato o sospeso in qualsiasi momento e riguarda esclusivamente clienti professionali (B2B).",
+          "Bozza in attesa di revisione legale: [[revisione legale del regolamento]].",
+        ],
+      },
+      {
+        h: "Vantaggi",
+        p: [
+          "L'invitato ottiene uno sconto del 10% sulla prima fattura dell'abbonamento a pagamento, calcolato sul prezzo di listino del piano e del ciclo scelti.",
+          "L'invitante ottiene un premio pari al 10% del prezzo di listino, IVA esclusa, del piano e del ciclo di fatturazione effettivamente acquistati dall'invitato (l'annuale è calcolato come dieci mensilità). Il premio spetta una sola volta per ciascun account invitato.",
+          "Il piano Enterprise, gestito commercialmente, è escluso dal programma automatico.",
+        ],
+      },
+      {
+        h: "Quando matura il premio",
+        p: [
+          "Il premio matura solo dopo il primo pagamento reale dell'invitato e trascorsi 30 giorni, a condizione che nel frattempo il pagamento non sia stato rimborsato o contestato e che l'abbonamento dell'invitato risulti regolare.",
+          "Ogni invitante può ricevere al massimo 10 premi in 12 mesi consecutivi. Se l'invitante non è idoneo entro 90 giorni dal termine del periodo di attesa, l'invito scade senza premio.",
+        ],
+      },
+      {
+        h: "Come viene pagato il premio",
+        p: [
+          "Il titolare dell'organizzazione sceglie tra due modalità: credito sul saldo Stripe, che riduce le prossime fatture di OneSpec, oppure bonifico in denaro tramite Stripe Connect sul conto collegato dall'invitante. Il pagamento in denaro richiede il completamento della verifica di identità richiesta da Stripe.",
+          "Il credito non è convertibile in denaro. Gli eventuali profili fiscali del premio in denaro (fatturazione, ritenute, IVA) sono a carico dell'invitante, salvo diversa disposizione di legge: [[trattamento fiscale del premio, da definire con il commercialista]].",
+        ],
+      },
+      {
+        h: "Revoca del premio",
+        p: [
+          "Se entro 60 giorni dal pagamento qualificante l'invitato ottiene un rimborso o apre una contestazione, il premio già riconosciuto viene revocato: il credito viene stornato dal saldo Stripe oppure il bonifico viene annullato tramite storno del trasferimento.",
+        ],
+      },
+      {
+        h: "Controlli e uso improprio",
+        p: [
+          "Non sono ammessi: auto-inviti, inviti tra società dello stesso gruppo o con lo stesso dominio aziendale, indirizzi email temporanei, account creati al solo scopo di ottenere il premio e uso della stessa carta o dello stesso cliente di pagamento da parte di invitante e invitato.",
+          "Gli inviti che non rispettano queste regole sono respinti, e OneSpec può sospendere il codice di un invitante e annullare i premi ottenuti in modo improprio. Nell'applicare i controlli, OneSpec tratta l'indirizzo email dei titolari e l'identificativo di pagamento Stripe per le sole finalità di prevenzione degli abusi.",
+        ],
+      },
+      {
+        h: "Riservatezza dell'invitato",
+        p: [
+          "All'invitante è mostrato il nome dell'azienda invitata in forma mascherata (ad esempio «Se*** Srl») e lo stato dell'invito, senza altri dati sull'invitato.",
         ],
       },
     ],
