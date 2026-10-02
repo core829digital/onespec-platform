@@ -1,9 +1,8 @@
 import { hardwareFill, PALETTE } from "./finishes";
+import { handleExtent, handleKindFor, handleShapes } from "./handle-shapes";
 import { clamp, line, poly, rect, text, type Tag } from "./prims";
 import type { Box, DrawingSash, Primitive, SceneCell, SceneContext } from "./types";
 
-const HANDLE_LONG = 16;
-const HANDLE_SHORT = 5;
 const SYMBOL = { stroke: PALETTE.ink, strokeWidth: 1.1 };
 
 /** Where the handle sits: hinged leaves opposite the hinge, sliding leaves on the leading edge. */
@@ -78,22 +77,26 @@ function hingesFor(ctx: SceneContext, s: DrawingSash, cell: SceneCell, i: number
 
 function handleFor(ctx: SceneContext, s: DrawingSash, cell: SceneCell, i: number): { prims: Primitive[]; hy: number | null } {
   const tag = { role: "handle" as const, sashIndex: i };
-  const style = { fill: hardwareFill(s.hardwareColor), stroke: PALETTE.hinge, strokeWidth: 0.8, radius: 1.5 };
+  const fill = hardwareFill(s.hardwareColor);
+  const door = ctx.category?.startsWith("porta") ?? false;
+  const kind = handleKindFor(s.type, door);
   if (s.type === "tilt") {
-    const cx = cell.x + cell.w / 2;
-    const cy = cell.y + ctx.sashInset / 2;
-    return { prims: [rect(tag, cx - HANDLE_LONG / 2, cy - HANDLE_SHORT / 2, HANDLE_LONG, HANDLE_SHORT, style)], hy: null };
+    return {
+      prims: handleShapes(tag, { kind, cx: cell.x + cell.w / 2, cy: cell.y + ctx.sashInset / 2, inward: 1, stile: ctx.sashInset, fill }),
+      hy: null,
+    };
   }
   const mm = s.handleHeightMm && s.handleHeightMm > 0 ? s.handleHeightMm : ctx.heightMm / 2;
   const sill = ctx.frame.y + ctx.frame.h;
   const hy = clamp(
     sill - mm * ctx.scale,
-    cell.y + ctx.sashInset + HANDLE_LONG / 2 + 2,
-    cell.y + cell.h - ctx.sashInset - HANDLE_LONG / 2 - 2,
+    cell.y + ctx.sashInset + handleExtent(kind).up + 2,
+    cell.y + cell.h - ctx.sashInset - handleExtent(kind).down - 2,
   );
-  const cx = handleSide(s) === "left" ? cell.x + ctx.sashInset / 2 : cell.x + cell.w - ctx.sashInset / 2;
+  const side = handleSide(s);
+  const cx = side === "left" ? cell.x + ctx.sashInset / 2 : cell.x + cell.w - ctx.sashInset / 2;
   return {
-    prims: [rect(tag, cx - HANDLE_SHORT / 2, hy - HANDLE_LONG / 2, HANDLE_SHORT, HANDLE_LONG, style)],
+    prims: handleShapes(tag, { kind, cx, cy: hy, inward: side === "left" ? 1 : -1, stile: ctx.sashInset, fill }),
     hy,
   };
 }

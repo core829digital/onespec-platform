@@ -1,5 +1,7 @@
 "use client";
 
+import { hardwareFill } from "@/lib/drawing/finishes";
+import { handleKindFor, handleShapes } from "@/lib/drawing/handle-shapes";
 import { useCallback, useRef } from "react";
 import type { Material, Sash } from "./widget-pricing";
 
@@ -51,6 +53,8 @@ interface Props {
   finish?: string;
   /** Show the light "!" badge + red frame when a leaf is below the safe minimum. */
   showMinWarnings?: boolean;
+  /** Balcony door: the handle is a horizontal door lever instead of a window lever. */
+  door?: boolean;
 }
 
 function normaliseRatios(sashes: Sash[]): number[] {
@@ -72,6 +76,7 @@ export function SpecDrawing({
   onResizeSash,
   finish,
   showMinWarnings = true,
+  door = false,
 }: Props) {
   const boxW = 200;
   const boxH = 150;
@@ -154,9 +159,30 @@ export function SpecDrawing({
       // Handle on the side opposite the hinge (towards the middle on outward-hinged pairs).
       const hMm = sash.handleHeightMm && sash.handleHeightMm > 0 ? sash.handleHeightMm : Math.round(height / 2);
       const hy0 = rectY + rectH - (Math.min(height - 40, Math.max(40, hMm)) / height) * rectH;
-      const hx0 = sash.direction === "left" ? sx2 - 11 : sx + 7;
+      const handleOnRight = sash.direction === "left";
+      const shapes = handleShapes(
+        { role: "handle" },
+        {
+          kind: handleKindFor(sash.type, door),
+          cx: handleOnRight ? sx2 - 8 : sx + 8,
+          cy: hy0,
+          inward: handleOnRight ? -1 : 1,
+          stile: 5,
+          fill: hardwareFill(sash.hardwareColor),
+        },
+      );
       nodes.push(
-        <rect key={`hd-${i}`} x={hx0} y={hy0 - 9} width={4.5} height={18} rx={2} fill={colors.stroke} opacity={0.95} pointerEvents="none" />,
+        <g key={`hd-${i}`} pointerEvents="none">
+          {shapes.map((p, k) =>
+            p.type === "rect" ? (
+              <rect key={k} x={p.x} y={p.y} width={p.w} height={p.h} rx={p.radius} fill={p.fill} stroke={p.stroke} strokeWidth={p.strokeWidth} />
+            ) : p.type === "circle" ? (
+              <circle key={k} cx={p.cx} cy={p.cy} r={p.r} fill={p.fill} stroke={p.stroke} strokeWidth={p.strokeWidth} />
+            ) : p.type === "line" ? (
+              <line key={k} x1={p.x1} y1={p.y1} x2={p.x2} y2={p.y2} stroke={p.stroke} strokeWidth={p.strokeWidth} strokeLinecap="round" />
+            ) : null,
+          )}
+        </g>,
       );
       if (sash.type === "tiltturn") {
         // Tilt triangle, same as the platform drawings: base on the bottom corners, tip at the top centre.
@@ -180,6 +206,16 @@ export function SpecDrawing({
         <line key={`sl3-${i}`} x1={tipX} y1={arrowY} x2={tipX - tipDir * 7} y2={arrowY + 5} stroke={colors.stroke} strokeWidth={2.2} opacity={0.9} />,
         <line key={`sl4-${i}`} x1={sx + 5} y1={rectY + rectH - 5} x2={sx2 - 5} y2={rectY + rectH - 5} stroke={colors.stroke} strokeWidth={3} opacity={0.65} />,
       );
+      // Flush pull on the leading edge (the side the arrow points to), at the configured handle height.
+      const pullMm = sash.handleHeightMm && sash.handleHeightMm > 0 ? sash.handleHeightMm : Math.round(height / 2);
+      const pullY = rectY + rectH - (Math.min(height - 40, Math.max(40, pullMm)) / height) * rectH;
+      for (const p of handleShapes(
+        { role: "handle" },
+        { kind: "pull", cx: sash.direction === "left" ? sx + 8 : sx2 - 8, cy: pullY, inward: 1, stile: 5, fill: hardwareFill(sash.hardwareColor) },
+      )) {
+        if (p.type === "rect") nodes.push(<rect key={`pl-${i}-${nodes.length}`} x={p.x} y={p.y} width={p.w} height={p.h} rx={p.radius} fill={p.fill} stroke={p.stroke} strokeWidth={p.strokeWidth} pointerEvents="none" />);
+        else if (p.type === "line") nodes.push(<line key={`pl-${i}-${nodes.length}`} x1={p.x1} y1={p.y1} x2={p.x2} y2={p.y2} stroke={p.stroke} strokeWidth={p.strokeWidth} strokeLinecap="round" pointerEvents="none" />);
+      }
     }
 
     // Handle-height marker for the selected operable leaf.

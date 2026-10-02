@@ -862,6 +862,7 @@ export function Widget({
                 width={state.width}
                 height={state.height}
                 material={state.material}
+                door={state.productType === "balconyDoor"}
                 sashes={state.sashes}
                 selected={selectedSash}
                 onSelectSash={(i) => setSelectedSash((sel) => (sel === i ? null : i))}
