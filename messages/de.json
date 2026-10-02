@@ -456,7 +456,10 @@
       "emailPlaceholder": "kunde@email.de",
       "addressPlaceholder": "Hauptstraße 12",
       "notIncluded": "— nicht enthalten —",
-      "newSupplier": "Neuer Lieferant"
+      "newSupplier": "Neuer Lieferant",
+      "errNoConfigurator": "Kein Konfigurator veröffentlicht. Erstellen und veröffentlichen Sie einen Konfigurator auf der Seite Konfiguratoren: dieselbe Preisliste wird hier und im Widget Ihrer Website verwendet.",
+      "errCatalogNotReady": "Die veröffentlichte Preisliste ist noch nicht verfügbar. Warten Sie auf das Laden oder veröffentlichen Sie den Konfigurator erneut.",
+      "errNoSupplierLines": "Für die Mehrlieferanten-Positionen wurde kein gültiger Lieferant gefunden."
     },
     "list": {
       "kicker": "B2B-Baustellen-Tool",
@@ -1934,7 +1937,8 @@
       "defaultPlaceholder": "(Standard)",
       "saving": "Wird gespeichert…",
       "saveNow": "Jetzt speichern",
-      "autosave": "Änderungen werden automatisch gespeichert."
+      "autosave": "Änderungen werden automatisch gespeichert.",
+      "uploadFailed": "Hochladen fehlgeschlagen"
     },
     "embed": {
       "copied": "Kopiert ✓",

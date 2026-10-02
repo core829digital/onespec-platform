@@ -429,15 +429,11 @@ export default function NewFieldQuotePage() {
       return;
     }
     if (!activeConfig) {
-      setError(
-        "Nessun configuratore pubblicato. Crea e pubblica un configuratore dalla pagina Configuratori: quello stesso listino verrà usato sia qui che nel widget del sito.",
-      );
+      setError(t("errNoConfigurator"));
       return;
     }
     if (!usingLiveCatalog) {
-      setError(
-        "Il listino pubblicato non è ancora disponibile. Attendi il caricamento o ripubblica il configuratore.",
-      );
+      setError(t("errCatalogNotReady"));
       return;
     }
 
@@ -467,7 +463,7 @@ export default function NewFieldQuotePage() {
         }).filter((line): line is NonNullable<typeof line> => line !== null);
 
         if (supplierLines.length === 0) {
-          throw new Error("Nessun fornitore valido trovato per le righe multi-fornitore");
+          throw new Error(t("errNoSupplierLines"));
         }
 
         res = await createQuoteWithSuppliers({

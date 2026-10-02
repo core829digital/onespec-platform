@@ -456,7 +456,10 @@
       "emailPlaceholder": "customer@email.com",
       "addressPlaceholder": "12 High Street",
       "notIncluded": "— not included —",
-      "newSupplier": "New supplier"
+      "newSupplier": "New supplier",
+      "errNoConfigurator": "No configurator published. Create and publish a configurator from the Configurators page: the same price list is used here and in the website widget.",
+      "errCatalogNotReady": "The published price list is not available yet. Wait for it to load or republish the configurator.",
+      "errNoSupplierLines": "No valid supplier found for the multi-supplier lines."
     },
     "list": {
       "kicker": "Field B2B Tool",
@@ -1934,7 +1937,8 @@
       "defaultPlaceholder": "(default)",
       "saving": "Saving…",
       "saveNow": "Save now",
-      "autosave": "Changes are saved automatically."
+      "autosave": "Changes are saved automatically.",
+      "uploadFailed": "Upload failed"
     },
     "embed": {
       "copied": "Copied ✓",

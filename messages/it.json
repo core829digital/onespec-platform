@@ -456,7 +456,10 @@
       "emailPlaceholder": "cliente@email.it",
       "addressPlaceholder": "Via Roma 12",
       "notIncluded": "— non incluso —",
-      "newSupplier": "Nuovo fornitore"
+      "newSupplier": "Nuovo fornitore",
+      "errNoConfigurator": "Nessun configuratore pubblicato. Crea e pubblica un configuratore dalla pagina Configuratori: quello stesso listino verrà usato sia qui che nel widget del sito.",
+      "errCatalogNotReady": "Il listino pubblicato non è ancora disponibile. Attendi il caricamento o ripubblica il configuratore.",
+      "errNoSupplierLines": "Nessun fornitore valido trovato per le righe multi-fornitore."
     },
     "list": {
       "kicker": "Strumento B2B da Cantiere",
@@ -1934,7 +1937,8 @@
       "defaultPlaceholder": "(predefinito)",
       "saving": "Salvataggio…",
       "saveNow": "Salva ora",
-      "autosave": "Le modifiche si salvano automaticamente."
+      "autosave": "Le modifiche si salvano automaticamente.",
+      "uploadFailed": "Caricamento non riuscito"
     },
     "embed": {
       "copied": "Copiato ✓",

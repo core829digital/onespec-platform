@@ -456,7 +456,10 @@
       "emailPlaceholder": "klant@email.nl",
       "addressPlaceholder": "Dorpsstraat 12",
       "notIncluded": "— niet inbegrepen —",
-      "newSupplier": "Nieuwe leverancier"
+      "newSupplier": "Nieuwe leverancier",
+      "errNoConfigurator": "Geen configurator gepubliceerd. Maak en publiceer een configurator op de pagina Configurators: dezelfde prijslijst wordt hier en in de website-widget gebruikt.",
+      "errCatalogNotReady": "De gepubliceerde prijslijst is nog niet beschikbaar. Wacht tot hij geladen is of publiceer de configurator opnieuw.",
+      "errNoSupplierLines": "Geen geldige leverancier gevonden voor de regels met meerdere leveranciers."
     },
     "list": {
       "kicker": "B2B-werfhulpmiddel",
@@ -1934,7 +1937,8 @@
       "defaultPlaceholder": "(standaard)",
       "saving": "Opslaan…",
       "saveNow": "Nu opslaan",
-      "autosave": "Wijzigingen worden automatisch opgeslagen."
+      "autosave": "Wijzigingen worden automatisch opgeslagen.",
+      "uploadFailed": "Uploaden mislukt"
     },
     "embed": {
       "copied": "Gekopieerd ✓",

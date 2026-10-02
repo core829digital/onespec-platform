@@ -456,7 +456,10 @@
       "emailPlaceholder": "client@email.ro",
       "addressPlaceholder": "Strada Victoriei 12",
       "notIncluded": "— neinclus —",
-      "newSupplier": "Furnizor nou"
+      "newSupplier": "Furnizor nou",
+      "errNoConfigurator": "Niciun configurator publicat. Creați și publicați un configurator din pagina Configuratoare: aceeași listă de prețuri va fi folosită aici și în widgetul site-ului.",
+      "errCatalogNotReady": "Lista de prețuri publicată nu este încă disponibilă. Așteptați încărcarea sau republicați configuratorul.",
+      "errNoSupplierLines": "Nu s-a găsit niciun furnizor valid pentru liniile multi-furnizor."
     },
     "list": {
       "kicker": "Instrument B2B de șantier",
@@ -1934,7 +1937,8 @@
       "defaultPlaceholder": "(implicit)",
       "saving": "Se salvează…",
       "saveNow": "Salvează acum",
-      "autosave": "Modificările se salvează automat."
+      "autosave": "Modificările se salvează automat.",
+      "uploadFailed": "Încărcarea a eșuat"
     },
     "embed": {
       "copied": "Copiat ✓",

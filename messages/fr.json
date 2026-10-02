@@ -456,7 +456,10 @@
       "emailPlaceholder": "client@email.fr",
       "addressPlaceholder": "12 rue de la Paix",
       "notIncluded": "— non inclus —",
-      "newSupplier": "Nouveau fournisseur"
+      "newSupplier": "Nouveau fournisseur",
+      "errNoConfigurator": "Aucun configurateur publié. Créez et publiez un configurateur depuis la page Configurateurs : la même liste de prix sera utilisée ici et dans le widget du site.",
+      "errCatalogNotReady": "La liste de prix publiée n'est pas encore disponible. Attendez le chargement ou republiez le configurateur.",
+      "errNoSupplierLines": "Aucun fournisseur valide trouvé pour les lignes multi-fournisseurs."
     },
     "list": {
       "kicker": "Outil B2B de chantier",
@@ -1934,7 +1937,8 @@
       "defaultPlaceholder": "(par défaut)",
       "saving": "Enregistrement…",
       "saveNow": "Enregistrer",
-      "autosave": "Les modifications sont enregistrées automatiquement."
+      "autosave": "Les modifications sont enregistrées automatiquement.",
+      "uploadFailed": "Échec du téléversement"
     },
     "embed": {
       "copied": "Copié ✓",

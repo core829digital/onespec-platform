@@ -109,7 +109,7 @@ export function BrandingTab({ configuratorId }: { configuratorId: Id<"configurat
         headers: { "Content-Type": file.type },
         body: file,
       });
-      if (!res.ok) throw new Error("Upload fallito");
+      if (!res.ok) throw new Error(t("uploadFailed"));
       const { storageId } = (await res.json()) as { storageId: Id<"_storage"> };
       await setLogo({ configuratorId, storageId, variant });
       setMsg({ kind: "ok", text: t("logoUploaded") });
