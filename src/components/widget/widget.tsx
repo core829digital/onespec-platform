@@ -9,7 +9,6 @@ import { demoCopy, demoRegisterUrl } from "@/lib/demo/demo-copy";
 import { submitErrorMessage, wizardCopy } from "./simple-wizard-model";
 import { getTurnstileToken } from "@/lib/turnstile-client";import { catalogOptions, catalogPricing, type WidgetCatalog, type WidgetOptions } from "./widget-catalog";
 import { REGION_FLAT_OPTION_KINDS } from "@/shared/pricing";
-import { shownSide, directionFromShownSide } from "@/shared/sash-rules";
 import {
   defaultConfig,
   defaultSashPreset,
@@ -379,7 +378,7 @@ export function Widget({
       const sashDesc = it.sashes
         .map(
           (s, si) =>
-            `${si + 1}:${labelFromList(dict.sashTypes, s.type)}/${labelFromList(dict.directions, shownSide(s.type, s.direction))}${s.active ? "" : "(off)"}`,
+            `${si + 1}:${labelFromList(dict.sashTypes, s.type)}/${labelFromList(dict.directions, s.direction)}${s.active ? "" : "(off)"}`,
         )
         .join(", ");
       const screen = it.insectScreen
@@ -1189,7 +1188,7 @@ function SashFields({
           </select>
         </MiniField>
         <MiniField label={dict.directionLabel} id="sash-direction">
-          <select id="sash-direction" style={styles.select} value={shownSide(sash.type, sash.direction)} disabled={dirDisabled} onChange={(e) => onChange({ direction: directionFromShownSide(sash.type, e.target.value as Direction) })}>
+          <select id="sash-direction" style={styles.select} value={sash.direction} disabled={dirDisabled} onChange={(e) => onChange({ direction: e.target.value as Direction })}>
             {dict.directions.map(([k, v]) => (
               <option key={k} value={k}>
                 {v}

@@ -5,8 +5,6 @@ import {
   SASH_KINDS,
   SECURITY_CLASSES,
   sashTypeAllowedWith,
-  shownSide,
-  directionFromShownSide,
   isOperable,
   type EditorSash,
   type SashKind,
@@ -88,9 +86,9 @@ export function SashPanel({
               <button
                 key={d}
                 type="button"
-                onClick={() => onPatch({ direction: directionFromShownSide(sash.type, d) })}
+                onClick={() => onPatch({ direction: d })}
                 className={`flex-1 rounded-lg border px-2 py-2 text-xs font-bold transition-colors ${
-                  shownSide(sash.type, sash.direction) === d
+                  sash.direction === d
                     ? "border-[var(--color-mint)] bg-[var(--color-mint)] text-[var(--color-mint-dark)]"
                     : "border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-secondary)] hover:border-[var(--color-mint)] hover:text-[var(--color-text)]"
                 }`}

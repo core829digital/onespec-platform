@@ -2186,7 +2186,7 @@
     "mix_hingedVsSliding": "Een draaivleugel kan niet met een schuifvleugel worden gecombineerd.",
     "mix_hingedVsLiftslide": "Een draaivleugel kan niet met een hef-schuifvleugel worden gecombineerd.",
     "openingType": "Type opening",
-    "direction": "Greep / schuifzijde (binnenaanzicht)",
+    "direction": "Scharnieren / schuifzijde (binnenaanzicht)",
     "left": "L ◄",
     "right": "R ►",
     "operable": "Draaiende vleugel",
