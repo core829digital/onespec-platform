@@ -57,6 +57,15 @@ export const HANDLE: L<{
   ro: { drag: "Trageți pentru a regla înălțimea mânerului", standard: "standard", mid: "mijlocul canatului", colorTitle: "Culoare feronerie", allLeaves: "Aplică la toate canatele", close: "Închide", adjust: "Înălțimea mânerului" },
 };
 
+export const DIMENSION: L<{ editWidth: string; editHeight: string; invalid: string }> = {
+  it: { editWidth: "Modifica la larghezza", editHeight: "Modifica l'altezza", invalid: "Valore tra {min} e {max} mm" },
+  en: { editWidth: "Edit the width", editHeight: "Edit the height", invalid: "Value between {min} and {max} mm" },
+  fr: { editWidth: "Modifier la largeur", editHeight: "Modifier la hauteur", invalid: "Valeur entre {min} et {max} mm" },
+  de: { editWidth: "Breite ändern", editHeight: "Höhe ändern", invalid: "Wert zwischen {min} und {max} mm" },
+  nl: { editWidth: "Breedte wijzigen", editHeight: "Hoogte wijzigen", invalid: "Waarde tussen {min} en {max} mm" },
+  ro: { editWidth: "Modifică lățimea", editHeight: "Modifică înălțimea", invalid: "Valoare între {min} și {max} mm" },
+};
+
 /** Legend rows: at most two short lines each (an SVG text does not wrap). */
 export type LegendKey = "casement" | "tilt" | "sliding" | "liftslide" | "handle" | "hinge" | "guide";
 

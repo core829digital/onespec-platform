@@ -72,6 +72,7 @@ export function buildScene(input: DrawingInput, options: DrawingOptions = {}): S
     finish: finishStyle(input.finish),
     options,
     handles: [],
+    dimBoxes: {},
   };
 
   const cells = layoutCells(ctx, ratios);
@@ -124,6 +125,10 @@ export function buildScene(input: DrawingInput, options: DrawingOptions = {}): S
     primitives: placed,
     meta: {
       view: outside ? "outside" : "inside",
+      dimensions: {
+        ...(ctx.dimBoxes?.width ? { width: mirroredBox(roundBox(ctx.dimBoxes.width)) } : {}),
+        ...(ctx.dimBoxes?.height ? { height: mirroredBox(roundBox(ctx.dimBoxes.height)) } : {}),
+      },
       handles: outside
         ? []
         : (ctx.handles ?? []).map((hnd) => ({

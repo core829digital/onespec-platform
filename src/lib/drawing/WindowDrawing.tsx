@@ -6,6 +6,7 @@ import { resolveDividerRatio } from "./divider";
 import { PALETTE } from "./finishes";
 import { handleRange } from "@/shared/configurator-model";
 import { hasOpeningDirection } from "@/shared/sash-rules";
+import { parseDimensionInput } from "./dimension-edit";
 import { handleMmFromY, snapHandleHeight } from "./handle-height";
 import { MONO, renderPrimitive } from "./render-dom";
 import type { DrawingInput, DrawingOptions } from "./types";
@@ -26,6 +27,10 @@ export interface WindowDrawingProps {
   onHandleClick?: (index: number, anchor: { clientX: number; clientY: number }) => void;
   /** Words for the handle tooltip and the slider name. */
   handleText?: { drag: string; standard: string; mid: string; adjust: string };
+  /** Overall width / height typed into the label on the drawing (whole mm, already validated against `dimensionRange`). */
+  onEditDimension?: (axis: "width" | "height", mm: number) => void;
+  dimensionRange?: { min: number; max: number };
+  dimensionText?: { editWidth: string; editHeight: string; invalid: string };
   svgId?: string;
   ariaLabel?: string;
   className?: string;
@@ -55,6 +60,9 @@ export function WindowDrawing({
   onSelectSash,
   onFlipSash,
   flipLabel = "Flip opening",
+  onEditDimension,
+  dimensionRange = { min: 200, max: 6000 },
+  dimensionText = { editWidth: "Edit the width", editHeight: "Edit the height", invalid: "Value between {min} and {max} mm" },
   onHandleHeight,
   onHandleClick,
   handleText = { drag: "Drag to adjust the handle height", standard: "standard", mid: "mid-height", adjust: "Handle height" },
@@ -71,6 +79,9 @@ export function WindowDrawing({
   const dragRef = useRef<{ index: number; ratios: number[] } | null>(null);
   const [dragging, setDragging] = useState<number | null>(null);
   const [hovered, setHovered] = useState<number | null>(null);
+  const [editing, setEditing] = useState<{ axis: "width" | "height"; bad: boolean } | null>(null);
+  const [hoverDim, setHoverDim] = useState<"width" | "height" | null>(null);
+  const committed = useRef(false);
   const handleRef = useRef<{ index: number; x: number; y: number; moved: boolean } | null>(null);
   const [handleDrag, setHandleDrag] = useState<{ index: number; mm: number; label: "standard" | "mid" | null } | null>(null);
 
@@ -298,6 +309,112 @@ export function WindowDrawing({
               </g>
             );
           })()
+        : null}
+      {onEditDimension
+        ? (["width", "height"] as const).map((axis) => {
+            const box = meta.dimensions?.[axis];
+            if (!box) return null;
+            const label = axis === "width" ? dimensionText.editWidth : dimensionText.editHeight;
+            const current = axis === "width" ? meta.widthMm : meta.heightMm;
+            if (editing?.axis === axis) {
+              const cx = box.x + box.w / 2;
+              const cy = box.y + box.h / 2;
+              const commit = (value: string) => {
+                const parsed = parseDimensionInput(value, dimensionRange.min, dimensionRange.max);
+                if (!parsed.ok) {
+                  setEditing({ axis, bad: true });
+                  return false;
+                }
+                committed.current = true;
+                setEditing(null);
+                if (parsed.mm !== current) onEditDimension(axis, parsed.mm);
+                return true;
+              };
+              const message = dimensionText.invalid.replace("{min}", String(dimensionRange.min)).replace("{max}", String(dimensionRange.max));
+              const fx = Math.max(2, Math.min(cx - 40, scene.viewBox.w - 82));
+              return (
+                <g key={`dim-edit-${axis}`}>
+                {editing.bad ? (
+                  <text x={Math.max((message.length * 5.2) / 2 + 2, Math.min(fx + 40, scene.viewBox.w - (message.length * 5.2) / 2 - 2))} y={cy + 24} textAnchor="middle" fontSize={8.5} fontFamily={MONO} fill={PALETTE.danger} pointerEvents="none" role="alert">
+                    {message}
+                  </text>
+                ) : null}
+                <foreignObject x={fx} y={cy - 12} width={80} height={24}>
+                  <input
+                    // eslint-disable-next-line jsx-a11y/no-autofocus
+                    autoFocus
+                    type="text"
+                    inputMode="numeric"
+                    aria-label={label}
+                    aria-invalid={editing.bad || undefined}
+                    title={editing.bad ? message : label}
+                    defaultValue={String(current)}
+                    data-testid={`dim-input-${axis}`}
+                    onFocus={(e) => e.currentTarget.select()}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        commit(e.currentTarget.value);
+                      } else if (e.key === "Escape") {
+                        e.preventDefault();
+                        setEditing(null);
+                      }
+                    }}
+                    onChange={() => editing.bad && setEditing({ axis, bad: false })}
+                    onBlur={(e) => {
+                      if (committed.current) return; // Enter already applied it
+                      if (!commit(e.currentTarget.value)) setEditing(null);
+                    }}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      boxSizing: "border-box",
+                      font: `bold 11px ${MONO}`,
+                      textAlign: "center",
+                      border: `2px solid ${editing.bad ? PALETTE.danger : PALETTE.guide}`,
+                      outline: "none",
+                      borderRadius: 4,
+                      boxShadow: editing.bad ? "0 0 0 2px rgba(220,38,38,0.25)" : "0 0 0 2px rgba(37,99,235,0.25)",
+                      background: "#fff",
+                      color: "#111827",
+                    }}
+                  />
+                </foreignObject>
+                </g>
+              );
+            }
+            return (
+              <rect
+                key={`dim-${axis}`}
+                x={box.x}
+                y={box.y}
+                width={box.w}
+                height={box.h}
+                rx={4}
+                fill={hoverDim === axis ? "rgba(37,99,235,0.10)" : "transparent"}
+                role="button"
+                tabIndex={0}
+                aria-label={label}
+                data-testid={`dim-edit-${axis}`}
+                style={{ cursor: "text", outline: "none", transition: "fill 120ms ease" }}
+                onPointerEnter={() => setHoverDim(axis)}
+                onPointerLeave={() => setHoverDim((h) => (h === axis ? null : h))}
+                onClick={() => {
+                  committed.current = false;
+                  setEditing({ axis, bad: false });
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    committed.current = false;
+                    setEditing({ axis, bad: false });
+                  }
+                }}
+              >
+                <title>{label}</title>
+              </rect>
+            );
+          })
         : null}
     </svg>
   );

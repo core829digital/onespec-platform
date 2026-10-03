@@ -21,7 +21,8 @@ import {
   type PieceIssue,
 } from "@/shared/piece-ops";
 import { defaultItem } from "@/shared/item-defaults";
-import { buildLegendScene, DRAWING_FLIP, DRAWING_HANDLE, DRAWING_TITLES, DRAWING_VIEW, drawingLocale, SceneSvg, WindowDrawing, type DrawingView } from "@/lib/drawing";
+import { DIM_ABS_MAX } from "@/shared/widget-types";
+import { buildLegendScene, DRAWING_DIMENSION, DRAWING_FLIP, DRAWING_HANDLE, DRAWING_TITLES, DRAWING_VIEW, drawingLocale, SceneSvg, WindowDrawing, type DrawingView } from "@/lib/drawing";
 import { SashPanel } from "@/components/quotes/sash-panel";
 import { catalogChoices, labelOf } from "./catalog-labels";
 import { PieceForm } from "./piece-form";
@@ -229,6 +230,9 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
                 onHandleHeight={view === "inside" ? (i, mm) => update(activeIndex, patchSash(active, i, { handleHeightMm: mm })) : undefined}
                 onHandleClick={view === "inside" ? (i, a) => { setSelectedSash(i); setColorPicker({ index: i, x: a.clientX, y: a.clientY }); } : undefined}
                 handleText={DRAWING_HANDLE[drawingLocale(locale)]}
+                onEditDimension={(axis, mm) => (axis === "width" ? patchActive({ width: mm }) : update(activeIndex, setHeight(active, mm)))}
+                dimensionRange={{ min: 200, max: DIM_ABS_MAX }}
+                dimensionText={DRAWING_DIMENSION[drawingLocale(locale)]}
                 onResizeSash={view === "inside" ? (d, ratio) => update(activeIndex, resizeDivider(active, d, ratio)) : undefined}
                 ariaLabel={t("drawingLabel", { width: active.width, height: active.height })}
                 height={340}

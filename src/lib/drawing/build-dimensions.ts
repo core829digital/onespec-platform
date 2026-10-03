@@ -37,15 +37,21 @@ export function drawDimensions(ctx: SceneContext, cells: SceneCell[], rightClear
   }
 
   const w = { role: "dimension" as const, part: "width" };
-  out.push(...horizontal(w, frame.x, frame.x + frame.w, rowY), text(w, frame.x + frame.w / 2, rowY + 14, `${ctx.widthMm} mm`, FONT));
+  const widthLabel = `${ctx.widthMm} mm`;
+  out.push(...horizontal(w, frame.x, frame.x + frame.w, rowY), text(w, frame.x + frame.w / 2, rowY + 14, widthLabel, FONT));
+  const wLen = widthLabel.length * FONT.fontSize * 0.6;
+  if (ctx.dimBoxes) ctx.dimBoxes.width = { x: frame.x + frame.w / 2 - wLen / 2 - 4, y: rowY + 14 - FONT.fontSize - 2, w: wLen + 8, h: FONT.fontSize + 8 };
 
   const h = { role: "dimension" as const, part: "height" };
   const x = frame.x + frame.w + Math.max(band, rightClear) + 14;
+  const heightLabel = `${ctx.heightMm} mm`;
+  const hLen = heightLabel.length * FONT.fontSize * 0.6;
+  if (ctx.dimBoxes) ctx.dimBoxes.height = { x: x + 13 - FONT.fontSize - 2, y: frame.y + frame.h / 2 - hLen / 2 - 4, w: FONT.fontSize + 8, h: hLen + 8 };
   out.push(
     line(h, x, frame.y, x, frame.y + frame.h, LINE_STYLE),
     line(h, x - TICK, frame.y, x + TICK, frame.y, LINE_STYLE),
     line(h, x - TICK, frame.y + frame.h, x + TICK, frame.y + frame.h, LINE_STYLE),
-    text(h, x + 13, frame.y + frame.h / 2, `${ctx.heightMm} mm`, { ...FONT, rotate: -90 }),
+    text(h, x + 13, frame.y + frame.h / 2, heightLabel, { ...FONT, rotate: -90 }),
   );
   return out;
 }

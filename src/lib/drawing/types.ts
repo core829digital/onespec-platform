@@ -149,6 +149,12 @@ export interface SceneCell extends Box {
   mm: number;
 }
 
+/** Clickable areas of the overall dimension labels (drawing units), so they can be edited in place. */
+export interface DimensionBoxes {
+  width?: Box;
+  height?: Box;
+}
+
 /** Where a handle sits, so a drawing can let it be dragged: its box, its axis and how far the axis may travel (drawing units). */
 export interface HandleInfo {
   sashIndex: number;
@@ -179,6 +185,8 @@ export interface SceneMeta {
   view?: DrawingView;
   /** Handles whose height can be dragged (leaves with a handle on a stile; none in the outside view). */
   handles?: HandleInfo[];
+  /** Overall width / height labels; absent when the dimension lines are hidden. */
+  dimensions?: DimensionBoxes;
 }
 
 export interface Scene {
@@ -203,4 +211,6 @@ export interface SceneContext {
   options: DrawingOptions;
   /** Filled while drawing: the handles that were drawn. */
   handles?: HandleInfo[];
+  /** Filled while drawing: where the overall dimension labels are. */
+  dimBoxes?: DimensionBoxes;
 }
