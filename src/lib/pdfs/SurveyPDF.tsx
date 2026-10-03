@@ -1,6 +1,7 @@
 import "./pdf-setup";
 import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import { CompanyLogo } from "./CompanyLogo";
+import { ScenePdf, type Scene } from "@/lib/drawing";
 
 /** All visible strings come in as props (built from the `surveyDoc` i18n
  * namespace), so the sheet is generated in the language the user works in. */
@@ -68,6 +69,8 @@ export interface SurveyPdfProps {
   labels: SurveyPdfLabels;
   locale: string;
   /** Footer timestamp — passed in so this component stays pure. */
+  /** One survey sheet drawing per opening (same order), printed after the measures table. */
+  sheets?: Scene[];
   generatedAt: number;
 }
 
@@ -115,7 +118,7 @@ function KV({ k, v }: { k: string; v?: string | null }) {
   );
 }
 
-export function SurveyPDF({ tenant, survey, labels, locale, generatedAt }: SurveyPdfProps) {
+export function SurveyPDF({ tenant, survey, labels, locale, sheets, generatedAt }: SurveyPdfProps) {
   const fmt = (ms: number) => new Date(ms).toLocaleDateString(locale, { day: "2-digit", month: "long", year: "numeric" });
   const yn = (b?: boolean) => (b ? labels.yes : labels.no);
   const perimeterM =
@@ -176,6 +179,16 @@ export function SurveyPDF({ tenant, survey, labels, locale, generatedAt }: Surve
             {labels.perimeter}: {perimeterM.toFixed(2)} m
           </Text>
         </View>
+
+        {sheets && sheets.length > 0 ? (
+          <View style={[styles.section, { flexDirection: "row", flexWrap: "wrap", gap: 12 }]}>
+            {sheets.map((sc, i) => (
+              <View key={i} wrap={false} style={{ width: 240 }}>
+                <ScenePdf scene={sc} width={240} />
+              </View>
+            ))}
+          </View>
+        ) : null}
 
         <View style={styles.section} wrap={false}>
           <Text style={styles.h2}>{labels.diagnostics}</Text>

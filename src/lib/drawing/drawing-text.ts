@@ -124,6 +124,16 @@ export const POSA: L<Record<PosaWord, string>> = {
   ro: { wall: "Zidărie", insulation: "Termosistem exterior", subframe: "Contratoc", frame: "Fereastră", foam: "Spumă elastică", tapeIn: "Bandă interioară (etanșeitate la aer)", tapeOut: "Bandă/membrană exterioară (etanșeitate la apă)", sealant: "Etanșant", fixing: "Fixare mecanică (distanță ≤ 700 mm)", sillOut: "Glaf exterior cu picurător", sillIn: "Glaf interior", titleJamb: "Detaliu de montaj: spaletă", titleSill: "Detaliu de montaj: glaf", note: "Schemă orientativă după logica UNI 11673-1 (interior etanșat mai bine decât exteriorul): nu înlocuiește proiectul de montaj." },
 };
 
+export type SurveyWord = "title" | "widthPoints" | "heightPoints" | "diagonal" | "squareHint" | "room" | "floor" | "note";
+export const SURVEY: L<Record<SurveyWord, string>> = {
+  it: { title: "Tavola di rilievo", widthPoints: "Larghezza: misura in 3 punti", heightPoints: "Altezza: misura in 3 punti", diagonal: "Diagonale teorica", squareHint: "Misura le due diagonali: se differiscono il foro è fuori squadro", room: "Locale", floor: "Piano", note: "Schema di rilievo: annota le misure reali sul posto, il disegno non è in scala." },
+  en: { title: "Survey sheet", widthPoints: "Width: measure at 3 points", heightPoints: "Height: measure at 3 points", diagonal: "Theoretical diagonal", squareHint: "Measure both diagonals: if they differ the opening is out of square", room: "Room", floor: "Floor", note: "Survey sketch: write the real measures on site, the drawing is not to scale." },
+  fr: { title: "Fiche de relevé", widthPoints: "Largeur : mesurer en 3 points", heightPoints: "Hauteur : mesurer en 3 points", diagonal: "Diagonale théorique", squareHint: "Mesurer les deux diagonales : si elles diffèrent, la baie n'est pas d'équerre", room: "Pièce", floor: "Étage", note: "Croquis de relevé : noter les mesures réelles sur place, le dessin n'est pas à l'échelle." },
+  de: { title: "Aufmaßblatt", widthPoints: "Breite: an 3 Stellen messen", heightPoints: "Höhe: an 3 Stellen messen", diagonal: "Theoretische Diagonale", squareHint: "Beide Diagonalen messen: weichen sie ab, ist die Öffnung nicht rechtwinklig", room: "Raum", floor: "Etage", note: "Aufmaßskizze: tatsächliche Maße vor Ort eintragen, die Zeichnung ist nicht maßstäblich." },
+  nl: { title: "Opmetingsblad", widthPoints: "Breedte: meet op 3 plaatsen", heightPoints: "Hoogte: meet op 3 plaatsen", diagonal: "Theoretische diagonaal", squareHint: "Meet beide diagonalen: als ze verschillen is de dag niet haaks", room: "Ruimte", floor: "Verdieping", note: "Opmetingsschets: noteer de echte maten ter plaatse, de tekening is niet op schaal." },
+  ro: { title: "Fișă de măsurare", widthPoints: "Lățime: măsoară în 3 puncte", heightPoints: "Înălțime: măsoară în 3 puncte", diagonal: "Diagonala teoretică", squareHint: "Măsoară ambele diagonale: dacă diferă, golul nu este în unghi drept", room: "Încăpere", floor: "Etaj", note: "Schiță de măsurare: notează măsurile reale la fața locului, desenul nu este la scară." },
+};
+
 /** Names of the drawing tabs in the quote editor. */
 export type DrawingTab = "elevation" | "plan" | "section" | "hardware";
 export const TABS: L<Record<DrawingTab, string>> = {

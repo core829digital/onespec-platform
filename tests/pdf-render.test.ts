@@ -172,3 +172,21 @@ test("installation dossier PDF renders with the node drawing", async () => {
     expect(buf.length).toBeGreaterThan(2000);
   }
 });
+
+test("survey PDF renders with the survey sheets", async () => {
+  const { SurveyPDF } = await import("../src/lib/pdfs/SurveyPDF");
+  const { buildSurveySheetScene } = await import("../src/lib/drawing");
+  const openings = [{ label: "F1", widthMm: 1200, heightMm: 1400 }, { label: "F2", widthMm: 900, heightMm: 600, room: "Bagno" }];
+  const labels = new Proxy({}, { get: (_t, k) => String(k) }) as never;
+  const buf = await renderToBuffer(
+    h(SurveyPDF, {
+      tenant: { name: "CORE829" },
+      survey: { customerName: "Mario", status: "draft", createdAt: 1_700_000_000_000, openings, diagnostics: {}, photos: [] },
+      labels,
+      locale: "it-IT",
+      sheets: openings.map((o) => buildSurveySheetScene(o, "it")),
+      generatedAt: 1_700_000_000_000,
+    } as never) as never,
+  );
+  expect(buf.subarray(0, 5).toString()).toBe("%PDF-");
+});

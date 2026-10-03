@@ -14,6 +14,7 @@ import { SurveyPDF, type SurveyPdfLabels } from "@/lib/pdfs/SurveyPDF";
 import { usePDFDownload } from "@/hooks/usePDFDownload";
 import { useCompanyPdf } from "@/lib/use-company-pdf";
 import { useFriendlyError } from "@/lib/use-friendly-error";
+import { buildSurveySheetScene, DRAWING_SURVEY, drawingLocale, SceneSvg } from "@/lib/drawing";
 import { diagnosticOptionLabel } from "@/components/surveys/DiagnosticChecklist";
 
 const LABEL_KEYS: Array<keyof SurveyPdfLabels> = [
@@ -133,6 +134,7 @@ export default function SurveyDetailPage({ params }: { params: Promise<{ id: str
                 survey,
                 labels,
                 locale,
+                sheets: survey.openings.map((o) => buildSurveySheetScene(o, locale)),
                 generatedAt: Date.now(),
               }),
             )
@@ -281,6 +283,16 @@ export default function SurveyDetailPage({ params }: { params: Promise<{ id: str
             ))}
           </tbody>
         </table>
+        <details className="border-t border-[var(--color-border)] px-4 py-3 text-sm">
+          <summary className="cursor-pointer select-none font-medium">{DRAWING_SURVEY[drawingLocale(locale)].title}</summary>
+          <div className="mt-3 grid gap-3 sm:grid-cols-2">
+            {survey.openings.map((o, i) => (
+              <div key={i} className="rounded-lg bg-white p-2">
+                <SceneSvg scene={buildSurveySheetScene(o, locale)} ariaLabel={`${DRAWING_SURVEY[drawingLocale(locale)].title} ${o.label}`} />
+              </div>
+            ))}
+          </div>
+        </details>
       </section>
 
       <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4">
