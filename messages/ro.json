@@ -2275,7 +2275,14 @@
     "handleHeight": "Înălțimea mânerului de la pardoseală",
     "main": "Canat principal",
     "leaf": "Canat {n}",
-    "close": "Închide"
+    "close": "Închide",
+    "rule_inactive": "Canat inactiv: fără mâner, cu montant mobil. Mânerul se află pe canatul activ alăturat.",
+    "rule_active": "Canat activ: poartă mânerul. Canatul alăturat este inactiv, cu montant mobil.",
+    "rule_fixedMullion": "Montant fix pe toc între acest canat și cel alăturat.",
+    "rule_slidingFixed": "Glisant cu fix: la seria Aluplast devine glisant-ridicător sau glisant-basculant.",
+    "frame_fixedMullion": "Montant fix pe toc: necesar între două canate oscilo-batante, un canat basculant sau un canat batant lângă un fix.",
+    "frame_movableMullion": "Canatul activ (oscilo-batant) poartă mânerul; canatul inactiv fără mâner poartă montantul mobil.",
+    "frame_slidingFixed": "Glisant cu fix: la seria Aluplast devine glisant-ridicător sau glisant-basculant."
   },
   "referral": {
     "loading": "Se încarcă…",

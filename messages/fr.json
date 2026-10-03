@@ -2275,7 +2275,14 @@
     "handleHeight": "Hauteur de la poignée depuis le sol",
     "main": "Ouvrant principal",
     "leaf": "Vantail {n}",
-    "close": "Fermer"
+    "close": "Fermer",
+    "rule_inactive": "Vantail semi-fixe : sans poignée, avec montant mobile. La poignée est sur le vantail actif voisin.",
+    "rule_active": "Vantail actif : porte la poignée. Le vantail voisin est semi-fixe, avec montant mobile.",
+    "rule_fixedMullion": "Montant fixe sur le dormant entre ce vantail et son voisin.",
+    "rule_slidingFixed": "Coulissant avec fixe : sur la série Aluplast il devient levant-coulissant ou oscillo-coulissant.",
+    "frame_fixedMullion": "Montant fixe sur le dormant : nécessaire entre deux vantaux oscillo-battants, un soufflet, ou un ouvrant à côté d'un fixe.",
+    "frame_movableMullion": "Le vantail actif (oscillo-battant) porte la poignée ; le vantail semi-fixe sans poignée porte le montant mobile.",
+    "frame_slidingFixed": "Coulissant avec fixe : sur la série Aluplast il devient levant-coulissant ou oscillo-coulissant."
   },
   "referral": {
     "loading": "Chargement…",

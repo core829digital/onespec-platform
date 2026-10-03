@@ -222,6 +222,8 @@ export interface SceneContext {
   band: number;
   finish: { fill: string; stroke: string; strokeWidth: number };
   options: DrawingOptions;
+  /** Leaves that carry a movable mullion instead of a handle. */
+  noHandle?: Set<number>;
   /** Filled while drawing: the handles that were drawn. */
   handles?: HandleInfo[];
   /** Filled while drawing: where the overall dimension labels are. */

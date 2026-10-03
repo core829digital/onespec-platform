@@ -11,6 +11,7 @@ import {
   hasOpeningDirection,
   isOperable,
   type EditorSash,
+  type LeafRule,
   type SashKind,
 } from "@/shared/sash-rules";
 import { handleRange } from "@/shared/configurator-model";
@@ -19,6 +20,8 @@ interface Props {
   sash: EditorSash;
   index: number;
   siblingTypes: SashKind[];
+  /** Technical rule that applies to this leaf (movable / fixed mullion, inactive leaf...). */
+  rule?: LeafRule | null;
   itemHeightMm: number;
   hardwareOptions: [string, string][];
   hardwareColorOptions: [string, string][];
@@ -34,6 +37,7 @@ export function SashPanel({
   sash,
   index,
   siblingTypes,
+  rule,
   itemHeightMm,
   hardwareOptions,
   hardwareColorOptions,
@@ -125,6 +129,10 @@ export function SashPanel({
         <span>{sash.active ? t("operable") : t("fixedPanel")}</span>
       </label>
 
+      {rule ? (
+        <p className="rounded-md bg-[var(--color-bg-alt)] px-2 py-1.5 text-[11px] leading-snug text-[var(--color-text-secondary)]" role="note">{t(`rule_${rule}`)}</p>
+      ) : null}
+
       {operable && sash.active && (
         <>
           <div className="grid grid-cols-2 gap-2">
@@ -184,7 +192,8 @@ export function SashPanel({
               step={10}
               value={Math.min(handleMax, Math.max(handleMin, handle))}
               onChange={(e) => onPatch({ handleHeightMm: Number(e.target.value) })}
-              className="w-full accent-[var(--color-mint)]"
+              disabled={rule === "inactive"}
+              className="w-full accent-[var(--color-mint)] disabled:opacity-40"
             />
           </div>
 
@@ -192,6 +201,7 @@ export function SashPanel({
             <input
               type="checkbox"
               checked={sash.main === true}
+              disabled={rule === "inactive"}
               onChange={(e) => onPatch({ main: e.target.checked })}
               className="h-4 w-4 rounded border-[var(--color-border)]"
             />

@@ -34,7 +34,9 @@ export function withNormalizedRatios(sashes: Sash[]): Sash[] {
 export function electMain(sashes: Sash[]): Sash[] {
   const operable = sashes.map((s, i) => ({ s, i })).filter(({ s }) => s.active && s.type !== "fix");
   if (operable.length === 0) return sashes.map((s) => ({ ...s, main: false }));
-  const explicit = operable.find(({ s }) => s.main === true);
+  // A tilt-turn beside a casement is the active leaf (it carries the handle): the main flag follows it.
+  const hasTiltTurn = operable.some(({ s }) => s.type === "tiltturn");
+  const explicit = operable.find(({ s }) => s.main === true && !(hasTiltTurn && s.type === "classic"));
   const keep =
     explicit ??
     operable.find(({ s }) => s.type === "tiltturn") ??

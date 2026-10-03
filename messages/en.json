@@ -2275,7 +2275,14 @@
     "handleHeight": "Handle height from the floor",
     "main": "Main sash",
     "leaf": "Leaf {n}",
-    "close": "Close"
+    "close": "Close",
+    "rule_inactive": "Inactive leaf: no handle, carries a movable mullion. The handle is on the active leaf next to it.",
+    "rule_active": "Active leaf: carries the handle. The leaf next to it is inactive, with a movable mullion.",
+    "rule_fixedMullion": "Fixed mullion on the frame between this leaf and its neighbour.",
+    "rule_slidingFixed": "Sliding with fixed leaf: on the Aluplast series it becomes a lift-slide or tilt-slide system.",
+    "frame_fixedMullion": "Fixed mullion on the frame: needed between two tilt-turn leaves, a tilt-only leaf, or an opening leaf next to a fixed one.",
+    "frame_movableMullion": "The active (tilt-turn) leaf carries the handle; the handle-less inactive leaf carries the movable mullion.",
+    "frame_slidingFixed": "Sliding with fixed leaf: on the Aluplast series it becomes a lift-slide or tilt-slide system."
   },
   "referral": {
     "loading": "Loading…",

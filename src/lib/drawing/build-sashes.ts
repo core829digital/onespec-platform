@@ -1,3 +1,4 @@
+import { jointsFor } from "@/shared/sash-rules";
 import { drawOpening } from "./build-openings";
 import { glassLabel } from "./glass-size";
 import { PALETTE } from "./finishes";
@@ -137,4 +138,29 @@ export function drawLeaves(
 
 export function hitRects(cells: SceneCell[]): Primitive[] {
   return cells.map((c) => rect({ role: "hit", sashIndex: c.sashIndex }, c.x, c.y, c.w, c.h, { fill: "transparent" }));
+}
+
+/**
+ * Mullions between neighbouring leaves: a fixed mullion is a post of the frame standing between the two leaves;
+ * a movable mullion is a narrow bar on the inactive (handle-less) leaf, on the side where it meets the active one.
+ */
+export function drawMullions(ctx: SceneContext, sashes: DrawingSash[], cells: SceneCell[]): Primitive[] {
+  const out: Primitive[] = [];
+  const { finish, inner } = ctx;
+  for (const joint of jointsFor(sashes)) {
+    const left = cells[joint.index];
+    const right = cells[joint.index + 1];
+    if (!left || !right || joint.kind === "none") continue;
+    const edge = right.x;
+    if (joint.kind === "fixedMullion") {
+      const w = Math.max(4, ctx.frameInset * 0.9);
+      out.push(rect({ role: "frame", part: "mullionFixed" }, edge - w / 2, inner.y, w, inner.h, { fill: finish.fill, stroke: PALETTE.outline, strokeWidth: 0.9 }));
+      continue;
+    }
+    const w = Math.max(3, ctx.sashInset * 1.1);
+    const onLeft = joint.inactive === joint.index;
+    const x = onLeft ? edge - ctx.sashInset - w : edge + ctx.sashInset;
+    out.push(rect({ role: "frame", sashIndex: joint.inactive, part: "mullionMovable" }, x, inner.y + ctx.sashInset, w, inner.h - 2 * ctx.sashInset, { fill: finish.fill, stroke: PALETTE.outline, strokeWidth: 0.9 }));
+  }
+  return out;
 }

@@ -2275,7 +2275,14 @@
     "handleHeight": "Hoogte kruk vanaf de vloer",
     "main": "Hoofdvleugel",
     "leaf": "Vleugel {n}",
-    "close": "Sluiten"
+    "close": "Sluiten",
+    "rule_inactive": "Passief vleugel: zonder greep, met beweegbare stijl. De greep zit op de actieve vleugel ernaast.",
+    "rule_active": "Actieve vleugel: draagt de greep. De vleugel ernaast is passief, met beweegbare stijl.",
+    "rule_fixedMullion": "Vaste stijl op het kozijn tussen deze vleugel en de buurvleugel.",
+    "rule_slidingFixed": "Schuif met vast deel: bij de Aluplast-serie wordt dit een hef-schuif- of kantelschuifsysteem.",
+    "frame_fixedMullion": "Vaste stijl op het kozijn: nodig tussen twee draai-kiepvleugels, een kiepvleugel of een openende vleugel naast een vast deel.",
+    "frame_movableMullion": "De actieve (draai-kiep)vleugel draagt de greep; de passieve vleugel zonder greep draagt de beweegbare stijl.",
+    "frame_slidingFixed": "Schuif met vast deel: bij de Aluplast-serie wordt dit een hef-schuif- of kantelschuifsysteem."
   },
   "referral": {
     "loading": "Laden…",

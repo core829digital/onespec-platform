@@ -48,7 +48,8 @@ describe("default leaf handedness", () => {
 
 describe("drawing of a pair: triangle tips inside, hinges outside, handles in the middle", () => {
   test("2-leaf window", () => {
-    const sashes = defaultSashesFor("finestra2", 1400) as DrawingSash[];
+    // Two tilt-turn leaves both carry a handle (fixed mullion); a casement next to a tilt-turn has none.
+    const sashes = (defaultSashesFor("finestra2", 1400) as DrawingSash[]).map((s) => ({ ...s, type: "tiltturn" as const }));
     const scene = buildScene({ widthMm: 1200, heightMm: 1400, category: "finestra2", sashes });
     const casement = scene.primitives.filter((p) => p.role === "opening" && p.part === "casement" && p.type === "line");
     const bySash = (i: number) => casement.filter((p) => p.sashIndex === i) as Array<{ x1: number; x2: number }>;

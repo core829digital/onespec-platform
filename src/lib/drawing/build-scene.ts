@@ -1,7 +1,7 @@
-import { normalizedRatios, violationsFor, type EditorSash } from "@/shared/sash-rules";
+import { inactiveLeaves, normalizedRatios, violationsFor, type EditorSash } from "@/shared/sash-rules";
 import { accessoryRightExtent, drawAccessories } from "./build-accessories";
 import { drawDimensions } from "./build-dimensions";
-import { drawLeaves, hitRects, layoutCells } from "./build-sashes";
+import { drawLeaves, drawMullions, hitRects, layoutCells } from "./build-sashes";
 import { finishStyle, PALETTE } from "./finishes";
 import { boundsOf, mirror, place, rect } from "./prims";
 import type { DrawingInput, DrawingOptions, DrawingSash, Primitive, Scene, SceneContext } from "./types";
@@ -72,6 +72,7 @@ export function buildScene(input: DrawingInput, options: DrawingOptions = {}): S
     finish: finishStyle(input.finish),
     options,
     handles: [],
+    noHandle: inactiveLeaves(sashes),
     dimBoxes: {},
   };
 
@@ -89,7 +90,10 @@ export function buildScene(input: DrawingInput, options: DrawingOptions = {}): S
   const leaves = drawLeaves(ctx, sashes, cells, violated);
   const raw: Primitive[] = [
     ...frameLayers(ctx, input.frameType),
-    ...leaves,
+    ...leaves.filter((p) => p.role !== "handle"),
+    ...drawMullions(ctx, sashes, cells),
+    // Handles stay on top of the mullions standing next to them.
+    ...leaves.filter((p) => p.role === "handle"),
     ...drawAccessories(ctx, input.accessories, leaves),
   ];
   if (options.showDimensions !== false) {

@@ -193,7 +193,7 @@ describe("handles and guides", () => {
       widthMm: 1200,
       heightMm: 1400,
       sashes: [
-        { type: "classic", direction: "left", active: true },
+        { type: "tiltturn", direction: "left", active: true },
         { type: "tiltturn", direction: "right", active: true },
       ],
     };

@@ -63,9 +63,13 @@ describe("leaf operations", () => {
   test("marking a leaf principale clears the others; the tilt-turn is elected by default", () => {
     let it = piece("finestra2");
     expect(it.sashes.find((s) => s.main)?.type).toBe("tiltturn");
+    // The casement next to a tilt-turn is the inactive leaf: marking it principale keeps the main flag on the tilt-turn.
     it = patchSash(it, 0, { main: true });
-    expect(it.sashes[0].main).toBe(true);
+    expect(it.sashes[1].main).toBe(true);
     expect(mains(it)).toBe(1);
+    const pair = patchSash(setCategory(piece("finestra2"), "finestra2"), 0, { type: "tiltturn" });
+    expect(mains(patchSash(pair, 0, { main: true }))).toBe(1);
+    expect(patchSash(pair, 0, { main: true }).sashes[0].main).toBe(true);
     const noMain = electMain(piece("finestra2").sashes.map((s) => ({ ...s, main: false })));
     expect(noMain.filter((s) => s.main)).toHaveLength(1);
     expect(electMain([{ ...piece("finestra1").sashes[0], type: "fix" }]).every((s) => !s.main)).toBe(true);

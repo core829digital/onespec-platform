@@ -9,7 +9,7 @@ import { demoCopy, demoRegisterUrl } from "@/lib/demo/demo-copy";
 import { submitErrorMessage, wizardCopy } from "./simple-wizard-model";
 import { getTurnstileToken } from "@/lib/turnstile-client";import { catalogOptions, catalogPricing, type WidgetCatalog, type WidgetOptions } from "./widget-catalog";
 import { REGION_FLAT_OPTION_KINDS } from "@/shared/pricing";
-import { directionFromOpening, hasOpeningDirection, openingSide, retypeSash, typeForAddedSash } from "@/shared/sash-rules";
+import { frameRules, inactiveLeaves, directionFromOpening, hasOpeningDirection, openingSide, retypeSash, typeForAddedSash } from "@/shared/sash-rules";
 import {
   defaultConfig,
   defaultSashPreset,
@@ -747,6 +747,9 @@ export function Widget({
           </div>
           <div style={s.hint}>{dict.sashCountHint}</div>
           <div style={s.hint}>{dict.viewNote}</div>
+          {frameRules(state.sashes as unknown as Parameters<typeof frameRules>[0]).map((code) => (
+            <div key={code} style={s.hint} role="note">{dict.frameRules[code]}</div>
+          ))}
           {state.sashes.length === 1 && (
             <div style={{ ...s.hint, color: accentText, fontWeight: 600 }}>{dict.singleSashCapHint}</div>
           )}
@@ -905,7 +908,7 @@ export function Widget({
                   onChange={(patch) => setSash(selectedSash, patch)}
                   styles={s}
                 />
-                {state.sashes[selectedSash].active !== false && state.sashes[selectedSash].type !== "fix" && (
+                {state.sashes[selectedSash].active !== false && state.sashes[selectedSash].type !== "fix" && !inactiveLeaves(state.sashes as unknown as Parameters<typeof inactiveLeaves>[0]).has(selectedSash) && (
                   <div style={{ marginTop: 10 }}>
                     <div style={{ ...s.hint, marginBottom: 4 }}>
                       {dict.handleHeightLabel}:{" "}

@@ -136,6 +136,7 @@ export function drawOpening(ctx: SceneContext, s: DrawingSash, i: number, cell: 
       return out;
   }
   out.push(...hingesFor(ctx, s, cell, i));
+  if (ctx.noHandle?.has(i)) return out;
   const handle = handleFor(ctx, s, cell, i);
   out.push(...handle.prims);
   const mode = ctx.options.handleGuide ?? "none";

@@ -2275,7 +2275,14 @@
     "handleHeight": "Griffhöhe ab Boden",
     "main": "Hauptflügel",
     "leaf": "Flügel {n}",
-    "close": "Schließen"
+    "close": "Schließen",
+    "rule_inactive": "Standflügel: ohne Griff, mit beweglichem Stulp. Der Griff sitzt am benachbarten Gangflügel.",
+    "rule_active": "Gangflügel: trägt den Griff. Der Nachbarflügel ist Standflügel mit beweglichem Stulp.",
+    "rule_fixedMullion": "Fester Pfosten am Rahmen zwischen diesem Flügel und dem Nachbarn.",
+    "rule_slidingFixed": "Schiebe mit Festteil: bei der Serie Aluplast wird daraus ein Hebeschiebe- oder Kippschiebesystem.",
+    "frame_fixedMullion": "Fester Pfosten am Rahmen: nötig zwischen zwei Dreh-Kipp-Flügeln, einem Kippflügel oder einem Flügel neben einem Festteil.",
+    "frame_movableMullion": "Der aktive Dreh-Kipp-Flügel trägt den Griff; der griffllose Standflügel trägt den beweglichen Stulp.",
+    "frame_slidingFixed": "Schiebe mit Festteil: bei der Serie Aluplast wird daraus ein Hebeschiebe- oder Kippschiebesystem."
   },
   "referral": {
     "loading": "Wird geladen…",

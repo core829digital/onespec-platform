@@ -2275,7 +2275,14 @@
     "handleHeight": "Altezza maniglia dal pavimento",
     "main": "Anta principale",
     "leaf": "Anta {n}",
-    "close": "Chiudi"
+    "close": "Chiudi",
+    "rule_inactive": "Anta inattiva: senza maniglia, con montante mobile. La maniglia sta sull'anta attiva accanto.",
+    "rule_active": "Anta attiva: porta la maniglia. L'anta accanto è inattiva, con montante mobile.",
+    "rule_fixedMullion": "Montante fisso sul telaio tra questa anta e quella accanto.",
+    "rule_slidingFixed": "Scorrevole con fisso: sulla serie Aluplast diventa alzante scorrevole o traslante scorrevole.",
+    "frame_fixedMullion": "Montante fisso sul telaio: serve tra due ante-ribalta, vasistas o un'anta apribile accanto a una fissa.",
+    "frame_movableMullion": "Anta attiva (anta-ribalta) con la maniglia; l'anta inattiva senza maniglia porta il montante mobile.",
+    "frame_slidingFixed": "Scorrevole con fisso: sulla serie Aluplast diventa alzante scorrevole o traslante scorrevole."
   },
   "referral": {
     "loading": "Caricamento…",

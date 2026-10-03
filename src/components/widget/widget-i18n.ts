@@ -20,6 +20,8 @@ export interface WidgetDict {
   sashCountLabel: string;
   sashCountHint: string;
   viewNote: string;
+  /** Technical rules of the frame, shown under the leaf count. */
+  frameRules: Record<"fixedMullion" | "movableMullion" | "slidingFixed", string>;
   singleSashCapHint: string;
   sashLabel: string;
   handleHeightLabel: string;
@@ -121,6 +123,7 @@ const en: WidgetDict = {
   sashCountLabel: "Number of sashes",
   sashCountHint: "Each sash can have its own opening type and side, and can be switched active/inactive.",
   viewNote: 'Opening "Left" = the leaf opens from left to right; "Right" = from right to left (seen from inside, looking outward). Tilt-only leaves have a single way of opening.',
+  frameRules: { fixedMullion: "Fixed mullion on the frame: needed between two tilt-turn leaves, a tilt-only leaf, or an opening leaf next to a fixed one.", movableMullion: "The active (tilt-turn) leaf carries the handle; the handle-less inactive leaf carries the movable mullion.", slidingFixed: "Sliding with fixed leaf: on the Aluplast series it becomes a lift-slide or tilt-slide system." },
   singleSashCapHint: "Single-sash units are capped at 1200×2800mm.",
   sashLabel: "Sash",
   handleHeightLabel: "Handle height",
@@ -238,6 +241,7 @@ const it: WidgetDict = {
   sashCountLabel: "Numero di ante",
   sashCountHint: "Ogni anta può avere un proprio tipo di apertura e lato, e può essere attivata o disattivata.",
   viewNote: 'Apertura "Sinistra" = l\'anta si apre da sinistra verso destra; "Destra" = da destra verso sinistra (visto dall\'interno). Il vasistas ha un solo modo di aprirsi.',
+  frameRules: { fixedMullion: "Montante fisso sul telaio: serve tra due ante-ribalta, vasistas o un'anta apribile accanto a una fissa.", movableMullion: "Anta attiva (anta-ribalta) con la maniglia; l'anta inattiva senza maniglia porta il montante mobile.", slidingFixed: "Scorrevole con fisso: sulla serie Aluplast diventa alzante scorrevole o traslante scorrevole." },
   singleSashCapHint: "Gli infissi a un'anta sono limitati a 1200×2800mm.",
   sashLabel: "Anta",
   handleHeightLabel: "Altezza maniglia",
@@ -351,6 +355,7 @@ const fr: WidgetDict = {
   sashCountLabel: "Nombre de vantaux",
   sashCountHint: "Chaque vantail peut avoir son propre type d'ouverture et son côté, et peut être activé/désactivé.",
   viewNote: 'Ouverture « Gauche » = le battant s\'ouvre de gauche à droite ; « Droite » = de droite à gauche (vue de l\'intérieur). Le soufflet n\'a qu\'un seul mode d\'ouverture.',
+  frameRules: { fixedMullion: "Montant fixe sur le dormant : nécessaire entre deux vantaux oscillo-battants, un soufflet, ou un ouvrant à côté d'un fixe.", movableMullion: "Le vantail actif (oscillo-battant) porte la poignée ; le vantail semi-fixe sans poignée porte le montant mobile.", slidingFixed: "Coulissant avec fixe : sur la série Aluplast il devient levant-coulissant ou oscillo-coulissant." },
   singleSashCapHint: "Les menuiseries à un seul vantail sont limitées à 1200×2800mm.",
   sashLabel: "Vantail",
   handleHeightLabel: "Hauteur poignée",
@@ -464,6 +469,7 @@ const de: WidgetDict = {
   sashCountLabel: "Anzahl Flügel",
   sashCountHint: "Jeder Flügel kann einen eigenen Öffnungstyp und eine eigene Seite haben und kann aktiviert/deaktiviert werden.",
   viewNote: 'Öffnung „Links“ = der Flügel öffnet von links nach rechts; „Rechts“ = von rechts nach links (von innen gesehen). Kippflügel haben nur eine Öffnungsart.',
+  frameRules: { fixedMullion: "Fester Pfosten am Rahmen: nötig zwischen zwei Dreh-Kipp-Flügeln, einem Kippflügel oder einem Flügel neben einem Festteil.", movableMullion: "Der aktive Dreh-Kipp-Flügel trägt den Griff; der griffllose Standflügel trägt den beweglichen Stulp.", slidingFixed: "Schiebe mit Festteil: bei der Serie Aluplast wird daraus ein Hebeschiebe- oder Kippschiebesystem." },
   singleSashCapHint: "Einflügelige Elemente sind auf 1200×2800mm begrenzt.",
   sashLabel: "Flügel",
   handleHeightLabel: "Griffhöhe",
@@ -577,6 +583,7 @@ const nl: WidgetDict = {
   sashCountLabel: "Aantal vleugels",
   sashCountHint: "Elke vleugel kan zijn eigen openingstype en kant hebben en kan in-/uitgeschakeld worden.",
   viewNote: 'Opening "Links" = de vleugel opent van links naar rechts; "Rechts" = van rechts naar links (gezien van binnen). Een kiepraam heeft één manier van openen.',
+  frameRules: { fixedMullion: "Vaste stijl op het kozijn: nodig tussen twee draai-kiepvleugels, een kiepvleugel of een openende vleugel naast een vast deel.", movableMullion: "De actieve (draai-kiep)vleugel draagt de greep; de passieve vleugel zonder greep draagt de beweegbare stijl.", slidingFixed: "Schuif met vast deel: bij de Aluplast-serie wordt dit een hef-schuif- of kantelschuifsysteem." },
   singleSashCapHint: "Eenvoudige elementen zijn beperkt tot 1200×2800mm.",
   sashLabel: "Vleugel",
   handleHeightLabel: "Handgreep hoogte",

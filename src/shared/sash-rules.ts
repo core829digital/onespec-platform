@@ -151,6 +151,100 @@ export function retypeSash<T extends { type: SashKind; direction?: Side }>(sashe
   });
 }
 
+/**
+ * What stands between two neighbouring leaves (technical rules of the frame):
+ * - "fixedMullion": a fixed mullion on the frame. Tilt-turn next to tilt-turn, a vasistas next to anything that
+ *   moves, and any hinged leaf next to a fixed one need it.
+ * - "movableMullion": tilt-turn next to a casement (or two casements): the handle sits on the ACTIVE leaf (the
+ *   tilt-turn one, automatically) and the other, handle-less leaf carries a movable mullion.
+ * - "none": sliding families (rails) and fixed next to fixed.
+ */
+export type JointKind = "none" | "fixedMullion" | "movableMullion";
+
+type LeafLike = { type: SashKind; active?: boolean; main?: boolean };
+
+const effectiveType = (s: LeafLike): SashKind => (s.active === false ? "fix" : s.type);
+const isSlidingFamily = (t: SashKind) => t === "sliding" || t === "liftslide";
+
+export function jointBetween(a: SashKind, b: SashKind): JointKind {
+  if (isSlidingFamily(a) || isSlidingFamily(b)) return "none";
+  if (a === "fix" && b === "fix") return "none";
+  if (a === "fix" || b === "fix") return "fixedMullion";
+  if (a === "tilt" || b === "tilt") return "fixedMullion";
+  if (a === "tiltturn" && b === "tiltturn") return "fixedMullion";
+  return "movableMullion";
+}
+
+export interface Joint {
+  /** The joint sits between leaf `index` and leaf `index + 1`. */
+  index: number;
+  kind: JointKind;
+  /** Movable mullion only: the leaf that carries it (no handle). */
+  inactive?: number;
+  /** Movable mullion only: the leaf that carries the handle. */
+  active?: number;
+}
+
+/** Joints between all neighbouring leaves, with the active / inactive leaf of every movable pair. */
+export function jointsFor(sashes: LeafLike[]): Joint[] {
+  const inactive = new Set<number>();
+  const out: Joint[] = [];
+  for (let i = 0; i + 1 < sashes.length; i++) {
+    const a = effectiveType(sashes[i]);
+    const b = effectiveType(sashes[i + 1]);
+    const kind = jointBetween(a, b);
+    if (kind !== "movableMullion") {
+      out.push({ index: i, kind });
+      continue;
+    }
+    let active = i;
+    if (a === b) {
+      // Two casements: the principale one keeps the handle, otherwise the left one (unless it already lost it).
+      if (sashes[i + 1].main && !sashes[i].main) active = i + 1;
+      else if (!sashes[i].main && inactive.has(i)) active = i + 1;
+    } else {
+      active = a === "tiltturn" ? i : i + 1;
+    }
+    const other = active === i ? i + 1 : i;
+    inactive.add(other);
+    out.push({ index: i, kind, active, inactive: other });
+  }
+  return out;
+}
+
+/** Leaves that carry no handle because a movable mullion sits on them. */
+export function inactiveLeaves(sashes: LeafLike[]): Set<number> {
+  return new Set(jointsFor(sashes).flatMap((j) => (j.inactive !== undefined ? [j.inactive] : [])));
+}
+
+/** A sliding frame with a fixed leaf: on the Aluplast series it becomes a lift-slide / tilt-slide system. */
+export function slidingWithFixed(types: SashKind[]): boolean {
+  return types.includes("fix") && types.some(isSlidingFamily);
+}
+
+/** What the technical rules say about one leaf, as a code the UI translates. */
+export type LeafRule = "inactive" | "active" | "fixedMullion" | "slidingFixed";
+
+export function leafRule(sashes: LeafLike[], index: number): LeafRule | null {
+  const joints = jointsFor(sashes);
+  if (joints.some((j) => j.inactive === index)) return "inactive";
+  if (joints.some((j) => j.active === index)) return "active";
+  if (joints.some((j) => j.kind === "fixedMullion" && (j.index === index || j.index + 1 === index))) return "fixedMullion";
+  const types = sashes.map(effectiveType);
+  if (slidingWithFixed(types) && (types[index] === "fix" || isSlidingFamily(types[index]))) return "slidingFixed";
+  return null;
+}
+
+/** Rules that apply to the frame as a whole (each code once), shown under the drawing. */
+export function frameRules(sashes: LeafLike[]): Array<"fixedMullion" | "movableMullion" | "slidingFixed"> {
+  const kinds = new Set(jointsFor(sashes).map((j) => j.kind));
+  const out: Array<"fixedMullion" | "movableMullion" | "slidingFixed"> = [];
+  if (kinds.has("fixedMullion")) out.push("fixedMullion");
+  if (kinds.has("movableMullion")) out.push("movableMullion");
+  if (slidingWithFixed(sashes.map(effectiveType))) out.push("slidingFixed");
+  return out;
+}
+
 /** Type for a leaf added to a frame: it follows the moving leaves already there. */
 export function typeForAddedSash(existing: SashKind[]): SashKind {
   const moving = existing.find((t) => t !== "fix");

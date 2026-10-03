@@ -1,5 +1,6 @@
 import { drawingLocale, HARDWARE, type HardwareWord } from "./drawing-text";
 import { PALETTE } from "./finishes";
+import { inactiveLeaves } from "@/shared/sash-rules";
 import { buildScene } from "./build-scene";
 import { boundsOf, circle, line, place, polyline, rect, text } from "./prims";
 import type { DrawingInput, DrawingSash, Primitive, Scene } from "./types";
@@ -36,6 +37,7 @@ export function buildHardwareScene(input: DrawingInput, localeInput?: string): S
   const used = new Set<HardwareWord>();
   const inset = Math.max(2.5, base.meta.sashInset);
   const heightMm = base.meta.heightMm;
+  const inactive = inactiveLeaves(input.sashes);
 
   cells.forEach((c) => {
     const s = input.sashes[c.sashIndex];
@@ -60,7 +62,7 @@ export function buildHardwareScene(input: DrawingInput, localeInput?: string): S
       }
       used.add("hinge");
       rod(lx);
-      const locks = lockCount(leafMm);
+      const locks = inactive.has(c.sashIndex) ? 2 : lockCount(leafMm);
       for (let i = 0; i < locks; i++) {
         const y = along(locks, y0 + 12, y1 - 12, i);
         out.push(circle({ role: "hinge", part: "lock", sashIndex: c.sashIndex }, lx, y, 3.2, { fill: "#F59E0B", stroke: ink, strokeWidth: 0.7 }));
