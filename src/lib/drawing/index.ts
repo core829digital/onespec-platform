@@ -1,6 +1,6 @@
 export { buildScene } from "./build-scene";
 export { buildLegendScene } from "./build-legend";
-export { drawingLocale, VIEW as DRAWING_VIEW, TITLES as DRAWING_TITLES, LEGEND as DRAWING_LEGEND, type DrawingLocale } from "./drawing-text";
+export { drawingLocale, VIEW as DRAWING_VIEW, FLIP as DRAWING_FLIP, TITLES as DRAWING_TITLES, LEGEND as DRAWING_LEGEND, type DrawingLocale } from "./drawing-text";
 export { SceneSvg } from "./render-dom";
 export { ScenePdf } from "./render-pdf";
 export { resolveDividerRatio } from "./divider";

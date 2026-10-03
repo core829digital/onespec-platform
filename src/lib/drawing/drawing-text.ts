@@ -31,6 +31,15 @@ export const VIEW: L<{ inside: string; outside: string; note: string }> = {
   ro: { inside: "Vedere din interior", outside: "Vedere din exterior", note: "Vedere din exterior: desen în oglindă, mânerele nu se văd" },
 };
 
+export const FLIP: L<string> = {
+  it: "Inverti apertura (sinistra/destra)",
+  en: "Flip opening (left/right)",
+  fr: "Inverser l'ouverture (gauche/droite)",
+  de: "Öffnung umkehren (links/rechts)",
+  nl: "Opening omkeren (links/rechts)",
+  ro: "Inversează deschiderea (stânga/dreapta)",
+};
+
 /** Legend rows: at most two short lines each (an SVG text does not wrap). */
 export type LegendKey = "casement" | "tilt" | "sliding" | "liftslide" | "handle" | "hinge" | "guide";
 

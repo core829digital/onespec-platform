@@ -20,7 +20,7 @@ import {
   type PieceIssue,
 } from "@/shared/piece-ops";
 import { defaultItem } from "@/shared/item-defaults";
-import { buildLegendScene, DRAWING_TITLES, DRAWING_VIEW, drawingLocale, SceneSvg, WindowDrawing, type DrawingView } from "@/lib/drawing";
+import { buildLegendScene, DRAWING_FLIP, DRAWING_TITLES, DRAWING_VIEW, drawingLocale, SceneSvg, WindowDrawing, type DrawingView } from "@/lib/drawing";
 import { SashPanel } from "@/components/quotes/sash-panel";
 import { catalogChoices, labelOf } from "./catalog-labels";
 import { PieceForm } from "./piece-form";
@@ -221,6 +221,8 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
                 }}
                 options={{ selectedSash, handleGuide: "selected", showMainBadge: true, showViolations: true, showLeafDimensions: true, view }}
                 onSelectSash={setSelectedSash}
+                onFlipSash={(i) => update(activeIndex, patchSash(active, i, { direction: active.sashes[i]?.direction === "left" ? "right" : "left" }))}
+                flipLabel={DRAWING_FLIP[drawingLocale(locale)]}
                 onResizeSash={view === "inside" ? (d, ratio) => update(activeIndex, resizeDivider(active, d, ratio)) : undefined}
                 ariaLabel={t("drawingLabel", { width: active.width, height: active.height })}
                 height={340}

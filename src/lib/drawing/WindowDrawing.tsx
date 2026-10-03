@@ -4,6 +4,7 @@ import { useRef, useState, type CSSProperties, type PointerEvent as ReactPointer
 import { buildScene } from "./build-scene";
 import { resolveDividerRatio } from "./divider";
 import { PALETTE } from "./finishes";
+import { hasOpeningDirection } from "@/shared/sash-rules";
 import { MONO, renderPrimitive } from "./render-dom";
 import type { DrawingInput, DrawingOptions } from "./types";
 
@@ -11,6 +12,10 @@ export interface WindowDrawingProps {
   input: DrawingInput;
   options?: DrawingOptions;
   onSelectSash?: (index: number) => void;
+  /** Flip the opening of a leaf (left <-> right). Shown as a button on the selected leaf. */
+  onFlipSash?: (index: number) => void;
+  /** Accessible name and tooltip of the flip button. */
+  flipLabel?: string;
   /** Divider `dividerIndex` (between leaf i and i+1) dragged: `leftRatio` is the new absolute width ratio (0..1 of the frame) of leaf `dividerIndex`; the right leaf absorbs the rest. */
   onResizeSash?: (dividerIndex: number, leftRatio: number) => void;
   svgId?: string;
@@ -35,6 +40,8 @@ export function WindowDrawing({
   input,
   options,
   onSelectSash,
+  onFlipSash,
+  flipLabel = "Flip opening",
   onResizeSash,
   svgId,
   ariaLabel,
@@ -48,6 +55,15 @@ export function WindowDrawing({
   const dragRef = useRef<{ index: number; ratios: number[] } | null>(null);
   const [dragging, setDragging] = useState<number | null>(null);
   const [hovered, setHovered] = useState<number | null>(null);
+
+  // The flip button sits on the selected leaf, only when that leaf has an opening to flip.
+  const sel = options?.selectedSash ?? null;
+  const selCell = sel !== null ? meta.cells.find((c) => c.sashIndex === sel) : undefined;
+  const selSash = sel !== null ? input.sashes[sel] : undefined;
+  const flipTarget =
+    selCell && selSash && selSash.active && hasOpeningDirection(selSash.type)
+      ? { index: selCell.sashIndex, x: selCell.x + selCell.w / 2, y: selCell.y + selCell.h * 0.8 }
+      : null;
 
   const visual = scene.primitives.filter((p) => p.role !== "hit");
   const hits = scene.primitives.filter((p) => p.role === "hit");
@@ -110,6 +126,14 @@ export function WindowDrawing({
             />
           ) : null,
         )}
+      {onFlipSash && flipTarget !== null ? (
+        <FlipButton
+          x={flipTarget.x}
+          y={flipTarget.y}
+          label={flipLabel}
+          onFlip={() => onFlipSash(flipTarget.index)}
+        />
+      ) : null}
       {onResizeSash &&
         meta.dividers.map((x, i) => (
           <g key={`grip-${i}`}>
@@ -160,5 +184,32 @@ export function WindowDrawing({
           </g>
         ))}
     </svg>
+  );
+}
+
+/** Round on-drawing button that flips the opening of the selected leaf; works with mouse, touch and keyboard. */
+function FlipButton({ x, y, label, onFlip }: { x: number; y: number; label: string; onFlip: () => void }) {
+  return (
+    <g
+      role="button"
+      tabIndex={0}
+      aria-label={label}
+      data-testid="flip-sash"
+      style={{ cursor: "pointer", outline: "none" }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onFlip();
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onFlip();
+        }
+      }}
+    >
+      <title>{label}</title>
+      <circle cx={x} cy={y} r={13} fill="#FFFFFF" stroke={PALETTE.guide} strokeWidth={1.4} />
+      <path d={`M${x - 6} ${y - 3} H${x + 5} M${x + 2} ${y - 6} L${x + 5.5} ${y - 3} L${x + 2} ${y} M${x + 6} ${y + 3} H${x - 5} M${x - 2} ${y} L${x - 5.5} ${y + 3} L${x - 2} ${y + 6}`} fill="none" stroke={PALETTE.guide} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+    </g>
   );
 }
