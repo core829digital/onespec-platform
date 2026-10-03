@@ -84,6 +84,26 @@ export const PLAN: L<{ interior: string; exterior: string; clearance: string }> 
   ro: { interior: "INTERIOR", exterior: "EXTERIOR", clearance: "Spațiu necesar la deschidere: {mm} mm" },
 };
 
+export type SectionWord =
+  | "frame"
+  | "sash"
+  | "glass"
+  | "spacer"
+  | "bead"
+  | "gaskets"
+  | "band"
+  | "thermalBreak"
+  | "steel"
+  | "note";
+export const SECTION: L<Record<SectionWord, string>> = {
+  it: { frame: "Telaio", sash: "Anta", glass: "Vetrocamera", spacer: "Distanziale warm-edge", bead: "Fermavetro", gaskets: "Guarnizioni", band: "Controtelaio", thermalBreak: "Taglio termico", steel: "Rinforzo in acciaio", note: "Schema indicativo: non è il dettaglio costruttivo del produttore." },
+  en: { frame: "Frame", sash: "Sash", glass: "Glazing unit", spacer: "Warm-edge spacer", bead: "Glazing bead", gaskets: "Gaskets", band: "Sub-frame", thermalBreak: "Thermal break", steel: "Steel reinforcement", note: "Indicative diagram: not the manufacturer's construction detail." },
+  fr: { frame: "Dormant", sash: "Ouvrant", glass: "Vitrage isolant", spacer: "Intercalaire warm-edge", bead: "Parclose", gaskets: "Joints", band: "Contre-cadre", thermalBreak: "Rupture de pont thermique", steel: "Renfort acier", note: "Schéma indicatif : ce n'est pas le détail de construction du fabricant." },
+  de: { frame: "Blendrahmen", sash: "Flügel", glass: "Isolierglas", spacer: "Warm-Edge-Abstandhalter", bead: "Glasleiste", gaskets: "Dichtungen", band: "Vorsatzrahmen", thermalBreak: "Thermische Trennung", steel: "Stahlverstärkung", note: "Schematische Darstellung: kein Konstruktionsdetail des Herstellers." },
+  nl: { frame: "Kozijn", sash: "Raamvleugel", glass: "Isolatieglas", spacer: "Warm-edge afstandhouder", bead: "Glaslat", gaskets: "Afdichtingen", band: "Voorzetkozijn", thermalBreak: "Thermische onderbreking", steel: "Stalen versterking", note: "Schematisch: geen constructiedetail van de fabrikant." },
+  ro: { frame: "Toc", sash: "Cant", glass: "Geam termoizolant", spacer: "Distanțier warm-edge", bead: "Șină de prindere sticlă", gaskets: "Garnituri", band: "Contratoc", thermalBreak: "Rupere termică", steel: "Armătură de oțel", note: "Schemă orientativă: nu este detaliul constructiv al producătorului." },
+};
+
 /** Names of the drawing tabs in the quote editor. */
 export type DrawingTab = "elevation" | "plan" | "section" | "hardware";
 export const TABS: L<Record<DrawingTab, string>> = {
