@@ -1,6 +1,6 @@
 import { internalMutation, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
-import { seedExtras } from "./lib/catalogExtras";
+import { seedExtras, seedGlazingPackages } from "./lib/catalogExtras";
 import { FULL_ACCESS_EMAILS } from "./lib/founding";
 import type { TableNames } from "./_generated/dataModel";
 
@@ -169,11 +169,28 @@ export const seedCatalogExtras = internalMutation({
     let configurators = 0;
     let inserted = 0;
     for (const c of await ctx.db.query("configurators").collect()) {
-      const r = await seedExtras(ctx, { tenantId: c.tenantId, configuratorId: c._id });
+      const r = await seedExtras(ctx, { tenantId: c.tenantId, configuratorId: c._id, skipGlazingPackages: true });
       configurators++;
       inserted += r.inserted;
     }
     return { configurators, inserted };
+  },
+});
+
+/**
+ * Add the glazing packages (24-28 mm double, 32-52 mm triple, every composition) to existing configurators, a page at a time:
+ *
+ *   npx convex run migrations:seedGlazingPackagesPage            (repeat with the returned cursor until done)
+ *
+ * Idempotent: only inserts missing keys, never overwrites a tenant's price or label.
+ */
+export const seedGlazingPackagesPage = internalMutation({
+  args: { cursor: v.optional(v.string()), limit: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    const page = await ctx.db.query("configurators").paginate({ cursor: args.cursor ?? null, numItems: args.limit ?? 5 });
+    let inserted = 0;
+    for (const c of page.page) inserted += (await seedGlazingPackages(ctx, { tenantId: c.tenantId, configuratorId: c._id })).inserted;
+    return { inserted, done: page.isDone, cursor: page.continueCursor };
   },
 });
 

@@ -243,6 +243,7 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
                   finish: active.color,
                   frameType: active.frameType,
                   accessories: active.accessories,
+                  glazing: active.glazing,
                 }}
                 options={{ selectedSash, handleGuide: "selected", showMainBadge: true, showViolations: true, showLeafDimensions: leafDims, showGlassDimensions: glassDims, invalidAxes, view }}
                 onSelectSash={setSelectedSash}
@@ -284,7 +285,7 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
             {tab === "plan" ? (
               <div role="tabpanel" id="drawing-panel-plan" aria-labelledby="drawing-tab-plan" className="mx-auto w-full max-w-[460px] rounded-lg bg-white p-2">
                 <SceneSvg
-                  scene={buildPlanScene({ widthMm: active.width, heightMm: active.height, category: active.category, sashes: active.sashes, finish: active.color, frameType: active.frameType }, locale)}
+                  scene={buildPlanScene({ widthMm: active.width, heightMm: active.height, category: active.category, sashes: active.sashes, finish: active.color, frameType: active.frameType, glazing: active.glazing }, locale)}
                   ariaLabel={DRAWING_TABS[drawingLocale(locale)].plan}
                 />
               </div>
@@ -292,7 +293,7 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
             {tab === "hardware" ? (
               <div role="tabpanel" id="drawing-panel-hardware" aria-labelledby="drawing-tab-hardware" className="mx-auto w-full max-w-[420px] rounded-lg bg-white p-2">
                 <SceneSvg
-                  scene={buildHardwareScene({ widthMm: active.width, heightMm: active.height, category: active.category, sashes: active.sashes, finish: active.color, frameType: active.frameType }, locale)}
+                  scene={buildHardwareScene({ widthMm: active.width, heightMm: active.height, category: active.category, sashes: active.sashes, finish: active.color, frameType: active.frameType, glazing: active.glazing }, locale)}
                   ariaLabel={DRAWING_TABS[drawingLocale(locale)].hardware}
                 />
               </div>

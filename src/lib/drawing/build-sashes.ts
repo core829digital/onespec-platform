@@ -85,6 +85,10 @@ export function drawLeaves(
 
     if (category === "pannello") {
       out.push(...drawPanel(ctx, area, i, true));
+    } else if (ctx.glazingKind && ctx.glazingKind !== "glass") {
+      // Panel package: an opaque panel in the frame colour (ornamental ones with mouldings), the opening symbols stay.
+      out.push(...drawPanel(ctx, area, i, ctx.glazingKind === "ornamentalPanel"));
+      if (s.active) out.push(...drawOpening(ctx, s, i, cell, area));
     } else {
       const isDoor = category === "porta";
       const glass: Box = isDoor
@@ -92,12 +96,17 @@ export function drawLeaves(
         : area;
       out.push(
         rect({ role: "glass", sashIndex: i, part: s.active ? undefined : "inactive" }, glass.x, glass.y, glass.w, glass.h, {
-          fill: PALETTE.glass,
+          fill: ctx.satin ? "#E8EEF1" : PALETTE.glass,
           stroke: PALETTE.ink,
           strokeWidth: 0.8,
           opacity: s.active ? undefined : 0.55,
         }),
       );
+      if (ctx.satin) {
+        for (const [x1, y1, x2, y2] of hatchSegments(glass.x, glass.y, glass.w, glass.h, 6)) {
+          out.push(line({ role: "hatch", sashIndex: i, part: "satin" }, x1, y1, x2, y2, { stroke: PALETTE.dimLine, strokeWidth: 0.5, opacity: 0.35 }));
+        }
+      }
       if (isDoor) {
         const panelY = area.y + area.h * (1 - DOOR_PANEL_SHARE);
         out.push(...drawPanel(ctx, { x: area.x, y: panelY, w: area.w, h: area.y + area.h - panelY }, i, false));

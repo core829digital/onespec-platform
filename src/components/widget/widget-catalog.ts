@@ -7,6 +7,7 @@ import type { Material, Pricing } from "./widget-pricing";
 import { defaultPricing } from "./widget-pricing";
 import type { WidgetDict } from "./widget-i18n";
 import { REGION_FLAT_OPTION_KINDS } from "@/shared/pricing";
+import { glazingPackageRows } from "@/shared/glazing-packages";
 
 type Labels = Record<string, string> | undefined;
 
@@ -134,7 +135,7 @@ export function catalogOptions(
     ],
     quality,
     profileSystems,
-    glazing: pairsFrom(cat?.glazing, locale) ?? dict.glazing,
+    glazing: pairsFrom(cat?.glazing, locale) ?? [...dict.glazing, ...glazingPackageRows().map((r): [string, string] => [r.key, r.labels[locale] ?? r.labels.en])],
     color: pairsFrom(cat?.finish, locale) ?? dict.color,
     sashTypes: pairsFrom(hw("sashType"), locale) ?? dict.sashTypes,
     hardware: pairsFrom(hw("hardware"), locale) ?? dict.hardwareBrands,

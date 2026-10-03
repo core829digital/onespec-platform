@@ -1,6 +1,7 @@
 import type { MutationCtx, QueryCtx } from "../_generated/server";
 import type { Id } from "../_generated/dataModel";
 import { DEFAULT_ACCESSORIES, DEFAULT_FRAME_TYPES } from "../../src/shared/configurator-model";
+import { glazingPackageRows } from "../../src/shared/glazing-packages";
 
 /**
  * Catalogue sections added for the B2B / showroom configurator: telaio types,
@@ -88,7 +89,7 @@ const EXTRA_FINISH: Array<{ key: string; labels: Labels; swatchHex: string; pric
  */
 export async function seedExtras(
   ctx: MutationCtx,
-  args: { tenantId: Id<"tenants">; configuratorId: Id<"configurators"> },
+  args: { tenantId: Id<"tenants">; configuratorId: Id<"configurators">; skipGlazingPackages?: boolean },
 ): Promise<{ inserted: number }> {
   const scope = { tenantId: args.tenantId, configuratorId: args.configuratorId };
   let inserted = 0;
@@ -150,6 +151,8 @@ export async function seedExtras(
     inserted++;
   }
 
+  if (!args.skipGlazingPackages) inserted += (await seedGlazingPackages(ctx, args)).inserted;
+
   const finish = await ctx.db.query("catalogFinishOptions").withIndex("by_configurator", (q) => q.eq("configuratorId", args.configuratorId)).collect();
   for (const f of EXTRA_FINISH) {
     if (finish.some((x) => x.key === f.key)) continue;
@@ -157,5 +160,26 @@ export async function seedExtras(
     inserted++;
   }
 
+  return { inserted };
+}
+
+/**
+ * Glazing packages (depth chosen first, then the composition): one row per combination, inserted by key and
+ * never touching a row the tenant already has, so tenant edits to prices and labels survive.
+ */
+export async function seedGlazingPackages(
+  ctx: MutationCtx,
+  args: { tenantId: Id<"tenants">; configuratorId: Id<"configurators"> },
+): Promise<{ inserted: number }> {
+  const scope = { tenantId: args.tenantId, configuratorId: args.configuratorId };
+  const existing = new Set(
+    (await ctx.db.query("catalogGlazingOptions").withIndex("by_configurator", (q) => q.eq("configuratorId", args.configuratorId)).collect()).map((g) => g.key),
+  );
+  let inserted = 0;
+  for (const row of glazingPackageRows()) {
+    if (existing.has(row.key)) continue;
+    await ctx.db.insert("catalogGlazingOptions", { ...scope, ...row });
+    inserted++;
+  }
   return { inserted };
 }

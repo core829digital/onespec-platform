@@ -495,7 +495,11 @@ export function QuotePrintPDF({
             });
             const leafLines = (item.sashes ?? []).map((sh, i) => `${dict.leaf} ${i + 1}: ${dict.sashTypes[sh.type] ?? sh.type}${openingLabel(dict, sh.type, sh.direction) ? ` · ${openingLabel(dict, sh.type, sh.direction)}` : ""}${sh.main ? ` (${dict.principal})` : ""}${sh.type !== "fix" ? ` · ${dict.handle} ${sh.handleHeightMm ?? Math.round(item.height / 2)} mm` : ""}`);
             const matText = MATERIAL_LABELS[item.material]?.[langKey] ?? MATERIAL_LABELS[item.material]?.it ?? item.material;
-            const glazingInfo = GLAZING_LABELS[item.glazing] ?? { label: { it: item.glazing }, ug: 1.1 };
+            const glazingRow = catalog?.glazing.find((g) => g.key === item.glazing);
+            // The catalogue row (packages and custom glazing) wins over the two legacy built-in entries.
+            const glazingInfo = glazingRow
+              ? { label: { [langKey]: lab(glazingRow, item.glazing) } as Record<string, string>, ug: glazingRow.uGlass ?? 1.1 }
+              : GLAZING_LABELS[item.glazing] ?? { label: { it: item.glazing }, ug: 1.1 };
             const glazingText = glazingInfo.label[langKey] ?? glazingInfo.label.it;
             const sashTypes = item.sashes?.map((s) => SASH_LABELS[s.type]?.[langKey] ?? s.type).join(" + ") ?? "—";
             return (
@@ -559,7 +563,7 @@ export function QuotePrintPDF({
                   </Text>
                   <WindowDrawingPdf
                     width={170}
-                    input={{ widthMm: item.width, heightMm: item.height, category: item.category, sashes: item.sashes ?? [], finish: item.color, frameType: item.frameType, accessories: item.accessories }}
+                    input={{ widthMm: item.width, heightMm: item.height, category: item.category, sashes: item.sashes ?? [], finish: item.color, frameType: item.frameType, accessories: item.accessories, glazing: item.glazing }}
                     options={{ handleGuide: "all", showLeafDimensions: true }}
                   />
                 </View>

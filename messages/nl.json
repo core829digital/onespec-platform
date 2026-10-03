@@ -2398,5 +2398,17 @@
     "prev": "Vorige pagina",
     "next": "Volgende pagina",
     "last": "Laatste pagina"
+  },
+  "glazingPicker": {
+    "glazing": "Beglazing",
+    "depth": "Beglazing: dikte van het pakket",
+    "composition": "Glassamenstelling",
+    "double": "Dubbel glas",
+    "triple": "Drievoudig glas",
+    "advice_upTo1700": "Aanbevolen voor ramen tot 1700 mm hoog.",
+    "advice_tooTall": "Float + 3.3.1 wordt alleen aanbevolen tot 1700 mm hoogte en niet voor balkondeuren: kies daarboven gelaagd 3.3.1 + 3.3.1.",
+    "advice_doorsOrTall": "Aanbevolen voor balkondeuren en voordeuren, of hoogtes boven 1700 mm (tot 2700 mm).",
+    "advice_tallBeyond": "Hoogte boven 2700 mm: controleer bij de fabrikant of dit glas haalbaar is.",
+    "advice_entryDoors": "Het sierpaneel wordt aanbevolen voor hoofdingangsdeuren."
   }
 }

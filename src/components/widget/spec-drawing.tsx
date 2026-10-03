@@ -1,5 +1,6 @@
 "use client";
 
+import { inactiveLeaves, jointsFor } from "@/shared/sash-rules";
 import { hardwareFill } from "@/lib/drawing/finishes";
 import { handleKindFor, handleShapes } from "@/lib/drawing/handle-shapes";
 import { useCallback, useRef } from "react";
@@ -96,6 +97,9 @@ export function SpecDrawing({
 
   const n = sashes.length;
   const ratios = normaliseRatios(sashes);
+  // Frame rules: a casement beside a tilt-turn is the inactive leaf (no handle, movable mullion); other pairs get a fixed mullion.
+  const leafLike = sashes.map((x) => ({ type: x.type, active: x.active !== false }));
+  const inactive = inactiveLeaves(leafLike);
 
   const svgRef = useRef<SVGSVGElement>(null);
   const dragIdx = useRef<number | null>(null);
@@ -171,7 +175,7 @@ export function SpecDrawing({
           fill: hardwareFill(sash.hardwareColor),
         },
       );
-      nodes.push(
+      if (!inactive.has(i)) nodes.push(
         <g key={`hd-${i}`} pointerEvents="none">
           {shapes.map((p, k) =>
             p.type === "rect" ? (
@@ -249,6 +253,23 @@ export function SpecDrawing({
       nodes.push(
         <rect key={`hit-${i}`} x={sx} y={rectY} width={sashW} height={rectH} fill="transparent" style={{ cursor: "pointer" }} onClick={() => onSelectSash?.(i)} />,
       );
+    }
+  }
+
+  // Mullions between neighbouring leaves (drawn above the leaf contents, below the drag handles).
+  {
+    let edge = rectX;
+    const joints = jointsFor(leafLike);
+    for (let i = 0; i < n - 1; i++) {
+      edge += ratios[i] * rectW;
+      const joint = joints[i];
+      if (!joint || joint.kind === "none") continue;
+      if (joint.kind === "fixedMullion") {
+        nodes.push(<rect key={`mf-${i}`} x={edge - 3.5} y={rectY} width={7} height={rectH} fill={colors.fill} stroke={colors.stroke} strokeWidth={1.2} pointerEvents="none" />);
+      } else {
+        const onLeft = joint.inactive === i;
+        nodes.push(<rect key={`mm-${i}`} x={onLeft ? edge - 8 : edge + 2} y={rectY + 3} width={6} height={Math.max(0, rectH - 6)} fill={colors.fill} stroke={colors.stroke} strokeWidth={1.2} pointerEvents="none" />);
+      }
     }
   }
 

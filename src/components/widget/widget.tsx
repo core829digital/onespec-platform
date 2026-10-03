@@ -9,6 +9,7 @@ import { demoCopy, demoRegisterUrl } from "@/lib/demo/demo-copy";
 import { submitErrorMessage, wizardCopy } from "./simple-wizard-model";
 import { getTurnstileToken } from "@/lib/turnstile-client";import { catalogOptions, catalogPricing, type WidgetCatalog, type WidgetOptions } from "./widget-catalog";
 import { REGION_FLAT_OPTION_KINDS } from "@/shared/pricing";
+import { glazingAdvice, PACKAGE_DEPTHS, packageKey, parseGlazingKey } from "@/shared/glazing-packages";
 import { frameRules, inactiveLeaves, directionFromOpening, hasOpeningDirection, openingSide, retypeSash, typeForAddedSash } from "@/shared/sash-rules";
 import {
   defaultConfig,
@@ -173,7 +174,11 @@ export function Widget({
     [hostTheme.font, fontOverride, configurator.branding?.fontFamily],
   );
 
-  const [state, setState] = useState<ConfigState>(() => defaultConfig());
+  // The initial glazing is the first package (24 mm double, low-E, argon) when the catalogue offers it.
+  const [state, setState] = useState<ConfigState>(() => {
+    const base = defaultConfig();
+    return options.glazing.some(([k]) => k === "d24_floatBeArgon") ? { ...base, glazing: "d24_floatBeArgon" } : base;
+  });
   const [items, setItems] = useState<SavedItem[]>([]);
   const [selectedSash, setSelectedSash] = useState<number | null>(null);
   const [ecobonusOpen, setEcobonusOpen] = useState(false);
@@ -775,15 +780,59 @@ export function Widget({
             })}
           </div>
 
-          <Field label={dict.glazingLabel} mt id="widget-glazing">
-            <select id="widget-glazing" style={s.select} value={state.glazing} onChange={(e) => set({ glazing: e.target.value })}>
-              {options.glazing.map(([k, v]) => (
-                <option key={k} value={k}>
-                  {v}
-                </option>
-              ))}
-            </select>
-          </Field>
+          {(() => {
+            const parsed = parseGlazingKey(state.glazing);
+            const rows = options.glazing.map(([k, v]) => ({ key: k, label: v, p: parseGlazingKey(k) }));
+            const packages = rows.filter((r) => r.p);
+            const plain = (
+              <Field label={dict.glazingLabel} mt id="widget-glazing">
+                <select id="widget-glazing" style={s.select} value={state.glazing} onChange={(e) => set({ glazing: e.target.value })}>
+                  {options.glazing.map(([k, v]) => (
+                    <option key={k} value={k}>
+                      {v}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            );
+            if (packages.length === 0) return plain;
+            const gp = dict.glazingPicker;
+            const depths: Array<{ family: "double" | "triple"; depth: number }> = [];
+            for (const family of ["double", "triple"] as const) {
+              for (const depth of PACKAGE_DEPTHS[family]) if (packages.some((r) => r.p!.family === family && r.p!.depthMm === depth)) depths.push({ family, depth });
+            }
+            const shown = parsed ? packages.filter((r) => r.p!.family === parsed.family && r.p!.depthMm === parsed.depthMm) : [];
+            const strip = (label: string) => label.replace(/\s·\s\d+\smm$/, "");
+            const pickDepth = (raw: string) => {
+              const [family, depth] = raw.split("-");
+              const keep = parsed ? rows.find((r) => r.key === packageKey(family as "double" | "triple", Number(depth), parsed.composition.id)) : undefined;
+              const next = keep ?? packages.find((r) => r.p!.family === family && r.p!.depthMm === Number(depth));
+              if (next) set({ glazing: next.key });
+            };
+            return (
+              <>
+                <Field label={`${dict.glazingLabel} · ${gp.depth}`} mt id="widget-glazing-depth">
+                  <select id="widget-glazing-depth" style={s.select} value={parsed ? `${parsed.family}-${parsed.depthMm}` : "legacy"} onChange={(e) => pickDepth(e.target.value)}>
+                    {!parsed ? <option value="legacy" disabled>{rows.find((r) => r.key === state.glazing)?.label ?? state.glazing}</option> : null}
+                    {depths.map(({ family, depth }) => (
+                      <option key={`${family}-${depth}`} value={`${family}-${depth}`}>{gp[family]} · {depth} mm</option>
+                    ))}
+                  </select>
+                </Field>
+                <Field label={gp.composition} id="widget-glazing">
+                  <select id="widget-glazing" style={s.select} value={state.glazing} disabled={!parsed} onChange={(e) => set({ glazing: e.target.value })}>
+                    {!parsed ? <option value={state.glazing}>{rows.find((r) => r.key === state.glazing)?.label ?? state.glazing}</option> : null}
+                    {shown.map((r) => (
+                      <option key={r.key} value={r.key}>{strip(r.label)}</option>
+                    ))}
+                  </select>
+                </Field>
+                {glazingAdvice(state.glazing, state.height, state.productType === "balconyDoor" ? "porta" : undefined).map((code) => (
+                  <div key={code} style={{ ...s.hint, ...(code === "tooTall" || code === "tallBeyond" ? { color: "#B45309", fontWeight: 600 } : {}) }} role="note">{gp.advice[code]}</div>
+                ))}
+              </>
+            );
+          })()}
 
           <Field label={dict.colorLabel} id="widget-color">
             <select id="widget-color" style={s.select} value={state.color} onChange={(e) => set({ color: e.target.value })}>

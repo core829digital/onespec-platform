@@ -24,6 +24,8 @@ export interface DrawingInput {
   /** 'dritto' | 'reno40' | 'reno65' | other. */
   frameType?: string;
   accessories?: ItemAccessories;
+  /** Glazing catalogue key: panel packages draw opaque panels instead of glass, satin ones a frosted glass. */
+  glazing?: string;
 }
 
 export type HandleGuideMode = "none" | "selected" | "all";
@@ -222,6 +224,9 @@ export interface SceneContext {
   band: number;
   finish: { fill: string; stroke: string; strokeWidth: number };
   options: DrawingOptions;
+  /** Glazing of the piece: "glass", a colour panel or an ornamental panel; satin glass draws frosted. */
+  glazingKind?: "glass" | "colorPanel" | "ornamentalPanel";
+  satin?: boolean;
   /** Leaves that carry a movable mullion instead of a handle. */
   noHandle?: Set<number>;
   /** Filled while drawing: the handles that were drawn. */

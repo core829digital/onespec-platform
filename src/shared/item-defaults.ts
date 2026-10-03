@@ -28,7 +28,10 @@ export function defaultItem(
   const materialKey = material?.key ?? "pvc";
   const quality = pick(payload.qualityTiers.filter((q) => q.materialKey === materialKey));
   const profile = pick(payload.profileSystems?.filter((p) => p.materialKey === materialKey), "standard");
-  const glazing = pick(payload.glazing, "double");
+  // Packages first (24 mm double glazing; laminated for doors), the legacy "double" key for older catalogues.
+  const glazing = category.startsWith("porta")
+    ? pick(payload.glazing, "d24_lam331x2Be", "d24_floatBeArgon", "double")
+    : pick(payload.glazing, "d24_floatBeArgon", "double");
   const finish = pick(payload.finish, "white");
   const hardware = pick(payload.hardware.filter((h) => h.kind === "hardware"), "standard");
   const hardwareColor = pick(payload.hardware.filter((h) => h.kind === "hardwareColor"), "silver", "white");

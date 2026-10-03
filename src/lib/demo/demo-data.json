@@ -530,6 +530,822 @@
      "psi": 0.032,
      "sortOrder": 12,
      "uGlass": 0.58
+    },
+    {
+     "enabled": true,
+     "key": "d24_floatBeArgon",
+     "labels": {
+      "de": "Float + Low-E + Warm-Edge + Argon · 24 mm",
+      "en": "Float + low-E + warm-edge spacer + argon · 24 mm",
+      "fr": "Float + basse émissivité + intercalaire chaud + argon · 24 mm",
+      "it": "Float + basso emissivo + canalina calda + argon · 24 mm",
+      "nl": "Float + low-E + warm-edge + argon · 24 mm",
+      "ro": "Float + low-E + distanțier cald + argon · 24 mm"
+     },
+     "priceCents": 600,
+     "psi": 0.04,
+     "sortOrder": 100,
+     "uGlass": 1.1
+    },
+    {
+     "enabled": true,
+     "key": "d24_floatBe",
+     "labels": {
+      "de": "Float + Low-E + Warm-Edge (ohne Argon) · 24 mm",
+      "en": "Float + low-E + warm-edge spacer (no argon) · 24 mm",
+      "fr": "Float + basse émissivité + intercalaire chaud (sans argon) · 24 mm",
+      "it": "Float + basso emissivo + canalina calda (senza argon) · 24 mm",
+      "nl": "Float + low-E + warm-edge (zonder argon) · 24 mm",
+      "ro": "Float + low-E + distanțier cald (fără argon) · 24 mm"
+     },
+     "priceCents": 0,
+     "psi": 0.04,
+     "sortOrder": 101,
+     "uGlass": 1.3
+    },
+    {
+     "enabled": true,
+     "key": "d24_float331Be",
+     "labels": {
+      "de": "Float + 3.3.1 + Low-E + Warm-Edge · 24 mm",
+      "en": "Float + 3.3.1 + low-E + warm-edge spacer · 24 mm",
+      "fr": "Float + 3.3.1 + basse émissivité + intercalaire chaud · 24 mm",
+      "it": "Float + 3.3.1 + basso emissivo + canalina calda · 24 mm",
+      "nl": "Float + 3.3.1 + low-E + warm-edge · 24 mm",
+      "ro": "Float + 3.3.1 + low-E + distanțier cald · 24 mm"
+     },
+     "priceCents": 2500,
+     "psi": 0.04,
+     "sortOrder": 102,
+     "uGlass": 1.1
+    },
+    {
+     "enabled": true,
+     "key": "d24_lam331x2Be",
+     "labels": {
+      "de": "Verbund 3.3.1 + 3.3.1 + Low-E · 24 mm",
+      "en": "Laminated 3.3.1 + 3.3.1 + low-E · 24 mm",
+      "fr": "Feuilleté 3.3.1 + 3.3.1 + basse émissivité · 24 mm",
+      "it": "Stratificato 3.3.1 + 3.3.1 + basso emissivo · 24 mm",
+      "nl": "Gelaagd 3.3.1 + 3.3.1 + low-E · 24 mm",
+      "ro": "Laminat 3.3.1 + 3.3.1 + low-E · 24 mm"
+     },
+     "priceCents": 6500,
+     "psi": 0.04,
+     "sortOrder": 103,
+     "uGlass": 1.1
+    },
+    {
+     "enabled": true,
+     "key": "d24_satin331Be",
+     "labels": {
+      "de": "Satiniert + 3.3.1 + Low-E + Warm-Edge · 24 mm",
+      "en": "Satin + 3.3.1 + low-E + warm-edge spacer · 24 mm",
+      "fr": "Satiné + 3.3.1 + basse émissivité + intercalaire chaud · 24 mm",
+      "it": "Satinato + 3.3.1 + basso emissivo + canalina calda · 24 mm",
+      "nl": "Gesatineerd + 3.3.1 + low-E + warm-edge · 24 mm",
+      "ro": "Satinat + 3.3.1 + low-E + distanțier cald · 24 mm"
+     },
+     "priceCents": 4500,
+     "psi": 0.04,
+     "sortOrder": 104,
+     "uGlass": 1.1
+    },
+    {
+     "enabled": true,
+     "key": "d24_colorPanel",
+     "labels": {
+      "de": "Paneel in Rahmenfarbe (oder RAL-Farbe) · 24 mm",
+      "en": "Panel in the frame colour (or RAL colour) · 24 mm",
+      "fr": "Panneau de la couleur du châssis (ou couleur RAL) · 24 mm",
+      "it": "Pannello del colore dell'infisso (o colore RAL) · 24 mm",
+      "nl": "Paneel in de kleur van het kozijn (of RAL-kleur) · 24 mm",
+      "ro": "Panou în culoarea tocului (sau culoare RAL) · 24 mm"
+     },
+     "priceCents": 2000,
+     "psi": 0.04,
+     "sortOrder": 105,
+     "uGlass": 1
+    },
+    {
+     "enabled": true,
+     "key": "d24_ornamentalPanel",
+     "labels": {
+      "de": "Zierpaneel · 24 mm",
+      "en": "Ornamental panel · 24 mm",
+      "fr": "Panneau décoratif · 24 mm",
+      "it": "Pannello ornamentale · 24 mm",
+      "nl": "Sierpaneel · 24 mm",
+      "ro": "Panou ornamental · 24 mm"
+     },
+     "priceCents": 9000,
+     "psi": 0.04,
+     "sortOrder": 106,
+     "uGlass": 1
+    },
+    {
+     "enabled": true,
+     "key": "d26_floatBeArgon",
+     "labels": {
+      "de": "Float + Low-E + Warm-Edge + Argon · 26 mm",
+      "en": "Float + low-E + warm-edge spacer + argon · 26 mm",
+      "fr": "Float + basse émissivité + intercalaire chaud + argon · 26 mm",
+      "it": "Float + basso emissivo + canalina calda + argon · 26 mm",
+      "nl": "Float + low-E + warm-edge + argon · 26 mm",
+      "ro": "Float + low-E + distanțier cald + argon · 26 mm"
+     },
+     "priceCents": 1400,
+     "psi": 0.04,
+     "sortOrder": 107,
+     "uGlass": 1.05
+    },
+    {
+     "enabled": true,
+     "key": "d26_floatBe",
+     "labels": {
+      "de": "Float + Low-E + Warm-Edge (ohne Argon) · 26 mm",
+      "en": "Float + low-E + warm-edge spacer (no argon) · 26 mm",
+      "fr": "Float + basse émissivité + intercalaire chaud (sans argon) · 26 mm",
+      "it": "Float + basso emissivo + canalina calda (senza argon) · 26 mm",
+      "nl": "Float + low-E + warm-edge (zonder argon) · 26 mm",
+      "ro": "Float + low-E + distanțier cald (fără argon) · 26 mm"
+     },
+     "priceCents": 800,
+     "psi": 0.04,
+     "sortOrder": 108,
+     "uGlass": 1.25
+    },
+    {
+     "enabled": true,
+     "key": "d26_float331Be",
+     "labels": {
+      "de": "Float + 3.3.1 + Low-E + Warm-Edge · 26 mm",
+      "en": "Float + 3.3.1 + low-E + warm-edge spacer · 26 mm",
+      "fr": "Float + 3.3.1 + basse émissivité + intercalaire chaud · 26 mm",
+      "it": "Float + 3.3.1 + basso emissivo + canalina calda · 26 mm",
+      "nl": "Float + 3.3.1 + low-E + warm-edge · 26 mm",
+      "ro": "Float + 3.3.1 + low-E + distanțier cald · 26 mm"
+     },
+     "priceCents": 3300,
+     "psi": 0.04,
+     "sortOrder": 109,
+     "uGlass": 1.05
+    },
+    {
+     "enabled": true,
+     "key": "d26_lam331x2Be",
+     "labels": {
+      "de": "Verbund 3.3.1 + 3.3.1 + Low-E · 26 mm",
+      "en": "Laminated 3.3.1 + 3.3.1 + low-E · 26 mm",
+      "fr": "Feuilleté 3.3.1 + 3.3.1 + basse émissivité · 26 mm",
+      "it": "Stratificato 3.3.1 + 3.3.1 + basso emissivo · 26 mm",
+      "nl": "Gelaagd 3.3.1 + 3.3.1 + low-E · 26 mm",
+      "ro": "Laminat 3.3.1 + 3.3.1 + low-E · 26 mm"
+     },
+     "priceCents": 7300,
+     "psi": 0.04,
+     "sortOrder": 110,
+     "uGlass": 1.05
+    },
+    {
+     "enabled": true,
+     "key": "d26_satin331Be",
+     "labels": {
+      "de": "Satiniert + 3.3.1 + Low-E + Warm-Edge · 26 mm",
+      "en": "Satin + 3.3.1 + low-E + warm-edge spacer · 26 mm",
+      "fr": "Satiné + 3.3.1 + basse émissivité + intercalaire chaud · 26 mm",
+      "it": "Satinato + 3.3.1 + basso emissivo + canalina calda · 26 mm",
+      "nl": "Gesatineerd + 3.3.1 + low-E + warm-edge · 26 mm",
+      "ro": "Satinat + 3.3.1 + low-E + distanțier cald · 26 mm"
+     },
+     "priceCents": 5300,
+     "psi": 0.04,
+     "sortOrder": 111,
+     "uGlass": 1.05
+    },
+    {
+     "enabled": true,
+     "key": "d26_colorPanel",
+     "labels": {
+      "de": "Paneel in Rahmenfarbe (oder RAL-Farbe) · 26 mm",
+      "en": "Panel in the frame colour (or RAL colour) · 26 mm",
+      "fr": "Panneau de la couleur du châssis (ou couleur RAL) · 26 mm",
+      "it": "Pannello del colore dell'infisso (o colore RAL) · 26 mm",
+      "nl": "Paneel in de kleur van het kozijn (of RAL-kleur) · 26 mm",
+      "ro": "Panou în culoarea tocului (sau culoare RAL) · 26 mm"
+     },
+     "priceCents": 2800,
+     "psi": 0.04,
+     "sortOrder": 112,
+     "uGlass": 1
+    },
+    {
+     "enabled": true,
+     "key": "d26_ornamentalPanel",
+     "labels": {
+      "de": "Zierpaneel · 26 mm",
+      "en": "Ornamental panel · 26 mm",
+      "fr": "Panneau décoratif · 26 mm",
+      "it": "Pannello ornamentale · 26 mm",
+      "nl": "Sierpaneel · 26 mm",
+      "ro": "Panou ornamental · 26 mm"
+     },
+     "priceCents": 9800,
+     "psi": 0.04,
+     "sortOrder": 113,
+     "uGlass": 1
+    },
+    {
+     "enabled": true,
+     "key": "d28_floatBeArgon",
+     "labels": {
+      "de": "Float + Low-E + Warm-Edge + Argon · 28 mm",
+      "en": "Float + low-E + warm-edge spacer + argon · 28 mm",
+      "fr": "Float + basse émissivité + intercalaire chaud + argon · 28 mm",
+      "it": "Float + basso emissivo + canalina calda + argon · 28 mm",
+      "nl": "Float + low-E + warm-edge + argon · 28 mm",
+      "ro": "Float + low-E + distanțier cald + argon · 28 mm"
+     },
+     "priceCents": 2200,
+     "psi": 0.04,
+     "sortOrder": 114,
+     "uGlass": 1
+    },
+    {
+     "enabled": true,
+     "key": "d28_floatBe",
+     "labels": {
+      "de": "Float + Low-E + Warm-Edge (ohne Argon) · 28 mm",
+      "en": "Float + low-E + warm-edge spacer (no argon) · 28 mm",
+      "fr": "Float + basse émissivité + intercalaire chaud (sans argon) · 28 mm",
+      "it": "Float + basso emissivo + canalina calda (senza argon) · 28 mm",
+      "nl": "Float + low-E + warm-edge (zonder argon) · 28 mm",
+      "ro": "Float + low-E + distanțier cald (fără argon) · 28 mm"
+     },
+     "priceCents": 1600,
+     "psi": 0.04,
+     "sortOrder": 115,
+     "uGlass": 1.2
+    },
+    {
+     "enabled": true,
+     "key": "d28_float331Be",
+     "labels": {
+      "de": "Float + 3.3.1 + Low-E + Warm-Edge · 28 mm",
+      "en": "Float + 3.3.1 + low-E + warm-edge spacer · 28 mm",
+      "fr": "Float + 3.3.1 + basse émissivité + intercalaire chaud · 28 mm",
+      "it": "Float + 3.3.1 + basso emissivo + canalina calda · 28 mm",
+      "nl": "Float + 3.3.1 + low-E + warm-edge · 28 mm",
+      "ro": "Float + 3.3.1 + low-E + distanțier cald · 28 mm"
+     },
+     "priceCents": 4100,
+     "psi": 0.04,
+     "sortOrder": 116,
+     "uGlass": 1
+    },
+    {
+     "enabled": true,
+     "key": "d28_lam331x2Be",
+     "labels": {
+      "de": "Verbund 3.3.1 + 3.3.1 + Low-E · 28 mm",
+      "en": "Laminated 3.3.1 + 3.3.1 + low-E · 28 mm",
+      "fr": "Feuilleté 3.3.1 + 3.3.1 + basse émissivité · 28 mm",
+      "it": "Stratificato 3.3.1 + 3.3.1 + basso emissivo · 28 mm",
+      "nl": "Gelaagd 3.3.1 + 3.3.1 + low-E · 28 mm",
+      "ro": "Laminat 3.3.1 + 3.3.1 + low-E · 28 mm"
+     },
+     "priceCents": 8100,
+     "psi": 0.04,
+     "sortOrder": 117,
+     "uGlass": 1
+    },
+    {
+     "enabled": true,
+     "key": "d28_satin331Be",
+     "labels": {
+      "de": "Satiniert + 3.3.1 + Low-E + Warm-Edge · 28 mm",
+      "en": "Satin + 3.3.1 + low-E + warm-edge spacer · 28 mm",
+      "fr": "Satiné + 3.3.1 + basse émissivité + intercalaire chaud · 28 mm",
+      "it": "Satinato + 3.3.1 + basso emissivo + canalina calda · 28 mm",
+      "nl": "Gesatineerd + 3.3.1 + low-E + warm-edge · 28 mm",
+      "ro": "Satinat + 3.3.1 + low-E + distanțier cald · 28 mm"
+     },
+     "priceCents": 6100,
+     "psi": 0.04,
+     "sortOrder": 118,
+     "uGlass": 1
+    },
+    {
+     "enabled": true,
+     "key": "d28_colorPanel",
+     "labels": {
+      "de": "Paneel in Rahmenfarbe (oder RAL-Farbe) · 28 mm",
+      "en": "Panel in the frame colour (or RAL colour) · 28 mm",
+      "fr": "Panneau de la couleur du châssis (ou couleur RAL) · 28 mm",
+      "it": "Pannello del colore dell'infisso (o colore RAL) · 28 mm",
+      "nl": "Paneel in de kleur van het kozijn (of RAL-kleur) · 28 mm",
+      "ro": "Panou în culoarea tocului (sau culoare RAL) · 28 mm"
+     },
+     "priceCents": 3600,
+     "psi": 0.04,
+     "sortOrder": 119,
+     "uGlass": 1
+    },
+    {
+     "enabled": true,
+     "key": "d28_ornamentalPanel",
+     "labels": {
+      "de": "Zierpaneel · 28 mm",
+      "en": "Ornamental panel · 28 mm",
+      "fr": "Panneau décoratif · 28 mm",
+      "it": "Pannello ornamentale · 28 mm",
+      "nl": "Sierpaneel · 28 mm",
+      "ro": "Panou ornamental · 28 mm"
+     },
+     "priceCents": 10600,
+     "psi": 0.04,
+     "sortOrder": 120,
+     "uGlass": 1
+    },
+    {
+     "enabled": true,
+     "key": "t32_floatFloat331Be",
+     "labels": {
+      "de": "Float + Float + 3.3.1 Low-E + Warm-Edge · 32 mm",
+      "en": "Float + Float + 3.3.1 low-E + warm-edge spacer · 32 mm",
+      "fr": "Float + Float + 3.3.1 basse émissivité + intercalaire chaud · 32 mm",
+      "it": "Float + Float + 3.3.1 basso emissivo + canalina calda (Warm Edge) · 32 mm",
+      "nl": "Float + Float + 3.3.1 low-E + warm-edge · 32 mm",
+      "ro": "Float + Float + 3.3.1 low-E + distanțier cald · 32 mm"
+     },
+     "priceCents": 6000,
+     "psi": 0.032,
+     "sortOrder": 121,
+     "uGlass": 0.7
+    },
+    {
+     "enabled": true,
+     "key": "t32_floatSatin331Be",
+     "labels": {
+      "de": "Float + Satiniert + 3.3.1 Low-E + Warm-Edge (4 Jahreszeiten) · 32 mm",
+      "en": "Float + Satin + 3.3.1 low-E + warm-edge spacer (4 seasons) · 32 mm",
+      "fr": "Float + Satiné + 3.3.1 basse émissivité + intercalaire chaud (4 saisons) · 32 mm",
+      "it": "Float + Satinato + 3.3.1 basso emissivo + canalina calda (4 stagioni) · 32 mm",
+      "nl": "Float + Gesatineerd + 3.3.1 low-E + warm-edge (4 seizoenen) · 32 mm",
+      "ro": "Float + Satinat + 3.3.1 low-E + distanțier cald (4 anotimpuri) · 32 mm"
+     },
+     "priceCents": 9500,
+     "psi": 0.032,
+     "sortOrder": 122,
+     "uGlass": 0.7
+    },
+    {
+     "enabled": true,
+     "key": "t32_be331FloatBe331",
+     "labels": {
+      "de": "3.3.1 Low-E + Float + 3.3.1 Low-E + Warm-Edge · 32 mm",
+      "en": "3.3.1 low-E + Float + 3.3.1 low-E + warm-edge spacer · 32 mm",
+      "fr": "3.3.1 basse émissivité + Float + 3.3.1 basse émissivité + intercalaire chaud · 32 mm",
+      "it": "3.3.1 basso emissivo + Float + 3.3.1 basso emissivo + canalina calda · 32 mm",
+      "nl": "3.3.1 low-E + Float + 3.3.1 low-E + warm-edge · 32 mm",
+      "ro": "3.3.1 low-E + Float + 3.3.1 low-E + distanțier cald · 32 mm"
+     },
+     "priceCents": 10500,
+     "psi": 0.032,
+     "sortOrder": 123,
+     "uGlass": 0.6
+    },
+    {
+     "enabled": true,
+     "key": "t32_colorPanelT",
+     "labels": {
+      "de": "Paneel in Rahmenfarbe (oder RAL-Farbe) · 32 mm",
+      "en": "Panel in the frame colour (or RAL colour) · 32 mm",
+      "fr": "Panneau de la couleur du châssis (ou couleur RAL) · 32 mm",
+      "it": "Pannello del colore dell'infisso (o colore RAL) · 32 mm",
+      "nl": "Paneel in de kleur van het kozijn (of RAL-kleur) · 32 mm",
+      "ro": "Panou în culoarea tocului (sau culoare RAL) · 32 mm"
+     },
+     "priceCents": 8500,
+     "psi": 0.04,
+     "sortOrder": 124,
+     "uGlass": 0.8
+    },
+    {
+     "enabled": true,
+     "key": "t32_ornamentalPanelT",
+     "labels": {
+      "de": "Zierpaneel · 32 mm",
+      "en": "Ornamental panel · 32 mm",
+      "fr": "Panneau décoratif · 32 mm",
+      "it": "Pannello ornamentale · 32 mm",
+      "nl": "Sierpaneel · 32 mm",
+      "ro": "Panou ornamental · 32 mm"
+     },
+     "priceCents": 15500,
+     "psi": 0.04,
+     "sortOrder": 125,
+     "uGlass": 0.8
+    },
+    {
+     "enabled": true,
+     "key": "t36_floatFloat331Be",
+     "labels": {
+      "de": "Float + Float + 3.3.1 Low-E + Warm-Edge · 36 mm",
+      "en": "Float + Float + 3.3.1 low-E + warm-edge spacer · 36 mm",
+      "fr": "Float + Float + 3.3.1 basse émissivité + intercalaire chaud · 36 mm",
+      "it": "Float + Float + 3.3.1 basso emissivo + canalina calda (Warm Edge) · 36 mm",
+      "nl": "Float + Float + 3.3.1 low-E + warm-edge · 36 mm",
+      "ro": "Float + Float + 3.3.1 low-E + distanțier cald · 36 mm"
+     },
+     "priceCents": 7000,
+     "psi": 0.032,
+     "sortOrder": 126,
+     "uGlass": 0.66
+    },
+    {
+     "enabled": true,
+     "key": "t36_floatSatin331Be",
+     "labels": {
+      "de": "Float + Satiniert + 3.3.1 Low-E + Warm-Edge (4 Jahreszeiten) · 36 mm",
+      "en": "Float + Satin + 3.3.1 low-E + warm-edge spacer (4 seasons) · 36 mm",
+      "fr": "Float + Satiné + 3.3.1 basse émissivité + intercalaire chaud (4 saisons) · 36 mm",
+      "it": "Float + Satinato + 3.3.1 basso emissivo + canalina calda (4 stagioni) · 36 mm",
+      "nl": "Float + Gesatineerd + 3.3.1 low-E + warm-edge (4 seizoenen) · 36 mm",
+      "ro": "Float + Satinat + 3.3.1 low-E + distanțier cald (4 anotimpuri) · 36 mm"
+     },
+     "priceCents": 10500,
+     "psi": 0.032,
+     "sortOrder": 127,
+     "uGlass": 0.66
+    },
+    {
+     "enabled": true,
+     "key": "t36_be331FloatBe331",
+     "labels": {
+      "de": "3.3.1 Low-E + Float + 3.3.1 Low-E + Warm-Edge · 36 mm",
+      "en": "3.3.1 low-E + Float + 3.3.1 low-E + warm-edge spacer · 36 mm",
+      "fr": "3.3.1 basse émissivité + Float + 3.3.1 basse émissivité + intercalaire chaud · 36 mm",
+      "it": "3.3.1 basso emissivo + Float + 3.3.1 basso emissivo + canalina calda · 36 mm",
+      "nl": "3.3.1 low-E + Float + 3.3.1 low-E + warm-edge · 36 mm",
+      "ro": "3.3.1 low-E + Float + 3.3.1 low-E + distanțier cald · 36 mm"
+     },
+     "priceCents": 11500,
+     "psi": 0.032,
+     "sortOrder": 128,
+     "uGlass": 0.56
+    },
+    {
+     "enabled": true,
+     "key": "t36_colorPanelT",
+     "labels": {
+      "de": "Paneel in Rahmenfarbe (oder RAL-Farbe) · 36 mm",
+      "en": "Panel in the frame colour (or RAL colour) · 36 mm",
+      "fr": "Panneau de la couleur du châssis (ou couleur RAL) · 36 mm",
+      "it": "Pannello del colore dell'infisso (o colore RAL) · 36 mm",
+      "nl": "Paneel in de kleur van het kozijn (of RAL-kleur) · 36 mm",
+      "ro": "Panou în culoarea tocului (sau culoare RAL) · 36 mm"
+     },
+     "priceCents": 9500,
+     "psi": 0.04,
+     "sortOrder": 129,
+     "uGlass": 0.8
+    },
+    {
+     "enabled": true,
+     "key": "t36_ornamentalPanelT",
+     "labels": {
+      "de": "Zierpaneel · 36 mm",
+      "en": "Ornamental panel · 36 mm",
+      "fr": "Panneau décoratif · 36 mm",
+      "it": "Pannello ornamentale · 36 mm",
+      "nl": "Sierpaneel · 36 mm",
+      "ro": "Panou ornamental · 36 mm"
+     },
+     "priceCents": 16500,
+     "psi": 0.04,
+     "sortOrder": 130,
+     "uGlass": 0.8
+    },
+    {
+     "enabled": true,
+     "key": "t40_floatFloat331Be",
+     "labels": {
+      "de": "Float + Float + 3.3.1 Low-E + Warm-Edge · 40 mm",
+      "en": "Float + Float + 3.3.1 low-E + warm-edge spacer · 40 mm",
+      "fr": "Float + Float + 3.3.1 basse émissivité + intercalaire chaud · 40 mm",
+      "it": "Float + Float + 3.3.1 basso emissivo + canalina calda (Warm Edge) · 40 mm",
+      "nl": "Float + Float + 3.3.1 low-E + warm-edge · 40 mm",
+      "ro": "Float + Float + 3.3.1 low-E + distanțier cald · 40 mm"
+     },
+     "priceCents": 8000,
+     "psi": 0.032,
+     "sortOrder": 131,
+     "uGlass": 0.62
+    },
+    {
+     "enabled": true,
+     "key": "t40_floatSatin331Be",
+     "labels": {
+      "de": "Float + Satiniert + 3.3.1 Low-E + Warm-Edge (4 Jahreszeiten) · 40 mm",
+      "en": "Float + Satin + 3.3.1 low-E + warm-edge spacer (4 seasons) · 40 mm",
+      "fr": "Float + Satiné + 3.3.1 basse émissivité + intercalaire chaud (4 saisons) · 40 mm",
+      "it": "Float + Satinato + 3.3.1 basso emissivo + canalina calda (4 stagioni) · 40 mm",
+      "nl": "Float + Gesatineerd + 3.3.1 low-E + warm-edge (4 seizoenen) · 40 mm",
+      "ro": "Float + Satinat + 3.3.1 low-E + distanțier cald (4 anotimpuri) · 40 mm"
+     },
+     "priceCents": 11500,
+     "psi": 0.032,
+     "sortOrder": 132,
+     "uGlass": 0.62
+    },
+    {
+     "enabled": true,
+     "key": "t40_be331FloatBe331",
+     "labels": {
+      "de": "3.3.1 Low-E + Float + 3.3.1 Low-E + Warm-Edge · 40 mm",
+      "en": "3.3.1 low-E + Float + 3.3.1 low-E + warm-edge spacer · 40 mm",
+      "fr": "3.3.1 basse émissivité + Float + 3.3.1 basse émissivité + intercalaire chaud · 40 mm",
+      "it": "3.3.1 basso emissivo + Float + 3.3.1 basso emissivo + canalina calda · 40 mm",
+      "nl": "3.3.1 low-E + Float + 3.3.1 low-E + warm-edge · 40 mm",
+      "ro": "3.3.1 low-E + Float + 3.3.1 low-E + distanțier cald · 40 mm"
+     },
+     "priceCents": 12500,
+     "psi": 0.032,
+     "sortOrder": 133,
+     "uGlass": 0.52
+    },
+    {
+     "enabled": true,
+     "key": "t40_colorPanelT",
+     "labels": {
+      "de": "Paneel in Rahmenfarbe (oder RAL-Farbe) · 40 mm",
+      "en": "Panel in the frame colour (or RAL colour) · 40 mm",
+      "fr": "Panneau de la couleur du châssis (ou couleur RAL) · 40 mm",
+      "it": "Pannello del colore dell'infisso (o colore RAL) · 40 mm",
+      "nl": "Paneel in de kleur van het kozijn (of RAL-kleur) · 40 mm",
+      "ro": "Panou în culoarea tocului (sau culoare RAL) · 40 mm"
+     },
+     "priceCents": 10500,
+     "psi": 0.04,
+     "sortOrder": 134,
+     "uGlass": 0.8
+    },
+    {
+     "enabled": true,
+     "key": "t40_ornamentalPanelT",
+     "labels": {
+      "de": "Zierpaneel · 40 mm",
+      "en": "Ornamental panel · 40 mm",
+      "fr": "Panneau décoratif · 40 mm",
+      "it": "Pannello ornamentale · 40 mm",
+      "nl": "Sierpaneel · 40 mm",
+      "ro": "Panou ornamental · 40 mm"
+     },
+     "priceCents": 17500,
+     "psi": 0.04,
+     "sortOrder": 135,
+     "uGlass": 0.8
+    },
+    {
+     "enabled": true,
+     "key": "t44_floatFloat331Be",
+     "labels": {
+      "de": "Float + Float + 3.3.1 Low-E + Warm-Edge · 44 mm",
+      "en": "Float + Float + 3.3.1 low-E + warm-edge spacer · 44 mm",
+      "fr": "Float + Float + 3.3.1 basse émissivité + intercalaire chaud · 44 mm",
+      "it": "Float + Float + 3.3.1 basso emissivo + canalina calda (Warm Edge) · 44 mm",
+      "nl": "Float + Float + 3.3.1 low-E + warm-edge · 44 mm",
+      "ro": "Float + Float + 3.3.1 low-E + distanțier cald · 44 mm"
+     },
+     "priceCents": 9000,
+     "psi": 0.032,
+     "sortOrder": 136,
+     "uGlass": 0.58
+    },
+    {
+     "enabled": true,
+     "key": "t44_floatSatin331Be",
+     "labels": {
+      "de": "Float + Satiniert + 3.3.1 Low-E + Warm-Edge (4 Jahreszeiten) · 44 mm",
+      "en": "Float + Satin + 3.3.1 low-E + warm-edge spacer (4 seasons) · 44 mm",
+      "fr": "Float + Satiné + 3.3.1 basse émissivité + intercalaire chaud (4 saisons) · 44 mm",
+      "it": "Float + Satinato + 3.3.1 basso emissivo + canalina calda (4 stagioni) · 44 mm",
+      "nl": "Float + Gesatineerd + 3.3.1 low-E + warm-edge (4 seizoenen) · 44 mm",
+      "ro": "Float + Satinat + 3.3.1 low-E + distanțier cald (4 anotimpuri) · 44 mm"
+     },
+     "priceCents": 12500,
+     "psi": 0.032,
+     "sortOrder": 137,
+     "uGlass": 0.58
+    },
+    {
+     "enabled": true,
+     "key": "t44_be331FloatBe331",
+     "labels": {
+      "de": "3.3.1 Low-E + Float + 3.3.1 Low-E + Warm-Edge · 44 mm",
+      "en": "3.3.1 low-E + Float + 3.3.1 low-E + warm-edge spacer · 44 mm",
+      "fr": "3.3.1 basse émissivité + Float + 3.3.1 basse émissivité + intercalaire chaud · 44 mm",
+      "it": "3.3.1 basso emissivo + Float + 3.3.1 basso emissivo + canalina calda · 44 mm",
+      "nl": "3.3.1 low-E + Float + 3.3.1 low-E + warm-edge · 44 mm",
+      "ro": "3.3.1 low-E + Float + 3.3.1 low-E + distanțier cald · 44 mm"
+     },
+     "priceCents": 13500,
+     "psi": 0.032,
+     "sortOrder": 138,
+     "uGlass": 0.5
+    },
+    {
+     "enabled": true,
+     "key": "t44_colorPanelT",
+     "labels": {
+      "de": "Paneel in Rahmenfarbe (oder RAL-Farbe) · 44 mm",
+      "en": "Panel in the frame colour (or RAL colour) · 44 mm",
+      "fr": "Panneau de la couleur du châssis (ou couleur RAL) · 44 mm",
+      "it": "Pannello del colore dell'infisso (o colore RAL) · 44 mm",
+      "nl": "Paneel in de kleur van het kozijn (of RAL-kleur) · 44 mm",
+      "ro": "Panou în culoarea tocului (sau culoare RAL) · 44 mm"
+     },
+     "priceCents": 11500,
+     "psi": 0.04,
+     "sortOrder": 139,
+     "uGlass": 0.8
+    },
+    {
+     "enabled": true,
+     "key": "t44_ornamentalPanelT",
+     "labels": {
+      "de": "Zierpaneel · 44 mm",
+      "en": "Ornamental panel · 44 mm",
+      "fr": "Panneau décoratif · 44 mm",
+      "it": "Pannello ornamentale · 44 mm",
+      "nl": "Sierpaneel · 44 mm",
+      "ro": "Panou ornamental · 44 mm"
+     },
+     "priceCents": 18500,
+     "psi": 0.04,
+     "sortOrder": 140,
+     "uGlass": 0.8
+    },
+    {
+     "enabled": true,
+     "key": "t50_floatFloat331Be",
+     "labels": {
+      "de": "Float + Float + 3.3.1 Low-E + Warm-Edge · 50 mm",
+      "en": "Float + Float + 3.3.1 low-E + warm-edge spacer · 50 mm",
+      "fr": "Float + Float + 3.3.1 basse émissivité + intercalaire chaud · 50 mm",
+      "it": "Float + Float + 3.3.1 basso emissivo + canalina calda (Warm Edge) · 50 mm",
+      "nl": "Float + Float + 3.3.1 low-E + warm-edge · 50 mm",
+      "ro": "Float + Float + 3.3.1 low-E + distanțier cald · 50 mm"
+     },
+     "priceCents": 10500,
+     "psi": 0.032,
+     "sortOrder": 141,
+     "uGlass": 0.54
+    },
+    {
+     "enabled": true,
+     "key": "t50_floatSatin331Be",
+     "labels": {
+      "de": "Float + Satiniert + 3.3.1 Low-E + Warm-Edge (4 Jahreszeiten) · 50 mm",
+      "en": "Float + Satin + 3.3.1 low-E + warm-edge spacer (4 seasons) · 50 mm",
+      "fr": "Float + Satiné + 3.3.1 basse émissivité + intercalaire chaud (4 saisons) · 50 mm",
+      "it": "Float + Satinato + 3.3.1 basso emissivo + canalina calda (4 stagioni) · 50 mm",
+      "nl": "Float + Gesatineerd + 3.3.1 low-E + warm-edge (4 seizoenen) · 50 mm",
+      "ro": "Float + Satinat + 3.3.1 low-E + distanțier cald (4 anotimpuri) · 50 mm"
+     },
+     "priceCents": 14000,
+     "psi": 0.032,
+     "sortOrder": 142,
+     "uGlass": 0.54
+    },
+    {
+     "enabled": true,
+     "key": "t50_be331FloatBe331",
+     "labels": {
+      "de": "3.3.1 Low-E + Float + 3.3.1 Low-E + Warm-Edge · 50 mm",
+      "en": "3.3.1 low-E + Float + 3.3.1 low-E + warm-edge spacer · 50 mm",
+      "fr": "3.3.1 basse émissivité + Float + 3.3.1 basse émissivité + intercalaire chaud · 50 mm",
+      "it": "3.3.1 basso emissivo + Float + 3.3.1 basso emissivo + canalina calda · 50 mm",
+      "nl": "3.3.1 low-E + Float + 3.3.1 low-E + warm-edge · 50 mm",
+      "ro": "3.3.1 low-E + Float + 3.3.1 low-E + distanțier cald · 50 mm"
+     },
+     "priceCents": 15000,
+     "psi": 0.032,
+     "sortOrder": 143,
+     "uGlass": 0.5
+    },
+    {
+     "enabled": true,
+     "key": "t50_colorPanelT",
+     "labels": {
+      "de": "Paneel in Rahmenfarbe (oder RAL-Farbe) · 50 mm",
+      "en": "Panel in the frame colour (or RAL colour) · 50 mm",
+      "fr": "Panneau de la couleur du châssis (ou couleur RAL) · 50 mm",
+      "it": "Pannello del colore dell'infisso (o colore RAL) · 50 mm",
+      "nl": "Paneel in de kleur van het kozijn (of RAL-kleur) · 50 mm",
+      "ro": "Panou în culoarea tocului (sau culoare RAL) · 50 mm"
+     },
+     "priceCents": 13000,
+     "psi": 0.04,
+     "sortOrder": 144,
+     "uGlass": 0.8
+    },
+    {
+     "enabled": true,
+     "key": "t50_ornamentalPanelT",
+     "labels": {
+      "de": "Zierpaneel · 50 mm",
+      "en": "Ornamental panel · 50 mm",
+      "fr": "Panneau décoratif · 50 mm",
+      "it": "Pannello ornamentale · 50 mm",
+      "nl": "Sierpaneel · 50 mm",
+      "ro": "Panou ornamental · 50 mm"
+     },
+     "priceCents": 20000,
+     "psi": 0.04,
+     "sortOrder": 145,
+     "uGlass": 0.8
+    },
+    {
+     "enabled": true,
+     "key": "t52_floatFloat331Be",
+     "labels": {
+      "de": "Float + Float + 3.3.1 Low-E + Warm-Edge · 52 mm",
+      "en": "Float + Float + 3.3.1 low-E + warm-edge spacer · 52 mm",
+      "fr": "Float + Float + 3.3.1 basse émissivité + intercalaire chaud · 52 mm",
+      "it": "Float + Float + 3.3.1 basso emissivo + canalina calda (Warm Edge) · 52 mm",
+      "nl": "Float + Float + 3.3.1 low-E + warm-edge · 52 mm",
+      "ro": "Float + Float + 3.3.1 low-E + distanțier cald · 52 mm"
+     },
+     "priceCents": 11000,
+     "psi": 0.032,
+     "sortOrder": 146,
+     "uGlass": 0.5
+    },
+    {
+     "enabled": true,
+     "key": "t52_floatSatin331Be",
+     "labels": {
+      "de": "Float + Satiniert + 3.3.1 Low-E + Warm-Edge (4 Jahreszeiten) · 52 mm",
+      "en": "Float + Satin + 3.3.1 low-E + warm-edge spacer (4 seasons) · 52 mm",
+      "fr": "Float + Satiné + 3.3.1 basse émissivité + intercalaire chaud (4 saisons) · 52 mm",
+      "it": "Float + Satinato + 3.3.1 basso emissivo + canalina calda (4 stagioni) · 52 mm",
+      "nl": "Float + Gesatineerd + 3.3.1 low-E + warm-edge (4 seizoenen) · 52 mm",
+      "ro": "Float + Satinat + 3.3.1 low-E + distanțier cald (4 anotimpuri) · 52 mm"
+     },
+     "priceCents": 14500,
+     "psi": 0.032,
+     "sortOrder": 147,
+     "uGlass": 0.5
+    },
+    {
+     "enabled": true,
+     "key": "t52_be331FloatBe331",
+     "labels": {
+      "de": "3.3.1 Low-E + Float + 3.3.1 Low-E + Warm-Edge · 52 mm",
+      "en": "3.3.1 low-E + Float + 3.3.1 low-E + warm-edge spacer · 52 mm",
+      "fr": "3.3.1 basse émissivité + Float + 3.3.1 basse émissivité + intercalaire chaud · 52 mm",
+      "it": "3.3.1 basso emissivo + Float + 3.3.1 basso emissivo + canalina calda · 52 mm",
+      "nl": "3.3.1 low-E + Float + 3.3.1 low-E + warm-edge · 52 mm",
+      "ro": "3.3.1 low-E + Float + 3.3.1 low-E + distanțier cald · 52 mm"
+     },
+     "priceCents": 15500,
+     "psi": 0.032,
+     "sortOrder": 148,
+     "uGlass": 0.5
+    },
+    {
+     "enabled": true,
+     "key": "t52_colorPanelT",
+     "labels": {
+      "de": "Paneel in Rahmenfarbe (oder RAL-Farbe) · 52 mm",
+      "en": "Panel in the frame colour (or RAL colour) · 52 mm",
+      "fr": "Panneau de la couleur du châssis (ou couleur RAL) · 52 mm",
+      "it": "Pannello del colore dell'infisso (o colore RAL) · 52 mm",
+      "nl": "Paneel in de kleur van het kozijn (of RAL-kleur) · 52 mm",
+      "ro": "Panou în culoarea tocului (sau culoare RAL) · 52 mm"
+     },
+     "priceCents": 13500,
+     "psi": 0.04,
+     "sortOrder": 149,
+     "uGlass": 0.8
+    },
+    {
+     "enabled": true,
+     "key": "t52_ornamentalPanelT",
+     "labels": {
+      "de": "Zierpaneel · 52 mm",
+      "en": "Ornamental panel · 52 mm",
+      "fr": "Panneau décoratif · 52 mm",
+      "it": "Pannello ornamentale · 52 mm",
+      "nl": "Sierpaneel · 52 mm",
+      "ro": "Panou ornamental · 52 mm"
+     },
+     "priceCents": 20500,
+     "psi": 0.04,
+     "sortOrder": 150,
+     "uGlass": 0.8
     }
    ],
    "hardware": [
@@ -2374,6 +3190,822 @@
      "psi": 0.032,
      "sortOrder": 12,
      "uGlass": 0.58
+    },
+    {
+     "enabled": true,
+     "key": "d24_floatBeArgon",
+     "labels": {
+      "de": "Float + Low-E + Warm-Edge + Argon · 24 mm",
+      "en": "Float + low-E + warm-edge spacer + argon · 24 mm",
+      "fr": "Float + basse émissivité + intercalaire chaud + argon · 24 mm",
+      "it": "Float + basso emissivo + canalina calda + argon · 24 mm",
+      "nl": "Float + low-E + warm-edge + argon · 24 mm",
+      "ro": "Float + low-E + distanțier cald + argon · 24 mm"
+     },
+     "priceCents": 600,
+     "psi": 0.04,
+     "sortOrder": 100,
+     "uGlass": 1.1
+    },
+    {
+     "enabled": true,
+     "key": "d24_floatBe",
+     "labels": {
+      "de": "Float + Low-E + Warm-Edge (ohne Argon) · 24 mm",
+      "en": "Float + low-E + warm-edge spacer (no argon) · 24 mm",
+      "fr": "Float + basse émissivité + intercalaire chaud (sans argon) · 24 mm",
+      "it": "Float + basso emissivo + canalina calda (senza argon) · 24 mm",
+      "nl": "Float + low-E + warm-edge (zonder argon) · 24 mm",
+      "ro": "Float + low-E + distanțier cald (fără argon) · 24 mm"
+     },
+     "priceCents": 0,
+     "psi": 0.04,
+     "sortOrder": 101,
+     "uGlass": 1.3
+    },
+    {
+     "enabled": true,
+     "key": "d24_float331Be",
+     "labels": {
+      "de": "Float + 3.3.1 + Low-E + Warm-Edge · 24 mm",
+      "en": "Float + 3.3.1 + low-E + warm-edge spacer · 24 mm",
+      "fr": "Float + 3.3.1 + basse émissivité + intercalaire chaud · 24 mm",
+      "it": "Float + 3.3.1 + basso emissivo + canalina calda · 24 mm",
+      "nl": "Float + 3.3.1 + low-E + warm-edge · 24 mm",
+      "ro": "Float + 3.3.1 + low-E + distanțier cald · 24 mm"
+     },
+     "priceCents": 2500,
+     "psi": 0.04,
+     "sortOrder": 102,
+     "uGlass": 1.1
+    },
+    {
+     "enabled": true,
+     "key": "d24_lam331x2Be",
+     "labels": {
+      "de": "Verbund 3.3.1 + 3.3.1 + Low-E · 24 mm",
+      "en": "Laminated 3.3.1 + 3.3.1 + low-E · 24 mm",
+      "fr": "Feuilleté 3.3.1 + 3.3.1 + basse émissivité · 24 mm",
+      "it": "Stratificato 3.3.1 + 3.3.1 + basso emissivo · 24 mm",
+      "nl": "Gelaagd 3.3.1 + 3.3.1 + low-E · 24 mm",
+      "ro": "Laminat 3.3.1 + 3.3.1 + low-E · 24 mm"
+     },
+     "priceCents": 6500,
+     "psi": 0.04,
+     "sortOrder": 103,
+     "uGlass": 1.1
+    },
+    {
+     "enabled": true,
+     "key": "d24_satin331Be",
+     "labels": {
+      "de": "Satiniert + 3.3.1 + Low-E + Warm-Edge · 24 mm",
+      "en": "Satin + 3.3.1 + low-E + warm-edge spacer · 24 mm",
+      "fr": "Satiné + 3.3.1 + basse émissivité + intercalaire chaud · 24 mm",
+      "it": "Satinato + 3.3.1 + basso emissivo + canalina calda · 24 mm",
+      "nl": "Gesatineerd + 3.3.1 + low-E + warm-edge · 24 mm",
+      "ro": "Satinat + 3.3.1 + low-E + distanțier cald · 24 mm"
+     },
+     "priceCents": 4500,
+     "psi": 0.04,
+     "sortOrder": 104,
+     "uGlass": 1.1
+    },
+    {
+     "enabled": true,
+     "key": "d24_colorPanel",
+     "labels": {
+      "de": "Paneel in Rahmenfarbe (oder RAL-Farbe) · 24 mm",
+      "en": "Panel in the frame colour (or RAL colour) · 24 mm",
+      "fr": "Panneau de la couleur du châssis (ou couleur RAL) · 24 mm",
+      "it": "Pannello del colore dell'infisso (o colore RAL) · 24 mm",
+      "nl": "Paneel in de kleur van het kozijn (of RAL-kleur) · 24 mm",
+      "ro": "Panou în culoarea tocului (sau culoare RAL) · 24 mm"
+     },
+     "priceCents": 2000,
+     "psi": 0.04,
+     "sortOrder": 105,
+     "uGlass": 1
+    },
+    {
+     "enabled": true,
+     "key": "d24_ornamentalPanel",
+     "labels": {
+      "de": "Zierpaneel · 24 mm",
+      "en": "Ornamental panel · 24 mm",
+      "fr": "Panneau décoratif · 24 mm",
+      "it": "Pannello ornamentale · 24 mm",
+      "nl": "Sierpaneel · 24 mm",
+      "ro": "Panou ornamental · 24 mm"
+     },
+     "priceCents": 9000,
+     "psi": 0.04,
+     "sortOrder": 106,
+     "uGlass": 1
+    },
+    {
+     "enabled": true,
+     "key": "d26_floatBeArgon",
+     "labels": {
+      "de": "Float + Low-E + Warm-Edge + Argon · 26 mm",
+      "en": "Float + low-E + warm-edge spacer + argon · 26 mm",
+      "fr": "Float + basse émissivité + intercalaire chaud + argon · 26 mm",
+      "it": "Float + basso emissivo + canalina calda + argon · 26 mm",
+      "nl": "Float + low-E + warm-edge + argon · 26 mm",
+      "ro": "Float + low-E + distanțier cald + argon · 26 mm"
+     },
+     "priceCents": 1400,
+     "psi": 0.04,
+     "sortOrder": 107,
+     "uGlass": 1.05
+    },
+    {
+     "enabled": true,
+     "key": "d26_floatBe",
+     "labels": {
+      "de": "Float + Low-E + Warm-Edge (ohne Argon) · 26 mm",
+      "en": "Float + low-E + warm-edge spacer (no argon) · 26 mm",
+      "fr": "Float + basse émissivité + intercalaire chaud (sans argon) · 26 mm",
+      "it": "Float + basso emissivo + canalina calda (senza argon) · 26 mm",
+      "nl": "Float + low-E + warm-edge (zonder argon) · 26 mm",
+      "ro": "Float + low-E + distanțier cald (fără argon) · 26 mm"
+     },
+     "priceCents": 800,
+     "psi": 0.04,
+     "sortOrder": 108,
+     "uGlass": 1.25
+    },
+    {
+     "enabled": true,
+     "key": "d26_float331Be",
+     "labels": {
+      "de": "Float + 3.3.1 + Low-E + Warm-Edge · 26 mm",
+      "en": "Float + 3.3.1 + low-E + warm-edge spacer · 26 mm",
+      "fr": "Float + 3.3.1 + basse émissivité + intercalaire chaud · 26 mm",
+      "it": "Float + 3.3.1 + basso emissivo + canalina calda · 26 mm",
+      "nl": "Float + 3.3.1 + low-E + warm-edge · 26 mm",
+      "ro": "Float + 3.3.1 + low-E + distanțier cald · 26 mm"
+     },
+     "priceCents": 3300,
+     "psi": 0.04,
+     "sortOrder": 109,
+     "uGlass": 1.05
+    },
+    {
+     "enabled": true,
+     "key": "d26_lam331x2Be",
+     "labels": {
+      "de": "Verbund 3.3.1 + 3.3.1 + Low-E · 26 mm",
+      "en": "Laminated 3.3.1 + 3.3.1 + low-E · 26 mm",
+      "fr": "Feuilleté 3.3.1 + 3.3.1 + basse émissivité · 26 mm",
+      "it": "Stratificato 3.3.1 + 3.3.1 + basso emissivo · 26 mm",
+      "nl": "Gelaagd 3.3.1 + 3.3.1 + low-E · 26 mm",
+      "ro": "Laminat 3.3.1 + 3.3.1 + low-E · 26 mm"
+     },
+     "priceCents": 7300,
+     "psi": 0.04,
+     "sortOrder": 110,
+     "uGlass": 1.05
+    },
+    {
+     "enabled": true,
+     "key": "d26_satin331Be",
+     "labels": {
+      "de": "Satiniert + 3.3.1 + Low-E + Warm-Edge · 26 mm",
+      "en": "Satin + 3.3.1 + low-E + warm-edge spacer · 26 mm",
+      "fr": "Satiné + 3.3.1 + basse émissivité + intercalaire chaud · 26 mm",
+      "it": "Satinato + 3.3.1 + basso emissivo + canalina calda · 26 mm",
+      "nl": "Gesatineerd + 3.3.1 + low-E + warm-edge · 26 mm",
+      "ro": "Satinat + 3.3.1 + low-E + distanțier cald · 26 mm"
+     },
+     "priceCents": 5300,
+     "psi": 0.04,
+     "sortOrder": 111,
+     "uGlass": 1.05
+    },
+    {
+     "enabled": true,
+     "key": "d26_colorPanel",
+     "labels": {
+      "de": "Paneel in Rahmenfarbe (oder RAL-Farbe) · 26 mm",
+      "en": "Panel in the frame colour (or RAL colour) · 26 mm",
+      "fr": "Panneau de la couleur du châssis (ou couleur RAL) · 26 mm",
+      "it": "Pannello del colore dell'infisso (o colore RAL) · 26 mm",
+      "nl": "Paneel in de kleur van het kozijn (of RAL-kleur) · 26 mm",
+      "ro": "Panou în culoarea tocului (sau culoare RAL) · 26 mm"
+     },
+     "priceCents": 2800,
+     "psi": 0.04,
+     "sortOrder": 112,
+     "uGlass": 1
+    },
+    {
+     "enabled": true,
+     "key": "d26_ornamentalPanel",
+     "labels": {
+      "de": "Zierpaneel · 26 mm",
+      "en": "Ornamental panel · 26 mm",
+      "fr": "Panneau décoratif · 26 mm",
+      "it": "Pannello ornamentale · 26 mm",
+      "nl": "Sierpaneel · 26 mm",
+      "ro": "Panou ornamental · 26 mm"
+     },
+     "priceCents": 9800,
+     "psi": 0.04,
+     "sortOrder": 113,
+     "uGlass": 1
+    },
+    {
+     "enabled": true,
+     "key": "d28_floatBeArgon",
+     "labels": {
+      "de": "Float + Low-E + Warm-Edge + Argon · 28 mm",
+      "en": "Float + low-E + warm-edge spacer + argon · 28 mm",
+      "fr": "Float + basse émissivité + intercalaire chaud + argon · 28 mm",
+      "it": "Float + basso emissivo + canalina calda + argon · 28 mm",
+      "nl": "Float + low-E + warm-edge + argon · 28 mm",
+      "ro": "Float + low-E + distanțier cald + argon · 28 mm"
+     },
+     "priceCents": 2200,
+     "psi": 0.04,
+     "sortOrder": 114,
+     "uGlass": 1
+    },
+    {
+     "enabled": true,
+     "key": "d28_floatBe",
+     "labels": {
+      "de": "Float + Low-E + Warm-Edge (ohne Argon) · 28 mm",
+      "en": "Float + low-E + warm-edge spacer (no argon) · 28 mm",
+      "fr": "Float + basse émissivité + intercalaire chaud (sans argon) · 28 mm",
+      "it": "Float + basso emissivo + canalina calda (senza argon) · 28 mm",
+      "nl": "Float + low-E + warm-edge (zonder argon) · 28 mm",
+      "ro": "Float + low-E + distanțier cald (fără argon) · 28 mm"
+     },
+     "priceCents": 1600,
+     "psi": 0.04,
+     "sortOrder": 115,
+     "uGlass": 1.2
+    },
+    {
+     "enabled": true,
+     "key": "d28_float331Be",
+     "labels": {
+      "de": "Float + 3.3.1 + Low-E + Warm-Edge · 28 mm",
+      "en": "Float + 3.3.1 + low-E + warm-edge spacer · 28 mm",
+      "fr": "Float + 3.3.1 + basse émissivité + intercalaire chaud · 28 mm",
+      "it": "Float + 3.3.1 + basso emissivo + canalina calda · 28 mm",
+      "nl": "Float + 3.3.1 + low-E + warm-edge · 28 mm",
+      "ro": "Float + 3.3.1 + low-E + distanțier cald · 28 mm"
+     },
+     "priceCents": 4100,
+     "psi": 0.04,
+     "sortOrder": 116,
+     "uGlass": 1
+    },
+    {
+     "enabled": true,
+     "key": "d28_lam331x2Be",
+     "labels": {
+      "de": "Verbund 3.3.1 + 3.3.1 + Low-E · 28 mm",
+      "en": "Laminated 3.3.1 + 3.3.1 + low-E · 28 mm",
+      "fr": "Feuilleté 3.3.1 + 3.3.1 + basse émissivité · 28 mm",
+      "it": "Stratificato 3.3.1 + 3.3.1 + basso emissivo · 28 mm",
+      "nl": "Gelaagd 3.3.1 + 3.3.1 + low-E · 28 mm",
+      "ro": "Laminat 3.3.1 + 3.3.1 + low-E · 28 mm"
+     },
+     "priceCents": 8100,
+     "psi": 0.04,
+     "sortOrder": 117,
+     "uGlass": 1
+    },
+    {
+     "enabled": true,
+     "key": "d28_satin331Be",
+     "labels": {
+      "de": "Satiniert + 3.3.1 + Low-E + Warm-Edge · 28 mm",
+      "en": "Satin + 3.3.1 + low-E + warm-edge spacer · 28 mm",
+      "fr": "Satiné + 3.3.1 + basse émissivité + intercalaire chaud · 28 mm",
+      "it": "Satinato + 3.3.1 + basso emissivo + canalina calda · 28 mm",
+      "nl": "Gesatineerd + 3.3.1 + low-E + warm-edge · 28 mm",
+      "ro": "Satinat + 3.3.1 + low-E + distanțier cald · 28 mm"
+     },
+     "priceCents": 6100,
+     "psi": 0.04,
+     "sortOrder": 118,
+     "uGlass": 1
+    },
+    {
+     "enabled": true,
+     "key": "d28_colorPanel",
+     "labels": {
+      "de": "Paneel in Rahmenfarbe (oder RAL-Farbe) · 28 mm",
+      "en": "Panel in the frame colour (or RAL colour) · 28 mm",
+      "fr": "Panneau de la couleur du châssis (ou couleur RAL) · 28 mm",
+      "it": "Pannello del colore dell'infisso (o colore RAL) · 28 mm",
+      "nl": "Paneel in de kleur van het kozijn (of RAL-kleur) · 28 mm",
+      "ro": "Panou în culoarea tocului (sau culoare RAL) · 28 mm"
+     },
+     "priceCents": 3600,
+     "psi": 0.04,
+     "sortOrder": 119,
+     "uGlass": 1
+    },
+    {
+     "enabled": true,
+     "key": "d28_ornamentalPanel",
+     "labels": {
+      "de": "Zierpaneel · 28 mm",
+      "en": "Ornamental panel · 28 mm",
+      "fr": "Panneau décoratif · 28 mm",
+      "it": "Pannello ornamentale · 28 mm",
+      "nl": "Sierpaneel · 28 mm",
+      "ro": "Panou ornamental · 28 mm"
+     },
+     "priceCents": 10600,
+     "psi": 0.04,
+     "sortOrder": 120,
+     "uGlass": 1
+    },
+    {
+     "enabled": true,
+     "key": "t32_floatFloat331Be",
+     "labels": {
+      "de": "Float + Float + 3.3.1 Low-E + Warm-Edge · 32 mm",
+      "en": "Float + Float + 3.3.1 low-E + warm-edge spacer · 32 mm",
+      "fr": "Float + Float + 3.3.1 basse émissivité + intercalaire chaud · 32 mm",
+      "it": "Float + Float + 3.3.1 basso emissivo + canalina calda (Warm Edge) · 32 mm",
+      "nl": "Float + Float + 3.3.1 low-E + warm-edge · 32 mm",
+      "ro": "Float + Float + 3.3.1 low-E + distanțier cald · 32 mm"
+     },
+     "priceCents": 6000,
+     "psi": 0.032,
+     "sortOrder": 121,
+     "uGlass": 0.7
+    },
+    {
+     "enabled": true,
+     "key": "t32_floatSatin331Be",
+     "labels": {
+      "de": "Float + Satiniert + 3.3.1 Low-E + Warm-Edge (4 Jahreszeiten) · 32 mm",
+      "en": "Float + Satin + 3.3.1 low-E + warm-edge spacer (4 seasons) · 32 mm",
+      "fr": "Float + Satiné + 3.3.1 basse émissivité + intercalaire chaud (4 saisons) · 32 mm",
+      "it": "Float + Satinato + 3.3.1 basso emissivo + canalina calda (4 stagioni) · 32 mm",
+      "nl": "Float + Gesatineerd + 3.3.1 low-E + warm-edge (4 seizoenen) · 32 mm",
+      "ro": "Float + Satinat + 3.3.1 low-E + distanțier cald (4 anotimpuri) · 32 mm"
+     },
+     "priceCents": 9500,
+     "psi": 0.032,
+     "sortOrder": 122,
+     "uGlass": 0.7
+    },
+    {
+     "enabled": true,
+     "key": "t32_be331FloatBe331",
+     "labels": {
+      "de": "3.3.1 Low-E + Float + 3.3.1 Low-E + Warm-Edge · 32 mm",
+      "en": "3.3.1 low-E + Float + 3.3.1 low-E + warm-edge spacer · 32 mm",
+      "fr": "3.3.1 basse émissivité + Float + 3.3.1 basse émissivité + intercalaire chaud · 32 mm",
+      "it": "3.3.1 basso emissivo + Float + 3.3.1 basso emissivo + canalina calda · 32 mm",
+      "nl": "3.3.1 low-E + Float + 3.3.1 low-E + warm-edge · 32 mm",
+      "ro": "3.3.1 low-E + Float + 3.3.1 low-E + distanțier cald · 32 mm"
+     },
+     "priceCents": 10500,
+     "psi": 0.032,
+     "sortOrder": 123,
+     "uGlass": 0.6
+    },
+    {
+     "enabled": true,
+     "key": "t32_colorPanelT",
+     "labels": {
+      "de": "Paneel in Rahmenfarbe (oder RAL-Farbe) · 32 mm",
+      "en": "Panel in the frame colour (or RAL colour) · 32 mm",
+      "fr": "Panneau de la couleur du châssis (ou couleur RAL) · 32 mm",
+      "it": "Pannello del colore dell'infisso (o colore RAL) · 32 mm",
+      "nl": "Paneel in de kleur van het kozijn (of RAL-kleur) · 32 mm",
+      "ro": "Panou în culoarea tocului (sau culoare RAL) · 32 mm"
+     },
+     "priceCents": 8500,
+     "psi": 0.04,
+     "sortOrder": 124,
+     "uGlass": 0.8
+    },
+    {
+     "enabled": true,
+     "key": "t32_ornamentalPanelT",
+     "labels": {
+      "de": "Zierpaneel · 32 mm",
+      "en": "Ornamental panel · 32 mm",
+      "fr": "Panneau décoratif · 32 mm",
+      "it": "Pannello ornamentale · 32 mm",
+      "nl": "Sierpaneel · 32 mm",
+      "ro": "Panou ornamental · 32 mm"
+     },
+     "priceCents": 15500,
+     "psi": 0.04,
+     "sortOrder": 125,
+     "uGlass": 0.8
+    },
+    {
+     "enabled": true,
+     "key": "t36_floatFloat331Be",
+     "labels": {
+      "de": "Float + Float + 3.3.1 Low-E + Warm-Edge · 36 mm",
+      "en": "Float + Float + 3.3.1 low-E + warm-edge spacer · 36 mm",
+      "fr": "Float + Float + 3.3.1 basse émissivité + intercalaire chaud · 36 mm",
+      "it": "Float + Float + 3.3.1 basso emissivo + canalina calda (Warm Edge) · 36 mm",
+      "nl": "Float + Float + 3.3.1 low-E + warm-edge · 36 mm",
+      "ro": "Float + Float + 3.3.1 low-E + distanțier cald · 36 mm"
+     },
+     "priceCents": 7000,
+     "psi": 0.032,
+     "sortOrder": 126,
+     "uGlass": 0.66
+    },
+    {
+     "enabled": true,
+     "key": "t36_floatSatin331Be",
+     "labels": {
+      "de": "Float + Satiniert + 3.3.1 Low-E + Warm-Edge (4 Jahreszeiten) · 36 mm",
+      "en": "Float + Satin + 3.3.1 low-E + warm-edge spacer (4 seasons) · 36 mm",
+      "fr": "Float + Satiné + 3.3.1 basse émissivité + intercalaire chaud (4 saisons) · 36 mm",
+      "it": "Float + Satinato + 3.3.1 basso emissivo + canalina calda (4 stagioni) · 36 mm",
+      "nl": "Float + Gesatineerd + 3.3.1 low-E + warm-edge (4 seizoenen) · 36 mm",
+      "ro": "Float + Satinat + 3.3.1 low-E + distanțier cald (4 anotimpuri) · 36 mm"
+     },
+     "priceCents": 10500,
+     "psi": 0.032,
+     "sortOrder": 127,
+     "uGlass": 0.66
+    },
+    {
+     "enabled": true,
+     "key": "t36_be331FloatBe331",
+     "labels": {
+      "de": "3.3.1 Low-E + Float + 3.3.1 Low-E + Warm-Edge · 36 mm",
+      "en": "3.3.1 low-E + Float + 3.3.1 low-E + warm-edge spacer · 36 mm",
+      "fr": "3.3.1 basse émissivité + Float + 3.3.1 basse émissivité + intercalaire chaud · 36 mm",
+      "it": "3.3.1 basso emissivo + Float + 3.3.1 basso emissivo + canalina calda · 36 mm",
+      "nl": "3.3.1 low-E + Float + 3.3.1 low-E + warm-edge · 36 mm",
+      "ro": "3.3.1 low-E + Float + 3.3.1 low-E + distanțier cald · 36 mm"
+     },
+     "priceCents": 11500,
+     "psi": 0.032,
+     "sortOrder": 128,
+     "uGlass": 0.56
+    },
+    {
+     "enabled": true,
+     "key": "t36_colorPanelT",
+     "labels": {
+      "de": "Paneel in Rahmenfarbe (oder RAL-Farbe) · 36 mm",
+      "en": "Panel in the frame colour (or RAL colour) · 36 mm",
+      "fr": "Panneau de la couleur du châssis (ou couleur RAL) · 36 mm",
+      "it": "Pannello del colore dell'infisso (o colore RAL) · 36 mm",
+      "nl": "Paneel in de kleur van het kozijn (of RAL-kleur) · 36 mm",
+      "ro": "Panou în culoarea tocului (sau culoare RAL) · 36 mm"
+     },
+     "priceCents": 9500,
+     "psi": 0.04,
+     "sortOrder": 129,
+     "uGlass": 0.8
+    },
+    {
+     "enabled": true,
+     "key": "t36_ornamentalPanelT",
+     "labels": {
+      "de": "Zierpaneel · 36 mm",
+      "en": "Ornamental panel · 36 mm",
+      "fr": "Panneau décoratif · 36 mm",
+      "it": "Pannello ornamentale · 36 mm",
+      "nl": "Sierpaneel · 36 mm",
+      "ro": "Panou ornamental · 36 mm"
+     },
+     "priceCents": 16500,
+     "psi": 0.04,
+     "sortOrder": 130,
+     "uGlass": 0.8
+    },
+    {
+     "enabled": true,
+     "key": "t40_floatFloat331Be",
+     "labels": {
+      "de": "Float + Float + 3.3.1 Low-E + Warm-Edge · 40 mm",
+      "en": "Float + Float + 3.3.1 low-E + warm-edge spacer · 40 mm",
+      "fr": "Float + Float + 3.3.1 basse émissivité + intercalaire chaud · 40 mm",
+      "it": "Float + Float + 3.3.1 basso emissivo + canalina calda (Warm Edge) · 40 mm",
+      "nl": "Float + Float + 3.3.1 low-E + warm-edge · 40 mm",
+      "ro": "Float + Float + 3.3.1 low-E + distanțier cald · 40 mm"
+     },
+     "priceCents": 8000,
+     "psi": 0.032,
+     "sortOrder": 131,
+     "uGlass": 0.62
+    },
+    {
+     "enabled": true,
+     "key": "t40_floatSatin331Be",
+     "labels": {
+      "de": "Float + Satiniert + 3.3.1 Low-E + Warm-Edge (4 Jahreszeiten) · 40 mm",
+      "en": "Float + Satin + 3.3.1 low-E + warm-edge spacer (4 seasons) · 40 mm",
+      "fr": "Float + Satiné + 3.3.1 basse émissivité + intercalaire chaud (4 saisons) · 40 mm",
+      "it": "Float + Satinato + 3.3.1 basso emissivo + canalina calda (4 stagioni) · 40 mm",
+      "nl": "Float + Gesatineerd + 3.3.1 low-E + warm-edge (4 seizoenen) · 40 mm",
+      "ro": "Float + Satinat + 3.3.1 low-E + distanțier cald (4 anotimpuri) · 40 mm"
+     },
+     "priceCents": 11500,
+     "psi": 0.032,
+     "sortOrder": 132,
+     "uGlass": 0.62
+    },
+    {
+     "enabled": true,
+     "key": "t40_be331FloatBe331",
+     "labels": {
+      "de": "3.3.1 Low-E + Float + 3.3.1 Low-E + Warm-Edge · 40 mm",
+      "en": "3.3.1 low-E + Float + 3.3.1 low-E + warm-edge spacer · 40 mm",
+      "fr": "3.3.1 basse émissivité + Float + 3.3.1 basse émissivité + intercalaire chaud · 40 mm",
+      "it": "3.3.1 basso emissivo + Float + 3.3.1 basso emissivo + canalina calda · 40 mm",
+      "nl": "3.3.1 low-E + Float + 3.3.1 low-E + warm-edge · 40 mm",
+      "ro": "3.3.1 low-E + Float + 3.3.1 low-E + distanțier cald · 40 mm"
+     },
+     "priceCents": 12500,
+     "psi": 0.032,
+     "sortOrder": 133,
+     "uGlass": 0.52
+    },
+    {
+     "enabled": true,
+     "key": "t40_colorPanelT",
+     "labels": {
+      "de": "Paneel in Rahmenfarbe (oder RAL-Farbe) · 40 mm",
+      "en": "Panel in the frame colour (or RAL colour) · 40 mm",
+      "fr": "Panneau de la couleur du châssis (ou couleur RAL) · 40 mm",
+      "it": "Pannello del colore dell'infisso (o colore RAL) · 40 mm",
+      "nl": "Paneel in de kleur van het kozijn (of RAL-kleur) · 40 mm",
+      "ro": "Panou în culoarea tocului (sau culoare RAL) · 40 mm"
+     },
+     "priceCents": 10500,
+     "psi": 0.04,
+     "sortOrder": 134,
+     "uGlass": 0.8
+    },
+    {
+     "enabled": true,
+     "key": "t40_ornamentalPanelT",
+     "labels": {
+      "de": "Zierpaneel · 40 mm",
+      "en": "Ornamental panel · 40 mm",
+      "fr": "Panneau décoratif · 40 mm",
+      "it": "Pannello ornamentale · 40 mm",
+      "nl": "Sierpaneel · 40 mm",
+      "ro": "Panou ornamental · 40 mm"
+     },
+     "priceCents": 17500,
+     "psi": 0.04,
+     "sortOrder": 135,
+     "uGlass": 0.8
+    },
+    {
+     "enabled": true,
+     "key": "t44_floatFloat331Be",
+     "labels": {
+      "de": "Float + Float + 3.3.1 Low-E + Warm-Edge · 44 mm",
+      "en": "Float + Float + 3.3.1 low-E + warm-edge spacer · 44 mm",
+      "fr": "Float + Float + 3.3.1 basse émissivité + intercalaire chaud · 44 mm",
+      "it": "Float + Float + 3.3.1 basso emissivo + canalina calda (Warm Edge) · 44 mm",
+      "nl": "Float + Float + 3.3.1 low-E + warm-edge · 44 mm",
+      "ro": "Float + Float + 3.3.1 low-E + distanțier cald · 44 mm"
+     },
+     "priceCents": 9000,
+     "psi": 0.032,
+     "sortOrder": 136,
+     "uGlass": 0.58
+    },
+    {
+     "enabled": true,
+     "key": "t44_floatSatin331Be",
+     "labels": {
+      "de": "Float + Satiniert + 3.3.1 Low-E + Warm-Edge (4 Jahreszeiten) · 44 mm",
+      "en": "Float + Satin + 3.3.1 low-E + warm-edge spacer (4 seasons) · 44 mm",
+      "fr": "Float + Satiné + 3.3.1 basse émissivité + intercalaire chaud (4 saisons) · 44 mm",
+      "it": "Float + Satinato + 3.3.1 basso emissivo + canalina calda (4 stagioni) · 44 mm",
+      "nl": "Float + Gesatineerd + 3.3.1 low-E + warm-edge (4 seizoenen) · 44 mm",
+      "ro": "Float + Satinat + 3.3.1 low-E + distanțier cald (4 anotimpuri) · 44 mm"
+     },
+     "priceCents": 12500,
+     "psi": 0.032,
+     "sortOrder": 137,
+     "uGlass": 0.58
+    },
+    {
+     "enabled": true,
+     "key": "t44_be331FloatBe331",
+     "labels": {
+      "de": "3.3.1 Low-E + Float + 3.3.1 Low-E + Warm-Edge · 44 mm",
+      "en": "3.3.1 low-E + Float + 3.3.1 low-E + warm-edge spacer · 44 mm",
+      "fr": "3.3.1 basse émissivité + Float + 3.3.1 basse émissivité + intercalaire chaud · 44 mm",
+      "it": "3.3.1 basso emissivo + Float + 3.3.1 basso emissivo + canalina calda · 44 mm",
+      "nl": "3.3.1 low-E + Float + 3.3.1 low-E + warm-edge · 44 mm",
+      "ro": "3.3.1 low-E + Float + 3.3.1 low-E + distanțier cald · 44 mm"
+     },
+     "priceCents": 13500,
+     "psi": 0.032,
+     "sortOrder": 138,
+     "uGlass": 0.5
+    },
+    {
+     "enabled": true,
+     "key": "t44_colorPanelT",
+     "labels": {
+      "de": "Paneel in Rahmenfarbe (oder RAL-Farbe) · 44 mm",
+      "en": "Panel in the frame colour (or RAL colour) · 44 mm",
+      "fr": "Panneau de la couleur du châssis (ou couleur RAL) · 44 mm",
+      "it": "Pannello del colore dell'infisso (o colore RAL) · 44 mm",
+      "nl": "Paneel in de kleur van het kozijn (of RAL-kleur) · 44 mm",
+      "ro": "Panou în culoarea tocului (sau culoare RAL) · 44 mm"
+     },
+     "priceCents": 11500,
+     "psi": 0.04,
+     "sortOrder": 139,
+     "uGlass": 0.8
+    },
+    {
+     "enabled": true,
+     "key": "t44_ornamentalPanelT",
+     "labels": {
+      "de": "Zierpaneel · 44 mm",
+      "en": "Ornamental panel · 44 mm",
+      "fr": "Panneau décoratif · 44 mm",
+      "it": "Pannello ornamentale · 44 mm",
+      "nl": "Sierpaneel · 44 mm",
+      "ro": "Panou ornamental · 44 mm"
+     },
+     "priceCents": 18500,
+     "psi": 0.04,
+     "sortOrder": 140,
+     "uGlass": 0.8
+    },
+    {
+     "enabled": true,
+     "key": "t50_floatFloat331Be",
+     "labels": {
+      "de": "Float + Float + 3.3.1 Low-E + Warm-Edge · 50 mm",
+      "en": "Float + Float + 3.3.1 low-E + warm-edge spacer · 50 mm",
+      "fr": "Float + Float + 3.3.1 basse émissivité + intercalaire chaud · 50 mm",
+      "it": "Float + Float + 3.3.1 basso emissivo + canalina calda (Warm Edge) · 50 mm",
+      "nl": "Float + Float + 3.3.1 low-E + warm-edge · 50 mm",
+      "ro": "Float + Float + 3.3.1 low-E + distanțier cald · 50 mm"
+     },
+     "priceCents": 10500,
+     "psi": 0.032,
+     "sortOrder": 141,
+     "uGlass": 0.54
+    },
+    {
+     "enabled": true,
+     "key": "t50_floatSatin331Be",
+     "labels": {
+      "de": "Float + Satiniert + 3.3.1 Low-E + Warm-Edge (4 Jahreszeiten) · 50 mm",
+      "en": "Float + Satin + 3.3.1 low-E + warm-edge spacer (4 seasons) · 50 mm",
+      "fr": "Float + Satiné + 3.3.1 basse émissivité + intercalaire chaud (4 saisons) · 50 mm",
+      "it": "Float + Satinato + 3.3.1 basso emissivo + canalina calda (4 stagioni) · 50 mm",
+      "nl": "Float + Gesatineerd + 3.3.1 low-E + warm-edge (4 seizoenen) · 50 mm",
+      "ro": "Float + Satinat + 3.3.1 low-E + distanțier cald (4 anotimpuri) · 50 mm"
+     },
+     "priceCents": 14000,
+     "psi": 0.032,
+     "sortOrder": 142,
+     "uGlass": 0.54
+    },
+    {
+     "enabled": true,
+     "key": "t50_be331FloatBe331",
+     "labels": {
+      "de": "3.3.1 Low-E + Float + 3.3.1 Low-E + Warm-Edge · 50 mm",
+      "en": "3.3.1 low-E + Float + 3.3.1 low-E + warm-edge spacer · 50 mm",
+      "fr": "3.3.1 basse émissivité + Float + 3.3.1 basse émissivité + intercalaire chaud · 50 mm",
+      "it": "3.3.1 basso emissivo + Float + 3.3.1 basso emissivo + canalina calda · 50 mm",
+      "nl": "3.3.1 low-E + Float + 3.3.1 low-E + warm-edge · 50 mm",
+      "ro": "3.3.1 low-E + Float + 3.3.1 low-E + distanțier cald · 50 mm"
+     },
+     "priceCents": 15000,
+     "psi": 0.032,
+     "sortOrder": 143,
+     "uGlass": 0.5
+    },
+    {
+     "enabled": true,
+     "key": "t50_colorPanelT",
+     "labels": {
+      "de": "Paneel in Rahmenfarbe (oder RAL-Farbe) · 50 mm",
+      "en": "Panel in the frame colour (or RAL colour) · 50 mm",
+      "fr": "Panneau de la couleur du châssis (ou couleur RAL) · 50 mm",
+      "it": "Pannello del colore dell'infisso (o colore RAL) · 50 mm",
+      "nl": "Paneel in de kleur van het kozijn (of RAL-kleur) · 50 mm",
+      "ro": "Panou în culoarea tocului (sau culoare RAL) · 50 mm"
+     },
+     "priceCents": 13000,
+     "psi": 0.04,
+     "sortOrder": 144,
+     "uGlass": 0.8
+    },
+    {
+     "enabled": true,
+     "key": "t50_ornamentalPanelT",
+     "labels": {
+      "de": "Zierpaneel · 50 mm",
+      "en": "Ornamental panel · 50 mm",
+      "fr": "Panneau décoratif · 50 mm",
+      "it": "Pannello ornamentale · 50 mm",
+      "nl": "Sierpaneel · 50 mm",
+      "ro": "Panou ornamental · 50 mm"
+     },
+     "priceCents": 20000,
+     "psi": 0.04,
+     "sortOrder": 145,
+     "uGlass": 0.8
+    },
+    {
+     "enabled": true,
+     "key": "t52_floatFloat331Be",
+     "labels": {
+      "de": "Float + Float + 3.3.1 Low-E + Warm-Edge · 52 mm",
+      "en": "Float + Float + 3.3.1 low-E + warm-edge spacer · 52 mm",
+      "fr": "Float + Float + 3.3.1 basse émissivité + intercalaire chaud · 52 mm",
+      "it": "Float + Float + 3.3.1 basso emissivo + canalina calda (Warm Edge) · 52 mm",
+      "nl": "Float + Float + 3.3.1 low-E + warm-edge · 52 mm",
+      "ro": "Float + Float + 3.3.1 low-E + distanțier cald · 52 mm"
+     },
+     "priceCents": 11000,
+     "psi": 0.032,
+     "sortOrder": 146,
+     "uGlass": 0.5
+    },
+    {
+     "enabled": true,
+     "key": "t52_floatSatin331Be",
+     "labels": {
+      "de": "Float + Satiniert + 3.3.1 Low-E + Warm-Edge (4 Jahreszeiten) · 52 mm",
+      "en": "Float + Satin + 3.3.1 low-E + warm-edge spacer (4 seasons) · 52 mm",
+      "fr": "Float + Satiné + 3.3.1 basse émissivité + intercalaire chaud (4 saisons) · 52 mm",
+      "it": "Float + Satinato + 3.3.1 basso emissivo + canalina calda (4 stagioni) · 52 mm",
+      "nl": "Float + Gesatineerd + 3.3.1 low-E + warm-edge (4 seizoenen) · 52 mm",
+      "ro": "Float + Satinat + 3.3.1 low-E + distanțier cald (4 anotimpuri) · 52 mm"
+     },
+     "priceCents": 14500,
+     "psi": 0.032,
+     "sortOrder": 147,
+     "uGlass": 0.5
+    },
+    {
+     "enabled": true,
+     "key": "t52_be331FloatBe331",
+     "labels": {
+      "de": "3.3.1 Low-E + Float + 3.3.1 Low-E + Warm-Edge · 52 mm",
+      "en": "3.3.1 low-E + Float + 3.3.1 low-E + warm-edge spacer · 52 mm",
+      "fr": "3.3.1 basse émissivité + Float + 3.3.1 basse émissivité + intercalaire chaud · 52 mm",
+      "it": "3.3.1 basso emissivo + Float + 3.3.1 basso emissivo + canalina calda · 52 mm",
+      "nl": "3.3.1 low-E + Float + 3.3.1 low-E + warm-edge · 52 mm",
+      "ro": "3.3.1 low-E + Float + 3.3.1 low-E + distanțier cald · 52 mm"
+     },
+     "priceCents": 15500,
+     "psi": 0.032,
+     "sortOrder": 148,
+     "uGlass": 0.5
+    },
+    {
+     "enabled": true,
+     "key": "t52_colorPanelT",
+     "labels": {
+      "de": "Paneel in Rahmenfarbe (oder RAL-Farbe) · 52 mm",
+      "en": "Panel in the frame colour (or RAL colour) · 52 mm",
+      "fr": "Panneau de la couleur du châssis (ou couleur RAL) · 52 mm",
+      "it": "Pannello del colore dell'infisso (o colore RAL) · 52 mm",
+      "nl": "Paneel in de kleur van het kozijn (of RAL-kleur) · 52 mm",
+      "ro": "Panou în culoarea tocului (sau culoare RAL) · 52 mm"
+     },
+     "priceCents": 13500,
+     "psi": 0.04,
+     "sortOrder": 149,
+     "uGlass": 0.8
+    },
+    {
+     "enabled": true,
+     "key": "t52_ornamentalPanelT",
+     "labels": {
+      "de": "Zierpaneel · 52 mm",
+      "en": "Ornamental panel · 52 mm",
+      "fr": "Panneau décoratif · 52 mm",
+      "it": "Pannello ornamentale · 52 mm",
+      "nl": "Sierpaneel · 52 mm",
+      "ro": "Panou ornamental · 52 mm"
+     },
+     "priceCents": 20500,
+     "psi": 0.04,
+     "sortOrder": 150,
+     "uGlass": 0.8
     }
    ],
    "hardware": [

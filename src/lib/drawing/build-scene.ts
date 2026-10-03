@@ -2,6 +2,7 @@ import { inactiveLeaves, normalizedRatios, violationsFor, type EditorSash } from
 import { accessoryRightExtent, drawAccessories } from "./build-accessories";
 import { drawDimensions } from "./build-dimensions";
 import { drawLeaves, drawMullions, hitRects, layoutCells } from "./build-sashes";
+import { glazingShape } from "@/shared/glazing-packages";
 import { finishStyle, PALETTE } from "./finishes";
 import { boundsOf, mirror, place, rect } from "./prims";
 import type { DrawingInput, DrawingOptions, DrawingSash, Primitive, Scene, SceneContext } from "./types";
@@ -73,6 +74,8 @@ export function buildScene(input: DrawingInput, options: DrawingOptions = {}): S
     options,
     handles: [],
     noHandle: inactiveLeaves(sashes),
+    glazingKind: glazingShape(input.glazing).kind,
+    satin: glazingShape(input.glazing).composition?.layers.includes("satin") ?? false,
     dimBoxes: {},
   };
 

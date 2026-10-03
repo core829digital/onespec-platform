@@ -1,4 +1,5 @@
 import { drawingLocale, PLAN, SECTION, type SectionWord } from "./drawing-text";
+import { glazingShape, type GlassLayer } from "@/shared/glazing-packages";
 import { PALETTE } from "./finishes";
 import { boundsOf, circle, hatchSegments, line, place, poly, rect, text } from "./prims";
 import type { Primitive, Scene } from "./types";
@@ -18,14 +19,14 @@ export interface SectionInput {
 const K = 1.6; // drawing units per mm
 const PAD = 12;
 
-/** Three panes for anything that reads as triple glazing, two otherwise. */
+/** Three panes for triple glazing, two otherwise (legacy keys read as before). */
 export function paneCount(glazing: string | undefined): 2 | 3 {
-  return /tripl|drei|trei|3/i.test(glazing ?? "") ? 3 : 2;
+  return glazingShape(glazing).family === "triple" ? 3 : 2;
 }
 
-/** Overall thickness of the glazing unit in mm: 4/16/4 or 4/12/4/12/4. */
-export function glazingThicknessMm(glazing: string | undefined): 24 | 36 {
-  return paneCount(glazing) === 3 ? 36 : 24;
+/** Overall thickness of the glazing unit in mm: the chosen package depth (24 / 36 for the older keys). */
+export function glazingThicknessMm(glazing: string | undefined): number {
+  return glazingShape(glazing).depthMm;
 }
 
 /** How many partitions a PVC profile shows: 5-chamber or 7-chamber systems. */
@@ -115,16 +116,40 @@ export function buildSectionScene(input: SectionInput, localeInput?: string): Sc
   const x0 = 112;
   const x1 = 250;
   out.push(rect({ role: "sashOutline", part: "rebate" }, u(x0), u(top - 3), u(142 - x0), u(t + 6), { fill: "#FFFFFF", stroke: "none" }));
-  const pane = 4;
-  const gap = (t - panes * pane) / (panes - 1);
-  for (let i = 0; i < panes; i++) {
-    const y = top + i * (pane + gap);
-    out.push(rect({ role: "glass", part: "pane" }, u(x0), u(y), u(x1 - x0), u(pane), { fill: PALETTE.glass, stroke: PALETTE.ink, strokeWidth: 0.9 }));
-    if (i < panes - 1) {
-      out.push(rect({ role: "glass", part: "gap" }, u(x0), u(y + pane), u(x1 - x0), u(gap), { fill: "#F3F8FB", stroke: "none" }));
+  const shape = glazingShape(input.glazing);
+  const isPanel = shape.kind !== "glass";
+  if (isPanel) {
+    // Opaque panel: skins in the frame colour around an insulating core.
+    const skin = 3;
+    out.push(
+      rect({ role: "panel", part: "pane" }, u(x0), u(top), u(x1 - x0), u(t), { fill: "#F5E6C8", stroke: PALETTE.ink, strokeWidth: 0.9 }),
+      rect({ role: "panel", part: "pane" }, u(x0), u(top), u(x1 - x0), u(skin), { fill: body.fill, stroke: body.stroke, strokeWidth: 0.9 }),
+      rect({ role: "panel", part: "pane" }, u(x0), u(top + t - skin), u(x1 - x0), u(skin), { fill: body.fill, stroke: body.stroke, strokeWidth: 0.9 }),
+    );
+    if (shape.kind === "ornamentalPanel") {
+      for (let k = 1; k <= 4; k++) out.push(line({ role: "panel", part: "moulding" }, u(x0 + 18 + k * 22), u(top + skin), u(x0 + 18 + k * 22), u(top + 2 * skin), { stroke: body.stroke, strokeWidth: 0.9 }));
     }
+  } else {
+    const layers: GlassLayer[] = shape.composition?.layers ?? (panes === 3 ? ["float", "float", "floatBe"] : ["float", "floatBe"]);
+    const thick = (l: GlassLayer) => (l === "lam" || l === "lamBe" ? 7 : 4);
+    const gap = Math.max(2, (t - layers.reduce((n, l) => n + thick(l), 0)) / (layers.length - 1));
+    let y = top;
+    layers.forEach((l, i) => {
+      const h = thick(l);
+      out.push(rect({ role: "glass", part: "pane" }, u(x0), u(y), u(x1 - x0), u(h), { fill: l === "satin" ? "#E8EEF1" : PALETTE.glass, stroke: PALETTE.ink, strokeWidth: 0.9 }));
+      if (l === "lam" || l === "lamBe") out.push(line({ role: "glass", part: "film" }, u(x0), u(y + h / 2), u(x1), u(y + h / 2), { stroke: PALETTE.guide, strokeWidth: 0.7, opacity: 0.8 }));
+      if (l === "satin") {
+        for (let k = x0 + 6; k < x1; k += 9) out.push(line({ role: "glass", part: "satin" }, u(k), u(y + 0.6), u(k + 3), u(y + h - 0.6), { stroke: PALETTE.dimLine, strokeWidth: 0.6, opacity: 0.8 }));
+      }
+      if (l === "floatBe" || l === "lamBe") out.push(line({ role: "glass", part: "lowE" }, u(x0), u(y + h + 0.4), u(x1), u(y + h + 0.4), { stroke: "#16A34A", strokeWidth: 1.1 }));
+      y += h;
+      if (i < layers.length - 1) {
+        out.push(rect({ role: "glass", part: "gap" }, u(x0), u(y), u(x1 - x0), u(gap), { fill: "#F3F8FB", stroke: "none" }));
+        y += gap;
+      }
+    });
   }
-  out.push(rect({ role: "glass", part: "spacer" }, u(x0), u(top), u(11), u(t), { fill: "#374151", stroke: "#111827", strokeWidth: 0.8 }));
+  if (!isPanel) out.push(rect({ role: "glass", part: "spacer" }, u(x0), u(top), u(11), u(t), { fill: "#374151", stroke: "#111827", strokeWidth: 0.8 }));
   out.push(rect({ role: "sashOutline", part: "bead" }, u(120), u(top + t + 2), u(22), u(11), { fill: body.fill, stroke: body.stroke, strokeWidth: 1 }));
   out.push(line({ role: "glass", part: "break" }, u(x1), u(top - 5), u(x1), u(top + t + 5), { stroke: PALETTE.dimLine, strokeWidth: 0.8, dash: "3 2" }));
 
@@ -147,12 +172,14 @@ export function buildSectionScene(input: SectionInput, localeInput?: string): Sc
   const items: Array<{ word: SectionWord; at: [number, number] }> = [
     { word: "frame", at: [20, D - 14] },
     { word: "sash", at: [122, 14] },
-    { word: "glass", at: [190, mid] },
-    { word: "spacer", at: [x0 + 5, top + t + 7] },
+    { word: isPanel ? "panel" : "glass", at: [190, mid] },
+    
     { word: "bead", at: [131, top + t + 7] },
     { word: "gaskets", at: [49, 40] },
   ];
+  if (!isPanel) items.splice(items.findIndex((it) => it.word === "bead"), 0, { word: "spacer", at: [x0 + 5, top + t + 7] });
   if (band > 0) items.push({ word: "band", at: [-3, 20] });
+  if (shape.composition?.layers.some((l) => l === "floatBe" || l === "lamBe")) items.push({ word: "lowE", at: [x1 - 20, top - 9] });
   if (thermalBreak) items.push({ word: "thermalBreak", at: [24, D * 0.5] });
   if (material === "pvc") items.push({ word: "steel", at: [15, 50] });
   items.forEach((it, i) => {

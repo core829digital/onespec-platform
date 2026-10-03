@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { ACCESSORY_CATEGORY_LABELS, type AccessoryCategory } from "@/shared/configurator-model";
 import type { ProjectItem } from "@/shared/pricing";
 import type { catalogChoices } from "./catalog-labels";
+import { GlazingPicker } from "./glazing-picker";
 
 type Choices = ReturnType<typeof catalogChoices>;
 
@@ -98,14 +99,16 @@ export function PieceForm({ item, choices, locale, onPatch, onWidth, onHeight, o
             </select>
           </div>
         ) : null}
-        <div>
-          <label className={label} htmlFor={`${baseId}-glazing`}>{t("glazing")}</label>
-          <select id={`${baseId}-glazing`} value={item.glazing} onChange={(e) => onPatch({ glazing: e.target.value })} className={field}>
-            {choices.glazing.map((g) => (
-              <option key={g.key} value={g.key}>{g.label}{g.uGlass ? ` · Ug ${g.uGlass}` : ""}</option>
-            ))}
-          </select>
-        </div>
+        <GlazingPicker
+          idBase={baseId}
+          value={item.glazing}
+          choices={choices.glazing}
+          heightMm={item.height}
+          category={item.category}
+          onChange={(key) => onPatch({ glazing: key })}
+          selectClass={field}
+          labelClass={label}
+        />
         <div>
           <label className={label} htmlFor={`${baseId}-finish`}>{t("finish")}</label>
           <div className="flex items-center gap-2">

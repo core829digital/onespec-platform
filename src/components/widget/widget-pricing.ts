@@ -4,6 +4,12 @@
 // from the raw item inputs; a client-reported total is never trusted.
 
 import { REGION_FLAT_OPTION_KINDS } from "@/shared/pricing";
+import { glazingPackageRows } from "@/shared/glazing-packages";
+
+/** Glazing packages (depth + composition) priced in euros and with their Ug, for widgets without a catalogue. */
+const PACKAGE_ROWS = glazingPackageRows();
+const PACKAGE_PRICES: Record<string, number> = Object.fromEntries(PACKAGE_ROWS.map((r) => [r.key, r.priceCents / 100]));
+const PACKAGE_UG: Record<string, number> = Object.fromEntries(PACKAGE_ROWS.map((r) => [r.key, r.uGlass]));
 
 export type ProductType = "window" | "balconyDoor";
 export type Material = "pvc" | "wood" | "aluminum";
@@ -114,7 +120,7 @@ export function defaultPricing(): Pricing {
     sashType: { fix: 0, classic: 35, tiltturn: 65, sliding: 85 },
     hardware: { maco: 0, roto: 15, siegenia: 25 },
     hardwareColor: { white: 0, silver: 10, bronze: 20 },
-    glazing: { double: 0, triple: 60, tripleLowE: 95 },
+    glazing: { double: 0, triple: 60, tripleLowE: 95, ...PACKAGE_PRICES },
     color: { white: 0, ral: 55, woodeffect: 85 },
     insectScreenType: { cerniera: 45, molla: 65, plissettata: 85, carrarmato: 120 },
     insectScreenColor: { white: 0, brown: 10, woodeffect: 20, other: 15 },
@@ -278,7 +284,7 @@ const U_FRAME_QUALITY: Record<Material, Record<string, number>> = {
   wood: { pine: 0, oak: -0.05 },
   aluminum: { standard: 0, thermalbreak: -0.5 },
 };
-const U_GLASS: Record<string, number> = { double: 1.1, triple: 0.6, tripleLowE: 0.5 };
+const U_GLASS: Record<string, number> = { double: 1.1, triple: 0.6, tripleLowE: 0.5, ...PACKAGE_UG };
 const GLASS_TO_FRAME_RATIO = 0.7;
 
 export function computeUw(s: ConfigState): number {

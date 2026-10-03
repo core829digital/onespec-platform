@@ -2398,5 +2398,17 @@
     "prev": "Vorherige Seite",
     "next": "Nächste Seite",
     "last": "Letzte Seite"
+  },
+  "glazingPicker": {
+    "glazing": "Verglasung",
+    "depth": "Verglasung: Dicke des Glaspakets",
+    "composition": "Glasaufbau",
+    "double": "Zweifachverglasung",
+    "triple": "Dreifachverglasung",
+    "advice_upTo1700": "Empfohlen für Fenster bis 1700 mm Höhe.",
+    "advice_tooTall": "Float + 3.3.1 wird nur bis 1700 mm Höhe und nicht für Balkontüren empfohlen: darüber Verbund 3.3.1 + 3.3.1 wählen.",
+    "advice_doorsOrTall": "Empfohlen für Balkontüren und Haustüren oder Höhen über 1700 mm (bis 2700 mm).",
+    "advice_tallBeyond": "Höhe über 2700 mm: Machbarkeit des Glases beim Hersteller prüfen.",
+    "advice_entryDoors": "Das Zierpaneel wird für Haupteingangstüren empfohlen."
   }
 }

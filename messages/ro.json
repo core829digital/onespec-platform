@@ -2398,5 +2398,17 @@
     "prev": "Pagina anterioară",
     "next": "Pagina următoare",
     "last": "Ultima pagină"
+  },
+  "glazingPicker": {
+    "glazing": "Geam",
+    "depth": "Geam: grosimea pachetului",
+    "composition": "Compoziția geamului",
+    "double": "Geam dublu",
+    "triple": "Geam triplu",
+    "advice_upTo1700": "Recomandat pentru ferestre cu înălțime de până la 1700 mm.",
+    "advice_tooTall": "Float + 3.3.1 este recomandat doar până la 1700 mm înălțime și nu pentru uși de balcon: peste această înălțime alege laminat 3.3.1 + 3.3.1.",
+    "advice_doorsOrTall": "Recomandat pentru uși de balcon și uși de intrare sau înălțimi peste 1700 mm (până la 2700 mm).",
+    "advice_tallBeyond": "Înălțime peste 2700 mm: verifică cu producătorul fezabilitatea geamului.",
+    "advice_entryDoors": "Panoul ornamental este recomandat pentru ușile de intrare principale."
   }
 }

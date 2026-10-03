@@ -122,6 +122,7 @@ export function buildExportModel(input: ExportInput): ExportModel {
                 finish: item.color,
                 frameType: item.frameType,
                 accessories: item.accessories,
+                glazing: item.glazing,
               },
               { showMainBadge: false, handleGuide: "all", showLeafDimensions: true },
             ),
