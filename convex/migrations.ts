@@ -1,3 +1,4 @@
+import { internal } from "./_generated/api";
 import { internalMutation, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
 import { seedExtras, seedFinishLibrary, seedGlazingPackages } from "./lib/catalogExtras";
@@ -208,6 +209,39 @@ export const seedFinishLibraryPage = internalMutation({
     let inserted = 0;
     for (const c of page.page) inserted += (await seedFinishLibrary(ctx, { tenantId: c.tenantId, configuratorId: c._id })).inserted;
     return { inserted, done: page.isDone, cursor: page.continueCursor };
+  },
+});
+
+/**
+ * The simple way: one command, no cursor. Schedules one small job per configurator that adds the glazing
+ * packages and the finish library (idempotent, never overwrites a tenant's edits). Runs by itself on Convex:
+ *
+ *   npx convex run --prod migrations:seedCatalogLibraries
+ *
+ * Re-running it is always safe; it reports how many configurators it scheduled.
+ */
+export const seedCatalogLibraries = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const configurators = await ctx.db.query("configurators").collect();
+    let i = 0;
+    for (const c of configurators) {
+      await ctx.scheduler.runAfter(i * 200, internal.migrations.seedCatalogLibrariesFor, { configuratorId: c._id });
+      i++;
+    }
+    return { scheduled: configurators.length };
+  },
+});
+
+export const seedCatalogLibrariesFor = internalMutation({
+  args: { configuratorId: v.id("configurators") },
+  handler: async (ctx, args) => {
+    const c = await ctx.db.get(args.configuratorId);
+    if (!c) return { glazing: 0, finish: 0 };
+    const scope = { tenantId: c.tenantId, configuratorId: c._id };
+    const glazing = (await seedGlazingPackages(ctx, scope)).inserted;
+    const finish = (await seedFinishLibrary(ctx, scope)).inserted;
+    return { glazing, finish };
   },
 });
 

@@ -32,13 +32,14 @@ Note sui dati: il campione RAL 7035 nel documento di origine era stampato come 7
 
 Campo dati Convex: `catalogFinishOptions` con `range`, `group`, `texture`, `textureW/H`, `ref`, `warrantyYears` (tutti opzionali: le finiture base restano com'erano).
 
-## 4. Da eseguire dopo il deploy su Convex (una volta)
+## 4. Da eseguire dopo il deploy su Convex (una volta, un solo comando)
 
 ```
-npx convex run migrations:seedGlazingPackagesPage
-npx convex run migrations:seedFinishLibraryPage
+npx convex run --prod migrations:seedCatalogLibraries
 ```
-Ripetere ciascun comando con `'{"cursor":"<cursor restituito>"}'` finché `done` è `true`. Sono idempotenti: inseriscono solo le chiavi mancanti e non toccano prezzi o etichette modificati. I nuovi configuratori ricevono tutto alla creazione. Dopo, ripubblicare i configuratori che si vogliono aggiornare.
+Risponde `{ scheduled: N }` (N = configuratori trovati) e poi lavora da solo sul server, un configuratore alla volta, senza cursore. È idempotente: inserisce solo le chiavi mancanti e non tocca prezzi o etichette modificati; ripeterlo è sicuro. Senza `--prod` agisce sul database di sviluppo. Poi ripubblicare i configuratori da aggiornare. I nuovi configuratori ricevono tutto alla creazione.
+
+(I vecchi comandi a pagine `seedGlazingPackagesPage` / `seedFinishLibraryPage` restano, ma non servono più.)
 
 ## 5. Disegni
 

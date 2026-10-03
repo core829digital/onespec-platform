@@ -58,3 +58,31 @@ describe("finish library in the catalogue", () => {
     expect(after.find((r) => r.key === "s01")!.priceCents).toBe(777);
   });
 });
+
+describe("one-command seeding of the libraries", () => {
+  test("seedCatalogLibraries fills every existing configurator by itself, and again does nothing", async () => {
+    const { internal } = await import("../../convex/_generated/api");
+    const { glazingPackageRows } = await import("../../src/shared/glazing-packages");
+    const { finishLibraryRows } = await import("../../src/shared/finish-library");
+    const t = newDb();
+    const s = await seedTenant(t, { plan: "agency" });
+    const as = t.withIdentity({ subject: s.ownerId });
+    await as.mutation(api.configurators.createConfigurator, { tenantId: s.tenantId, name: "Test uno" });
+    // An older configurator: wipe the libraries so it looks like one created before them.
+    await t.run(async (ctx) => {
+      for (const r of await ctx.db.query("catalogGlazingOptions").collect()) if (/^[dt]\d\d_/.test(r.key)) await ctx.db.delete(r._id);
+      for (const r of await ctx.db.query("catalogFinishOptions").collect()) if (r.range) await ctx.db.delete(r._id);
+    });
+    const first = await t.mutation(internal.migrations.seedCatalogLibraries, {});
+    expect(first).toEqual({ scheduled: 1 });
+    await t.finishAllScheduledFunctions(vi.runAllTimers);
+    const glazing = await t.run((ctx) => ctx.db.query("catalogGlazingOptions").collect());
+    const finish = await t.run((ctx) => ctx.db.query("catalogFinishOptions").collect());
+    for (const p of glazingPackageRows()) expect(glazing.map((g) => g.key)).toContain(p.key);
+    for (const f of finishLibraryRows()) expect(finish.map((x) => x.key)).toContain(f.key);
+    await t.mutation(internal.migrations.seedCatalogLibraries, {});
+    await t.finishAllScheduledFunctions(vi.runAllTimers);
+    expect(await t.run((ctx) => ctx.db.query("catalogFinishOptions").collect())).toHaveLength(finish.length);
+    expect(await t.run((ctx) => ctx.db.query("catalogGlazingOptions").collect())).toHaveLength(glazing.length);
+  });
+});
