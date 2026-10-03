@@ -104,6 +104,16 @@ export const SECTION: L<Record<SectionWord, string>> = {
   ro: { frame: "Toc", sash: "Cant", glass: "Geam termoizolant", spacer: "Distanțier warm-edge", bead: "Șină de prindere sticlă", gaskets: "Garnituri", band: "Contratoc", thermalBreak: "Rupere termică", steel: "Armătură de oțel", note: "Schemă orientativă: nu este detaliul constructiv al producătorului." },
 };
 
+export type HardwareWord = "hinge" | "lock" | "stay" | "roller" | "lift" | "none" | "note";
+export const HARDWARE: L<Record<HardwareWord, string>> = {
+  it: { hinge: "Cerniera", lock: "Punto di chiusura", stay: "Compasso / braccio ribalta", roller: "Carrello di scorrimento", lift: "Meccanismo di sollevamento", none: "Anta fissa: nessuna ferramenta", note: "Posizioni indicative: numero e interassi dipendono dal sistema del produttore." },
+  en: { hinge: "Hinge", lock: "Locking point", stay: "Tilt stay / arm", roller: "Sliding carriage", lift: "Lifting mechanism", none: "Fixed leaf: no hardware", note: "Indicative positions: number and spacing depend on the manufacturer's system." },
+  fr: { hinge: "Paumelle", lock: "Point de fermeture", stay: "Compas / bras oscillant", roller: "Chariot de coulissement", lift: "Mécanisme de levage", none: "Vantail fixe : pas de quincaillerie", note: "Positions indicatives : nombre et entraxes selon le système du fabricant." },
+  de: { hinge: "Band", lock: "Verriegelungspunkt", stay: "Kippschere", roller: "Laufwagen", lift: "Hebemechanismus", none: "Festverglasung: kein Beschlag", note: "Richtwerte: Anzahl und Abstände richten sich nach dem System des Herstellers." },
+  nl: { hinge: "Scharnier", lock: "Sluitpunt", stay: "Kantelarm", roller: "Looprol", lift: "Hefmechanisme", none: "Vast element: geen beslag", note: "Indicatieve posities: aantal en afstanden volgen het systeem van de fabrikant." },
+  ro: { hinge: "Balama", lock: "Punct de închidere", stay: "Braț de basculare", roller: "Cărucior de glisare", lift: "Mecanism de ridicare", none: "Cant fix: fără feronerie", note: "Poziții orientative: numărul și distanțele depind de sistemul producătorului." },
+};
+
 /** Names of the drawing tabs in the quote editor. */
 export type DrawingTab = "elevation" | "plan" | "section" | "hardware";
 export const TABS: L<Record<DrawingTab, string>> = {

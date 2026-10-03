@@ -22,7 +22,7 @@ import {
 } from "@/shared/piece-ops";
 import { defaultItem } from "@/shared/item-defaults";
 import { DIM_ABS_MAX } from "@/shared/widget-types";
-import { buildLegendScene, buildPlanScene, buildSectionScene, DRAWING_DIMENSION, DRAWING_FLIP, DRAWING_HANDLE, DRAWING_OPTIONS, DRAWING_TABS, DRAWING_TITLES, DRAWING_VIEW, drawingLocale, SceneSvg, WindowDrawing, type DrawingTab, type DrawingView } from "@/lib/drawing";
+import { buildHardwareScene, buildLegendScene, buildPlanScene, buildSectionScene, DRAWING_DIMENSION, DRAWING_FLIP, DRAWING_HANDLE, DRAWING_OPTIONS, DRAWING_TABS, DRAWING_TITLES, DRAWING_VIEW, drawingLocale, SceneSvg, WindowDrawing, type DrawingTab, type DrawingView } from "@/lib/drawing";
 import { SashPanel } from "@/components/quotes/sash-panel";
 import { catalogChoices, labelOf } from "./catalog-labels";
 import { PieceForm } from "./piece-form";
@@ -204,7 +204,7 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
           />
 
           <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-4">
-            <DrawingTabs tabs={["elevation", "plan", "section"]} value={tab} onChange={setTab} locale={locale} />
+            <DrawingTabs tabs={["elevation", "plan", "section", "hardware"]} value={tab} onChange={setTab} locale={locale} />
             <div role="tabpanel" id="drawing-panel-elevation" aria-labelledby="drawing-tab-elevation" hidden={tab !== "elevation"}>
             <div className="mb-2 flex justify-center gap-1" role="group" aria-label={DRAWING_VIEW[drawingLocale(locale)].inside + " / " + DRAWING_VIEW[drawingLocale(locale)].outside}>
               {(["inside", "outside"] as const).map((v) => (
@@ -286,6 +286,14 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
                 <SceneSvg
                   scene={buildPlanScene({ widthMm: active.width, heightMm: active.height, category: active.category, sashes: active.sashes, finish: active.color, frameType: active.frameType }, locale)}
                   ariaLabel={DRAWING_TABS[drawingLocale(locale)].plan}
+                />
+              </div>
+            ) : null}
+            {tab === "hardware" ? (
+              <div role="tabpanel" id="drawing-panel-hardware" aria-labelledby="drawing-tab-hardware" className="mx-auto w-full max-w-[420px] rounded-lg bg-white p-2">
+                <SceneSvg
+                  scene={buildHardwareScene({ widthMm: active.width, heightMm: active.height, category: active.category, sashes: active.sashes, finish: active.color, frameType: active.frameType }, locale)}
+                  ariaLabel={DRAWING_TABS[drawingLocale(locale)].hardware}
                 />
               </div>
             ) : null}
