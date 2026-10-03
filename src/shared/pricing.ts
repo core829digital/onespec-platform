@@ -94,6 +94,14 @@ export interface CatalogPayload {
     multiplier?: number;
     sortOrder: number;
     enabled: boolean;
+    /** Finish library fields (see shared/finish-library): range, group, texture swatch, production reference, warranty. */
+    range?: "skin" | "nuance" | "rock";
+    group?: string;
+    texture?: string;
+    textureW?: number;
+    textureH?: number;
+    ref?: string;
+    warrantyYears?: number;
   }>;
   /** Telaio / controtelaio types: cost multiplier + installation labour. */
   frameTypes?: Array<{

@@ -1,6 +1,7 @@
 import type { MutationCtx, QueryCtx } from "../_generated/server";
 import type { Id } from "../_generated/dataModel";
 import { DEFAULT_ACCESSORIES, DEFAULT_FRAME_TYPES } from "../../src/shared/configurator-model";
+import { finishLibraryRows } from "../../src/shared/finish-library";
 import { glazingPackageRows } from "../../src/shared/glazing-packages";
 
 /**
@@ -89,7 +90,7 @@ const EXTRA_FINISH: Array<{ key: string; labels: Labels; swatchHex: string; pric
  */
 export async function seedExtras(
   ctx: MutationCtx,
-  args: { tenantId: Id<"tenants">; configuratorId: Id<"configurators">; skipGlazingPackages?: boolean },
+  args: { tenantId: Id<"tenants">; configuratorId: Id<"configurators">; skipGlazingPackages?: boolean; skipFinishLibrary?: boolean },
 ): Promise<{ inserted: number }> {
   const scope = { tenantId: args.tenantId, configuratorId: args.configuratorId };
   let inserted = 0;
@@ -152,6 +153,7 @@ export async function seedExtras(
   }
 
   if (!args.skipGlazingPackages) inserted += (await seedGlazingPackages(ctx, args)).inserted;
+  if (!args.skipFinishLibrary) inserted += (await seedFinishLibrary(ctx, args)).inserted;
 
   const finish = await ctx.db.query("catalogFinishOptions").withIndex("by_configurator", (q) => q.eq("configuratorId", args.configuratorId)).collect();
   for (const f of EXTRA_FINISH) {
@@ -179,6 +181,28 @@ export async function seedGlazingPackages(
   for (const row of glazingPackageRows()) {
     if (existing.has(row.key)) continue;
     await ctx.db.insert("catalogGlazingOptions", { ...scope, ...row });
+    inserted++;
+  }
+  return { inserted };
+}
+
+/**
+ * Finish library (foil decors, painted RAL colours, stone effects with texture swatches): one row per entry,
+ * inserted by key; rows the tenant already has are never touched (their prices and labels survive). Rows that
+ * exist without the library fields (an older copy) are completed with them.
+ */
+export async function seedFinishLibrary(
+  ctx: MutationCtx,
+  args: { tenantId: Id<"tenants">; configuratorId: Id<"configurators"> },
+): Promise<{ inserted: number }> {
+  const scope = { tenantId: args.tenantId, configuratorId: args.configuratorId };
+  const existing = new Set(
+    (await ctx.db.query("catalogFinishOptions").withIndex("by_configurator", (q) => q.eq("configuratorId", args.configuratorId)).collect()).map((f) => f.key),
+  );
+  let inserted = 0;
+  for (const row of finishLibraryRows()) {
+    if (existing.has(row.key)) continue;
+    await ctx.db.insert("catalogFinishOptions", { ...scope, ...row });
     inserted++;
   }
   return { inserted };

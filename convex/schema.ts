@@ -378,6 +378,18 @@ export default defineSchema({
     multiplier: v.optional(v.number()),
     sortOrder: v.number(),
     enabled: v.boolean(),
+    /** Finish library: "skin" (foil decors), "nuance" (painted RAL), "rock" (stone effect). Absent on the base finishes. */
+    range: v.optional(v.union(v.literal("skin"), v.literal("nuance"), v.literal("rock"))),
+    /** Sub-group inside the range (plain / metallic / wood, colour families...). */
+    group: v.optional(v.string()),
+    /** Realistic texture image (public path) and its size in px, for decors and stone. */
+    texture: v.optional(v.string()),
+    textureW: v.optional(v.number()),
+    textureH: v.optional(v.number()),
+    /** Production reference of the decor, for the factory (not shown to customers). */
+    ref: v.optional(v.string()),
+    /** Colour durability warranty, years. */
+    warrantyYears: v.optional(v.number()),
   }).index("by_configurator", ["configuratorId"]),
 
   /** Telaio / controtelaio types: cost multiplier + installation labour by leaf count. */

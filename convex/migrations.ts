@@ -1,6 +1,6 @@
 import { internalMutation, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
-import { seedExtras, seedGlazingPackages } from "./lib/catalogExtras";
+import { seedExtras, seedFinishLibrary, seedGlazingPackages } from "./lib/catalogExtras";
 import { FULL_ACCESS_EMAILS } from "./lib/founding";
 import type { TableNames } from "./_generated/dataModel";
 
@@ -169,7 +169,7 @@ export const seedCatalogExtras = internalMutation({
     let configurators = 0;
     let inserted = 0;
     for (const c of await ctx.db.query("configurators").collect()) {
-      const r = await seedExtras(ctx, { tenantId: c.tenantId, configuratorId: c._id, skipGlazingPackages: true });
+      const r = await seedExtras(ctx, { tenantId: c.tenantId, configuratorId: c._id, skipGlazingPackages: true, skipFinishLibrary: true });
       configurators++;
       inserted += r.inserted;
     }
@@ -190,6 +190,23 @@ export const seedGlazingPackagesPage = internalMutation({
     const page = await ctx.db.query("configurators").paginate({ cursor: args.cursor ?? null, numItems: args.limit ?? 5 });
     let inserted = 0;
     for (const c of page.page) inserted += (await seedGlazingPackages(ctx, { tenantId: c.tenantId, configuratorId: c._id })).inserted;
+    return { inserted, done: page.isDone, cursor: page.continueCursor };
+  },
+});
+
+/**
+ * Add the finish library (foil decors, painted RAL colours, stone effects) to existing configurators, a few at a time:
+ *
+ *   npx convex run migrations:seedFinishLibraryPage            (repeat with the returned cursor until done)
+ *
+ * Idempotent: only inserts missing keys, never overwrites a tenant's price or label.
+ */
+export const seedFinishLibraryPage = internalMutation({
+  args: { cursor: v.optional(v.string()), limit: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    const page = await ctx.db.query("configurators").paginate({ cursor: args.cursor ?? null, numItems: args.limit ?? 3 });
+    let inserted = 0;
+    for (const c of page.page) inserted += (await seedFinishLibrary(ctx, { tenantId: c.tenantId, configuratorId: c._id })).inserted;
     return { inserted, done: page.isDone, cursor: page.continueCursor };
   },
 });

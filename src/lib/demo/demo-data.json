@@ -254,6 +254,3892 @@
     },
     {
      "enabled": true,
+     "group": "plain",
+     "key": "s01",
+     "labels": {
+      "de": "Crystal White Ash P 9294",
+      "en": "Crystal White Ash P 9294",
+      "fr": "Crystal White Ash P 9294",
+      "it": "Crystal White Ash P 9294",
+      "nl": "Crystal White Ash P 9294",
+      "ro": "Crystal White Ash P 9294"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.12.91.000017 - 117900",
+     "sortOrder": 1000,
+     "swatchHex": "#E4E1DB",
+     "texture": "/finishes/s01.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s02",
+     "labels": {
+      "de": "White 9152 VLF",
+      "en": "White 9152 VLF",
+      "fr": "White 9152 VLF",
+      "it": "White 9152 VLF",
+      "nl": "White 9152 VLF",
+      "ro": "White 9152 VLF"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.91.000001 - 102200",
+     "sortOrder": 1001,
+     "swatchHex": "#E3E0D9",
+     "texture": "/finishes/s02.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s03",
+     "labels": {
+      "de": "White 9152",
+      "en": "White 9152",
+      "fr": "White 9152",
+      "it": "White 9152",
+      "nl": "White 9152",
+      "ro": "White 9152"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.91.000001 - 116801",
+     "sortOrder": 1002,
+     "swatchHex": "#E6E1D7",
+     "texture": "/finishes/s03.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s04",
+     "labels": {
+      "de": "White 9152 Ulti-Matt",
+      "en": "White 9152 Ulti-Matt",
+      "fr": "White 9152 Ulti-Matt",
+      "it": "White 9152 Ulti-Matt",
+      "nl": "White 9152 Ulti-Matt",
+      "ro": "White 9152 Ulti-Matt"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.91.000001 - 504700",
+     "sortOrder": 1003,
+     "swatchHex": "#E4E0D6",
+     "texture": "/finishes/s04.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s05",
+     "labels": {
+      "de": "Cream White 1379 VLF",
+      "en": "Cream White 1379 VLF",
+      "fr": "Cream White 1379 VLF",
+      "it": "Cream White 1379 VLF",
+      "nl": "Cream White 1379 VLF",
+      "ro": "Cream White 1379 VLF"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.11.000001 - 102200",
+     "sortOrder": 1004,
+     "swatchHex": "#E2D9CC",
+     "texture": "/finishes/s05.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s06",
+     "labels": {
+      "de": "Cream White 1379",
+      "en": "Cream White 1379",
+      "fr": "Cream White 1379",
+      "it": "Cream White 1379",
+      "nl": "Cream White 1379",
+      "ro": "Cream White 1379"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.11.000001 - 116700",
+     "sortOrder": 1005,
+     "swatchHex": "#E4DBCC",
+     "texture": "/finishes/s06.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s07",
+     "labels": {
+      "de": "Cream White 1379 Ulti-Matt",
+      "en": "Cream White 1379 Ulti-Matt",
+      "fr": "Cream White 1379 Ulti-Matt",
+      "it": "Cream White 1379 Ulti-Matt",
+      "nl": "Cream White 1379 Ulti-Matt",
+      "ro": "Cream White 1379 Ulti-Matt"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.11.000001 - 504700",
+     "sortOrder": 1006,
+     "swatchHex": "#EFE4D6",
+     "texture": "/finishes/s07.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s08",
+     "labels": {
+      "de": "Light Ivory 1015",
+      "en": "Light Ivory 1015",
+      "fr": "Light Ivory 1015",
+      "it": "Light Ivory 1015",
+      "nl": "Light Ivory 1015",
+      "ro": "Light Ivory 1015"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.11.000006 - 116700",
+     "sortOrder": 1007,
+     "swatchHex": "#AFA087",
+     "texture": "/finishes/s08.jpg",
+     "textureH": 113,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s09",
+     "labels": {
+      "de": "Light Grey 7251",
+      "en": "Light Grey 7251",
+      "fr": "Light Grey 7251",
+      "it": "Light Grey 7251",
+      "nl": "Light Grey 7251",
+      "ro": "Light Grey 7251"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.71.000011 - 116700",
+     "sortOrder": 1008,
+     "swatchHex": "#CBCFCD",
+     "texture": "/finishes/s09.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s10",
+     "labels": {
+      "de": "Grey 7155 VLF",
+      "en": "Grey 7155 VLF",
+      "fr": "Grey 7155 VLF",
+      "it": "Grey 7155 VLF",
+      "nl": "Grey 7155 VLF",
+      "ro": "Grey 7155 VLF"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.71.000007 - 102200",
+     "sortOrder": 1009,
+     "swatchHex": "#8A939E",
+     "texture": "/finishes/s10.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s11",
+     "labels": {
+      "de": "Grey 7155",
+      "en": "Grey 7155",
+      "fr": "Grey 7155",
+      "it": "Grey 7155",
+      "nl": "Grey 7155",
+      "ro": "Grey 7155"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.71.000007 - 116700",
+     "sortOrder": 1010,
+     "swatchHex": "#8F989C",
+     "texture": "/finishes/s11.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s12",
+     "labels": {
+      "de": "Moondance C-31 N Smooth",
+      "en": "Moondance C-31 N Smooth",
+      "fr": "Moondance C-31 N Smooth",
+      "it": "Moondance C-31 N Smooth",
+      "nl": "Moondance C-31 N Smooth",
+      "ro": "Moondance C-31 N Smooth"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.12.71.000018 - 808302",
+     "sortOrder": 1011,
+     "swatchHex": "#848985",
+     "texture": "/finishes/s12.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s13",
+     "labels": {
+      "de": "Trompet C-32 N Smooth",
+      "en": "Trompet C-32 N Smooth",
+      "fr": "Trompet C-32 N Smooth",
+      "it": "Trompet C-32 N Smooth",
+      "nl": "Trompet C-32 N Smooth",
+      "ro": "Trompet C-32 N Smooth"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.12.71.000019 - 808302",
+     "sortOrder": 1012,
+     "swatchHex": "#656058",
+     "texture": "/finishes/s13.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s14",
+     "labels": {
+      "de": "Quartz Grey 7039",
+      "en": "Quartz Grey 7039",
+      "fr": "Quartz Grey 7039",
+      "it": "Quartz Grey 7039",
+      "nl": "Quartz Grey 7039",
+      "ro": "Quartz Grey 7039"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.71.000012 - 116700",
+     "sortOrder": 1013,
+     "swatchHex": "#585954",
+     "texture": "/finishes/s14.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s15",
+     "labels": {
+      "de": "Basalt Grey 7012",
+      "en": "Basalt Grey 7012",
+      "fr": "Basalt Grey 7012",
+      "it": "Basalt Grey 7012",
+      "nl": "Basalt Grey 7012",
+      "ro": "Basalt Grey 7012"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.71.000010 - 116700",
+     "sortOrder": 1014,
+     "swatchHex": "#586163",
+     "texture": "/finishes/s15.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s16",
+     "labels": {
+      "de": "Anthracite Grey 7016 Ulti-Matt",
+      "en": "Anthracite Grey 7016 Ulti-Matt",
+      "fr": "Anthracite Grey 7016 Ulti-Matt",
+      "it": "Anthracite Grey 7016 Ulti-Matt",
+      "nl": "Anthracite Grey 7016 Ulti-Matt",
+      "ro": "Anthracite Grey 7016 Ulti-Matt"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.71.000001 - 504700",
+     "sortOrder": 1015,
+     "swatchHex": "#4E4B4B",
+     "texture": "/finishes/s16.jpg",
+     "textureH": 225,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s17",
+     "labels": {
+      "de": "Anthracite Grey 7016",
+      "en": "Anthracite Grey 7016",
+      "fr": "Anthracite Grey 7016",
+      "it": "Anthracite Grey 7016",
+      "nl": "Anthracite Grey 7016",
+      "ro": "Anthracite Grey 7016"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.71.000001 - 116700",
+     "sortOrder": 1016,
+     "swatchHex": "#263339",
+     "texture": "/finishes/s17.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s18",
+     "labels": {
+      "de": "Anthracite Grey 7016 VLF",
+      "en": "Anthracite Grey 7016 VLF",
+      "fr": "Anthracite Grey 7016 VLF",
+      "it": "Anthracite Grey 7016 VLF",
+      "nl": "Anthracite Grey 7016 VLF",
+      "ro": "Anthracite Grey 7016 VLF"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.71.000001 - 102200",
+     "sortOrder": 1017,
+     "swatchHex": "#4E4B4B",
+     "texture": "/finishes/s18.jpg",
+     "textureH": 223,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s19",
+     "labels": {
+      "de": "Anthracite Grey 7016 Smooth",
+      "en": "Anthracite Grey 7016 Smooth",
+      "fr": "Anthracite Grey 7016 Smooth",
+      "it": "Anthracite Grey 7016 Smooth",
+      "nl": "Anthracite Grey 7016 Smooth",
+      "ro": "Anthracite Grey 7016 Smooth"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.12.71.000003 - 116701",
+     "sortOrder": 1018,
+     "swatchHex": "#263339",
+     "texture": "/finishes/s19.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s20",
+     "labels": {
+      "de": "Black Ulti-Matt",
+      "en": "Black Ulti-Matt",
+      "fr": "Black Ulti-Matt",
+      "it": "Black Ulti-Matt",
+      "nl": "Black Ulti-Matt",
+      "ro": "Black Ulti-Matt"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.01.000002 - 504700",
+     "sortOrder": 1019,
+     "swatchHex": "#3A3B41",
+     "texture": "/finishes/s20.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s21",
+     "labels": {
+      "de": "Black Smooth 2",
+      "en": "Black Smooth 2",
+      "fr": "Black Smooth 2",
+      "it": "Black Smooth 2",
+      "nl": "Black Smooth 2",
+      "ro": "Black Smooth 2"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.12.01.000004 - 809700",
+     "sortOrder": 1020,
+     "swatchHex": "#373536",
+     "texture": "/finishes/s21.jpg",
+     "textureH": 221,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s22",
+     "labels": {
+      "de": "Black VLF",
+      "en": "Black VLF",
+      "fr": "Black VLF",
+      "it": "Black VLF",
+      "nl": "Black VLF",
+      "ro": "Black VLF"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.01.000002 - 102200",
+     "sortOrder": 1021,
+     "swatchHex": "#353334",
+     "texture": "/finishes/s22.jpg",
+     "textureH": 221,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s23",
+     "labels": {
+      "de": "Black",
+      "en": "Black",
+      "fr": "Black",
+      "it": "Black",
+      "nl": "Black",
+      "ro": "Black"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.01.000002 - 116700",
+     "sortOrder": 1022,
+     "swatchHex": "#434041",
+     "texture": "/finishes/s23.jpg",
+     "textureH": 221,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s24",
+     "labels": {
+      "de": "Choco Brown 8210",
+      "en": "Choco Brown 8210",
+      "fr": "Choco Brown 8210",
+      "it": "Choco Brown 8210",
+      "nl": "Choco Brown 8210",
+      "ro": "Choco Brown 8210"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.12.81.000011 - 116701",
+     "sortOrder": 1023,
+     "swatchHex": "#605145",
+     "texture": "/finishes/s24.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s25",
+     "labels": {
+      "de": "Brown 8972",
+      "en": "Brown 8972",
+      "fr": "Brown 8972",
+      "it": "Brown 8972",
+      "nl": "Brown 8972",
+      "ro": "Brown 8972"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.12.81.000016 - 116701",
+     "sortOrder": 1024,
+     "swatchHex": "#372C24",
+     "texture": "/finishes/s25.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s26",
+     "labels": {
+      "de": "Ceylon C-34 N Smooth",
+      "en": "Ceylon C-34 N Smooth",
+      "fr": "Ceylon C-34 N Smooth",
+      "it": "Ceylon C-34 N Smooth",
+      "nl": "Ceylon C-34 N Smooth",
+      "ro": "Ceylon C-34 N Smooth"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.12.81.000061 - 808302",
+     "sortOrder": 1025,
+     "swatchHex": "#191913",
+     "texture": "/finishes/s26.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s27",
+     "labels": {
+      "de": "Ash C-35 N Smooth",
+      "en": "Ash C-35 N Smooth",
+      "fr": "Ash C-35 N Smooth",
+      "it": "Ash C-35 N Smooth",
+      "nl": "Ash C-35 N Smooth",
+      "ro": "Ash C-35 N Smooth"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.12.81.000065 - 808302",
+     "sortOrder": 1026,
+     "swatchHex": "#242627",
+     "texture": "/finishes/s27.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s28",
+     "labels": {
+      "de": "Chocolate Brown 8875",
+      "en": "Chocolate Brown 8875",
+      "fr": "Chocolate Brown 8875",
+      "it": "Chocolate Brown 8875",
+      "nl": "Chocolate Brown 8875",
+      "ro": "Chocolate Brown 8875"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.81.000018 - 116700",
+     "sortOrder": 1027,
+     "swatchHex": "#1B0401",
+     "texture": "/finishes/s28.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s29",
+     "labels": {
+      "de": "Shadow Black Smooth",
+      "en": "Shadow Black Smooth",
+      "fr": "Shadow Black Smooth",
+      "it": "Shadow Black Smooth",
+      "nl": "Shadow Black Smooth",
+      "ro": "Shadow Black Smooth"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.12.81.000041 - 808302",
+     "sortOrder": 1028,
+     "swatchHex": "#180F16",
+     "texture": "/finishes/s29.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s30",
+     "labels": {
+      "de": "Black Cherry 301",
+      "en": "Black Cherry 301",
+      "fr": "Black Cherry 301",
+      "it": "Black Cherry 301",
+      "nl": "Black Cherry 301",
+      "ro": "Black Cherry 301"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.3202 301 - 116700",
+     "sortOrder": 1029,
+     "swatchHex": "#270608",
+     "texture": "/finishes/s30.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s31",
+     "labels": {
+      "de": "Agate Grey 7038",
+      "en": "Agate Grey 7038",
+      "fr": "Agate Grey 7038",
+      "it": "Agate Grey 7038",
+      "nl": "Agate Grey 7038",
+      "ro": "Agate Grey 7038"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.71.000005 - 116700",
+     "sortOrder": 1030,
+     "swatchHex": "#B6BCB0",
+     "texture": "/finishes/s31.jpg",
+     "textureH": 228,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s32",
+     "labels": {
+      "de": "Moss Green 6005",
+      "en": "Moss Green 6005",
+      "fr": "Moss Green 6005",
+      "it": "Moss Green 6005",
+      "nl": "Moss Green 6005",
+      "ro": "Moss Green 6005"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.61.000002 - 116700",
+     "sortOrder": 1031,
+     "swatchHex": "#014033",
+     "texture": "/finishes/s32.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s33",
+     "labels": {
+      "de": "Dark Green 6125 VLF",
+      "en": "Dark Green 6125 VLF",
+      "fr": "Dark Green 6125 VLF",
+      "it": "Dark Green 6125 VLF",
+      "nl": "Dark Green 6125 VLF",
+      "ro": "Dark Green 6125 VLF"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.61.000001 - 102200",
+     "sortOrder": 1032,
+     "swatchHex": "#474541",
+     "texture": "/finishes/s33.jpg",
+     "textureH": 222,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s34",
+     "labels": {
+      "de": "Dark Green 6125",
+      "en": "Dark Green 6125",
+      "fr": "Dark Green 6125",
+      "it": "Dark Green 6125",
+      "nl": "Dark Green 6125",
+      "ro": "Dark Green 6125"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.61.000001 - 116700",
+     "sortOrder": 1033,
+     "swatchHex": "#062B1D",
+     "texture": "/finishes/s34.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s35",
+     "labels": {
+      "de": "Brilliant Blue 5007",
+      "en": "Brilliant Blue 5007",
+      "fr": "Brilliant Blue 5007",
+      "it": "Brilliant Blue 5007",
+      "nl": "Brilliant Blue 5007",
+      "ro": "Brilliant Blue 5007"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.51.000002 - 116700",
+     "sortOrder": 1034,
+     "swatchHex": "#136186",
+     "texture": "/finishes/s35.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s36",
+     "labels": {
+      "de": "Dark Blue 5030",
+      "en": "Dark Blue 5030",
+      "fr": "Dark Blue 5030",
+      "it": "Dark Blue 5030",
+      "nl": "Dark Blue 5030",
+      "ro": "Dark Blue 5030"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.12.51.000004 - 116701",
+     "sortOrder": 1035,
+     "swatchHex": "#0068A4",
+     "texture": "/finishes/s36.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s37",
+     "labels": {
+      "de": "Steel Blue 5150",
+      "en": "Steel Blue 5150",
+      "fr": "Steel Blue 5150",
+      "it": "Steel Blue 5150",
+      "nl": "Steel Blue 5150",
+      "ro": "Steel Blue 5150"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.51.000001 - 116700",
+     "sortOrder": 1036,
+     "swatchHex": "#01203B",
+     "texture": "/finishes/s37.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s38",
+     "labels": {
+      "de": "Wine Red 3005",
+      "en": "Wine Red 3005",
+      "fr": "Wine Red 3005",
+      "it": "Wine Red 3005",
+      "nl": "Wine Red 3005",
+      "ro": "Wine Red 3005"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.31.000002 - 116700",
+     "sortOrder": 1037,
+     "swatchHex": "#51001E",
+     "texture": "/finishes/s38.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "metallic",
+     "key": "s39",
+     "labels": {
+      "de": "Iron Glimmer White",
+      "en": "Iron Glimmer White",
+      "fr": "Iron Glimmer White",
+      "it": "Iron Glimmer White",
+      "nl": "Iron Glimmer White",
+      "ro": "Iron Glimmer White"
+     },
+     "priceCents": 9500,
+     "range": "skin",
+     "ref": "1.0065 007 - 341300",
+     "sortOrder": 1038,
+     "swatchHex": "#FEFEF3",
+     "texture": "/finishes/s39.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "metallic",
+     "key": "s40",
+     "labels": {
+      "de": "Iron Glimmer Slate",
+      "en": "Iron Glimmer Slate",
+      "fr": "Iron Glimmer Slate",
+      "it": "Iron Glimmer Slate",
+      "nl": "Iron Glimmer Slate",
+      "ro": "Iron Glimmer Slate"
+     },
+     "priceCents": 9500,
+     "range": "skin",
+     "ref": "1.0065 002 - 341300",
+     "sortOrder": 1039,
+     "swatchHex": "#FEFFF7",
+     "texture": "/finishes/s40.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "metallic",
+     "key": "s41",
+     "labels": {
+      "de": "Iron Glimmer Anthracite",
+      "en": "Iron Glimmer Anthracite",
+      "fr": "Iron Glimmer Anthracite",
+      "it": "Iron Glimmer Anthracite",
+      "nl": "Iron Glimmer Anthracite",
+      "ro": "Iron Glimmer Anthracite"
+     },
+     "priceCents": 9500,
+     "range": "skin",
+     "ref": "1.0065 001 - 341300",
+     "sortOrder": 1040,
+     "swatchHex": "#555F63",
+     "texture": "/finishes/s41.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "metallic",
+     "key": "s42",
+     "labels": {
+      "de": "Iron Glimmer Brown",
+      "en": "Iron Glimmer Brown",
+      "fr": "Iron Glimmer Brown",
+      "it": "Iron Glimmer Brown",
+      "nl": "Iron Glimmer Brown",
+      "ro": "Iron Glimmer Brown"
+     },
+     "priceCents": 9500,
+     "range": "skin",
+     "ref": "1.0065 009 - 341300",
+     "sortOrder": 1041,
+     "swatchHex": "#6B5D59",
+     "texture": "/finishes/s42.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "metallic",
+     "key": "s43",
+     "labels": {
+      "de": "Silver D Smooth",
+      "en": "Silver D Smooth",
+      "fr": "Silver D Smooth",
+      "it": "Silver D Smooth",
+      "nl": "Silver D Smooth",
+      "ro": "Silver D Smooth"
+     },
+     "priceCents": 9500,
+     "range": "skin",
+     "ref": "02.12.76.000013 - 808302",
+     "sortOrder": 1042,
+     "swatchHex": "#90918D",
+     "texture": "/finishes/s43.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "metallic",
+     "key": "s44",
+     "labels": {
+      "de": "Silver V 9705",
+      "en": "Silver V 9705",
+      "fr": "Silver V 9705",
+      "it": "Silver V 9705",
+      "nl": "Silver V 9705",
+      "ro": "Silver V 9705"
+     },
+     "priceCents": 9500,
+     "range": "skin",
+     "ref": "02.12.76.000014 - 119501",
+     "sortOrder": 1043,
+     "swatchHex": "#919496",
+     "texture": "/finishes/s44.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "metallic",
+     "key": "s45",
+     "labels": {
+      "de": "Aluminium Brush Effect",
+      "en": "Aluminium Brush Effect",
+      "fr": "Aluminium Brush Effect",
+      "it": "Aluminium Brush Effect",
+      "nl": "Aluminium Brush Effect",
+      "ro": "Aluminium Brush Effect"
+     },
+     "priceCents": 9500,
+     "range": "skin",
+     "ref": "9.1298 702 - 119501",
+     "sortOrder": 1044,
+     "swatchHex": "#ACB3B1",
+     "texture": "/finishes/s45.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "metallic",
+     "key": "s46",
+     "labels": {
+      "de": "Silver Brush Effect",
+      "en": "Silver Brush Effect",
+      "fr": "Silver Brush Effect",
+      "it": "Silver Brush Effect",
+      "nl": "Silver Brush Effect",
+      "ro": "Silver Brush Effect"
+     },
+     "priceCents": 9500,
+     "range": "skin",
+     "ref": "9.1298 703 - 119501",
+     "sortOrder": 1045,
+     "swatchHex": "#969B9C",
+     "texture": "/finishes/s46.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "metallic",
+     "key": "s47",
+     "labels": {
+      "de": "Pyrite",
+      "en": "Pyrite",
+      "fr": "Pyrite",
+      "it": "Pyrite",
+      "nl": "Pyrite",
+      "ro": "Pyrite"
+     },
+     "priceCents": 9500,
+     "range": "skin",
+     "ref": "02.12.17.000001 - 119501",
+     "sortOrder": 1046,
+     "swatchHex": "#8A775E",
+     "texture": "/finishes/s47.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "metallic",
+     "key": "s48",
+     "labels": {
+      "de": "Flemish Gold C-33 N Smooth",
+      "en": "Flemish Gold C-33 N Smooth",
+      "fr": "Flemish Gold C-33 N Smooth",
+      "it": "Flemish Gold C-33 N Smooth",
+      "nl": "Flemish Gold C-33 N Smooth",
+      "ro": "Flemish Gold C-33 N Smooth"
+     },
+     "priceCents": 9500,
+     "range": "skin",
+     "ref": "02.12.81.000062 - 808302",
+     "sortOrder": 1047,
+     "swatchHex": "#484339",
+     "texture": "/finishes/s48.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "metallic",
+     "key": "s49",
+     "labels": {
+      "de": "Bronze Platinum 1",
+      "en": "Bronze Platinum 1",
+      "fr": "Bronze Platinum 1",
+      "it": "Bronze Platinum 1",
+      "nl": "Bronze Platinum 1",
+      "ro": "Bronze Platinum 1"
+     },
+     "priceCents": 9500,
+     "range": "skin",
+     "ref": "9.1293 714 - 119501",
+     "sortOrder": 1048,
+     "swatchHex": "#4A3A1A",
+     "texture": "/finishes/s49.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "metallic",
+     "key": "s50",
+     "labels": {
+      "de": "Champagne Smooth 2",
+      "en": "Champagne Smooth 2",
+      "fr": "Champagne Smooth 2",
+      "it": "Champagne Smooth 2",
+      "nl": "Champagne Smooth 2",
+      "ro": "Champagne Smooth 2"
+     },
+     "priceCents": 9500,
+     "range": "skin",
+     "ref": "02.20.17.000001 - 809700",
+     "sortOrder": 1049,
+     "swatchHex": "#8C896A",
+     "texture": "/finishes/s50.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s51",
+     "labels": {
+      "de": "Weissbach Oak VLF",
+      "en": "Weissbach Oak VLF",
+      "fr": "Weissbach Oak VLF",
+      "it": "Weissbach Oak VLF",
+      "nl": "Weissbach Oak VLF",
+      "ro": "Weissbach Oak VLF"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.3241 306 - 102200",
+     "sortOrder": 1050,
+     "swatchHex": "#D1C1A7",
+     "texture": "/finishes/s51.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s52",
+     "labels": {
+      "de": "Mountain Oak",
+      "en": "Mountain Oak",
+      "fr": "Mountain Oak",
+      "it": "Mountain Oak",
+      "nl": "Mountain Oak",
+      "ro": "Mountain Oak"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "2.0057 005 - 130300",
+     "sortOrder": 1051,
+     "swatchHex": "#7C6958",
+     "texture": "/finishes/s52.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s53",
+     "labels": {
+      "de": "Monument Oak",
+      "en": "Monument Oak",
+      "fr": "Monument Oak",
+      "it": "Monument Oak",
+      "nl": "Monument Oak",
+      "ro": "Monument Oak"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "2.0057 006 - 130300",
+     "sortOrder": 1052,
+     "swatchHex": "#706459",
+     "texture": "/finishes/s53.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s54",
+     "labels": {
+      "de": "Mountain Pine",
+      "en": "Mountain Pine",
+      "fr": "Mountain Pine",
+      "it": "Mountain Pine",
+      "nl": "Mountain Pine",
+      "ro": "Mountain Pine"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.3069 341 - 116700",
+     "sortOrder": 1053,
+     "swatchHex": "#B88658",
+     "texture": "/finishes/s54.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s55",
+     "labels": {
+      "de": "Desert Oak",
+      "en": "Desert Oak",
+      "fr": "Desert Oak",
+      "it": "Desert Oak",
+      "nl": "Desert Oak",
+      "ro": "Desert Oak"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "2.0057 004 - 130300",
+     "sortOrder": 1054,
+     "swatchHex": "#AD7E5A",
+     "texture": "/finishes/s55.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s56",
+     "labels": {
+      "de": "Natural Oak FL-G",
+      "en": "Natural Oak FL-G",
+      "fr": "Natural Oak FL-G",
+      "it": "Natural Oak FL-G",
+      "nl": "Natural Oak FL-G",
+      "ro": "Natural Oak FL-G"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.3118 376 - 116801",
+     "sortOrder": 1055,
+     "swatchHex": "#B39065",
+     "texture": "/finishes/s56.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s57",
+     "labels": {
+      "de": "Ginger Oak VLF",
+      "en": "Ginger Oak VLF",
+      "fr": "Ginger Oak VLF",
+      "it": "Ginger Oak VLF",
+      "nl": "Ginger Oak VLF",
+      "ro": "Ginger Oak VLF"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "3.0078 004 - 102200",
+     "sortOrder": 1056,
+     "swatchHex": "#B3824A",
+     "texture": "/finishes/s57.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s58",
+     "labels": {
+      "de": "Irish Oak",
+      "en": "Irish Oak",
+      "fr": "Irish Oak",
+      "it": "Irish Oak",
+      "nl": "Irish Oak",
+      "ro": "Irish Oak"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.3211 305 - 114800",
+     "sortOrder": 1057,
+     "swatchHex": "#A87A4F",
+     "texture": "/finishes/s58.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s59",
+     "labels": {
+      "de": "Winchester XA 46830",
+      "en": "Winchester XA 46830",
+      "fr": "Winchester XA 46830",
+      "it": "Winchester XA 46830",
+      "nl": "Winchester XA 46830",
+      "ro": "Winchester XA 46830"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "4.0175 005 - 114800",
+     "sortOrder": 1058,
+     "swatchHex": "#91663E",
+     "texture": "/finishes/s59.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s60",
+     "labels": {
+      "de": "Honey Oak VLF",
+      "en": "Honey Oak VLF",
+      "fr": "Honey Oak VLF",
+      "it": "Honey Oak VLF",
+      "nl": "Honey Oak VLF",
+      "ro": "Honey Oak VLF"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "3.0078 007 - 102200",
+     "sortOrder": 1059,
+     "swatchHex": "#84522D",
+     "texture": "/finishes/s60.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s61",
+     "labels": {
+      "de": "Stripe Douglas Fir",
+      "en": "Stripe Douglas Fir",
+      "fr": "Stripe Douglas Fir",
+      "it": "Stripe Douglas Fir",
+      "nl": "Stripe Douglas Fir",
+      "ro": "Stripe Douglas Fir"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.3152 309 - 116700",
+     "sortOrder": 1060,
+     "swatchHex": "#935730",
+     "texture": "/finishes/s61.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s62",
+     "labels": {
+      "de": "Rustic Cherry",
+      "en": "Rustic Cherry",
+      "fr": "Rustic Cherry",
+      "it": "Rustic Cherry",
+      "nl": "Rustic Cherry",
+      "ro": "Rustic Cherry"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.3214 307 - 119500",
+     "sortOrder": 1061,
+     "swatchHex": "#93623B",
+     "texture": "/finishes/s62.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s63",
+     "labels": {
+      "de": "Siena PL 46829",
+      "en": "Siena PL 46829",
+      "fr": "Siena PL 46829",
+      "it": "Siena PL 46829",
+      "nl": "Siena PL 46829",
+      "ro": "Siena PL 46829"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "4.0131 002 - 114800",
+     "sortOrder": 1062,
+     "swatchHex": "#724B2A",
+     "texture": "/finishes/s63.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "metallic",
+     "key": "s64",
+     "labels": {
+      "de": "Golden Oak",
+      "en": "Golden Oak",
+      "fr": "Golden Oak",
+      "it": "Golden Oak",
+      "nl": "Golden Oak",
+      "ro": "Golden Oak"
+     },
+     "priceCents": 9500,
+     "range": "skin",
+     "ref": "9.2178 301 - 116700",
+     "sortOrder": 1063,
+     "swatchHex": "#754512",
+     "texture": "/finishes/s64.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s65",
+     "labels": {
+      "de": "Winchester XC 46843",
+      "en": "Winchester XC 46843",
+      "fr": "Winchester XC 46843",
+      "it": "Winchester XC 46843",
+      "nl": "Winchester XC 46843",
+      "ro": "Winchester XC 46843"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "4.0175 007 - 114800",
+     "sortOrder": 1064,
+     "swatchHex": "#502C0A",
+     "texture": "/finishes/s65.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s66",
+     "labels": {
+      "de": "Siena PR 46827",
+      "en": "Siena PR 46827",
+      "fr": "Siena PR 46827",
+      "it": "Siena PR 46827",
+      "nl": "Siena PR 46827",
+      "ro": "Siena PR 46827"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "4.0131 006 - 114800",
+     "sortOrder": 1065,
+     "swatchHex": "#5A3522",
+     "texture": "/finishes/s66.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s67",
+     "labels": {
+      "de": "Siena PN 46828",
+      "en": "Siena PN 46828",
+      "fr": "Siena PN 46828",
+      "it": "Siena PN 46828",
+      "nl": "Siena PN 46828",
+      "ro": "Siena PN 46828"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "4.0131 004 - 114800",
+     "sortOrder": 1066,
+     "swatchHex": "#3A2517",
+     "texture": "/finishes/s67.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s68",
+     "labels": {
+      "de": "Amaranth Oak VLF",
+      "en": "Amaranth Oak VLF",
+      "fr": "Amaranth Oak VLF",
+      "it": "Amaranth Oak VLF",
+      "nl": "Amaranth Oak VLF",
+      "ro": "Amaranth Oak VLF"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "3.0078 008 - 102200",
+     "sortOrder": 1067,
+     "swatchHex": "#523C30",
+     "texture": "/finishes/s68.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s69",
+     "labels": {
+      "de": "Walnut V",
+      "en": "Walnut V",
+      "fr": "Walnut V",
+      "it": "Walnut V",
+      "nl": "Walnut V",
+      "ro": "Walnut V"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.2178 307 - 116700",
+     "sortOrder": 1068,
+     "swatchHex": "#442912",
+     "texture": "/finishes/s69.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s70",
+     "labels": {
+      "de": "Rustic Oak 1",
+      "en": "Rustic Oak 1",
+      "fr": "Rustic Oak 1",
+      "it": "Rustic Oak 1",
+      "nl": "Rustic Oak 1",
+      "ro": "Rustic Oak 1"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.3149 308 - 116700",
+     "sortOrder": 1069,
+     "swatchHex": "#3E230A",
+     "texture": "/finishes/s70.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s71",
+     "labels": {
+      "de": "Macore",
+      "en": "Macore",
+      "fr": "Macore",
+      "it": "Macore",
+      "nl": "Macore",
+      "ro": "Macore"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.3162 302 - 116700",
+     "sortOrder": 1070,
+     "swatchHex": "#51230E",
+     "texture": "/finishes/s71.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s72",
+     "labels": {
+      "de": "Sapeli",
+      "en": "Sapeli",
+      "fr": "Sapeli",
+      "it": "Sapeli",
+      "nl": "Sapeli",
+      "ro": "Sapeli"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.2065 321 - 116700",
+     "sortOrder": 1071,
+     "swatchHex": "#37130B",
+     "texture": "/finishes/s72.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s73",
+     "labels": {
+      "de": "Mahogany",
+      "en": "Mahogany",
+      "fr": "Mahogany",
+      "it": "Mahogany",
+      "nl": "Mahogany",
+      "ro": "Mahogany"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.2097 313 - 116700",
+     "sortOrder": 1072,
+     "swatchHex": "#2E0D09",
+     "texture": "/finishes/s73.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s74",
+     "labels": {
+      "de": "Black Cherry 701",
+      "en": "Black Cherry 701",
+      "fr": "Black Cherry 701",
+      "it": "Black Cherry 701",
+      "nl": "Black Cherry 701",
+      "ro": "Black Cherry 701"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.3202 701 - 116701",
+     "sortOrder": 1073,
+     "swatchHex": "#270608",
+     "texture": "/finishes/s74.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s75",
+     "labels": {
+      "de": "Dark Oak FL-F1",
+      "en": "Dark Oak FL-F1",
+      "fr": "Dark Oak FL-F1",
+      "it": "Dark Oak FL-F1",
+      "nl": "Dark Oak FL-F1",
+      "ro": "Dark Oak FL-F1"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.2052 389 - 116700",
+     "sortOrder": 1074,
+     "swatchHex": "#27150A",
+     "texture": "/finishes/s75.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s76",
+     "labels": {
+      "de": "Pepper Oak Super-Matt",
+      "en": "Pepper Oak Super-Matt",
+      "fr": "Pepper Oak Super-Matt",
+      "it": "Pepper Oak Super-Matt",
+      "nl": "Pepper Oak Super-Matt",
+      "ro": "Pepper Oak Super-Matt"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "2.0078 001 - 102200",
+     "sortOrder": 1075,
+     "swatchHex": "#C4CAC7",
+     "texture": "/finishes/s76.jpg",
+     "textureH": 112,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s77",
+     "labels": {
+      "de": "Weissbach Oak Super-Matt",
+      "en": "Weissbach Oak Super-Matt",
+      "fr": "Weissbach Oak Super-Matt",
+      "it": "Weissbach Oak Super-Matt",
+      "nl": "Weissbach Oak Super-Matt",
+      "ro": "Weissbach Oak Super-Matt"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.3241 306 - 102200",
+     "sortOrder": 1076,
+     "swatchHex": "#C7B69D",
+     "texture": "/finishes/s77.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s78",
+     "labels": {
+      "de": "Ginger Oak Super-Matt",
+      "en": "Ginger Oak Super-Matt",
+      "fr": "Ginger Oak Super-Matt",
+      "it": "Ginger Oak Super-Matt",
+      "nl": "Ginger Oak Super-Matt",
+      "ro": "Ginger Oak Super-Matt"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "3.0078 004 - 102200",
+     "sortOrder": 1077,
+     "swatchHex": "#A67845",
+     "texture": "/finishes/s78.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s79",
+     "labels": {
+      "de": "Honey Oak Super-Matt",
+      "en": "Honey Oak Super-Matt",
+      "fr": "Honey Oak Super-Matt",
+      "it": "Honey Oak Super-Matt",
+      "nl": "Honey Oak Super-Matt",
+      "ro": "Honey Oak Super-Matt"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "3.0078 007 - 102200",
+     "sortOrder": 1078,
+     "swatchHex": "#734626",
+     "texture": "/finishes/s79.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "special",
+     "key": "std-profile-white",
+     "labels": {
+      "de": "Profilweiß",
+      "en": "Profile white",
+      "fr": "Blanc profilé",
+      "it": "Bianco profilo",
+      "nl": "Profielwit",
+      "ro": "Alb profil"
+     },
+     "priceCents": 0,
+     "range": "nuance",
+     "sortOrder": 2000,
+     "swatchHex": "#FFFFFF",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "warm",
+     "key": "ral-1000",
+     "labels": {
+      "de": "Beige RAL 1000",
+      "en": "Beige RAL 1000",
+      "fr": "Beige RAL 1000",
+      "it": "Beige RAL 1000",
+      "nl": "Beige RAL 1000",
+      "ro": "Bej RAL 1000"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2001,
+     "swatchHex": "#D1C687",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "warm",
+     "key": "ral-1001",
+     "labels": {
+      "de": "Beige RAL 1001",
+      "en": "Beige RAL 1001",
+      "fr": "Beige RAL 1001",
+      "it": "Beige RAL 1001",
+      "nl": "Beige RAL 1001",
+      "ro": "Bej RAL 1001"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2002,
+     "swatchHex": "#D1AD76",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "warm",
+     "key": "ral-1002",
+     "labels": {
+      "de": "Beige RAL 1002",
+      "en": "Beige RAL 1002",
+      "fr": "Beige RAL 1002",
+      "it": "Beige RAL 1002",
+      "nl": "Beige RAL 1002",
+      "ro": "Bej RAL 1002"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2003,
+     "swatchHex": "#E7BC71",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "warm",
+     "key": "ral-1004",
+     "labels": {
+      "de": "Gelb RAL 1004",
+      "en": "Yellow RAL 1004",
+      "fr": "Jaune RAL 1004",
+      "it": "Giallo RAL 1004",
+      "nl": "Geel RAL 1004",
+      "ro": "Galben RAL 1004"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2004,
+     "swatchHex": "#F1B51B",
+     "warrantyYears": 5
+    },
+    {
+     "enabled": true,
+     "group": "warm",
+     "key": "ral-1013",
+     "labels": {
+      "de": "Beige RAL 1013",
+      "en": "Beige RAL 1013",
+      "fr": "Beige RAL 1013",
+      "it": "Beige RAL 1013",
+      "nl": "Beige RAL 1013",
+      "ro": "Bej RAL 1013"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2005,
+     "swatchHex": "#E8DABE",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "warm",
+     "key": "ral-1015",
+     "labels": {
+      "de": "Beige RAL 1015",
+      "en": "Beige RAL 1015",
+      "fr": "Beige RAL 1015",
+      "it": "Beige RAL 1015",
+      "nl": "Beige RAL 1015",
+      "ro": "Bej RAL 1015"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2006,
+     "swatchHex": "#E9D9AD",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "warm",
+     "key": "ral-1018",
+     "labels": {
+      "de": "Gelb RAL 1018",
+      "en": "Yellow RAL 1018",
+      "fr": "Jaune RAL 1018",
+      "it": "Giallo RAL 1018",
+      "nl": "Geel RAL 1018",
+      "ro": "Galben RAL 1018"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2007,
+     "swatchHex": "#FFF450",
+     "warrantyYears": 5
+    },
+    {
+     "enabled": true,
+     "group": "warm",
+     "key": "ral-1019",
+     "labels": {
+      "de": "Beige RAL 1019",
+      "en": "Beige RAL 1019",
+      "fr": "Beige RAL 1019",
+      "it": "Beige RAL 1019",
+      "nl": "Beige RAL 1019",
+      "ro": "Bej RAL 1019"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2008,
+     "swatchHex": "#9E886B",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "warm",
+     "key": "ral-1020",
+     "labels": {
+      "de": "Gelb RAL 1020",
+      "en": "Yellow RAL 1020",
+      "fr": "Jaune RAL 1020",
+      "it": "Giallo RAL 1020",
+      "nl": "Geel RAL 1020",
+      "ro": "Galben RAL 1020"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2009,
+     "swatchHex": "#A79F80",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "warm",
+     "key": "ral-1027",
+     "labels": {
+      "de": "Gelb RAL 1027",
+      "en": "Yellow RAL 1027",
+      "fr": "Jaune RAL 1027",
+      "it": "Giallo RAL 1027",
+      "nl": "Geel RAL 1027",
+      "ro": "Galben RAL 1027"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2010,
+     "swatchHex": "#988323",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "reds",
+     "key": "ral-3000",
+     "labels": {
+      "de": "Rot RAL 3000",
+      "en": "Red RAL 3000",
+      "fr": "Rouge RAL 3000",
+      "it": "Rosso RAL 3000",
+      "nl": "Rood RAL 3000",
+      "ro": "Roșu RAL 3000"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2011,
+     "swatchHex": "#C4151C",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "reds",
+     "key": "ral-3002",
+     "labels": {
+      "de": "Rot RAL 3002",
+      "en": "Red RAL 3002",
+      "fr": "Rouge RAL 3002",
+      "it": "Rosso RAL 3002",
+      "nl": "Rood RAL 3002",
+      "ro": "Roșu RAL 3002"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2012,
+     "swatchHex": "#B41827",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "reds",
+     "key": "ral-3003",
+     "labels": {
+      "de": "Rot RAL 3003",
+      "en": "Red RAL 3003",
+      "fr": "Rouge RAL 3003",
+      "it": "Rosso RAL 3003",
+      "nl": "Rood RAL 3003",
+      "ro": "Roșu RAL 3003"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2013,
+     "swatchHex": "#9E0A0E",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "reds",
+     "key": "ral-3005",
+     "labels": {
+      "de": "Rot RAL 3005",
+      "en": "Red RAL 3005",
+      "fr": "Rouge RAL 3005",
+      "it": "Rosso RAL 3005",
+      "nl": "Rood RAL 3005",
+      "ro": "Roșu RAL 3005"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2014,
+     "swatchHex": "#850D23",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "reds",
+     "key": "ral-3007",
+     "labels": {
+      "de": "Rot RAL 3007",
+      "en": "Red RAL 3007",
+      "fr": "Rouge RAL 3007",
+      "it": "Rosso RAL 3007",
+      "nl": "Rood RAL 3007",
+      "ro": "Roșu RAL 3007"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2015,
+     "swatchHex": "#280006",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "reds",
+     "key": "ral-3009",
+     "labels": {
+      "de": "Rot RAL 3009",
+      "en": "Red RAL 3009",
+      "fr": "Rouge RAL 3009",
+      "it": "Rosso RAL 3009",
+      "nl": "Rood RAL 3009",
+      "ro": "Roșu RAL 3009"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2016,
+     "swatchHex": "#500300",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "reds",
+     "key": "ral-3011",
+     "labels": {
+      "de": "Rot RAL 3011",
+      "en": "Red RAL 3011",
+      "fr": "Rouge RAL 3011",
+      "it": "Rosso RAL 3011",
+      "nl": "Rood RAL 3011",
+      "ro": "Roșu RAL 3011"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2017,
+     "swatchHex": "#851012",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "reds",
+     "key": "ral-3020",
+     "labels": {
+      "de": "Rot RAL 3020",
+      "en": "Red RAL 3020",
+      "fr": "Rouge RAL 3020",
+      "it": "Rosso RAL 3020",
+      "nl": "Rood RAL 3020",
+      "ro": "Roșu RAL 3020"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2018,
+     "swatchHex": "#D71920",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "reds",
+     "key": "ral-4007",
+     "labels": {
+      "de": "Bordeaux RAL 4007",
+      "en": "Bordeaux RAL 4007",
+      "fr": "Bordeaux RAL 4007",
+      "it": "Bordeaux RAL 4007",
+      "nl": "Bordeaux RAL 4007",
+      "ro": "Bordo RAL 4007"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2019,
+     "swatchHex": "#37003E",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5002",
+     "labels": {
+      "de": "Blau RAL 5002",
+      "en": "Blue RAL 5002",
+      "fr": "Bleu RAL 5002",
+      "it": "Blu RAL 5002",
+      "nl": "Blauw RAL 5002",
+      "ro": "Albastru RAL 5002"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2020,
+     "swatchHex": "#003974",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5003",
+     "labels": {
+      "de": "Blau RAL 5003",
+      "en": "Blue RAL 5003",
+      "fr": "Bleu RAL 5003",
+      "it": "Blu RAL 5003",
+      "nl": "Blauw RAL 5003",
+      "ro": "Albastru RAL 5003"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2021,
+     "swatchHex": "#001C43",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5005",
+     "labels": {
+      "de": "Blau RAL 5005",
+      "en": "Blue RAL 5005",
+      "fr": "Bleu RAL 5005",
+      "it": "Blu RAL 5005",
+      "nl": "Blauw RAL 5005",
+      "ro": "Albastru RAL 5005"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2022,
+     "swatchHex": "#005387",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5007",
+     "labels": {
+      "de": "Blau RAL 5007",
+      "en": "Blue RAL 5007",
+      "fr": "Bleu RAL 5007",
+      "it": "Blu RAL 5007",
+      "nl": "Blauw RAL 5007",
+      "ro": "Albastru RAL 5007"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2023,
+     "swatchHex": "#006B96",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5008",
+     "labels": {
+      "de": "Blau RAL 5008",
+      "en": "Blue RAL 5008",
+      "fr": "Bleu RAL 5008",
+      "it": "Blu RAL 5008",
+      "nl": "Blauw RAL 5008",
+      "ro": "Albastru RAL 5008"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2024,
+     "swatchHex": "#003141",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5009",
+     "labels": {
+      "de": "Blau RAL 5009",
+      "en": "Blue RAL 5009",
+      "fr": "Bleu RAL 5009",
+      "it": "Blu RAL 5009",
+      "nl": "Blauw RAL 5009",
+      "ro": "Albastru RAL 5009"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2025,
+     "swatchHex": "#005F83",
+     "warrantyYears": 5
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5010",
+     "labels": {
+      "de": "Blau RAL 5010",
+      "en": "Blue RAL 5010",
+      "fr": "Bleu RAL 5010",
+      "it": "Blu RAL 5010",
+      "nl": "Blauw RAL 5010",
+      "ro": "Albastru RAL 5010"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2026,
+     "swatchHex": "#005381",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5011",
+     "labels": {
+      "de": "Blau RAL 5011",
+      "en": "Blue RAL 5011",
+      "fr": "Bleu RAL 5011",
+      "it": "Blu RAL 5011",
+      "nl": "Blauw RAL 5011",
+      "ro": "Albastru RAL 5011"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2027,
+     "swatchHex": "#001539",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5013",
+     "labels": {
+      "de": "Blau RAL 5013",
+      "en": "Blue RAL 5013",
+      "fr": "Bleu RAL 5013",
+      "it": "Blu RAL 5013",
+      "nl": "Blauw RAL 5013",
+      "ro": "Albastru RAL 5013"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2028,
+     "swatchHex": "#002E5E",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5014",
+     "labels": {
+      "de": "Blau RAL 5014",
+      "en": "Blue RAL 5014",
+      "fr": "Bleu RAL 5014",
+      "it": "Blu RAL 5014",
+      "nl": "Blauw RAL 5014",
+      "ro": "Albastru RAL 5014"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2029,
+     "swatchHex": "#527798",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5017",
+     "labels": {
+      "de": "Blau RAL 5017",
+      "en": "Blue RAL 5017",
+      "fr": "Bleu RAL 5017",
+      "it": "Blu RAL 5017",
+      "nl": "Blauw RAL 5017",
+      "ro": "Albastru RAL 5017"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2030,
+     "swatchHex": "#00658F",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5020",
+     "labels": {
+      "de": "Blau RAL 5020",
+      "en": "Blue RAL 5020",
+      "fr": "Bleu RAL 5020",
+      "it": "Blu RAL 5020",
+      "nl": "Blauw RAL 5020",
+      "ro": "Albastru RAL 5020"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2031,
+     "swatchHex": "#003C3D",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5021",
+     "labels": {
+      "de": "Blaugrün RAL 5021",
+      "en": "Blue-green RAL 5021",
+      "fr": "Bleu-vert RAL 5021",
+      "it": "Blu-verde RAL 5021",
+      "nl": "Blauwgroen RAL 5021",
+      "ro": "Albastru-verde RAL 5021"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2032,
+     "swatchHex": "#008684",
+     "warrantyYears": 5
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5024",
+     "labels": {
+      "de": "Blau RAL 5024",
+      "en": "Blue RAL 5024",
+      "fr": "Bleu RAL 5024",
+      "it": "Blu RAL 5024",
+      "nl": "Blauw RAL 5024",
+      "ro": "Albastru RAL 5024"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2033,
+     "swatchHex": "#3189AB",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6000",
+     "labels": {
+      "de": "Grün RAL 6000",
+      "en": "Green RAL 6000",
+      "fr": "Vert RAL 6000",
+      "it": "Verde RAL 6000",
+      "nl": "Groen RAL 6000",
+      "ro": "Verde RAL 6000"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2034,
+     "swatchHex": "#1A826D",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6002",
+     "labels": {
+      "de": "Grün RAL 6002",
+      "en": "Green RAL 6002",
+      "fr": "Vert RAL 6002",
+      "it": "Verde RAL 6002",
+      "nl": "Groen RAL 6002",
+      "ro": "Verde RAL 6002"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2035,
+     "swatchHex": "#187249",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6003",
+     "labels": {
+      "de": "Grün RAL 6003",
+      "en": "Green RAL 6003",
+      "fr": "Vert RAL 6003",
+      "it": "Verde RAL 6003",
+      "nl": "Groen RAL 6003",
+      "ro": "Verde RAL 6003"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2036,
+     "swatchHex": "#3F6249",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6005",
+     "labels": {
+      "de": "Grün RAL 6005",
+      "en": "Green RAL 6005",
+      "fr": "Vert RAL 6005",
+      "it": "Verde RAL 6005",
+      "nl": "Groen RAL 6005",
+      "ro": "Verde RAL 6005"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2037,
+     "swatchHex": "#00543E",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6009",
+     "labels": {
+      "de": "Grün RAL 6009",
+      "en": "Green RAL 6009",
+      "fr": "Vert RAL 6009",
+      "it": "Verde RAL 6009",
+      "nl": "Groen RAL 6009",
+      "ro": "Verde RAL 6009"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2038,
+     "swatchHex": "#053820",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6011",
+     "labels": {
+      "de": "Grün RAL 6011",
+      "en": "Green RAL 6011",
+      "fr": "Vert RAL 6011",
+      "it": "Verde RAL 6011",
+      "nl": "Groen RAL 6011",
+      "ro": "Verde RAL 6011"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2039,
+     "swatchHex": "#588C69",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6012",
+     "labels": {
+      "de": "Grün RAL 6012",
+      "en": "Green RAL 6012",
+      "fr": "Vert RAL 6012",
+      "it": "Verde RAL 6012",
+      "nl": "Groen RAL 6012",
+      "ro": "Verde RAL 6012"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2040,
+     "swatchHex": "#1F4031",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6013",
+     "labels": {
+      "de": "Grün RAL 6013",
+      "en": "Green RAL 6013",
+      "fr": "Vert RAL 6013",
+      "it": "Verde RAL 6013",
+      "nl": "Groen RAL 6013",
+      "ro": "Verde RAL 6013"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2041,
+     "swatchHex": "#6A7755",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6018",
+     "labels": {
+      "de": "Grün RAL 6018",
+      "en": "Green RAL 6018",
+      "fr": "Vert RAL 6018",
+      "it": "Verde RAL 6018",
+      "nl": "Groen RAL 6018",
+      "ro": "Verde RAL 6018"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2042,
+     "swatchHex": "#4CB857",
+     "warrantyYears": 5
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6019",
+     "labels": {
+      "de": "Grün RAL 6019",
+      "en": "Green RAL 6019",
+      "fr": "Vert RAL 6019",
+      "it": "Verde RAL 6019",
+      "nl": "Groen RAL 6019",
+      "ro": "Verde RAL 6019"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2043,
+     "swatchHex": "#A8D7AE",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6020",
+     "labels": {
+      "de": "Grün RAL 6020",
+      "en": "Green RAL 6020",
+      "fr": "Vert RAL 6020",
+      "it": "Verde RAL 6020",
+      "nl": "Groen RAL 6020",
+      "ro": "Verde RAL 6020"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2044,
+     "swatchHex": "#295647",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6021",
+     "labels": {
+      "de": "Grün RAL 6021",
+      "en": "Green RAL 6021",
+      "fr": "Vert RAL 6021",
+      "it": "Verde RAL 6021",
+      "nl": "Groen RAL 6021",
+      "ro": "Verde RAL 6021"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2045,
+     "swatchHex": "#7AAA89",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6024",
+     "labels": {
+      "de": "Grün RAL 6024",
+      "en": "Green RAL 6024",
+      "fr": "Vert RAL 6024",
+      "it": "Verde RAL 6024",
+      "nl": "Groen RAL 6024",
+      "ro": "Verde RAL 6024"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2046,
+     "swatchHex": "#00925F",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6027",
+     "labels": {
+      "de": "Grün RAL 6027",
+      "en": "Green RAL 6027",
+      "fr": "Vert RAL 6027",
+      "it": "Verde RAL 6027",
+      "nl": "Groen RAL 6027",
+      "ro": "Verde RAL 6027"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2047,
+     "swatchHex": "#5AC4BF",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6028",
+     "labels": {
+      "de": "Grün RAL 6028",
+      "en": "Green RAL 6028",
+      "fr": "Vert RAL 6028",
+      "it": "Verde RAL 6028",
+      "nl": "Groen RAL 6028",
+      "ro": "Verde RAL 6028"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2048,
+     "swatchHex": "#056543",
+     "warrantyYears": 5
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6029",
+     "labels": {
+      "de": "Grün RAL 6029",
+      "en": "Green RAL 6029",
+      "fr": "Vert RAL 6029",
+      "it": "Verde RAL 6029",
+      "nl": "Groen RAL 6029",
+      "ro": "Verde RAL 6029"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2049,
+     "swatchHex": "#008948",
+     "warrantyYears": 5
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6033",
+     "labels": {
+      "de": "Grün RAL 6033",
+      "en": "Green RAL 6033",
+      "fr": "Vert RAL 6033",
+      "it": "Verde RAL 6033",
+      "nl": "Groen RAL 6033",
+      "ro": "Verde RAL 6033"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2050,
+     "swatchHex": "#199B90",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6034",
+     "labels": {
+      "de": "Grün RAL 6034",
+      "en": "Green RAL 6034",
+      "fr": "Vert RAL 6034",
+      "it": "Verde RAL 6034",
+      "nl": "Groen RAL 6034",
+      "ro": "Verde RAL 6034"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2051,
+     "swatchHex": "#67B4A6",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7001",
+     "labels": {
+      "de": "Grau RAL 7001",
+      "en": "Grey RAL 7001",
+      "fr": "Gris RAL 7001",
+      "it": "Grigio RAL 7001",
+      "nl": "Grijs RAL 7001",
+      "ro": "Gri RAL 7001"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2052,
+     "swatchHex": "#95A3AB",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7002",
+     "labels": {
+      "de": "Grau RAL 7002",
+      "en": "Grey RAL 7002",
+      "fr": "Gris RAL 7002",
+      "it": "Grigio RAL 7002",
+      "nl": "Grijs RAL 7002",
+      "ro": "Gri RAL 7002"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2053,
+     "swatchHex": "#7A715B",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7004",
+     "labels": {
+      "de": "Grau RAL 7004",
+      "en": "Grey RAL 7004",
+      "fr": "Gris RAL 7004",
+      "it": "Grigio RAL 7004",
+      "nl": "Grijs RAL 7004",
+      "ro": "Gri RAL 7004"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2054,
+     "swatchHex": "#9D9FA2",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7005",
+     "labels": {
+      "de": "Grau RAL 7005",
+      "en": "Grey RAL 7005",
+      "fr": "Gris RAL 7005",
+      "it": "Grigio RAL 7005",
+      "nl": "Grijs RAL 7005",
+      "ro": "Gri RAL 7005"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2055,
+     "swatchHex": "#5A6969",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7006",
+     "labels": {
+      "de": "Grau RAL 7006",
+      "en": "Grey RAL 7006",
+      "fr": "Gris RAL 7006",
+      "it": "Grigio RAL 7006",
+      "nl": "Grijs RAL 7006",
+      "ro": "Gri RAL 7006"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2056,
+     "swatchHex": "#817560",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7009",
+     "labels": {
+      "de": "Grau RAL 7009",
+      "en": "Grey RAL 7009",
+      "fr": "Gris RAL 7009",
+      "it": "Grigio RAL 7009",
+      "nl": "Grijs RAL 7009",
+      "ro": "Gri RAL 7009"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2057,
+     "swatchHex": "#452B29",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7010",
+     "labels": {
+      "de": "Grau RAL 7010",
+      "en": "Grey RAL 7010",
+      "fr": "Gris RAL 7010",
+      "it": "Grigio RAL 7010",
+      "nl": "Grijs RAL 7010",
+      "ro": "Gri RAL 7010"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2058,
+     "swatchHex": "#444C41",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7011",
+     "labels": {
+      "de": "Grau RAL 7011",
+      "en": "Grey RAL 7011",
+      "fr": "Gris RAL 7011",
+      "it": "Grigio RAL 7011",
+      "nl": "Grijs RAL 7011",
+      "ro": "Gri RAL 7011"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2059,
+     "swatchHex": "#2F4446",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7012",
+     "labels": {
+      "de": "Grau RAL 7012",
+      "en": "Grey RAL 7012",
+      "fr": "Gris RAL 7012",
+      "it": "Grigio RAL 7012",
+      "nl": "Grijs RAL 7012",
+      "ro": "Gri RAL 7012"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2060,
+     "swatchHex": "#435152",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7013",
+     "labels": {
+      "de": "Grau RAL 7013",
+      "en": "Grey RAL 7013",
+      "fr": "Gris RAL 7013",
+      "it": "Grigio RAL 7013",
+      "nl": "Grijs RAL 7013",
+      "ro": "Gri RAL 7013"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2061,
+     "swatchHex": "#4E4B37",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7015",
+     "labels": {
+      "de": "Grau RAL 7015",
+      "en": "Grey RAL 7015",
+      "fr": "Gris RAL 7015",
+      "it": "Grigio RAL 7015",
+      "nl": "Grijs RAL 7015",
+      "ro": "Gri RAL 7015"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2062,
+     "swatchHex": "#2E444D",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7016",
+     "labels": {
+      "de": "Grau RAL 7016",
+      "en": "Grey RAL 7016",
+      "fr": "Gris RAL 7016",
+      "it": "Grigio RAL 7016",
+      "nl": "Grijs RAL 7016",
+      "ro": "Gri RAL 7016"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2063,
+     "swatchHex": "#1B3238",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7021",
+     "labels": {
+      "de": "Grau RAL 7021",
+      "en": "Grey RAL 7021",
+      "fr": "Gris RAL 7021",
+      "it": "Grigio RAL 7021",
+      "nl": "Grijs RAL 7021",
+      "ro": "Gri RAL 7021"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2064,
+     "swatchHex": "#021F2C",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7022",
+     "labels": {
+      "de": "Grau RAL 7022",
+      "en": "Grey RAL 7022",
+      "fr": "Gris RAL 7022",
+      "it": "Grigio RAL 7022",
+      "nl": "Grijs RAL 7022",
+      "ro": "Gri RAL 7022"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2065,
+     "swatchHex": "#3B3F34",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7023",
+     "labels": {
+      "de": "Grau RAL 7023",
+      "en": "Grey RAL 7023",
+      "fr": "Gris RAL 7023",
+      "it": "Grigio RAL 7023",
+      "nl": "Grijs RAL 7023",
+      "ro": "Gri RAL 7023"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2066,
+     "swatchHex": "#69796B",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7024",
+     "labels": {
+      "de": "Grau RAL 7024",
+      "en": "Grey RAL 7024",
+      "fr": "Gris RAL 7024",
+      "it": "Grigio RAL 7024",
+      "nl": "Grijs RAL 7024",
+      "ro": "Gri RAL 7024"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2067,
+     "swatchHex": "#304550",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7026",
+     "labels": {
+      "de": "Grau RAL 7026",
+      "en": "Grey RAL 7026",
+      "fr": "Gris RAL 7026",
+      "it": "Grigio RAL 7026",
+      "nl": "Grijs RAL 7026",
+      "ro": "Gri RAL 7026"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2068,
+     "swatchHex": "#17383C",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7030",
+     "labels": {
+      "de": "Grau RAL 7030",
+      "en": "Grey RAL 7030",
+      "fr": "Gris RAL 7030",
+      "it": "Grigio RAL 7030",
+      "nl": "Grijs RAL 7030",
+      "ro": "Gri RAL 7030"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2069,
+     "swatchHex": "#878E89",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7031",
+     "labels": {
+      "de": "Grau RAL 7031",
+      "en": "Grey RAL 7031",
+      "fr": "Gris RAL 7031",
+      "it": "Grigio RAL 7031",
+      "nl": "Grijs RAL 7031",
+      "ro": "Gri RAL 7031"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2070,
+     "swatchHex": "#496871",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7032",
+     "labels": {
+      "de": "Grau RAL 7032",
+      "en": "Grey RAL 7032",
+      "fr": "Gris RAL 7032",
+      "it": "Grigio RAL 7032",
+      "nl": "Grijs RAL 7032",
+      "ro": "Gri RAL 7032"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2071,
+     "swatchHex": "#A9A791",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7033",
+     "labels": {
+      "de": "Grau RAL 7033",
+      "en": "Grey RAL 7033",
+      "fr": "Gris RAL 7033",
+      "it": "Grigio RAL 7033",
+      "nl": "Grijs RAL 7033",
+      "ro": "Gri RAL 7033"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2072,
+     "swatchHex": "#78897D",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7034",
+     "labels": {
+      "de": "Grau RAL 7034",
+      "en": "Grey RAL 7034",
+      "fr": "Gris RAL 7034",
+      "it": "Grigio RAL 7034",
+      "nl": "Grijs RAL 7034",
+      "ro": "Gri RAL 7034"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2073,
+     "swatchHex": "#A09B73",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7035",
+     "labels": {
+      "de": "Grau RAL 7035",
+      "en": "Grey RAL 7035",
+      "fr": "Gris RAL 7035",
+      "it": "Grigio RAL 7035",
+      "nl": "Grijs RAL 7035",
+      "ro": "Gri RAL 7035"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2074,
+     "swatchHex": "#CBD0CC",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7036",
+     "labels": {
+      "de": "Grau RAL 7036",
+      "en": "Grey RAL 7036",
+      "fr": "Gris RAL 7036",
+      "it": "Grigio RAL 7036",
+      "nl": "Grijs RAL 7036",
+      "ro": "Gri RAL 7036"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2075,
+     "swatchHex": "#969495",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7037",
+     "labels": {
+      "de": "Grau RAL 7037",
+      "en": "Grey RAL 7037",
+      "fr": "Gris RAL 7037",
+      "it": "Grigio RAL 7037",
+      "nl": "Grijs RAL 7037",
+      "ro": "Gri RAL 7037"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2076,
+     "swatchHex": "#787F82",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7038",
+     "labels": {
+      "de": "Grau RAL 7038",
+      "en": "Grey RAL 7038",
+      "fr": "Gris RAL 7038",
+      "it": "Grigio RAL 7038",
+      "nl": "Grijs RAL 7038",
+      "ro": "Gri RAL 7038"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2077,
+     "swatchHex": "#95AAA9",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7039",
+     "labels": {
+      "de": "Grau RAL 7039",
+      "en": "Grey RAL 7039",
+      "fr": "Gris RAL 7039",
+      "it": "Grigio RAL 7039",
+      "nl": "Grijs RAL 7039",
+      "ro": "Gri RAL 7039"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2078,
+     "swatchHex": "#5D6057",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7040",
+     "labels": {
+      "de": "Grau RAL 7040",
+      "en": "Grey RAL 7040",
+      "fr": "Gris RAL 7040",
+      "it": "Grigio RAL 7040",
+      "nl": "Grijs RAL 7040",
+      "ro": "Gri RAL 7040"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2079,
+     "swatchHex": "#869598",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7042",
+     "labels": {
+      "de": "Grau RAL 7042",
+      "en": "Grey RAL 7042",
+      "fr": "Gris RAL 7042",
+      "it": "Grigio RAL 7042",
+      "nl": "Grijs RAL 7042",
+      "ro": "Gri RAL 7042"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2080,
+     "swatchHex": "#778988",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7043",
+     "labels": {
+      "de": "Grau RAL 7043",
+      "en": "Grey RAL 7043",
+      "fr": "Gris RAL 7043",
+      "it": "Grigio RAL 7043",
+      "nl": "Grijs RAL 7043",
+      "ro": "Gri RAL 7043"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2081,
+     "swatchHex": "#3A4646",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7044",
+     "labels": {
+      "de": "Grau RAL 7044",
+      "en": "Grey RAL 7044",
+      "fr": "Gris RAL 7044",
+      "it": "Grigio RAL 7044",
+      "nl": "Grijs RAL 7044",
+      "ro": "Gri RAL 7044"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2082,
+     "swatchHex": "#BEBCA9",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7045",
+     "labels": {
+      "de": "Grau RAL 7045",
+      "en": "Grey RAL 7045",
+      "fr": "Gris RAL 7045",
+      "it": "Grigio RAL 7045",
+      "nl": "Grijs RAL 7045",
+      "ro": "Gri RAL 7045"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2083,
+     "swatchHex": "#868F94",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7046",
+     "labels": {
+      "de": "Grau RAL 7046",
+      "en": "Grey RAL 7046",
+      "fr": "Gris RAL 7046",
+      "it": "Grigio RAL 7046",
+      "nl": "Grijs RAL 7046",
+      "ro": "Gri RAL 7046"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2084,
+     "swatchHex": "#768A94",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7047",
+     "labels": {
+      "de": "Grau RAL 7047",
+      "en": "Grey RAL 7047",
+      "fr": "Gris RAL 7047",
+      "it": "Grigio RAL 7047",
+      "nl": "Grijs RAL 7047",
+      "ro": "Gri RAL 7047"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2085,
+     "swatchHex": "#D2D2CB",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "browns",
+     "key": "ral-8007",
+     "labels": {
+      "de": "Braun RAL 8007",
+      "en": "Brown RAL 8007",
+      "fr": "Brun RAL 8007",
+      "it": "Marrone RAL 8007",
+      "nl": "Bruin RAL 8007",
+      "ro": "Maro RAL 8007"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2086,
+     "swatchHex": "#6B5141",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "browns",
+     "key": "ral-8008",
+     "labels": {
+      "de": "Braun RAL 8008",
+      "en": "Brown RAL 8008",
+      "fr": "Brun RAL 8008",
+      "it": "Marrone RAL 8008",
+      "nl": "Bruin RAL 8008",
+      "ro": "Maro RAL 8008"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2087,
+     "swatchHex": "#795F4E",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "browns",
+     "key": "ral-8011",
+     "labels": {
+      "de": "Braun RAL 8011",
+      "en": "Brown RAL 8011",
+      "fr": "Brun RAL 8011",
+      "it": "Marrone RAL 8011",
+      "nl": "Bruin RAL 8011",
+      "ro": "Maro RAL 8011"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2088,
+     "swatchHex": "#4D2400",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "browns",
+     "key": "ral-8014",
+     "labels": {
+      "de": "Braun RAL 8014",
+      "en": "Brown RAL 8014",
+      "fr": "Brun RAL 8014",
+      "it": "Marrone RAL 8014",
+      "nl": "Bruin RAL 8014",
+      "ro": "Maro RAL 8014"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2089,
+     "swatchHex": "#3D2100",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "browns",
+     "key": "ral-8016",
+     "labels": {
+      "de": "Braun RAL 8016",
+      "en": "Brown RAL 8016",
+      "fr": "Brun RAL 8016",
+      "it": "Marrone RAL 8016",
+      "nl": "Bruin RAL 8016",
+      "ro": "Maro RAL 8016"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2090,
+     "swatchHex": "#360C03",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "browns",
+     "key": "ral-8017",
+     "labels": {
+      "de": "Braun RAL 8017",
+      "en": "Brown RAL 8017",
+      "fr": "Brun RAL 8017",
+      "it": "Marrone RAL 8017",
+      "nl": "Bruin RAL 8017",
+      "ro": "Maro RAL 8017"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2091,
+     "swatchHex": "#260B04",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "browns",
+     "key": "ral-8019",
+     "labels": {
+      "de": "Braun RAL 8019",
+      "en": "Brown RAL 8019",
+      "fr": "Brun RAL 8019",
+      "it": "Marrone RAL 8019",
+      "nl": "Bruin RAL 8019",
+      "ro": "Maro RAL 8019"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2092,
+     "swatchHex": "#2F2928",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "browns",
+     "key": "ral-8022",
+     "labels": {
+      "de": "Braun RAL 8022",
+      "en": "Brown RAL 8022",
+      "fr": "Brun RAL 8022",
+      "it": "Marrone RAL 8022",
+      "nl": "Bruin RAL 8022",
+      "ro": "Maro RAL 8022"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2093,
+     "swatchHex": "#1D1819",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "browns",
+     "key": "ral-8025",
+     "labels": {
+      "de": "Braun RAL 8025",
+      "en": "Brown RAL 8025",
+      "fr": "Brun RAL 8025",
+      "it": "Marrone RAL 8025",
+      "nl": "Bruin RAL 8025",
+      "ro": "Maro RAL 8025"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2094,
+     "swatchHex": "#6D5849",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "browns",
+     "key": "ral-8028",
+     "labels": {
+      "de": "Braun RAL 8028",
+      "en": "Brown RAL 8028",
+      "fr": "Brun RAL 8028",
+      "it": "Marrone RAL 8028",
+      "nl": "Bruin RAL 8028",
+      "ro": "Maro RAL 8028"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2095,
+     "swatchHex": "#452A12",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "whites",
+     "key": "ral-9001",
+     "labels": {
+      "de": "Weiß RAL 9001",
+      "en": "White RAL 9001",
+      "fr": "Blanc RAL 9001",
+      "it": "Bianco RAL 9001",
+      "nl": "Wit RAL 9001",
+      "ro": "Alb RAL 9001"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2096,
+     "swatchHex": "#F3F1DE",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "whites",
+     "key": "ral-9002",
+     "labels": {
+      "de": "Weiß RAL 9002",
+      "en": "White RAL 9002",
+      "fr": "Blanc RAL 9002",
+      "it": "Bianco RAL 9002",
+      "nl": "Wit RAL 9002",
+      "ro": "Alb RAL 9002"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2097,
+     "swatchHex": "#DAE1D4",
+     "warrantyYears": 5
+    },
+    {
+     "enabled": true,
+     "group": "blacks",
+     "key": "ral-9004",
+     "labels": {
+      "de": "Schwarz RAL 9004",
+      "en": "Black RAL 9004",
+      "fr": "Noir RAL 9004",
+      "it": "Nero RAL 9004",
+      "nl": "Zwart RAL 9004",
+      "ro": "Negru RAL 9004"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2098,
+     "swatchHex": "#2B2B2C",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blacks",
+     "key": "ral-9005",
+     "labels": {
+      "de": "Schwarz RAL 9005",
+      "en": "Black RAL 9005",
+      "fr": "Noir RAL 9005",
+      "it": "Nero RAL 9005",
+      "nl": "Zwart RAL 9005",
+      "ro": "Negru RAL 9005"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2099,
+     "swatchHex": "#101012",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-9006",
+     "labels": {
+      "de": "Aluminium RAL 9006",
+      "en": "Aluminium RAL 9006",
+      "fr": "Aluminium RAL 9006",
+      "it": "Alluminio RAL 9006",
+      "nl": "Aluminium RAL 9006",
+      "ro": "Aluminiu RAL 9006"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2100,
+     "swatchHex": "#A7A9AC",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-9007",
+     "labels": {
+      "de": "Aluminium RAL 9007",
+      "en": "Aluminium RAL 9007",
+      "fr": "Aluminium RAL 9007",
+      "it": "Alluminio RAL 9007",
+      "nl": "Aluminium RAL 9007",
+      "ro": "Aluminiu RAL 9007"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2101,
+     "swatchHex": "#808285",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "whites",
+     "key": "ral-9010",
+     "labels": {
+      "de": "Weiß RAL 9010",
+      "en": "White RAL 9010",
+      "fr": "Blanc RAL 9010",
+      "it": "Bianco RAL 9010",
+      "nl": "Wit RAL 9010",
+      "ro": "Alb RAL 9010"
+     },
+     "priceCents": 0,
+     "range": "nuance",
+     "sortOrder": 2102,
+     "swatchHex": "#FFFEF3",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blacks",
+     "key": "ral-9011",
+     "labels": {
+      "de": "Schwarz RAL 9011",
+      "en": "Black RAL 9011",
+      "fr": "Noir RAL 9011",
+      "it": "Nero RAL 9011",
+      "nl": "Zwart RAL 9011",
+      "ro": "Negru RAL 9011"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2103,
+     "swatchHex": "#1A1D1F",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "whites",
+     "key": "ral-9016",
+     "labels": {
+      "de": "Weiß RAL 9016",
+      "en": "White RAL 9016",
+      "fr": "Blanc RAL 9016",
+      "it": "Bianco RAL 9016",
+      "nl": "Wit RAL 9016",
+      "ro": "Alb RAL 9016"
+     },
+     "priceCents": 0,
+     "range": "nuance",
+     "sortOrder": 2104,
+     "swatchHex": "#F6FBFE",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blacks",
+     "key": "ral-9017",
+     "labels": {
+      "de": "Schwarz RAL 9017",
+      "en": "Black RAL 9017",
+      "fr": "Noir RAL 9017",
+      "it": "Nero RAL 9017",
+      "nl": "Zwart RAL 9017",
+      "ro": "Negru RAL 9017"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2105,
+     "swatchHex": "#1F2022",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "special",
+     "key": "std-ral-design-085-6010",
+     "labels": {
+      "de": "RAL Design 085 6010",
+      "en": "RAL Design 085 6010",
+      "fr": "RAL Design 085 6010",
+      "it": "RAL Design 085 6010",
+      "nl": "RAL Design 085 6010",
+      "ro": "RAL Design 085 6010"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2106,
+     "swatchHex": "#A89D8E",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "special",
+     "key": "std-ral-design-060-8005",
+     "labels": {
+      "de": "RAL Design 060 8005",
+      "en": "RAL Design 060 8005",
+      "fr": "RAL Design 060 8005",
+      "it": "RAL Design 060 8005",
+      "nl": "RAL Design 060 8005",
+      "ro": "RAL Design 060 8005"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2107,
+     "swatchHex": "#D4CBC3",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "special",
+     "key": "std-ral-design-080-6020",
+     "labels": {
+      "de": "RAL Design 080 6020",
+      "en": "RAL Design 080 6020",
+      "fr": "RAL Design 080 6020",
+      "it": "RAL Design 080 6020",
+      "nl": "RAL Design 080 6020",
+      "ro": "RAL Design 080 6020"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2108,
+     "swatchHex": "#B09C7D",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "special",
+     "key": "std-ral-design-210-5010",
+     "labels": {
+      "de": "RAL Design 210 5010",
+      "en": "RAL Design 210 5010",
+      "fr": "RAL Design 210 5010",
+      "it": "RAL Design 210 5010",
+      "nl": "RAL Design 210 5010",
+      "ro": "RAL Design 210 5010"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2109,
+     "swatchHex": "#6E8694",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "special",
+     "key": "std-ral-design-080-8005",
+     "labels": {
+      "de": "RAL Design 080 8005",
+      "en": "RAL Design 080 8005",
+      "fr": "RAL Design 080 8005",
+      "it": "RAL Design 080 8005",
+      "nl": "RAL Design 080 8005",
+      "ro": "RAL Design 080 8005"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2110,
+     "swatchHex": "#D2CCC4",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "special",
+     "key": "std-ral-design-090-6020",
+     "labels": {
+      "de": "RAL Design 090 6020",
+      "en": "RAL Design 090 6020",
+      "fr": "RAL Design 090 6020",
+      "it": "RAL Design 090 6020",
+      "nl": "RAL Design 090 6020",
+      "ro": "RAL Design 090 6020"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2111,
+     "swatchHex": "#AC9D81",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "special",
+     "key": "std-bs-14c39",
+     "labels": {
+      "de": "BS 14C39",
+      "en": "BS 14C39",
+      "fr": "BS 14C39",
+      "it": "BS 14C39",
+      "nl": "BS 14C39",
+      "ro": "BS 14C39"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2112,
+     "swatchHex": "#546E6D",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "special",
+     "key": "std-beige-e8-20-60",
+     "labels": {
+      "de": "BEIGE E8 20 60",
+      "en": "BEIGE E8 20 60",
+      "fr": "BEIGE E8 20 60",
+      "it": "BEIGE E8 20 60",
+      "nl": "BEIGE E8 20 60",
+      "ro": "BEIGE E8 20 60"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2113,
+     "swatchHex": "#CBBBAD",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "special",
+     "key": "std-beige-f2-10-70",
+     "labels": {
+      "de": "BEIGE F2 10 70",
+      "en": "BEIGE F2 10 70",
+      "fr": "BEIGE F2 10 70",
+      "it": "BEIGE F2 10 70",
+      "nl": "BEIGE F2 10 70",
+      "ro": "BEIGE F2 10 70"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2114,
+     "swatchHex": "#D0C5B5",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "special",
+     "key": "std-ral-190-5",
+     "labels": {
+      "de": "RAL 190-5",
+      "en": "RAL 190-5",
+      "fr": "RAL 190-5",
+      "it": "RAL 190-5",
+      "nl": "RAL 190-5",
+      "ro": "RAL 190-5"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2115,
+     "swatchHex": "#D3DFE8",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "special",
+     "key": "std-ral-210-2",
+     "labels": {
+      "de": "RAL 210-2",
+      "en": "RAL 210-2",
+      "fr": "RAL 210-2",
+      "it": "RAL 210-2",
+      "nl": "RAL 210-2",
+      "ro": "RAL 210-2"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2116,
+     "swatchHex": "#EEE8D6",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "stone",
+     "key": "rock01",
+     "labels": {
+      "de": "Burgundy beige",
+      "en": "Burgundy beige",
+      "fr": "Burgundy beige",
+      "it": "Burgundy beige",
+      "nl": "Burgundy beige",
+      "ro": "Burgundy beige"
+     },
+     "priceCents": 12000,
+     "range": "rock",
+     "sortOrder": 3000,
+     "swatchHex": "#DADADA",
+     "texture": "/finishes/rock01.jpg",
+     "textureH": 212,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "stone",
+     "key": "rock02",
+     "labels": {
+      "de": "Volcano black",
+      "en": "Volcano black",
+      "fr": "Volcano black",
+      "it": "Volcano black",
+      "nl": "Volcano black",
+      "ro": "Volcano black"
+     },
+     "priceCents": 12000,
+     "range": "rock",
+     "sortOrder": 3001,
+     "swatchHex": "#726B65",
+     "texture": "/finishes/rock02.jpg",
+     "textureH": 211,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
      "key": "anthracite",
      "labels": {
       "de": "Anthrazit RAL 7016",
@@ -2911,6 +6797,3892 @@
      "priceCents": 8500,
      "sortOrder": 2,
      "swatchHex": "#8B4513"
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s01",
+     "labels": {
+      "de": "Crystal White Ash P 9294",
+      "en": "Crystal White Ash P 9294",
+      "fr": "Crystal White Ash P 9294",
+      "it": "Crystal White Ash P 9294",
+      "nl": "Crystal White Ash P 9294",
+      "ro": "Crystal White Ash P 9294"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.12.91.000017 - 117900",
+     "sortOrder": 1000,
+     "swatchHex": "#E4E1DB",
+     "texture": "/finishes/s01.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s02",
+     "labels": {
+      "de": "White 9152 VLF",
+      "en": "White 9152 VLF",
+      "fr": "White 9152 VLF",
+      "it": "White 9152 VLF",
+      "nl": "White 9152 VLF",
+      "ro": "White 9152 VLF"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.91.000001 - 102200",
+     "sortOrder": 1001,
+     "swatchHex": "#E3E0D9",
+     "texture": "/finishes/s02.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s03",
+     "labels": {
+      "de": "White 9152",
+      "en": "White 9152",
+      "fr": "White 9152",
+      "it": "White 9152",
+      "nl": "White 9152",
+      "ro": "White 9152"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.91.000001 - 116801",
+     "sortOrder": 1002,
+     "swatchHex": "#E6E1D7",
+     "texture": "/finishes/s03.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s04",
+     "labels": {
+      "de": "White 9152 Ulti-Matt",
+      "en": "White 9152 Ulti-Matt",
+      "fr": "White 9152 Ulti-Matt",
+      "it": "White 9152 Ulti-Matt",
+      "nl": "White 9152 Ulti-Matt",
+      "ro": "White 9152 Ulti-Matt"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.91.000001 - 504700",
+     "sortOrder": 1003,
+     "swatchHex": "#E4E0D6",
+     "texture": "/finishes/s04.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s05",
+     "labels": {
+      "de": "Cream White 1379 VLF",
+      "en": "Cream White 1379 VLF",
+      "fr": "Cream White 1379 VLF",
+      "it": "Cream White 1379 VLF",
+      "nl": "Cream White 1379 VLF",
+      "ro": "Cream White 1379 VLF"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.11.000001 - 102200",
+     "sortOrder": 1004,
+     "swatchHex": "#E2D9CC",
+     "texture": "/finishes/s05.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s06",
+     "labels": {
+      "de": "Cream White 1379",
+      "en": "Cream White 1379",
+      "fr": "Cream White 1379",
+      "it": "Cream White 1379",
+      "nl": "Cream White 1379",
+      "ro": "Cream White 1379"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.11.000001 - 116700",
+     "sortOrder": 1005,
+     "swatchHex": "#E4DBCC",
+     "texture": "/finishes/s06.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s07",
+     "labels": {
+      "de": "Cream White 1379 Ulti-Matt",
+      "en": "Cream White 1379 Ulti-Matt",
+      "fr": "Cream White 1379 Ulti-Matt",
+      "it": "Cream White 1379 Ulti-Matt",
+      "nl": "Cream White 1379 Ulti-Matt",
+      "ro": "Cream White 1379 Ulti-Matt"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.11.000001 - 504700",
+     "sortOrder": 1006,
+     "swatchHex": "#EFE4D6",
+     "texture": "/finishes/s07.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s08",
+     "labels": {
+      "de": "Light Ivory 1015",
+      "en": "Light Ivory 1015",
+      "fr": "Light Ivory 1015",
+      "it": "Light Ivory 1015",
+      "nl": "Light Ivory 1015",
+      "ro": "Light Ivory 1015"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.11.000006 - 116700",
+     "sortOrder": 1007,
+     "swatchHex": "#AFA087",
+     "texture": "/finishes/s08.jpg",
+     "textureH": 113,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s09",
+     "labels": {
+      "de": "Light Grey 7251",
+      "en": "Light Grey 7251",
+      "fr": "Light Grey 7251",
+      "it": "Light Grey 7251",
+      "nl": "Light Grey 7251",
+      "ro": "Light Grey 7251"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.71.000011 - 116700",
+     "sortOrder": 1008,
+     "swatchHex": "#CBCFCD",
+     "texture": "/finishes/s09.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s10",
+     "labels": {
+      "de": "Grey 7155 VLF",
+      "en": "Grey 7155 VLF",
+      "fr": "Grey 7155 VLF",
+      "it": "Grey 7155 VLF",
+      "nl": "Grey 7155 VLF",
+      "ro": "Grey 7155 VLF"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.71.000007 - 102200",
+     "sortOrder": 1009,
+     "swatchHex": "#8A939E",
+     "texture": "/finishes/s10.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s11",
+     "labels": {
+      "de": "Grey 7155",
+      "en": "Grey 7155",
+      "fr": "Grey 7155",
+      "it": "Grey 7155",
+      "nl": "Grey 7155",
+      "ro": "Grey 7155"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.71.000007 - 116700",
+     "sortOrder": 1010,
+     "swatchHex": "#8F989C",
+     "texture": "/finishes/s11.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s12",
+     "labels": {
+      "de": "Moondance C-31 N Smooth",
+      "en": "Moondance C-31 N Smooth",
+      "fr": "Moondance C-31 N Smooth",
+      "it": "Moondance C-31 N Smooth",
+      "nl": "Moondance C-31 N Smooth",
+      "ro": "Moondance C-31 N Smooth"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.12.71.000018 - 808302",
+     "sortOrder": 1011,
+     "swatchHex": "#848985",
+     "texture": "/finishes/s12.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s13",
+     "labels": {
+      "de": "Trompet C-32 N Smooth",
+      "en": "Trompet C-32 N Smooth",
+      "fr": "Trompet C-32 N Smooth",
+      "it": "Trompet C-32 N Smooth",
+      "nl": "Trompet C-32 N Smooth",
+      "ro": "Trompet C-32 N Smooth"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.12.71.000019 - 808302",
+     "sortOrder": 1012,
+     "swatchHex": "#656058",
+     "texture": "/finishes/s13.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s14",
+     "labels": {
+      "de": "Quartz Grey 7039",
+      "en": "Quartz Grey 7039",
+      "fr": "Quartz Grey 7039",
+      "it": "Quartz Grey 7039",
+      "nl": "Quartz Grey 7039",
+      "ro": "Quartz Grey 7039"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.71.000012 - 116700",
+     "sortOrder": 1013,
+     "swatchHex": "#585954",
+     "texture": "/finishes/s14.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s15",
+     "labels": {
+      "de": "Basalt Grey 7012",
+      "en": "Basalt Grey 7012",
+      "fr": "Basalt Grey 7012",
+      "it": "Basalt Grey 7012",
+      "nl": "Basalt Grey 7012",
+      "ro": "Basalt Grey 7012"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.71.000010 - 116700",
+     "sortOrder": 1014,
+     "swatchHex": "#586163",
+     "texture": "/finishes/s15.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s16",
+     "labels": {
+      "de": "Anthracite Grey 7016 Ulti-Matt",
+      "en": "Anthracite Grey 7016 Ulti-Matt",
+      "fr": "Anthracite Grey 7016 Ulti-Matt",
+      "it": "Anthracite Grey 7016 Ulti-Matt",
+      "nl": "Anthracite Grey 7016 Ulti-Matt",
+      "ro": "Anthracite Grey 7016 Ulti-Matt"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.71.000001 - 504700",
+     "sortOrder": 1015,
+     "swatchHex": "#4E4B4B",
+     "texture": "/finishes/s16.jpg",
+     "textureH": 225,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s17",
+     "labels": {
+      "de": "Anthracite Grey 7016",
+      "en": "Anthracite Grey 7016",
+      "fr": "Anthracite Grey 7016",
+      "it": "Anthracite Grey 7016",
+      "nl": "Anthracite Grey 7016",
+      "ro": "Anthracite Grey 7016"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.71.000001 - 116700",
+     "sortOrder": 1016,
+     "swatchHex": "#263339",
+     "texture": "/finishes/s17.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s18",
+     "labels": {
+      "de": "Anthracite Grey 7016 VLF",
+      "en": "Anthracite Grey 7016 VLF",
+      "fr": "Anthracite Grey 7016 VLF",
+      "it": "Anthracite Grey 7016 VLF",
+      "nl": "Anthracite Grey 7016 VLF",
+      "ro": "Anthracite Grey 7016 VLF"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.71.000001 - 102200",
+     "sortOrder": 1017,
+     "swatchHex": "#4E4B4B",
+     "texture": "/finishes/s18.jpg",
+     "textureH": 223,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s19",
+     "labels": {
+      "de": "Anthracite Grey 7016 Smooth",
+      "en": "Anthracite Grey 7016 Smooth",
+      "fr": "Anthracite Grey 7016 Smooth",
+      "it": "Anthracite Grey 7016 Smooth",
+      "nl": "Anthracite Grey 7016 Smooth",
+      "ro": "Anthracite Grey 7016 Smooth"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.12.71.000003 - 116701",
+     "sortOrder": 1018,
+     "swatchHex": "#263339",
+     "texture": "/finishes/s19.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s20",
+     "labels": {
+      "de": "Black Ulti-Matt",
+      "en": "Black Ulti-Matt",
+      "fr": "Black Ulti-Matt",
+      "it": "Black Ulti-Matt",
+      "nl": "Black Ulti-Matt",
+      "ro": "Black Ulti-Matt"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.01.000002 - 504700",
+     "sortOrder": 1019,
+     "swatchHex": "#3A3B41",
+     "texture": "/finishes/s20.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s21",
+     "labels": {
+      "de": "Black Smooth 2",
+      "en": "Black Smooth 2",
+      "fr": "Black Smooth 2",
+      "it": "Black Smooth 2",
+      "nl": "Black Smooth 2",
+      "ro": "Black Smooth 2"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.12.01.000004 - 809700",
+     "sortOrder": 1020,
+     "swatchHex": "#373536",
+     "texture": "/finishes/s21.jpg",
+     "textureH": 221,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s22",
+     "labels": {
+      "de": "Black VLF",
+      "en": "Black VLF",
+      "fr": "Black VLF",
+      "it": "Black VLF",
+      "nl": "Black VLF",
+      "ro": "Black VLF"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.01.000002 - 102200",
+     "sortOrder": 1021,
+     "swatchHex": "#353334",
+     "texture": "/finishes/s22.jpg",
+     "textureH": 221,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s23",
+     "labels": {
+      "de": "Black",
+      "en": "Black",
+      "fr": "Black",
+      "it": "Black",
+      "nl": "Black",
+      "ro": "Black"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.01.000002 - 116700",
+     "sortOrder": 1022,
+     "swatchHex": "#434041",
+     "texture": "/finishes/s23.jpg",
+     "textureH": 221,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s24",
+     "labels": {
+      "de": "Choco Brown 8210",
+      "en": "Choco Brown 8210",
+      "fr": "Choco Brown 8210",
+      "it": "Choco Brown 8210",
+      "nl": "Choco Brown 8210",
+      "ro": "Choco Brown 8210"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.12.81.000011 - 116701",
+     "sortOrder": 1023,
+     "swatchHex": "#605145",
+     "texture": "/finishes/s24.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s25",
+     "labels": {
+      "de": "Brown 8972",
+      "en": "Brown 8972",
+      "fr": "Brown 8972",
+      "it": "Brown 8972",
+      "nl": "Brown 8972",
+      "ro": "Brown 8972"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.12.81.000016 - 116701",
+     "sortOrder": 1024,
+     "swatchHex": "#372C24",
+     "texture": "/finishes/s25.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s26",
+     "labels": {
+      "de": "Ceylon C-34 N Smooth",
+      "en": "Ceylon C-34 N Smooth",
+      "fr": "Ceylon C-34 N Smooth",
+      "it": "Ceylon C-34 N Smooth",
+      "nl": "Ceylon C-34 N Smooth",
+      "ro": "Ceylon C-34 N Smooth"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.12.81.000061 - 808302",
+     "sortOrder": 1025,
+     "swatchHex": "#191913",
+     "texture": "/finishes/s26.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s27",
+     "labels": {
+      "de": "Ash C-35 N Smooth",
+      "en": "Ash C-35 N Smooth",
+      "fr": "Ash C-35 N Smooth",
+      "it": "Ash C-35 N Smooth",
+      "nl": "Ash C-35 N Smooth",
+      "ro": "Ash C-35 N Smooth"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.12.81.000065 - 808302",
+     "sortOrder": 1026,
+     "swatchHex": "#242627",
+     "texture": "/finishes/s27.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s28",
+     "labels": {
+      "de": "Chocolate Brown 8875",
+      "en": "Chocolate Brown 8875",
+      "fr": "Chocolate Brown 8875",
+      "it": "Chocolate Brown 8875",
+      "nl": "Chocolate Brown 8875",
+      "ro": "Chocolate Brown 8875"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.81.000018 - 116700",
+     "sortOrder": 1027,
+     "swatchHex": "#1B0401",
+     "texture": "/finishes/s28.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s29",
+     "labels": {
+      "de": "Shadow Black Smooth",
+      "en": "Shadow Black Smooth",
+      "fr": "Shadow Black Smooth",
+      "it": "Shadow Black Smooth",
+      "nl": "Shadow Black Smooth",
+      "ro": "Shadow Black Smooth"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.12.81.000041 - 808302",
+     "sortOrder": 1028,
+     "swatchHex": "#180F16",
+     "texture": "/finishes/s29.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s30",
+     "labels": {
+      "de": "Black Cherry 301",
+      "en": "Black Cherry 301",
+      "fr": "Black Cherry 301",
+      "it": "Black Cherry 301",
+      "nl": "Black Cherry 301",
+      "ro": "Black Cherry 301"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.3202 301 - 116700",
+     "sortOrder": 1029,
+     "swatchHex": "#270608",
+     "texture": "/finishes/s30.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s31",
+     "labels": {
+      "de": "Agate Grey 7038",
+      "en": "Agate Grey 7038",
+      "fr": "Agate Grey 7038",
+      "it": "Agate Grey 7038",
+      "nl": "Agate Grey 7038",
+      "ro": "Agate Grey 7038"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.71.000005 - 116700",
+     "sortOrder": 1030,
+     "swatchHex": "#B6BCB0",
+     "texture": "/finishes/s31.jpg",
+     "textureH": 228,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s32",
+     "labels": {
+      "de": "Moss Green 6005",
+      "en": "Moss Green 6005",
+      "fr": "Moss Green 6005",
+      "it": "Moss Green 6005",
+      "nl": "Moss Green 6005",
+      "ro": "Moss Green 6005"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.61.000002 - 116700",
+     "sortOrder": 1031,
+     "swatchHex": "#014033",
+     "texture": "/finishes/s32.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s33",
+     "labels": {
+      "de": "Dark Green 6125 VLF",
+      "en": "Dark Green 6125 VLF",
+      "fr": "Dark Green 6125 VLF",
+      "it": "Dark Green 6125 VLF",
+      "nl": "Dark Green 6125 VLF",
+      "ro": "Dark Green 6125 VLF"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.61.000001 - 102200",
+     "sortOrder": 1032,
+     "swatchHex": "#474541",
+     "texture": "/finishes/s33.jpg",
+     "textureH": 222,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s34",
+     "labels": {
+      "de": "Dark Green 6125",
+      "en": "Dark Green 6125",
+      "fr": "Dark Green 6125",
+      "it": "Dark Green 6125",
+      "nl": "Dark Green 6125",
+      "ro": "Dark Green 6125"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.61.000001 - 116700",
+     "sortOrder": 1033,
+     "swatchHex": "#062B1D",
+     "texture": "/finishes/s34.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s35",
+     "labels": {
+      "de": "Brilliant Blue 5007",
+      "en": "Brilliant Blue 5007",
+      "fr": "Brilliant Blue 5007",
+      "it": "Brilliant Blue 5007",
+      "nl": "Brilliant Blue 5007",
+      "ro": "Brilliant Blue 5007"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.51.000002 - 116700",
+     "sortOrder": 1034,
+     "swatchHex": "#136186",
+     "texture": "/finishes/s35.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s36",
+     "labels": {
+      "de": "Dark Blue 5030",
+      "en": "Dark Blue 5030",
+      "fr": "Dark Blue 5030",
+      "it": "Dark Blue 5030",
+      "nl": "Dark Blue 5030",
+      "ro": "Dark Blue 5030"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.12.51.000004 - 116701",
+     "sortOrder": 1035,
+     "swatchHex": "#0068A4",
+     "texture": "/finishes/s36.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s37",
+     "labels": {
+      "de": "Steel Blue 5150",
+      "en": "Steel Blue 5150",
+      "fr": "Steel Blue 5150",
+      "it": "Steel Blue 5150",
+      "nl": "Steel Blue 5150",
+      "ro": "Steel Blue 5150"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.51.000001 - 116700",
+     "sortOrder": 1036,
+     "swatchHex": "#01203B",
+     "texture": "/finishes/s37.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "plain",
+     "key": "s38",
+     "labels": {
+      "de": "Wine Red 3005",
+      "en": "Wine Red 3005",
+      "fr": "Wine Red 3005",
+      "it": "Wine Red 3005",
+      "nl": "Wine Red 3005",
+      "ro": "Wine Red 3005"
+     },
+     "priceCents": 6500,
+     "range": "skin",
+     "ref": "02.20.31.000002 - 116700",
+     "sortOrder": 1037,
+     "swatchHex": "#51001E",
+     "texture": "/finishes/s38.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "metallic",
+     "key": "s39",
+     "labels": {
+      "de": "Iron Glimmer White",
+      "en": "Iron Glimmer White",
+      "fr": "Iron Glimmer White",
+      "it": "Iron Glimmer White",
+      "nl": "Iron Glimmer White",
+      "ro": "Iron Glimmer White"
+     },
+     "priceCents": 9500,
+     "range": "skin",
+     "ref": "1.0065 007 - 341300",
+     "sortOrder": 1038,
+     "swatchHex": "#FEFEF3",
+     "texture": "/finishes/s39.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "metallic",
+     "key": "s40",
+     "labels": {
+      "de": "Iron Glimmer Slate",
+      "en": "Iron Glimmer Slate",
+      "fr": "Iron Glimmer Slate",
+      "it": "Iron Glimmer Slate",
+      "nl": "Iron Glimmer Slate",
+      "ro": "Iron Glimmer Slate"
+     },
+     "priceCents": 9500,
+     "range": "skin",
+     "ref": "1.0065 002 - 341300",
+     "sortOrder": 1039,
+     "swatchHex": "#FEFFF7",
+     "texture": "/finishes/s40.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "metallic",
+     "key": "s41",
+     "labels": {
+      "de": "Iron Glimmer Anthracite",
+      "en": "Iron Glimmer Anthracite",
+      "fr": "Iron Glimmer Anthracite",
+      "it": "Iron Glimmer Anthracite",
+      "nl": "Iron Glimmer Anthracite",
+      "ro": "Iron Glimmer Anthracite"
+     },
+     "priceCents": 9500,
+     "range": "skin",
+     "ref": "1.0065 001 - 341300",
+     "sortOrder": 1040,
+     "swatchHex": "#555F63",
+     "texture": "/finishes/s41.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "metallic",
+     "key": "s42",
+     "labels": {
+      "de": "Iron Glimmer Brown",
+      "en": "Iron Glimmer Brown",
+      "fr": "Iron Glimmer Brown",
+      "it": "Iron Glimmer Brown",
+      "nl": "Iron Glimmer Brown",
+      "ro": "Iron Glimmer Brown"
+     },
+     "priceCents": 9500,
+     "range": "skin",
+     "ref": "1.0065 009 - 341300",
+     "sortOrder": 1041,
+     "swatchHex": "#6B5D59",
+     "texture": "/finishes/s42.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "metallic",
+     "key": "s43",
+     "labels": {
+      "de": "Silver D Smooth",
+      "en": "Silver D Smooth",
+      "fr": "Silver D Smooth",
+      "it": "Silver D Smooth",
+      "nl": "Silver D Smooth",
+      "ro": "Silver D Smooth"
+     },
+     "priceCents": 9500,
+     "range": "skin",
+     "ref": "02.12.76.000013 - 808302",
+     "sortOrder": 1042,
+     "swatchHex": "#90918D",
+     "texture": "/finishes/s43.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "metallic",
+     "key": "s44",
+     "labels": {
+      "de": "Silver V 9705",
+      "en": "Silver V 9705",
+      "fr": "Silver V 9705",
+      "it": "Silver V 9705",
+      "nl": "Silver V 9705",
+      "ro": "Silver V 9705"
+     },
+     "priceCents": 9500,
+     "range": "skin",
+     "ref": "02.12.76.000014 - 119501",
+     "sortOrder": 1043,
+     "swatchHex": "#919496",
+     "texture": "/finishes/s44.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "metallic",
+     "key": "s45",
+     "labels": {
+      "de": "Aluminium Brush Effect",
+      "en": "Aluminium Brush Effect",
+      "fr": "Aluminium Brush Effect",
+      "it": "Aluminium Brush Effect",
+      "nl": "Aluminium Brush Effect",
+      "ro": "Aluminium Brush Effect"
+     },
+     "priceCents": 9500,
+     "range": "skin",
+     "ref": "9.1298 702 - 119501",
+     "sortOrder": 1044,
+     "swatchHex": "#ACB3B1",
+     "texture": "/finishes/s45.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "metallic",
+     "key": "s46",
+     "labels": {
+      "de": "Silver Brush Effect",
+      "en": "Silver Brush Effect",
+      "fr": "Silver Brush Effect",
+      "it": "Silver Brush Effect",
+      "nl": "Silver Brush Effect",
+      "ro": "Silver Brush Effect"
+     },
+     "priceCents": 9500,
+     "range": "skin",
+     "ref": "9.1298 703 - 119501",
+     "sortOrder": 1045,
+     "swatchHex": "#969B9C",
+     "texture": "/finishes/s46.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "metallic",
+     "key": "s47",
+     "labels": {
+      "de": "Pyrite",
+      "en": "Pyrite",
+      "fr": "Pyrite",
+      "it": "Pyrite",
+      "nl": "Pyrite",
+      "ro": "Pyrite"
+     },
+     "priceCents": 9500,
+     "range": "skin",
+     "ref": "02.12.17.000001 - 119501",
+     "sortOrder": 1046,
+     "swatchHex": "#8A775E",
+     "texture": "/finishes/s47.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "metallic",
+     "key": "s48",
+     "labels": {
+      "de": "Flemish Gold C-33 N Smooth",
+      "en": "Flemish Gold C-33 N Smooth",
+      "fr": "Flemish Gold C-33 N Smooth",
+      "it": "Flemish Gold C-33 N Smooth",
+      "nl": "Flemish Gold C-33 N Smooth",
+      "ro": "Flemish Gold C-33 N Smooth"
+     },
+     "priceCents": 9500,
+     "range": "skin",
+     "ref": "02.12.81.000062 - 808302",
+     "sortOrder": 1047,
+     "swatchHex": "#484339",
+     "texture": "/finishes/s48.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "metallic",
+     "key": "s49",
+     "labels": {
+      "de": "Bronze Platinum 1",
+      "en": "Bronze Platinum 1",
+      "fr": "Bronze Platinum 1",
+      "it": "Bronze Platinum 1",
+      "nl": "Bronze Platinum 1",
+      "ro": "Bronze Platinum 1"
+     },
+     "priceCents": 9500,
+     "range": "skin",
+     "ref": "9.1293 714 - 119501",
+     "sortOrder": 1048,
+     "swatchHex": "#4A3A1A",
+     "texture": "/finishes/s49.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "metallic",
+     "key": "s50",
+     "labels": {
+      "de": "Champagne Smooth 2",
+      "en": "Champagne Smooth 2",
+      "fr": "Champagne Smooth 2",
+      "it": "Champagne Smooth 2",
+      "nl": "Champagne Smooth 2",
+      "ro": "Champagne Smooth 2"
+     },
+     "priceCents": 9500,
+     "range": "skin",
+     "ref": "02.20.17.000001 - 809700",
+     "sortOrder": 1049,
+     "swatchHex": "#8C896A",
+     "texture": "/finishes/s50.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s51",
+     "labels": {
+      "de": "Weissbach Oak VLF",
+      "en": "Weissbach Oak VLF",
+      "fr": "Weissbach Oak VLF",
+      "it": "Weissbach Oak VLF",
+      "nl": "Weissbach Oak VLF",
+      "ro": "Weissbach Oak VLF"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.3241 306 - 102200",
+     "sortOrder": 1050,
+     "swatchHex": "#D1C1A7",
+     "texture": "/finishes/s51.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s52",
+     "labels": {
+      "de": "Mountain Oak",
+      "en": "Mountain Oak",
+      "fr": "Mountain Oak",
+      "it": "Mountain Oak",
+      "nl": "Mountain Oak",
+      "ro": "Mountain Oak"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "2.0057 005 - 130300",
+     "sortOrder": 1051,
+     "swatchHex": "#7C6958",
+     "texture": "/finishes/s52.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s53",
+     "labels": {
+      "de": "Monument Oak",
+      "en": "Monument Oak",
+      "fr": "Monument Oak",
+      "it": "Monument Oak",
+      "nl": "Monument Oak",
+      "ro": "Monument Oak"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "2.0057 006 - 130300",
+     "sortOrder": 1052,
+     "swatchHex": "#706459",
+     "texture": "/finishes/s53.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s54",
+     "labels": {
+      "de": "Mountain Pine",
+      "en": "Mountain Pine",
+      "fr": "Mountain Pine",
+      "it": "Mountain Pine",
+      "nl": "Mountain Pine",
+      "ro": "Mountain Pine"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.3069 341 - 116700",
+     "sortOrder": 1053,
+     "swatchHex": "#B88658",
+     "texture": "/finishes/s54.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s55",
+     "labels": {
+      "de": "Desert Oak",
+      "en": "Desert Oak",
+      "fr": "Desert Oak",
+      "it": "Desert Oak",
+      "nl": "Desert Oak",
+      "ro": "Desert Oak"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "2.0057 004 - 130300",
+     "sortOrder": 1054,
+     "swatchHex": "#AD7E5A",
+     "texture": "/finishes/s55.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s56",
+     "labels": {
+      "de": "Natural Oak FL-G",
+      "en": "Natural Oak FL-G",
+      "fr": "Natural Oak FL-G",
+      "it": "Natural Oak FL-G",
+      "nl": "Natural Oak FL-G",
+      "ro": "Natural Oak FL-G"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.3118 376 - 116801",
+     "sortOrder": 1055,
+     "swatchHex": "#B39065",
+     "texture": "/finishes/s56.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s57",
+     "labels": {
+      "de": "Ginger Oak VLF",
+      "en": "Ginger Oak VLF",
+      "fr": "Ginger Oak VLF",
+      "it": "Ginger Oak VLF",
+      "nl": "Ginger Oak VLF",
+      "ro": "Ginger Oak VLF"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "3.0078 004 - 102200",
+     "sortOrder": 1056,
+     "swatchHex": "#B3824A",
+     "texture": "/finishes/s57.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s58",
+     "labels": {
+      "de": "Irish Oak",
+      "en": "Irish Oak",
+      "fr": "Irish Oak",
+      "it": "Irish Oak",
+      "nl": "Irish Oak",
+      "ro": "Irish Oak"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.3211 305 - 114800",
+     "sortOrder": 1057,
+     "swatchHex": "#A87A4F",
+     "texture": "/finishes/s58.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s59",
+     "labels": {
+      "de": "Winchester XA 46830",
+      "en": "Winchester XA 46830",
+      "fr": "Winchester XA 46830",
+      "it": "Winchester XA 46830",
+      "nl": "Winchester XA 46830",
+      "ro": "Winchester XA 46830"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "4.0175 005 - 114800",
+     "sortOrder": 1058,
+     "swatchHex": "#91663E",
+     "texture": "/finishes/s59.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s60",
+     "labels": {
+      "de": "Honey Oak VLF",
+      "en": "Honey Oak VLF",
+      "fr": "Honey Oak VLF",
+      "it": "Honey Oak VLF",
+      "nl": "Honey Oak VLF",
+      "ro": "Honey Oak VLF"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "3.0078 007 - 102200",
+     "sortOrder": 1059,
+     "swatchHex": "#84522D",
+     "texture": "/finishes/s60.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s61",
+     "labels": {
+      "de": "Stripe Douglas Fir",
+      "en": "Stripe Douglas Fir",
+      "fr": "Stripe Douglas Fir",
+      "it": "Stripe Douglas Fir",
+      "nl": "Stripe Douglas Fir",
+      "ro": "Stripe Douglas Fir"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.3152 309 - 116700",
+     "sortOrder": 1060,
+     "swatchHex": "#935730",
+     "texture": "/finishes/s61.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s62",
+     "labels": {
+      "de": "Rustic Cherry",
+      "en": "Rustic Cherry",
+      "fr": "Rustic Cherry",
+      "it": "Rustic Cherry",
+      "nl": "Rustic Cherry",
+      "ro": "Rustic Cherry"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.3214 307 - 119500",
+     "sortOrder": 1061,
+     "swatchHex": "#93623B",
+     "texture": "/finishes/s62.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s63",
+     "labels": {
+      "de": "Siena PL 46829",
+      "en": "Siena PL 46829",
+      "fr": "Siena PL 46829",
+      "it": "Siena PL 46829",
+      "nl": "Siena PL 46829",
+      "ro": "Siena PL 46829"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "4.0131 002 - 114800",
+     "sortOrder": 1062,
+     "swatchHex": "#724B2A",
+     "texture": "/finishes/s63.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "metallic",
+     "key": "s64",
+     "labels": {
+      "de": "Golden Oak",
+      "en": "Golden Oak",
+      "fr": "Golden Oak",
+      "it": "Golden Oak",
+      "nl": "Golden Oak",
+      "ro": "Golden Oak"
+     },
+     "priceCents": 9500,
+     "range": "skin",
+     "ref": "9.2178 301 - 116700",
+     "sortOrder": 1063,
+     "swatchHex": "#754512",
+     "texture": "/finishes/s64.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s65",
+     "labels": {
+      "de": "Winchester XC 46843",
+      "en": "Winchester XC 46843",
+      "fr": "Winchester XC 46843",
+      "it": "Winchester XC 46843",
+      "nl": "Winchester XC 46843",
+      "ro": "Winchester XC 46843"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "4.0175 007 - 114800",
+     "sortOrder": 1064,
+     "swatchHex": "#502C0A",
+     "texture": "/finishes/s65.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s66",
+     "labels": {
+      "de": "Siena PR 46827",
+      "en": "Siena PR 46827",
+      "fr": "Siena PR 46827",
+      "it": "Siena PR 46827",
+      "nl": "Siena PR 46827",
+      "ro": "Siena PR 46827"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "4.0131 006 - 114800",
+     "sortOrder": 1065,
+     "swatchHex": "#5A3522",
+     "texture": "/finishes/s66.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s67",
+     "labels": {
+      "de": "Siena PN 46828",
+      "en": "Siena PN 46828",
+      "fr": "Siena PN 46828",
+      "it": "Siena PN 46828",
+      "nl": "Siena PN 46828",
+      "ro": "Siena PN 46828"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "4.0131 004 - 114800",
+     "sortOrder": 1066,
+     "swatchHex": "#3A2517",
+     "texture": "/finishes/s67.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s68",
+     "labels": {
+      "de": "Amaranth Oak VLF",
+      "en": "Amaranth Oak VLF",
+      "fr": "Amaranth Oak VLF",
+      "it": "Amaranth Oak VLF",
+      "nl": "Amaranth Oak VLF",
+      "ro": "Amaranth Oak VLF"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "3.0078 008 - 102200",
+     "sortOrder": 1067,
+     "swatchHex": "#523C30",
+     "texture": "/finishes/s68.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s69",
+     "labels": {
+      "de": "Walnut V",
+      "en": "Walnut V",
+      "fr": "Walnut V",
+      "it": "Walnut V",
+      "nl": "Walnut V",
+      "ro": "Walnut V"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.2178 307 - 116700",
+     "sortOrder": 1068,
+     "swatchHex": "#442912",
+     "texture": "/finishes/s69.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s70",
+     "labels": {
+      "de": "Rustic Oak 1",
+      "en": "Rustic Oak 1",
+      "fr": "Rustic Oak 1",
+      "it": "Rustic Oak 1",
+      "nl": "Rustic Oak 1",
+      "ro": "Rustic Oak 1"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.3149 308 - 116700",
+     "sortOrder": 1069,
+     "swatchHex": "#3E230A",
+     "texture": "/finishes/s70.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s71",
+     "labels": {
+      "de": "Macore",
+      "en": "Macore",
+      "fr": "Macore",
+      "it": "Macore",
+      "nl": "Macore",
+      "ro": "Macore"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.3162 302 - 116700",
+     "sortOrder": 1070,
+     "swatchHex": "#51230E",
+     "texture": "/finishes/s71.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s72",
+     "labels": {
+      "de": "Sapeli",
+      "en": "Sapeli",
+      "fr": "Sapeli",
+      "it": "Sapeli",
+      "nl": "Sapeli",
+      "ro": "Sapeli"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.2065 321 - 116700",
+     "sortOrder": 1071,
+     "swatchHex": "#37130B",
+     "texture": "/finishes/s72.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s73",
+     "labels": {
+      "de": "Mahogany",
+      "en": "Mahogany",
+      "fr": "Mahogany",
+      "it": "Mahogany",
+      "nl": "Mahogany",
+      "ro": "Mahogany"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.2097 313 - 116700",
+     "sortOrder": 1072,
+     "swatchHex": "#2E0D09",
+     "texture": "/finishes/s73.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s74",
+     "labels": {
+      "de": "Black Cherry 701",
+      "en": "Black Cherry 701",
+      "fr": "Black Cherry 701",
+      "it": "Black Cherry 701",
+      "nl": "Black Cherry 701",
+      "ro": "Black Cherry 701"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.3202 701 - 116701",
+     "sortOrder": 1073,
+     "swatchHex": "#270608",
+     "texture": "/finishes/s74.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s75",
+     "labels": {
+      "de": "Dark Oak FL-F1",
+      "en": "Dark Oak FL-F1",
+      "fr": "Dark Oak FL-F1",
+      "it": "Dark Oak FL-F1",
+      "nl": "Dark Oak FL-F1",
+      "ro": "Dark Oak FL-F1"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.2052 389 - 116700",
+     "sortOrder": 1074,
+     "swatchHex": "#27150A",
+     "texture": "/finishes/s75.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s76",
+     "labels": {
+      "de": "Pepper Oak Super-Matt",
+      "en": "Pepper Oak Super-Matt",
+      "fr": "Pepper Oak Super-Matt",
+      "it": "Pepper Oak Super-Matt",
+      "nl": "Pepper Oak Super-Matt",
+      "ro": "Pepper Oak Super-Matt"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "2.0078 001 - 102200",
+     "sortOrder": 1075,
+     "swatchHex": "#C4CAC7",
+     "texture": "/finishes/s76.jpg",
+     "textureH": 112,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s77",
+     "labels": {
+      "de": "Weissbach Oak Super-Matt",
+      "en": "Weissbach Oak Super-Matt",
+      "fr": "Weissbach Oak Super-Matt",
+      "it": "Weissbach Oak Super-Matt",
+      "nl": "Weissbach Oak Super-Matt",
+      "ro": "Weissbach Oak Super-Matt"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "9.3241 306 - 102200",
+     "sortOrder": 1076,
+     "swatchHex": "#C7B69D",
+     "texture": "/finishes/s77.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s78",
+     "labels": {
+      "de": "Ginger Oak Super-Matt",
+      "en": "Ginger Oak Super-Matt",
+      "fr": "Ginger Oak Super-Matt",
+      "it": "Ginger Oak Super-Matt",
+      "nl": "Ginger Oak Super-Matt",
+      "ro": "Ginger Oak Super-Matt"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "3.0078 004 - 102200",
+     "sortOrder": 1077,
+     "swatchHex": "#A67845",
+     "texture": "/finishes/s78.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "wood",
+     "key": "s79",
+     "labels": {
+      "de": "Honey Oak Super-Matt",
+      "en": "Honey Oak Super-Matt",
+      "fr": "Honey Oak Super-Matt",
+      "it": "Honey Oak Super-Matt",
+      "nl": "Honey Oak Super-Matt",
+      "ro": "Honey Oak Super-Matt"
+     },
+     "priceCents": 8500,
+     "range": "skin",
+     "ref": "3.0078 007 - 102200",
+     "sortOrder": 1078,
+     "swatchHex": "#734626",
+     "texture": "/finishes/s79.jpg",
+     "textureH": 226,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "special",
+     "key": "std-profile-white",
+     "labels": {
+      "de": "Profilweiß",
+      "en": "Profile white",
+      "fr": "Blanc profilé",
+      "it": "Bianco profilo",
+      "nl": "Profielwit",
+      "ro": "Alb profil"
+     },
+     "priceCents": 0,
+     "range": "nuance",
+     "sortOrder": 2000,
+     "swatchHex": "#FFFFFF",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "warm",
+     "key": "ral-1000",
+     "labels": {
+      "de": "Beige RAL 1000",
+      "en": "Beige RAL 1000",
+      "fr": "Beige RAL 1000",
+      "it": "Beige RAL 1000",
+      "nl": "Beige RAL 1000",
+      "ro": "Bej RAL 1000"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2001,
+     "swatchHex": "#D1C687",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "warm",
+     "key": "ral-1001",
+     "labels": {
+      "de": "Beige RAL 1001",
+      "en": "Beige RAL 1001",
+      "fr": "Beige RAL 1001",
+      "it": "Beige RAL 1001",
+      "nl": "Beige RAL 1001",
+      "ro": "Bej RAL 1001"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2002,
+     "swatchHex": "#D1AD76",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "warm",
+     "key": "ral-1002",
+     "labels": {
+      "de": "Beige RAL 1002",
+      "en": "Beige RAL 1002",
+      "fr": "Beige RAL 1002",
+      "it": "Beige RAL 1002",
+      "nl": "Beige RAL 1002",
+      "ro": "Bej RAL 1002"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2003,
+     "swatchHex": "#E7BC71",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "warm",
+     "key": "ral-1004",
+     "labels": {
+      "de": "Gelb RAL 1004",
+      "en": "Yellow RAL 1004",
+      "fr": "Jaune RAL 1004",
+      "it": "Giallo RAL 1004",
+      "nl": "Geel RAL 1004",
+      "ro": "Galben RAL 1004"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2004,
+     "swatchHex": "#F1B51B",
+     "warrantyYears": 5
+    },
+    {
+     "enabled": true,
+     "group": "warm",
+     "key": "ral-1013",
+     "labels": {
+      "de": "Beige RAL 1013",
+      "en": "Beige RAL 1013",
+      "fr": "Beige RAL 1013",
+      "it": "Beige RAL 1013",
+      "nl": "Beige RAL 1013",
+      "ro": "Bej RAL 1013"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2005,
+     "swatchHex": "#E8DABE",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "warm",
+     "key": "ral-1015",
+     "labels": {
+      "de": "Beige RAL 1015",
+      "en": "Beige RAL 1015",
+      "fr": "Beige RAL 1015",
+      "it": "Beige RAL 1015",
+      "nl": "Beige RAL 1015",
+      "ro": "Bej RAL 1015"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2006,
+     "swatchHex": "#E9D9AD",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "warm",
+     "key": "ral-1018",
+     "labels": {
+      "de": "Gelb RAL 1018",
+      "en": "Yellow RAL 1018",
+      "fr": "Jaune RAL 1018",
+      "it": "Giallo RAL 1018",
+      "nl": "Geel RAL 1018",
+      "ro": "Galben RAL 1018"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2007,
+     "swatchHex": "#FFF450",
+     "warrantyYears": 5
+    },
+    {
+     "enabled": true,
+     "group": "warm",
+     "key": "ral-1019",
+     "labels": {
+      "de": "Beige RAL 1019",
+      "en": "Beige RAL 1019",
+      "fr": "Beige RAL 1019",
+      "it": "Beige RAL 1019",
+      "nl": "Beige RAL 1019",
+      "ro": "Bej RAL 1019"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2008,
+     "swatchHex": "#9E886B",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "warm",
+     "key": "ral-1020",
+     "labels": {
+      "de": "Gelb RAL 1020",
+      "en": "Yellow RAL 1020",
+      "fr": "Jaune RAL 1020",
+      "it": "Giallo RAL 1020",
+      "nl": "Geel RAL 1020",
+      "ro": "Galben RAL 1020"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2009,
+     "swatchHex": "#A79F80",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "warm",
+     "key": "ral-1027",
+     "labels": {
+      "de": "Gelb RAL 1027",
+      "en": "Yellow RAL 1027",
+      "fr": "Jaune RAL 1027",
+      "it": "Giallo RAL 1027",
+      "nl": "Geel RAL 1027",
+      "ro": "Galben RAL 1027"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2010,
+     "swatchHex": "#988323",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "reds",
+     "key": "ral-3000",
+     "labels": {
+      "de": "Rot RAL 3000",
+      "en": "Red RAL 3000",
+      "fr": "Rouge RAL 3000",
+      "it": "Rosso RAL 3000",
+      "nl": "Rood RAL 3000",
+      "ro": "Roșu RAL 3000"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2011,
+     "swatchHex": "#C4151C",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "reds",
+     "key": "ral-3002",
+     "labels": {
+      "de": "Rot RAL 3002",
+      "en": "Red RAL 3002",
+      "fr": "Rouge RAL 3002",
+      "it": "Rosso RAL 3002",
+      "nl": "Rood RAL 3002",
+      "ro": "Roșu RAL 3002"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2012,
+     "swatchHex": "#B41827",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "reds",
+     "key": "ral-3003",
+     "labels": {
+      "de": "Rot RAL 3003",
+      "en": "Red RAL 3003",
+      "fr": "Rouge RAL 3003",
+      "it": "Rosso RAL 3003",
+      "nl": "Rood RAL 3003",
+      "ro": "Roșu RAL 3003"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2013,
+     "swatchHex": "#9E0A0E",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "reds",
+     "key": "ral-3005",
+     "labels": {
+      "de": "Rot RAL 3005",
+      "en": "Red RAL 3005",
+      "fr": "Rouge RAL 3005",
+      "it": "Rosso RAL 3005",
+      "nl": "Rood RAL 3005",
+      "ro": "Roșu RAL 3005"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2014,
+     "swatchHex": "#850D23",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "reds",
+     "key": "ral-3007",
+     "labels": {
+      "de": "Rot RAL 3007",
+      "en": "Red RAL 3007",
+      "fr": "Rouge RAL 3007",
+      "it": "Rosso RAL 3007",
+      "nl": "Rood RAL 3007",
+      "ro": "Roșu RAL 3007"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2015,
+     "swatchHex": "#280006",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "reds",
+     "key": "ral-3009",
+     "labels": {
+      "de": "Rot RAL 3009",
+      "en": "Red RAL 3009",
+      "fr": "Rouge RAL 3009",
+      "it": "Rosso RAL 3009",
+      "nl": "Rood RAL 3009",
+      "ro": "Roșu RAL 3009"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2016,
+     "swatchHex": "#500300",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "reds",
+     "key": "ral-3011",
+     "labels": {
+      "de": "Rot RAL 3011",
+      "en": "Red RAL 3011",
+      "fr": "Rouge RAL 3011",
+      "it": "Rosso RAL 3011",
+      "nl": "Rood RAL 3011",
+      "ro": "Roșu RAL 3011"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2017,
+     "swatchHex": "#851012",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "reds",
+     "key": "ral-3020",
+     "labels": {
+      "de": "Rot RAL 3020",
+      "en": "Red RAL 3020",
+      "fr": "Rouge RAL 3020",
+      "it": "Rosso RAL 3020",
+      "nl": "Rood RAL 3020",
+      "ro": "Roșu RAL 3020"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2018,
+     "swatchHex": "#D71920",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "reds",
+     "key": "ral-4007",
+     "labels": {
+      "de": "Bordeaux RAL 4007",
+      "en": "Bordeaux RAL 4007",
+      "fr": "Bordeaux RAL 4007",
+      "it": "Bordeaux RAL 4007",
+      "nl": "Bordeaux RAL 4007",
+      "ro": "Bordo RAL 4007"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2019,
+     "swatchHex": "#37003E",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5002",
+     "labels": {
+      "de": "Blau RAL 5002",
+      "en": "Blue RAL 5002",
+      "fr": "Bleu RAL 5002",
+      "it": "Blu RAL 5002",
+      "nl": "Blauw RAL 5002",
+      "ro": "Albastru RAL 5002"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2020,
+     "swatchHex": "#003974",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5003",
+     "labels": {
+      "de": "Blau RAL 5003",
+      "en": "Blue RAL 5003",
+      "fr": "Bleu RAL 5003",
+      "it": "Blu RAL 5003",
+      "nl": "Blauw RAL 5003",
+      "ro": "Albastru RAL 5003"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2021,
+     "swatchHex": "#001C43",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5005",
+     "labels": {
+      "de": "Blau RAL 5005",
+      "en": "Blue RAL 5005",
+      "fr": "Bleu RAL 5005",
+      "it": "Blu RAL 5005",
+      "nl": "Blauw RAL 5005",
+      "ro": "Albastru RAL 5005"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2022,
+     "swatchHex": "#005387",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5007",
+     "labels": {
+      "de": "Blau RAL 5007",
+      "en": "Blue RAL 5007",
+      "fr": "Bleu RAL 5007",
+      "it": "Blu RAL 5007",
+      "nl": "Blauw RAL 5007",
+      "ro": "Albastru RAL 5007"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2023,
+     "swatchHex": "#006B96",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5008",
+     "labels": {
+      "de": "Blau RAL 5008",
+      "en": "Blue RAL 5008",
+      "fr": "Bleu RAL 5008",
+      "it": "Blu RAL 5008",
+      "nl": "Blauw RAL 5008",
+      "ro": "Albastru RAL 5008"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2024,
+     "swatchHex": "#003141",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5009",
+     "labels": {
+      "de": "Blau RAL 5009",
+      "en": "Blue RAL 5009",
+      "fr": "Bleu RAL 5009",
+      "it": "Blu RAL 5009",
+      "nl": "Blauw RAL 5009",
+      "ro": "Albastru RAL 5009"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2025,
+     "swatchHex": "#005F83",
+     "warrantyYears": 5
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5010",
+     "labels": {
+      "de": "Blau RAL 5010",
+      "en": "Blue RAL 5010",
+      "fr": "Bleu RAL 5010",
+      "it": "Blu RAL 5010",
+      "nl": "Blauw RAL 5010",
+      "ro": "Albastru RAL 5010"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2026,
+     "swatchHex": "#005381",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5011",
+     "labels": {
+      "de": "Blau RAL 5011",
+      "en": "Blue RAL 5011",
+      "fr": "Bleu RAL 5011",
+      "it": "Blu RAL 5011",
+      "nl": "Blauw RAL 5011",
+      "ro": "Albastru RAL 5011"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2027,
+     "swatchHex": "#001539",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5013",
+     "labels": {
+      "de": "Blau RAL 5013",
+      "en": "Blue RAL 5013",
+      "fr": "Bleu RAL 5013",
+      "it": "Blu RAL 5013",
+      "nl": "Blauw RAL 5013",
+      "ro": "Albastru RAL 5013"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2028,
+     "swatchHex": "#002E5E",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5014",
+     "labels": {
+      "de": "Blau RAL 5014",
+      "en": "Blue RAL 5014",
+      "fr": "Bleu RAL 5014",
+      "it": "Blu RAL 5014",
+      "nl": "Blauw RAL 5014",
+      "ro": "Albastru RAL 5014"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2029,
+     "swatchHex": "#527798",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5017",
+     "labels": {
+      "de": "Blau RAL 5017",
+      "en": "Blue RAL 5017",
+      "fr": "Bleu RAL 5017",
+      "it": "Blu RAL 5017",
+      "nl": "Blauw RAL 5017",
+      "ro": "Albastru RAL 5017"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2030,
+     "swatchHex": "#00658F",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5020",
+     "labels": {
+      "de": "Blau RAL 5020",
+      "en": "Blue RAL 5020",
+      "fr": "Bleu RAL 5020",
+      "it": "Blu RAL 5020",
+      "nl": "Blauw RAL 5020",
+      "ro": "Albastru RAL 5020"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2031,
+     "swatchHex": "#003C3D",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5021",
+     "labels": {
+      "de": "Blaugrün RAL 5021",
+      "en": "Blue-green RAL 5021",
+      "fr": "Bleu-vert RAL 5021",
+      "it": "Blu-verde RAL 5021",
+      "nl": "Blauwgroen RAL 5021",
+      "ro": "Albastru-verde RAL 5021"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2032,
+     "swatchHex": "#008684",
+     "warrantyYears": 5
+    },
+    {
+     "enabled": true,
+     "group": "blues",
+     "key": "ral-5024",
+     "labels": {
+      "de": "Blau RAL 5024",
+      "en": "Blue RAL 5024",
+      "fr": "Bleu RAL 5024",
+      "it": "Blu RAL 5024",
+      "nl": "Blauw RAL 5024",
+      "ro": "Albastru RAL 5024"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2033,
+     "swatchHex": "#3189AB",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6000",
+     "labels": {
+      "de": "Grün RAL 6000",
+      "en": "Green RAL 6000",
+      "fr": "Vert RAL 6000",
+      "it": "Verde RAL 6000",
+      "nl": "Groen RAL 6000",
+      "ro": "Verde RAL 6000"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2034,
+     "swatchHex": "#1A826D",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6002",
+     "labels": {
+      "de": "Grün RAL 6002",
+      "en": "Green RAL 6002",
+      "fr": "Vert RAL 6002",
+      "it": "Verde RAL 6002",
+      "nl": "Groen RAL 6002",
+      "ro": "Verde RAL 6002"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2035,
+     "swatchHex": "#187249",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6003",
+     "labels": {
+      "de": "Grün RAL 6003",
+      "en": "Green RAL 6003",
+      "fr": "Vert RAL 6003",
+      "it": "Verde RAL 6003",
+      "nl": "Groen RAL 6003",
+      "ro": "Verde RAL 6003"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2036,
+     "swatchHex": "#3F6249",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6005",
+     "labels": {
+      "de": "Grün RAL 6005",
+      "en": "Green RAL 6005",
+      "fr": "Vert RAL 6005",
+      "it": "Verde RAL 6005",
+      "nl": "Groen RAL 6005",
+      "ro": "Verde RAL 6005"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2037,
+     "swatchHex": "#00543E",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6009",
+     "labels": {
+      "de": "Grün RAL 6009",
+      "en": "Green RAL 6009",
+      "fr": "Vert RAL 6009",
+      "it": "Verde RAL 6009",
+      "nl": "Groen RAL 6009",
+      "ro": "Verde RAL 6009"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2038,
+     "swatchHex": "#053820",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6011",
+     "labels": {
+      "de": "Grün RAL 6011",
+      "en": "Green RAL 6011",
+      "fr": "Vert RAL 6011",
+      "it": "Verde RAL 6011",
+      "nl": "Groen RAL 6011",
+      "ro": "Verde RAL 6011"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2039,
+     "swatchHex": "#588C69",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6012",
+     "labels": {
+      "de": "Grün RAL 6012",
+      "en": "Green RAL 6012",
+      "fr": "Vert RAL 6012",
+      "it": "Verde RAL 6012",
+      "nl": "Groen RAL 6012",
+      "ro": "Verde RAL 6012"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2040,
+     "swatchHex": "#1F4031",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6013",
+     "labels": {
+      "de": "Grün RAL 6013",
+      "en": "Green RAL 6013",
+      "fr": "Vert RAL 6013",
+      "it": "Verde RAL 6013",
+      "nl": "Groen RAL 6013",
+      "ro": "Verde RAL 6013"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2041,
+     "swatchHex": "#6A7755",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6018",
+     "labels": {
+      "de": "Grün RAL 6018",
+      "en": "Green RAL 6018",
+      "fr": "Vert RAL 6018",
+      "it": "Verde RAL 6018",
+      "nl": "Groen RAL 6018",
+      "ro": "Verde RAL 6018"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2042,
+     "swatchHex": "#4CB857",
+     "warrantyYears": 5
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6019",
+     "labels": {
+      "de": "Grün RAL 6019",
+      "en": "Green RAL 6019",
+      "fr": "Vert RAL 6019",
+      "it": "Verde RAL 6019",
+      "nl": "Groen RAL 6019",
+      "ro": "Verde RAL 6019"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2043,
+     "swatchHex": "#A8D7AE",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6020",
+     "labels": {
+      "de": "Grün RAL 6020",
+      "en": "Green RAL 6020",
+      "fr": "Vert RAL 6020",
+      "it": "Verde RAL 6020",
+      "nl": "Groen RAL 6020",
+      "ro": "Verde RAL 6020"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2044,
+     "swatchHex": "#295647",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6021",
+     "labels": {
+      "de": "Grün RAL 6021",
+      "en": "Green RAL 6021",
+      "fr": "Vert RAL 6021",
+      "it": "Verde RAL 6021",
+      "nl": "Groen RAL 6021",
+      "ro": "Verde RAL 6021"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2045,
+     "swatchHex": "#7AAA89",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6024",
+     "labels": {
+      "de": "Grün RAL 6024",
+      "en": "Green RAL 6024",
+      "fr": "Vert RAL 6024",
+      "it": "Verde RAL 6024",
+      "nl": "Groen RAL 6024",
+      "ro": "Verde RAL 6024"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2046,
+     "swatchHex": "#00925F",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6027",
+     "labels": {
+      "de": "Grün RAL 6027",
+      "en": "Green RAL 6027",
+      "fr": "Vert RAL 6027",
+      "it": "Verde RAL 6027",
+      "nl": "Groen RAL 6027",
+      "ro": "Verde RAL 6027"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2047,
+     "swatchHex": "#5AC4BF",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6028",
+     "labels": {
+      "de": "Grün RAL 6028",
+      "en": "Green RAL 6028",
+      "fr": "Vert RAL 6028",
+      "it": "Verde RAL 6028",
+      "nl": "Groen RAL 6028",
+      "ro": "Verde RAL 6028"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2048,
+     "swatchHex": "#056543",
+     "warrantyYears": 5
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6029",
+     "labels": {
+      "de": "Grün RAL 6029",
+      "en": "Green RAL 6029",
+      "fr": "Vert RAL 6029",
+      "it": "Verde RAL 6029",
+      "nl": "Groen RAL 6029",
+      "ro": "Verde RAL 6029"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2049,
+     "swatchHex": "#008948",
+     "warrantyYears": 5
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6033",
+     "labels": {
+      "de": "Grün RAL 6033",
+      "en": "Green RAL 6033",
+      "fr": "Vert RAL 6033",
+      "it": "Verde RAL 6033",
+      "nl": "Groen RAL 6033",
+      "ro": "Verde RAL 6033"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2050,
+     "swatchHex": "#199B90",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greens",
+     "key": "ral-6034",
+     "labels": {
+      "de": "Grün RAL 6034",
+      "en": "Green RAL 6034",
+      "fr": "Vert RAL 6034",
+      "it": "Verde RAL 6034",
+      "nl": "Groen RAL 6034",
+      "ro": "Verde RAL 6034"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2051,
+     "swatchHex": "#67B4A6",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7001",
+     "labels": {
+      "de": "Grau RAL 7001",
+      "en": "Grey RAL 7001",
+      "fr": "Gris RAL 7001",
+      "it": "Grigio RAL 7001",
+      "nl": "Grijs RAL 7001",
+      "ro": "Gri RAL 7001"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2052,
+     "swatchHex": "#95A3AB",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7002",
+     "labels": {
+      "de": "Grau RAL 7002",
+      "en": "Grey RAL 7002",
+      "fr": "Gris RAL 7002",
+      "it": "Grigio RAL 7002",
+      "nl": "Grijs RAL 7002",
+      "ro": "Gri RAL 7002"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2053,
+     "swatchHex": "#7A715B",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7004",
+     "labels": {
+      "de": "Grau RAL 7004",
+      "en": "Grey RAL 7004",
+      "fr": "Gris RAL 7004",
+      "it": "Grigio RAL 7004",
+      "nl": "Grijs RAL 7004",
+      "ro": "Gri RAL 7004"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2054,
+     "swatchHex": "#9D9FA2",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7005",
+     "labels": {
+      "de": "Grau RAL 7005",
+      "en": "Grey RAL 7005",
+      "fr": "Gris RAL 7005",
+      "it": "Grigio RAL 7005",
+      "nl": "Grijs RAL 7005",
+      "ro": "Gri RAL 7005"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2055,
+     "swatchHex": "#5A6969",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7006",
+     "labels": {
+      "de": "Grau RAL 7006",
+      "en": "Grey RAL 7006",
+      "fr": "Gris RAL 7006",
+      "it": "Grigio RAL 7006",
+      "nl": "Grijs RAL 7006",
+      "ro": "Gri RAL 7006"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2056,
+     "swatchHex": "#817560",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7009",
+     "labels": {
+      "de": "Grau RAL 7009",
+      "en": "Grey RAL 7009",
+      "fr": "Gris RAL 7009",
+      "it": "Grigio RAL 7009",
+      "nl": "Grijs RAL 7009",
+      "ro": "Gri RAL 7009"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2057,
+     "swatchHex": "#452B29",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7010",
+     "labels": {
+      "de": "Grau RAL 7010",
+      "en": "Grey RAL 7010",
+      "fr": "Gris RAL 7010",
+      "it": "Grigio RAL 7010",
+      "nl": "Grijs RAL 7010",
+      "ro": "Gri RAL 7010"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2058,
+     "swatchHex": "#444C41",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7011",
+     "labels": {
+      "de": "Grau RAL 7011",
+      "en": "Grey RAL 7011",
+      "fr": "Gris RAL 7011",
+      "it": "Grigio RAL 7011",
+      "nl": "Grijs RAL 7011",
+      "ro": "Gri RAL 7011"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2059,
+     "swatchHex": "#2F4446",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7012",
+     "labels": {
+      "de": "Grau RAL 7012",
+      "en": "Grey RAL 7012",
+      "fr": "Gris RAL 7012",
+      "it": "Grigio RAL 7012",
+      "nl": "Grijs RAL 7012",
+      "ro": "Gri RAL 7012"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2060,
+     "swatchHex": "#435152",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7013",
+     "labels": {
+      "de": "Grau RAL 7013",
+      "en": "Grey RAL 7013",
+      "fr": "Gris RAL 7013",
+      "it": "Grigio RAL 7013",
+      "nl": "Grijs RAL 7013",
+      "ro": "Gri RAL 7013"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2061,
+     "swatchHex": "#4E4B37",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7015",
+     "labels": {
+      "de": "Grau RAL 7015",
+      "en": "Grey RAL 7015",
+      "fr": "Gris RAL 7015",
+      "it": "Grigio RAL 7015",
+      "nl": "Grijs RAL 7015",
+      "ro": "Gri RAL 7015"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2062,
+     "swatchHex": "#2E444D",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7016",
+     "labels": {
+      "de": "Grau RAL 7016",
+      "en": "Grey RAL 7016",
+      "fr": "Gris RAL 7016",
+      "it": "Grigio RAL 7016",
+      "nl": "Grijs RAL 7016",
+      "ro": "Gri RAL 7016"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2063,
+     "swatchHex": "#1B3238",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7021",
+     "labels": {
+      "de": "Grau RAL 7021",
+      "en": "Grey RAL 7021",
+      "fr": "Gris RAL 7021",
+      "it": "Grigio RAL 7021",
+      "nl": "Grijs RAL 7021",
+      "ro": "Gri RAL 7021"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2064,
+     "swatchHex": "#021F2C",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7022",
+     "labels": {
+      "de": "Grau RAL 7022",
+      "en": "Grey RAL 7022",
+      "fr": "Gris RAL 7022",
+      "it": "Grigio RAL 7022",
+      "nl": "Grijs RAL 7022",
+      "ro": "Gri RAL 7022"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2065,
+     "swatchHex": "#3B3F34",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7023",
+     "labels": {
+      "de": "Grau RAL 7023",
+      "en": "Grey RAL 7023",
+      "fr": "Gris RAL 7023",
+      "it": "Grigio RAL 7023",
+      "nl": "Grijs RAL 7023",
+      "ro": "Gri RAL 7023"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2066,
+     "swatchHex": "#69796B",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7024",
+     "labels": {
+      "de": "Grau RAL 7024",
+      "en": "Grey RAL 7024",
+      "fr": "Gris RAL 7024",
+      "it": "Grigio RAL 7024",
+      "nl": "Grijs RAL 7024",
+      "ro": "Gri RAL 7024"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2067,
+     "swatchHex": "#304550",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7026",
+     "labels": {
+      "de": "Grau RAL 7026",
+      "en": "Grey RAL 7026",
+      "fr": "Gris RAL 7026",
+      "it": "Grigio RAL 7026",
+      "nl": "Grijs RAL 7026",
+      "ro": "Gri RAL 7026"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2068,
+     "swatchHex": "#17383C",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7030",
+     "labels": {
+      "de": "Grau RAL 7030",
+      "en": "Grey RAL 7030",
+      "fr": "Gris RAL 7030",
+      "it": "Grigio RAL 7030",
+      "nl": "Grijs RAL 7030",
+      "ro": "Gri RAL 7030"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2069,
+     "swatchHex": "#878E89",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7031",
+     "labels": {
+      "de": "Grau RAL 7031",
+      "en": "Grey RAL 7031",
+      "fr": "Gris RAL 7031",
+      "it": "Grigio RAL 7031",
+      "nl": "Grijs RAL 7031",
+      "ro": "Gri RAL 7031"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2070,
+     "swatchHex": "#496871",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7032",
+     "labels": {
+      "de": "Grau RAL 7032",
+      "en": "Grey RAL 7032",
+      "fr": "Gris RAL 7032",
+      "it": "Grigio RAL 7032",
+      "nl": "Grijs RAL 7032",
+      "ro": "Gri RAL 7032"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2071,
+     "swatchHex": "#A9A791",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7033",
+     "labels": {
+      "de": "Grau RAL 7033",
+      "en": "Grey RAL 7033",
+      "fr": "Gris RAL 7033",
+      "it": "Grigio RAL 7033",
+      "nl": "Grijs RAL 7033",
+      "ro": "Gri RAL 7033"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2072,
+     "swatchHex": "#78897D",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7034",
+     "labels": {
+      "de": "Grau RAL 7034",
+      "en": "Grey RAL 7034",
+      "fr": "Gris RAL 7034",
+      "it": "Grigio RAL 7034",
+      "nl": "Grijs RAL 7034",
+      "ro": "Gri RAL 7034"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2073,
+     "swatchHex": "#A09B73",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7035",
+     "labels": {
+      "de": "Grau RAL 7035",
+      "en": "Grey RAL 7035",
+      "fr": "Gris RAL 7035",
+      "it": "Grigio RAL 7035",
+      "nl": "Grijs RAL 7035",
+      "ro": "Gri RAL 7035"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2074,
+     "swatchHex": "#CBD0CC",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7036",
+     "labels": {
+      "de": "Grau RAL 7036",
+      "en": "Grey RAL 7036",
+      "fr": "Gris RAL 7036",
+      "it": "Grigio RAL 7036",
+      "nl": "Grijs RAL 7036",
+      "ro": "Gri RAL 7036"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2075,
+     "swatchHex": "#969495",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7037",
+     "labels": {
+      "de": "Grau RAL 7037",
+      "en": "Grey RAL 7037",
+      "fr": "Gris RAL 7037",
+      "it": "Grigio RAL 7037",
+      "nl": "Grijs RAL 7037",
+      "ro": "Gri RAL 7037"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2076,
+     "swatchHex": "#787F82",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7038",
+     "labels": {
+      "de": "Grau RAL 7038",
+      "en": "Grey RAL 7038",
+      "fr": "Gris RAL 7038",
+      "it": "Grigio RAL 7038",
+      "nl": "Grijs RAL 7038",
+      "ro": "Gri RAL 7038"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2077,
+     "swatchHex": "#95AAA9",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7039",
+     "labels": {
+      "de": "Grau RAL 7039",
+      "en": "Grey RAL 7039",
+      "fr": "Gris RAL 7039",
+      "it": "Grigio RAL 7039",
+      "nl": "Grijs RAL 7039",
+      "ro": "Gri RAL 7039"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2078,
+     "swatchHex": "#5D6057",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7040",
+     "labels": {
+      "de": "Grau RAL 7040",
+      "en": "Grey RAL 7040",
+      "fr": "Gris RAL 7040",
+      "it": "Grigio RAL 7040",
+      "nl": "Grijs RAL 7040",
+      "ro": "Gri RAL 7040"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2079,
+     "swatchHex": "#869598",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7042",
+     "labels": {
+      "de": "Grau RAL 7042",
+      "en": "Grey RAL 7042",
+      "fr": "Gris RAL 7042",
+      "it": "Grigio RAL 7042",
+      "nl": "Grijs RAL 7042",
+      "ro": "Gri RAL 7042"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2080,
+     "swatchHex": "#778988",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7043",
+     "labels": {
+      "de": "Grau RAL 7043",
+      "en": "Grey RAL 7043",
+      "fr": "Gris RAL 7043",
+      "it": "Grigio RAL 7043",
+      "nl": "Grijs RAL 7043",
+      "ro": "Gri RAL 7043"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2081,
+     "swatchHex": "#3A4646",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7044",
+     "labels": {
+      "de": "Grau RAL 7044",
+      "en": "Grey RAL 7044",
+      "fr": "Gris RAL 7044",
+      "it": "Grigio RAL 7044",
+      "nl": "Grijs RAL 7044",
+      "ro": "Gri RAL 7044"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2082,
+     "swatchHex": "#BEBCA9",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7045",
+     "labels": {
+      "de": "Grau RAL 7045",
+      "en": "Grey RAL 7045",
+      "fr": "Gris RAL 7045",
+      "it": "Grigio RAL 7045",
+      "nl": "Grijs RAL 7045",
+      "ro": "Gri RAL 7045"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2083,
+     "swatchHex": "#868F94",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7046",
+     "labels": {
+      "de": "Grau RAL 7046",
+      "en": "Grey RAL 7046",
+      "fr": "Gris RAL 7046",
+      "it": "Grigio RAL 7046",
+      "nl": "Grijs RAL 7046",
+      "ro": "Gri RAL 7046"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2084,
+     "swatchHex": "#768A94",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-7047",
+     "labels": {
+      "de": "Grau RAL 7047",
+      "en": "Grey RAL 7047",
+      "fr": "Gris RAL 7047",
+      "it": "Grigio RAL 7047",
+      "nl": "Grijs RAL 7047",
+      "ro": "Gri RAL 7047"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2085,
+     "swatchHex": "#D2D2CB",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "browns",
+     "key": "ral-8007",
+     "labels": {
+      "de": "Braun RAL 8007",
+      "en": "Brown RAL 8007",
+      "fr": "Brun RAL 8007",
+      "it": "Marrone RAL 8007",
+      "nl": "Bruin RAL 8007",
+      "ro": "Maro RAL 8007"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2086,
+     "swatchHex": "#6B5141",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "browns",
+     "key": "ral-8008",
+     "labels": {
+      "de": "Braun RAL 8008",
+      "en": "Brown RAL 8008",
+      "fr": "Brun RAL 8008",
+      "it": "Marrone RAL 8008",
+      "nl": "Bruin RAL 8008",
+      "ro": "Maro RAL 8008"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2087,
+     "swatchHex": "#795F4E",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "browns",
+     "key": "ral-8011",
+     "labels": {
+      "de": "Braun RAL 8011",
+      "en": "Brown RAL 8011",
+      "fr": "Brun RAL 8011",
+      "it": "Marrone RAL 8011",
+      "nl": "Bruin RAL 8011",
+      "ro": "Maro RAL 8011"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2088,
+     "swatchHex": "#4D2400",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "browns",
+     "key": "ral-8014",
+     "labels": {
+      "de": "Braun RAL 8014",
+      "en": "Brown RAL 8014",
+      "fr": "Brun RAL 8014",
+      "it": "Marrone RAL 8014",
+      "nl": "Bruin RAL 8014",
+      "ro": "Maro RAL 8014"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2089,
+     "swatchHex": "#3D2100",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "browns",
+     "key": "ral-8016",
+     "labels": {
+      "de": "Braun RAL 8016",
+      "en": "Brown RAL 8016",
+      "fr": "Brun RAL 8016",
+      "it": "Marrone RAL 8016",
+      "nl": "Bruin RAL 8016",
+      "ro": "Maro RAL 8016"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2090,
+     "swatchHex": "#360C03",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "browns",
+     "key": "ral-8017",
+     "labels": {
+      "de": "Braun RAL 8017",
+      "en": "Brown RAL 8017",
+      "fr": "Brun RAL 8017",
+      "it": "Marrone RAL 8017",
+      "nl": "Bruin RAL 8017",
+      "ro": "Maro RAL 8017"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2091,
+     "swatchHex": "#260B04",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "browns",
+     "key": "ral-8019",
+     "labels": {
+      "de": "Braun RAL 8019",
+      "en": "Brown RAL 8019",
+      "fr": "Brun RAL 8019",
+      "it": "Marrone RAL 8019",
+      "nl": "Bruin RAL 8019",
+      "ro": "Maro RAL 8019"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2092,
+     "swatchHex": "#2F2928",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "browns",
+     "key": "ral-8022",
+     "labels": {
+      "de": "Braun RAL 8022",
+      "en": "Brown RAL 8022",
+      "fr": "Brun RAL 8022",
+      "it": "Marrone RAL 8022",
+      "nl": "Bruin RAL 8022",
+      "ro": "Maro RAL 8022"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2093,
+     "swatchHex": "#1D1819",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "browns",
+     "key": "ral-8025",
+     "labels": {
+      "de": "Braun RAL 8025",
+      "en": "Brown RAL 8025",
+      "fr": "Brun RAL 8025",
+      "it": "Marrone RAL 8025",
+      "nl": "Bruin RAL 8025",
+      "ro": "Maro RAL 8025"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2094,
+     "swatchHex": "#6D5849",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "browns",
+     "key": "ral-8028",
+     "labels": {
+      "de": "Braun RAL 8028",
+      "en": "Brown RAL 8028",
+      "fr": "Brun RAL 8028",
+      "it": "Marrone RAL 8028",
+      "nl": "Bruin RAL 8028",
+      "ro": "Maro RAL 8028"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2095,
+     "swatchHex": "#452A12",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "whites",
+     "key": "ral-9001",
+     "labels": {
+      "de": "Weiß RAL 9001",
+      "en": "White RAL 9001",
+      "fr": "Blanc RAL 9001",
+      "it": "Bianco RAL 9001",
+      "nl": "Wit RAL 9001",
+      "ro": "Alb RAL 9001"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2096,
+     "swatchHex": "#F3F1DE",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "whites",
+     "key": "ral-9002",
+     "labels": {
+      "de": "Weiß RAL 9002",
+      "en": "White RAL 9002",
+      "fr": "Blanc RAL 9002",
+      "it": "Bianco RAL 9002",
+      "nl": "Wit RAL 9002",
+      "ro": "Alb RAL 9002"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2097,
+     "swatchHex": "#DAE1D4",
+     "warrantyYears": 5
+    },
+    {
+     "enabled": true,
+     "group": "blacks",
+     "key": "ral-9004",
+     "labels": {
+      "de": "Schwarz RAL 9004",
+      "en": "Black RAL 9004",
+      "fr": "Noir RAL 9004",
+      "it": "Nero RAL 9004",
+      "nl": "Zwart RAL 9004",
+      "ro": "Negru RAL 9004"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2098,
+     "swatchHex": "#2B2B2C",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blacks",
+     "key": "ral-9005",
+     "labels": {
+      "de": "Schwarz RAL 9005",
+      "en": "Black RAL 9005",
+      "fr": "Noir RAL 9005",
+      "it": "Nero RAL 9005",
+      "nl": "Zwart RAL 9005",
+      "ro": "Negru RAL 9005"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2099,
+     "swatchHex": "#101012",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-9006",
+     "labels": {
+      "de": "Aluminium RAL 9006",
+      "en": "Aluminium RAL 9006",
+      "fr": "Aluminium RAL 9006",
+      "it": "Alluminio RAL 9006",
+      "nl": "Aluminium RAL 9006",
+      "ro": "Aluminiu RAL 9006"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2100,
+     "swatchHex": "#A7A9AC",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "greys",
+     "key": "ral-9007",
+     "labels": {
+      "de": "Aluminium RAL 9007",
+      "en": "Aluminium RAL 9007",
+      "fr": "Aluminium RAL 9007",
+      "it": "Alluminio RAL 9007",
+      "nl": "Aluminium RAL 9007",
+      "ro": "Aluminiu RAL 9007"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2101,
+     "swatchHex": "#808285",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "whites",
+     "key": "ral-9010",
+     "labels": {
+      "de": "Weiß RAL 9010",
+      "en": "White RAL 9010",
+      "fr": "Blanc RAL 9010",
+      "it": "Bianco RAL 9010",
+      "nl": "Wit RAL 9010",
+      "ro": "Alb RAL 9010"
+     },
+     "priceCents": 0,
+     "range": "nuance",
+     "sortOrder": 2102,
+     "swatchHex": "#FFFEF3",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blacks",
+     "key": "ral-9011",
+     "labels": {
+      "de": "Schwarz RAL 9011",
+      "en": "Black RAL 9011",
+      "fr": "Noir RAL 9011",
+      "it": "Nero RAL 9011",
+      "nl": "Zwart RAL 9011",
+      "ro": "Negru RAL 9011"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2103,
+     "swatchHex": "#1A1D1F",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "whites",
+     "key": "ral-9016",
+     "labels": {
+      "de": "Weiß RAL 9016",
+      "en": "White RAL 9016",
+      "fr": "Blanc RAL 9016",
+      "it": "Bianco RAL 9016",
+      "nl": "Wit RAL 9016",
+      "ro": "Alb RAL 9016"
+     },
+     "priceCents": 0,
+     "range": "nuance",
+     "sortOrder": 2104,
+     "swatchHex": "#F6FBFE",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "blacks",
+     "key": "ral-9017",
+     "labels": {
+      "de": "Schwarz RAL 9017",
+      "en": "Black RAL 9017",
+      "fr": "Noir RAL 9017",
+      "it": "Nero RAL 9017",
+      "nl": "Zwart RAL 9017",
+      "ro": "Negru RAL 9017"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2105,
+     "swatchHex": "#1F2022",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "special",
+     "key": "std-ral-design-085-6010",
+     "labels": {
+      "de": "RAL Design 085 6010",
+      "en": "RAL Design 085 6010",
+      "fr": "RAL Design 085 6010",
+      "it": "RAL Design 085 6010",
+      "nl": "RAL Design 085 6010",
+      "ro": "RAL Design 085 6010"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2106,
+     "swatchHex": "#A89D8E",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "special",
+     "key": "std-ral-design-060-8005",
+     "labels": {
+      "de": "RAL Design 060 8005",
+      "en": "RAL Design 060 8005",
+      "fr": "RAL Design 060 8005",
+      "it": "RAL Design 060 8005",
+      "nl": "RAL Design 060 8005",
+      "ro": "RAL Design 060 8005"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2107,
+     "swatchHex": "#D4CBC3",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "special",
+     "key": "std-ral-design-080-6020",
+     "labels": {
+      "de": "RAL Design 080 6020",
+      "en": "RAL Design 080 6020",
+      "fr": "RAL Design 080 6020",
+      "it": "RAL Design 080 6020",
+      "nl": "RAL Design 080 6020",
+      "ro": "RAL Design 080 6020"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2108,
+     "swatchHex": "#B09C7D",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "special",
+     "key": "std-ral-design-210-5010",
+     "labels": {
+      "de": "RAL Design 210 5010",
+      "en": "RAL Design 210 5010",
+      "fr": "RAL Design 210 5010",
+      "it": "RAL Design 210 5010",
+      "nl": "RAL Design 210 5010",
+      "ro": "RAL Design 210 5010"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2109,
+     "swatchHex": "#6E8694",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "special",
+     "key": "std-ral-design-080-8005",
+     "labels": {
+      "de": "RAL Design 080 8005",
+      "en": "RAL Design 080 8005",
+      "fr": "RAL Design 080 8005",
+      "it": "RAL Design 080 8005",
+      "nl": "RAL Design 080 8005",
+      "ro": "RAL Design 080 8005"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2110,
+     "swatchHex": "#D2CCC4",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "special",
+     "key": "std-ral-design-090-6020",
+     "labels": {
+      "de": "RAL Design 090 6020",
+      "en": "RAL Design 090 6020",
+      "fr": "RAL Design 090 6020",
+      "it": "RAL Design 090 6020",
+      "nl": "RAL Design 090 6020",
+      "ro": "RAL Design 090 6020"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2111,
+     "swatchHex": "#AC9D81",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "special",
+     "key": "std-bs-14c39",
+     "labels": {
+      "de": "BS 14C39",
+      "en": "BS 14C39",
+      "fr": "BS 14C39",
+      "it": "BS 14C39",
+      "nl": "BS 14C39",
+      "ro": "BS 14C39"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2112,
+     "swatchHex": "#546E6D",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "special",
+     "key": "std-beige-e8-20-60",
+     "labels": {
+      "de": "BEIGE E8 20 60",
+      "en": "BEIGE E8 20 60",
+      "fr": "BEIGE E8 20 60",
+      "it": "BEIGE E8 20 60",
+      "nl": "BEIGE E8 20 60",
+      "ro": "BEIGE E8 20 60"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2113,
+     "swatchHex": "#CBBBAD",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "special",
+     "key": "std-beige-f2-10-70",
+     "labels": {
+      "de": "BEIGE F2 10 70",
+      "en": "BEIGE F2 10 70",
+      "fr": "BEIGE F2 10 70",
+      "it": "BEIGE F2 10 70",
+      "nl": "BEIGE F2 10 70",
+      "ro": "BEIGE F2 10 70"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2114,
+     "swatchHex": "#D0C5B5",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "special",
+     "key": "std-ral-190-5",
+     "labels": {
+      "de": "RAL 190-5",
+      "en": "RAL 190-5",
+      "fr": "RAL 190-5",
+      "it": "RAL 190-5",
+      "nl": "RAL 190-5",
+      "ro": "RAL 190-5"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2115,
+     "swatchHex": "#D3DFE8",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "special",
+     "key": "std-ral-210-2",
+     "labels": {
+      "de": "RAL 210-2",
+      "en": "RAL 210-2",
+      "fr": "RAL 210-2",
+      "it": "RAL 210-2",
+      "nl": "RAL 210-2",
+      "ro": "RAL 210-2"
+     },
+     "priceCents": 5500,
+     "range": "nuance",
+     "sortOrder": 2116,
+     "swatchHex": "#EEE8D6",
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "stone",
+     "key": "rock01",
+     "labels": {
+      "de": "Burgundy beige",
+      "en": "Burgundy beige",
+      "fr": "Burgundy beige",
+      "it": "Burgundy beige",
+      "nl": "Burgundy beige",
+      "ro": "Burgundy beige"
+     },
+     "priceCents": 12000,
+     "range": "rock",
+     "sortOrder": 3000,
+     "swatchHex": "#DADADA",
+     "texture": "/finishes/rock01.jpg",
+     "textureH": 212,
+     "textureW": 160,
+     "warrantyYears": 10
+    },
+    {
+     "enabled": true,
+     "group": "stone",
+     "key": "rock02",
+     "labels": {
+      "de": "Volcano black",
+      "en": "Volcano black",
+      "fr": "Volcano black",
+      "it": "Volcano black",
+      "nl": "Volcano black",
+      "ro": "Volcano black"
+     },
+     "priceCents": 12000,
+     "range": "rock",
+     "sortOrder": 3001,
+     "swatchHex": "#726B65",
+     "texture": "/finishes/rock02.jpg",
+     "textureH": 211,
+     "textureW": 160,
+     "warrantyYears": 10
     },
     {
      "enabled": true,
