@@ -1,5 +1,7 @@
-import { Circle, Line, Polygon, Polyline, Rect, Svg, Text as SvgText } from "@react-pdf/renderer";
+import { Circle, Defs, Line, LinearGradient, Polygon, Polyline, Rect, Stop, Svg, Text as SvgText } from "@react-pdf/renderer";
 import type { ReactNode } from "react";
+import { GLASS_GRADIENT_ID, GLASS_GRADIENT_STOPS } from "./finishes";
+import { flattenTextures, usesGlassGradient } from "./scene-defs";
 import type { Primitive, Scene } from "./types";
 
 export function renderPrimitive(p: Primitive, key: number): ReactNode {
@@ -46,7 +48,16 @@ export function ScenePdf({ scene, width }: { scene: Scene; width: number }) {
   const { w, h } = scene.viewBox;
   return (
     <Svg viewBox={`0 0 ${w} ${h}`} style={{ width, height: (width * h) / w }}>
-      {scene.primitives.filter((p) => p.role !== "hit").map(renderPrimitive)}
+      {usesGlassGradient(scene) ? (
+        <Defs>
+          <LinearGradient id={GLASS_GRADIENT_ID} x1="0" y1="0" x2="1" y2="1">
+            {GLASS_GRADIENT_STOPS.map(([offset, color]) => (
+              <Stop key={offset} offset={offset} stopColor={color} />
+            ))}
+          </LinearGradient>
+        </Defs>
+      ) : null}
+      {flattenTextures(scene).filter((p) => p.role !== "hit").map(renderPrimitive)}
     </Svg>
   );
 }

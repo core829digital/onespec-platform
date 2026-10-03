@@ -1,3 +1,4 @@
+import { flattenTextures, sceneDefsString } from "./scene-defs";
 import type { Primitive, Scene } from "./types";
 
 const esc = (s: string) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -28,9 +29,11 @@ function primitive(p: Primitive): string {
  * The scene as a standalone SVG document string (no React, no DOM), used by the
  * HTML offer export so the drawing is embedded exactly as the app shows it.
  */
-export function sceneToSvg(scene: Scene, opts: { width?: number; ariaLabel?: string } = {}): string {
+export function sceneToSvg(scene: Scene, opts: { width?: number; ariaLabel?: string; textures?: boolean } = {}): string {
   const { w, h } = scene.viewBox;
   const width = opts.width ?? 320;
-  const body = scene.primitives.filter((p) => p.role !== "hit").map(primitive).join("");
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${n(w)} ${n(h)}" width="${width}" height="${n((width * h) / w)}" role="img"${opts.ariaLabel ? ` aria-label="${esc(opts.ariaLabel)}"` : ""}>${body}</svg>`;
+  // Standalone exports stay self-contained: textures become their flat colour unless the caller can serve the images.
+  const prims = opts.textures ? scene.primitives : flattenTextures(scene);
+  const body = prims.filter((p) => p.role !== "hit").map(primitive).join("");
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${n(w)} ${n(h)}" width="${width}" height="${n((width * h) / w)}" role="img"${opts.ariaLabel ? ` aria-label="${esc(opts.ariaLabel)}"` : ""}>${sceneDefsString(scene, !!opts.textures)}${body}</svg>`;
 }

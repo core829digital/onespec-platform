@@ -1,8 +1,8 @@
 import { jointsFor } from "@/shared/sash-rules";
 import { drawOpening } from "./build-openings";
 import { glassLabel } from "./glass-size";
-import { PALETTE } from "./finishes";
-import { circle, hatchSegments, line, rect, text } from "./prims";
+import { GLASS_FILL, PALETTE } from "./finishes";
+import { circle, diagonalBand, hatchSegments, line, poly, rect, text } from "./prims";
 import type { Box, DrawingSash, Primitive, SceneCell, SceneContext } from "./types";
 
 const DOOR_PANEL_SHARE = 0.55;
@@ -96,12 +96,20 @@ export function drawLeaves(
         : area;
       out.push(
         rect({ role: "glass", sashIndex: i, part: s.active ? undefined : "inactive" }, glass.x, glass.y, glass.w, glass.h, {
-          fill: ctx.satin ? "#E8EEF1" : PALETTE.glass,
+          fill: ctx.satin ? "#E8EEF1" : GLASS_FILL,
           stroke: PALETTE.ink,
           strokeWidth: 0.8,
           opacity: s.active ? undefined : 0.55,
         }),
       );
+      if (!ctx.satin && s.active) {
+        // Reflections: two soft diagonal bands, as on a real pane.
+        const sum = glass.w + glass.h;
+        for (const [a, b, o] of [[0.46, 0.57, 0.28], [0.63, 0.67, 0.18]] as const) {
+          const pts = diagonalBand(glass.x, glass.y, glass.w, glass.h, sum * a, sum * b);
+          if (pts.length >= 3) out.push(poly({ role: "glass", sashIndex: i, part: "reflection" }, pts, { fill: "#FFFFFF", stroke: "none", opacity: o }));
+        }
+      }
       if (ctx.satin) {
         for (const [x1, y1, x2, y2] of hatchSegments(glass.x, glass.y, glass.w, glass.h, 6)) {
           out.push(line({ role: "hatch", sashIndex: i, part: "satin" }, x1, y1, x2, y2, { stroke: PALETTE.dimLine, strokeWidth: 0.5, opacity: 0.35 }));

@@ -1,4 +1,5 @@
 export { buildScene } from "./build-scene";
+export { finishFillFor } from "./finish-fill";
 export { buildLegendScene } from "./build-legend";
 export { buildSectionScene, paneCount, glazingThicknessMm, pvcChambers, type SectionInput } from "./build-section";
 export { buildHardwareScene, hingeCount, lockCount } from "./build-hardware";
@@ -16,6 +17,7 @@ export { WindowDrawing, type WindowDrawingProps } from "./WindowDrawing";
 export { WindowDrawingPdf, type WindowDrawingPdfProps } from "./WindowDrawingPdf";
 export type {
   DrawingInput,
+  FinishFill,
   DrawingOptions,
   DrawingSash,
   DrawingView,

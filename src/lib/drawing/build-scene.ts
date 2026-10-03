@@ -3,9 +3,9 @@ import { accessoryRightExtent, drawAccessories } from "./build-accessories";
 import { drawDimensions } from "./build-dimensions";
 import { drawLeaves, drawMullions, hitRects, layoutCells } from "./build-sashes";
 import { glazingShape } from "@/shared/glazing-packages";
-import { finishStyle, PALETTE } from "./finishes";
+import { darken, finishStyle, PALETTE, TEXTURE_TILE } from "./finishes";
 import { boundsOf, mirror, place, rect } from "./prims";
-import type { DrawingInput, DrawingOptions, DrawingSash, Primitive, Scene, SceneContext } from "./types";
+import type { DrawingInput, DrawingOptions, DrawingSash, Primitive, Scene, SceneContext, SceneTexture } from "./types";
 
 const FIT_W = 300;
 const FIT_H = 280;
@@ -13,6 +13,13 @@ const PAD = 10;
 const FRAME_MM = 45;
 const SASH_MM = 25;
 const RENO_MM: Record<string, number> = { reno40: 40, reno65: 65 };
+
+/** The frame colour: the catalogue finish when it is known (colour, texture), else the built-in table by key. */
+function finishFor(input: DrawingInput): SceneContext["finish"] {
+  const f = input.finishFill;
+  if (f && /^#[0-9a-f]{6}$/i.test(f.hex)) return { fill: f.hex, stroke: darken(f.hex, 0.4), strokeWidth: 1.5 };
+  return finishStyle(input.finish);
+}
 
 const positive = (n: number, fallback: number) => (Number.isFinite(n) && n > 0 ? n : fallback);
 
@@ -70,7 +77,8 @@ export function buildScene(input: DrawingInput, options: DrawingOptions = {}): S
     frameInset,
     sashInset,
     band: reno ? Math.max(4, reno * scale) : 0,
-    finish: finishStyle(input.finish),
+    finish: finishFor(input),
+    textures: [],
     options,
     handles: [],
     noHandle: inactiveLeaves(sashes),
@@ -78,6 +86,14 @@ export function buildScene(input: DrawingInput, options: DrawingOptions = {}): S
     satin: glazingShape(input.glazing).composition?.layers.includes("satin") ?? false,
     dimBoxes: {},
   };
+
+  const textures: SceneTexture[] = [];
+  const tex = input.finishFill?.texture;
+  if (tex && input.finishFill && ctx.finish.fill === input.finishFill.hex) {
+    const id = `os-tex-${tex.href.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "").toLowerCase()}`;
+    textures.push({ id, href: tex.href, w: TEXTURE_TILE, h: Math.round((TEXTURE_TILE * tex.h) / Math.max(1, tex.w)), fallback: input.finishFill.hex });
+    ctx.finish = { ...ctx.finish, fill: `url(#${id})` };
+  }
 
   const cells = layoutCells(ctx, ratios);
   const violated = new Set<number>();
@@ -129,6 +145,7 @@ export function buildScene(input: DrawingInput, options: DrawingOptions = {}): S
   const mirroredBox = <T extends { x: number; w: number }>(box: T): T => ({ ...box, x: mx(box.x, box.w) });
   return {
     viewBox: { w: W, h: r3(b.maxY - b.minY + 2 * PAD) },
+    ...(textures.length > 0 ? { defs: { textures } } : {}),
     primitives: placed,
     meta: {
       view: outside ? "outside" : "inside",

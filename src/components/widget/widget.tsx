@@ -934,6 +934,8 @@ export function Widget({
                   })
                 }
                 finish={state.color}
+                finishHex={options.colorMeta[state.color]?.texture || !["white", "anthracite", "woodgrain"].includes(state.color) ? options.colorMeta[state.color]?.hex : undefined}
+                finishTexture={options.colorMeta[state.color]?.texture}
               />
             </div>
             <div style={{ fontSize: 11, color: "var(--color-text-secondary)", textAlign: "center", marginTop: 4 }}>{dict.diagramLegend}</div>

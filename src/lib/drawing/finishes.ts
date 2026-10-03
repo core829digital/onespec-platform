@@ -58,6 +58,31 @@ export const FINISH_KEYS = [
   "otherColor",
 ] as const;
 
+/** Glass as drawn on the elevations: a diagonal gradient through several blues, like a real pane. */
+export const GLASS_GRADIENT_ID = "os-glass";
+export const GLASS_FILL = `url(#${GLASS_GRADIENT_ID})`;
+export const GLASS_GRADIENT_STOPS: ReadonlyArray<readonly [offset: number, color: string]> = [
+  [0, "#E4F2FB"],
+  [0.38, "#A9D3EE"],
+  [0.7, "#7FB8E0"],
+  [1, "#C9E3F5"],
+];
+
+/** Darker shade of a #RRGGBB colour (0 = same, 1 = black), for outlines. */
+export function darken(hex: string, amount: number): string {
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex);
+  if (!m) return "#4B5563";
+  const n = parseInt(m[1], 16);
+  const ch = (shift: number) => Math.round(((n >> shift) & 255) * (1 - amount));
+  return `#${[16, 8, 0].map((sh) => ch(sh).toString(16).padStart(2, "0")).join("")}`.toUpperCase();
+}
+
+/** Tile width, in drawing units, of the texture patterns. */
+export const TEXTURE_TILE = 44;
+
+/** Whether the key has a hand-tuned look in the built-in table. */
+export const hasBuiltInFinish = (key?: string | null) => !!key && norm(key) in TABLE;
+
 /** Frame colours for a catalogue finish key; unknown or missing => white. */
 export function finishStyle(key?: string | null): FinishStyle {
   if (!key) return WHITE;

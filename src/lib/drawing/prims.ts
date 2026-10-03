@@ -245,3 +245,28 @@ export function hatchSegments(x: number, y: number, w: number, h: number, spacin
   }
   return out;
 }
+
+/**
+ * The part of a rectangle between two parallel 45° lines (x + y = c1 and x + y = c2, measured from its top-left corner),
+ * as polygon points; empty when the strip misses the rectangle. Used for the reflections on glass.
+ */
+export function diagonalBand(x: number, y: number, w: number, h: number, c1: number, c2: number): Array<[number, number]> {
+  let poly: Array<[number, number]> = [[0, 0], [w, 0], [w, h], [0, h]];
+  const clip = (pts: Array<[number, number]>, keep: (p: [number, number]) => number): Array<[number, number]> => {
+    const out: Array<[number, number]> = [];
+    pts.forEach((a, i) => {
+      const b = pts[(i + 1) % pts.length];
+      const da = keep(a);
+      const db = keep(b);
+      if (da >= 0) out.push(a);
+      if ((da >= 0) !== (db >= 0)) {
+        const t = da / (da - db);
+        out.push([a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t]);
+      }
+    });
+    return out;
+  };
+  poly = clip(poly, ([px, py]) => px + py - c1);
+  if (poly.length > 0) poly = clip(poly, ([px, py]) => c2 - (px + py));
+  return poly.length < 3 ? [] : poly.map(([px, py]) => [x + px, y + py] as [number, number]);
+}

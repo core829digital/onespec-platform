@@ -26,6 +26,14 @@ export interface DrawingInput {
   accessories?: ItemAccessories;
   /** Glazing catalogue key: panel packages draw opaque panels instead of glass, satin ones a frosted glass. */
   glazing?: string;
+  /** Colour and (optional) texture of the chosen finish, from the catalogue row; overrides the built-in finish table. */
+  finishFill?: FinishFill;
+}
+
+/** A catalogue finish as the drawings need it: its colour, and for decors / stone the texture swatch. */
+export interface FinishFill {
+  hex: string;
+  texture?: { href: string; w: number; h: number };
 }
 
 export type HandleGuideMode = "none" | "selected" | "all";
@@ -204,10 +212,21 @@ export interface SceneMeta {
   dimensions?: DimensionBoxes;
 }
 
+/** Texture patterns a scene refers to as `url(#id)` fills. Renderers that cannot paint patterns use `fallback`. */
+export interface SceneTexture {
+  id: string;
+  href: string;
+  /** Tile size in drawing units. */
+  w: number;
+  h: number;
+  fallback: string;
+}
+
 export interface Scene {
   viewBox: { w: number; h: number };
   primitives: Primitive[];
   meta: SceneMeta;
+  defs?: { textures: SceneTexture[] };
 }
 
 /** Internal layout shared by the scene builders (local coordinates, frame top-left = 0,0). */
@@ -223,6 +242,8 @@ export interface SceneContext {
   /** Controtelaio band thickness, px (0 when none). */
   band: number;
   finish: { fill: string; stroke: string; strokeWidth: number };
+  /** Filled while building: the texture pattern the finish paints with, if any. */
+  textures?: SceneTexture[];
   options: DrawingOptions;
   /** Glazing of the piece: "glass", a colour panel or an ornamental panel; satin glass draws frosted. */
   glazingKind?: "glass" | "colorPanel" | "ornamentalPanel";

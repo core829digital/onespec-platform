@@ -9,6 +9,7 @@ import { hasOpeningDirection } from "@/shared/sash-rules";
 import { parseDimensionInput } from "./dimension-edit";
 import { handleMmFromY, snapHandleHeight } from "./handle-height";
 import { MONO, renderPrimitive } from "./render-dom";
+import { SceneDefsDom } from "./scene-defs";
 import type { DrawingInput, DrawingOptions } from "./types";
 
 export interface WindowDrawingProps {
@@ -184,6 +185,7 @@ export function WindowDrawing({
       className={className}
       style={svgStyle}
     >
+      <SceneDefsDom scene={scene} />
       <g pointerEvents="none">{visual.map(renderPrimitive)}</g>
       {onSelectSash &&
         hits.map((p, k) =>

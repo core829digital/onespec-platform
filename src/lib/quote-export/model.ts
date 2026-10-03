@@ -2,6 +2,7 @@ import { CATEGORY_DEFS } from "@/shared/configurator-model";
 import { calculatePrice, computeItemThermal, computeOverallUw, type CatalogPayload, type ProjectItem } from "@/shared/pricing";
 import { normalizedRatios, type EditorSash } from "@/shared/sash-rules";
 import { buildScene } from "@/lib/drawing/build-scene";
+import { finishFillFor } from "@/lib/drawing/finish-fill";
 import { sceneToSvg } from "@/lib/drawing/to-svg";
 import { dictFor, openingLabel } from "./dictionary";
 
@@ -123,6 +124,7 @@ export function buildExportModel(input: ExportInput): ExportModel {
                 frameType: item.frameType,
                 accessories: item.accessories,
                 glazing: item.glazing,
+                finishFill: finishFillFor(payload.finish, item.color),
               },
               { showMainBadge: false, handleGuide: "all", showLeafDimensions: true },
             ),

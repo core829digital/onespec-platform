@@ -1,7 +1,7 @@
 import "./pdf-setup";
 import { Document, Image, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import type { ProjectItem } from "@/shared/pricing";
-import { buildLegendScene, DRAWING_TITLES, drawingLocale, ScenePdf, WindowDrawingPdf } from "@/lib/drawing";
+import { finishFillFor, buildLegendScene, DRAWING_TITLES, drawingLocale, ScenePdf, WindowDrawingPdf } from "@/lib/drawing";
 import { CATEGORY_DEFS } from "@/shared/configurator-model";
 import { computeItemThermal, type CatalogPayload } from "@/shared/pricing";
 import { dictFor, openingLabel } from "@/lib/quote-export/dictionary";
@@ -563,7 +563,7 @@ export function QuotePrintPDF({
                   </Text>
                   <WindowDrawingPdf
                     width={170}
-                    input={{ widthMm: item.width, heightMm: item.height, category: item.category, sashes: item.sashes ?? [], finish: item.color, frameType: item.frameType, accessories: item.accessories, glazing: item.glazing }}
+                    input={{ widthMm: item.width, heightMm: item.height, category: item.category, sashes: item.sashes ?? [], finish: item.color, frameType: item.frameType, accessories: item.accessories, glazing: item.glazing, finishFill: finishFillFor(catalog?.finish, item.color) }}
                     options={{ handleGuide: "all", showLeafDimensions: true }}
                   />
                 </View>

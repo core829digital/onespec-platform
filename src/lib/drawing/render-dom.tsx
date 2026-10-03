@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from "react";
+import { SceneDefsDom } from "./scene-defs";
 import type { Primitive, Scene } from "./types";
 
 export const MONO = "IBM Plex Mono, ui-monospace, monospace";
@@ -69,6 +70,7 @@ export function SceneSvg({
       className={className}
       style={{ width: "100%", height: height ?? "auto", maxWidth, display: "block", userSelect: "none", ...style }}
     >
+      <SceneDefsDom scene={scene} />
       {scene.primitives.filter((p) => p.role !== "hit").map(renderPrimitive)}
     </svg>
   );

@@ -1,7 +1,7 @@
 "use client";
 
 import { inactiveLeaves, jointsFor } from "@/shared/sash-rules";
-import { hardwareFill } from "@/lib/drawing/finishes";
+import { darken, GLASS_GRADIENT_STOPS, hardwareFill, TEXTURE_TILE } from "@/lib/drawing/finishes";
 import { handleKindFor, handleShapes } from "@/lib/drawing/handle-shapes";
 import { useCallback, useRef } from "react";
 import type { Material, Sash } from "./widget-pricing";
@@ -56,6 +56,10 @@ interface Props {
   showMinWarnings?: boolean;
   /** Balcony door: the handle is a horizontal door lever instead of a window lever. */
   door?: boolean;
+  /** Colour of the chosen catalogue finish; overrides the finish key / material colours. */
+  finishHex?: string;
+  /** Texture swatch of the chosen finish (decors and stone): painted on the frame. */
+  finishTexture?: { href: string; w: number; h: number };
 }
 
 function normaliseRatios(sashes: Sash[]): number[] {
@@ -78,6 +82,8 @@ export function SpecDrawing({
   finish,
   showMinWarnings = true,
   door = false,
+  finishHex,
+  finishTexture,
 }: Props) {
   const boxW = 200;
   const boxH = 150;
@@ -86,7 +92,11 @@ export function SpecDrawing({
   const scale = Math.min(boxW / width, boxH / height);
   const rectW = Math.max(width * scale, 40);
   const rectH = Math.max(height * scale, 40);
-  const colors = (finish && FINISH_COLORS[finish]) || MATERIAL_COLORS[material];
+  const base = (finish && FINISH_COLORS[finish]) || MATERIAL_COLORS[material];
+  const hasHex = !!finishHex && /^#[0-9a-f]{6}$/i.test(finishHex);
+  const texId = finishTexture ? `sd-tex-${finishTexture.href.replace(/[^a-z0-9]+/gi, "-").toLowerCase()}` : "";
+  const colors = hasHex ? { fill: finishTexture ? `url(#${texId})` : finishHex!, stroke: darken(finishHex!, 0.4) } : base;
+  const glassInset = 7;
 
   const svgW = 280;
   const svgH = originY + rectH + 46;
@@ -123,6 +133,18 @@ export function SpecDrawing({
   const nodes: React.ReactNode[] = [];
 
   nodes.push(
+    <defs key="defs">
+      <linearGradient id="sd-glass" x1="0" y1="0" x2="1" y2="1">
+        {GLASS_GRADIENT_STOPS.map(([offset, color]) => (
+          <stop key={offset} offset={offset} stopColor={color} />
+        ))}
+      </linearGradient>
+      {finishTexture && hasHex ? (
+        <pattern id={texId} patternUnits="userSpaceOnUse" width={TEXTURE_TILE} height={Math.round((TEXTURE_TILE * finishTexture.h) / Math.max(1, finishTexture.w))}>
+          <image href={finishTexture.href} x="0" y="0" width={TEXTURE_TILE} height={Math.round((TEXTURE_TILE * finishTexture.h) / Math.max(1, finishTexture.w))} preserveAspectRatio="none" />
+        </pattern>
+      ) : null}
+    </defs>,
     <rect key="frame" x={rectX} y={rectY} width={rectW} height={rectH} rx={3} fill={colors.fill} stroke={colors.stroke} strokeWidth={4.5} />,
   );
 
@@ -139,6 +161,11 @@ export function SpecDrawing({
     const tooNarrow = showMinWarnings && isActive && leafWidthMm < MIN_SASH_WIDTH[sash.type];
     const tooShort = showMinWarnings && isActive && height < MIN_SASH_HEIGHT[sash.type];
     const warn = tooNarrow || tooShort;
+
+    // Glass of the leaf: a blue gradient inside the frame.
+    nodes.push(
+      <rect key={`glass-${i}`} x={sx + (i === 0 ? glassInset : 3)} y={rectY + glassInset} width={Math.max(0, sashW - (i === 0 ? glassInset : 3) - (i === n - 1 ? glassInset : 3))} height={Math.max(0, rectH - 2 * glassInset)} fill="url(#sd-glass)" stroke="#4B6B80" strokeWidth={0.8} pointerEvents="none" />,
+    );
 
     if (i > 0) {
       nodes.push(

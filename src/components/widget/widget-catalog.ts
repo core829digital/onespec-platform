@@ -18,6 +18,14 @@ interface Row {
   sortOrder?: number;
   enabled?: boolean;
 }
+interface FinishRow extends Row {
+  swatchHex?: string;
+  range?: "skin" | "nuance" | "rock";
+  group?: string;
+  texture?: string;
+  textureW?: number;
+  textureH?: number;
+}
 interface MaterialRow extends Row {
   basePerM2Cents: number;
   profilePerMlCents: number;
@@ -37,7 +45,7 @@ export interface WidgetCatalog {
   qualityTiers?: QualityRow[];
   profileSystems?: QualityRow[];
   glazing?: Row[];
-  finish?: Row[];
+  finish?: FinishRow[];
   hardware?: HardwareRow[];
   sizeConstraints?: Array<{
     productType: "window" | "balconyDoor";
@@ -67,6 +75,13 @@ function pairsFrom(rows: Row[] | undefined, locale: string): [string, string][] 
   return list.map((r) => [r.key, label(r.labels, locale, r.key)]);
 }
 
+export interface FinishMeta {
+  hex?: string;
+  texture?: { href: string; w: number; h: number };
+  range?: "skin" | "nuance" | "rock";
+  group?: string;
+}
+
 export interface WidgetOptions {
   materials: { key: Material; label: string; swatch: string }[];
   quality: Record<string, [string, string][]>;
@@ -74,6 +89,8 @@ export interface WidgetOptions {
   profileSystems: Record<string, [string, string][]>;
   glazing: [string, string][];
   color: [string, string][];
+  /** Swatch colour, texture and library range/group of every finish key, for the swatch picker and the drawing. */
+  colorMeta: Record<string, FinishMeta>;
   sashTypes: [string, string][];
   hardware: [string, string][];
   hardwareColor: [string, string][];
@@ -137,6 +154,17 @@ export function catalogOptions(
     profileSystems,
     glazing: pairsFrom(cat?.glazing, locale) ?? [...dict.glazing, ...glazingPackageRows().map((r): [string, string] => [r.key, r.labels[locale] ?? r.labels.en])],
     color: pairsFrom(cat?.finish, locale) ?? dict.color,
+    colorMeta: Object.fromEntries(
+      (cat?.finish ?? []).filter(enabled).map((f): [string, FinishMeta] => [
+        f.key,
+        {
+          hex: f.swatchHex,
+          ...(f.texture && f.textureW && f.textureH ? { texture: { href: f.texture, w: f.textureW, h: f.textureH } } : {}),
+          ...(f.range ? { range: f.range } : {}),
+          ...(f.group ? { group: f.group } : {}),
+        },
+      ]),
+    ),
     sashTypes: pairsFrom(hw("sashType"), locale) ?? dict.sashTypes,
     hardware: pairsFrom(hw("hardware"), locale) ?? dict.hardwareBrands,
     hardwareColor: pairsFrom(hw("hardwareColor"), locale) ?? dict.hardwareColors,
