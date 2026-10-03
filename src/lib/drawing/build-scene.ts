@@ -3,7 +3,7 @@ import { accessoryRightExtent, drawAccessories } from "./build-accessories";
 import { drawDimensions } from "./build-dimensions";
 import { drawLeaves, hitRects, layoutCells } from "./build-sashes";
 import { finishStyle, PALETTE } from "./finishes";
-import { boundsOf, place, rect } from "./prims";
+import { boundsOf, mirror, place, rect } from "./prims";
 import type { DrawingInput, DrawingOptions, DrawingSash, Primitive, Scene, SceneContext } from "./types";
 
 const FIT_W = 300;
@@ -105,19 +105,32 @@ export function buildScene(input: DrawingInput, options: DrawingOptions = {}): S
     return { ...s, x: r3(s.x), y: r3(s.y), w: r3(s.w), h: r3(s.h) };
   };
 
+  const W = r3(b.maxX - b.minX + 2 * PAD);
+  const outside = options.view === "outside";
+  // Seen from outside: the mirror image, and the handles (an inside part) are not visible.
+  const placed = raw
+    .filter((p) => !outside || (p.role !== "handle" && p.role !== "handleGuide"))
+    .map((p) => place(p, dx, dy))
+    .map((p) => (outside ? mirror(p, W) : p));
+  const mx = (x: number, w = 0) => (outside ? r3(W - x - w) : x);
+  const mirroredBox = <T extends { x: number; w: number }>(box: T): T => ({ ...box, x: mx(box.x, box.w) });
   return {
-    viewBox: { w: r3(b.maxX - b.minX + 2 * PAD), h: r3(b.maxY - b.minY + 2 * PAD) },
-    primitives: raw.map((p) => place(p, dx, dy)),
+    viewBox: { w: W, h: r3(b.maxY - b.minY + 2 * PAD) },
+    primitives: placed,
     meta: {
+      view: outside ? "outside" : "inside",
       scale,
       widthMm,
       heightMm,
-      frame: roundBox(ctx.frame),
-      inner: roundBox(ctx.inner),
+      frame: mirroredBox(roundBox(ctx.frame)),
+      inner: mirroredBox(roundBox(ctx.inner)),
       sashInset: r3(sashInset),
-      cells: cells.map((c) => ({ ...roundBox(c), sashIndex: c.sashIndex, mm: c.mm })),
+      cells: cells.map((c) => {
+        const box = roundBox(c);
+        return { ...box, x: mx(box.x, box.w), sashIndex: c.sashIndex, mm: c.mm };
+      }),
       ratios,
-      dividers: cells.slice(1).map((c) => r3(c.x + dx)),
+      dividers: cells.slice(1).map((c) => mx(r3(c.x + dx))),
       sashTypes: sashes.map((s) => s.type),
     },
   };

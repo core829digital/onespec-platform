@@ -190,6 +190,23 @@ export function place(p: Primitive, dx: number, dy: number): Primitive {
   }
 }
 
+/** Mirror a primitive left-right inside a drawing `width` units wide (the outside view of the same piece). */
+export function mirror(p: Primitive, width: number): Primitive {
+  const r = (n: number) => Math.round(n * 1000) / 1000;
+  switch (p.type) {
+    case "rect":
+      return { ...p, x: r(width - p.x - p.w) };
+    case "line":
+      return { ...p, x1: r(width - p.x1), x2: r(width - p.x2) };
+    case "polygon":
+      return { ...p, points: p.points.map(([x, y]) => [r(width - x), y] as [number, number]) };
+    case "circle":
+      return { ...p, cx: r(width - p.cx) };
+    case "text":
+      return { ...p, x: r(width - p.x), anchor: p.anchor === "start" ? "end" : p.anchor === "end" ? "start" : "middle" };
+  }
+}
+
 export const clamp = (n: number, lo: number, hi: number) => (Number.isFinite(n) ? Math.min(hi, Math.max(lo, n)) : lo);
 
 /** 45-degree hatch segments clipped to a rectangle. */

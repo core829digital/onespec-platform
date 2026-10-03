@@ -20,7 +20,7 @@ import {
   type PieceIssue,
 } from "@/shared/piece-ops";
 import { defaultItem } from "@/shared/item-defaults";
-import { buildLegendScene, DRAWING_TITLES, drawingLocale, SceneSvg, WindowDrawing } from "@/lib/drawing";
+import { buildLegendScene, DRAWING_TITLES, DRAWING_VIEW, drawingLocale, SceneSvg, WindowDrawing, type DrawingView } from "@/lib/drawing";
 import { SashPanel } from "@/components/quotes/sash-panel";
 import { catalogChoices, labelOf } from "./catalog-labels";
 import { PieceForm } from "./piece-form";
@@ -40,6 +40,7 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
   const t = useTranslations("pieces");
   const ts = useTranslations("sash");
   const [selectedSash, setSelectedSash] = useState<number | null>(0);
+  const [view, setView] = useState<DrawingView>("inside");
   const active = items[activeIndex] ?? items[0];
   const choices = useMemo(() => catalogChoices(payload, active?.material ?? "pvc", locale), [payload, active?.material, locale]);
   const lotFrame = items[0]?.frameType;
@@ -190,6 +191,23 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
           />
 
           <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-4">
+            <div className="mb-2 flex justify-center gap-1" role="group" aria-label={DRAWING_VIEW[drawingLocale(locale)].inside + " / " + DRAWING_VIEW[drawingLocale(locale)].outside}>
+              {(["inside", "outside"] as const).map((v) => (
+                <button
+                  key={v}
+                  type="button"
+                  aria-pressed={view === v}
+                  onClick={() => setView(v)}
+                  className={`rounded-md border px-3 py-1 text-xs font-medium transition-colors ${
+                    view === v
+                      ? "border-[var(--color-mint)] bg-[var(--color-mint)] text-[var(--color-mint-dark)]"
+                      : "border-[var(--color-border)] text-[var(--color-text-secondary)] hover:border-[var(--color-mint)]"
+                  }`}
+                >
+                  {DRAWING_VIEW[drawingLocale(locale)][v]}
+                </button>
+              ))}
+            </div>
             <div className="mx-auto w-full max-w-[420px]">
               <WindowDrawing
                 input={{
@@ -201,13 +219,14 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
                   frameType: active.frameType,
                   accessories: active.accessories,
                 }}
-                options={{ selectedSash, handleGuide: "selected", showMainBadge: true, showViolations: true, showLeafDimensions: true }}
+                options={{ selectedSash, handleGuide: "selected", showMainBadge: true, showViolations: true, showLeafDimensions: true, view }}
                 onSelectSash={setSelectedSash}
-                onResizeSash={(d, ratio) => update(activeIndex, resizeDivider(active, d, ratio))}
+                onResizeSash={view === "inside" ? (d, ratio) => update(activeIndex, resizeDivider(active, d, ratio)) : undefined}
                 ariaLabel={t("drawingLabel", { width: active.width, height: active.height })}
                 height={340}
               />
             </div>
+            {view === "outside" ? <p className="mt-2 text-center text-[11px] text-[var(--color-text-secondary)]">{DRAWING_VIEW[drawingLocale(locale)].note}</p> : null}
             <details className="mt-2 text-xs text-[var(--color-text-secondary)]">
               <summary className="cursor-pointer select-none font-medium text-[var(--color-text)]">{DRAWING_TITLES[drawingLocale(locale)].legend}</summary>
               <div className="mx-auto mt-2 w-full max-w-[300px] rounded-lg bg-white p-2">

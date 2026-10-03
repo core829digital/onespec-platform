@@ -28,6 +28,8 @@ export interface DrawingInput {
 
 export type HandleGuideMode = "none" | "selected" | "all";
 
+export type DrawingView = "inside" | "outside";
+
 export interface DrawingOptions {
   selectedSash?: number | null;
   /** Overall width / height dimension lines. Default true. */
@@ -40,6 +42,8 @@ export interface DrawingOptions {
   mmPerUnit?: number;
   /** Text of the main-leaf badge. Default "PRINCIPALE". */
   mainLabel?: string;
+  /** Seen from inside (default) or from outside: the outside view is the mirror image and shows no handles. */
+  view?: DrawingView;
 }
 
 export type PrimitiveRole =
@@ -159,6 +163,8 @@ export interface SceneMeta {
   /** X of the divider between cell i and i+1. */
   dividers: number[];
   sashTypes: SashKind[];
+  /** Which side the drawing is seen from. In the outside view cells and dividers are mirrored. */
+  view?: DrawingView;
 }
 
 export interface Scene {

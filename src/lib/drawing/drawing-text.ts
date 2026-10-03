@@ -22,6 +22,15 @@ export const TITLES: L<{ technicalDrawings: string; legend: string }> = {
   ro: { technicalDrawings: "Desene tehnice", legend: "Legenda simbolurilor" },
 };
 
+export const VIEW: L<{ inside: string; outside: string; note: string }> = {
+  it: { inside: "Vista interna", outside: "Vista esterna", note: "Vista esterna: disegno speculare, maniglie non visibili" },
+  en: { inside: "Inside view", outside: "Outside view", note: "Outside view: mirrored drawing, handles not visible" },
+  fr: { inside: "Vue intérieure", outside: "Vue extérieure", note: "Vue extérieure : dessin en miroir, poignées non visibles" },
+  de: { inside: "Innenansicht", outside: "Außenansicht", note: "Außenansicht: gespiegelte Zeichnung, Griffe nicht sichtbar" },
+  nl: { inside: "Binnenaanzicht", outside: "Buitenaanzicht", note: "Buitenaanzicht: gespiegelde tekening, grepen niet zichtbaar" },
+  ro: { inside: "Vedere din interior", outside: "Vedere din exterior", note: "Vedere din exterior: desen în oglindă, mânerele nu se văd" },
+};
+
 /** Legend rows: at most two short lines each (an SVG text does not wrap). */
 export type LegendKey = "casement" | "tilt" | "sliding" | "liftslide" | "handle" | "hinge" | "guide";
 
