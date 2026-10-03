@@ -110,6 +110,14 @@ export interface PolygonPrimitive extends PrimitiveBase {
   strokeWidth: number;
 }
 
+export interface PolylinePrimitive extends PrimitiveBase {
+  type: "polyline";
+  points: Array<[number, number]>;
+  stroke: string;
+  strokeWidth: number;
+  dash?: string;
+}
+
 export interface CirclePrimitive extends PrimitiveBase {
   type: "circle";
   cx: number;
@@ -137,6 +145,7 @@ export type Primitive =
   | RectPrimitive
   | LinePrimitive
   | PolygonPrimitive
+  | PolylinePrimitive
   | CirclePrimitive
   | TextPrimitive;
 

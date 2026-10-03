@@ -91,6 +91,7 @@ function shift(p: Primitive, dx: number, dy: number): Primitive {
     case "line":
       return { ...p, x1: p.x1 + dx, y1: p.y1 + dy, x2: p.x2 + dx, y2: p.y2 + dy };
     case "polygon":
+    case "polyline":
       return { ...p, points: p.points.map(([x, y]) => [x + dx, y + dy] as [number, number]) };
     case "circle":
       return { ...p, cx: p.cx + dx, cy: p.cy + dy };

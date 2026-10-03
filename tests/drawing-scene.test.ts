@@ -19,6 +19,7 @@ function numbers(p: Primitive): number[] {
     case "line":
       return [p.x1, p.y1, p.x2, p.y2, p.strokeWidth];
     case "polygon":
+    case "polyline":
       return [...p.points.flat(), p.strokeWidth];
     case "circle":
       return [p.cx, p.cy, p.r];
@@ -47,8 +48,8 @@ describe("buildScene geometry", () => {
       const { w, h } = scene.viewBox;
       for (const p of scene.primitives) {
         if (p.type === "text") continue;
-        const xs = p.type === "rect" ? [p.x, p.x + p.w] : p.type === "line" ? [p.x1, p.x2] : p.type === "polygon" ? p.points.map((q) => q[0]) : [p.cx - p.r, p.cx + p.r];
-        const ys = p.type === "rect" ? [p.y, p.y + p.h] : p.type === "line" ? [p.y1, p.y2] : p.type === "polygon" ? p.points.map((q) => q[1]) : [p.cy - p.r, p.cy + p.r];
+        const xs = p.type === "rect" ? [p.x, p.x + p.w] : p.type === "line" ? [p.x1, p.x2] : p.type === "polygon" || p.type === "polyline" ? p.points.map((q) => q[0]) : [p.cx - p.r, p.cx + p.r];
+        const ys = p.type === "rect" ? [p.y, p.y + p.h] : p.type === "line" ? [p.y1, p.y2] : p.type === "polygon" || p.type === "polyline" ? p.points.map((q) => q[1]) : [p.cy - p.r, p.cy + p.r];
         for (const x of xs) {
           expect(x).toBeGreaterThanOrEqual(-0.001);
           expect(x).toBeLessThanOrEqual(w + 0.001);

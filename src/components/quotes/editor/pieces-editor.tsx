@@ -22,11 +22,12 @@ import {
 } from "@/shared/piece-ops";
 import { defaultItem } from "@/shared/item-defaults";
 import { DIM_ABS_MAX } from "@/shared/widget-types";
-import { buildLegendScene, DRAWING_DIMENSION, DRAWING_FLIP, DRAWING_HANDLE, DRAWING_OPTIONS, DRAWING_TITLES, DRAWING_VIEW, drawingLocale, SceneSvg, WindowDrawing, type DrawingView } from "@/lib/drawing";
+import { buildLegendScene, buildPlanScene, DRAWING_DIMENSION, DRAWING_FLIP, DRAWING_HANDLE, DRAWING_OPTIONS, DRAWING_TABS, DRAWING_TITLES, DRAWING_VIEW, drawingLocale, SceneSvg, WindowDrawing, type DrawingTab, type DrawingView } from "@/lib/drawing";
 import { SashPanel } from "@/components/quotes/sash-panel";
 import { catalogChoices, labelOf } from "./catalog-labels";
 import { PieceForm } from "./piece-form";
 import { HandleColorPopover } from "./handle-color-popover";
+import { DrawingTabs } from "./drawing-tabs";
 
 interface Props {
   payload: CatalogPayload;
@@ -44,6 +45,7 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
   const ts = useTranslations("sash");
   const [selectedSash, setSelectedSash] = useState<number | null>(0);
   const [view, setView] = useState<DrawingView>("inside");
+  const [tab, setTab] = useState<DrawingTab>("elevation");
   const [leafDims, setLeafDims] = useState(true);
   const [glassDims, setGlassDims] = useState(false);
   const [colorPicker, setColorPicker] = useState<{ index: number; x: number; y: number } | null>(null);
@@ -202,6 +204,8 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
           />
 
           <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-4">
+            <DrawingTabs tabs={["elevation", "plan"]} value={tab} onChange={setTab} locale={locale} />
+            <div role="tabpanel" id="drawing-panel-elevation" aria-labelledby="drawing-tab-elevation" hidden={tab !== "elevation"}>
             <div className="mb-2 flex justify-center gap-1" role="group" aria-label={DRAWING_VIEW[drawingLocale(locale)].inside + " / " + DRAWING_VIEW[drawingLocale(locale)].outside}>
               {(["inside", "outside"] as const).map((v) => (
                 <button
@@ -276,6 +280,15 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
                 <SceneSvg scene={buildLegendScene(locale)} ariaLabel={DRAWING_TITLES[drawingLocale(locale)].legend} />
               </div>
             </details>
+            </div>
+            {tab === "plan" ? (
+              <div role="tabpanel" id="drawing-panel-plan" aria-labelledby="drawing-tab-plan" className="mx-auto w-full max-w-[460px] rounded-lg bg-white p-2">
+                <SceneSvg
+                  scene={buildPlanScene({ widthMm: active.width, heightMm: active.height, category: active.category, sashes: active.sashes, finish: active.color, frameType: active.frameType }, locale)}
+                  ariaLabel={DRAWING_TABS[drawingLocale(locale)].plan}
+                />
+              </div>
+            ) : null}
             <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--color-text-secondary)]">
               <div className="flex gap-2">
                 <button type="button" disabled={active.sashes.length >= 6} onClick={() => update(activeIndex, addSash(active, keys))} className="rounded-md border border-[var(--color-border)] px-2 py-1 disabled:opacity-40">+ {t("addLeaf")}</button>

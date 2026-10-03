@@ -17,6 +17,10 @@ export function renderPrimitive(p: Primitive, key: number): ReactNode {
       return (
         <polygon key={key} points={p.points.map(([x, y]) => `${x},${y}`).join(" ")} fill={p.fill} stroke={p.stroke} strokeWidth={p.strokeWidth} opacity={p.opacity} />
       );
+    case "polyline":
+      return (
+        <polyline key={key} points={p.points.map(([x, y]) => `${x},${y}`).join(" ")} fill="none" stroke={p.stroke} strokeWidth={p.strokeWidth} strokeDasharray={p.dash} strokeLinejoin="round" strokeLinecap="round" opacity={p.opacity} />
+      );
     case "circle":
       return <circle key={key} cx={p.cx} cy={p.cy} r={p.r} fill={p.fill} stroke={p.stroke} strokeWidth={p.strokeWidth} opacity={p.opacity} />;
     case "text":

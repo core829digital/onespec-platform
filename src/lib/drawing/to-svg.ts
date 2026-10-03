@@ -15,6 +15,8 @@ function primitive(p: Primitive): string {
       return `<line x1="${n(p.x1)}" y1="${n(p.y1)}" x2="${n(p.x2)}" y2="${n(p.y2)}" stroke="${esc(p.stroke)}" stroke-width="${n(p.strokeWidth)}"${p.dash ? ` stroke-dasharray="${esc(p.dash)}"` : ""}${p.round ? ' stroke-linecap="round"' : ""}${attrs(p)}/>`;
     case "polygon":
       return `<polygon points="${p.points.map(([x, y]) => `${n(x)},${n(y)}`).join(" ")}" fill="${esc(p.fill)}" stroke="${esc(p.stroke)}" stroke-width="${n(p.strokeWidth)}"${attrs(p)}/>`;
+    case "polyline":
+      return `<polyline points="${p.points.map(([x, y]) => `${n(x)},${n(y)}`).join(" ")}" fill="none" stroke="${esc(p.stroke)}" stroke-width="${n(p.strokeWidth)}"${p.dash ? ` stroke-dasharray="${esc(p.dash)}"` : ""} stroke-linejoin="round" stroke-linecap="round"${attrs(p)}/>`;
     case "circle":
       return `<circle cx="${n(p.cx)}" cy="${n(p.cy)}" r="${n(p.r)}" fill="${esc(p.fill)}" stroke="${esc(p.stroke)}" stroke-width="${n(p.strokeWidth)}"${attrs(p)}/>`;
     case "text":

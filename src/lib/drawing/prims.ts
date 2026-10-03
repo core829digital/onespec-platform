@@ -2,6 +2,7 @@ import type {
   CirclePrimitive,
   LinePrimitive,
   PolygonPrimitive,
+  PolylinePrimitive,
   Primitive,
   PrimitiveRole,
   RectPrimitive,
@@ -84,6 +85,28 @@ export function poly(tag: Tag, points: Array<[number, number]>, s: Style = {}): 
   });
 }
 
+export function polyline(tag: Tag, points: Array<[number, number]>, s: Style = {}): PolylinePrimitive {
+  return optional({
+    type: "polyline" as const,
+    ...tag,
+    points,
+    stroke: s.stroke ?? "#000000",
+    strokeWidth: s.strokeWidth ?? 1,
+    dash: s.dash,
+    opacity: s.opacity,
+  });
+}
+
+/** Points of a circular arc, from angle `a0` to `a1` (radians, 0 = +x, clockwise on screen), `steps` segments. */
+export function arcPoints(cx: number, cy: number, r: number, a0: number, a1: number, steps = 24): Array<[number, number]> {
+  const out: Array<[number, number]> = [];
+  for (let i = 0; i <= steps; i++) {
+    const a = a0 + ((a1 - a0) * i) / steps;
+    out.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]);
+  }
+  return out;
+}
+
 export function circle(tag: Tag, cx: number, cy: number, r: number, s: Style = {}): CirclePrimitive {
   return optional({
     type: "circle" as const,
@@ -158,6 +181,7 @@ export function boundsOf(prims: Primitive[]): Bounds {
         add(p.x2, p.y2, p.strokeWidth / 2);
         break;
       case "polygon":
+      case "polyline":
         for (const [x, y] of p.points) add(x, y, p.strokeWidth / 2);
         break;
       case "circle":
@@ -182,6 +206,7 @@ export function place(p: Primitive, dx: number, dy: number): Primitive {
     case "line":
       return { ...p, x1: r3(p.x1 + dx), y1: r3(p.y1 + dy), x2: r3(p.x2 + dx), y2: r3(p.y2 + dy) };
     case "polygon":
+    case "polyline":
       return { ...p, points: p.points.map(([x, y]) => [r3(x + dx), r3(y + dy)] as [number, number]) };
     case "circle":
       return { ...p, cx: r3(p.cx + dx), cy: r3(p.cy + dy), r: r3(p.r) };
@@ -199,6 +224,7 @@ export function mirror(p: Primitive, width: number): Primitive {
     case "line":
       return { ...p, x1: r(width - p.x1), x2: r(width - p.x2) };
     case "polygon":
+    case "polyline":
       return { ...p, points: p.points.map(([x, y]) => [r(width - x), y] as [number, number]) };
     case "circle":
       return { ...p, cx: r(width - p.cx) };

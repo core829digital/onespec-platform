@@ -75,6 +75,26 @@ export const OPTIONS: L<{ leafDims: string; glassDims: string; glassNote: string
   ro: { leafDims: "Cotele canatelor", glassDims: "Cotele geamului", glassNote: "Dimensiunile geamului sunt orientative: depind de sistemul de profile." },
 };
 
+export const PLAN: L<{ interior: string; exterior: string; clearance: string }> = {
+  it: { interior: "INTERNO", exterior: "ESTERNO", clearance: "Ingombro apertura: {mm} mm" },
+  en: { interior: "INSIDE", exterior: "OUTSIDE", clearance: "Opening clearance: {mm} mm" },
+  fr: { interior: "INTÉRIEUR", exterior: "EXTÉRIEUR", clearance: "Encombrement d'ouverture : {mm} mm" },
+  de: { interior: "INNEN", exterior: "AUSSEN", clearance: "Platzbedarf beim Öffnen: {mm} mm" },
+  nl: { interior: "BINNEN", exterior: "BUITEN", clearance: "Ruimtebehoefte bij openen: {mm} mm" },
+  ro: { interior: "INTERIOR", exterior: "EXTERIOR", clearance: "Spațiu necesar la deschidere: {mm} mm" },
+};
+
+/** Names of the drawing tabs in the quote editor. */
+export type DrawingTab = "elevation" | "plan" | "section" | "hardware";
+export const TABS: L<Record<DrawingTab, string>> = {
+  it: { elevation: "Prospetto", plan: "Pianta", section: "Sezione", hardware: "Ferramenta" },
+  en: { elevation: "Elevation", plan: "Plan", section: "Section", hardware: "Hardware" },
+  fr: { elevation: "Élévation", plan: "Plan", section: "Coupe", hardware: "Quincaillerie" },
+  de: { elevation: "Ansicht", plan: "Grundriss", section: "Schnitt", hardware: "Beschlag" },
+  nl: { elevation: "Aanzicht", plan: "Plattegrond", section: "Doorsnede", hardware: "Beslag" },
+  ro: { elevation: "Fațadă", plan: "Plan", section: "Secțiune", hardware: "Feronerie" },
+};
+
 /** Legend rows: at most two short lines each (an SVG text does not wrap). */
 export type LegendKey = "casement" | "tilt" | "sliding" | "liftslide" | "handle" | "hinge" | "guide";
 
