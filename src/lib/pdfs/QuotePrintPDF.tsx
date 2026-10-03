@@ -488,6 +488,9 @@ export function QuotePrintPDF({
             const category = item.category ? CATEGORY_DEFS[item.category] : undefined;
             const profileLabel = catalog ? lab(catalog.profileSystems?.find((p) => p.materialKey === item.material && p.key === item.profileSystem), "") : "";
             const frameLabel = catalog ? lab(catalog.frameTypes?.find((f) => f.key === item.frameType), "") : "";
+            const finishRow = catalog?.finish.find((f) => f.key === item.color);
+            // Texture images are served by the platform: absolute URL so the PDF engine can fetch them.
+            const assetOrigin = typeof window !== "undefined" ? window.location.origin : "";
             const finishLabel = catalog ? lab(catalog.finish.find((f) => f.key === item.color), COLOR_LABELS[item.color] ?? item.color) : COLOR_LABELS[item.color] ?? item.color;
             const accessoryLabels = (["zanz", "cass", "avv", "pers"] as const).flatMap((c) => {
               const key = item.accessories?.[c];
@@ -508,7 +511,14 @@ export function QuotePrintPDF({
                 <View style={{ ...styles.tableCell, width: COLS[1] }}>
                   <Text style={{ lineHeight: 1.3 }}>{category ? (category.labels[langKey] ?? category.labels.it) : item.productType === "balconyDoor" ? T.balconyDoor : T.window}</Text>
                   {profileLabel ? <Text style={{ lineHeight: 1.3, fontSize: 8, color: colors.gray[500] }}>{profileLabel}</Text> : null}
-                  <Text style={{ lineHeight: 1.3, fontSize: 8, color: colors.gray[500] }}>{finishLabel}</Text>
+                  <View style={{ flexDirection: "row", alignItems: "center", gap: 3 }}>
+                    {finishRow?.texture && assetOrigin ? (
+                      <Image src={`${assetOrigin}${finishRow.texture}`} style={{ width: 9, height: 9, borderWidth: 0.5, borderColor: colors.gray[300] }} />
+                    ) : finishRow?.swatchHex ? (
+                      <View style={{ width: 9, height: 9, backgroundColor: finishRow.swatchHex, borderWidth: 0.5, borderColor: colors.gray[300] }} />
+                    ) : null}
+                    <Text style={{ lineHeight: 1.3, fontSize: 8, color: colors.gray[500] }}>{finishLabel}</Text>
+                  </View>
                   {frameLabel ? <Text style={{ lineHeight: 1.3, fontSize: 8, color: colors.gray[500] }}>{dict.frame}: {frameLabel}</Text> : null}
                   {leafLines.length > 0 ? leafLines.map((l, li) => <Text key={li} style={{ lineHeight: 1.3, fontSize: 7, color: colors.gray[500] }}>{l}</Text>) : <Text style={{ lineHeight: 1.3, fontSize: 8, color: colors.gray[500] }}>{sashTypes}</Text>}
                   {accessoryLabels.length > 0 ? <Text style={{ lineHeight: 1.3, fontSize: 7, color: colors.gray[500] }}>{dict.accessories}: {accessoryLabels.join(", ")}</Text> : null}

@@ -190,3 +190,38 @@ test("survey PDF renders with the survey sheets", async () => {
   );
   expect(buf.subarray(0, 5).toString()).toBe("%PDF-");
 });
+
+test("quote PDF renders with a textured finish, a glazing package and a movable mullion", async () => {
+  const { QuotePrintPDF } = await import("../src/lib/pdfs/QuotePrintPDF");
+  const { defaultItem } = await import("../src/shared/item-defaults");
+  const { DEFAULT_FRAME_TYPES } = await import("../src/shared/configurator-model");
+  const catalog = {
+    configurator: { vatRatePercent: 10, priceRoundingStep: 1, currency: "EUR" },
+    branding: null,
+    materials: [{ key: "pvc", labels: { it: "PVC" }, basePerM2Cents: 18000, profilePerMlCents: 2800, uFrameBase: 1.3, sortOrder: 0, enabled: true }],
+    qualityTiers: [{ materialKey: "pvc", key: "chamber5", labels: { it: "5" }, multiplier: 1, sortOrder: 0, enabled: true }],
+    profileSystems: [],
+    sizeConstraints: [],
+    glazing: [{ key: "d28_lam331x2Be", labels: { it: "Stratificato 3.3.1 + 3.3.1 · 28 mm" }, priceCents: 8100, uGlass: 1.0, sortOrder: 0, enabled: true }],
+    finish: [{ key: "s54", labels: { it: "Mountain Pine" }, swatchHex: "#8B5A2B", texture: "/finishes/s54.jpg", textureW: 160, textureH: 226, priceCents: 8500, sortOrder: 0, enabled: true }],
+    hardware: [
+      { kind: "sashType", key: "tiltturn", labels: { it: "AR" }, priceCents: 5000, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
+      { kind: "sashType", key: "classic", labels: { it: "B" }, priceCents: 3000, appliesToOperableOnly: true, sortOrder: 1, enabled: true },
+      { kind: "hardware", key: "standard", labels: { it: "Standard" }, priceCents: 0, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
+      { kind: "hardwareColor", key: "silver", labels: { it: "Argento" }, priceCents: 0, appliesToOperableOnly: true, sortOrder: 0, enabled: true },
+    ],
+    frameTypes: DEFAULT_FRAME_TYPES,
+    accessories: [],
+  } as unknown as Parameters<typeof QuotePrintPDF>[0]["catalog"];
+  const item = { ...defaultItem(catalog!, "finestra2"), glazing: "d28_lam331x2Be", color: "s54" };
+  const buf = await renderToBuffer(
+    h(QuotePrintPDF, {
+      tenant: { name: "Acme" },
+      catalog,
+      locale: "it-IT",
+      quote: { publicId: "ABCDEF1234", offerNumber: "Q-2026-0008", status: "quoted", leadName: "Mario", leadEmail: "m@example.com", vatRatePercent: 10, priceCents: 100000, priceExVatCents: 90909, items: [item], regionCode: "IT" },
+    } as unknown as Parameters<typeof QuotePrintPDF>[0]) as unknown as Parameters<typeof renderToBuffer>[0],
+  );
+  expect(buf.subarray(0, 4).toString()).toBe("%PDF");
+  expect(buf.length).toBeGreaterThan(8000);
+});
