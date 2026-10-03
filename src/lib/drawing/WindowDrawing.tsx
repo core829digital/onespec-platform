@@ -1,10 +1,11 @@
 "use client";
 
-import { useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent, type ReactNode } from "react";
+import { useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
 import { buildScene } from "./build-scene";
 import { resolveDividerRatio } from "./divider";
 import { PALETTE } from "./finishes";
-import type { DrawingInput, DrawingOptions, Primitive } from "./types";
+import { MONO, renderPrimitive } from "./render-dom";
+import type { DrawingInput, DrawingOptions } from "./types";
 
 export interface WindowDrawingProps {
   input: DrawingInput;
@@ -18,44 +19,6 @@ export interface WindowDrawingProps {
   height?: number | string;
   maxWidth?: number | string;
   style?: CSSProperties;
-}
-
-const MONO = "IBM Plex Mono, ui-monospace, monospace";
-
-function renderPrimitive(p: Primitive, key: number): ReactNode {
-  switch (p.type) {
-    case "rect":
-      return (
-        <rect key={key} x={p.x} y={p.y} width={p.w} height={p.h} rx={p.radius} fill={p.fill} stroke={p.stroke} strokeWidth={p.strokeWidth} strokeDasharray={p.dash} opacity={p.opacity} />
-      );
-    case "line":
-      return (
-        <line key={key} x1={p.x1} y1={p.y1} x2={p.x2} y2={p.y2} stroke={p.stroke} strokeWidth={p.strokeWidth} strokeDasharray={p.dash} strokeLinecap={p.round ? "round" : undefined} opacity={p.opacity} />
-      );
-    case "polygon":
-      return (
-        <polygon key={key} points={p.points.map(([x, y]) => `${x},${y}`).join(" ")} fill={p.fill} stroke={p.stroke} strokeWidth={p.strokeWidth} opacity={p.opacity} />
-      );
-    case "circle":
-      return <circle key={key} cx={p.cx} cy={p.cy} r={p.r} fill={p.fill} stroke={p.stroke} strokeWidth={p.strokeWidth} opacity={p.opacity} />;
-    case "text":
-      return (
-        <text
-          key={key}
-          x={p.x}
-          y={p.y}
-          fontSize={p.fontSize}
-          fontWeight={p.weight}
-          fontFamily={MONO}
-          textAnchor={p.anchor}
-          fill={p.fill}
-          opacity={p.opacity}
-          transform={p.rotate ? `rotate(${p.rotate} ${p.x} ${p.y})` : undefined}
-        >
-          {p.text}
-        </text>
-      );
-  }
 }
 
 /** Pointer position in drawing units; getScreenCTM accounts for any preserveAspectRatio letterboxing. */

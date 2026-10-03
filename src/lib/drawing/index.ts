@@ -1,4 +1,8 @@
 export { buildScene } from "./build-scene";
+export { buildLegendScene } from "./build-legend";
+export { drawingLocale, TITLES as DRAWING_TITLES, LEGEND as DRAWING_LEGEND, type DrawingLocale } from "./drawing-text";
+export { SceneSvg } from "./render-dom";
+export { ScenePdf } from "./render-pdf";
 export { resolveDividerRatio } from "./divider";
 export { FINISH_KEYS, finishStyle, hardwareFill, type FinishStyle } from "./finishes";
 export { WindowDrawing, type WindowDrawingProps } from "./WindowDrawing";

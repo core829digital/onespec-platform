@@ -1,7 +1,7 @@
 import "./pdf-setup";
 import { Document, Image, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import type { ProjectItem } from "@/shared/pricing";
-import { WindowDrawingPdf } from "@/lib/drawing";
+import { buildLegendScene, DRAWING_TITLES, drawingLocale, ScenePdf, WindowDrawingPdf } from "@/lib/drawing";
 import { CATEGORY_DEFS } from "@/shared/configurator-model";
 import { computeItemThermal, type CatalogPayload } from "@/shared/pricing";
 import { dictFor, openingLabel } from "@/lib/quote-export/dictionary";
@@ -549,7 +549,7 @@ export function QuotePrintPDF({
         {items.length > 0 && (
           <View style={styles.section} wrap={false}>
             <Text style={styles.sectionTitle}>
-              {langKey === "fr" ? "Dessins techniques" : langKey === "de" ? "Technische Zeichnungen" : langKey === "nl" ? "Technische tekeningen" : "Disegni tecnici"}
+              {DRAWING_TITLES[drawingLocale(langKey)].technicalDrawings}
             </Text>
             <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
               {items.map((item, idx) => (
@@ -564,6 +564,9 @@ export function QuotePrintPDF({
                   />
                 </View>
               ))}
+            </View>
+            <View style={{ marginTop: 10 }} wrap={false}>
+              <ScenePdf scene={buildLegendScene(langKey)} width={190} />
             </View>
           </View>
         )}

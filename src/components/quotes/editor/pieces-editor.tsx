@@ -20,7 +20,7 @@ import {
   type PieceIssue,
 } from "@/shared/piece-ops";
 import { defaultItem } from "@/shared/item-defaults";
-import { WindowDrawing } from "@/lib/drawing";
+import { buildLegendScene, DRAWING_TITLES, drawingLocale, SceneSvg, WindowDrawing } from "@/lib/drawing";
 import { SashPanel } from "@/components/quotes/sash-panel";
 import { catalogChoices, labelOf } from "./catalog-labels";
 import { PieceForm } from "./piece-form";
@@ -208,6 +208,12 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
                 height={340}
               />
             </div>
+            <details className="mt-2 text-xs text-[var(--color-text-secondary)]">
+              <summary className="cursor-pointer select-none font-medium text-[var(--color-text)]">{DRAWING_TITLES[drawingLocale(locale)].legend}</summary>
+              <div className="mx-auto mt-2 w-full max-w-[300px] rounded-lg bg-white p-2">
+                <SceneSvg scene={buildLegendScene(locale)} ariaLabel={DRAWING_TITLES[drawingLocale(locale)].legend} />
+              </div>
+            </details>
             <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--color-text-secondary)]">
               <div className="flex gap-2">
                 <button type="button" disabled={active.sashes.length >= 6} onClick={() => update(activeIndex, addSash(active, keys))} className="rounded-md border border-[var(--color-border)] px-2 py-1 disabled:opacity-40">+ {t("addLeaf")}</button>
