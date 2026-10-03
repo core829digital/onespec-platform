@@ -71,6 +71,7 @@ export function buildScene(input: DrawingInput, options: DrawingOptions = {}): S
     band: reno ? Math.max(4, reno * scale) : 0,
     finish: finishStyle(input.finish),
     options,
+    handles: [],
   };
 
   const cells = layoutCells(ctx, ratios);
@@ -94,6 +95,10 @@ export function buildScene(input: DrawingInput, options: DrawingOptions = {}): S
     raw.push(...drawDimensions(ctx, cells, accessoryRightExtent(ctx, input.accessories)));
   }
   raw.push(...hitRects(cells));
+  // Handle hit areas sit above the leaf ones so a handle can be grabbed (a little larger than the symbol).
+  for (const hnd of ctx.handles ?? []) {
+    raw.push(rect({ role: "hit", sashIndex: hnd.sashIndex, part: "handle" }, hnd.x - 3, hnd.y - 2, hnd.w + 6, hnd.h + 4, { fill: "transparent" }));
+  }
 
   const b = boundsOf(raw);
   const dx = PAD - b.minX;
@@ -119,6 +124,18 @@ export function buildScene(input: DrawingInput, options: DrawingOptions = {}): S
     primitives: placed,
     meta: {
       view: outside ? "outside" : "inside",
+      handles: outside
+        ? []
+        : (ctx.handles ?? []).map((hnd) => ({
+            ...hnd,
+            x: r3(hnd.x + dx),
+            y: r3(hnd.y + dy),
+            w: r3(hnd.w),
+            h: r3(hnd.h),
+            axisY: r3(hnd.axisY + dy),
+            minY: r3(hnd.minY + dy),
+            maxY: r3(hnd.maxY + dy),
+          })),
       scale,
       widthMm,
       heightMm,

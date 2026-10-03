@@ -16,14 +16,16 @@ import {
   removeSash,
   resizeDivider,
   setCategory,
+  setHardwareColor,
   setHeight,
   type PieceIssue,
 } from "@/shared/piece-ops";
 import { defaultItem } from "@/shared/item-defaults";
-import { buildLegendScene, DRAWING_FLIP, DRAWING_TITLES, DRAWING_VIEW, drawingLocale, SceneSvg, WindowDrawing, type DrawingView } from "@/lib/drawing";
+import { buildLegendScene, DRAWING_FLIP, DRAWING_HANDLE, DRAWING_TITLES, DRAWING_VIEW, drawingLocale, SceneSvg, WindowDrawing, type DrawingView } from "@/lib/drawing";
 import { SashPanel } from "@/components/quotes/sash-panel";
 import { catalogChoices, labelOf } from "./catalog-labels";
 import { PieceForm } from "./piece-form";
+import { HandleColorPopover } from "./handle-color-popover";
 
 interface Props {
   payload: CatalogPayload;
@@ -41,6 +43,7 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
   const ts = useTranslations("sash");
   const [selectedSash, setSelectedSash] = useState<number | null>(0);
   const [view, setView] = useState<DrawingView>("inside");
+  const [colorPicker, setColorPicker] = useState<{ index: number; x: number; y: number } | null>(null);
   const active = items[activeIndex] ?? items[0];
   const choices = useMemo(() => catalogChoices(payload, active?.material ?? "pvc", locale), [payload, active?.material, locale]);
   const lotFrame = items[0]?.frameType;
@@ -223,11 +226,27 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
                 onSelectSash={setSelectedSash}
                 onFlipSash={(i) => update(activeIndex, patchSash(active, i, { direction: active.sashes[i]?.direction === "left" ? "right" : "left" }))}
                 flipLabel={DRAWING_FLIP[drawingLocale(locale)]}
+                onHandleHeight={view === "inside" ? (i, mm) => update(activeIndex, patchSash(active, i, { handleHeightMm: mm })) : undefined}
+                onHandleClick={view === "inside" ? (i, a) => { setSelectedSash(i); setColorPicker({ index: i, x: a.clientX, y: a.clientY }); } : undefined}
+                handleText={DRAWING_HANDLE[drawingLocale(locale)]}
                 onResizeSash={view === "inside" ? (d, ratio) => update(activeIndex, resizeDivider(active, d, ratio)) : undefined}
                 ariaLabel={t("drawingLabel", { width: active.width, height: active.height })}
                 height={340}
               />
             </div>
+            {colorPicker && active.sashes[colorPicker.index] ? (
+              <HandleColorPopover
+                anchor={colorPicker}
+                locale={locale}
+                options={choices.hardwareColors}
+                current={active.sashes[colorPicker.index].hardwareColor}
+                onClose={() => setColorPicker(null)}
+                onPick={(key, all) => {
+                  update(activeIndex, setHardwareColor(active, colorPicker.index, key, all));
+                  setColorPicker(null);
+                }}
+              />
+            ) : null}
             {view === "outside" ? <p className="mt-2 text-center text-[11px] text-[var(--color-text-secondary)]">{DRAWING_VIEW[drawingLocale(locale)].note}</p> : null}
             <details className="mt-2 text-xs text-[var(--color-text-secondary)]">
               <summary className="cursor-pointer select-none font-medium text-[var(--color-text)]">{DRAWING_TITLES[drawingLocale(locale)].legend}</summary>

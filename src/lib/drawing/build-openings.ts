@@ -1,6 +1,6 @@
 import { hardwareFill, PALETTE } from "./finishes";
 import { handleExtent, handleKindFor, handleShapes } from "./handle-shapes";
-import { clamp, line, poly, rect, text, type Tag } from "./prims";
+import { boundsOf, clamp, line, poly, rect, text, type Tag } from "./prims";
 import type { Box, DrawingSash, Primitive, SceneCell, SceneContext } from "./types";
 
 const SYMBOL = { stroke: PALETTE.ink, strokeWidth: 1.1 };
@@ -88,17 +88,17 @@ function handleFor(ctx: SceneContext, s: DrawingSash, cell: SceneCell, i: number
   }
   const mm = s.handleHeightMm && s.handleHeightMm > 0 ? s.handleHeightMm : ctx.heightMm / 2;
   const sill = ctx.frame.y + ctx.frame.h;
-  const hy = clamp(
-    sill - mm * ctx.scale,
-    cell.y + ctx.sashInset + handleExtent(kind).up + 2,
-    cell.y + cell.h - ctx.sashInset - handleExtent(kind).down - 2,
-  );
+  const minY = cell.y + ctx.sashInset + handleExtent(kind).up + 2;
+  const maxY = cell.y + cell.h - ctx.sashInset - handleExtent(kind).down - 2;
+  const hy = clamp(sill - mm * ctx.scale, minY, maxY);
   const side = handleSide(s);
   const cx = side === "left" ? cell.x + ctx.sashInset / 2 : cell.x + cell.w - ctx.sashInset / 2;
-  return {
-    prims: handleShapes(tag, { kind, cx, cy: hy, inward: side === "left" ? 1 : -1, stile: ctx.sashInset, fill }),
-    hy,
-  };
+  const prims = handleShapes(tag, { kind, cx, cy: hy, inward: side === "left" ? 1 : -1, stile: ctx.sashInset, fill });
+  if (ctx.handles) {
+    const b = boundsOf(prims);
+    ctx.handles.push({ sashIndex: i, x: b.minX, y: b.minY, w: b.maxX - b.minX, h: b.maxY - b.minY, axisY: hy, minY, maxY });
+  }
+  return { prims, hy };
 }
 
 function guideFor(ctx: SceneContext, cell: SceneCell, hy: number, i: number): Primitive[] {

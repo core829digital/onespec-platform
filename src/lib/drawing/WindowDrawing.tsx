@@ -1,10 +1,12 @@
 "use client";
 
-import { useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from "react";
+import { useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent, type PointerEvent as ReactPointerEvent } from "react";
 import { buildScene } from "./build-scene";
 import { resolveDividerRatio } from "./divider";
 import { PALETTE } from "./finishes";
+import { handleRange } from "@/shared/configurator-model";
 import { hasOpeningDirection } from "@/shared/sash-rules";
+import { handleMmFromY, snapHandleHeight } from "./handle-height";
 import { MONO, renderPrimitive } from "./render-dom";
 import type { DrawingInput, DrawingOptions } from "./types";
 
@@ -18,6 +20,12 @@ export interface WindowDrawingProps {
   flipLabel?: string;
   /** Divider `dividerIndex` (between leaf i and i+1) dragged: `leftRatio` is the new absolute width ratio (0..1 of the frame) of leaf `dividerIndex`; the right leaf absorbs the rest. */
   onResizeSash?: (dividerIndex: number, leftRatio: number) => void;
+  /** A handle was dragged (or moved with the keyboard): its new height in mm from the floor, already snapped and clamped. */
+  onHandleHeight?: (index: number, mm: number) => void;
+  /** A handle was clicked without dragging (e.g. to open the hardware colour picker). */
+  onHandleClick?: (index: number, anchor: { clientX: number; clientY: number }) => void;
+  /** Words for the handle tooltip and the slider name. */
+  handleText?: { drag: string; standard: string; mid: string; adjust: string };
   svgId?: string;
   ariaLabel?: string;
   className?: string;
@@ -27,13 +35,18 @@ export interface WindowDrawingProps {
 }
 
 /** Pointer position in drawing units; getScreenCTM accounts for any preserveAspectRatio letterboxing. */
-function toDrawingX(svg: SVGSVGElement, clientX: number, clientY: number): number | null {
+function toDrawingPoint(svg: SVGSVGElement, clientX: number, clientY: number): { x: number; y: number } | null {
   const ctm = svg.getScreenCTM();
   if (!ctm) return null;
   const pt = svg.createSVGPoint();
   pt.x = clientX;
   pt.y = clientY;
-  return pt.matrixTransform(ctm.inverse()).x;
+  const out = pt.matrixTransform(ctm.inverse());
+  return { x: out.x, y: out.y };
+}
+
+function toDrawingX(svg: SVGSVGElement, clientX: number, clientY: number): number | null {
+  return toDrawingPoint(svg, clientX, clientY)?.x ?? null;
 }
 
 export function WindowDrawing({
@@ -42,6 +55,9 @@ export function WindowDrawing({
   onSelectSash,
   onFlipSash,
   flipLabel = "Flip opening",
+  onHandleHeight,
+  onHandleClick,
+  handleText = { drag: "Drag to adjust the handle height", standard: "standard", mid: "mid-height", adjust: "Handle height" },
   onResizeSash,
   svgId,
   ariaLabel,
@@ -55,6 +71,8 @@ export function WindowDrawing({
   const dragRef = useRef<{ index: number; ratios: number[] } | null>(null);
   const [dragging, setDragging] = useState<number | null>(null);
   const [hovered, setHovered] = useState<number | null>(null);
+  const handleRef = useRef<{ index: number; x: number; y: number; moved: boolean } | null>(null);
+  const [handleDrag, setHandleDrag] = useState<{ index: number; mm: number; label: "standard" | "mid" | null } | null>(null);
 
   // The flip button sits on the selected leaf, only when that leaf has an opening to flip.
   const sel = options?.selectedSash ?? null;
@@ -89,6 +107,53 @@ export function WindowDrawing({
     e.currentTarget.releasePointerCapture?.(e.pointerId);
   };
 
+  const grabbable = !!(onHandleHeight || onHandleClick);
+  const applyHandleY = (e: ReactPointerEvent<SVGRectElement>, index: number) => {
+    const svg = e.currentTarget.ownerSVGElement;
+    const pt = svg ? toDrawingPoint(svg, e.clientX, e.clientY) : null;
+    if (!pt) return;
+    const snapped = snapHandleHeight(handleMmFromY(meta, pt.y), meta.heightMm);
+    setHandleDrag({ index, mm: snapped.mm, label: snapped.label });
+    onHandleHeight?.(index, snapped.mm);
+  };
+  const startHandle = (e: ReactPointerEvent<SVGRectElement>, index: number) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleRef.current = { index, x: e.clientX, y: e.clientY, moved: false };
+    e.currentTarget.setPointerCapture?.(e.pointerId);
+  };
+  const moveHandle = (e: ReactPointerEvent<SVGRectElement>, index: number) => {
+    const d = handleRef.current;
+    if (!d || d.index !== index) return;
+    if (!d.moved && Math.hypot(e.clientX - d.x, e.clientY - d.y) < 4) return; // a click, not a drag yet
+    d.moved = true;
+    if (onHandleHeight) applyHandleY(e, index);
+  };
+  const endHandle = (e: ReactPointerEvent<SVGRectElement>, index: number) => {
+    const d = handleRef.current;
+    handleRef.current = null;
+    setHandleDrag(null);
+    e.currentTarget.releasePointerCapture?.(e.pointerId);
+    if (d && d.index === index && !d.moved) onHandleClick?.(index, { clientX: e.clientX, clientY: e.clientY });
+  };
+  const keyHandle = (e: ReactKeyboardEvent<SVGRectElement>, index: number, mm: number) => {
+    if (!onHandleHeight) return;
+    const { min, max } = handleRange(meta.heightMm);
+    const big = e.shiftKey ? 50 : 10;
+    const next =
+      e.key === "ArrowUp" ? mm + big : e.key === "ArrowDown" ? mm - big : e.key === "PageUp" ? mm + 50 : e.key === "PageDown" ? mm - 50 : e.key === "Home" ? min : e.key === "End" ? max : null;
+    if (next === null) {
+      if ((e.key === "Enter" || e.key === " ") && onHandleClick) {
+        e.preventDefault();
+        const r = e.currentTarget.getBoundingClientRect();
+        onHandleClick(index, { clientX: r.left + r.width / 2, clientY: r.top + r.height / 2 });
+      }
+      return;
+    }
+    e.preventDefault();
+    onHandleHeight(index, snapHandleHeight(next, meta.heightMm).mm);
+  };
+
   const svgStyle: CSSProperties = {
     width: "100%",
     height: height ?? "auto",
@@ -111,7 +176,7 @@ export function WindowDrawing({
       <g pointerEvents="none">{visual.map(renderPrimitive)}</g>
       {onSelectSash &&
         hits.map((p, k) =>
-          p.type === "rect" && p.sashIndex !== undefined ? (
+          p.type === "rect" && p.sashIndex !== undefined && p.part !== "handle" ? (
             <rect
               key={`hit-${k}`}
               x={p.x}
@@ -139,7 +204,7 @@ export function WindowDrawing({
           <g key={`grip-${i}`}>
             <rect
               x={x - 3}
-              y={meta.inner.y + meta.inner.h / 2 - 16}
+              y={meta.inner.y + meta.inner.h * 0.18 - 16}
               width={6}
               height={32}
               rx={3}
@@ -183,6 +248,57 @@ export function WindowDrawing({
             ) : null}
           </g>
         ))}
+      {grabbable &&
+        // The selected leaf's handle goes last so it wins where two inner handles touch at a shared stile.
+        [...(meta.handles ?? [])].sort((x, y) => Number(x.sashIndex === sel) - Number(y.sashIndex === sel)).map((hd) => {
+          const mmNow = Math.round(handleMmFromY(meta, hd.axisY));
+          const { min, max } = handleRange(meta.heightMm);
+          return (
+            <rect
+              key={`handle-${hd.sashIndex}`}
+              x={hd.x - 3}
+              y={hd.y - 2}
+              width={hd.w + 6}
+              height={hd.h + 4}
+              fill="transparent"
+              role={onHandleHeight ? "slider" : "button"}
+              tabIndex={0}
+              aria-label={handleText.adjust}
+              aria-orientation={onHandleHeight ? "vertical" : undefined}
+              aria-valuemin={onHandleHeight ? min : undefined}
+              aria-valuemax={onHandleHeight ? max : undefined}
+              aria-valuenow={onHandleHeight ? mmNow : undefined}
+              aria-valuetext={onHandleHeight ? `${mmNow} mm` : undefined}
+              data-testid="handle-grip"
+              style={{ cursor: onHandleHeight ? "ns-resize" : "pointer", touchAction: "none", outline: "none" }}
+              onPointerDown={(e) => startHandle(e, hd.sashIndex)}
+              onPointerMove={(e) => moveHandle(e, hd.sashIndex)}
+              onPointerUp={(e) => endHandle(e, hd.sashIndex)}
+              onPointerCancel={(e) => endHandle(e, hd.sashIndex)}
+              onKeyDown={(e) => keyHandle(e, hd.sashIndex, mmNow)}
+            >
+              <title>{handleText.drag}</title>
+            </rect>
+          );
+        })}
+      {handleDrag
+        ? (() => {
+            const hd = (meta.handles ?? []).find((x) => x.sashIndex === handleDrag.index);
+            if (!hd) return null;
+            const label = `${handleDrag.mm} mm${handleDrag.label ? " · " + handleText[handleDrag.label] : ""}`;
+            const w = label.length * 5.6 + 14;
+            const cx = hd.x + hd.w / 2;
+            const left = cx - w / 2 < 2 ? 2 : cx - w / 2;
+            return (
+              <g pointerEvents="none" data-testid="handle-tooltip">
+                <rect x={left} y={hd.y - 24} width={w} height={17} rx={4} fill={handleDrag.label ? "#059669" : PALETTE.guide} />
+                <text x={left + w / 2} y={hd.y - 12} textAnchor="middle" fontSize={10} fontFamily={MONO} fill="#fff">
+                  {label}
+                </text>
+              </g>
+            );
+          })()
+        : null}
     </svg>
   );
 }

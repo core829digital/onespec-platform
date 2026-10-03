@@ -40,6 +40,23 @@ export const FLIP: L<string> = {
   ro: "Inversează deschiderea (stânga/dreapta)",
 };
 
+export const HANDLE: L<{
+  drag: string;
+  standard: string;
+  mid: string;
+  colorTitle: string;
+  allLeaves: string;
+  close: string;
+  adjust: string;
+}> = {
+  it: { drag: "Trascina per regolare l'altezza della maniglia", standard: "standard", mid: "metà anta", colorTitle: "Colore ferramenta", allLeaves: "Applica a tutte le ante", close: "Chiudi", adjust: "Altezza maniglia" },
+  en: { drag: "Drag to adjust the handle height", standard: "standard", mid: "mid-height", colorTitle: "Hardware colour", allLeaves: "Apply to all leaves", close: "Close", adjust: "Handle height" },
+  fr: { drag: "Faites glisser pour régler la hauteur de la poignée", standard: "standard", mid: "mi-hauteur", colorTitle: "Couleur de la quincaillerie", allLeaves: "Appliquer à tous les vantaux", close: "Fermer", adjust: "Hauteur de poignée" },
+  de: { drag: "Ziehen, um die Griffhöhe einzustellen", standard: "Standard", mid: "Flügelmitte", colorTitle: "Beschlagfarbe", allLeaves: "Auf alle Flügel anwenden", close: "Schließen", adjust: "Griffhöhe" },
+  nl: { drag: "Sleep om de greephoogte aan te passen", standard: "standaard", mid: "halve hoogte", colorTitle: "Beslagkleur", allLeaves: "Toepassen op alle vleugels", close: "Sluiten", adjust: "Greephoogte" },
+  ro: { drag: "Trageți pentru a regla înălțimea mânerului", standard: "standard", mid: "mijlocul canatului", colorTitle: "Culoare feronerie", allLeaves: "Aplică la toate canatele", close: "Închide", adjust: "Înălțimea mânerului" },
+};
+
 /** Legend rows: at most two short lines each (an SVG text does not wrap). */
 export type LegendKey = "casement" | "tilt" | "sliding" | "liftslide" | "handle" | "hinge" | "guide";
 

@@ -149,6 +149,18 @@ export interface SceneCell extends Box {
   mm: number;
 }
 
+/** Where a handle sits, so a drawing can let it be dragged: its box, its axis and how far the axis may travel (drawing units). */
+export interface HandleInfo {
+  sashIndex: number;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  axisY: number;
+  minY: number;
+  maxY: number;
+}
+
 export interface SceneMeta {
   /** Drawing units per mm. */
   scale: number;
@@ -165,6 +177,8 @@ export interface SceneMeta {
   sashTypes: SashKind[];
   /** Which side the drawing is seen from. In the outside view cells and dividers are mirrored. */
   view?: DrawingView;
+  /** Handles whose height can be dragged (leaves with a handle on a stile; none in the outside view). */
+  handles?: HandleInfo[];
 }
 
 export interface Scene {
@@ -187,4 +201,6 @@ export interface SceneContext {
   band: number;
   finish: { fill: string; stroke: string; strokeWidth: number };
   options: DrawingOptions;
+  /** Filled while drawing: the handles that were drawn. */
+  handles?: HandleInfo[];
 }

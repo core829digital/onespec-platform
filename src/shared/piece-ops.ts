@@ -51,6 +51,15 @@ export function patchSash(item: ProjectItem, index: number, patch: Partial<Sash>
   return { ...item, sashes: electMain(sashes) };
 }
 
+/** Hardware colour of one leaf, or of every leaf that has hardware (fixed leaves have none). */
+export function setHardwareColor(item: ProjectItem, index: number, key: string, allLeaves: boolean): ProjectItem {
+  if (!allLeaves) return patchSash(item, index, { hardwareColor: key });
+  return {
+    ...item,
+    sashes: item.sashes.map((s) => ((s.type as SashKind) === "fix" ? s : { ...s, hardwareColor: key })),
+  };
+}
+
 /** Append a leaf of the family already in the frame (sliding / lift-slide / hinged). */
 export function addSash(item: ProjectItem, payloadDefaults?: { hardware?: string; hardwareColor?: string }): ProjectItem {
   if (item.sashes.length >= MAX_LEAVES) return item;

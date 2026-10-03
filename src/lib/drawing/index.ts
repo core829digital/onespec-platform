@@ -1,7 +1,8 @@
 export { buildScene } from "./build-scene";
 export { buildLegendScene } from "./build-legend";
-export { drawingLocale, VIEW as DRAWING_VIEW, FLIP as DRAWING_FLIP, TITLES as DRAWING_TITLES, LEGEND as DRAWING_LEGEND, type DrawingLocale } from "./drawing-text";
+export { drawingLocale, VIEW as DRAWING_VIEW, FLIP as DRAWING_FLIP, HANDLE as DRAWING_HANDLE, TITLES as DRAWING_TITLES, LEGEND as DRAWING_LEGEND, type DrawingLocale } from "./drawing-text";
 export { SceneSvg } from "./render-dom";
+export { snapHandleHeight, STANDARD_HANDLE_HEIGHTS_MM } from "./handle-height";
 export { ScenePdf } from "./render-pdf";
 export { resolveDividerRatio } from "./divider";
 export { FINISH_KEYS, finishStyle, hardwareFill, type FinishStyle } from "./finishes";
