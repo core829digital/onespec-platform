@@ -35,6 +35,10 @@ export interface DrawingOptions {
   /** Overall width / height dimension lines. Default true. */
   showDimensions?: boolean;
   showLeafDimensions?: boolean;
+  /** Indicative glass size inside each leaf ("~456 × 1210"). */
+  showGlassDimensions?: boolean;
+  /** Overall dimensions drawn in red when the piece is outside its allowed size. */
+  invalidAxes?: { width?: boolean; height?: boolean };
   showMainBadge?: boolean;
   handleGuide?: HandleGuideMode;
   showViolations?: boolean;

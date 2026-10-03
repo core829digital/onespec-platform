@@ -1,6 +1,6 @@
 export { buildScene } from "./build-scene";
 export { buildLegendScene } from "./build-legend";
-export { drawingLocale, VIEW as DRAWING_VIEW, FLIP as DRAWING_FLIP, HANDLE as DRAWING_HANDLE, DIMENSION as DRAWING_DIMENSION, TITLES as DRAWING_TITLES, LEGEND as DRAWING_LEGEND, type DrawingLocale } from "./drawing-text";
+export { drawingLocale, VIEW as DRAWING_VIEW, FLIP as DRAWING_FLIP, HANDLE as DRAWING_HANDLE, DIMENSION as DRAWING_DIMENSION, OPTIONS as DRAWING_OPTIONS, TITLES as DRAWING_TITLES, LEGEND as DRAWING_LEGEND, type DrawingLocale } from "./drawing-text";
 export { SceneSvg } from "./render-dom";
 export { parseDimensionInput } from "./dimension-edit";
 export { snapHandleHeight, STANDARD_HANDLE_HEIGHTS_MM } from "./handle-height";

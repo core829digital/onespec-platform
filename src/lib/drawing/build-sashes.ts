@@ -1,4 +1,5 @@
 import { drawOpening } from "./build-openings";
+import { glassLabel } from "./glass-size";
 import { PALETTE } from "./finishes";
 import { circle, hatchSegments, line, rect, text } from "./prims";
 import type { Box, DrawingSash, Primitive, SceneCell, SceneContext } from "./types";
@@ -99,6 +100,17 @@ export function drawLeaves(
       if (isDoor) {
         const panelY = area.y + area.h * (1 - DOOR_PANEL_SHARE);
         out.push(...drawPanel(ctx, { x: area.x, y: panelY, w: area.w, h: area.y + area.h - panelY }, i, false));
+      }
+      if (options.showGlassDimensions && s.active) {
+        const label = glassLabel(cell.mm, ctx.heightMm, isDoor);
+        if (label && glass.w > label.length * 4.4 + 8) {
+          const tag = { role: "leafLabel" as const, sashIndex: i, part: "glass" };
+          const w = label.length * 4.6 + 8;
+          out.push(
+            rect(tag, glass.x + glass.w / 2 - w / 2, glass.y + glass.h - 20, w, 12, { fill: "#FFFFFF", radius: 3, opacity: 0.85 }),
+            text(tag, glass.x + glass.w / 2, glass.y + glass.h - 11.2, label, { fontSize: 7.5, fill: PALETTE.dim, weight: "bold" }),
+          );
+        }
       }
       if (!s.active) {
         for (const [x1, y1, x2, y2] of hatchSegments(glass.x, glass.y, glass.w, glass.h, 9)) {

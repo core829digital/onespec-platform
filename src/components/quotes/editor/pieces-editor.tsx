@@ -22,7 +22,7 @@ import {
 } from "@/shared/piece-ops";
 import { defaultItem } from "@/shared/item-defaults";
 import { DIM_ABS_MAX } from "@/shared/widget-types";
-import { buildLegendScene, DRAWING_DIMENSION, DRAWING_FLIP, DRAWING_HANDLE, DRAWING_TITLES, DRAWING_VIEW, drawingLocale, SceneSvg, WindowDrawing, type DrawingView } from "@/lib/drawing";
+import { buildLegendScene, DRAWING_DIMENSION, DRAWING_FLIP, DRAWING_HANDLE, DRAWING_OPTIONS, DRAWING_TITLES, DRAWING_VIEW, drawingLocale, SceneSvg, WindowDrawing, type DrawingView } from "@/lib/drawing";
 import { SashPanel } from "@/components/quotes/sash-panel";
 import { catalogChoices, labelOf } from "./catalog-labels";
 import { PieceForm } from "./piece-form";
@@ -44,6 +44,8 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
   const ts = useTranslations("sash");
   const [selectedSash, setSelectedSash] = useState<number | null>(0);
   const [view, setView] = useState<DrawingView>("inside");
+  const [leafDims, setLeafDims] = useState(true);
+  const [glassDims, setGlassDims] = useState(false);
   const [colorPicker, setColorPicker] = useState<{ index: number; x: number; y: number } | null>(null);
   const active = items[activeIndex] ?? items[0];
   const choices = useMemo(() => catalogChoices(payload, active?.material ?? "pvc", locale), [payload, active?.material, locale]);
@@ -87,6 +89,11 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
   // issue; the parent page already blocks submission and shows a clear
   // "no catalog" state, so skip the misleading per-field warnings here.
   const issues = active && payload.materials.length > 0 ? pieceIssues(active, payload) : [];
+  // Overall dimensions turn red on the drawing when the size itself is out of bounds.
+  const invalidAxes = {
+    width: issues.some((i) => (i.code === "size" || i.code === "singleLeafMax") && i.axis === "width"),
+    height: issues.some((i) => (i.code === "size" || i.code === "singleLeafMax") && i.axis === "height"),
+  };
   const thermal = active ? computeItemThermal(payload, active) : null;
   const sash = active && selectedSash !== null ? active.sashes[selectedSash] : undefined;
 
@@ -212,6 +219,16 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
                 </button>
               ))}
             </div>
+            <div className="mb-2 flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-[var(--color-text-secondary)]">
+              <label className="flex items-center gap-1.5">
+                <input type="checkbox" checked={leafDims} onChange={(e) => setLeafDims(e.target.checked)} className="h-3.5 w-3.5" />
+                {DRAWING_OPTIONS[drawingLocale(locale)].leafDims}
+              </label>
+              <label className="flex items-center gap-1.5">
+                <input type="checkbox" checked={glassDims} onChange={(e) => setGlassDims(e.target.checked)} className="h-3.5 w-3.5" />
+                {DRAWING_OPTIONS[drawingLocale(locale)].glassDims}
+              </label>
+            </div>
             <div className="mx-auto w-full max-w-[420px]">
               <WindowDrawing
                 input={{
@@ -223,7 +240,7 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
                   frameType: active.frameType,
                   accessories: active.accessories,
                 }}
-                options={{ selectedSash, handleGuide: "selected", showMainBadge: true, showViolations: true, showLeafDimensions: true, view }}
+                options={{ selectedSash, handleGuide: "selected", showMainBadge: true, showViolations: true, showLeafDimensions: leafDims, showGlassDimensions: glassDims, invalidAxes, view }}
                 onSelectSash={setSelectedSash}
                 onFlipSash={(i) => update(activeIndex, patchSash(active, i, { direction: active.sashes[i]?.direction === "left" ? "right" : "left" }))}
                 flipLabel={DRAWING_FLIP[drawingLocale(locale)]}
@@ -238,6 +255,7 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
                 height={340}
               />
             </div>
+            {glassDims ? <p className="mt-2 text-center text-[11px] text-[var(--color-text-secondary)]">{DRAWING_OPTIONS[drawingLocale(locale)].glassNote}</p> : null}
             {colorPicker && active.sashes[colorPicker.index] ? (
               <HandleColorPopover
                 anchor={colorPicker}

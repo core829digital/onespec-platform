@@ -66,6 +66,15 @@ export const DIMENSION: L<{ editWidth: string; editHeight: string; invalid: stri
   ro: { editWidth: "Modifică lățimea", editHeight: "Modifică înălțimea", invalid: "Valoare între {min} și {max} mm" },
 };
 
+export const OPTIONS: L<{ leafDims: string; glassDims: string; glassNote: string }> = {
+  it: { leafDims: "Quote delle ante", glassDims: "Quote vetro", glassNote: "Misure del vetro indicative: dipendono dal sistema di profili." },
+  en: { leafDims: "Leaf dimensions", glassDims: "Glass dimensions", glassNote: "Glass sizes are indicative: they depend on the profile system." },
+  fr: { leafDims: "Cotes des vantaux", glassDims: "Cotes du vitrage", glassNote: "Dimensions du vitrage indicatives : elles dépendent du système de profilés." },
+  de: { leafDims: "Flügelmaße", glassDims: "Glasmaße", glassNote: "Glasmaße sind Richtwerte: sie hängen vom Profilsystem ab." },
+  nl: { leafDims: "Vleugelmaten", glassDims: "Glasmaten", glassNote: "Glasmaten zijn indicatief: ze hangen af van het profielsysteem." },
+  ro: { leafDims: "Cotele canatelor", glassDims: "Cotele geamului", glassNote: "Dimensiunile geamului sunt orientative: depind de sistemul de profile." },
+};
+
 /** Legend rows: at most two short lines each (an SVG text does not wrap). */
 export type LegendKey = "casement" | "tilt" | "sliding" | "liftslide" | "handle" | "hinge" | "guide";
 

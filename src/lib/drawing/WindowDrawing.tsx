@@ -341,7 +341,6 @@ export function WindowDrawing({
                 ) : null}
                 <foreignObject x={fx} y={cy - 12} width={80} height={24}>
                   <input
-                    // eslint-disable-next-line jsx-a11y/no-autofocus
                     autoFocus
                     type="text"
                     inputMode="numeric"
