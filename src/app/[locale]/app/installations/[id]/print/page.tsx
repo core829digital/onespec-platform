@@ -7,6 +7,7 @@ import { pdf } from "@react-pdf/renderer";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { PDFViewerComponent } from "@/components/ui/PDFViewer";
+import { buildPosaNodeScene } from "@/lib/drawing";
 import { InstallationCertPDF } from "@/lib/pdfs/InstallationCertPDF";
 import { usePDFDownload } from "@/hooks/usePDFDownload";
 import { printPdfBlob } from "@/lib/print-pdf";
@@ -25,6 +26,7 @@ function InstallationDocument({ data, region }: { data: NonNullable<FunctionRetu
   // tripping the impure-render rule Date.now() directly in the PDF
   // template's body would (see InstallationCertPDF's generatedAt prop).
   const [generatedAt] = useState(() => Date.now());
+  const nodeDrawing = buildPosaNodeScene({ nodeType: data.dossier.nodeType, jobType: data.dossier.jobType }, region === "FR" || region === "BE" || region === "LU" ? "fr" : region === "DE" ? "de" : region === "NL" ? "nl" : "it");
 
   const langKey = region === "FR" || region === "BE" || region === "LU" ? "fr" : region === "DE" ? "de" : region === "NL" ? "nl" : "it";
   const dateLocale = langKey === "fr" ? "fr-FR" : langKey === "de" ? "de-DE" : langKey === "nl" ? "nl-NL" : "it-IT";
@@ -58,6 +60,7 @@ function InstallationDocument({ data, region }: { data: NonNullable<FunctionRetu
           }
         : undefined}
       locale={dateLocale}
+      nodeDrawing={nodeDrawing}
       generatedAt={generatedAt}
     />
   );
@@ -94,6 +97,7 @@ function InstallationDocument({ data, region }: { data: NonNullable<FunctionRetu
           }
         : undefined,
       locale: dateLocale,
+      nodeDrawing,
       generatedAt,
     });
   };

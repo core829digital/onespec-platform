@@ -2,6 +2,7 @@ import "./pdf-setup";
 import { fieldPdfCopy } from "./field-pdf-i18n";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import { CompanyLogo } from "./CompanyLogo";
+import { ScenePdf, type Scene } from "@/lib/drawing";
 
 const colors = {
   black: "#111827",
@@ -178,6 +179,8 @@ interface InstallationCertPDFProps {
     openings: Array<{ widthMm: number; heightMm: number }>;
   };
   locale?: string;
+  /** Installation-node drawing (jamb or sill section) printed after the materials. */
+  nodeDrawing?: Scene;
   /** Footer "generated on" timestamp — pass Date.now() from the caller via
    * a lazy useState initializer so it's computed once, not on every
    * render (keeps this component a pure function of its props). */
@@ -196,6 +199,7 @@ export function InstallationCertPDF({
   quote,
   survey,
   locale = "it-IT",
+  nodeDrawing,
   generatedAt,
 }: InstallationCertPDFProps) {
   // The market's own norm is shown via dossier.normRef (UNI 11673, DTU 36.5, RAL…).
@@ -283,6 +287,12 @@ export function InstallationCertPDF({
             </View>
           ))}
         </View>
+
+        {nodeDrawing ? (
+          <View style={styles.section} wrap={false}>
+            <ScenePdf scene={nodeDrawing} width={330} />
+          </View>
+        ) : null}
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Istruzioni di Posa — {dossier.normRef}</Text>

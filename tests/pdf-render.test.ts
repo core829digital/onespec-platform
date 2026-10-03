@@ -152,3 +152,23 @@ test("quote PDF renders with the pinned catalogue: offer number, real Uw, telaio
   expect(buf.subarray(0, 4).toString()).toBe("%PDF");
   expect(buf.length).toBeGreaterThan(8000);
 });
+
+test("installation dossier PDF renders with the node drawing", async () => {
+  const { InstallationCertPDF } = await import("../src/lib/pdfs/InstallationCertPDF");
+  const { buildPosaNodeScene } = await import("../src/lib/drawing");
+  for (const nodeType of ["primario", "appui"]) {
+    const buf = await renderToBuffer(
+      h(InstallationCertPDF, {
+        tenant: { name: "CORE829" },
+        dossier: { normRef: "UNI 11673-1:2017", createdAt: 1_700_000_000_000, perimeterMm: 5000, materials: [{ key: "schiuma", label: "Schiuma", quantity: 2, unit: "tubi" }] },
+        jobLabel: "Sostituzione",
+        nodeLabel: "Nodo",
+        notes: ["Nota"],
+        nodeDrawing: buildPosaNodeScene({ nodeType, jobType: "cappotto" }, "it"),
+        generatedAt: 1_700_000_000_000,
+      } as never) as never,
+    );
+    expect(buf.subarray(0, 5).toString()).toBe("%PDF-");
+    expect(buf.length).toBeGreaterThan(2000);
+  }
+});

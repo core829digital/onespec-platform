@@ -9,6 +9,7 @@ import { Link } from "@/i18n/navigation";
 import { ComplianceBadges } from "@/components/installations/ComplianceBadges";
 import { ClientCantierePicker, type PickedLinks } from "@/components/app-shell/client-cantiere-picker";
 import { EditDossierPanel, type EditableDossier } from "@/components/installations/EditDossierPanel";
+import { buildPosaNodeScene, SceneSvg } from "@/lib/drawing";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useLocale, useTranslations } from "next-intl";
@@ -383,6 +384,9 @@ export default function InstallationsPage() {
                   className="mt-1 w-40 rounded-lg border-2 border-[var(--color-border)] bg-transparent px-3 py-2 font-semibold"
                 />
               </label>
+              <div className="mx-auto w-full max-w-[420px] rounded-lg bg-white p-2">
+                <SceneSvg scene={buildPosaNodeScene({ nodeType, jobType }, locale)} ariaLabel={t("step2")} />
+              </div>
               <div className="overflow-hidden rounded-lg border border-[var(--color-border)]">
                 <table className="w-full text-sm" aria-label={t("materialsAria")}>
                   <tbody>
