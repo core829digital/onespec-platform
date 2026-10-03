@@ -25,7 +25,7 @@ export function catalogChoices(payload: CatalogPayload, materialKey: string, loc
       uFrame: p.uFrame,
     })),
     glazing: bySort(payload.glazing).map((g) => ({ key: g.key, label: labelOf(g, locale), uGlass: g.uGlass })),
-    finishes: bySort(payload.finish).map((f) => ({ key: f.key, label: labelOf(f, locale), swatch: f.swatchHex })),
+    finishes: bySort(payload.finish).map((f) => ({ key: f.key, label: labelOf(f, locale), swatch: f.swatchHex, texture: f.texture, range: f.range, group: f.group, warrantyYears: f.warrantyYears })),
     frames: bySort(payload.frameTypes).map((f) => ({
       key: f.key,
       label: labelOf(f, locale),

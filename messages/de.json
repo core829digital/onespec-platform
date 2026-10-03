@@ -2410,5 +2410,14 @@
     "advice_doorsOrTall": "Empfohlen für Balkontüren und Haustüren oder Höhen über 1700 mm (bis 2700 mm).",
     "advice_tallBeyond": "Höhe über 2700 mm: Machbarkeit des Glases beim Hersteller prüfen.",
     "advice_entryDoors": "Das Zierpaneel wird für Haupteingangstüren empfohlen."
+  },
+  "finishPicker": {
+    "finish": "Farbe / Oberfläche",
+    "base": "Basisfarben",
+    "groups": "Farbgruppen",
+    "all": "Alle",
+    "search": "Farbe oder RAL-Code suchen",
+    "none": "Keine Farbe gefunden",
+    "warranty": "Farbgarantie {years} Jahre"
   }
 }

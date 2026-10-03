@@ -2410,5 +2410,14 @@
     "advice_doorsOrTall": "Consigliato per porte finestre e portoncini, o per altezze oltre 1700 mm (fino a 2700 mm).",
     "advice_tallBeyond": "Altezza oltre 2700 mm: verifica con il produttore la fattibilità del vetro.",
     "advice_entryDoors": "Il pannello ornamentale è consigliato per portoncini e portoni d'ingresso principali."
+  },
+  "finishPicker": {
+    "finish": "Colore / finitura",
+    "base": "Colori base",
+    "groups": "Gruppi di colori",
+    "all": "Tutti",
+    "search": "Cerca colore o codice RAL",
+    "none": "Nessun colore trovato",
+    "warranty": "Garanzia colore {years} anni"
   }
 }

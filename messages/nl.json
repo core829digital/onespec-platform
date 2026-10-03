@@ -2410,5 +2410,14 @@
     "advice_doorsOrTall": "Aanbevolen voor balkondeuren en voordeuren, of hoogtes boven 1700 mm (tot 2700 mm).",
     "advice_tallBeyond": "Hoogte boven 2700 mm: controleer bij de fabrikant of dit glas haalbaar is.",
     "advice_entryDoors": "Het sierpaneel wordt aanbevolen voor hoofdingangsdeuren."
+  },
+  "finishPicker": {
+    "finish": "Kleur / afwerking",
+    "base": "Basiskleuren",
+    "groups": "Kleurgroepen",
+    "all": "Alle",
+    "search": "Zoek kleur of RAL-code",
+    "none": "Geen kleur gevonden",
+    "warranty": "Kleurgarantie {years} jaar"
   }
 }

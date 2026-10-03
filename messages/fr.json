@@ -2410,5 +2410,14 @@
     "advice_doorsOrTall": "Recommandé pour portes-fenêtres et portes d'entrée, ou hauteurs au-delà de 1700 mm (jusqu'à 2700 mm).",
     "advice_tallBeyond": "Hauteur au-delà de 2700 mm : vérifier la faisabilité du vitrage auprès du fabricant.",
     "advice_entryDoors": "Le panneau décoratif est recommandé pour les portes d'entrée principales."
+  },
+  "finishPicker": {
+    "finish": "Couleur / finition",
+    "base": "Couleurs de base",
+    "groups": "Groupes de couleurs",
+    "all": "Tous",
+    "search": "Chercher couleur ou code RAL",
+    "none": "Aucune couleur trouvée",
+    "warranty": "Garantie couleur {years} ans"
   }
 }

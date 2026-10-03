@@ -180,7 +180,8 @@ export function WindowDrawing({
       id={svgId}
       viewBox={`0 0 ${scene.viewBox.w} ${scene.viewBox.h}`}
       xmlns="http://www.w3.org/2000/svg"
-      role="img"
+      // A group, not an image: handles, flip buttons and dividers inside are focusable controls.
+      role="group"
       aria-label={ariaLabel ?? `${input.widthMm} x ${input.heightMm} mm drawing`}
       className={className}
       style={svgStyle}

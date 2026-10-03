@@ -33,7 +33,7 @@ describe("WindowDrawing (DOM)", () => {
       const html = renderToStaticMarkup(h(WindowDrawing, { input, ariaLabel: label, className: "drawing" }));
       expect(html).toContain("<svg");
       expect(html).toContain(`aria-label="${label}"`);
-      expect(html).toContain('role="img"');
+      expect(html).toContain('role="group"');
       expect(html).toContain('class="drawing"');
       expect(html).toContain("viewBox=");
     }

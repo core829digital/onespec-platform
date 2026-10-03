@@ -25,6 +25,7 @@ interface FinishRow extends Row {
   texture?: string;
   textureW?: number;
   textureH?: number;
+  warrantyYears?: number;
 }
 interface MaterialRow extends Row {
   basePerM2Cents: number;
@@ -80,6 +81,7 @@ export interface FinishMeta {
   texture?: { href: string; w: number; h: number };
   range?: "skin" | "nuance" | "rock";
   group?: string;
+  warrantyYears?: number;
 }
 
 export interface WidgetOptions {
@@ -162,6 +164,7 @@ export function catalogOptions(
           ...(f.texture && f.textureW && f.textureH ? { texture: { href: f.texture, w: f.textureW, h: f.textureH } } : {}),
           ...(f.range ? { range: f.range } : {}),
           ...(f.group ? { group: f.group } : {}),
+          ...(f.warrantyYears ? { warrantyYears: f.warrantyYears } : {}),
         },
       ]),
     ),

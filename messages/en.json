@@ -2410,5 +2410,14 @@
     "advice_doorsOrTall": "Recommended for balcony doors and entrance doors, or heights above 1700 mm (up to 2700 mm).",
     "advice_tallBeyond": "Height above 2700 mm: check with the manufacturer that this glass is feasible.",
     "advice_entryDoors": "The ornamental panel is recommended for main entrance doors."
+  },
+  "finishPicker": {
+    "finish": "Colour / finish",
+    "base": "Base colours",
+    "groups": "Colour groups",
+    "all": "All",
+    "search": "Search colour or RAL code",
+    "none": "No colour found",
+    "warranty": "Colour warranty {years} years"
   }
 }

@@ -20,6 +20,8 @@ export interface WidgetDict {
   sashCountLabel: string;
   sashCountHint: string;
   viewNote: string;
+  /** Texts of the finish swatch picker. */
+  finishPicker: { finish: string; base: string; all: string; search: string; none: string; warranty: string };
   /** Two-step glazing picker (depth first, then composition) and its technical advice. */
   glazingPicker: { depth: string; composition: string; double: string; triple: string; advice: Record<"upTo1700" | "tooTall" | "doorsOrTall" | "tallBeyond" | "entryDoors", string> };
   /** Technical rules of the frame, shown under the leaf count. */
@@ -126,6 +128,7 @@ const en: WidgetDict = {
   sashCountHint: "Each sash can have its own opening type and side, and can be switched active/inactive.",
   viewNote: 'Opening "Left" = the leaf opens from left to right; "Right" = from right to left (seen from inside, looking outward). Tilt-only leaves have a single way of opening.',
   frameRules: { fixedMullion: "Fixed mullion on the frame: needed between two tilt-turn leaves, a tilt-only leaf, or an opening leaf next to a fixed one.", movableMullion: "The active (tilt-turn) leaf carries the handle; the handle-less inactive leaf carries the movable mullion.", slidingFixed: "Sliding with fixed leaf: on the Aluplast series it becomes a lift-slide or tilt-slide system." },
+  finishPicker: { finish: "Colour / finish", base: "Base colours", all: "All", search: "Search colour or RAL code", none: "No colour found", warranty: "Colour warranty {years} years" },
   glazingPicker: { depth: "Glazing: depth of the unit", composition: "Glass composition", double: "Double glazing", triple: "Triple glazing", advice: { upTo1700: "Recommended for windows up to 1700 mm high.", tooTall: "Float + 3.3.1 is recommended only up to 1700 mm high and not for balcony doors: above that choose laminated 3.3.1 + 3.3.1.", doorsOrTall: "Recommended for balcony doors and entrance doors, or heights above 1700 mm (up to 2700 mm).", tallBeyond: "Height above 2700 mm: check with the manufacturer that this glass is feasible.", entryDoors: "The ornamental panel is recommended for main entrance doors." } },
   singleSashCapHint: "Single-sash units are capped at 1200×2800mm.",
   sashLabel: "Sash",
@@ -245,6 +248,7 @@ const it: WidgetDict = {
   sashCountHint: "Ogni anta può avere un proprio tipo di apertura e lato, e può essere attivata o disattivata.",
   viewNote: 'Apertura "Sinistra" = l\'anta si apre da sinistra verso destra; "Destra" = da destra verso sinistra (visto dall\'interno). Il vasistas ha un solo modo di aprirsi.',
   frameRules: { fixedMullion: "Montante fisso sul telaio: serve tra due ante-ribalta, vasistas o un'anta apribile accanto a una fissa.", movableMullion: "Anta attiva (anta-ribalta) con la maniglia; l'anta inattiva senza maniglia porta il montante mobile.", slidingFixed: "Scorrevole con fisso: sulla serie Aluplast diventa alzante scorrevole o traslante scorrevole." },
+  finishPicker: { finish: "Colore / finitura", base: "Colori base", all: "Tutti", search: "Cerca colore o codice RAL", none: "Nessun colore trovato", warranty: "Garanzia colore {years} anni" },
   glazingPicker: { depth: "Vetro: profondità del pacchetto", composition: "Composizione del vetro", double: "Doppio vetro", triple: "Triplo vetro", advice: { upTo1700: "Consigliato per finestre fino a 1700 mm di altezza.", tooTall: "Float + 3.3.1 è consigliato solo fino a 1700 mm di altezza e non per porte finestre: oltre, scegli lo stratificato 3.3.1 + 3.3.1.", doorsOrTall: "Consigliato per porte finestre e portoncini, o per altezze oltre 1700 mm (fino a 2700 mm).", tallBeyond: "Altezza oltre 2700 mm: verifica con il produttore la fattibilità del vetro.", entryDoors: "Il pannello ornamentale è consigliato per portoncini e portoni d'ingresso principali." } },
   singleSashCapHint: "Gli infissi a un'anta sono limitati a 1200×2800mm.",
   sashLabel: "Anta",
@@ -360,6 +364,7 @@ const fr: WidgetDict = {
   sashCountHint: "Chaque vantail peut avoir son propre type d'ouverture et son côté, et peut être activé/désactivé.",
   viewNote: 'Ouverture « Gauche » = le battant s\'ouvre de gauche à droite ; « Droite » = de droite à gauche (vue de l\'intérieur). Le soufflet n\'a qu\'un seul mode d\'ouverture.',
   frameRules: { fixedMullion: "Montant fixe sur le dormant : nécessaire entre deux vantaux oscillo-battants, un soufflet, ou un ouvrant à côté d'un fixe.", movableMullion: "Le vantail actif (oscillo-battant) porte la poignée ; le vantail semi-fixe sans poignée porte le montant mobile.", slidingFixed: "Coulissant avec fixe : sur la série Aluplast il devient levant-coulissant ou oscillo-coulissant." },
+  finishPicker: { finish: "Couleur / finition", base: "Couleurs de base", all: "Tous", search: "Chercher couleur ou code RAL", none: "Aucune couleur trouvée", warranty: "Garantie couleur {years} ans" },
   glazingPicker: { depth: "Vitrage : épaisseur du vitrage", composition: "Composition du vitrage", double: "Double vitrage", triple: "Triple vitrage", advice: { upTo1700: "Recommandé pour les fenêtres jusqu'à 1700 mm de hauteur.", tooTall: "Float + 3.3.1 n'est recommandé que jusqu'à 1700 mm de hauteur et pas pour les portes-fenêtres : au-delà, choisir le feuilleté 3.3.1 + 3.3.1.", doorsOrTall: "Recommandé pour portes-fenêtres et portes d'entrée, ou hauteurs au-delà de 1700 mm (jusqu'à 2700 mm).", tallBeyond: "Hauteur au-delà de 2700 mm : vérifier la faisabilité du vitrage auprès du fabricant.", entryDoors: "Le panneau décoratif est recommandé pour les portes d'entrée principales." } },
   singleSashCapHint: "Les menuiseries à un seul vantail sont limitées à 1200×2800mm.",
   sashLabel: "Vantail",
@@ -475,6 +480,7 @@ const de: WidgetDict = {
   sashCountHint: "Jeder Flügel kann einen eigenen Öffnungstyp und eine eigene Seite haben und kann aktiviert/deaktiviert werden.",
   viewNote: 'Öffnung „Links“ = der Flügel öffnet von links nach rechts; „Rechts“ = von rechts nach links (von innen gesehen). Kippflügel haben nur eine Öffnungsart.',
   frameRules: { fixedMullion: "Fester Pfosten am Rahmen: nötig zwischen zwei Dreh-Kipp-Flügeln, einem Kippflügel oder einem Flügel neben einem Festteil.", movableMullion: "Der aktive Dreh-Kipp-Flügel trägt den Griff; der griffllose Standflügel trägt den beweglichen Stulp.", slidingFixed: "Schiebe mit Festteil: bei der Serie Aluplast wird daraus ein Hebeschiebe- oder Kippschiebesystem." },
+  finishPicker: { finish: "Farbe / Oberfläche", base: "Basisfarben", all: "Alle", search: "Farbe oder RAL-Code suchen", none: "Keine Farbe gefunden", warranty: "Farbgarantie {years} Jahre" },
   glazingPicker: { depth: "Verglasung: Dicke des Glaspakets", composition: "Glasaufbau", double: "Zweifachverglasung", triple: "Dreifachverglasung", advice: { upTo1700: "Empfohlen für Fenster bis 1700 mm Höhe.", tooTall: "Float + 3.3.1 wird nur bis 1700 mm Höhe und nicht für Balkontüren empfohlen: darüber Verbund 3.3.1 + 3.3.1 wählen.", doorsOrTall: "Empfohlen für Balkontüren und Haustüren oder Höhen über 1700 mm (bis 2700 mm).", tallBeyond: "Höhe über 2700 mm: Machbarkeit des Glases beim Hersteller prüfen.", entryDoors: "Das Zierpaneel wird für Haupteingangstüren empfohlen." } },
   singleSashCapHint: "Einflügelige Elemente sind auf 1200×2800mm begrenzt.",
   sashLabel: "Flügel",
@@ -590,6 +596,7 @@ const nl: WidgetDict = {
   sashCountHint: "Elke vleugel kan zijn eigen openingstype en kant hebben en kan in-/uitgeschakeld worden.",
   viewNote: 'Opening "Links" = de vleugel opent van links naar rechts; "Rechts" = van rechts naar links (gezien van binnen). Een kiepraam heeft één manier van openen.',
   frameRules: { fixedMullion: "Vaste stijl op het kozijn: nodig tussen twee draai-kiepvleugels, een kiepvleugel of een openende vleugel naast een vast deel.", movableMullion: "De actieve (draai-kiep)vleugel draagt de greep; de passieve vleugel zonder greep draagt de beweegbare stijl.", slidingFixed: "Schuif met vast deel: bij de Aluplast-serie wordt dit een hef-schuif- of kantelschuifsysteem." },
+  finishPicker: { finish: "Kleur / afwerking", base: "Basiskleuren", all: "Alle", search: "Zoek kleur of RAL-code", none: "Geen kleur gevonden", warranty: "Kleurgarantie {years} jaar" },
   glazingPicker: { depth: "Beglazing: dikte van het pakket", composition: "Glassamenstelling", double: "Dubbel glas", triple: "Drievoudig glas", advice: { upTo1700: "Aanbevolen voor ramen tot 1700 mm hoog.", tooTall: "Float + 3.3.1 wordt alleen aanbevolen tot 1700 mm hoogte en niet voor balkondeuren: kies daarboven gelaagd 3.3.1 + 3.3.1.", doorsOrTall: "Aanbevolen voor balkondeuren en voordeuren, of hoogtes boven 1700 mm (tot 2700 mm).", tallBeyond: "Hoogte boven 2700 mm: controleer bij de fabrikant of dit glas haalbaar is.", entryDoors: "Het sierpaneel wordt aanbevolen voor hoofdingangsdeuren." } },
   singleSashCapHint: "Eenvoudige elementen zijn beperkt tot 1200×2800mm.",
   sashLabel: "Vleugel",

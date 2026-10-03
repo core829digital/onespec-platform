@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { ACCESSORY_CATEGORY_LABELS, type AccessoryCategory } from "@/shared/configurator-model";
 import type { ProjectItem } from "@/shared/pricing";
 import type { catalogChoices } from "./catalog-labels";
+import { FinishPicker } from "./finish-picker";
 import { GlazingPicker } from "./glazing-picker";
 
 type Choices = ReturnType<typeof catalogChoices>;
@@ -109,17 +110,7 @@ export function PieceForm({ item, choices, locale, onPatch, onWidth, onHeight, o
           selectClass={field}
           labelClass={label}
         />
-        <div>
-          <label className={label} htmlFor={`${baseId}-finish`}>{t("finish")}</label>
-          <div className="flex items-center gap-2">
-            <select id={`${baseId}-finish`} value={item.color} onChange={(e) => onPatch({ color: e.target.value })} className={field}>
-              {choices.finishes.map((f) => (
-                <option key={f.key} value={f.key}>{f.label}</option>
-              ))}
-            </select>
-            <span aria-hidden="true" className="h-8 w-8 shrink-0 rounded-md border border-[var(--color-border)]" style={{ background: choices.finishes.find((f) => f.key === item.color)?.swatch ?? "transparent" }} />
-          </div>
-        </div>
+        <FinishPicker idBase={baseId} value={item.color} finishes={choices.finishes.map((f) => ({ key: f.key, label: f.label, hex: f.swatch, texture: f.texture, range: f.range, group: f.group, warrantyYears: f.warrantyYears }))} onChange={(key) => onPatch({ color: key })} labelClass={label} />
       </div>
 
       <details className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)]" open={anyAccessory}>

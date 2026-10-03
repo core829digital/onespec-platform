@@ -2410,5 +2410,14 @@
     "advice_doorsOrTall": "Recomandat pentru uși de balcon și uși de intrare sau înălțimi peste 1700 mm (până la 2700 mm).",
     "advice_tallBeyond": "Înălțime peste 2700 mm: verifică cu producătorul fezabilitatea geamului.",
     "advice_entryDoors": "Panoul ornamental este recomandat pentru ușile de intrare principale."
+  },
+  "finishPicker": {
+    "finish": "Culoare / finisaj",
+    "base": "Culori de bază",
+    "groups": "Grupe de culori",
+    "all": "Toate",
+    "search": "Caută culoare sau cod RAL",
+    "none": "Nicio culoare găsită",
+    "warranty": "Garanție culoare {years} ani"
   }
 }

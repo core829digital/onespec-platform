@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { SpecDrawing } from "./spec-drawing";
+import { WidgetFinishPicker } from "./widget-finish-picker";
 import { getDict, LOCALE_CFG, labelFromList } from "./widget-i18n";
 import { readableInk, isSafeColor, resolveFontStack } from "./widget-theme";
 import { postToHost, readHostTheme } from "./host-bridge";
@@ -811,7 +812,7 @@ export function Widget({
             };
             return (
               <>
-                <Field label={`${dict.glazingLabel} · ${gp.depth}`} mt id="widget-glazing-depth">
+                <Field label={gp.depth} mt id="widget-glazing-depth">
                   <select id="widget-glazing-depth" style={s.select} value={parsed ? `${parsed.family}-${parsed.depthMm}` : "legacy"} onChange={(e) => pickDepth(e.target.value)}>
                     {!parsed ? <option value="legacy" disabled>{rows.find((r) => r.key === state.glazing)?.label ?? state.glazing}</option> : null}
                     {depths.map(({ family, depth }) => (
@@ -835,13 +836,7 @@ export function Widget({
           })()}
 
           <Field label={dict.colorLabel} id="widget-color">
-            <select id="widget-color" style={s.select} value={state.color} onChange={(e) => set({ color: e.target.value })}>
-              {options.color.map(([k, v]) => (
-                <option key={k} value={k}>
-                  {v}
-                </option>
-              ))}
-            </select>
+            <WidgetFinishPicker id="widget-color" lang={lang} value={state.color} pairs={options.color} meta={options.colorMeta} text={dict.finishPicker} onChange={(key) => set({ color: key })} styles={s} />
           </Field>
 
           <Field label={dict.installationLabel} id="widget-installation">
