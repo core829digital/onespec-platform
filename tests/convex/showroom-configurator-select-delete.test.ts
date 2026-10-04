@@ -155,3 +155,69 @@ describe("deleting a configurator", () => {
     expect(await t.run((ctx) => ctx.db.query("catalogAccessories").withIndex("by_configurator", (q) => q.eq("configuratorId", configuratorId)).collect())).toHaveLength(0);
   });
 });
+
+describe("archiving a configurator", () => {
+  test("it stops serving everywhere, keeps its data and requests, and can be restored as a draft", async () => {
+    const { t, s, as, older, newer } = await setup();
+    await t.run((ctx) =>
+      ctx.db.insert("quoteRequests", { tenantId: s.tenantId, configuratorId: newer, catalogVersion: 1, publicId: "NEWER00001", leadName: "Mario", leadEmail: "m@example.com", leadLocale: "it", items: [{ width: 1200, height: 1400 }], priceCents: 100, priceExVatCents: 80, vatRatePercent: 22, currency: "EUR" as const, status: "new" as const }),
+    );
+    expect(await as.mutation(api.configurators.archiveConfigurator, { configuratorId: newer })).toEqual({ status: "archived" });
+    // Not served: widget gone, Showroom falls back to the other published one, not selectable.
+    expect(await t.query(api.widget.getPublicConfigurator, { publicId: "NEWER00001" })).toBeNull();
+    const cat = await as.query(api.calculations.getShowroomCatalog, { tenantId: s.tenantId });
+    expect(cat.ready && cat.configuratorId).toBe(older);
+    expect((await as.query(api.calculations.getShowroomCatalog, { tenantId: s.tenantId, configuratorId: newer })).ready).toBe(false);
+    // Still listed (as archived), data and request intact.
+    const list = await as.query(api.configurators.listConfigurators, { tenantId: s.tenantId });
+    expect(list.find((c) => c._id === newer)?.status).toBe("archived");
+    expect(await t.run((ctx) => ctx.db.query("catalogVersions").collect())).toHaveLength(2);
+    expect(await t.run((ctx) => ctx.db.query("quoteRequests").collect())).toHaveLength(1);
+    // Archiving twice is harmless; deleting it is still refused while it has requests.
+    expect(await as.mutation(api.configurators.archiveConfigurator, { configuratorId: newer })).toEqual({ status: "archived" });
+    await expect(as.mutation(api.configurators.deleteConfigurator, { configuratorId: newer })).rejects.toThrow(/CONFIGURATOR_HAS_REQUESTS/);
+    // Restore: back as a draft (not serving until published again).
+    expect(await as.mutation(api.configurators.restoreConfigurator, { configuratorId: newer })).toEqual({ status: "draft" });
+    expect((await t.run((ctx) => ctx.db.get(newer)))?.status).toBe("draft");
+    expect(await t.query(api.widget.getPublicConfigurator, { publicId: "NEWER00001" })).toBeNull();
+    // Restoring something that is not archived changes nothing.
+    expect(await as.mutation(api.configurators.restoreConfigurator, { configuratorId: older })).toEqual({ status: "published" });
+  });
+
+  test("an archived configurator does not count against the plan; restoring respects it", async () => {
+    const t = newDb();
+    const s = await seedTenant(t, { plan: "starter" });
+    const as = t.withIdentity({ subject: s.ownerId });
+    const ids: unknown[] = [];
+    for (let i = 0; i < 8; i++) {
+      try {
+        ids.push((await as.mutation(api.configurators.createConfigurator, { tenantId: s.tenantId, name: `Config ${i}` })).configuratorId);
+      } catch {
+        break;
+      }
+    }
+    expect(ids.length).toBeGreaterThan(0);
+    if (ids.length < 8) {
+      await expect(as.mutation(api.configurators.createConfigurator, { tenantId: s.tenantId, name: "Oltre il limite" })).rejects.toThrow(/QUOTA/);
+      await as.mutation(api.configurators.archiveConfigurator, { configuratorId: ids[0] as never });
+      const extra = await as.mutation(api.configurators.createConfigurator, { tenantId: s.tenantId, name: "Al posto dell'archiviato" });
+      expect(extra.configuratorId).toBeTruthy();
+      // The plan is full again: the archived one cannot come back until room is made.
+      await expect(as.mutation(api.configurators.restoreConfigurator, { configuratorId: ids[0] as never })).rejects.toThrow(/QUOTA/);
+    }
+  });
+
+  test("permissions: members and other tenants cannot archive or restore; a configurator being deleted cannot be published or edited", async () => {
+    const { t, s, as, older } = await setup();
+    const other = await seedTenant(t, { plan: "agency" });
+    for (const identity of [other.ownerId, s.memberId]) {
+      const asX = t.withIdentity({ subject: identity });
+      await expect(asX.mutation(api.configurators.archiveConfigurator, { configuratorId: older })).rejects.toThrow();
+      await expect(asX.mutation(api.configurators.restoreConfigurator, { configuratorId: older })).rejects.toThrow();
+    }
+    await as.mutation(api.configurators.deleteConfigurator, { configuratorId: older });
+    await expect(as.mutation(api.configurators.publishConfigurator, { configuratorId: older })).rejects.toThrow(/CONFIGURATOR_NOT_FOUND/);
+    await expect(as.mutation(api.configurators.updateConfigurator, { configuratorId: older, name: "Nuovo nome" })).rejects.toThrow(/CONFIGURATOR_NOT_FOUND/);
+    await expect(as.mutation(api.configurators.archiveConfigurator, { configuratorId: older })).rejects.toThrow(/CONFIGURATOR_NOT_FOUND/);
+  });
+});

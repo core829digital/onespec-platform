@@ -53,7 +53,7 @@ export function ConfiguratorPicker({
           {configurators.map((c) => (
             <option key={c._id} value={c._id} disabled={!isShowroomReady(c)}>
               {c.name}
-              {isShowroomReady(c) ? "" : ` · ${t("configuratorDraft")}`}
+              {isShowroomReady(c) ? "" : ` · ${c.status === "archived" ? t("configuratorArchived") : t("configuratorDraft")}`}
             </option>
           ))}
         </select>

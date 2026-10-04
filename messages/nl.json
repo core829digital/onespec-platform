@@ -400,7 +400,7 @@
     "uploadFailed": "Bestand uploaden mislukt. Probeer het opnieuw.",
     "noSupplierLines": "Geen geldige leverancier gevonden voor de regels met meerdere leveranciers.",
     "quoteCreateFailed": "De offerte kon niet worden aangemaakt. Probeer het opnieuw.",
-    "configuratorHasRequests": "Deze configurator heeft al klantaanvragen ontvangen en kan niet worden verwijderd, zodat hun gegevens niet verloren gaan."
+    "configuratorHasRequests": "Deze configurator heeft al klantaanvragen ontvangen en kan niet worden verwijderd, zodat hun gegevens niet verloren gaan. U kunt hem archiveren: hij werkt dan niet meer, maar de gegevens blijven bewaard."
   },
   "app": {
     "suspended": {
@@ -1151,7 +1151,8 @@
     "configuratorDraft": "concept, niet gepubliceerd",
     "configuratorManage": "Configurators beheren",
     "configuratorHelp": "Prijzen en opties komen van de gekozen configurator (laatst gepubliceerde versie). Bij wisselen starten de stukken opnieuw met zijn prijslijst.",
-    "configuratorNonePublished": "Geen van uw configurators is gepubliceerd. Open \"Configurators beheren\", vul de catalogus aan en kies Publiceren: pas dan kan de Showroom de gegevens tonen."
+    "configuratorNonePublished": "Geen van uw configurators is gepubliceerd. Open \"Configurators beheren\", vul de catalogus aan en kies Publiceren: pas dan kan de Showroom de gegevens tonen.",
+    "configuratorArchived": "gearchiveerd"
   },
   "legal": {
     "lastUpdated": "Laatst bijgewerkt",
@@ -1216,7 +1217,12 @@
     "delete": "Verwijderen",
     "deleting": "Verwijderen...",
     "deleteConfirm": "“{name}” definitief verwijderen? Catalogus, versies en branding worden gewist en dit kan niet ongedaan worden gemaakt.",
-    "deleteConfirmPublished": "“{name}” is gepubliceerd: de op websites ingebedde widget en de /c/-link werken meteen niet meer. Definitief verwijderen? Dit kan niet ongedaan worden gemaakt."
+    "deleteConfirmPublished": "“{name}” is gepubliceerd: de op websites ingebedde widget en de /c/-link werken meteen niet meer. Definitief verwijderen? Dit kan niet ongedaan worden gemaakt.",
+    "archive": "Archiveren",
+    "archiving": "Archiveren...",
+    "archiveConfirm": "“{name}” archiveren? Hij werkt dan niet meer (widget, link en Showroom) en telt niet meer mee in het abonnement, maar catalogus, versies en aanvragen blijven bewaard. U kunt hem herstellen.",
+    "restore": "Herstellen",
+    "restoring": "Herstellen..."
   },
   "pipeline": {
     "title": "Verkoopdeals",

@@ -400,7 +400,7 @@
     "uploadFailed": "File upload failed. Please try again.",
     "noSupplierLines": "No valid supplier found for the multi-supplier lines.",
     "quoteCreateFailed": "The quote could not be created. Please try again.",
-    "configuratorHasRequests": "This configurator has already received customer requests and cannot be deleted, so their data is not lost."
+    "configuratorHasRequests": "This configurator has already received customer requests and cannot be deleted, so their data is not lost. You can archive it: it stops working but the data stays."
   },
   "app": {
     "suspended": {
@@ -1151,7 +1151,8 @@
     "configuratorDraft": "draft, not published",
     "configuratorManage": "Manage configurators",
     "configuratorHelp": "Prices and options are those of the chosen configurator (latest published version). Changing it restarts the pieces from its price list.",
-    "configuratorNonePublished": "None of your configurators is published. Open \"Manage configurators\", complete the catalogue and press Publish: only then can the Showroom show the data."
+    "configuratorNonePublished": "None of your configurators is published. Open \"Manage configurators\", complete the catalogue and press Publish: only then can the Showroom show the data.",
+    "configuratorArchived": "archived"
   },
   "legal": {
     "lastUpdated": "Last updated",
@@ -1216,7 +1217,12 @@
     "delete": "Delete",
     "deleting": "Deleting...",
     "deleteConfirm": "Permanently delete “{name}”? Its catalogue, versions and branding will be erased and this cannot be undone.",
-    "deleteConfirmPublished": "“{name}” is published: the widget embedded on websites and the /c/ link will stop working immediately. Delete it permanently? This cannot be undone."
+    "deleteConfirmPublished": "“{name}” is published: the widget embedded on websites and the /c/ link will stop working immediately. Delete it permanently? This cannot be undone.",
+    "archive": "Archive",
+    "archiving": "Archiving...",
+    "archiveConfirm": "Archive “{name}”? It stops working (widget, link and Showroom) and no longer counts against the plan, but its catalogue, versions and requests stay. You can restore it.",
+    "restore": "Restore",
+    "restoring": "Restoring..."
   },
   "pipeline": {
     "title": "Sales deals",

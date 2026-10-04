@@ -400,7 +400,7 @@
     "uploadFailed": "Datei-Upload fehlgeschlagen. Bitte erneut versuchen.",
     "noSupplierLines": "Für die Mehrlieferanten-Positionen wurde kein gültiger Lieferant gefunden.",
     "quoteCreateFailed": "Das Angebot konnte nicht erstellt werden. Bitte erneut versuchen.",
-    "configuratorHasRequests": "Dieser Konfigurator hat bereits Kundenanfragen erhalten und kann nicht gelöscht werden, damit deren Daten nicht verloren gehen."
+    "configuratorHasRequests": "Dieser Konfigurator hat bereits Kundenanfragen erhalten und kann nicht gelöscht werden, damit deren Daten nicht verloren gehen. Sie können ihn archivieren: er funktioniert dann nicht mehr, die Daten bleiben erhalten."
   },
   "app": {
     "suspended": {
@@ -1151,7 +1151,8 @@
     "configuratorDraft": "Entwurf, nicht veröffentlicht",
     "configuratorManage": "Konfiguratoren verwalten",
     "configuratorHelp": "Preise und Optionen stammen aus dem gewählten Konfigurator (zuletzt veröffentlichte Version). Beim Wechsel starten die Positionen mit dessen Preisliste neu.",
-    "configuratorNonePublished": "Keiner Ihrer Konfiguratoren ist veröffentlicht. Öffnen Sie „Konfiguratoren verwalten“, vervollständigen Sie den Katalog und klicken Sie auf Veröffentlichen: erst dann kann der Showroom die Daten anzeigen."
+    "configuratorNonePublished": "Keiner Ihrer Konfiguratoren ist veröffentlicht. Öffnen Sie „Konfiguratoren verwalten“, vervollständigen Sie den Katalog und klicken Sie auf Veröffentlichen: erst dann kann der Showroom die Daten anzeigen.",
+    "configuratorArchived": "archiviert"
   },
   "legal": {
     "lastUpdated": "Zuletzt aktualisiert",
@@ -1216,7 +1217,12 @@
     "delete": "Löschen",
     "deleting": "Löschen...",
     "deleteConfirm": "„{name}“ endgültig löschen? Katalog, Versionen und Branding werden entfernt, das lässt sich nicht rückgängig machen.",
-    "deleteConfirmPublished": "„{name}“ ist veröffentlicht: das in Websites eingebettete Widget und der /c/-Link funktionieren sofort nicht mehr. Endgültig löschen? Das lässt sich nicht rückgängig machen."
+    "deleteConfirmPublished": "„{name}“ ist veröffentlicht: das in Websites eingebettete Widget und der /c/-Link funktionieren sofort nicht mehr. Endgültig löschen? Das lässt sich nicht rückgängig machen.",
+    "archive": "Archivieren",
+    "archiving": "Archivieren...",
+    "archiveConfirm": "„{name}“ archivieren? Es funktioniert dann nicht mehr (Widget, Link und Showroom) und zählt nicht mehr zum Tarif, Katalog, Versionen und Anfragen bleiben aber erhalten. Sie können es wiederherstellen.",
+    "restore": "Wiederherstellen",
+    "restoring": "Wiederherstellen..."
   },
   "pipeline": {
     "title": "Verkaufsaufträge",

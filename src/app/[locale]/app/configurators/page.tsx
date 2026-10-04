@@ -29,7 +29,10 @@ export default function ConfiguratorsPage() {
   const createConfigurator = useMutation(api.configurators.createConfigurator);
   const publishConfigurator = useMutation(api.configurators.publishConfigurator);
   const deleteConfigurator = useMutation(api.configurators.deleteConfigurator);
+  const archiveConfigurator = useMutation(api.configurators.archiveConfigurator);
+  const restoreConfigurator = useMutation(api.configurators.restoreConfigurator);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [archivingId, setArchivingId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
   const [publishingId, setPublishingId] = useState<string | null>(null);
@@ -48,6 +51,35 @@ export default function ConfiguratorsPage() {
       setError(tf(err));
     } finally {
       setPublishingId(null);
+    }
+  }
+
+  async function handleArchive(c: { _id: string; name: string }) {
+    setError("");
+    if (!(await requestConfirm(t("archiveConfirm", { name: c.name }), { confirmLabel: t("archive") }))) return;
+    setArchivingId(c._id);
+    try {
+      await archiveConfigurator({ configuratorId: c._id as Id<"configurators"> });
+      posthog.capture("configurator_archived", { configurator_id: c._id });
+    } catch (err) {
+      posthog.captureException(err);
+      setError(tf(err));
+    } finally {
+      setArchivingId(null);
+    }
+  }
+
+  async function handleRestore(c: { _id: string }) {
+    setError("");
+    setArchivingId(c._id);
+    try {
+      await restoreConfigurator({ configuratorId: c._id as Id<"configurators"> });
+      posthog.capture("configurator_restored", { configurator_id: c._id });
+    } catch (err) {
+      posthog.captureException(err);
+      setError(tf(err));
+    } finally {
+      setArchivingId(null);
     }
   }
 
@@ -176,6 +208,25 @@ export default function ConfiguratorsPage() {
                 >
                   {t("edit")}
                 </Link>
+                {c.status === "archived" ? (
+                  <button
+                    type="button"
+                    onClick={() => void handleRestore(c)}
+                    disabled={archivingId === c._id}
+                    className="rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-sm hover:border-[var(--color-mint)] disabled:opacity-50"
+                  >
+                    {archivingId === c._id ? t("restoring") : t("restore")}
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => void handleArchive(c)}
+                    disabled={archivingId === c._id}
+                    className="rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-sm hover:border-[var(--color-mint)] disabled:opacity-50"
+                  >
+                    {archivingId === c._id ? t("archiving") : t("archive")}
+                  </button>
+                )}
                 <button
                   type="button"
                   onClick={() => void handleDelete(c)}

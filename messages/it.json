@@ -400,7 +400,7 @@
     "uploadFailed": "Caricamento del file non riuscito. Riprova.",
     "noSupplierLines": "Nessun fornitore valido trovato per le righe multi-fornitore.",
     "quoteCreateFailed": "Non è stato possibile creare il preventivo. Riprova.",
-    "configuratorHasRequests": "Questo configuratore ha già ricevuto richieste dei clienti e non può essere eliminato, per non perdere i loro dati."
+    "configuratorHasRequests": "Questo configuratore ha già ricevuto richieste dei clienti e non può essere eliminato, per non perdere i loro dati. Puoi archiviarlo: smette di funzionare ma i dati restano."
   },
   "app": {
     "suspended": {
@@ -1151,7 +1151,8 @@
     "configuratorDraft": "bozza, non pubblicato",
     "configuratorManage": "Gestisci configuratori",
     "configuratorHelp": "I prezzi e le opzioni sono quelli del configuratore scelto (ultima versione pubblicata). Cambiandolo, i pezzi ripartono dal suo listino.",
-    "configuratorNonePublished": "Nessuno dei tuoi configuratori è pubblicato. Apri \"Gestisci configuratori\", completa il catalogo e premi Pubblica: solo allora lo Showroom può mostrare i dati."
+    "configuratorNonePublished": "Nessuno dei tuoi configuratori è pubblicato. Apri \"Gestisci configuratori\", completa il catalogo e premi Pubblica: solo allora lo Showroom può mostrare i dati.",
+    "configuratorArchived": "archiviato"
   },
   "legal": {
     "lastUpdated": "Ultimo aggiornamento",
@@ -1216,7 +1217,12 @@
     "delete": "Elimina",
     "deleting": "Eliminazione...",
     "deleteConfirm": "Eliminare definitivamente «{name}»? Catalogo, versioni e branding verranno cancellati e non si può annullare.",
-    "deleteConfirmPublished": "«{name}» è pubblicato: il widget incorporato nei siti e il link /c/ smetteranno di funzionare subito. Eliminarlo definitivamente? Non si può annullare."
+    "deleteConfirmPublished": "«{name}» è pubblicato: il widget incorporato nei siti e il link /c/ smetteranno di funzionare subito. Eliminarlo definitivamente? Non si può annullare.",
+    "archive": "Archivia",
+    "archiving": "Archiviazione...",
+    "archiveConfirm": "Archiviare «{name}»? Smette di funzionare (widget, link e Showroom) e non conta più nel piano, ma catalogo, versioni e richieste restano. Potrai ripristinarlo.",
+    "restore": "Ripristina",
+    "restoring": "Ripristino..."
   },
   "pipeline": {
     "title": "Trattative commerciali",

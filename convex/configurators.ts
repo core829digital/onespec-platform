@@ -115,6 +115,36 @@ const CONFIGURATOR_CHILD_TABLES = [
 const PURGE_BATCH = 800;
 
 /**
+ * Archive a configurator: it stops serving (widget, link, Showroom) and stops counting against the plan, but
+ * nothing is lost: catalogue, versions and customer requests stay, and it can be restored.
+ */
+export const archiveConfigurator = mutation({
+  args: { configuratorId: v.id("configurators") },
+  handler: async (ctx, args) => {
+    const configurator = await ctx.db.get(args.configuratorId);
+    if (!configurator || configurator.deletingAt !== undefined) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
+    await requirePermission(ctx, configurator.tenantId, "configurators.manage");
+    if (configurator.status === "archived") return { status: "archived" as const };
+    await ctx.db.patch(args.configuratorId, { status: "archived", updatedAt: Date.now() });
+    return { status: "archived" as const };
+  },
+});
+
+/** Bring an archived configurator back as a draft (publish it again to serve it); it counts against the plan again. */
+export const restoreConfigurator = mutation({
+  args: { configuratorId: v.id("configurators") },
+  handler: async (ctx, args) => {
+    const configurator = await ctx.db.get(args.configuratorId);
+    if (!configurator || configurator.deletingAt !== undefined) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
+    await requirePermission(ctx, configurator.tenantId, "configurators.manage");
+    if (configurator.status !== "archived") return { status: configurator.status };
+    await enforceForCreateConfigurator(ctx, configurator.tenantId);
+    await ctx.db.patch(args.configuratorId, { status: "draft", updatedAt: Date.now() });
+    return { status: "draft" as const };
+  },
+});
+
+/**
  * Delete a configurator: its catalogue, versions, branding and public widget link go away; the quota it used is
  * freed. Refused while it has received requests, because those carry customers' data. The data is purged in the
  * background in small batches; the configurator disappears from every list immediately and stops serving.
@@ -239,7 +269,7 @@ export const updateConfigurator = mutation({
   },
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
-    if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
+    if (!configurator || configurator.deletingAt !== undefined) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
     await requirePermission(ctx, configurator.tenantId, "configurators.manage");
 
     const update: Partial<Doc<"configurators">> = { updatedAt: Date.now() };
@@ -306,7 +336,7 @@ export const publishConfigurator = mutation({
   args: { configuratorId: v.id("configurators"), changeNote: v.optional(v.string()) },
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
-    if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
+    if (!configurator || configurator.deletingAt !== undefined) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
     const { membership } = await requirePermission(ctx, configurator.tenantId, "configurators.manage");
 
     const [materials, qualityTiers, profileSystems, sizeConstraints, glazing, finish, hardware, branding] = await Promise.all([

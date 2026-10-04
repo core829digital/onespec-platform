@@ -400,7 +400,7 @@
     "uploadFailed": "Échec du téléversement du fichier. Réessayez.",
     "noSupplierLines": "Aucun fournisseur valide trouvé pour les lignes multi-fournisseurs.",
     "quoteCreateFailed": "Le devis n'a pas pu être créé. Réessayez.",
-    "configuratorHasRequests": "Ce configurateur a déjà reçu des demandes de clients et ne peut pas être supprimé, afin de ne pas perdre leurs données."
+    "configuratorHasRequests": "Ce configurateur a déjà reçu des demandes de clients et ne peut pas être supprimé, afin de ne pas perdre leurs données. Vous pouvez l'archiver : il cesse de fonctionner mais les données restent."
   },
   "app": {
     "suspended": {
@@ -1151,7 +1151,8 @@
     "configuratorDraft": "brouillon, non publié",
     "configuratorManage": "Gérer les configurateurs",
     "configuratorHelp": "Les prix et options sont ceux du configurateur choisi (dernière version publiée). En le changeant, les pièces repartent de ses tarifs.",
-    "configuratorNonePublished": "Aucun de vos configurateurs n'est publié. Ouvrez « Gérer les configurateurs », complétez le catalogue et cliquez sur Publier : alors seulement le Showroom pourra afficher les données."
+    "configuratorNonePublished": "Aucun de vos configurateurs n'est publié. Ouvrez « Gérer les configurateurs », complétez le catalogue et cliquez sur Publier : alors seulement le Showroom pourra afficher les données.",
+    "configuratorArchived": "archivé"
   },
   "legal": {
     "lastUpdated": "Dernière mise à jour",
@@ -1216,7 +1217,12 @@
     "delete": "Supprimer",
     "deleting": "Suppression...",
     "deleteConfirm": "Supprimer définitivement « {name} » ? Son catalogue, ses versions et son branding seront effacés, action irréversible.",
-    "deleteConfirmPublished": "« {name} » est publié : le widget intégré aux sites et le lien /c/ cesseront de fonctionner immédiatement. Le supprimer définitivement ? Action irréversible."
+    "deleteConfirmPublished": "« {name} » est publié : le widget intégré aux sites et le lien /c/ cesseront de fonctionner immédiatement. Le supprimer définitivement ? Action irréversible.",
+    "archive": "Archiver",
+    "archiving": "Archivage...",
+    "archiveConfirm": "Archiver « {name} » ? Il cesse de fonctionner (widget, lien et Showroom) et ne compte plus dans le forfait, mais catalogue, versions et demandes sont conservés. Vous pourrez le restaurer.",
+    "restore": "Restaurer",
+    "restoring": "Restauration..."
   },
   "pipeline": {
     "title": "Affaires commerciales",

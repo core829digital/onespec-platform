@@ -400,7 +400,7 @@
     "uploadFailed": "Încărcarea fișierului a eșuat. Încercați din nou.",
     "noSupplierLines": "Nu s-a găsit niciun furnizor valid pentru liniile multi-furnizor.",
     "quoteCreateFailed": "Oferta nu a putut fi creată. Încercați din nou.",
-    "configuratorHasRequests": "Acest configurator a primit deja cereri de la clienți și nu poate fi șters, pentru a nu pierde datele lor."
+    "configuratorHasRequests": "Acest configurator a primit deja cereri de la clienți și nu poate fi șters, pentru a nu pierde datele lor. Îl poți arhiva: nu mai funcționează, dar datele rămân."
   },
   "app": {
     "suspended": {
@@ -1151,7 +1151,8 @@
     "configuratorDraft": "ciornă, nepublicat",
     "configuratorManage": "Gestionează configuratorii",
     "configuratorHelp": "Prețurile și opțiunile sunt cele ale configuratorului ales (ultima versiune publicată). La schimbare, piesele pornesc de la lista lui de prețuri.",
-    "configuratorNonePublished": "Niciunul dintre configuratorii tăi nu este publicat. Deschide „Gestionează configuratorii”, completează catalogul și apasă Publică: abia atunci Showroom poate afișa datele."
+    "configuratorNonePublished": "Niciunul dintre configuratorii tăi nu este publicat. Deschide „Gestionează configuratorii”, completează catalogul și apasă Publică: abia atunci Showroom poate afișa datele.",
+    "configuratorArchived": "arhivat"
   },
   "legal": {
     "lastUpdated": "Ultima actualizare",
@@ -1216,7 +1217,12 @@
     "delete": "Șterge",
     "deleting": "Se șterge...",
     "deleteConfirm": "Ștergi definitiv „{name}”? Catalogul, versiunile și brandingul vor fi șterse, iar acțiunea nu poate fi anulată.",
-    "deleteConfirmPublished": "„{name}” este publicat: widgetul încorporat în site-uri și linkul /c/ nu vor mai funcționa imediat. Îl ștergi definitiv? Acțiunea nu poate fi anulată."
+    "deleteConfirmPublished": "„{name}” este publicat: widgetul încorporat în site-uri și linkul /c/ nu vor mai funcționa imediat. Îl ștergi definitiv? Acțiunea nu poate fi anulată.",
+    "archive": "Arhivează",
+    "archiving": "Se arhivează...",
+    "archiveConfirm": "Arhivezi „{name}”? Nu mai funcționează (widget, link și Showroom) și nu mai contează în plan, dar catalogul, versiunile și cererile rămân. Îl poți restaura.",
+    "restore": "Restaurează",
+    "restoring": "Se restaurează..."
   },
   "pipeline": {
     "title": "Tranzacții comerciale",
