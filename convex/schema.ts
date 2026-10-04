@@ -264,6 +264,8 @@ export default defineSchema({
     createdAt: v.optional(v.number()),
     updatedAt: v.optional(v.number()),
     updatedByUserId: v.optional(v.id("users")),
+    /** Set when the owner deleted it: hidden everywhere while its data is purged in the background. */
+    deletingAt: v.optional(v.number()),
   })
     .index("by_tenant", ["tenantId"])
     .index("by_publicId", ["publicId"])

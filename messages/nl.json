@@ -399,7 +399,8 @@
     "turnstileFailed": "Beveiligingscontrole mislukt. Herlaad de pagina en probeer het opnieuw.",
     "uploadFailed": "Bestand uploaden mislukt. Probeer het opnieuw.",
     "noSupplierLines": "Geen geldige leverancier gevonden voor de regels met meerdere leveranciers.",
-    "quoteCreateFailed": "De offerte kon niet worden aangemaakt. Probeer het opnieuw."
+    "quoteCreateFailed": "De offerte kon niet worden aangemaakt. Probeer het opnieuw.",
+    "configuratorHasRequests": "Deze configurator heeft al klantaanvragen ontvangen en kan niet worden verwijderd, zodat hun gegevens niet verloren gaan."
   },
   "app": {
     "suspended": {
@@ -1144,7 +1145,13 @@
       "whatsapp": "Via WhatsApp versturen",
       "survey": "Inmeting aanvragen",
       "addToQuote": "+ Toevoegen aan offerte"
-    }
+    },
+    "configurator": "Gebruikte configurator (prijslijst)",
+    "configuratorChoose": "Kies een configurator",
+    "configuratorDraft": "concept, niet gepubliceerd",
+    "configuratorManage": "Configurators beheren",
+    "configuratorHelp": "Prijzen en opties komen van de gekozen configurator (laatst gepubliceerde versie). Bij wisselen starten de stukken opnieuw met zijn prijslijst.",
+    "configuratorNonePublished": "Geen van uw configurators is gepubliceerd. Open \"Configurators beheren\", vul de catalogus aan en kies Publiceren: pas dan kan de Showroom de gegevens tonen."
   },
   "legal": {
     "lastUpdated": "Laatst bijgewerkt",
@@ -1205,7 +1212,11 @@
     "statusArchived": "Gearchiveerd",
     "createHint": "We begeleiden je stap voor stap: naam, catalogus, branding en publicatie.",
     "defaultName": "Nieuwe configurator",
-    "open": "Openen"
+    "open": "Openen",
+    "delete": "Verwijderen",
+    "deleting": "Verwijderen...",
+    "deleteConfirm": "“{name}” definitief verwijderen? Catalogus, versies en branding worden gewist en dit kan niet ongedaan worden gemaakt.",
+    "deleteConfirmPublished": "“{name}” is gepubliceerd: de op websites ingebedde widget en de /c/-link werken meteen niet meer. Definitief verwijderen? Dit kan niet ongedaan worden gemaakt."
   },
   "pipeline": {
     "title": "Verkoopdeals",

@@ -1,4 +1,4 @@
-import { mutation, query } from "./_generated/server";
+import { internalMutation, mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
@@ -88,7 +88,96 @@ export const listConfigurators = query({
   args: { tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
     await requireMembership(ctx, args.tenantId);
-    return await ctx.db.query("configurators").withIndex("by_tenant", q => q.eq("tenantId", args.tenantId)).collect();
+    const all = await ctx.db.query("configurators").withIndex("by_tenant", q => q.eq("tenantId", args.tenantId)).collect();
+    // A configurator being deleted is gone for the owner already, even if its data is still being purged.
+    return all.filter((c) => c.deletingAt === undefined);
+  },
+});
+
+/** Child tables of a configurator, purged when it is deleted (all indexed by `by_configurator`). */
+const CONFIGURATOR_CHILD_TABLES = [
+  "catalogMaterials",
+  "catalogQualityTiers",
+  "catalogProfileSystems",
+  "catalogSizeConstraints",
+  "catalogGlazingOptions",
+  "catalogFinishOptions",
+  "catalogFrameTypes",
+  "catalogAccessories",
+  "catalogProductBase",
+  "catalogHardwareOptions",
+  "catalogVersions",
+  "catalogImports",
+  "branding",
+] as const;
+
+/** Documents deleted per purge run; the run reschedules itself while anything is left. */
+const PURGE_BATCH = 800;
+
+/**
+ * Delete a configurator: its catalogue, versions, branding and public widget link go away; the quota it used is
+ * freed. Refused while it has received requests, because those carry customers' data. The data is purged in the
+ * background in small batches; the configurator disappears from every list immediately and stops serving.
+ */
+export const deleteConfigurator = mutation({
+  args: { configuratorId: v.id("configurators") },
+  handler: async (ctx, args) => {
+    const configurator = await ctx.db.get(args.configuratorId);
+    if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
+    await requirePermission(ctx, configurator.tenantId, "configurators.manage");
+    if (configurator.deletingAt !== undefined) return { deleted: true as const };
+
+    const requests = await ctx.db
+      .query("quoteRequests")
+      .withIndex("by_configurator", (q) => q.eq("configuratorId", args.configuratorId))
+      .take(1);
+    if (requests.length > 0) throw new ConvexError("CONFIGURATOR_HAS_REQUESTS");
+
+    // Stop serving at once (draft / published widgets read "published" only), then purge.
+    await ctx.db.patch(args.configuratorId, { status: "archived", deletingAt: Date.now(), updatedAt: Date.now() });
+    await ctx.scheduler.runAfter(0, internal.configurators.purgeConfigurator, { configuratorId: args.configuratorId });
+    return { deleted: true as const };
+  },
+});
+
+/** Tables whose rows carry whole catalogue snapshots: purged a few at a time to stay under the read limit. */
+const HEAVY_TABLE_LIMIT = 8;
+
+export const purgeConfigurator = internalMutation({
+  args: { configuratorId: v.id("configurators") },
+  handler: async (ctx, args) => {
+    const configurator = await ctx.db.get(args.configuratorId);
+    if (!configurator || configurator.deletingAt === undefined) return { done: true };
+    let budget = PURGE_BATCH;
+    let more = false;
+    for (const table of CONFIGURATOR_CHILD_TABLES) {
+      if (budget <= 0) {
+        more = true;
+        break;
+      }
+      const heavy = table === "catalogVersions" || table === "catalogImports";
+      const limit = heavy ? Math.min(budget, HEAVY_TABLE_LIMIT) : budget;
+      const rows = await ctx.db
+        .query(table)
+        .withIndex("by_configurator", (q) => q.eq("configuratorId", args.configuratorId))
+        .take(limit);
+      for (const row of rows) {
+        if (table === "branding") {
+          const b = row as Doc<"branding">;
+          for (const id of [b.logoStorageId, b.logoLightStorageId]) if (id) await ctx.storage.delete(id).catch(() => {});
+        }
+        await ctx.db.delete(row._id);
+      }
+      budget -= rows.length;
+      // A full batch may have left more behind.
+      if (rows.length === limit) more = true;
+    }
+    if (more) {
+      await ctx.scheduler.runAfter(0, internal.configurators.purgeConfigurator, { configuratorId: args.configuratorId });
+      return { done: false };
+    }
+    await ctx.db.delete(args.configuratorId);
+    return { done: true };
   },
 });
 

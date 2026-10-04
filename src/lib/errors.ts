@@ -30,6 +30,7 @@ export type ErrorKey =
   | "alreadySigned"
   | "reportLocked"
   | "cannotDeleteSigned"
+  | "configuratorHasRequests"
   | "fundingNeedsQuote"
   | "noPublishedVersion"
   | "noItems"
@@ -113,6 +114,7 @@ const EXACT: Record<string, ErrorKey> = {
   ALREADY_SIGNED: "alreadySigned",
   REPORT_LOCKED: "reportLocked",
   CANNOT_DELETE_SIGNED: "cannotDeleteSigned",
+  CONFIGURATOR_HAS_REQUESTS: "configuratorHasRequests",
   FUNDING_NEEDS_QUOTE: "fundingNeedsQuote",
   PASSPORT_NO_QUOTE: "fundingNeedsQuote",
   NO_PUBLISHED_VERSION: "noPublishedVersion",

@@ -7,27 +7,39 @@ import { regionForCountry } from "./lib/regions";
 import { calculatePrice, type CatalogPayload, type ProjectItem } from "../src/shared/pricing";
 import { computeCalculationPreview, type BeniSignificativiBreakdown, type FundingDocParams } from "./lib/calcPreview";
 import { internal } from "./_generated/api";
-import type { Id } from "./_generated/dataModel";
+import type { Doc, Id } from "./_generated/dataModel";
 import { parseQuoteItems } from "./lib/quoteItems";
 
+/**
+ * The published catalogue the Showroom prices with. With `configuratorId` it is that configurator's (it must belong
+ * to the tenant and be published); without it, the most recently published one.
+ */
 export async function getTenantCatalog(
   ctx: ReadCtx,
   tenantId: Id<"tenants">,
-): Promise<{ payload: CatalogPayload; version: number; configuratorId: Id<"configurators"> } | null> {
+  configuratorId?: Id<"configurators">,
+): Promise<{ payload: CatalogPayload; version: number; configuratorId: Id<"configurators">; configuratorName: string } | null> {
   const tenant = await ctx.db.get(tenantId);
   if (!tenant) return null;
 
-  // Use the by_tenant_status index (no .filter() — its predicate receives a
-  // FilterBuilder, not the document, and treating it as the document silently
-  // matched nothing, which broke the showroom with "no published configurator").
-  const configurators = await ctx.db
-    .query("configurators")
-    .withIndex("by_tenant_status", (q) =>
-      q.eq("tenantId", tenantId).eq("status", "published"),
-    )
-    .collect();
-
-  const configurator = configurators.find((c) => c.publishedCatalogVersion !== undefined);
+  let configurator: Doc<"configurators"> | undefined;
+  if (configuratorId) {
+    const c = await ctx.db.get(configuratorId);
+    // Another tenant's id, a draft or a configurator being deleted all read as "not available".
+    if (!c || c.tenantId !== tenantId || c.status !== "published" || c.publishedCatalogVersion === undefined || c.deletingAt !== undefined) return null;
+    configurator = c;
+  } else {
+    // Use the by_tenant_status index (no .filter() — its predicate receives a
+    // FilterBuilder, not the document, and treating it as the document silently
+    // matched nothing, which broke the showroom with "no published configurator").
+    const configurators = await ctx.db
+      .query("configurators")
+      .withIndex("by_tenant_status", (q) => q.eq("tenantId", tenantId).eq("status", "published"))
+      .collect();
+    configurator = configurators
+      .filter((c) => c.publishedCatalogVersion !== undefined && c.deletingAt === undefined)
+      .sort((a, b) => (b.publishedAt ?? b._creationTime) - (a.publishedAt ?? a._creationTime))[0];
+  }
   if (!configurator) return null;
 
   const targetVersion = configurator.publishedCatalogVersion ?? 1;
@@ -44,6 +56,7 @@ export async function getTenantCatalog(
     payload: versionDoc.payload as CatalogPayload,
     version: targetVersion,
     configuratorId: configurator._id,
+    configuratorName: configurator.name,
   };
 }
 
@@ -51,6 +64,8 @@ export async function getTenantCatalog(
 export const getCalculationPreview = query({
   args: {
     tenantId: v.id("tenants"),
+    /** Which configurator's catalogue to price with; default = the most recently published. */
+    configuratorId: v.optional(v.id("configurators")),
     items: v.array(v.any()),
     options: v.object({
       regionCode: v.union(v.literal("IT"), v.literal("FR"), v.literal("BE"), v.literal("NL"), v.literal("DE"), v.literal("LU")),
@@ -85,6 +100,7 @@ export const getCalculationPreview = query({
 
     const result = await ctx.runQuery(internal.calculations.calculateInternal, {
       tenantId: args.tenantId,
+      configuratorId: args.configuratorId,
       items,
       options: args.options,
     });
@@ -96,6 +112,7 @@ export const getCalculationPreview = query({
 export const calculateInternal = internalQuery({
   args: {
     tenantId: v.id("tenants"),
+    configuratorId: v.optional(v.id("configurators")),
     items: v.array(v.any()),
     options: v.object({
       regionCode: v.union(v.literal("IT"), v.literal("FR"), v.literal("BE"), v.literal("NL"), v.literal("DE"), v.literal("LU")),
@@ -106,7 +123,7 @@ export const calculateInternal = internalQuery({
     }),
   },
   handler: async (ctx, args) => {
-    const catalogData = await getTenantCatalog(ctx, args.tenantId);
+    const catalogData = await getTenantCatalog(ctx, args.tenantId, args.configuratorId);
     if (!catalogData) throw new ConvexError("NO_CATALOG_VERSION");
     return computeCalculationPreview(catalogData.payload, catalogData.version, args.items as ProjectItem[], args.options);
   },
@@ -114,7 +131,7 @@ export const calculateInternal = internalQuery({
 
 /** Option lists for the in-app Showroom configurator (FASE 3). */
 export const getShowroomCatalog = query({
-  args: { tenantId: v.id("tenants") },
+  args: { tenantId: v.id("tenants"), configuratorId: v.optional(v.id("configurators")) },
   handler: async (ctx, args) => {
     await requireMembership(ctx, args.tenantId);
     const tenant = await ctx.db.get(args.tenantId);
@@ -124,7 +141,7 @@ export const getShowroomCatalog = query({
       return { regionCode: region.code, ready: false as const, allowed: false as const };
     }
 
-    const cat = await getTenantCatalog(ctx, args.tenantId);
+    const cat = await getTenantCatalog(ctx, args.tenantId, args.configuratorId);
     if (!cat) return { regionCode: region.code, ready: false as const, allowed: true as const };
 
     const p = cat.payload;
@@ -136,6 +153,8 @@ export const getShowroomCatalog = query({
       regionCode: region.code,
       ready: true as const,
       allowed: true as const,
+      configuratorId: cat.configuratorId,
+      configuratorName: cat.configuratorName,
       locale: region.primaryLocale,
       payload: publicPayload(p),
       materials: materials.map((m) => ({ key: m.key, label: lbl(m) })),

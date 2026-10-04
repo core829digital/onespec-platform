@@ -399,7 +399,8 @@
     "turnstileFailed": "Verificarea de securitate a eșuat. Reîncărcați pagina și încercați din nou.",
     "uploadFailed": "Încărcarea fișierului a eșuat. Încercați din nou.",
     "noSupplierLines": "Nu s-a găsit niciun furnizor valid pentru liniile multi-furnizor.",
-    "quoteCreateFailed": "Oferta nu a putut fi creată. Încercați din nou."
+    "quoteCreateFailed": "Oferta nu a putut fi creată. Încercați din nou.",
+    "configuratorHasRequests": "Acest configurator a primit deja cereri de la clienți și nu poate fi șters, pentru a nu pierde datele lor."
   },
   "app": {
     "suspended": {
@@ -1144,7 +1145,13 @@
       "whatsapp": "Trimite pe WhatsApp",
       "survey": "Solicită o vizită tehnică",
       "addToQuote": "+ Adaugă la ofertă"
-    }
+    },
+    "configurator": "Configurator (listă de prețuri) în uz",
+    "configuratorChoose": "Alege un configurator",
+    "configuratorDraft": "ciornă, nepublicat",
+    "configuratorManage": "Gestionează configuratorii",
+    "configuratorHelp": "Prețurile și opțiunile sunt cele ale configuratorului ales (ultima versiune publicată). La schimbare, piesele pornesc de la lista lui de prețuri.",
+    "configuratorNonePublished": "Niciunul dintre configuratorii tăi nu este publicat. Deschide „Gestionează configuratorii”, completează catalogul și apasă Publică: abia atunci Showroom poate afișa datele."
   },
   "legal": {
     "lastUpdated": "Ultima actualizare",
@@ -1205,7 +1212,11 @@
     "statusArchived": "Arhivat",
     "createHint": "Te ghidăm pas cu pas: nume, catalog, branding și publicare.",
     "defaultName": "Configurator nou",
-    "open": "Deschide"
+    "open": "Deschide",
+    "delete": "Șterge",
+    "deleting": "Se șterge...",
+    "deleteConfirm": "Ștergi definitiv „{name}”? Catalogul, versiunile și brandingul vor fi șterse, iar acțiunea nu poate fi anulată.",
+    "deleteConfirmPublished": "„{name}” este publicat: widgetul încorporat în site-uri și linkul /c/ nu vor mai funcționa imediat. Îl ștergi definitiv? Acțiunea nu poate fi anulată."
   },
   "pipeline": {
     "title": "Tranzacții comerciale",

@@ -399,7 +399,8 @@
     "turnstileFailed": "Security check failed. Reload the page and try again.",
     "uploadFailed": "File upload failed. Please try again.",
     "noSupplierLines": "No valid supplier found for the multi-supplier lines.",
-    "quoteCreateFailed": "The quote could not be created. Please try again."
+    "quoteCreateFailed": "The quote could not be created. Please try again.",
+    "configuratorHasRequests": "This configurator has already received customer requests and cannot be deleted, so their data is not lost."
   },
   "app": {
     "suspended": {
@@ -1144,7 +1145,13 @@
       "whatsapp": "Send via WhatsApp",
       "survey": "Request a site survey",
       "addToQuote": "+ Add to quote"
-    }
+    },
+    "configurator": "Configurator (price list) in use",
+    "configuratorChoose": "Choose a configurator",
+    "configuratorDraft": "draft, not published",
+    "configuratorManage": "Manage configurators",
+    "configuratorHelp": "Prices and options are those of the chosen configurator (latest published version). Changing it restarts the pieces from its price list.",
+    "configuratorNonePublished": "None of your configurators is published. Open \"Manage configurators\", complete the catalogue and press Publish: only then can the Showroom show the data."
   },
   "legal": {
     "lastUpdated": "Last updated",
@@ -1205,7 +1212,11 @@
     "statusArchived": "Archived",
     "createHint": "We'll guide you step by step: name, catalog, branding and publishing.",
     "defaultName": "New configurator",
-    "open": "Open"
+    "open": "Open",
+    "delete": "Delete",
+    "deleting": "Deleting...",
+    "deleteConfirm": "Permanently delete “{name}”? Its catalogue, versions and branding will be erased and this cannot be undone.",
+    "deleteConfirmPublished": "“{name}” is published: the widget embedded on websites and the /c/ link will stop working immediately. Delete it permanently? This cannot be undone."
   },
   "pipeline": {
     "title": "Sales deals",

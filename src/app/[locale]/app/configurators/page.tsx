@@ -9,6 +9,7 @@ import { ExternalLink } from "lucide-react";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import { useTranslations } from "next-intl";
+import { requestConfirm } from "@/lib/confirm-dialog";
 
 const STATUS_KEY: Record<string, "statusDraft" | "statusPublished" | "statusArchived"> = {
   draft: "statusDraft",
@@ -27,6 +28,8 @@ export default function ConfiguratorsPage() {
   );
   const createConfigurator = useMutation(api.configurators.createConfigurator);
   const publishConfigurator = useMutation(api.configurators.publishConfigurator);
+  const deleteConfigurator = useMutation(api.configurators.deleteConfigurator);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState("");
   const [publishingId, setPublishingId] = useState<string | null>(null);
@@ -45,6 +48,22 @@ export default function ConfiguratorsPage() {
       setError(tf(err));
     } finally {
       setPublishingId(null);
+    }
+  }
+
+  async function handleDelete(c: { _id: string; name: string; status: string }) {
+    setError("");
+    const message = c.status === "published" ? t("deleteConfirmPublished", { name: c.name }) : t("deleteConfirm", { name: c.name });
+    if (!(await requestConfirm(message, { danger: true, confirmLabel: t("delete") }))) return;
+    setDeletingId(c._id);
+    try {
+      await deleteConfigurator({ configuratorId: c._id as Id<"configurators"> });
+      posthog.capture("configurator_deleted", { configurator_id: c._id });
+    } catch (err) {
+      posthog.captureException(err);
+      setError(tf(err));
+    } finally {
+      setDeletingId(null);
     }
   }
 
@@ -157,6 +176,14 @@ export default function ConfiguratorsPage() {
                 >
                   {t("edit")}
                 </Link>
+                <button
+                  type="button"
+                  onClick={() => void handleDelete(c)}
+                  disabled={deletingId === c._id}
+                  className="rounded-lg border border-[var(--color-danger)]/50 px-3 py-1.5 text-sm text-[var(--color-danger)] hover:bg-[var(--color-danger)]/10 disabled:opacity-50"
+                >
+                  {deletingId === c._id ? t("deleting") : t("delete")}
+                </button>
               </div>
             </div>
           ))

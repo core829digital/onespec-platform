@@ -26,7 +26,8 @@ export const getProgress = query({
     const configurators = await ctx.db
       .query("configurators")
       .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
-      .collect();
+      .collect()
+      .then((rows) => rows.filter((c) => c.deletingAt === undefined));
     const hasConfigurator = configurators.length > 0;
     const hasPublishedCatalog = configurators.some((c) => c.publishedCatalogVersion != null);
 

@@ -399,7 +399,8 @@
     "turnstileFailed": "Sicherheitsprüfung fehlgeschlagen. Laden Sie die Seite neu und versuchen Sie es erneut.",
     "uploadFailed": "Datei-Upload fehlgeschlagen. Bitte erneut versuchen.",
     "noSupplierLines": "Für die Mehrlieferanten-Positionen wurde kein gültiger Lieferant gefunden.",
-    "quoteCreateFailed": "Das Angebot konnte nicht erstellt werden. Bitte erneut versuchen."
+    "quoteCreateFailed": "Das Angebot konnte nicht erstellt werden. Bitte erneut versuchen.",
+    "configuratorHasRequests": "Dieser Konfigurator hat bereits Kundenanfragen erhalten und kann nicht gelöscht werden, damit deren Daten nicht verloren gehen."
   },
   "app": {
     "suspended": {
@@ -1144,7 +1145,13 @@
       "whatsapp": "Per WhatsApp senden",
       "survey": "Aufmaß vor Ort anfragen",
       "addToQuote": "+ Zum Angebot hinzufügen"
-    }
+    },
+    "configurator": "Verwendeter Konfigurator (Preisliste)",
+    "configuratorChoose": "Konfigurator wählen",
+    "configuratorDraft": "Entwurf, nicht veröffentlicht",
+    "configuratorManage": "Konfiguratoren verwalten",
+    "configuratorHelp": "Preise und Optionen stammen aus dem gewählten Konfigurator (zuletzt veröffentlichte Version). Beim Wechsel starten die Positionen mit dessen Preisliste neu.",
+    "configuratorNonePublished": "Keiner Ihrer Konfiguratoren ist veröffentlicht. Öffnen Sie „Konfiguratoren verwalten“, vervollständigen Sie den Katalog und klicken Sie auf Veröffentlichen: erst dann kann der Showroom die Daten anzeigen."
   },
   "legal": {
     "lastUpdated": "Zuletzt aktualisiert",
@@ -1205,7 +1212,11 @@
     "statusArchived": "Archiviert",
     "createHint": "Wir führen dich Schritt für Schritt: Name, Katalog, Branding und Veröffentlichung.",
     "defaultName": "Neuer Konfigurator",
-    "open": "Öffnen"
+    "open": "Öffnen",
+    "delete": "Löschen",
+    "deleting": "Löschen...",
+    "deleteConfirm": "„{name}“ endgültig löschen? Katalog, Versionen und Branding werden entfernt, das lässt sich nicht rückgängig machen.",
+    "deleteConfirmPublished": "„{name}“ ist veröffentlicht: das in Websites eingebettete Widget und der /c/-Link funktionieren sofort nicht mehr. Endgültig löschen? Das lässt sich nicht rückgängig machen."
   },
   "pipeline": {
     "title": "Verkaufsaufträge",

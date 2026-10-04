@@ -3,13 +3,16 @@
 import { useMemo, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { useLocale, useTranslations } from "next-intl";
+import type { FunctionReturnType } from "convex/server";
 import { api } from "@/convex/_generated/api";
+import type { Id } from "@/convex/_generated/dataModel";
 import { Link, useRouter } from "@/i18n/navigation";
 import type { CatalogPayload, ProjectItem } from "@/shared/pricing";
 import { defaultItem } from "@/shared/item-defaults";
 import { duplicateItem, blockingIssues, pieceIssues } from "@/shared/piece-ops";
 import { saveShowroomHandoff } from "@/lib/showroom-handoff";
 import { PiecesEditor } from "@/components/quotes/editor/pieces-editor";
+import { ConfiguratorPicker, resolveChoice, type PickerConfigurator } from "@/components/showroom/configurator-picker";
 import { FiscalEngine, type FiscalCalc } from "@/components/showroom/FiscalEngine";
 import { buildExportModel } from "@/lib/quote-export/model";
 import { buildTxt, buildWhatsApp, whatsAppUrl } from "@/lib/quote-export/generators";
@@ -32,13 +35,91 @@ function download(name: string, mime: string, content: string) {
 const input = "mt-1 w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2 text-sm";
 const ghost = "rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-xs font-medium hover:border-[var(--color-mint)]";
 
+/** Reads / writes the configurator chosen for the Showroom, per tenant, in this browser. */
+const choiceKey = (tenantId: string) => `onespec-showroom-configurator:${tenantId}`;
+function readChoice(tenantId: string): string | null {
+  try {
+    return localStorage.getItem(choiceKey(tenantId));
+  } catch {
+    return null;
+  }
+}
+function writeChoice(tenantId: string, id: string) {
+  try {
+    localStorage.setItem(choiceKey(tenantId), id);
+  } catch {
+    /* a convenience only */
+  }
+}
+
 export default function ShowroomPage() {
+  const t = useTranslations("showroom");
+  const tenant = useQuery(api.tenants.getMyTenant);
+  const configurators = useQuery(api.configurators.listConfigurators, tenant ? { tenantId: tenant._id } : "skip");
+  const [chosen, setChosen] = useState<string | null>(null);
+
+  // The choice: what was just picked, else what this browser remembers, else the server's default (latest published).
+  const remembered = tenant && typeof window !== "undefined" ? readChoice(tenant._id) : null;
+  const wanted = resolveChoice((configurators ?? []) as PickerConfigurator[], chosen, remembered);
+  const catalog = useQuery(
+    api.calculations.getShowroomCatalog,
+    tenant ? { tenantId: tenant._id, ...(wanted ? { configuratorId: wanted as Id<"configurators"> } : {}) } : "skip",
+  );
+  const catalogReady = catalog?.ready === true;
+  const inUse = catalogReady ? (catalog.configuratorId as string) : undefined;
+
+  const picker = tenant && catalog && !("allowed" in catalog && catalog.allowed === false) ? (
+    <ConfiguratorPicker
+      configurators={(configurators ?? []) as PickerConfigurator[]}
+      value={inUse}
+      onChange={(id) => {
+        setChosen(id);
+        writeChoice(tenant._id, id);
+      }}
+    />
+  ) : null;
+
+  if (tenant && catalog && !catalogReady) {
+    return (
+      <div className="w-full space-y-4">
+        <h1 className="text-xl font-semibold">Showroom</h1>
+        {picker}
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">
+          {"allowed" in catalog && catalog.allowed === false ? (
+            <>
+              {t("notAllowed")}{" "}
+              <Link href="/app/account/billing?tab=plan" className="font-semibold underline">{t("seePlans")}</Link>
+            </>
+          ) : (
+            t("noCatalog")
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (!tenant || !catalog || !catalogReady) {
+    return <p className="text-sm text-[var(--color-muted-fg)]">{t("loading")}</p>;
+  }
+
+  // Remounted on every change of configurator: pieces, draft and fiscal options start clean for its catalogue.
+  return <ShowroomWorkspace key={`${tenant._id}:${inUse}`} tenant={tenant} catalog={catalog} configuratorId={inUse!} picker={picker} />;
+}
+
+function ShowroomWorkspace({
+  tenant,
+  catalog,
+  configuratorId,
+  picker,
+}: {
+  tenant: NonNullable<FunctionReturnType<typeof api.tenants.getMyTenant>>;
+  catalog: Extract<FunctionReturnType<typeof api.calculations.getShowroomCatalog>, { ready: true }>;
+  configuratorId: string;
+  picker: React.ReactNode;
+}) {
   const t = useTranslations("showroom");
   const locale = useLocale();
   const router = useRouter();
-  const tenant = useQuery(api.tenants.getMyTenant);
-  const catalog = useQuery(api.calculations.getShowroomCatalog, tenant ? { tenantId: tenant._id } : "skip");
-
   const [itemsState, setItems] = useState<ProjectItem[] | null>(null);
   const [active, setActive] = useState(0);
   const [buildingAge, setBuildingAge] = useState(20);
@@ -49,15 +130,16 @@ export default function ShowroomPage() {
   const [restoredCount, setRestoredCount] = useState(0);
   const [sendErr, setSendErr] = useState("");
   const registerSend = useMutation(api.usage.registerShowroomSend);
-  const access = usePlanAccess(tenant?._id);
+  const access = usePlanAccess(tenant._id);
   const tf = useFriendlyError();
 
-  const ready = catalog?.ready === true;
-  const payload = ready ? (catalog.payload as CatalogPayload) : undefined;
-  const region = (catalog?.regionCode ?? "IT") as Region;
-  const seed = useMemo(() => (payload ? [defaultItem(payload, "finestra2")] : []), [payload]);
+  const payload = catalog.payload as CatalogPayload;
+  const ready = true;
+  const region = catalog.regionCode as Region;
+  const seed = useMemo(() => [defaultItem(payload, "finestra2")], [payload]);
   const items = itemsState ?? seed;
-  const draftKey = tenant ? `showroom:${tenant._id}` : "showroom";
+  // One draft per configurator: its pieces refer to that catalogue's keys.
+  const draftKey = `showroom:${tenant._id}:${configuratorId}`;
 
   useDraftRestore(draftKey, ready, (draft) => {
     setItems(draft.items);
@@ -70,12 +152,12 @@ export default function ShowroomPage() {
 
   const calc = useQuery(
     api.calculations.getCalculationPreview,
-    tenant && ready && items.length > 0
-      ? { tenantId: tenant._id, items, options: { regionCode: region, buildingAge, isEnergyRenovation, deductionPercent: 50 } }
+    items.length > 0
+      ? { tenantId: tenant._id, configuratorId: configuratorId as Id<"configurators">, items, options: { regionCode: region, buildingAge, isEnergyRenovation, deductionPercent: 50 } }
       : "skip",
   );
 
-  const blocked = payload ? items.some((it) => blockingIssues(pieceIssues(it, payload)).length > 0) : false;
+  const blocked = items.some((it) => blockingIssues(pieceIssues(it, payload)).length > 0);
 
   function exportModel(drawings: boolean) {
     if (!payload || !calc) return null;
@@ -159,30 +241,14 @@ export default function ShowroomPage() {
     setClientCity(draft.meta.clientCity ?? clientCity);
   }
 
-  if (tenant && catalog && !ready) {
-    return (
-      <div className="w-full space-y-4">
-        <h1 className="text-xl font-semibold">Showroom</h1>
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 text-sm text-amber-900">
-          {"allowed" in catalog && catalog.allowed === false ? (
-            <>
-              {t("notAllowed")}{" "}
-              <Link href="/app/account/billing?tab=plan" className="font-semibold underline">{t("seePlans")}</Link>
-            </>
-          ) : (
-            t("noCatalog")
-          )}
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="w-full space-y-6">
       <div className="border-b border-[var(--color-border)] pb-4">
         <h1 className="text-xl font-semibold">{t("title")}</h1>
         <p className="text-sm text-[var(--color-muted-fg)]">{t("subtitle")}</p>
       </div>
+
+      {picker}
 
       {restoredCount > 0 ? (
         <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-[var(--color-mint)]/40 bg-[var(--color-mint)]/10 px-3 py-2 text-sm">
@@ -203,18 +269,14 @@ export default function ShowroomPage() {
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_380px]">
         <div className="space-y-4 rounded-xl border border-[var(--color-border)] p-4">
-          {payload ? (
-            <PiecesEditor
-              payload={payload}
-              locale={locale}
-              items={items}
-              onChange={setItems}
-              activeIndex={Math.min(active, Math.max(0, items.length - 1))}
-              onActiveChange={setActive}
-            />
-          ) : (
-            <p className="text-sm text-[var(--color-muted-fg)]">{t("loading")}</p>
-          )}
+          <PiecesEditor
+            payload={payload}
+            locale={locale}
+            items={items}
+            onChange={setItems}
+            activeIndex={Math.min(active, Math.max(0, items.length - 1))}
+            onActiveChange={setActive}
+          />
           <div className="grid gap-3 border-t border-[var(--color-border)] pt-3 sm:grid-cols-2">
             <label className="flex items-center gap-2 text-sm sm:col-span-2">
               <input id="showroom-energy-renovation" type="checkbox" checked={isEnergyRenovation} onChange={(e) => setIsEnergyRenovation(e.target.checked)} />
