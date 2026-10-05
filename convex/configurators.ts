@@ -11,6 +11,9 @@ import { enforceForCreateConfigurator } from "./lib/enforcement";
 import { resolveEffectiveConfig, PLATFORM_DEFAULTS, CONFIG_LAYERS } from "./lib/configResolution";
 import { internal } from "./_generated/api";
 import { regionForCountry } from "./lib/regions";
+import { pricingBlock, withStandardPrices } from "./lib/standardPricing";
+import { applyStandardPricing } from "./lib/standardCatalog";
+import { isPriceZone } from "../src/shared/standard-pricing";
 
 export const createConfigurator = mutation({
   args: { tenantId: v.id("tenants"), name: v.string() },
@@ -60,6 +63,12 @@ export const createConfigurator = mutation({
     });
 
     await ctx.runMutation(internal.catalog.seedDefaultCatalog, { configuratorId, tenantId: args.tenantId });
+
+    // Italian installers who told us where they work start on the standard price list (they only play with the margin).
+    if (region.code === "IT" && isPriceZone(tenant.priceZone)) {
+      const created = await ctx.db.get(configuratorId);
+      if (created) await applyStandardPricing(ctx, created);
+    }
 
     // Increment active configurator count for quota tracking
     const period = currentPeriod();
@@ -352,6 +361,7 @@ export const publishConfigurator = mutation({
 
     const version = (configurator.publishedCatalogVersion || 0) + 1;
     const extras = await loadExtras(ctx, args.configuratorId);
+    const tenantDoc = await ctx.db.get(configurator.tenantId);
 
     const payload = {
       configurator: {
@@ -367,11 +377,12 @@ export const publishConfigurator = mutation({
         ecobonusMaxPercent: configurator.ecobonusMaxPercent,
         discountEnabled: configurator.discountEnabled,
         discountMaxPercent: configurator.discountMaxPercent,
+        ...pricingBlock(configurator, tenantDoc),
       },
       branding,
       materials,
       qualityTiers,
-      profileSystems,
+      profileSystems: withStandardPrices(profileSystems, configurator, tenantDoc),
       sizeConstraints,
       glazing,
       finish,

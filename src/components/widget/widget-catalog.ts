@@ -19,6 +19,7 @@ interface Row {
   enabled?: boolean;
 }
 interface FinishRow extends Row {
+  multiplier?: number;
   swatchHex?: string;
   range?: "skin" | "nuance" | "rock";
   group?: string;
@@ -36,16 +37,23 @@ interface QualityRow extends Row {
   materialKey: string;
   multiplier: number;
   uAdjust?: number;
+  /** Standard price list prices of a profile, resolved for the owner's zone (cents). */
+  standard?: { completePerM2Cents: number };
+}
+interface GlazingRow extends Row {
+  multiplier?: number;
+  pricePerM2Cents?: number;
 }
 interface HardwareRow extends Row {
   kind: string;
 }
 
 export interface WidgetCatalog {
+  configurator?: { pricingMode?: "standard" | "custom"; marginPercent?: number };
   materials?: MaterialRow[];
   qualityTiers?: QualityRow[];
   profileSystems?: QualityRow[];
-  glazing?: Row[];
+  glazing?: GlazingRow[];
   finish?: FinishRow[];
   hardware?: HardwareRow[];
   sizeConstraints?: Array<{
@@ -217,6 +225,18 @@ export function catalogPricing(cat: WidgetCatalog | undefined): Pricing {
   if (glazing) p.glazing = glazing;
   const color = priceMap(cat.finish);
   if (color) p.color = color;
+
+  // Same inputs the server prices with: per-m² glazing, colour / glazing multipliers, the standard price list, the margin.
+  const perM2 = (cat.glazing ?? []).filter((g) => enabled(g) && (g.pricePerM2Cents ?? 0) > 0);
+  p.glazingPerM2 = Object.fromEntries(perM2.map((g) => [g.key, (g.pricePerM2Cents ?? 0) / 100]));
+  p.glazingMult = Object.fromEntries((cat.glazing ?? []).filter((g) => enabled(g) && typeof g.multiplier === "number").map((g) => [g.key, g.multiplier as number]));
+  p.colorMult = Object.fromEntries((cat.finish ?? []).filter((f) => enabled(f) && typeof f.multiplier === "number").map((f) => [f.key, f.multiplier as number]));
+  if (cat.configurator?.pricingMode === "standard") {
+    const rows = (cat.profileSystems ?? []).filter((s) => s.materialKey === "pvc" && enabled(s) && s.standard);
+    p.standard = { completePerM2: Object.fromEntries(rows.map((s) => [s.key, (s.standard as { completePerM2Cents: number }).completePerM2Cents / 100])) };
+  }
+  const margin = cat.configurator?.marginPercent;
+  p.marginPercent = typeof margin === "number" && Number.isFinite(margin) && margin > 0 ? margin : 0;
 
   const hw = (kind: string) => priceMap(cat.hardware?.filter((h) => h.kind === kind));
   const sashType = hw("sashType");

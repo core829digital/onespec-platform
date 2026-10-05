@@ -400,7 +400,8 @@
     "uploadFailed": "Échec du téléversement du fichier. Réessayez.",
     "noSupplierLines": "Aucun fournisseur valide trouvé pour les lignes multi-fournisseurs.",
     "quoteCreateFailed": "Le devis n'a pas pu être créé. Réessayez.",
-    "configuratorHasRequests": "Ce configurateur a déjà reçu des demandes de clients et ne peut pas être supprimé, afin de ne pas perdre leurs données. Vous pouvez l'archiver : il cesse de fonctionner mais les données restent."
+    "configuratorHasRequests": "Ce configurateur a déjà reçu des demandes de clients et ne peut pas être supprimé, afin de ne pas perdre leurs données. Vous pouvez l'archiver : il cesse de fonctionner mais les données restent.",
+    "priceZoneRequired": "Indiquez d'abord où vous travaillez (Nord, Centre ou Sud de l'Italie) : c'est nécessaire pour choisir le bon barème standard."
   },
   "app": {
     "suspended": {

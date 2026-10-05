@@ -178,7 +178,11 @@ export function Widget({
   // The initial glazing is the first package (24 mm double, low-E, argon) when the catalogue offers it.
   const [state, setState] = useState<ConfigState>(() => {
     const base = defaultConfig();
-    return options.glazing.some(([k]) => k === "d24_floatBeArgon") ? { ...base, glazing: "d24_floatBeArgon" } : base;
+    // The default profile / glazing must exist in the catalogue (standard price list catalogues list other profiles).
+    const pvcBrands = options.profileSystems.pvc ?? [];
+    const brand = pvcBrands.length > 0 && !pvcBrands.some(([k]) => k === base.brand.pvc) ? { ...base.brand, pvc: pvcBrands[0][0] } : base.brand;
+    const withBrand = { ...base, brand };
+    return options.glazing.some(([k]) => k === "d24_floatBeArgon") ? { ...withBrand, glazing: "d24_floatBeArgon" } : withBrand;
   });
   const [items, setItems] = useState<SavedItem[]>([]);
   const [selectedSash, setSelectedSash] = useState<number | null>(null);

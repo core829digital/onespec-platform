@@ -1,0 +1,130 @@
+import { describe, expect, it } from "vitest";
+import { calculatePrice, type CatalogPayload, type ProjectItem } from "@/shared/pricing";
+import { resolveStandardPrice, standardProfileByKey } from "@/shared/standard-pricing";
+import { calculate, defaultConfig } from "@/components/widget/widget-pricing";
+import { catalogPricing, type WidgetCatalog } from "@/components/widget/widget-catalog";
+
+const PROFILE = "std_aluplast_ideal_4000";
+const row = <T extends object>(r: T) => ({ sortOrder: 0, enabled: true, labels: { it: "x" }, ...r });
+
+function payload(over: { configurator?: Partial<CatalogPayload["configurator"]>; zone?: "nord" | "centro" | "sud"; finishMult?: number; triple?: boolean } = {}): CatalogPayload {
+  const zone = over.zone ?? "nord";
+  const std = resolveStandardPrice(standardProfileByKey(PROFILE)!, zone);
+  return {
+    configurator: { publicId: "p", name: "t", defaultLocale: "it", defaultTheme: "auto", vatRatePercent: 22, priceRoundingStep: 1, showPricesToEndUser: true, currency: "EUR", ...over.configurator },
+    branding: null,
+    materials: [row({ key: "pvc", basePerM2Cents: 18000, profilePerMlCents: 2800 })],
+    qualityTiers: [row({ materialKey: "pvc", key: "chamber5", multiplier: 1 })],
+    profileSystems: [
+      row({ materialKey: "pvc", key: PROFILE, multiplier: 1, standardKey: PROFILE, standard: std }),
+      row({ materialKey: "pvc", key: "legacy", multiplier: 1.5 }),
+    ],
+    sizeConstraints: [],
+    glazing: [
+      row({ key: "double", priceCents: 0 }),
+      row({ key: "triple", priceCents: 0, pricePerM2Cents: 6000 }),
+    ],
+    finish: [
+      row({ key: "white", priceCents: 0 }),
+      row({ key: "ral", priceCents: 0, multiplier: over.finishMult ?? 1.2 }),
+    ],
+    hardware: [
+      row({ kind: "sashType", key: "tiltturn", priceCents: 0, appliesToOperableOnly: true }),
+      row({ kind: "sashType", key: "classic", priceCents: 0, appliesToOperableOnly: true }),
+      row({ kind: "hardware", key: "maco", priceCents: 0, appliesToOperableOnly: true }),
+      row({ kind: "hardwareColor", key: "white", priceCents: 0, appliesToOperableOnly: true }),
+      row({ kind: "installation", key: "classico", priceCents: 0, appliesToOperableOnly: false }),
+    ],
+  } as unknown as CatalogPayload;
+}
+
+const item = (over: Partial<ProjectItem> = {}): ProjectItem => ({
+  productType: "window",
+  material: "pvc",
+  quality: { pvc: "chamber5" },
+  profileSystem: PROFILE,
+  width: 1200,
+  height: 1400,
+  quantity: 1,
+  glazing: "double",
+  color: "white",
+  insectScreen: false,
+  sashes: [
+    { type: "classic", direction: "left", active: true, hardware: "maco", hardwareColor: "white" },
+    { type: "tiltturn", direction: "right", active: true, hardware: "maco", hardwareColor: "white" },
+  ],
+  ...over,
+} as ProjectItem);
+
+const unit = (p: CatalogPayload, it: ProjectItem) => calculatePrice(p, [it]).items[0];
+
+describe("standard price list in the price engine", () => {
+  const AREA = 1.2 * 1.4; // 1.68 m²
+
+  it("prices a profile at its complete price per m² of the zone (middle of the range)", () => {
+    expect(unit(payload({ configurator: { pricingMode: "standard" } }), item()).unitPrice).toBe(Math.round(28500 * AREA)); // 47880
+    expect(unit(payload({ configurator: { pricingMode: "standard" }, zone: "sud" }), item()).unitPrice).toBe(Math.round(24500 * AREA)); // 41160
+    expect(unit(payload({ configurator: { pricingMode: "standard" }, zone: "centro" }), item()).unitPrice).toBe(Math.round(26500 * AREA)); // 44520
+  });
+
+  it("is off unless the catalogue is in standard mode: the catalogue's own prices stay in charge", () => {
+    const custom = unit(payload(), item());
+    expect(custom.unitPrice).toBe(Math.round(18000 * AREA) + Math.round(2800 * 2 * (1.2 + 1.4)));
+    expect(unit(payload({ configurator: { pricingMode: "custom" } }), item()).unitPrice).toBe(custom.unitPrice);
+  });
+
+  it("a profile without a price list entry falls back to the catalogue's price even in standard mode", () => {
+    const std = payload({ configurator: { pricingMode: "standard" } });
+    expect(unit(std, item({ profileSystem: "legacy" })).unitPrice).toBe(Math.round(18000 * 1.5 * AREA) + Math.round(2800 * 2 * (1.2 + 1.4)));
+  });
+
+  it("a coloured frame adds the colour surcharge; triple glazing adds its price per m²", () => {
+    const std = payload({ configurator: { pricingMode: "standard" } });
+    expect(unit(std, item({ color: "ral" })).unitPrice).toBe(Math.round(28500 * 1.2 * AREA));
+    expect(unit(std, item({ glazing: "triple" })).unitPrice).toBe(Math.round(28500 * AREA) + Math.round(6000 * AREA));
+  });
+
+  it("the margin is applied to the whole unit price, with decimals, in whole cents", () => {
+    const base = Math.round(28500 * AREA); // 47880
+    for (const [m, expected] of [[0, 47880], [25, 59850], [12.5, 53865], [7.35, Math.round((47880 * 10735) / 10000)], [0.01, Math.round((47880 * 10001) / 10000)]] as const) {
+      const r = unit(payload({ configurator: { pricingMode: "standard", marginPercent: m } }), item());
+      expect(r.unitPrice).toBe(expected);
+      expect(r.marginCents ?? 0).toBe(expected - base);
+    }
+  });
+
+  it("the margin also works on catalogues without the price list, and multiplies by the quantity", () => {
+    const r = unit(payload({ configurator: { marginPercent: 10 } }), item({ quantity: 3 }));
+    const base = Math.round(18000 * AREA) + Math.round(2800 * 2 * (1.2 + 1.4));
+    expect(r.unitPrice).toBe(Math.round(base * 1.1));
+    expect(r.itemTotalCents).toBe(Math.round(base * 1.1) * 3);
+  });
+
+  it("a negative, zero or absurd margin cannot lower the price or run away", () => {
+    const base = unit(payload({ configurator: { pricingMode: "standard" } }), item()).unitPrice;
+    expect(unit(payload({ configurator: { pricingMode: "standard", marginPercent: -20 } }), item()).unitPrice).toBe(base);
+    expect(unit(payload({ configurator: { pricingMode: "standard", marginPercent: 1e9 } }), item()).unitPrice).toBe(Math.round(base * 4));
+  });
+});
+
+describe("the widget's live estimate agrees with the server price", () => {
+  const cases: Array<{ name: string; cfg: Partial<CatalogPayload["configurator"]>; zone?: "nord" | "centro" | "sud"; glazing?: string; color?: string; w?: number; h?: number; q?: number }> = [
+    { name: "standard Nord", cfg: { pricingMode: "standard" } },
+    { name: "standard Sud with margin 12.5%", cfg: { pricingMode: "standard", marginPercent: 12.5 }, zone: "sud" },
+    { name: "standard Centro, triple glazing, colour, margin 7.35%, 3 pieces", cfg: { pricingMode: "standard", marginPercent: 7.35 }, zone: "centro", glazing: "triple", color: "ral", q: 3 },
+    { name: "custom catalogue with margin", cfg: { marginPercent: 20 } },
+    { name: "odd size", cfg: { pricingMode: "standard", marginPercent: 33.33 }, w: 987, h: 1763 },
+  ];
+  for (const c of cases) {
+    it(c.name, () => {
+      const p = payload({ configurator: c.cfg, zone: c.zone });
+      const it_ = item({ glazing: c.glazing ?? "double", color: c.color ?? "white", width: c.w ?? 1200, height: c.h ?? 1400, quantity: c.q ?? 1 });
+      const server = unit(p, it_);
+      const pricing = catalogPricing(p as unknown as WidgetCatalog);
+      const state = { ...defaultConfig(), brand: { pvc: PROFILE, aluminum: "aluprof" }, width: it_.width, height: it_.height, glazing: it_.glazing, color: it_.color, quantity: it_.quantity, installation: "classico" };
+      const widget = calculate(state, pricing);
+      expect(Math.round(widget.unitPrice * 100)).toBe(server.unitPrice);
+      expect(Math.round(widget.totalPrice * 100)).toBe(server.itemTotalCents);
+    });
+  }
+});

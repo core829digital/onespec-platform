@@ -400,7 +400,8 @@
     "uploadFailed": "Bestand uploaden mislukt. Probeer het opnieuw.",
     "noSupplierLines": "Geen geldige leverancier gevonden voor de regels met meerdere leveranciers.",
     "quoteCreateFailed": "De offerte kon niet worden aangemaakt. Probeer het opnieuw.",
-    "configuratorHasRequests": "Deze configurator heeft al klantaanvragen ontvangen en kan niet worden verwijderd, zodat hun gegevens niet verloren gaan. U kunt hem archiveren: hij werkt dan niet meer, maar de gegevens blijven bewaard."
+    "configuratorHasRequests": "Deze configurator heeft al klantaanvragen ontvangen en kan niet worden verwijderd, zodat hun gegevens niet verloren gaan. U kunt hem archiveren: hij werkt dan niet meer, maar de gegevens blijven bewaard.",
+    "priceZoneRequired": "Geef eerst aan waar u werkt (Noord-, Midden- of Zuid-Italië): dat is nodig om de juiste standaardprijslijst te kiezen."
   },
   "app": {
     "suspended": {

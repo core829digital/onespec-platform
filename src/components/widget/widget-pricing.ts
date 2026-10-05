@@ -5,6 +5,7 @@
 
 import { REGION_FLAT_OPTION_KINDS } from "@/shared/pricing";
 import { glazingPackageRows } from "@/shared/glazing-packages";
+import { applyMarginCents } from "@/shared/standard-pricing";
 
 /** Glazing packages (depth + composition) priced in euros and with their Ug, for widgets without a catalogue. */
 const PACKAGE_ROWS = glazingPackageRows();
@@ -99,6 +100,18 @@ export interface Pricing {
   ecobonusPercent: number;
   discountPercent: number;
   brandMultiplier: { pvc: Record<string, number>; aluminum: Record<string, number> };
+  /**
+   * Standard price list: when set, a PVC profile found here is priced at its complete price per m² (EUR, frame + glass +
+   * standard hardware + basic installation) instead of the material / profile prices. Mirrors shared/pricing.ts.
+   */
+  standard?: { completePerM2: Record<string, number> };
+  /** Extra EUR per m² by glazing key (triple glazing). */
+  glazingPerM2: Record<string, number>;
+  /** Finish and glazing multipliers on the material cost (colour surcharge...). */
+  colorMult: Record<string, number>;
+  glazingMult: Record<string, number>;
+  /** The installer's profit margin over the prices, percent with decimals. */
+  marginPercent: number;
   [key: string]: unknown;
 }
 
@@ -141,6 +154,10 @@ export function defaultPricing(): Pricing {
     vatRate: 22,
     ecobonusPercent: 50,
     discountPercent: 0,
+    glazingPerM2: {},
+    colorMult: {},
+    glazingMult: {},
+    marginPercent: 0,
     brandMultiplier: {
       pvc: { aluplast: 1, rehau: 1, kommerling: 1, deceuninck: 1, salamander: 1, schuco: 1, gealan: 1 },
       aluminum: { aluprof: 1, alumil: 1, aliplast: 1, schuco: 1, reynaers: 1, cortizo: 1, exlabesa: 1, alulegno: 1 },
@@ -232,8 +249,16 @@ export function calculate(state: ConfigState, pricing: Pricing, src?: ConfigStat
   const brandKey = s.material === "pvc" || s.material === "aluminum" ? s.brand[s.material] : undefined;
   const brandMult = brandTable && brandKey && brandTable[brandKey] !== undefined ? brandTable[brandKey] : 1;
 
-  const materialCost = matCfg.basePerM2 * qualityMult * brandMult * areaM2;
-  const profileCost = matCfg.profilePerMl * perimeterM;
+  const colorMult = pricing.colorMult[s.color] ?? 1;
+  const glazingMult = pricing.glazingMult[s.glazing] ?? 1;
+  // Standard price list (PVC only): complete price per m² of the chosen profile, colour surcharge on top.
+  const standardPerM2 =
+    s.material === "pvc" && brandKey ? pricing.standard?.completePerM2[brandKey] : undefined;
+  const materialCost =
+    standardPerM2 !== undefined
+      ? standardPerM2 * colorMult * areaM2
+      : matCfg.basePerM2 * qualityMult * brandMult * colorMult * glazingMult * areaM2;
+  const profileCost = standardPerM2 !== undefined ? 0 : matCfg.profilePerMl * perimeterM;
 
   let sashCost = 0;
   let hardwareCost = 0;
@@ -269,9 +294,12 @@ export function calculate(state: ConfigState, pricing: Pricing, src?: ConfigStat
     regionOptionsCost +
     screenCost +
     (pricing.glazing[s.glazing] ?? 0) +
+    (pricing.glazingPerM2[s.glazing] ?? 0) * areaM2 +
     (pricing.color[s.color] ?? 0);
 
-  const unitPrice = materialCost + profileCost + optionsCost;
+  // The margin is applied to the unit price in whole cents (basis points), exactly as the server does.
+  const baseCents = Math.round((materialCost + profileCost + optionsCost) * 100);
+  const unitPrice = applyMarginCents(baseCents, pricing.marginPercent) / 100;
   const totalPrice = unitPrice * s.quantity;
 
   return { areaM2, perimeterM, materialCost, profileCost, optionsCost, unitPrice, totalPrice };

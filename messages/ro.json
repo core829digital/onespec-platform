@@ -400,7 +400,8 @@
     "uploadFailed": "Încărcarea fișierului a eșuat. Încercați din nou.",
     "noSupplierLines": "Nu s-a găsit niciun furnizor valid pentru liniile multi-furnizor.",
     "quoteCreateFailed": "Oferta nu a putut fi creată. Încercați din nou.",
-    "configuratorHasRequests": "Acest configurator a primit deja cereri de la clienți și nu poate fi șters, pentru a nu pierde datele lor. Îl poți arhiva: nu mai funcționează, dar datele rămân."
+    "configuratorHasRequests": "Acest configurator a primit deja cereri de la clienți și nu poate fi șters, pentru a nu pierde datele lor. Îl poți arhiva: nu mai funcționează, dar datele rămân.",
+    "priceZoneRequired": "Indică mai întâi unde lucrezi (nordul, centrul sau sudul Italiei): este necesar pentru a alege lista de prețuri standard corectă."
   },
   "app": {
     "suspended": {

@@ -400,7 +400,8 @@
     "uploadFailed": "Datei-Upload fehlgeschlagen. Bitte erneut versuchen.",
     "noSupplierLines": "Für die Mehrlieferanten-Positionen wurde kein gültiger Lieferant gefunden.",
     "quoteCreateFailed": "Das Angebot konnte nicht erstellt werden. Bitte erneut versuchen.",
-    "configuratorHasRequests": "Dieser Konfigurator hat bereits Kundenanfragen erhalten und kann nicht gelöscht werden, damit deren Daten nicht verloren gehen. Sie können ihn archivieren: er funktioniert dann nicht mehr, die Daten bleiben erhalten."
+    "configuratorHasRequests": "Dieser Konfigurator hat bereits Kundenanfragen erhalten und kann nicht gelöscht werden, damit deren Daten nicht verloren gehen. Sie können ihn archivieren: er funktioniert dann nicht mehr, die Daten bleiben erhalten.",
+    "priceZoneRequired": "Geben Sie zuerst an, wo Sie arbeiten (Nord-, Mittel- oder Süditalien): das wird für die passende Standardpreisliste benötigt."
   },
   "app": {
     "suspended": {

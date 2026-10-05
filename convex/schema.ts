@@ -26,6 +26,8 @@ export default defineSchema({
     slug: v.string(),
     ownerUserId: v.id("users"),
     country: v.optional(v.string()),
+    /** Italian installers: where they work (nord / centro / sud), picks the standard price list. */
+    priceZone: v.optional(v.union(v.literal("nord"), v.literal("centro"), v.literal("sud"))),
     // v2 plan ladder (2026-09-22, per signed SaaS contracts): base/pro/agency/enterprise.
     // "starter"/"showroom" kept as transitional literals until migrations.renamePlansToV2
     // has run on every deployment, then removed.
@@ -266,6 +268,10 @@ export default defineSchema({
     updatedByUserId: v.optional(v.id("users")),
     /** Set when the owner deleted it: hidden everywhere while its data is purged in the background. */
     deletingAt: v.optional(v.number()),
+    /** "standard" = priced from the standard price list of the owner's zone; absent / "custom" = the catalogue's own prices. */
+    pricingMode: v.optional(v.union(v.literal("standard"), v.literal("custom"))),
+    /** Profit margin the installer adds on top of the prices, percent with decimals (0 - 300). */
+    marginPercent: v.optional(v.number()),
   })
     .index("by_tenant", ["tenantId"])
     .index("by_publicId", ["publicId"])
@@ -335,6 +341,8 @@ export default defineSchema({
     uFrame: v.optional(v.number()),
     /** UI grouping ("tab1" value / "tab2" premium). */
     group: v.optional(v.string()),
+    /** Key of the standard price list entry this profile is priced from (shared/standard-pricing). */
+    standardKey: v.optional(v.string()),
     sortOrder: v.number(),
     enabled: v.boolean(),
   })
@@ -365,6 +373,8 @@ export default defineSchema({
     psi: v.optional(v.number()),
     /** Multiplier on the material cost, on top of the flat price. */
     multiplier: v.optional(v.number()),
+    /** Extra price per m² of window, in cents (triple glazing: about +60 EUR per m²). */
+    pricePerM2Cents: v.optional(v.number()),
     sortOrder: v.number(),
     enabled: v.boolean(),
   }).index("by_configurator", ["configuratorId"]),

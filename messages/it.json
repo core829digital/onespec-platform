@@ -400,7 +400,8 @@
     "uploadFailed": "Caricamento del file non riuscito. Riprova.",
     "noSupplierLines": "Nessun fornitore valido trovato per le righe multi-fornitore.",
     "quoteCreateFailed": "Non è stato possibile creare il preventivo. Riprova.",
-    "configuratorHasRequests": "Questo configuratore ha già ricevuto richieste dei clienti e non può essere eliminato, per non perdere i loro dati. Puoi archiviarlo: smette di funzionare ma i dati restano."
+    "configuratorHasRequests": "Questo configuratore ha già ricevuto richieste dei clienti e non può essere eliminato, per non perdere i loro dati. Puoi archiviarlo: smette di funzionare ma i dati restano.",
+    "priceZoneRequired": "Prima indica dove lavori (Nord, Centro o Sud Italia): serve per scegliere il listino standard giusto."
   },
   "app": {
     "suspended": {

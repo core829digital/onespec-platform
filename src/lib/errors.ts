@@ -31,6 +31,7 @@ export type ErrorKey =
   | "reportLocked"
   | "cannotDeleteSigned"
   | "configuratorHasRequests"
+  | "priceZoneRequired"
   | "fundingNeedsQuote"
   | "noPublishedVersion"
   | "noItems"
@@ -115,6 +116,7 @@ const EXACT: Record<string, ErrorKey> = {
   REPORT_LOCKED: "reportLocked",
   CANNOT_DELETE_SIGNED: "cannotDeleteSigned",
   CONFIGURATOR_HAS_REQUESTS: "configuratorHasRequests",
+  PRICE_ZONE_REQUIRED: "priceZoneRequired",
   FUNDING_NEEDS_QUOTE: "fundingNeedsQuote",
   PASSPORT_NO_QUOTE: "fundingNeedsQuote",
   NO_PUBLISHED_VERSION: "noPublishedVersion",

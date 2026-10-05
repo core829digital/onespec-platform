@@ -1,4 +1,5 @@
 import { loadExtras } from "./lib/catalogExtras";
+import { pricingBlock, withStandardPrices } from "./lib/standardPricing";
 import { query, internalQuery, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { internal } from "./_generated/api";
@@ -357,6 +358,7 @@ export const getConfiguratorForPreview = query({
       ? await ctx.storage.getUrl(branding.logoLightStorageId)
       : null;
 
+    const tenant = await ctx.db.get(configurator.tenantId);
     const payload = {
       configurator: {
         publicId: configurator.publicId,
@@ -371,19 +373,18 @@ export const getConfiguratorForPreview = query({
         ecobonusMaxPercent: configurator.ecobonusMaxPercent,
         discountEnabled: configurator.discountEnabled,
         discountMaxPercent: configurator.discountMaxPercent,
+        ...pricingBlock(configurator, tenant),
       },
       branding,
       materials,
       qualityTiers,
-      profileSystems,
+      profileSystems: withStandardPrices(profileSystems, configurator, tenant),
       sizeConstraints,
       glazing,
       finish,
       hardware,
       ...(await loadExtras(ctx, configurator._id)),
     };
-
-    const tenant = await ctx.db.get(configurator.tenantId);
 
     return assembleWidgetResponse({
       privacyUrl: tenant?.privacyUrl,

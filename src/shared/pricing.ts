@@ -7,6 +7,7 @@ import {
   type ItemAccessories,
   type PieceCategory,
 } from "./configurator-model";
+import { applyMarginCents } from "./standard-pricing";
 
 export interface CatalogPayload {
   configurator: {
@@ -18,6 +19,12 @@ export interface CatalogPayload {
     priceRoundingStep: number;
     showPricesToEndUser: boolean;
     currency: "EUR";
+    /** "standard": PVC profiles with a `standard` block are priced from the standard price list. */
+    pricingMode?: "standard" | "custom";
+    /** Zone the standard prices were resolved for (nord / centro / sud). */
+    priceZone?: "nord" | "centro" | "sud";
+    /** Installer's profit margin over the prices, percent with decimals. */
+    marginPercent?: number;
   };
   branding: {
     whiteLabel: boolean;
@@ -62,6 +69,15 @@ export interface CatalogPayload {
     uFrame?: number;
     /** UI grouping, e.g. "tab1" (value) / "tab2" (premium). */
     group?: string;
+    /** Standard price list entry this profile is priced from. */
+    standardKey?: string;
+    /** The entry's prices in the zone, in cents, resolved when the catalogue is published / previewed. */
+    standard?: {
+      completePerM2Cents: number;
+      framePerM2Cents: number;
+      glassPerM2Cents: number;
+      barPerMlCents: number;
+    };
     sortOrder: number;
     enabled: boolean;
   }>;
@@ -82,6 +98,8 @@ export interface CatalogPayload {
     psi?: number;
     /** Multiplier on the material cost (in addition to the flat price). */
     multiplier?: number;
+    /** Extra price per m² of window, cents. */
+    pricePerM2Cents?: number;
     sortOrder: number;
     enabled: boolean;
   }>;
@@ -227,6 +245,8 @@ export interface ItemBreakdown {
   materialCost: number;
   profileCost: number;
   optionsCost: number;
+  /** Installer's margin included in `unitPrice`, cents per unit (0 when none). */
+  marginCents?: number;
   unitPrice: number;
   quantity: number;
   itemTotalCents: number;
@@ -253,12 +273,9 @@ function getQualityTier(payload: CatalogPayload, materialKey: string, qualityKey
   return payload.qualityTiers.find(q => q.materialKey === materialKey && q.key === qualityKey && q.enabled);
 }
 
-function getProfileMultiplier(payload: CatalogPayload, materialKey: string, key: string | undefined) {
-  if (!key || !payload.profileSystems) return 1;
-  const found = payload.profileSystems.find(
-    p => p.materialKey === materialKey && p.key === key && p.enabled,
-  );
-  return found ? found.multiplier : 1;
+function getProfile(payload: CatalogPayload, materialKey: string, key: string | undefined) {
+  if (!key || !payload.profileSystems) return undefined;
+  return payload.profileSystems.find((p) => p.materialKey === materialKey && p.key === key && p.enabled);
 }
 
 function getGlazingOption(payload: CatalogPayload, key: string) {
@@ -338,14 +355,20 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
     const areaM2 = widthM * heightM;
     const perimeterM = 2 * (widthM + heightM);
 
-    const profileMult = getProfileMultiplier(payload, item.material, item.profileSystem);
+    const profile = getProfile(payload, item.material, item.profileSystem);
+    const profileMult = profile?.multiplier ?? 1;
     const finishMult = finish?.multiplier ?? 1;
     const glazingMult = glazing?.multiplier ?? 1;
     const frameMult = getFrameType(payload, item.frameType)?.multiplier ?? 1;
-    const materialCost = Math.round(
-      material.basePerM2Cents * quality.multiplier * profileMult * finishMult * glazingMult * frameMult * areaM2,
-    );
-    const profileCost = Math.round(material.profilePerMlCents * perimeterM * frameMult);
+    // Standard price list: the profile's complete price per m² (frame + glass + standard hardware + basic installation)
+    // replaces the material / profile prices. Colour and telaio keep their multipliers, extras stay as options.
+    const standard = payload.configurator.pricingMode === "standard" ? profile?.standard : undefined;
+    const materialCost = standard
+      ? Math.round(standard.completePerM2Cents * finishMult * frameMult * areaM2)
+      : Math.round(
+          material.basePerM2Cents * quality.multiplier * profileMult * finishMult * glazingMult * frameMult * areaM2,
+        );
+    const profileCost = standard ? 0 : Math.round(material.profilePerMlCents * perimeterM * frameMult);
 
     let sashCost = 0;
     let hardwareCost = 0;
@@ -391,9 +414,13 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
 
     const optionsCost =
       sashCost + hardwareCost + thresholdCost + installationCost + regionOptionsCost +
-      (glazing?.priceCents || 0) + (finish?.priceCents || 0) + screenCost + accessoriesCost + categoryBase;
+      (glazing?.priceCents || 0) + Math.round((glazing?.pricePerM2Cents || 0) * areaM2) +
+      (finish?.priceCents || 0) + screenCost + accessoriesCost + categoryBase;
 
-    const unitPrice = materialCost + profileCost + optionsCost;
+    // The installer's margin is applied to the whole unit price, in integer basis points (no floating drift).
+    const baseUnit = materialCost + profileCost + optionsCost;
+    const unitPrice = applyMarginCents(baseUnit, payload.configurator.marginPercent);
+    const marginCents = unitPrice - baseUnit;
     const itemTotal = unitPrice * item.quantity;
 
     totalPriceCents += itemTotal;
@@ -401,6 +428,7 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
 
     itemBreakdowns.push({
       areaM2, perimeterM, materialCost, profileCost, optionsCost,
+      ...(marginCents !== 0 ? { marginCents } : {}),
       unitPrice, quantity: item.quantity, itemTotalCents: itemTotal,
     });
   }
