@@ -69,3 +69,31 @@ Un processo per ogni preventivo: **Preventivo → Ordine → Produzione → Cons
 `ricavo senza IVA − costo fabbrica − trasporto − altri costi`, **senza imposte sul reddito**.
 Finestre: mese, trimestre, semestre, anno, 2, 3, 5 e 10 anni (mesi di calendario UTC, intervallo (da, a]),
 solo forniture consegnate nella finestra. Le forniture aperte compaiono come "profitto previsto".
+
+## 6. Posa a prezzo al m² (con posa / solo fornitura)
+
+- Nel configuratore, scheda **Prezzi → Posa (montaggio)**: il montatore inserisce il suo prezzo di posa al m² (senza IVA, 0–1000 €;
+  vuoto o 0 = non offerta) e sceglie il preventivo predefinito: *con posa inclusa* oppure *solo fornitura*.
+- La posa è sommata **dopo il margine**, così com'è stata inserita (il margine vale solo per le finestre).
+  La consegna con trasportatore proprio resta una voce separata (prima del margine).
+- Ogni pezzo porta `withInstallation` (true/false); se assente vale il predefinito del configuratore. Il server ricalcola sempre il prezzo
+  da questa scelta (widget, preventivo B2B, showroom) e salva `installationIncluded` sul preventivo.
+- Il motore restituisce anche i due totali (`installation.exVatWithCents` / `exVatWithoutCents`): il preventivo B2B mostra
+  "Senza posa / Con posa". Nel preventivo B2B, *solo fornitura* azzera anche gli importi manuali di posa e smaltimento.
+- Il widget pubblico mostra la scelta al cliente (5 lingue del widget); PDF, export testo/HTML e scheda richiesta riportano la frase
+  "Posa inclusa" / "Solo fornitura: posa a cura del cliente".
+
+## 7. Fornitura: avvio dal preventivo ed esportazione
+
+- Nella scheda del preventivo (Richieste) compare il pannello **Fornitura** quando il preventivo è *vinto*: fase attuale e link,
+  oppure **Avvia fornitura** (per i preventivi vinti prima che la funzione esistesse: la fornitura parte da *Ordine*).
+- **Esporta per il commercialista** (scheda *Profitto netto*): CSV UTF-8 con BOM, separatore `;` e virgola decimale (in inglese `,` e `.`),
+  periodo a scelta (mese, trimestre, anno, anno scorso o date libere, max 10 anni), forniture consegnate nel periodo con ricavo senza IVA,
+  aliquota, IVA, totale, regime IVA (ordinaria, art. 138, art. 146, esenzione manuale), costi, data pagamento fabbrica, profitto netto
+  e riga TOTALE. Le celle di testo che iniziano con `= + - @` sono neutralizzate (nessuna formula iniettata).
+
+## 8. Account esistenti: avviso dati azienda
+
+`onboarding.profileGaps` indica quali sezioni (azienda, sede, contatti, fiscalità) mancano a un account che ha già concluso l'onboarding.
+Titolare e amministratori vedono un avviso non bloccante con il link alla pagina **Account → Dati azienda** (`/app/account/company`),
+che riusa gli stessi passi e gli stessi controlli dell'onboarding. Il listino predefinito non viene richiesto agli account esistenti.

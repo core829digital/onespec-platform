@@ -262,6 +262,23 @@ export function missingOnboardingData(tenant: Doc<"tenants">): Array<"company" |
   return missing;
 }
 
+/** Sections an installer who ALREADY finished onboarding may still owe (the price list defaults are not asked of them). */
+export const REQUIRED_PROFILE_SECTIONS = ["company", "address", "contact", "tax"] as const;
+
+/**
+ * Accounts created before the 10-step onboarding have no registered address, contacts or VAT settings. This tells the app what to
+ * ask them for; it never blocks anything. Null while the wizard itself is still running (it asks for everything anyway).
+ */
+export const profileGaps = query({
+  handler: async (ctx) => {
+    const userId = await requireUser(ctx);
+    const found = await tenantOf(ctx, userId);
+    if (!found || !found.tenant.onboardingCompletedAt || found.tenant.planStatus === "pending_plan") return null;
+    const missing = missingOnboardingData(found.tenant).filter((m): m is (typeof REQUIRED_PROFILE_SECTIONS)[number] => m !== "pricing");
+    return { missing, canEdit: found.role === "owner" || found.role === "admin" };
+  },
+});
+
 export const complete = mutation({
   handler: async (ctx) => {
     const userId = await requireUser(ctx);

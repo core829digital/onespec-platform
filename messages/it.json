@@ -2829,5 +2829,22 @@
       "summary": "{count} forniture · ricavi {revenue} (senza IVA) · profitto netto {profit}",
       "note": "Conta la data di consegna. Importi senza IVA, prima delle imposte sul reddito."
     }
+  },
+  "profileGaps": {
+    "title": "Completa i dati della tua azienda",
+    "body": "Mancano: {sections}. Servono per i preventivi, le fatture e le regole IVA. Ci vogliono due minuti.",
+    "cta": "Completa ora",
+    "sections": {
+      "company": "azienda e partita IVA",
+      "address": "sede",
+      "contact": "contatti",
+      "tax": "fiscalità e IVA"
+    },
+    "pageTitle": "Dati azienda",
+    "pageIntro": "Gli stessi dati dell'onboarding, con gli stessi controlli. Compaiono sui tuoi preventivi.",
+    "todo": "Da completare",
+    "done": "Completato",
+    "back": "← Torna all'account",
+    "noPermission": "Solo il titolare o un amministratore può modificare i dati dell'azienda."
   }
 }

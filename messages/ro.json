@@ -2829,5 +2829,22 @@
       "summary": "{count} furnizări · venit {revenue} (fără TVA) · profit net {profit}",
       "note": "Contează data livrării. Sume fără TVA, înainte de impozitul pe venit."
     }
+  },
+  "profileGaps": {
+    "title": "Completează datele firmei tale",
+    "body": "Lipsesc: {sections}. Sunt necesare pentru oferte, facturi și regulile de TVA. Durează două minute.",
+    "cta": "Completează acum",
+    "sections": {
+      "company": "firmă și cod TVA",
+      "address": "sediu",
+      "contact": "contacte",
+      "tax": "taxe și TVA"
+    },
+    "pageTitle": "Date firmă",
+    "pageIntro": "Aceleași date ca la onboarding, cu aceleași verificări. Apar pe ofertele tale.",
+    "todo": "De completat",
+    "done": "Completat",
+    "back": "← Înapoi la cont",
+    "noPermission": "Doar proprietarul sau un administrator poate modifica datele firmei."
   }
 }

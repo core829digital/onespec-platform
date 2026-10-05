@@ -157,3 +157,31 @@ describe("account settings use the same rules", () => {
     expect(cleared?.companyEmail).toBeUndefined();
   });
 });
+
+describe("accounts that predate the 10 steps: profileGaps", () => {
+  test("a finished account without the new data is asked for company, address, contacts and tax (never pricing)", async () => {
+    const { t, s, as, asMember } = await setup();
+    await t.run((ctx) => ctx.db.patch(s.tenantId, { onboardingCompletedAt: Date.now() }));
+    const gaps = await as.query(api.onboarding.profileGaps, {});
+    expect(gaps).toEqual({ missing: ["company", "address", "contact", "tax"], canEdit: true });
+    // a plain member sees the same list but cannot edit: the banner stays hidden for them
+    expect(await asMember.query(api.onboarding.profileGaps, {})).toEqual({ missing: ["company", "address", "contact", "tax"], canEdit: false });
+  });
+
+  test("each saved section leaves the list; when everything is in, it is empty", async () => {
+    const { t, s, as } = await setup();
+    await t.run((ctx) => ctx.db.patch(s.tenantId, { onboardingCompletedAt: Date.now() }));
+    await as.mutation(api.onboarding.saveCompany, { tenantId: s.tenantId, name: "Acme Srl", country: "IT", vatId: "IT00905811006" });
+    expect((await as.query(api.onboarding.profileGaps, {}))?.missing).toEqual(["address", "contact", "tax"]);
+    await as.mutation(api.onboarding.saveAddress, { tenantId: s.tenantId, street: "Via Roma 1", postalCode: "20121", city: "Milano" });
+    await as.mutation(api.onboarding.saveContact, { tenantId: s.tenantId, phone: "+39 333 1234567", email: "info@acme.it" });
+    expect((await as.query(api.onboarding.profileGaps, {}))?.missing).toEqual(["tax"]);
+    await as.mutation(api.onboarding.saveTax, { tenantId: s.tenantId, defaultVatPercent: 22, viesAcknowledged: true });
+    expect(await as.query(api.onboarding.profileGaps, {})).toEqual({ missing: [], canEdit: true });
+  });
+
+  test("an account still inside the wizard gets nothing (the wizard asks for everything)", async () => {
+    const { as } = await setup();
+    expect(await as.query(api.onboarding.profileGaps, {})).toBeNull();
+  });
+});

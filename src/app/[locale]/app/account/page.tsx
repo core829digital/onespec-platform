@@ -23,6 +23,7 @@ const LOCALES = [
 
 export default function AccountPage() {
   const t = useTranslations("accountMain");
+  const tCompany = useTranslations("profileGaps");
   const locale = useLocale();
   const tf = useFriendlyError();
   const profile = useQuery(api.account.getProfile);
@@ -122,6 +123,9 @@ export default function AccountPage() {
         >
           {savedProfile ? t("saved") : t("saveProfile")}
         </button>
+        <Link href="/app/account/company" className="inline-flex text-sm font-medium text-[var(--color-mint-text)] hover:underline">
+          {tCompany("pageTitle")} →
+        </Link>
         {profile.tenant ? (
           <p className="text-xs text-[var(--color-text-secondary)]">
             {profile.tenant.name} · {t("planWord")} <span className="capitalize">{profile.tenant.plan}</span> ·{" "}

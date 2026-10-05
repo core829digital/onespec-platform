@@ -2829,5 +2829,22 @@
       "summary": "{count} Lieferungen · Erlös {revenue} (netto) · Nettogewinn {profit}",
       "note": "Maßgeblich ist das Lieferdatum. Beträge ohne MwSt., vor Ertragsteuern."
     }
+  },
+  "profileGaps": {
+    "title": "Vervollständigen Sie Ihre Firmendaten",
+    "body": "Es fehlen: {sections}. Sie werden für Angebote, Rechnungen und MwSt.-Regeln gebraucht. Das dauert zwei Minuten.",
+    "cta": "Jetzt vervollständigen",
+    "sections": {
+      "company": "Firma und USt-IdNr.",
+      "address": "Adresse",
+      "contact": "Kontakte",
+      "tax": "Steuern und MwSt."
+    },
+    "pageTitle": "Firmendaten",
+    "pageIntro": "Dieselben Angaben wie im Onboarding, mit denselben Prüfungen. Sie erscheinen auf Ihren Angeboten.",
+    "todo": "Zu vervollständigen",
+    "done": "Vollständig",
+    "back": "← Zurück zum Konto",
+    "noPermission": "Nur der Inhaber oder ein Administrator kann die Firmendaten ändern."
   }
 }

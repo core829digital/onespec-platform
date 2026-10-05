@@ -2829,5 +2829,22 @@
       "summary": "{count} supplies · revenue {revenue} (excl. VAT) · net profit {profit}",
       "note": "The delivery date counts. Amounts exclude VAT and are before income tax."
     }
+  },
+  "profileGaps": {
+    "title": "Complete your company details",
+    "body": "Missing: {sections}. They are needed for quotes, invoices and VAT rules. It takes two minutes.",
+    "cta": "Complete now",
+    "sections": {
+      "company": "company and VAT number",
+      "address": "address",
+      "contact": "contacts",
+      "tax": "tax and VAT"
+    },
+    "pageTitle": "Company details",
+    "pageIntro": "The same details as in onboarding, with the same checks. They appear on your quotes.",
+    "todo": "To complete",
+    "done": "Completed",
+    "back": "← Back to account",
+    "noPermission": "Only the owner or an admin can edit the company details."
   }
 }

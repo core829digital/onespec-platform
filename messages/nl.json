@@ -2829,5 +2829,22 @@
       "summary": "{count} leveringen · opbrengst {revenue} (excl. btw) · nettowinst {profit}",
       "note": "De leverdatum telt. Bedragen excl. btw, vóór inkomstenbelasting."
     }
+  },
+  "profileGaps": {
+    "title": "Vul uw bedrijfsgegevens aan",
+    "body": "Ontbreekt: {sections}. Ze zijn nodig voor offertes, facturen en btw-regels. Het kost twee minuten.",
+    "cta": "Nu aanvullen",
+    "sections": {
+      "company": "bedrijf en btw-nummer",
+      "address": "adres",
+      "contact": "contact",
+      "tax": "belasting en btw"
+    },
+    "pageTitle": "Bedrijfsgegevens",
+    "pageIntro": "Dezelfde gegevens als bij de onboarding, met dezelfde controles. Ze staan op uw offertes.",
+    "todo": "Aan te vullen",
+    "done": "Compleet",
+    "back": "← Terug naar account",
+    "noPermission": "Alleen de eigenaar of een beheerder kan de bedrijfsgegevens wijzigen."
   }
 }

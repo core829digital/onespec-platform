@@ -2829,5 +2829,22 @@
       "summary": "{count} fournitures · CA {revenue} (HT) · bénéfice net {profit}",
       "note": "La date de livraison fait foi. Montants hors TVA, avant impôt sur le revenu."
     }
+  },
+  "profileGaps": {
+    "title": "Complétez les données de votre société",
+    "body": "Il manque : {sections}. Elles servent aux devis, aux factures et aux règles de TVA. Cela prend deux minutes.",
+    "cta": "Compléter maintenant",
+    "sections": {
+      "company": "société et n° de TVA",
+      "address": "siège",
+      "contact": "contacts",
+      "tax": "fiscalité et TVA"
+    },
+    "pageTitle": "Données de la société",
+    "pageIntro": "Les mêmes données que dans l'onboarding, avec les mêmes contrôles. Elles figurent sur vos devis.",
+    "todo": "À compléter",
+    "done": "Complété",
+    "back": "← Retour au compte",
+    "noPermission": "Seul le propriétaire ou un administrateur peut modifier les données de la société."
   }
 }

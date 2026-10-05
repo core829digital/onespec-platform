@@ -7,6 +7,7 @@ import { Topbar } from "./topbar";
 import { MobileNav } from "./mobile-nav";
 import { SkipToMainContent } from "./skip-link";
 import { PlanGate } from "./plan-gate";
+import { ProfileGapsBanner } from "./profile-gaps-banner";
 
 export function AppShell({
   tenant,
@@ -32,6 +33,7 @@ export function AppShell({
       <div className="relative flex h-screen min-w-0 flex-1 flex-col">
         <Topbar onMenuClick={() => setMobileOpen(true)} plan={tenant.plan} tenantId={tenant._id} />
         <main id="main-content" className="flex-1 overflow-y-auto p-4 sm:p-6">
+          <ProfileGapsBanner />
           <PlanGate tenant={tenant}>{children}</PlanGate>
         </main>
       </div>
