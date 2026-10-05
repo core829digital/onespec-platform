@@ -5,7 +5,7 @@
 import { mutation, query, type MutationCtx } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
 import type { Doc, Id } from "./_generated/dataModel";
-import { requirePermission } from "./lib/rbac";
+import { requirePermission, roleAtLeast } from "./lib/rbac";
 import { must } from "./lib/validate";
 import { lockedSafeLeadName } from "./lib/quotaLock";
 import { checkEmail, checkPersonName, checkPhone, checkText, checkCompanyName, type CountryCode } from "../src/shared/validation";
@@ -62,6 +62,15 @@ async function ownSupply(ctx: MutationCtx, id: Id<"supplies">, action: "quotes.u
   await requirePermission(ctx, s.tenantId, action);
   return s;
 }
+
+/** Whether the caller may revert / delete (admins and owners); the UI hides those buttons otherwise. */
+export const access = query({
+  args: { tenantId: v.id("tenants") },
+  handler: async (ctx, args) => {
+    const { membership } = await requirePermission(ctx, args.tenantId, "quotes.use");
+    return { canManage: roleAtLeast(membership.role, "admin") };
+  },
+});
 
 // ── Partners ────────────────────────────────────────────────────────────────
 

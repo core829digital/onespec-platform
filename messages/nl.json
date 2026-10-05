@@ -41,7 +41,8 @@
     "expand": "Menu uitklappen",
     "logistics": "Logistiek",
     "planNone": "Geen",
-    "referral": "Nodig uit en bespaar"
+    "referral": "Nodig uit en bespaar",
+    "supply": "Levering"
   },
   "dashboard": {
     "title": "Overzicht",
@@ -2689,6 +2690,96 @@
       "intraEu": "Intracommunautaire levering aan een bedrijf met een actief btw-nummer in VIES: 0% btw met verlegging.",
       "intraEuUnverified": "Bedrijf in een ander EU-land: 0% is pas toegestaan na de VIES-controle (verplicht). Tot dan geldt de nationale btw.",
       "export": "Klant buiten de Europese Unie: uitvoer, 0% btw (bewaar het bewijs van uitvoer)."
+    }
+  },
+  "supply": {
+    "title": "Levering",
+    "subtitle": "Volg elke levering van offerte tot aflevering en zie wat u echt verdient.",
+    "flowHint": "Elke levering doorloopt vier fasen: Offerte → Bestelling (klant heeft betaald, deal gesloten) → Productie (u betaalt de fabriek) → Levering. Alle bedragen zijn exclusief btw.",
+    "tabs": {
+      "supplies": "Leveringen",
+      "profit": "Nettowinst",
+      "partners": "Partners"
+    },
+    "stages": {
+      "quote": "Offerte",
+      "order": "Bestelling",
+      "production": "Productie",
+      "delivery": "Levering",
+      "delivered": "Geleverd"
+    },
+    "advance": {
+      "order": "Markeren als besteld (klant heeft betaald)",
+      "production": "Naar productie sturen",
+      "delivery": "Levering starten",
+      "delivered": "Markeren als geleverd"
+    },
+    "fields": {
+      "exVat": "excl. btw",
+      "profit": "Nettowinst",
+      "factoryCost": "Fabriekskosten (excl. btw)",
+      "transportCost": "Transportkosten (excl. btw)",
+      "otherCosts": "Overige kosten (excl. btw)",
+      "factoryPaid": "Fabriek betaald",
+      "factoryUnpaid": "Fabriek nog te betalen",
+      "markPaid": "Markeren als betaald",
+      "markUnpaid": "Markeren als onbetaald",
+      "producer": "Fabriek",
+      "deliverer": "Vervoerder",
+      "none": "— geen —",
+      "save": "Opslaan"
+    },
+    "amount": {
+      "REQUIRED": "Voer een bedrag in.",
+      "NOT_A_NUMBER": "Ongeldig bedrag: alleen cijfers en één komma of punt (bijv. 1250,50).",
+      "TOO_MANY_DECIMALS": "Hoogstens twee decimalen.",
+      "NEGATIVE": "Het bedrag mag niet negatief zijn.",
+      "TOO_LARGE": "Bedrag te hoog."
+    },
+    "confirmRevert": "Een stap terug wist wat in de huidige fase is ingevoerd. Doorgaan?",
+    "revert": "Een stap terug",
+    "confirmRemove": "Deze levering verwijderen? Alleen mogelijk vóór de productie.",
+    "remove": "Verwijderen",
+    "new": {
+      "pick": "Offerte om een levering van te maken",
+      "placeholder": "Kies een offerte…",
+      "create": "Levering starten"
+    },
+    "empty": {
+      "title": "Nog geen leveringen",
+      "hint": "Zodra een klant een offerte tekent of betaalt, verschijnt de levering hier. U kunt er ook met de hand een starten vanuit een offerte."
+    },
+    "profit": {
+      "intro": "Nettowinst = wat de klant betaalde zonder btw, min fabrieks-, transport- en overige kosten. Alleen geleverde leveringen tellen mee.",
+      "revenue": "Ontvangen (excl. btw)",
+      "costs": "Kosten",
+      "supplies": "Leveringen",
+      "expectedTitle": "Nog lopend",
+      "expectedLine": "{count} open leveringen: verwachte winst {amount} (met de tot nu toe ingevoerde kosten).",
+      "note": "Bedragen exclusief btw en vóór inkomstenbelasting: er wordt geen belasting afgetrokken. Controleer uw echte belastingdruk bij uw boekhouder.",
+      "period": {
+        "1": "Maand",
+        "3": "Kwartaal",
+        "6": "Halfjaar",
+        "12": "Jaar",
+        "24": "2 jaar",
+        "36": "3 jaar",
+        "60": "5 jaar",
+        "120": "10 jaar"
+      }
+    },
+    "partners": {
+      "intro": "De bedrijven waarmee u werkt: wie de ramen maakt en wie ze levert. Eén bedrijf kan beide doen.",
+      "name": "Bedrijfsnaam",
+      "email": "E-mail (optioneel)",
+      "roles": "Rollen",
+      "producer": "Maakt de ramen",
+      "deliverer": "Levert",
+      "add": "Partner toevoegen",
+      "empty": "Nog geen partners.",
+      "archived": "gearchiveerd",
+      "archive": "Archiveren",
+      "restore": "Heractiveren"
     }
   }
 }

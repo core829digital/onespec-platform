@@ -102,6 +102,8 @@ describe("supply flow", () => {
     const id = await asOwner.mutation(api.supplies.createFromQuote, { quoteId });
     await asOwner.mutation(api.supplies.advance, { supplyId: id });
     await asOwner.mutation(api.supplies.advance, { supplyId: id, factoryCostCents: 500 });
+    expect(await asMember.query(api.supplies.access, { tenantId })).toEqual({ canManage: false });
+    expect(await asOwner.query(api.supplies.access, { tenantId })).toEqual({ canManage: true });
     await expect(asMember.mutation(api.supplies.revert, { supplyId: id })).rejects.toThrow(/INSUFFICIENT_ROLE/);
     await expect(asOwner.mutation(api.supplies.remove, { supplyId: id })).rejects.toThrow(/SUPPLY_CANNOT_DELETE/);
     await asOwner.mutation(api.supplies.revert, { supplyId: id });

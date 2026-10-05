@@ -41,7 +41,8 @@
     "expand": "Développer le menu",
     "logistics": "Logistique",
     "planNone": "Aucun",
-    "referral": "Inviter et économiser"
+    "referral": "Inviter et économiser",
+    "supply": "Fourniture"
   },
   "dashboard": {
     "title": "Aperçu",
@@ -2689,6 +2690,96 @@
       "intraEu": "Livraison intracommunautaire à une entreprise dont le n° de TVA est actif dans VIES : TVA 0 % avec autoliquidation.",
       "intraEuUnverified": "Entreprise d'un autre pays de l'UE : 0 % n'est permis qu'après la vérification VIES (obligatoire). D'ici là, la TVA nationale s'applique.",
       "export": "Client hors de l'Union européenne : exportation, TVA 0 % (conservez la preuve de sortie des biens)."
+    }
+  },
+  "supply": {
+    "title": "Fourniture",
+    "subtitle": "Suivez chaque fourniture du devis à la livraison et voyez ce que vous gagnez vraiment.",
+    "flowHint": "Chaque fourniture suit quatre étapes : Devis → Commande (le client a payé, affaire conclue) → Production (vous payez l'usine) → Livraison. Tous les montants sont hors TVA.",
+    "tabs": {
+      "supplies": "Fournitures",
+      "profit": "Bénéfice net",
+      "partners": "Partenaires"
+    },
+    "stages": {
+      "quote": "Devis",
+      "order": "Commande",
+      "production": "Production",
+      "delivery": "Livraison",
+      "delivered": "Livrée"
+    },
+    "advance": {
+      "order": "Marquer comme commandée (client a payé)",
+      "production": "Envoyer en production",
+      "delivery": "Lancer la livraison",
+      "delivered": "Marquer comme livrée"
+    },
+    "fields": {
+      "exVat": "HT",
+      "profit": "Bénéfice net",
+      "factoryCost": "Coût usine (HT)",
+      "transportCost": "Coût transport (HT)",
+      "otherCosts": "Autres coûts (HT)",
+      "factoryPaid": "Usine payée",
+      "factoryUnpaid": "Usine à payer",
+      "markPaid": "Marquer comme payée",
+      "markUnpaid": "Marquer comme non payée",
+      "producer": "Usine",
+      "deliverer": "Transporteur",
+      "none": "— aucun —",
+      "save": "Enregistrer"
+    },
+    "amount": {
+      "REQUIRED": "Saisissez un montant.",
+      "NOT_A_NUMBER": "Montant invalide : chiffres et une seule virgule ou point (ex. 1250,50).",
+      "TOO_MANY_DECIMALS": "Deux décimales au maximum.",
+      "NEGATIVE": "Le montant ne peut pas être négatif.",
+      "TOO_LARGE": "Montant trop élevé."
+    },
+    "confirmRevert": "Revenir en arrière efface ce qui a été saisi à l'étape actuelle. Continuer ?",
+    "revert": "Revenir",
+    "confirmRemove": "Supprimer cette fourniture ? Possible uniquement avant la production.",
+    "remove": "Supprimer",
+    "new": {
+      "pick": "Devis à transformer en fourniture",
+      "placeholder": "Choisissez un devis…",
+      "create": "Démarrer la fourniture"
+    },
+    "empty": {
+      "title": "Aucune fourniture pour l'instant",
+      "hint": "Quand un client signe ou paie un devis, sa fourniture apparaît ici. Vous pouvez aussi la démarrer à la main depuis un devis."
+    },
+    "profit": {
+      "intro": "Bénéfice net = encaissé du client hors TVA, moins coût usine, transport et autres coûts. Seules les fournitures livrées comptent.",
+      "revenue": "Encaissé (HT)",
+      "costs": "Coûts",
+      "supplies": "Fournitures",
+      "expectedTitle": "Encore en cours",
+      "expectedLine": "{count} fournitures ouvertes : bénéfice prévu {amount} (avec les coûts déjà saisis).",
+      "note": "Montants hors TVA et avant impôt sur le revenu : aucun impôt n'est déduit. Vérifiez votre charge fiscale réelle avec votre comptable.",
+      "period": {
+        "1": "Mois",
+        "3": "Trimestre",
+        "6": "Semestre",
+        "12": "Année",
+        "24": "2 ans",
+        "36": "3 ans",
+        "60": "5 ans",
+        "120": "10 ans"
+      }
+    },
+    "partners": {
+      "intro": "Les entreprises avec lesquelles vous travaillez : qui fabrique les fenêtres et qui les livre. Une même entreprise peut faire les deux.",
+      "name": "Raison sociale",
+      "email": "E-mail (facultatif)",
+      "roles": "Rôles",
+      "producer": "Fabrique les fenêtres",
+      "deliverer": "Livre",
+      "add": "Ajouter un partenaire",
+      "empty": "Aucun partenaire pour l'instant.",
+      "archived": "archivé",
+      "archive": "Archiver",
+      "restore": "Réactiver"
     }
   }
 }

@@ -41,7 +41,8 @@
     "expand": "Espandi il menu",
     "logistics": "Logistica",
     "planNone": "Nessuno",
-    "referral": "Invita e risparmia"
+    "referral": "Invita e risparmia",
+    "supply": "Fornitura"
   },
   "dashboard": {
     "title": "Panoramica",
@@ -2689,6 +2690,96 @@
       "intraEu": "Cessione intracomunitaria verso un'azienda con partita IVA attiva in VIES: IVA 0% con inversione contabile.",
       "intraEuUnverified": "Azienda di un altro paese UE: lo 0% è consentito solo dopo la verifica VIES (obbligatoria). Finché non è verificata si applica l'IVA nazionale.",
       "export": "Cliente fuori dall'Unione europea: esportazione, IVA 0% (conserva la prova di uscita dei beni)."
+    }
+  },
+  "supply": {
+    "title": "Fornitura",
+    "subtitle": "Segui ogni fornitura dal preventivo alla consegna e scopri quanto guadagni davvero.",
+    "flowHint": "Ogni fornitura segue quattro passaggi: Preventivo → Ordine (il cliente ha pagato, affare chiuso) → Produzione (paghi la fabbrica) → Consegna. Tutti gli importi sono senza IVA.",
+    "tabs": {
+      "supplies": "Forniture",
+      "profit": "Profitto netto",
+      "partners": "Fornitori"
+    },
+    "stages": {
+      "quote": "Preventivo",
+      "order": "Ordine",
+      "production": "Produzione",
+      "delivery": "Consegna",
+      "delivered": "Consegnata"
+    },
+    "advance": {
+      "order": "Segna come ordinato (cliente ha pagato)",
+      "production": "Manda in produzione",
+      "delivery": "Avvia la consegna",
+      "delivered": "Segna come consegnata"
+    },
+    "fields": {
+      "exVat": "senza IVA",
+      "profit": "Profitto netto",
+      "factoryCost": "Costo fabbrica (senza IVA)",
+      "transportCost": "Costo trasporto (senza IVA)",
+      "otherCosts": "Altri costi (senza IVA)",
+      "factoryPaid": "Fabbrica pagata",
+      "factoryUnpaid": "Fabbrica da pagare",
+      "markPaid": "Segna come pagata",
+      "markUnpaid": "Segna come non pagata",
+      "producer": "Fabbrica",
+      "deliverer": "Trasportatore",
+      "none": "— nessuno —",
+      "save": "Salva"
+    },
+    "amount": {
+      "REQUIRED": "Inserisci un importo.",
+      "NOT_A_NUMBER": "Importo non valido: usa solo cifre e una virgola (es. 1250,50).",
+      "TOO_MANY_DECIMALS": "Al massimo due decimali.",
+      "NEGATIVE": "L'importo non può essere negativo.",
+      "TOO_LARGE": "Importo troppo alto."
+    },
+    "confirmRevert": "Tornare al passaggio precedente cancella i dati inseriti in quello attuale. Continuare?",
+    "revert": "Passo indietro",
+    "confirmRemove": "Eliminare questa fornitura? Si può fare solo prima della produzione.",
+    "remove": "Elimina",
+    "new": {
+      "pick": "Preventivo da trasformare in fornitura",
+      "placeholder": "Scegli un preventivo…",
+      "create": "Avvia fornitura"
+    },
+    "empty": {
+      "title": "Nessuna fornitura ancora",
+      "hint": "Quando un cliente firma o paga un preventivo, la fornitura compare qui. Puoi anche avviarla a mano da un preventivo."
+    },
+    "profit": {
+      "intro": "Profitto netto = incassato dal cliente senza IVA, meno costo fabbrica, trasporto e altri costi. Conta solo ciò che è stato consegnato.",
+      "revenue": "Incassato (senza IVA)",
+      "costs": "Costi",
+      "supplies": "Forniture",
+      "expectedTitle": "Ancora in corso",
+      "expectedLine": "{count} forniture aperte: profitto previsto {amount} (con i costi già inseriti).",
+      "note": "Importi senza IVA e prima delle imposte sul reddito: nessuna tassa è sottratta. Per il carico fiscale reale confrontati con il tuo commercialista.",
+      "period": {
+        "1": "Mese",
+        "3": "Trimestre",
+        "6": "Semestre",
+        "12": "Anno",
+        "24": "2 anni",
+        "36": "3 anni",
+        "60": "5 anni",
+        "120": "10 anni"
+      }
+    },
+    "partners": {
+      "intro": "Le aziende con cui lavori: chi produce i serramenti e chi li consegna. Una stessa azienda può fare entrambe le cose.",
+      "name": "Ragione sociale",
+      "email": "Email (facoltativa)",
+      "roles": "Ruoli",
+      "producer": "Produce i serramenti",
+      "deliverer": "Consegna",
+      "add": "Aggiungi fornitore",
+      "empty": "Nessun fornitore ancora.",
+      "archived": "archiviato",
+      "archive": "Archivia",
+      "restore": "Riattiva"
     }
   }
 }

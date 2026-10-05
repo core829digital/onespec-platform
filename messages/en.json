@@ -41,7 +41,8 @@
     "expand": "Expand menu",
     "logistics": "Logistics",
     "planNone": "None",
-    "referral": "Invite & save"
+    "referral": "Invite & save",
+    "supply": "Supply"
   },
   "dashboard": {
     "title": "Overview",
@@ -2689,6 +2690,96 @@
       "intraEu": "Intra-Community supply to a business whose VAT number is active in VIES: 0% VAT with reverse charge.",
       "intraEuUnverified": "Business in another EU country: 0% is allowed only after the VIES check (mandatory). Until then the national VAT applies.",
       "export": "Customer outside the European Union: export, 0% VAT (keep the proof that the goods left)."
+    }
+  },
+  "supply": {
+    "title": "Supply",
+    "subtitle": "Follow every supply from quote to delivery and see what you really earn.",
+    "flowHint": "Every supply goes through four stages: Quote → Order (the customer paid, deal closed) → Production (you pay the factory) → Delivery. All amounts exclude VAT.",
+    "tabs": {
+      "supplies": "Supplies",
+      "profit": "Net profit",
+      "partners": "Partners"
+    },
+    "stages": {
+      "quote": "Quote",
+      "order": "Order",
+      "production": "Production",
+      "delivery": "Delivery",
+      "delivered": "Delivered"
+    },
+    "advance": {
+      "order": "Mark as ordered (customer paid)",
+      "production": "Send to production",
+      "delivery": "Start delivery",
+      "delivered": "Mark as delivered"
+    },
+    "fields": {
+      "exVat": "ex VAT",
+      "profit": "Net profit",
+      "factoryCost": "Factory cost (ex VAT)",
+      "transportCost": "Transport cost (ex VAT)",
+      "otherCosts": "Other costs (ex VAT)",
+      "factoryPaid": "Factory paid",
+      "factoryUnpaid": "Factory to be paid",
+      "markPaid": "Mark as paid",
+      "markUnpaid": "Mark as unpaid",
+      "producer": "Factory",
+      "deliverer": "Deliverer",
+      "none": "— none —",
+      "save": "Save"
+    },
+    "amount": {
+      "REQUIRED": "Enter an amount.",
+      "NOT_A_NUMBER": "Invalid amount: use digits and one comma or dot only (e.g. 1250.50).",
+      "TOO_MANY_DECIMALS": "At most two decimals.",
+      "NEGATIVE": "The amount cannot be negative.",
+      "TOO_LARGE": "Amount too large."
+    },
+    "confirmRevert": "Going back clears what was entered in the current stage. Continue?",
+    "revert": "Step back",
+    "confirmRemove": "Delete this supply? Only possible before production.",
+    "remove": "Delete",
+    "new": {
+      "pick": "Quote to turn into a supply",
+      "placeholder": "Choose a quote…",
+      "create": "Start supply"
+    },
+    "empty": {
+      "title": "No supplies yet",
+      "hint": "When a customer signs or pays a quote, its supply appears here. You can also start one by hand from a quote."
+    },
+    "profit": {
+      "intro": "Net profit = what the customer paid without VAT, minus factory cost, transport and other costs. Only delivered supplies count.",
+      "revenue": "Received (ex VAT)",
+      "costs": "Costs",
+      "supplies": "Supplies",
+      "expectedTitle": "Still open",
+      "expectedLine": "{count} open supplies: expected profit {amount} (with the costs entered so far).",
+      "note": "Amounts exclude VAT and are before income taxes: no tax is subtracted. Check your real tax burden with your accountant.",
+      "period": {
+        "1": "Month",
+        "3": "Quarter",
+        "6": "Semester",
+        "12": "Year",
+        "24": "2 years",
+        "36": "3 years",
+        "60": "5 years",
+        "120": "10 years"
+      }
+    },
+    "partners": {
+      "intro": "The companies you work with: who makes the windows and who delivers them. One company can do both.",
+      "name": "Company name",
+      "email": "Email (optional)",
+      "roles": "Roles",
+      "producer": "Makes the windows",
+      "deliverer": "Delivers",
+      "add": "Add partner",
+      "empty": "No partners yet.",
+      "archived": "archived",
+      "archive": "Archive",
+      "restore": "Restore"
     }
   }
 }

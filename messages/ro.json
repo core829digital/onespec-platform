@@ -41,7 +41,8 @@
     "expand": "Extinde meniul",
     "logistics": "Logistică",
     "planNone": "Niciunul",
-    "referral": "Invită și economisește"
+    "referral": "Invită și economisește",
+    "supply": "Furnizare"
   },
   "dashboard": {
     "title": "Prezentare generală",
@@ -2689,6 +2690,96 @@
       "intraEu": "Livrare intracomunitară către o companie cu cod TVA activ în VIES: TVA 0% cu taxare inversă.",
       "intraEuUnverified": "Companie dintr-un alt stat UE: 0% este permis doar după verificarea VIES (obligatorie). Până atunci se aplică TVA național.",
       "export": "Client în afara Uniunii Europene: export, TVA 0% (păstrați dovada ieșirii bunurilor)."
+    }
+  },
+  "supply": {
+    "title": "Furnizare",
+    "subtitle": "Urmărește fiecare furnizare de la ofertă la livrare și vezi cât câștigi cu adevărat.",
+    "flowHint": "Fiecare furnizare trece prin patru etape: Ofertă → Comandă (clientul a plătit, afacerea e încheiată) → Producție (plătești fabrica) → Livrare. Toate sumele sunt fără TVA.",
+    "tabs": {
+      "supplies": "Furnizări",
+      "profit": "Profit net",
+      "partners": "Parteneri"
+    },
+    "stages": {
+      "quote": "Ofertă",
+      "order": "Comandă",
+      "production": "Producție",
+      "delivery": "Livrare",
+      "delivered": "Livrată"
+    },
+    "advance": {
+      "order": "Marchează ca comandată (clientul a plătit)",
+      "production": "Trimite în producție",
+      "delivery": "Pornește livrarea",
+      "delivered": "Marchează ca livrată"
+    },
+    "fields": {
+      "exVat": "fără TVA",
+      "profit": "Profit net",
+      "factoryCost": "Cost fabrică (fără TVA)",
+      "transportCost": "Cost transport (fără TVA)",
+      "otherCosts": "Alte costuri (fără TVA)",
+      "factoryPaid": "Fabrică plătită",
+      "factoryUnpaid": "Fabrică de plătit",
+      "markPaid": "Marchează ca plătită",
+      "markUnpaid": "Marchează ca neplătită",
+      "producer": "Fabrică",
+      "deliverer": "Transportator",
+      "none": "— niciunul —",
+      "save": "Salvează"
+    },
+    "amount": {
+      "REQUIRED": "Introdu o sumă.",
+      "NOT_A_NUMBER": "Sumă invalidă: doar cifre și o virgulă sau un punct (ex. 1250,50).",
+      "TOO_MANY_DECIMALS": "Cel mult două zecimale.",
+      "NEGATIVE": "Suma nu poate fi negativă.",
+      "TOO_LARGE": "Sumă prea mare."
+    },
+    "confirmRevert": "Revenirea șterge datele introduse în etapa curentă. Continui?",
+    "revert": "Pas înapoi",
+    "confirmRemove": "Ștergi această furnizare? Posibil doar înainte de producție.",
+    "remove": "Șterge",
+    "new": {
+      "pick": "Oferta de transformat în furnizare",
+      "placeholder": "Alege o ofertă…",
+      "create": "Pornește furnizarea"
+    },
+    "empty": {
+      "title": "Nicio furnizare încă",
+      "hint": "Când un client semnează sau plătește o ofertă, furnizarea apare aici. O poți porni și manual dintr-o ofertă."
+    },
+    "profit": {
+      "intro": "Profit net = ce a plătit clientul fără TVA, minus costul fabricii, transportul și alte costuri. Contează doar furnizările livrate.",
+      "revenue": "Încasat (fără TVA)",
+      "costs": "Costuri",
+      "supplies": "Furnizări",
+      "expectedTitle": "Încă în curs",
+      "expectedLine": "{count} furnizări deschise: profit estimat {amount} (cu costurile introduse până acum).",
+      "note": "Sume fără TVA și înainte de impozitul pe venit: nu se scade niciun impozit. Verifică povara fiscală reală cu contabilul tău.",
+      "period": {
+        "1": "Lună",
+        "3": "Trimestru",
+        "6": "Semestru",
+        "12": "An",
+        "24": "2 ani",
+        "36": "3 ani",
+        "60": "5 ani",
+        "120": "10 ani"
+      }
+    },
+    "partners": {
+      "intro": "Firmele cu care lucrezi: cine produce ferestrele și cine le livrează. O firmă poate face ambele.",
+      "name": "Denumirea firmei",
+      "email": "E-mail (opțional)",
+      "roles": "Roluri",
+      "producer": "Produce ferestrele",
+      "deliverer": "Livrează",
+      "add": "Adaugă partener",
+      "empty": "Niciun partener încă.",
+      "archived": "arhivat",
+      "archive": "Arhivează",
+      "restore": "Reactivează"
     }
   }
 }

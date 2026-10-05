@@ -20,6 +20,7 @@ import {
   Receipt,
   Truck,
   Gift,
+  PackageCheck,
   type LucideIcon,
 } from "lucide-react";
 import type { GatedFeature } from "@/lib/plan-gates";
@@ -57,6 +58,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: "/app/showroom", label: "showroom", icon: Store, feature: "showroom" },
       { href: "/app/requests", label: "requests", icon: FileText },
       { href: "/app/quotes", label: "quotes", icon: PenLine, feature: "fieldQuotes" },
+      { href: "/app/supply", label: "supply", icon: PackageCheck },
       { href: "/app/pipeline", label: "pipeline", icon: KanbanSquare, feature: "crm" },
     ],
   },

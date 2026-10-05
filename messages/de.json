@@ -41,7 +41,8 @@
     "expand": "Menü ausklappen",
     "logistics": "Logistik",
     "planNone": "Keiner",
-    "referral": "Einladen & sparen"
+    "referral": "Einladen & sparen",
+    "supply": "Lieferung"
   },
   "dashboard": {
     "title": "Übersicht",
@@ -2689,6 +2690,96 @@
       "intraEu": "Innergemeinschaftliche Lieferung an ein Unternehmen mit aktiver USt-IdNr. in VIES: 0 % MwSt. mit Reverse Charge.",
       "intraEuUnverified": "Unternehmen in einem anderen EU-Land: 0 % ist erst nach der VIES-Prüfung (Pflicht) erlaubt. Bis dahin gilt die nationale MwSt.",
       "export": "Kunde außerhalb der Europäischen Union: Ausfuhr, 0 % MwSt. (Ausfuhrnachweis aufbewahren)."
+    }
+  },
+  "supply": {
+    "title": "Lieferung",
+    "subtitle": "Verfolgen Sie jede Lieferung vom Angebot bis zur Auslieferung und sehen Sie, was Sie wirklich verdienen.",
+    "flowHint": "Jede Lieferung durchläuft vier Phasen: Angebot → Bestellung (Kunde hat bezahlt, Geschäft abgeschlossen) → Produktion (Sie bezahlen die Fabrik) → Lieferung. Alle Beträge ohne MwSt.",
+    "tabs": {
+      "supplies": "Lieferungen",
+      "profit": "Nettogewinn",
+      "partners": "Partner"
+    },
+    "stages": {
+      "quote": "Angebot",
+      "order": "Bestellung",
+      "production": "Produktion",
+      "delivery": "Lieferung",
+      "delivered": "Geliefert"
+    },
+    "advance": {
+      "order": "Als bestellt markieren (Kunde hat bezahlt)",
+      "production": "In Produktion geben",
+      "delivery": "Lieferung starten",
+      "delivered": "Als geliefert markieren"
+    },
+    "fields": {
+      "exVat": "netto",
+      "profit": "Nettogewinn",
+      "factoryCost": "Fabrikkosten (netto)",
+      "transportCost": "Transportkosten (netto)",
+      "otherCosts": "Sonstige Kosten (netto)",
+      "factoryPaid": "Fabrik bezahlt",
+      "factoryUnpaid": "Fabrik noch zu bezahlen",
+      "markPaid": "Als bezahlt markieren",
+      "markUnpaid": "Als unbezahlt markieren",
+      "producer": "Fabrik",
+      "deliverer": "Spediteur",
+      "none": "— keiner —",
+      "save": "Speichern"
+    },
+    "amount": {
+      "REQUIRED": "Geben Sie einen Betrag ein.",
+      "NOT_A_NUMBER": "Ungültiger Betrag: nur Ziffern und ein Komma oder Punkt (z. B. 1250,50).",
+      "TOO_MANY_DECIMALS": "Höchstens zwei Dezimalstellen.",
+      "NEGATIVE": "Der Betrag darf nicht negativ sein.",
+      "TOO_LARGE": "Betrag zu hoch."
+    },
+    "confirmRevert": "Ein Schritt zurück löscht die Eingaben der aktuellen Phase. Fortfahren?",
+    "revert": "Schritt zurück",
+    "confirmRemove": "Diese Lieferung löschen? Nur vor der Produktion möglich.",
+    "remove": "Löschen",
+    "new": {
+      "pick": "Angebot, aus dem eine Lieferung wird",
+      "placeholder": "Angebot wählen …",
+      "create": "Lieferung starten"
+    },
+    "empty": {
+      "title": "Noch keine Lieferungen",
+      "hint": "Sobald ein Kunde ein Angebot unterschreibt oder bezahlt, erscheint die Lieferung hier. Sie können sie auch von Hand aus einem Angebot starten."
+    },
+    "profit": {
+      "intro": "Nettogewinn = Kundenzahlung ohne MwSt. minus Fabrik-, Transport- und sonstige Kosten. Es zählen nur gelieferte Lieferungen.",
+      "revenue": "Eingenommen (netto)",
+      "costs": "Kosten",
+      "supplies": "Lieferungen",
+      "expectedTitle": "Noch offen",
+      "expectedLine": "{count} offene Lieferungen: erwarteter Gewinn {amount} (mit den bisher erfassten Kosten).",
+      "note": "Beträge ohne MwSt. und vor Einkommensteuer: Es werden keine Steuern abgezogen. Die tatsächliche Steuerlast klären Sie mit Ihrem Steuerberater.",
+      "period": {
+        "1": "Monat",
+        "3": "Quartal",
+        "6": "Halbjahr",
+        "12": "Jahr",
+        "24": "2 Jahre",
+        "36": "3 Jahre",
+        "60": "5 Jahre",
+        "120": "10 Jahre"
+      }
+    },
+    "partners": {
+      "intro": "Die Firmen, mit denen Sie arbeiten: wer die Fenster herstellt und wer sie liefert. Eine Firma kann beides tun.",
+      "name": "Firmenname",
+      "email": "E-Mail (optional)",
+      "roles": "Rollen",
+      "producer": "Stellt die Fenster her",
+      "deliverer": "Liefert",
+      "add": "Partner hinzufügen",
+      "empty": "Noch keine Partner.",
+      "archived": "archiviert",
+      "archive": "Archivieren",
+      "restore": "Reaktivieren"
     }
   }
 }
