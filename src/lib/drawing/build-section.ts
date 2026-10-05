@@ -29,9 +29,10 @@ export function glazingThicknessMm(glazing: string | undefined): number {
   return glazingShape(glazing).depthMm;
 }
 
-/** How many partitions a PVC profile shows: 5-chamber or 7-chamber systems. */
-export function pvcChambers(quality: string | undefined): 5 | 7 {
-  return /7/.test(quality ?? "") ? 7 : 5;
+/** How many partitions a PVC profile shows: its number of chambers (5, 6 or 7; "chamber6", "6 camere"...). Unknown = 5. */
+export function pvcChambers(quality: string | undefined): number {
+  const m = /([5-8])/.exec(quality ?? "");
+  return m ? Number(m[1]) : 5;
 }
 
 function renovationBandMm(frameType: string | undefined): number {

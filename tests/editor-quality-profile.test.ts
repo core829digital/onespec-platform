@@ -12,7 +12,7 @@ import { defaultItem } from "../src/shared/item-defaults";
 import { blockingIssues, pieceIssues } from "../src/shared/piece-ops";
 import { glazingPackageRows } from "../src/shared/glazing-packages";
 import { STANDARD_PROFILES, standardProfileLabels } from "../src/shared/standard-pricing";
-import type { CatalogPayload, ProjectItem } from "../src/shared/pricing";
+import { computeItemThermal, type CatalogPayload, type ProjectItem } from "../src/shared/pricing";
 
 vi.mock("@/components/quotes/sash-panel", () => ({ SashPanel: () => null }));
 
@@ -140,5 +140,14 @@ describe("the piece form (server render)", () => {
     const html = render([defaultItem(payload, "finestra1")]);
     const quality = /<select id="[^"]*-quality"[\s\S]*?<\/select>/.exec(html)?.[0] ?? "";
     expect([...quality.matchAll(/<option value="(chamber\d)"/g)].map((m) => m[1])).toEqual(["chamber5", "chamber6", "chamber7"]);
+  });
+});
+
+describe("thermal data follow the quality, 6 chambers included", () => {
+  test("Uw improves with the number of chambers on the same profile data (5 > 6 > 7)", () => {
+    const base = defaultItem(payload, "finestra1");
+    const uw = (q: string) => computeItemThermal(payload, { ...base, quality: { pvc: q } }).uw;
+    expect(uw("chamber5")).toBeGreaterThan(uw("chamber6"));
+    expect(uw("chamber6")).toBeGreaterThan(uw("chamber7"));
   });
 });

@@ -5,6 +5,7 @@ import { buildScene } from "@/lib/drawing/build-scene";
 import { finishFillFor } from "@/lib/drawing/finish-fill";
 import { sceneToSvg } from "@/lib/drawing/to-svg";
 import { dictFor, openingLabel } from "./dictionary";
+import { pieceSpecs } from "./specs";
 
 interface Labelled {
   key: string;
@@ -32,6 +33,10 @@ export interface ExportPiece {
   widthMm: number;
   heightMm: number;
   profile: string;
+  /** Quality tier ("6 camere") and the technical lines of the profile and of the glazing unit. */
+  quality: string;
+  profileSpec: string;
+  glassUnit: string;
   finish: string;
   glazing: string;
   frame: string;
@@ -104,6 +109,7 @@ export function buildExportModel(input: ExportInput): ExportModel {
       widthMm: item.width,
       heightMm: item.height,
       profile: lab(payload.profileSystems?.find((p) => p.materialKey === item.material && p.key === item.profileSystem), locale, item.profileSystem ?? ""),
+      ...(({ quality, profileSpec, glassUnit }) => ({ quality, profileSpec, glassUnit }))(pieceSpecs(payload, item, locale, dict)),
       finish: lab(payload.finish.find((f) => f.key === item.color), locale, item.color),
       glazing: lab(payload.glazing.find((g) => g.key === item.glazing), locale, item.glazing),
       frame: lab(payload.frameTypes?.find((f) => f.key === item.frameType), locale, ""),

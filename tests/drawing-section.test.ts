@@ -16,6 +16,15 @@ describe("section of the profile", () => {
     expect(glazingThicknessMm("double")).toBe(24);
     expect(pvcChambers("chamber7")).toBe(7);
     expect(pvcChambers("chamber5")).toBe(5);
+    expect(pvcChambers("chamber6")).toBe(6);
+    expect(pvcChambers("6 camere")).toBe(6);
+    expect(pvcChambers(undefined)).toBe(5);
+  });
+
+  it("the section shows more partitions for 6 chambers than for 5, and for 7 than for 6", () => {
+    const chambers = (q: string) => buildSectionScene({ material: "pvc", glazing: "double", quality: q }).primitives.filter((p) => (p as { part?: string }).part === "chamber").length;
+    expect(chambers("chamber5")).toBeLessThan(chambers("chamber6"));
+    expect(chambers("chamber6")).toBeLessThan(chambers("chamber7"));
   });
 
   it("draws every material in every language with finite coordinates inside the viewBox", () => {

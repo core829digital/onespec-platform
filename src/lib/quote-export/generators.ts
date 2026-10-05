@@ -27,6 +27,8 @@ export function buildTxt(m: ExportModel): string {
   out.push("");
   for (const p of m.pieces) {
     out.push(`${p.index}. ${p.category} ${p.widthMm}x${p.heightMm} mm × ${p.quantity} — ${p.profile} — ${p.glazing} — ${p.finish}${p.frame ? ` — ${d.frame}: ${p.frame}` : ""}`);
+    const tech = [p.quality ? `${d.quality}: ${p.quality}` : "", p.profileSpec, p.glassUnit ? `${d.glassUnit}: ${p.glassUnit}` : ""].filter(Boolean).join(" — ");
+    if (tech) out.push(`   ${tech}`);
     for (const l of leafLine(m, p)) out.push(`   ${l}`);
     if (p.accessories.length) out.push(`   ${d.accessories}: ${p.accessories.join(", ")}`);
     out.push(`   ${d.thermal}: ${p.uw.toFixed(3)} W/m²K — ${eur(p.totalCents, m.locale)}`);
@@ -112,7 +114,8 @@ export function buildHtml(m: ExportModel): string {
 <h3>${p.index}. ${esc(p.category)}: ${p.widthMm} × ${p.heightMm} mm × ${p.quantity}</h3>
 <div class="cols"><div class="draw">${p.drawingSvg ?? ""}</div><div class="info">
 <p><b>${esc(d.profile)}:</b> ${esc(p.profile)} · <b>${esc(d.finish)}:</b> ${esc(p.finish)}${p.frame ? ` · <b>${esc(d.frame)}:</b> ${esc(p.frame)}` : ""}</p>
-<p><b>${esc(d.glazing)}:</b> ${esc(p.glazing)}</p>
+<p><b>${esc(d.glazing)}:</b> ${esc(p.glazing)}${p.glassUnit ? ` · ${esc(p.glassUnit)}` : ""}</p>
+${p.quality || p.profileSpec ? `<p><b>${esc(d.quality)}:</b> ${esc([p.quality, p.profileSpec].filter(Boolean).join(" · "))}</p>` : ""}
 <ul>${leafLine(m, p).map((l) => `<li>${esc(l)}</li>`).join("")}</ul>
 ${p.accessories.length ? `<p><b>${esc(d.accessories)}:</b> ${esc(p.accessories.join(", "))}</p>` : ""}
 <p class="uw">${esc(d.thermal)}: ${p.uw.toFixed(3)} W/m²K</p>

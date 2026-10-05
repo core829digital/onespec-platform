@@ -5,6 +5,7 @@ import { buildHardwareScene, buildPlanScene, buildSectionScene, DRAWING_TABS, fi
 import { CATEGORY_DEFS } from "@/shared/configurator-model";
 import { computeItemThermal, type CatalogPayload } from "@/shared/pricing";
 import { dictFor, openingLabel } from "@/lib/quote-export/dictionary";
+import { pieceSpecs } from "@/lib/quote-export/specs";
 import { CompanyLogo } from "./CompanyLogo";
 
 // Item-table column widths (header and rows share them so they stay aligned).
@@ -486,6 +487,7 @@ export function QuotePrintPDF({
             const lab = (row: { key: string; labels?: Record<string, string> } | undefined, fb: string) =>
               row ? row.labels?.[langKey] || row.labels?.it || row.labels?.en || row.key : fb;
             const category = item.category ? CATEGORY_DEFS[item.category] : undefined;
+            const specs = pieceSpecs(catalog ?? undefined, item, langKey, dict);
             const profileLabel = catalog ? lab(catalog.profileSystems?.find((p) => p.materialKey === item.material && p.key === item.profileSystem), "") : "";
             const frameLabel = catalog ? lab(catalog.frameTypes?.find((f) => f.key === item.frameType), "") : "";
             const finishRow = catalog?.finish.find((f) => f.key === item.color);
@@ -511,6 +513,7 @@ export function QuotePrintPDF({
                 <View style={{ ...styles.tableCell, width: COLS[1] }}>
                   <Text style={{ lineHeight: 1.3 }}>{category ? (category.labels[langKey] ?? category.labels.it) : item.productType === "balconyDoor" ? T.balconyDoor : T.window}</Text>
                   {profileLabel ? <Text style={{ lineHeight: 1.3, fontSize: 8, color: colors.gray[500] }}>{profileLabel}</Text> : null}
+                  {specs.quality || specs.profileSpec ? <Text style={{ lineHeight: 1.3, fontSize: 7, color: colors.gray[500] }}>{dict.quality}: {[specs.quality, specs.profileSpec].filter(Boolean).join(" · ")}</Text> : null}
                   <View style={{ flexDirection: "row", alignItems: "center", gap: 3 }}>
                     {finishRow?.texture && assetOrigin ? (
                       <Image src={`${assetOrigin}${finishRow.texture}`} style={{ width: 9, height: 9, borderWidth: 0.5, borderColor: colors.gray[300] }} />
@@ -543,6 +546,7 @@ export function QuotePrintPDF({
                 <View style={{ ...styles.tableCell, width: COLS[3] }}>
                   <Text style={{ lineHeight: 1.3 }}>{matText}</Text>
                   <Text style={{ lineHeight: 1.3, fontSize: 8, color: colors.gray[500] }}>{catalog ? lab(catalog.glazing.find((g) => g.key === item.glazing), glazingText) : glazingText}</Text>
+                  {specs.glassUnit ? <Text style={{ lineHeight: 1.3, fontSize: 8, color: colors.gray[500] }}>{specs.glassUnit}</Text> : null}
                   <Text style={{ lineHeight: 1.3, fontSize: 8, color: colors.gray[500] }}>Ug = {catalog ? (catalog.glazing.find((g) => g.key === item.glazing)?.uGlass ?? glazingInfo.ug) : glazingInfo.ug} W/m²K</Text>
                 </View>
                 <View style={{ ...styles.tableCell, width: COLS[4] }}>
