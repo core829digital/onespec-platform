@@ -1,0 +1,59 @@
+// @vitest-environment node
+import { createElement as h } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { NextIntlClientProvider } from "next-intl";
+import { describe, expect, it, vi } from "vitest";
+import it_ from "../messages/it.json";
+import en from "../messages/en.json";
+import fr from "../messages/fr.json";
+import de from "../messages/de.json";
+import nl from "../messages/nl.json";
+import ro from "../messages/ro.json";
+
+let tenant: Record<string, unknown> | null = { country: "IT", priceZone: "nord" };
+vi.mock("convex/react", () => ({ useQuery: () => tenant, useMutation: () => async () => ({}) }));
+vi.mock("@/lib/use-friendly-error", () => ({ useFriendlyError: () => (e: unknown) => String(e) }));
+
+import { PricingTab } from "@/components/configurator/pricing-tab";
+
+const cfg = (extra: object) => ({ tenantId: "t1", currency: "EUR", ...extra }) as never;
+const render = (locale: string, messages: unknown, configurator: object) =>
+  renderToStaticMarkup(h(NextIntlClientProvider, { locale, messages: messages as never, children: h(PricingTab, { configuratorId: "c1" as never, configurator: cfg(configurator) }) }));
+
+describe("pricing tab (server render)", () => {
+  it("shows slider, decimal field and the live example: Aluplast Nord 285 EUR/m2 x 1.68 m2 + 10%", () => {
+    tenant = { country: "IT", priceZone: "nord" };
+    const html = render("it", it_, { pricingMode: "standard", marginPercent: 10 });
+    expect(html).toContain('type="range"');
+    expect(html).toContain('max="100"');
+    expect(html).toContain('inputMode="decimal"');
+    expect(html).toContain('value="10"');
+    // 285 * 1.2 * 1.4 = 478.80 -> +10% = 526.68 (margin 47.88)
+    expect(html).toMatch(/478,80/);
+    expect(html).toMatch(/47,88/);
+    expect(html).toMatch(/526,68/);
+    // markup 10% = 9,09% on the selling price
+    expect(html).toContain("9,09%");
+  });
+
+  it("a decimal margin is shown with a comma and valid in every language", () => {
+    tenant = { country: "IT", priceZone: "sud" };
+    for (const [l, m] of [["it", it_], ["en", en], ["fr", fr], ["de", de], ["nl", nl], ["ro", ro]] as const) {
+      const html = render(l, m, { pricingMode: "standard", marginPercent: 12.5 });
+      expect(html).toContain('value="12,5"');
+      expect(html).not.toMatch(/pricingTab\.|priceGuide\.|priceZone\./);
+    }
+  });
+
+  it("without a zone it asks for one and shows no example; outside Italy only the margin is offered", () => {
+    tenant = { country: "IT" };
+    const noZone = render("it", it_, {});
+    expect(noZone).toContain("Scegli la zona per attivare il listino standard.");
+    expect(noZone).not.toContain("Esempio di prezzo");
+    tenant = { country: "FR" };
+    const fr_ = render("it", it_, { marginPercent: 5 });
+    expect(fr_).toContain("disponibile per l&#x27;Italia");
+    expect(fr_).toContain('type="range"');
+    expect(fr_).not.toContain("Tabella comparativa");
+  });
+});

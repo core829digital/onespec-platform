@@ -13,15 +13,17 @@ import { BrandingTab } from "@/components/configurator/branding-tab";
 import { EmbedTab } from "@/components/configurator/embed-tab";
 import { ConfigTab } from "@/components/configurator/config-tab";
 import { ImportTab } from "@/components/configurator/import-tab";
+import { PricingTab } from "@/components/configurator/pricing-tab";
 import { cn } from "@/lib/utils";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import { useLocale, useTranslations } from "next-intl";
 import { usePlanAccess } from "@/lib/plan-gates";
 
-type Tab = "general" | "catalog" | "import" | "branding" | "embed" | "config" | "versions";
+type Tab = "general" | "pricing" | "catalog" | "import" | "branding" | "embed" | "config" | "versions";
 
 const TABS: Array<{ id: Tab; labelKey: string }> = [
   { id: "general", labelKey: "tabGeneral" },
+  { id: "pricing", labelKey: "tabPricing" },
   { id: "catalog", labelKey: "tabCatalog" },
   { id: "import", labelKey: "tabImport" },
   { id: "branding", labelKey: "tabBranding" },
@@ -111,6 +113,7 @@ export default function ConfiguratorEditorPage({
       <div className="grid grid-cols-1 xl:grid-cols-[1fr_420px] gap-6 items-start">
         <div>
           {tab === "general" && <GeneralTab configuratorId={configuratorId} configurator={cfg} />}
+          {tab === "pricing" && <PricingTab configuratorId={configuratorId} configurator={cfg} />}
           {tab === "catalog" && <CatalogTab configuratorId={configuratorId} state={state} labelLang={cfg.defaultLocale} />}
           {tab === "import" && <ImportTab configuratorId={configuratorId} />}
           {tab === "branding" && <BrandingTab configuratorId={configuratorId} />}
