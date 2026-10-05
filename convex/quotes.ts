@@ -1,4 +1,5 @@
-﻿import { query, mutation } from "./_generated/server";
+﻿import { ensureOrdered } from "./lib/supply";
+import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import { requireMembership } from "./lib/auth";
@@ -99,6 +100,8 @@ export const updateStatus = mutation({
     });
     if (args.status === "won") {
       await emit(ctx, { type: "quote.won", tenantId: quote.tenantId, quoteId: args.quoteId });
+      // The deal is closed: the quote's supply moves to "Ordine" (created if it did not exist).
+      await ensureOrdered(ctx, quote);
     }
 
     await ctx.db.insert("auditLog", {
@@ -395,6 +398,7 @@ export const signQuote = mutation({
       meta: { signedByName: args.signedByName, signedAt: now },
       createdAt: now,
     });
+    await ensureOrdered(ctx, quote);
 
     return { ok: true, signedAt: now };
   },

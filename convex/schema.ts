@@ -1169,6 +1169,60 @@ export default defineSchema({
     updatedAt: v.number(),
   }).index("by_tenant", ["tenantId"]),
 
+  /**
+   * A factory / deliverer the installer works with. One partner can play both roles:
+   * "producer" makes the windows, "deliverer" brings them to the installer. Not the same as `catalogSuppliers` (price sources).
+   */
+  supplyPartners: defineTable({
+    tenantId: v.id("tenants"),
+    name: v.string(),
+    roles: v.array(v.union(v.literal("producer"), v.literal("deliverer"))),
+    contactName: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    email: v.optional(v.string()),
+    vatId: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    archived: v.optional(v.boolean()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_tenant", ["tenantId"]),
+
+  /**
+   * One supply per quote: quote -> order -> production -> delivery -> delivered. Amounts are cents WITHOUT VAT.
+   * Revenue is a snapshot of the quote's net price taken when the supply is created; the costs are entered by the installer
+   * as the process moves on. Net profit = revenue - costs (no VAT, no income taxes).
+   */
+  supplies: defineTable({
+    tenantId: v.id("tenants"),
+    quoteId: v.id("quoteRequests"),
+    /** Snapshots, so the list stays readable even if the quote changes. */
+    reference: v.string(),
+    customerName: v.string(),
+    status: v.union(v.literal("quote"), v.literal("order"), v.literal("production"), v.literal("delivery"), v.literal("delivered")),
+    revenueExVatCents: v.number(),
+    producerId: v.optional(v.id("supplyPartners")),
+    delivererId: v.optional(v.id("supplyPartners")),
+    /** What the installer pays the factory (set when the order goes to production). */
+    factoryCostCents: v.optional(v.number()),
+    factoryPaidAt: v.optional(v.number()),
+    /** What the deliverer charges (set when the delivery starts). */
+    transportCostCents: v.optional(v.number()),
+    /** Fitting, extras, anything else the installer spent on this supply. */
+    otherCostsCents: v.optional(v.number()),
+    quotedAt: v.number(),
+    orderedAt: v.optional(v.number()),
+    productionAt: v.optional(v.number()),
+    deliveryAt: v.optional(v.number()),
+    deliveredAt: v.optional(v.number()),
+    notes: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId", "createdAt"])
+    .index("by_quote", ["quoteId"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_tenant_delivered", ["tenantId", "deliveredAt"]),
+
   carriers: defineTable({
     tenantId: v.id("tenants"),
     name: v.string(),

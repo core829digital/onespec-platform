@@ -421,7 +421,19 @@
     "vatManualReasonRequired": "Pour appliquer une TVA à 0 %, indiquez le motif de l'exonération (5 caractères minimum).",
     "viesUnavailable": "Le service VIES de la Commission européenne ne répond pas pour le moment : réessayez bientôt. Sans vérification, vous ne pouvez pas appliquer 0 %.",
     "onboardingIncomplete": "Des données obligatoires manquent : revenez aux étapes précédentes et complétez entreprise, adresse, contacts, fiscalité et prix.",
-    "viesAckRequired": "Pour continuer, confirmez avoir lu comment fonctionnent le VIES et la TVA à 0 %."
+    "viesAckRequired": "Pour continuer, confirmez avoir lu comment fonctionnent le VIES et la TVA à 0 %.",
+    "supplyInvalidAmount": "Montant invalide : saisissez un montant en euros de 0 à 10 000 000, avec au plus deux décimales.",
+    "supplyPartnerRoleRequired": "Choisissez au moins un rôle : fabrique les fenêtres, les livre, ou les deux.",
+    "supplyPartnerNotFound": "Partenaire introuvable.",
+    "supplyPartnerArchived": "Ce partenaire est archivé : réactivez-le ou choisissez-en un autre.",
+    "supplyPartnerWrongRole": "Le partenaire choisi n'a pas le rôle requis pour cette étape (production ou livraison).",
+    "supplyNotFound": "Fourniture introuvable.",
+    "supplyQuoteNotUsable": "Un devis perdu ou marqué comme spam ne peut pas lancer une fourniture.",
+    "supplyAlreadyExists": "Ce devis a déjà une fourniture.",
+    "supplyAlreadyDelivered": "La fourniture a déjà été livrée.",
+    "supplyCannotRevert": "Impossible de revenir plus en arrière : la fourniture est à sa première étape.",
+    "supplyCannotDelete": "Une fourniture ne peut être supprimée qu'avant la production.",
+    "supplyStageTooEarly": "Ce coût ne peut être saisi que lorsque la fourniture a atteint l'étape correspondante."
   },
   "app": {
     "suspended": {

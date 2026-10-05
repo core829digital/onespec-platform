@@ -421,7 +421,19 @@
     "vatManualReasonRequired": "Für 0 % MwSt. geben Sie den Befreiungsgrund an (mindestens 5 Zeichen).",
     "viesUnavailable": "Der VIES-Dienst der Europäischen Kommission antwortet gerade nicht: Versuchen Sie es gleich noch einmal. Ohne Prüfung können Sie 0 % nicht anwenden.",
     "onboardingIncomplete": "Es fehlen Pflichtangaben: Gehen Sie zu den vorherigen Schritten zurück und vervollständigen Sie Unternehmen, Adresse, Kontakte, Steuern und Preise.",
-    "viesAckRequired": "Bestätigen Sie zum Fortfahren, dass Sie gelesen haben, wie VIES und 0 % MwSt. funktionieren."
+    "viesAckRequired": "Bestätigen Sie zum Fortfahren, dass Sie gelesen haben, wie VIES und 0 % MwSt. funktionieren.",
+    "supplyInvalidAmount": "Ungültiger Betrag: Geben Sie einen Eurobetrag von 0 bis 10.000.000 mit höchstens zwei Dezimalstellen ein.",
+    "supplyPartnerRoleRequired": "Wählen Sie mindestens eine Rolle: fertigt die Fenster, liefert sie, oder beides.",
+    "supplyPartnerNotFound": "Partner nicht gefunden.",
+    "supplyPartnerArchived": "Dieser Partner ist archiviert: Reaktivieren Sie ihn oder wählen Sie einen anderen.",
+    "supplyPartnerWrongRole": "Der gewählte Partner hat nicht die für diese Phase nötige Rolle (Produktion oder Lieferung).",
+    "supplyNotFound": "Lieferung nicht gefunden.",
+    "supplyQuoteNotUsable": "Ein verlorenes oder als Spam markiertes Angebot kann keine Lieferung starten.",
+    "supplyAlreadyExists": "Dieses Angebot hat bereits eine Lieferung.",
+    "supplyAlreadyDelivered": "Die Lieferung wurde bereits geliefert.",
+    "supplyCannotRevert": "Weiter zurück geht es nicht: Die Lieferung steht in der ersten Phase.",
+    "supplyCannotDelete": "Eine Lieferung kann nur vor der Produktion gelöscht werden.",
+    "supplyStageTooEarly": "Diese Kosten können erst erfasst werden, wenn die Lieferung die passende Phase erreicht hat."
   },
   "app": {
     "suspended": {

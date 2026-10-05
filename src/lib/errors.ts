@@ -49,6 +49,18 @@ export type ErrorKey =
   | "viesUnavailable"
   | "onboardingIncomplete"
   | "viesAckRequired"
+  | "supplyInvalidAmount"
+  | "supplyPartnerRoleRequired"
+  | "supplyPartnerNotFound"
+  | "supplyPartnerArchived"
+  | "supplyPartnerWrongRole"
+  | "supplyNotFound"
+  | "supplyQuoteNotUsable"
+  | "supplyAlreadyExists"
+  | "supplyAlreadyDelivered"
+  | "supplyCannotRevert"
+  | "supplyCannotDelete"
+  | "supplyStageTooEarly"
   | "qualityInUse"
   | "profileQualityUnknown"
   | "invalidCombination"
@@ -154,6 +166,18 @@ const EXACT: Record<string, ErrorKey> = {
   VIES_UNAVAILABLE: "viesUnavailable",
   ONBOARDING_INCOMPLETE: "onboardingIncomplete",
   VIES_ACK_REQUIRED: "viesAckRequired",
+  SUPPLY_INVALID_AMOUNT: "supplyInvalidAmount",
+  SUPPLY_PARTNER_ROLE_REQUIRED: "supplyPartnerRoleRequired",
+  SUPPLY_PARTNER_NOT_FOUND: "supplyPartnerNotFound",
+  SUPPLY_PARTNER_ARCHIVED: "supplyPartnerArchived",
+  SUPPLY_PARTNER_WRONG_ROLE: "supplyPartnerWrongRole",
+  SUPPLY_NOT_FOUND: "supplyNotFound",
+  SUPPLY_QUOTE_NOT_USABLE: "supplyQuoteNotUsable",
+  SUPPLY_ALREADY_EXISTS: "supplyAlreadyExists",
+  SUPPLY_ALREADY_DELIVERED: "supplyAlreadyDelivered",
+  SUPPLY_CANNOT_REVERT: "supplyCannotRevert",
+  SUPPLY_CANNOT_DELETE: "supplyCannotDelete",
+  SUPPLY_STAGE_TOO_EARLY: "supplyStageTooEarly",
   QUALITY_IN_USE: "qualityInUse",
   PROFILE_QUALITY_UNKNOWN: "profileQualityUnknown",
   INVALID_COMBINATION: "invalidCombination",

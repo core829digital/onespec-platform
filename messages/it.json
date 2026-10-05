@@ -421,7 +421,19 @@
     "vatManualReasonRequired": "Per applicare l'IVA allo 0% indica il motivo dell'esenzione (almeno 5 caratteri).",
     "viesUnavailable": "Il servizio VIES della Commissione europea non risponde in questo momento: riprova tra poco. Senza verifica non puoi applicare lo 0%.",
     "onboardingIncomplete": "Mancano dei dati obbligatori: torna ai passaggi precedenti e completa azienda, indirizzo, contatti, fiscalità e prezzi.",
-    "viesAckRequired": "Per proseguire conferma di aver letto come funziona il VIES e l'IVA allo 0%."
+    "viesAckRequired": "Per proseguire conferma di aver letto come funziona il VIES e l'IVA allo 0%.",
+    "supplyInvalidAmount": "Importo non valido: inserisci un importo in euro da 0 a 10.000.000, con al massimo due decimali.",
+    "supplyPartnerRoleRequired": "Scegli almeno un ruolo: produce i serramenti, li consegna, oppure entrambi.",
+    "supplyPartnerNotFound": "Fornitore non trovato.",
+    "supplyPartnerArchived": "Questo fornitore è archiviato: riattivalo o sceglierne un altro.",
+    "supplyPartnerWrongRole": "Il fornitore scelto non ha il ruolo richiesto per questa fase (produzione o consegna).",
+    "supplyNotFound": "Fornitura non trovata.",
+    "supplyQuoteNotUsable": "Un preventivo perso o segnato come spam non può avviare una fornitura.",
+    "supplyAlreadyExists": "Questo preventivo ha già una fornitura.",
+    "supplyAlreadyDelivered": "La fornitura è già stata consegnata.",
+    "supplyCannotRevert": "Non si può tornare più indietro: la fornitura è al primo passaggio.",
+    "supplyCannotDelete": "Si può eliminare una fornitura solo prima della produzione.",
+    "supplyStageTooEarly": "Questo costo si può inserire solo quando la fornitura ha raggiunto la fase corrispondente."
   },
   "app": {
     "suspended": {

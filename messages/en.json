@@ -421,7 +421,19 @@
     "vatManualReasonRequired": "To apply 0% VAT state the reason for the exemption (at least 5 characters).",
     "viesUnavailable": "The European Commission's VIES service is not responding right now: try again shortly. Without a check you cannot apply 0%.",
     "onboardingIncomplete": "Some required data is missing: go back to the previous steps and complete company, address, contacts, tax and prices.",
-    "viesAckRequired": "To continue, confirm that you have read how VIES and 0% VAT work."
+    "viesAckRequired": "To continue, confirm that you have read how VIES and 0% VAT work.",
+    "supplyInvalidAmount": "Invalid amount: enter an amount in euros from 0 to 10,000,000 with at most two decimals.",
+    "supplyPartnerRoleRequired": "Choose at least one role: makes the windows, delivers them, or both.",
+    "supplyPartnerNotFound": "Partner not found.",
+    "supplyPartnerArchived": "This partner is archived: reactivate it or choose another.",
+    "supplyPartnerWrongRole": "The chosen partner does not have the role this stage needs (production or delivery).",
+    "supplyNotFound": "Supply not found.",
+    "supplyQuoteNotUsable": "A lost or spam quote cannot start a supply.",
+    "supplyAlreadyExists": "This quote already has a supply.",
+    "supplyAlreadyDelivered": "The supply has already been delivered.",
+    "supplyCannotRevert": "Cannot go back any further: the supply is at its first stage.",
+    "supplyCannotDelete": "A supply can only be deleted before production.",
+    "supplyStageTooEarly": "This cost can only be entered once the supply has reached the matching stage."
   },
   "app": {
     "suspended": {

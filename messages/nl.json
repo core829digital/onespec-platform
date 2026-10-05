@@ -421,7 +421,19 @@
     "vatManualReasonRequired": "Geef voor 0% btw de reden van de vrijstelling op (minstens 5 tekens).",
     "viesUnavailable": "De VIES-dienst van de Europese Commissie reageert nu niet: probeer het zo opnieuw. Zonder controle kunt u 0% niet toepassen.",
     "onboardingIncomplete": "Er ontbreken verplichte gegevens: ga terug naar de vorige stappen en vul bedrijf, adres, contact, belasting en prijzen aan.",
-    "viesAckRequired": "Bevestig om door te gaan dat u hebt gelezen hoe VIES en 0% btw werken."
+    "viesAckRequired": "Bevestig om door te gaan dat u hebt gelezen hoe VIES en 0% btw werken.",
+    "supplyInvalidAmount": "Ongeldig bedrag: voer een bedrag in euro in van 0 tot 10.000.000 met hoogstens twee decimalen.",
+    "supplyPartnerRoleRequired": "Kies minstens één rol: maakt de ramen, levert ze, of beide.",
+    "supplyPartnerNotFound": "Partner niet gevonden.",
+    "supplyPartnerArchived": "Deze partner is gearchiveerd: heractiveer hem of kies een andere.",
+    "supplyPartnerWrongRole": "De gekozen partner heeft niet de rol die deze fase vraagt (productie of levering).",
+    "supplyNotFound": "Levering niet gevonden.",
+    "supplyQuoteNotUsable": "Een verloren offerte of spam-offerte kan geen levering starten.",
+    "supplyAlreadyExists": "Deze offerte heeft al een levering.",
+    "supplyAlreadyDelivered": "De levering is al afgeleverd.",
+    "supplyCannotRevert": "Verder terug kan niet: de levering staat in de eerste fase.",
+    "supplyCannotDelete": "Een levering kan alleen vóór de productie worden verwijderd.",
+    "supplyStageTooEarly": "Deze kosten kunnen pas worden ingevoerd als de levering de bijbehorende fase heeft bereikt."
   },
   "app": {
     "suspended": {

@@ -421,7 +421,19 @@
     "vatManualReasonRequired": "Pentru TVA 0% indicați motivul scutirii (cel puțin 5 caractere).",
     "viesUnavailable": "Serviciul VIES al Comisiei Europene nu răspunde acum: încercați din nou în curând. Fără verificare nu puteți aplica 0%.",
     "onboardingIncomplete": "Lipsesc date obligatorii: reveniți la pașii anteriori și completați compania, adresa, contactele, fiscalitatea și prețurile.",
-    "viesAckRequired": "Pentru a continua, confirmați că ați citit cum funcționează VIES și TVA 0%."
+    "viesAckRequired": "Pentru a continua, confirmați că ați citit cum funcționează VIES și TVA 0%.",
+    "supplyInvalidAmount": "Sumă invalidă: introduceți o sumă în euro de la 0 la 10.000.000, cu cel mult două zecimale.",
+    "supplyPartnerRoleRequired": "Alegeți cel puțin un rol: produce ferestrele, le livrează sau ambele.",
+    "supplyPartnerNotFound": "Partenerul nu a fost găsit.",
+    "supplyPartnerArchived": "Acest partener este arhivat: reactivați-l sau alegeți altul.",
+    "supplyPartnerWrongRole": "Partenerul ales nu are rolul cerut de această etapă (producție sau livrare).",
+    "supplyNotFound": "Furnizarea nu a fost găsită.",
+    "supplyQuoteNotUsable": "O ofertă pierdută sau marcată ca spam nu poate porni o furnizare.",
+    "supplyAlreadyExists": "Această ofertă are deja o furnizare.",
+    "supplyAlreadyDelivered": "Furnizarea a fost deja livrată.",
+    "supplyCannotRevert": "Nu se poate merge mai înapoi: furnizarea este la prima etapă.",
+    "supplyCannotDelete": "O furnizare poate fi ștearsă doar înainte de producție.",
+    "supplyStageTooEarly": "Acest cost poate fi introdus doar când furnizarea a ajuns la etapa corespunzătoare."
   },
   "app": {
     "suspended": {
