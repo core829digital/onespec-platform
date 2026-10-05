@@ -8,6 +8,9 @@ import { defaultPricing } from "./widget-pricing";
 import type { WidgetDict } from "./widget-i18n";
 import { REGION_FLAT_OPTION_KINDS } from "@/shared/pricing";
 import { glazingPackageRows } from "@/shared/glazing-packages";
+import { glazingForProfile, nearestFittingGlazing, normalizeCatalog, profileQualityKey, profileSpec, qualityTiersFor, type ProfileSpec } from "@/shared/catalog-rules";
+import type { CatalogPayload } from "@/shared/pricing";
+import type { ConfigState } from "./widget-pricing";
 
 type Labels = Record<string, string> | undefined;
 
@@ -37,6 +40,9 @@ interface QualityRow extends Row {
   materialKey: string;
   multiplier: number;
   uAdjust?: number;
+  /** Standard price list entry / quality tier of a profile (see shared/catalog-rules). */
+  standardKey?: string;
+  qualityKey?: string;
   /** Standard price list prices of a profile, resolved for the owner's zone (cents). */
   standard?: { completePerM2Cents: number };
 }
@@ -77,9 +83,9 @@ const bySort = <T extends { sortOrder?: number }>(a: T, b: T) =>
 const enabled = <T extends { enabled?: boolean }>(r: T) => r.enabled !== false;
 
 /** `[key, label]` pairs from a catalogue table, or `null` when it's empty. */
-function pairsFrom(rows: Row[] | undefined, locale: string): [string, string][] | null {
+function pairsFrom(rows: Row[] | undefined, locale: string, keepOrder = false): [string, string][] | null {
   if (!rows || rows.length === 0) return null;
-  const list = rows.filter(enabled).sort(bySort);
+  const list = keepOrder ? rows.filter(enabled) : rows.filter(enabled).sort(bySort);
   if (list.length === 0) return null;
   return list.map((r) => [r.key, label(r.labels, locale, r.key)]);
 }
@@ -98,6 +104,8 @@ export interface WidgetOptions {
   /** profile system / brand pairs per canonical material key ("pvc" | "aluminum") */
   profileSystems: Record<string, [string, string][]>;
   glazing: [string, string][];
+  /** Profile rows per material with the quality and technical spec each one carries (drives the quality -> profile -> glazing filter). */
+  profileRows: Record<string, Array<{ key: string; label: string; qualityKey?: string; standardKey?: string; spec: ProfileSpec }>>;
   color: [string, string][];
   /** Swatch colour, texture and library range/group of every finish key, for the swatch picker and the drawing. */
   colorMeta: Record<string, FinishMeta>;
@@ -120,11 +128,18 @@ const SWATCH: Record<Material, string> = {
   aluminum: "#E6E9EA",
 };
 
+/** The catalogue with every profile's quality filled in and every quality the profiles use present (6-chamber tier of older snapshots). */
+function normalized(cat: WidgetCatalog | undefined): WidgetCatalog | undefined {
+  if (!cat) return cat;
+  return normalizeCatalog(cat as unknown as CatalogPayload) as unknown as WidgetCatalog;
+}
+
 export function catalogOptions(
-  cat: WidgetCatalog | undefined,
+  rawCat: WidgetCatalog | undefined,
   dict: WidgetDict,
   locale: string,
 ): WidgetOptions {
+  const cat = normalized(rawCat);
   const hw = (kind: string) => cat?.hardware?.filter((h) => h.kind === kind);
 
   const matRows = cat?.materials?.filter(enabled).sort(bySort);
@@ -151,7 +166,8 @@ export function catalogOptions(
   const profileSystems: Record<string, [string, string][]> = {};
   for (const m of CANONICAL_MATERIALS) {
     const tiers = cat?.qualityTiers?.filter((q) => q.materialKey === m);
-    quality[m] = pairsFrom(tiers, locale) ?? dict.quality[m] ?? [];
+    // Chamber tiers read 5, 6, 7 whatever order they were created in.
+    quality[m] = (tiers && tiers.length > 0 ? pairsFrom(qualityTiersFor({ qualityTiers: tiers as unknown as CatalogPayload["qualityTiers"] }, m) as unknown as Row[], locale, true) : null) ?? dict.quality[m] ?? [];
     const systems = cat?.profileSystems?.filter((p) => p.materialKey === m);
     profileSystems[m] = pairsFrom(systems, locale) ?? dict.brands[m] ?? [];
   }
@@ -162,6 +178,15 @@ export function catalogOptions(
     ],
     quality,
     profileSystems,
+    profileRows: Object.fromEntries(
+      CANONICAL_MATERIALS.map((m) => [
+        m,
+        (cat?.profileSystems ?? [])
+          .filter((r) => r.materialKey === m && enabled(r))
+          .sort(bySort)
+          .map((r) => ({ key: r.key, label: label(r.labels, locale, r.key), qualityKey: profileQualityKey(r), standardKey: r.standardKey, spec: profileSpec(r) })),
+      ]),
+    ),
     glazing: pairsFrom(cat?.glazing, locale) ?? [...dict.glazing, ...glazingPackageRows().map((r): [string, string] => [r.key, r.labels[locale] ?? r.labels.en])],
     color: pairsFrom(cat?.finish, locale) ?? dict.color,
     colorMeta: Object.fromEntries(
@@ -192,9 +217,10 @@ const cents = (c: number | undefined, fallbackEuros: number) =>
   typeof c === "number" ? c / 100 : fallbackEuros;
 
 /** A `Pricing` table with catalogue values overlaid on the prototype defaults. */
-export function catalogPricing(cat: WidgetCatalog | undefined): Pricing {
+export function catalogPricing(rawCat: WidgetCatalog | undefined): Pricing {
   const p = defaultPricing();
-  if (!cat) return p;
+  if (!rawCat) return p;
+  const cat = normalized(rawCat) as WidgetCatalog;
 
   for (const key of CANONICAL_MATERIALS) {
     const m = cat.materials?.find((x) => x.key === key);
@@ -263,4 +289,39 @@ export function catalogPricing(cat: WidgetCatalog | undefined): Pricing {
   if (threshold) p.balconyDoorThreshold = cents(threshold.priceCents, p.balconyDoorThreshold);
 
   return p;
+}
+
+// ---- quality -> profile -> glazing: the same rules as the quote editor, on the widget's own option lists ----
+
+/** Profiles of a material that go with a quality (hand-made, unclassified ones go with every quality). */
+export function brandChoices(options: WidgetOptions, material: string, quality: string | undefined): [string, string][] {
+  const rows = options.profileRows[material];
+  if (!rows || rows.length === 0) return options.profileSystems[material] ?? [];
+  return rows.filter((r) => r.qualityKey === undefined || r.qualityKey === quality).map((r): [string, string] => [r.key, r.label]);
+}
+
+/** Glazing units the chosen profile can hold (all of them for a profile with no known depth). */
+export function glazingChoices(options: WidgetOptions, material: string, brandKey: string | undefined): [string, string][] {
+  const row = options.profileRows[material]?.find((r) => r.key === brandKey);
+  if (!row) return options.glazing;
+  const fits = new Set(glazingForProfile(options.glazing.map(([key]) => ({ key, enabled: true })), row).map((g) => g.key));
+  return options.glazing.filter(([k]) => fits.has(k));
+}
+
+/** Brings the widget's state to a coherent set from the top down: a quality, a profile of that quality, glazing that profile can hold. */
+export function reconcileState(options: WidgetOptions, s: ConfigState): ConfigState {
+  const qualities = options.quality[s.material] ?? [];
+  const quality = qualities.length > 0 && !qualities.some(([k]) => k === s.quality[s.material]) ? qualities[0][0] : s.quality[s.material];
+  let brand = s.brand;
+  if (s.material === "pvc" || s.material === "aluminum") {
+    const list = brandChoices(options, s.material, quality);
+    const current = brand[s.material];
+    if (list.length > 0 && !list.some(([k]) => k === current)) brand = { ...brand, [s.material]: list[0][0] };
+    // No profile goes with this quality: nothing is sent (the widget tells the user to pick another quality).
+    else if (list.length === 0 && (options.profileRows[s.material]?.length ?? 0) > 0 && current !== "") brand = { ...brand, [s.material]: "" };
+  }
+  const row = options.profileRows[s.material]?.find((r) => r.key === (s.material === "pvc" || s.material === "aluminum" ? brand[s.material] : undefined));
+  const glazing = row ? nearestFittingGlazing(options.glazing.map(([key]) => ({ key, labels: {}, priceCents: 0, sortOrder: 0, enabled: true })), row, s.glazing) ?? s.glazing : s.glazing;
+  if (quality === s.quality[s.material] && brand === s.brand && glazing === s.glazing) return s;
+  return { ...s, quality: { ...s.quality, [s.material]: quality }, brand, glazing };
 }

@@ -8,7 +8,8 @@ import { readableInk, isSafeColor, resolveFontStack } from "./widget-theme";
 import { postToHost, readHostTheme } from "./host-bridge";
 import { demoCopy, demoRegisterUrl } from "@/lib/demo/demo-copy";
 import { submitErrorMessage, wizardCopy } from "./simple-wizard-model";
-import { getTurnstileToken } from "@/lib/turnstile-client";import { catalogOptions, catalogPricing, type WidgetCatalog, type WidgetOptions } from "./widget-catalog";
+import { getTurnstileToken } from "@/lib/turnstile-client";
+import { brandChoices, catalogOptions, catalogPricing, glazingChoices, reconcileState, type WidgetCatalog, type WidgetOptions } from "./widget-catalog";
 import { REGION_FLAT_OPTION_KINDS } from "@/shared/pricing";
 import { glazingAdvice, PACKAGE_DEPTHS, packageKey, parseGlazingKey } from "@/shared/glazing-packages";
 import { frameRules, inactiveLeaves, directionFromOpening, hasOpeningDirection, openingSide, retypeSash, typeForAddedSash } from "@/shared/sash-rules";
@@ -94,6 +95,13 @@ const CONVEX_SITE =
   (process.env.NEXT_PUBLIC_CONVEX_URL as string)?.replace(".convex.cloud", ".convex.site") ||
   "";
 
+/** A new piece: the catalogue's default quality, a profile of that quality and glazing that profile can hold (never a key the catalogue lacks). */
+function freshState(options: WidgetOptions): ConfigState {
+  const base = defaultConfig();
+  const withGlazing = options.glazing.some(([k]) => k === "d24_floatBeArgon") ? { ...base, glazing: "d24_floatBeArgon" } : base;
+  return reconcileState(options, withGlazing);
+}
+
 export function Widget({
   configurator,
   theme,
@@ -176,14 +184,7 @@ export function Widget({
   );
 
   // The initial glazing is the first package (24 mm double, low-E, argon) when the catalogue offers it.
-  const [state, setState] = useState<ConfigState>(() => {
-    const base = defaultConfig();
-    // The default profile / glazing must exist in the catalogue (standard price list catalogues list other profiles).
-    const pvcBrands = options.profileSystems.pvc ?? [];
-    const brand = pvcBrands.length > 0 && !pvcBrands.some(([k]) => k === base.brand.pvc) ? { ...base.brand, pvc: pvcBrands[0][0] } : base.brand;
-    const withBrand = { ...base, brand };
-    return options.glazing.some(([k]) => k === "d24_floatBeArgon") ? { ...withBrand, glazing: "d24_floatBeArgon" } : withBrand;
-  });
+  const [state, setState] = useState<ConfigState>(() => freshState(options));
   const [items, setItems] = useState<SavedItem[]>([]);
   const [selectedSash, setSelectedSash] = useState<number | null>(null);
   const [ecobonusOpen, setEcobonusOpen] = useState(false);
@@ -322,7 +323,8 @@ export function Widget({
   );
 
   // ---- mutators ----
-  const set = (patch: Partial<ConfigState>) => setState((s) => ({ ...s, ...patch }));
+  // Every change goes through reconcileState: a new quality swaps the profile, a new profile adapts the glazing.
+  const set = (patch: Partial<ConfigState>) => setState((s) => reconcileState(options, { ...s, ...patch }));
 
   const setSash = (i: number, patch: Partial<Sash>) =>
     setState((s) => {
@@ -359,7 +361,7 @@ export function Widget({
 
   const changeProductType = (pt: "window" | "balconyDoor") => {
     const d = defaultDimsForType(pt);
-    setState((s) => ({ ...s, productType: pt, width: d.width, height: d.height, sashes: defaultSashPreset() }));
+    setState((s) => reconcileState(options, { ...s, productType: pt, width: d.width, height: d.height, sashes: defaultSashPreset() }));
     setSelectedSash(null);
   };
 
@@ -367,7 +369,7 @@ export function Widget({
 
   const addAnother = () => {
     setItems((prev) => [...prev, { ...state, unitPrice: result.unitPrice, totalPrice: result.totalPrice }]);
-    setState(defaultConfig());
+    setState(freshState(options));
     setSelectedSash(null);
   };
 
@@ -378,12 +380,12 @@ export function Widget({
     const lines = all.map((it, i) => {
       const mat = it.material === "pvc" ? dict.materialPVC : it.material === "wood" ? dict.materialWood : dict.materialAluminum;
       const pt = it.productType === "balconyDoor" ? dict.productTypeDoor : dict.productTypeWindow;
-      const q = labelFromList(dict.quality[it.material], it.quality[it.material]);
+      const q = labelFromList(options.quality[it.material] ?? dict.quality[it.material] ?? [], it.quality[it.material]);
       const brand =
         it.material === "pvc" || it.material === "aluminum"
-          ? labelFromList(dict.brands[it.material], it.brand[it.material])
+          ? labelFromList(options.profileSystems[it.material] ?? dict.brands[it.material] ?? [], it.brand[it.material])
           : "";
-      const glz = labelFromList(dict.glazing, it.glazing);
+      const glz = labelFromList(options.glazing.length > 0 ? options.glazing : dict.glazing, it.glazing);
       const col = labelFromList(dict.color, it.color);
       const inst = labelFromList(dict.installationOptions, it.installation);
       const regionBits = REGION_FLAT_OPTION_KINDS.map((kind) => {
@@ -418,7 +420,7 @@ export function Widget({
       material: it.material,
       quality: it.quality,
       profileSystem:
-        it.material === "pvc" || it.material === "aluminum" ? it.brand[it.material] : undefined,
+        it.material === "pvc" || it.material === "aluminum" ? it.brand[it.material] || undefined : undefined,
       width: Math.round(it.width),
       height: Math.round(it.height),
       quantity: it.quantity,
@@ -592,8 +594,20 @@ export function Widget({
 
   const materialTabs = options.materials;
 
-  const brandOptions = options.profileSystems[state.material] ?? [];
+  const brandOptions = brandChoices(options, state.material, state.quality[state.material]);
+  const glazingOptions = glazingChoices(options, state.material, state.material === "pvc" || state.material === "aluminum" ? state.brand[state.material] : undefined);
   const hasBrand = (state.material === "pvc" || state.material === "aluminum") && brandOptions.length > 0;
+  const noBrandForQuality = (state.material === "pvc" || state.material === "aluminum") && brandOptions.length === 0 && (options.profileRows[state.material]?.length ?? 0) > 0;
+  const chosenSpec = options.profileRows[state.material]?.find((r) => r.key === (state.material === "pvc" || state.material === "aluminum" ? state.brand[state.material] : ""))?.spec;
+  const ps = dict.profileSpec;
+  const profileInfo = chosenSpec
+    ? [
+        chosenSpec.chambers ? ps.chambers.replace("{n}", String(chosenSpec.chambers)) : "",
+        chosenSpec.depthMm ? ps.depth.replace("{mm}", String(chosenSpec.depthMm)) : "",
+        chosenSpec.gasket ? (chosenSpec.gasket === "triple" ? ps.gasketTriple : ps.gasketStandard) : "",
+        chosenSpec.maxGlassMm ? ps.maxGlass.replace("{mm}", String(chosenSpec.maxGlassMm)) : "",
+      ].filter(Boolean).join(" · ")
+    : "";
 
   return (
     <div style={s.wrap}>
@@ -673,6 +687,7 @@ export function Widget({
             </select>
           </Field>
 
+          {noBrandForQuality && <div style={{ fontSize: 12, color: "var(--color-danger)", marginBottom: 8 }}>{ps.noProfiles}</div>}
           {hasBrand && (
             <Field label={dict.brandLabel} id="widget-brand">
               <select
@@ -687,6 +702,7 @@ export function Widget({
                   </option>
                 ))}
               </select>
+              {profileInfo ? <div style={{ marginTop: 4, fontSize: 11.5, color: "var(--color-text-secondary)" }}>{profileInfo}</div> : null}
             </Field>
           )}
 
@@ -787,12 +803,12 @@ export function Widget({
 
           {(() => {
             const parsed = parseGlazingKey(state.glazing);
-            const rows = options.glazing.map(([k, v]) => ({ key: k, label: v, p: parseGlazingKey(k) }));
+            const rows = glazingOptions.map(([k, v]) => ({ key: k, label: v, p: parseGlazingKey(k) }));
             const packages = rows.filter((r) => r.p);
             const plain = (
               <Field label={dict.glazingLabel} mt id="widget-glazing">
                 <select id="widget-glazing" style={s.select} value={state.glazing} onChange={(e) => set({ glazing: e.target.value })}>
-                  {options.glazing.map(([k, v]) => (
+                  {glazingOptions.map(([k, v]) => (
                     <option key={k} value={k}>
                       {v}
                     </option>
@@ -1134,10 +1150,10 @@ export function Widget({
 
             {step === "config" && (
               <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 14 }}>
-                <button type="button" onClick={addAnother} style={s.btnSecondary}>
+                <button type="button" onClick={addAnother} disabled={noBrandForQuality} style={{ ...s.btnSecondary, ...(noBrandForQuality ? { opacity: 0.5, cursor: "not-allowed" } : {}) }}>
                   {dict.continueBtn}
                 </button>
-                <button type="button" data-tw-primary onClick={() => setStep("lead")} style={{ ...s.btnPrimary, background: accent, color: accentInk }}>
+                <button type="button" data-tw-primary onClick={() => setStep("lead")} disabled={noBrandForQuality} style={{ ...s.btnPrimary, background: accent, color: accentInk, ...(noBrandForQuality ? { opacity: 0.5, cursor: "not-allowed" } : {}) }}>
                   {dict.finishBtn}
                 </button>
               </div>

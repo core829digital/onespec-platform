@@ -13,6 +13,8 @@ export interface WidgetDict {
   qualityLabel: string;
   quality: Record<string, Pair[]>;
   brandLabel: string;
+  /** Technical line under the profile select; "{n}" / "{mm}" are replaced. */
+  profileSpec: { chambers: string; depth: string; gasketStandard: string; gasketTriple: string; maxGlass: string; noProfiles: string };
   brands: Record<string, Pair[]>;
   widthLabel: string;
   heightLabel: string;
@@ -112,11 +114,12 @@ const en: WidgetDict = {
   configTitle: "Configuration",
   qualityLabel: "Profile quality",
   quality: {
-    pvc: [["chamber5", "5-chamber profile"], ["chamber7", "7-chamber profile (premium)"]],
+    pvc: [["chamber5", "5-chamber profile"], ["chamber6", "6-chamber profile"], ["chamber7", "7-chamber profile (premium)"]],
     wood: [["pine", "Pine"], ["oak", "Oak (premium)"]],
     aluminum: [["standard", "Standard aluminium"], ["thermalbreak", "Thermal-break aluminium (premium)"]],
   },
   brandLabel: "Profile brand",
+  profileSpec: { chambers: "{n} chambers", depth: "depth {mm} mm", gasketStandard: "standard gasket", gasketTriple: "triple gasket", maxGlass: "glass up to {mm} mm", noProfiles: "No profile for this quality: choose another quality." },
   brands: {
     pvc: [["aluplast", "Aluplast"], ["rehau", "Rehau"], ["kommerling", "Kömmerling"], ["deceuninck", "Deceuninck"], ["salamander", "Salamander"], ["schuco", "Schüco"], ["gealan", "Gealan"]],
     aluminum: [["aluprof", "Aluprof"], ["alumil", "Alumil"], ["aliplast", "Aliplast"], ["schuco", "Schüco"], ["reynaers", "Reynaers"], ["cortizo", "Cortizo"], ["exlabesa", "Exlabesa"], ["alulegno", "Aluminium + Wood"]],
@@ -235,11 +238,12 @@ const it: WidgetDict = {
   configTitle: "Configurazione",
   qualityLabel: "Qualità profilo",
   quality: {
-    pvc: [["chamber5", "Profilo a 5 camere"], ["chamber7", "Profilo a 7 camere (premium)"]],
+    pvc: [["chamber5", "Profilo a 5 camere"], ["chamber6", "Profilo a 6 camere"], ["chamber7", "Profilo a 7 camere (premium)"]],
     wood: [["pine", "Pino"], ["oak", "Rovere (premium)"]],
     aluminum: [["standard", "Alluminio standard"], ["thermalbreak", "Alluminio a taglio termico (premium)"]],
   },
   brandLabel: "Marca profilo",
+  profileSpec: { chambers: "{n} camere", depth: "profondità {mm} mm", gasketStandard: "guarnizione standard", gasketTriple: "guarnizione tripla", maxGlass: "vetro fino a {mm} mm", noProfiles: "Nessun profilo per questa qualità: scegli un'altra qualità." },
   brands: en.brands,
   widthLabel: "Larghezza (mm)",
   heightLabel: "Altezza (mm)",
@@ -351,11 +355,12 @@ const fr: WidgetDict = {
   configTitle: "Configuration",
   qualityLabel: "Qualité du profilé",
   quality: {
-    pvc: [["chamber5", "Profilé 5 chambres"], ["chamber7", "Profilé 7 chambres (premium)"]],
+    pvc: [["chamber5", "Profilé 5 chambres"], ["chamber6", "Profilé 6 chambres"], ["chamber7", "Profilé 7 chambres (premium)"]],
     wood: [["pine", "Pin"], ["oak", "Chêne (premium)"]],
     aluminum: [["standard", "Aluminium standard"], ["thermalbreak", "Aluminium à rupture de pont thermique (premium)"]],
   },
   brandLabel: "Marque du profilé",
+  profileSpec: { chambers: "{n} chambres", depth: "profondeur {mm} mm", gasketStandard: "joint standard", gasketTriple: "triple joint", maxGlass: "vitrage jusqu'à {mm} mm", noProfiles: "Aucun profilé pour cette qualité : choisissez une autre qualité." },
   brands: en.brands,
   widthLabel: "Largeur (mm)",
   heightLabel: "Hauteur (mm)",
@@ -467,11 +472,12 @@ const de: WidgetDict = {
   configTitle: "Konfiguration",
   qualityLabel: "Profilqualität",
   quality: {
-    pvc: [["chamber5", "5-Kammer Profil"], ["chamber7", "7-Kammer Profil (Premium)"]],
+    pvc: [["chamber5", "5-Kammer Profil"], ["chamber6", "6-Kammer Profil"], ["chamber7", "7-Kammer Profil (Premium)"]],
     wood: [["pine", "Kiefer"], ["oak", "Eiche (Premium)"]],
     aluminum: [["standard", "Standard Aluminium"], ["thermalbreak", "Thermisch getrenntes Aluminium (Premium)"]],
   },
   brandLabel: "Profilmarke",
+  profileSpec: { chambers: "{n} Kammern", depth: "Bautiefe {mm} mm", gasketStandard: "Standarddichtung", gasketTriple: "Dreifachdichtung", maxGlass: "Glas bis {mm} mm", noProfiles: "Kein Profil für diese Qualität: Wählen Sie eine andere Qualität." },
   brands: en.brands,
   widthLabel: "Breite (mm)",
   heightLabel: "Höhe (mm)",
@@ -583,11 +589,12 @@ const nl: WidgetDict = {
   configTitle: "Configuratie",
   qualityLabel: "Profielkwaliteit",
   quality: {
-    pvc: [["chamber5", "5-kamer profiel"], ["chamber7", "7-kamer profiel (premium)"]],
+    pvc: [["chamber5", "5-kamer profiel"], ["chamber6", "6-kamer profiel"], ["chamber7", "7-kamer profiel (premium)"]],
     wood: [["pine", "Den"], ["oak", "Eik (premium)"]],
     aluminum: [["standard", "Standaard aluminium"], ["thermalbreak", "Thermisch gescheiden aluminium (premium)"]],
   },
   brandLabel: "Profielmerk",
+  profileSpec: { chambers: "{n} kamers", depth: "bouwdiepte {mm} mm", gasketStandard: "standaardafdichting", gasketTriple: "drievoudige afdichting", maxGlass: "glas tot {mm} mm", noProfiles: "Geen profiel voor deze kwaliteit: kies een andere kwaliteit." },
   brands: en.brands,
   widthLabel: "Breedte (mm)",
   heightLabel: "Hoogte (mm)",
