@@ -10,9 +10,10 @@ import { demoCopy, demoRegisterUrl } from "@/lib/demo/demo-copy";
 import { submitErrorMessage, wizardCopy } from "./simple-wizard-model";
 import { getTurnstileToken } from "@/lib/turnstile-client";
 import { brandChoices, catalogOptions, catalogPricing, glazingChoices, reconcileState, type WidgetCatalog, type WidgetOptions } from "./widget-catalog";
+import { withLeafWidth } from "./leaf-edit";
 import { REGION_FLAT_OPTION_KINDS } from "@/shared/pricing";
 import { glazingAdvice, PACKAGE_DEPTHS, packageKey, parseGlazingKey } from "@/shared/glazing-packages";
-import { frameRules, inactiveLeaves, directionFromOpening, hasOpeningDirection, openingSide, retypeSash, typeForAddedSash } from "@/shared/sash-rules";
+import { frameRules, inactiveLeaves, normalizedRatios, type EditorSash, directionFromOpening, hasOpeningDirection, openingSide, retypeSash, typeForAddedSash } from "@/shared/sash-rules";
 import {
   defaultConfig,
   defaultSashPreset,
@@ -357,6 +358,9 @@ export function Widget({
       } else if (n < sashes.length) {
         sashes = sashes.slice(0, n);
       }
+      // Whatever the leaves were, the shares must add up to the whole frame again (the leaf widths are typed on them).
+      const shares = normalizedRatios(sashes as unknown as EditorSash[]);
+      sashes = sashes.map((sh, k) => ({ ...sh, widthRatio: shares[k] }));
       let width = s.width;
       let height = s.height;
       if (n === 1) {
@@ -960,6 +964,13 @@ export function Widget({
                     return { ...prev, sashes };
                   })
                 }
+                onEditLeafWidth={(idx, mm) =>
+                  setState((prev) => {
+                    const next = withLeafWidth(prev.width, prev.sashes, idx, mm);
+                    return next ? { ...prev, sashes: next } : prev;
+                  })
+                }
+                leafText={{ edit: dict.leafEdit, invalid: dict.leafInvalid }}
                 finish={state.color}
                 finishHex={options.colorMeta[state.color]?.texture || !["white", "anthracite", "woodgrain"].includes(state.color) ? options.colorMeta[state.color]?.hex : undefined}
                 finishTexture={options.colorMeta[state.color]?.texture}
@@ -967,6 +978,9 @@ export function Widget({
             </div>
             <div style={{ fontSize: 11, color: "var(--color-text-secondary)", textAlign: "center", marginTop: 4 }}>{dict.diagramLegend}</div>
             <div style={{ fontSize: 11, color: "var(--color-text-secondary)", textAlign: "center", marginTop: 2 }}>{dict.diagramClickHint}</div>
+            {state.sashes.length > 1 && (
+              <div style={{ fontSize: 11, color: "var(--color-text-secondary)", textAlign: "center", marginTop: 2 }}>{dict.leafHint}</div>
+            )}
 
             {selectedSash !== null && state.sashes[selectedSash] && (
               <div style={{ marginTop: 12, border: `1.5px solid ${accent}`, borderRadius: 8, background: "var(--color-mint-light)", padding: 12 }}>

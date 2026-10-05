@@ -1,3 +1,4 @@
+import { leafWidthsMm } from "@/shared/leaf-widths";
 import { jointsFor } from "@/shared/sash-rules";
 import { drawOpening } from "./build-openings";
 import { glassLabel } from "./glass-size";
@@ -12,10 +13,12 @@ export function layoutCells(ctx: SceneContext, ratios: number[]): SceneCell[] {
   const { inner } = ctx;
   const cells: SceneCell[] = [];
   let x = inner.x;
+  // Whole-millimetre widths that add up to the frame width (333 + 333 + 333 would show 999).
+  const widthsMm = leafWidthsMm(ctx.widthMm, ratios);
   ratios.forEach((r, i) => {
     const isLast = i === ratios.length - 1;
     const w = isLast ? inner.x + inner.w - x : r * inner.w;
-    cells.push({ sashIndex: i, x, y: inner.y, w, h: inner.h, mm: Math.round(ctx.widthMm * r) });
+    cells.push({ sashIndex: i, x, y: inner.y, w, h: inner.h, mm: widthsMm[i] });
     x += w;
   });
   return cells;

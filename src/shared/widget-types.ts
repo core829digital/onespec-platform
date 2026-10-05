@@ -83,6 +83,14 @@ export const ProjectItemSchema = z
         });
       }
     }
+  })
+  // The leaf widths are shares of the frame. When every leaf states its share the shares are made to add up to exactly 1 (a stale tab or
+  // a hand-made request can send 0.5 + 0.7): the quote is kept, never refused, and what is stored is always a whole frame.
+  .transform((item) => {
+    if (item.sashes.length === 0 || !item.sashes.every((x) => typeof x.widthRatio === "number")) return item;
+    const total = item.sashes.reduce((sum, x) => sum + (x.widthRatio ?? 0), 0);
+    if (!(total > 0) || Math.abs(total - 1) < 1e-9) return item;
+    return { ...item, sashes: item.sashes.map((x) => ({ ...x, widthRatio: (x.widthRatio ?? 0) / total })) };
   });
 
 // Visitor-typed text: trimmed, and free of control characters (NUL, escape

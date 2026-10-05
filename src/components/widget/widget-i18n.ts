@@ -74,6 +74,10 @@ export interface WidgetDict {
   summaryNet: string;
   summaryVat: string;
   /** Fitting (posa) choice: title, the two options and the lines added to the request summary. */
+  /** Typing the width of one leaf on the drawing: label ("{n}" = leaf number), range message ("{min}", "{max}") and the hint line. */
+  leafEdit: string;
+  leafInvalid: string;
+  leafHint: string;
   fittingTitle: string;
   fittingWith: string;
   fittingWithout: string;
@@ -198,6 +202,9 @@ const en: WidgetDict = {
   summaryTotal: "Total estimate VAT included",
   summaryNet: "Net amount (VAT excluded)",
   summaryVat: "VAT {n}%",
+  leafEdit: "Edit the width of leaf {n}",
+  leafInvalid: "Value between {min} and {max} mm",
+  leafHint: "Tap a leaf's measurement under the drawing to change it: the others adjust.",
   fittingTitle: "Fitting",
   fittingWith: "With fitting",
   fittingWithout: "Supply only",
@@ -324,6 +331,9 @@ const it: WidgetDict = {
   summaryTotal: "Totale stimato IVA inclusa",
   summaryNet: "Imponibile (IVA esclusa)",
   summaryVat: "IVA {n}%",
+  leafEdit: "Modifica la larghezza dell'anta {n}",
+  leafInvalid: "Valore tra {min} e {max} mm",
+  leafHint: "Tocca la misura di un'anta sotto il disegno per modificarla: le altre si adattano.",
   fittingTitle: "Posa",
   fittingWith: "Con posa inclusa",
   fittingWithout: "Solo fornitura",
@@ -448,6 +458,9 @@ const fr: WidgetDict = {
   summaryTotal: "Total estimé TVA incluse",
   summaryNet: "Montant HT (hors TVA)",
   summaryVat: "TVA {n}%",
+  leafEdit: "Modifier la largeur du vantail {n}",
+  leafInvalid: "Valeur entre {min} et {max} mm",
+  leafHint: "Touchez la cote d'un vantail sous le dessin pour la modifier : les autres s'adaptent.",
   fittingTitle: "Pose",
   fittingWith: "Avec pose",
   fittingWithout: "Fourniture seule",
@@ -572,6 +585,9 @@ const de: WidgetDict = {
   summaryTotal: "Gesamtkostenschätzung inkl. MwSt.",
   summaryNet: "Nettobetrag (ohne MwSt.)",
   summaryVat: "MwSt. {n}%",
+  leafEdit: "Breite von Flügel {n} ändern",
+  leafInvalid: "Wert zwischen {min} und {max} mm",
+  leafHint: "Tippen Sie unter der Zeichnung auf das Maß eines Flügels, um es zu ändern: die anderen passen sich an.",
   fittingTitle: "Montage",
   fittingWith: "Mit Montage",
   fittingWithout: "Nur Lieferung",
@@ -697,6 +713,9 @@ const nl: WidgetDict = {
   summaryTotal: "Totale schatting incl. BTW",
   summaryNet: "Netto bedrag (excl. BTW)",
   summaryVat: "BTW {n}%",
+  leafEdit: "Breedte van vleugel {n} wijzigen",
+  leafInvalid: "Waarde tussen {min} en {max} mm",
+  leafHint: "Tik onder de tekening op de maat van een vleugel om die te wijzigen: de andere passen zich aan.",
   fittingTitle: "Montage",
   fittingWith: "Met montage",
   fittingWithout: "Alleen levering",

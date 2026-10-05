@@ -85,6 +85,7 @@ export function buildScene(input: DrawingInput, options: DrawingOptions = {}): S
     glazingKind: glazingShape(input.glazing).kind,
     satin: glazingShape(input.glazing).composition?.layers.includes("satin") ?? false,
     dimBoxes: {},
+    leafDimBoxes: [],
   };
 
   const textures: SceneTexture[] = [];
@@ -97,13 +98,17 @@ export function buildScene(input: DrawingInput, options: DrawingOptions = {}): S
 
   const cells = layoutCells(ctx, ratios);
   const violated = new Set<number>();
+  const tooNarrow = new Set<number>();
   if (options.showViolations) {
     const host = {
       width: widthMm,
       height: heightMm,
       sashes: sashes.map((s) => ({ ...s, hardware: "", hardwareColor: s.hardwareColor ?? "silver" })),
     };
-    for (const v of violationsFor(host)) violated.add(v.sashIndex);
+    for (const v of violationsFor(host)) {
+      violated.add(v.sashIndex);
+      if (v.axis === "width") tooNarrow.add(v.sashIndex);
+    }
   }
 
   const leaves = drawLeaves(ctx, sashes, cells, violated);
@@ -116,7 +121,7 @@ export function buildScene(input: DrawingInput, options: DrawingOptions = {}): S
     ...drawAccessories(ctx, input.accessories, leaves),
   ];
   if (options.showDimensions !== false) {
-    raw.push(...drawDimensions(ctx, cells, accessoryRightExtent(ctx, input.accessories)));
+    raw.push(...drawDimensions(ctx, cells, accessoryRightExtent(ctx, input.accessories), tooNarrow));
   }
   raw.push(...hitRects(cells));
   // Handle hit areas sit above the leaf ones so a handle can be grabbed (a little larger than the symbol).
@@ -153,6 +158,9 @@ export function buildScene(input: DrawingInput, options: DrawingOptions = {}): S
         ...(ctx.dimBoxes?.width ? { width: mirroredBox(roundBox(ctx.dimBoxes.width)) } : {}),
         ...(ctx.dimBoxes?.height ? { height: mirroredBox(roundBox(ctx.dimBoxes.height)) } : {}),
       },
+      ...(options.showLeafDimensions && options.showDimensions !== false && (ctx.leafDimBoxes ?? []).length > 0
+        ? { leafDimensions: (ctx.leafDimBoxes ?? []).map((b) => ({ ...mirroredBox(roundBox(b)), sashIndex: b.sashIndex })) }
+        : {}),
       handles: outside
         ? []
         : (ctx.handles ?? []).map((hnd) => ({

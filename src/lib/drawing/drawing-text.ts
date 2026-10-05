@@ -66,6 +66,16 @@ export const DIMENSION: L<{ editWidth: string; editHeight: string; invalid: stri
   ro: { editWidth: "Modifică lățimea", editHeight: "Modifică înălțimea", invalid: "Valoare între {min} și {max} mm" },
 };
 
+/** Typing the width of a single leaf on the drawing: `edit` has "{n}" (leaf number), `invalid` has "{min}" / "{max}", `hint` is the line under the drawing. */
+export const LEAF: L<{ edit: string; invalid: string; hint: string }> = {
+  it: { edit: "Modifica la larghezza dell'anta {n}", invalid: "Valore tra {min} e {max} mm", hint: "Tocca la misura di un'anta per modificarla: le altre si adattano." },
+  en: { edit: "Edit the width of leaf {n}", invalid: "Value between {min} and {max} mm", hint: "Tap a leaf's measurement to change it: the others adjust." },
+  fr: { edit: "Modifier la largeur du vantail {n}", invalid: "Valeur entre {min} et {max} mm", hint: "Touchez la cote d'un vantail pour la modifier : les autres s'adaptent." },
+  de: { edit: "Breite von Flügel {n} ändern", invalid: "Wert zwischen {min} und {max} mm", hint: "Tippen Sie auf das Maß eines Flügels, um es zu ändern: die anderen passen sich an." },
+  nl: { edit: "Breedte van vleugel {n} wijzigen", invalid: "Waarde tussen {min} en {max} mm", hint: "Tik op de maat van een vleugel om die te wijzigen: de andere passen zich aan." },
+  ro: { edit: "Modifică lățimea canatului {n}", invalid: "Valoare între {min} și {max} mm", hint: "Atinge cota unui canat pentru a o modifica: celelalte se adaptează." },
+};
+
 export const OPTIONS: L<{ leafDims: string; glassDims: string; glassNote: string }> = {
   it: { leafDims: "Quote delle ante", glassDims: "Quote vetro", glassNote: "Misure del vetro indicative: dipendono dal sistema di profili." },
   en: { leafDims: "Leaf dimensions", glassDims: "Glass dimensions", glassNote: "Glass sizes are indicative: they depend on the profile system." },

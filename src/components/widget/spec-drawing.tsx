@@ -1,9 +1,11 @@
 "use client";
 
-import { inactiveLeaves, jointsFor } from "@/shared/sash-rules";
+import { inactiveLeaves, jointsFor, normalizedRatios, type EditorSash } from "@/shared/sash-rules";
 import { darken, GLASS_GRADIENT_STOPS, hardwareFill, TEXTURE_TILE } from "@/lib/drawing/finishes";
 import { handleKindFor, handleShapes } from "@/lib/drawing/handle-shapes";
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
+import { parseDimensionInput } from "@/lib/drawing/dimension-edit";
+import { MIN_SASH_WIDTH, widgetLeafRanges, widgetLeafWidths } from "./leaf-edit";
 import type { Material, Sash } from "./widget-pricing";
 
 // React port of the ONESPEC prototype's buildDiagramSVG(), extended with the
@@ -25,13 +27,6 @@ const FINISH_COLORS: Record<string, { stroke: string; fill: string }> = {
   woodgrain: { stroke: "#5D3A22", fill: "#8B5A2B" },
 };
 
-/** Minimum leaf widths (mm) per opening type — under this the leaf jams. */
-const MIN_SASH_WIDTH: Record<Sash["type"], number> = {
-  fix: 300,
-  classic: 300,
-  tiltturn: 415,
-  sliding: 400,
-};
 /** Minimum frame heights (mm) per opening type. */
 const MIN_SASH_HEIGHT: Record<Sash["type"], number> = {
   fix: 300,
@@ -50,6 +45,10 @@ interface Props {
   onSelectSash?: (index: number) => void;
   /** Drag a divider: new left-leaf ratio (0-1) for divider `index`. */
   onResizeSash?: (index: number, leftRatio: number) => void;
+  /** The width of ONE leaf typed into its label under the drawing (whole mm, already checked against that leaf's range). */
+  onEditLeafWidth?: (index: number, mm: number) => void;
+  /** Words for the leaf labels: `edit` has "{n}", `invalid` has "{min}" and "{max}". */
+  leafText?: { edit: string; invalid: string };
   /** Finish key (white / anthracite / woodgrain) — overrides the material colour. */
   finish?: string;
   /** Show the light "!" badge + red frame when a leaf is below the safe minimum. */
@@ -62,13 +61,8 @@ interface Props {
   finishTexture?: { href: string; w: number; h: number };
 }
 
-function normaliseRatios(sashes: Sash[]): number[] {
-  const raw = sashes.map((s) => (typeof s.widthRatio === "number" && s.widthRatio > 0 ? s.widthRatio : 0));
-  const anySet = raw.some((r) => r > 0);
-  if (!anySet) return sashes.map(() => 1 / sashes.length);
-  const total = raw.reduce((a, b) => a + b, 0) || 1;
-  return raw.map((r) => (r > 0 ? r / total : 0)).map((r) => (r === 0 ? 1 / sashes.length : r));
-}
+// The same shares the leaf labels and the editing use (shared with the platform), so drawing and numbers can never disagree.
+const normaliseRatios = (sashes: Sash[]): number[] => normalizedRatios(sashes as unknown as EditorSash[]);
 
 export function SpecDrawing({
   width,
@@ -79,6 +73,8 @@ export function SpecDrawing({
   interactive = true,
   onSelectSash,
   onResizeSash,
+  onEditLeafWidth,
+  leafText = { edit: "Edit the width of leaf {n}", invalid: "Value between {min} and {max} mm" },
   finish,
   showMinWarnings = true,
   door = false,
@@ -98,11 +94,14 @@ export function SpecDrawing({
   const colors = hasHex ? { fill: finishTexture ? `url(#${texId})` : finishHex!, stroke: darken(finishHex!, 0.4) } : base;
   const glassInset = 7;
 
+  // With several leaves a row of per-leaf widths sits between the frame and the overall width line.
+  const leafRow = sashes.length > 1;
   const svgW = 280;
-  const svgH = originY + rectH + 46;
+  const svgH = originY + rectH + (leafRow ? 70 : 46);
   const rectX = originX;
   const rectY = originY;
-  const hLineY = rectY + rectH + 22;
+  const leafLineY = rectY + rectH + 14;
+  const hLineY = rectY + rectH + (leafRow ? 44 : 22);
   const vLineX = rectX - 22;
 
   const n = sashes.length;
@@ -110,6 +109,12 @@ export function SpecDrawing({
   // Frame rules: a casement beside a tilt-turn is the inactive leaf (no handle, movable mullion); other pairs get a fixed mullion.
   const leafLike = sashes.map((x) => ({ type: x.type, active: x.active !== false }));
   const inactive = inactiveLeaves(leafLike);
+
+  const leafMm = widgetLeafWidths(width, sashes);
+  const leafRanges = widgetLeafRanges(width, sashes);
+  const [editingLeaf, setEditingLeaf] = useState<{ index: number; bad: boolean } | null>(null);
+  const [hoverLeaf, setHoverLeaf] = useState<number | null>(null);
+  const leafSettled = useRef(false);
 
   const svgRef = useRef<SVGSVGElement>(null);
   const dragIdx = useRef<number | null>(null);
@@ -157,7 +162,7 @@ export function SpecDrawing({
     const midY = rectY + rectH / 2;
     const sash = sashes[i];
     const isActive = sash.active !== false;
-    const leafWidthMm = Math.round(width * ratios[i]);
+    const leafWidthMm = leafMm[i];
     const tooNarrow = showMinWarnings && isActive && leafWidthMm < MIN_SASH_WIDTH[sash.type];
     const tooShort = showMinWarnings && isActive && height < MIN_SASH_HEIGHT[sash.type];
     const warn = tooNarrow || tooShort;
@@ -329,6 +334,118 @@ export function SpecDrawing({
         />,
         <line key={`gripline-${i}`} x1={dividerX} y1={rectY + rectH / 2 - 8} x2={dividerX} y2={rectY + rectH / 2 + 8} stroke="#1E5F74" strokeWidth={3} strokeLinecap="round" pointerEvents="none" />,
       );
+    }
+  }
+
+  if (leafRow) {
+    let x0 = rectX;
+    for (let i = 0; i < n; i++) {
+      const x1 = x0 + ratios[i] * rectW;
+      const mm = leafMm[i];
+      const narrow = showMinWarnings && sashes[i].active !== false && mm < MIN_SASH_WIDTH[sashes[i].type];
+      const col = narrow ? "#DC2626" : "#8A9492";
+      const cx = (x0 + x1) / 2;
+      nodes.push(
+        <line key={`ll-${i}`} x1={x0} y1={leafLineY} x2={x1} y2={leafLineY} stroke={col} strokeWidth={1} pointerEvents="none" />,
+        <line key={`ll1-${i}`} x1={x0} y1={leafLineY - 4} x2={x0} y2={leafLineY + 4} stroke={col} strokeWidth={1} pointerEvents="none" />,
+        <line key={`ll2-${i}`} x1={x1} y1={leafLineY - 4} x2={x1} y2={leafLineY + 4} stroke={col} strokeWidth={1} pointerEvents="none" />,
+      );
+      const boxW = Math.min(Math.max(String(mm).length * 6.4 + 10, 26), Math.max(26, x1 - x0));
+      const label = leafText.edit.replace("{n}", String(i + 1));
+      if (editingLeaf?.index === i) {
+        const range = leafRanges[i];
+        const message = leafText.invalid.replace("{min}", String(range.min)).replace("{max}", String(range.max));
+        const fx = Math.max(2, Math.min(cx - 34, svgW - 70));
+        const commit = (value: string) => {
+          const parsed = parseDimensionInput(value, range.min, range.max);
+          if (!parsed.ok) {
+            setEditingLeaf({ index: i, bad: true });
+            return false;
+          }
+          leafSettled.current = true;
+          setEditingLeaf(null);
+          if (parsed.mm !== mm) onEditLeafWidth?.(i, parsed.mm);
+          return true;
+        };
+        nodes.push(
+          <g key={`le-${i}`}>
+            {editingLeaf.bad ? (
+              <text x={Math.max((message.length * 4.8) / 2 + 2, Math.min(cx, svgW - (message.length * 4.8) / 2 - 2))} y={leafLineY + 30} textAnchor="middle" fontFamily="IBM Plex Mono, monospace" fontSize={8} fill="#DC2626" pointerEvents="none" role="alert">
+                {message}
+              </text>
+            ) : null}
+            <foreignObject x={fx} y={leafLineY + 1} width={68} height={22}>
+              <input
+                autoFocus
+                type="text"
+                inputMode="numeric"
+                aria-label={label}
+                aria-invalid={editingLeaf.bad || undefined}
+                title={editingLeaf.bad ? message : label}
+                defaultValue={String(mm)}
+                data-testid={`leaf-input-${i}`}
+                onFocus={(e) => e.currentTarget.select()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    commit(e.currentTarget.value);
+                  } else if (e.key === "Escape") {
+                    e.preventDefault();
+                    leafSettled.current = true;
+                    setEditingLeaf(null);
+                  }
+                }}
+                onChange={() => editingLeaf.bad && setEditingLeaf({ index: i, bad: false })}
+                onBlur={(e) => {
+                  if (leafSettled.current) return;
+                  if (!commit(e.currentTarget.value)) setEditingLeaf(null);
+                }}
+                style={{ width: "100%", height: "100%", boxSizing: "border-box", font: "bold 11px IBM Plex Mono, monospace", textAlign: "center", border: `2px solid ${editingLeaf.bad ? "#DC2626" : "#2563EB"}`, outline: "none", borderRadius: 4, background: "#fff", color: "#111827" }}
+              />
+            </foreignObject>
+          </g>,
+        );
+      } else {
+        nodes.push(
+          <text key={`lt-${i}`} x={cx} y={leafLineY + 12} textAnchor="middle" fontFamily="IBM Plex Mono, monospace" fontSize={9.5} fontWeight={700} fill={narrow ? "#DC2626" : "#6B7A77"} pointerEvents="none">
+            {mm}
+          </text>,
+        );
+        if (onEditLeafWidth) {
+          const open = () => {
+            leafSettled.current = false;
+            setEditingLeaf({ index: i, bad: false });
+          };
+          nodes.push(
+            <rect
+              key={`lb-${i}`}
+              x={cx - boxW / 2}
+              y={leafLineY + 1}
+              width={boxW}
+              height={16}
+              rx={4}
+              fill={hoverLeaf === i ? "rgba(37,99,235,0.10)" : "transparent"}
+              role="button"
+              tabIndex={0}
+              aria-label={`${label}: ${mm} mm`}
+              data-testid={`leaf-dim-${i}`}
+              style={{ cursor: "text", outline: "none" }}
+              onPointerEnter={() => setHoverLeaf(i)}
+              onPointerLeave={() => setHoverLeaf((h) => (h === i ? null : h))}
+              onClick={open}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  open();
+                }
+              }}
+            >
+              <title>{label}</title>
+            </rect>,
+          );
+        }
+      }
+      x0 = x1;
     }
   }
 

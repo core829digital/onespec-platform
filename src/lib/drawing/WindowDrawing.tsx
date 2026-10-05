@@ -32,6 +32,12 @@ export interface WindowDrawingProps {
   onEditDimension?: (axis: "width" | "height", mm: number) => void;
   dimensionRange?: { min: number; max: number };
   dimensionText?: { editWidth: string; editHeight: string; invalid: string };
+  /** The width of ONE leaf typed into its label on the drawing (whole mm, already validated against `leafWidthRanges[index]`). */
+  onEditLeafWidth?: (index: number, mm: number) => void;
+  /** Allowed width of every leaf, in leaf order. */
+  leafWidthRanges?: Array<{ min: number; max: number }>;
+  /** `edit` holds "{n}" (the leaf number); `invalid` holds "{min}" and "{max}". */
+  leafText?: { edit: string; invalid: string };
   svgId?: string;
   ariaLabel?: string;
   className?: string;
@@ -64,6 +70,9 @@ export function WindowDrawing({
   onEditDimension,
   dimensionRange = { min: 200, max: 6000 },
   dimensionText = { editWidth: "Edit the width", editHeight: "Edit the height", invalid: "Value between {min} and {max} mm" },
+  onEditLeafWidth,
+  leafWidthRanges,
+  leafText = { edit: "Edit the width of leaf {n}", invalid: "Value between {min} and {max} mm" },
   onHandleHeight,
   onHandleClick,
   handleText = { drag: "Drag to adjust the handle height", standard: "standard", mid: "mid-height", adjust: "Handle height" },
@@ -82,6 +91,9 @@ export function WindowDrawing({
   const [hovered, setHovered] = useState<number | null>(null);
   const [editing, setEditing] = useState<{ axis: "width" | "height"; bad: boolean } | null>(null);
   const [hoverDim, setHoverDim] = useState<"width" | "height" | null>(null);
+  const [editingLeaf, setEditingLeaf] = useState<{ index: number; bad: boolean } | null>(null);
+  const [hoverLeaf, setHoverLeaf] = useState<number | null>(null);
+  const leafCommitted = useRef(false);
   const committed = useRef(false);
   const handleRef = useRef<{ index: number; x: number; y: number; moved: boolean } | null>(null);
   const [handleDrag, setHandleDrag] = useState<{ index: number; mm: number; label: "standard" | "mid" | null } | null>(null);
@@ -312,6 +324,111 @@ export function WindowDrawing({
               </g>
             );
           })()
+        : null}
+      {onEditLeafWidth
+        ? (meta.leafDimensions ?? []).map((box) => {
+            const i = box.sashIndex;
+            const range = leafWidthRanges?.[i] ?? dimensionRange;
+            const current = meta.cells.find((c) => c.sashIndex === i)?.mm ?? 0;
+            const label = leafText.edit.replace("{n}", String(i + 1));
+            const message = leafText.invalid.replace("{min}", String(range.min)).replace("{max}", String(range.max));
+            if (editingLeaf?.index === i) {
+              const cx = box.x + box.w / 2;
+              const fx = Math.max(2, Math.min(cx - 34, scene.viewBox.w - 70));
+              const commit = (value: string) => {
+                const parsed = parseDimensionInput(value, range.min, range.max);
+                if (!parsed.ok) {
+                  setEditingLeaf({ index: i, bad: true });
+                  return false;
+                }
+                leafCommitted.current = true;
+                setEditingLeaf(null);
+                if (parsed.mm !== current) onEditLeafWidth(i, parsed.mm);
+                return true;
+              };
+              return (
+                <g key={`leaf-edit-${i}`}>
+                  {editingLeaf.bad ? (
+                    <text x={Math.max((message.length * 5.2) / 2 + 2, Math.min(cx, scene.viewBox.w - (message.length * 5.2) / 2 - 2))} y={box.y + box.h + 22} textAnchor="middle" fontSize={8.5} fontFamily={MONO} fill={PALETTE.danger} pointerEvents="none" role="alert">
+                      {message}
+                    </text>
+                  ) : null}
+                  <foreignObject x={fx} y={box.y - 3} width={68} height={24}>
+                    <input
+                      autoFocus
+                      type="text"
+                      inputMode="numeric"
+                      aria-label={label}
+                      aria-invalid={editingLeaf.bad || undefined}
+                      title={editingLeaf.bad ? message : label}
+                      defaultValue={String(current)}
+                      data-testid={`leaf-input-${i}`}
+                      onFocus={(e) => e.currentTarget.select()}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          commit(e.currentTarget.value);
+                        } else if (e.key === "Escape") {
+                          e.preventDefault();
+                          leafCommitted.current = true;
+                          setEditingLeaf(null);
+                        }
+                      }}
+                      onChange={() => editingLeaf.bad && setEditingLeaf({ index: i, bad: false })}
+                      onBlur={(e) => {
+                        if (leafCommitted.current) return; // Enter / Escape already settled it
+                        if (!commit(e.currentTarget.value)) setEditingLeaf(null);
+                      }}
+                      style={{
+                        width: "100%",
+                        height: "100%",
+                        boxSizing: "border-box",
+                        font: `bold 11px ${MONO}`,
+                        textAlign: "center",
+                        border: `2px solid ${editingLeaf.bad ? PALETTE.danger : PALETTE.guide}`,
+                        outline: "none",
+                        borderRadius: 4,
+                        boxShadow: editingLeaf.bad ? "0 0 0 2px rgba(220,38,38,0.25)" : "0 0 0 2px rgba(37,99,235,0.25)",
+                        background: "#fff",
+                        color: "#111827",
+                      }}
+                    />
+                  </foreignObject>
+                </g>
+              );
+            }
+            const open = () => {
+              leafCommitted.current = false;
+              setEditingLeaf({ index: i, bad: false });
+            };
+            return (
+              <rect
+                key={`leaf-dim-${i}`}
+                x={box.x}
+                y={box.y}
+                width={box.w}
+                height={box.h}
+                rx={4}
+                fill={hoverLeaf === i ? "rgba(37,99,235,0.10)" : "transparent"}
+                role="button"
+                tabIndex={0}
+                aria-label={`${label}: ${current} mm`}
+                data-testid={`leaf-dim-${i}`}
+                style={{ cursor: "text", outline: "none", transition: "fill 120ms ease" }}
+                onPointerEnter={() => setHoverLeaf(i)}
+                onPointerLeave={() => setHoverLeaf((h) => (h === i ? null : h))}
+                onClick={open}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    open();
+                  }
+                }}
+              >
+                <title>{label}</title>
+              </rect>
+            );
+          })
         : null}
       {onEditDimension
         ? (["width", "height"] as const).map((axis) => {

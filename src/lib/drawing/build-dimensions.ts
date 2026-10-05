@@ -21,7 +21,7 @@ function horizontal(tag: { role: "dimension" | "leafLabel"; sashIndex?: number; 
  * per-leaf width chain above the overall row. `rightClear` keeps the height
  * line outside accessories that flank the frame.
  */
-export function drawDimensions(ctx: SceneContext, cells: SceneCell[], rightClear: number): Primitive[] {
+export function drawDimensions(ctx: SceneContext, cells: SceneCell[], rightClear: number, tooNarrow: ReadonlySet<number> = new Set()): Primitive[] {
   const { frame, band, options } = ctx;
   const out: Primitive[] = [];
   const bottom = frame.y + frame.h + band;
@@ -33,7 +33,14 @@ export function drawDimensions(ctx: SceneContext, cells: SceneCell[], rightClear
       const tag = { role: "leafLabel" as const, sashIndex: i };
       const a = xs[i];
       const b = xs[i + 1];
-      out.push(...horizontal(tag, a, b, rowY), text(tag, (a + b) / 2, rowY + 12, `${c.mm}`, { ...FONT, fontSize: 9 }));
+      const bad = tooNarrow.has(i);
+      const label = `${c.mm}`;
+      out.push(...horizontal(tag, a, b, rowY, bad ? BAD_LINE : LINE_STYLE), text(tag, (a + b) / 2, rowY + 12, label, { ...(bad ? BAD_FONT : FONT), fontSize: 9 }));
+      // A comfortable target to click or tap, wider than the digits (and never wider than the leaf itself).
+      const len = Math.max(label.length * 9 * 0.6, 22);
+      const boxW = Math.min(len + 10, Math.max(22, b - a));
+      // A lone leaf IS the frame: its width is edited on the overall label.
+      if (cells.length > 1) ctx.leafDimBoxes?.push({ sashIndex: i, x: (a + b) / 2 - boxW / 2, y: rowY + 12 - 9 - 3, w: boxW, h: 9 + 10 });
     });
     rowY += 28;
   }

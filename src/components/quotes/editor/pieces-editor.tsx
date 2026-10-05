@@ -18,12 +18,14 @@ import {
   setCategory,
   setHardwareColor,
   setHeight,
+  leafWidthRanges,
+  setSashWidth,
   type PieceIssue,
 } from "@/shared/piece-ops";
 import { defaultItem } from "@/shared/item-defaults";
 import { reconcileItem } from "@/shared/catalog-rules";
 import { DIM_ABS_MAX } from "@/shared/widget-types";
-import { finishFillFor, buildHardwareScene, buildLegendScene, buildPlanScene, buildSectionScene, DRAWING_DIMENSION, DRAWING_FLIP, DRAWING_HANDLE, DRAWING_OPTIONS, DRAWING_TABS, DRAWING_TITLES, DRAWING_VIEW, drawingLocale, SceneSvg, WindowDrawing, type DrawingTab, type DrawingView } from "@/lib/drawing";
+import { finishFillFor, buildHardwareScene, buildLegendScene, buildPlanScene, buildSectionScene, DRAWING_DIMENSION, DRAWING_FLIP, DRAWING_HANDLE, DRAWING_LEAF, DRAWING_OPTIONS, DRAWING_TABS, DRAWING_TITLES, DRAWING_VIEW, drawingLocale, SceneSvg, WindowDrawing, type DrawingTab, type DrawingView } from "@/lib/drawing";
 import { SashPanel } from "@/components/quotes/sash-panel";
 import { catalogChoices, labelOf } from "./catalog-labels";
 import { PieceForm } from "./piece-form";
@@ -280,11 +282,18 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
                 onEditDimension={(axis, mm) => (axis === "width" ? patchActive({ width: mm }) : update(activeIndex, setHeight(active, mm)))}
                 dimensionRange={{ min: 200, max: DIM_ABS_MAX }}
                 dimensionText={DRAWING_DIMENSION[drawingLocale(locale)]}
+                onEditLeafWidth={(i, mm) => {
+                  const r = setSashWidth(active, i, mm);
+                  if (r.ok) update(activeIndex, r.item);
+                }}
+                leafWidthRanges={leafWidthRanges(active)}
+                leafText={DRAWING_LEAF[drawingLocale(locale)]}
                 onResizeSash={view === "inside" ? (d, ratio) => update(activeIndex, resizeDivider(active, d, ratio)) : undefined}
                 ariaLabel={t("drawingLabel", { width: active.width, height: active.height })}
                 height={340}
               />
             </div>
+            {leafDims && active.sashes.length > 1 ? <p className="mt-2 text-center text-[11px] text-[var(--color-text-secondary)]">{DRAWING_LEAF[drawingLocale(locale)].hint}</p> : null}
             {glassDims ? <p className="mt-2 text-center text-[11px] text-[var(--color-text-secondary)]">{DRAWING_OPTIONS[drawingLocale(locale)].glassNote}</p> : null}
             {colorPicker && active.sashes[colorPicker.index] ? (
               <HandleColorPopover

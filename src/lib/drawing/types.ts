@@ -178,6 +178,11 @@ export interface DimensionBoxes {
   height?: Box;
 }
 
+/** Clickable area of one leaf's width label (drawing units), so it can be typed over in place. */
+export interface LeafDimensionBox extends Box {
+  sashIndex: number;
+}
+
 /** Where a handle sits, so a drawing can let it be dragged: its box, its axis and how far the axis may travel (drawing units). */
 export interface HandleInfo {
   sashIndex: number;
@@ -210,6 +215,8 @@ export interface SceneMeta {
   handles?: HandleInfo[];
   /** Overall width / height labels; absent when the dimension lines are hidden. */
   dimensions?: DimensionBoxes;
+  /** Width label of every leaf (only when the per-leaf dimensions are shown). */
+  leafDimensions?: LeafDimensionBox[];
 }
 
 /** Texture patterns a scene refers to as `url(#id)` fills. Renderers that cannot paint patterns use `fallback`. */
@@ -254,4 +261,6 @@ export interface SceneContext {
   handles?: HandleInfo[];
   /** Filled while drawing: where the overall dimension labels are. */
   dimBoxes?: DimensionBoxes;
+  /** Filled while drawing: where each leaf's width label is. */
+  leafDimBoxes?: LeafDimensionBox[];
 }

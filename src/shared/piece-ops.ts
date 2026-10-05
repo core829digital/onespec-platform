@@ -10,6 +10,7 @@ import {
   type SashKind,
   type SashMixCode,
 } from "./sash-rules";
+import { leafWidthLimits, leafWidthsMm, setLeafWidth, type LeafWidthLimits } from "./leaf-widths";
 import { DIM_ABS_MAX, SINGLE_SASH_MAX_HEIGHT, SINGLE_SASH_MAX_WIDTH } from "./widget-types";
 
 /**
@@ -114,6 +115,32 @@ export function resizeDivider(item: ProjectItem, dividerIndex: number, leftRatio
   next[dividerIndex] = left;
   next[dividerIndex + 1] = pair - left;
   return { ...item, sashes: item.sashes.map((s, i) => ({ ...s, widthRatio: next[i] })) };
+}
+
+/** Minimum clear width of every leaf, mm (the same minimums the drawing's red warning and the divider drag use). */
+export function sashMinWidths(item: Pick<ProjectItem, "sashes">): number[] {
+  return item.sashes.map((s) => SASH_MIN[s.type as SashKind].w);
+}
+
+/** What each leaf may be set to when its width is typed in: its own minimum up to the frame minus the minimum of the others. */
+export function leafWidthRanges(item: Pick<ProjectItem, "width" | "sashes">): LeafWidthLimits[] {
+  const mins = sashMinWidths(item);
+  return mins.map((_, i) => leafWidthLimits(item.width, mins, i));
+}
+
+/** Whole-millimetre width of every leaf; always adds up to the frame width. */
+export function sashWidthsMm(item: Pick<ProjectItem, "width" | "sashes">): number[] {
+  return leafWidthsMm(item.width, normalizedRatios(item.sashes.map(asEditor)));
+}
+
+/**
+ * Type the width of one leaf (whole mm). The other leaves share what is left in proportion to their widths, none under its minimum.
+ * Refused (with the allowed range) when no arrangement can hold the value.
+ */
+export function setSashWidth(item: ProjectItem, index: number, mm: number): { ok: true; item: ProjectItem } | { ok: false; reason: "range" | "index"; min?: number; max?: number } {
+  const r = setLeafWidth(item.width, normalizedRatios(item.sashes.map(asEditor)), sashMinWidths(item), index, mm);
+  if (!r.ok) return r;
+  return { ok: true, item: { ...item, sashes: item.sashes.map((s, i) => ({ ...s, widthRatio: r.ratios[i] })) } };
 }
 
 /** Change the piece height and keep every handle inside the slider range. */
