@@ -419,7 +419,9 @@
     "validationCountryUnsupported": "Ce pays n'est pas pris en charge pour ce champ.",
     "vatZeroNotAllowed": "La TVA à 0 % n'est pas autorisée : pour un client professionnel d'un autre pays de l'UE, une vérification VIES positive est d'abord requise.",
     "vatManualReasonRequired": "Pour appliquer une TVA à 0 %, indiquez le motif de l'exonération (5 caractères minimum).",
-    "viesUnavailable": "Le service VIES de la Commission européenne ne répond pas pour le moment : réessayez bientôt. Sans vérification, vous ne pouvez pas appliquer 0 %."
+    "viesUnavailable": "Le service VIES de la Commission européenne ne répond pas pour le moment : réessayez bientôt. Sans vérification, vous ne pouvez pas appliquer 0 %.",
+    "onboardingIncomplete": "Des données obligatoires manquent : revenez aux étapes précédentes et complétez entreprise, adresse, contacts, fiscalité et prix.",
+    "viesAckRequired": "Pour continuer, confirmez avoir lu comment fonctionnent le VIES et la TVA à 0 %."
   },
   "app": {
     "suspended": {
@@ -1605,7 +1607,11 @@
       "billing": "Plan",
       "team": "Équipe",
       "configurator": "Configurateur",
-      "zone": "Zone"
+      "company": "Société",
+      "address": "Adresse",
+      "contact": "Contact",
+      "tax": "Fiscalité",
+      "pricing": "Tarifs"
     },
     "welcome": {
       "title": "Bienvenue sur OneSpec",
@@ -1720,11 +1726,58 @@
         "Presque terminé, ouverture du tableau de bord…"
       ]
     },
-    "zone": {
-      "title": "Où travaillez-vous en Italie ?",
-      "intro": "Choisissez la zone où vous travaillez : la plateforme utilisera la liste de prix standard de cette zone, il ne vous restera qu'à décider de votre marge bénéficiaire.",
-      "hint": "Vous pouvez la modifier à tout moment dans les réglages de la liste de prix. Les prix sont indicatifs, validés sur le marché italien.",
-      "continue": "Continuer"
+    "company": {
+      "intro": "Ces informations figurent sur vos devis : saisissez-les exactement comme dans votre extrait d'immatriculation.",
+      "name": "Raison sociale",
+      "country": "Pays",
+      "vat": "N° de TVA",
+      "optional": "facultatif",
+      "vatHelp": "Format : préfixe {prefix} + {length} caractères. Exemple : {example}",
+      "continue": "Enregistrer et continuer"
+    },
+    "address": {
+      "intro": "Le siège de votre société.",
+      "street": "Rue et numéro",
+      "postal": "Code postal",
+      "postalHelp": "Exemple : {example}",
+      "city": "Ville",
+      "continue": "Enregistrer et continuer"
+    },
+    "contact": {
+      "intro": "Comment vos clients pourront vous joindre.",
+      "phone": "Téléphone",
+      "phoneHelp": "Avec l'indicatif international. Exemple : {example}",
+      "email": "E-mail de la société",
+      "website": "Site web",
+      "optional": "facultatif",
+      "websiteHelp": "Adresses https:// uniquement",
+      "continue": "Enregistrer et continuer"
+    },
+    "tax": {
+      "intro": "Choisissez le taux de TVA que vous appliquez habituellement. Vous pourrez le modifier devis par devis, y compris à 0 % quand la loi le permet.",
+      "viesTitle": "Ce qu'est VIES et pourquoi c'est utile",
+      "viesWhat": "VIES (VAT Information Exchange System) est la base de données de la Commission européenne qui indique si le numéro de TVA d'une entreprise est actif pour les échanges entre pays de l'UE.",
+      "viesWhy": "Si vous vendez à une entreprise d'un autre pays de l'UE, vous ne pouvez facturer à 0 % de TVA que si son numéro est actif dans VIES. Sans cette vérification, la TVA de votre pays s'applique.",
+      "viesHow": "Dans le devis, choisissez le pays du client et saisissez son numéro de TVA : la plateforme interroge VIES, enregistre le résultat et bloque le 0 % si le numéro est invalide ou si le service ne répond pas.",
+      "rule1": "Client dans votre pays : TVA nationale.",
+      "rule2": "Entreprise d'un autre pays de l'UE avec un numéro actif dans VIES : 0 % (livraison intracommunautaire, autoliquidation).",
+      "rule3": "Particulier d'un autre pays de l'UE : TVA de votre pays.",
+      "rule4": "Client hors UE (Saint-Marin et Vatican compris) : 0 % en exportation, avec preuve de sortie des biens.",
+      "viesDisclaimer": "Information générale intégrée au calculateur, pas un conseil fiscal : confirmez toujours les règles avec votre comptable.",
+      "viesLink": "Vérifier un numéro sur le site VIES de la Commission",
+      "lawLink": "Directive 2006/112/CE",
+      "defaultRate": "Taux de TVA habituel",
+      "ack": "J'ai compris le fonctionnement de VIES et que le 0 % exige la vérification.",
+      "continue": "Enregistrer et continuer"
+    },
+    "pricing": {
+      "intro": "Zone et marge : la plateforme calcule le reste du tarif.",
+      "zoneTitle": "Où travaillez-vous en Italie ?",
+      "marginTitle": "Votre marge bénéficiaire",
+      "marginHelp": "Pourcentage ajouté aux prix de fourniture. Modifiable pour chaque configurateur.",
+      "marginSlider": "Marge",
+      "marginInvalid": "Saisissez une marge de 0 à {max} % avec au plus deux décimales.",
+      "continue": "Enregistrer et continuer"
     }
   },
   "logistics": {

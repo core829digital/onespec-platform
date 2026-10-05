@@ -10,13 +10,13 @@ test("company profile: owner/admin save details, empty string clears, member can
 
   await asOwner.mutation(api.tenants.updateTenant, {
     tenantId: s.tenantId,
-    vatId: "  IT01234567890 ",
+    vatId: "  IT01234567897 ",
     address: "Via Roma 1, Prato",
-    phone: "+39 0574 1",
+    phone: "+39 0574 123456",
     companyEmail: "info@acme.it",
   });
   let p = await asMember.query(api.tenants.getCompanyProfile, {});
-  expect(p?.vatId).toBe("IT01234567890");
+  expect(p?.vatId).toBe("IT01234567897");
   expect(p?.address).toBe("Via Roma 1, Prato");
   expect(p?.email).toBe("info@acme.it");
   expect(p?.logoUrl).toBeNull();

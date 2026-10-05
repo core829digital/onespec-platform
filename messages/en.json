@@ -419,7 +419,9 @@
     "validationCountryUnsupported": "This country is not supported for this field.",
     "vatZeroNotAllowed": "0% VAT is not allowed: for a business customer in another EU country a successful VIES check is required first.",
     "vatManualReasonRequired": "To apply 0% VAT state the reason for the exemption (at least 5 characters).",
-    "viesUnavailable": "The European Commission's VIES service is not responding right now: try again shortly. Without a check you cannot apply 0%."
+    "viesUnavailable": "The European Commission's VIES service is not responding right now: try again shortly. Without a check you cannot apply 0%.",
+    "onboardingIncomplete": "Some required data is missing: go back to the previous steps and complete company, address, contacts, tax and prices.",
+    "viesAckRequired": "To continue, confirm that you have read how VIES and 0% VAT work."
   },
   "app": {
     "suspended": {
@@ -1605,7 +1607,11 @@
       "billing": "Plan",
       "team": "Team",
       "configurator": "Configurator",
-      "zone": "Area"
+      "company": "Company",
+      "address": "Address",
+      "contact": "Contact",
+      "tax": "Tax",
+      "pricing": "Pricing"
     },
     "welcome": {
       "title": "Welcome to OneSpec",
@@ -1720,11 +1726,58 @@
         "Almost done, opening the dashboard…"
       ]
     },
-    "zone": {
-      "title": "Where do you work in Italy?",
-      "intro": "Choose the area you work in: the platform will use the standard price list of that area, so all you have to decide is your profit margin.",
-      "hint": "You can change it at any time from the price list settings. Prices are indicative, validated on the Italian market.",
-      "continue": "Continue"
+    "company": {
+      "intro": "These details appear on your quotes: enter them exactly as on your company registration.",
+      "name": "Company name",
+      "country": "Country",
+      "vat": "VAT number",
+      "optional": "optional",
+      "vatHelp": "Format: prefix {prefix} + {length} characters. Example: {example}",
+      "continue": "Save and continue"
+    },
+    "address": {
+      "intro": "Your registered office.",
+      "street": "Street and number",
+      "postal": "Postal code",
+      "postalHelp": "Example: {example}",
+      "city": "City",
+      "continue": "Save and continue"
+    },
+    "contact": {
+      "intro": "How customers will reach you.",
+      "phone": "Phone",
+      "phoneHelp": "With the international prefix. Example: {example}",
+      "email": "Company email",
+      "website": "Website",
+      "optional": "optional",
+      "websiteHelp": "https:// addresses only",
+      "continue": "Save and continue"
+    },
+    "tax": {
+      "intro": "Choose the VAT rate you normally apply. You can change it quote by quote, including 0% where the law allows it.",
+      "viesTitle": "What VIES is and why you need it",
+      "viesWhat": "VIES (VAT Information Exchange System) is the European Commission database that tells you whether a company's VAT number is active for trade between EU countries.",
+      "viesWhy": "When you sell to a business in another EU country you may invoice at 0% VAT only if its VAT number is active in VIES. Without this check the VAT of your own country applies.",
+      "viesHow": "In the quote you pick the customer's country and enter their VAT number: the platform queries VIES, stores the result and blocks 0% if the number is invalid or the service does not answer.",
+      "rule1": "Customer in your own country: national VAT.",
+      "rule2": "Business in another EU country with an active VIES number: 0% (intra-Community supply, reverse charge).",
+      "rule3": "Private individual in another EU country: your country's VAT.",
+      "rule4": "Customer outside the EU (including San Marino and the Vatican): 0% as an export, keeping proof the goods left.",
+      "viesDisclaimer": "General information built into the calculator, not tax advice: always confirm the rules with your accountant.",
+      "viesLink": "Check a number on the Commission's VIES site",
+      "lawLink": "Directive 2006/112/EC",
+      "defaultRate": "Usual VAT rate",
+      "ack": "I understand how VIES works and that 0% requires the check.",
+      "continue": "Save and continue"
+    },
+    "pricing": {
+      "intro": "Zone and margin: the platform calculates the rest of the price list.",
+      "zoneTitle": "Where do you work in Italy?",
+      "marginTitle": "Your profit margin",
+      "marginHelp": "Percentage added to the supply prices. You can change it for each configurator.",
+      "marginSlider": "Margin",
+      "marginInvalid": "Enter a margin from 0 to {max}% with at most two decimals.",
+      "continue": "Save and continue"
     }
   },
   "logistics": {

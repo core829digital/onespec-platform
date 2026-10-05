@@ -1,11 +1,11 @@
 import { describe, expect, test } from "vitest";
 import { api } from "../../convex/_generated/api";
-import { newDb, seedTenant } from "./_helpers";
+import { fillOnboardingProfile, newDb, seedTenant } from "./_helpers";
 
 describe("onboarding wizard state", () => {
   test("sales-led tenant needs no billing; advance + complete update the tenant", async () => {
     const t = newDb();
-    const { ownerId } = await seedTenant(t, { plan: "enterprise" });
+    const { ownerId, tenantId } = await seedTenant(t, { plan: "enterprise" });
     const as = t.withIdentity({ subject: ownerId });
 
     let s = await as.query(api.onboarding.getState);
@@ -20,6 +20,9 @@ describe("onboarding wizard state", () => {
     s = await as.query(api.onboarding.getState);
     if (s.hasTenant) expect(s.step).toBe("team");
 
+    // Cannot finish with the company, address, contacts, tax and prices steps empty.
+    await expect(as.mutation(api.onboarding.complete)).rejects.toThrow(/ONBOARDING_INCOMPLETE/);
+    await fillOnboardingProfile(t, tenantId);
     await as.mutation(api.onboarding.complete);
     s = await as.query(api.onboarding.getState);
     if (s.hasTenant) expect(s.completed).toBe(true);
@@ -52,6 +55,7 @@ describe("onboarding wizard state", () => {
     s = await as.query(api.onboarding.getState);
     if (s.hasTenant) expect(s.needsPlan).toBe(false);
 
+    await fillOnboardingProfile(t, tenantId);
     await as.mutation(api.onboarding.complete);
   });
 

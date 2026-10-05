@@ -118,11 +118,11 @@ describe("onboarding: price zone step", () => {
     const { s, as } = await italianTenant();
     const before = await as.query(api.onboarding.getState, {});
     expect(before.hasTenant && before.priceZone).toBeNull();
-    await as.mutation(api.onboarding.advance, { step: "zone" });
+    await as.mutation(api.onboarding.advance, { step: "pricing" });
     await as.mutation(api.pricing.setPriceZone, { tenantId: s.tenantId, zone: "sud" });
     const after = await as.query(api.onboarding.getState, {});
     expect(after.hasTenant && after.priceZone).toBe("sud");
-    expect(after.hasTenant && after.step).toBe("zone");
+    expect(after.hasTenant && after.step).toBe("pricing");
   });
 });
 

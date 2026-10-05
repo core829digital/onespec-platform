@@ -91,6 +91,19 @@ export default defineSchema({
     logoStorageId: v.optional(v.id("_storage")),
     /** Privacy notice URL shown on the public widget's consent checkbox (Annex D of the DPA). */
     privacyUrl: v.optional(v.string()),
+    // Structured company address (validated per country in onboarding); `address` keeps the printed one-line form.
+    addressStreet: v.optional(v.string()),
+    addressCity: v.optional(v.string()),
+    addressPostalCode: v.optional(v.string()),
+    website: v.optional(v.string()),
+    /** Onboarding: national VAT rate new configurators start with, and when the installer confirmed they understood VIES / 0% VAT. */
+    defaultVatPercent: v.optional(v.number()),
+    viesAckAt: v.optional(v.number()),
+    /** Onboarding: pricing defaults every new configurator starts with (margin, who delivers and fits). */
+    defaultMarginPercent: v.optional(v.number()),
+    defaultDeliveryMode: v.optional(v.union(v.literal("factory"), v.literal("own"))),
+    defaultOwnServicePerM2Cents: v.optional(v.number()),
+    pricingSavedAt: v.optional(v.number()),
   })
     .index("by_slug", ["slug"])
     .index("by_owner", ["ownerUserId"])

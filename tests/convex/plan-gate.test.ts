@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test } from "vitest";
 import { api } from "../../convex/_generated/api";
-import { newDb, seedTenant } from "./_helpers";
+import { fillOnboardingProfile, newDb, seedTenant } from "./_helpers";
 
 /**
  * "No plan, no platform": a freshly registered account (planStatus
@@ -62,6 +62,7 @@ describe("pending_plan tenant", () => {
     await t.run((ctx) =>
       ctx.db.patch(s.tenantId, { plan: "essentials", planStatus: "active", stripeSubscriptionId: "sub_test" }),
     );
+    await fillOnboardingProfile(t, s.tenantId);
     await as.mutation(api.onboarding.complete, {});
     const tenant = await t.run((ctx) => ctx.db.get(s.tenantId));
     expect(tenant?.onboardingCompletedAt).toBeTruthy();

@@ -40,7 +40,12 @@ export const createConfigurator = mutation({
       allowedOrigins: [],
       defaultLocale: region.primaryLocale,
       defaultTheme: "auto",
-      vatRatePercent: defaultVat,
+      // The installer's onboarding choices: national VAT rate, margin, who delivers and fits.
+      vatRatePercent: tenant.defaultVatPercent ?? defaultVat,
+      ...(tenant.defaultMarginPercent ? { marginPercent: tenant.defaultMarginPercent } : {}),
+      ...(tenant.defaultDeliveryMode === "own" && (tenant.defaultOwnServicePerM2Cents ?? 0) > 0
+        ? { deliveryMode: "own" as const, ownServicePerM2Cents: tenant.defaultOwnServicePerM2Cents }
+        : {}),
       priceRoundingStep: 1,
       showPricesToEndUser: true,
       currency: "EUR",

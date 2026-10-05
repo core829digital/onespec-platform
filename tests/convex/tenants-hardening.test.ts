@@ -38,8 +38,8 @@ describe("tenants hardening (launch audit)", () => {
     const t = newDb();
     const s = await seedTenant(t, { plan: "pro" });
     const as = t.withIdentity({ subject: s.ownerId });
-    await expect(as.mutation(api.tenants.updateTenant, { tenantId: s.tenantId, name: " " })).rejects.toThrow("INVALID_NAME");
-    await expect(as.mutation(api.tenants.updateTenant, { tenantId: s.tenantId, name: "x".repeat(500) })).rejects.toThrow("INVALID_NAME");
+    await expect(as.mutation(api.tenants.updateTenant, { tenantId: s.tenantId, name: " " })).rejects.toThrow("VALIDATION_REQUIRED");
+    await expect(as.mutation(api.tenants.updateTenant, { tenantId: s.tenantId, name: "x".repeat(500) })).rejects.toThrow("VALIDATION_TOO_LONG");
     await expect(as.mutation(api.tenants.updateTenant, { tenantId: s.tenantId, country: "Italy" })).rejects.toThrow("INVALID_INPUT");
     await as.mutation(api.tenants.updateTenant, { tenantId: s.tenantId, name: "  Serramenti   Rossi ", country: "it" });
     const tenant = await t.run((ctx) => ctx.db.get(s.tenantId));

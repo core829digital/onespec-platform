@@ -419,7 +419,9 @@
     "validationCountryUnsupported": "Questo paese non è supportato per il campo indicato.",
     "vatZeroNotAllowed": "L'IVA allo 0% non è consentita: per un cliente professionista di un altro paese UE serve prima la verifica VIES con esito positivo.",
     "vatManualReasonRequired": "Per applicare l'IVA allo 0% indica il motivo dell'esenzione (almeno 5 caratteri).",
-    "viesUnavailable": "Il servizio VIES della Commissione europea non risponde in questo momento: riprova tra poco. Senza verifica non puoi applicare lo 0%."
+    "viesUnavailable": "Il servizio VIES della Commissione europea non risponde in questo momento: riprova tra poco. Senza verifica non puoi applicare lo 0%.",
+    "onboardingIncomplete": "Mancano dei dati obbligatori: torna ai passaggi precedenti e completa azienda, indirizzo, contatti, fiscalità e prezzi.",
+    "viesAckRequired": "Per proseguire conferma di aver letto come funziona il VIES e l'IVA allo 0%."
   },
   "app": {
     "suspended": {
@@ -1605,7 +1607,11 @@
       "billing": "Piano",
       "team": "Team",
       "configurator": "Configuratore",
-      "zone": "Zona"
+      "company": "Azienda",
+      "address": "Sede",
+      "contact": "Contatti",
+      "tax": "Fiscalità",
+      "pricing": "Listino"
     },
     "welcome": {
       "title": "Benvenuto in OneSpec",
@@ -1720,11 +1726,58 @@
         "Quasi fatto, apriamo la dashboard…"
       ]
     },
-    "zone": {
-      "title": "Dove lavori in Italia?",
-      "intro": "Scegli la zona in cui operi: la piattaforma userà il listino dei prezzi standard di quella zona, così dovrai solo decidere il tuo margine di profitto.",
-      "hint": "Potrai cambiarla in qualsiasi momento dalle impostazioni del listino. I prezzi sono indicativi, validati sul mercato italiano.",
-      "continue": "Continua"
+    "company": {
+      "intro": "Questi dati compaiono sui tuoi preventivi: inseriscili esattamente come risultano alla visura camerale.",
+      "name": "Ragione sociale",
+      "country": "Paese",
+      "vat": "Partita IVA",
+      "optional": "facoltativa",
+      "vatHelp": "Formato: prefisso {prefix} + {length} caratteri. Esempio: {example}",
+      "continue": "Salva e continua"
+    },
+    "address": {
+      "intro": "La sede legale dell'azienda.",
+      "street": "Via e numero civico",
+      "postal": "CAP",
+      "postalHelp": "Esempio: {example}",
+      "city": "Città",
+      "continue": "Salva e continua"
+    },
+    "contact": {
+      "intro": "Come ti contatteranno i clienti.",
+      "phone": "Telefono",
+      "phoneHelp": "Con prefisso internazionale. Esempio: {example}",
+      "email": "Email aziendale",
+      "website": "Sito web",
+      "optional": "facoltativo",
+      "websiteHelp": "Solo indirizzi https://",
+      "continue": "Salva e continua"
+    },
+    "tax": {
+      "intro": "Scegli l'aliquota IVA che applichi di solito. Potrai cambiarla preventivo per preventivo, anche a 0% quando la legge lo consente.",
+      "viesTitle": "Cos'è il VIES e perché ti serve",
+      "viesWhat": "Il VIES (VAT Information Exchange System) è la banca dati della Commissione Europea che dice se la partita IVA di un'azienda è attiva per le operazioni tra paesi dell'UE.",
+      "viesWhy": "Se vendi a un'azienda di un altro paese UE puoi fatturare con IVA allo 0% solo se la sua partita IVA risulta attiva nel VIES. Senza questa verifica l'IVA resta quella del tuo paese.",
+      "viesHow": "Nel preventivo scegli il paese del cliente e inserisci la sua partita IVA: la piattaforma interroga il VIES, salva l'esito e blocca lo 0% se il numero non è valido o il servizio non risponde.",
+      "rule1": "Cliente nel tuo stesso paese: IVA nazionale.",
+      "rule2": "Azienda di un altro paese UE con partita IVA attiva nel VIES: 0% (cessione intracomunitaria, inversione contabile).",
+      "rule3": "Privato di un altro paese UE: IVA del tuo paese.",
+      "rule4": "Cliente fuori dall'UE (compresi San Marino e Vaticano): 0% come esportazione, conservando la prova di uscita della merce.",
+      "viesDisclaimer": "Informazione generale integrata nel calcolatore, non è consulenza fiscale: conferma sempre le regole con il tuo commercialista.",
+      "viesLink": "Verifica un numero sul sito VIES della Commissione",
+      "lawLink": "Direttiva 2006/112/CE",
+      "defaultRate": "Aliquota IVA abituale",
+      "ack": "Ho capito come funziona il VIES e che lo 0% richiede la verifica.",
+      "continue": "Salva e continua"
+    },
+    "pricing": {
+      "intro": "Zona e margine: il resto del listino lo calcola la piattaforma.",
+      "zoneTitle": "Dove lavori in Italia?",
+      "marginTitle": "Il tuo margine di profitto",
+      "marginHelp": "Percentuale aggiunta ai prezzi di fornitura. Potrai cambiarla per ogni configuratore.",
+      "marginSlider": "Margine",
+      "marginInvalid": "Inserisci un margine da 0 a {max}% con al massimo due decimali.",
+      "continue": "Salva e continua"
     }
   },
   "logistics": {

@@ -1,15 +1,22 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
-import type { Id } from "./_generated/dataModel";
+import type { Doc, Id } from "./_generated/dataModel";
 import { requireUser, type ReadCtx } from "./lib/auth";
 import { entitlementsFor, isWidgetPlan, resolveTenantEntitlements } from "./lib/entitlements";
 import { regionForCountry } from "./lib/regions";
 import { freeOnboardingAllowed } from "./lib/enforcement";
 import { unlockOnPlanChange, unlockOnReactivation } from "./usage";
+import { requirePermission } from "./lib/rbac";
+import { companyAddress, companyContact, companyName, companyVat, supportedCountry } from "./lib/companyProfile";
+import { MAX_MARGIN_PERCENT } from "../src/shared/standard-pricing";
+import { MAX_OWN_SERVICE_PER_M2_CENTS } from "./pricing";
+import { checkVatId, isCountryCode } from "../src/shared/validation";
 
 /** Ordered wizard steps. `planQuiz`/`billing` are skipped once a plan is active. */
-export const ONBOARDING_STEPS = ["welcome", "planQuiz", "billing", "team", "zone", "configurator"] as const;
+export const ONBOARDING_STEPS = ["welcome", "planQuiz", "billing", "company", "address", "contact", "tax", "team", "pricing", "configurator"] as const;
+/** Step names stored by earlier versions of the wizard, and the step that replaced them. */
+const LEGACY_STEP: Record<string, Step> = { zone: "pricing" };
 type Step = (typeof ONBOARDING_STEPS)[number];
 
 async function tenantOf(ctx: ReadCtx, userId: Id<"users">) {
@@ -47,13 +54,32 @@ export const getState = query({
     return {
       hasTenant: true as const,
       completed: !!tenant.onboardingCompletedAt,
-      step: (tenant.onboardingStep as Step | undefined) ?? "welcome",
+      step: (LEGACY_STEP[tenant.onboardingStep ?? ""] ?? (tenant.onboardingStep as Step | undefined)) ?? "welcome",
       needsPlan,
       stripeConfigured,
       role,
       plan: tenant.plan,
       region: regionForCountry(tenant.country).code,
       priceZone: tenant.priceZone ?? null,
+      tenantCountry: tenant.country ?? null,
+      // What the installer already entered (to prefill the steps when they come back to them).
+      profile: {
+        name: tenant.name,
+        vatId: tenant.vatId ?? "",
+        street: tenant.addressStreet ?? "",
+        postalCode: tenant.addressPostalCode ?? "",
+        city: tenant.addressCity ?? "",
+        phone: tenant.phone ?? "",
+        email: tenant.companyEmail ?? "",
+        website: tenant.website ?? "",
+        defaultVatPercent: tenant.defaultVatPercent ?? null,
+        viesAcknowledged: tenant.viesAckAt !== undefined,
+        marginPercent: tenant.defaultMarginPercent ?? null,
+        deliveryMode: tenant.defaultDeliveryMode ?? "factory",
+        ownServicePerM2Cents: tenant.defaultOwnServicePerM2Cents ?? 0,
+        pricingSaved: tenant.pricingSavedAt !== undefined,
+      },
+      vatRates: regionForCountry(tenant.country).vatRates.map((r) => ({ key: r.key, percent: r.percent, label: r.label })),
       entitlements: {
         maxConfigurators: ent.maxConfigurators,
         maxQuotesPerMonth: ent.maxQuotesPerMonth,
@@ -78,6 +104,92 @@ export const advance = mutation({
     if (!found) throw new ConvexError("NO_TENANT");
     if (found.tenant.onboardingCompletedAt) return;
     await ctx.db.patch(found.tenant._id, { onboardingStep: args.step, updatedAt: Date.now() });
+  },
+});
+
+// ── Company steps ───────────────────────────────────────────────────────────
+// Each one validates with the shared rules (src/shared/validation.ts): a wrong VAT check digit, a postal code of another
+// country, a phone with letters or a script in a name is refused here whatever the browser sent.
+
+async function ownerTenant(ctx: Parameters<typeof tenantOf>[0] & { db: { patch: unknown } }, tenantId: Id<"tenants">) {
+  const { tenant } = await requirePermission(ctx as never, tenantId, "tenant.settings");
+  return tenant;
+}
+
+export const saveCompany = mutation({
+  args: { tenantId: v.id("tenants"), name: v.string(), country: v.string(), vatId: v.string() },
+  handler: async (ctx, args) => {
+    await ownerTenant(ctx, args.tenantId);
+    const name = companyName(args.name);
+    const country = supportedCountry(args.country);
+    const vatId = companyVat(country, args.vatId);
+    await ctx.db.patch(args.tenantId, { name, country, vatId, updatedAt: Date.now() });
+    return { name, country, vatId: vatId ?? "" };
+  },
+});
+
+export const saveAddress = mutation({
+  args: { tenantId: v.id("tenants"), street: v.string(), postalCode: v.string(), city: v.string() },
+  handler: async (ctx, args) => {
+    const tenant = await ownerTenant(ctx, args.tenantId);
+    const country = supportedCountry(tenant.country ?? "");
+    const a = companyAddress(country, args);
+    await ctx.db.patch(args.tenantId, { addressStreet: a.street, addressPostalCode: a.postalCode, addressCity: a.city, address: a.line, updatedAt: Date.now() });
+    return { street: a.street, postalCode: a.postalCode, city: a.city };
+  },
+});
+
+export const saveContact = mutation({
+  args: { tenantId: v.id("tenants"), phone: v.string(), email: v.string(), website: v.optional(v.string()) },
+  handler: async (ctx, args) => {
+    const tenant = await ownerTenant(ctx, args.tenantId);
+    const country = supportedCountry(tenant.country ?? "");
+    const c = companyContact(country, args);
+    await ctx.db.patch(args.tenantId, { phone: c.phone, companyEmail: c.email, website: c.website, updatedAt: Date.now() });
+    return c;
+  },
+});
+
+/** The VAT rate new quotes start with, and the confirmation that the installer understood VIES and the 0% rules. */
+export const saveTax = mutation({
+  args: { tenantId: v.id("tenants"), defaultVatPercent: v.number(), viesAcknowledged: v.boolean() },
+  handler: async (ctx, args) => {
+    const tenant = await ownerTenant(ctx, args.tenantId);
+    if (!args.viesAcknowledged) throw new ConvexError("VIES_ACK_REQUIRED");
+    const allowed = regionForCountry(tenant.country).vatRates.map((r) => r.percent).filter((p) => p > 0);
+    if (!allowed.includes(args.defaultVatPercent)) throw new ConvexError("INVALID_INPUT");
+    await ctx.db.patch(args.tenantId, { defaultVatPercent: args.defaultVatPercent, viesAckAt: tenant.viesAckAt ?? Date.now(), updatedAt: Date.now() });
+    return { defaultVatPercent: args.defaultVatPercent };
+  },
+});
+
+/** Italian installers also say where they work (picks the standard price list); everyone sets the margin and who delivers / fits. */
+export const savePricing = mutation({
+  args: {
+    tenantId: v.id("tenants"),
+    zone: v.optional(v.union(v.literal("nord"), v.literal("centro"), v.literal("sud"))),
+    marginPercent: v.number(),
+    deliveryMode: v.union(v.literal("factory"), v.literal("own")),
+    ownServicePerM2Cents: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await ownerTenant(ctx, args.tenantId);
+    const m = args.marginPercent;
+    if (!Number.isFinite(m) || m < 0 || m > MAX_MARGIN_PERCENT || Math.abs(Math.round(m * 100) - m * 100) > 1e-6) throw new ConvexError("INVALID_INPUT");
+    const italy = regionForCountry(tenant.country).code === "IT";
+    if (italy && !args.zone && !tenant.priceZone) throw new ConvexError("PRICE_ZONE_REQUIRED");
+    const rate = args.ownServicePerM2Cents ?? 0;
+    if (!Number.isInteger(rate) || rate < 0 || rate > MAX_OWN_SERVICE_PER_M2_CENTS) throw new ConvexError("INVALID_INPUT");
+    if (args.deliveryMode === "own" && rate <= 0) throw new ConvexError("INVALID_INPUT");
+    await ctx.db.patch(args.tenantId, {
+      ...(args.zone ? { priceZone: args.zone } : {}),
+      defaultMarginPercent: Math.round(m * 100) / 100,
+      defaultDeliveryMode: args.deliveryMode,
+      defaultOwnServicePerM2Cents: rate > 0 ? rate : undefined,
+      pricingSavedAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+    return { marginPercent: Math.round(m * 100) / 100 };
   },
 });
 
@@ -137,6 +249,19 @@ export const selectPlan = mutation({
   },
 });
 
+/** What the wizard still lacks before it may be completed (empty when the installer filled in every step correctly). */
+export function missingOnboardingData(tenant: Doc<"tenants">): Array<"company" | "address" | "contact" | "tax" | "pricing"> {
+  const missing: Array<"company" | "address" | "contact" | "tax" | "pricing"> = [];
+  const country = (tenant.country ?? "").toUpperCase();
+  const vatOk = isCountryCode(country) && checkVatId(country, tenant.vatId ?? "").ok && (tenant.vatId !== undefined || country === "VA");
+  if (!isCountryCode(country) || !vatOk || tenant.name.trim().length < 2) missing.push("company");
+  if (!tenant.addressStreet || !tenant.addressPostalCode || !tenant.addressCity) missing.push("address");
+  if (!tenant.phone || !tenant.companyEmail) missing.push("contact");
+  if (tenant.viesAckAt === undefined || tenant.defaultVatPercent === undefined) missing.push("tax");
+  if (tenant.pricingSavedAt === undefined || (regionForCountry(tenant.country).code === "IT" && !tenant.priceZone)) missing.push("pricing");
+  return missing;
+}
+
 export const complete = mutation({
   handler: async (ctx) => {
     const userId = await requireUser(ctx);
@@ -148,6 +273,7 @@ export const complete = mutation({
     if (found.tenant.planStatus === "pending_plan") {
       throw new ConvexError("PLAN_SELECTION_REQUIRED");
     }
+    if (missingOnboardingData(found.tenant).length > 0) throw new ConvexError("ONBOARDING_INCOMPLETE");
     await ctx.db.patch(found.tenant._id, {
       onboardingCompletedAt: Date.now(),
       onboardingStep: undefined,

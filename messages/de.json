@@ -419,7 +419,9 @@
     "validationCountryUnsupported": "Dieses Land wird für dieses Feld nicht unterstützt.",
     "vatZeroNotAllowed": "0 % MwSt. ist nicht erlaubt: Für einen gewerblichen Kunden in einem anderen EU-Land ist zuvor eine erfolgreiche VIES-Prüfung nötig.",
     "vatManualReasonRequired": "Für 0 % MwSt. geben Sie den Befreiungsgrund an (mindestens 5 Zeichen).",
-    "viesUnavailable": "Der VIES-Dienst der Europäischen Kommission antwortet gerade nicht: Versuchen Sie es gleich noch einmal. Ohne Prüfung können Sie 0 % nicht anwenden."
+    "viesUnavailable": "Der VIES-Dienst der Europäischen Kommission antwortet gerade nicht: Versuchen Sie es gleich noch einmal. Ohne Prüfung können Sie 0 % nicht anwenden.",
+    "onboardingIncomplete": "Es fehlen Pflichtangaben: Gehen Sie zu den vorherigen Schritten zurück und vervollständigen Sie Unternehmen, Adresse, Kontakte, Steuern und Preise.",
+    "viesAckRequired": "Bestätigen Sie zum Fortfahren, dass Sie gelesen haben, wie VIES und 0 % MwSt. funktionieren."
   },
   "app": {
     "suspended": {
@@ -1605,7 +1607,11 @@
       "billing": "Plan",
       "team": "Team",
       "configurator": "Konfigurator",
-      "zone": "Region"
+      "company": "Firma",
+      "address": "Adresse",
+      "contact": "Kontakt",
+      "tax": "Steuern",
+      "pricing": "Preise"
     },
     "welcome": {
       "title": "Willkommen bei OneSpec",
@@ -1720,11 +1726,58 @@
         "Fast fertig, Dashboard wird geöffnet…"
       ]
     },
-    "zone": {
-      "title": "Wo arbeiten Sie in Italien?",
-      "intro": "Wählen Sie Ihr Einsatzgebiet: Die Plattform nutzt die Standardpreisliste dieser Region, Sie müssen nur noch Ihre Gewinnmarge festlegen.",
-      "hint": "Sie können sie jederzeit in den Preislisten-Einstellungen ändern. Die Preise sind Richtwerte und wurden am italienischen Markt validiert.",
-      "continue": "Weiter"
+    "company": {
+      "intro": "Diese Angaben erscheinen auf Ihren Angeboten: Geben Sie sie genau wie im Handelsregister ein.",
+      "name": "Firmenname",
+      "country": "Land",
+      "vat": "USt-IdNr.",
+      "optional": "optional",
+      "vatHelp": "Format: Präfix {prefix} + {length} Zeichen. Beispiel: {example}",
+      "continue": "Speichern und weiter"
+    },
+    "address": {
+      "intro": "Ihr Firmensitz.",
+      "street": "Straße und Hausnummer",
+      "postal": "Postleitzahl",
+      "postalHelp": "Beispiel: {example}",
+      "city": "Ort",
+      "continue": "Speichern und weiter"
+    },
+    "contact": {
+      "intro": "So erreichen Kunden Sie.",
+      "phone": "Telefon",
+      "phoneHelp": "Mit internationaler Vorwahl. Beispiel: {example}",
+      "email": "Firmen-E-Mail",
+      "website": "Website",
+      "optional": "optional",
+      "websiteHelp": "Nur https://-Adressen",
+      "continue": "Speichern und weiter"
+    },
+    "tax": {
+      "intro": "Wählen Sie den üblichen Steuersatz. Sie können ihn pro Angebot ändern, auch auf 0 %, wenn das Gesetz es erlaubt.",
+      "viesTitle": "Was VIES ist und warum Sie es brauchen",
+      "viesWhat": "VIES (VAT Information Exchange System) ist die Datenbank der Europäischen Kommission, die zeigt, ob die USt-IdNr. eines Unternehmens für den Handel zwischen EU-Ländern aktiv ist.",
+      "viesWhy": "Bei Verkäufen an ein Unternehmen in einem anderen EU-Land dürfen Sie nur dann mit 0 % MwSt. abrechnen, wenn dessen Nummer in VIES aktiv ist. Ohne diese Prüfung gilt die MwSt. Ihres Landes.",
+      "viesHow": "Im Angebot wählen Sie das Land des Kunden und geben seine USt-IdNr. ein: Die Plattform fragt VIES ab, speichert das Ergebnis und sperrt 0 %, wenn die Nummer ungültig ist oder der Dienst nicht antwortet.",
+      "rule1": "Kunde im eigenen Land: nationale MwSt.",
+      "rule2": "Unternehmen in einem anderen EU-Land mit aktiver VIES-Nummer: 0 % (innergemeinschaftliche Lieferung, Reverse Charge).",
+      "rule3": "Privatperson in einem anderen EU-Land: MwSt. Ihres Landes.",
+      "rule4": "Kunde außerhalb der EU (inkl. San Marino und Vatikan): 0 % als Ausfuhr, mit Ausfuhrnachweis.",
+      "viesDisclaimer": "Allgemeine, im Rechner integrierte Information, keine Steuerberatung: Bestätigen Sie die Regeln immer mit Ihrem Steuerberater.",
+      "viesLink": "Nummer auf der VIES-Seite der Kommission prüfen",
+      "lawLink": "Richtlinie 2006/112/EG",
+      "defaultRate": "Üblicher MwSt.-Satz",
+      "ack": "Ich habe verstanden, wie VIES funktioniert und dass 0 % die Prüfung voraussetzt.",
+      "continue": "Speichern und weiter"
+    },
+    "pricing": {
+      "intro": "Zone und Marge: den Rest der Preisliste berechnet die Plattform.",
+      "zoneTitle": "Wo arbeiten Sie in Italien?",
+      "marginTitle": "Ihre Gewinnmarge",
+      "marginHelp": "Prozentsatz, der auf die Lieferpreise aufgeschlagen wird. Pro Konfigurator änderbar.",
+      "marginSlider": "Marge",
+      "marginInvalid": "Geben Sie eine Marge von 0 bis {max} % mit höchstens zwei Dezimalstellen ein.",
+      "continue": "Speichern und weiter"
     }
   },
   "logistics": {

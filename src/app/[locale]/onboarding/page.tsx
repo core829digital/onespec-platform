@@ -13,9 +13,9 @@ import { useFriendlyError } from "@/lib/use-friendly-error";
 import { recommendPlan, type PlanQuizAnswers, type RecommendedPlan } from "@/lib/plan-recommendation";
 import { OneSpecLoadingScreen } from "@/components/onespec-loading-screen";
 import { BILLING_PLANS } from "@/convex/lib/billingPlans";
-import { ZonePicker } from "@/components/pricing/zone-picker";
+import { AddressStep, CompanyStep, ContactStep, PricingStep, TaxStep } from "@/components/onboarding/steps";
 
-type Step = "welcome" | "planQuiz" | "billing" | "team" | "zone" | "configurator";
+type Step = "welcome" | "planQuiz" | "billing" | "company" | "address" | "contact" | "tax" | "team" | "pricing" | "configurator";
 type PlanKey = "essentials" | "essentials_plus" | "max" | "base" | "pro" | "agency";
 const PLAN_GROUPS: { titleKey: "widgetTitle" | "platformTitle"; plans: PlanKey[] }[] = [
   { titleKey: "widgetTitle", plans: ["essentials", "essentials_plus", "max"] },
@@ -35,7 +35,6 @@ export default function OnboardingWizard() {
   const selectPlan = useMutation(api.onboarding.selectPlan);
   const checkout = useAction(api.billing.createCheckoutSession);
   const createConfigurator = useMutation(api.configurators.createConfigurator);
-  const setPriceZone = useMutation(api.pricing.setPriceZone);
 
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
@@ -43,15 +42,18 @@ export default function OnboardingWizard() {
   const [recommended, setRecommended] = useState<RecommendedPlan | null>(null);
 
   // The active step: skip planQuiz/billing once a plan is already active.
-  // Italian installers also say where they work (Nord / Centro / Sud): it picks their standard price list.
+  // Ten steps (eight when a plan is already active): the company data is validated on the server, so a step cannot be skipped by hand.
   const flow: Step[] = useMemo(() => {
     const needsPlan = !!state && "needsPlan" in state && state.needsPlan;
-    const italy = !!state && "region" in state && state.region === "IT";
     return [
       "welcome",
       ...(needsPlan ? (["planQuiz", "billing"] as Step[]) : []),
+      "company",
+      "address",
+      "contact",
+      "tax",
       "team",
-      ...(italy ? (["zone"] as Step[]) : []),
+      "pricing",
       "configurator",
     ];
   }, [state]);
@@ -65,7 +67,7 @@ export default function OnboardingWizard() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get("status") === "success") {
-      advance({ step: "team" }).catch(() => {});
+      advance({ step: "company" }).catch(() => {});
       window.history.replaceState({}, "", window.location.pathname);
     }
   }, [advance]);
@@ -294,38 +296,39 @@ export default function OnboardingWizard() {
         </Panel>
       ) : null}
 
-      {current === "zone" ? (
-        <Panel title={t("zone.title")}>
-          <p className="text-[var(--color-text-secondary)]">{t("zone.intro")}</p>
-          <ZonePicker
-            value={state.priceZone ?? null}
-            disabled={busy}
-            onChange={async (zone) => {
-              if (!tenant?._id) return;
-              setErr("");
-              setBusy(true);
-              try {
-                await setPriceZone({ tenantId: tenant._id, zone });
-              } catch (e) {
-                setErr(tf(e));
-              } finally {
-                setBusy(false);
-              }
-            }}
-          />
-          <p className="text-xs text-[var(--color-text-secondary)]">{t("zone.hint")}</p>
-          <div className="flex items-center gap-3">
-            {prev ? <BackButton onClick={goBack} busy={busy} /> : null}
-            <button
-              type="button"
-              onClick={goNext}
-              disabled={busy || !state.priceZone}
-              className="rounded-lg bg-[var(--color-mint)] px-5 py-2.5 text-sm font-semibold text-[var(--color-mint-dark)] disabled:opacity-50"
-            >
-              {busy ? "…" : t("zone.continue")}
-            </button>
-          </div>
-        </Panel>
+      {current === "company" ? (
+        <CompanyStep tenantId={tenant?._id} profile={state.profile} tenantCountry={state.tenantCountry} onSaved={goNext} onBack={prev ? goBack : undefined} />
+      ) : null}
+
+      {current === "address" ? (
+        <AddressStep tenantId={tenant?._id} profile={state.profile} tenantCountry={state.tenantCountry} onSaved={goNext} onBack={prev ? goBack : undefined} />
+      ) : null}
+
+      {current === "contact" ? (
+        <ContactStep tenantId={tenant?._id} profile={state.profile} tenantCountry={state.tenantCountry} onSaved={goNext} onBack={prev ? goBack : undefined} />
+      ) : null}
+
+      {current === "tax" ? (
+        <TaxStep
+          tenantId={tenant?._id}
+          profile={state.profile}
+          tenantCountry={state.tenantCountry}
+          vatRates={state.vatRates}
+          onSaved={goNext}
+          onBack={prev ? goBack : undefined}
+        />
+      ) : null}
+
+      {current === "pricing" ? (
+        <PricingStep
+          tenantId={tenant?._id}
+          profile={state.profile}
+          tenantCountry={state.tenantCountry}
+          italy={state.region === "IT"}
+          priceZone={state.priceZone}
+          onSaved={goNext}
+          onBack={prev ? goBack : undefined}
+        />
       ) : null}
 
       {current === "configurator" ? (

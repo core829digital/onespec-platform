@@ -419,7 +419,9 @@
     "validationCountryUnsupported": "Dit land wordt voor dit veld niet ondersteund.",
     "vatZeroNotAllowed": "0% btw is niet toegestaan: voor een zakelijke klant in een ander EU-land is eerst een geslaagde VIES-controle nodig.",
     "vatManualReasonRequired": "Geef voor 0% btw de reden van de vrijstelling op (minstens 5 tekens).",
-    "viesUnavailable": "De VIES-dienst van de Europese Commissie reageert nu niet: probeer het zo opnieuw. Zonder controle kunt u 0% niet toepassen."
+    "viesUnavailable": "De VIES-dienst van de Europese Commissie reageert nu niet: probeer het zo opnieuw. Zonder controle kunt u 0% niet toepassen.",
+    "onboardingIncomplete": "Er ontbreken verplichte gegevens: ga terug naar de vorige stappen en vul bedrijf, adres, contact, belasting en prijzen aan.",
+    "viesAckRequired": "Bevestig om door te gaan dat u hebt gelezen hoe VIES en 0% btw werken."
   },
   "app": {
     "suspended": {
@@ -1605,7 +1607,11 @@
       "billing": "Abonnement",
       "team": "Team",
       "configurator": "Configurator",
-      "zone": "Regio"
+      "company": "Bedrijf",
+      "address": "Adres",
+      "contact": "Contact",
+      "tax": "Belasting",
+      "pricing": "Prijzen"
     },
     "welcome": {
       "title": "Welkom bij OneSpec",
@@ -1720,11 +1726,58 @@
         "Bijna klaar, dashboard openen…"
       ]
     },
-    "zone": {
-      "title": "Waar werkt u in Italië?",
-      "intro": "Kies de regio waar u werkt: het platform gebruikt de standaardprijslijst van die regio, u hoeft alleen nog uw winstmarge te bepalen.",
-      "hint": "U kunt dit op elk moment wijzigen in de instellingen van de prijslijst. De prijzen zijn indicatief en gevalideerd op de Italiaanse markt.",
-      "continue": "Doorgaan"
+    "company": {
+      "intro": "Deze gegevens staan op uw offertes: voer ze exact in zoals in uw bedrijfsregistratie.",
+      "name": "Bedrijfsnaam",
+      "country": "Land",
+      "vat": "Btw-nummer",
+      "optional": "optioneel",
+      "vatHelp": "Formaat: prefix {prefix} + {length} tekens. Voorbeeld: {example}",
+      "continue": "Opslaan en verder"
+    },
+    "address": {
+      "intro": "Uw bedrijfszetel.",
+      "street": "Straat en huisnummer",
+      "postal": "Postcode",
+      "postalHelp": "Voorbeeld: {example}",
+      "city": "Plaats",
+      "continue": "Opslaan en verder"
+    },
+    "contact": {
+      "intro": "Hoe klanten u kunnen bereiken.",
+      "phone": "Telefoon",
+      "phoneHelp": "Met internationaal voorvoegsel. Voorbeeld: {example}",
+      "email": "Bedrijfs-e-mail",
+      "website": "Website",
+      "optional": "optioneel",
+      "websiteHelp": "Alleen https://-adressen",
+      "continue": "Opslaan en verder"
+    },
+    "tax": {
+      "intro": "Kies het btw-tarief dat u gewoonlijk toepast. U kunt het per offerte wijzigen, ook naar 0% als de wet dat toelaat.",
+      "viesTitle": "Wat VIES is en waarom u het nodig hebt",
+      "viesWhat": "VIES (VAT Information Exchange System) is de database van de Europese Commissie die aangeeft of het btw-nummer van een bedrijf actief is voor handel tussen EU-landen.",
+      "viesWhy": "Verkoopt u aan een bedrijf in een ander EU-land, dan mag u alleen tegen 0% btw factureren als zijn nummer actief is in VIES. Zonder deze controle geldt de btw van uw eigen land.",
+      "viesHow": "In de offerte kiest u het land van de klant en voert u zijn btw-nummer in: het platform raadpleegt VIES, bewaart het resultaat en blokkeert 0% als het nummer ongeldig is of de dienst niet antwoordt.",
+      "rule1": "Klant in uw eigen land: nationale btw.",
+      "rule2": "Bedrijf in een ander EU-land met actief VIES-nummer: 0% (intracommunautaire levering, verlegging).",
+      "rule3": "Particulier in een ander EU-land: btw van uw land.",
+      "rule4": "Klant buiten de EU (incl. San Marino en Vaticaanstad): 0% als uitvoer, met bewijs van uitvoer.",
+      "viesDisclaimer": "Algemene informatie in de calculator, geen belastingadvies: bevestig de regels altijd bij uw boekhouder.",
+      "viesLink": "Nummer controleren op de VIES-site van de Commissie",
+      "lawLink": "Richtlijn 2006/112/EG",
+      "defaultRate": "Gebruikelijk btw-tarief",
+      "ack": "Ik begrijp hoe VIES werkt en dat 0% de controle vereist.",
+      "continue": "Opslaan en verder"
+    },
+    "pricing": {
+      "intro": "Zone en marge: de rest van de prijslijst berekent het platform.",
+      "zoneTitle": "Waar werkt u in Italië?",
+      "marginTitle": "Uw winstmarge",
+      "marginHelp": "Percentage dat bovenop de leveringsprijzen komt. Per configurator aanpasbaar.",
+      "marginSlider": "Marge",
+      "marginInvalid": "Voer een marge van 0 tot {max}% in met hoogstens twee decimalen.",
+      "continue": "Opslaan en verder"
     }
   },
   "logistics": {

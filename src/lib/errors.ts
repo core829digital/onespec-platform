@@ -47,6 +47,8 @@ export type ErrorKey =
   | "vatZeroNotAllowed"
   | "vatManualReasonRequired"
   | "viesUnavailable"
+  | "onboardingIncomplete"
+  | "viesAckRequired"
   | "qualityInUse"
   | "profileQualityUnknown"
   | "invalidCombination"
@@ -150,6 +152,8 @@ const EXACT: Record<string, ErrorKey> = {
   VAT_ZERO_NOT_ALLOWED: "vatZeroNotAllowed",
   VAT_MANUAL_REASON_REQUIRED: "vatManualReasonRequired",
   VIES_UNAVAILABLE: "viesUnavailable",
+  ONBOARDING_INCOMPLETE: "onboardingIncomplete",
+  VIES_ACK_REQUIRED: "viesAckRequired",
   QUALITY_IN_USE: "qualityInUse",
   PROFILE_QUALITY_UNKNOWN: "profileQualityUnknown",
   INVALID_COMBINATION: "invalidCombination",

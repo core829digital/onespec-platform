@@ -137,3 +137,23 @@ export const sampleItem = {
   color: "white",
   insectScreen: false,
 };
+
+/** Everything the onboarding wizard asks for, filled in correctly (so a test can complete it). */
+export async function fillOnboardingProfile(t: T, tenantId: Id<"tenants">, country = "IT") {
+  await t.run((ctx) =>
+    ctx.db.patch(tenantId, {
+      country,
+      vatId: "IT00905811006",
+      addressStreet: "Via Roma 1",
+      addressPostalCode: "20121",
+      addressCity: "Milano",
+      address: "Via Roma 1, 20121 Milano",
+      phone: "+393331234567",
+      companyEmail: "info@example.com",
+      viesAckAt: Date.now(),
+      defaultVatPercent: 22,
+      pricingSavedAt: Date.now(),
+      priceZone: "centro",
+    }),
+  );
+}

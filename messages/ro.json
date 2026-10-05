@@ -419,7 +419,9 @@
     "validationCountryUnsupported": "Această țară nu este acceptată pentru acest câmp.",
     "vatZeroNotAllowed": "TVA 0% nu este permis: pentru un client profesionist din alt stat UE este necesară mai întâi o verificare VIES reușită.",
     "vatManualReasonRequired": "Pentru TVA 0% indicați motivul scutirii (cel puțin 5 caractere).",
-    "viesUnavailable": "Serviciul VIES al Comisiei Europene nu răspunde acum: încercați din nou în curând. Fără verificare nu puteți aplica 0%."
+    "viesUnavailable": "Serviciul VIES al Comisiei Europene nu răspunde acum: încercați din nou în curând. Fără verificare nu puteți aplica 0%.",
+    "onboardingIncomplete": "Lipsesc date obligatorii: reveniți la pașii anteriori și completați compania, adresa, contactele, fiscalitatea și prețurile.",
+    "viesAckRequired": "Pentru a continua, confirmați că ați citit cum funcționează VIES și TVA 0%."
   },
   "app": {
     "suspended": {
@@ -1605,7 +1607,11 @@
       "billing": "Plan",
       "team": "Echipă",
       "configurator": "Configurator",
-      "zone": "Zonă"
+      "company": "Firmă",
+      "address": "Adresă",
+      "contact": "Contact",
+      "tax": "Taxe",
+      "pricing": "Prețuri"
     },
     "welcome": {
       "title": "Bun venit în OneSpec",
@@ -1720,11 +1726,58 @@
         "Aproape gata, deschidem dashboard-ul…"
       ]
     },
-    "zone": {
-      "title": "Unde lucrați în Italia?",
-      "intro": "Alegeți zona în care activați: platforma va folosi lista de prețuri standard a acelei zone, iar voi trebuie doar să decideți marja de profit.",
-      "hint": "O puteți schimba oricând din setările listei de prețuri. Prețurile sunt orientative, validate pe piața italiană.",
-      "continue": "Continuă"
+    "company": {
+      "intro": "Aceste date apar pe ofertele tale: introdu-le exact ca în certificatul de înregistrare.",
+      "name": "Denumirea firmei",
+      "country": "Țara",
+      "vat": "Cod TVA",
+      "optional": "opțional",
+      "vatHelp": "Format: prefix {prefix} + {length} caractere. Exemplu: {example}",
+      "continue": "Salvează și continuă"
+    },
+    "address": {
+      "intro": "Sediul firmei.",
+      "street": "Strada și numărul",
+      "postal": "Cod poștal",
+      "postalHelp": "Exemplu: {example}",
+      "city": "Localitatea",
+      "continue": "Salvează și continuă"
+    },
+    "contact": {
+      "intro": "Cum te vor contacta clienții.",
+      "phone": "Telefon",
+      "phoneHelp": "Cu prefix internațional. Exemplu: {example}",
+      "email": "E-mail firmă",
+      "website": "Site web",
+      "optional": "opțional",
+      "websiteHelp": "Doar adrese https://",
+      "continue": "Salvează și continuă"
+    },
+    "tax": {
+      "intro": "Alege cota de TVA aplicată de obicei. O poți schimba ofertă cu ofertă, inclusiv la 0% când legea permite.",
+      "viesTitle": "Ce este VIES și de ce ai nevoie de el",
+      "viesWhat": "VIES (VAT Information Exchange System) este baza de date a Comisiei Europene care arată dacă codul TVA al unei firme este activ pentru comerțul între țările UE.",
+      "viesWhy": "Dacă vinzi unei firme din altă țară UE poți factura cu TVA 0% doar dacă codul ei este activ în VIES. Fără această verificare se aplică TVA-ul țării tale.",
+      "viesHow": "În ofertă alegi țara clientului și introduci codul lui TVA: platforma interoghează VIES, salvează rezultatul și blochează 0% dacă numărul este invalid sau serviciul nu răspunde.",
+      "rule1": "Client în aceeași țară: TVA național.",
+      "rule2": "Firmă din altă țară UE cu cod activ în VIES: 0% (livrare intracomunitară, taxare inversă).",
+      "rule3": "Persoană fizică din altă țară UE: TVA-ul țării tale.",
+      "rule4": "Client din afara UE (inclusiv San Marino și Vatican): 0% ca export, cu dovada ieșirii mărfii.",
+      "viesDisclaimer": "Informație generală integrată în calculator, nu consultanță fiscală: confirmă mereu regulile cu contabilul tău.",
+      "viesLink": "Verifică un număr pe site-ul VIES al Comisiei",
+      "lawLink": "Directiva 2006/112/CE",
+      "defaultRate": "Cota obișnuită de TVA",
+      "ack": "Am înțeles cum funcționează VIES și că 0% cere verificarea.",
+      "continue": "Salvează și continuă"
+    },
+    "pricing": {
+      "intro": "Zonă și marjă: restul listei de prețuri îl calculează platforma.",
+      "zoneTitle": "Unde lucrezi în Italia?",
+      "marginTitle": "Marja ta de profit",
+      "marginHelp": "Procent adăugat la prețurile de furnizare. Îl poți schimba pentru fiecare configurator.",
+      "marginSlider": "Marjă",
+      "marginInvalid": "Introdu o marjă între 0 și {max}% cu cel mult două zecimale.",
+      "continue": "Salvează și continuă"
     }
   },
   "logistics": {

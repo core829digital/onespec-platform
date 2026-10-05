@@ -17,9 +17,13 @@ import { requirePermission } from "./lib/rbac";
 import { emit } from "./lib/triggers";
 import { unlockOnReactivation } from "./usage";
 import { regionForCountry } from "./lib/regions";
+import { companyName, companyVat } from "./lib/companyProfile";
+import { must } from "./lib/validate";
+import { checkEmail, checkPhone, checkText, checkWebsite, isCountryCode } from "../src/shared/validation";
 import { attachReferral } from "./referrals";
 
 const COUNTRY_RE = /^[A-Za-z]{2}$/;
+const ADDRESS_LINE = /^[\p{L}\p{N} .,'’\-/()°#]+$/u;
 
 /** Company names: trimmed, 2–120 chars (they end up in slugs, e-mails and PDFs). */
 function cleanCompanyName(raw: string): string {
@@ -146,20 +150,22 @@ export const updateTenant = mutation({
     privacyUrl: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    await requirePermission(ctx, args.tenantId, "tenant.settings");
+    const { tenant } = await requirePermission(ctx, args.tenantId, "tenant.settings");
     const update: Partial<Doc<"tenants">> = { updatedAt: Date.now() };
-    if (args.name !== undefined) update.name = cleanCompanyName(args.name);
+    if (args.name !== undefined) update.name = companyName(args.name);
+    let country = tenant.country;
     if (args.country !== undefined) {
       if (!COUNTRY_RE.test(args.country)) throw new ConvexError("INVALID_INPUT");
-      update.country = args.country.toUpperCase();
+      country = args.country.toUpperCase();
+      update.country = country;
     }
-    if (args.vatId !== undefined) update.vatId = cleanCompanyText(args.vatId);
-    if (args.address !== undefined) update.address = cleanCompanyText(args.address);
-    if (args.phone !== undefined) update.phone = cleanCompanyText(args.phone);
-    if (args.companyEmail !== undefined) update.companyEmail = cleanCompanyText(args.companyEmail);
+    // Same rules as the onboarding forms: a wrong VAT check digit, phone or e-mail is refused, not stored.
+    if (args.vatId !== undefined) update.vatId = companyVat(country, args.vatId);
+    if (args.address !== undefined) update.address = cleanCompanyText(must(checkText(args.address, { max: COMPANY_TEXT_MAX, required: false, allowed: ADDRESS_LINE })) );
+    if (args.phone !== undefined) update.phone = args.phone.trim() === "" ? undefined : must(checkPhone(isCountryCode((country ?? "").toUpperCase()) ? (country ?? "").toUpperCase() : "IT", args.phone));
+    if (args.companyEmail !== undefined) update.companyEmail = args.companyEmail.trim() === "" ? undefined : must(checkEmail(args.companyEmail));
     if (args.privacyUrl !== undefined) {
-      const url = args.privacyUrl.trim();
-      if (url && !/^https:\/\//.test(url)) throw new ConvexError("INVALID_INPUT");
+      const url = must(checkWebsite(args.privacyUrl));
       update.privacyUrl = url || undefined;
     }
     await ctx.db.patch(args.tenantId, update);
