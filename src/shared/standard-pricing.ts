@@ -81,13 +81,26 @@ export interface ResolvedStandardPrice {
   barPerMlCents: number;
 }
 
+/**
+ * Calibration of the market table to what the installer really pays: SUPPLY of the windows with the factory transport to the
+ * installer, VAT excluded (no installation). The table's "complete" prices include the basic installation, so they sit above a
+ * supplier quote. The reference is a Winarhi quote: Aluplast Ideal 4000, Centro, 1432 x 1548 mm, double glazing 24 mm, supply +
+ * transport, no VAT = 420.00 EUR. At that price the Centro mid (265 EUR/m2) becomes 189.47 EUR/m2: the same factor is applied to
+ * every profile, zone, frame-only price, bar and glass, so the zones keep their real distance.
+ */
+export const SUPPLY_FACTOR = { numerator: 18947, denominator: 26500 } as const;
+export const SUPPLY_REFERENCE = { profileKey: "std_aluplast_ideal_4000", zone: "centro", widthMm: 1432, heightMm: 1548, netCents: 42000 } as const;
+
+/** A market price in cents -> the supply price in cents. */
+export const toSupplyCents = (marketCents: number): number => Math.round((marketCents * SUPPLY_FACTOR.numerator) / SUPPLY_FACTOR.denominator);
+
 export function resolveStandardPrice(profile: StandardProfile, zone: PriceZone): ResolvedStandardPrice {
   const z = profile.prices[zone];
   return {
-    completePerM2Cents: midCents(z.complete),
-    framePerM2Cents: midCents(z.frame),
-    glassPerM2Cents: midCents(profile.glass),
-    barPerMlCents: midCents(profile.bar),
+    completePerM2Cents: toSupplyCents(midCents(z.complete)),
+    framePerM2Cents: toSupplyCents(midCents(z.frame)),
+    glassPerM2Cents: toSupplyCents(midCents(profile.glass)),
+    barPerMlCents: toSupplyCents(midCents(profile.bar)),
   };
 }
 

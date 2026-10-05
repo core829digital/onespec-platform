@@ -42,8 +42,9 @@ describe("calculatePrice (server-authoritative)", () => {
     // area 1.68 m2 * 18000 = 30240 ; profile 5.2 m * 2800 = 14560 ; sash tiltturn 6500
     // unit = 51300 ; +22% VAT rounding step 1
     const r = calculatePrice(catalog, [ProjectItemSchema.parse(sampleItem)]);
-    expect(r.priceCents).toBe(51300);
-    expect(r.priceExVatCents).toBe(Math.round(51300 / 1.22));
+    // Catalogue prices are net: VAT is added on top.
+    expect(r.priceExVatCents).toBe(51300);
+    expect(r.priceCents).toBe(51300 + Math.round(51300 * 0.22));
     expect(r.vatRatePercent).toBe(22);
     expect(r.totalPrice).toBe(r.priceCents);
   });
@@ -54,7 +55,7 @@ describe("calculatePrice (server-authoritative)", () => {
     const premium = calculatePrice(catalog, [
       ProjectItemSchema.parse({ ...sampleItem, profileSystem: "premium" }),
     ]);
-    expect(premium.priceCents).toBe(std.priceCents + 15120);
+    expect(premium.priceExVatCents).toBe(std.priceExVatCents + 15120);
   });
 
   test("screen type + colour + installation add to the options cost", () => {
@@ -69,7 +70,7 @@ describe("calculatePrice (server-authoritative)", () => {
       }),
     ]);
     // 6500 (molla) + 1000 (brown) + 15000 (posaClima) = 22500
-    expect(withOpts.priceCents).toBe(base.priceCents + 22500);
+    expect(withOpts.priceExVatCents).toBe(base.priceExVatCents + 22500);
   });
 
   test("FR pose type adds a flat per-item cost", () => {
@@ -77,7 +78,7 @@ describe("calculatePrice (server-authoritative)", () => {
     const withPose = calculatePrice(catalog, [
       ProjectItemSchema.parse({ ...sampleItem, poseType: "renovation" }),
     ]);
-    expect(withPose.priceCents).toBe(base.priceCents + 9000);
+    expect(withPose.priceExVatCents).toBe(base.priceExVatCents + 9000);
   });
 
   test("BE ventilation grille + volet roulant + warm edge add a flat per-item cost each", () => {
@@ -91,7 +92,7 @@ describe("calculatePrice (server-authoritative)", () => {
       }),
     ]);
     // 12000 (grille) + 22000 (volet) + 3500 (warm edge) = 37500
-    expect(withBeOptions.priceCents).toBe(base.priceCents + 37500);
+    expect(withBeOptions.priceExVatCents).toBe(base.priceExVatCents + 37500);
   });
 
   test("DE/LU sun protection + RC2 + RAL-Montage add a flat per-item cost each", () => {
@@ -105,20 +106,20 @@ describe("calculatePrice (server-authoritative)", () => {
       }),
     ]);
     // 39000 (Raffstore) + 6500 (RC2) + 4500 (RAL-Montage) = 50000
-    expect(withDeOptions.priceCents).toBe(base.priceCents + 50000);
+    expect(withDeOptions.priceExVatCents).toBe(base.priceExVatCents + 50000);
   });
 
   test("quantity multiplies the unit price", () => {
     const one = calculatePrice(catalog, [ProjectItemSchema.parse(sampleItem)]);
     const three = calculatePrice(catalog, [ProjectItemSchema.parse({ ...sampleItem, quantity: 3 })]);
-    expect(three.priceCents).toBe(one.priceCents * 3);
+    expect(three.priceExVatCents).toBe(one.priceExVatCents * 3);
   });
 
   test("an unknown material yields a zeroed item, never a crash", () => {
     const r = calculatePrice(catalog, [
       ProjectItemSchema.parse({ ...sampleItem, material: "adamantium", quality: { adamantium: "x" } }),
     ]);
-    expect(r.priceCents).toBe(0);
+    expect(r.priceExVatCents).toBe(0);
   });
 });
 

@@ -2533,7 +2533,8 @@
       "media": "Mehr Kammern und mehr Bautiefe: bessere Dämmung, die häufigste Wahl.",
       "mediaSuperiore": "Hohe Leistung (7 Kammern, dreifache Dichtung, Verstärkung): für hohen Wärmekomfort.",
       "premium": "Spitzenklasse (z. B. Carbonfaser): beste thermische und mechanische Leistung."
-    }
+    },
+    "calibration": "Von der Plattform verwendete Preise: nur Lieferung, Werkstransport zum Monteur inklusive, ohne MwSt. Die Marktpreise der Tabelle enthalten auch die Grundmontage und wurden deshalb um {pct} % gesenkt (kalibriert an einem echten Winarhi-Angebot: Aluplast Ideal 4000, Mitte, 1432 × 1548 mm = 420,00 € netto). Dieselbe Senkung gilt für alle Profile und Regionen."
   },
   "pricingTab": {
     "title": "Preise und Gewinnmarge",
@@ -2569,6 +2570,6 @@
     "exampleMargin": "Ihre Marge",
     "exampleFinal": "Endpreis",
     "exampleInvalid": "Geben Sie eine gültige Breite und Höhe ein.",
-    "exampleNote": "Richtbeispiel mit Zweifachverglasung, weiß, Standardbeschlägen und Grundmontage."
+    "exampleNote": "Richtbeispiel mit Zweifachverglasung, weiß, Standardbeschlägen: Lieferung mit Werkstransport, ohne MwSt., ohne Montage."
   }
 }

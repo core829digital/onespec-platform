@@ -108,10 +108,10 @@ describe("B2B/showroom catalogue sections", () => {
     };
     const plain = calculatePrice(payload, [{ ...base, frameType: undefined, color: "white", glazing: "double" }]);
     const rich = calculatePrice(payload, [base]);
-    expect(rich.priceCents).toBeGreaterThan(plain.priceCents);
+    expect(rich.priceExVatCents).toBeGreaterThan(plain.priceExVatCents);
 
     const rc2 = calculatePrice(payload, [{ ...base, sashes: base.sashes.map((x) => ({ ...x, hardware: "rc2" })) }]);
-    expect(rc2.priceCents - rich.priceCents).toBe(2 * 5500); // 2 operable leaves
+    expect(rc2.priceExVatCents - rich.priceExVatCents).toBe(2 * 5500); // 2 operable leaves
 
     const th = computeItemThermal(payload, base);
     expect(th.uf).toBe(1); // Rehau Synego

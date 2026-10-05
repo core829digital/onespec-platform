@@ -2533,7 +2533,8 @@
       "media": "Meer kamers en grotere diepte: betere isolatie, de meest gekozen optie.",
       "mediaSuperiore": "Hoge prestaties (7 kamers, drievoudige afdichting, versterking): voor hoog thermisch comfort.",
       "premium": "Topklasse (bijv. koolstofvezel): beste thermische en mechanische prestaties."
-    }
+    },
+    "calibration": "Door het platform gebruikte prijzen: alleen levering, transport van de fabriek naar de monteur inbegrepen, excl. BTW. De marktprijzen in de tabel bevatten ook de basisinstallatie en zijn daarom met {pct}% verlaagd (gekalibreerd op een echte Winarhi-offerte: Aluplast Ideal 4000, Midden, 1432 × 1548 mm = 420,00 € excl. BTW). Dezelfde verlaging geldt voor alle profielen en regio's."
   },
   "pricingTab": {
     "title": "Prijzen en winstmarge",
@@ -2569,6 +2570,6 @@
     "exampleMargin": "Uw marge",
     "exampleFinal": "Eindprijs",
     "exampleInvalid": "Voer een geldige breedte en hoogte in.",
-    "exampleNote": "Indicatief voorbeeld met dubbel glas, wit, standaard beslag en basisinstallatie."
+    "exampleNote": "Indicatief voorbeeld met dubbel glas, wit, standaard beslag: levering met transport vanaf de fabriek, excl. BTW, zonder montage."
   }
 }

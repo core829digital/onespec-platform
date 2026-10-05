@@ -2533,7 +2533,8 @@
       "media": "Mai multe camere și grosime mai mare: izolare mai bună, cea mai frecventă alegere.",
       "mediaSuperiore": "Performanță ridicată (7 camere, garnitură triplă, armare): pentru confort termic ridicat.",
       "premium": "Gama de top (ex. fibră de carbon): cele mai bune performanțe termice și mecanice."
-    }
+    },
+    "calibration": "Prețuri folosite de platformă: doar livrarea, cu transportul de la fabrică la montator inclus, fără TVA. Prețurile de piață din tabel includ și montajul de bază, deci au fost reduse cu {pct}% (calibrate pe o ofertă reală Winarhi: Aluplast Ideal 4000, Centru, 1432 × 1548 mm = 420,00 € fără TVA). Aceeași reducere se aplică tuturor profilelor și zonelor."
   },
   "pricingTab": {
     "title": "Prețuri și marjă de profit",
@@ -2569,6 +2570,6 @@
     "exampleMargin": "Marja dvs.",
     "exampleFinal": "Preț final",
     "exampleInvalid": "Introduceți o lățime și o înălțime valide.",
-    "exampleNote": "Exemplu orientativ cu geam dublu, alb, feronerie standard și montaj de bază."
+    "exampleNote": "Exemplu orientativ cu geam dublu, alb, feronerie standard: livrare cu transport de la fabrică, fără TVA, fără montaj."
   }
 }

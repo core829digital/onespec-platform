@@ -2533,7 +2533,8 @@
       "media": "Plus de chambres et plus d'épaisseur : meilleure isolation, le choix le plus courant.",
       "mediaSuperiore": "Hautes performances (7 chambres, triple joint, renforts) : pour un confort thermique élevé.",
       "premium": "Haut de gamme (ex. fibre de carbone) : meilleures performances thermiques et mécaniques."
-    }
+    },
+    "calibration": "Prix utilisés par la plateforme : fourniture seule, transport de l'usine jusqu'à l'installateur inclus, hors TVA. Les prix du marché du tableau incluent aussi la pose de base, ils ont donc été réduits de {pct} % (calibrage sur un vrai devis Winarhi : Aluplast Ideal 4000, Centre, 1432 × 1548 mm = 420,00 € HT). La même réduction s'applique à tous les profilés et à toutes les zones."
   },
   "pricingTab": {
     "title": "Prix et marge bénéficiaire",
@@ -2569,6 +2570,6 @@
     "exampleMargin": "Votre marge",
     "exampleFinal": "Prix final",
     "exampleInvalid": "Saisissez une largeur et une hauteur valides.",
-    "exampleNote": "Exemple indicatif avec double vitrage, blanc, quincaillerie standard et pose de base."
+    "exampleNote": "Exemple indicatif avec double vitrage, blanc, quincaillerie standard : fourniture avec transport depuis l'usine, hors TVA, sans pose."
   }
 }

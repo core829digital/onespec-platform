@@ -9,6 +9,7 @@ import {
   midCents,
   parseMarginInput,
   resolveStandardPrice,
+  toSupplyCents,
   standardProfileByKey,
   MAX_MARGIN_PERCENT,
 } from "@/shared/standard-pricing";
@@ -66,7 +67,8 @@ describe("standard price list", () => {
   it("resolves to whole cents at the middle of the ranges", () => {
     expect(midCents([260, 310])).toBe(28500);
     const r = resolveStandardPrice(standardProfileByKey("std_aluplast_ideal_4000")!, "nord");
-    expect(r).toEqual({ completePerM2Cents: 28500, framePerM2Cents: 16500, glassPerM2Cents: 9500, barPerMlCents: 1050 });
+    // Market mid prices (285 / 165 EUR/m2, glass 95, bar 10.50) scaled to supply prices.
+    expect(r).toEqual({ completePerM2Cents: toSupplyCents(28500), framePerM2Cents: toSupplyCents(16500), glassPerM2Cents: toSupplyCents(9500), barPerMlCents: toSupplyCents(1050) });
     for (const x of STANDARD_PROFILES) for (const z of PRICE_ZONES) for (const v of Object.values(resolveStandardPrice(x, z))) expect(Number.isInteger(v)).toBe(true);
   });
 });

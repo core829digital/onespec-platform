@@ -308,7 +308,7 @@ export function calculate(state: ConfigState, pricing: Pricing, src?: ConfigStat
 // Indicative, clearly-labelled Uw estimate (NOT a certified EN ISO 10077 calc).
 const U_FRAME_BASE: Record<Material, number> = { pvc: 1.3, wood: 1.2, aluminum: 1.6 };
 const U_FRAME_QUALITY: Record<Material, Record<string, number>> = {
-  pvc: { chamber5: 0, chamber7: -0.15 },
+  pvc: { chamber5: 0, chamber6: -0.075, chamber7: -0.15 },
   wood: { pine: 0, oak: -0.05 },
   aluminum: { standard: 0, thermalbreak: -0.5 },
 };

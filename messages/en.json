@@ -2533,7 +2533,8 @@
       "media": "More chambers and greater depth: better insulation, the most common choice.",
       "mediaSuperiore": "High performance (7 chambers, triple gasket, reinforcement): for high thermal comfort.",
       "premium": "Top of the range (e.g. carbon fibre): the best thermal and mechanical performance."
-    }
+    },
+    "calibration": "Prices used by the platform: supply only, factory transport to the installer included, VAT excluded. The market prices in the table also include the basic installation, so they were reduced by {pct}% (calibrated on a real Winarhi quote: Aluplast Ideal 4000, Centre, 1432 × 1548 mm = 420.00 € excl. VAT). The same reduction applies to every profile and zone."
   },
   "pricingTab": {
     "title": "Prices and profit margin",
@@ -2569,6 +2570,6 @@
     "exampleMargin": "Your margin",
     "exampleFinal": "Final price",
     "exampleInvalid": "Enter a valid width and height.",
-    "exampleNote": "Indicative example with double glazing, white, standard hardware and basic installation."
+    "exampleNote": "Indicative example with double glazing, white, standard hardware: supply with factory transport, VAT excluded, no installation."
   }
 }

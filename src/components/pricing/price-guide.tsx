@@ -3,6 +3,7 @@
 import { useLocale, useTranslations } from "next-intl";
 import {
   FRAME_ONLY_SHARE,
+  SUPPLY_FACTOR,
   PRICE_ZONES,
   QUALITY_CLASS_LABEL,
   STANDARD_PROFILES,
@@ -50,6 +51,7 @@ export function PriceGuide() {
           <li>{t("whatFrame", { share: Math.round(FRAME_ONLY_SHARE * 100) })}</li>
           <li>{t("whatMid")}</li>
         </ul>
+        <p className={`${p} font-medium`}>{t("calibration", { pct: pct((1 - SUPPLY_FACTOR.numerator / SUPPLY_FACTOR.denominator) * 100) })}</p>
       </section>
 
       <section className={section}>

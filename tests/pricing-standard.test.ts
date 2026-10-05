@@ -1,10 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { calculatePrice, type CatalogPayload, type ProjectItem } from "@/shared/pricing";
-import { resolveStandardPrice, standardProfileByKey } from "@/shared/standard-pricing";
+import { resolveStandardPrice, standardProfileByKey, toSupplyCents } from "@/shared/standard-pricing";
 import { calculate, defaultConfig } from "@/components/widget/widget-pricing";
 import { catalogPricing, type WidgetCatalog } from "@/components/widget/widget-catalog";
 
 const PROFILE = "std_aluplast_ideal_4000";
+// Market mid prices (260-310, 240-290, 220-270 EUR/m2) turned into supply prices by the calibration factor.
+const NORD = toSupplyCents(28500);
+const CENTRO = toSupplyCents(26500);
+const SUD = toSupplyCents(24500);
 const row = <T extends object>(r: T) => ({ sortOrder: 0, enabled: true, labels: { it: "x" }, ...r });
 
 function payload(over: { configurator?: Partial<CatalogPayload["configurator"]>; zone?: "nord" | "centro" | "sud"; finishMult?: number; triple?: boolean } = {}): CatalogPayload {
@@ -62,9 +66,9 @@ describe("standard price list in the price engine", () => {
   const AREA = 1.2 * 1.4; // 1.68 m²
 
   it("prices a profile at its complete price per m² of the zone (middle of the range)", () => {
-    expect(unit(payload({ configurator: { pricingMode: "standard" } }), item()).unitPrice).toBe(Math.round(28500 * AREA)); // 47880
-    expect(unit(payload({ configurator: { pricingMode: "standard" }, zone: "sud" }), item()).unitPrice).toBe(Math.round(24500 * AREA)); // 41160
-    expect(unit(payload({ configurator: { pricingMode: "standard" }, zone: "centro" }), item()).unitPrice).toBe(Math.round(26500 * AREA)); // 44520
+    expect(unit(payload({ configurator: { pricingMode: "standard" } }), item()).unitPrice).toBe(Math.round(NORD * AREA));
+    expect(unit(payload({ configurator: { pricingMode: "standard" }, zone: "sud" }), item()).unitPrice).toBe(Math.round(SUD * AREA));
+    expect(unit(payload({ configurator: { pricingMode: "standard" }, zone: "centro" }), item()).unitPrice).toBe(Math.round(CENTRO * AREA));
   });
 
   it("is off unless the catalogue is in standard mode: the catalogue's own prices stay in charge", () => {
@@ -80,13 +84,13 @@ describe("standard price list in the price engine", () => {
 
   it("a coloured frame adds the colour surcharge; triple glazing adds its price per m²", () => {
     const std = payload({ configurator: { pricingMode: "standard" } });
-    expect(unit(std, item({ color: "ral" })).unitPrice).toBe(Math.round(28500 * 1.2 * AREA));
-    expect(unit(std, item({ glazing: "triple" })).unitPrice).toBe(Math.round(28500 * AREA) + Math.round(6000 * AREA));
+    expect(unit(std, item({ color: "ral" })).unitPrice).toBe(Math.round(NORD * 1.2 * AREA));
+    expect(unit(std, item({ glazing: "triple" })).unitPrice).toBe(Math.round(NORD * AREA) + Math.round(6000 * AREA));
   });
 
   it("the margin is applied to the whole unit price, with decimals, in whole cents", () => {
-    const base = Math.round(28500 * AREA); // 47880
-    for (const [m, expected] of [[0, 47880], [25, 59850], [12.5, 53865], [7.35, Math.round((47880 * 10735) / 10000)], [0.01, Math.round((47880 * 10001) / 10000)]] as const) {
+    const base = Math.round(NORD * AREA);
+    for (const [m, expected] of [[0, base], [25, Math.round((base * 12500) / 10000)], [12.5, Math.round((base * 11250) / 10000)], [7.35, Math.round((base * 10735) / 10000)], [0.01, Math.round((base * 10001) / 10000)]] as const) {
       const r = unit(payload({ configurator: { pricingMode: "standard", marginPercent: m } }), item());
       expect(r.unitPrice).toBe(expected);
       expect(r.marginCents ?? 0).toBe(expected - base);
@@ -104,6 +108,23 @@ describe("standard price list in the price engine", () => {
     const base = unit(payload({ configurator: { pricingMode: "standard" } }), item()).unitPrice;
     expect(unit(payload({ configurator: { pricingMode: "standard", marginPercent: -20 } }), item()).unitPrice).toBe(base);
     expect(unit(payload({ configurator: { pricingMode: "standard", marginPercent: 1e9 } }), item()).unitPrice).toBe(Math.round(base * 4));
+  });
+});
+
+describe("calibration to the Winarhi reference quote", () => {
+  it("Aluplast Ideal 4000, Centro, 1432 x 1548, double glazing, no margin: 420.00 EUR net (supply + factory transport), VAT added on top", () => {
+    const p = payload({ configurator: { pricingMode: "standard" }, zone: "centro" });
+    const r = calculatePrice(p, [item({ width: 1432, height: 1548 })]);
+    expect(r.priceExVatCents).toBe(42000);
+    expect(r.priceCents).toBe(42000 + Math.round(42000 * 0.22));
+  });
+
+  it("the same factor moves every zone and profile: the zones keep their distance", () => {
+    const at = (zone: "nord" | "centro" | "sud") => calculatePrice(payload({ configurator: { pricingMode: "standard" }, zone }), [item({ width: 1432, height: 1548 })]).priceExVatCents;
+    expect(at("nord")).toBeGreaterThan(at("centro"));
+    expect(at("centro")).toBeGreaterThan(at("sud"));
+    // Market ratio nord:centro = 285:265
+    expect(at("nord") / at("centro")).toBeCloseTo(285 / 265, 3);
   });
 });
 

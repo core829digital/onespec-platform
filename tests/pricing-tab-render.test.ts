@@ -28,10 +28,10 @@ describe("pricing tab (server render)", () => {
     expect(html).toContain('max="100"');
     expect(html).toContain('inputMode="decimal"');
     expect(html).toContain('value="10"');
-    // 285 * 1.2 * 1.4 = 478.80 -> +10% = 526.68 (margin 47.88)
-    expect(html).toMatch(/478,80/);
-    expect(html).toMatch(/47,88/);
-    expect(html).toMatch(/526,68/);
+    // Nord supply price of the Aluplast: 203.77 EUR/m2 (market 285 x calibration) x 1.68 m2 = 342.33 -> +10% = 376.56 (margin 34.23)
+    expect(html).toMatch(/342,33/);
+    expect(html).toMatch(/34,23/);
+    expect(html).toMatch(/376,56/);
     // markup 10% = 9,09% on the selling price
     expect(html).toContain("9,09%");
   });

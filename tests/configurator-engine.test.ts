@@ -109,24 +109,24 @@ describe("pricing extensions", () => {
 
   test("an item without any new field prices exactly as before", () => {
     // 1.17 m2 * 20000 = 23400 ; profile 4.4 m * 1000 = 4400 ; tiltturn 5000
-    expect(plain.priceCents).toBe(23400 + 4400 + 5000);
+    expect(plain.priceExVatCents).toBe(23400 + 4400 + 5000);
   });
 
   test("telaio multiplier scales material AND profile cost", () => {
     const r = calculatePrice(catalog, [item({ frameType: "reno65" })]);
-    expect(r.priceCents).toBe(Math.round(23400 * 1.12) + Math.round(4400 * 1.12) + 5000);
+    expect(r.priceExVatCents).toBe(Math.round(23400 * 1.12) + Math.round(4400 * 1.12) + 5000);
   });
 
   test("finish and glazing multipliers scale the material cost", () => {
     const wood = calculatePrice(catalog, [item({ color: "wood" })]);
-    expect(wood.priceCents).toBe(Math.round(23400 * 1.3) + 4400 + 5000);
+    expect(wood.priceExVatCents).toBe(Math.round(23400 * 1.3) + 4400 + 5000);
     const triple = calculatePrice(catalog, [item({ glazing: "triple" })]);
-    expect(triple.priceCents).toBe(Math.round(23400 * 1.24) + 4400 + 5000);
+    expect(triple.priceExVatCents).toBe(Math.round(23400 * 1.24) + 4400 + 5000);
   });
 
   test("profile series multiplier still applies", () => {
     const r = calculatePrice(catalog, [item({ profileSystem: "schuco" })]);
-    expect(r.priceCents).toBe(Math.round(23400 * 1.55) + 4400 + 5000);
+    expect(r.priceExVatCents).toBe(Math.round(23400 * 1.55) + 4400 + 5000);
   });
 
   test("RC2 hardware is per active operable leaf; a tilt leaf is priced from its own row", () => {
@@ -136,7 +136,7 @@ describe("pricing extensions", () => {
         { type: "fix", direction: "left", active: true, hardware: "rc2", hardwareColor: "silver" },
       ],
     });
-    expect(calculatePrice(catalog, [two]).priceCents).toBe(23400 + 4400 + 2000 + 5500);
+    expect(calculatePrice(catalog, [two]).priceExVatCents).toBe(23400 + 4400 + 2000 + 5500);
   });
 
   test("accessories: flat / per m2 / per ml, disabled rows ignored, own size wins", () => {
@@ -150,8 +150,8 @@ describe("pricing extensions", () => {
 
   test("optional per-category base price is added on top", () => {
     const a = calculatePrice(catalog, [item({ category: "porta" })]);
-    expect(a.priceCents).toBe(plain.priceCents + 30000);
-    expect(calculatePrice(catalog, [item({ category: "finestra1" })]).priceCents).toBe(plain.priceCents);
+    expect(a.priceExVatCents).toBe(plain.priceExVatCents + 30000);
+    expect(calculatePrice(catalog, [item({ category: "finestra1" })]).priceExVatCents).toBe(plain.priceExVatCents);
   });
 });
 

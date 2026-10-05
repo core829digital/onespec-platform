@@ -36,7 +36,8 @@ describe("widget.insertQuote — server-authoritative recompute", () => {
     const quote = await t.run((ctx) => ctx.db.get(res));
     // material 30240 ×1.5 = 45360 ; profile 14560 ; sash tiltturn 6500 ;
     // screen 6500 + colour 1000 ; installation 15000  → 88920
-    expect(quote?.priceCents).toBe(88920);
+    expect(quote?.priceExVatCents).toBe(88920);
+    expect(quote?.priceCents).toBe(88920 + Math.round(88920 * 0.22));
     expect(quote?.clientReportedPriceCents).toBe(100);
     expect(quote?.leadName).toBe("Mario Rossi");
   });

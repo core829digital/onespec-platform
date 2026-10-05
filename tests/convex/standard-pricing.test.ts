@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { api, internal } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import { newDb, seedTenant } from "./_helpers";
-import { LEGACY_PVC_PROFILE_KEYS, STANDARD_PROFILES } from "../../src/shared/standard-pricing";
+import { LEGACY_PVC_PROFILE_KEYS, STANDARD_PROFILES, toSupplyCents } from "../../src/shared/standard-pricing";
 
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => vi.useRealTimers());
@@ -85,8 +85,8 @@ describe("standard price list in the catalogue", () => {
     const payload = v!.payload as { configurator: { pricingMode?: string; marginPercent?: number }; profileSystems: Array<{ key: string; standard?: { completePerM2Cents: number } }> };
     expect(payload.configurator).toMatchObject({ pricingMode: "standard", marginPercent: 12.5 });
     const row = payload.profileSystems.find((p) => p.key === "std_aluplast_ideal_4000");
-    // Nord: complete 260-310 EUR/m2 -> mid 285.
-    expect(row?.standard?.completePerM2Cents).toBe(28500);
+    // Nord: market complete 260-310 EUR/m2 -> mid 285 -> supply price after the calibration factor.
+    expect(row?.standard?.completePerM2Cents).toBe(toSupplyCents(28500));
     await as.mutation(api.pricing.useCustomPricing, { configuratorId });
     expect((await t.run((ctx) => ctx.db.get(configuratorId)))?.pricingMode).toBe("custom");
   });

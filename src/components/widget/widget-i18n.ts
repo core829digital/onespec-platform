@@ -70,6 +70,9 @@ export interface WidgetDict {
   summaryProfileCost: string;
   summaryOptionsCost: string;
   summaryTotal: string;
+  /** Net amount line and VAT line under the total ("{n}" = rate). */
+  summaryNet: string;
+  summaryVat: string;
   perUnit: string;
   units: string;
   projectItemsTitle: string;
@@ -187,6 +190,8 @@ const en: WidgetDict = {
   summaryProfileCost: "Profile / frame",
   summaryOptionsCost: "Options",
   summaryTotal: "Total estimate VAT included",
+  summaryNet: "Net amount (VAT excluded)",
+  summaryVat: "VAT {n}%",
   perUnit: "per unit",
   units: "units",
   projectItemsTitle: "Project items",
@@ -306,6 +311,8 @@ const it: WidgetDict = {
   summaryProfileCost: "Profilo / telaio",
   summaryOptionsCost: "Opzioni",
   summaryTotal: "Totale stimato IVA inclusa",
+  summaryNet: "Imponibile (IVA esclusa)",
+  summaryVat: "IVA {n}%",
   perUnit: "a pezzo",
   units: "pezzi",
   projectItemsTitle: "Articoli del progetto",
@@ -423,6 +430,8 @@ const fr: WidgetDict = {
   summaryProfileCost: "Profilé / cadre",
   summaryOptionsCost: "Options",
   summaryTotal: "Total estimé TVA incluse",
+  summaryNet: "Montant HT (hors TVA)",
+  summaryVat: "TVA {n}%",
   perUnit: "à l'unité",
   units: "unités",
   projectItemsTitle: "Articles du projet",
@@ -540,6 +549,8 @@ const de: WidgetDict = {
   summaryProfileCost: "Profil / Rahmen",
   summaryOptionsCost: "Optionen",
   summaryTotal: "Gesamtkostenschätzung inkl. MwSt.",
+  summaryNet: "Nettobetrag (ohne MwSt.)",
+  summaryVat: "MwSt. {n}%",
   perUnit: "pro Stück",
   units: "Stück",
   projectItemsTitle: "Projektartikel",
@@ -658,6 +669,8 @@ const nl: WidgetDict = {
   summaryProfileCost: "Profiel / kozijn",
   summaryOptionsCost: "Opties",
   summaryTotal: "Totale schatting incl. BTW",
+  summaryNet: "Netto bedrag (excl. BTW)",
+  summaryVat: "BTW {n}%",
   perUnit: "per stuk",
   units: "stukken",
   projectItemsTitle: "Projectartikelen",

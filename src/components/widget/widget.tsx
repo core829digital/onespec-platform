@@ -296,7 +296,10 @@ export function Widget({
   const uw = useMemo(() => computeUw(state), [state]);
 
   const itemsSubtotal = items.reduce((s, it) => s + it.totalPrice, 0);
-  const grossGrand = itemsSubtotal + result.totalPrice;
+  // Catalogue prices are net: the VAT of the chosen rate (0% included) goes on top.
+  const netGrand = itemsSubtotal + result.totalPrice;
+  const vatAmount = netGrand * (vatPct / 100);
+  const grossGrand = netGrand + vatAmount;
   const ecobonusAmount = grossGrand * (ecobonusPct / 100);
   const discountAmount = grossGrand * (discountPct / 100);
   const finalGrand = grossGrand - ecobonusAmount - discountAmount;
@@ -477,6 +480,7 @@ export function Widget({
         leadLocale: submitLocale,
         honeypot: honeypot || undefined,
         clientReportedPriceCents: Math.round(finalGrand * 100),
+        clientVatPercent: vatPct,
         consent: true as const,
         consentVersion: "widget-1",
         turnstileToken: turnstileToken ?? undefined,
@@ -1112,6 +1116,14 @@ export function Widget({
                 <div style={{ marginTop: 14, padding: 16, borderRadius: 8, background: accent, color: accentInk }}>
                   <div style={{ fontSize: 11.5, textTransform: "uppercase", letterSpacing: ".08em", opacity: 0.85 }}>{dict.summaryTotal}</div>
                   <div style={{ fontFamily: "var(--font-ibm-plex-mono), monospace", fontSize: 28, fontWeight: 600, marginTop: 4 }}>{fmtC(grossGrand)}</div>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, opacity: 0.9, marginTop: 6, fontFamily: "var(--font-ibm-plex-mono), monospace" }}>
+                    <span>{dict.summaryNet}</span>
+                    <span>{fmtC(netGrand)}</span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, opacity: 0.9, fontFamily: "var(--font-ibm-plex-mono), monospace" }}>
+                    <span>{dict.summaryVat.replace("{n}", String(vatPct))}</span>
+                    <span>{fmtC(vatAmount)}</span>
+                  </div>
                   {isLeadGen && (
                     <div style={{ fontSize: 11.5, opacity: 0.85, marginTop: 6, lineHeight: 1.5 }}>{dict.estimateNotContractual}</div>
                   )}

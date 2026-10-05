@@ -335,7 +335,6 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
   const vatRate = payload.configurator.vatRatePercent;
   const roundingStep = payload.configurator.priceRoundingStep;
 
-  let totalPriceCents = 0;
   let totalExVatCents = 0;
   const itemBreakdowns: ItemBreakdown[] = [];
 
@@ -426,8 +425,8 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
     const marginCents = unitPrice - baseUnit;
     const itemTotal = unitPrice * item.quantity;
 
-    totalPriceCents += itemTotal;
-    totalExVatCents += Math.round(itemTotal / (1 + vatRate / 100));
+    // Catalogue prices are NET (VAT excluded); VAT is added on top, whatever the rate (0% included).
+    totalExVatCents += itemTotal;
 
     itemBreakdowns.push({
       areaM2, perimeterM, materialCost, profileCost, optionsCost,
@@ -437,8 +436,9 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
   }
 
   const step = roundingStep && roundingStep > 0 ? roundingStep : 1;
-  const roundedTotal = Math.round(totalPriceCents / step) * step;
   const roundedExVat = Math.round(totalExVatCents / step) * step;
+  // The VAT is computed on the rounded net, so net + VAT = gross exactly on every document.
+  const roundedTotal = roundedExVat + Math.round((roundedExVat * vatRate) / 100);
 
   return {
     priceCents: roundedTotal,

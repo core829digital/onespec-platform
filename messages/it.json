@@ -2533,7 +2533,8 @@
       "media": "Più camere e spessore maggiore: isolamento migliore, scelta più diffusa.",
       "mediaSuperiore": "Prestazioni elevate (7 camere, tripla guarnizione, rinforzi): per chi vuole il comfort termico alto.",
       "premium": "Top di gamma (es. fibra di carbonio): massime prestazioni termiche e meccaniche."
-    }
+    },
+    "calibration": "Prezzi usati dalla piattaforma: sono prezzi di sola fornitura, con trasporto dalla fabbrica al montatore incluso e IVA esclusa. I prezzi di mercato della tabella includono anche la posa base, quindi sono stati ridotti del {pct}% (calibrazione su un preventivo reale Winarhi: Aluplast Ideal 4000, Centro, 1432 × 1548 mm = 420,00 € senza IVA). La stessa riduzione vale per tutti i profili e tutte le zone."
   },
   "pricingTab": {
     "title": "Prezzi e margine di profitto",
@@ -2569,6 +2570,6 @@
     "exampleMargin": "Il tuo margine",
     "exampleFinal": "Prezzo finale",
     "exampleInvalid": "Inserisci larghezza e altezza valide.",
-    "exampleNote": "Esempio indicativo con vetro doppio, bianco, ferramenta standard e posa base."
+    "exampleNote": "Esempio indicativo con vetro doppio, bianco, ferramenta standard: fornitura con trasporto dalla fabbrica, IVA esclusa, senza posa."
   }
 }

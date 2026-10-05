@@ -423,6 +423,8 @@ export const insertQuote = internalMutation({
       v.union(v.literal("quote"), v.literal("firm_order"), v.literal("measurement")),
     ),
     clientReportedPriceCents: v.optional(v.number()),
+    /** VAT rate the visitor had selected when the price was shown (the widget lets them tweak it). */
+    clientVatPercent: v.optional(v.number()),
     sourceIpHash: v.optional(v.string()),
     sourceOrigin: v.optional(v.string()),
     userAgent: v.optional(v.string()),
@@ -489,10 +491,13 @@ export const insertQuote = internalMutation({
 
     const price = calculatePrice(version.payload, items);
 
+    // The widget shows the gross at the rate the visitor picked: compare like with like.
+    const comparedVat = typeof args.clientVatPercent === "number" && args.clientVatPercent >= 0 && args.clientVatPercent <= 100 ? args.clientVatPercent : price.vatRatePercent;
+    const expectedGross = price.priceExVatCents + Math.round((price.priceExVatCents * comparedVat) / 100);
     const priceMismatch =
       args.clientReportedPriceCents != null &&
-      price.priceCents > 0 &&
-      Math.abs(price.priceCents - args.clientReportedPriceCents) / price.priceCents > 0.01;
+      expectedGross > 0 &&
+      Math.abs(expectedGross - args.clientReportedPriceCents) / expectedGross > 0.01;
 
     const quoteId = await ctx.db.insert("quoteRequests", {
       tenantId: configurator.tenantId,
