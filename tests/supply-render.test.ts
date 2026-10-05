@@ -11,12 +11,14 @@ import nl from "../messages/nl.json";
 import ro from "../messages/ro.json";
 
 let queryResult: unknown;
-vi.mock("convex/react", () => ({ useQuery: () => queryResult, useMutation: () => async () => ({}), useAction: () => async () => ({}) }));
+let exportResult: unknown[] | undefined = [];
+vi.mock("convex/react", () => ({ useQuery: (_f: unknown, args?: Record<string, unknown>) => (args && "from" in args ? exportResult : queryResult), useMutation: () => async () => ({}), useAction: () => async () => ({}) }));
 vi.mock("@/lib/use-friendly-error", () => ({ useFriendlyError: () => (e: unknown) => String(e) }));
 vi.mock("@/lib/confirm-dialog", () => ({ requestConfirm: async () => true }));
 
 import { SupplyCard } from "../src/components/supply/supply-card";
 import { ProfitPanel } from "../src/components/supply/profit-panel";
+import { ExportPanel, presetRange } from "../src/components/supply/export-panel";
 import { NAV_GROUPS } from "../src/components/app-shell/nav-items";
 import { PROFIT_WINDOWS_MONTHS } from "../src/shared/supply";
 
@@ -70,6 +72,33 @@ describe("profit panel", () => {
       expect(html).not.toContain("supply.profit");
       expect((html.match(/tabular-nums/g) ?? []).length).toBeGreaterThanOrEqual(8);
     }
+  });
+});
+
+describe("export panel", () => {
+  const rows = [{ reference: "Q-1", customerName: "Verdi", deliveredAt: Date.UTC(2026, 5, 1), revenueExVatCents: 100000, vatPercent: 22, factoryCostCents: 60000, transportCostCents: 2000, otherCostsCents: 0 }];
+  it("offers the periods and an enabled download when there is something to export, in every language", () => {
+    exportResult = rows;
+    for (const l of Object.keys(MSG) as (keyof typeof MSG)[]) {
+      const html = wrap(h(ExportPanel, { tenantId: "t1" as never }), l);
+      expect(html).not.toContain("supply.export");
+      expect(html).toContain('type="date"');
+      expect(html).not.toContain('disabled=""');
+    }
+  });
+  it("download is disabled with nothing to export and says so", () => {
+    exportResult = [];
+    const html = wrap(h(ExportPanel, { tenantId: "t1" as never }));
+    expect(html).toContain('disabled=""');
+    expect(html).toContain("Nessuna fornitura consegnata");
+  });
+  it("preset ranges: month, quarter, year, last year (UTC)", () => {
+    const now = Date.UTC(2026, 10, 15);
+    expect(presetRange("month", now)).toEqual({ from: "2026-11-01", to: "2026-11-30" });
+    expect(presetRange("quarter", now)).toEqual({ from: "2026-10-01", to: "2026-12-31" });
+    expect(presetRange("year", now)).toEqual({ from: "2026-01-01", to: "2026-12-31" });
+    expect(presetRange("lastYear", now)).toEqual({ from: "2025-01-01", to: "2025-12-31" });
+    expect(presetRange("month", Date.UTC(2024, 1, 10))).toEqual({ from: "2024-02-01", to: "2024-02-29" });
   });
 });
 

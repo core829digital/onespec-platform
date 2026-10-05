@@ -4,6 +4,7 @@ import { useQuery } from "convex/react";
 import { useTranslations } from "next-intl";
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
+import { ExportPanel } from "./export-panel";
 import { useEuro } from "./money";
 
 export function ProfitPanel({ tenantId }: { tenantId: Id<"tenants"> }) {
@@ -35,6 +36,7 @@ export function ProfitPanel({ tenantId }: { tenantId: Id<"tenants"> }) {
         </p>
       </div>
       <p className="text-xs text-[var(--color-text-secondary)]">{t("note")}</p>
+      <ExportPanel tenantId={tenantId} />
     </div>
   );
 }

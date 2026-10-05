@@ -2805,6 +2805,29 @@
       "archived": "archiviato",
       "archive": "Archivia",
       "restore": "Riattiva"
+    },
+    "onQuote": {
+      "hint": "Il preventivo è chiuso: avvia la fornitura per seguire produzione, consegna e profitto.",
+      "start": "Avvia fornitura",
+      "stage": "Fase attuale: {stage}",
+      "open": "Apri la pagina Fornitura"
+    },
+    "export": {
+      "title": "Esporta per il commercialista",
+      "intro": "Scarica un file CSV (apribile con Excel) con le forniture consegnate nel periodo: ricavi senza IVA, IVA, costi e profitto netto, con il totale in fondo.",
+      "preset": {
+        "month": "Mese corrente",
+        "quarter": "Trimestre corrente",
+        "year": "Anno corrente",
+        "lastYear": "Anno scorso"
+      },
+      "from": "Dal",
+      "to": "Al",
+      "download": "Scarica CSV",
+      "invalidRange": "Intervallo non valido: la data iniziale deve precedere quella finale (massimo 10 anni).",
+      "none": "Nessuna fornitura consegnata in questo periodo.",
+      "summary": "{count} forniture · ricavi {revenue} (senza IVA) · profitto netto {profit}",
+      "note": "Conta la data di consegna. Importi senza IVA, prima delle imposte sul reddito."
     }
   }
 }

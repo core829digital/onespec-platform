@@ -2805,6 +2805,29 @@
       "archived": "archiviert",
       "archive": "Archivieren",
       "restore": "Reaktivieren"
+    },
+    "onQuote": {
+      "hint": "Das Geschäft ist abgeschlossen: Starten Sie die Lieferung, um Produktion, Auslieferung und Gewinn zu verfolgen.",
+      "start": "Lieferung starten",
+      "stage": "Aktuelle Phase: {stage}",
+      "open": "Seite Lieferung öffnen"
+    },
+    "export": {
+      "title": "Export für Ihren Steuerberater",
+      "intro": "Laden Sie eine CSV-Datei (mit Excel zu öffnen) mit den im Zeitraum gelieferten Lieferungen herunter: Erlös netto, MwSt., Kosten und Nettogewinn, mit der Summe am Ende.",
+      "preset": {
+        "month": "Aktueller Monat",
+        "quarter": "Aktuelles Quartal",
+        "year": "Aktuelles Jahr",
+        "lastYear": "Letztes Jahr"
+      },
+      "from": "Von",
+      "to": "Bis",
+      "download": "CSV herunterladen",
+      "invalidRange": "Ungültiger Zeitraum: Das Startdatum muss vor dem Enddatum liegen (höchstens 10 Jahre).",
+      "none": "Keine Lieferung in diesem Zeitraum geliefert.",
+      "summary": "{count} Lieferungen · Erlös {revenue} (netto) · Nettogewinn {profit}",
+      "note": "Maßgeblich ist das Lieferdatum. Beträge ohne MwSt., vor Ertragsteuern."
     }
   }
 }

@@ -56,6 +56,9 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
   );
 
   const updateStatus = useMutation(api.quotes.updateStatus);
+  const supply = useQuery(api.supplies.forQuote, { quoteId });
+  const startSupply = useMutation(api.supplies.createFromQuote);
+  const tSupply = useTranslations("supply");
   const assignRequest = useMutation(api.quotes.assignRequest);
   const addNote = useMutation(api.quotes.addNote);
   const requestWhatsappSend = useMutation(api.usage.requestWhatsappSend);
@@ -453,6 +456,34 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
               ))}
             </div>
           </section>
+
+          {quote.status === "won" || supply ? (
+            <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4" data-testid="supply-panel">
+              <h3 className="text-sm font-semibold text-[var(--color-text)]">{tSupply("title")}</h3>
+              {supply ? (
+                <>
+                  <p className="mt-2 text-sm text-[var(--color-text-secondary)]">
+                    {tSupply("onQuote.stage", { stage: tSupply(`stages.${supply.status}`) })}
+                  </p>
+                  <Link href="/app/supply" className="mt-2 inline-flex text-sm font-medium text-[var(--color-mint-text)] hover:underline">
+                    {tSupply("onQuote.open")}
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <p className="mt-2 text-sm text-[var(--color-text-secondary)]">{tSupply("onQuote.hint")}</p>
+                  <button
+                    type="button"
+                    disabled={busy || supply === undefined}
+                    onClick={() => guard(() => startSupply({ quoteId }))}
+                    className="mt-3 rounded-lg bg-[var(--color-mint)] px-4 py-2 text-sm font-semibold text-[var(--color-mint-dark)] disabled:opacity-50"
+                  >
+                    {tSupply("onQuote.start")}
+                  </button>
+                </>
+              )}
+            </section>
+          ) : null}
 
           <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4">
             <h3 className="text-sm font-semibold text-[var(--color-text)]">{t("assignedTo")}</h3>

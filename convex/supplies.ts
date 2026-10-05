@@ -8,6 +8,7 @@ import type { Doc, Id } from "./_generated/dataModel";
 import { requirePermission, roleAtLeast } from "./lib/rbac";
 import { must } from "./lib/validate";
 import { lockedSafeLeadName } from "./lib/quotaLock";
+import { ensureOrdered } from "./lib/supply";
 import { checkEmail, checkPersonName, checkPhone, checkText, checkCompanyName, type CountryCode } from "../src/shared/validation";
 import {
   PARTNER_ROLES,
@@ -136,6 +137,18 @@ export const list = query({
   },
 });
 
+/** The supply of one quote (stage only), or null: the quote page shows it or offers to start it. */
+export const forQuote = query({
+  args: { quoteId: v.id("quoteRequests") },
+  handler: async (ctx, args) => {
+    const quote = await ctx.db.get(args.quoteId);
+    if (!quote) return null;
+    await requirePermission(ctx, quote.tenantId, "quotes.use");
+    const s = await ctx.db.query("supplies").withIndex("by_quote", (q) => q.eq("quoteId", args.quoteId)).first();
+    return s ? { _id: s._id, status: s.status } : null;
+  },
+});
+
 /** Quotes that can still start a supply (not lost / spam, no supply yet): newest first. */
 export const quotesWithoutSupply = query({
   args: { tenantId: v.id("tenants") },
@@ -163,6 +176,12 @@ export const createFromQuote = mutation({
     if (quote.status === "lost" || quote.status === "spam") throw new ConvexError("SUPPLY_QUOTE_NOT_USABLE");
     const existing = await ctx.db.query("supplies").withIndex("by_quote", (q) => q.eq("quoteId", args.quoteId)).first();
     if (existing) throw new ConvexError("SUPPLY_ALREADY_EXISTS");
+    // A deal already closed (won / signed before the supply existed) starts at "Ordine", not at "Preventivo".
+    if (quote.status === "won") {
+      await ensureOrdered(ctx, quote);
+      const created = await ctx.db.query("supplies").withIndex("by_quote", (q) => q.eq("quoteId", args.quoteId)).first();
+      return created!._id;
+    }
     const now = Date.now();
     return await ctx.db.insert("supplies", {
       tenantId: quote.tenantId,
@@ -312,5 +331,51 @@ export const profit = query({
       open.push(...(await ctx.db.query("supplies").withIndex("by_tenant_status", (q) => q.eq("tenantId", args.tenantId).eq("status", status)).take(2000)));
     }
     return { now, windows: summarizeProfit(delivered, now), expected: expectedProfit(open) };
+  },
+});
+
+// ── Export for the accountant ───────────────────────────────────────────────
+
+const MAX_EXPORT_SPAN_MS = 11 * 366 * 24 * 3600 * 1000;
+
+/** Supplies delivered between `from` and `to` (inclusive, ms), with partner names and the VAT data of their quote. */
+export const exportRows = query({
+  args: { tenantId: v.id("tenants"), from: v.number(), to: v.number() },
+  handler: async (ctx, args) => {
+    await requirePermission(ctx, args.tenantId, "quotes.use");
+    if (!Number.isFinite(args.from) || !Number.isFinite(args.to) || args.from > args.to || args.to - args.from > MAX_EXPORT_SPAN_MS) {
+      throw new ConvexError("INVALID_INPUT");
+    }
+    const rows = await ctx.db
+      .query("supplies")
+      .withIndex("by_tenant_delivered", (q) => q.eq("tenantId", args.tenantId).gte("deliveredAt", args.from).lte("deliveredAt", args.to))
+      .take(5000);
+    const names = new Map<string, string>();
+    const nameOf = async (id: Id<"supplyPartners"> | undefined) => {
+      if (!id) return undefined;
+      if (!names.has(id)) names.set(id, (await ctx.db.get(id))?.name ?? "");
+      return names.get(id) || undefined;
+    };
+    const out = [];
+    for (const s of rows) {
+      if (s.deliveredAt === undefined) continue;
+      const quote = await ctx.db.get(s.quoteId);
+      out.push({
+        reference: s.reference,
+        customerName: s.customerName,
+        orderedAt: s.orderedAt,
+        deliveredAt: s.deliveredAt,
+        producer: await nameOf(s.producerId),
+        deliverer: await nameOf(s.delivererId),
+        revenueExVatCents: s.revenueExVatCents,
+        vatPercent: quote?.vatRatePercent ?? 0,
+        vatReason: quote?.vatReason,
+        factoryCostCents: s.factoryCostCents ?? 0,
+        factoryPaidAt: s.factoryPaidAt,
+        transportCostCents: s.transportCostCents ?? 0,
+        otherCostsCents: s.otherCostsCents ?? 0,
+      });
+    }
+    return out;
   },
 });

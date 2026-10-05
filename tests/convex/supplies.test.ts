@@ -90,6 +90,23 @@ describe("supply flow", () => {
     expect((await asOwner.query(api.supplies.list, { tenantId: seeded.tenantId }))[0].status).toBe("production");
   });
 
+  test("a deal won before the supply existed starts at Ordine, and forQuote reports the stage", async () => {
+    const { seeded, asOwner, quoteId, t } = await setup();
+    expect(await asOwner.query(api.supplies.forQuote, { quoteId })).toBeNull();
+    // won without going through updateStatus (an old quote, set directly)
+    await t.run((ctx) => ctx.db.patch(quoteId, { status: "won" }));
+    const id = await asOwner.mutation(api.supplies.createFromQuote, { quoteId });
+    expect(await asOwner.query(api.supplies.forQuote, { quoteId })).toEqual({ _id: id, status: "order" });
+    expect((await asOwner.query(api.supplies.list, { tenantId: seeded.tenantId }))[0].orderedAt).toBeDefined();
+    await expect(asOwner.mutation(api.supplies.createFromQuote, { quoteId })).rejects.toThrow(/SUPPLY_ALREADY_EXISTS/);
+  });
+
+  test("a quote of another tenant cannot be read through forQuote", async () => {
+    const { t, quoteId } = await setup();
+    const other = await seedTenant(t, { plan: "pro" });
+    await expect(t.withIdentity({ subject: other.ownerId }).query(api.supplies.forQuote, { quoteId })).rejects.toThrow();
+  });
+
   test("lost / spam quotes cannot start a supply", async () => {
     const { asOwner, quoteId } = await setup();
     await asOwner.mutation(api.quotes.updateStatus, { quoteId, status: "lost" });
@@ -141,5 +158,40 @@ describe("supply flow", () => {
     const [p] = (await asOwner.query(api.supplies.listPartners, { tenantId })).filter((x) => x._id === id);
     expect(p.name).toBe("Fabbrica Bianchi");
     expect(p.roles).toEqual(["producer", "deliverer"]);
+  });
+});
+
+describe("export for the accountant", () => {
+  async function delivered(tenantId: never, asOwner: Awaited<ReturnType<typeof setup>>["asOwner"], quoteId: never, factory: number) {
+    const id = await asOwner.mutation(api.supplies.createFromQuote, { quoteId });
+    await asOwner.mutation(api.supplies.advance, { supplyId: id });
+    const partner = await asOwner.mutation(api.supplies.createPartner, { tenantId, name: "Winarhi Srl", roles: ["producer", "deliverer"] });
+    await asOwner.mutation(api.supplies.advance, { supplyId: id, factoryCostCents: factory, producerId: partner });
+    await asOwner.mutation(api.supplies.advance, { supplyId: id, transportCostCents: 500, delivererId: partner });
+    await asOwner.mutation(api.supplies.advance, { supplyId: id });
+    return id;
+  }
+
+  test("returns the supplies delivered in the period with partner names and the VAT of the quote", async () => {
+    const { seeded, asOwner, quoteId } = await setup();
+    const tenantId = seeded.tenantId;
+    await delivered(tenantId as never, asOwner, quoteId as never, 20000);
+    const now = Date.now();
+    const rows = await asOwner.query(api.supplies.exportRows, { tenantId, from: now - 86_400_000, to: now + 86_400_000 });
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ producer: "Winarhi Srl", deliverer: "Winarhi Srl", vatPercent: 22, factoryCostCents: 20000, transportCostCents: 500, otherCostsCents: 0 });
+    // a period that does not contain the delivery
+    expect(await asOwner.query(api.supplies.exportRows, { tenantId, from: now - 10 * 86_400_000, to: now - 5 * 86_400_000 })).toEqual([]);
+  });
+
+  test("refuses an inverted or enormous range and another tenant's data", async () => {
+    const { t, seeded, asOwner } = await setup();
+    const tenantId = seeded.tenantId;
+    const now = Date.now();
+    await expect(asOwner.query(api.supplies.exportRows, { tenantId, from: now, to: now - 1 })).rejects.toThrow(/INVALID_INPUT/);
+    await expect(asOwner.query(api.supplies.exportRows, { tenantId, from: 0, to: now })).rejects.toThrow(/INVALID_INPUT/);
+    await expect(asOwner.query(api.supplies.exportRows, { tenantId, from: Number.NaN, to: now })).rejects.toThrow();
+    const other = await seedTenant(t, { plan: "pro" });
+    await expect(t.withIdentity({ subject: other.ownerId }).query(api.supplies.exportRows, { tenantId, from: now - 1000, to: now })).rejects.toThrow();
   });
 });

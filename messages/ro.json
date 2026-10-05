@@ -2805,6 +2805,29 @@
       "archived": "arhivat",
       "archive": "Arhivează",
       "restore": "Reactivează"
+    },
+    "onQuote": {
+      "hint": "Afacerea este încheiată: pornește furnizarea pentru a urmări producția, livrarea și profitul.",
+      "start": "Pornește furnizarea",
+      "stage": "Etapa curentă: {stage}",
+      "open": "Deschide pagina Furnizare"
+    },
+    "export": {
+      "title": "Exportă pentru contabil",
+      "intro": "Descarcă un fișier CSV (se deschide în Excel) cu furnizările livrate în perioadă: venit fără TVA, TVA, costuri și profit net, cu totalul la final.",
+      "preset": {
+        "month": "Luna curentă",
+        "quarter": "Trimestrul curent",
+        "year": "Anul curent",
+        "lastYear": "Anul trecut"
+      },
+      "from": "De la",
+      "to": "Până la",
+      "download": "Descarcă CSV",
+      "invalidRange": "Interval invalid: data de început trebuie să fie înaintea celei de sfârșit (maximum 10 ani).",
+      "none": "Nicio furnizare livrată în această perioadă.",
+      "summary": "{count} furnizări · venit {revenue} (fără TVA) · profit net {profit}",
+      "note": "Contează data livrării. Sume fără TVA, înainte de impozitul pe venit."
     }
   }
 }

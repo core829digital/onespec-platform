@@ -2805,6 +2805,29 @@
       "archived": "archivé",
       "archive": "Archiver",
       "restore": "Réactiver"
+    },
+    "onQuote": {
+      "hint": "L'affaire est conclue : démarrez la fourniture pour suivre production, livraison et bénéfice.",
+      "start": "Démarrer la fourniture",
+      "stage": "Étape actuelle : {stage}",
+      "open": "Ouvrir la page Fourniture"
+    },
+    "export": {
+      "title": "Exporter pour votre comptable",
+      "intro": "Téléchargez un fichier CSV (ouvrable dans Excel) avec les fournitures livrées sur la période : chiffre d'affaires HT, TVA, coûts et bénéfice net, avec le total en bas.",
+      "preset": {
+        "month": "Mois en cours",
+        "quarter": "Trimestre en cours",
+        "year": "Année en cours",
+        "lastYear": "Année dernière"
+      },
+      "from": "Du",
+      "to": "Au",
+      "download": "Télécharger le CSV",
+      "invalidRange": "Période invalide : la date de début doit précéder la date de fin (10 ans au maximum).",
+      "none": "Aucune fourniture livrée sur cette période.",
+      "summary": "{count} fournitures · CA {revenue} (HT) · bénéfice net {profit}",
+      "note": "La date de livraison fait foi. Montants hors TVA, avant impôt sur le revenu."
     }
   }
 }

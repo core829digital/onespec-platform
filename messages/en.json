@@ -2805,6 +2805,29 @@
       "archived": "archived",
       "archive": "Archive",
       "restore": "Restore"
+    },
+    "onQuote": {
+      "hint": "The deal is closed: start the supply to follow production, delivery and profit.",
+      "start": "Start supply",
+      "stage": "Current stage: {stage}",
+      "open": "Open the Supply page"
+    },
+    "export": {
+      "title": "Export for your accountant",
+      "intro": "Download a CSV file (opens in Excel) with the supplies delivered in the period: revenue excluding VAT, VAT, costs and net profit, with the total at the bottom.",
+      "preset": {
+        "month": "This month",
+        "quarter": "This quarter",
+        "year": "This year",
+        "lastYear": "Last year"
+      },
+      "from": "From",
+      "to": "To",
+      "download": "Download CSV",
+      "invalidRange": "Invalid range: the start date must come before the end date (10 years at most).",
+      "none": "No supply delivered in this period.",
+      "summary": "{count} supplies · revenue {revenue} (excl. VAT) · net profit {profit}",
+      "note": "The delivery date counts. Amounts exclude VAT and are before income tax."
     }
   }
 }

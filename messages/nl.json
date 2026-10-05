@@ -2805,6 +2805,29 @@
       "archived": "gearchiveerd",
       "archive": "Archiveren",
       "restore": "Heractiveren"
+    },
+    "onQuote": {
+      "hint": "De deal is gesloten: start de levering om productie, aflevering en winst te volgen.",
+      "start": "Levering starten",
+      "stage": "Huidige fase: {stage}",
+      "open": "Pagina Levering openen"
+    },
+    "export": {
+      "title": "Exporteren voor uw boekhouder",
+      "intro": "Download een CSV-bestand (te openen in Excel) met de in de periode geleverde leveringen: opbrengst excl. btw, btw, kosten en nettowinst, met het totaal onderaan.",
+      "preset": {
+        "month": "Huidige maand",
+        "quarter": "Huidig kwartaal",
+        "year": "Huidig jaar",
+        "lastYear": "Vorig jaar"
+      },
+      "from": "Van",
+      "to": "Tot",
+      "download": "CSV downloaden",
+      "invalidRange": "Ongeldige periode: de begindatum moet vóór de einddatum liggen (hoogstens 10 jaar).",
+      "none": "Geen levering afgeleverd in deze periode.",
+      "summary": "{count} leveringen · opbrengst {revenue} (excl. btw) · nettowinst {profit}",
+      "note": "De leverdatum telt. Bedragen excl. btw, vóór inkomstenbelasting."
     }
   }
 }
