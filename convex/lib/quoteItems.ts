@@ -25,7 +25,7 @@ export function parseQuoteItems(raw: unknown): ProjectItem[] {
  * The catalogue's own rules for what goes with what (a profile of the chosen quality, a glazing unit the profile can hold).
  * The editors only ever offer coherent choices; this refuses what still arrives otherwise (a stale tab, a hand-made request).
  */
-export function assertCoherentItems(payload: Pick<CatalogPayload, "profileSystems">, items: ProjectItem[]): void {
+export function assertCoherentItems(payload: Pick<CatalogPayload, "qualityTiers" | "profileSystems">, items: ProjectItem[]): void {
   for (const item of items) {
     if (comboIssues(payload, item).length > 0) throw new ConvexError("INVALID_COMBINATION");
   }

@@ -85,8 +85,9 @@ export function profileQualityKey(p: Pick<ProfileRow, "standardKey" | "qualityKe
 const enabledSorted = <T extends { enabled: boolean; sortOrder?: number }>(rows: T[] | undefined) =>
   (rows ?? []).filter((r) => r.enabled).sort((a, b) => (a.sortOrder ?? 0) - (b.sortOrder ?? 0));
 
+/** Enabled tiers of a material: chamber tiers in numeric order (5, 6, 7), the others by sort order. */
 export function qualityTiersFor(payload: Pick<CatalogPayload, "qualityTiers">, materialKey: string): TierRow[] {
-  return enabledSorted(payload.qualityTiers.filter((q) => q.materialKey === materialKey));
+  return payload.qualityTiers.filter((q) => q.materialKey === materialKey && q.enabled).sort(chamberOrder);
 }
 
 /**
@@ -152,7 +153,8 @@ export function virtualQualityTier(payload: Pick<CatalogPayload, "profileSystems
  * Brings a piece back to a coherent set of choices, from the top down: a quality that exists, a profile of that quality, a
  * glazing unit that profile can hold. Returns the same object when nothing needs to change.
  */
-export function reconcileItem(payload: Pick<CatalogPayload, "qualityTiers" | "profileSystems" | "glazing">, item: ProjectItem): ProjectItem {
+export function reconcileItem(raw: Pick<CatalogPayload, "qualityTiers" | "profileSystems" | "glazing">, item: ProjectItem): ProjectItem {
+  const payload = normalizeCatalog(raw);
   const tiers = qualityTiersFor(payload, item.material);
   let quality = item.quality[item.material];
   if (tiers.length > 0 && !tiers.some((t) => t.key === quality)) quality = tiers[0].key;
@@ -167,13 +169,22 @@ export function reconcileItem(payload: Pick<CatalogPayload, "qualityTiers" | "pr
 }
 
 export type ComboIssue =
+  | { code: "qualityUnknown"; quality: string }
   | { code: "profileUnknown"; key: string }
   | { code: "profileQuality"; profile: string; quality: string }
   | { code: "glazingDepth"; glazing: string; profile: string; maxMm: number; depthMm: number };
 
 /** Combinations the catalogue does not allow (checked in the editors and again on the server). */
-export function comboIssues(payload: Pick<CatalogPayload, "profileSystems">, item: ProjectItem): ComboIssue[] {
+export function comboIssues(raw: Pick<CatalogPayload, "qualityTiers" | "profileSystems">, item: ProjectItem): ComboIssue[] {
+  const payload = normalizeCatalog(raw);
   const out: ComboIssue[] = [];
+  const tiers = qualityTiersFor(payload, item.material);
+  const wanted = item.quality[item.material];
+  // An item with no quality at all is an indicative request (the simple wizard), not a configured piece.
+  if (tiers.length > 0 && wanted && !tiers.some((t) => t.key === wanted)) {
+    out.push({ code: "qualityUnknown", quality: wanted ?? "" });
+    return out;
+  }
   const ofMaterial = (payload.profileSystems ?? []).filter((p) => p.materialKey === item.material && p.enabled);
   if (ofMaterial.length === 0 || !item.profileSystem) return out;
   const profile = ofMaterial.find((p) => p.key === item.profileSystem);

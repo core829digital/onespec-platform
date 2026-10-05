@@ -1105,8 +1105,23 @@
       "singleLeafMax": "Cu un singur canat, {axis} este limitată la {max} mm: adaugă un canat.",
       "leafWidth": "Canat {leaf}: lățimea {got} mm sub minimul de {min} mm.",
       "leafHeight": "Canat {leaf}: înălțimea {got} mm sub minimul de {min} mm.",
-      "unknownKey": "Valoarea „{key}” ({field}) nu este în lista de prețuri publicată."
-    }
+      "unknownKey": "Valoarea „{key}” ({field}) nu este în lista de prețuri publicată.",
+      "profileQuality": "Profilul «{profile}» nu aparține calității alese ({quality}).",
+      "glazingDepth": "Geamul de {depth} mm nu intră în profilul ales (maxim {max} mm)."
+    },
+    "auto": {
+      "profile": "Profilul a fost schimbat: aparține altei calități.",
+      "glazing": "Geamul a fost adaptat: profilul ales primește geamuri mai subțiri."
+    },
+    "noProfilesForQuality": "Niciun profil disponibil pentru această calitate: alegeți alta.",
+    "spec": {
+      "chambers": "{n} camere",
+      "depth": "adâncime {mm} mm",
+      "gasket_standard": "garnitură standard",
+      "gasket_triple": "garnitură triplă",
+      "maxGlass": "geam până la {mm} mm"
+    },
+    "glazingFiltered": "Geamuri afișate: {shown} din {total}, doar cele pe care profilul ales le poate primi (până la {mm} mm)."
   },
   "quoteExport": {
     "title": "Exportă",

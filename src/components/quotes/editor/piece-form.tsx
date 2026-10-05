@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { ACCESSORY_CATEGORY_LABELS, type AccessoryCategory } from "@/shared/configurator-model";
 import type { ProjectItem } from "@/shared/pricing";
+import { QUALITY_CLASS_LABEL, type QualityClass } from "@/shared/standard-pricing";
 import type { catalogChoices } from "./catalog-labels";
 import { FinishPicker } from "./finish-picker";
 import { GlazingPicker } from "./glazing-picker";
@@ -26,7 +27,14 @@ interface Props {
 /** The catalogue-driven selects of one piece: size, material chain, glazing, finish, accessories, notes. */
 export function PieceForm({ item, choices, locale, onPatch, onWidth, onHeight, onMaterial }: Props) {
   const t = useTranslations("pieces");
-  const tabs = Array.from(new Set(choices.profiles.map((p) => p.group).filter(Boolean))) as string[];
+  const groups = Array.from(new Set(choices.profiles.map((p) => p.group).filter(Boolean))) as string[];
+  const chosenProfile = choices.profiles.find((p) => p.key === item.profileSystem);
+  const groupLabel = (g: string) => {
+    if (g === "tab1") return t("groupValue");
+    if (g === "tab2") return t("groupPremium");
+    const klass = QUALITY_CLASS_LABEL[g as QualityClass];
+    return klass ? (klass as Record<string, string>)[locale] ?? klass.it : g;
+  };
   const acc = item.accessories ?? {};
   const setAcc = (patch: Partial<NonNullable<ProjectItem["accessories"]>>) => onPatch({ accessories: { ...acc, ...patch } });
   const anyAccessory = (["zanz", "cass", "avv", "pers"] as const).some((c) => acc[c] && acc[c] !== "none");
@@ -81,23 +89,35 @@ export function PieceForm({ item, choices, locale, onPatch, onWidth, onHeight, o
             ))}
           </select>
         </div>
-        {choices.profiles.length > 0 ? (
+        {choices.profileCount > 0 ? (
           <div className="sm:col-span-2">
             <label className={label} htmlFor={`${baseId}-profile`}>{t("profile")}</label>
-            <select id={`${baseId}-profile`} value={item.profileSystem ?? ""} onChange={(e) => onPatch({ profileSystem: e.target.value || undefined })} className={field}>
-              {tabs.length > 0
-                ? tabs.map((g) => (
-                    <optgroup key={g} label={g === "tab1" ? t("groupValue") : g === "tab2" ? t("groupPremium") : g}>
-                      {choices.profiles.filter((p) => p.group === g).map((p) => (
-                        <option key={p.key} value={p.key}>{p.label}{p.uFrame ? ` · Uf ${p.uFrame.toFixed(2)}` : ""}</option>
-                      ))}
-                    </optgroup>
-                  ))
-                : null}
-              {choices.profiles.filter((p) => !p.group).map((p) => (
-                <option key={p.key} value={p.key}>{p.label}</option>
-              ))}
-            </select>
+            {choices.profiles.length > 0 ? (
+              <select id={`${baseId}-profile`} value={item.profileSystem ?? ""} onChange={(e) => onPatch({ profileSystem: e.target.value || undefined })} className={field}>
+                {groups.map((g) => (
+                  <optgroup key={g} label={groupLabel(g)}>
+                    {choices.profiles.filter((p) => p.group === g).map((p) => (
+                      <option key={p.key} value={p.key}>{p.label}{p.uFrame ? ` · Uf ${p.uFrame.toFixed(2)}` : ""}</option>
+                    ))}
+                  </optgroup>
+                ))}
+                {choices.profiles.filter((p) => !p.group).map((p) => (
+                  <option key={p.key} value={p.key}>{p.label}{p.uFrame ? ` · Uf ${p.uFrame.toFixed(2)}` : ""}</option>
+                ))}
+              </select>
+            ) : (
+              <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-2 text-xs text-[var(--color-text)]">{t("noProfilesForQuality")}</p>
+            )}
+            {chosenProfile?.spec && (chosenProfile.spec.chambers || chosenProfile.spec.depthMm) ? (
+              <p className="mt-1 text-xs text-[var(--color-text-secondary)]">
+                {[
+                  chosenProfile.spec.chambers ? t("spec.chambers", { n: chosenProfile.spec.chambers }) : "",
+                  chosenProfile.spec.depthMm ? t("spec.depth", { mm: chosenProfile.spec.depthMm }) : "",
+                  chosenProfile.spec.gasket ? t(`spec.gasket_${chosenProfile.spec.gasket}`) : "",
+                  chosenProfile.spec.maxGlassMm ? t("spec.maxGlass", { mm: chosenProfile.spec.maxGlassMm }) : "",
+                ].filter(Boolean).join(" · ")}
+              </p>
+            ) : null}
           </div>
         ) : null}
         <GlazingPicker
@@ -110,6 +130,9 @@ export function PieceForm({ item, choices, locale, onPatch, onWidth, onHeight, o
           selectClass={field}
           labelClass={label}
         />
+        {choices.glazing.length < choices.glazingTotal ? (
+          <p className="text-xs text-[var(--color-text-secondary)] sm:col-span-2">{t("glazingFiltered", { shown: choices.glazing.length, total: choices.glazingTotal, mm: chosenProfile?.spec.maxGlassMm ?? 0 })}</p>
+        ) : null}
         <FinishPicker idBase={baseId} value={item.color} finishes={choices.finishes.map((f) => ({ key: f.key, label: f.label, hex: f.swatch, texture: f.texture, range: f.range, group: f.group, warrantyYears: f.warrantyYears }))} onChange={(key) => onPatch({ color: key })} labelClass={label} />
       </div>
 

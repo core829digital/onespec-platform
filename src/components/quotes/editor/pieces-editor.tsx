@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { CATEGORY_DEFS, PIECE_CATEGORIES, type PieceCategory } from "@/shared/configurator-model";
 import { calculatePrice, computeItemThermal, type CatalogPayload, type ProjectItem } from "@/shared/pricing";
@@ -21,6 +21,7 @@ import {
   type PieceIssue,
 } from "@/shared/piece-ops";
 import { defaultItem } from "@/shared/item-defaults";
+import { reconcileItem } from "@/shared/catalog-rules";
 import { DIM_ABS_MAX } from "@/shared/widget-types";
 import { finishFillFor, buildHardwareScene, buildLegendScene, buildPlanScene, buildSectionScene, DRAWING_DIMENSION, DRAWING_FLIP, DRAWING_HANDLE, DRAWING_OPTIONS, DRAWING_TABS, DRAWING_TITLES, DRAWING_VIEW, drawingLocale, SceneSvg, WindowDrawing, type DrawingTab, type DrawingView } from "@/lib/drawing";
 import { SashPanel } from "@/components/quotes/sash-panel";
@@ -50,7 +51,12 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
   const [glassDims, setGlassDims] = useState(false);
   const [colorPicker, setColorPicker] = useState<{ index: number; x: number; y: number } | null>(null);
   const active = items[activeIndex] ?? items[0];
-  const choices = useMemo(() => catalogChoices(payload, active?.material ?? "pvc", locale), [payload, active?.material, locale]);
+  const [autoNote, setAutoNote] = useState("");
+  // The lists follow the choices made above them: qualities -> profiles of that quality -> glazing the profile can hold.
+  const material = active?.material ?? "pvc";
+  const quality = active?.quality[material];
+  const profile = active?.profileSystem;
+  const choices = useMemo(() => catalogChoices(payload, material, locale, { quality, profile }), [payload, material, quality, profile, locale]);
   const lotFrame = items[0]?.frameType;
   const keys = useMemo(
     () => ({ hardware: choices.hardware[0]?.[0], hardwareColor: choices.hardwareColors.find(([k]) => k === "silver")?.[0] ?? choices.hardwareColors[0]?.[0] }),
@@ -58,7 +64,26 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
   );
 
   const update = (index: number, next: ProjectItem) => onChange(items.map((it, i) => (i === index ? next : it)));
-  const patchActive = (patch: Partial<ProjectItem>) => active && update(activeIndex, { ...active, ...patch });
+  // A change of material, quality or profile can leave what sits below it invalid: bring the piece back to a coherent set.
+  const patchActive = (patch: Partial<ProjectItem>) => {
+    if (!active) return;
+    const merged = { ...active, ...patch };
+    const cascades = "material" in patch || "quality" in patch || "profileSystem" in patch;
+    const next = cascades ? reconcileItem(payload, merged) : merged;
+    const notes: string[] = [];
+    if (next.profileSystem !== merged.profileSystem) notes.push(t("auto.profile"));
+    if (next.glazing !== merged.glazing) notes.push(t("auto.glazing"));
+    setAutoNote(notes.join(" "));
+    update(activeIndex, next);
+  };
+
+  // Pieces that arrive from elsewhere (showroom handoff, a saved draft, a republished catalogue) are brought in line with the catalogue.
+  useEffect(() => {
+    if (payload.materials.length === 0) return;
+    const fixed = items.map((it) => reconcileItem(payload, it));
+    if (fixed.some((f, i) => f !== items[i])) onChange(fixed);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [payload, items]);
 
   function addPiece(category: PieceCategory) {
     if (items.length >= MAX_PIECES) return;
@@ -71,12 +96,7 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
 
   function changeMaterial(key: string) {
     if (!active) return;
-    const next = catalogChoices(payload, key, locale);
-    patchActive({
-      material: key,
-      quality: { ...active.quality, [key]: next.qualities[0]?.key ?? "" },
-      profileSystem: next.profiles[0]?.key,
-    });
+    patchActive({ material: key, quality: { ...active.quality, [key]: "" }, profileSystem: undefined });
   }
 
   function removePiece(index: number) {
@@ -107,6 +127,8 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
       case "leafHeight": return t("issue.leafHeight", { leaf: i.leaf + 1, got: i.got, min: i.min });
       case "mix": return i.mix ? ts(`mix_${i.mix}`) : i.reason;
       case "unknownKey": return t("issue.unknownKey", { field: i.field, key: i.key });
+      case "profileQuality": return t("issue.profileQuality", { profile: i.profile, quality: i.quality });
+      case "glazingDepth": return t("issue.glazingDepth", { depth: i.depthMm, max: i.maxMm });
     }
   };
 
@@ -192,6 +214,8 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
               ))}
             </ul>
           ) : null}
+
+          {autoNote ? <p role="status" className="rounded-lg border border-[var(--color-mint)]/40 bg-[var(--color-mint-light)] p-2 text-xs text-[var(--color-mint-text)]">{autoNote}</p> : null}
 
           <PieceForm
             item={active}

@@ -120,7 +120,7 @@ describe("comboIssues", () => {
     expect(comboIssues(p, item({ glazing: "t52_floatFloat331Be" }))[0]).toMatchObject({ code: "glazingDepth", maxMm: 40, depthMm: 52 });
   });
   it("no profile list or no chosen profile = nothing to check", () => {
-    expect(comboIssues({ profileSystems: [] }, item())).toEqual([]);
+    expect(comboIssues({ qualityTiers: payload().qualityTiers, profileSystems: [] }, item())).toEqual([]);
     expect(comboIssues(payload(), item({ profileSystem: undefined }))).toEqual([]);
   });
 });

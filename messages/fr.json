@@ -1105,8 +1105,23 @@
       "singleLeafMax": "Avec un seul vantail, {axis} maximale {max} mm : ajoutez un vantail.",
       "leafWidth": "Vantail {leaf} : largeur {got} mm inférieure au minimum de {min} mm.",
       "leafHeight": "Vantail {leaf} : hauteur {got} mm inférieure au minimum de {min} mm.",
-      "unknownKey": "La valeur « {key} » ({field}) n'est pas dans le tarif publié."
-    }
+      "unknownKey": "La valeur « {key} » ({field}) n'est pas dans le tarif publié.",
+      "profileQuality": "Le profilé « {profile} » n'appartient pas à la qualité choisie ({quality}).",
+      "glazingDepth": "Le vitrage de {depth} mm ne rentre pas dans le profilé choisi (maximum {max} mm)."
+    },
+    "auto": {
+      "profile": "Le profilé a été changé : il appartient à une autre qualité.",
+      "glazing": "Le vitrage a été adapté : le profilé choisi accepte des vitrages plus fins."
+    },
+    "noProfilesForQuality": "Aucun profilé disponible pour cette qualité : choisissez-en une autre.",
+    "spec": {
+      "chambers": "{n} chambres",
+      "depth": "profondeur {mm} mm",
+      "gasket_standard": "joint standard",
+      "gasket_triple": "triple joint",
+      "maxGlass": "vitrage jusqu'à {mm} mm"
+    },
+    "glazingFiltered": "Vitrages affichés : {shown} sur {total}, uniquement ceux que le profilé choisi peut accueillir (jusqu'à {mm} mm)."
   },
   "quoteExport": {
     "title": "Exporter",

@@ -1105,8 +1105,23 @@
       "singleLeafMax": "Con una sola anta {axis} massima {max} mm: aggiungi un'anta.",
       "leafWidth": "Anta {leaf}: larghezza {got} mm sotto il minimo di {min} mm.",
       "leafHeight": "Anta {leaf}: altezza {got} mm sotto il minimo di {min} mm.",
-      "unknownKey": "Valore «{key}» ({field}) non presente nel listino pubblicato."
-    }
+      "unknownKey": "Valore «{key}» ({field}) non presente nel listino pubblicato.",
+      "profileQuality": "Il profilo «{profile}» non appartiene alla qualità scelta ({quality}).",
+      "glazingDepth": "Il vetro da {depth} mm non entra nel profilo scelto (massimo {max} mm)."
+    },
+    "auto": {
+      "profile": "Il profilo è stato cambiato: appartiene a un'altra qualità.",
+      "glazing": "Il vetro è stato adattato: il profilo scelto ospita vetri più sottili."
+    },
+    "noProfilesForQuality": "Nessun profilo disponibile per questa qualità: scegline un'altra.",
+    "spec": {
+      "chambers": "{n} camere",
+      "depth": "profondità {mm} mm",
+      "gasket_standard": "guarnizione standard",
+      "gasket_triple": "guarnizione tripla",
+      "maxGlass": "vetro fino a {mm} mm"
+    },
+    "glazingFiltered": "Vetri mostrati: {shown} di {total}, solo quelli che il profilo scelto può ospitare (fino a {mm} mm)."
   },
   "quoteExport": {
     "title": "Esporta",

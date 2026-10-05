@@ -1105,8 +1105,23 @@
       "singleLeafMax": "Met één vleugel is {axis} beperkt tot {max} mm: voeg een vleugel toe.",
       "leafWidth": "Vleugel {leaf}: breedte {got} mm onder het minimum van {min} mm.",
       "leafHeight": "Vleugel {leaf}: hoogte {got} mm onder het minimum van {min} mm.",
-      "unknownKey": "Waarde “{key}” ({field}) staat niet in de gepubliceerde prijslijst."
-    }
+      "unknownKey": "Waarde “{key}” ({field}) staat niet in de gepubliceerde prijslijst.",
+      "profileQuality": "Het profiel «{profile}» hoort niet bij de gekozen kwaliteit ({quality}).",
+      "glazingDepth": "De beglazing van {depth} mm past niet in het gekozen profiel (maximaal {max} mm)."
+    },
+    "auto": {
+      "profile": "Het profiel is gewijzigd: het hoort bij een andere kwaliteit.",
+      "glazing": "De beglazing is aangepast: het gekozen profiel neemt dunnere units op."
+    },
+    "noProfilesForQuality": "Voor deze kwaliteit is geen profiel beschikbaar: kies een andere.",
+    "spec": {
+      "chambers": "{n} kamers",
+      "depth": "bouwdiepte {mm} mm",
+      "gasket_standard": "standaardafdichting",
+      "gasket_triple": "drievoudige afdichting",
+      "maxGlass": "glas tot {mm} mm"
+    },
+    "glazingFiltered": "Getoonde beglazing: {shown} van {total}, alleen wat het gekozen profiel kan opnemen (tot {mm} mm)."
   },
   "quoteExport": {
     "title": "Exporteren",

@@ -1105,8 +1105,23 @@
       "singleLeafMax": "With a single leaf the {axis} is limited to {max} mm: add a leaf.",
       "leafWidth": "Leaf {leaf}: width {got} mm is below the {min} mm minimum.",
       "leafHeight": "Leaf {leaf}: height {got} mm is below the {min} mm minimum.",
-      "unknownKey": "Value “{key}” ({field}) is not in the published price list."
-    }
+      "unknownKey": "Value “{key}” ({field}) is not in the published price list.",
+      "profileQuality": "The profile “{profile}” does not belong to the chosen quality ({quality}).",
+      "glazingDepth": "The {depth} mm glazing unit does not fit the chosen profile (maximum {max} mm)."
+    },
+    "auto": {
+      "profile": "The profile was changed: it belongs to another quality.",
+      "glazing": "The glazing was adapted: the chosen profile holds thinner units."
+    },
+    "noProfilesForQuality": "No profile is available for this quality: choose another one.",
+    "spec": {
+      "chambers": "{n} chambers",
+      "depth": "depth {mm} mm",
+      "gasket_standard": "standard gasket",
+      "gasket_triple": "triple gasket",
+      "maxGlass": "glass up to {mm} mm"
+    },
+    "glazingFiltered": "Glazing shown: {shown} of {total}, only what the chosen profile can hold (up to {mm} mm)."
   },
   "quoteExport": {
     "title": "Export",

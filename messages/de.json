@@ -1105,8 +1105,23 @@
       "singleLeafMax": "Bei nur einem Flügel ist {axis} auf {max} mm begrenzt: Flügel hinzufügen.",
       "leafWidth": "Flügel {leaf}: Breite {got} mm unter dem Minimum von {min} mm.",
       "leafHeight": "Flügel {leaf}: Höhe {got} mm unter dem Minimum von {min} mm.",
-      "unknownKey": "Wert „{key}“ ({field}) ist nicht in der veröffentlichten Preisliste."
-    }
+      "unknownKey": "Wert „{key}“ ({field}) ist nicht in der veröffentlichten Preisliste.",
+      "profileQuality": "Das Profil „{profile}“ gehört nicht zur gewählten Qualität ({quality}).",
+      "glazingDepth": "Die {depth}-mm-Verglasung passt nicht in das gewählte Profil (maximal {max} mm)."
+    },
+    "auto": {
+      "profile": "Das Profil wurde geändert: Es gehört zu einer anderen Qualität.",
+      "glazing": "Die Verglasung wurde angepasst: Das gewählte Profil nimmt dünnere Einheiten auf."
+    },
+    "noProfilesForQuality": "Für diese Qualität ist kein Profil verfügbar: Wählen Sie eine andere.",
+    "spec": {
+      "chambers": "{n} Kammern",
+      "depth": "Bautiefe {mm} mm",
+      "gasket_standard": "Standarddichtung",
+      "gasket_triple": "Dreifachdichtung",
+      "maxGlass": "Glas bis {mm} mm"
+    },
+    "glazingFiltered": "Angezeigte Verglasungen: {shown} von {total}, nur die, die das gewählte Profil aufnehmen kann (bis {mm} mm)."
   },
   "quoteExport": {
     "title": "Exportieren",

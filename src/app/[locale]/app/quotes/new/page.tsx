@@ -300,7 +300,8 @@ export default function NewFieldQuotePage() {
     setItems(
       h.items.map((it) => ({
         ...it,
-        profileSystem: it.profileSystem ?? "standard",
+        // No invented profile: the editor picks one of the piece's quality once the catalogue is loaded.
+        profileSystem: it.profileSystem,
         notes: it.notes ?? "",
         sashes: it.sashes.map((sash, i, all) => ({
           ...sash,

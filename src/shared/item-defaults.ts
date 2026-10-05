@@ -1,5 +1,6 @@
 import { CATEGORY_DEFS, defaultSashesFor, type PieceCategory } from "./configurator-model";
 import type { CatalogPayload, ProjectItem } from "./pricing";
+import { normalizeCatalog, profilesForQuality, qualityTiersFor, reconcileItem } from "./catalog-rules";
 
 type Row = { key: string; enabled: boolean; sortOrder?: number };
 
@@ -19,15 +20,17 @@ function pick<T extends Row>(rows: T[] | undefined, ...preferred: string[]): T |
  * prices at 0 because of a key that the catalogue does not know.
  */
 export function defaultItem(
-  payload: CatalogPayload,
+  rawPayload: CatalogPayload,
   category: PieceCategory,
   size?: { width?: number; height?: number },
 ): ProjectItem {
+  const payload = normalizeCatalog(rawPayload);
   const def = CATEGORY_DEFS[category];
   const material = pick(payload.materials, "pvc");
   const materialKey = material?.key ?? "pvc";
-  const quality = pick(payload.qualityTiers.filter((q) => q.materialKey === materialKey));
-  const profile = pick(payload.profileSystems?.filter((p) => p.materialKey === materialKey), "standard");
+  const quality = qualityTiersFor(payload, materialKey)[0];
+  // The profile is one of the first quality's (never a 6-chamber profile under "5 chambers"); the glazing is reconciled below.
+  const profile = pick(profilesForQuality(payload.profileSystems, materialKey, quality?.key), "standard");
   // Packages first (24 mm double glazing; laminated for doors), the legacy "double" key for older catalogues.
   const glazing = category.startsWith("porta")
     ? pick(payload.glazing, "d24_lam331x2Be", "d24_floatBeArgon", "double")
@@ -45,7 +48,7 @@ export function defaultItem(
     hardwareColor: hardwareColor?.key ?? s.hardwareColor,
   }));
 
-  return {
+  const item: ProjectItem = {
     productType: def.productType,
     category,
     material: materialKey,
@@ -60,4 +63,5 @@ export function defaultItem(
     insectScreen: false,
     frameType: frame?.key,
   };
+  return reconcileItem(payload, item);
 }

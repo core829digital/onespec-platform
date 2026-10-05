@@ -1,5 +1,6 @@
 import { CATEGORY_DEFS, defaultSashesFor, handleRange, type PieceCategory } from "./configurator-model";
 import type { CatalogPayload, ProjectItem } from "./pricing";
+import { comboIssues, qualityTiersFor, virtualQualityTier } from "./catalog-rules";
 import {
   SASH_MIN,
   normalizedRatios,
@@ -165,6 +166,8 @@ export type PieceIssue =
   | { code: "leafWidth" | "leafHeight"; leaf: number; min: number; got: number }
   | { code: "singleLeafMax"; axis: "width" | "height"; max: number }
   | { code: "mix"; reason: string; mix?: SashMixCode }
+  | { code: "profileQuality"; profile: string; quality: string }
+  | { code: "glazingDepth"; glazing: string; profile: string; maxMm: number; depthMm: number }
   | { code: "unknownKey"; field: "material" | "quality" | "glazing" | "color" | "frameType" | "profileSystem" | "hardware"; key: string };
 
 /**
@@ -192,8 +195,14 @@ export function pieceIssues(item: ProjectItem, payload?: CatalogPayload): PieceI
     const has = (rows: Array<{ key: string; enabled: boolean }> | undefined, key: string | undefined) =>
       !key || (rows ?? []).some((r) => r.key === key && r.enabled);
     if (!payload.materials.some((m) => m.key === item.material && m.enabled)) out.push({ code: "unknownKey", field: "material", key: item.material });
-    if (!payload.qualityTiers.some((q) => q.materialKey === item.material && q.key === item.quality[item.material] && q.enabled)) {
-      out.push({ code: "unknownKey", field: "quality", key: item.quality[item.material] ?? "" });
+    const combo = comboIssues(payload, item);
+    const wantedQuality = item.quality[item.material];
+    const qualityKnown = qualityTiersFor(payload, item.material).some((q) => q.key === wantedQuality) || !!virtualQualityTier(payload, item.material, wantedQuality);
+    if (!qualityKnown) out.push({ code: "unknownKey", field: "quality", key: wantedQuality ?? "" });
+    for (const c of combo) {
+      if (c.code === "profileUnknown") out.push({ code: "unknownKey", field: "profileSystem", key: c.key });
+      else if (c.code === "profileQuality") out.push({ code: "profileQuality", profile: c.profile, quality: c.quality });
+      else if (c.code === "glazingDepth") out.push({ code: "glazingDepth", glazing: c.glazing, profile: c.profile, maxMm: c.maxMm, depthMm: c.depthMm });
     }
     if (!has(payload.glazing, item.glazing)) out.push({ code: "unknownKey", field: "glazing", key: item.glazing });
     if (!has(payload.finish, item.color)) out.push({ code: "unknownKey", field: "color", key: item.color });
@@ -204,5 +213,5 @@ export function pieceIssues(item: ProjectItem, payload?: CatalogPayload): PieceI
 
 /** Issues that must block saving the quote. */
 export function blockingIssues(issues: PieceIssue[]): PieceIssue[] {
-  return issues.filter((i) => i.code === "size" || i.code === "singleLeafMax" || i.code === "unknownKey" || i.code === "mix");
+  return issues.filter((i) => i.code === "size" || i.code === "singleLeafMax" || i.code === "unknownKey" || i.code === "mix" || i.code === "profileQuality" || i.code === "glazingDepth");
 }
