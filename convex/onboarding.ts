@@ -9,7 +9,7 @@ import { freeOnboardingAllowed } from "./lib/enforcement";
 import { unlockOnPlanChange, unlockOnReactivation } from "./usage";
 
 /** Ordered wizard steps. `planQuiz`/`billing` are skipped once a plan is active. */
-export const ONBOARDING_STEPS = ["welcome", "planQuiz", "billing", "team", "configurator"] as const;
+export const ONBOARDING_STEPS = ["welcome", "planQuiz", "billing", "team", "zone", "configurator"] as const;
 type Step = (typeof ONBOARDING_STEPS)[number];
 
 async function tenantOf(ctx: ReadCtx, userId: Id<"users">) {
@@ -53,6 +53,7 @@ export const getState = query({
       role,
       plan: tenant.plan,
       region: regionForCountry(tenant.country).code,
+      priceZone: tenant.priceZone ?? null,
       entitlements: {
         maxConfigurators: ent.maxConfigurators,
         maxQuotesPerMonth: ent.maxQuotesPerMonth,

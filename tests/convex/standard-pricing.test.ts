@@ -112,3 +112,17 @@ describe("standard price list in the catalogue", () => {
     expect(await mode(noZone) ?? undefined).toBeUndefined();
   });
 });
+
+describe("onboarding: price zone step", () => {
+  test("state exposes the chosen zone; the zone step is accepted; the zone is stored", async () => {
+    const { s, as } = await italianTenant();
+    const before = await as.query(api.onboarding.getState, {});
+    expect(before.hasTenant && before.priceZone).toBeNull();
+    await as.mutation(api.onboarding.advance, { step: "zone" });
+    await as.mutation(api.pricing.setPriceZone, { tenantId: s.tenantId, zone: "sud" });
+    const after = await as.query(api.onboarding.getState, {});
+    expect(after.hasTenant && after.priceZone).toBe("sud");
+    expect(after.hasTenant && after.step).toBe("zone");
+  });
+});
+

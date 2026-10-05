@@ -1570,7 +1570,8 @@
       "planQuiz": "Jouw behoeften",
       "billing": "Abonnement",
       "team": "Team",
-      "configurator": "Configurator"
+      "configurator": "Configurator",
+      "zone": "Regio"
     },
     "welcome": {
       "title": "Welkom bij OneSpec",
@@ -1684,6 +1685,12 @@
         "Catalogus en prijslijsten laden…",
         "Bijna klaar, dashboard openen…"
       ]
+    },
+    "zone": {
+      "title": "Waar werkt u in Italië?",
+      "intro": "Kies de regio waar u werkt: het platform gebruikt de standaardprijslijst van die regio, u hoeft alleen nog uw winstmarge te bepalen.",
+      "hint": "U kunt dit op elk moment wijzigen in de instellingen van de prijslijst. De prijzen zijn indicatief en gevalideerd op de Italiaanse markt.",
+      "continue": "Doorgaan"
     }
   },
   "logistics": {
@@ -2437,5 +2444,20 @@
     "search": "Zoek kleur of RAL-code",
     "none": "Geen kleur gevonden",
     "warranty": "Kleurgarantie {years} jaar"
+  },
+  "priceZone": {
+    "label": "Werkgebied",
+    "nord": {
+      "name": "Noord-Italië",
+      "note": "Hogere prijzen (ongeveer +10–15% t.o.v. het Zuiden)"
+    },
+    "centro": {
+      "name": "Midden-Italië",
+      "note": "Gemiddelde prijzen"
+    },
+    "sud": {
+      "name": "Zuid-Italië",
+      "note": "Lagere prijzen"
+    }
   }
 }

@@ -1570,7 +1570,8 @@
       "planQuiz": "Le tue esigenze",
       "billing": "Piano",
       "team": "Team",
-      "configurator": "Configuratore"
+      "configurator": "Configuratore",
+      "zone": "Zona"
     },
     "welcome": {
       "title": "Benvenuto in OneSpec",
@@ -1684,6 +1685,12 @@
         "Carichiamo catalogo e listini…",
         "Quasi fatto, apriamo la dashboard…"
       ]
+    },
+    "zone": {
+      "title": "Dove lavori in Italia?",
+      "intro": "Scegli la zona in cui operi: la piattaforma userà il listino dei prezzi standard di quella zona, così dovrai solo decidere il tuo margine di profitto.",
+      "hint": "Potrai cambiarla in qualsiasi momento dalle impostazioni del listino. I prezzi sono indicativi, validati sul mercato italiano.",
+      "continue": "Continua"
     }
   },
   "logistics": {
@@ -2437,5 +2444,20 @@
     "search": "Cerca colore o codice RAL",
     "none": "Nessun colore trovato",
     "warranty": "Garanzia colore {years} anni"
+  },
+  "priceZone": {
+    "label": "Zona di lavoro",
+    "nord": {
+      "name": "Nord Italia",
+      "note": "Prezzi più alti (circa +10–15% rispetto al Sud)"
+    },
+    "centro": {
+      "name": "Centro Italia",
+      "note": "Prezzi intermedi"
+    },
+    "sud": {
+      "name": "Sud Italia",
+      "note": "Prezzi più bassi"
+    }
   }
 }

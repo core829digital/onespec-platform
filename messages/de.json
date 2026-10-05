@@ -1570,7 +1570,8 @@
       "planQuiz": "Ihre Bedürfnisse",
       "billing": "Plan",
       "team": "Team",
-      "configurator": "Konfigurator"
+      "configurator": "Konfigurator",
+      "zone": "Region"
     },
     "welcome": {
       "title": "Willkommen bei OneSpec",
@@ -1684,6 +1685,12 @@
         "Katalog und Preislisten werden geladen…",
         "Fast fertig, Dashboard wird geöffnet…"
       ]
+    },
+    "zone": {
+      "title": "Wo arbeiten Sie in Italien?",
+      "intro": "Wählen Sie Ihr Einsatzgebiet: Die Plattform nutzt die Standardpreisliste dieser Region, Sie müssen nur noch Ihre Gewinnmarge festlegen.",
+      "hint": "Sie können sie jederzeit in den Preislisten-Einstellungen ändern. Die Preise sind Richtwerte und wurden am italienischen Markt validiert.",
+      "continue": "Weiter"
     }
   },
   "logistics": {
@@ -2437,5 +2444,20 @@
     "search": "Farbe oder RAL-Code suchen",
     "none": "Keine Farbe gefunden",
     "warranty": "Farbgarantie {years} Jahre"
+  },
+  "priceZone": {
+    "label": "Einsatzgebiet",
+    "nord": {
+      "name": "Norditalien",
+      "note": "Höhere Preise (etwa +10–15 % gegenüber dem Süden)"
+    },
+    "centro": {
+      "name": "Mittelitalien",
+      "note": "Mittlere Preise"
+    },
+    "sud": {
+      "name": "Süditalien",
+      "note": "Niedrigere Preise"
+    }
   }
 }

@@ -1570,7 +1570,8 @@
       "planQuiz": "Nevoile tale",
       "billing": "Plan",
       "team": "Echipă",
-      "configurator": "Configurator"
+      "configurator": "Configurator",
+      "zone": "Zonă"
     },
     "welcome": {
       "title": "Bun venit în OneSpec",
@@ -1684,6 +1685,12 @@
         "Se încarcă catalogul și listele de prețuri…",
         "Aproape gata, deschidem dashboard-ul…"
       ]
+    },
+    "zone": {
+      "title": "Unde lucrați în Italia?",
+      "intro": "Alegeți zona în care activați: platforma va folosi lista de prețuri standard a acelei zone, iar voi trebuie doar să decideți marja de profit.",
+      "hint": "O puteți schimba oricând din setările listei de prețuri. Prețurile sunt orientative, validate pe piața italiană.",
+      "continue": "Continuă"
     }
   },
   "logistics": {
@@ -2437,5 +2444,20 @@
     "search": "Caută culoare sau cod RAL",
     "none": "Nicio culoare găsită",
     "warranty": "Garanție culoare {years} ani"
+  },
+  "priceZone": {
+    "label": "Zonă de lucru",
+    "nord": {
+      "name": "Nordul Italiei",
+      "note": "Prețuri mai mari (aprox. +10–15% față de Sud)"
+    },
+    "centro": {
+      "name": "Centrul Italiei",
+      "note": "Prețuri intermediare"
+    },
+    "sud": {
+      "name": "Sudul Italiei",
+      "note": "Prețuri mai mici"
+    }
   }
 }
