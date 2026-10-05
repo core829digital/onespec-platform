@@ -32,6 +32,21 @@ export type ErrorKey =
   | "cannotDeleteSigned"
   | "configuratorHasRequests"
   | "priceZoneRequired"
+  | "validationRequired"
+  | "validationTooShort"
+  | "validationTooLong"
+  | "validationInvalidChars"
+  | "validationVatFormat"
+  | "validationVatChecksum"
+  | "validationVatPrefix"
+  | "validationPostalFormat"
+  | "validationPhoneFormat"
+  | "validationEmailFormat"
+  | "validationUrlFormat"
+  | "validationCountryUnsupported"
+  | "vatZeroNotAllowed"
+  | "vatManualReasonRequired"
+  | "viesUnavailable"
   | "qualityInUse"
   | "profileQualityUnknown"
   | "invalidCombination"
@@ -120,6 +135,21 @@ const EXACT: Record<string, ErrorKey> = {
   CANNOT_DELETE_SIGNED: "cannotDeleteSigned",
   CONFIGURATOR_HAS_REQUESTS: "configuratorHasRequests",
   PRICE_ZONE_REQUIRED: "priceZoneRequired",
+  VALIDATION_REQUIRED: "validationRequired",
+  VALIDATION_TOO_SHORT: "validationTooShort",
+  VALIDATION_TOO_LONG: "validationTooLong",
+  VALIDATION_INVALID_CHARS: "validationInvalidChars",
+  VALIDATION_VAT_FORMAT: "validationVatFormat",
+  VALIDATION_VAT_CHECKSUM: "validationVatChecksum",
+  VALIDATION_VAT_PREFIX: "validationVatPrefix",
+  VALIDATION_POSTAL_FORMAT: "validationPostalFormat",
+  VALIDATION_PHONE_FORMAT: "validationPhoneFormat",
+  VALIDATION_EMAIL_FORMAT: "validationEmailFormat",
+  VALIDATION_URL_FORMAT: "validationUrlFormat",
+  VALIDATION_COUNTRY_UNSUPPORTED: "validationCountryUnsupported",
+  VAT_ZERO_NOT_ALLOWED: "vatZeroNotAllowed",
+  VAT_MANUAL_REASON_REQUIRED: "vatManualReasonRequired",
+  VIES_UNAVAILABLE: "viesUnavailable",
   QUALITY_IN_USE: "qualityInUse",
   PROFILE_QUALITY_UNKNOWN: "profileQualityUnknown",
   INVALID_COMBINATION: "invalidCombination",

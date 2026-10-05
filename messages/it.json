@@ -404,7 +404,22 @@
     "priceZoneRequired": "Prima indica dove lavori (Nord, Centro o Sud Italia): serve per scegliere il listino standard giusto.",
     "qualityInUse": "Questa qualità è usata da dei profili: spostali in un'altra qualità prima di eliminarla.",
     "profileQualityUnknown": "La qualità scelta per il profilo non esiste per questo materiale.",
-    "invalidCombination": "La combinazione scelta non è valida per il catalogo (qualità, profilo o vetro non compatibili). Ricarica la pagina e riprova."
+    "invalidCombination": "La combinazione scelta non è valida per il catalogo (qualità, profilo o vetro non compatibili). Ricarica la pagina e riprova.",
+    "validationRequired": "Compila questo campo.",
+    "validationTooShort": "Il testo è troppo corto.",
+    "validationTooLong": "Il testo è troppo lungo.",
+    "validationInvalidChars": "Ci sono caratteri non ammessi (per esempio < > { } o simboli di codice).",
+    "validationVatFormat": "La partita IVA non ha il formato giusto per il paese scelto: controlla le cifre.",
+    "validationVatChecksum": "La partita IVA non è valida: l'ultima cifra di controllo non torna. Controlla di averla scritta giusta.",
+    "validationVatPrefix": "Il prefisso della partita IVA non corrisponde al paese scelto.",
+    "validationPostalFormat": "Il CAP non ha il formato giusto per il paese scelto.",
+    "validationPhoneFormat": "Il numero di telefono non è valido: usa il prefisso internazionale (es. +39) e solo cifre.",
+    "validationEmailFormat": "L'indirizzo email non è valido.",
+    "validationUrlFormat": "L'indirizzo del sito non è valido: serve un indirizzo https:// reale.",
+    "validationCountryUnsupported": "Questo paese non è supportato per il campo indicato.",
+    "vatZeroNotAllowed": "L'IVA allo 0% non è consentita: per un cliente professionista di un altro paese UE serve prima la verifica VIES con esito positivo.",
+    "vatManualReasonRequired": "Per applicare l'IVA allo 0% indica il motivo dell'esenzione (almeno 5 caratteri).",
+    "viesUnavailable": "Il servizio VIES della Commissione europea non risponde in questo momento: riprova tra poco. Senza verifica non puoi applicare lo 0%."
   },
   "app": {
     "suspended": {
@@ -2571,5 +2586,32 @@
     "exampleFinal": "Prezzo finale",
     "exampleInvalid": "Inserisci larghezza e altezza valide.",
     "exampleNote": "Esempio indicativo con vetro doppio, bianco, ferramenta standard: fornitura con trasporto dalla fabbrica, IVA esclusa, senza posa."
+  },
+  "fiscal": {
+    "title": "Fiscalità del cliente e IVA",
+    "customerType": "Tipo di cliente",
+    "business": "Azienda / professionista",
+    "private": "Privato",
+    "country": "Paese del cliente",
+    "otherCountry": "Altro paese",
+    "vatId": "Partita IVA del cliente",
+    "vatPlaceholder": "es. DE136695976",
+    "verify": "Verifica VIES",
+    "verifying": "Verifica…",
+    "verifiedOn": "Attiva in VIES (verificata il {date}) — {name}",
+    "notActive": "Non risulta attiva in VIES (controllo del {date}).",
+    "notChecked": "Non ancora verificata in VIES: per lo 0% la verifica è obbligatoria.",
+    "noVies": "Paese fuori dal sistema VIES: nessuna verifica da fare.",
+    "rate": "Aliquota IVA",
+    "zeroOption": "0% — operazione esente / non imponibile",
+    "manualReason": "Motivo dell'esenzione",
+    "manualReasonPlaceholder": "Es. operazione esente art. 10 DPR 633/72",
+    "applied": "IVA applicata: {percent}%.",
+    "decision": {
+      "domestic": "Cliente nel tuo paese (o privato): si applica l'aliquota IVA nazionale.",
+      "intraEu": "Cessione intracomunitaria verso un'azienda con partita IVA attiva in VIES: IVA 0% con inversione contabile.",
+      "intraEuUnverified": "Azienda di un altro paese UE: lo 0% è consentito solo dopo la verifica VIES (obbligatoria). Finché non è verificata si applica l'IVA nazionale.",
+      "export": "Cliente fuori dall'Unione europea: esportazione, IVA 0% (conserva la prova di uscita dei beni)."
+    }
   }
 }

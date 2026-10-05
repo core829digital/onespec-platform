@@ -11,6 +11,7 @@ import { calculatePrice, type ProjectItem, type CatalogPayload } from "../src/sh
 import { currentPeriod, resolveTenantEntitlements } from "./lib/entitlements";
 import { regionForCountry } from "./lib/regions";
 import { resolveLinks, logClientActivity } from "./lib/links";
+import { resolveQuoteVat } from "./lib/vat";
 import { assertCoherentItems, parseQuoteItems, nextOfferNumber } from "./lib/quoteItems";
 import { defaultItem } from "../src/shared/item-defaults";
 
@@ -175,6 +176,12 @@ export const createFieldQuote = mutation({
     regionalSurchargeCents: v.optional(v.number()),
     profitMarginPercent: v.optional(v.number()),
     vatRatePercent: v.optional(v.number()),
+    /** Fiscal data of the customer: drives the VAT rule (domestic / intra-EU with VIES / export / manual 0%). */
+    buyerCountry: v.optional(v.string()),
+    buyerIsBusiness: v.optional(v.boolean()),
+    buyerVatId: v.optional(v.string()),
+    vatManualZero: v.optional(v.boolean()),
+    vatManualReason: v.optional(v.string()),
     depositTerms: v.optional(v.string()),
     regionCode: v.optional(v.string()),
     poseType: v.optional(v.string()),
@@ -232,10 +239,17 @@ export const createFieldQuote = mutation({
     const subtotalExVat = baseCalc.priceExVatCents + installCost + demolitionCost + regionalSurcharge;
     const discountedExVat = Math.round(subtotalExVat * (1 - discountPct / 100));
 
-    const effectiveVat = Math.min(
-      Math.max(args.vatRatePercent !== undefined ? args.vatRatePercent : configurator.vatRatePercent, 0),
-      100,
-    );
+    const tenantDoc = await ctx.db.get(args.tenantId);
+    if (!tenantDoc) throw new ConvexError("TENANT_NOT_FOUND");
+    const vat = await resolveQuoteVat(ctx, tenantDoc, {
+      requestedPercent: args.vatRatePercent !== undefined ? args.vatRatePercent : configurator.vatRatePercent,
+      buyerCountry: args.buyerCountry,
+      buyerIsBusiness: args.buyerIsBusiness,
+      buyerVatId: args.buyerVatId,
+      manualZero: args.vatManualZero,
+      manualReason: args.vatManualReason,
+    });
+    const effectiveVat = vat.ratePercent;
     const finalPriceCents = Math.round(discountedExVat * (1 + effectiveVat / 100));
     const ecobonusDeductionCents = ecobonusPct > 0 ? Math.round(finalPriceCents * (ecobonusPct / 100)) : undefined;
     const maPrimeRenovDeductionCents = maPrimePct > 0 ? Math.round(finalPriceCents * (maPrimePct / 100)) : undefined;
@@ -286,6 +300,12 @@ export const createFieldQuote = mutation({
       items,
       priceCents: finalPriceCents,
       priceExVatCents: discountedExVat,
+      buyerCountry: vat.buyerCountry,
+      buyerIsBusiness: vat.buyerIsBusiness,
+      buyerVatId: vat.buyerVatId,
+      viesCheckId: vat.viesCheckId,
+      vatReason: vat.reason,
+      vatManualReason: vat.manualReason,
       vatRatePercent: effectiveVat,
       currency: "EUR",
       status: "quoted",
@@ -593,6 +613,12 @@ export const createQuoteWithSuppliers = mutation({
     regionalSurchargeCents: v.optional(v.number()),
     profitMarginPercent: v.optional(v.number()),
     vatRatePercent: v.optional(v.number()),
+    /** Fiscal data of the customer: drives the VAT rule (domestic / intra-EU with VIES / export / manual 0%). */
+    buyerCountry: v.optional(v.string()),
+    buyerIsBusiness: v.optional(v.boolean()),
+    buyerVatId: v.optional(v.string()),
+    vatManualZero: v.optional(v.boolean()),
+    vatManualReason: v.optional(v.string()),
     depositTerms: v.optional(v.string()),
     poseType: v.optional(v.string()),
     rgeCertificate: v.optional(v.string()),
@@ -663,10 +689,17 @@ export const createQuoteWithSuppliers = mutation({
     const subtotalExVat = baseCalc.priceExVatCents + installCost + demolitionCost + regionalSurcharge;
     const discountedExVat = Math.round(subtotalExVat * (1 - discountPct / 100));
 
-    const effectiveVat = Math.min(
-      Math.max(args.vatRatePercent !== undefined ? args.vatRatePercent : configurator.vatRatePercent, 0),
-      100,
-    );
+    const tenantDoc = await ctx.db.get(args.tenantId);
+    if (!tenantDoc) throw new ConvexError("TENANT_NOT_FOUND");
+    const vat = await resolveQuoteVat(ctx, tenantDoc, {
+      requestedPercent: args.vatRatePercent !== undefined ? args.vatRatePercent : configurator.vatRatePercent,
+      buyerCountry: args.buyerCountry,
+      buyerIsBusiness: args.buyerIsBusiness,
+      buyerVatId: args.buyerVatId,
+      manualZero: args.vatManualZero,
+      manualReason: args.vatManualReason,
+    });
+    const effectiveVat = vat.ratePercent;
     const finalPriceCents = Math.round(discountedExVat * (1 + effectiveVat / 100));
     const ecobonusDeductionCents = ecobonusPct > 0 ? Math.round(finalPriceCents * (ecobonusPct / 100)) : undefined;
     const maPrimeRenovDeductionCents = maPrimePct > 0 ? Math.round(finalPriceCents * (maPrimePct / 100)) : undefined;
@@ -716,6 +749,12 @@ export const createQuoteWithSuppliers = mutation({
       items,
       priceCents: finalPriceCents,
       priceExVatCents: discountedExVat,
+      buyerCountry: vat.buyerCountry,
+      buyerIsBusiness: vat.buyerIsBusiness,
+      buyerVatId: vat.buyerVatId,
+      viesCheckId: vat.viesCheckId,
+      vatReason: vat.reason,
+      vatManualReason: vat.manualReason,
       vatRatePercent: effectiveVat,
       currency: 'EUR',
       status: 'quoted',

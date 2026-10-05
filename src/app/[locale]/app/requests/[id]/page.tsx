@@ -10,6 +10,7 @@ import { StatusBadge } from "@/components/app-shell/status-badge";
 import { QuoteFieldModules } from "@/components/field/quote-field-modules";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import { usePlanAccess } from "@/lib/plan-gates";
+import { vatNote } from "@/shared/tax";
 
 const STATUSES = ["new", "contacted", "quoted", "won", "lost", "spam"] as const;
 const STATUS_KEY: Record<string, string> = {
@@ -334,6 +335,11 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
               <Row label={t("rowNet")} value={eur(quote.priceExVatCents)} />
               <Row label={t("rowVat", { percent: quote.vatRatePercent })} value={eur(quote.priceCents - quote.priceExVatCents)} />
               <Row label={t("rowTotal")} value={<strong className="text-base text-[var(--color-mint-text)]">{eur(quote.priceCents)}</strong>} />
+              {quote.vatReason && quote.vatReason !== "domestic" ? (
+                <div className="col-span-full rounded-lg border border-[var(--color-border)] p-2 text-xs text-[var(--color-text-secondary)]">
+                  {vatNote(quote.vatReason, locale, { vat: quote.buyerVatId, reason: quote.vatManualReason })}
+                </div>
+              ) : null}
               {quote.installationPriceCents ? (
                 <Row label={t("rowInstall")} value={eur(quote.installationPriceCents)} />
               ) : null}

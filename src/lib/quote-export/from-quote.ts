@@ -1,5 +1,6 @@
 import { calculatePrice, type CatalogPayload, type ProjectItem } from "@/shared/pricing";
 import type { ExportInput } from "./model";
+import { vatNote } from "@/shared/tax";
 
 export interface QuoteLike {
   offerNumber?: string;
@@ -21,6 +22,9 @@ export interface QuoteLike {
   maPrimeRenovDeductionCents?: number;
   regionCode?: string;
   depositTerms?: string;
+  vatReason?: "domestic" | "intraEu" | "export" | "manualZero";
+  vatManualReason?: string;
+  buyerVatId?: string;
 }
 
 const LOCALE_BY_REGION: Record<string, string> = { IT: "it", FR: "fr", BE: "fr", DE: "de", NL: "nl", LU: "fr" };
@@ -39,8 +43,9 @@ export function exportInputFromQuote(
   const items = (Array.isArray(q.items) ? q.items : []) as ProjectItem[];
   const subsidyCents = q.ecobonusDeductionCents ?? q.maPrimeRenovDeductionCents;
   const subsidyPercent = q.ecobonusPercent ?? q.maPrimeRenovPercent;
+  const locale = opts.locale ?? localeForRegion(q.regionCode);
   return {
-    locale: opts.locale ?? localeForRegion(q.regionCode),
+    locale,
     offerNumber: q.offerNumber,
     dateMs: q._creationTime,
     company,
@@ -54,6 +59,7 @@ export function exportInputFromQuote(
       regionalCents: q.regionalSurchargeCents ?? 0,
       discountPercent: q.discountPercent ?? 0,
       vatPercent: q.vatRatePercent,
+      vatNote: vatNote(q.vatReason, locale, { vat: q.buyerVatId, reason: q.vatManualReason }) || undefined,
       grossCents: q.priceCents,
       subsidyPercent: subsidyCents ? subsidyPercent : undefined,
       subsidyCents: subsidyCents || undefined,

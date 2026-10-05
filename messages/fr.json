@@ -404,7 +404,22 @@
     "priceZoneRequired": "Indiquez d'abord où vous travaillez (Nord, Centre ou Sud de l'Italie) : c'est nécessaire pour choisir le bon barème standard.",
     "qualityInUse": "Des profilés utilisent encore cette qualité : déplacez-les vers une autre qualité avant de la supprimer.",
     "profileQualityUnknown": "La qualité choisie pour le profilé n'existe pas pour ce matériau.",
-    "invalidCombination": "La combinaison choisie n'est pas valide pour le catalogue (qualité, profilé ou vitrage incompatibles). Rechargez la page et réessayez."
+    "invalidCombination": "La combinaison choisie n'est pas valide pour le catalogue (qualité, profilé ou vitrage incompatibles). Rechargez la page et réessayez.",
+    "validationRequired": "Remplissez ce champ.",
+    "validationTooShort": "Le texte est trop court.",
+    "validationTooLong": "Le texte est trop long.",
+    "validationInvalidChars": "Certains caractères ne sont pas autorisés (par exemple < > { } ou des symboles de code).",
+    "validationVatFormat": "Le numéro de TVA n'a pas le bon format pour le pays choisi : vérifiez les chiffres.",
+    "validationVatChecksum": "Le numéro de TVA n'est pas valide : sa clé de contrôle ne correspond pas. Vérifiez la saisie.",
+    "validationVatPrefix": "Le préfixe du numéro de TVA ne correspond pas au pays choisi.",
+    "validationPostalFormat": "Le code postal n'a pas le bon format pour le pays choisi.",
+    "validationPhoneFormat": "Le numéro de téléphone n'est pas valide : utilisez l'indicatif international (ex. +33) et des chiffres uniquement.",
+    "validationEmailFormat": "L'adresse e-mail n'est pas valide.",
+    "validationUrlFormat": "L'adresse du site n'est pas valide : une vraie adresse https:// est requise.",
+    "validationCountryUnsupported": "Ce pays n'est pas pris en charge pour ce champ.",
+    "vatZeroNotAllowed": "La TVA à 0 % n'est pas autorisée : pour un client professionnel d'un autre pays de l'UE, une vérification VIES positive est d'abord requise.",
+    "vatManualReasonRequired": "Pour appliquer une TVA à 0 %, indiquez le motif de l'exonération (5 caractères minimum).",
+    "viesUnavailable": "Le service VIES de la Commission européenne ne répond pas pour le moment : réessayez bientôt. Sans vérification, vous ne pouvez pas appliquer 0 %."
   },
   "app": {
     "suspended": {
@@ -2571,5 +2586,32 @@
     "exampleFinal": "Prix final",
     "exampleInvalid": "Saisissez une largeur et une hauteur valides.",
     "exampleNote": "Exemple indicatif avec double vitrage, blanc, quincaillerie standard : fourniture avec transport depuis l'usine, hors TVA, sans pose."
+  },
+  "fiscal": {
+    "title": "Données fiscales du client et TVA",
+    "customerType": "Type de client",
+    "business": "Entreprise / professionnel",
+    "private": "Particulier",
+    "country": "Pays du client",
+    "otherCountry": "Autre pays",
+    "vatId": "N° de TVA du client",
+    "vatPlaceholder": "ex. DE136695976",
+    "verify": "Vérifier VIES",
+    "verifying": "Vérification…",
+    "verifiedOn": "Actif dans VIES (vérifié le {date}) — {name}",
+    "notActive": "Non actif dans VIES (contrôle du {date}).",
+    "notChecked": "Pas encore vérifié dans VIES : la vérification est obligatoire pour 0 %.",
+    "noVies": "Pays hors VIES : aucune vérification à faire.",
+    "rate": "Taux de TVA",
+    "zeroOption": "0 % — opération exonérée / non imposable",
+    "manualReason": "Motif de l'exonération",
+    "manualReasonPlaceholder": "Ex. opération exonérée selon …",
+    "applied": "TVA appliquée : {percent} %.",
+    "decision": {
+      "domestic": "Client dans votre pays (ou particulier) : le taux de TVA national s'applique.",
+      "intraEu": "Livraison intracommunautaire à une entreprise dont le n° de TVA est actif dans VIES : TVA 0 % avec autoliquidation.",
+      "intraEuUnverified": "Entreprise d'un autre pays de l'UE : 0 % n'est permis qu'après la vérification VIES (obligatoire). D'ici là, la TVA nationale s'applique.",
+      "export": "Client hors de l'Union européenne : exportation, TVA 0 % (conservez la preuve de sortie des biens)."
+    }
   }
 }

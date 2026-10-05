@@ -501,6 +501,22 @@ export default defineSchema({
     .index("by_tenant", ["tenantId"])
     .index("by_tenant_active", ["tenantId", "isActive"]),
 
+  /** VIES (EU VAT Information Exchange System) checks of customers' VAT numbers: the proof needed before a 0% intra-Community supply. */
+  viesChecks: defineTable({
+    tenantId: v.id("tenants"),
+    userId: v.id("users"),
+    /** VIES prefix used for the query (EL for Greece). */
+    country: v.string(),
+    /** The customer's VAT number as stored, prefix included ("DE136695976"). */
+    vatNumber: v.string(),
+    valid: v.boolean(),
+    name: v.optional(v.string()),
+    address: v.optional(v.string()),
+    /** Consultation number returned by VIES, when the caller supplies its own VAT number. */
+    requestIdentifier: v.optional(v.string()),
+    checkedAt: v.number(),
+  }).index("by_tenant_vat", ["tenantId", "vatNumber", "checkedAt"]),
+
   quoteRequests: defineTable({
     tenantId: v.id("tenants"),
     configuratorId: v.id("configurators"),
@@ -517,6 +533,14 @@ export default defineSchema({
     customerAddress: v.optional(v.string()),
     customerCity: v.optional(v.string()),
     customerPostalCode: v.optional(v.string()),
+    /** Fiscal data of the customer: country (ISO or "OTHER"), business or private, VAT number, and the VIES proof. */
+    buyerCountry: v.optional(v.string()),
+    buyerIsBusiness: v.optional(v.boolean()),
+    buyerVatId: v.optional(v.string()),
+    viesCheckId: v.optional(v.id("viesChecks")),
+    /** Why the quote carries the VAT it carries (domestic / intraEu / export / manualZero) and, for manualZero, the stated reason. */
+    vatReason: v.optional(v.union(v.literal("domestic"), v.literal("intraEu"), v.literal("export"), v.literal("manualZero"))),
+    vatManualReason: v.optional(v.string()),
     channel: v.optional(v.union(v.literal("widget"), v.literal("field_b2b"), v.literal("manual"), v.literal("api"))),
     installationType: v.optional(v.string()),
     installationPriceCents: v.optional(v.number()),

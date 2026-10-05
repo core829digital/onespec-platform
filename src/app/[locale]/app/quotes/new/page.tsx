@@ -9,6 +9,7 @@ import { api } from "@/convex/_generated/api";
 import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";
+import { FiscalPanel, emptyFiscal, useFiscal, type FiscalState } from "@/components/quotes/fiscal-panel";
 import { takeShowroomHandoff } from "@/lib/showroom-handoff";
 import { ClientCantierePicker, type PickedLinks } from "@/components/app-shell/client-cantiere-picker";
 import { PiecesEditor } from "@/components/quotes/editor/pieces-editor";
@@ -208,6 +209,14 @@ export default function NewFieldQuotePage() {
   const [discountPercent, setDiscountPercent] = useState(0);
   const [profitMarginPercent, setProfitMarginPercent] = useState(30);
   const [vatRatePercent, setVatRatePercent] = useState(10);
+  // The customer's fiscal data and the VAT rule they lead to (domestic / intra-EU with VIES / export / manual 0%).
+  const [fiscal, setFiscal] = useState<FiscalState>(() => emptyFiscal(""));
+  const te = useTranslations("errors");
+  const sellerCountry = (tenant?.country ?? regionCode).toUpperCase();
+  const fiscalWithCountry: FiscalState = { ...fiscal, buyerCountry: fiscal.buyerCountry || sellerCountry };
+  const fiscalRes = useFiscal(tenant?._id, sellerCountry, fiscalWithCountry, vatRatePercent);
+  // The rate that is really applied (the rules may force 0%); while the choice is not allowed the national rate keeps the totals readable.
+  const effectiveVat = fiscalRes.ratePercent ?? vatRatePercent;
   const [depositTerms, setDepositTerms] = useState(REGION_CONFIGS.IT.defaultDeposit);
 
   // Regional specific fields
@@ -381,7 +390,7 @@ export default function NewFieldQuotePage() {
     const demoCents = demolitionEuros * 100;
     const subtotalEx = base.priceExVatCents + installCents + demoCents + regionalExtraCents;
     const discEx = Math.round(subtotalEx * (1 - discountPercent / 100));
-    const finalGross = Math.round(discEx * (1 + vatRatePercent / 100));
+    const finalGross = Math.round(discEx * (1 + effectiveVat / 100));
 
     // Subsidy deduction
     let subsidyDed = 0;
@@ -410,7 +419,7 @@ export default function NewFieldQuotePage() {
     installationEuros,
     demolitionEuros,
     discountPercent,
-    vatRatePercent,
+    effectiveVat,
     regionCode,
     hvlJointCount,
     isostoneSill,
@@ -436,6 +445,11 @@ export default function NewFieldQuotePage() {
     }
     if (!usingLiveCatalog) {
       setError(t("errCatalogNotReady"));
+      return;
+    }
+
+    if (fiscalRes.blockedKey) {
+      setError(te(fiscalRes.blockedKey));
       return;
     }
 
@@ -503,6 +517,11 @@ export default function NewFieldQuotePage() {
           klimabonusEligible: regionCode === "LU" ? klimabonusEligible : undefined,
           profitMarginPercent,
           vatRatePercent,
+          buyerCountry: fiscalWithCountry.buyerCountry,
+          buyerIsBusiness: fiscal.buyerIsBusiness,
+          buyerVatId: fiscal.buyerIsBusiness && fiscal.buyerVatId.trim() ? fiscal.buyerVatId : undefined,
+          vatManualZero: fiscal.manualZero || undefined,
+          vatManualReason: fiscal.manualZero ? fiscal.manualReason : undefined,
           depositTerms,
         });
       } else {
@@ -540,6 +559,11 @@ export default function NewFieldQuotePage() {
           klimabonusEligible: regionCode === "LU" ? klimabonusEligible : undefined,
           profitMarginPercent,
           vatRatePercent,
+          buyerCountry: fiscalWithCountry.buyerCountry,
+          buyerIsBusiness: fiscal.buyerIsBusiness,
+          buyerVatId: fiscal.buyerIsBusiness && fiscal.buyerVatId.trim() ? fiscal.buyerVatId : undefined,
+          vatManualZero: fiscal.manualZero || undefined,
+          vatManualReason: fiscal.manualZero ? fiscal.manualReason : undefined,
           depositTerms,
         });
       }
@@ -1129,24 +1153,18 @@ export default function NewFieldQuotePage() {
                 </div>
               </div>
 
-              {/* VAT & Discounts */}
+              <FiscalPanel
+                tenantId={tenant?._id}
+                value={fiscalWithCountry}
+                onChange={setFiscal}
+                resolution={fiscalRes}
+                vatOptions={activeMeta.vatOptions}
+                requestedPercent={vatRatePercent}
+                onRequestedPercent={setVatRatePercent}
+              />
+
+              {/* Discounts */}
               <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
-                    Aliquota IVA / TVA / Btw
-                  </label>
-                  <select
-                    value={vatRatePercent}
-                    onChange={(e) => setVatRatePercent(Number(e.target.value))}
-                    className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-2 text-xs text-[var(--color-text)] font-mono"
-                  >
-                    {activeMeta.vatOptions.map((vo) => (
-                      <option key={vo.percent} value={vo.percent}>
-                        {vo.label}
-                      </option>
-                    ))}
-                  </select>
-                </div>
                 <div>
                   <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                     Sconto / Remise (%)
@@ -1248,7 +1266,7 @@ export default function NewFieldQuotePage() {
                 <span className="font-mono">€{(priceCalc.discountedExVat / 100).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-[var(--color-text-secondary)]">
-                <span>{t("vat", { percent: vatRatePercent })}</span>
+                <span>{t("vat", { percent: effectiveVat })}</span>
                 <span className="font-mono">€{((priceCalc.finalGrossCents - priceCalc.discountedExVat) / 100).toFixed(2)}</span>
               </div>
               <div className="flex justify-between text-base font-bold text-[var(--color-text)] border-t border-[var(--color-border)] pt-2">

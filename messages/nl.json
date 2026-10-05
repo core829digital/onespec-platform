@@ -404,7 +404,22 @@
     "priceZoneRequired": "Geef eerst aan waar u werkt (Noord-, Midden- of Zuid-Italië): dat is nodig om de juiste standaardprijslijst te kiezen.",
     "qualityInUse": "Er gebruiken nog profielen deze kwaliteit: verplaats ze naar een andere kwaliteit voordat u haar verwijdert.",
     "profileQualityUnknown": "De voor het profiel gekozen kwaliteit bestaat niet voor dit materiaal.",
-    "invalidCombination": "De gekozen combinatie is niet geldig voor de catalogus (kwaliteit, profiel of beglazing passen niet bij elkaar). Laad de pagina opnieuw en probeer het nog eens."
+    "invalidCombination": "De gekozen combinatie is niet geldig voor de catalogus (kwaliteit, profiel of beglazing passen niet bij elkaar). Laad de pagina opnieuw en probeer het nog eens.",
+    "validationRequired": "Vul dit veld in.",
+    "validationTooShort": "De tekst is te kort.",
+    "validationTooLong": "De tekst is te lang.",
+    "validationInvalidChars": "Er staan niet-toegestane tekens in (bijvoorbeeld < > { } of codesymbolen).",
+    "validationVatFormat": "Het btw-nummer heeft niet de juiste indeling voor het gekozen land: controleer de cijfers.",
+    "validationVatChecksum": "Het btw-nummer is ongeldig: het controlecijfer klopt niet. Controleer uw invoer.",
+    "validationVatPrefix": "Het voorvoegsel van het btw-nummer past niet bij het gekozen land.",
+    "validationPostalFormat": "De postcode heeft niet de juiste indeling voor het gekozen land.",
+    "validationPhoneFormat": "Het telefoonnummer is ongeldig: gebruik het internationale voorvoegsel (bijv. +31) en alleen cijfers.",
+    "validationEmailFormat": "Het e-mailadres is ongeldig.",
+    "validationUrlFormat": "Het webadres is ongeldig: een echt https://-adres is vereist.",
+    "validationCountryUnsupported": "Dit land wordt voor dit veld niet ondersteund.",
+    "vatZeroNotAllowed": "0% btw is niet toegestaan: voor een zakelijke klant in een ander EU-land is eerst een geslaagde VIES-controle nodig.",
+    "vatManualReasonRequired": "Geef voor 0% btw de reden van de vrijstelling op (minstens 5 tekens).",
+    "viesUnavailable": "De VIES-dienst van de Europese Commissie reageert nu niet: probeer het zo opnieuw. Zonder controle kunt u 0% niet toepassen."
   },
   "app": {
     "suspended": {
@@ -2571,5 +2586,32 @@
     "exampleFinal": "Eindprijs",
     "exampleInvalid": "Voer een geldige breedte en hoogte in.",
     "exampleNote": "Indicatief voorbeeld met dubbel glas, wit, standaard beslag: levering met transport vanaf de fabriek, excl. BTW, zonder montage."
+  },
+  "fiscal": {
+    "title": "Fiscale gegevens van de klant en btw",
+    "customerType": "Type klant",
+    "business": "Bedrijf / professional",
+    "private": "Particulier",
+    "country": "Land van de klant",
+    "otherCountry": "Ander land",
+    "vatId": "Btw-nummer van de klant",
+    "vatPlaceholder": "bijv. DE136695976",
+    "verify": "VIES controleren",
+    "verifying": "Controleren…",
+    "verifiedOn": "Actief in VIES (gecontroleerd op {date}) — {name}",
+    "notActive": "Niet actief in VIES (controle van {date}).",
+    "notChecked": "Nog niet gecontroleerd in VIES: voor 0% is de controle verplicht.",
+    "noVies": "Land buiten VIES: geen controle nodig.",
+    "rate": "Btw-tarief",
+    "zeroOption": "0% — vrijgestelde / niet-belastbare handeling",
+    "manualReason": "Reden van de vrijstelling",
+    "manualReasonPlaceholder": "Bijv. vrijgestelde handeling volgens …",
+    "applied": "Toegepaste btw: {percent}%.",
+    "decision": {
+      "domestic": "Klant in uw land (of particulier): het nationale btw-tarief geldt.",
+      "intraEu": "Intracommunautaire levering aan een bedrijf met een actief btw-nummer in VIES: 0% btw met verlegging.",
+      "intraEuUnverified": "Bedrijf in een ander EU-land: 0% is pas toegestaan na de VIES-controle (verplicht). Tot dan geldt de nationale btw.",
+      "export": "Klant buiten de Europese Unie: uitvoer, 0% btw (bewaar het bewijs van uitvoer)."
+    }
   }
 }

@@ -404,7 +404,22 @@
     "priceZoneRequired": "Geben Sie zuerst an, wo Sie arbeiten (Nord-, Mittel- oder Süditalien): das wird für die passende Standardpreisliste benötigt.",
     "qualityInUse": "Profile verwenden diese Qualität noch: Verschieben Sie sie in eine andere Qualität, bevor Sie sie löschen.",
     "profileQualityUnknown": "Die für das Profil gewählte Qualität gibt es für dieses Material nicht.",
-    "invalidCombination": "Die gewählte Kombination ist für den Katalog nicht gültig (Qualität, Profil oder Verglasung passen nicht zusammen). Laden Sie die Seite neu und versuchen Sie es erneut."
+    "invalidCombination": "Die gewählte Kombination ist für den Katalog nicht gültig (Qualität, Profil oder Verglasung passen nicht zusammen). Laden Sie die Seite neu und versuchen Sie es erneut.",
+    "validationRequired": "Füllen Sie dieses Feld aus.",
+    "validationTooShort": "Der Text ist zu kurz.",
+    "validationTooLong": "Der Text ist zu lang.",
+    "validationInvalidChars": "Es sind nicht erlaubte Zeichen enthalten (z. B. < > { } oder Code-Symbole).",
+    "validationVatFormat": "Die USt-IdNr. hat nicht das richtige Format für das gewählte Land: Prüfen Sie die Ziffern.",
+    "validationVatChecksum": "Die USt-IdNr. ist ungültig: Die Prüfziffer stimmt nicht. Prüfen Sie Ihre Eingabe.",
+    "validationVatPrefix": "Das Präfix der USt-IdNr. passt nicht zum gewählten Land.",
+    "validationPostalFormat": "Die Postleitzahl hat nicht das richtige Format für das gewählte Land.",
+    "validationPhoneFormat": "Die Telefonnummer ist ungültig: Verwenden Sie die internationale Vorwahl (z. B. +49) und nur Ziffern.",
+    "validationEmailFormat": "Die E-Mail-Adresse ist ungültig.",
+    "validationUrlFormat": "Die Webadresse ist ungültig: Es wird eine echte https://-Adresse benötigt.",
+    "validationCountryUnsupported": "Dieses Land wird für dieses Feld nicht unterstützt.",
+    "vatZeroNotAllowed": "0 % MwSt. ist nicht erlaubt: Für einen gewerblichen Kunden in einem anderen EU-Land ist zuvor eine erfolgreiche VIES-Prüfung nötig.",
+    "vatManualReasonRequired": "Für 0 % MwSt. geben Sie den Befreiungsgrund an (mindestens 5 Zeichen).",
+    "viesUnavailable": "Der VIES-Dienst der Europäischen Kommission antwortet gerade nicht: Versuchen Sie es gleich noch einmal. Ohne Prüfung können Sie 0 % nicht anwenden."
   },
   "app": {
     "suspended": {
@@ -2571,5 +2586,32 @@
     "exampleFinal": "Endpreis",
     "exampleInvalid": "Geben Sie eine gültige Breite und Höhe ein.",
     "exampleNote": "Richtbeispiel mit Zweifachverglasung, weiß, Standardbeschlägen: Lieferung mit Werkstransport, ohne MwSt., ohne Montage."
+  },
+  "fiscal": {
+    "title": "Steuerdaten des Kunden und MwSt.",
+    "customerType": "Kundenart",
+    "business": "Unternehmen / Gewerbetreibender",
+    "private": "Privatperson",
+    "country": "Land des Kunden",
+    "otherCountry": "Anderes Land",
+    "vatId": "USt-IdNr. des Kunden",
+    "vatPlaceholder": "z. B. DE136695976",
+    "verify": "VIES prüfen",
+    "verifying": "Prüfung…",
+    "verifiedOn": "In VIES aktiv (geprüft am {date}) — {name}",
+    "notActive": "In VIES nicht aktiv (Prüfung vom {date}).",
+    "notChecked": "Noch nicht in VIES geprüft: Für 0 % ist die Prüfung Pflicht.",
+    "noVies": "Land außerhalb von VIES: keine Prüfung nötig.",
+    "rate": "MwSt.-Satz",
+    "zeroOption": "0 % — steuerfreier / nicht steuerbarer Vorgang",
+    "manualReason": "Grund der Befreiung",
+    "manualReasonPlaceholder": "z. B. steuerfreier Umsatz nach …",
+    "applied": "Angewandte MwSt.: {percent} %.",
+    "decision": {
+      "domestic": "Kunde in Ihrem Land (oder Privatperson): Es gilt der nationale MwSt.-Satz.",
+      "intraEu": "Innergemeinschaftliche Lieferung an ein Unternehmen mit aktiver USt-IdNr. in VIES: 0 % MwSt. mit Reverse Charge.",
+      "intraEuUnverified": "Unternehmen in einem anderen EU-Land: 0 % ist erst nach der VIES-Prüfung (Pflicht) erlaubt. Bis dahin gilt die nationale MwSt.",
+      "export": "Kunde außerhalb der Europäischen Union: Ausfuhr, 0 % MwSt. (Ausfuhrnachweis aufbewahren)."
+    }
   }
 }

@@ -404,7 +404,22 @@
     "priceZoneRequired": "Indică mai întâi unde lucrezi (nordul, centrul sau sudul Italiei): este necesar pentru a alege lista de prețuri standard corectă.",
     "qualityInUse": "Unele profile folosesc încă această calitate: mutați-le în altă calitate înainte de a o șterge.",
     "profileQualityUnknown": "Calitatea aleasă pentru profil nu există pentru acest material.",
-    "invalidCombination": "Combinația aleasă nu este validă pentru catalog (calitate, profil sau geam incompatibile). Reîncărcați pagina și încercați din nou."
+    "invalidCombination": "Combinația aleasă nu este validă pentru catalog (calitate, profil sau geam incompatibile). Reîncărcați pagina și încercați din nou.",
+    "validationRequired": "Completați acest câmp.",
+    "validationTooShort": "Textul este prea scurt.",
+    "validationTooLong": "Textul este prea lung.",
+    "validationInvalidChars": "Există caractere nepermise (de exemplu < > { } sau simboluri de cod).",
+    "validationVatFormat": "Codul de TVA nu are formatul corect pentru țara aleasă: verificați cifrele.",
+    "validationVatChecksum": "Codul de TVA nu este valid: cifra de control nu se potrivește. Verificați ce ați scris.",
+    "validationVatPrefix": "Prefixul codului de TVA nu corespunde țării alese.",
+    "validationPostalFormat": "Codul poștal nu are formatul corect pentru țara aleasă.",
+    "validationPhoneFormat": "Numărul de telefon nu este valid: folosiți prefixul internațional (ex. +40) și doar cifre.",
+    "validationEmailFormat": "Adresa de email nu este validă.",
+    "validationUrlFormat": "Adresa site-ului nu este validă: este necesară o adresă https:// reală.",
+    "validationCountryUnsupported": "Această țară nu este acceptată pentru acest câmp.",
+    "vatZeroNotAllowed": "TVA 0% nu este permis: pentru un client profesionist din alt stat UE este necesară mai întâi o verificare VIES reușită.",
+    "vatManualReasonRequired": "Pentru TVA 0% indicați motivul scutirii (cel puțin 5 caractere).",
+    "viesUnavailable": "Serviciul VIES al Comisiei Europene nu răspunde acum: încercați din nou în curând. Fără verificare nu puteți aplica 0%."
   },
   "app": {
     "suspended": {
@@ -2571,5 +2586,32 @@
     "exampleFinal": "Preț final",
     "exampleInvalid": "Introduceți o lățime și o înălțime valide.",
     "exampleNote": "Exemplu orientativ cu geam dublu, alb, feronerie standard: livrare cu transport de la fabrică, fără TVA, fără montaj."
+  },
+  "fiscal": {
+    "title": "Date fiscale ale clientului și TVA",
+    "customerType": "Tip de client",
+    "business": "Companie / profesionist",
+    "private": "Persoană fizică",
+    "country": "Țara clientului",
+    "otherCountry": "Altă țară",
+    "vatId": "Cod TVA al clientului",
+    "vatPlaceholder": "ex. DE136695976",
+    "verify": "Verifică VIES",
+    "verifying": "Se verifică…",
+    "verifiedOn": "Activ în VIES (verificat la {date}) — {name}",
+    "notActive": "Nu este activ în VIES (verificare din {date}).",
+    "notChecked": "Încă neverificat în VIES: pentru 0% verificarea este obligatorie.",
+    "noVies": "Țară în afara VIES: nu e nevoie de verificare.",
+    "rate": "Cota de TVA",
+    "zeroOption": "0% — operațiune scutită / neimpozabilă",
+    "manualReason": "Motivul scutirii",
+    "manualReasonPlaceholder": "Ex. operațiune scutită conform …",
+    "applied": "TVA aplicată: {percent}%.",
+    "decision": {
+      "domestic": "Client în țara dvs. (sau persoană fizică): se aplică cota națională de TVA.",
+      "intraEu": "Livrare intracomunitară către o companie cu cod TVA activ în VIES: TVA 0% cu taxare inversă.",
+      "intraEuUnverified": "Companie dintr-un alt stat UE: 0% este permis doar după verificarea VIES (obligatorie). Până atunci se aplică TVA național.",
+      "export": "Client în afara Uniunii Europene: export, TVA 0% (păstrați dovada ieșirii bunurilor)."
+    }
   }
 }

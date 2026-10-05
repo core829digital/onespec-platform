@@ -45,6 +45,7 @@ export function buildTxt(m: ExportModel): string {
   if (t.discountPercent) out.push(`${d.discount}: ${t.discountPercent}%`);
   out.push(`${d.vat} ${t.vatPercent}%`);
   out.push(`${d.totalKey.toUpperCase()}: ${eur(t.grossCents, m.locale)}`);
+  if (t.vatNote) out.push(t.vatNote);
   if (t.subsidyCents) {
     out.push(`${d.subsidy} ${t.subsidyPercent ?? ""}%: -${eur(t.subsidyCents, m.locale)}`);
     out.push(`${d.netAfter.toUpperCase()}: ${eur(t.grossCents - t.subsidyCents, m.locale)}`);
@@ -131,6 +132,7 @@ ${p.notes ? `<p class="notes"><b>${esc(d.notes)}:</b> ${esc(p.notes)}</p>` : ""}
     ...(t.regionalCents ? [[d.regional, eur(t.regionalCents, m.locale)]] : []),
     ...(t.discountPercent ? [[d.discount, `${t.discountPercent}%`]] : []),
     [`${d.vat} ${t.vatPercent}%`, ""],
+    ...(t.vatNote ? [[t.vatNote, ""]] : []),
   ]
     .map(([a, b]) => `<div class="row"><span>${esc(a)}</span><span>${esc(b)}</span></div>`)
     .join("");

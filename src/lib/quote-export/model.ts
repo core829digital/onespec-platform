@@ -55,6 +55,8 @@ export interface ExportMoney {
   regionalCents: number;
   discountPercent: number;
   vatPercent: number;
+  /** Sentence for a VAT-free supply (reverse charge, export, manual 0%); absent for a normal one. */
+  vatNote?: string;
   grossCents: number;
   subsidyPercent?: number;
   subsidyCents?: number;

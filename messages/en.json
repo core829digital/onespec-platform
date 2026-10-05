@@ -404,7 +404,22 @@
     "priceZoneRequired": "First tell us where you work (North, Centre or South of Italy): it is needed to pick the right standard price list.",
     "qualityInUse": "Profiles still use this quality: move them to another quality before deleting it.",
     "profileQualityUnknown": "The quality chosen for the profile does not exist for this material.",
-    "invalidCombination": "The chosen combination is not valid for the catalogue (quality, profile or glazing do not match). Reload the page and try again."
+    "invalidCombination": "The chosen combination is not valid for the catalogue (quality, profile or glazing do not match). Reload the page and try again.",
+    "validationRequired": "Fill in this field.",
+    "validationTooShort": "The text is too short.",
+    "validationTooLong": "The text is too long.",
+    "validationInvalidChars": "There are characters that are not allowed (for example < > { } or code symbols).",
+    "validationVatFormat": "The VAT number does not have the right format for the chosen country: check the digits.",
+    "validationVatChecksum": "The VAT number is not valid: its check digit does not match. Check you typed it correctly.",
+    "validationVatPrefix": "The VAT number prefix does not match the chosen country.",
+    "validationPostalFormat": "The postal code does not have the right format for the chosen country.",
+    "validationPhoneFormat": "The phone number is not valid: use the international prefix (e.g. +39) and digits only.",
+    "validationEmailFormat": "The email address is not valid.",
+    "validationUrlFormat": "The web address is not valid: a real https:// address is required.",
+    "validationCountryUnsupported": "This country is not supported for this field.",
+    "vatZeroNotAllowed": "0% VAT is not allowed: for a business customer in another EU country a successful VIES check is required first.",
+    "vatManualReasonRequired": "To apply 0% VAT state the reason for the exemption (at least 5 characters).",
+    "viesUnavailable": "The European Commission's VIES service is not responding right now: try again shortly. Without a check you cannot apply 0%."
   },
   "app": {
     "suspended": {
@@ -2571,5 +2586,32 @@
     "exampleFinal": "Final price",
     "exampleInvalid": "Enter a valid width and height.",
     "exampleNote": "Indicative example with double glazing, white, standard hardware: supply with factory transport, VAT excluded, no installation."
+  },
+  "fiscal": {
+    "title": "Customer tax data and VAT",
+    "customerType": "Customer type",
+    "business": "Company / professional",
+    "private": "Private individual",
+    "country": "Customer's country",
+    "otherCountry": "Other country",
+    "vatId": "Customer's VAT number",
+    "vatPlaceholder": "e.g. DE136695976",
+    "verify": "Check VIES",
+    "verifying": "Checking…",
+    "verifiedOn": "Active in VIES (checked on {date}) — {name}",
+    "notActive": "Not active in VIES (checked on {date}).",
+    "notChecked": "Not yet checked in VIES: the check is mandatory for 0%.",
+    "noVies": "Country outside VIES: no check needed.",
+    "rate": "VAT rate",
+    "zeroOption": "0% — exempt / non-taxable operation",
+    "manualReason": "Reason for the exemption",
+    "manualReasonPlaceholder": "E.g. exempt operation under …",
+    "applied": "VAT applied: {percent}%.",
+    "decision": {
+      "domestic": "Customer in your country (or a private individual): the national VAT rate applies.",
+      "intraEu": "Intra-Community supply to a business whose VAT number is active in VIES: 0% VAT with reverse charge.",
+      "intraEuUnverified": "Business in another EU country: 0% is allowed only after the VIES check (mandatory). Until then the national VAT applies.",
+      "export": "Customer outside the European Union: export, 0% VAT (keep the proof that the goods left)."
+    }
   }
 }

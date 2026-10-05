@@ -91,6 +91,9 @@ import type * as tenants from "../tenants.js";
 import type * as usage from "../usage.js";
 import type * as users from "../users.js";
 import type * as widget from "../widget.js";
+import type * as lib_validate from "../lib/validate.js";
+import type * as lib_vat from "../lib/vat.js";
+import type * as vies from "../vies.js";
 
 import type {
   ApiFromModules,
@@ -182,6 +185,9 @@ declare const fullApi: ApiFromModules<{
   usage: typeof usage;
   users: typeof users;
   widget: typeof widget;
+  "lib/validate": typeof lib_validate;
+  "lib/vat": typeof lib_vat;
+  vies: typeof vies;
 }>;
 
 /**
