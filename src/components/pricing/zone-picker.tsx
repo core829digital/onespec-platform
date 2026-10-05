@@ -18,7 +18,7 @@ export function ZonePicker({ value, onChange, disabled }: { value: PriceZone | n
         return (
           <label
             key={z}
-            className={`cursor-pointer rounded-xl border p-4 transition-colors focus-within:ring-2 focus-within:ring-[var(--color-mint)] ${
+            className={`relative cursor-pointer rounded-xl border p-4 transition-colors focus-within:ring-2 focus-within:ring-[var(--color-mint)] ${
               selected ? "border-[var(--color-mint)] bg-[var(--color-mint-light)]" : "border-[var(--color-border)] hover:border-[var(--color-mint)]"
             } ${disabled ? "opacity-50" : ""}`}
           >

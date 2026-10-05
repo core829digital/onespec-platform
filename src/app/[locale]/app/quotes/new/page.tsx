@@ -1144,7 +1144,7 @@ export default function NewFieldQuotePage() {
                 <legend className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">{t("posa.title")}</legend>
                 <div role="radiogroup" aria-label={t("posa.title")} className="grid gap-2 sm:grid-cols-2">
                   {([true, false] as const).map((v) => (
-                    <label key={String(v)} className={`cursor-pointer rounded-lg border p-3 text-sm focus-within:ring-2 focus-within:ring-[var(--color-mint)] ${withPosa === v ? "border-[var(--color-mint)] bg-[var(--color-mint-light)]" : "border-[var(--color-border)]"}`}>
+                    <label key={String(v)} className={`relative cursor-pointer rounded-lg border p-3 text-sm focus-within:ring-2 focus-within:ring-[var(--color-mint)] ${withPosa === v ? "border-[var(--color-mint)] bg-[var(--color-mint-light)]" : "border-[var(--color-border)]"}`}>
                       <input type="radio" name="with-posa" className="sr-only" checked={withPosa === v} onChange={() => setWithPosaChoice(v)} />
                       <span className="block font-semibold text-[var(--color-text)]">{v ? t("posa.with") : t("posa.without")}</span>
                       <span className="mt-1 block text-xs text-[var(--color-text-secondary)]">{v ? t("posa.withHint") : t("posa.withoutHint")}</span>

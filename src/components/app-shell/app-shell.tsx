@@ -19,7 +19,7 @@ export function AppShell({
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="relative flex h-screen overflow-hidden bg-[var(--color-bg)]">
+    <div className="relative flex h-screen overflow-clip bg-[var(--color-bg)]">
       <SkipToMainContent />
       {/* Soft glow behind the floating glass sidebar so its translucency reads. */}
       <div

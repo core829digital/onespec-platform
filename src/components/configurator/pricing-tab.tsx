@@ -217,7 +217,7 @@ export function PricingTab({ configuratorId, configurator }: { configuratorId: I
         <p className="text-sm text-[var(--color-text-secondary)]">{t("delivery.help")}</p>
         <div role="radiogroup" aria-label={t("delivery.title")} className="grid gap-2 sm:grid-cols-2">
           {(["factory", "own"] as const).map((m) => (
-            <label key={m} className={`cursor-pointer rounded-lg border p-3 text-sm focus-within:ring-2 focus-within:ring-[var(--color-mint)] ${deliveryMode === m ? "border-[var(--color-mint)] bg-[var(--color-mint-light)]" : "border-[var(--color-border)]"}`}>
+            <label key={m} className={`relative cursor-pointer rounded-lg border p-3 text-sm focus-within:ring-2 focus-within:ring-[var(--color-mint)] ${deliveryMode === m ? "border-[var(--color-mint)] bg-[var(--color-mint-light)]" : "border-[var(--color-border)]"}`}>
               <input type="radio" name="delivery-mode" className="sr-only" checked={deliveryMode === m} onChange={() => { setDeliveryMode(m); if (m === "factory") void saveDelivery("factory", null); else if (rateCents) void saveDelivery("own", rateCents); }} />
               <span className="block font-semibold text-[var(--color-text)]">{t(`delivery.${m}`)}</span>
               <span className="mt-1 block text-xs text-[var(--color-text-secondary)]">{t(`delivery.${m}Hint`)}</span>
@@ -270,7 +270,7 @@ export function PricingTab({ configuratorId, configurator }: { configuratorId: I
         {posaCentsPerM2 > 0 ? (
           <div role="radiogroup" aria-label={t("posa.defaultTitle")} className="grid gap-2 sm:grid-cols-2">
             {(["with", "without"] as const).map((m) => (
-              <label key={m} className={`cursor-pointer rounded-lg border p-3 text-sm focus-within:ring-2 focus-within:ring-[var(--color-mint)] ${posaDefault === m ? "border-[var(--color-mint)] bg-[var(--color-mint-light)]" : "border-[var(--color-border)]"}`}>
+              <label key={m} className={`relative cursor-pointer rounded-lg border p-3 text-sm focus-within:ring-2 focus-within:ring-[var(--color-mint)] ${posaDefault === m ? "border-[var(--color-mint)] bg-[var(--color-mint-light)]" : "border-[var(--color-border)]"}`}>
                 <input type="radio" name="posa-default" className="sr-only" checked={posaDefault === m} onChange={() => { setPosaDefault(m); void savePosa(m); }} />
                 <span className="block font-semibold text-[var(--color-text)]">{t(`posa.${m}`)}</span>
                 <span className="mt-1 block text-xs text-[var(--color-text-secondary)]">{t(`posa.${m}Hint`)}</span>

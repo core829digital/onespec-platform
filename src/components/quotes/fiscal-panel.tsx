@@ -125,7 +125,7 @@ export function FiscalPanel({ tenantId, value, onChange, resolution, vatOptions,
 
       <div role="radiogroup" aria-label={t("customerType")} className="flex gap-2">
         {([true, false] as const).map((isBiz) => (
-          <label key={String(isBiz)} className={`flex-1 cursor-pointer rounded-lg border px-3 py-2 text-center text-xs font-medium focus-within:ring-2 focus-within:ring-[var(--color-mint)] ${value.buyerIsBusiness === isBiz ? "border-[var(--color-mint)] bg-[var(--color-mint-light)] text-[var(--color-mint-text)]" : "border-[var(--color-border)] text-[var(--color-text)]"}`}>
+          <label key={String(isBiz)} className={`relative flex-1 cursor-pointer rounded-lg border px-3 py-2 text-center text-xs font-medium focus-within:ring-2 focus-within:ring-[var(--color-mint)] ${value.buyerIsBusiness === isBiz ? "border-[var(--color-mint)] bg-[var(--color-mint-light)] text-[var(--color-mint-text)]" : "border-[var(--color-border)] text-[var(--color-text)]"}`}>
             <input type="radio" name="fiscal-type" className="sr-only" checked={value.buyerIsBusiness === isBiz} onChange={() => set({ buyerIsBusiness: isBiz })} />
             {isBiz ? t("business") : t("private")}
           </label>

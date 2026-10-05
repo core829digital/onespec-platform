@@ -435,7 +435,7 @@ export function PricingStep({ tenantId, profile, italy, priceZone, onSaved, onBa
         <p className="text-xs text-[var(--color-text-secondary)]">{td("help")}</p>
         <div role="radiogroup" aria-label={td("title")} className="grid gap-2 sm:grid-cols-2">
           {(["factory", "own"] as const).map((m) => (
-            <label key={m} className={`cursor-pointer rounded-lg border p-3 text-sm focus-within:ring-2 focus-within:ring-[var(--color-mint)] ${mode === m ? "border-[var(--color-mint)] bg-[var(--color-mint-light)]" : "border-[var(--color-border)]"}`}>
+            <label key={m} className={`relative cursor-pointer rounded-lg border p-3 text-sm focus-within:ring-2 focus-within:ring-[var(--color-mint)] ${mode === m ? "border-[var(--color-mint)] bg-[var(--color-mint-light)]" : "border-[var(--color-border)]"}`}>
               <input type="radio" name="onboarding-delivery" className="sr-only" checked={mode === m} onChange={() => setMode(m)} />
               <span className="block font-semibold text-[var(--color-text)]">{td(m)}</span>
               <span className="mt-1 block text-xs text-[var(--color-text-secondary)]">{td(`${m}Hint`)}</span>
