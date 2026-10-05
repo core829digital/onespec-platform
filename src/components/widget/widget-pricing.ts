@@ -112,6 +112,8 @@ export interface Pricing {
   glazingMult: Record<string, number>;
   /** The installer's profit margin over the prices, percent with decimals. */
   marginPercent: number;
+  /** The installer's own transporter / fitter, euros per m² (0 = the factory's transport is in the price). */
+  ownServicePerM2: number;
   [key: string]: unknown;
 }
 
@@ -158,6 +160,7 @@ export function defaultPricing(): Pricing {
     colorMult: {},
     glazingMult: {},
     marginPercent: 0,
+    ownServicePerM2: 0,
     brandMultiplier: {
       pvc: { aluplast: 1, rehau: 1, kommerling: 1, deceuninck: 1, salamander: 1, schuco: 1, gealan: 1 },
       aluminum: { aluprof: 1, alumil: 1, aliplast: 1, schuco: 1, reynaers: 1, cortizo: 1, exlabesa: 1, alulegno: 1 },
@@ -298,7 +301,8 @@ export function calculate(state: ConfigState, pricing: Pricing, src?: ConfigStat
     (pricing.color[s.color] ?? 0);
 
   // The margin is applied to the unit price in whole cents (basis points), exactly as the server does.
-  const baseCents = Math.round((materialCost + profileCost + optionsCost) * 100);
+  const serviceCost = Math.round(Math.max(0, pricing.ownServicePerM2) * 100 * areaM2) / 100;
+  const baseCents = Math.round((materialCost + profileCost + optionsCost + serviceCost) * 100);
   const unitPrice = applyMarginCents(baseCents, pricing.marginPercent) / 100;
   const totalPrice = unitPrice * s.quantity;
 

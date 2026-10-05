@@ -2585,7 +2585,19 @@
     "exampleMargin": "Your margin",
     "exampleFinal": "Final price",
     "exampleInvalid": "Enter a valid width and height.",
-    "exampleNote": "Indicative example with double glazing, white, standard hardware: supply with factory transport, VAT excluded, no installation."
+    "exampleNote": "Indicative example with double glazing, white, standard hardware: supply with factory transport, VAT excluded, no installation.",
+    "delivery": {
+      "title": "Delivery and fitting",
+      "help": "The standard price already includes transport from the factory to you. If the windows are delivered or fitted by a transporter or fitter you choose, enter what they charge per square metre: it is added to the price of each window (before your margin).",
+      "factory": "Factory transport",
+      "factoryHint": "Transport from the factory to the installer is already in the price.",
+      "own": "My own transporter / fitter",
+      "ownHint": "I add what my transport or fitting supplier charges me per m² to the price.",
+      "rate": "Cost of my transporter / fitter",
+      "invalid": "Enter an amount between 0 and 1,000 € with at most two decimals.",
+      "needRate": "Enter the amount per m² to switch this option on.",
+      "exampleService": "own transporter / fitter"
+    }
   },
   "fiscal": {
     "title": "Customer tax data and VAT",

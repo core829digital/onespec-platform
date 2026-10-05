@@ -2585,7 +2585,19 @@
     "exampleMargin": "Ihre Marge",
     "exampleFinal": "Endpreis",
     "exampleInvalid": "Geben Sie eine gültige Breite und Höhe ein.",
-    "exampleNote": "Richtbeispiel mit Zweifachverglasung, weiß, Standardbeschlägen: Lieferung mit Werkstransport, ohne MwSt., ohne Montage."
+    "exampleNote": "Richtbeispiel mit Zweifachverglasung, weiß, Standardbeschlägen: Lieferung mit Werkstransport, ohne MwSt., ohne Montage.",
+    "delivery": {
+      "title": "Lieferung und Montage",
+      "help": "Im Standardpreis ist der Transport vom Werk zu Ihnen bereits enthalten. Werden die Fenster von einem Transporteur oder Monteur Ihrer Wahl geliefert oder montiert, geben Sie ein, was dieser pro Quadratmeter berechnet: Es wird auf den Preis jedes Fensters aufgeschlagen (vor Ihrer Marge).",
+      "factory": "Werkstransport",
+      "factoryHint": "Der Transport vom Werk zum Monteur ist bereits im Preis enthalten.",
+      "own": "Mein eigener Transporteur / Monteur",
+      "ownHint": "Ich schlage auf den Preis auf, was mein Transport- oder Montagepartner pro m² berechnet.",
+      "rate": "Kosten meines Transporteurs / Monteurs",
+      "invalid": "Geben Sie einen Betrag zwischen 0 und 1.000 € mit höchstens zwei Dezimalstellen ein.",
+      "needRate": "Geben Sie den Betrag pro m² ein, um diese Option zu aktivieren.",
+      "exampleService": "eigener Transporteur / Monteur"
+    }
   },
   "fiscal": {
     "title": "Steuerdaten des Kunden und MwSt.",

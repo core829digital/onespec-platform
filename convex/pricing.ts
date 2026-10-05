@@ -39,6 +39,32 @@ export const setMargin = mutation({
   },
 });
 
+/** Highest per-m² charge accepted for the installer's own transporter / fitter: 1000 EUR, in cents. */
+export const MAX_OWN_SERVICE_PER_M2_CENTS = 100_000;
+
+/**
+ * Who delivers and fits: the factory's transport is already inside the standard price ("factory"), or the installer uses their own
+ * transporter / fitter and enters what that supplier charges per m² ("own"). The rate is kept when switching back, but only
+ * counts in "own" mode. Published with the catalogue.
+ */
+export const setDelivery = mutation({
+  args: { configuratorId: v.id("configurators"), mode: v.union(v.literal("factory"), v.literal("own")), perM2Cents: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    const configurator = await ctx.db.get(args.configuratorId);
+    if (!configurator || configurator.deletingAt !== undefined) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
+    await requirePermission(ctx, configurator.tenantId, "configurators.manage");
+    const patch: { deliveryMode: "factory" | "own"; ownServicePerM2Cents?: number; updatedAt: number } = { deliveryMode: args.mode, updatedAt: Date.now() };
+    if (args.perM2Cents !== undefined) {
+      const c = args.perM2Cents;
+      if (!Number.isInteger(c) || c < 0 || c > MAX_OWN_SERVICE_PER_M2_CENTS) throw new ConvexError("INVALID_INPUT");
+      patch.ownServicePerM2Cents = c;
+    }
+    if (args.mode === "own" && (patch.ownServicePerM2Cents ?? configurator.ownServicePerM2Cents ?? 0) <= 0) throw new ConvexError("INVALID_INPUT");
+    await ctx.db.patch(args.configuratorId, patch);
+    return { deliveryMode: args.mode, ownServicePerM2Cents: patch.ownServicePerM2Cents ?? configurator.ownServicePerM2Cents ?? 0 };
+  },
+});
+
 /** Price this configurator from the standard price list of the installer's zone (nothing is deleted). */
 export const applyStandard = mutation({
   args: { configuratorId: v.id("configurators") },

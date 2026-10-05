@@ -126,3 +126,31 @@ describe("onboarding: price zone step", () => {
   });
 });
 
+describe("delivery: factory transport or the installer's own transporter / fitter", () => {
+  test("setDelivery stores the rate, publishes it only in own mode, validates it and needs the permission", async () => {
+    const { t, s, as, asMember } = await italianTenant("centro");
+    const { configuratorId } = await as.mutation(api.configurators.createConfigurator, { tenantId: s.tenantId, name: "Consegna test" });
+    const snapshot = async () => {
+      await as.mutation(api.configurators.publishConfigurator, { configuratorId });
+      const versions = await t.run((ctx) => ctx.db.query("catalogVersions").withIndex("by_configurator_version", (q) => q.eq("configuratorId", configuratorId)).collect());
+      return versions.sort((a, b) => a.version - b.version).at(-1)!.payload as { configurator: { deliveryMode?: string; ownServicePerM2Cents?: number } };
+    };
+    expect((await snapshot()).configurator.deliveryMode).toBeUndefined();
+
+    await expect(as.mutation(api.pricing.setDelivery, { configuratorId, mode: "own" })).rejects.toThrow(/INVALID_INPUT/); // own without a rate
+    await expect(as.mutation(api.pricing.setDelivery, { configuratorId, mode: "own", perM2Cents: -1 })).rejects.toThrow(/INVALID_INPUT/);
+    await expect(as.mutation(api.pricing.setDelivery, { configuratorId, mode: "own", perM2Cents: 100_001 })).rejects.toThrow(/INVALID_INPUT/);
+    await expect(as.mutation(api.pricing.setDelivery, { configuratorId, mode: "own", perM2Cents: 12.5 })).rejects.toThrow(/INVALID_INPUT/);
+    await expect(asMember.mutation(api.pricing.setDelivery, { configuratorId, mode: "own", perM2Cents: 1500 })).rejects.toThrow();
+
+    expect(await as.mutation(api.pricing.setDelivery, { configuratorId, mode: "own", perM2Cents: 1500 })).toEqual({ deliveryMode: "own", ownServicePerM2Cents: 1500 });
+    expect((await snapshot()).configurator).toMatchObject({ deliveryMode: "own", ownServicePerM2Cents: 1500 });
+
+    // Back to the factory: the rate is remembered but no longer published.
+    await as.mutation(api.pricing.setDelivery, { configuratorId, mode: "factory" });
+    expect((await snapshot()).configurator.deliveryMode).toBeUndefined();
+    expect((await t.run((ctx) => ctx.db.get(configuratorId)))?.ownServicePerM2Cents).toBe(1500);
+    expect(await as.mutation(api.pricing.setDelivery, { configuratorId, mode: "own" })).toEqual({ deliveryMode: "own", ownServicePerM2Cents: 1500 });
+  });
+});
+

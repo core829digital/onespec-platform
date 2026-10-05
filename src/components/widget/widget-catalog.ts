@@ -55,7 +55,7 @@ interface HardwareRow extends Row {
 }
 
 export interface WidgetCatalog {
-  configurator?: { pricingMode?: "standard" | "custom"; marginPercent?: number };
+  configurator?: { pricingMode?: "standard" | "custom"; marginPercent?: number; deliveryMode?: "factory" | "own"; ownServicePerM2Cents?: number };
   materials?: MaterialRow[];
   qualityTiers?: QualityRow[];
   profileSystems?: QualityRow[];
@@ -263,6 +263,8 @@ export function catalogPricing(rawCat: WidgetCatalog | undefined): Pricing {
   }
   const margin = cat.configurator?.marginPercent;
   p.marginPercent = typeof margin === "number" && Number.isFinite(margin) && margin > 0 ? margin : 0;
+  const own = cat.configurator?.ownServicePerM2Cents;
+  p.ownServicePerM2 = cat.configurator?.deliveryMode === "own" && typeof own === "number" && Number.isFinite(own) && own > 0 ? own / 100 : 0;
 
   const hw = (kind: string) => priceMap(cat.hardware?.filter((h) => h.kind === kind));
   const sashType = hw("sashType");

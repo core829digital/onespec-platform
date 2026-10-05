@@ -26,6 +26,9 @@ export interface CatalogPayload {
     priceZone?: "nord" | "centro" | "sud";
     /** Installer's profit margin over the prices, percent with decimals. */
     marginPercent?: number;
+    /** "own": the installer's own transporter / fitter, charged per m² on top of the supply price. */
+    deliveryMode?: "factory" | "own";
+    ownServicePerM2Cents?: number;
   };
   branding: {
     whiteLabel: boolean;
@@ -250,6 +253,8 @@ export interface ItemBreakdown {
   optionsCost: number;
   /** Installer's margin included in `unitPrice`, cents per unit (0 when none). */
   marginCents?: number;
+  /** The installer's own transporter / fitter for this piece (cents), when charged per m². */
+  serviceCost?: number;
   unitPrice: number;
   quantity: number;
   itemTotalCents: number;
@@ -419,8 +424,11 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
       (glazing?.priceCents || 0) + Math.round((glazing?.pricePerM2Cents || 0) * areaM2) +
       (finish?.priceCents || 0) + screenCost + accessoriesCost + categoryBase;
 
+    // The installer's own transporter / fitter, charged per m² (VAT excluded), instead of the factory's transport.
+    const serviceCost = payload.configurator.deliveryMode === "own" ? Math.round(Math.max(0, payload.configurator.ownServicePerM2Cents ?? 0) * areaM2) : 0;
+
     // The installer's margin is applied to the whole unit price, in integer basis points (no floating drift).
-    const baseUnit = materialCost + profileCost + optionsCost;
+    const baseUnit = materialCost + profileCost + optionsCost + serviceCost;
     const unitPrice = applyMarginCents(baseUnit, payload.configurator.marginPercent);
     const marginCents = unitPrice - baseUnit;
     const itemTotal = unitPrice * item.quantity;
@@ -430,6 +438,8 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
 
     itemBreakdowns.push({
       areaM2, perimeterM, materialCost, profileCost, optionsCost,
+      ...(serviceCost > 0 ? { serviceCost } : {}),
+      ...(serviceCost > 0 ? { serviceCost } : {}),
       ...(marginCents !== 0 ? { marginCents } : {}),
       unitPrice, quantity: item.quantity, itemTotalCents: itemTotal,
     });

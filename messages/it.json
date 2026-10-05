@@ -2585,7 +2585,19 @@
     "exampleMargin": "Il tuo margine",
     "exampleFinal": "Prezzo finale",
     "exampleInvalid": "Inserisci larghezza e altezza valide.",
-    "exampleNote": "Esempio indicativo con vetro doppio, bianco, ferramenta standard: fornitura con trasporto dalla fabbrica, IVA esclusa, senza posa."
+    "exampleNote": "Esempio indicativo con vetro doppio, bianco, ferramenta standard: fornitura con trasporto dalla fabbrica, IVA esclusa, senza posa.",
+    "delivery": {
+      "title": "Consegna e posa",
+      "help": "Nel prezzo standard c'è già il trasporto dalla fabbrica fino a te. Se invece i serramenti li consegna o li monta un trasportatore o montatore che scegli tu, inserisci quanto ti chiede al metro quadro: verrà aggiunto al prezzo di ogni finestra (prima del tuo margine).",
+      "factory": "Trasporto della fabbrica",
+      "factoryHint": "Il trasporto dalla fabbrica al montatore è già incluso nel prezzo.",
+      "own": "Il mio trasportatore / montatore",
+      "ownHint": "Aggiungo al prezzo quanto mi chiede il mio fornitore di trasporto o posa, al m².",
+      "rate": "Costo del mio trasportatore / montatore",
+      "invalid": "Inserisci un importo tra 0 e 1.000 € con al massimo due decimali.",
+      "needRate": "Inserisci l'importo al m² per attivare questa opzione.",
+      "exampleService": "trasportatore / montatore proprio"
+    }
   },
   "fiscal": {
     "title": "Fiscalità del cliente e IVA",

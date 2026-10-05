@@ -15,6 +15,7 @@ import {
   applyMarginCents,
   isPriceZone,
   marginOnPricePercent,
+  parseEuroPerM2Input,
   parseMarginInput,
   resolveStandardPrice,
   standardProfileByKey,
@@ -33,6 +34,7 @@ export function PricingTab({ configuratorId, configurator }: { configuratorId: I
   const setPriceZone = useMutation(api.pricing.setPriceZone);
   const applyStandard = useMutation(api.pricing.applyStandard);
   const setCustom = useMutation(api.pricing.useCustomPricing);
+  const setDelivery = useMutation(api.pricing.setDelivery);
 
   const saved = configurator.marginPercent ?? 0;
   const [value, setValue] = useState(saved);
@@ -40,6 +42,32 @@ export function PricingTab({ configuratorId, configurator }: { configuratorId: I
   const [status, setStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [err, setErr] = useState("");
   const [note, setNote] = useState("");
+
+  // Delivery: the factory's transport is in the price, or the installer's own transporter / fitter charges per m².
+  const savedMode = configurator.deliveryMode ?? "factory";
+  const savedRate = configurator.ownServicePerM2Cents ?? 0;
+  const [deliveryMode, setDeliveryMode] = useState<"factory" | "own">(savedMode);
+  const [rateText, setRateText] = useState(savedRate ? (savedRate / 100).toFixed(2).replace(".", ",") : "");
+  const [prevDelivery, setPrevDelivery] = useState(`${savedMode}:${savedRate}`);
+  if (prevDelivery !== `${savedMode}:${savedRate}`) {
+    setPrevDelivery(`${savedMode}:${savedRate}`);
+    setDeliveryMode(savedMode);
+    setRateText(savedRate ? (savedRate / 100).toFixed(2).replace(".", ",") : "");
+  }
+  const rateCents = parseEuroPerM2Input(rateText);
+  const rateInvalid = rateText.trim() !== "" && rateCents === null;
+  const serviceCentsPerM2 = deliveryMode === "own" && rateCents ? rateCents : 0;
+
+  async function saveDelivery(nextMode: "factory" | "own", nextRate: number | null) {
+    setErr("");
+    if (nextMode === "own" && !(nextRate && nextRate > 0)) return;
+    try {
+      await setDelivery({ configuratorId, mode: nextMode, perM2Cents: nextRate ?? undefined });
+      setNote(t("republish"));
+    } catch (e) {
+      setErr(tf(e));
+    }
+  }
 
   // Follow the server value (another tab, a restore) whenever it changes.
   const [prevSaved, setPrevSaved] = useState(saved);
@@ -63,10 +91,12 @@ export function PricingTab({ configuratorId, configurator }: { configuratorId: I
     const profile = standardProfileByKey(profileKey);
     if (!profile || !zone || !(w > 0) || !(h > 0)) return null;
     const area = (w * h) / 1_000_000;
-    const base = Math.round(resolveStandardPrice(profile, zone).completePerM2Cents * area);
+    const supply = Math.round(resolveStandardPrice(profile, zone).completePerM2Cents * area);
+    const service = Math.round(serviceCentsPerM2 * area);
+    const base = supply + service;
     const final = applyMarginCents(base, value);
-    return { area, base, margin: final - base, final };
-  }, [profileKey, widthMm, heightMm, zone, value]);
+    return { area, supply, service, base, margin: final - base, final };
+  }, [profileKey, widthMm, heightMm, zone, value, serviceCentsPerM2]);
 
   const money = (cents: number) => new Intl.NumberFormat(locale, { style: "currency", currency: configurator.currency || "EUR" }).format(cents / 100);
   const pct = (n: number) => new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(n);
@@ -152,6 +182,40 @@ export function PricingTab({ configuratorId, configurator }: { configuratorId: I
       ) : (
         <p className="rounded-xl border border-[var(--color-border)] p-4 text-sm text-[var(--color-text-secondary)]">{t("notItaly")}</p>
       )}
+
+      <section className="space-y-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
+        <h3 className="font-semibold text-[var(--color-text)]">{t("delivery.title")}</h3>
+        <p className="text-sm text-[var(--color-text-secondary)]">{t("delivery.help")}</p>
+        <div role="radiogroup" aria-label={t("delivery.title")} className="grid gap-2 sm:grid-cols-2">
+          {(["factory", "own"] as const).map((m) => (
+            <label key={m} className={`cursor-pointer rounded-lg border p-3 text-sm focus-within:ring-2 focus-within:ring-[var(--color-mint)] ${deliveryMode === m ? "border-[var(--color-mint)] bg-[var(--color-mint-light)]" : "border-[var(--color-border)]"}`}>
+              <input type="radio" name="delivery-mode" className="sr-only" checked={deliveryMode === m} onChange={() => { setDeliveryMode(m); if (m === "factory") void saveDelivery("factory", null); else if (rateCents) void saveDelivery("own", rateCents); }} />
+              <span className="block font-semibold text-[var(--color-text)]">{t(`delivery.${m}`)}</span>
+              <span className="mt-1 block text-xs text-[var(--color-text-secondary)]">{t(`delivery.${m}Hint`)}</span>
+            </label>
+          ))}
+        </div>
+        {deliveryMode === "own" ? (
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="flex items-center gap-2 text-sm text-[var(--color-text)]">
+              <span>{t("delivery.rate")}</span>
+              <input
+                type="text"
+                inputMode="decimal"
+                value={rateText}
+                aria-invalid={rateInvalid}
+                onChange={(e) => setRateText(e.target.value.replace(/[^\d.,]/g, "").slice(0, 8))}
+                onBlur={() => void saveDelivery("own", rateCents)}
+                onKeyDown={(e) => { if (e.key === "Enter") void saveDelivery("own", rateCents); }}
+                className="w-28 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-right"
+              />
+              <span aria-hidden>€/m²</span>
+            </label>
+            {rateInvalid ? <p className="text-xs text-[var(--color-danger)]">{t("delivery.invalid")}</p> : null}
+            {!rateText.trim() ? <p className="text-xs text-[var(--color-text-secondary)]">{t("delivery.needRate")}</p> : null}
+          </div>
+        ) : null}
+      </section>
 
       <section className="space-y-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
         <h3 className="font-semibold text-[var(--color-text)]">{t("marginTitle")}</h3>
@@ -240,7 +304,8 @@ export function PricingTab({ configuratorId, configurator }: { configuratorId: I
             <dl className="grid gap-2 text-sm sm:grid-cols-3">
               <div className="rounded-lg border border-[var(--color-border)] p-3">
                 <dt className="text-xs text-[var(--color-text-secondary)]">{t("exampleBase", { area: pct(example.area) })}</dt>
-                <dd className="text-lg font-bold text-[var(--color-text)]">{money(example.base)}</dd>
+                <dd className="text-lg font-bold text-[var(--color-text)]">{money(example.supply)}</dd>
+                {example.service > 0 ? <dd className="text-xs text-[var(--color-text-secondary)]">+ {money(example.service)} {t("delivery.exampleService")}</dd> : null}
               </div>
               <div className="rounded-lg border border-[var(--color-border)] p-3">
                 <dt className="text-xs text-[var(--color-text-secondary)]">{t("exampleMargin")}</dt>

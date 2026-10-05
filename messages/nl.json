@@ -2585,7 +2585,19 @@
     "exampleMargin": "Uw marge",
     "exampleFinal": "Eindprijs",
     "exampleInvalid": "Voer een geldige breedte en hoogte in.",
-    "exampleNote": "Indicatief voorbeeld met dubbel glas, wit, standaard beslag: levering met transport vanaf de fabriek, excl. BTW, zonder montage."
+    "exampleNote": "Indicatief voorbeeld met dubbel glas, wit, standaard beslag: levering met transport vanaf de fabriek, excl. BTW, zonder montage.",
+    "delivery": {
+      "title": "Levering en montage",
+      "help": "De standaardprijs bevat al het transport van de fabriek naar u. Worden de ramen geleverd of gemonteerd door een transporteur of monteur naar keuze, voer dan in wat die per vierkante meter rekent: het wordt bij de prijs van elk raam opgeteld (vóór uw marge).",
+      "factory": "Transport van de fabriek",
+      "factoryHint": "Het transport van de fabriek naar de monteur zit al in de prijs.",
+      "own": "Mijn eigen transporteur / monteur",
+      "ownHint": "Ik tel bij de prijs op wat mijn transport- of montagepartner per m² rekent.",
+      "rate": "Kosten van mijn transporteur / monteur",
+      "invalid": "Voer een bedrag in tussen 0 en 1.000 € met hooguit twee decimalen.",
+      "needRate": "Voer het bedrag per m² in om deze optie te activeren.",
+      "exampleService": "eigen transporteur / monteur"
+    }
   },
   "fiscal": {
     "title": "Fiscale gegevens van de klant en btw",

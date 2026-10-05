@@ -57,3 +57,17 @@ describe("pricing tab (server render)", () => {
     expect(fr_).not.toContain("Tabella comparativa");
   });
 });
+
+describe("delivery section (server render)", () => {
+  it("factory by default: two options, no rate field; own mode shows the rate and adds the service to the example", () => {
+    tenant = { country: "IT", priceZone: "centro" };
+    const factory = render("it", it_, { pricingMode: "standard" });
+    expect(factory).toContain('name="delivery-mode"');
+    expect(factory).toContain("Trasporto della fabbrica");
+    expect(factory).not.toContain("Costo del mio trasportatore");
+    const own = render("it", it_, { pricingMode: "standard", deliveryMode: "own", ownServicePerM2Cents: 1500 });
+    expect(own).toContain("Costo del mio trasportatore");
+    expect(own).toContain('value="15,00"');
+    expect(own).toContain("trasportatore / montatore proprio");
+  });
+});

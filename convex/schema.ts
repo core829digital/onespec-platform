@@ -272,6 +272,10 @@ export default defineSchema({
     pricingMode: v.optional(v.union(v.literal("standard"), v.literal("custom"))),
     /** Profit margin the installer adds on top of the prices, percent with decimals (0 - 300). */
     marginPercent: v.optional(v.number()),
+    /** Who delivers / fits: "factory" (the factory's transport is in the price, default) or "own" (the installer's own transporter / fitter, charged per m²). */
+    deliveryMode: v.optional(v.union(v.literal("factory"), v.literal("own"))),
+    /** In "own" mode: what the installer's transporter / fitter charges per m² of window, in cents (VAT excluded). */
+    ownServicePerM2Cents: v.optional(v.number()),
   })
     .index("by_tenant", ["tenantId"])
     .index("by_publicId", ["publicId"])

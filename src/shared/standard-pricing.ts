@@ -151,6 +151,15 @@ export function marginOnPricePercent(markupPercent: number): number {
   return bp === 0 ? 0 : Math.round((bp / (10000 + bp)) * 10000) / 100;
 }
 
+/** Euros typed by the installer ("12,5", "12.50", "7") -> whole cents, or null when it is not an amount of 0 - 1000 with at most two decimals. */
+export function parseEuroPerM2Input(raw: string): number | null {
+  const s = raw.trim().replace(",", ".");
+  if (!/^\d{1,4}(\.\d{0,2})?$/.test(s)) return null;
+  const [whole, frac = ""] = s.split(".");
+  const cents = Number(whole) * 100 + Number((frac + "00").slice(0, 2));
+  return cents <= 100_000 ? cents : null;
+}
+
 /** Normalise what the installer typed: a finite number clamped to 0..MAX, two decimals; comma or dot accepted. */
 export function parseMarginInput(raw: string | number): number | null {
   const n = typeof raw === "number" ? raw : Number(raw.trim().replace(",", "."));

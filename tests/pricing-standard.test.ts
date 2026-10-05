@@ -149,3 +149,41 @@ describe("the widget's live estimate agrees with the server price", () => {
     });
   }
 });
+
+describe("delivery by the installer's own transporter / fitter (EUR per m2, VAT excluded)", () => {
+  const AREA = 1.2 * 1.4;
+  const base = Math.round(toSupplyCents(26500) * AREA);
+  const centro = (over: object) => unit(payload({ configurator: { pricingMode: "standard", ...over } as never, zone: "centro" }), item());
+
+  it("factory mode (default): nothing is added; own mode adds rate x area to each piece, before the margin", () => {
+    expect(centro({}).unitPrice).toBe(base);
+    expect(centro({ deliveryMode: "factory", ownServicePerM2Cents: 1500 }).unitPrice).toBe(base);
+    const own = centro({ deliveryMode: "own", ownServicePerM2Cents: 1500 });
+    expect(own.serviceCost).toBe(Math.round(1500 * AREA));
+    expect(own.unitPrice).toBe(base + Math.round(1500 * AREA));
+    const withMargin = centro({ deliveryMode: "own", ownServicePerM2Cents: 1500, marginPercent: 10 });
+    expect(withMargin.unitPrice).toBe(Math.round(((base + Math.round(1500 * AREA)) * 11000) / 10000));
+  });
+
+  it("a negative or missing rate adds nothing; the quantity multiplies", () => {
+    expect(centro({ deliveryMode: "own", ownServicePerM2Cents: -500 }).unitPrice).toBe(base);
+    expect(centro({ deliveryMode: "own" }).unitPrice).toBe(base);
+    const q = unit(payload({ configurator: { pricingMode: "standard", deliveryMode: "own", ownServicePerM2Cents: 1500 } as never, zone: "centro" }), item({ quantity: 3 }));
+    expect(q.itemTotalCents).toBe(q.unitPrice * 3);
+  });
+
+  it("the widget's live estimate agrees with the server price (decimals included)", () => {
+    for (const [rateCents, margin] of [[1500, 0], [1234, 12.5], [1, 0.01], [99999, 7.35]] as const) {
+      const configurator = { pricingMode: "standard" as const, deliveryMode: "own" as const, ownServicePerM2Cents: rateCents, marginPercent: margin };
+      const p = payload({ configurator, zone: "centro" });
+      const server = unit(p, item({ width: 1432, height: 1548 })).unitPrice;
+      const pricing = catalogPricing({
+        configurator,
+        materials: p.materials, qualityTiers: p.qualityTiers, profileSystems: p.profileSystems, glazing: p.glazing, finish: p.finish, hardware: p.hardware,
+      } as unknown as WidgetCatalog);
+      const state = { ...defaultConfig(), width: 1432, height: 1548, quality: { pvc: "chamber5", wood: "pine", aluminum: "standard" }, brand: { pvc: PROFILE, aluminum: "x" }, glazing: "double", color: "white" };
+      const client = calculate({ ...state, sashes: [{ type: "classic", direction: "left", active: true, hardware: "maco", hardwareColor: "white" }, { type: "tiltturn", direction: "right", active: true, hardware: "maco", hardwareColor: "white" }] } as never, pricing).unitPrice;
+      expect(Math.abs(client * 100 - server)).toBeLessThanOrEqual(1);
+    }
+  });
+});

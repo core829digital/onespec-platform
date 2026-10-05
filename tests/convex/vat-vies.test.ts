@@ -21,7 +21,8 @@ async function setup(country = "IT") {
   return { t, s, as, configuratorId, quote };
 }
 
-const viesAnswer = (body: unknown, status = 200) => vi.fn(async (..._args: unknown[]) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } }));
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const viesAnswer = (body: unknown, status = 200) => vi.fn(async (_url: string) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } }));
 const VALID = { isValid: true, userError: "VALID", name: "ACME GMBH", address: "HAUPTSTR 1 BERLIN", requestIdentifier: "WAPIAAAA1" };
 
 describe("VIES check", () => {

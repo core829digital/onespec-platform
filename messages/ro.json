@@ -2585,7 +2585,19 @@
     "exampleMargin": "Marja dvs.",
     "exampleFinal": "Preț final",
     "exampleInvalid": "Introduceți o lățime și o înălțime valide.",
-    "exampleNote": "Exemplu orientativ cu geam dublu, alb, feronerie standard: livrare cu transport de la fabrică, fără TVA, fără montaj."
+    "exampleNote": "Exemplu orientativ cu geam dublu, alb, feronerie standard: livrare cu transport de la fabrică, fără TVA, fără montaj.",
+    "delivery": {
+      "title": "Livrare și montaj",
+      "help": "Prețul standard include deja transportul de la fabrică până la dvs. Dacă ferestrele sunt livrate sau montate de un transportator sau montator ales de dvs., introduceți cât cere pe metru pătrat: se adaugă la prețul fiecărei ferestre (înainte de marja dvs.).",
+      "factory": "Transportul fabricii",
+      "factoryHint": "Transportul de la fabrică la montator este deja inclus în preț.",
+      "own": "Transportatorul / montatorul meu",
+      "ownHint": "Adaug la preț cât îmi cere furnizorul meu de transport sau montaj, pe m².",
+      "rate": "Costul transportatorului / montatorului meu",
+      "invalid": "Introduceți o sumă între 0 și 1.000 € cu cel mult două zecimale.",
+      "needRate": "Introduceți suma pe m² pentru a activa această opțiune.",
+      "exampleService": "transportator / montator propriu"
+    }
   },
   "fiscal": {
     "title": "Date fiscale ale clientului și TVA",

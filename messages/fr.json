@@ -2585,7 +2585,19 @@
     "exampleMargin": "Votre marge",
     "exampleFinal": "Prix final",
     "exampleInvalid": "Saisissez une largeur et une hauteur valides.",
-    "exampleNote": "Exemple indicatif avec double vitrage, blanc, quincaillerie standard : fourniture avec transport depuis l'usine, hors TVA, sans pose."
+    "exampleNote": "Exemple indicatif avec double vitrage, blanc, quincaillerie standard : fourniture avec transport depuis l'usine, hors TVA, sans pose.",
+    "delivery": {
+      "title": "Livraison et pose",
+      "help": "Le prix standard inclut déjà le transport de l'usine jusqu'à vous. Si les fenêtres sont livrées ou posées par un transporteur ou un poseur de votre choix, saisissez ce qu'il facture au mètre carré : c'est ajouté au prix de chaque fenêtre (avant votre marge).",
+      "factory": "Transport de l'usine",
+      "factoryHint": "Le transport de l'usine à l'installateur est déjà inclus dans le prix.",
+      "own": "Mon transporteur / poseur",
+      "ownHint": "J'ajoute au prix ce que me facture mon prestataire de transport ou de pose, au m².",
+      "rate": "Coût de mon transporteur / poseur",
+      "invalid": "Saisissez un montant entre 0 et 1 000 € avec au plus deux décimales.",
+      "needRate": "Saisissez le montant au m² pour activer cette option.",
+      "exampleService": "transporteur / poseur propre"
+    }
   },
   "fiscal": {
     "title": "Données fiscales du client et TVA",
