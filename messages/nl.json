@@ -2114,9 +2114,9 @@
       "materialsTitle": "Materialen",
       "materialsDesc": "Basisprijs per m² en per strekkende meter profiel (excl. btw).",
       "profilesTitle": "Profielsystemen / merken",
-      "profilesDesc": "Prijsfactor per profielmerk (Aluplast, Rehau, Schüco…). Alleen kunststof en aluminium.",
+      "profilesDesc": "Elk profiel hoort bij een kwaliteit (aantal kamers): in de offerte, de showroom en de widget verschijnt het alleen onder zijn eigen kwaliteit. Een niet-ingedeeld profiel verschijnt onder alle. Alleen PVC en aluminium.",
       "qualityTitle": "Kwaliteitsniveaus",
-      "qualityDesc": "Prijsfactor per materiaal (bijv. aantal kamers).",
+      "qualityDesc": "Kwaliteitsniveaus per materiaal (bijv. 5, 6 of 7 kamers). Een niveau dat door profielen wordt gebruikt kan niet worden verwijderd: verplaats eerst de profielen.",
       "sectionFor": "{section} — {name}",
       "frameTitle": "Kozijntype",
       "frameDesc": "Prijsfactor per kozijntype, plus montageloon (1/2/3+ vleugels), afvoer en steiger.",
@@ -2170,7 +2170,25 @@
       "delete": "Verwijderen",
       "addPlus": "+ Toevoegen",
       "add": "Toevoegen",
-      "cancel": "Annuleren"
+      "cancel": "Annuleren",
+      "profileQuality": "Kwaliteit",
+      "unclassified": "— niet ingedeeld —",
+      "unclassifiedHint": "Verschijnt onder elke kwaliteit: kies er één.",
+      "gasket_standard": "standaardafdichting",
+      "gasket_triple": "drievoudige afdichting",
+      "maxGlass": "glas tot {mm} mm",
+      "check": {
+        "title": "Cataloguscontrole",
+        "desc": "Controleert of kwaliteit, profielen en beglazing goed gekoppeld zijn, zodat de monteur alleen passende keuzes ziet.",
+        "ok": "Alles in orde: kwaliteit, profielen en beglazing sluiten op elkaar aan.",
+        "update": "Deze catalogus is van vóór de indeling: sommige profielen hebben hun kwaliteit nog niet en een niveau (bijv. 6 kamers) ontbreekt. Werk hem bij met één klik: er wordt geen prijs gewijzigd en niets verwijderd.",
+        "updateBtn": "Catalogus bijwerken",
+        "noQuality": "{material}: er is geen actief kwaliteitsniveau.",
+        "qualityWithoutProfiles": "{material}: de kwaliteit «{quality}» heeft geen gekoppelde profielen.",
+        "profileUnclassified": "Het profiel «{profile}» is niet ingedeeld: het verschijnt onder elke kwaliteit.",
+        "profileQualityOff": "Het profiel «{profile}» hoort bij de kwaliteit «{quality}», die is uitgeschakeld of niet bestaat.",
+        "profileNoGlazing": "Er past geen beglazing in het profiel «{profile}» (de bouwdiepte is te klein)."
+      }
     }
   },
   "invite": {

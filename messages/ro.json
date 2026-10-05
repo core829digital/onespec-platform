@@ -2114,9 +2114,9 @@
       "materialsTitle": "Materiale",
       "materialsDesc": "Preț de bază pe m² și pe metru liniar de profil (fără TVA).",
       "profilesTitle": "Sisteme de profile / mărci",
-      "profilesDesc": "Coeficient de preț pe marcă de profil (Aluplast, Rehau, Schüco…). Doar PVC și aluminiu.",
+      "profilesDesc": "Fiecare profil aparține unei calități (număr de camere): în ofertă, showroom și widget apare doar sub calitatea sa. Un profil neclasificat apare sub toate. Doar PVC și aluminiu.",
       "qualityTitle": "Niveluri de calitate",
-      "qualityDesc": "Coeficient de preț pe material (ex. număr de camere).",
+      "qualityDesc": "Niveluri de calitate pe material (ex. 5, 6 sau 7 camere). Un nivel folosit de profile nu poate fi șters: mutați mai întâi profilele.",
       "sectionFor": "{section} — {name}",
       "frameTitle": "Tip de toc",
       "frameDesc": "Coeficient de preț pe tip de toc, plus manopera de montaj (1/2/3+ canaturi), eliminare și schelă.",
@@ -2170,7 +2170,25 @@
       "delete": "Șterge",
       "addPlus": "+ Adaugă",
       "add": "Adaugă",
-      "cancel": "Anulează"
+      "cancel": "Anulează",
+      "profileQuality": "Calitate",
+      "unclassified": "— neclasificat —",
+      "unclassifiedHint": "Apare sub orice calitate: alegeți una.",
+      "gasket_standard": "garnitură standard",
+      "gasket_triple": "garnitură triplă",
+      "maxGlass": "geam până la {mm} mm",
+      "check": {
+        "title": "Verificare catalog",
+        "desc": "Verifică dacă calitatea, profilele și geamurile sunt legate corect, astfel încât montatorul să vadă doar variante compatibile.",
+        "ok": "Totul în ordine: calitatea, profilele și geamurile sunt coerente.",
+        "update": "Acest catalog este anterior clasificării: unele profile nu au încă calitatea lor și lipsește un nivel (ex. 6 camere). Actualizați-l dintr-un clic: niciun preț nu se schimbă și nimic nu se șterge.",
+        "updateBtn": "Actualizează catalogul",
+        "noQuality": "{material}: nu există niciun nivel de calitate activ.",
+        "qualityWithoutProfiles": "{material}: calitatea «{quality}» nu are profile asociate.",
+        "profileUnclassified": "Profilul «{profile}» nu este clasificat: apare sub orice calitate.",
+        "profileQualityOff": "Profilul «{profile}» aparține calității «{quality}», care este dezactivată sau nu există.",
+        "profileNoGlazing": "Niciun geam nu se potrivește profilului «{profile}» (adâncimea este prea mică)."
+      }
     }
   },
   "invite": {

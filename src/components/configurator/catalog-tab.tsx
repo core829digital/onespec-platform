@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { CatalogEditorProvider, useCatalogEditor } from "./catalog/store";
 import { MaterialsSection, QualitySection, ProfileSystemsSection } from "./catalog/materials";
 import { GlazingSection, FinishSection, HardwareSection, SizeSection } from "./catalog/options";
+import { CatalogCheck } from "./catalog/catalog-check";
 import { FrameTypesSection, AccessoriesSection } from "./catalog/frames-accessories";
 
 interface EditorState {
@@ -46,9 +47,10 @@ export function CatalogTab({
       <div className="space-y-6">
         <ErrorBanner />
         <p className="text-sm text-[var(--color-text-secondary)]">{t("draftNote", { lang: t(`lang_${lang}`) })}</p>
+        <CatalogCheck materials={state.materials} qualityTiers={state.qualityTiers} profileSystems={state.profileSystems} glazing={state.glazing} />
         <MaterialsSection materials={state.materials} />
         <QualitySection materials={state.materials} qualityTiers={state.qualityTiers} />
-        <ProfileSystemsSection materials={state.materials} profileSystems={state.profileSystems} />
+        <ProfileSystemsSection materials={state.materials} profileSystems={state.profileSystems} qualityTiers={state.qualityTiers} />
         <FrameTypesSection frameTypes={state.frameTypes} />
         <GlazingSection rows={state.glazing} />
         <FinishSection rows={state.finish} />

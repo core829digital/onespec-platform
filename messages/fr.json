@@ -2114,9 +2114,9 @@
       "materialsTitle": "Matériaux",
       "materialsDesc": "Prix de base au m² et au mètre linéaire de profilé (HT).",
       "profilesTitle": "Systèmes de profilés / marques",
-      "profilesDesc": "Coefficient de prix par marque de profilé (Aluplast, Rehau, Schüco…). PVC et aluminium uniquement.",
+      "profilesDesc": "Chaque profilé appartient à une qualité (nombre de chambres) : dans le devis, le showroom et le widget il n'apparaît que sous sa qualité. Un profilé non classé apparaît sous toutes. PVC et aluminium uniquement.",
       "qualityTitle": "Niveaux de qualité",
-      "qualityDesc": "Coefficient de prix par matériau (ex. nombre de chambres).",
+      "qualityDesc": "Niveaux de qualité par matériau (ex. 5, 6 ou 7 chambres). Un niveau utilisé par des profilés ne peut pas être supprimé : déplacez d'abord les profilés.",
       "sectionFor": "{section} — {name}",
       "frameTitle": "Type de dormant",
       "frameDesc": "Coefficient de prix par type de dormant, plus la main-d'œuvre de pose (1/2/3+ vantaux), la dépose et l'échafaudage.",
@@ -2170,7 +2170,25 @@
       "delete": "Supprimer",
       "addPlus": "+ Ajouter",
       "add": "Ajouter",
-      "cancel": "Annuler"
+      "cancel": "Annuler",
+      "profileQuality": "Qualité",
+      "unclassified": "— non classé —",
+      "unclassifiedHint": "Apparaît sous chaque qualité : choisissez-en une.",
+      "gasket_standard": "joint standard",
+      "gasket_triple": "triple joint",
+      "maxGlass": "vitrage jusqu'à {mm} mm",
+      "check": {
+        "title": "Contrôle du catalogue",
+        "desc": "Vérifie que qualité, profilés et vitrages sont bien reliés, pour que l'installateur ne voie que des choix compatibles.",
+        "ok": "Tout est en ordre : qualité, profilés et vitrages sont cohérents.",
+        "update": "Ce catalogue est antérieur à la classification : certains profilés n'ont pas encore leur qualité et un niveau (ex. 6 chambres) manque. Mettez-le à jour en un clic : aucun prix n'est modifié et rien n'est supprimé.",
+        "updateBtn": "Mettre à jour le catalogue",
+        "noQuality": "{material} : aucun niveau de qualité actif.",
+        "qualityWithoutProfiles": "{material} : la qualité « {quality} » n'a aucun profilé associé.",
+        "profileUnclassified": "Le profilé « {profile} » n'est pas classé : il apparaît sous chaque qualité.",
+        "profileQualityOff": "Le profilé « {profile} » appartient à la qualité « {quality} », désactivée ou inexistante.",
+        "profileNoGlazing": "Aucun vitrage ne convient au profilé « {profile} » (sa profondeur est trop faible)."
+      }
     }
   },
   "invite": {

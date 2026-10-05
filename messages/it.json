@@ -2114,9 +2114,9 @@
       "materialsTitle": "Materiali",
       "materialsDesc": "Prezzo base al m² e al metro lineare di profilo (IVA esclusa).",
       "profilesTitle": "Sistemi di profilo / marche",
-      "profilesDesc": "Moltiplicatore di prezzo per marca di profilo (Aluplast, Rehau, Schüco…). Solo PVC e alluminio.",
+      "profilesDesc": "Ogni profilo appartiene a una qualità (numero di camere): nel preventivo, nello showroom e nel widget compare solo sotto la sua qualità. Un profilo non classificato compare sotto tutte. Solo PVC e alluminio.",
       "qualityTitle": "Livelli di qualità",
-      "qualityDesc": "Moltiplicatore di prezzo per materiale (es. numero di camere).",
+      "qualityDesc": "Livelli di qualità per materiale (es. 5, 6 o 7 camere). Un livello usato da dei profili non si può eliminare: sposta prima i profili.",
       "sectionFor": "{section} — {name}",
       "frameTitle": "Tipo di telaio",
       "frameDesc": "Moltiplicatore di prezzo per tipo di telaio, più manodopera di posa (1/2/3+ ante), smaltimento e ponteggio.",
@@ -2170,7 +2170,25 @@
       "delete": "Elimina",
       "addPlus": "+ Aggiungi",
       "add": "Aggiungi",
-      "cancel": "Annulla"
+      "cancel": "Annulla",
+      "profileQuality": "Qualità",
+      "unclassified": "— non classificato —",
+      "unclassifiedHint": "Compare con ogni qualità: scegline una.",
+      "gasket_standard": "guarnizione standard",
+      "gasket_triple": "guarnizione tripla",
+      "maxGlass": "vetro fino a {mm} mm",
+      "check": {
+        "title": "Controllo catalogo",
+        "desc": "Verifica che qualità, profili e vetri siano collegati correttamente, così il montatore vede solo scelte compatibili.",
+        "ok": "Tutto in ordine: qualità, profili e vetri sono coerenti.",
+        "update": "Questo catalogo è precedente alla classificazione: alcuni profili non hanno ancora la loro qualità e manca un livello (es. 6 camere). Aggiornalo con un clic: non viene cambiato nessun prezzo né eliminato nulla.",
+        "updateBtn": "Aggiorna catalogo",
+        "noQuality": "{material}: non c'è nessun livello di qualità attivo.",
+        "qualityWithoutProfiles": "{material}: la qualità «{quality}» non ha profili collegati.",
+        "profileUnclassified": "Il profilo «{profile}» non è classificato: compare sotto ogni qualità.",
+        "profileQualityOff": "Il profilo «{profile}» appartiene alla qualità «{quality}», che è disattivata o non esiste.",
+        "profileNoGlazing": "Per il profilo «{profile}» non c'è nessun vetro compatibile (profondità del profilo troppo ridotta)."
+      }
     }
   },
   "invite": {

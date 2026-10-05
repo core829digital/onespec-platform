@@ -2114,9 +2114,9 @@
       "materialsTitle": "Materialien",
       "materialsDesc": "Grundpreis pro m² und pro laufendem Meter Profil (ohne MwSt.).",
       "profilesTitle": "Profilsysteme / Marken",
-      "profilesDesc": "Preisfaktor je Profilmarke (Aluplast, Rehau, Schüco…). Nur Kunststoff und Aluminium.",
+      "profilesDesc": "Jedes Profil gehört zu einer Qualität (Kammerzahl): Im Angebot, im Showroom und im Widget erscheint es nur unter seiner Qualität. Ein nicht zugeordnetes Profil erscheint unter allen. Nur PVC und Aluminium.",
       "qualityTitle": "Qualitätsstufen",
-      "qualityDesc": "Preisfaktor je Material (z. B. Anzahl der Kammern).",
+      "qualityDesc": "Qualitätsstufen je Material (z. B. 5, 6 oder 7 Kammern). Eine Stufe, die von Profilen genutzt wird, kann nicht gelöscht werden: Verschieben Sie zuerst die Profile.",
       "sectionFor": "{section} — {name}",
       "frameTitle": "Rahmentyp",
       "frameDesc": "Preisfaktor je Rahmentyp, plus Montagelohn (1/2/3+ Flügel), Entsorgung und Gerüst.",
@@ -2170,7 +2170,25 @@
       "delete": "Löschen",
       "addPlus": "+ Hinzufügen",
       "add": "Hinzufügen",
-      "cancel": "Abbrechen"
+      "cancel": "Abbrechen",
+      "profileQuality": "Qualität",
+      "unclassified": "— nicht zugeordnet —",
+      "unclassifiedHint": "Erscheint unter jeder Qualität: Wählen Sie eine.",
+      "gasket_standard": "Standarddichtung",
+      "gasket_triple": "Dreifachdichtung",
+      "maxGlass": "Glas bis {mm} mm",
+      "check": {
+        "title": "Katalogprüfung",
+        "desc": "Prüft, ob Qualität, Profile und Verglasung richtig verknüpft sind, damit der Monteur nur passende Auswahlmöglichkeiten sieht.",
+        "ok": "Alles in Ordnung: Qualität, Profile und Verglasung sind stimmig.",
+        "update": "Dieser Katalog stammt aus der Zeit vor der Zuordnung: Manche Profile haben ihre Qualität noch nicht, und eine Stufe (z. B. 6 Kammern) fehlt. Aktualisieren Sie ihn mit einem Klick: Es wird kein Preis geändert und nichts gelöscht.",
+        "updateBtn": "Katalog aktualisieren",
+        "noQuality": "{material}: Es gibt keine aktive Qualitätsstufe.",
+        "qualityWithoutProfiles": "{material}: Der Qualität „{quality}“ sind keine Profile zugeordnet.",
+        "profileUnclassified": "Das Profil „{profile}“ ist nicht zugeordnet: Es erscheint unter jeder Qualität.",
+        "profileQualityOff": "Das Profil „{profile}“ gehört zur Qualität „{quality}“, die deaktiviert ist oder nicht existiert.",
+        "profileNoGlazing": "Für das Profil „{profile}“ passt keine Verglasung (die Bautiefe ist zu gering)."
+      }
     }
   },
   "invite": {

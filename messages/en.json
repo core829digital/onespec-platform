@@ -2114,9 +2114,9 @@
       "materialsTitle": "Materials",
       "materialsDesc": "Base price per m² and per linear metre of profile (VAT excluded).",
       "profilesTitle": "Profile systems / brands",
-      "profilesDesc": "Price multiplier per profile brand (Aluplast, Rehau, Schüco…). PVC and aluminium only.",
+      "profilesDesc": "Each profile belongs to a quality (number of chambers): in the quote, the showroom and the widget it only appears under its own quality. A profile that is not classified appears under all of them. PVC and aluminium only.",
       "qualityTitle": "Quality levels",
-      "qualityDesc": "Price multiplier per material (e.g. number of chambers).",
+      "qualityDesc": "Quality levels per material (e.g. 5, 6 or 7 chambers). A level used by profiles cannot be deleted: move the profiles first.",
       "sectionFor": "{section} — {name}",
       "frameTitle": "Frame type",
       "frameDesc": "Price multiplier per frame type, plus installation labour (1/2/3+ sashes), disposal and scaffolding.",
@@ -2170,7 +2170,25 @@
       "delete": "Delete",
       "addPlus": "+ Add",
       "add": "Add",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "profileQuality": "Quality",
+      "unclassified": "— not classified —",
+      "unclassifiedHint": "Shown under every quality: choose one.",
+      "gasket_standard": "standard gasket",
+      "gasket_triple": "triple gasket",
+      "maxGlass": "glass up to {mm} mm",
+      "check": {
+        "title": "Catalogue check",
+        "desc": "Checks that quality, profiles and glazing are linked correctly, so the installer only sees compatible choices.",
+        "ok": "All in order: quality, profiles and glazing are consistent.",
+        "update": "This catalogue predates the classification: some profiles do not have their quality yet and a level (e.g. 6 chambers) is missing. Update it with one click: no price is changed and nothing is deleted.",
+        "updateBtn": "Update catalogue",
+        "noQuality": "{material}: there is no active quality level.",
+        "qualityWithoutProfiles": "{material}: the quality “{quality}” has no profiles linked.",
+        "profileUnclassified": "The profile “{profile}” is not classified: it shows under every quality.",
+        "profileQualityOff": "The profile “{profile}” belongs to the quality “{quality}”, which is switched off or does not exist.",
+        "profileNoGlazing": "No glazing fits the profile “{profile}” (its depth is too small)."
+      }
     }
   },
   "invite": {

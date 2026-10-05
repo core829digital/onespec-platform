@@ -6,6 +6,8 @@ import { api } from "@/convex/_generated/api";
 import { Section, TextInput, NumberInput, Toggle } from "../editor-primitives";
 import { useCatalogEditor, toCents, thCls, tdCls } from "./store";
 import { AddRow, DeleteButton, ScrollTable } from "./widgets";
+import { chambersOfQualityKey, profileQualityKey, profileSpec } from "@/shared/catalog-rules";
+import { SelectInput } from "../editor-primitives";
 
 type Row = Record<string, unknown>;
 const sorted = (rows: Row[]) => [...rows].sort((a, b) => (a.sortOrder as number) - (b.sortOrder as number));
@@ -134,9 +136,11 @@ export function MaterialsSection({ materials }: { materials: Row[] }) {
 export function ProfileSystemsSection({
   materials,
   profileSystems,
+  qualityTiers,
 }: {
   materials: Row[];
   profileSystems: Row[];
+  qualityTiers: Row[];
 }) {
   const { configuratorId, draft, setDraft, clearDraft, busy, run, autoSaveNow, autoSaveDebounced, labelOf, withLabel, newLabels, labelLang } = useCatalogEditor();
   const t = useTranslations("editor.catalog");
@@ -152,14 +156,21 @@ export function ProfileSystemsSection({
         .filter((m) => m.key === "pvc" || m.key === "aluminum")
         .map((m) => {
           const tiers = sorted(profileSystems.filter((q) => q.materialKey === m.key));
+          // Qualities of this material in reading order (5, 6, 7 chambers), and the 6-chamber one even before it is saved.
+          const qualityOptions = qualityTiers
+            .filter((q) => q.materialKey === m.key)
+            .sort((a, b) => (chambersOfQualityKey(a.key as string) ?? 0) - (chambersOfQualityKey(b.key as string) ?? 0) || (a.sortOrder as number) - (b.sortOrder as number))
+            .map((q) => ({ value: q.key as string, label: labelOf(q.labels) || (q.key as string) }));
+          const qualityOf = (q: Row) => ((q.qualityKey as string | undefined) ?? profileQualityKey(q as unknown as Parameters<typeof profileQualityKey>[0]) ?? "");
           return (
             <div key={m._id as string} className="space-y-2">
               <p className="text-sm font-medium text-[var(--color-text)]">{labelOf(m.labels)}</p>
-              <ScrollTable ariaLabel={t("sectionFor", { section: t("profilesTitle"), name: labelOf(m.labels) })}>
+              <ScrollTable minWidth={760} ariaLabel={t("sectionFor", { section: t("profilesTitle"), name: labelOf(m.labels) })}>
                 <thead>
                   <tr>
                     <th className={thCls}>{t("key")}</th>
                     <th className={thCls}>{t("labelCol", { lang: labelLang.toUpperCase() })}</th>
+                    <th className={thCls}>{t("profileQuality")}</th>
                     <th className={thCls}>{t("multiplier")}</th>
                     <th className={thCls}>{t("active")}</th>
                     <th className={thCls} />
@@ -171,7 +182,9 @@ export function ProfileSystemsSection({
                     const labelIt = String(draft(id, q, "labelIt") ?? labelOf(q.labels));
                     const multiplier = String(draft(id, q, "multiplier") ?? (q.multiplier as number));
                     const enabled = Boolean(draft(id, q, "enabled") ?? q.enabled);
-                    const save = (overrides: { labelIt?: string; multiplier?: string; enabled?: boolean }) =>
+                    const quality = String(draft(id, q, "quality") ?? qualityOf(q));
+                    const spec = profileSpec(q as unknown as Parameters<typeof profileSpec>[0]);
+                    const save = (overrides: { labelIt?: string; multiplier?: string; enabled?: boolean; quality?: string }) =>
                       upsert({
                         configuratorId,
                         materialKey: m.key as string,
@@ -180,6 +193,8 @@ export function ProfileSystemsSection({
                         multiplier: parseFloat(overrides.multiplier ?? multiplier) || 1,
                         sortOrder: q.sortOrder as number,
                         enabled: overrides.enabled ?? enabled,
+                        // Only an explicit choice reaches the server; "" = not classified.
+                        ...(overrides.quality !== undefined ? { qualityKey: overrides.quality } : {}),
                       }).then(() => clearDraft(id));
                     return (
                       <tr key={id}>
@@ -195,6 +210,28 @@ export function ProfileSystemsSection({
                             }}
                             className="h-8 py-1"
                           />
+                        </td>
+                        <td className={tdCls}>
+                          <SelectInput
+                            value={quality}
+                            aria-label={t("profileQuality")}
+                            onChange={(e) => {
+                              setDraft(id, "quality", e.target.value);
+                              autoSaveNow(id, () => save({ quality: e.target.value }));
+                            }}
+                            className="h-8 py-1 w-36"
+                          >
+                            <option value="">{t("unclassified")}</option>
+                            {qualityOptions.map((o) => (
+                              <option key={o.value} value={o.value}>{o.label}</option>
+                            ))}
+                          </SelectInput>
+                          {quality === "" ? <span className="mt-1 block text-xs text-amber-600">{t("unclassifiedHint")}</span> : null}
+                          {spec.depthMm || spec.gasket ? (
+                            <span className="mt-1 block text-xs text-[var(--color-text-secondary)]">
+                              {[spec.depthMm ? `${spec.depthMm} mm` : "", spec.gasket ? t(`gasket_${spec.gasket}`) : "", spec.maxGlassMm ? t("maxGlass", { mm: spec.maxGlassMm }) : ""].filter(Boolean).join(" · ")}
+                            </span>
+                          ) : null}
                         </td>
                         <td className={tdCls}>
                           <NumberInput
@@ -239,6 +276,7 @@ export function ProfileSystemsSection({
                   { name: "key", label: t("key"), type: "text" },
                   { name: "labelIt", label: t("labelCol", { lang: labelLang.toUpperCase() }), type: "text" },
                   { name: "multiplier", label: t("multiplier"), type: "number" },
+                  { name: "qualityKey", label: t("profileQuality"), type: "select", options: [{ value: "", label: t("unclassified") }, ...qualityOptions] },
                 ]}
                 onAdd={(vals) =>
                   run(`add-ps-${m._id}`, () =>
@@ -250,6 +288,7 @@ export function ProfileSystemsSection({
                       multiplier: parseFloat(String(vals.multiplier)) || 1,
                       sortOrder: tiers.length,
                       enabled: true,
+                      ...(vals.qualityKey ? { qualityKey: vals.qualityKey } : {}),
                     }),
                   )
                 }
