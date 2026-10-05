@@ -39,6 +39,7 @@ export function buildTxt(m: ExportModel): string {
   out.push("");
   const t = m.money;
   out.push(`${d.supply}: ${eur(t.supplyExVatCents, m.locale)}`);
+  if (t.fittingNote) out.push(t.fittingNote);
   out.push(`${d.installation}: ${eur(t.installCents, m.locale)}`);
   if (t.demolitionCents) out.push(`${d.disposal}: ${eur(t.demolitionCents, m.locale)}`);
   if (t.regionalCents) out.push(`${d.regional}: ${eur(t.regionalCents, m.locale)}`);
@@ -127,6 +128,7 @@ ${p.notes ? `<p class="notes"><b>${esc(d.notes)}:</b> ${esc(p.notes)}</p>` : ""}
     .join("\n");
   const totals = [
     [d.supply, eur(t.supplyExVatCents, m.locale)],
+    ...(t.fittingNote ? [[t.fittingNote, ""]] : []),
     [d.installation, eur(t.installCents, m.locale)],
     ...(t.demolitionCents ? [[d.disposal, eur(t.demolitionCents, m.locale)]] : []),
     ...(t.regionalCents ? [[d.regional, eur(t.regionalCents, m.locale)]] : []),

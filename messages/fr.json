@@ -518,7 +518,18 @@
       "notIncluded": "— non inclus —",
       "newSupplier": "Nouveau fournisseur",
       "errNoConfigurator": "Aucun configurateur publié. Créez et publiez un configurateur depuis la page Configurateurs : la même liste de prix sera utilisée ici et dans le widget du site.",
-      "errCatalogNotReady": "La liste de prix publiée n'est pas encore disponible. Attendez le chargement ou republiez le configurateur."
+      "errCatalogNotReady": "La liste de prix publiée n'est pas encore disponible. Attendez le chargement ou republiez le configurateur.",
+      "posa": {
+        "title": "Pose",
+        "with": "Pose incluse",
+        "without": "Fourniture seule (sans pose)",
+        "withHint": "Le prix comprend la pose et les montants de pose et de dépose ci-dessous.",
+        "withoutHint": "Le client pose lui-même : pose et dépose ne sont pas facturées.",
+        "manualHint": "La pose à {price} €/m² est déjà dans le prix des pièces : utilisez les champs ci-dessous seulement pour les extras (échafaudage, dépose…).",
+        "inSupply": "dont pose au m²",
+        "compareWithout": "Sans pose : {amount} € (HT)",
+        "compareWith": "Avec pose : {amount} € (HT)"
+      }
     },
     "list": {
       "kicker": "Outil B2B de chantier",
@@ -2653,8 +2664,8 @@
     "exampleInvalid": "Saisissez une largeur et une hauteur valides.",
     "exampleNote": "Exemple indicatif avec double vitrage, blanc, quincaillerie standard : fourniture avec transport depuis l'usine, hors TVA, sans pose.",
     "delivery": {
-      "title": "Livraison et pose",
-      "help": "Le prix standard inclut déjà le transport de l'usine jusqu'à vous. Si les fenêtres sont livrées ou posées par un transporteur ou un poseur de votre choix, saisissez ce qu'il facture au mètre carré : c'est ajouté au prix de chaque fenêtre (avant votre marge).",
+      "title": "Livraison",
+      "help": "Le prix standard comprend déjà le transport de l'usine jusqu'à vous. Si c'est votre propre transporteur qui livre les fenêtres, saisissez ce qu'il facture au mètre carré : cela s'ajoute au prix de chaque fenêtre (avant votre marge). La pose se règle dans sa section.",
       "factory": "Transport de l'usine",
       "factoryHint": "Le transport de l'usine à l'installateur est déjà inclus dans le prix.",
       "own": "Mon transporteur / poseur",
@@ -2663,6 +2674,20 @@
       "invalid": "Saisissez un montant entre 0 et 1 000 € avec au plus deux décimales.",
       "needRate": "Saisissez le montant au m² pour activer cette option.",
       "exampleService": "transporteur / poseur propre"
+    },
+    "posa": {
+      "title": "Pose (installation)",
+      "help": "Saisissez votre prix de pose au mètre carré (hors TVA) : il s'ajoute au prix des fenêtres, sans marge. Vous pouvez ainsi proposer un prix avec pose et un prix sans pose, pour les clients qui posent eux-mêmes.",
+      "rate": "Prix de pose",
+      "invalid": "Saisissez un montant entre 0 et 1 000 € avec au plus deux décimales.",
+      "off": "Laissez vide (ou 0) si vous ne proposez pas la pose au prix au m² : les devis seront fourniture seule.",
+      "defaultTitle": "Devis par défaut",
+      "with": "Pose incluse",
+      "without": "Fourniture seule (sans pose)",
+      "withHint": "Le prix comprend la pose ; le client peut choisir de l'enlever.",
+      "withoutHint": "Le prix est fourniture seule ; le client peut choisir d'ajouter la pose.",
+      "exampleWithout": "Fourniture seule",
+      "exampleWith": "Avec pose"
     }
   },
   "fiscal": {

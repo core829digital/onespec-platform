@@ -41,6 +41,8 @@ export interface ConfigState {
   glazing: string;
   color: string;
   installation: string;
+  /** Fitting (posa) at the installer's price per m²: true = included, false = supply only; absent = the catalogue's default. */
+  withInstallation?: boolean;
   /** FR pose (frame-fitting) method; "" = not offered / not chosen. */
   poseType: string;
   /** BE ventilation grille; "" = not offered / not chosen. */
@@ -114,6 +116,9 @@ export interface Pricing {
   marginPercent: number;
   /** The installer's own transporter / fitter, euros per m² (0 = the factory's transport is in the price). */
   ownServicePerM2: number;
+  /** The installer's fitting (posa) price, euros per m² (0 = not offered), and whether quotes include it by default. */
+  installationPerM2: number;
+  installationDefault: boolean;
   [key: string]: unknown;
 }
 
@@ -161,6 +166,8 @@ export function defaultPricing(): Pricing {
     glazingMult: {},
     marginPercent: 0,
     ownServicePerM2: 0,
+    installationPerM2: 0,
+    installationDefault: true,
     brandMultiplier: {
       pvc: { aluplast: 1, rehau: 1, kommerling: 1, deceuninck: 1, salamander: 1, schuco: 1, gealan: 1 },
       aluminum: { aluprof: 1, alumil: 1, aliplast: 1, schuco: 1, reynaers: 1, cortizo: 1, exlabesa: 1, alulegno: 1 },
@@ -233,8 +240,15 @@ export interface CalcResult {
   materialCost: number;
   profileCost: number;
   optionsCost: number;
+  /** Fitting per unit (already inside unitPrice), 0 when supply only. */
+  fittingCost: number;
   unitPrice: number;
   totalPrice: number;
+}
+
+/** Whether a piece includes the fitting: only when the installer prices it; the piece's own choice wins over the default. */
+export function includesFitting(s: Pick<ConfigState, "withInstallation">, pricing: Pick<Pricing, "installationPerM2" | "installationDefault">): boolean {
+  return pricing.installationPerM2 > 0 && (s.withInstallation ?? pricing.installationDefault);
 }
 
 export function calculate(state: ConfigState, pricing: Pricing, src?: ConfigState): CalcResult {
@@ -303,10 +317,12 @@ export function calculate(state: ConfigState, pricing: Pricing, src?: ConfigStat
   // The margin is applied to the unit price in whole cents (basis points), exactly as the server does.
   const serviceCost = Math.round(Math.max(0, pricing.ownServicePerM2) * 100 * areaM2) / 100;
   const baseCents = Math.round((materialCost + profileCost + optionsCost + serviceCost) * 100);
-  const unitPrice = applyMarginCents(baseCents, pricing.marginPercent) / 100;
+  // The installer's fitting price is charged as entered, after the margin (same whole-cent rounding as the server).
+  const fittingCents = includesFitting(s, pricing) ? Math.round(Math.round(pricing.installationPerM2 * 100) * areaM2) : 0;
+  const unitPrice = (applyMarginCents(baseCents, pricing.marginPercent) + fittingCents) / 100;
   const totalPrice = unitPrice * s.quantity;
 
-  return { areaM2, perimeterM, materialCost, profileCost, optionsCost, unitPrice, totalPrice };
+  return { areaM2, perimeterM, materialCost, profileCost, optionsCost, fittingCost: fittingCents / 100, unitPrice, totalPrice };
 }
 
 // Indicative, clearly-labelled Uw estimate (NOT a certified EN ISO 10077 calc).

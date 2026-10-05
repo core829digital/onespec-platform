@@ -70,4 +70,28 @@ describe("delivery section (server render)", () => {
     expect(own).toContain('value="15,00"');
     expect(own).toContain("trasportatore / montatore proprio");
   });
+
+  it("fitting (posa): the section is always there; with a price it offers the default and shows both totals in the example", () => {
+    tenant = { country: "IT", priceZone: "nord" };
+    const off = render("it", it_, { pricingMode: "standard" });
+    expect(off).toContain("Posa (montaggio)");
+    expect(off).toContain("Lascia vuoto");
+    expect(off).not.toContain('data-testid="example-posa"');
+    // 80 EUR/m2 x 1.68 m2 = 134,40 on top of the supply price
+    const on = render("it", it_, { pricingMode: "standard", installationPerM2Cents: 8000, installationDefault: "without" });
+    expect(on).toContain('value="80,00"');
+    expect(on).toContain("Con posa inclusa");
+    expect(on).toContain("Solo fornitura (senza posa)");
+    expect(on).toContain('data-testid="example-posa"');
+    expect(on).toMatch(/342,33/);
+    expect(on).toMatch(/476,73/); // 342,33 + 134,40
+  });
+
+  it("the fitting texts exist in every language", () => {
+    tenant = { country: "IT", priceZone: "nord" };
+    for (const [l, m] of [["it", it_], ["en", en], ["fr", fr], ["de", de], ["nl", nl], ["ro", ro]] as const) {
+      const html = render(l, m, { pricingMode: "standard", installationPerM2Cents: 8000 });
+      expect(html).not.toMatch(/pricingTab\./);
+    }
+  });
 });

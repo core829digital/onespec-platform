@@ -17,7 +17,7 @@ import {
   defaultConfig,
   defaultSashPreset,
   defaultDimsForType,
-  calculate,
+  calculate, includesFitting,
   computeUw,
   clamp,
   dimMin,
@@ -186,6 +186,8 @@ export function Widget({
   // The initial glazing is the first package (24 mm double, low-E, argon) when the catalogue offers it.
   const [state, setState] = useState<ConfigState>(() => freshState(options));
   const [items, setItems] = useState<SavedItem[]>([]);
+  // Fitting (posa) included or supply only; null = the installer's default. One choice for the whole project.
+  const [fittingChoice, setFittingChoice] = useState<boolean | null>(null);
   const [selectedSash, setSelectedSash] = useState<number | null>(null);
   const [ecobonusOpen, setEcobonusOpen] = useState(false);
   const [ecobonusPct, setEcobonusPct] = useState(0);
@@ -289,13 +291,17 @@ export function Widget({
   );
 
   // ---- derived ----
+  const fittingOffered = pricing.installationPerM2 > 0;
+  const withFitting = fittingChoice ?? pricing.installationDefault;
   const result = useMemo(
-    () => calculate(withRegionDefaults(state), pricing),
-    [state, pricing, withRegionDefaults],
+    () => calculate({ ...withRegionDefaults(state), withInstallation: withFitting }, pricing),
+    [state, pricing, withRegionDefaults, withFitting],
   );
   const uw = useMemo(() => computeUw(state), [state]);
 
-  const itemsSubtotal = items.reduce((s, it) => s + it.totalPrice, 0);
+  // Saved pieces are priced again with the current choice, so switching it updates the whole project.
+  const itemPrice = (it: SavedItem) => calculate({ ...it, withInstallation: withFitting }, pricing).totalPrice;
+  const itemsSubtotal = items.reduce((s, it) => s + itemPrice(it), 0);
   // Catalogue prices are net: the VAT of the chosen rate (0% included) goes on top.
   const netGrand = itemsSubtotal + result.totalPrice;
   const vatAmount = netGrand * (vatPct / 100);
@@ -409,6 +415,7 @@ export function Widget({
         : "";
       return `${i + 1}. ${pt} ${mat}${brand ? ` (${brand})` : ""} ${it.width}×${it.height}mm ×${it.quantity} | ${q}, ${glz}, ${col}, ${inst}${regionBits} | ${dict.sashLabel}: ${sashDesc}${screen}`;
     });
+    if (fittingOffered) lines.push(withFitting ? dict.fittingIncludedLine : dict.fittingExcludedLine);
     if (ecobonusPct > 0) lines.push(`Ecobonus: -${ecobonusPct}%`);
     if (discountPct > 0) lines.push(`${dict.discountLabel}: -${discountPct}%`);
     for (const note of complianceFlags.map((f) => dict.compliance[f]).filter(Boolean)) {
@@ -442,6 +449,7 @@ export function Widget({
       insectScreenType: it.insectScreen ? it.insectScreenType : undefined,
       insectScreenColor: it.insectScreen ? it.insectScreenColor : undefined,
       installation: it.installation,
+      withInstallation: fittingOffered ? withFitting : undefined,
       ...Object.fromEntries(
         REGION_FLAT_OPTION_KINDS.map((kind) => [kind, it[kind] || undefined]),
       ),
@@ -1022,7 +1030,7 @@ export function Widget({
                           {it.width}×{it.height}mm · ×{it.quantity}
                         </div>
                       </div>
-                      {showPrices && <div style={{ fontFamily: "var(--font-ibm-plex-mono), monospace", fontWeight: 600, color: "var(--color-text)" }}>{fmtC(it.totalPrice)}</div>}
+                      {showPrices && <div style={{ fontFamily: "var(--font-ibm-plex-mono), monospace", fontWeight: 600, color: "var(--color-text)" }}>{fmtC(itemPrice(it))}</div>}
                       <button type="button" onClick={() => removeItem(i)} style={s.iconBtn} aria-label="Remove">
                         ×
                       </button>
@@ -1083,6 +1091,26 @@ export function Widget({
                     <label htmlFor="widget-discount" style={{ fontSize: 12.5, fontWeight: 800, color: "var(--color-text)", letterSpacing: ".03em", textTransform: "uppercase" }}>{dict.discountLabel}</label>
                     <input id="widget-discount" style={{ ...s.input, width: 84, textAlign: "right" }} type="number" min={0} max={discountMax} value={discountPct} onChange={(e) => setDiscountPct(clamp(parseFloat(e.target.value) || 0, 0, discountMax))} />
                   </div>
+                )}
+
+                {fittingOffered && (
+                  <fieldset style={{ border: "none", margin: 0, padding: "8px 0" }}>
+                    <legend style={{ fontSize: 12.5, fontWeight: 800, color: "var(--color-text)", letterSpacing: ".03em", textTransform: "uppercase", padding: 0, marginBottom: 6 }}>{dict.fittingTitle}</legend>
+                    <div role="radiogroup" aria-label={dict.fittingTitle} style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                      {([true, false] as const).map((v) => (
+                        <button
+                          key={String(v)}
+                          type="button"
+                          role="radio"
+                          aria-checked={withFitting === v}
+                          onClick={() => setFittingChoice(v)}
+                          style={{ ...s.input, flex: 1, minWidth: 130, cursor: "pointer", fontWeight: withFitting === v ? 800 : 500, outline: withFitting === v ? `2px solid ${accent}` : "none" }}
+                        >
+                          {v ? dict.fittingWith : dict.fittingWithout}
+                        </button>
+                      ))}
+                    </div>
+                  </fieldset>
                 )}
 
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: "8px 0" }}>

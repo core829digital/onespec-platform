@@ -518,7 +518,18 @@
       "notIncluded": "— neinclus —",
       "newSupplier": "Furnizor nou",
       "errNoConfigurator": "Niciun configurator publicat. Creați și publicați un configurator din pagina Configuratoare: aceeași listă de prețuri va fi folosită aici și în widgetul site-ului.",
-      "errCatalogNotReady": "Lista de prețuri publicată nu este încă disponibilă. Așteptați încărcarea sau republicați configuratorul."
+      "errCatalogNotReady": "Lista de prețuri publicată nu este încă disponibilă. Așteptați încărcarea sau republicați configuratorul.",
+      "posa": {
+        "title": "Montaj",
+        "with": "Montaj inclus",
+        "without": "Doar furnizare (fără montaj)",
+        "withHint": "Prețul include montajul și sumele de montaj și debarasare de mai jos.",
+        "withoutHint": "Clientul montează singur: montajul și debarasarea nu se taxează.",
+        "manualHint": "Montajul la {price} €/m² este deja în prețul pieselor: folosește câmpurile de mai jos doar pentru extra (schelă, debarasare…).",
+        "inSupply": "din care montaj pe m²",
+        "compareWithout": "Fără montaj: {amount} € (fără TVA)",
+        "compareWith": "Cu montaj: {amount} € (fără TVA)"
+      }
     },
     "list": {
       "kicker": "Instrument B2B de șantier",
@@ -2653,8 +2664,8 @@
     "exampleInvalid": "Introduceți o lățime și o înălțime valide.",
     "exampleNote": "Exemplu orientativ cu geam dublu, alb, feronerie standard: livrare cu transport de la fabrică, fără TVA, fără montaj.",
     "delivery": {
-      "title": "Livrare și montaj",
-      "help": "Prețul standard include deja transportul de la fabrică până la dvs. Dacă ferestrele sunt livrate sau montate de un transportator sau montator ales de dvs., introduceți cât cere pe metru pătrat: se adaugă la prețul fiecărei ferestre (înainte de marja dvs.).",
+      "title": "Livrare",
+      "help": "Prețul standard include deja transportul de la fabrică la tine. Dacă ferestrele sunt livrate de propriul transportator, introdu ce percepe pe metru pătrat: se adaugă la prețul fiecărei ferestre (înainte de marja ta). Montajul se setează în secțiunea dedicată.",
       "factory": "Transportul fabricii",
       "factoryHint": "Transportul de la fabrică la montator este deja inclus în preț.",
       "own": "Transportatorul / montatorul meu",
@@ -2663,6 +2674,20 @@
       "invalid": "Introduceți o sumă între 0 și 1.000 € cu cel mult două zecimale.",
       "needRate": "Introduceți suma pe m² pentru a activa această opțiune.",
       "exampleService": "transportator / montator propriu"
+    },
+    "posa": {
+      "title": "Montaj",
+      "help": "Introdu prețul tău de montaj pe metru pătrat (fără TVA): se adaugă la prețul ferestrelor, fără marjă. Astfel poți face un preț cu montaj inclus și unul fără, pentru clienții care montează singuri.",
+      "rate": "Preț de montaj",
+      "invalid": "Introdu o sumă între 0 și 1.000 € cu cel mult două zecimale.",
+      "off": "Lasă gol (sau 0) dacă nu oferi montajul la preț pe m²: ofertele vor fi doar furnizare.",
+      "defaultTitle": "Ofertă implicită",
+      "with": "Montaj inclus",
+      "without": "Doar furnizare (fără montaj)",
+      "withHint": "Prețul include montajul; clientul poate alege să îl scoată.",
+      "withoutHint": "Prețul este doar furnizare; clientul poate alege să adauge montajul.",
+      "exampleWithout": "Doar furnizare",
+      "exampleWith": "Cu montaj"
     }
   },
   "fiscal": {

@@ -65,6 +65,26 @@ export const setDelivery = mutation({
   },
 });
 
+/** Highest fitting (posa) price accepted: 1000 EUR per m², in cents. */
+export const MAX_INSTALLATION_PER_M2_CENTS = 100_000;
+
+/**
+ * The installer's fitting (posa) price per m² and whether quotes include it by default. 0 switches the priced fitting off.
+ * The customer / installer can then choose, quote by quote, a price with the fitting or supply only. Published with the catalogue.
+ */
+export const setInstallation = mutation({
+  args: { configuratorId: v.id("configurators"), perM2Cents: v.number(), defaultMode: v.union(v.literal("with"), v.literal("without")) },
+  handler: async (ctx, args) => {
+    const configurator = await ctx.db.get(args.configuratorId);
+    if (!configurator || configurator.deletingAt !== undefined) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
+    await requirePermission(ctx, configurator.tenantId, "configurators.manage");
+    const c = args.perM2Cents;
+    if (!Number.isInteger(c) || c < 0 || c > MAX_INSTALLATION_PER_M2_CENTS) throw new ConvexError("INVALID_INPUT");
+    await ctx.db.patch(args.configuratorId, { installationPerM2Cents: c, installationDefault: args.defaultMode, updatedAt: Date.now() });
+    return { installationPerM2Cents: c, installationDefault: args.defaultMode };
+  },
+});
+
 /** Price this configurator from the standard price list of the installer's zone (nothing is deleted). */
 export const applyStandard = mutation({
   args: { configuratorId: v.id("configurators") },

@@ -6,7 +6,7 @@ import { internal } from "./_generated/api";
 import { ConvexError } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
 import { assertCoherentItems } from "./lib/quoteItems";
-import { calculatePrice, type ProjectItem, type CatalogPayload } from "../src/shared/pricing";
+import { calculatePrice, installationIncluded, type ProjectItem, type CatalogPayload } from "../src/shared/pricing";
 import { ProjectItemSchema } from "../src/shared/widget-types";
 import { requireMembership } from "./lib/auth";
 import { resolveTenantEntitlements, currentPeriod, isWidgetPlan } from "./lib/entitlements";
@@ -512,6 +512,7 @@ export const insertQuote = internalMutation({
       leadMessage: args.leadMessage,
       leadLocale: args.leadLocale,
       channel: "widget" as const,
+      installationIncluded: installationIncluded(version.payload as CatalogPayload, items),
       requestKind: args.requestKind,
       priceCents: price.priceCents,
       priceExVatCents: price.priceExVatCents,

@@ -73,6 +73,12 @@ export interface WidgetDict {
   /** Net amount line and VAT line under the total ("{n}" = rate). */
   summaryNet: string;
   summaryVat: string;
+  /** Fitting (posa) choice: title, the two options and the lines added to the request summary. */
+  fittingTitle: string;
+  fittingWith: string;
+  fittingWithout: string;
+  fittingIncludedLine: string;
+  fittingExcludedLine: string;
   perUnit: string;
   units: string;
   projectItemsTitle: string;
@@ -192,6 +198,11 @@ const en: WidgetDict = {
   summaryTotal: "Total estimate VAT included",
   summaryNet: "Net amount (VAT excluded)",
   summaryVat: "VAT {n}%",
+  fittingTitle: "Fitting",
+  fittingWith: "With fitting",
+  fittingWithout: "Supply only",
+  fittingIncludedLine: "Fitting included in the price",
+  fittingExcludedLine: "Supply only: the customer fits the windows themselves",
   perUnit: "per unit",
   units: "units",
   projectItemsTitle: "Project items",
@@ -313,6 +324,11 @@ const it: WidgetDict = {
   summaryTotal: "Totale stimato IVA inclusa",
   summaryNet: "Imponibile (IVA esclusa)",
   summaryVat: "IVA {n}%",
+  fittingTitle: "Posa",
+  fittingWith: "Con posa inclusa",
+  fittingWithout: "Solo fornitura",
+  fittingIncludedLine: "Posa inclusa nel prezzo",
+  fittingExcludedLine: "Solo fornitura: il cliente monta le finestre da sé",
   perUnit: "a pezzo",
   units: "pezzi",
   projectItemsTitle: "Articoli del progetto",
@@ -432,6 +448,11 @@ const fr: WidgetDict = {
   summaryTotal: "Total estimé TVA incluse",
   summaryNet: "Montant HT (hors TVA)",
   summaryVat: "TVA {n}%",
+  fittingTitle: "Pose",
+  fittingWith: "Avec pose",
+  fittingWithout: "Fourniture seule",
+  fittingIncludedLine: "Pose incluse dans le prix",
+  fittingExcludedLine: "Fourniture seule : le client pose les fenêtres lui-même",
   perUnit: "à l'unité",
   units: "unités",
   projectItemsTitle: "Articles du projet",
@@ -551,6 +572,11 @@ const de: WidgetDict = {
   summaryTotal: "Gesamtkostenschätzung inkl. MwSt.",
   summaryNet: "Nettobetrag (ohne MwSt.)",
   summaryVat: "MwSt. {n}%",
+  fittingTitle: "Montage",
+  fittingWith: "Mit Montage",
+  fittingWithout: "Nur Lieferung",
+  fittingIncludedLine: "Montage im Preis enthalten",
+  fittingExcludedLine: "Nur Lieferung: Der Kunde montiert die Fenster selbst",
   perUnit: "pro Stück",
   units: "Stück",
   projectItemsTitle: "Projektartikel",
@@ -671,6 +697,11 @@ const nl: WidgetDict = {
   summaryTotal: "Totale schatting incl. BTW",
   summaryNet: "Netto bedrag (excl. BTW)",
   summaryVat: "BTW {n}%",
+  fittingTitle: "Montage",
+  fittingWith: "Met montage",
+  fittingWithout: "Alleen levering",
+  fittingIncludedLine: "Montage inbegrepen in de prijs",
+  fittingExcludedLine: "Alleen levering: de klant monteert de ramen zelf",
   perUnit: "per stuk",
   units: "stukken",
   projectItemsTitle: "Projectartikelen",

@@ -29,6 +29,10 @@ export interface CatalogPayload {
     /** "own": the installer's own transporter / fitter, charged per m² on top of the supply price. */
     deliveryMode?: "factory" | "own";
     ownServicePerM2Cents?: number;
+    /** The installer's price for fitting (posa), per m², VAT excluded, charged to the customer on top of the supplied windows (no margin). 0 / absent = not offered. */
+    installationPerM2Cents?: number;
+    /** Whether a piece includes the fitting when it does not say so itself. */
+    installationDefault?: "with" | "without";
   };
   branding: {
     whiteLabel: boolean;
@@ -197,6 +201,8 @@ export interface ProjectItem {
   insectScreenType?: string;
   insectScreenColor?: string;
   installation?: string;
+  /** Fitting (posa) by the installer at the configurator's per-m² price: true = included, false = supply only (the customer fits them). Absent = the configurator's default. */
+  withInstallation?: boolean;
   /** FR frame-fitting method (pose): rénovation / feuillure / applique. */
   poseType?: string;
   /** BE ventilation grille (Renson-style, top rail). */
@@ -255,6 +261,8 @@ export interface ItemBreakdown {
   marginCents?: number;
   /** The installer's own transporter / fitter for this piece (cents), when charged per m². */
   serviceCost?: number;
+  /** Fitting (posa) charged for one unit of this piece (cents, no margin), when included. */
+  installationCents?: number;
   unitPrice: number;
   quantity: number;
   itemTotalCents: number;
@@ -271,6 +279,13 @@ export interface PriceBreakdown {
   /** Per-item breakdowns, index-aligned with the input items array. */
   items: ItemBreakdown[];
   uwValue?: number;
+  /** Present when the installer prices the fitting (posa): the fitting inside `priceExVatCents` and both ex-VAT totals, with and without it. */
+  installation?: {
+    perM2Cents: number;
+    includedCents: number;
+    exVatWithCents: number;
+    exVatWithoutCents: number;
+  };
 }
 
 function getMaterialConfig(payload: CatalogPayload, materialKey: string) {
@@ -336,11 +351,23 @@ export function accessoriesCents(payload: CatalogPayload, item: ProjectItem, wid
   return total;
 }
 
+/** Whether the quote includes the fitting: undefined when the installer does not price fitting by m² (nothing to choose). */
+export function installationIncluded(payload: Pick<CatalogPayload, "configurator">, items: ProjectItem[]): boolean | undefined {
+  if ((payload.configurator.installationPerM2Cents ?? 0) <= 0) return undefined;
+  const fallback = payload.configurator.installationDefault !== "without";
+  return items.some((i) => i.withInstallation ?? fallback);
+}
+
 export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): PriceBreakdown {
   const vatRate = payload.configurator.vatRatePercent;
   const roundingStep = payload.configurator.priceRoundingStep;
 
   let totalExVatCents = 0;
+  // Fitting is tracked apart so both totals (with / without) are always known.
+  let supplyExVatCents = 0;
+  let installAllCents = 0;
+  const installRate = Math.max(0, payload.configurator.installationPerM2Cents ?? 0);
+  const installDefault = payload.configurator.installationDefault !== "without";
   const itemBreakdowns: ItemBreakdown[] = [];
 
   for (const item of items) {
@@ -429,8 +456,15 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
 
     // The installer's margin is applied to the whole unit price, in integer basis points (no floating drift).
     const baseUnit = materialCost + profileCost + optionsCost + serviceCost;
-    const unitPrice = applyMarginCents(baseUnit, payload.configurator.marginPercent);
-    const marginCents = unitPrice - baseUnit;
+    const supplyUnit = applyMarginCents(baseUnit, payload.configurator.marginPercent);
+    const marginCents = supplyUnit - baseUnit;
+    // Fitting at the installer's own price per m²: charged as entered, after the margin.
+    const installUnit = installRate > 0 ? Math.round(installRate * areaM2) : 0;
+    const installed = installRate > 0 && (item.withInstallation ?? installDefault);
+    installAllCents += installUnit * item.quantity;
+    supplyExVatCents += supplyUnit * item.quantity;
+    // A piece's price includes its fitting when the quote does, so the pieces always add up to the total.
+    const unitPrice = supplyUnit + (installed ? installUnit : 0);
     const itemTotal = unitPrice * item.quantity;
 
     // Catalogue prices are NET (VAT excluded); VAT is added on top, whatever the rate (0% included).
@@ -439,14 +473,15 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
     itemBreakdowns.push({
       areaM2, perimeterM, materialCost, profileCost, optionsCost,
       ...(serviceCost > 0 ? { serviceCost } : {}),
-      ...(serviceCost > 0 ? { serviceCost } : {}),
+      ...(installed && installUnit > 0 ? { installationCents: installUnit } : {}),
       ...(marginCents !== 0 ? { marginCents } : {}),
       unitPrice, quantity: item.quantity, itemTotalCents: itemTotal,
     });
   }
 
   const step = roundingStep && roundingStep > 0 ? roundingStep : 1;
-  const roundedExVat = Math.round(totalExVatCents / step) * step;
+  const roundNet = (cents: number) => Math.round(cents / step) * step;
+  const roundedExVat = roundNet(totalExVatCents);
   // The VAT is computed on the rounded net, so net + VAT = gross exactly on every document.
   const roundedTotal = roundedExVat + Math.round((roundedExVat * vatRate) / 100);
 
@@ -456,6 +491,16 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
     vatRatePercent: vatRate,
     totalPrice: roundedTotal,
     items: itemBreakdowns,
+    ...(installRate > 0
+      ? {
+          installation: {
+            perM2Cents: installRate,
+            includedCents: totalExVatCents - supplyExVatCents,
+            exVatWithCents: roundNet(supplyExVatCents + installAllCents),
+            exVatWithoutCents: roundNet(supplyExVatCents),
+          },
+        }
+      : {}),
   };
 }
 

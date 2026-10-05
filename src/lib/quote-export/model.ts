@@ -55,6 +55,8 @@ export interface ExportMoney {
   regionalCents: number;
   discountPercent: number;
   vatPercent: number;
+  /** Whether the quote includes the fitting or is supply only; absent when the installer does not price fitting by m². */
+  fittingNote?: string;
   /** Sentence for a VAT-free supply (reverse charge, export, manual 0%); absent for a normal one. */
   vatNote?: string;
   grossCents: number;

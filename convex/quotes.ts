@@ -8,7 +8,7 @@ import { lockedSafeLeadName, redactQuoteRequest } from "./lib/quotaLock";
 import { hasMeteredEvent } from "./lib/metering";
 import { emit } from "./lib/triggers";
 import { enforceForCreateQuote, enforceForESignature, enforceForMultiSupplier } from "./lib/enforcement";
-import { calculatePrice, type ProjectItem, type CatalogPayload } from "../src/shared/pricing";
+import { calculatePrice, installationIncluded, type ProjectItem, type CatalogPayload } from "../src/shared/pricing";
 import { currentPeriod, resolveTenantEntitlements } from "./lib/entitlements";
 import { regionForCountry } from "./lib/regions";
 import { resolveLinks, logClientActivity } from "./lib/links";
@@ -279,6 +279,7 @@ export const createFieldQuote = mutation({
       leadMessage: args.leadMessage,
       channel: "field_b2b",
       installationType: args.installationType,
+      installationIncluded: installationIncluded(payload, items),
       installationPriceCents: installCost,
       demolitionPriceCents: demolitionCost,
       discountPercent: discountPct,
@@ -729,6 +730,7 @@ export const createQuoteWithSuppliers = mutation({
       leadMessage: args.leadMessage,
       channel: 'field_b2b',
       installationType: args.installationType,
+      installationIncluded: installationIncluded(payload, items),
       installationPriceCents: installCost,
       demolitionPriceCents: demolitionCost,
       discountPercent: discountPct,

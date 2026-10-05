@@ -518,7 +518,18 @@
       "notIncluded": "— nicht enthalten —",
       "newSupplier": "Neuer Lieferant",
       "errNoConfigurator": "Kein Konfigurator veröffentlicht. Erstellen und veröffentlichen Sie einen Konfigurator auf der Seite Konfiguratoren: dieselbe Preisliste wird hier und im Widget Ihrer Website verwendet.",
-      "errCatalogNotReady": "Die veröffentlichte Preisliste ist noch nicht verfügbar. Warten Sie auf das Laden oder veröffentlichen Sie den Konfigurator erneut."
+      "errCatalogNotReady": "Die veröffentlichte Preisliste ist noch nicht verfügbar. Warten Sie auf das Laden oder veröffentlichen Sie den Konfigurator erneut.",
+      "posa": {
+        "title": "Montage",
+        "with": "Montage inklusive",
+        "without": "Nur Lieferung (ohne Montage)",
+        "withHint": "Der Preis enthält die Montage sowie die unten stehenden Montage- und Entsorgungsbeträge.",
+        "withoutHint": "Der Kunde montiert selbst: Montage und Entsorgung werden nicht berechnet.",
+        "manualHint": "Die Montage zu {price} €/m² ist bereits im Preis der Teile enthalten: Nutzen Sie die Felder unten nur für Extras (Gerüst, Entsorgung …).",
+        "inSupply": "davon Montage pro m²",
+        "compareWithout": "Ohne Montage: {amount} € (netto)",
+        "compareWith": "Mit Montage: {amount} € (netto)"
+      }
     },
     "list": {
       "kicker": "B2B-Baustellen-Tool",
@@ -2653,8 +2664,8 @@
     "exampleInvalid": "Geben Sie eine gültige Breite und Höhe ein.",
     "exampleNote": "Richtbeispiel mit Zweifachverglasung, weiß, Standardbeschlägen: Lieferung mit Werkstransport, ohne MwSt., ohne Montage.",
     "delivery": {
-      "title": "Lieferung und Montage",
-      "help": "Im Standardpreis ist der Transport vom Werk zu Ihnen bereits enthalten. Werden die Fenster von einem Transporteur oder Monteur Ihrer Wahl geliefert oder montiert, geben Sie ein, was dieser pro Quadratmeter berechnet: Es wird auf den Preis jedes Fensters aufgeschlagen (vor Ihrer Marge).",
+      "title": "Lieferung",
+      "help": "Der Standardpreis enthält bereits den Transport von der Fabrik zu Ihnen. Liefert Ihr eigener Spediteur die Fenster, geben Sie ein, was er pro Quadratmeter berechnet: Es wird zum Preis jedes Fensters addiert (vor Ihrer Marge). Die Montage stellen Sie im eigenen Abschnitt ein.",
       "factory": "Werkstransport",
       "factoryHint": "Der Transport vom Werk zum Monteur ist bereits im Preis enthalten.",
       "own": "Mein eigener Transporteur / Monteur",
@@ -2663,6 +2674,20 @@
       "invalid": "Geben Sie einen Betrag zwischen 0 und 1.000 € mit höchstens zwei Dezimalstellen ein.",
       "needRate": "Geben Sie den Betrag pro m² ein, um diese Option zu aktivieren.",
       "exampleService": "eigener Transporteur / Monteur"
+    },
+    "posa": {
+      "title": "Montage",
+      "help": "Geben Sie Ihren Montagepreis pro Quadratmeter ein (ohne MwSt.): Er wird ohne Marge zum Fensterpreis addiert. So können Sie einen Preis mit und einen ohne Montage anbieten, für Kunden, die selbst montieren.",
+      "rate": "Montagepreis",
+      "invalid": "Geben Sie einen Betrag zwischen 0 und 1.000 € mit höchstens zwei Dezimalstellen ein.",
+      "off": "Leer lassen (oder 0), wenn Sie die Montage nicht zum Preis pro m² anbieten: Angebote enthalten dann nur die Lieferung.",
+      "defaultTitle": "Standardangebot",
+      "with": "Montage inklusive",
+      "without": "Nur Lieferung (ohne Montage)",
+      "withHint": "Der Preis enthält die Montage; der Kunde kann sie abwählen.",
+      "withoutHint": "Der Preis ist nur Lieferung; der Kunde kann die Montage hinzufügen.",
+      "exampleWithout": "Nur Lieferung",
+      "exampleWith": "Mit Montage"
     }
   },
   "fiscal": {

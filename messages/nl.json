@@ -518,7 +518,18 @@
       "notIncluded": "— niet inbegrepen —",
       "newSupplier": "Nieuwe leverancier",
       "errNoConfigurator": "Geen configurator gepubliceerd. Maak en publiceer een configurator op de pagina Configurators: dezelfde prijslijst wordt hier en in de website-widget gebruikt.",
-      "errCatalogNotReady": "De gepubliceerde prijslijst is nog niet beschikbaar. Wacht tot hij geladen is of publiceer de configurator opnieuw."
+      "errCatalogNotReady": "De gepubliceerde prijslijst is nog niet beschikbaar. Wacht tot hij geladen is of publiceer de configurator opnieuw.",
+      "posa": {
+        "title": "Montage",
+        "with": "Montage inbegrepen",
+        "without": "Alleen levering (zonder montage)",
+        "withHint": "De prijs omvat montage en de onderstaande montage- en afvoerbedragen.",
+        "withoutHint": "De klant monteert zelf: montage en afvoer worden niet berekend.",
+        "manualHint": "Montage à {price} €/m² zit al in de prijs van de stukken: gebruik de velden hieronder alleen voor extra's (steiger, afvoer…).",
+        "inSupply": "waarvan montage per m²",
+        "compareWithout": "Zonder montage: € {amount} (excl. btw)",
+        "compareWith": "Met montage: € {amount} (excl. btw)"
+      }
     },
     "list": {
       "kicker": "B2B-werfhulpmiddel",
@@ -2653,8 +2664,8 @@
     "exampleInvalid": "Voer een geldige breedte en hoogte in.",
     "exampleNote": "Indicatief voorbeeld met dubbel glas, wit, standaard beslag: levering met transport vanaf de fabriek, excl. BTW, zonder montage.",
     "delivery": {
-      "title": "Levering en montage",
-      "help": "De standaardprijs bevat al het transport van de fabriek naar u. Worden de ramen geleverd of gemonteerd door een transporteur of monteur naar keuze, voer dan in wat die per vierkante meter rekent: het wordt bij de prijs van elk raam opgeteld (vóór uw marge).",
+      "title": "Levering",
+      "help": "De standaardprijs bevat al het transport van de fabriek naar u. Levert uw eigen vervoerder de ramen, voer dan in wat die per vierkante meter rekent: het wordt bij de prijs van elk raam opgeteld (vóór uw marge). Montage stelt u in bij de eigen sectie in.",
       "factory": "Transport van de fabriek",
       "factoryHint": "Het transport van de fabriek naar de monteur zit al in de prijs.",
       "own": "Mijn eigen transporteur / monteur",
@@ -2663,6 +2674,20 @@
       "invalid": "Voer een bedrag in tussen 0 en 1.000 € met hooguit twee decimalen.",
       "needRate": "Voer het bedrag per m² in om deze optie te activeren.",
       "exampleService": "eigen transporteur / monteur"
+    },
+    "posa": {
+      "title": "Montage",
+      "help": "Voer uw montageprijs per vierkante meter in (excl. btw): die wordt zonder marge bij de prijs van de ramen opgeteld. Zo kunt u een prijs met en zonder montage geven, voor klanten die zelf monteren.",
+      "rate": "Montageprijs",
+      "invalid": "Voer een bedrag tussen 0 en 1.000 € in met hoogstens twee decimalen.",
+      "off": "Laat leeg (of 0) als u montage niet tegen een prijs per m² aanbiedt: offertes zijn dan alleen levering.",
+      "defaultTitle": "Standaardofferte",
+      "with": "Montage inbegrepen",
+      "without": "Alleen levering (zonder montage)",
+      "withHint": "De prijs omvat montage; de klant kan die weglaten.",
+      "withoutHint": "De prijs is alleen levering; de klant kan montage toevoegen.",
+      "exampleWithout": "Alleen levering",
+      "exampleWith": "Met montage"
     }
   },
   "fiscal": {

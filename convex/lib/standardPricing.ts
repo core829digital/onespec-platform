@@ -11,7 +11,7 @@ export function zoneOf(tenant: Pick<Doc<"tenants">, "priceZone"> | null | undefi
  * The margin applies in every mode; the zone only matters in "standard".
  */
 export function pricingBlock(
-  configurator: Pick<Doc<"configurators">, "pricingMode" | "marginPercent" | "deliveryMode" | "ownServicePerM2Cents">,
+  configurator: Pick<Doc<"configurators">, "pricingMode" | "marginPercent" | "deliveryMode" | "ownServicePerM2Cents" | "installationPerM2Cents" | "installationDefault">,
   tenant: Pick<Doc<"tenants">, "priceZone"> | null | undefined,
 ) {
   return {
@@ -19,6 +19,9 @@ export function pricingBlock(
     ...(configurator.pricingMode === "standard" ? { priceZone: zoneOf(tenant) } : {}),
     ...(typeof configurator.marginPercent === "number" && configurator.marginPercent > 0 ? { marginPercent: configurator.marginPercent } : {}),
     ...(configurator.deliveryMode === "own" && (configurator.ownServicePerM2Cents ?? 0) > 0 ? { deliveryMode: "own" as const, ownServicePerM2Cents: configurator.ownServicePerM2Cents } : {}),
+    ...((configurator.installationPerM2Cents ?? 0) > 0
+      ? { installationPerM2Cents: configurator.installationPerM2Cents, installationDefault: configurator.installationDefault ?? ("with" as const) }
+      : {}),
   };
 }
 

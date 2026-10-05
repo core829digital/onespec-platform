@@ -1,6 +1,7 @@
 import { calculatePrice, type CatalogPayload, type ProjectItem } from "@/shared/pricing";
 import type { ExportInput } from "./model";
 import { vatNote } from "@/shared/tax";
+import { fittingNote } from "@/shared/fitting";
 
 export interface QuoteLike {
   offerNumber?: string;
@@ -13,6 +14,7 @@ export interface QuoteLike {
   priceCents: number;
   vatRatePercent: number;
   installationPriceCents?: number;
+  installationIncluded?: boolean;
   demolitionPriceCents?: number;
   regionalSurchargeCents?: number;
   discountPercent?: number;
@@ -59,6 +61,7 @@ export function exportInputFromQuote(
       regionalCents: q.regionalSurchargeCents ?? 0,
       discountPercent: q.discountPercent ?? 0,
       vatPercent: q.vatRatePercent,
+      fittingNote: fittingNote(q.installationIncluded, locale) || undefined,
       vatNote: vatNote(q.vatReason, locale, { vat: q.buyerVatId, reason: q.vatManualReason }) || undefined,
       grossCents: q.priceCents,
       subsidyPercent: subsidyCents ? subsidyPercent : undefined,

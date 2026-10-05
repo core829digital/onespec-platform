@@ -518,7 +518,18 @@
       "notIncluded": "— non incluso —",
       "newSupplier": "Nuovo fornitore",
       "errNoConfigurator": "Nessun configuratore pubblicato. Crea e pubblica un configuratore dalla pagina Configuratori: quello stesso listino verrà usato sia qui che nel widget del sito.",
-      "errCatalogNotReady": "Il listino pubblicato non è ancora disponibile. Attendi il caricamento o ripubblica il configuratore."
+      "errCatalogNotReady": "Il listino pubblicato non è ancora disponibile. Attendi il caricamento o ripubblica il configuratore.",
+      "posa": {
+        "title": "Posa",
+        "with": "Con posa inclusa",
+        "without": "Solo fornitura (senza posa)",
+        "withHint": "Il prezzo comprende il montaggio e gli importi di posa e smaltimento sotto.",
+        "withoutHint": "Il cliente monta da sé: posa e smaltimento non vengono addebitati.",
+        "manualHint": "La posa a {price} €/m² è già nel prezzo dei pezzi: usa i campi qui sotto solo per extra (ponteggio, smaltimento…).",
+        "inSupply": "di cui posa al m²",
+        "compareWithout": "Senza posa: € {amount} (IVA esclusa)",
+        "compareWith": "Con posa: € {amount} (IVA esclusa)"
+      }
     },
     "list": {
       "kicker": "Strumento B2B da Cantiere",
@@ -2653,8 +2664,8 @@
     "exampleInvalid": "Inserisci larghezza e altezza valide.",
     "exampleNote": "Esempio indicativo con vetro doppio, bianco, ferramenta standard: fornitura con trasporto dalla fabbrica, IVA esclusa, senza posa.",
     "delivery": {
-      "title": "Consegna e posa",
-      "help": "Nel prezzo standard c'è già il trasporto dalla fabbrica fino a te. Se invece i serramenti li consegna o li monta un trasportatore o montatore che scegli tu, inserisci quanto ti chiede al metro quadro: verrà aggiunto al prezzo di ogni finestra (prima del tuo margine).",
+      "title": "Consegna",
+      "help": "Nel prezzo standard c'è già il trasporto dalla fabbrica fino a te. Se invece i serramenti li consegna un trasportatore che scegli tu, inserisci quanto ti chiede al metro quadro: verrà aggiunto al prezzo di ogni finestra (prima del tuo margine). La posa si imposta nella sezione dedicata.",
       "factory": "Trasporto della fabbrica",
       "factoryHint": "Il trasporto dalla fabbrica al montatore è già incluso nel prezzo.",
       "own": "Il mio trasportatore / montatore",
@@ -2663,6 +2674,20 @@
       "invalid": "Inserisci un importo tra 0 e 1.000 € con al massimo due decimali.",
       "needRate": "Inserisci l'importo al m² per attivare questa opzione.",
       "exampleService": "trasportatore / montatore proprio"
+    },
+    "posa": {
+      "title": "Posa (montaggio)",
+      "help": "Inserisci il tuo prezzo di posa al metro quadro (senza IVA): sarà sommato al prezzo delle finestre, senza margine. Così puoi fare un prezzo con posa inclusa e uno senza, per i clienti che montano da soli.",
+      "rate": "Prezzo di posa",
+      "invalid": "Inserisci un importo tra 0 e 1.000 € con al massimo due decimali.",
+      "off": "Lascia vuoto (o 0) se non vuoi proporre la posa a prezzo al m²: i preventivi saranno solo fornitura.",
+      "defaultTitle": "Preventivo predefinito",
+      "with": "Con posa inclusa",
+      "without": "Solo fornitura (senza posa)",
+      "withHint": "Il prezzo comprende il montaggio; il cliente può scegliere di toglierlo.",
+      "withoutHint": "Il prezzo è solo fornitura; il cliente può scegliere di aggiungere la posa.",
+      "exampleWithout": "Solo fornitura",
+      "exampleWith": "Con posa"
     }
   },
   "fiscal": {

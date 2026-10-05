@@ -518,7 +518,18 @@
       "notIncluded": "— not included —",
       "newSupplier": "New supplier",
       "errNoConfigurator": "No configurator published. Create and publish a configurator from the Configurators page: the same price list is used here and in the website widget.",
-      "errCatalogNotReady": "The published price list is not available yet. Wait for it to load or republish the configurator."
+      "errCatalogNotReady": "The published price list is not available yet. Wait for it to load or republish the configurator.",
+      "posa": {
+        "title": "Fitting",
+        "with": "Fitting included",
+        "without": "Supply only (no fitting)",
+        "withHint": "The price includes fitting and the fitting and disposal amounts below.",
+        "withoutHint": "The customer fits the windows: fitting and disposal are not charged.",
+        "manualHint": "Fitting at {price} €/m² is already in the price of the pieces: use the fields below only for extras (scaffolding, disposal…).",
+        "inSupply": "of which fitting by m²",
+        "compareWithout": "Without fitting: € {amount} (excl. VAT)",
+        "compareWith": "With fitting: € {amount} (excl. VAT)"
+      }
     },
     "list": {
       "kicker": "Field B2B Tool",
@@ -2653,8 +2664,8 @@
     "exampleInvalid": "Enter a valid width and height.",
     "exampleNote": "Indicative example with double glazing, white, standard hardware: supply with factory transport, VAT excluded, no installation.",
     "delivery": {
-      "title": "Delivery and fitting",
-      "help": "The standard price already includes transport from the factory to you. If the windows are delivered or fitted by a transporter or fitter you choose, enter what they charge per square metre: it is added to the price of each window (before your margin).",
+      "title": "Delivery",
+      "help": "The standard price already includes transport from the factory to you. If your own carrier delivers the windows, enter what they charge per square metre: it is added to the price of each window (before your margin). Fitting is set in its own section.",
       "factory": "Factory transport",
       "factoryHint": "Transport from the factory to the installer is already in the price.",
       "own": "My own transporter / fitter",
@@ -2663,6 +2674,20 @@
       "invalid": "Enter an amount between 0 and 1,000 € with at most two decimals.",
       "needRate": "Enter the amount per m² to switch this option on.",
       "exampleService": "own transporter / fitter"
+    },
+    "posa": {
+      "title": "Fitting (installation)",
+      "help": "Enter your fitting price per square metre (excluding VAT): it is added to the price of the windows, without margin. This lets you quote with fitting included and without, for customers who fit the windows themselves.",
+      "rate": "Fitting price",
+      "invalid": "Enter an amount between 0 and 1,000 € with at most two decimals.",
+      "off": "Leave empty (or 0) if you do not offer fitting at a price per m²: quotes will be supply only.",
+      "defaultTitle": "Default quote",
+      "with": "Fitting included",
+      "without": "Supply only (no fitting)",
+      "withHint": "The price includes fitting; the customer can choose to remove it.",
+      "withoutHint": "The price is supply only; the customer can choose to add fitting.",
+      "exampleWithout": "Supply only",
+      "exampleWith": "With fitting"
     }
   },
   "fiscal": {

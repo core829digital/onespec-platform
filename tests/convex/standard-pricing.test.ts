@@ -126,6 +126,28 @@ describe("onboarding: price zone step", () => {
   });
 });
 
+describe("fitting (posa): the installer's price per m², with or without", () => {
+  test("setInstallation validates, publishes only when priced and needs the permission", async () => {
+    const { t, s, as, asMember } = await italianTenant("centro");
+    const { configuratorId } = await as.mutation(api.configurators.createConfigurator, { tenantId: s.tenantId, name: "Posa test" });
+    const snapshot = async () => {
+      await as.mutation(api.configurators.publishConfigurator, { configuratorId });
+      const versions = await t.run((ctx) => ctx.db.query("catalogVersions").withIndex("by_configurator_version", (q) => q.eq("configuratorId", configuratorId)).collect());
+      return versions.sort((a, b) => a.version - b.version).at(-1)!.payload as { configurator: { installationPerM2Cents?: number; installationDefault?: string } };
+    };
+    expect((await snapshot()).configurator.installationPerM2Cents).toBeUndefined();
+    for (const bad of [-1, 100_001, 12.5, Number.NaN]) {
+      await expect(as.mutation(api.pricing.setInstallation, { configuratorId, perM2Cents: bad, defaultMode: "with" })).rejects.toThrow();
+    }
+    await expect(asMember.mutation(api.pricing.setInstallation, { configuratorId, perM2Cents: 8000, defaultMode: "with" })).rejects.toThrow();
+    expect(await as.mutation(api.pricing.setInstallation, { configuratorId, perM2Cents: 8000, defaultMode: "without" })).toEqual({ installationPerM2Cents: 8000, installationDefault: "without" });
+    expect((await snapshot()).configurator).toMatchObject({ installationPerM2Cents: 8000, installationDefault: "without" });
+    // 0 switches it off: nothing is published any more.
+    await as.mutation(api.pricing.setInstallation, { configuratorId, perM2Cents: 0, defaultMode: "with" });
+    expect((await snapshot()).configurator.installationPerM2Cents).toBeUndefined();
+  });
+});
+
 describe("delivery: factory transport or the installer's own transporter / fitter", () => {
   test("setDelivery stores the rate, publishes it only in own mode, validates it and needs the permission", async () => {
     const { t, s, as, asMember } = await italianTenant("centro");

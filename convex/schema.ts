@@ -289,6 +289,10 @@ export default defineSchema({
     deliveryMode: v.optional(v.union(v.literal("factory"), v.literal("own"))),
     /** In "own" mode: what the installer's transporter / fitter charges per m² of window, in cents (VAT excluded). */
     ownServicePerM2Cents: v.optional(v.number()),
+    /** The installer's price for fitting (posa) per m², cents, VAT excluded, charged to the customer when the fitting is included. 0 / absent = not offered. */
+    installationPerM2Cents: v.optional(v.number()),
+    /** Whether quotes include the fitting by default ("with", default) or are supply only ("without"). */
+    installationDefault: v.optional(v.union(v.literal("with"), v.literal("without"))),
   })
     .index("by_tenant", ["tenantId"])
     .index("by_publicId", ["publicId"])
@@ -561,6 +565,8 @@ export default defineSchema({
     channel: v.optional(v.union(v.literal("widget"), v.literal("field_b2b"), v.literal("manual"), v.literal("api"))),
     installationType: v.optional(v.string()),
     installationPriceCents: v.optional(v.number()),
+    /** The quote includes the fitting (true) or is supply only, the customer fits the windows (false); absent = the installer does not price fitting by m². */
+    installationIncluded: v.optional(v.boolean()),
     demolitionPriceCents: v.optional(v.number()),
     discountPercent: v.optional(v.number()),
     ecobonusPercent: v.optional(v.number()),

@@ -206,6 +206,8 @@ export default function NewFieldQuotePage() {
   const [installationType, setInstallationType] = useState("posa_qualificata_uni_11673");
   const [installationEuros, setInstallationEuros] = useState(250);
   const [demolitionEuros, setDemolitionEuros] = useState(50);
+  // Fitting (posa) included or supply only (the customer fits the windows themselves); null = the configurator's default.
+  const [withPosaChoice, setWithPosaChoice] = useState<boolean | null>(null);
   const [discountPercent, setDiscountPercent] = useState(0);
   const [profitMarginPercent, setProfitMarginPercent] = useState(30);
   const [vatRatePercent, setVatRatePercent] = useState(10);
@@ -334,6 +336,11 @@ export default function NewFieldQuotePage() {
   const seedItems = useMemo(() => (livePayload ? [defaultItem(livePayload, "finestra2")] : []), [livePayload]);
   const items = itemsState ?? seedItems;
   const currentItem = items[activeItemIndex] || items[0];
+  // The installer's fitting price per m² (published with the catalogue); the pieces carry the choice so the server prices the same.
+  const posaPerM2Cents = effectivePayload.configurator.installationPerM2Cents ?? 0;
+  const posaOffered = posaPerM2Cents > 0;
+  const withPosa = withPosaChoice ?? (effectivePayload.configurator.installationDefault !== "without");
+  const pricedItems = useMemo(() => (posaOffered ? items.map((it) => ({ ...it, withInstallation: withPosa })) : items), [items, posaOffered, withPosa]);
 
   // Draft: the pieces and the client survive a reload or a dead signal on site.
   const draftKey = tenant ? `quote-new:${tenant._id}` : "quote-new";
@@ -369,7 +376,7 @@ export default function NewFieldQuotePage() {
   }).filter((x) => x.opts.length > 0);
 
   const priceCalc = useMemo(() => {
-    const base = calculatePrice(effectivePayload, items);
+    const base = calculatePrice(effectivePayload, pricedItems);
 
     // Regional surcharges
     let regionalExtraCents = 0;
@@ -386,9 +393,14 @@ export default function NewFieldQuotePage() {
       if (rcSecurityLevel === "RC3") regionalExtraCents += (items.length * 12000); // 120€ RC3 upgrade
     }
 
-    const installCents = installationEuros * 100;
-    const demoCents = demolitionEuros * 100;
+    // Supply only: the lump-sum fitting and disposal lines are not charged either.
+    const installCents = withPosa ? installationEuros * 100 : 0;
+    const demoCents = withPosa ? demolitionEuros * 100 : 0;
     const subtotalEx = base.priceExVatCents + installCents + demoCents + regionalExtraCents;
+    // Both totals (ex VAT, after the discount), so the customer can compare "with fitting" and "supply only".
+    const discountFactor = 1 - discountPercent / 100;
+    const withoutPosaEx = Math.round(((base.installation?.exVatWithoutCents ?? base.priceExVatCents) + regionalExtraCents) * discountFactor);
+    const withPosaEx = Math.round(((base.installation?.exVatWithCents ?? base.priceExVatCents) + installationEuros * 100 + demolitionEuros * 100 + regionalExtraCents) * discountFactor);
     const discEx = Math.round(subtotalEx * (1 - discountPercent / 100));
     const finalGross = Math.round(discEx * (1 + effectiveVat / 100));
 
@@ -404,6 +416,9 @@ export default function NewFieldQuotePage() {
 
     return {
       supplyExVat: base.priceExVatCents,
+      posaByAreaCents: base.installation?.includedCents ?? 0,
+      withoutPosaEx,
+      withPosaEx,
       installCents,
       demoCents,
       regionalExtraCents,
@@ -415,7 +430,8 @@ export default function NewFieldQuotePage() {
     };
   }, [
     effectivePayload,
-    items,
+    pricedItems,
+    withPosa,
     installationEuros,
     demolitionEuros,
     discountPercent,
@@ -496,11 +512,11 @@ export default function NewFieldQuotePage() {
           leadLocale: REGION_CONFIGS[regionCode].defaultLocale,
           leadMessage: leadMessage.trim() || undefined,
           regionCode,
-          items,
+          items: pricedItems,
           supplierLines,
           installationType,
-          installationPriceCents: installationEuros * 100,
-          demolitionPriceCents: demolitionEuros * 100,
+          installationPriceCents: withPosa ? installationEuros * 100 : 0,
+          demolitionPriceCents: withPosa ? demolitionEuros * 100 : 0,
           discountPercent,
           regionalSurchargeCents: priceCalc.regionalExtraCents,
           ecobonusPercent: regionCode === "IT" ? ecobonusPercent : undefined,
@@ -539,10 +555,10 @@ export default function NewFieldQuotePage() {
           leadLocale: REGION_CONFIGS[regionCode].defaultLocale,
           leadMessage: leadMessage.trim() || undefined,
           regionCode,
-          items,
+          items: pricedItems,
           installationType,
-          installationPriceCents: installationEuros * 100,
-          demolitionPriceCents: demolitionEuros * 100,
+          installationPriceCents: withPosa ? installationEuros * 100 : 0,
+          demolitionPriceCents: withPosa ? demolitionEuros * 100 : 0,
           discountPercent,
           regionalSurchargeCents: priceCalc.regionalExtraCents,
           ecobonusPercent: regionCode === "IT" ? ecobonusPercent : undefined,
@@ -1124,7 +1140,20 @@ export default function NewFieldQuotePage() {
                   </button>
                 </div>
               ) : null}
-              <div className="grid grid-cols-2 gap-3 pt-2 border-t border-[var(--color-border)]">
+              <fieldset className="space-y-2 pt-2 border-t border-[var(--color-border)]">
+                <legend className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">{t("posa.title")}</legend>
+                <div role="radiogroup" aria-label={t("posa.title")} className="grid gap-2 sm:grid-cols-2">
+                  {([true, false] as const).map((v) => (
+                    <label key={String(v)} className={`cursor-pointer rounded-lg border p-3 text-sm focus-within:ring-2 focus-within:ring-[var(--color-mint)] ${withPosa === v ? "border-[var(--color-mint)] bg-[var(--color-mint-light)]" : "border-[var(--color-border)]"}`}>
+                      <input type="radio" name="with-posa" className="sr-only" checked={withPosa === v} onChange={() => setWithPosaChoice(v)} />
+                      <span className="block font-semibold text-[var(--color-text)]">{v ? t("posa.with") : t("posa.without")}</span>
+                      <span className="mt-1 block text-xs text-[var(--color-text-secondary)]">{v ? t("posa.withHint") : t("posa.withoutHint")}</span>
+                    </label>
+                  ))}
+                </div>
+                {posaOffered && withPosa ? <p className="text-xs text-[var(--color-text-secondary)]">{t("posa.manualHint", { price: (posaPerM2Cents / 100).toFixed(2) })}</p> : null}
+              </fieldset>
+              <div className={`grid grid-cols-2 gap-3 pt-2 border-t border-[var(--color-border)] ${withPosa ? "" : "opacity-50"}`}>
                 <div>
                   <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                     Costo Posa / Pose (€)
@@ -1134,6 +1163,7 @@ export default function NewFieldQuotePage() {
                     min={0}
                     step={10}
                     value={installationEuros}
+                    disabled={!withPosa}
                     onChange={(e) => setInstallationEuros(Number(e.target.value))}
                     className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)] font-mono"
                   />
@@ -1147,6 +1177,7 @@ export default function NewFieldQuotePage() {
                     min={0}
                     step={10}
                     value={demolitionEuros}
+                    disabled={!withPosa}
                     onChange={(e) => setDemolitionEuros(Number(e.target.value))}
                     className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)] font-mono"
                   />
@@ -1247,8 +1278,20 @@ export default function NewFieldQuotePage() {
               </div>
               <div className="flex justify-between text-[var(--color-text-secondary)]">
                 <span>{t("installationDisposal")}</span>
-                <span className="font-mono">€{(installationEuros + demolitionEuros).toFixed(2)}</span>
+                <span className="font-mono">€{(priceCalc.installCents / 100 + priceCalc.demoCents / 100).toFixed(2)}</span>
               </div>
+              {priceCalc.posaByAreaCents > 0 ? (
+                <div className="flex justify-between text-xs text-[var(--color-text-secondary)]">
+                  <span>{t("posa.inSupply")}</span>
+                  <span className="font-mono">€{(priceCalc.posaByAreaCents / 100).toFixed(2)}</span>
+                </div>
+              ) : null}
+              {priceCalc.withPosaEx !== priceCalc.withoutPosaEx ? (
+                <div className="flex flex-wrap justify-between gap-x-4 text-xs text-[var(--color-text-secondary)]" data-testid="posa-compare">
+                  <span>{t("posa.compareWithout", { amount: (priceCalc.withoutPosaEx / 100).toFixed(2) })}</span>
+                  <span>{t("posa.compareWith", { amount: (priceCalc.withPosaEx / 100).toFixed(2) })}</span>
+                </div>
+              ) : null}
               {priceCalc.regionalExtraCents > 0 && (
                 <div className="flex justify-between text-[var(--color-text-secondary)]">
                   <span>{t("regionalOptions", { code: activeMeta.code })}</span>

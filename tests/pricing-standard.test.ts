@@ -134,6 +134,9 @@ describe("the widget's live estimate agrees with the server price", () => {
     { name: "standard Sud with margin 12.5%", cfg: { pricingMode: "standard", marginPercent: 12.5 }, zone: "sud" },
     { name: "standard Centro, triple glazing, colour, margin 7.35%, 3 pieces", cfg: { pricingMode: "standard", marginPercent: 7.35 }, zone: "centro", glazing: "triple", color: "ral", q: 3 },
     { name: "custom catalogue with margin", cfg: { marginPercent: 20 } },
+    { name: "fitting included by default", cfg: { pricingMode: "standard", marginPercent: 20, installationPerM2Cents: 8050, installationDefault: "with" }, q: 3 },
+    { name: "fitting offered but supply only by default", cfg: { pricingMode: "standard", marginPercent: 20, installationPerM2Cents: 8050, installationDefault: "without" } },
+    { name: "odd size with fitting", cfg: { pricingMode: "standard", marginPercent: 7.35, installationPerM2Cents: 9999, installationDefault: "with" }, w: 987, h: 1763, q: 2 },
     { name: "odd size", cfg: { pricingMode: "standard", marginPercent: 33.33 }, w: 987, h: 1763 },
   ];
   for (const c of cases) {

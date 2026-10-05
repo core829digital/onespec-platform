@@ -7,6 +7,7 @@ import { computeItemThermal, type CatalogPayload } from "@/shared/pricing";
 import { dictFor, openingLabel } from "@/lib/quote-export/dictionary";
 import { pieceSpecs } from "@/lib/quote-export/specs";
 import { vatNote } from "@/shared/tax";
+import { fittingNote } from "@/shared/fitting";
 import { CompanyLogo } from "./CompanyLogo";
 
 // Item-table column widths (header and rows share them so they stay aligned).
@@ -269,6 +270,7 @@ interface QuotePrintPDFProps {
     signatureDataUrl?: string;
     vatRatePercent: number;
     /** Why the VAT is what it is (intra-EU 0% with VIES, export, manual 0%) and the customer's VAT number. */
+    installationIncluded?: boolean;
     vatReason?: "domestic" | "intraEu" | "export" | "manualZero";
     vatManualReason?: string;
     buyerVatId?: string;
@@ -402,6 +404,7 @@ export function QuotePrintPDF({
   const installationTotal = (quote.installationPriceCents ?? 0) + (quote.demolitionPriceCents ?? 0);
   const regionalSurchargeCents = quote.regionalSurchargeCents ?? 0;
   const nonSupplyExVat = installationTotal + regionalSurchargeCents;
+  const fittingNoteText = fittingNote(quote.installationIncluded, langKey);
   const vatNoteText = vatNote(quote.vatReason, langKey, { vat: quote.buyerVatId, reason: quote.vatManualReason });
   const supplyExVat = quote.priceExVatCents - (nonSupplyExVat > 0 ? Math.round(nonSupplyExVat / (1 + (quote.vatRatePercent ?? 22) / 100)) : 0);
 
@@ -635,6 +638,7 @@ export function QuotePrintPDF({
               <Text>{T.total}</Text>
               <Text style={{ fontFamily: "Courier", color: colors.emerald[600] }}>{eur(quote.priceCents)}</Text>
             </View>
+            {fittingNoteText ? <Text style={{ fontSize: 8, color: colors.gray[600], marginTop: 6, lineHeight: 1.4 }}>{fittingNoteText}</Text> : null}
             {vatNoteText ? <Text style={{ fontSize: 8, color: colors.gray[600], marginTop: 6, lineHeight: 1.4 }}>{vatNoteText}</Text> : null}
 
             {/* Subsidies */}

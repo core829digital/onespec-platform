@@ -35,6 +35,7 @@ export function PricingTab({ configuratorId, configurator }: { configuratorId: I
   const applyStandard = useMutation(api.pricing.applyStandard);
   const setCustom = useMutation(api.pricing.useCustomPricing);
   const setDelivery = useMutation(api.pricing.setDelivery);
+  const setInstallation = useMutation(api.pricing.setInstallation);
 
   const saved = configurator.marginPercent ?? 0;
   const [value, setValue] = useState(saved);
@@ -69,6 +70,33 @@ export function PricingTab({ configuratorId, configurator }: { configuratorId: I
     }
   }
 
+  // Fitting (posa): the installer's own price per m²; empty / 0 = not offered by m², otherwise quotes can include it or be supply only.
+  const savedPosa = configurator.installationPerM2Cents ?? 0;
+  const savedPosaDefault = configurator.installationDefault ?? "with";
+  const [posaText, setPosaText] = useState(savedPosa ? (savedPosa / 100).toFixed(2).replace(".", ",") : "");
+  const [posaDefault, setPosaDefault] = useState<"with" | "without">(savedPosaDefault);
+  const [prevPosa, setPrevPosa] = useState(`${savedPosa}:${savedPosaDefault}`);
+  if (prevPosa !== `${savedPosa}:${savedPosaDefault}`) {
+    setPrevPosa(`${savedPosa}:${savedPosaDefault}`);
+    setPosaText(savedPosa ? (savedPosa / 100).toFixed(2).replace(".", ",") : "");
+    setPosaDefault(savedPosaDefault);
+  }
+  const posaParsed = posaText.trim() === "" ? 0 : parseEuroPerM2Input(posaText);
+  const posaInvalid = posaParsed === null;
+  const posaCentsPerM2 = posaParsed ?? 0;
+
+  async function savePosa(nextDefault: "with" | "without" = posaDefault) {
+    setErr("");
+    if (posaParsed === null) return;
+    if (posaParsed === savedPosa && nextDefault === savedPosaDefault) return;
+    try {
+      await setInstallation({ configuratorId, perM2Cents: posaParsed, defaultMode: nextDefault });
+      setNote(t("republish"));
+    } catch (e) {
+      setErr(tf(e));
+    }
+  }
+
   // Follow the server value (another tab, a restore) whenever it changes.
   const [prevSaved, setPrevSaved] = useState(saved);
   if (prevSaved !== saved) {
@@ -95,8 +123,9 @@ export function PricingTab({ configuratorId, configurator }: { configuratorId: I
     const service = Math.round(serviceCentsPerM2 * area);
     const base = supply + service;
     const final = applyMarginCents(base, value);
-    return { area, supply, service, base, margin: final - base, final };
-  }, [profileKey, widthMm, heightMm, zone, value, serviceCentsPerM2]);
+    const posa = Math.round(posaCentsPerM2 * area);
+    return { area, supply, service, base, margin: final - base, final, posa };
+  }, [profileKey, widthMm, heightMm, zone, value, serviceCentsPerM2, posaCentsPerM2]);
 
   const money = (cents: number) => new Intl.NumberFormat(locale, { style: "currency", currency: configurator.currency || "EUR" }).format(cents / 100);
   const pct = (n: number) => new Intl.NumberFormat(locale, { maximumFractionDigits: 2 }).format(n);
@@ -217,6 +246,42 @@ export function PricingTab({ configuratorId, configurator }: { configuratorId: I
         ) : null}
       </section>
 
+      <section className="space-y-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
+        <h3 className="font-semibold text-[var(--color-text)]">{t("posa.title")}</h3>
+        <p className="text-sm text-[var(--color-text-secondary)]">{t("posa.help")}</p>
+        <div className="flex flex-wrap items-center gap-3">
+          <label className="flex items-center gap-2 text-sm text-[var(--color-text)]">
+            <span>{t("posa.rate")}</span>
+            <input
+              type="text"
+              inputMode="decimal"
+              value={posaText}
+              aria-invalid={posaInvalid}
+              placeholder="0,00"
+              onChange={(e) => setPosaText(e.target.value.replace(/[^\d.,]/g, "").slice(0, 8))}
+              onBlur={() => void savePosa()}
+              onKeyDown={(e) => { if (e.key === "Enter") void savePosa(); }}
+              className="w-28 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-right"
+            />
+            <span aria-hidden>€/m²</span>
+          </label>
+          {posaInvalid ? <p className="text-xs text-[var(--color-danger)]">{t("posa.invalid")}</p> : null}
+        </div>
+        {posaCentsPerM2 > 0 ? (
+          <div role="radiogroup" aria-label={t("posa.defaultTitle")} className="grid gap-2 sm:grid-cols-2">
+            {(["with", "without"] as const).map((m) => (
+              <label key={m} className={`cursor-pointer rounded-lg border p-3 text-sm focus-within:ring-2 focus-within:ring-[var(--color-mint)] ${posaDefault === m ? "border-[var(--color-mint)] bg-[var(--color-mint-light)]" : "border-[var(--color-border)]"}`}>
+                <input type="radio" name="posa-default" className="sr-only" checked={posaDefault === m} onChange={() => { setPosaDefault(m); void savePosa(m); }} />
+                <span className="block font-semibold text-[var(--color-text)]">{t(`posa.${m}`)}</span>
+                <span className="mt-1 block text-xs text-[var(--color-text-secondary)]">{t(`posa.${m}Hint`)}</span>
+              </label>
+            ))}
+          </div>
+        ) : (
+          <p className="text-xs text-[var(--color-text-secondary)]">{t("posa.off")}</p>
+        )}
+      </section>
+
       <section className="space-y-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
         <h3 className="font-semibold text-[var(--color-text)]">{t("marginTitle")}</h3>
         <p className="text-sm text-[var(--color-text-secondary)]">{t("marginHelp")}</p>
@@ -301,6 +366,7 @@ export function PricingTab({ configuratorId, configurator }: { configuratorId: I
             </label>
           </div>
           {example ? (
+            <>
             <dl className="grid gap-2 text-sm sm:grid-cols-3">
               <div className="rounded-lg border border-[var(--color-border)] p-3">
                 <dt className="text-xs text-[var(--color-text-secondary)]">{t("exampleBase", { area: pct(example.area) })}</dt>
@@ -316,6 +382,19 @@ export function PricingTab({ configuratorId, configurator }: { configuratorId: I
                 <dd className="text-lg font-bold text-[var(--color-text)]" data-testid="example-final">{money(example.final)}</dd>
               </div>
             </dl>
+            {example.posa > 0 ? (
+              <dl className="grid gap-2 text-sm sm:grid-cols-2" data-testid="example-posa">
+                <div className="rounded-lg border border-[var(--color-border)] p-3">
+                  <dt className="text-xs text-[var(--color-text-secondary)]">{t("posa.exampleWithout")}</dt>
+                  <dd className="text-lg font-bold text-[var(--color-text)]">{money(example.final)}</dd>
+                </div>
+                <div className="rounded-lg border border-[var(--color-border)] p-3">
+                  <dt className="text-xs text-[var(--color-text-secondary)]">{t("posa.exampleWith")}</dt>
+                  <dd className="text-lg font-bold text-[var(--color-text)]">{money(example.final + example.posa)}</dd>
+                </div>
+              </dl>
+            ) : null}
+            </>
           ) : (
             <p className="text-xs text-[var(--color-text-secondary)]">{t("exampleInvalid")}</p>
           )}

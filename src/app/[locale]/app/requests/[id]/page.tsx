@@ -11,6 +11,7 @@ import { QuoteFieldModules } from "@/components/field/quote-field-modules";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import { usePlanAccess } from "@/lib/plan-gates";
 import { vatNote } from "@/shared/tax";
+import { fittingNote } from "@/shared/fitting";
 
 const STATUSES = ["new", "contacted", "quoted", "won", "lost", "spam"] as const;
 const STATUS_KEY: Record<string, string> = {
@@ -338,6 +339,11 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
               {quote.vatReason && quote.vatReason !== "domestic" ? (
                 <div className="col-span-full rounded-lg border border-[var(--color-border)] p-2 text-xs text-[var(--color-text-secondary)]">
                   {vatNote(quote.vatReason, locale, { vat: quote.buyerVatId, reason: quote.vatManualReason })}
+                </div>
+              ) : null}
+              {quote.installationIncluded !== undefined ? (
+                <div className="col-span-full rounded-lg border border-[var(--color-border)] p-2 text-xs text-[var(--color-text-secondary)]">
+                  {fittingNote(quote.installationIncluded, locale)}
                 </div>
               ) : null}
               {quote.installationPriceCents ? (
