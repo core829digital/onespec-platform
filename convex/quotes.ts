@@ -11,7 +11,7 @@ import { calculatePrice, type ProjectItem, type CatalogPayload } from "../src/sh
 import { currentPeriod, resolveTenantEntitlements } from "./lib/entitlements";
 import { regionForCountry } from "./lib/regions";
 import { resolveLinks, logClientActivity } from "./lib/links";
-import { parseQuoteItems, nextOfferNumber } from "./lib/quoteItems";
+import { assertCoherentItems, parseQuoteItems, nextOfferNumber } from "./lib/quoteItems";
 import { defaultItem } from "../src/shared/item-defaults";
 
 /** Max size of a base64 signature PNG data URL (~200 KB of characters). */
@@ -213,6 +213,7 @@ export const createFieldQuote = mutation({
 
     const payload = versionDoc.payload as CatalogPayload;
     const items = parseQuoteItems(args.items);
+    assertCoherentItems(payload, items);
 
     // Authoritative calculation ÔÇö server is the source of truth for price.
     const baseCalc = calculatePrice(payload, items);
@@ -629,6 +630,7 @@ export const createQuoteWithSuppliers = mutation({
 
     const payload = versionDoc.payload as CatalogPayload;
     const items = parseQuoteItems(args.items);
+    assertCoherentItems(payload, items);
 
     // Validate supplier lines (bounded: at most a few per piece).
     if (args.supplierLines && args.supplierLines.length > items.length * 5) throw new ConvexError("INVALID_INPUT");

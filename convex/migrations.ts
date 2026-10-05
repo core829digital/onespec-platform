@@ -1,3 +1,4 @@
+import { ensureProfileClassification } from "./lib/standardCatalog";
 import { internal } from "./_generated/api";
 import { internalMutation, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
@@ -563,5 +564,35 @@ export const grantFullAccessToFounders = internalMutation({
       report.tenantsFlagged++;
     }
     return report;
+  },
+});
+
+/**
+ * Classify every profile by its number of chambers and add the 6-chamber quality to existing configurators:
+ *
+ *   npx convex run --prod migrations:classifyProfiles
+ *
+ * One scheduled job per configurator. Idempotent: only fills in what is missing, never re-enables a quality the installer switched
+ * off and never overwrites a classification they chose.
+ */
+export const classifyProfiles = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    let scheduled = 0;
+    for (const c of await ctx.db.query("configurators").collect()) {
+      if (c.deletingAt !== undefined) continue;
+      await ctx.scheduler.runAfter(scheduled * 100, internal.migrations.classifyProfilesOne, { configuratorId: c._id });
+      scheduled++;
+    }
+    return { scheduled };
+  },
+});
+
+export const classifyProfilesOne = internalMutation({
+  args: { configuratorId: v.id("configurators") },
+  handler: async (ctx, args) => {
+    const c = await ctx.db.get(args.configuratorId);
+    if (!c || c.deletingAt !== undefined) return null;
+    return await ensureProfileClassification(ctx, { tenantId: c.tenantId, configuratorId: c._id });
   },
 });

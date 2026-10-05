@@ -401,7 +401,10 @@
     "noSupplierLines": "Nessun fornitore valido trovato per le righe multi-fornitore.",
     "quoteCreateFailed": "Non è stato possibile creare il preventivo. Riprova.",
     "configuratorHasRequests": "Questo configuratore ha già ricevuto richieste dei clienti e non può essere eliminato, per non perdere i loro dati. Puoi archiviarlo: smette di funzionare ma i dati restano.",
-    "priceZoneRequired": "Prima indica dove lavori (Nord, Centro o Sud Italia): serve per scegliere il listino standard giusto."
+    "priceZoneRequired": "Prima indica dove lavori (Nord, Centro o Sud Italia): serve per scegliere il listino standard giusto.",
+    "qualityInUse": "Questa qualità è usata da dei profili: spostali in un'altra qualità prima di eliminarla.",
+    "profileQualityUnknown": "La qualità scelta per il profilo non esiste per questo materiale.",
+    "invalidCombination": "La combinazione scelta non è valida per il catalogo (qualità, profilo o vetro non compatibili). Ricarica la pagina e riprova."
   },
   "app": {
     "suspended": {

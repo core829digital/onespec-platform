@@ -401,7 +401,10 @@
     "noSupplierLines": "Nu s-a găsit niciun furnizor valid pentru liniile multi-furnizor.",
     "quoteCreateFailed": "Oferta nu a putut fi creată. Încercați din nou.",
     "configuratorHasRequests": "Acest configurator a primit deja cereri de la clienți și nu poate fi șters, pentru a nu pierde datele lor. Îl poți arhiva: nu mai funcționează, dar datele rămân.",
-    "priceZoneRequired": "Indică mai întâi unde lucrezi (nordul, centrul sau sudul Italiei): este necesar pentru a alege lista de prețuri standard corectă."
+    "priceZoneRequired": "Indică mai întâi unde lucrezi (nordul, centrul sau sudul Italiei): este necesar pentru a alege lista de prețuri standard corectă.",
+    "qualityInUse": "Unele profile folosesc încă această calitate: mutați-le în altă calitate înainte de a o șterge.",
+    "profileQualityUnknown": "Calitatea aleasă pentru profil nu există pentru acest material.",
+    "invalidCombination": "Combinația aleasă nu este validă pentru catalog (calitate, profil sau geam incompatibile). Reîncărcați pagina și încercați din nou."
   },
   "app": {
     "suspended": {

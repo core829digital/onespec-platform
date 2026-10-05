@@ -401,7 +401,10 @@
     "noSupplierLines": "Aucun fournisseur valide trouvé pour les lignes multi-fournisseurs.",
     "quoteCreateFailed": "Le devis n'a pas pu être créé. Réessayez.",
     "configuratorHasRequests": "Ce configurateur a déjà reçu des demandes de clients et ne peut pas être supprimé, afin de ne pas perdre leurs données. Vous pouvez l'archiver : il cesse de fonctionner mais les données restent.",
-    "priceZoneRequired": "Indiquez d'abord où vous travaillez (Nord, Centre ou Sud de l'Italie) : c'est nécessaire pour choisir le bon barème standard."
+    "priceZoneRequired": "Indiquez d'abord où vous travaillez (Nord, Centre ou Sud de l'Italie) : c'est nécessaire pour choisir le bon barème standard.",
+    "qualityInUse": "Des profilés utilisent encore cette qualité : déplacez-les vers une autre qualité avant de la supprimer.",
+    "profileQualityUnknown": "La qualité choisie pour le profilé n'existe pas pour ce matériau.",
+    "invalidCombination": "La combinaison choisie n'est pas valide pour le catalogue (qualité, profilé ou vitrage incompatibles). Rechargez la page et réessayez."
   },
   "app": {
     "suspended": {

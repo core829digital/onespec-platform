@@ -138,6 +138,17 @@ export function nearestFittingGlazing(glazing: CatalogPayload["glazing"], p: Pic
 }
 
 /**
+ * A "N chambers" tier the profiles refer to but the tier table does not list yet (catalogues built before the 6-chamber tier):
+ * priced and measured with the interpolated defaults instead of a lookup that comes back empty.
+ */
+export function virtualQualityTier(payload: Pick<CatalogPayload, "profileSystems">, materialKey: string, key: string | undefined): TierRow | undefined {
+  const n = chambersOfQualityKey(key);
+  if (!n || !key) return undefined;
+  const used = (payload.profileSystems ?? []).some((p) => p.materialKey === materialKey && p.enabled && profileQualityKey(p) === key);
+  return used ? { materialKey, key, labels: chamberTierLabels(n), ...chamberTierDefaults(n), sortOrder: 100 + n, enabled: true } : undefined;
+}
+
+/**
  * Brings a piece back to a coherent set of choices, from the top down: a quality that exists, a profile of that quality, a
  * glazing unit that profile can hold. Returns the same object when nothing needs to change.
  */

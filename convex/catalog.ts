@@ -5,6 +5,8 @@ import { requireMembership } from "./lib/auth";
 import { requirePermission } from "./lib/rbac";
 import { regionForCountry, type RegionCode } from "./lib/regions";
 import { loadExtras, seedExtras } from "./lib/catalogExtras";
+import { ensureProfileClassification } from "./lib/standardCatalog";
+import { chamberQualityKey, chamberTierDefaults, chamberTierLabels, profileQualityKey } from "../src/shared/catalog-rules";
 import { assertCents, assertHex, assertKey, assertLabels, assertMultiplier, assertRange, assertShortText, assertSortOrder, assertThermal } from "./lib/inputs";
 
 /**
@@ -27,8 +29,8 @@ const DEFAULT_MATERIALS = [
 ];
 
 const DEFAULT_QUALITIES = {
-  pvc: [{ key: "chamber5", labels: { it: "5 camere", en: "5 chambers", fr: "5 chambres", nl: "5 kamers", de: "5 Kammern" }, multiplier: 1.0, uAdjust: 0, sortOrder: 0, enabled: true },
-        { key: "chamber7", labels: { it: "7 camere", en: "7 chambers", fr: "7 chambres", nl: "7 kamers", de: "7 Kammern" }, multiplier: 1.15, uAdjust: -0.15, sortOrder: 1, enabled: true }],
+  // 5, 6 and 7 chambers: the profiles of the standard price list come in all three, and each one is offered only under its own.
+  pvc: [5, 6, 7].map((n, i) => ({ key: chamberQualityKey(n), labels: chamberTierLabels(n), ...chamberTierDefaults(n), sortOrder: i, enabled: true })),
   wood: [{ key: "pine", labels: { it: "Pino", en: "Pine", fr: "Pin", nl: "Grenen", de: "Kiefer" }, multiplier: 1.0, uAdjust: 0, sortOrder: 0, enabled: true },
          { key: "oak", labels: { it: "Rovere", en: "Oak", fr: "Chêne", nl: "Eiken", de: "Eiche" }, multiplier: 1.35, uAdjust: -0.05, sortOrder: 1, enabled: true }],
   aluminum: [{ key: "standard", labels: { it: "Standard", en: "Standard", fr: "Standard", nl: "Standaard", de: "Standard" }, multiplier: 1.0, uAdjust: 0, sortOrder: 0, enabled: true },
@@ -251,24 +253,38 @@ export const deleteQualityTier = mutation({
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
     await requirePermission(ctx, configurator.tenantId, "catalog.manage");
 
+    // Profiles classified under this quality would be left without one: refuse until they are moved.
+    const profiles = await ctx.db.query("catalogProfileSystems").withIndex("by_configurator_material", q => q.eq("configuratorId", args.configuratorId).eq("materialKey", args.materialKey)).collect();
+    if (profiles.some((p) => profileQualityKey(p) === args.key)) throw new ConvexError("QUALITY_IN_USE");
+
     const existing = await ctx.db.query("catalogQualityTiers").withIndex("by_configurator_material", q => q.eq("configuratorId", args.configuratorId).eq("materialKey", args.materialKey)).filter(q => q.eq(q.field("key"), args.key)).unique();
     if (existing) await ctx.db.delete(existing._id);
   },
 });
 
 export const upsertProfileSystem = mutation({
-  args: { configuratorId: v.id("configurators"), materialKey: v.string(), key: v.string(), labels: v.any(), multiplier: v.number(), uFrame: v.optional(v.number()), group: v.optional(v.string()), sortOrder: v.number(), enabled: v.boolean() },
+  args: { configuratorId: v.id("configurators"), materialKey: v.string(), key: v.string(), labels: v.any(), multiplier: v.number(), uFrame: v.optional(v.number()), group: v.optional(v.string()), qualityKey: v.optional(v.string()), sortOrder: v.number(), enabled: v.boolean() },
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
     await requirePermission(ctx, configurator.tenantId, "catalog.manage");
     assertKey(args.key); assertKey(args.materialKey); assertLabels(args.labels); assertMultiplier(args.multiplier); assertThermal(args.uFrame); assertShortText(args.group); assertSortOrder(args.sortOrder);
 
+    // The quality a profile belongs to must be one of this material's: "" clears it (profile not classified).
+    const { qualityKey: rawQuality, ...rest } = args;
+    const qualityKey = rawQuality === "" ? undefined : rawQuality;
+    if (qualityKey !== undefined) {
+      assertKey(qualityKey);
+      const tier = await ctx.db.query("catalogQualityTiers").withIndex("by_configurator_material", q => q.eq("configuratorId", args.configuratorId).eq("materialKey", args.materialKey)).filter(q => q.eq(q.field("key"), qualityKey)).unique();
+      if (!tier) throw new ConvexError("PROFILE_QUALITY_UNKNOWN");
+    }
+
     const existing = await ctx.db.query("catalogProfileSystems").withIndex("by_configurator_material", q => q.eq("configuratorId", args.configuratorId).eq("materialKey", args.materialKey)).filter(q => q.eq(q.field("key"), args.key)).unique();
     if (existing) {
-      await ctx.db.patch(existing._id, args);
+      // Only an explicit choice changes the classification; an edit of the label or price keeps it.
+      await ctx.db.patch(existing._id, rawQuality === undefined ? rest : { ...rest, qualityKey });
     } else {
-      await ctx.db.insert("catalogProfileSystems", { ...args, tenantId: configurator.tenantId });
+      await ctx.db.insert("catalogProfileSystems", { ...rest, ...(qualityKey ? { qualityKey } : {}), tenantId: configurator.tenantId });
     }
   },
 });
@@ -480,6 +496,9 @@ export const ensureCatalogExtras = mutation({
   args: { configuratorId: v.id("configurators") },
   handler: async (ctx, args) => {
     const configurator = await ownedConfigurator(ctx, args.configuratorId);
-    return await seedExtras(ctx, { tenantId: configurator.tenantId, configuratorId: args.configuratorId });
+    const scope = { tenantId: configurator.tenantId, configuratorId: args.configuratorId };
+    // Older catalogues: bring the profile classification (quality of each profile, 6-chamber tier) up to date as well.
+    await ensureProfileClassification(ctx, scope);
+    return await seedExtras(ctx, scope);
   },
 });

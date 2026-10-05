@@ -401,7 +401,10 @@
     "noSupplierLines": "Geen geldige leverancier gevonden voor de regels met meerdere leveranciers.",
     "quoteCreateFailed": "De offerte kon niet worden aangemaakt. Probeer het opnieuw.",
     "configuratorHasRequests": "Deze configurator heeft al klantaanvragen ontvangen en kan niet worden verwijderd, zodat hun gegevens niet verloren gaan. U kunt hem archiveren: hij werkt dan niet meer, maar de gegevens blijven bewaard.",
-    "priceZoneRequired": "Geef eerst aan waar u werkt (Noord-, Midden- of Zuid-Italië): dat is nodig om de juiste standaardprijslijst te kiezen."
+    "priceZoneRequired": "Geef eerst aan waar u werkt (Noord-, Midden- of Zuid-Italië): dat is nodig om de juiste standaardprijslijst te kiezen.",
+    "qualityInUse": "Er gebruiken nog profielen deze kwaliteit: verplaats ze naar een andere kwaliteit voordat u haar verwijdert.",
+    "profileQualityUnknown": "De voor het profiel gekozen kwaliteit bestaat niet voor dit materiaal.",
+    "invalidCombination": "De gekozen combinatie is niet geldig voor de catalogus (kwaliteit, profiel of beglazing passen niet bij elkaar). Laad de pagina opnieuw en probeer het nog eens."
   },
   "app": {
     "suspended": {

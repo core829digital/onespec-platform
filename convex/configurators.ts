@@ -12,7 +12,7 @@ import { resolveEffectiveConfig, PLATFORM_DEFAULTS, CONFIG_LAYERS } from "./lib/
 import { internal } from "./_generated/api";
 import { regionForCountry } from "./lib/regions";
 import { pricingBlock, withStandardPrices } from "./lib/standardPricing";
-import { applyStandardPricing } from "./lib/standardCatalog";
+import { applyStandardPricing, ensureProfileClassification } from "./lib/standardCatalog";
 import { isPriceZone } from "../src/shared/standard-pricing";
 
 export const createConfigurator = mutation({
@@ -347,6 +347,9 @@ export const publishConfigurator = mutation({
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator || configurator.deletingAt !== undefined) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
     const { membership } = await requirePermission(ctx, configurator.tenantId, "configurators.manage");
+
+    // Every profile carries its quality and every quality it refers to exists before the snapshot is taken.
+    await ensureProfileClassification(ctx, { tenantId: configurator.tenantId, configuratorId: args.configuratorId });
 
     const [materials, qualityTiers, profileSystems, sizeConstraints, glazing, finish, hardware, branding] = await Promise.all([
       ctx.db.query("catalogMaterials").withIndex("by_configurator", q => q.eq("configuratorId", args.configuratorId)).collect(),

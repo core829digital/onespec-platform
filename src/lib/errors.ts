@@ -32,6 +32,9 @@ export type ErrorKey =
   | "cannotDeleteSigned"
   | "configuratorHasRequests"
   | "priceZoneRequired"
+  | "qualityInUse"
+  | "profileQualityUnknown"
+  | "invalidCombination"
   | "fundingNeedsQuote"
   | "noPublishedVersion"
   | "noItems"
@@ -117,6 +120,9 @@ const EXACT: Record<string, ErrorKey> = {
   CANNOT_DELETE_SIGNED: "cannotDeleteSigned",
   CONFIGURATOR_HAS_REQUESTS: "configuratorHasRequests",
   PRICE_ZONE_REQUIRED: "priceZoneRequired",
+  QUALITY_IN_USE: "qualityInUse",
+  PROFILE_QUALITY_UNKNOWN: "profileQualityUnknown",
+  INVALID_COMBINATION: "invalidCombination",
   FUNDING_NEEDS_QUOTE: "fundingNeedsQuote",
   PASSPORT_NO_QUOTE: "fundingNeedsQuote",
   NO_PUBLISHED_VERSION: "noPublishedVersion",

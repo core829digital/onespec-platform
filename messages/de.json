@@ -401,7 +401,10 @@
     "noSupplierLines": "Für die Mehrlieferanten-Positionen wurde kein gültiger Lieferant gefunden.",
     "quoteCreateFailed": "Das Angebot konnte nicht erstellt werden. Bitte erneut versuchen.",
     "configuratorHasRequests": "Dieser Konfigurator hat bereits Kundenanfragen erhalten und kann nicht gelöscht werden, damit deren Daten nicht verloren gehen. Sie können ihn archivieren: er funktioniert dann nicht mehr, die Daten bleiben erhalten.",
-    "priceZoneRequired": "Geben Sie zuerst an, wo Sie arbeiten (Nord-, Mittel- oder Süditalien): das wird für die passende Standardpreisliste benötigt."
+    "priceZoneRequired": "Geben Sie zuerst an, wo Sie arbeiten (Nord-, Mittel- oder Süditalien): das wird für die passende Standardpreisliste benötigt.",
+    "qualityInUse": "Profile verwenden diese Qualität noch: Verschieben Sie sie in eine andere Qualität, bevor Sie sie löschen.",
+    "profileQualityUnknown": "Die für das Profil gewählte Qualität gibt es für dieses Material nicht.",
+    "invalidCombination": "Die gewählte Kombination ist für den Katalog nicht gültig (Qualität, Profil oder Verglasung passen nicht zusammen). Laden Sie die Seite neu und versuchen Sie es erneut."
   },
   "app": {
     "suspended": {

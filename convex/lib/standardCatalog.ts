@@ -1,6 +1,7 @@
 import { ConvexError } from "convex/values";
 import type { Doc, Id } from "../_generated/dataModel";
 import type { MutationCtx } from "../_generated/server";
+import { chamberQualityKey, chamberTierDefaults, chamberTierLabels, chambersOfQualityKey, profileQualityKey } from "../../src/shared/catalog-rules";
 import { finishLibraryRows } from "../../src/shared/finish-library";
 import { glazingPackageRows, parseGlazingKey } from "../../src/shared/glazing-packages";
 import {
@@ -60,6 +61,7 @@ export async function applyStandardPricing(ctx: MutationCtx, configurator: Doc<"
       multiplier: 1,
       group: sp.klass,
       standardKey: sp.key,
+      qualityKey: chamberQualityKey(sp.chambers),
       sortOrder: order,
       enabled: true,
     });
@@ -109,8 +111,40 @@ export async function applyStandardPricing(ctx: MutationCtx, configurator: Doc<"
     result.finishUpdated++;
   }
 
+  await ensureProfileClassification(ctx, scope);
   await ctx.db.patch(configurator._id, { pricingMode: "standard", updatedAt: Date.now() });
   return result;
+}
+
+/**
+ * Every profile with a known quality carries it (stored on the row), and every quality those profiles refer to exists as a
+ * tier. Adds only what is missing: no tier is re-enabled, no classification an installer chose is overwritten. Idempotent.
+ */
+export async function ensureProfileClassification(
+  ctx: MutationCtx,
+  scope: { tenantId: Id<"tenants">; configuratorId: Id<"configurators"> },
+): Promise<{ classified: number; tiersAdded: number }> {
+  const profiles = await ctx.db.query("catalogProfileSystems").withIndex("by_configurator", (q) => q.eq("configuratorId", scope.configuratorId)).collect();
+  const tiers = await ctx.db.query("catalogQualityTiers").withIndex("by_configurator", (q) => q.eq("configuratorId", scope.configuratorId)).collect();
+  let classified = 0;
+  let tiersAdded = 0;
+  for (const p of profiles) {
+    const q = profileQualityKey(p);
+    if (!q) continue;
+    if (!p.qualityKey) {
+      await ctx.db.patch(p._id, { qualityKey: q });
+      classified++;
+    }
+    const n = chambersOfQualityKey(q);
+    if (n && !tiers.some((t) => t.materialKey === p.materialKey && t.key === q)) {
+      const order = tiers.filter((t) => t.materialKey === p.materialKey).reduce((m, t) => Math.max(m, t.sortOrder), -1) + 1;
+      const row = { ...scope, materialKey: p.materialKey, key: q, labels: chamberTierLabels(n), ...chamberTierDefaults(n), sortOrder: order, enabled: true };
+      const id = await ctx.db.insert("catalogQualityTiers", row);
+      tiers.push({ ...row, _id: id, _creationTime: Date.now() });
+      tiersAdded++;
+    }
+  }
+  return { classified, tiersAdded };
 }
 
 /** Quality class names for the profile groups of the editor (used by tests and the picker). */

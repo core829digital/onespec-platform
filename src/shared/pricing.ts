@@ -8,6 +8,7 @@ import {
   type PieceCategory,
 } from "./configurator-model";
 import { applyMarginCents } from "./standard-pricing";
+import { virtualQualityTier } from "./catalog-rules";
 
 export interface CatalogPayload {
   configurator: {
@@ -272,7 +273,7 @@ function getMaterialConfig(payload: CatalogPayload, materialKey: string) {
 }
 
 function getQualityTier(payload: CatalogPayload, materialKey: string, qualityKey: string) {
-  return payload.qualityTiers.find(q => q.materialKey === materialKey && q.key === qualityKey && q.enabled);
+  return payload.qualityTiers.find(q => q.materialKey === materialKey && q.key === qualityKey && q.enabled) ?? virtualQualityTier(payload, materialKey, qualityKey);
 }
 
 function getProfile(payload: CatalogPayload, materialKey: string, key: string | undefined) {

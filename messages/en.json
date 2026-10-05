@@ -401,7 +401,10 @@
     "noSupplierLines": "No valid supplier found for the multi-supplier lines.",
     "quoteCreateFailed": "The quote could not be created. Please try again.",
     "configuratorHasRequests": "This configurator has already received customer requests and cannot be deleted, so their data is not lost. You can archive it: it stops working but the data stays.",
-    "priceZoneRequired": "First tell us where you work (North, Centre or South of Italy): it is needed to pick the right standard price list."
+    "priceZoneRequired": "First tell us where you work (North, Centre or South of Italy): it is needed to pick the right standard price list.",
+    "qualityInUse": "Profiles still use this quality: move them to another quality before deleting it.",
+    "profileQualityUnknown": "The quality chosen for the profile does not exist for this material.",
+    "invalidCombination": "The chosen combination is not valid for the catalogue (quality, profile or glazing do not match). Reload the page and try again."
   },
   "app": {
     "suspended": {
