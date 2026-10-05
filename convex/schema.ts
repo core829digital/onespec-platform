@@ -343,6 +343,8 @@ export default defineSchema({
     group: v.optional(v.string()),
     /** Key of the standard price list entry this profile is priced from (shared/standard-pricing). */
     standardKey: v.optional(v.string()),
+    /** Quality tier (key of catalogQualityTiers, e.g. "chamber6") the profile belongs to; absent = not classified. */
+    qualityKey: v.optional(v.string()),
     sortOrder: v.number(),
     enabled: v.boolean(),
   })

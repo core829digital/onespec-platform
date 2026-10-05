@@ -26,8 +26,10 @@ export interface StandardProfile {
   name: string;
   chambers: number;
   thicknessMm: string;
-  /** Short technical note ("tripla guarnitura", "fibra carbon"...), if any. */
+  /** Short technical note ("tripla guarnitura", "fibra carbon"...), if any; see FEATURE_LABEL for its translations. */
   feature?: string;
+  /** Gasket system: "triple" when the profile is documented with a triple gasket, else the usual one. */
+  gasket?: "standard" | "triple";
   klass: QualityClass;
   prices: Record<PriceZone, ZonePrices>;
   /** EUR per linear metre of a 6 m bar. */
@@ -51,7 +53,7 @@ export const STANDARD_PROFILES: readonly StandardProfile[] = [
     prices: { nord: p([280, 320], [165, 195]), centro: p([260, 300], [155, 185]), sud: p([240, 280], [145, 175]) }, bar: [11, 15], glass: [85, 115] },
   { key: "std_veka_softline_82", name: "Veka Softline 82 / Aluplast Ideal 7000", chambers: 6, thicknessMm: "82-85", klass: "mediaSuperiore",
     prices: { nord: p([355, 435], [195, 260]), centro: p([335, 415], [185, 250]), sud: p([315, 395], [175, 240]) }, bar: [14, 19], glass: [110, 150] },
-  { key: "std_salamander_bluevolution_82", name: "Salamander bluEvolution 82", chambers: 6, thicknessMm: "82", feature: "tripla guarnitura", klass: "mediaSuperiore",
+  { key: "std_salamander_bluevolution_82", name: "Salamander bluEvolution 82", chambers: 6, thicknessMm: "82", feature: "tripla guarnitura", gasket: "triple", klass: "mediaSuperiore",
     prices: { nord: p([355, 435], [195, 260]), centro: p([335, 415], [185, 250]), sud: p([315, 395], [175, 240]) }, bar: [14, 19], glass: [110, 150] },
   { key: "std_rehau_geneo_86", name: "Rehau Geneo 86 mm fibra carbon", chambers: 6, thicknessMm: "86", feature: "fibra carbon", klass: "premium",
     prices: { nord: p([450, 650], [250, 390]), centro: p([430, 630], [240, 380]), sud: p([410, 610], [230, 370]) }, bar: [18, 28], glass: [130, 180] },
@@ -153,13 +155,24 @@ export const QUALITY_CLASS_LABEL: Record<QualityClass, Six> = {
   premium: six("Premium", "Premium", "Premium", "Premium", "Premium", "Premium"),
 };
 
+/** Translations of the short technical notes of the profiles. */
+export const FEATURE_LABEL: Record<string, Six> = {
+  "tripla guarnitura": six("tripla guarnizione", "triple gasket", "triple joint", "dreifache Dichtung", "drievoudige afdichting", "garnitură triplă"),
+  "fibra carbon": six("fibra di carbonio", "carbon fibre", "fibre de carbone", "Carbonfaser", "koolstofvezel", "fibră de carbon"),
+  "IKD top": six("IKD top", "IKD top", "IKD top", "IKD top", "IKD top", "IKD top"),
+};
+
+/** The note of a profile in one language ("" when it has none). */
+export const featureText = (profile: Pick<StandardProfile, "feature">, lang: keyof Six): string =>
+  profile.feature ? (FEATURE_LABEL[profile.feature]?.[lang] ?? profile.feature) : "";
+
 const CHAMBERS_WORD: Six = six("camere", "chambers", "chambres", "Kammern", "kamers", "camere");
 
 /** Label of a profile row in every language: "Aluplast Ideal 4000 · 5 camere · 70 mm". */
 export function standardProfileLabels(profile: StandardProfile): Record<string, string> {
   const out: Record<string, string> = {};
   for (const l of Object.keys(CHAMBERS_WORD) as Array<keyof Six>) {
-    out[l] = `${profile.name} · ${profile.chambers} ${CHAMBERS_WORD[l]} · ${profile.thicknessMm} mm${profile.feature ? ` · ${profile.feature}` : ""}`;
+    out[l] = `${profile.name} · ${profile.chambers} ${CHAMBERS_WORD[l]} · ${profile.thicknessMm} mm${profile.feature ? ` · ${featureText(profile, l)}` : ""}`;
   }
   return out;
 }

@@ -71,6 +71,8 @@ export interface CatalogPayload {
     group?: string;
     /** Standard price list entry this profile is priced from. */
     standardKey?: string;
+    /** Quality tier (number of chambers) this profile belongs to; absent = not classified. */
+    qualityKey?: string;
     /** The entry's prices in the zone, in cents, resolved when the catalogue is published / previewed. */
     standard?: {
       completePerM2Cents: number;
