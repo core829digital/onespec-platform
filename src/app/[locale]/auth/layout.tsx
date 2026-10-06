@@ -28,7 +28,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           <div className="flex items-center gap-3">
             <a
               href={siteUrl}
-              className="text-xs text-[var(--auth-text-dim)] hover:text-[var(--auth-text)]"
+              className="inline-flex min-h-11 items-center px-1 text-xs text-[var(--auth-text-dim)] hover:text-[var(--auth-text)]"
             >
               {t("backToSite")}
             </a>
@@ -36,7 +36,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               href="https://cloud.onespec.eu"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-[var(--auth-text-dim)] hover:text-[var(--auth-text)]"
+              className="inline-flex min-h-11 items-center px-1 text-xs text-[var(--auth-text-dim)] hover:text-[var(--auth-text)]"
             >
               {tTopbar("status")}
             </a>
@@ -51,17 +51,17 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               {children}
             </div>
             <p className="mt-6 text-center text-[var(--auth-text-dim)] text-sm">{t("footer")}</p>
-            <nav className="mt-3 flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs text-[var(--auth-text-dim)]">
-              <Link href="/legal/privacy" className="hover:text-[var(--auth-text)]">
+            <nav className="mt-3 flex flex-wrap justify-center gap-x-4 text-xs text-[var(--auth-text-dim)]">
+              <Link href="/legal/privacy" className="inline-flex min-h-11 items-center hover:text-[var(--auth-text)]">
                 Privacy
               </Link>
-              <Link href="/legal/termini-di-servizio" className="hover:text-[var(--auth-text)]">
+              <Link href="/legal/termini-di-servizio" className="inline-flex min-h-11 items-center hover:text-[var(--auth-text)]">
                 Termini di servizio
               </Link>
-              <Link href="/legal/cookie" className="hover:text-[var(--auth-text)]">
+              <Link href="/legal/cookie" className="inline-flex min-h-11 items-center hover:text-[var(--auth-text)]">
                 Cookie
               </Link>
-              <Link href="/legal" className="hover:text-[var(--auth-text)]">
+              <Link href="/legal" className="inline-flex min-h-11 items-center hover:text-[var(--auth-text)]">
                 Tutti i documenti
               </Link>
             </nav>
