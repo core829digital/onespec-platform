@@ -3002,5 +3002,15 @@
     "oldTitle": "Sistemul de invitații s-a schimbat",
     "oldBody": "Acest link aparține sistemului vechi și nu mai funcționează. Roagă persoana care te-a invitat să-ți trimită o nouă invitație: vei primi un link cu un cod și îți va trebui și parola grupului, pe care ți-o dă personal.",
     "oldCta": "Mergi la pagina de acces în echipă"
+  },
+  "pdfViewer": {
+    "phoneHint": "Pe telefon, PDF-ul se deschide în vizualizatorul dispozitivului: poți derula toate paginile și poți mări.",
+    "building": "Pregătesc PDF-ul…",
+    "failed": "PDF-ul nu a putut fi pregătit.",
+    "retry": "Încearcă din nou",
+    "open": "Deschide PDF",
+    "download": "Descarcă",
+    "share": "Partajează",
+    "refresh": "Actualizează documentul"
   }
 }

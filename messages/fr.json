@@ -3002,5 +3002,15 @@
     "oldTitle": "Le système d'invitations a changé",
     "oldBody": "Ce lien appartient à l'ancien système et ne fonctionne plus. Demandez à la personne qui vous a invité de vous envoyer une nouvelle invitation : vous recevrez un lien avec un code, et il vous faudra aussi le mot de passe du groupe, qu'elle vous donne en main propre.",
     "oldCta": "Aller à la page d'accès à l'équipe"
+  },
+  "pdfViewer": {
+    "phoneHint": "Sur téléphone, le PDF s'ouvre dans le lecteur de votre appareil : vous faites défiler toutes les pages et pouvez zoomer.",
+    "building": "Préparation du PDF…",
+    "failed": "Le PDF n'a pas pu être préparé.",
+    "retry": "Réessayer",
+    "open": "Ouvrir le PDF",
+    "download": "Télécharger",
+    "share": "Partager",
+    "refresh": "Actualiser le document"
   }
 }

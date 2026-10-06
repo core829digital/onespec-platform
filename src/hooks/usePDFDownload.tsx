@@ -1,8 +1,6 @@
 "use client";
 
 import { useCallback } from "react";
-import { pdf } from "@react-pdf/renderer";
-import { saveAs } from "file-saver";
 
 interface UsePDFDownloadOptions {
   filename?: string;
@@ -21,6 +19,9 @@ export function usePDFDownload<T extends React.ComponentType<any>>(
   const downloadPDF = useCallback(
     async (props: React.ComponentProps<T>) => {
       try {
+        // Loaded on the click, not with the page: the PDF engine is the heaviest dependency of the app and
+        // most visits to these pages never download anything.
+        const [{ pdf }, { saveAs }] = await Promise.all([import("@react-pdf/renderer"), import("file-saver")]);
         const blob = await pdf(<PDFFactory {...props} />).toBlob();
         saveAs(blob, filename);
       } catch (error) {

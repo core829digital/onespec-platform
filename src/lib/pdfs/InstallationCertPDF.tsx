@@ -3,6 +3,7 @@ import { fieldPdfCopy } from "./field-pdf-i18n";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import { CompanyLogo } from "./CompanyLogo";
 import { ScenePdf, type Scene } from "@/lib/drawing";
+import { SignatureLine } from "./SignatureLine";
 
 const colors = {
   black: "#111827",
@@ -319,6 +320,8 @@ export function InstallationCertPDF({
             <Text>{T.ceMarking}</Text>
           </View>
         </View>
+
+        <SignatureLine label={T.installerSignature} dateLabel={T.dateLabel} />
 
         <View style={styles.footer}>
           <Text>{T.generatedBy} · {T.compliantInstall(dossier.normRef)} · {T.ceMarking}</Text>

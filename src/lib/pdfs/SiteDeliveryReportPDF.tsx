@@ -2,6 +2,7 @@ import "./pdf-setup";
 import { fieldPdfCopy } from "./field-pdf-i18n";
 import { Document, Page, Text, View, StyleSheet, Image } from "@react-pdf/renderer";
 import { CompanyLogo } from "./CompanyLogo";
+import { SignatureLine } from "./SignatureLine";
 
 const colors = {
   black: "#111827",
@@ -171,7 +172,7 @@ export function SiteDeliveryReportPDF({
           </View>
         )}
 
-        <View style={styles.section}>
+        <View style={styles.section} wrap={false}>
           <Text style={styles.sectionTitle}>{T.signatureTracking}</Text>
           <View style={styles.gridRow}>
             <View style={styles.gridCell}>
@@ -193,6 +194,7 @@ export function SiteDeliveryReportPDF({
           {notes && (
             <Text style={{ ...styles.value, marginTop: 6 }}><Text style={styles.label}>{T.notes}: </Text>{notes}</Text>
           )}
+          {!signedByName && <SignatureLine label={T.clientSignature} dateLabel={T.dateLabel} />}
         </View>
 
         <View style={styles.footer}>

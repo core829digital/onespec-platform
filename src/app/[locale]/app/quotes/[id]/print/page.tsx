@@ -162,7 +162,7 @@ function QuoteDocument({ quote, tenant, region, catalog }: { quote: NonNullable<
         }
       >
         {companyReady ? (
-          <PDFViewerComponent document={pdfDoc} className="min-h-[800px]" />
+          <PDFViewerComponent document={pdfDoc} className="min-h-[800px]" docKey={effectiveLang ?? ""} filename={`${filePrefix}-${quote.publicId?.slice(-8) || "quote"}.pdf`} />
         ) : (
           <div className="flex min-h-[600px] items-center justify-center">
             <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--color-mint)] border-t-transparent" />

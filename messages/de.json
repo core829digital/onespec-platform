@@ -3002,5 +3002,15 @@
     "oldTitle": "Das Einladungssystem hat sich geändert",
     "oldBody": "Dieser Link gehört zum alten System und funktioniert nicht mehr. Bitten Sie die einladende Person um eine neue Einladung: Sie erhalten einen Link mit einem Code und brauchen außerdem das Gruppenpasswort, das Sie persönlich bekommen.",
     "oldCta": "Zur Team-Anmeldeseite"
+  },
+  "pdfViewer": {
+    "phoneHint": "Auf dem Handy öffnet sich das PDF im Viewer Ihres Geräts: So blättern Sie durch alle Seiten und können zoomen.",
+    "building": "PDF wird vorbereitet…",
+    "failed": "Das PDF konnte nicht erstellt werden.",
+    "retry": "Erneut versuchen",
+    "open": "PDF öffnen",
+    "download": "Herunterladen",
+    "share": "Teilen",
+    "refresh": "Dokument aktualisieren"
   }
 }

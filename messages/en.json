@@ -3002,5 +3002,15 @@
     "oldTitle": "The invitation system has changed",
     "oldBody": "This link belongs to the old system and no longer works. Ask the person who invited you to send a new invitation: you will receive a link with a code, and you will also need the group password, which they give you in person.",
     "oldCta": "Go to the team sign-in page"
+  },
+  "pdfViewer": {
+    "phoneHint": "On a phone the PDF opens in your device's own viewer, so you can scroll every page and zoom.",
+    "building": "Preparing the PDF…",
+    "failed": "The PDF could not be prepared.",
+    "retry": "Try again",
+    "open": "Open PDF",
+    "download": "Download",
+    "share": "Share",
+    "refresh": "Refresh the document"
   }
 }

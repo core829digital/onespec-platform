@@ -3002,5 +3002,15 @@
     "oldTitle": "Het uitnodigingssysteem is veranderd",
     "oldBody": "Deze link hoort bij het oude systeem en werkt niet meer. Vraag degene die je uitnodigde om een nieuwe uitnodiging: je krijgt een link met een code en je hebt ook het groepswachtwoord nodig, dat je persoonlijk krijgt.",
     "oldCta": "Naar de aanmeldpagina voor teams"
+  },
+  "pdfViewer": {
+    "phoneHint": "Op een telefoon opent de pdf in de viewer van uw toestel: zo bladert u door alle pagina's en kunt u zoomen.",
+    "building": "Pdf wordt voorbereid…",
+    "failed": "De pdf kon niet worden voorbereid.",
+    "retry": "Opnieuw proberen",
+    "open": "Pdf openen",
+    "download": "Downloaden",
+    "share": "Delen",
+    "refresh": "Document vernieuwen"
   }
 }

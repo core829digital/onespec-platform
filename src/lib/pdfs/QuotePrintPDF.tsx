@@ -718,8 +718,37 @@ export function QuotePrintPDF({
           </View>
         </View>
 
-        {/* Signature block */}
-        <View style={styles.section}>
+        {/* Detail sheet: plan, section and hardware layout of each piece (up to 8), from its real configuration.
+            It sits inside the same flow, before the signatures: the document always ENDS with the signature block. */}
+        {items.length > 0 && items.length <= 8 && (
+          <View break>
+          <Text style={styles.sectionTitle}>
+            {DRAWING_TITLES[drawingLocale(langKey)].technicalDrawings} · {DRAWING_TABS[drawingLocale(langKey)].plan} / {DRAWING_TABS[drawingLocale(langKey)].section} / {DRAWING_TABS[drawingLocale(langKey)].hardware}
+          </Text>
+          {items.map((item, idx) => {
+            const drawingInput = { widthMm: item.width, heightMm: item.height, category: item.category, sashes: item.sashes ?? [], finish: item.color, frameType: item.frameType, glazing: item.glazing, finishFill: finishFillFor(catalog?.finish, item.color) };
+            const thermal = catalog ? computeItemThermal(catalog, item) : null;
+            return (
+              <View key={idx} wrap={false} style={{ marginBottom: 10, paddingBottom: 6, borderBottomWidth: 0.5, borderBottomColor: colors.gray[200] }}>
+                <Text style={{ fontSize: 8, fontWeight: "bold", marginBottom: 3 }}>
+                  #{idx + 1} · {item.width} × {item.height} mm × {item.quantity ?? 1}
+                </Text>
+                <View style={{ flexDirection: "row", gap: 8, alignItems: "flex-start" }}>
+                  <ScenePdf scene={buildPlanScene(drawingInput, langKey)} width={150} />
+                  <ScenePdf
+                    scene={buildSectionScene({ material: item.material, quality: item.quality?.[item.material], glazing: item.glazing, frameType: item.frameType, thermal: thermal && thermal.uw > 0 ? { uf: thermal.uf, ug: thermal.ug, psi: thermal.psi } : undefined }, langKey)}
+                    width={190}
+                  />
+                  <ScenePdf scene={buildHardwareScene(drawingInput, langKey)} width={110} />
+                </View>
+              </View>
+            );
+          })}
+        </View>
+        )}
+
+        {/* Signature block: never split across two pages, always the last thing before the footer */}
+        <View style={styles.section} wrap={false}>
           <Text style={styles.sectionTitle}>{T.signaturesTitle}</Text>
           <View style={{ flexDirection: "row", justifyContent: "space-between", marginTop: 16 }}>
             <View style={{ width: "45%" }}>
@@ -756,33 +785,6 @@ export function QuotePrintPDF({
         </View>
       </Page>
 
-      {/* Detail sheet: plan, section and hardware layout of each piece (up to 8), from its real configuration */}
-      {items.length > 0 && items.length <= 8 && (
-        <Page size="A4" style={styles.page}>
-          <Text style={styles.sectionTitle}>
-            {DRAWING_TITLES[drawingLocale(langKey)].technicalDrawings} · {DRAWING_TABS[drawingLocale(langKey)].plan} / {DRAWING_TABS[drawingLocale(langKey)].section} / {DRAWING_TABS[drawingLocale(langKey)].hardware}
-          </Text>
-          {items.map((item, idx) => {
-            const drawingInput = { widthMm: item.width, heightMm: item.height, category: item.category, sashes: item.sashes ?? [], finish: item.color, frameType: item.frameType, glazing: item.glazing, finishFill: finishFillFor(catalog?.finish, item.color) };
-            const thermal = catalog ? computeItemThermal(catalog, item) : null;
-            return (
-              <View key={idx} wrap={false} style={{ marginBottom: 10, paddingBottom: 6, borderBottomWidth: 0.5, borderBottomColor: colors.gray[200] }}>
-                <Text style={{ fontSize: 8, fontWeight: "bold", marginBottom: 3 }}>
-                  #{idx + 1} · {item.width} × {item.height} mm × {item.quantity ?? 1}
-                </Text>
-                <View style={{ flexDirection: "row", gap: 8, alignItems: "flex-start" }}>
-                  <ScenePdf scene={buildPlanScene(drawingInput, langKey)} width={150} />
-                  <ScenePdf
-                    scene={buildSectionScene({ material: item.material, quality: item.quality?.[item.material], glazing: item.glazing, frameType: item.frameType, thermal: thermal && thermal.uw > 0 ? { uf: thermal.uf, ug: thermal.ug, psi: thermal.psi } : undefined }, langKey)}
-                    width={190}
-                  />
-                  <ScenePdf scene={buildHardwareScene(drawingInput, langKey)} width={110} />
-                </View>
-              </View>
-            );
-          })}
-        </Page>
-      )}
     </Document>
   );
 }

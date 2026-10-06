@@ -26,7 +26,8 @@ export const getProgress = query({
     const configurators = await ctx.db
       .query("configurators")
       .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
-      .collect()
+      // Bounded: the guide only asks "is there one / is one published", never the full list (this query runs on every page).
+      .take(25)
       .then((rows) => rows.filter((c) => c.deletingAt === undefined));
     const hasConfigurator = configurators.length > 0;
     const hasPublishedCatalog = configurators.some((c) => c.publishedCatalogVersion != null);
@@ -40,7 +41,7 @@ export const getProgress = query({
     const memberships = await ctx.db
       .query("memberships")
       .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
-      .collect();
+      .take(10);
     const activeMembers = memberships.filter((m) => m.status === "active").length;
     const hasInvitedTeam = activeMembers > 1;
 

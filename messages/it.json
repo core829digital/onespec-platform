@@ -3002,5 +3002,15 @@
     "oldTitle": "Il sistema di inviti è cambiato",
     "oldBody": "Questo link appartiene al vecchio sistema e non funziona più. Chiedi a chi ti ha invitato di mandarti un nuovo invito: riceverai un link con un codice, e ti servirà anche la password del gruppo, che ti dà di persona.",
     "oldCta": "Vai alla pagina di accesso al team"
+  },
+  "pdfViewer": {
+    "phoneHint": "Sul telefono il PDF si apre con il lettore del tuo dispositivo: così scorri tutte le pagine e puoi zoomare.",
+    "building": "Sto preparando il PDF…",
+    "failed": "Non sono riuscito a preparare il PDF.",
+    "retry": "Riprova",
+    "open": "Apri PDF",
+    "download": "Scarica",
+    "share": "Condividi",
+    "refresh": "Aggiorna il documento"
   }
 }

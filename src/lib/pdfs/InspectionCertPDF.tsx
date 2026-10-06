@@ -2,6 +2,7 @@ import "./pdf-setup";
 import { fieldPdfCopy } from "./field-pdf-i18n";
 import { Document, Image, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import { CompanyLogo } from "./CompanyLogo";
+import { SignatureLine } from "./SignatureLine";
 
 const colors = {
   black: "#111827",
@@ -319,7 +320,7 @@ export function InspectionCertPDF({
         </View>
 
         {isSigned && report.signatureDataUrl && (
-          <View style={styles.signatureArea}>
+          <View style={styles.signatureArea} wrap={false}>
             <Text style={{ fontSize: 8, color: colors.gray[500], marginBottom: 8 }}>{T.clientSignature}</Text>
             <View style={{ height: 70, width: 200, backgroundColor: colors.gray[50], borderWidth: 1, borderColor: colors.gray[300], padding: 3 }}>
               {/* The captured signature itself (a PNG data URL) — was a text placeholder. */}
@@ -331,6 +332,8 @@ export function InspectionCertPDF({
             )}
           </View>
         )}
+
+        {!(isSigned && report.signatureDataUrl) && <SignatureLine label={T.clientSignature} dateLabel={T.dateLabel} />}
 
         <View style={styles.footer}>
           <Text>{legalBasis} · {T.generatedBy} · {fmtDate(generatedAt, locale)}</Text>

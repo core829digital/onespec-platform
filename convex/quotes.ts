@@ -41,6 +41,17 @@ function boundedText(value: string | undefined, max = TEXT_MAX): string | undefi
   return value;
 }
 
+/**
+ * A list row: the quote without its signature picture. The picture is a base64 image of tens of KB per signed quote; a list of 200-500
+ * quotes carried it all, was re-sent to every open screen whenever any quote changed, and came close to the per-function read limit.
+ * Detail and print pages still read the full document.
+ */
+function listRow<T extends { signatureDataUrl?: string }>(row: T): Omit<T, "signatureDataUrl"> {
+  const { signatureDataUrl: _signature, ...rest } = row;
+  void _signature;
+  return rest;
+}
+
 export const listRequests = query({
   args: {
     tenantId: v.id("tenants"),
@@ -61,14 +72,14 @@ export const listRequests = query({
         )
         .order("desc")
         .take(limit)
-        .then((rows) => rows.map(redactQuoteRequest));
+        .then((rows) => rows.map((r) => listRow(redactQuoteRequest(r))));
     }
     return await ctx.db
       .query("quoteRequests")
       .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
       .order("desc")
       .take(limit)
-      .then((rows) => rows.map(redactQuoteRequest));
+      .then((rows) => rows.map((r) => listRow(redactQuoteRequest(r))));
   },
 });
 

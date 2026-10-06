@@ -27,6 +27,8 @@ export interface FieldPdfCopy {
   clientRemarks: string;
   warrantyTitle: string;
   clientSignature: string;
+  installerSignature: string;
+  dateLabel: string;
   generatedBy: string;
   dossierSubtitle: string;
   projectRefs: string;
@@ -61,7 +63,7 @@ const it: FieldPdfCopy = {
   vatId: "P.IVA", signed: "FIRMATO", draft: "BOZZA", client: "Cliente", site: "Cantiere",
   photosTitle: "Documentazione fotografica", noPhotos: "Nessuna foto allegata", checksTitle: "Prova di funzionamento",
   notesTitle: "Note e osservazioni", installerNotes: "Note posatore", clientRemarks: "Osservazioni cliente",
-  warrantyTitle: "Garanzie", clientSignature: "Firma del committente", generatedBy: "Documento generato con OneSpec",
+  warrantyTitle: "Garanzie", clientSignature: "Firma del committente", installerSignature: "Firma e timbro dell'installatore", dateLabel: "Data", generatedBy: "Documento generato con OneSpec",
   dossierSubtitle: "Dossier di posa qualificata", projectRefs: "Riferimenti progetto", linkedSurvey: "Rilievo collegato",
   jobDetail: "Dettaglio intervento", jobType: "Tipo di lavoro", node: "Nodo di posa", perimeter: "Perimetro aperture",
   materialsTitle: "Distinta materiali di posa", material: "Materiale", quantity: "Quantità", teamNotes: "Note squadra",
@@ -76,7 +78,7 @@ const en: FieldPdfCopy = {
   vatId: "VAT no.", signed: "SIGNED", draft: "DRAFT", client: "Customer", site: "Site",
   photosTitle: "Photo documentation", noPhotos: "No photos attached", checksTitle: "Operation test",
   notesTitle: "Notes and remarks", installerNotes: "Installer notes", clientRemarks: "Customer remarks",
-  warrantyTitle: "Warranties", clientSignature: "Customer signature", generatedBy: "Document generated with OneSpec",
+  warrantyTitle: "Warranties", clientSignature: "Customer signature", installerSignature: "Installer signature and stamp", dateLabel: "Date", generatedBy: "Document generated with OneSpec",
   dossierSubtitle: "Qualified installation dossier", projectRefs: "Project references", linkedSurvey: "Linked survey",
   jobDetail: "Job details", jobType: "Job type", node: "Installation node", perimeter: "Opening perimeter",
   materialsTitle: "Installation materials list", material: "Material", quantity: "Quantity", teamNotes: "Team notes",
@@ -91,7 +93,7 @@ const fr: FieldPdfCopy = {
   vatId: "N° TVA", signed: "SIGNÉ", draft: "BROUILLON", client: "Client", site: "Chantier",
   photosTitle: "Documentation photographique", noPhotos: "Aucune photo jointe", checksTitle: "Essai de fonctionnement",
   notesTitle: "Notes et observations", installerNotes: "Notes du poseur", clientRemarks: "Réserves du client",
-  warrantyTitle: "Garanties", clientSignature: "Signature du maître d'ouvrage", generatedBy: "Document généré avec OneSpec",
+  warrantyTitle: "Garanties", clientSignature: "Signature du maître d'ouvrage", installerSignature: "Signature et cachet de l'installateur", dateLabel: "Date", generatedBy: "Document généré avec OneSpec",
   dossierSubtitle: "Dossier de pose qualifiée", projectRefs: "Références du projet", linkedSurvey: "Relevé associé",
   jobDetail: "Détail de l'intervention", jobType: "Type de travaux", node: "Nœud de pose", perimeter: "Périmètre des baies",
   materialsTitle: "Liste des matériaux de pose", material: "Matériau", quantity: "Quantité", teamNotes: "Notes de l'équipe",
@@ -106,7 +108,7 @@ const de: FieldPdfCopy = {
   vatId: "USt-IdNr.", signed: "UNTERSCHRIEBEN", draft: "ENTWURF", client: "Kunde", site: "Baustelle",
   photosTitle: "Fotodokumentation", noPhotos: "Keine Fotos angehängt", checksTitle: "Funktionsprüfung",
   notesTitle: "Notizen und Anmerkungen", installerNotes: "Notizen des Monteurs", clientRemarks: "Anmerkungen des Kunden",
-  warrantyTitle: "Gewährleistung", clientSignature: "Unterschrift des Auftraggebers", generatedBy: "Dokument erstellt mit OneSpec",
+  warrantyTitle: "Gewährleistung", clientSignature: "Unterschrift des Auftraggebers", installerSignature: "Unterschrift und Stempel des Monteurs", dateLabel: "Datum", generatedBy: "Dokument erstellt mit OneSpec",
   dossierSubtitle: "Dossier fachgerechte Montage", projectRefs: "Projektangaben", linkedSurvey: "Verknüpftes Aufmaß",
   jobDetail: "Details der Arbeiten", jobType: "Art der Arbeiten", node: "Montageanschluss", perimeter: "Umfang der Öffnungen",
   materialsTitle: "Montagematerialliste", material: "Material", quantity: "Menge", teamNotes: "Notizen des Teams",
@@ -121,7 +123,7 @@ const nl: FieldPdfCopy = {
   vatId: "Btw-nr.", signed: "ONDERTEKEND", draft: "CONCEPT", client: "Klant", site: "Project",
   photosTitle: "Fotodocumentatie", noPhotos: "Geen foto's bijgevoegd", checksTitle: "Functietest",
   notesTitle: "Notities en opmerkingen", installerNotes: "Notities monteur", clientRemarks: "Opmerkingen klant",
-  warrantyTitle: "Garanties", clientSignature: "Handtekening opdrachtgever", generatedBy: "Document gemaakt met OneSpec",
+  warrantyTitle: "Garanties", clientSignature: "Handtekening opdrachtgever", installerSignature: "Handtekening en stempel van de monteur", dateLabel: "Datum", generatedBy: "Document gemaakt met OneSpec",
   dossierSubtitle: "Dossier vakkundige montage", projectRefs: "Projectgegevens", linkedSurvey: "Gekoppelde inmeting",
   jobDetail: "Details van het werk", jobType: "Soort werk", node: "Montagedetail", perimeter: "Omtrek van de openingen",
   materialsTitle: "Lijst montagematerialen", material: "Materiaal", quantity: "Aantal", teamNotes: "Notities team",
@@ -136,7 +138,7 @@ const ro: FieldPdfCopy = {
   vatId: "Cod TVA", signed: "SEMNAT", draft: "CIORNĂ", client: "Client", site: "Șantier",
   photosTitle: "Documentație foto", noPhotos: "Nicio fotografie atașată", checksTitle: "Probă de funcționare",
   notesTitle: "Note și observații", installerNotes: "Notele montatorului", clientRemarks: "Observațiile clientului",
-  warrantyTitle: "Garanții", clientSignature: "Semnătura beneficiarului", generatedBy: "Document generat cu OneSpec",
+  warrantyTitle: "Garanții", clientSignature: "Semnătura beneficiarului", installerSignature: "Semnătura și ștampila instalatorului", dateLabel: "Data", generatedBy: "Document generat cu OneSpec",
   dossierSubtitle: "Dosar de montaj calificat", projectRefs: "Referințe proiect", linkedSurvey: "Releveu asociat",
   jobDetail: "Detaliile lucrării", jobType: "Tipul lucrării", node: "Nod de montaj", perimeter: "Perimetrul golurilor",
   materialsTitle: "Lista materialelor de montaj", material: "Material", quantity: "Cantitate", teamNotes: "Notele echipei",
