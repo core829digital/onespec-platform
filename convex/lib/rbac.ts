@@ -79,6 +79,8 @@ export const PERMISSIONS = {
   "installations.delete": { minRole: "admin", entitlement: "moduleFieldOps" },
   "passports.use": { minRole: "member", entitlement: "moduleFieldOps" },
   "passports.manage": { minRole: "admin", entitlement: "moduleFieldOps" },
+  // Revenue and lead statistics: the commercial side of the company.
+  "analytics.use": { minRole: "member" },
   "quotes.use": { minRole: "member" },
   // Preventivi B2B (installer-created field quotes) — locked on the widget-first plans.
   "quotes.field": { minRole: "member", entitlement: "moduleFieldQuotes" },

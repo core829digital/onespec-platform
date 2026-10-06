@@ -3,7 +3,6 @@ import { query, mutation, type MutationCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 import { v, type ObjectType } from "convex/values";
 import { ConvexError } from "convex/values";
-import { requireMembership } from "./lib/auth";
 import { requirePermission, requirePermissionOrNull } from "./lib/rbac";
 import { lockedSafeLeadName, redactQuoteRequest } from "./lib/quotaLock";
 import { hasMeteredEvent } from "./lib/metering";
@@ -89,7 +88,7 @@ export const linksForQuote = query({
   handler: async (ctx, args) => {
     const quote = await ctx.db.get(args.quoteId);
     if (!quote) return null;
-    await requireMembership(ctx, quote.tenantId);
+    await requirePermission(ctx, quote.tenantId, "quotes.use", { allowSuspendedRead: true });
     const client = quote.clientId ? await ctx.db.get(quote.clientId) : null;
     const cantiere = quote.cantiereId ? await ctx.db.get(quote.cantiereId) : null;
     return {
@@ -104,7 +103,8 @@ export const getRequest = query({
   handler: async (ctx, args) => {
     const quote = await ctx.db.get(args.quoteId);
     if (!quote) return null;
-    await requireMembership(ctx, quote.tenantId);
+    // Same right as the list: a grade outside sales, or another company, never reads a quote by its id.
+    await requirePermission(ctx, quote.tenantId, "quotes.use", { allowSuspendedRead: true });
     return redactQuoteRequest(quote);
   },
 });
@@ -596,7 +596,7 @@ export const getQuoteForPrint = query({
   handler: async (ctx, args) => {
     const quote = await ctx.db.get(args.quoteId);
     if (!quote) return null;
-    await requireMembership(ctx, quote.tenantId);
+    await requirePermission(ctx, quote.tenantId, "quotes.use", { allowSuspendedRead: true });
 
     const tenant = await ctx.db.get(quote.tenantId);
     // Widget-first plans: the printable document (and its exports) is served

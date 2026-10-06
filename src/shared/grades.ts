@@ -82,6 +82,7 @@ export function gradeTier(grade: string | null | undefined): "admin" | "member" 
  * decided by the access tier alone: the grade does not narrow them.
  */
 export const PERMISSION_GROUP: Record<string, PermissionGroup> = {
+  "analytics.use": "commercial",
   "quotes.use": "commercial",
   "quotes.field": "commercial",
   "quotes.manage": "commercial",

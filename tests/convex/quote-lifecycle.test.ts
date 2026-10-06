@@ -128,4 +128,23 @@ describe("B2B quote: draft, edit, delete", () => {
     expect(await t.run((ctx) => ctx.db.get(quoteId))).toBeNull();
     void seeded;
   });
+
+  test("reading a quote by its id follows the same rights as the list: another company and a grade outside sales are refused", async () => {
+    const { t, seeded, asOwner, asMember, base } = await setup();
+    const { quoteId } = await asOwner.mutation(api.quotes.createFieldQuote, base);
+    await expect(asMember.query(api.quotes.getRequest, { quoteId })).resolves.toMatchObject({ _id: quoteId });
+
+    // A fitter (montatore) works in the field: no quotes, not even by id.
+    await t.run(async (ctx) => {
+      const m = await ctx.db.query("memberships").withIndex("by_user", (q) => q.eq("userId", seeded.memberId)).first();
+      await ctx.db.patch(m!._id, { grade: "montatore" });
+    });
+    await expect(asMember.query(api.quotes.getRequest, { quoteId })).rejects.toThrow(/INSUFFICIENT_ROLE/);
+    await expect(asMember.query(api.quotes.getQuoteForPrint, { quoteId })).rejects.toThrow(/INSUFFICIENT_ROLE/);
+    await expect(asMember.query(api.quotes.linksForQuote, { quoteId })).rejects.toThrow(/INSUFFICIENT_ROLE/);
+
+    const other = await seedTenant(t, { plan: "pro" });
+    const asStranger = t.withIdentity({ subject: other.ownerId });
+    await expect(asStranger.query(api.quotes.getRequest, { quoteId })).rejects.toThrow();
+  });
 });

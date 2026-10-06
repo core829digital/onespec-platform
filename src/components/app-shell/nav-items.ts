@@ -50,7 +50,7 @@ export const NAV_GROUPS: NavGroup[] = [
     key: "overview",
     items: [
       { href: "/app/dashboard", label: "dashboard", icon: LayoutDashboard },
-      { href: "/app/analytics", label: "analytics", icon: BarChart3, feature: "analytics" },
+      { href: "/app/analytics", label: "analytics", icon: BarChart3, group: "commercial", feature: "analytics" },
       { href: "/app/notifications", label: "notifications", icon: Bell },
     ],
   },

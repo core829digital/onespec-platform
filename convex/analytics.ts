@@ -2,6 +2,7 @@ import { query, type QueryCtx } from "./_generated/server";
 import type { Doc, Id } from "./_generated/dataModel";
 import { v } from "convex/values";
 import { requireMembership } from "./lib/auth";
+import { requirePermission } from "./lib/rbac";
 import { enforceAnalyticsForQuery } from "./lib/enforcement";
 import { resolveTenantEntitlements, currentPeriod } from "./lib/entitlements";
 
@@ -107,7 +108,7 @@ function my(d: Date) {
 export const getOverview = query({
   args: { tenantId: v.id("tenants"), range: v.optional(RANGE), tzOffsetMinutes: v.optional(v.number()) },
   handler: async (ctx, args) => {
-    await requireMembership(ctx, args.tenantId);
+    await requirePermission(ctx, args.tenantId, "analytics.use", { allowSuspendedRead: true });
     const tenantDoc = await ctx.db.get(args.tenantId);
     const analyticsLevel = tenantDoc ? resolveTenantEntitlements(tenantDoc).analytics : "none";
     const range = (args.range ?? "1m") as Range;
@@ -286,7 +287,7 @@ export const getOverview = query({
 export const getPeakHours = query({
   args: { tenantId: v.id("tenants"), range: v.optional(RANGE), tzOffsetMinutes: v.optional(v.number()) },
   handler: async (ctx, args) => {
-    await requireMembership(ctx, args.tenantId);
+    await requirePermission(ctx, args.tenantId, "analytics.use", { allowSuspendedRead: true });
     await enforceAnalyticsForQuery(ctx, args.tenantId);
     const range = (args.range ?? "1m") as Range;
     const spec = RANGE_SPEC[range];
