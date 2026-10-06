@@ -8,6 +8,7 @@ import { enforceForFullFieldModules } from "./lib/enforcement";
 import { complianceForRegion, computePosaMaterials } from "./lib/compliance";
 import { regionForCountry } from "./lib/regions";
 import { resolveLinks, logClientActivity } from "./lib/links";
+import { assertLongText } from "./lib/inputs";
 
 /** Static per-market ruleset for the wizard UI (job types, nodes, notes). */
 export const getStandard = query({
@@ -112,6 +113,7 @@ export const create = mutation({
   handler: async (ctx, args) => {
     await enforceForFullFieldModules(ctx, args.tenantId);
     await requirePermission(ctx, args.tenantId, "installations.use");
+    assertLongText(args.notes, 5000);
     const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
     const std = complianceForRegion(regionCode).installation;
 

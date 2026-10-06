@@ -10,7 +10,7 @@ import { Link } from "@/i18n/navigation";
 import { EmptyState } from "@/components/app-shell/empty-state";
 import { RelatedRecords, type RelatedTab } from "@/components/app-shell/related-records";
 import { useFriendlyError } from "@/lib/use-friendly-error";
-import { OpenButton, OpenLink } from "@/components/ui/open-button";
+import { OpenLink } from "@/components/ui/open-button";
 
 type Tab = "overview" | "cantieri" | Exclude<RelatedTab, "logistics"> | "activity";
 

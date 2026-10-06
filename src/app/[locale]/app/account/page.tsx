@@ -6,7 +6,7 @@ import { useMutation, useQuery } from "convex/react";
 import { useLocale, useTranslations } from "next-intl";
 import { api } from "@/convex/_generated/api";
 import { useAuthActions } from "@convex-dev/auth/react";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { Section, Field, TextInput, SelectInput, Toggle } from "@/components/configurator/editor-primitives";
 import type { Id } from "@/convex/_generated/dataModel";
 import { CompanyProfileSection } from "@/components/account/company-profile";
@@ -25,6 +25,7 @@ export default function AccountPage() {
   const t = useTranslations("accountMain");
   const tCompany = useTranslations("profileGaps");
   const locale = useLocale();
+  const router = useRouter();
   const tf = useFriendlyError();
   const profile = useQuery(api.account.getProfile);
   const tenant = useQuery(api.tenants.getMyTenant);
@@ -148,7 +149,7 @@ export default function AccountPage() {
               setMsg("");
               try {
                 await restartOnboarding();
-                window.location.assign(`${locale === "it" ? "" : `/${locale}`}/onboarding`);
+                router.push("/onboarding");
               } catch (e) {
                 setMsg(tf(e));
               }

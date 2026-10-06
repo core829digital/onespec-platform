@@ -25,6 +25,14 @@ export function assertShortText(value: string | undefined, max = 60): void {
   if (value.length > max || CONTROL.test(value)) invalid();
 }
 
+const CONTROL_EXCEPT_LINEBREAK = /[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/;
+
+/** Multi-line free text (notes, recommendations): ≤ max chars, line breaks and tabs allowed, other control characters refused. */
+export function assertLongText(value: string | undefined, max = 5000): void {
+  if (value === undefined) return;
+  if (value.length > max || CONTROL_EXCEPT_LINEBREAK.test(value)) invalid();
+}
+
 /**
  * Multilingual label object: a plain object with at most one entry per
  * supported language, each a non-control string of ≤ 200 chars.

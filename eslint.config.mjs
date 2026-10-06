@@ -14,6 +14,12 @@ const eslintConfig = defineConfig([
       "jsx-a11y/alt-text": "off",
     },
   },
+  {
+    // The embed loader is deliberately ES5 (`catch (e)`): optional catch binding would break old browsers, and the file is
+    // hash-pinned (tests/embed-integrity.test.ts), so the rule is relaxed here instead of editing the file.
+    files: ["public/embed.js"],
+    rules: { "@typescript-eslint/no-unused-vars": "off" },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     ".next/**",

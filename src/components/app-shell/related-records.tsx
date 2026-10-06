@@ -5,7 +5,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { EmptyState } from "@/components/app-shell/empty-state";
 import type { Id } from "@/convex/_generated/dataModel";
-import { OpenButton, OpenLink } from "@/components/ui/open-button";
+import { OpenLink } from "@/components/ui/open-button";
 
 export type RelatedTab = "quotes" | "surveys" | "inspections" | "installations" | "supplies" | "logistics";
 

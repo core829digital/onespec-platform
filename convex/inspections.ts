@@ -14,6 +14,7 @@ import { enforceForESignature, enforceForFieldSurvey, enforceActivePlan } from "
 import { resolveLinks, logClientActivity } from "./lib/links";
 import { linkRecordToCrm } from "./lib/crmLink";
 import { assertStoredFile } from "./lib/uploads";
+import { assertShortText } from "./lib/inputs";
 
 /** Per-market inspection template (title, legal basis, photo + check lists). */
 export const getTemplate = query({
@@ -117,6 +118,9 @@ export const create = mutation({
     await enforceForFieldSurvey(ctx, args.tenantId);
     await enforceActivePlan(ctx, args.tenantId);
     await requirePermission(ctx, args.tenantId, "inspections.use");
+    assertShortText(args.customerName, 200);
+    assertShortText(args.siteAddress, 300);
+    assertShortText(args.installerTeam, 120);
     const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
     // Inherit the link from the quote this inspection closes when the caller
     // did not pick a client/cantiere explicitly.

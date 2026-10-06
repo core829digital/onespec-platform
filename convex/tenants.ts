@@ -18,6 +18,7 @@ import { companyName, companyVat } from "./lib/companyProfile";
 import { must } from "./lib/validate";
 import { checkEmail, checkPhone, checkText, checkWebsite, isCountryCode } from "../src/shared/validation";
 import { attachReferral } from "./referrals";
+import { assertShortText } from "./lib/inputs";
 
 const COUNTRY_RE = /^[A-Za-z]{2}$/;
 const ADDRESS_LINE = /^[\p{L}\p{N} .,'’\-/()°#]+$/u;
@@ -268,6 +269,7 @@ export const suspendTenant = mutation({
   args: { tenantId: v.id("tenants"), reason: v.string() },
   handler: async (ctx, args) => {
     await requirePlatformAdmin(ctx);
+    assertShortText(args.reason, 500);
     await ctx.db.patch(args.tenantId, {
       suspendedAt: Date.now(),
       suspendedReason: args.reason,

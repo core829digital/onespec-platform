@@ -513,6 +513,7 @@ export default function NewFieldQuotePage() {
   }, [
     effectivePayload,
     pricedItems,
+    items.length,
     withPosa,
     installationEuros,
     demolitionEuros,

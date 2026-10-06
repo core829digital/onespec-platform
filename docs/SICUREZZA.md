@@ -20,11 +20,11 @@
 ## Cosa NON è ancora fatto (onesto)
 - **CSP completa sulle pagine della piattaforma** (/app, /auth): oggi hanno `frame-ancestors 'none'` ma non un `script-src` con nonce. Si può fare, ma tocca PostHog, Sentry, Turnstile, Vercel: da introdurre prima in modalità *report-only* con un endpoint di raccolta.
 - **Chiave di deploy Convex**: era stata incollata in chat → **ruotarla** (Convex Dashboard → Settings → Deploy keys).
-- **Firma come immagine dentro il documento del preventivo**: appesantisce le liste (le liste non la leggono più, ma le statistiche sì). Passo successivo consigliato: spostarla in file storage.
+- **Firma del preventivo**: ora in una tabella separata (`quoteSignatures`). I preventivi firmati prima di questa modifica conservano la firma dentro il documento (lettura compatibile); una migrazione facoltativa può spostarla.
 - Test automatici delle pagine dopo il login (richiedono un backend di prova): sono stati verificati solo accesso/registrazione/unisciti a 360–768 px.
 
 ## Checklist prima di ogni deploy
 1. `npx tsc --noEmit`, `npx eslint .`, `npx vitest run`, `npx next build` verdi.
 2. `SITE_URL`, `CONVEX_DEPLOY_KEY` nuova, `STRIPE_*`, `RESEND_*` presenti in Convex produzione.
-3. `npx convex deploy` **prima** del deploy del sito (lo schema cambia: nuovo stato `draft`, campo `grade`, tabelle `teams`/`teamTickets`).
+3. `npx convex deploy` **prima** del deploy del sito (lo schema cambia: nuovo stato `draft`, campo `grade`, tabelle `teams`/`teamTickets`/`quoteSignatures`).
 4. Dopo il deploy: provare un invito di team, una bozza di preventivo, un PDF da telefono.

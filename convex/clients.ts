@@ -5,6 +5,7 @@ import { requirePermission, requirePermissionOrNull } from "./lib/rbac";
 import { listRelated } from "./lib/links";
 import { assertActiveMembers } from "./lib/links";
 import { propagateClientEdit } from "./lib/crmLink";
+import { assertShortText, assertLongText } from "./lib/inputs";
 
 /** List clients for a tenant with optional filters. */
 export const listClients = query({
@@ -300,6 +301,10 @@ export const addClientActivity = mutation({
     const client = await ctx.db.get(args.clientId);
     if (!client) throw new ConvexError("CLIENT_NOT_FOUND");
     const { userId } = await requirePermission(ctx, client.tenantId, "clients.use");
+    assertShortText(args.title, 200);
+    assertLongText(args.description, 5000);
+    assertShortText(args.relatedTable, 60);
+    assertShortText(args.relatedId, 60);
 
     const activityId = await ctx.db.insert("clientActivities", {
       tenantId: client.tenantId,

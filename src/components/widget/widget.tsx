@@ -20,7 +20,7 @@ import {
   defaultConfig,
   defaultSashPreset,
   defaultDimsForType,
-  calculate, includesFitting,
+  calculate,
   computeUw,
   clamp,
   dimMin,

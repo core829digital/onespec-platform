@@ -18,7 +18,7 @@ import {
   type SyncState,
 } from "@/lib/offline-sync";
 import { useRunAction } from "@/hooks/useRunAction";
-import { OpenButton, OpenLink } from "@/components/ui/open-button";
+import { OpenButton } from "@/components/ui/open-button";
 
 type ReportId = Id<"inspectionReports">;
 

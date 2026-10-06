@@ -71,7 +71,6 @@ export default function InstallationsPage() {
   const removeDossier = useMutation(api.installations.remove);
   const td = useTranslations("dossierEdit");
   const tc = useTranslations("fieldCommon");
-  const toMessage = useFriendlyError();
   const [editing, setEditing] = useState<EditableDossier | null>(null);
 
   const [open, setOpen] = useState(false);

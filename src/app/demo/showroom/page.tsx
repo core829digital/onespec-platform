@@ -4,7 +4,7 @@ import { DemoShowroom } from "@/components/demo/demo-showroom";
 import it from "../../../../messages/it.json";
 
 type Messages = Record<string, unknown>;
-const SCOPES = ["pieces", "sash", "showroom", "glazingPicker", "finishPicker"] as const;
+const SCOPES = ["pieces", "sash", "showroom", "glazingPicker", "finishPicker", "structure"] as const;
 
 function pick(all: Messages): Messages {
   return Object.fromEntries(SCOPES.filter((k) => all[k] !== undefined).map((k) => [k, all[k]]));

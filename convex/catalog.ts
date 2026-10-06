@@ -6,6 +6,7 @@ import { requirePermission } from "./lib/rbac";
 import { regionForCountry, type RegionCode } from "./lib/regions";
 import { loadExtras, seedExtras } from "./lib/catalogExtras";
 import { ensureProfileClassification } from "./lib/standardCatalog";
+import { PIECE_CATEGORIES } from "../src/shared/configurator-model";
 import { chamberQualityKey, chamberTierDefaults, chamberTierLabels, profileQualityKey } from "../src/shared/catalog-rules";
 import { assertCents, assertHex, assertKey, assertLabels, assertMultiplier, assertRange, assertShortText, assertSortOrder, assertThermal } from "./lib/inputs";
 
@@ -479,6 +480,7 @@ export const setProductBase = mutation({
   args: { configuratorId: v.id("configurators"), category: v.string(), basePriceCents: v.union(v.number(), v.null()), enabled: v.optional(v.boolean()) },
   handler: async (ctx, args) => {
     const configurator = await ownedConfigurator(ctx, args.configuratorId);
+    if (!(PIECE_CATEGORIES as readonly string[]).includes(args.category)) throw new ConvexError("INVALID_INPUT");
     const existing = await ctx.db.query("catalogProductBase").withIndex("by_configurator", (q) => q.eq("configuratorId", args.configuratorId)).filter((q) => q.eq(q.field("category"), args.category)).unique();
     if (args.basePriceCents === null) {
       if (existing) await ctx.db.delete(existing._id);

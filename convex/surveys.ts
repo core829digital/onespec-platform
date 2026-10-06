@@ -8,6 +8,7 @@ import { enforceForFieldSurvey } from "./lib/enforcement";
 import { resolveLinks, logClientActivity, assertOwnedRefs } from "./lib/links";
 import { linkRecordToCrm } from "./lib/crmLink";
 import { assertStoredFile } from "./lib/uploads";
+import { assertLongText } from "./lib/inputs";
 
 const openingValidator = v.object({
   label: v.string(),
@@ -295,6 +296,7 @@ export const saveDiagnosticRecommendation = mutation({
     const survey = await ctx.db.get(args.surveyId);
     if (!survey) throw new ConvexError("SURVEY_NOT_FOUND");
     await requirePermission(ctx, survey.tenantId, "surveys.use");
+    assertLongText(args.recommendation, 5000);
 
     const diagnostics = { ...survey.diagnostics, recommendation: args.recommendation };
     await ctx.db.patch(args.surveyId, { diagnostics, updatedAt: Date.now() });
