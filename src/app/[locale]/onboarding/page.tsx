@@ -362,22 +362,31 @@ export default function OnboardingWizard() {
 
 function Progress({ flow, current }: { flow: Step[]; current: Step }) {
   const t = useTranslations("onboarding.progress");
-  const idx = flow.indexOf(current);
+  const idx = Math.max(0, flow.indexOf(current));
+  const pct = Math.round(((idx + 1) / flow.length) * 100);
   return (
-    <ol className="flex flex-wrap gap-2 text-xs">
-      {flow.map((s, i) => (
-        <li
-          key={s}
-          className={
-            i <= idx
-              ? "rounded-full border border-[var(--color-mint)] bg-[var(--color-mint-light)] px-3 py-1 text-[var(--color-mint-text)]"
-              : "rounded-full border border-[var(--color-border)] px-3 py-1 text-[var(--color-text-secondary)]"
-          }
-        >
-          {i + 1}. {t(s)}
-        </li>
-      ))}
-    </ol>
+    <div data-testid="onboarding-progress" className="space-y-3">
+      <div className="flex items-baseline justify-between gap-3">
+        <p className="text-sm font-semibold text-[var(--color-text)]">{t(current)}</p>
+        <p className="shrink-0 text-xs font-medium text-[var(--color-text-secondary)]">{t("stepOf", { n: idx + 1, total: flow.length })}</p>
+      </div>
+      <div
+        role="progressbar"
+        aria-valuemin={1}
+        aria-valuemax={flow.length}
+        aria-valuenow={idx + 1}
+        aria-label={t("stepOf", { n: idx + 1, total: flow.length })}
+        className="h-2 w-full overflow-hidden rounded-full bg-[var(--color-border)]"
+      >
+        <div className="h-full rounded-full bg-[var(--color-mint)] transition-[width] duration-500 ease-out motion-reduce:transition-none" style={{ width: `${pct}%` }} />
+      </div>
+      {/* The steps as dots: past ones filled, the next ones hollow. Titles stay in the line above, so nothing wraps on a phone. */}
+      <ol className="flex items-center justify-between" aria-hidden="true">
+        {flow.map((s, i) => (
+          <li key={s} className={`h-2.5 w-2.5 rounded-full border ${i < idx ? "border-[var(--color-mint)] bg-[var(--color-mint)]" : i === idx ? "border-[var(--color-mint)] bg-[var(--color-bg)] ring-4 ring-[var(--color-mint-light)]" : "border-[var(--color-border)] bg-[var(--color-bg)]"}`} />
+        ))}
+      </ol>
+    </div>
   );
 }
 
@@ -545,8 +554,8 @@ function EnteringApp() {
 
 function Panel({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-6 space-y-4">
-      <h1 className="text-xl font-bold text-[var(--color-text)]">{title}</h1>
+    <section className="rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5 sm:p-8 space-y-5 shadow-sm">
+      <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-[var(--color-text)]">{title}</h1>
       {children}
     </section>
   );
@@ -558,7 +567,7 @@ function NextButton({ onClick, busy, label }: { onClick: () => void; busy: boole
       type="button"
       onClick={onClick}
       disabled={busy}
-      className="rounded-lg bg-[var(--color-mint)] px-5 py-2.5 text-sm font-semibold text-[var(--color-mint-dark)] disabled:opacity-50"
+      className="min-h-11 rounded-xl bg-[var(--color-mint)] px-6 py-2.5 text-sm font-semibold text-[var(--color-mint-dark)] shadow-sm transition hover:brightness-95 active:scale-[0.98] disabled:opacity-50"
     >
       {busy ? "…" : label}
     </button>

@@ -1729,7 +1729,8 @@
       "address": "Adresse",
       "contact": "Kontakt",
       "tax": "Steuern",
-      "pricing": "Preise"
+      "pricing": "Preise",
+      "stepOf": "Schritt {n} von {total}"
     },
     "welcome": {
       "title": "Willkommen bei OneSpec",

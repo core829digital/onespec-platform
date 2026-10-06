@@ -1729,7 +1729,8 @@
       "address": "Adres",
       "contact": "Contact",
       "tax": "Belasting",
-      "pricing": "Prijzen"
+      "pricing": "Prijzen",
+      "stepOf": "Stap {n} van {total}"
     },
     "welcome": {
       "title": "Welkom bij OneSpec",

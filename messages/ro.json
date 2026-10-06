@@ -1729,7 +1729,8 @@
       "address": "Adresă",
       "contact": "Contact",
       "tax": "Taxe",
-      "pricing": "Prețuri"
+      "pricing": "Prețuri",
+      "stepOf": "Pasul {n} din {total}"
     },
     "welcome": {
       "title": "Bun venit în OneSpec",
