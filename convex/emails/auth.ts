@@ -87,22 +87,53 @@ function siteUrl() {
   return process.env.SITE_URL || "http://localhost:3000";
 }
 
-function shell(inner: string, tagline: string) {
+/**
+ * The frame of every e-mail. A complete document (the old fragment had no viewport, so phones showed it at desktop width and zoomed out),
+ * a 100%-wide table that caps at 600 px, the same dark background all the way to the edge so a light-mode client never shows a dark card
+ * floating on white, and sizes that hold on a 320 px screen. Table layout because Outlook ignores most of the modern box model.
+ */
+function shell(inner: string, tagline: string, lang = "it") {
   const logo = `${siteUrl()}/onespec-logo.png`;
-  return `<div style="font-family:-apple-system,Segoe UI,system-ui,sans-serif;max-width:600px;margin:0 auto;padding:28px;background:#0a0b0d;color:#f5f5f7;border-radius:14px;border:1px solid #34383c">
-  <img src="${escUrl(logo)}" alt="onespec" style="height:34px;margin-bottom:24px" />
+  const font = "-apple-system,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
+  return `<!doctype html>
+<html lang="${esc(lang)}">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="dark light" />
+<meta name="supported-color-schemes" content="dark light" />
+<title>onespec</title>
+<style>
+  @media only screen and (max-width:480px){
+    .os-card{padding:20px 16px !important}
+    .os-cta{display:block !important;text-align:center !important}
+    .os-code{font-size:26px !important;letter-spacing:4px !important}
+  }
+</style>
+</head>
+<body style="margin:0;padding:0;background:#0a0b0d;-webkit-text-size-adjust:100%">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0a0b0d">
+  <tr><td align="center" style="padding:16px 12px">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%">
+      <tr><td class="os-card" style="font-family:${font};padding:28px;background:#0a0b0d;color:#f5f5f7;border-radius:14px;border:1px solid #34383c;word-break:break-word">
+  <img src="${escUrl(logo)}" alt="onespec" width="120" height="34" style="height:34px;width:auto;max-width:100%;margin-bottom:24px;border:0;display:block" />
   ${inner}
   <hr style="border:none;border-top:1px solid #34383c;margin:28px 0 14px" />
-  <p style="color:#6e6e73;font-size:12px;margin:0">${esc(tagline)}</p>
-</div>`;
+  <p style="color:#8b8b92;font-size:12px;line-height:1.5;margin:0">${esc(tagline)}</p>
+      </td></tr>
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>`;
 }
 
 function codeBox(code: string) {
-  return `<div style="font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:30px;font-weight:600;color:#16d19d;letter-spacing:6px;margin:20px 0;padding:16px;background:#141618;border-radius:10px;border:1px solid #16d19d;text-align:center">${esc(code)}</div>`;
+  return `<div class="os-code" style="font-family:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;font-size:30px;font-weight:600;color:#16d19d;letter-spacing:6px;margin:20px 0;padding:16px;background:#141618;border-radius:10px;border:1px solid #16d19d;text-align:center">${esc(code)}</div>`;
 }
 
 function cta(href: string, label: string) {
-  return `<a href="${escUrl(href)}" style="display:inline-block;margin-top:20px;padding:12px 22px;background:#16d19d;color:#04231a;font-weight:600;border-radius:9px;text-decoration:none">${esc(label)}</a>`;
+  return `<a class="os-cta" href="${escUrl(href)}" style="display:inline-block;margin-top:20px;padding:14px 24px;background:#16d19d;color:#04231a;font-size:16px;font-weight:600;line-height:1.2;border-radius:9px;text-decoration:none">${esc(label)}</a>`;
 }
 
 const H1 = `<h1 style="font-size:22px;font-weight:600;margin:0 0 12px">`;
@@ -111,7 +142,7 @@ const QUOTE_STATUSES: QuoteStatus[] = ["new", "contacted", "quoted", "won", "los
 
 export function renderAuthEmail(template: string, locale: string, data: AuthEmailData): Rendered {
   const L = emailStrings(locale);
-  const wrap = (inner: string) => shell(inner, L.tagline);
+  const wrap = (inner: string) => shell(inner, L.tagline, locale);
   const base = siteUrl();
 
   const company = esc(data.companyName ?? "");
