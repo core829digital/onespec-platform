@@ -293,8 +293,7 @@ export const updateConfigurator = mutation({
       update.name = name;
     }
     if (args.allowedOrigins !== undefined) {
-      // Feeds the embed CSP (frame-ancestors) and the origin check: bounded,
-      // http(s) origins only.
+      // Feeds the embed CSP (frame-ancestors): bounded, http(s) origins only.
       if (args.allowedOrigins.length > 25) throw new ConvexError("INVALID_INPUT");
       const origins: string[] = [];
       for (const raw of args.allowedOrigins) {

@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from "next";
-import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import { Geist, Geist_Mono, Space_Grotesk, Fraunces } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
@@ -73,7 +72,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body className="antialiased">
-        <ConvexAuthNextjsServerProvider>{children}</ConvexAuthNextjsServerProvider>
+        {children}
         {/* Renders the maintained @vercel/speed-insights build, which suppresses
             Vercel's stale auto-injected web-vitals script (the source of the
             "Cannot read properties of undefined (reading 'startTime')" crash). */}

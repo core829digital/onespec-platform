@@ -9,6 +9,7 @@ import { postToHost, readHostTheme } from "./host-bridge";
 import { demoCopy, demoRegisterUrl } from "@/lib/demo/demo-copy";
 import { submitErrorMessage, wizardCopy } from "./simple-wizard-model";
 import { getTurnstileToken } from "@/lib/turnstile-client";
+import { postQuote } from "./post-quote";
 import { brandChoices, catalogOptions, catalogPricing, glazingChoices, reconcileState, type WidgetCatalog, type WidgetOptions } from "./widget-catalog";
 import { withLeafWidth } from "./leaf-edit";
 import { REGION_FLAT_OPTION_KINDS } from "@/shared/pricing";
@@ -497,18 +498,13 @@ export function Widget({
         consentVersion: "widget-1",
         turnstileToken: turnstileToken ?? undefined,
       };
-      const res = await fetch(`${CONVEX_SITE}/api/widget/quote`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const data = await res.json().catch(() => ({ ok: false, error: "BAD_RESPONSE" }));
-      if (res.ok && data.ok) {
+      const data = await postQuote(`${CONVEX_SITE}/api/widget/quote`, body);
+      if (data.ok) {
         setSuccessSummary(
           [
             userMsg,
             spec,
-            typeof data.referenceId === "string" ? `Ref. ${data.referenceId}` : "",
+            data.referenceId ? `Ref. ${data.referenceId}` : "",
           ]
             .filter(Boolean)
             .join("\n"),
@@ -1252,7 +1248,7 @@ export function Widget({
                     {dict.consentSuffix}
                   </span>
                 </label>
-                {error && <div style={{ fontSize: 12, color: "var(--color-danger)" }}>{error}</div>}
+                {error && <div role="alert" style={{ fontSize: 12, color: "var(--color-danger)" }}>{error}</div>}
                 <button type="button" data-tw-primary disabled={submitting || (!demo && !consent)} onClick={submit} style={{ ...s.btnPrimary, background: accent, color: accentInk, opacity: submitting ? 0.6 : 1 }}>
                   {submitting
                     ? dict.submitting

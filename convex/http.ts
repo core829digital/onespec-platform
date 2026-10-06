@@ -88,13 +88,16 @@ http.route({
   path: "/api/widget/quote",
   method: "POST",
   handler: httpAction(async (ctx, req) => {
-    // 20 pieces + contact data fit well under 256 KB; anything bigger is abuse.
+    // 20 pieces + contact data fit well under 256 KB; anything bigger is abuse. The header is only a hint (a chunked upload has none),
+    // so the body itself is measured as well.
     if (Number(req.headers.get("content-length") ?? "0") > 256 * 1024) {
       return json({ ok: false, error: "PAYLOAD_TOO_LARGE" }, 413);
     }
     let raw: unknown;
     try {
-      raw = await req.json();
+      const text = await req.text();
+      if (text.length > 256 * 1024) return json({ ok: false, error: "PAYLOAD_TOO_LARGE" }, 413);
+      raw = JSON.parse(text);
     } catch {
       return json({ ok: false, error: "BAD_JSON" }, 400);
     }
@@ -148,13 +151,11 @@ http.route({
       throw e;
     }
 
-    // Soft origin check — a mismatched origin is flagged for review, not rejected.
-    const configuratorCfg = configurator.catalog?.configurator as
-      | { allowedOrigins?: string[] }
-      | undefined;
-    const allowed = configuratorCfg?.allowedOrigins;
-    const flagged =
-      Array.isArray(allowed) && allowed.length > 0 && !allowed.includes(origin);
+    // Which sites may SHOW the widget is enforced where it matters, by the `frame-ancestors` header of /w/<id> (src/proxy.ts). An
+    // Origin check here would say nothing: the request is made by the widget document itself, so its Origin is always the
+    // platform's, never the dealer's site. (An earlier "soft origin check" compared against a list the public payload never
+    // contained, so it never flagged anything.) Abuse is stopped by Turnstile, the honeypot and the rate limits above.
+    const flagged = false;
 
     let referenceId: string;
     try {

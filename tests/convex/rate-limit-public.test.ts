@@ -1,4 +1,4 @@
-import { describe, expect, test } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
 import { api, internal } from "../../convex/_generated/api";
 import { RATE_LIMITS } from "../../convex/lib/ratelimit";
 import { newDb, seedTenant } from "./_helpers";
@@ -24,6 +24,41 @@ async function seedCantiere(
     }),
   );
 }
+
+describe("token bucket refill clock", () => {
+  afterEach(() => vi.useRealTimers());
+
+  test("the fraction of a token earned between requests is not thrown away", async () => {
+    vi.useFakeTimers();
+    const t = newDb();
+    const use = (key: string) => t.mutation(internal.lib.ratelimit.checkBucket, { bucketKey: key, tokens: 2, refillMs: 60_000 }); // 1 token / 30 s
+    const key = "clock:test";
+    vi.setSystemTime(0);
+    await use(key); // 2 -> 1
+    vi.setSystemTime(20_000);
+    await use(key); // 1 -> 0 (20 s earned: not yet a whole token)
+    vi.setSystemTime(50_000);
+    await use(key); // 50 s since the start: 1 token back, used again
+    vi.setSystemTime(59_000);
+    await expect(use(key)).rejects.toThrow("RATE_LIMITED");
+    vi.setSystemTime(60_000); // 60 s since the start = the second token. With the clock reset on every request it was only back at 80 s.
+    await use(key);
+  });
+
+  test("a refused request leaves the bucket as it was", async () => {
+    vi.useFakeTimers();
+    const t = newDb();
+    const use = () => t.mutation(internal.lib.ratelimit.checkBucket, { bucketKey: "refused:test", tokens: 1, refillMs: 60_000 });
+    vi.setSystemTime(0);
+    await use();
+    for (const at of [10_000, 20_000, 30_000, 40_000, 50_000]) {
+      vi.setSystemTime(at);
+      await expect(use()).rejects.toThrow("RATE_LIMITED");
+    }
+    vi.setSystemTime(60_000);
+    await use(); // the retries did not push the next refill away
+  });
+});
 
 describe("FASE L public rate limits", () => {
   test("checkBucket allows up to N tokens, then throws RATE_LIMITED", async () => {

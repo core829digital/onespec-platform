@@ -5,6 +5,7 @@ import { Widget } from "@/components/widget/widget";
 import { SimpleWizardWidget } from "@/components/widget/simple-wizard-widget";
 import { resolveWidgetLang, resolveWidgetTheme } from "@/lib/widget-params";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
 import { WidgetLocked } from "@/components/widget/widget-locked";
 
 export const revalidate = 30;
@@ -36,6 +37,9 @@ export async function generateMetadata({
   const { publicId } = await params;
   const cfg = await safeFetch(() => fetchQuery(api.widget.getPublicConfigurator, { publicId }));
   if (!cfg) return { title: "OneSpec" };
+  const h = await headers();
+  const host = h.get("x-forwarded-host") ?? h.get("host");
+  const base = host ? `${h.get("x-forwarded-proto") ?? (host.startsWith("localhost") ? "http" : "https")}://${host}` : "";
   const lang = resolveWidgetLang(undefined, cfg.defaultLocale);
   const meta = META[lang] ?? META.en;
   const title = cfg.branding?.companyInfo?.name || cfg.name || meta.title;
@@ -44,6 +48,8 @@ export async function generateMetadata({
     description: meta.description,
     openGraph: { title, type: "website" },
     robots: { index: false },
+    // oEmbed discovery: a site builder given this link asks /api/oembed for the iframe, so the dealer only pastes the link.
+    alternates: { types: { "application/json+oembed": `${base}/api/oembed?format=json&url=${encodeURIComponent(`${base}/c/${publicId}`)}` } },
   };
 }
 

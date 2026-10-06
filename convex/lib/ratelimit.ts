@@ -52,12 +52,14 @@ export async function consumeToken(
   const refilled = Math.floor(elapsed * refillRate);
   const available = Math.min(config.tokens, bucket.tokens + refilled);
 
-  if (available <= 0) {
-    await ctx.db.patch(bucket._id, { tokens: available, updatedAt: now });
-    return false;
-  }
+  // A refused request writes nothing: the callers throw on `false`, which rolls the transaction back anyway, and a write here
+  // would only add contention on a bucket that is already hot.
+  if (available <= 0) return false;
 
-  await ctx.db.patch(bucket._id, { tokens: available - 1, updatedAt: now });
+  // The refill clock moves forward only by the tokens actually handed back. Resetting it to `now` on every use threw away the
+  // fraction of a token earned since the last request, so a visitor who kept retrying every minute or two never regained one.
+  const clock = available >= config.tokens ? now : bucket.updatedAt + refilled / refillRate;
+  await ctx.db.patch(bucket._id, { tokens: available - 1, updatedAt: clock });
   return true;
 }
 

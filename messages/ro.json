@@ -2117,7 +2117,16 @@
       "b2bTitle": "Oferte de șantier B2B (aceeași listă de prețuri)",
       "b2bDesc": "Instrumentul de ofertare rapidă pentru montatori folosește exact această listă publicată: prețul din widget este același cu oferta semnată pe șantier.",
       "b2bOpen": "Deschide instrumentul de ofertare B2B cu acest configurator →",
-      "b2bNeedsPublish": "Publică configuratorul pentru a activa ofertele de șantier asociate."
+      "b2bNeedsPublish": "Publică configuratorul pentru a activa ofertele de șantier asociate.",
+      "sitesTitle": "Site-uri autorizate",
+      "sitesDesc": "Configuratorul apare doar pe site-urile enumerate aici (protecție împotriva utilizării de către terți). Adaugă domeniul site-ului tău, de exemplu https://www.siteultau.ro.",
+      "sitesNone": "Niciun site autorizat: până nu adaugi unul, configuratorul NU va apărea pe site-ul tău (browserul arată un cadru gol sau o eroare).",
+      "sitesEdit": "Modifică site-urile autorizate",
+      "loaderTitle": "O singură linie de cod (recomandat)",
+      "loaderDesc": "Lipește această linie unde vrei configuratorul: creează singură cadrul, îi adaptează înălțimea la conținut și anunță site-ul tău când sosește o cerere.",
+      "loaderOptions": "Opțiuni (facultative, ca atribute ale etichetei): data-lang=\"ro\", data-theme=\"light|dark|auto\", data-accent=\"#16d19d\", data-target=\"#id-container\", data-min-height=\"640\". Când un client trimite cererea, site-ul tău primește evenimentul \"onespec:submitted\" (util pentru Google Analytics).",
+      "manualTitle": "Cod iframe manual (avansat)",
+      "manualDesc": "Alternativă la linia de cod: lipește acest iframe dacă site-ul tău nu permite adăugarea de scripturi."
     },
     "config": {
       "layer_platform": "Implicit platformă",

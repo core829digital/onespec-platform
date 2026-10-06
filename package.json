@@ -11,7 +11,9 @@
     "convex:dev": "convex dev",
     "convex:deploy": "convex deploy",
     "test": "vitest run",
-    "shadcn:add": "npx shadcn@latest add"
+    "shadcn:add": "npx shadcn@latest add",
+    "e2e": "node e2e/widget-iframe.mjs",
+    "audit:prod": "npm audit --omit=dev --audit-level=high"
   },
   "dependencies": {
     "@auth/core": "^0.41.3",
@@ -72,6 +74,7 @@
     "convex-test": "^0.0.35",
     "eslint": "^9",
     "eslint-config-next": "16.3.2",
+    "playwright": "^1.56.1",
     "tailwindcss": "^4",
     "tw-animate-css": "^1.2.5",
     "typescript": "^5",

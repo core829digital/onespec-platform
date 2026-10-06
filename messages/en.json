@@ -2117,7 +2117,16 @@
       "b2bTitle": "B2B site quotes (same price list)",
       "b2bDesc": "The quick quote tool for installers uses exactly this published price list: the widget price equals the quote signed on site.",
       "b2bOpen": "Open the B2B quote tool with this configurator →",
-      "b2bNeedsPublish": "Publish the configurator to enable the linked site quotes."
+      "b2bNeedsPublish": "Publish the configurator to enable the linked site quotes.",
+      "sitesTitle": "Authorised sites",
+      "sitesDesc": "The configurator only appears on the sites listed here (protection against use by third parties). Add your site's domain, for example https://www.yoursite.com.",
+      "sitesNone": "No authorised site: until you add one, the configurator will NOT appear on your site (the browser shows an empty frame or an error).",
+      "sitesEdit": "Edit authorised sites",
+      "loaderTitle": "One line of code (recommended)",
+      "loaderDesc": "Paste this line where you want the configurator: it creates the frame itself, fits its height to the content and tells your site when a request arrives.",
+      "loaderOptions": "Options (optional, as attributes of the tag): data-lang=\"en\", data-theme=\"light|dark|auto\", data-accent=\"#16d19d\", data-target=\"#container-id\", data-min-height=\"640\". When a customer sends the request your site receives the \"onespec:submitted\" event (useful for Google Analytics).",
+      "manualTitle": "Manual iframe code (advanced)",
+      "manualDesc": "Alternative to the one-line code: paste this iframe if your site does not let you add scripts."
     },
     "config": {
       "layer_platform": "Platform default",

@@ -1,3 +1,4 @@
+import { ConvexAuthNextjsServerProvider } from "@convex-dev/auth/nextjs/server";
 import { getMessages, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { NextIntlClientProvider } from "next-intl";
@@ -34,6 +35,10 @@ export default async function LocaleLayout({
   return (
     <NextIntlClientProvider messages={messages} locale={locale}>
       <LocaleHtmlLang locale={locale} />
+      {/* The auth provider reads window.localStorage while rendering. It lives here, not in the root layout, so the public pages
+          (/w widget, /c, /demo, /f, /i, /k) never touch it: inside a dealer's iframe, browsers that block third-party storage make
+          that access throw, and the whole widget used to fall over with it. */}
+      <ConvexAuthNextjsServerProvider>
       <ConvexClientProvider>
         <PostHogIdentity />
         <RageClickDetector config={{ threshold: 7, windowMs: 2000 }}>
@@ -45,6 +50,7 @@ export default async function LocaleLayout({
           </MotionConfig>
         </RageClickDetector>
       </ConvexClientProvider>
+      </ConvexAuthNextjsServerProvider>
     </NextIntlClientProvider>
   );
 }

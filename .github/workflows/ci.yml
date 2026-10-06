@@ -16,7 +16,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  ci:
+  checks:
+    name: Types, lint, tests, build
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
@@ -44,3 +45,64 @@ jobs:
         run: npm run build
         env:
           NEXT_PUBLIC_CONVEX_URL: "https://placeholder.convex.cloud"
+
+  # The widget exactly as a dealer ships it: in an <iframe> on another origin, against a stand-in backend.
+  # Catches what unit tests cannot: framing headers (CSP frame-ancestors), cross-origin messages, blocked storage,
+  # a backend that fails or hangs, phone widths and the one-line embed loader.
+  widget-e2e:
+    name: Widget in a third-party iframe
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      CI: "true"
+      # The server talks to the stand-in backend (e2e/mock-convex.mjs); the browser's calls to this host are answered by the
+      # test through request interception. *.convex.site is allowed by the widget's CSP, like in production.
+      NEXT_PUBLIC_CONVEX_URL: "http://localhost:3210"
+      NEXT_PUBLIC_CONVEX_SITE_URL: "https://e2e.convex.site"
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - run: npm ci
+
+      - name: Install the test browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Build (production)
+        run: npm run build
+
+      - name: Start the app
+        run: |
+          nohup npx next start -p 3100 > next-start.log 2>&1 &
+          for i in $(seq 1 60); do curl -fs -o /dev/null http://localhost:3100/demo/widget && exit 0; sleep 2; done
+          echo "app did not start"; cat next-start.log; exit 1
+
+      - name: Widget end-to-end
+        run: npm run e2e
+
+      - name: Upload the app log when something failed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-logs
+          path: |
+            next-start.log
+            e2e-failure.png
+          if-no-files-found: ignore
+
+  audit:
+    name: Dependency audit (production)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+      - name: Known vulnerabilities in what ships (high and above)
+        run: npm audit --omit=dev --audit-level=high

@@ -56,6 +56,29 @@ export const getConfiguratorIdByPublicId = internalQuery({
 });
 
 /**
+ * A dealer who authorises "https://rossiserramenti.it" means the site, which visitors also reach as "www.rossiserramenti.it" (and the
+ * other way round). A frame-ancestors source matches the exact host only, so without this the widget silently stayed blank on the
+ * variant the dealer did not type. Only plain two-label hosts and their "www." twin: never IP addresses, localhost or deeper sub-domains.
+ */
+export function withWwwVariants(origins: string[]): string[] {
+  const out = new Set(origins);
+  for (const o of origins) {
+    let u: URL;
+    try {
+      u = new URL(o);
+    } catch {
+      continue;
+    }
+    const host = u.hostname;
+    if (/^\d+\.\d+\.\d+\.\d+$/.test(host) || host.includes(":") || host === "localhost") continue;
+    const port = u.port ? `:${u.port}` : "";
+    if (host.startsWith("www.") && host.split(".").length === 3) out.add(`${u.protocol}//${host.slice(4)}${port}`);
+    else if (host.split(".").length === 2) out.add(`${u.protocol}//www.${host}${port}`);
+  }
+  return Array.from(out).slice(0, 50);
+}
+
+/**
  * PUBLIC (unauthenticated) — the embed policy for a widget, consumed by the
  * Next middleware to build a per-tenant `Content-Security-Policy: frame-ancestors`
  * header. Returns ONLY the allow-listed origins + activation state; no internals.
@@ -67,28 +90,35 @@ export const getEmbedPolicy = query({
       .query("configurators")
       .withIndex("by_publicId", (q) => q.eq("publicId", args.publicId))
       .unique();
-    if (!configurator) return { exists: false, active: false, frameAncestors: [] as string[] };
+    if (!configurator) return { exists: false, active: false, widgetAllowed: false, name: "", frameAncestors: [] as string[] };
+    const owner = await ctx.db.get(configurator.tenantId);
+    const widgetAllowed = owner ? resolveTenantEntitlements(owner).publicWidget : false;
 
     // Only http(s) origins, de-duplicated, hard-capped so a huge list can't be
     // used to bloat the response header.
-    const frameAncestors = Array.from(
-      new Set(
-        (configurator.allowedOrigins ?? [])
-          .map((o) => {
-            try {
-              const u = new URL(o);
-              return u.protocol === "https:" || u.protocol === "http:" ? u.origin : null;
-            } catch {
-              return null;
-            }
-          })
-          .filter((o): o is string => o !== null),
-      ),
-    ).slice(0, 25);
+    const frameAncestors = withWwwVariants(
+      Array.from(
+        new Set(
+          (configurator.allowedOrigins ?? [])
+            .map((o) => {
+              try {
+                const u = new URL(o);
+                return u.protocol === "https:" || u.protocol === "http:" ? u.origin : null;
+              } catch {
+                return null;
+              }
+            })
+            .filter((o): o is string => o !== null),
+        ),
+      ).slice(0, 25),
+    );
 
     return {
       exists: true,
       active: configurator.status === "published",
+      /** The owner's plan includes the embeddable widget (the oEmbed endpoint refuses to hand out an embed otherwise). */
+      widgetAllowed,
+      name: configurator.name,
       frameAncestors,
     };
   },

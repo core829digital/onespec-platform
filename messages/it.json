@@ -2117,7 +2117,16 @@
       "b2bTitle": "Preventivi di cantiere B2B (stesso listino)",
       "b2bDesc": "Il preventivatore rapido per montatori usa esattamente questo listino pubblicato: il prezzo del widget è lo stesso del preventivo firmato in cantiere.",
       "b2bOpen": "Apri il preventivatore B2B con questo configuratore →",
-      "b2bNeedsPublish": "Pubblica il configuratore per abilitare i preventivi di cantiere collegati."
+      "b2bNeedsPublish": "Pubblica il configuratore per abilitare i preventivi di cantiere collegati.",
+      "sitesTitle": "Siti autorizzati",
+      "sitesDesc": "Il configuratore compare solo sui siti elencati qui (protezione contro l'uso da parte di terzi). Aggiungi il dominio del tuo sito, per esempio https://www.tuosito.it.",
+      "sitesNone": "Nessun sito autorizzato: finché non ne aggiungi uno, il configuratore NON apparirà sul tuo sito (il browser mostrerà un riquadro vuoto o un errore).",
+      "sitesEdit": "Modifica i siti autorizzati",
+      "loaderTitle": "Una riga di codice (consigliato)",
+      "loaderDesc": "Incolla questa riga dove vuoi il configuratore: crea da solo il riquadro, ne adatta l'altezza al contenuto e avvisa il tuo sito quando arriva una richiesta.",
+      "loaderOptions": "Opzioni (facoltative, come attributi del tag): data-lang=\"it\", data-theme=\"light|dark|auto\", data-accent=\"#16d19d\", data-target=\"#id-del-contenitore\", data-min-height=\"640\". Quando un cliente invia la richiesta il tuo sito riceve l'evento \"onespec:submitted\" (utile per Google Analytics).",
+      "manualTitle": "Codice manuale con iframe (avanzato)",
+      "manualDesc": "Alternativa alla riga di codice: incolla questo iframe, se il tuo sito non permette di aggiungere script."
     },
     "config": {
       "layer_platform": "Predefinito piattaforma",

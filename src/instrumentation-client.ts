@@ -47,7 +47,19 @@ Sentry.init({
   // The wizard default (1 = 100%) traces every single page load/navigation —
   // fine while wiring this up, but on real traffic it burns through the
   // plan's event quota fast for no extra signal. Full rate stays in dev.
-  tracesSampleRate: process.env.NODE_ENV === "production" ? 0.2 : 1,
+  // Visitors of a dealer's site (the embedded widget, the hosted page, the QR / installer pages) are not our users: no performance
+  // traces for them. Crash reports (no user content) stay on, as documented below.
+  tracesSampler: ({ name, normalizedRequest }) => {
+    const path = (() => {
+      try {
+        return normalizedRequest?.url ? new URL(normalizedRequest.url).pathname : typeof location !== "undefined" ? location.pathname : name;
+      } catch {
+        return name;
+      }
+    })();
+    if (/^\/(w|c|demo|f|i|k)\//.test(path ?? "")) return 0;
+    return process.env.NODE_ENV === "production" ? 0.2 : 1;
+  },
 
   // Same consent gate as PostHog above: replay is session-recording, not
   // bare error capture, so it stays at 0 until the visitor opts in — see

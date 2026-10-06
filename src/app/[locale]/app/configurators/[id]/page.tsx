@@ -126,6 +126,8 @@ export default function ConfiguratorEditorPage({
               // While the plan is loading, don't flash a lock at paying users.
               publicWidgetAllowed={access ? access.publicWidget : true}
               fieldQuotesAllowed={access ? !access.isLocked("fieldQuotes") : false}
+              allowedOrigins={cfg.allowedOrigins ?? []}
+              onEditSites={() => setTab("general")}
             />
           )}
           {tab === "config" && <ConfigTab configuratorId={configuratorId} />}

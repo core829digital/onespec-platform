@@ -2117,7 +2117,16 @@
       "b2bTitle": "Devis chantier B2B (même tarif)",
       "b2bDesc": "L'outil de devis rapide pour poseurs utilise exactement ce tarif publié : le prix du widget est celui du devis signé sur le chantier.",
       "b2bOpen": "Ouvrir l'outil de devis B2B avec ce configurateur →",
-      "b2bNeedsPublish": "Publiez le configurateur pour activer les devis chantier associés."
+      "b2bNeedsPublish": "Publiez le configurateur pour activer les devis chantier associés.",
+      "sitesTitle": "Sites autorisés",
+      "sitesDesc": "Le configurateur n'apparaît que sur les sites listés ici (protection contre l'utilisation par des tiers). Ajoutez le domaine de votre site, par exemple https://www.votresite.fr.",
+      "sitesNone": "Aucun site autorisé : tant que vous n'en ajoutez pas, le configurateur n'apparaîtra PAS sur votre site (le navigateur affiche un cadre vide ou une erreur).",
+      "sitesEdit": "Modifier les sites autorisés",
+      "loaderTitle": "Une ligne de code (recommandé)",
+      "loaderDesc": "Collez cette ligne là où vous voulez le configurateur : elle crée le cadre, adapte sa hauteur au contenu et prévient votre site quand une demande arrive.",
+      "loaderOptions": "Options (facultatives, en attributs de la balise) : data-lang=\"fr\", data-theme=\"light|dark|auto\", data-accent=\"#16d19d\", data-target=\"#id-du-conteneur\", data-min-height=\"640\". Quand un client envoie la demande, votre site reçoit l'événement \"onespec:submitted\" (utile pour Google Analytics).",
+      "manualTitle": "Code iframe manuel (avancé)",
+      "manualDesc": "Alternative à la ligne de code : collez cet iframe si votre site ne permet pas d'ajouter des scripts."
     },
     "config": {
       "layer_platform": "Valeur par défaut plateforme",

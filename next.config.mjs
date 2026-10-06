@@ -53,11 +53,7 @@ const nextConfig = {
   poweredByHeader: false,
   // Exclude the status-page app from the main build
   pageExtensions: ["tsx", "ts", "jsx", "js"],
-  // Ignore the apps directory in the main build
-  experimental: {
-    // Disable turbopack for the main build to avoid monorepo issues
-    turbo: false,
-  },
+  // (`experimental.turbo` was removed: Next 16 rejects the key and warned on every build / start.)
   webpack: (config) => {
     config.watchOptions = {
       ...config.watchOptions,

@@ -5,6 +5,7 @@ import { getDict } from "./widget-i18n";
 import { readableInk, isSafeColor, resolveFontStack } from "./widget-theme";
 import { postToHost, readHostTheme } from "./host-bridge";
 import { getTurnstileToken } from "@/lib/turnstile-client";
+import { postQuote } from "./post-quote";
 import {
   buildWizardItem,
   buildWizardNotes,
@@ -229,13 +230,8 @@ export function SimpleWizardWidget({
         consentVersion: "wizard-1",
         turnstileToken: turnstileToken ?? undefined,
       };
-      const res = await fetch(`${CONVEX_SITE}/api/widget/quote`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
-      });
-      const data = await res.json().catch(() => ({ ok: false, error: "BAD_RESPONSE" }));
-      if (res.ok && data.ok) {
+      const data = await postQuote(`${CONVEX_SITE}/api/widget/quote`, body);
+      if (data.ok) {
         setDone(true);
         postToHost({ type: "onespec:submitted", publicId: configurator.publicId });
       } else {
@@ -448,7 +444,7 @@ export function SimpleWizardWidget({
                 {dict.consentSuffix}
               </span>
             </label>
-            {submitError ? <p style={s.error}>{submitError}</p> : null}
+            {submitError ? <p role="alert" style={s.error}>{submitError}</p> : null}
           </div>
         )}
 

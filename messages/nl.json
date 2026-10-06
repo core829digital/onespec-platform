@@ -2117,7 +2117,16 @@
       "b2bTitle": "B2B-projectoffertes (zelfde prijslijst)",
       "b2bDesc": "De snelle offertetool voor monteurs gebruikt precies deze gepubliceerde prijslijst: de widgetprijs is gelijk aan de offerte die op het project wordt getekend.",
       "b2bOpen": "Open de B2B-offertetool met deze configurator →",
-      "b2bNeedsPublish": "Publiceer de configurator om de gekoppelde projectoffertes in te schakelen."
+      "b2bNeedsPublish": "Publiceer de configurator om de gekoppelde projectoffertes in te schakelen.",
+      "sitesTitle": "Geautoriseerde sites",
+      "sitesDesc": "De configurator verschijnt alleen op de hier genoemde sites (bescherming tegen gebruik door derden). Voeg het domein van uw site toe, bijvoorbeeld https://www.uwsite.nl.",
+      "sitesNone": "Geen geautoriseerde site: zolang u er geen toevoegt, verschijnt de configurator NIET op uw site (de browser toont een leeg kader of een fout).",
+      "sitesEdit": "Geautoriseerde sites wijzigen",
+      "loaderTitle": "Eén regel code (aanbevolen)",
+      "loaderDesc": "Plak deze regel waar u de configurator wilt: hij maakt zelf het kader, past de hoogte aan de inhoud aan en meldt uw site wanneer er een aanvraag binnenkomt.",
+      "loaderOptions": "Opties (optioneel, als attributen van de tag): data-lang=\"nl\", data-theme=\"light|dark|auto\", data-accent=\"#16d19d\", data-target=\"#container-id\", data-min-height=\"640\". Als een klant de aanvraag verstuurt, ontvangt uw site de gebeurtenis \"onespec:submitted\" (handig voor Google Analytics).",
+      "manualTitle": "Handmatige iframe-code (geavanceerd)",
+      "manualDesc": "Alternatief voor de regel code: plak deze iframe als uw site geen scripts toestaat."
     },
     "config": {
       "layer_platform": "Platformstandaard",

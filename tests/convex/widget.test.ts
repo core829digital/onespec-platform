@@ -42,6 +42,23 @@ describe("widget.getEmbedPolicy", () => {
     expect(policy.frameAncestors).toEqual(["https://shop.example.com"]);
   });
 
+  test("a bare domain also covers its www twin, and the other way round; IPs, localhost and deeper hosts are left alone", async () => {
+    const t = newDb();
+    const { tenantId } = await seedTenant(t);
+    await seedConfigurator(t, tenantId, {
+      publicId: "WWW1234567",
+      status: "published",
+      allowedOrigins: ["https://rossi.it", "https://www.bianchi.it", "https://shop.verdi.it", "http://localhost:4000", "http://10.0.0.5:8080", "https://neri.it:8443"],
+    });
+    const { frameAncestors } = await t.query(api.widget.getEmbedPolicy, { publicId: "WWW1234567" });
+    expect(frameAncestors).toEqual(expect.arrayContaining(["https://rossi.it", "https://www.rossi.it", "https://www.bianchi.it", "https://bianchi.it", "https://neri.it:8443", "https://www.neri.it:8443"]));
+    expect(frameAncestors).toContain("https://shop.verdi.it");
+    expect(frameAncestors).not.toContain("https://www.shop.verdi.it");
+    expect(frameAncestors).not.toContain("https://www.localhost:4000");
+    expect(frameAncestors.some((o) => o.includes("www.10."))).toBe(false);
+    expect(frameAncestors.length).toBeLessThanOrEqual(50);
+  });
+
   test("draft configurator is not active", async () => {
     const t = newDb();
     const { tenantId } = await seedTenant(t);
@@ -52,13 +69,25 @@ describe("widget.getEmbedPolicy", () => {
     });
     const policy = await t.query(api.widget.getEmbedPolicy, { publicId: "DRAFT12345" });
     expect(policy.active).toBe(false);
-    expect(policy.frameAncestors).toEqual(["https://a.example"]);
+    expect(policy.frameAncestors).toEqual(["https://a.example", "https://www.a.example"]);
   });
 
   test("unknown publicId reports not-exists with no origins", async () => {
     const t = newDb();
     const policy = await t.query(api.widget.getEmbedPolicy, { publicId: "NOPE0000000" });
-    expect(policy).toEqual({ exists: false, active: false, frameAncestors: [] });
+    expect(policy).toEqual({ exists: false, active: false, widgetAllowed: false, name: "", frameAncestors: [] });
+  });
+
+  test("tells the oEmbed endpoint whether the owner's plan includes the widget, and the public name", async () => {
+    const t = newDb();
+    const pro = await seedTenant(t, { plan: "pro" });
+    await seedConfigurator(t, pro.tenantId, { publicId: "PROPUB1234", status: "published", allowedOrigins: [] });
+    const base = await seedTenant(t, { plan: "base" });
+    await seedConfigurator(t, base.tenantId, { publicId: "BASEPUB123", status: "published", allowedOrigins: [] });
+    const a = await t.query(api.widget.getEmbedPolicy, { publicId: "PROPUB1234" });
+    expect(a.widgetAllowed).toBe(true);
+    expect(a.name.length).toBeGreaterThan(0);
+    expect((await t.query(api.widget.getEmbedPolicy, { publicId: "BASEPUB123" })).widgetAllowed).toBe(false);
   });
 });
 

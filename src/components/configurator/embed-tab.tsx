@@ -39,6 +39,8 @@ export function EmbedTab({
   configuratorId,
   publicWidgetAllowed,
   fieldQuotesAllowed,
+  allowedOrigins,
+  onEditSites,
 }: {
   publicId: string;
   status: string;
@@ -48,6 +50,10 @@ export function EmbedTab({
   publicWidgetAllowed: boolean;
   /** The plan includes the B2B site-quote module (full platform only). */
   fieldQuotesAllowed: boolean;
+  /** Sites allowed to frame the widget (the widget refuses to appear anywhere else). */
+  allowedOrigins: string[];
+  /** Opens the tab where the allowed sites are edited. */
+  onEditSites: () => void;
 }) {
   const t = useTranslations("editor.embed");
   const src = `${origin}/w/${publicId}`;
@@ -57,6 +63,9 @@ export function EmbedTab({
   style="width:100%;border:0;min-height:640px"
   loading="lazy"
 ></iframe>`;
+
+  // One line: the loader makes the frame, keeps its height and tells the site when a request is sent.
+  const loader = `<script async src="${origin}/embed.js" data-onespec="${publicId}"></script>`;
 
   const resize = `<script>
   window.addEventListener("message", function (e) {
@@ -77,11 +86,43 @@ export function EmbedTab({
         </p>
       ) : null}
 
+      {publicWidgetAllowed ? (
+        <Section title={t("sitesTitle")} description={t("sitesDesc")}>
+          {allowedOrigins.length > 0 ? (
+            <ul className="flex flex-wrap gap-2" aria-label={t("sitesTitle")}>
+              {allowedOrigins.map((o) => (
+                <li key={o} className="rounded-full border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-1 font-mono text-xs text-[var(--color-text)]">
+                  {o}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p role="alert" className="rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-600">
+              {t("sitesNone")}
+            </p>
+          )}
+          <button
+            type="button"
+            onClick={onEditSites}
+            className="mt-2 rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-xs font-medium text-[var(--color-text)] hover:border-[var(--color-mint)]"
+          >
+            {t("sitesEdit")}
+          </button>
+        </Section>
+      ) : null}
+
+      {publicWidgetAllowed ? (
+        <Section title={t("loaderTitle")} description={t("loaderDesc")}>
+          <CopyBlock code={loader} />
+          <p className="mt-2 text-xs text-[var(--color-text-secondary)]">{t("loaderOptions")}</p>
+        </Section>
+      ) : null}
+
       <Section title={t("pageTitle")} description={t("pageDesc")}>
         <CopyBlock code={`${origin}/c/${publicId}`} />
       </Section>
 
-      <Section title={t("embedTitle")} description={publicWidgetAllowed ? t("embedDesc") : undefined}>
+      <Section title={publicWidgetAllowed ? t("manualTitle") : t("embedTitle")} description={publicWidgetAllowed ? t("manualDesc") : undefined}>
         {publicWidgetAllowed ? (
           <CopyBlock code={iframe} />
         ) : (

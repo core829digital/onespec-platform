@@ -2117,7 +2117,16 @@
       "b2bTitle": "B2B-Baustellenangebote (gleiche Preisliste)",
       "b2bDesc": "Das Schnellangebots-Tool für Monteure nutzt genau diese veröffentlichte Preisliste: Der Widget-Preis entspricht dem auf der Baustelle unterschriebenen Angebot.",
       "b2bOpen": "B2B-Angebotstool mit diesem Konfigurator öffnen →",
-      "b2bNeedsPublish": "Veröffentlichen Sie den Konfigurator, um die verknüpften Baustellenangebote zu aktivieren."
+      "b2bNeedsPublish": "Veröffentlichen Sie den Konfigurator, um die verknüpften Baustellenangebote zu aktivieren.",
+      "sitesTitle": "Autorisierte Websites",
+      "sitesDesc": "Der Konfigurator erscheint nur auf den hier aufgeführten Websites (Schutz vor Nutzung durch Dritte). Fügen Sie die Domain Ihrer Website hinzu, zum Beispiel https://www.ihreseite.de.",
+      "sitesNone": "Keine autorisierte Website: Solange Sie keine hinzufügen, erscheint der Konfigurator NICHT auf Ihrer Website (der Browser zeigt einen leeren Rahmen oder einen Fehler).",
+      "sitesEdit": "Autorisierte Websites bearbeiten",
+      "loaderTitle": "Eine Codezeile (empfohlen)",
+      "loaderDesc": "Fügen Sie diese Zeile dort ein, wo der Konfigurator erscheinen soll: Sie erstellt den Rahmen selbst, passt die Höhe an den Inhalt an und meldet Ihrer Website, wenn eine Anfrage eingeht.",
+      "loaderOptions": "Optionen (optional, als Attribute des Tags): data-lang=\"de\", data-theme=\"light|dark|auto\", data-accent=\"#16d19d\", data-target=\"#container-id\", data-min-height=\"640\". Sendet ein Kunde die Anfrage, erhält Ihre Website das Ereignis \"onespec:submitted\" (nützlich für Google Analytics).",
+      "manualTitle": "Manueller iframe-Code (fortgeschritten)",
+      "manualDesc": "Alternative zur Codezeile: Fügen Sie diesen iframe ein, wenn Ihre Website keine Skripte erlaubt."
     },
     "config": {
       "layer_platform": "Plattform-Standard",
