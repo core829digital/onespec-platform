@@ -12,7 +12,7 @@ import { RelatedRecords, type RelatedTab } from "@/components/app-shell/related-
 import { useFriendlyError } from "@/lib/use-friendly-error";
 
 type Tab = "overview" | RelatedTab;
-const TABS: Tab[] = ["overview", "quotes", "surveys", "inspections", "installations"];
+const TABS: Tab[] = ["overview", "quotes", "surveys", "inspections", "installations", "supplies", "logistics"];
 const TASK_STATUSES = ["todo", "in_progress", "review", "done"] as const;
 
 export default function CantiereFolderPage({ params }: { params: Promise<{ id: string }> }) {
@@ -49,6 +49,8 @@ export default function CantiereFolderPage({ params }: { params: Promise<{ id: s
     surveys: data.surveys.length,
     inspections: data.inspections.length,
     installations: data.installations.length,
+    supplies: data.supplies.length,
+    logistics: data.deliveries.length,
   };
 
   async function run(action: () => Promise<unknown>) {

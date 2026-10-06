@@ -12,6 +12,7 @@ import { nanoid } from "./lib/ids";
 import { internal } from "./_generated/api";
 import { enforceForESignature, enforceForFieldSurvey, enforceActivePlan } from "./lib/enforcement";
 import { resolveLinks, logClientActivity } from "./lib/links";
+import { linkRecordToCrm } from "./lib/crmLink";
 import { assertStoredFile } from "./lib/uploads";
 
 /** Per-market inspection template (title, legal basis, photo + check lists). */
@@ -130,19 +131,33 @@ export const create = mutation({
     if (!name) throw new ConvexError("CUSTOMER_NAME_REQUIRED");
     const tpl = complianceForRegion(regionCode).inspection;
 
+    const siteText =
+      args.siteAddress?.trim() ||
+      [links.client?.siteAddress, links.client?.siteCity].filter(Boolean).join(", ") ||
+      undefined;
+    // The inspection's customer and site are found or created like a quote's (same rules, same cards).
+    const crm = await linkRecordToCrm(ctx, {
+      tenantId: args.tenantId,
+      userId,
+      clientId: links.clientId,
+      cantiereId: links.cantiereId,
+      name,
+      // Only an address typed on the inspection makes a site: the client's own address is a default, not a new job.
+      address: args.siteAddress?.trim(),
+      country: regionCode,
+      source: "collaudo",
+    });
+
     const now = Date.now();
     const reportId = await ctx.db.insert("inspectionReports", {
       tenantId: args.tenantId,
       regionCode,
       quoteId: args.quoteId,
-      clientId: links.clientId,
-      cantiereId: links.cantiereId,
+      clientId: crm.clientId,
+      cantiereId: crm.cantiereId,
       createdByUserId: userId,
       customerName: name,
-      siteAddress:
-        args.siteAddress?.trim() ||
-        [links.client?.siteAddress, links.client?.siteCity].filter(Boolean).join(", ") ||
-        undefined,
+      siteAddress: siteText,
       installerToken: nanoid(16),
       installerTeam: args.installerTeam?.trim(),
       scheduledFor: args.scheduledFor,
@@ -154,7 +169,7 @@ export const create = mutation({
     });
     await logClientActivity(ctx, {
       tenantId: args.tenantId,
-      clientId: links.clientId,
+      clientId: crm.clientId,
       userId,
       type: "inspection",
       title: "Collaudo creato",

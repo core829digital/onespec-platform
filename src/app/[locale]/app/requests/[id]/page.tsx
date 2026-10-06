@@ -57,6 +57,8 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
 
   const updateStatus = useMutation(api.quotes.updateStatus);
   const supply = useQuery(api.supplies.forQuote, { quoteId });
+  const folder = useQuery(api.quotes.linksForQuote, { quoteId });
+  const tLinks = useTranslations("supplyLinks");
   const startSupply = useMutation(api.supplies.createFromQuote);
   const tSupply = useTranslations("supply");
   const assignRequest = useMutation(api.quotes.assignRequest);
@@ -456,6 +458,20 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
               ))}
             </div>
           </section>
+
+          {folder && (folder.client || folder.cantiere) ? (
+            <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4" data-testid="folder-links">
+              <h3 className="text-sm font-semibold text-[var(--color-text)]">{tLinks("folderTitle")}</h3>
+              <ul className="mt-2 space-y-1 text-sm">
+                {folder.client ? (
+                  <li><span className="text-[var(--color-text-secondary)]">{tLinks("client")}: </span><Link href={`/app/clients/${folder.client._id}`} className="font-medium text-[var(--color-mint-text)] hover:underline">{folder.client.name}</Link></li>
+                ) : null}
+                {folder.cantiere ? (
+                  <li><span className="text-[var(--color-text-secondary)]">{tLinks("site")}: </span><Link href={`/app/cantieri/${folder.cantiere._id}`} className="font-medium text-[var(--color-mint-text)] hover:underline">{folder.cantiere.name}</Link></li>
+                ) : null}
+              </ul>
+            </section>
+          ) : null}
 
           {quote.status === "won" || supply ? (
             <section className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4" data-testid="supply-panel">

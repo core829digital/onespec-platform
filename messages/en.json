@@ -342,6 +342,9 @@
     "surveyNotCompleted": "Complete the survey before generating the quote.",
     "surveyAlreadyLinked": "A quote was already generated from this survey.",
     "clientMismatch": "The chosen site belongs to a different client.",
+    "supplyDeliveryStockMoved": "Part of this shipment's goods has already left the warehouse: undo those movements first, then step the supply back.",
+    "supplyDeliveryExists": "This supply already has a shipment in Logistics.",
+    "cantiereHasLogistics": "This site has shipments or warehouse stock linked to it: close or move them before deleting it.",
     "tenantMismatch": "Item doesn't belong to your company.",
     "emailNotVerified": "Please verify your email address first.",
     "registrationClosed": "Sign-ups are temporarily closed.",
@@ -901,7 +904,8 @@
     "noClient": "— No client —",
     "noCantiere": "— No site —",
     "prefilled": "{name}'s details prefilled. You can edit them below.",
-    "hint": "Pick an existing client: name, contacts and address fill in automatically."
+    "hint": "Pick an existing client: name, contacts and address fill in automatically.",
+    "autoHint": "If you pick no client, the client card and the site are created (or found) from this data when you save the quote."
   },
   "folder": {
     "backClients": "Clients",
@@ -977,7 +981,12 @@
       "handover": "Handover",
       "intervention": "Intervention",
       "task": "Task"
-    }
+    },
+    "supplies": "Supplies",
+    "logistics": "Logistics",
+    "newSupply": "New supply",
+    "newShipment": "New shipment",
+    "fromSupply": "From a supply"
   },
   "surveyDoc": {
     "title": "Site survey",
@@ -2855,5 +2864,25 @@
     "done": "Completed",
     "back": "← Back to account",
     "noPermission": "Only the owner or an admin can edit the company details."
+  },
+  "clientsImport": {
+    "button": "Import from quotes",
+    "running": "Importing…",
+    "done": "{clients, plural, =0 {No new clients} one {1 new client} other {# new clients}}, {sites, plural, =0 {no new sites} one {1 new site} other {# new sites}}.",
+    "nothing": "Every quote already has its client and site.",
+    "hint": "Creates client cards and sites from the quotes already written (those still \"new\" are left out)."
+  },
+  "shipment": {
+    "supply": "Linked supply",
+    "none": "None (stand-alone shipment)",
+    "fromSupply": "From supply {ref}"
+  },
+  "supplyLinks": {
+    "client": "Client",
+    "site": "Site",
+    "shipment": "Shipment in Logistics",
+    "quote": "Quote",
+    "partnersLinked": "Every supplier also appears in Logistics (it is the one shipping the goods) and vice versa: name and contacts update everywhere.",
+    "folderTitle": "Client and site"
   }
 }

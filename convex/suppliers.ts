@@ -4,6 +4,7 @@ import { requireMembership } from "./lib/auth";
 import { requirePermission } from "./lib/rbac";
 import { resolveTenantEntitlements } from "./lib/entitlements";
 import { enforceForMultiSupplier } from "./lib/enforcement";
+import { ensurePartnerForCatalog } from "./lib/partnerLinks";
 
 /** The tenant's supplier directory, plus whether its plan allows multi-supplier quotes. */
 export const listSuppliers = query({
@@ -52,9 +53,11 @@ export const createSupplier = mutation({
     const now = Date.now();
     if (dup) {
       await ctx.db.patch(dup._id, { isActive: true, updatedAt: now });
+      // Linked to the Fornitura / Logistica directories if it was not yet.
+      if (!dup.partnerId) await ensurePartnerForCatalog(ctx, dup);
       return dup._id;
     }
-    return await ctx.db.insert("catalogSuppliers", {
+    const id = await ctx.db.insert("catalogSuppliers", {
       tenantId: args.tenantId,
       name,
       email: args.email?.trim() || undefined,
@@ -64,6 +67,10 @@ export const createSupplier = mutation({
       createdAt: now,
       updatedAt: now,
     });
+    // The price source is also a supplier of the Fornitura page and a shipper in Logistica: one company, three views.
+    const created = await ctx.db.get(id);
+    if (created) await ensurePartnerForCatalog(ctx, created);
+    return id;
   },
 });
 

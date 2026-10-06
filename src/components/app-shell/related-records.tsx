@@ -6,7 +6,7 @@ import { Link } from "@/i18n/navigation";
 import { EmptyState } from "@/components/app-shell/empty-state";
 import type { Id } from "@/convex/_generated/dataModel";
 
-export type RelatedTab = "quotes" | "surveys" | "inspections" | "installations";
+export type RelatedTab = "quotes" | "surveys" | "inspections" | "installations" | "supplies" | "logistics";
 
 export interface RelatedData {
   quotes: Array<{
@@ -36,6 +36,20 @@ export interface RelatedData {
     nodeType: string;
     createdAt: number;
   }>;
+  supplies: Array<{
+    _id: Id<"supplies">;
+    reference: string;
+    customerName: string;
+    status: string;
+    revenueExVatCents: number;
+    createdAt: number;
+  }>;
+  deliveries: Array<{
+    _id: Id<"deliveries">;
+    status: string;
+    scheduledDate: number;
+    supplyId: Id<"supplies"> | undefined;
+  }>;
 }
 
 const NEW_ROUTE: Record<RelatedTab, { href: string; label: string }> = {
@@ -43,6 +57,8 @@ const NEW_ROUTE: Record<RelatedTab, { href: string; label: string }> = {
   surveys: { href: "/app/surveys", label: "newSurvey" },
   inspections: { href: "/app/inspections", label: "newInspection" },
   installations: { href: "/app/installations", label: "newInstallation" },
+  supplies: { href: "/app/supply", label: "newSupply" },
+  logistics: { href: "/app/logistics", label: "newShipment" },
 };
 
 /**
@@ -62,6 +78,8 @@ export function RelatedRecords({
   linkQuery: string;
 }) {
   const t = useTranslations("folder");
+  const ts = useTranslations("supply");
+  const tl = useTranslations("logistics.calendar");
   const format = useFormatter();
   const date = (ms: number) => format.dateTime(new Date(ms), { dateStyle: "medium" });
   const money = (cents: number) =>
@@ -75,6 +93,7 @@ export function RelatedRecords({
   };
 
   const newLink = NEW_ROUTE[tab];
+  const showNew = tab !== "logistics" || linkQuery.startsWith("cantiereId");
   const rows: Array<{ id: string; title: string; meta: string; href: string; badge?: ReactNode }> = [];
 
   if (tab === "quotes") {
@@ -111,6 +130,26 @@ export function RelatedRecords({
         badge: <span className="text-[var(--color-text-secondary)]">{statusText(i.status)}</span>,
       });
     }
+  } else if (tab === "supplies") {
+    for (const sp of data.supplies) {
+      rows.push({
+        id: sp._id,
+        title: `${sp.reference} · ${sp.customerName}`,
+        meta: `${money(sp.revenueExVatCents)} · ${date(sp.createdAt)}`,
+        href: "/app/supply",
+        badge: <span className="text-[var(--color-text-secondary)]">{ts(`stages.${sp.status as "quote"}`)}</span>,
+      });
+    }
+  } else if (tab === "logistics") {
+    for (const d of data.deliveries) {
+      rows.push({
+        id: d._id,
+        title: date(d.scheduledDate),
+        meta: d.supplyId ? t("fromSupply") : "",
+        href: "/app/logistics",
+        badge: <span className="text-[var(--color-text-secondary)]">{tl(`status.${d.status as "scheduled"}`)}</span>,
+      });
+    }
   } else {
     for (const d of data.installations) {
       rows.push({
@@ -124,14 +163,16 @@ export function RelatedRecords({
 
   return (
     <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)]">
-      <div className="flex items-center justify-end border-b border-[var(--color-border)] px-4 py-3">
-        <Link
-          href={`${newLink.href}?${linkQuery}`}
-          className="rounded-lg bg-[var(--color-mint)] px-3 py-1.5 text-sm font-semibold text-[var(--color-mint-dark)] hover:opacity-90"
-        >
-          + {t(newLink.label as "newQuote")}
-        </Link>
-      </div>
+      {showNew ? (
+        <div className="flex items-center justify-end border-b border-[var(--color-border)] px-4 py-3">
+          <Link
+            href={`${newLink.href}?${linkQuery}`}
+            className="rounded-lg bg-[var(--color-mint)] px-3 py-1.5 text-sm font-semibold text-[var(--color-mint-dark)] hover:opacity-90"
+          >
+            + {t(newLink.label as "newQuote")}
+          </Link>
+        </div>
+      ) : null}
       {rows.length === 0 ? (
         <EmptyState title={t("emptyTitle")} hint={t("emptyHint")} />
       ) : (

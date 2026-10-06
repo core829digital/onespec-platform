@@ -70,6 +70,9 @@ export type ErrorKey =
   | "surveyNotCompleted"
   | "surveyAlreadyLinked"
   | "clientMismatch"
+  | "supplyDeliveryStockMoved"
+  | "supplyDeliveryExists"
+  | "cantiereHasLogistics"
   | "tenantMismatch"
   | "emailNotVerified"
   | "registrationClosed"
@@ -178,6 +181,9 @@ const EXACT: Record<string, ErrorKey> = {
   SUPPLY_CANNOT_REVERT: "supplyCannotRevert",
   SUPPLY_CANNOT_DELETE: "supplyCannotDelete",
   SUPPLY_STAGE_TOO_EARLY: "supplyStageTooEarly",
+  SUPPLY_DELIVERY_STOCK_MOVED: "supplyDeliveryStockMoved",
+  SUPPLY_DELIVERY_EXISTS: "supplyDeliveryExists",
+  CANTIERE_HAS_LOGISTICS: "cantiereHasLogistics",
   QUALITY_IN_USE: "qualityInUse",
   PROFILE_QUALITY_UNKNOWN: "profileQualityUnknown",
   INVALID_COMBINATION: "invalidCombination",

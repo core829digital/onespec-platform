@@ -342,6 +342,9 @@
     "surveyNotCompleted": "Terminez le relevé avant de générer le devis.",
     "surveyAlreadyLinked": "Un devis a déjà été généré depuis ce relevé.",
     "clientMismatch": "Le chantier choisi appartient à un autre client.",
+    "supplyDeliveryStockMoved": "Une partie de la marchandise de cette livraison a déjà quitté l'entrepôt : annulez d'abord ces mouvements, puis faites reculer la fourniture.",
+    "supplyDeliveryExists": "Cette fourniture a déjà une livraison dans la Logistique.",
+    "cantiereHasLogistics": "Ce chantier a des livraisons ou du stock en entrepôt liés : clôturez-les ou déplacez-les avant de le supprimer.",
     "tenantMismatch": "Élément n'appartenant pas à votre entreprise.",
     "emailNotVerified": "Vérifiez d'abord votre adresse e-mail.",
     "registrationClosed": "Les inscriptions sont temporairement fermées.",
@@ -901,7 +904,8 @@
     "noClient": "— Aucun client —",
     "noCantiere": "— Aucun chantier —",
     "prefilled": "Coordonnées de {name} préremplies. Modifiables ci-dessous.",
-    "hint": "Choisissez un client existant : nom, contacts et adresse se remplissent seuls."
+    "hint": "Choisissez un client existant : nom, contacts et adresse se remplissent seuls.",
+    "autoHint": "Si vous ne choisissez aucun client, la fiche client et le chantier sont créés (ou retrouvés) à partir de ces données à l'enregistrement du devis."
   },
   "folder": {
     "backClients": "Clients",
@@ -977,7 +981,12 @@
       "handover": "Remise",
       "intervention": "Intervention",
       "task": "Tâche"
-    }
+    },
+    "supplies": "Fournitures",
+    "logistics": "Logistique",
+    "newSupply": "Nouvelle fourniture",
+    "newShipment": "Nouvelle livraison",
+    "fromSupply": "Depuis une fourniture"
   },
   "surveyDoc": {
     "title": "Relevé de chantier",
@@ -2855,5 +2864,25 @@
     "done": "Complété",
     "back": "← Retour au compte",
     "noPermission": "Seul le propriétaire ou un administrateur peut modifier les données de la société."
+  },
+  "clientsImport": {
+    "button": "Importer depuis les devis",
+    "running": "Importation…",
+    "done": "{clients, plural, =0 {Aucun nouveau client} one {1 nouveau client} other {# nouveaux clients}}, {sites, plural, =0 {aucun nouveau chantier} one {1 nouveau chantier} other {# nouveaux chantiers}}.",
+    "nothing": "Tous les devis ont déjà leur client et leur chantier.",
+    "hint": "Crée les fiches client et les chantiers à partir des devis déjà écrits (ceux encore « nouveaux » restent de côté)."
+  },
+  "shipment": {
+    "supply": "Fourniture liée",
+    "none": "Aucune (livraison libre)",
+    "fromSupply": "Fourniture {ref}"
+  },
+  "supplyLinks": {
+    "client": "Client",
+    "site": "Chantier",
+    "shipment": "Livraison en Logistique",
+    "quote": "Devis",
+    "partnersLinked": "Chaque fournisseur apparaît aussi en Logistique (c'est lui qui livre la marchandise) et inversement : nom et contacts se mettent à jour partout.",
+    "folderTitle": "Client et chantier"
   }
 }

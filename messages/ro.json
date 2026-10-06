@@ -342,6 +342,9 @@
     "surveyNotCompleted": "Finalizează măsurătoarea înainte de a genera oferta.",
     "surveyAlreadyLinked": "S-a generat deja o ofertă din această măsurătoare.",
     "clientMismatch": "Șantierul ales aparține altui client.",
+    "supplyDeliveryStockMoved": "O parte din marfa acestei livrări a părăsit deja depozitul: anulează mai întâi acele mișcări, apoi dă înapoi aprovizionarea.",
+    "supplyDeliveryExists": "Această aprovizionare are deja o livrare în Logistică.",
+    "cantiereHasLogistics": "Acest șantier are livrări sau stoc în depozit legate: închide-le sau mută-le înainte de a-l șterge.",
     "tenantMismatch": "Elementul nu aparține companiei tale.",
     "emailNotVerified": "Verifică mai întâi adresa de e-mail.",
     "registrationClosed": "Înscrierile sunt temporar închise.",
@@ -901,7 +904,8 @@
     "noClient": "— Fără client —",
     "noCantiere": "— Fără șantier —",
     "prefilled": "Datele lui {name} au fost precompletate. Le poți edita mai jos.",
-    "hint": "Alege un client existent: numele, contactele și adresa se completează automat."
+    "hint": "Alege un client existent: numele, contactele și adresa se completează automat.",
+    "autoHint": "Dacă nu alegi niciun client, fișa clientului și șantierul se creează (sau se regăsesc) din aceste date când salvezi oferta."
   },
   "folder": {
     "backClients": "Clienți",
@@ -977,7 +981,12 @@
       "handover": "Predare",
       "intervention": "Intervenție",
       "task": "Sarcină"
-    }
+    },
+    "supplies": "Aprovizionări",
+    "logistics": "Logistică",
+    "newSupply": "Aprovizionare nouă",
+    "newShipment": "Livrare nouă",
+    "fromSupply": "Dintr-o aprovizionare"
   },
   "surveyDoc": {
     "title": "Măsurătoare șantier",
@@ -2855,5 +2864,25 @@
     "done": "Completat",
     "back": "← Înapoi la cont",
     "noPermission": "Doar proprietarul sau un administrator poate modifica datele firmei."
+  },
+  "clientsImport": {
+    "button": "Importă din oferte",
+    "running": "Se importă…",
+    "done": "{clients, plural, =0 {Niciun client nou} one {1 client nou} other {# clienți noi}}, {sites, plural, =0 {niciun șantier nou} one {1 șantier nou} other {# șantiere noi}}.",
+    "nothing": "Toate ofertele au deja client și șantier.",
+    "hint": "Creează fișele clienților și șantierele din ofertele deja scrise (cele încă „noi” rămân deoparte)."
+  },
+  "shipment": {
+    "supply": "Aprovizionare legată",
+    "none": "Niciuna (livrare liberă)",
+    "fromSupply": "Din aprovizionarea {ref}"
+  },
+  "supplyLinks": {
+    "client": "Client",
+    "site": "Șantier",
+    "shipment": "Livrare în Logistică",
+    "quote": "Ofertă",
+    "partnersLinked": "Fiecare furnizor apare și în Logistică (el livrează marfa) și invers: numele și contactele se actualizează peste tot.",
+    "folderTitle": "Client și șantier"
   }
 }

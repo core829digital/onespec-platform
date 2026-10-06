@@ -516,11 +516,14 @@ export default defineSchema({
     leadTimeDays: v.optional(v.number()),
     /** Whether this supplier is active/available for quotes. */
     isActive: v.boolean(),
+    /** The same company in the Fornitura directory (producer / deliverer): one real-world supplier, three views. */
+    partnerId: v.optional(v.id("supplyPartners")),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index("by_tenant", ["tenantId"])
-    .index("by_tenant_active", ["tenantId", "isActive"]),
+    .index("by_tenant_active", ["tenantId", "isActive"])
+    .index("by_partner", ["partnerId"]),
 
   /** VIES (EU VAT Information Exchange System) checks of customers' VAT numbers: the proof needed before a 0% intra-Community supply. */
   viesChecks: defineTable({
@@ -1171,9 +1174,13 @@ export default defineSchema({
     email: v.optional(v.string()),
     address: v.optional(v.string()),
     notes: v.optional(v.string()),
+    /** The same company in the Fornitura directory: the supplier who makes the windows is the one who ships them. */
+    partnerId: v.optional(v.id("supplyPartners")),
     createdAt: v.number(),
     updatedAt: v.number(),
-  }).index("by_tenant", ["tenantId"]),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_partner", ["partnerId"]),
 
   /**
    * A factory / deliverer the installer works with. One partner can play both roles:
@@ -1186,6 +1193,7 @@ export default defineSchema({
     contactName: v.optional(v.string()),
     phone: v.optional(v.string()),
     email: v.optional(v.string()),
+    address: v.optional(v.string()),
     vatId: v.optional(v.string()),
     notes: v.optional(v.string()),
     archived: v.optional(v.boolean()),
@@ -1201,6 +1209,9 @@ export default defineSchema({
   supplies: defineTable({
     tenantId: v.id("tenants"),
     quoteId: v.id("quoteRequests"),
+    /** Where the windows go and for whom: copied from the quote, kept in step with it. */
+    clientId: v.optional(v.id("clients")),
+    cantiereId: v.optional(v.id("cantieri")),
     /** Snapshots, so the list stays readable even if the quote changes. */
     reference: v.string(),
     customerName: v.string(),
@@ -1227,7 +1238,9 @@ export default defineSchema({
     .index("by_tenant", ["tenantId", "createdAt"])
     .index("by_quote", ["quoteId"])
     .index("by_tenant_status", ["tenantId", "status"])
-    .index("by_tenant_delivered", ["tenantId", "deliveredAt"]),
+    .index("by_tenant_delivered", ["tenantId", "deliveredAt"])
+    .index("by_cantiere", ["cantiereId"])
+    .index("by_client", ["clientId"]),
 
   carriers: defineTable({
     tenantId: v.id("tenants"),
@@ -1257,6 +1270,8 @@ export default defineSchema({
     ),
     cantiereId: v.optional(v.id("cantieri")),
     quoteId: v.optional(v.id("quoteRequests")),
+    /** The supply (Fornitura) this shipment belongs to: receiving it closes the supply, and the supply opens it. */
+    supplyId: v.optional(v.id("supplies")),
     notes: v.optional(v.string()),
     /** Free-text list of what's expected — becomes the default inventory item labels on receipt. */
     expectedItems: v.optional(v.array(v.string())),
@@ -1269,7 +1284,9 @@ export default defineSchema({
     .index("by_tenant_status", ["tenantId", "status"])
     .index("by_tenant_date", ["tenantId", "scheduledDate"])
     .index("by_supplier", ["supplierId"])
-    .index("by_cantiere", ["cantiereId"]),
+    .index("by_cantiere", ["cantiereId"])
+    .index("by_supply", ["supplyId"])
+    .index("by_quote", ["quoteId"]),
 
   /** Warehouse stock. Created piece-by-piece when a delivery is marked "received". */
   inventoryItems: defineTable({

@@ -12,6 +12,7 @@ import { calculatePrice, installationIncluded, type ProjectItem, type CatalogPay
 import { currentPeriod, resolveTenantEntitlements } from "./lib/entitlements";
 import { regionForCountry } from "./lib/regions";
 import { resolveLinks, logClientActivity } from "./lib/links";
+import { linkQuoteToCrm, recomputeCantiereValue } from "./lib/crmLink";
 import { resolveQuoteVat } from "./lib/vat";
 import { assertCoherentItems, parseQuoteItems, nextOfferNumber } from "./lib/quoteItems";
 import { defaultItem } from "../src/shared/item-defaults";
@@ -70,6 +71,22 @@ export const listRequests = query({
   },
 });
 
+/** The customer card and the site of a quote (names only), for the links on the quote page; either may be absent. */
+export const linksForQuote = query({
+  args: { quoteId: v.id("quoteRequests") },
+  handler: async (ctx, args) => {
+    const quote = await ctx.db.get(args.quoteId);
+    if (!quote) return null;
+    await requireMembership(ctx, quote.tenantId);
+    const client = quote.clientId ? await ctx.db.get(quote.clientId) : null;
+    const cantiere = quote.cantiereId ? await ctx.db.get(quote.cantiereId) : null;
+    return {
+      client: client && client.tenantId === quote.tenantId ? { _id: client._id, name: client.name, status: client.status } : null,
+      cantiere: cantiere && cantiere.tenantId === quote.tenantId ? { _id: cantiere._id, name: cantiere.name, status: cantiere.status } : null,
+    };
+  },
+});
+
 export const getRequest = query({
   args: { quoteId: v.id("quoteRequests") },
   handler: async (ctx, args) => {
@@ -85,10 +102,17 @@ export const updateStatus = mutation({
   handler: async (ctx, args) => {
     const quote = await ctx.db.get(args.quoteId);
     if (!quote) throw new ConvexError("QUOTE_NOT_FOUND");
-    await requirePermission(ctx, quote.tenantId, "quotes.manage");
+    const { userId } = await requirePermission(ctx, quote.tenantId, "quotes.manage");
 
     const oldStatus = quote.status;
     await ctx.db.patch(args.quoteId, { status: args.status });
+    // The customer card and the site follow the quote: contacted/quoted -> prospect, won -> active client and confirmed site;
+    // lost / reopened quotes change the site's value (it adds up its live quotes).
+    if (args.status === "contacted" || args.status === "quoted" || args.status === "won") {
+      await linkQuoteToCrm(ctx, { quoteId: args.quoteId, userId, stage: args.status === "won" ? "won" : "quoted" });
+    } else {
+      await recomputeCantiereValue(ctx, quote.cantiereId);
+    }
 
     await emit(ctx, {
       type: "quote.status_changed",
@@ -101,7 +125,7 @@ export const updateStatus = mutation({
     if (args.status === "won") {
       await emit(ctx, { type: "quote.won", tenantId: quote.tenantId, quoteId: args.quoteId });
       // The deal is closed: the quote's supply moves to "Ordine" (created if it did not exist).
-      await ensureOrdered(ctx, quote);
+      await ensureOrdered(ctx, (await ctx.db.get(args.quoteId)) ?? quote);
     }
 
     await ctx.db.insert("auditLog", {
@@ -202,6 +226,8 @@ export const createFieldQuote = mutation({
     clientId: v.optional(v.id("clients")),
     /** Optional link to the cantiere this quote belongs to. */
     cantiereId: v.optional(v.id("cantieri")),
+    /** Default true: the customer card and the cantiere are found or created from the quote's data. */
+    autoLink: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     await enforceForCreateQuote(ctx, args.tenantId);
@@ -317,9 +343,13 @@ export const createFieldQuote = mutation({
       clientId: links.clientId,
       cantiereId: links.cantiereId,
     });
+    // The quote leaves a customer card and a site card behind (found or created), unless the installer opted out.
+    const crm = args.autoLink === false
+      ? { clientId: links.clientId, cantiereId: links.cantiereId }
+      : await linkQuoteToCrm(ctx, { quoteId, userId, stage: "quoted" });
     await logClientActivity(ctx, {
       tenantId: args.tenantId,
-      clientId: links.clientId,
+      clientId: crm.clientId,
       userId,
       type: "quote",
       title: "Preventivo creato",
@@ -370,7 +400,7 @@ export const signQuote = mutation({
   handler: async (ctx, args) => {
     const quote = await ctx.db.get(args.quoteId);
     if (!quote) throw new ConvexError("QUOTE_NOT_FOUND");
-    await requireMembership(ctx, quote.tenantId);
+    const { userId } = await requireMembership(ctx, quote.tenantId);
     await enforceForESignature(ctx, quote.tenantId);
 
     if (!args.signatureDataUrl.startsWith("data:image/")) {
@@ -399,7 +429,13 @@ export const signQuote = mutation({
       meta: { signedByName: args.signedByName, signedAt: now },
       createdAt: now,
     });
-    await ensureOrdered(ctx, quote);
+    // A signature closes the deal like "won" does: client active, site confirmed, supply at Ordine, team notified.
+    if (quote.status !== "won") {
+      await emit(ctx, { type: "quote.status_changed", tenantId: quote.tenantId, quoteId: args.quoteId, from: quote.status, to: "won", leadName: lockedSafeLeadName(quote) });
+      await emit(ctx, { type: "quote.won", tenantId: quote.tenantId, quoteId: args.quoteId });
+    }
+    await linkQuoteToCrm(ctx, { quoteId: args.quoteId, userId, stage: "won" });
+    await ensureOrdered(ctx, (await ctx.db.get(args.quoteId)) ?? quote);
 
     return { ok: true, signedAt: now };
   },
@@ -545,9 +581,14 @@ regionalSurchargeCents: 0,
 
     // Link survey to quote
     await ctx.db.patch(args.surveyId, { quoteId, updatedAt: Date.now() });
+    const crm = await linkQuoteToCrm(ctx, { quoteId, userId, stage: 'quoted' });
+    // The cantiere found/created for the quote is also the survey's: survey, quote and site stay one folder.
+    if (crm.clientId !== survey.clientId || crm.cantiereId !== survey.cantiereId) {
+      await ctx.db.patch(args.surveyId, { clientId: crm.clientId ?? survey.clientId, cantiereId: crm.cantiereId ?? survey.cantiereId });
+    }
     await logClientActivity(ctx, {
       tenantId: args.tenantId,
-      clientId: survey.clientId,
+      clientId: crm.clientId,
       userId,
       type: 'quote',
       title: 'Preventivo generato da rilievo',
@@ -638,6 +679,7 @@ export const createQuoteWithSuppliers = mutation({
     klimabonusEligible: v.optional(v.boolean()),
     clientId: v.optional(v.id('clients')),
     cantiereId: v.optional(v.id('cantieri')),
+    autoLink: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     await enforceForCreateQuote(ctx, args.tenantId);
@@ -769,9 +811,12 @@ export const createQuoteWithSuppliers = mutation({
       clientId: links.clientId,
       cantiereId: links.cantiereId,
     });
+    const crm = args.autoLink === false
+      ? { clientId: links.clientId, cantiereId: links.cantiereId }
+      : await linkQuoteToCrm(ctx, { quoteId, userId, stage: 'quoted' });
     await logClientActivity(ctx, {
       tenantId: args.tenantId,
-      clientId: links.clientId,
+      clientId: crm.clientId,
       userId,
       type: 'quote',
       title: 'Preventivo multi-fornitore creato',

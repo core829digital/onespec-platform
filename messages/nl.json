@@ -342,6 +342,9 @@
     "surveyNotCompleted": "Rond de opmeting af voordat je de offerte maakt.",
     "surveyAlreadyLinked": "Uit deze opmeting is al een offerte gemaakt.",
     "clientMismatch": "De gekozen werf hoort bij een andere klant.",
+    "supplyDeliveryStockMoved": "Een deel van de goederen van deze levering heeft het magazijn al verlaten: maak die bewegingen eerst ongedaan en zet de levering daarna terug.",
+    "supplyDeliveryExists": "Deze levering heeft al een zending in Logistiek.",
+    "cantiereHasLogistics": "Aan deze werf zijn zendingen of magazijnvoorraad gekoppeld: sluit of verplaats ze voordat je de werf verwijdert.",
     "tenantMismatch": "Item hoort niet bij jouw bedrijf.",
     "emailNotVerified": "Bevestig eerst je e-mailadres.",
     "registrationClosed": "Registraties zijn tijdelijk gesloten.",
@@ -901,7 +904,8 @@
     "noClient": "— Geen klant —",
     "noCantiere": "— Geen werf —",
     "prefilled": "Gegevens van {name} vooraf ingevuld. Hieronder aanpasbaar.",
-    "hint": "Kies een bestaande klant: naam, contact en adres worden automatisch ingevuld."
+    "hint": "Kies een bestaande klant: naam, contact en adres worden automatisch ingevuld.",
+    "autoHint": "Kies je geen klant, dan worden klantkaart en werf aangemaakt (of teruggevonden) uit deze gegevens wanneer je de offerte opslaat."
   },
   "folder": {
     "backClients": "Klanten",
@@ -977,7 +981,12 @@
       "handover": "Overdracht",
       "intervention": "Interventie",
       "task": "Taak"
-    }
+    },
+    "supplies": "Leveringen",
+    "logistics": "Logistiek",
+    "newSupply": "Nieuwe levering",
+    "newShipment": "Nieuwe zending",
+    "fromSupply": "Uit een levering"
   },
   "surveyDoc": {
     "title": "Opmeting werf",
@@ -2855,5 +2864,25 @@
     "done": "Compleet",
     "back": "← Terug naar account",
     "noPermission": "Alleen de eigenaar of een beheerder kan de bedrijfsgegevens wijzigen."
+  },
+  "clientsImport": {
+    "button": "Importeren uit offertes",
+    "running": "Importeren…",
+    "done": "{clients, plural, =0 {Geen nieuwe klanten} one {1 nieuwe klant} other {# nieuwe klanten}}, {sites, plural, =0 {geen nieuwe werven} one {1 nieuwe werf} other {# nieuwe werven}}.",
+    "nothing": "Elke offerte heeft al een klant en een werf.",
+    "hint": "Maakt klantkaarten en werven aan uit de al geschreven offertes (die nog \"nieuw\" zijn blijven buiten)."
+  },
+  "shipment": {
+    "supply": "Gekoppelde levering",
+    "none": "Geen (losse zending)",
+    "fromSupply": "Uit levering {ref}"
+  },
+  "supplyLinks": {
+    "client": "Klant",
+    "site": "Werf",
+    "shipment": "Zending in Logistiek",
+    "quote": "Offerte",
+    "partnersLinked": "Elke leverancier verschijnt ook in Logistiek (hij levert de goederen) en omgekeerd: naam en contactgegevens worden overal bijgewerkt.",
+    "folderTitle": "Klant en werf"
   }
 }

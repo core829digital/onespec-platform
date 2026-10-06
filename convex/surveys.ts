@@ -6,6 +6,7 @@ import { requirePermission } from "./lib/rbac";
 import { requireTenantRegion } from "./lib/fieldModules";
 import { enforceForFieldSurvey } from "./lib/enforcement";
 import { resolveLinks, logClientActivity, assertOwnedRefs } from "./lib/links";
+import { linkRecordToCrm } from "./lib/crmLink";
 import { assertStoredFile } from "./lib/uploads";
 
 const openingValidator = v.object({
@@ -182,13 +183,28 @@ export const create = mutation({
     const name = args.customerName.trim() || links.client?.name || "";
     if (!name) throw new ConvexError("CUSTOMER_NAME_REQUIRED");
 
+    // A survey typed with a name and an address leaves the customer card and the site behind (found, or created).
+    const crm = await linkRecordToCrm(ctx, {
+      tenantId: args.tenantId,
+      userId,
+      clientId: links.clientId,
+      cantiereId: links.cantiereId,
+      name,
+      // Only an address typed on the survey makes a site: the client's own address is a default, not a new job.
+      address: args.customerAddress?.trim(),
+      city: args.customerCity?.trim(),
+      postalCode: args.customerPostalCode?.trim(),
+      country: regionCode,
+      source: "rilievo",
+    });
+
     const now = Date.now();
     const surveyId = await ctx.db.insert("siteSurveys", {
       tenantId: args.tenantId,
       regionCode,
       quoteId: args.quoteId,
-      clientId: links.clientId,
-      cantiereId: links.cantiereId,
+      clientId: crm.clientId,
+      cantiereId: crm.cantiereId,
       createdByUserId: userId,
       customerName: name,
       customerAddress: args.customerAddress?.trim() || links.client?.siteAddress,
@@ -204,7 +220,7 @@ export const create = mutation({
     });
     await logClientActivity(ctx, {
       tenantId: args.tenantId,
-      clientId: links.clientId,
+      clientId: crm.clientId,
       userId,
       type: "survey",
       title: "Rilievo creato",

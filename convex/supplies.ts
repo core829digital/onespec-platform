@@ -9,6 +9,9 @@ import { requirePermission, roleAtLeast } from "./lib/rbac";
 import { must } from "./lib/validate";
 import { lockedSafeLeadName } from "./lib/quotaLock";
 import { ensureOrdered } from "./lib/supply";
+import { advanceCantiereStatus, linkQuoteToCrm, type CantiereStatus } from "./lib/crmLink";
+import { ensureLogisticsMirror, syncPartnerEdit } from "./lib/partnerLinks";
+import { ensureDeliveryForSupply, receiveDelivery, takeBackDelivery } from "./lib/deliveryCore";
 import { checkEmail, checkPersonName, checkPhone, checkText, checkCompanyName, type CountryCode } from "../src/shared/validation";
 import {
   PARTNER_ROLES,
@@ -105,7 +108,11 @@ export const createPartner = mutation({
   handler: async (ctx, args) => {
     const { tenant } = await requirePermission(ctx, args.tenantId, "quotes.manage");
     const now = Date.now();
-    return await ctx.db.insert("supplyPartners", { tenantId: args.tenantId, ...cleanPartner(args, tenant.country), createdAt: now, updatedAt: now });
+    const id = await ctx.db.insert("supplyPartners", { tenantId: args.tenantId, ...cleanPartner(args, tenant.country), createdAt: now, updatedAt: now });
+    // The supplier is also a shipper: it appears in Logistica straight away (or is linked to the one already there).
+    const created = await ctx.db.get(id);
+    if (created) await ensureLogisticsMirror(ctx, created);
+    return id;
   },
 });
 
@@ -119,10 +126,13 @@ export const updatePartner = mutation({
       tenantId: p.tenantId,
       ...cleanPartner(args, tenant.country),
       vatId: p.vatId,
+      address: p.address,
       archived: args.archived ?? p.archived,
       createdAt: p.createdAt,
       updatedAt: Date.now(),
     });
+    // Name and contacts reach Logistica and the price-source directory.
+    await syncPartnerEdit(ctx, args.partnerId);
   },
 });
 
@@ -149,6 +159,24 @@ export const forQuote = query({
   },
 });
 
+/** Supplies a shipment can still be linked to: past the order, not delivered, and with no live shipment yet. */
+export const forShipment = query({
+  args: { tenantId: v.id("tenants") },
+  handler: async (ctx, args) => {
+    await requirePermission(ctx, args.tenantId, "logistics.use");
+    const out: Array<{ _id: Id<"supplies">; reference: string; customerName: string }> = [];
+    for (const status of ["production", "delivery"] as const) {
+      const rows = await ctx.db.query("supplies").withIndex("by_tenant_status", (q) => q.eq("tenantId", args.tenantId).eq("status", status)).take(200);
+      for (const s of rows) {
+        const shipment = await ctx.db.query("deliveries").withIndex("by_supply", (q) => q.eq("supplyId", s._id)).first();
+        if (shipment && shipment.status !== "cancelled") continue;
+        out.push({ _id: s._id, reference: s.reference, customerName: s.customerName });
+      }
+    }
+    return out;
+  },
+});
+
 /** Quotes that can still start a supply (not lost / spam, no supply yet): newest first. */
 export const quotesWithoutSupply = query({
   args: { tenantId: v.id("tenants") },
@@ -170,12 +198,15 @@ export const quotesWithoutSupply = query({
 export const createFromQuote = mutation({
   args: { quoteId: v.id("quoteRequests") },
   handler: async (ctx, args) => {
-    const quote = await ctx.db.get(args.quoteId);
-    if (!quote) throw new ConvexError("QUOTE_NOT_FOUND");
-    await requirePermission(ctx, quote.tenantId, "quotes.use");
-    if (quote.status === "lost" || quote.status === "spam") throw new ConvexError("SUPPLY_QUOTE_NOT_USABLE");
+    const first = await ctx.db.get(args.quoteId);
+    if (!first) throw new ConvexError("QUOTE_NOT_FOUND");
+    const { userId } = await requirePermission(ctx, first.tenantId, "quotes.use");
+    if (first.status === "lost" || first.status === "spam") throw new ConvexError("SUPPLY_QUOTE_NOT_USABLE");
     const existing = await ctx.db.query("supplies").withIndex("by_quote", (q) => q.eq("quoteId", args.quoteId)).first();
     if (existing) throw new ConvexError("SUPPLY_ALREADY_EXISTS");
+    // A supply always has its customer and its site: find or create them from the quote before the supply is written.
+    await linkQuoteToCrm(ctx, { quoteId: args.quoteId, userId, stage: first.status === "won" ? "won" : "quoted" });
+    const quote = (await ctx.db.get(args.quoteId)) ?? first;
     // A deal already closed (won / signed before the supply existed) starts at "Ordine", not at "Preventivo".
     if (quote.status === "won") {
       await ensureOrdered(ctx, quote);
@@ -186,6 +217,8 @@ export const createFromQuote = mutation({
     return await ctx.db.insert("supplies", {
       tenantId: quote.tenantId,
       quoteId: quote._id,
+      clientId: quote.clientId,
+      cantiereId: quote.cantiereId,
       reference: quote.offerNumber ?? String(quote._id),
       customerName: lockedSafeLeadName(quote),
       status: "quote",
@@ -221,7 +254,16 @@ export const advance = mutation({
     if (to === "order") {
       patch.orderedAt = now;
       const quote = await ctx.db.get(s.quoteId);
-      if (quote && quote.status !== "won") await ctx.db.patch(quote._id, { status: "won" });
+      if (quote && quote.status !== "won") {
+        await ctx.db.patch(quote._id, { status: "won" });
+        // Closing the deal makes the customer an active client and confirms the site (found or created if missing).
+        const { userId } = await requirePermission(ctx, s.tenantId, "quotes.use");
+        const crm = await linkQuoteToCrm(ctx, { quoteId: quote._id, userId, stage: "won" });
+        if (crm.clientId !== s.clientId || crm.cantiereId !== s.cantiereId) {
+          patch.clientId = crm.clientId;
+          patch.cantiereId = crm.cantiereId;
+        }
+      }
     } else if (to === "production") {
       patch.factoryCostCents = money(args.factoryCostCents, true);
       patch.producerId = await ownPartner(ctx, s.tenantId, args.producerId, "producer");
@@ -234,6 +276,16 @@ export const advance = mutation({
       patch.deliveredAt = now;
     }
     await ctx.db.patch(s._id, patch);
+    // The two pages tell the same story: the stage "Consegna" opens the shipment in Logistica, "Consegnata" receives it into the warehouse.
+    if (to === "delivery") await ensureDeliveryForSupply(ctx, { ...s, ...patch } as Doc<"supplies">);
+    if (to === "delivered") {
+      const shipment = await ctx.db.query("deliveries").withIndex("by_supply", (q) => q.eq("supplyId", s._id)).first();
+      if (shipment && shipment.status !== "received" && shipment.status !== "cancelled") await receiveDelivery(ctx, shipment, undefined);
+    }
+    // The site follows the supply (never backwards: a site already in posa / collaudo / chiuso stays where it is).
+    const SITE_STAGE: Partial<Record<Doc<"supplies">["status"], CantiereStatus>> = { order: "confermato", production: "in_produzione", delivery: "pronto_consegna" };
+    const siteStage = SITE_STAGE[to];
+    if (siteStage) await advanceCantiereStatus(ctx, patch.cantiereId ?? s.cantiereId, siteStage);
     await ctx.db.insert("auditLog", {
       tenantId: s.tenantId,
       actorKind: "user",
@@ -254,6 +306,8 @@ export const revert = mutation({
     const to = previousStage(s.status);
     if (!to) throw new ConvexError("SUPPLY_CANNOT_REVERT");
     const now = Date.now();
+    // The shipment goes back with the stage (refused with a clear message if its goods already left the warehouse).
+    if (s.status === "delivery" || s.status === "delivered") await takeBackDelivery(ctx, s._id, s.status);
     const clear: Record<string, undefined> = {};
     if (s.status === "order") clear.orderedAt = undefined;
     if (s.status === "production") Object.assign(clear, { productionAt: undefined, factoryCostCents: undefined, factoryPaidAt: undefined, producerId: undefined });

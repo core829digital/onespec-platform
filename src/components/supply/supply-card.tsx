@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { useFormatter, useTranslations } from "next-intl";
 import { Check } from "lucide-react";
+import { Link } from "@/i18n/navigation";
 import { api } from "@/convex/_generated/api";
 import type { Doc } from "@/convex/_generated/dataModel";
 import { useFriendlyError } from "@/lib/use-friendly-error";
@@ -30,6 +31,7 @@ function MoneyField({ label, value, onChange, check, show }: { label: string; va
 
 export function SupplyCard({ supply, partners, isAdmin }: { supply: Supply; partners: Doc<"supplyPartners">[]; isAdmin: boolean }) {
   const t = useTranslations("supply");
+  const tk = useTranslations("supplyLinks");
   const tf = useFriendlyError();
   const euro = useEuro();
   const fmt = useFormatter();
@@ -95,6 +97,13 @@ export function SupplyCard({ supply, partners, isAdmin }: { supply: Supply; part
           <p className={`text-xs tabular-nums ${supply.profitCents < 0 ? "text-[var(--color-danger)]" : "text-[var(--color-text-secondary)]"}`}>{t("fields.profit")}: {euro(supply.profitCents)}</p>
         </div>
       </div>
+
+      <p className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
+        <Link href={`/app/requests/${supply.quoteId}`} className="text-[var(--color-mint-text)] hover:underline">{tk("quote")}</Link>
+        {supply.clientId ? <Link href={`/app/clients/${supply.clientId}`} className="text-[var(--color-mint-text)] hover:underline">{tk("client")}</Link> : null}
+        {supply.cantiereId ? <Link href={`/app/cantieri/${supply.cantiereId}`} className="text-[var(--color-mint-text)] hover:underline">{tk("site")}</Link> : null}
+        {supply.status === "delivery" || supply.status === "delivered" ? <Link href="/app/logistics" className="text-[var(--color-mint-text)] hover:underline">{tk("shipment")}</Link> : null}
+      </p>
 
       <ol className="flex flex-wrap gap-1.5 text-xs" aria-label={t("title")}>
         {SUPPLY_STAGES.filter((s) => s !== "delivered").map((s, i) => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { useTranslations } from "next-intl";
 import { api } from "@/convex/_generated/api";
@@ -17,6 +17,12 @@ export function PartnersTab({ tenantId }: { tenantId: Id<"tenants"> }) {
   const tf = useFriendlyError();
   const partners = useQuery(api.supplies.listPartners, { tenantId });
   const create = useMutation(api.supplies.createPartner);
+  const sync = useMutation(api.crm.syncSupplierDirectories);
+  const tl = useTranslations("supplyLinks");
+  // Accounts that had Fornitura, Logistica and the price sources apart get them linked once, on opening the page (idempotent).
+  useEffect(() => {
+    void sync({ tenantId }).catch(() => {});
+  }, [sync, tenantId]);
   const update = useMutation(api.supplies.updatePartner);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -49,6 +55,7 @@ export function PartnersTab({ tenantId }: { tenantId: Id<"tenants"> }) {
   return (
     <div className="space-y-5">
       <p className="text-sm text-[var(--color-text-secondary)]">{t("intro")}</p>
+      <p className="text-xs text-[var(--color-text-secondary)]">{tl("partnersLinked")}</p>
       {err ? <p role="alert" className="text-sm text-[var(--color-danger)]">{err}</p> : null}
       <form onSubmit={submit} noValidate className="grid gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4 sm:grid-cols-2">
         <label className="text-xs font-medium text-[var(--color-text-secondary)]">

@@ -128,7 +128,7 @@ export function ClientCantierePicker({
       {client ? (
         <p className="text-xs text-[var(--color-text-secondary)]">{t("prefilled", { name: client.name })}</p>
       ) : (
-        <p className="text-xs text-[var(--color-text-secondary)]">{t("hint")}</p>
+        <p className="text-xs text-[var(--color-text-secondary)]">{t("hint")} {t("autoHint")}</p>
       )}
     </div>
   );

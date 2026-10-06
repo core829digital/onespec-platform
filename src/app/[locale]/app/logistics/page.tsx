@@ -2,7 +2,7 @@
 
 import { requestConfirm } from "@/lib/confirm-dialog";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { useTranslations, useFormatter, useLocale } from "next-intl";
 import { api } from "@/convex/_generated/api";
@@ -13,12 +13,18 @@ import { EmptyState } from "@/components/app-shell/empty-state";
 import { SiteDeliveriesTab } from "@/components/logistics/site-deliveries-tab";
 
 type Tab = "calendar" | "suppliers" | "carriers" | "inventory" | "siteDeliveries";
-type Delivery = Doc<"deliveries">;
+type Delivery = Doc<"deliveries"> & { supplyReference?: string; customerName?: string; cantiereName?: string };
 
 export default function LogisticsPage() {
   const t = useTranslations("logistics");
   const tf = useFriendlyError();
   const tenant = useQuery(api.tenants.getMyTenant);
+  const syncDirectories = useMutation(api.crm.syncSupplierDirectories);
+  const tenantId = tenant?._id;
+  // Suppliers of the Fornitura page appear here as shippers: link the ones that existed apart (idempotent).
+  useEffect(() => {
+    if (tenantId) void syncDirectories({ tenantId }).catch(() => {});
+  }, [syncDirectories, tenantId]);
   const [tab, setTab] = useState<Tab>("calendar");
   const [err, setErr] = useState("");
   const showError = (e: unknown) => {
@@ -96,6 +102,7 @@ function CalendarTab({ tenantId, onError }: { tenantId: Id<"tenants">; onError: 
   const t = useTranslations("logistics.calendar");
   const format = useFormatter();
   const locale = useLocale();
+  const tl = useTranslations("shipment");
   // Monday-first localized weekday abbreviations (2026-01-05 is a Monday).
   const weekdayLabels = useMemo(() => {
     const fmt = new Intl.DateTimeFormat(locale, { weekday: "short" });
@@ -117,6 +124,7 @@ function CalendarTab({ tenantId, onError }: { tenantId: Id<"tenants">; onError: 
   const markReceived = useMutation(api.logistics.markDeliveryReceived);
   const removeDelivery = useMutation(api.logistics.deleteDelivery);
   const createDelivery = useMutation(api.logistics.createDelivery);
+  const openSupplies = useQuery(api.supplies.forShipment, { tenantId });
 
   const byDay = useMemo(() => {
     const map = new Map<number, Delivery[]>();
@@ -255,6 +263,13 @@ function CalendarTab({ tenantId, onError }: { tenantId: Id<"tenants">; onError: 
                           {d.driverName ? `${t("driver")}: ${d.driverName} · ` : ""}
                           {t(`status.${d.status}`)}
                         </p>
+                        {d.supplyReference || d.cantiereName ? (
+                          <p className="text-xs text-[var(--color-text-secondary)]">
+                            {d.supplyReference ? `${tl("fromSupply", { ref: d.supplyReference })}${d.customerName ? ` · ${d.customerName}` : ""}` : ""}
+                            {d.supplyReference && d.cantiereName ? " · " : ""}
+                            {d.cantiereName ?? ""}
+                          </p>
+                        ) : null}
                       </div>
                       <div className="flex items-center gap-2">
                         {d.status !== "received" && d.status !== "cancelled" ? (
@@ -293,6 +308,7 @@ function CalendarTab({ tenantId, onError }: { tenantId: Id<"tenants">; onError: 
           tenantId={tenantId}
           suppliers={suppliers}
           carriers={carriers ?? []}
+          supplies={openSupplies ?? []}
           defaultDate={selectedDay ?? new Date()}
           onClose={() => setFormOpen(false)}
           onSave={async (data) => {
@@ -313,6 +329,7 @@ function NewDeliveryModal({
   tenantId,
   suppliers,
   carriers,
+  supplies,
   defaultDate,
   onClose,
   onSave,
@@ -320,6 +337,7 @@ function NewDeliveryModal({
   tenantId: Id<"tenants">;
   suppliers: Doc<"logisticsSuppliers">[];
   carriers: Doc<"carriers">[];
+  supplies: { _id: Id<"supplies">; reference: string; customerName: string }[];
   defaultDate: Date;
   onClose: () => void;
   onSave: (data: {
@@ -329,11 +347,14 @@ function NewDeliveryModal({
     driverName?: string;
     driverPhone?: string;
     scheduledDate: number;
+    supplyId?: Id<"supplies">;
     notes?: string;
     expectedItems?: string[];
   }) => void;
 }) {
   const t = useTranslations("logistics.calendar");
+  const tl = useTranslations("shipment");
+  const [supplyId, setSupplyId] = useState<string>("");
   const [supplierId, setSupplierId] = useState<string>(suppliers[0]._id);
   const [carrierId, setCarrierId] = useState<string>("");
   const [driverName, setDriverName] = useState("");
@@ -350,6 +371,13 @@ function NewDeliveryModal({
           <h2 className="text-lg font-semibold text-[var(--color-text)]">{t("newDelivery")}</h2>
         </div>
         <div className="max-h-[70vh] space-y-3 overflow-y-auto p-4">
+          <div>
+            <label className="mb-1 block text-sm font-medium text-[var(--color-text-secondary)]">{tl("supply")}</label>
+            <select value={supplyId} onChange={(e) => setSupplyId(e.target.value)} className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]">
+              <option value="">{tl("none")}</option>
+              {supplies.map((sp) => <option key={sp._id} value={sp._id}>{sp.reference} · {sp.customerName}</option>)}
+            </select>
+          </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-[var(--color-text-secondary)]">{t("supplier")}</label>
             <select value={supplierId} onChange={(e) => setSupplierId(e.target.value)} className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]">
@@ -402,6 +430,7 @@ function NewDeliveryModal({
                 driverName: driverName || undefined,
                 driverPhone: driverPhone || undefined,
                 scheduledDate: new Date(date).getTime(),
+                supplyId: supplyId ? (supplyId as Id<"supplies">) : undefined,
                 notes: notes || undefined,
                 expectedItems: items.split("\n").map((s) => s.trim()).filter(Boolean),
               });

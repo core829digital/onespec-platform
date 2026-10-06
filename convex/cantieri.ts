@@ -6,6 +6,7 @@ import { listRelated, assertOwnedRefs, assertActiveMembers } from "./lib/links";
 import { consumeToken, RATE_LIMITS } from "./lib/ratelimit";
 import { hashIp } from "./lib/ipHash";
 import { regionForCountry } from "./lib/regions";
+import { propagateCantiereEdit, recomputeCantiereValue, syncQuoteCantiere } from "./lib/crmLink";
 
 const TASK_STATUSES = ["todo", "in_progress", "review", "done"] as const;
 
@@ -249,6 +250,16 @@ export const createCantiere = mutation({
       updatedAt: now,
     });
 
+    // The quote named here belongs to this site from now on (and to this site's client): the link is written on both sides.
+    if (args.quoteId) {
+      const quote = await ctx.db.get(args.quoteId);
+      if (quote) {
+        await ctx.db.patch(args.quoteId, { cantiereId, clientId: args.clientId ?? quote.clientId });
+        if (!args.clientId && quote.clientId) await ctx.db.patch(cantiereId, { clientId: quote.clientId });
+        await recomputeCantiereValue(ctx, cantiereId);
+      }
+    }
+
     await ctx.db.insert("auditLog", {
       tenantId: args.tenantId,
       actorUserId: userId,
@@ -330,6 +341,18 @@ export const updateCantiere = mutation({
 
     try {
       await ctx.db.patch(args.cantiereId, patch);
+
+      // Both directions: a new quote named here is linked to this site, and an edited address / client reaches the quotes and supplies of the site.
+      if (args.quoteId && args.quoteId !== cantiere.quoteId) {
+        const quote = await ctx.db.get(args.quoteId);
+        if (quote && quote.cantiereId !== args.cantiereId) {
+          await ctx.db.patch(args.quoteId, { cantiereId: args.cantiereId, clientId: args.clientId ?? cantiere.clientId ?? quote.clientId });
+        }
+        await syncQuoteCantiere(ctx, args.quoteId);
+      }
+      if (["address", "city", "postalCode", "clientId"].some((f) => patch[f] !== undefined)) {
+        await propagateCantiereEdit(ctx, args.cantiereId);
+      }
 
       await ctx.db.insert("auditLog", {
         tenantId: cantiere.tenantId,
@@ -536,6 +559,25 @@ export const deleteCantiere = mutation({
     const cantiere = await ctx.db.get(args.cantiereId);
     if (!cantiere) throw new ConvexError("CANTIERE_NOT_FOUND");
     const { userId } = await requirePermission(ctx, cantiere.tenantId, "cantieri.delete");
+
+    // Goods already moving to / stored for this site cannot be orphaned: the installer sorts them out first.
+    const [siteShipment, shipment, stock] = await Promise.all([
+      ctx.db.query("siteDeliveries").withIndex("by_cantiere", (q) => q.eq("cantiereId", args.cantiereId)).first(),
+      ctx.db.query("deliveries").withIndex("by_cantiere", (q) => q.eq("cantiereId", args.cantiereId)).first(),
+      ctx.db.query("inventoryItems").withIndex("by_cantiere", (q) => q.eq("cantiereId", args.cantiereId)).first(),
+    ]);
+    if (siteShipment || shipment || stock) throw new ConvexError("CANTIERE_HAS_LOGISTICS");
+
+    // Everything else that pointed here (quotes, supplies, surveys, inspections, dossiers) keeps existing, just unlinked from the deleted site.
+    const detach = async (rows: { _id: never }[], table: "quoteRequests" | "supplies" | "siteSurveys" | "inspectionReports" | "installationDossiers") => {
+      for (const r of rows) await ctx.db.patch(r._id as never, { cantiereId: undefined } as never);
+      void table;
+    };
+    await detach(await ctx.db.query("quoteRequests").withIndex("by_cantiere", (q) => q.eq("cantiereId", args.cantiereId)).take(500) as never[], "quoteRequests");
+    await detach(await ctx.db.query("supplies").withIndex("by_cantiere", (q) => q.eq("cantiereId", args.cantiereId)).take(500) as never[], "supplies");
+    await detach(await ctx.db.query("siteSurveys").withIndex("by_cantiere", (q) => q.eq("cantiereId", args.cantiereId)).take(500) as never[], "siteSurveys");
+    await detach(await ctx.db.query("inspectionReports").withIndex("by_cantiere", (q) => q.eq("cantiereId", args.cantiereId)).take(500) as never[], "inspectionReports");
+    await detach(await ctx.db.query("installationDossiers").withIndex("by_cantiere", (q) => q.eq("cantiereId", args.cantiereId)).take(500) as never[], "installationDossiers");
 
     // Delete associated tasks first
     const tasks = await ctx.db

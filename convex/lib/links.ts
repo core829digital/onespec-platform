@@ -107,6 +107,22 @@ export interface RelatedRecords {
     nodeType: string;
     createdAt: number;
   }>;
+  /** The supplies (Fornitura) of the client's / cantiere's quotes. */
+  supplies: Array<{
+    _id: Id<"supplies">;
+    reference: string;
+    customerName: string;
+    status: string;
+    revenueExVatCents: number;
+    createdAt: number;
+  }>;
+  /** Shipments from suppliers towards the cantiere (Logistica); empty on a client's folder, which spans several sites. */
+  deliveries: Array<{
+    _id: Id<"deliveries">;
+    status: string;
+    scheduledDate: number;
+    supplyId: Id<"supplies"> | undefined;
+  }>;
 }
 
 const RELATED_LIMIT = 100;
@@ -121,7 +137,7 @@ export async function listRelated(
   key: { clientId: Id<"clients"> } | { cantiereId: Id<"cantieri"> },
 ): Promise<RelatedRecords> {
   const byClient = "clientId" in key;
-  const [quotes, surveys, inspections, installations] = await Promise.all([
+  const [quotes, surveys, inspections, installations, supplies, deliveries] = await Promise.all([
     byClient
       ? ctx.db.query("quoteRequests").withIndex("by_client", (q) => q.eq("clientId", key.clientId)).order("desc").take(RELATED_LIMIT)
       : ctx.db.query("quoteRequests").withIndex("by_cantiere", (q) => q.eq("cantiereId", key.cantiereId)).order("desc").take(RELATED_LIMIT),
@@ -134,6 +150,12 @@ export async function listRelated(
     byClient
       ? ctx.db.query("installationDossiers").withIndex("by_client", (q) => q.eq("clientId", key.clientId)).order("desc").take(RELATED_LIMIT)
       : ctx.db.query("installationDossiers").withIndex("by_cantiere", (q) => q.eq("cantiereId", key.cantiereId)).order("desc").take(RELATED_LIMIT),
+    byClient
+      ? ctx.db.query("supplies").withIndex("by_client", (q) => q.eq("clientId", key.clientId)).order("desc").take(RELATED_LIMIT)
+      : ctx.db.query("supplies").withIndex("by_cantiere", (q) => q.eq("cantiereId", key.cantiereId)).order("desc").take(RELATED_LIMIT),
+    byClient
+      ? Promise.resolve([] as Doc<"deliveries">[])
+      : ctx.db.query("deliveries").withIndex("by_cantiere", (q) => q.eq("cantiereId", key.cantiereId)).order("desc").take(RELATED_LIMIT),
   ]);
 
   return {
@@ -165,6 +187,15 @@ export async function listRelated(
       nodeType: r.nodeType,
       createdAt: r._creationTime,
     })),
+    supplies: supplies.map((r) => ({
+      _id: r._id,
+      reference: r.reference,
+      customerName: r.customerName,
+      status: r.status,
+      revenueExVatCents: r.revenueExVatCents,
+      createdAt: r._creationTime,
+    })),
+    deliveries: deliveries.map((r) => ({ _id: r._id, status: r.status, scheduledDate: r.scheduledDate, supplyId: r.supplyId })),
   };
 }
 

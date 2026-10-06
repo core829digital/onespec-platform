@@ -342,6 +342,9 @@
     "surveyNotCompleted": "Completa il rilievo prima di generare il preventivo.",
     "surveyAlreadyLinked": "Da questo rilievo è già stato generato un preventivo.",
     "clientMismatch": "Il cantiere scelto appartiene a un altro cliente.",
+    "supplyDeliveryStockMoved": "Una parte della merce di questa consegna è già uscita dal magazzino: sposta o annulla prima quei movimenti, poi torna indietro con la fornitura.",
+    "supplyDeliveryExists": "Questa fornitura ha già una consegna in Logistica.",
+    "cantiereHasLogistics": "Questo cantiere ha consegne o merce in magazzino collegate: chiudile o spostale prima di eliminarlo.",
     "tenantMismatch": "Elemento non appartenente alla tua azienda.",
     "emailNotVerified": "Verifica prima il tuo indirizzo email.",
     "registrationClosed": "Le registrazioni sono temporaneamente chiuse.",
@@ -901,7 +904,8 @@
     "noClient": "— Nessun cliente —",
     "noCantiere": "— Nessun cantiere —",
     "prefilled": "Dati di {name} precompilati. Puoi modificarli qui sotto.",
-    "hint": "Scegli un cliente esistente: nome, contatti e indirizzo si compilano da soli."
+    "hint": "Scegli un cliente esistente: nome, contatti e indirizzo si compilano da soli.",
+    "autoHint": "Se non scegli nessun cliente, la scheda cliente e il cantiere vengono creati (o ritrovati) da questi dati quando salvi il preventivo."
   },
   "folder": {
     "backClients": "Clienti",
@@ -977,7 +981,12 @@
       "handover": "Consegna",
       "intervention": "Intervento",
       "task": "Attività"
-    }
+    },
+    "supplies": "Forniture",
+    "logistics": "Logistica",
+    "newSupply": "Nuova fornitura",
+    "newShipment": "Nuova consegna",
+    "fromSupply": "Dalla fornitura"
   },
   "surveyDoc": {
     "title": "Rilievo cantiere",
@@ -2855,5 +2864,25 @@
     "done": "Completato",
     "back": "← Torna all'account",
     "noPermission": "Solo il titolare o un amministratore può modificare i dati dell'azienda."
+  },
+  "clientsImport": {
+    "button": "Importa dai preventivi",
+    "running": "Importazione…",
+    "done": "{clients, plural, =0 {Nessun nuovo cliente} one {1 nuovo cliente} other {# nuovi clienti}}, {sites, plural, =0 {nessun nuovo cantiere} one {1 nuovo cantiere} other {# nuovi cantieri}}.",
+    "nothing": "Tutti i preventivi hanno già cliente e cantiere.",
+    "hint": "Crea le schede cliente e i cantieri dai preventivi già scritti (quelli ancora \"nuovi\" restano fuori)."
+  },
+  "shipment": {
+    "supply": "Fornitura collegata",
+    "none": "Nessuna (consegna libera)",
+    "fromSupply": "Da fornitura {ref}"
+  },
+  "supplyLinks": {
+    "client": "Cliente",
+    "site": "Cantiere",
+    "shipment": "Consegna in Logistica",
+    "quote": "Preventivo",
+    "partnersLinked": "Ogni fornitore compare anche in Logistica (è lui che consegna la merce) e viceversa: nome e contatti si aggiornano ovunque.",
+    "folderTitle": "Cliente e cantiere"
   }
 }

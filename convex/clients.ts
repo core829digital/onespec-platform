@@ -4,6 +4,7 @@ import { ConvexError } from "convex/values";
 import { requirePermission } from "./lib/rbac";
 import { listRelated } from "./lib/links";
 import { assertActiveMembers } from "./lib/links";
+import { propagateClientEdit } from "./lib/crmLink";
 
 /** List clients for a tenant with optional filters. */
 export const listClients = query({
@@ -251,6 +252,10 @@ export const updateClient = mutation({
     }
 
     await ctx.db.patch(args.clientId, patch);
+    // Both directions: the quotes still open and the supplies not yet delivered show the corrected name / contacts / site.
+    if (["name", "email", "phone", "siteAddress", "siteCity", "sitePostalCode"].some((f) => patch[f] !== undefined)) {
+      await propagateClientEdit(ctx, args.clientId);
+    }
 
     await ctx.db.insert("auditLog", {
       tenantId: client.tenantId,

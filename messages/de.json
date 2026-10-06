@@ -342,6 +342,9 @@
     "surveyNotCompleted": "Aufmaß abschließen, bevor das Angebot erstellt wird.",
     "surveyAlreadyLinked": "Aus diesem Aufmaß wurde bereits ein Angebot erstellt.",
     "clientMismatch": "Die gewählte Baustelle gehört zu einem anderen Kunden.",
+    "supplyDeliveryStockMoved": "Ein Teil der Ware dieser Lieferung hat das Lager bereits verlassen: Machen Sie diese Bewegungen zuerst rückgängig, dann setzen Sie die Lieferung zurück.",
+    "supplyDeliveryExists": "Für diese Lieferung gibt es in der Logistik bereits eine Sendung.",
+    "cantiereHasLogistics": "Mit dieser Baustelle sind Sendungen oder Lagerbestand verknüpft: Schließen oder verschieben Sie sie, bevor Sie die Baustelle löschen.",
     "tenantMismatch": "Eintrag gehört nicht zu deinem Unternehmen.",
     "emailNotVerified": "Bitte zuerst die E-Mail-Adresse bestätigen.",
     "registrationClosed": "Registrierungen sind vorübergehend geschlossen.",
@@ -901,7 +904,8 @@
     "noClient": "— Kein Kunde —",
     "noCantiere": "— Keine Baustelle —",
     "prefilled": "Daten von {name} vorausgefüllt. Unten änderbar.",
-    "hint": "Bestehenden Kunden wählen: Name, Kontakt und Adresse werden automatisch ausgefüllt."
+    "hint": "Bestehenden Kunden wählen: Name, Kontakt und Adresse werden automatisch ausgefüllt.",
+    "autoHint": "Wenn Sie keinen Kunden wählen, werden Kundenkarte und Baustelle beim Speichern des Angebots aus diesen Daten erstellt (oder gefunden)."
   },
   "folder": {
     "backClients": "Kunden",
@@ -977,7 +981,12 @@
       "handover": "Übergabe",
       "intervention": "Einsatz",
       "task": "Aufgabe"
-    }
+    },
+    "supplies": "Lieferungen",
+    "logistics": "Logistik",
+    "newSupply": "Neue Lieferung",
+    "newShipment": "Neue Sendung",
+    "fromSupply": "Aus einer Lieferung"
   },
   "surveyDoc": {
     "title": "Aufmaß Baustelle",
@@ -2855,5 +2864,25 @@
     "done": "Vollständig",
     "back": "← Zurück zum Konto",
     "noPermission": "Nur der Inhaber oder ein Administrator kann die Firmendaten ändern."
+  },
+  "clientsImport": {
+    "button": "Aus Angeboten importieren",
+    "running": "Import läuft…",
+    "done": "{clients, plural, =0 {Keine neuen Kunden} one {1 neuer Kunde} other {# neue Kunden}}, {sites, plural, =0 {keine neuen Baustellen} one {1 neue Baustelle} other {# neue Baustellen}}.",
+    "nothing": "Jedes Angebot hat bereits Kunde und Baustelle.",
+    "hint": "Erstellt Kundenkarten und Baustellen aus bereits geschriebenen Angeboten (noch „neue“ bleiben außen vor)."
+  },
+  "shipment": {
+    "supply": "Verknüpfte Lieferung",
+    "none": "Keine (freie Sendung)",
+    "fromSupply": "Aus Lieferung {ref}"
+  },
+  "supplyLinks": {
+    "client": "Kunde",
+    "site": "Baustelle",
+    "shipment": "Sendung in der Logistik",
+    "quote": "Angebot",
+    "partnersLinked": "Jeder Lieferant erscheint auch in der Logistik (er liefert die Ware) und umgekehrt: Name und Kontakte werden überall aktualisiert.",
+    "folderTitle": "Kunde und Baustelle"
   }
 }

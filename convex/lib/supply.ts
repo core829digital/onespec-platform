@@ -11,6 +11,8 @@ export async function ensureOrdered(ctx: MutationCtx, quote: Doc<"quoteRequests"
       tenantId: quote.tenantId,
       quoteId: quote._id,
       reference: quote.offerNumber ?? String(quote._id),
+      clientId: quote.clientId,
+      cantiereId: quote.cantiereId,
       customerName: lockedSafeLeadName(quote),
       status: "order",
       revenueExVatCents: quote.priceExVatCents,
@@ -23,5 +25,9 @@ export async function ensureOrdered(ctx: MutationCtx, quote: Doc<"quoteRequests"
   }
   if (existing.status === "quote") {
     await ctx.db.patch(existing._id, { status: "order", orderedAt: now, revenueExVatCents: quote.priceExVatCents, updatedAt: now });
+  }
+  // The supply always points at the quote's customer and site (it may have been started before they were linked).
+  if (existing.clientId !== quote.clientId || existing.cantiereId !== quote.cantiereId) {
+    await ctx.db.patch(existing._id, { clientId: quote.clientId, cantiereId: quote.cantiereId, updatedAt: now });
   }
 }

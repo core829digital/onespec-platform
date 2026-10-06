@@ -11,7 +11,7 @@ import { EmptyState } from "@/components/app-shell/empty-state";
 import { RelatedRecords, type RelatedTab } from "@/components/app-shell/related-records";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 
-type Tab = "overview" | "cantieri" | RelatedTab | "activity";
+type Tab = "overview" | "cantieri" | Exclude<RelatedTab, "logistics"> | "activity";
 
 const TABS: Tab[] = ["overview", "cantieri", "quotes", "surveys", "inspections", "installations", "activity"];
 
@@ -55,6 +55,7 @@ export default function ClientFolderPage({ params }: { params: Promise<{ id: str
     surveys: data.surveys.length,
     inspections: data.inspections.length,
     installations: data.installations.length,
+    supplies: data.supplies.length,
     activity: activities.length,
   };
   const linkQuery = `clientId=${clientId}`;
@@ -194,7 +195,7 @@ export default function ClientFolderPage({ params }: { params: Promise<{ id: str
         </div>
       )}
 
-      {(tab === "quotes" || tab === "surveys" || tab === "inspections" || tab === "installations") && (
+      {(tab === "quotes" || tab === "surveys" || tab === "inspections" || tab === "installations" || tab === "supplies") && (
         <RelatedRecords data={data} tab={tab} linkQuery={linkQuery} />
       )}
 

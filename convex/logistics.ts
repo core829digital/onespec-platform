@@ -12,6 +12,8 @@ import { mutation, query } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
 import { requirePermission } from "./lib/rbac";
 import { enforceLogisticsSupplierQuota, enforceCarrierQuota } from "./lib/enforcement";
+import { ensurePartnerForLogistics, findLogisticsMatch, syncLogisticsEdit } from "./lib/partnerLinks";
+import { completeSupplyFromDelivery, receiveDelivery } from "./lib/deliveryCore";
 
 const NAME_MAX = 200;
 const CONTACT_MAX = 120;
@@ -50,9 +52,15 @@ export const createLogisticsSupplier = mutation({
   },
   handler: async (ctx, args) => {
     await requirePermission(ctx, args.tenantId, "logistics.manage");
-    await enforceLogisticsSupplierQuota(ctx, args.tenantId);
     const name = args.name.trim();
     if (!name) throw new ConvexError("NAME_REQUIRED");
+    // The same company is already here (typed before, or mirrored from the Fornitura page): use it instead of creating a twin.
+    const twin = await findLogisticsMatch(ctx, args.tenantId, { name, email: args.email?.trim() });
+    if (twin) {
+      if (!twin.partnerId) await ensurePartnerForLogistics(ctx, twin);
+      return twin._id;
+    }
+    await enforceLogisticsSupplierQuota(ctx, args.tenantId);
     assertLen(name, NAME_MAX);
     assertLen(args.contactName, CONTACT_MAX);
     assertLen(args.phone, CONTACT_MAX);
@@ -61,7 +69,7 @@ export const createLogisticsSupplier = mutation({
     assertLen(args.notes, NOTES_MAX);
 
     const now = Date.now();
-    return await ctx.db.insert("logisticsSuppliers", {
+    const id = await ctx.db.insert("logisticsSuppliers", {
       tenantId: args.tenantId,
       name,
       contactName: args.contactName?.trim(),
@@ -72,6 +80,10 @@ export const createLogisticsSupplier = mutation({
       createdAt: now,
       updatedAt: now,
     });
+    // The shipper is also a supplier of the Fornitura page (found by VAT / e-mail / name, or created): one company, two views.
+    const created = await ctx.db.get(id);
+    if (created) await ensurePartnerForLogistics(ctx, created);
+    return id;
   },
 });
 
@@ -105,6 +117,8 @@ export const updateLogisticsSupplier = mutation({
     if (args.address !== undefined) patch.address = args.address.trim();
     if (args.notes !== undefined) patch.notes = args.notes.trim();
     await ctx.db.patch(args.supplierId, patch);
+    // Name and contacts reach the Fornitura page (and its price-source entries).
+    await syncLogisticsEdit(ctx, args.supplierId);
   },
 });
 
@@ -244,7 +258,28 @@ export const listDeliveries = query({
       })
       .order("asc")
       .take(500);
-    return args.status ? rows.filter((r) => r.status === args.status) : rows;
+    const wanted = args.status ? rows.filter((r) => r.status === args.status) : rows;
+    // What each shipment is for: the supply, the customer and the site it belongs to (names only, for the calendar).
+    const supplyNames = new Map<string, { reference: string; customerName: string } | null>();
+    const siteNames = new Map<string, string | null>();
+    const out = [];
+    for (const r of wanted) {
+      let supply: { reference: string; customerName: string } | null = null;
+      if (r.supplyId) {
+        if (!supplyNames.has(r.supplyId)) {
+          const sp = await ctx.db.get(r.supplyId);
+          supplyNames.set(r.supplyId, sp ? { reference: sp.reference, customerName: sp.customerName } : null);
+        }
+        supply = supplyNames.get(r.supplyId) ?? null;
+      }
+      let siteName: string | null = null;
+      if (r.cantiereId) {
+        if (!siteNames.has(r.cantiereId)) siteNames.set(r.cantiereId, (await ctx.db.get(r.cantiereId))?.name ?? null);
+        siteName = siteNames.get(r.cantiereId) ?? null;
+      }
+      out.push({ ...r, supplyReference: supply?.reference, customerName: supply?.customerName, cantiereName: siteName ?? undefined });
+    }
+    return out;
   },
 });
 
@@ -258,11 +293,19 @@ export const createDelivery = mutation({
     scheduledDate: v.number(),
     cantiereId: v.optional(v.id("cantieri")),
     quoteId: v.optional(v.id("quoteRequests")),
+    /** The supply (Fornitura) this shipment belongs to; its quote and cantiere are taken from it when not given. */
+    supplyId: v.optional(v.id("supplies")),
     notes: v.optional(v.string()),
     expectedItems: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
     await requirePermission(ctx, args.tenantId, "logistics.use");
+    const supply = args.supplyId ? await ctx.db.get(args.supplyId) : null;
+    if (args.supplyId && (!supply || supply.tenantId !== args.tenantId)) throw new ConvexError("SUPPLY_NOT_FOUND");
+    if (supply) {
+      const already = await ctx.db.query("deliveries").withIndex("by_supply", (q) => q.eq("supplyId", supply._id)).first();
+      if (already && already.status !== "cancelled") throw new ConvexError("SUPPLY_DELIVERY_EXISTS");
+    }
     const supplier = await ctx.db.get(args.supplierId);
     if (!supplier || supplier.tenantId !== args.tenantId) throw new ConvexError("SUPPLIER_NOT_FOUND");
     if (args.carrierId) {
@@ -272,6 +315,10 @@ export const createDelivery = mutation({
     if (args.cantiereId) {
       const cantiere = await ctx.db.get(args.cantiereId);
       if (!cantiere || cantiere.tenantId !== args.tenantId) throw new ConvexError("CANTIERE_NOT_FOUND");
+    }
+    if (args.quoteId) {
+      const quote = await ctx.db.get(args.quoteId);
+      if (!quote || quote.tenantId !== args.tenantId) throw new ConvexError("QUOTE_NOT_FOUND");
     }
     if (!Number.isFinite(args.scheduledDate)) throw new ConvexError("INVALID_INPUT");
     assertLen(args.driverName, CONTACT_MAX);
@@ -291,8 +338,9 @@ export const createDelivery = mutation({
       driverPhone: args.driverPhone?.trim(),
       scheduledDate: args.scheduledDate,
       status: "scheduled",
-      cantiereId: args.cantiereId,
-      quoteId: args.quoteId,
+      cantiereId: args.cantiereId ?? supply?.cantiereId,
+      quoteId: args.quoteId ?? supply?.quoteId,
+      supplyId: supply?._id,
       notes: args.notes?.trim(),
       expectedItems: args.expectedItems?.map((s) => s.trim()).filter(Boolean),
       createdAt: now,
@@ -360,30 +408,9 @@ export const markDeliveryReceived = mutation({
     if (delivery.status === "cancelled") throw new ConvexError("DELIVERY_CANCELLED");
 
     const now = Date.now();
-    const labels = delivery.expectedItems && delivery.expectedItems.length > 0 ? delivery.expectedItems : [`Consegna ${delivery._id.slice(-6)}`];
-    let itemsCreated = 0;
-    for (const label of labels) {
-      await ctx.db.insert("inventoryItems", {
-        tenantId: delivery.tenantId,
-        deliveryId: delivery._id,
-        label,
-        quantity: 1,
-        unit: "pz",
-        cantiereId: delivery.cantiereId,
-        status: "in_stock",
-        receivedAt: now,
-        createdAt: now,
-        updatedAt: now,
-      });
-      itemsCreated++;
-    }
-
-    await ctx.db.patch(delivery._id, {
-      status: "received",
-      receivedAt: now,
-      receivedByUserId: userId,
-      updatedAt: now,
-    });
+    const itemsCreated = await receiveDelivery(ctx, delivery, userId);
+    // The supply behind this shipment is delivered too (when it was waiting for it).
+    await completeSupplyFromDelivery(ctx, delivery);
 
     await ctx.db.insert("auditLog", {
       tenantId: delivery.tenantId,

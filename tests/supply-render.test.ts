@@ -14,6 +14,7 @@ let queryResult: unknown;
 let exportResult: unknown[] | undefined = [];
 vi.mock("convex/react", () => ({ useQuery: (_f: unknown, args?: Record<string, unknown>) => (args && "from" in args ? exportResult : queryResult), useMutation: () => async () => ({}), useAction: () => async () => ({}) }));
 vi.mock("@/lib/use-friendly-error", () => ({ useFriendlyError: () => (e: unknown) => String(e) }));
+vi.mock("@/i18n/navigation", () => ({ Link: ({ href, children, ...rest }: { href: string; children?: unknown }) => h("a", { href, ...rest }, children as never) }));
 vi.mock("@/lib/confirm-dialog", () => ({ requestConfirm: async () => true }));
 
 import { SupplyCard } from "../src/components/supply/supply-card";
@@ -32,6 +33,16 @@ const card = (over: object, isAdmin = false, locale: keyof typeof MSG = "it") =>
   wrap(h(SupplyCard, { supply: { ...base, status: "quote", ...over } as never, partners: partners as never, isAdmin }), locale);
 
 describe("supply card", () => {
+  it("links to the quote, the client and the cantiere, and to the shipment once it is in delivery", () => {
+    const html = card({ status: "production", clientId: "c1", cantiereId: "k1" });
+    expect(html).toContain('href="/app/requests/q1"');
+    expect(html).toContain('href="/app/clients/c1"');
+    expect(html).toContain('href="/app/cantieri/k1"');
+    expect(html).not.toContain('href="/app/logistics"');
+    expect(card({ status: "delivery", clientId: "c1", cantiereId: "k1" })).toContain('href="/app/logistics"');
+    expect(card({})).not.toContain("/app/clients/");
+  });
+
   it("quote stage offers the order step; revert and delete need admin", () => {
     const html = card({});
     expect(html).toContain("Segna come ordinato");

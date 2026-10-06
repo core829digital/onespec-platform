@@ -28,22 +28,6 @@ import { EmptyState } from "@/components/app-shell/empty-state";
 import { Pagination } from "@/components/ui/Pagination";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 
-const STATUS_LABELS = {
-  lead: "Lead",
-  prospect: "Prospect",
-  active: "Attivo",
-  inactive: "Inattivo",
-  lost: "Perso",
-} as const;
-
-const TYPE_LABELS = {
-  private: "Privato",
-  company: "Azienda",
-  developer: "Costruttore",
-  architect: "Architetto",
-  contractor: "Impresa",
-} as const;
-
 const STATUS_COLORS = {
   lead: "bg-blue-100 text-blue-700",
   prospect: "bg-amber-100 text-amber-700",
@@ -113,12 +97,12 @@ function ClientRow({
       </td>
       <td className="px-4 py-3 hidden md:table-cell">
         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${STATUS_COLORS[client.status as keyof typeof STATUS_COLORS] || "bg-gray-100 text-gray-700"}`}>
-          {STATUS_LABELS[client.status as keyof typeof STATUS_LABELS] || client.status}
+          {t(client.status)}
         </span>
       </td>
       <td className="px-4 py-3 hidden lg:table-cell">
         <span className="text-sm text-[var(--color-text-secondary)]">
-          {TYPE_LABELS[client.type as keyof typeof TYPE_LABELS] || client.type}
+          {t(client.type)}
         </span>
       </td>
       <td className="px-4 py-3">
@@ -356,11 +340,11 @@ function ClientModal({
                 onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                 className="w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
               >
-                <option value="private">{TYPE_LABELS.private}</option>
-                <option value="company">{TYPE_LABELS.company}</option>
-                <option value="developer">{TYPE_LABELS.developer}</option>
-                <option value="architect">{TYPE_LABELS.architect}</option>
-                <option value="contractor">{TYPE_LABELS.contractor}</option>
+                <option value="private">{t("private")}</option>
+                <option value="company">{t("company")}</option>
+                <option value="developer">{t("developer")}</option>
+                <option value="architect">{t("architect")}</option>
+                <option value="contractor">{t("contractor")}</option>
               </select>
             </div>
             <div>
@@ -372,11 +356,11 @@ function ClientModal({
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                 className="w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
               >
-                <option value="lead">{STATUS_LABELS.lead}</option>
-                <option value="prospect">{STATUS_LABELS.prospect}</option>
-                <option value="active">{STATUS_LABELS.active}</option>
-                <option value="inactive">{STATUS_LABELS.inactive}</option>
-                <option value="lost">{STATUS_LABELS.lost}</option>
+                <option value="lead">{t("lead")}</option>
+                <option value="prospect">{t("prospect")}</option>
+                <option value="active">{t("active")}</option>
+                <option value="inactive">{t("inactive")}</option>
+                <option value="lost">{t("lost")}</option>
               </select>
             </div>
             <div>
@@ -570,8 +554,11 @@ function ClientModal({
 
 export default function ClientsPage() {
   const t = useTranslations("clients");
+  const ti = useTranslations("clientsImport");
   const tf = useFriendlyError();
   const [actionError, setActionError] = useState("");
+  const [importing, setImporting] = useState(false);
+  const [importNote, setImportNote] = useState("");
   const showError = (e: unknown) => {
     setActionError(tf(e));
     setTimeout(() => setActionError(""), 8000);
@@ -631,6 +618,22 @@ const [editingClient, setEditingClient] = useState<
   const createClient = useMutation(api.clients.createClient);
   const updateClient = useMutation(api.clients.updateClient);
   const deleteClient = useMutation(api.clients.deleteClient);
+  const backfill = useMutation(api.crm.backfillFromQuotes);
+
+  /** Customer cards and sites for the quotes written before they were created automatically. */
+  async function importFromQuotes() {
+    if (!tenant) return;
+    setImporting(true);
+    setImportNote("");
+    try {
+      const r = await backfill({ tenantId: tenant._id });
+      setImportNote(r.clientsCreated === 0 && r.cantieriCreated === 0 && r.linked === 0 ? ti("nothing") : ti("done", { clients: r.clientsCreated, sites: r.cantieriCreated }));
+    } catch (e) {
+      showError(e);
+    } finally {
+      setImporting(false);
+    }
+  }
 
   const handleCreate = async (data: {
     name: string;
@@ -781,11 +784,17 @@ const [editingClient, setEditingClient] = useState<
           <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-text)]">{t("title")}</h1>
           <p className="text-[var(--color-text-secondary)] mt-1">{t("subtitle")}</p>
         </div>
-        <button onClick={openNewModal} className="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-[var(--color-accent-ink)] flex items-center gap-2">
-          <Plus className="w-4 h-4" />
-          {t("newClient")}
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <button type="button" onClick={importFromQuotes} disabled={importing || !tenant} title={ti("hint")} className="rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm font-medium text-[var(--color-text)] hover:bg-[var(--color-bg-alt)] disabled:opacity-50">
+            {importing ? ti("running") : ti("button")}
+          </button>
+          <button onClick={openNewModal} className="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-[var(--color-accent-ink)] flex items-center gap-2">
+            <Plus className="w-4 h-4" />
+            {t("newClient")}
+          </button>
+        </div>
       </div>
+      {importNote ? <p role="status" className="rounded-lg border border-[var(--color-mint)]/40 bg-[var(--color-mint-light)] px-3 py-2 text-sm text-[var(--color-text)]">{importNote}</p> : null}
 
       <div className="flex flex-wrap gap-4 bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl p-4">
         <div className="relative flex-1 min-w-[200px]">
@@ -806,11 +815,11 @@ const [editingClient, setEditingClient] = useState<
             className="w-full pl-10 pr-10 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] appearance-none"
           >
             <option value="all">{t("allStatus")}</option>
-            <option value="lead">{STATUS_LABELS.lead}</option>
-            <option value="prospect">{STATUS_LABELS.prospect}</option>
-            <option value="active">{STATUS_LABELS.active}</option>
-            <option value="inactive">{STATUS_LABELS.inactive}</option>
-            <option value="lost">{STATUS_LABELS.lost}</option>
+            <option value="lead">{t("lead")}</option>
+            <option value="prospect">{t("prospect")}</option>
+            <option value="active">{t("active")}</option>
+            <option value="inactive">{t("inactive")}</option>
+            <option value="lost">{t("lost")}</option>
           </select>
           <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-secondary)] pointer-events-none" />
         </div>
