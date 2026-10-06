@@ -86,3 +86,41 @@ describe("onboarding wizard state", () => {
     void memberId;
   });
 });
+
+describe("full-access accounts (founders, platform admin)", () => {
+  test("billing counts as active: no plan step, completes without a plan, and the wizard can be reopened", async () => {
+    const t = newDb();
+    const { ownerId, tenantId } = await seedTenant(t, { plan: "base" });
+    await t.run((ctx) => ctx.db.patch(tenantId, { planStatus: "pending_plan", unlimitedAccess: true }));
+    const as = t.withIdentity({ subject: ownerId });
+
+    const s = await as.query(api.onboarding.getState);
+    if (!s.hasTenant) throw new Error("expected a tenant");
+    expect(s.needsPlan).toBe(false);
+    expect(s.fullAccess).toBe(true);
+
+    await fillOnboardingProfile(t, tenantId);
+    await as.mutation(api.onboarding.complete);
+    const done = await t.run((ctx) => ctx.db.get(tenantId));
+    expect(done?.planStatus).toBe("active");
+    expect(done?.plan).toBe("enterprise");
+    expect(done?.onboardingCompletedAt).toBeDefined();
+
+    // Data removed / wants to look again: the wizard comes back, still without billing.
+    await as.mutation(api.onboarding.restart);
+    const reopened = await t.run((ctx) => ctx.db.get(tenantId));
+    expect(reopened?.onboardingCompletedAt).toBeUndefined();
+    const s2 = await as.query(api.onboarding.getState);
+    if (s2.hasTenant) {
+      expect(s2.completed).toBe(false);
+      expect(s2.needsPlan).toBe(false);
+    }
+  });
+
+  test("an ordinary account cannot reopen the wizard", async () => {
+    const t = newDb();
+    const { ownerId } = await seedTenant(t, { plan: "pro" });
+    const as = t.withIdentity({ subject: ownerId });
+    await expect(as.mutation(api.onboarding.restart)).rejects.toThrow(/INSUFFICIENT_ROLE/);
+  });
+});

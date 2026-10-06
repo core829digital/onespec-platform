@@ -23,7 +23,7 @@ export const backfillFromQuotes = mutation({
     let cantieriCreated = 0;
     let linked = 0;
     for (const q of quotes) {
-      if (q.status === "new" || q.status === "lost" || q.status === "spam") continue;
+      if (q.status === "draft" || q.status === "new" || q.status === "lost" || q.status === "spam") continue;
       if (q.clientId && q.cantiereId) continue;
       const r = await linkQuoteToCrm(ctx, { quoteId: q._id, userId, stage: q.status === "won" ? "won" : "quoted" });
       if (r.clientId !== q.clientId || r.cantiereId !== q.cantiereId) linked++;

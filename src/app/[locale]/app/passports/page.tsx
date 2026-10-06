@@ -9,6 +9,7 @@ import { Link } from "@/i18n/navigation";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import { useRunAction } from "@/hooks/useRunAction";
+import { OpenButton, OpenLink } from "@/components/ui/open-button";
 
 type PassportId = Id<"serramentoPassports">;
 
@@ -449,12 +450,7 @@ export default function PassportsPage() {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex justify-end gap-1">
-                      <button
-                        onClick={() => setSelected(p._id)}
-                        className="rounded border border-[var(--color-border)] px-2 py-1 text-xs"
-                      >
-                        {t("open")}
-                      </button>
+                      <OpenButton onClick={() => setSelected(p._id)}>{t("open")}</OpenButton>
                       <Link
                         href={`/app/passports/${p._id}/labels`}
                         className="rounded border border-[var(--color-border)] px-2 py-1 text-xs"

@@ -289,7 +289,8 @@
       "quoted": "Quote sent",
       "won": "Won",
       "lost": "Lost",
-      "spam": "Spam"
+      "spam": "Spam",
+      "draft": "Entwurf"
     },
     "loadMore": "Ältere anzeigen"
   },
@@ -323,7 +324,11 @@
     "optional": "Optional",
     "required": "Erforderlich",
     "loadingAria": "Wird geladen",
-    "menu": "Menü"
+    "menu": "Menü",
+    "open": "Öffnen",
+    "saveDraft": "Als Entwurf speichern",
+    "draftSaved": "Entwurf gespeichert",
+    "deleted": "Gelöscht"
   },
   "errors": {
     "generic": "Etwas ist schiefgelaufen. Gleich erneut versuchen; bei Wiederholung den Support kontaktieren.",
@@ -456,7 +461,9 @@
     "supplyAlreadyDelivered": "Die Lieferung wurde bereits geliefert.",
     "supplyCannotRevert": "Weiter zurück geht es nicht: Die Lieferung steht in der ersten Phase.",
     "supplyCannotDelete": "Eine Lieferung kann nur vor der Produktion gelöscht werden.",
-    "supplyStageTooEarly": "Diese Kosten können erst erfasst werden, wenn die Lieferung die passende Phase erreicht hat."
+    "supplyStageTooEarly": "Diese Kosten können erst erfasst werden, wenn die Lieferung die passende Phase erreicht hat.",
+    "quoteIsDraft": "Dieses Angebot ist ein Entwurf: Schließen Sie es ab und speichern Sie es, bevor Sie es unterschreiben oder den Status ändern.",
+    "quoteHasSupply": "Für dieses Angebot läuft bereits eine Lieferung: Es kann nicht gelöscht werden."
   },
   "app": {
     "suspended": {
@@ -551,7 +558,16 @@
         "inSupply": "davon Montage pro m²",
         "compareWithout": "Ohne Montage: {amount} € (netto)",
         "compareWith": "Mit Montage: {amount} € (netto)"
-      }
+      },
+      "saveDraft": "Als Entwurf speichern",
+      "saveChanges": "Änderungen speichern",
+      "editingBanner": "Sie bearbeiten das Angebot {number}. Der Server berechnet den Preis beim Speichern neu.",
+      "editingDraftBanner": "Sie bearbeiten einen Entwurf: Er erscheint erst nach Fertigstellung in Kunden, Baustellen und Statistiken.",
+      "lockedBanner": "Dieses Angebot ist bereits unterschrieben oder gewonnen und kann nicht mehr bearbeitet werden.",
+      "draftNoSuppliers": "Zeilen mit mehreren Lieferanten lassen sich nicht als Entwurf speichern: Entfernen Sie sie oder fahren Sie mit dem Angebot fort.",
+      "draftSavedToast": "Entwurf gespeichert. Sie finden ihn unter Angebote.",
+      "savedToast": "Änderungen gespeichert.",
+      "backToList": "Zurück zu den Angeboten"
     },
     "list": {
       "kicker": "B2B-Baustellen-Tool",
@@ -574,7 +590,21 @@
       "colDate": "Datum",
       "pieces": "Stk",
       "sign": "✍️ Unterschreiben",
-      "pdf": "🖨️ PDF"
+      "pdf": "🖨️ PDF",
+      "open": "Öffnen",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "tabAll": "Alle",
+      "tabDrafts": "Entwürfe",
+      "tabSent": "Gesendet",
+      "tabWon": "Gewonnen",
+      "draftLabel": "Entwurf",
+      "deleteConfirm": "Das Angebot für {name} löschen? Das kann nicht rückgängig gemacht werden. Kunde und Baustelle bleiben erhalten.",
+      "deleteDraftConfirm": "Diesen Entwurf löschen? Das kann nicht rückgängig gemacht werden.",
+      "noName": "Ohne Namen",
+      "emptyDrafts": "Keine Entwürfe. Im Editor mit „Als Entwurf speichern“ später weiterarbeiten.",
+      "emptyFilter": "Keine Angebote in diesem Tab.",
+      "statDrafts": "Entwürfe"
     }
   },
   "billing": {
@@ -1283,7 +1313,11 @@
     "colStatus": "Status",
     "colDate": "Datum",
     "loading": "Lädt...",
-    "empty": "Keine Anfragen"
+    "empty": "Keine Anfragen",
+    "colActions": "Aktionen",
+    "deleteConfirm": "Die Anfrage von {name} löschen? Die Kontaktdaten werden gelöscht, das kann nicht rückgängig gemacht werden.",
+    "noName": "Ohne Namen",
+    "statusDraft": "Entwurf"
   },
   "configurators": {
     "title": "Konfiguratoren",
@@ -1409,7 +1443,9 @@
     "itemDoor": "Balkontür",
     "itemScreen": "Insektenschutz",
     "itemLeaves": "{count} Flügel",
-    "emptyItems": "Keine Elemente erfasst."
+    "emptyItems": "Keine Elemente erfasst.",
+    "editQuote": "Angebot bearbeiten",
+    "deleteConfirm": "Diese Anfrage löschen? Die Kontaktdaten werden gelöscht, das kann nicht rückgängig gemacht werden."
   },
   "passports": {
     "loading": "Wird geladen…",
@@ -2895,7 +2931,10 @@
     "todo": "Zu vervollständigen",
     "done": "Vollständig",
     "back": "← Zurück zum Konto",
-    "noPermission": "Nur der Inhaber oder ein Administrator kann die Firmendaten ändern."
+    "noPermission": "Nur der Inhaber oder ein Administrator kann die Firmendaten ändern.",
+    "reviewTitle": "Onboarding",
+    "reviewBody": "Ihr Konto hat Vollzugriff: Die Abrechnung gilt als aktiv, es wird kein Tarif verlangt. Sie können den Einrichtungsassistenten erneut öffnen, um die Firmendaten zu prüfen oder neu einzugeben.",
+    "reviewCta": "Onboarding erneut öffnen"
   },
   "clientsImport": {
     "button": "Aus Angeboten importieren",

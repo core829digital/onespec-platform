@@ -5,6 +5,7 @@ import { useFormatter, useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { EmptyState } from "@/components/app-shell/empty-state";
 import type { Id } from "@/convex/_generated/dataModel";
+import { OpenButton, OpenLink } from "@/components/ui/open-button";
 
 export type RelatedTab = "quotes" | "surveys" | "inspections" | "installations" | "supplies" | "logistics";
 
@@ -185,9 +186,9 @@ export function RelatedRecords({
               </div>
               <div className="flex shrink-0 items-center gap-3 text-xs">
                 {r.badge}
-                <Link href={r.href} className="text-[var(--color-mint-text)] hover:underline">
+                <OpenLink href={r.href}>
                   {t("open")}
-                </Link>
+                </OpenLink>
               </div>
             </li>
           ))}

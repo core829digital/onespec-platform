@@ -1,12 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useQuery } from "convex/react";
+import { useMutation, useQuery } from "convex/react";
 import { useLocale, useTranslations } from "next-intl";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import { StatusBadge } from "@/components/app-shell/status-badge";
 import { Pagination } from "@/components/ui/Pagination";
+import { OpenLink, ROW_ACTION_CLASS } from "@/components/ui/open-button";
+import { DeleteAction } from "@/components/ui/delete-action";
 
 export default function QuotesPage() {
   const t = useTranslations("quotes.list");
@@ -21,7 +23,11 @@ export default function QuotesPage() {
     tenant ? { tenantId: tenant._id, limit: 500 } : "skip",
   );
 
+  const deleteQuote = useMutation(api.quotes.deleteQuote);
+  const membership = useQuery(api.tenants.getMyMembership);
+  const isAdmin = membership?.role === "owner" || membership?.role === "admin";
   const [q, setQ] = useState("");
+  const [tab, setTab] = useState<"all" | "draft" | "sent" | "won">("all");
 
   const fieldQuotes = useMemo(() => {
     if (!requests) return requests;
@@ -29,25 +35,41 @@ export default function QuotesPage() {
     const filtered = requests.filter(
       (r) =>
         r.channel === "field_b2b" ||
+        r.status === "draft" ||
         r.status === "quoted" ||
         r.status === "won",
     );
-    if (!needle) return filtered;
-    return filtered.filter(
+    const byTab = filtered.filter((r) =>
+      tab === "all" ? true : tab === "draft" ? r.status === "draft" : tab === "won" ? r.status === "won" : r.status !== "draft" && r.status !== "won",
+    );
+    if (!needle) return byTab;
+    return byTab.filter(
       (r) =>
         r.leadName.toLowerCase().includes(needle) ||
         r.leadEmail.toLowerCase().includes(needle) ||
         (r.customerCity ?? "").toLowerCase().includes(needle),
     );
-  }, [requests, q]);
+  }, [requests, q, tab]);
+
+  // Counters of the tabs always look at the whole list, whatever tab or search is active.
+  const counts = useMemo(() => {
+    const base = (requests ?? []).filter((r) => r.channel === "field_b2b" || r.status === "draft" || r.status === "quoted" || r.status === "won");
+    return {
+      all: base.length,
+      draft: base.filter((r) => r.status === "draft").length,
+      sent: base.filter((r) => r.status !== "draft" && r.status !== "won").length,
+      won: base.filter((r) => r.status === "won").length,
+    };
+  }, [requests]);
 
   const stats = useMemo(() => {
     if (!fieldQuotes) return null;
-    const won = fieldQuotes.filter((r) => r.status === "won");
+    const live = fieldQuotes.filter((r) => r.status !== "draft");
+    const won = live.filter((r) => r.status === "won");
     const signed = won.filter((r) => !!r.signedAt);
-    const total = fieldQuotes.reduce((acc, r) => acc + r.priceCents, 0);
+    const total = live.reduce((acc, r) => acc + r.priceCents, 0);
     return {
-      total: fieldQuotes.length,
+      total: live.length,
       won: won.length,
       signed: signed.length,
       totalValue: total,
@@ -109,6 +131,26 @@ export default function QuotesPage() {
         />
       </div>
 
+      {/* Tabs */}
+      <div role="tablist" className="flex gap-1 overflow-x-auto border-b border-[var(--color-border)]">
+        {(["all", "draft", "sent", "won"] as const).map((k) => (
+          <button
+            key={k}
+            role="tab"
+            type="button"
+            aria-selected={tab === k}
+            data-testid={`quotes-tab-${k}`}
+            onClick={() => { setTab(k); setPage(1); }}
+            className={`-mb-px shrink-0 border-b-2 px-4 py-2.5 text-sm font-semibold transition-colors ${
+              tab === k ? "border-[var(--color-mint)] text-[var(--color-mint-text)]" : "border-transparent text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
+            }`}
+          >
+            {t(k === "all" ? "tabAll" : k === "draft" ? "tabDrafts" : k === "sent" ? "tabSent" : "tabWon")}
+            <span className="ml-1.5 rounded-full bg-[var(--color-bg-alt)] px-1.5 py-0.5 text-[11px]">{counts[k]}</span>
+          </button>
+        ))}
+      </div>
+
       {/* Table */}
       {!fieldQuotes ? (
         <div className="flex justify-center py-16">
@@ -116,7 +158,7 @@ export default function QuotesPage() {
         </div>
       ) : fieldQuotes.length === 0 ? (
         <div className="rounded-xl border border-dashed border-[var(--color-border)] bg-[var(--color-bg-alt)] p-12 text-center">
-          <p className="text-lg font-medium text-[var(--color-text-secondary)]">{t("empty")}</p>
+          <p className="text-lg font-medium text-[var(--color-text-secondary)]">{tab === "draft" ? t("emptyDrafts") : counts.all > 0 ? t("emptyFilter") : t("empty")}</p>
           <p className="mt-1 text-sm text-[var(--color-text-secondary)]">
             {t("emptyHint")}{" "}
             <Link href="/app/quotes/new" className="text-[var(--color-mint-text)] hover:underline font-medium">
@@ -142,6 +184,7 @@ export default function QuotesPage() {
             <tbody className="divide-y divide-[var(--color-border)]">
               {pagedQuotes?.map((r) => {
                 const items = Array.isArray(r.items) ? r.items : [];
+                const locked = !!r.signedAt || r.status === "won";
                 const date = new Date(r._creationTime).toLocaleDateString(locale, {
                   day: "2-digit",
                   month: "short",
@@ -150,7 +193,7 @@ export default function QuotesPage() {
                 return (
                   <tr key={r._id} className="bg-[var(--color-bg)] hover:bg-[var(--color-bg-alt)] transition-colors">
                     <td className="px-4 py-3">
-                      <p className="font-medium text-[var(--color-text)]">{r.leadName}</p>
+                      <p className="font-medium text-[var(--color-text)]">{r.leadName || t("noName")}</p>
                       <p className="text-xs text-[var(--color-text-secondary)]">{r.leadEmail}</p>
                     </td>
                     <td className="px-4 py-3 text-[var(--color-text-secondary)]">
@@ -179,21 +222,30 @@ export default function QuotesPage() {
                       {date}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-2">
-                        {!r.signedAt && (
-                          <Link
-                            href={`/app/quotes/${r._id}/sign`}
-                            className="rounded-lg border border-[var(--color-mint)] px-2 py-1 text-xs font-semibold text-[var(--color-mint-text)] hover:bg-[var(--color-mint)]/10"
-                          >
+                      <div className="flex flex-wrap items-center justify-end gap-2">
+                        <OpenLink
+                          href={locked ? `/app/quotes/${r._id}/print` : `/app/quotes/new?edit=${r._id}`}
+                          data-testid="quote-open"
+                        >
+                          {t("open")}
+                        </OpenLink>
+                        {!r.signedAt && r.status !== "draft" && (
+                          <Link href={`/app/quotes/${r._id}/sign`} className={ROW_ACTION_CLASS}>
                             {t("sign")}
                           </Link>
                         )}
-                        <Link
-                          href={`/app/quotes/${r._id}/print`}
-                          className="rounded-lg border border-[var(--color-border)] px-2 py-1 text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:bg-[var(--color-bg-alt)]"
-                        >
+                        <Link href={`/app/quotes/${r._id}/print`} className={ROW_ACTION_CLASS}>
                           {t("pdf")}
                         </Link>
+                        {!r.signedAt && (isAdmin || r.status === "draft") && (
+                          <DeleteAction
+                            iconOnly
+                            testId="quote-delete"
+                            label={t("delete")}
+                            message={r.status === "draft" ? t("deleteDraftConfirm") : t("deleteConfirm", { name: r.leadName || t("noName") })}
+                            onDelete={() => deleteQuote({ quoteId: r._id })}
+                          />
+                        )}
                       </div>
                     </td>
                   </tr>

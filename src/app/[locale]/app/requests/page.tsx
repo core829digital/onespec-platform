@@ -8,6 +8,8 @@ import { useRouter } from "@/i18n/navigation";
 import { StatusBadge } from "@/components/app-shell/status-badge";
 import { Pagination } from "@/components/ui/Pagination";
 import { useFriendlyError } from "@/lib/use-friendly-error";
+import { OpenLink } from "@/components/ui/open-button";
+import { DeleteAction } from "@/components/ui/delete-action";
 
 const STATUSES = ["new", "contacted", "quoted", "won", "lost", "spam"] as const;
 type Status = (typeof STATUSES)[number];
@@ -36,6 +38,10 @@ export default function RequestsPage() {
       : "skip",
   );
   const exportCsv = useMutation(api.exports.exportRequestsCsv);
+  const deleteQuote = useMutation(api.quotes.deleteQuote);
+  const membership = useQuery(api.tenants.getMyMembership);
+  // Members cannot delete what customers sent in; the server enforces it, the button just does not offer it.
+  const canDelete = membership?.role === "owner" || membership?.role === "admin";
 
   const [q, setQ] = useState("");
   const [sort, setSort] = useState<SortKey>("date");
@@ -45,14 +51,16 @@ export default function RequestsPage() {
   const rows = useMemo(() => {
     if (!requests) return requests;
     const needle = q.trim().toLowerCase();
+    // Drafts are unfinished B2B quotes of the installer, not requests: they live in Quotes.
+    const incoming = requests.filter((r) => r.status !== "draft");
     const filtered = needle
-      ? requests.filter(
+      ? incoming.filter(
           (r) =>
             r.leadName.toLowerCase().includes(needle) ||
             r.leadEmail.toLowerCase().includes(needle) ||
             (r.leadCompany ?? "").toLowerCase().includes(needle),
         )
-      : [...requests];
+      : [...incoming];
     filtered.sort((a, b) => {
       if (sort === "value") return b.priceCents - a.priceCents;
       if (sort === "name") return a.leadName.localeCompare(b.leadName);
@@ -157,18 +165,19 @@ export default function RequestsPage() {
                 <th className={`${th} text-right`}>{t("colValue")}</th>
                 <th className={th}>{t("colStatus")}</th>
                 <th className={`${th} text-right`}>{t("colDate")}</th>
+                <th className={`${th} text-right`}><span className="sr-only">{t("colActions")}</span></th>
               </tr>
             </thead>
           <tbody className="divide-y divide-[var(--color-border)]">
             {rows === undefined ? (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-[var(--color-text-secondary)]">
+                <td colSpan={8} className="px-4 py-8 text-center text-[var(--color-text-secondary)]">
                   {t("loading")}
                 </td>
               </tr>
             ) : rows.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-[var(--color-text-secondary)]">
+                <td colSpan={8} className="px-4 py-8 text-center text-[var(--color-text-secondary)]">
                   {t("empty")}
                 </td>
               </tr>
@@ -194,6 +203,19 @@ export default function RequestsPage() {
                   </td>
                   <td className="px-4 py-3 text-right text-[var(--color-text-secondary)]">
                     {new Date(r._creationTime).toLocaleDateString(locale)}
+                  </td>
+                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex items-center justify-end gap-2">
+                      <OpenLink href={`/app/requests/${r._id}`} data-testid="request-open" />
+                      {canDelete ? (
+                        <DeleteAction
+                          iconOnly
+                          testId="request-delete"
+                          message={t("deleteConfirm", { name: r.leadName || t("noName") })}
+                          onDelete={() => deleteQuote({ quoteId: r._id })}
+                        />
+                      ) : null}
+                    </div>
                   </td>
                 </tr>
               ))

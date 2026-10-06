@@ -18,6 +18,7 @@ import {
   type SyncState,
 } from "@/lib/offline-sync";
 import { useRunAction } from "@/hooks/useRunAction";
+import { OpenButton, OpenLink } from "@/components/ui/open-button";
 
 type ReportId = Id<"inspectionReports">;
 
@@ -438,12 +439,7 @@ export default function InspectionsPage() {
                 </td>
                 <td className="px-4 py-3 text-right">
                   <div className="flex justify-end gap-1">
-                    <button
-                      onClick={() => setSelected(r._id)}
-                      className="rounded border border-[var(--color-border)] px-2 py-1 text-xs"
-                    >
-                      {t("open")}
-                    </button>
+                    <OpenButton onClick={() => setSelected(r._id)}>{t("open")}</OpenButton>
                     <Link
                       href={`/app/inspections/${r._id}/print`}
                       className="rounded border border-[var(--color-border)] px-2 py-1 text-xs"

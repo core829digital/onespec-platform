@@ -23,7 +23,7 @@ export type MembershipStatus = (typeof MEMBERSHIP_STATUSES)[number];
 export const CONFIGURATOR_STATUSES = ["draft", "published", "archived"] as const;
 export type ConfiguratorStatus = (typeof CONFIGURATOR_STATUSES)[number];
 
-export const QUOTE_STATUSES = ["new", "contacted", "quoted", "won", "lost", "spam"] as const;
+export const QUOTE_STATUSES = ["draft", "new", "contacted", "quoted", "won", "lost", "spam"] as const;
 export type QuoteStatus = (typeof QUOTE_STATUSES)[number];
 
 export const NOTIFICATION_TYPES = [

@@ -15,6 +15,7 @@ const TONE: Record<Tone, string> = {
 
 /** Quote-request lifecycle. */
 const QUOTE_STATUS: Record<string, { tone: Tone; label: string }> = {
+  draft: { tone: "neutral", label: "Bozza" },
   new: { tone: "info", label: "Nuova" },
   contacted: { tone: "warn", label: "Contattata" },
   quoted: { tone: "warn", label: "Preventivo inviato" },

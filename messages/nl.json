@@ -289,7 +289,8 @@
       "quoted": "Quote sent",
       "won": "Won",
       "lost": "Lost",
-      "spam": "Spam"
+      "spam": "Spam",
+      "draft": "Concept"
     },
     "loadMore": "Toon oudere"
   },
@@ -323,7 +324,11 @@
     "optional": "Optioneel",
     "required": "Verplicht",
     "loadingAria": "Laden",
-    "menu": "Menu"
+    "menu": "Menu",
+    "open": "Openen",
+    "saveDraft": "Opslaan als concept",
+    "draftSaved": "Concept opgeslagen",
+    "deleted": "Verwijderd"
   },
   "errors": {
     "generic": "Er ging iets mis. Probeer het zo opnieuw; blijft het gebeuren, neem dan contact op met support.",
@@ -456,7 +461,9 @@
     "supplyAlreadyDelivered": "De levering is al afgeleverd.",
     "supplyCannotRevert": "Verder terug kan niet: de levering staat in de eerste fase.",
     "supplyCannotDelete": "Een levering kan alleen vóór de productie worden verwijderd.",
-    "supplyStageTooEarly": "Deze kosten kunnen pas worden ingevoerd als de levering de bijbehorende fase heeft bereikt."
+    "supplyStageTooEarly": "Deze kosten kunnen pas worden ingevoerd als de levering de bijbehorende fase heeft bereikt.",
+    "quoteIsDraft": "Deze offerte is een concept: maak hem af en sla hem op voordat u hem ondertekent of de status wijzigt.",
+    "quoteHasSupply": "Voor deze offerte is al een levering gestart: hij kan niet worden verwijderd."
   },
   "app": {
     "suspended": {
@@ -551,7 +558,16 @@
         "inSupply": "waarvan montage per m²",
         "compareWithout": "Zonder montage: € {amount} (excl. btw)",
         "compareWith": "Met montage: € {amount} (excl. btw)"
-      }
+      },
+      "saveDraft": "Opslaan als concept",
+      "saveChanges": "Wijzigingen opslaan",
+      "editingBanner": "U bewerkt offerte {number}. De server berekent de prijs opnieuw bij het opslaan.",
+      "editingDraftBanner": "U bewerkt een concept: het verschijnt pas in klanten, werven en statistieken zodra u het afrondt.",
+      "lockedBanner": "Deze offerte is al ondertekend of gewonnen en kan niet meer worden bewerkt.",
+      "draftNoSuppliers": "Regels met meerdere leveranciers kunnen niet als concept worden opgeslagen: verwijder ze of ga verder met de offerte.",
+      "draftSavedToast": "Concept opgeslagen. U vindt het bij Offertes.",
+      "savedToast": "Wijzigingen opgeslagen.",
+      "backToList": "Terug naar offertes"
     },
     "list": {
       "kicker": "B2B-werfhulpmiddel",
@@ -574,7 +590,21 @@
       "colDate": "Datum",
       "pieces": "stuks",
       "sign": "✍️ Tekenen",
-      "pdf": "🖨️ PDF"
+      "pdf": "🖨️ PDF",
+      "open": "Openen",
+      "edit": "Bewerken",
+      "delete": "Verwijderen",
+      "tabAll": "Alle",
+      "tabDrafts": "Concepten",
+      "tabSent": "Verstuurd",
+      "tabWon": "Gewonnen",
+      "draftLabel": "Concept",
+      "deleteConfirm": "De offerte voor {name} verwijderen? Dit kan niet ongedaan worden gemaakt. Klant en werf blijven bestaan.",
+      "deleteDraftConfirm": "Dit concept verwijderen? Dit kan niet ongedaan worden gemaakt.",
+      "noName": "Zonder naam",
+      "emptyDrafts": "Geen concepten. Gebruik in de editor \"Opslaan als concept\" om later verder te werken.",
+      "emptyFilter": "Geen offertes in dit tabblad.",
+      "statDrafts": "Concepten"
     }
   },
   "billing": {
@@ -1283,7 +1313,11 @@
     "colStatus": "Status",
     "colDate": "Datum",
     "loading": "Laden...",
-    "empty": "Geen aanvragen"
+    "empty": "Geen aanvragen",
+    "colActions": "Acties",
+    "deleteConfirm": "De aanvraag van {name} verwijderen? De contactgegevens worden gewist en dit kan niet ongedaan worden gemaakt.",
+    "noName": "Zonder naam",
+    "statusDraft": "Concept"
   },
   "configurators": {
     "title": "Configuratoren",
@@ -1409,7 +1443,9 @@
     "itemDoor": "Deurraam",
     "itemScreen": "hor",
     "itemLeaves": "{count} vleugels",
-    "emptyItems": "Geen elementen geregistreerd."
+    "emptyItems": "Geen elementen geregistreerd.",
+    "editQuote": "Offerte bewerken",
+    "deleteConfirm": "Deze aanvraag verwijderen? De contactgegevens worden gewist en dit kan niet ongedaan worden gemaakt."
   },
   "passports": {
     "loading": "Laden…",
@@ -2895,7 +2931,10 @@
     "todo": "Aan te vullen",
     "done": "Compleet",
     "back": "← Terug naar account",
-    "noPermission": "Alleen de eigenaar of een beheerder kan de bedrijfsgegevens wijzigen."
+    "noPermission": "Alleen de eigenaar of een beheerder kan de bedrijfsgegevens wijzigen.",
+    "reviewTitle": "Onboarding",
+    "reviewBody": "Uw account heeft volledige toegang: facturering geldt als actief, er wordt geen abonnement gevraagd. U kunt de begeleide installatie heropenen om de bedrijfsgegevens te bekijken of opnieuw in te voeren.",
+    "reviewCta": "Onboarding heropenen"
   },
   "clientsImport": {
     "button": "Importeren uit offertes",

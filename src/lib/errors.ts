@@ -116,6 +116,8 @@ export type ErrorKey =
   | "whatsappQuotaExceeded"
   | "showroomQuotaExceeded"
   | "quoteLocked"
+  | "quoteIsDraft"
+  | "quoteHasSupply"
   | "alreadySubscribed"
   | "annualNotAvailable"
   | "teamExceedsTargetPlan"
@@ -258,6 +260,11 @@ const EXACT: Record<string, ErrorKey> = {
   SHOWROOM_PDF_QUOTA_EXCEEDED: "showroomQuotaExceeded",
   SHOWROOM_WHATSAPP_QUOTA_EXCEEDED: "showroomQuotaExceeded",
   QUOTE_LOCKED: "quoteLocked",
+  QUOTE_NOT_EDITABLE: "quoteLocked",
+  QUOTE_ALREADY_SIGNED: "alreadySigned",
+  QUOTE_SIGNED: "cannotDeleteSigned",
+  QUOTE_IS_DRAFT: "quoteIsDraft",
+  QUOTE_HAS_SUPPLY: "quoteHasSupply",
   ALREADY_SUBSCRIBED: "alreadySubscribed",
   ANNUAL_NOT_AVAILABLE: "annualNotAvailable",
   TEAM_EXCEEDS_TARGET_PLAN: "teamExceedsTargetPlan",

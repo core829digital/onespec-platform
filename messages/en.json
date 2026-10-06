@@ -289,7 +289,8 @@
       "quoted": "Quote sent",
       "won": "Won",
       "lost": "Lost",
-      "spam": "Spam"
+      "spam": "Spam",
+      "draft": "Draft"
     },
     "loadMore": "Show older"
   },
@@ -323,7 +324,11 @@
     "optional": "Optional",
     "required": "Required",
     "loadingAria": "Loading",
-    "menu": "Menu"
+    "menu": "Menu",
+    "open": "Open",
+    "saveDraft": "Save as draft",
+    "draftSaved": "Draft saved",
+    "deleted": "Deleted"
   },
   "errors": {
     "generic": "Something went wrong. Try again in a moment; if it keeps happening, contact support.",
@@ -456,7 +461,9 @@
     "supplyAlreadyDelivered": "The supply has already been delivered.",
     "supplyCannotRevert": "Cannot go back any further: the supply is at its first stage.",
     "supplyCannotDelete": "A supply can only be deleted before production.",
-    "supplyStageTooEarly": "This cost can only be entered once the supply has reached the matching stage."
+    "supplyStageTooEarly": "This cost can only be entered once the supply has reached the matching stage.",
+    "quoteIsDraft": "This quote is a draft: finish and save it before signing it or changing its status.",
+    "quoteHasSupply": "A supply order already started from this quote: it cannot be deleted."
   },
   "app": {
     "suspended": {
@@ -551,7 +558,16 @@
         "inSupply": "of which fitting by m²",
         "compareWithout": "Without fitting: € {amount} (excl. VAT)",
         "compareWith": "With fitting: € {amount} (excl. VAT)"
-      }
+      },
+      "saveDraft": "Save as draft",
+      "saveChanges": "Save changes",
+      "editingBanner": "You are editing quote {number}. The server recalculates the price when you save.",
+      "editingDraftBanner": "You are editing a draft: it does not appear in customers, sites or statistics until you finish it.",
+      "lockedBanner": "This quote is already signed or won and can no longer be edited.",
+      "draftNoSuppliers": "Multi-supplier lines cannot be saved in a draft: remove them or continue with the quote.",
+      "draftSavedToast": "Draft saved. You will find it in Quotes.",
+      "savedToast": "Changes saved.",
+      "backToList": "Back to quotes"
     },
     "list": {
       "kicker": "Field B2B Tool",
@@ -574,7 +590,21 @@
       "colDate": "Date",
       "pieces": "pcs",
       "sign": "✍️ Sign",
-      "pdf": "🖨️ PDF"
+      "pdf": "🖨️ PDF",
+      "open": "Open",
+      "edit": "Edit",
+      "delete": "Delete",
+      "tabAll": "All",
+      "tabDrafts": "Drafts",
+      "tabSent": "Sent",
+      "tabWon": "Won",
+      "draftLabel": "Draft",
+      "deleteConfirm": "Delete the quote for {name}? This cannot be undone. The customer and the site stay.",
+      "deleteDraftConfirm": "Delete this draft? This cannot be undone.",
+      "noName": "No name",
+      "emptyDrafts": "No drafts. In the editor use \"Save as draft\" to keep working on it later.",
+      "emptyFilter": "No quotes in this tab.",
+      "statDrafts": "Drafts"
     }
   },
   "billing": {
@@ -1283,7 +1313,11 @@
     "colStatus": "Status",
     "colDate": "Date",
     "loading": "Loading...",
-    "empty": "No requests"
+    "empty": "No requests",
+    "colActions": "Actions",
+    "deleteConfirm": "Delete the request from {name}? The contact data is erased and this cannot be undone.",
+    "noName": "No name",
+    "statusDraft": "Draft"
   },
   "configurators": {
     "title": "Configurators",
@@ -1409,7 +1443,9 @@
     "itemDoor": "French window",
     "itemScreen": "insect screen",
     "itemLeaves": "{count} leaves",
-    "emptyItems": "No items recorded."
+    "emptyItems": "No items recorded.",
+    "editQuote": "Edit quote",
+    "deleteConfirm": "Delete this request? The contact data is erased and this cannot be undone."
   },
   "passports": {
     "loading": "Loading…",
@@ -2895,7 +2931,10 @@
     "todo": "To complete",
     "done": "Completed",
     "back": "← Back to account",
-    "noPermission": "Only the owner or an admin can edit the company details."
+    "noPermission": "Only the owner or an admin can edit the company details.",
+    "reviewTitle": "Onboarding",
+    "reviewBody": "Your account has full access: billing counts as active, so no plan is asked of you. You can reopen the guided setup to review or re-enter your company data.",
+    "reviewCta": "Reopen onboarding"
   },
   "clientsImport": {
     "button": "Import from quotes",

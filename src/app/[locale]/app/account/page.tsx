@@ -33,6 +33,7 @@ export default function AccountPage() {
   const revokeSession = useMutation(api.account.revokeSession);
   const revokeOthers = useMutation(api.account.revokeOtherSessions);
   const exportMyData = useMutation(api.account.exportMyData);
+  const restartOnboarding = useMutation(api.onboarding.restart);
   const requestDeletion = useMutation(api.account.requestDeletion);
   const cancelDeletion = useMutation(api.account.cancelDeletion);
   const { signOut } = useAuthActions();
@@ -136,6 +137,27 @@ export default function AccountPage() {
 
       {tenant && (profile.role === "owner" || profile.role === "admin") ? (
         <CompanyProfileSection tenantId={tenant._id} country={tenant.country} />
+      ) : null}
+
+      {tenant?.unlimitedAccess === true && profile.role === "owner" ? (
+        <Section title={tCompany("reviewTitle")} description={tCompany("reviewBody")}>
+          <button
+            type="button"
+            data-testid="reopen-onboarding"
+            onClick={async () => {
+              setMsg("");
+              try {
+                await restartOnboarding();
+                window.location.assign(`${locale === "it" ? "" : `/${locale}`}/onboarding`);
+              } catch (e) {
+                setMsg(tf(e));
+              }
+            }}
+            className="rounded-lg bg-[var(--color-mint)] px-4 py-2 text-sm font-semibold text-[var(--color-mint-dark)]"
+          >
+            {tCompany("reviewCta")}
+          </button>
+        </Section>
       ) : null}
 
       <Section title={t("sessionsTitle")} description={t("sessionsDesc")}>

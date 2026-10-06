@@ -289,7 +289,8 @@
       "quoted": "Preventivo inviato",
       "won": "Vinta",
       "lost": "Persa",
-      "spam": "Spam"
+      "spam": "Spam",
+      "draft": "Bozza"
     },
     "loadMore": "Mostra meno recenti"
   },
@@ -323,7 +324,11 @@
     "optional": "Opzionale",
     "required": "Obbligatorio",
     "loadingAria": "Caricamento",
-    "menu": "Menu"
+    "menu": "Menu",
+    "open": "Apri",
+    "saveDraft": "Salva come bozza",
+    "draftSaved": "Bozza salvata",
+    "deleted": "Eliminato"
   },
   "errors": {
     "generic": "Qualcosa è andato storto. Riprova tra un attimo; se continua, contatta il supporto.",
@@ -456,7 +461,9 @@
     "supplyAlreadyDelivered": "La fornitura è già stata consegnata.",
     "supplyCannotRevert": "Non si può tornare più indietro: la fornitura è al primo passaggio.",
     "supplyCannotDelete": "Si può eliminare una fornitura solo prima della produzione.",
-    "supplyStageTooEarly": "Questo costo si può inserire solo quando la fornitura ha raggiunto la fase corrispondente."
+    "supplyStageTooEarly": "Questo costo si può inserire solo quando la fornitura ha raggiunto la fase corrispondente.",
+    "quoteIsDraft": "Questo preventivo è una bozza: completalo e salvalo prima di firmarlo o cambiarne lo stato.",
+    "quoteHasSupply": "Per questo preventivo è già partita una fornitura: non può essere eliminato."
   },
   "app": {
     "suspended": {
@@ -551,7 +558,16 @@
         "inSupply": "di cui posa al m²",
         "compareWithout": "Senza posa: € {amount} (IVA esclusa)",
         "compareWith": "Con posa: € {amount} (IVA esclusa)"
-      }
+      },
+      "saveDraft": "Salva come bozza",
+      "saveChanges": "Salva modifiche",
+      "editingBanner": "Stai modificando il preventivo {number}. Il prezzo viene ricalcolato dal server al salvataggio.",
+      "editingDraftBanner": "Stai modificando una bozza: non compare ancora nei clienti, nei cantieri e nelle statistiche finché non la completi.",
+      "lockedBanner": "Questo preventivo è già firmato o vinto e non si può più modificare.",
+      "draftNoSuppliers": "Le righe con più fornitori non si salvano in bozza: rimuovile o procedi con il preventivo.",
+      "draftSavedToast": "Bozza salvata. La trovi in Preventivi.",
+      "savedToast": "Modifiche salvate.",
+      "backToList": "Torna ai preventivi"
     },
     "list": {
       "kicker": "Strumento B2B da Cantiere",
@@ -574,7 +590,21 @@
       "colDate": "Data",
       "pieces": "pz",
       "sign": "✍️ Firma",
-      "pdf": "🖨️ PDF"
+      "pdf": "🖨️ PDF",
+      "open": "Apri",
+      "edit": "Modifica",
+      "delete": "Elimina",
+      "tabAll": "Tutti",
+      "tabDrafts": "Bozze",
+      "tabSent": "Inviati",
+      "tabWon": "Vinti",
+      "draftLabel": "Bozza",
+      "deleteConfirm": "Eliminare il preventivo di {name}? L'operazione non si può annullare. Il cliente e il cantiere restano.",
+      "deleteDraftConfirm": "Eliminare questa bozza? L'operazione non si può annullare.",
+      "noName": "Senza nome",
+      "emptyDrafts": "Nessuna bozza. Dall'editor usa \"Salva come bozza\" per lavorarci più tardi.",
+      "emptyFilter": "Nessun preventivo in questa scheda.",
+      "statDrafts": "Bozze"
     }
   },
   "billing": {
@@ -1283,7 +1313,11 @@
     "colStatus": "Stato",
     "colDate": "Data",
     "loading": "Caricamento...",
-    "empty": "Nessuna richiesta"
+    "empty": "Nessuna richiesta",
+    "colActions": "Azioni",
+    "deleteConfirm": "Eliminare la richiesta di {name}? I dati del contatto vengono cancellati e l'operazione non si può annullare.",
+    "noName": "Senza nome",
+    "statusDraft": "Bozza"
   },
   "configurators": {
     "title": "Configuratori",
@@ -1409,7 +1443,9 @@
     "itemDoor": "Porta-finestra",
     "itemScreen": "zanzariera",
     "itemLeaves": "{count} ante",
-    "emptyItems": "Nessun elemento registrato."
+    "emptyItems": "Nessun elemento registrato.",
+    "editQuote": "Modifica preventivo",
+    "deleteConfirm": "Eliminare questa richiesta? I dati del contatto vengono cancellati e l'operazione non si può annullare."
   },
   "passports": {
     "loading": "Caricamento…",
@@ -2895,7 +2931,10 @@
     "todo": "Da completare",
     "done": "Completato",
     "back": "← Torna all'account",
-    "noPermission": "Solo il titolare o un amministratore può modificare i dati dell'azienda."
+    "noPermission": "Solo il titolare o un amministratore può modificare i dati dell'azienda.",
+    "reviewTitle": "Onboarding",
+    "reviewBody": "Il tuo account ha accesso completo: la fatturazione è considerata attiva, quindi non ti viene chiesto nessun piano. Puoi riaprire la procedura guidata per rivedere o reinserire i dati dell'azienda.",
+    "reviewCta": "Riapri l'onboarding"
   },
   "clientsImport": {
     "button": "Importa dai preventivi",

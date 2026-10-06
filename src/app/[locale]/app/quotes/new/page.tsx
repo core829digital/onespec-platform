@@ -161,6 +161,9 @@ export default function NewFieldQuotePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const tenant = useQuery(api.tenants.getMyTenant);
+  // ?edit=<id>: a quote (draft or already sent, never a signed one) is opened here, changed and saved again.
+  const editId = searchParams.get("edit") as Id<"quoteRequests"> | null;
+  const editing = useQuery(api.quotes.getRequest, editId ? { quoteId: editId } : "skip");
   const configurators = useQuery(
     api.configurators.listConfigurators,
     tenant ? { tenantId: tenant._id } : "skip",
@@ -271,7 +274,63 @@ export default function NewFieldQuotePage() {
   );
 
   const createFieldQuote = useMutation(api.quotes.createFieldQuote);
+  const updateFieldQuote = useMutation(api.quotes.updateFieldQuote);
   const createQuoteWithSuppliers = useMutation(api.quotes.createQuoteWithSuppliers);
+
+  // Opening an existing quote: every field comes back from what was saved (the server recomputes the prices on save).
+  const hydrated = useRef(false);
+  useEffect(() => {
+    if (!editing || hydrated.current) return;
+    const id = setTimeout(() => {
+      if (hydrated.current) return;
+      hydrated.current = true;
+      const region = (editing.regionCode && editing.regionCode in REGION_CONFIGS ? editing.regionCode : "IT") as RegionCode;
+      const meta = REGION_CONFIGS[region];
+      const saved = (Array.isArray(editing.items) ? editing.items : []) as ProjectItem[];
+      setSelectedConfigId(editing.configuratorId);
+      setRegionCode(region);
+      setLeadName(editing.leadName ?? "");
+      setLeadEmail(editing.leadEmail ?? "");
+      setLeadPhone(editing.leadPhone ?? "");
+      setCustomerAddress(editing.customerAddress ?? "");
+      setCustomerCity(editing.customerCity ?? "");
+      setCustomerPostalCode(editing.customerPostalCode ?? "");
+      setLeadMessage(editing.leadMessage ?? "");
+      setClientId(editing.clientId);
+      setCantiereId(editing.cantiereId);
+      if (saved.length > 0) setItems(saved);
+      setInstallationType(editing.installationType ?? "posa_qualificata_uni_11673");
+      setInstallationEuros(Math.round((editing.installationPriceCents ?? 0) / 100));
+      setDemolitionEuros(Math.round((editing.demolitionPriceCents ?? 0) / 100));
+      const flags = saved.map((it) => it.withInstallation).filter((f): f is boolean => typeof f === "boolean");
+      setWithPosaChoice(flags.length > 0 ? flags.every(Boolean) : null);
+      setDiscountPercent(editing.discountPercent ?? 0);
+      setProfitMarginPercent(editing.profitMarginPercent ?? 30);
+      // The saved rate is the one applied; only a plain domestic quote carries the national rate itself.
+      setVatRatePercent(editing.vatReason === "domestic" ? (editing.vatRatePercent ?? meta.defaultVat) : meta.defaultVat);
+      setFiscal({
+        buyerCountry: editing.buyerCountry ?? "",
+        buyerIsBusiness: editing.buyerIsBusiness === true,
+        buyerVatId: editing.buyerVatId ?? "",
+        manualZero: editing.vatReason === "manualZero",
+        manualReason: editing.vatManualReason ?? "",
+      });
+      setDepositTerms(editing.depositTerms ?? meta.defaultDeposit);
+      if (editing.ecobonusPercent !== undefined) setEcobonusPercent(editing.ecobonusPercent);
+      if (editing.poseType) setPoseType(editing.poseType);
+      if (editing.rgeCertificate) setRgeCertificate(editing.rgeCertificate);
+      if (editing.decennaleInsurance) setDecennaleInsurance(editing.decennaleInsurance);
+      if (editing.maPrimeRenovPercent !== undefined) setMaPrimeRenovPercent(editing.maPrimeRenovPercent);
+      setRensonGrilleWidthMm(editing.rensonGrilleWidthMm ?? 0);
+      setVoletMonoblocHeightMm(editing.voletMonoblocHeightMm ?? 0);
+      if (editing.hvlJointCount !== undefined) setHvlJointCount(editing.hvlJointCount);
+      setIsostoneSill(editing.isostoneSill === true);
+      if (editing.ralMontage !== undefined) setRalMontage(editing.ralMontage);
+      if (editing.rcSecurityLevel) setRcSecurityLevel(editing.rcSecurityLevel);
+      if (editing.klimabonusEligible !== undefined) setKlimabonusEligible(editing.klimabonusEligible);
+    }, 0);
+    return () => clearTimeout(id);
+  }, [editing]);
 
   function handleRegionChange(newRegion: RegionCode) {
     setRegionCode(newRegion);
@@ -345,14 +404,14 @@ export default function NewFieldQuotePage() {
   // Draft: the pieces and the client survive a reload or a dead signal on site.
   const draftKey = tenant ? `quote-new:${tenant._id}` : "quote-new";
   const [draftRestored, setDraftRestored] = useState(0);
-  useDraftRestore(draftKey, usingLiveCatalog && searchParams.get("from") !== "showroom", (draft) => {
+  useDraftRestore(draftKey, usingLiveCatalog && !editId && searchParams.get("from") !== "showroom", (draft) => {
     setItems(draft.items);
     if (draft.meta.clientName) setLeadName(draft.meta.clientName);
     if (draft.meta.clientPhone) setLeadPhone(draft.meta.clientPhone);
     if (draft.meta.clientCity) setCustomerCity(draft.meta.clientCity);
     setDraftRestored(draft.items.length);
   });
-  useDraftSave(draftKey, itemsState, { clientName: leadName, clientPhone: leadPhone, clientCity: customerCity });
+  useDraftSave(editId ? `${draftKey}:edit` : draftKey, itemsState, { clientName: leadName, clientPhone: leadPhone, clientCity: customerCity });
 
   function updateCurrentItem(patch: Partial<ProjectItem>) {
     setItems((itemsState ?? seedItems).map((it, i) => (i === activeItemIndex ? { ...it, ...patch } : it)));
@@ -449,9 +508,19 @@ export default function NewFieldQuotePage() {
     klimabonusEligible,
   ]);
 
+  /** What is being saved: "sign" = the quote is final and goes on to the signature; "draft" / "save" = stay in the list, nothing is won. */
+  type SaveMode = "sign" | "save" | "draft";
+  /** The quote being edited is still a draft (or a new one): it can be saved as a draft. */
+  const isDraftQuote = !editId || editing?.status === "draft";
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!leadName.trim() || !leadEmail.trim()) {
+    await submit("sign");
+  }
+
+  async function submit(mode: SaveMode) {
+    const isDraft = mode === "draft";
+    if (!isDraft && (!leadName.trim() || !leadEmail.trim())) {
       setError(t("errClientRequired"));
       return;
     }
@@ -541,7 +610,7 @@ export default function NewFieldQuotePage() {
           depositTerms,
         });
       } else {
-        res = await createFieldQuote({
+        const fieldArgs = {
           tenantId: tenant!._id,
           configuratorId: activeConfig._id,
           clientId,
@@ -581,10 +650,14 @@ export default function NewFieldQuotePage() {
           vatManualZero: fiscal.manualZero || undefined,
           vatManualReason: fiscal.manualZero ? fiscal.manualReason : undefined,
           depositTerms,
-        });
+          asDraft: isDraft || (editing?.status === "draft" && mode === "save") ? true : undefined,
+        };
+        res = editId
+          ? await updateFieldQuote({ quoteId: editId, ...fieldArgs })
+          : await createFieldQuote(fieldArgs);
       }
 
-      clearDraft(draftKey);
+      clearDraft(editId ? `${draftKey}:edit` : draftKey);
       if (!res?.quoteId) {
         throw new ConvexError("QUOTE_CREATE_FAILED");
       }
@@ -596,7 +669,8 @@ export default function NewFieldQuotePage() {
         from_showroom: fromShowroom > 0,
         final_gross_cents: priceCalc.finalGrossCents,
       });
-      router.push(`/app/quotes/${res.quoteId}/sign`);
+      // Signing is the last step of a finished quote; a draft or a plain save goes back to the list with nothing won.
+      router.push(mode === "sign" ? `/app/quotes/${res.quoteId}/sign` : "/app/quotes");
     } catch (err: unknown) {
       posthog.captureException(err);
       setError(tf(err));
@@ -625,6 +699,11 @@ export default function NewFieldQuotePage() {
           <p className="text-sm text-[var(--color-text-secondary)]">
             {t("subtitle")}
           </p>
+          {editing ? (
+            <p data-testid="editing-banner" className="mt-2 rounded-lg border border-[var(--color-mint)]/40 bg-[var(--color-mint-light)] px-3 py-2 text-xs text-[var(--color-text)]">
+              {editing.status === "draft" ? t("editingDraftBanner") : t("editingBanner", { number: editing.offerNumber ?? "" })}
+            </p>
+          ) : null}
         </div>
         <Link
           href="/app/quotes"
@@ -1340,9 +1419,12 @@ export default function NewFieldQuotePage() {
               )}
             </div>
 
+            {editing && (editing.signedAt || editing.status === "won") ? (
+              <p role="alert" className="mt-4 rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-xs text-amber-600 dark:text-amber-400">{t("lockedBanner")}</p>
+            ) : null}
             <button
               type="submit"
-              disabled={submitting || !activeConfig || !usingLiveCatalog}
+              disabled={submitting || !activeConfig || !usingLiveCatalog || !!(editing && (editing.signedAt || editing.status === "won"))}
               className="w-full mt-4 rounded-xl bg-[var(--color-mint)] py-3 px-4 text-center font-bold text-[var(--color-mint-dark)] shadow-sm hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity text-base flex items-center justify-center gap-2"
             >
               {submitting
@@ -1351,6 +1433,22 @@ export default function NewFieldQuotePage() {
                   ? t("publishConfigFirst")
                   : t("proceedToSign", { country: activeMeta.name })}
             </button>
+            {!(editing && (editing.signedAt || editing.status === "won")) ? (
+              <>
+                <button
+                  type="button"
+                  data-testid="save-quote"
+                  disabled={submitting || !activeConfig || !usingLiveCatalog || (isDraftQuote && supplierItems.length > 0)}
+                  onClick={() => void submit(isDraftQuote ? "draft" : "save")}
+                  className="mt-2 w-full rounded-xl border border-[var(--color-mint)] py-2.5 px-4 text-center text-sm font-semibold text-[var(--color-mint-text)] transition hover:bg-[var(--color-mint)]/10 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {isDraftQuote ? t("saveDraft") : t("saveChanges")}
+                </button>
+                {isDraftQuote && supplierItems.length > 0 ? (
+                  <p className="mt-1 text-xs text-[var(--color-text-secondary)]">{t("draftNoSuppliers")}</p>
+                ) : null}
+              </>
+            ) : null}
           </section>
         </div>
       </form>

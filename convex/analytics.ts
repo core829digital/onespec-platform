@@ -122,7 +122,7 @@ export const getOverview = query({
     const inWindow = all.filter((r) => r._creationTime >= cutoff);
 
     const prevWindow = all.filter((r) => r._creationTime >= prevStart && r._creationTime < cutoff);
-    const prevReal = prevWindow.filter((r) => r.status !== "spam");
+    const prevReal = prevWindow.filter((r) => r.status !== "spam" && r.status !== "draft");
 
     // Widget views in previous period (de-duplicated per-visitor counters)
     const prevMonthsInWindow = new Set<string>();
@@ -144,9 +144,9 @@ export const getOverview = query({
     for (const r of prevWindow) {
       prevByStatus[r.status] = (prevByStatus[r.status] ?? 0) + 1;
       if (r.status === "won") prevWonValueCents += r.priceCents;
-      if (r.status !== "spam") prevQuotedValueCents += r.priceCents;
+      if (r.status !== "spam" && r.status !== "draft") prevQuotedValueCents += r.priceCents;
     }
-    const prevRealLeads = prevWindow.filter((r) => r.status !== "spam");
+    const prevRealLeads = prevWindow.filter((r) => r.status !== "spam" && r.status !== "draft");
     const prevWonCount = prevByStatus.won ?? 0;
     const prevConversionRate = prevRealLeads.length > 0 ? prevWonCount / prevRealLeads.length : 0;
     const prevAvgDealCents = prevWonCount > 0 ? Math.round(prevWonValueCents / prevWonCount) : 0;
@@ -168,10 +168,10 @@ export const getOverview = query({
     for (const r of inWindow) {
       byStatus[r.status] = (byStatus[r.status] ?? 0) + 1;
       if (r.status === "won") wonValueCents += r.priceCents;
-      if (r.status !== "spam") quotedValueCents += r.priceCents;
+      if (r.status !== "spam" && r.status !== "draft") quotedValueCents += r.priceCents;
     }
 
-    const realLeads = inWindow.filter((r) => r.status !== "spam");
+    const realLeads = inWindow.filter((r) => r.status !== "spam" && r.status !== "draft");
     const won = byStatus.won ?? 0;
     const conversionRate = realLeads.length > 0 ? won / realLeads.length : 0;
     const avgDealCents = won > 0 ? Math.round(wonValueCents / won) : 0;

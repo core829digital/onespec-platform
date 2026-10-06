@@ -185,7 +185,7 @@ export const quotesWithoutSupply = query({
     const recent = await ctx.db.query("quoteRequests").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).order("desc").take(100);
     const out: Array<{ _id: Id<"quoteRequests">; reference: string; customerName: string; priceExVatCents: number; status: string }> = [];
     for (const q of recent) {
-      if (q.status === "lost" || q.status === "spam") continue;
+      if (q.status === "draft" || q.status === "lost" || q.status === "spam") continue;
       const has = await ctx.db.query("supplies").withIndex("by_quote", (x) => x.eq("quoteId", q._id)).first();
       if (has) continue;
       out.push({ _id: q._id, reference: q.offerNumber ?? String(q._id), customerName: lockedSafeLeadName(q), priceExVatCents: q.priceExVatCents, status: q.status });
@@ -201,7 +201,7 @@ export const createFromQuote = mutation({
     const first = await ctx.db.get(args.quoteId);
     if (!first) throw new ConvexError("QUOTE_NOT_FOUND");
     const { userId } = await requirePermission(ctx, first.tenantId, "supply.use");
-    if (first.status === "lost" || first.status === "spam") throw new ConvexError("SUPPLY_QUOTE_NOT_USABLE");
+    if (first.status === "draft" || first.status === "lost" || first.status === "spam") throw new ConvexError("SUPPLY_QUOTE_NOT_USABLE");
     const existing = await ctx.db.query("supplies").withIndex("by_quote", (q) => q.eq("quoteId", args.quoteId)).first();
     if (existing) throw new ConvexError("SUPPLY_ALREADY_EXISTS");
     // A supply always has its customer and its site: find or create them from the quote before the supply is written.

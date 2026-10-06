@@ -44,17 +44,20 @@ export const registerTenant = mutation({
     if (!settings) throw new ConvexError("SETTINGS_NOT_FOUND");
     if (!settings.registrationOpen) throw new ConvexError("REGISTRATION_CLOSED");
 
+    // Founding / full-access accounts have billing "activated" from day one: they never meet the plan quiz or checkout
+    // (the data steps of the onboarding still run).
+    const fullAccess = isFullAccessEmail((await ctx.db.get(userId))?.email);
     const tenantId = await ctx.db.insert("tenants", {
       name: companyName,
       slug: companyName.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "-" + nanoid(6),
       ownerUserId: userId,
       country,
-      plan: "base",
-      planStatus: "pending_plan",
+      plan: fullAccess ? "enterprise" : "base",
+      planStatus: fullAccess ? "active" : "pending_plan",
       createdVia: "open_signup",
       createdAt: Date.now(),
       // Founding accounts skip every plan limit from day one.
-      unlimitedAccess: isFullAccessEmail((await ctx.db.get(userId))?.email) ? true : undefined,
+      unlimitedAccess: fullAccess ? true : undefined,
     });
 
     await ctx.db.insert("memberships", {
@@ -104,7 +107,7 @@ export const getMyMembership = query({
     const userId = await requireVerifiedUser(ctx);
     const m = await ctx.db.query("memberships").withIndex("by_user", (q) => q.eq("userId", userId)).first();
     if (!m || m.status !== "active") return null;
-    return { tenantId: m.tenantId, role: m.role, grade: m.grade ?? null };
+    return { tenantId: m.tenantId, userId, role: m.role, grade: m.grade ?? null };
   },
 });
 

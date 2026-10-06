@@ -219,7 +219,7 @@ export async function linkQuoteToCrm(
   const quote = await ctx.db.get(args.quoteId);
   const none: CrmLinkResult = { clientId: undefined, cantiereId: undefined, clientCreated: false, cantiereCreated: false };
   if (!quote) return none;
-  if (isHidden(quote) || quote.status === "spam") return { ...none, clientId: quote.clientId, cantiereId: quote.cantiereId };
+  if (isHidden(quote) || quote.status === "spam" || quote.status === "draft") return { ...none, clientId: quote.clientId, cantiereId: quote.cantiereId };
 
   let cantiere = quote.cantiereId ? await ctx.db.get(quote.cantiereId) : null;
   let client = quote.clientId ? await ctx.db.get(quote.clientId) : null;
@@ -293,7 +293,7 @@ export async function recomputeCantiereValue(ctx: MutationCtx, cantiereId: Id<"c
   const c = await ctx.db.get(cantiereId);
   if (!c) return;
   const quotes = await ctx.db.query("quoteRequests").withIndex("by_cantiere", (x) => x.eq("cantiereId", cantiereId)).take(200);
-  const live = quotes.filter((q) => q.status !== "lost" && q.status !== "spam");
+  const live = quotes.filter((q) => q.status !== "lost" && q.status !== "spam" && q.status !== "draft");
   if (live.length === 0) return;
   const total = live.reduce((sum, q) => sum + q.priceExVatCents, 0);
   if (total !== c.valueCents) await ctx.db.patch(cantiereId, { valueCents: total, updatedAt: Date.now() });

@@ -289,7 +289,8 @@
       "quoted": "Quote sent",
       "won": "Won",
       "lost": "Lost",
-      "spam": "Spam"
+      "spam": "Spam",
+      "draft": "Ciornă"
     },
     "loadMore": "Arată mai vechi"
   },
@@ -323,7 +324,11 @@
     "optional": "Opțional",
     "required": "Obligatoriu",
     "loadingAria": "Se încarcă",
-    "menu": "Meniu"
+    "menu": "Meniu",
+    "open": "Deschide",
+    "saveDraft": "Salvează ca ciornă",
+    "draftSaved": "Ciornă salvată",
+    "deleted": "Șters"
   },
   "errors": {
     "generic": "Ceva nu a mers. Reîncearcă în câteva clipe; dacă persistă, contactează suportul.",
@@ -456,7 +461,9 @@
     "supplyAlreadyDelivered": "Furnizarea a fost deja livrată.",
     "supplyCannotRevert": "Nu se poate merge mai înapoi: furnizarea este la prima etapă.",
     "supplyCannotDelete": "O furnizare poate fi ștearsă doar înainte de producție.",
-    "supplyStageTooEarly": "Acest cost poate fi introdus doar când furnizarea a ajuns la etapa corespunzătoare."
+    "supplyStageTooEarly": "Acest cost poate fi introdus doar când furnizarea a ajuns la etapa corespunzătoare.",
+    "quoteIsDraft": "Această ofertă este o ciornă: finalizeaz-o și salveaz-o înainte să o semnezi sau să îi schimbi starea.",
+    "quoteHasSupply": "Pentru această ofertă a început deja o aprovizionare: nu poate fi ștearsă."
   },
   "app": {
     "suspended": {
@@ -551,7 +558,16 @@
         "inSupply": "din care montaj pe m²",
         "compareWithout": "Fără montaj: {amount} € (fără TVA)",
         "compareWith": "Cu montaj: {amount} € (fără TVA)"
-      }
+      },
+      "saveDraft": "Salvează ca ciornă",
+      "saveChanges": "Salvează modificările",
+      "editingBanner": "Modifici oferta {number}. Serverul recalculează prețul la salvare.",
+      "editingDraftBanner": "Modifici o ciornă: nu apare în clienți, șantiere și statistici până nu o finalizezi.",
+      "lockedBanner": "Această ofertă este deja semnată sau câștigată și nu mai poate fi modificată.",
+      "draftNoSuppliers": "Rândurile cu mai mulți furnizori nu se salvează ca ciornă: elimină-le sau continuă cu oferta.",
+      "draftSavedToast": "Ciornă salvată. O găsești la Oferte.",
+      "savedToast": "Modificări salvate.",
+      "backToList": "Înapoi la oferte"
     },
     "list": {
       "kicker": "Instrument B2B de șantier",
@@ -574,7 +590,21 @@
       "colDate": "Data",
       "pieces": "buc",
       "sign": "✍️ Semnează",
-      "pdf": "🖨️ PDF"
+      "pdf": "🖨️ PDF",
+      "open": "Deschide",
+      "edit": "Modifică",
+      "delete": "Șterge",
+      "tabAll": "Toate",
+      "tabDrafts": "Ciorne",
+      "tabSent": "Trimise",
+      "tabWon": "Câștigate",
+      "draftLabel": "Ciornă",
+      "deleteConfirm": "Ștergi oferta pentru {name}? Acțiunea nu poate fi anulată. Clientul și șantierul rămân.",
+      "deleteDraftConfirm": "Ștergi această ciornă? Acțiunea nu poate fi anulată.",
+      "noName": "Fără nume",
+      "emptyDrafts": "Nicio ciornă. În editor folosește „Salvează ca ciornă” ca să continui mai târziu.",
+      "emptyFilter": "Nicio ofertă în această filă.",
+      "statDrafts": "Ciorne"
     }
   },
   "billing": {
@@ -1283,7 +1313,11 @@
     "colStatus": "Stare",
     "colDate": "Data",
     "loading": "Se încarcă...",
-    "empty": "Nicio cerere"
+    "empty": "Nicio cerere",
+    "colActions": "Acțiuni",
+    "deleteConfirm": "Ștergi cererea de la {name}? Datele de contact sunt șterse, iar acțiunea nu poate fi anulată.",
+    "noName": "Fără nume",
+    "statusDraft": "Ciornă"
   },
   "configurators": {
     "title": "Configuratoare",
@@ -1409,7 +1443,9 @@
     "itemDoor": "Ușă-fereastră",
     "itemScreen": "plasă de insecte",
     "itemLeaves": "{count} canaturi",
-    "emptyItems": "Niciun element înregistrat."
+    "emptyItems": "Niciun element înregistrat.",
+    "editQuote": "Modifică oferta",
+    "deleteConfirm": "Ștergi această cerere? Datele de contact sunt șterse, iar acțiunea nu poate fi anulată."
   },
   "passports": {
     "loading": "Se încarcă…",
@@ -2895,7 +2931,10 @@
     "todo": "De completat",
     "done": "Completat",
     "back": "← Înapoi la cont",
-    "noPermission": "Doar proprietarul sau un administrator poate modifica datele firmei."
+    "noPermission": "Doar proprietarul sau un administrator poate modifica datele firmei.",
+    "reviewTitle": "Onboarding",
+    "reviewBody": "Contul tău are acces complet: facturarea este considerată activă, deci nu ți se cere niciun plan. Poți redeschide asistentul pentru a revedea sau reintroduce datele companiei.",
+    "reviewCta": "Redeschide onboarding-ul"
   },
   "clientsImport": {
     "button": "Importă din oferte",

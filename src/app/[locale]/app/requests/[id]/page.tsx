@@ -4,7 +4,9 @@ import { use, useState, useMemo, useEffect } from "react";
 import { useMutation, useQuery } from "convex/react";
 import { useLocale, useTranslations } from "next-intl";
 import { api } from "@/convex/_generated/api";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
+import { DeleteAction } from "@/components/ui/delete-action";
+import { OpenLink } from "@/components/ui/open-button";
 import type { Id } from "@/convex/_generated/dataModel";
 import { StatusBadge } from "@/components/app-shell/status-badge";
 import { QuoteFieldModules } from "@/components/field/quote-field-modules";
@@ -15,6 +17,7 @@ import { fittingNote } from "@/shared/fitting";
 
 const STATUSES = ["new", "contacted", "quoted", "won", "lost", "spam"] as const;
 const STATUS_KEY: Record<string, string> = {
+  draft: "statusDraft",
   new: "statusNew",
   contacted: "statusContacted",
   quoted: "statusQuoted",
@@ -56,6 +59,9 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
   );
 
   const updateStatus = useMutation(api.quotes.updateStatus);
+  const deleteQuote = useMutation(api.quotes.deleteQuote);
+  const router = useRouter();
+  const membership = useQuery(api.tenants.getMyMembership);
   const supply = useQuery(api.supplies.forQuote, { quoteId });
   const folder = useQuery(api.quotes.linksForQuote, { quoteId });
   const tLinks = useTranslations("supplyLinks");
@@ -230,6 +236,21 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
 
         {/* 1-Click Fast Action Buttons */}
         <div className="flex flex-wrap items-center gap-2">
+          {quote.channel === "field_b2b" && !quote.signedAt && quote.status !== "won" ? (
+            <OpenLink href={`/app/quotes/new?edit=${quote._id}`} data-testid="request-edit-quote">
+              {t("editQuote")}
+            </OpenLink>
+          ) : null}
+          {!quote.signedAt && (membership?.role === "owner" || membership?.role === "admin" || (quote.status === "draft" && quote.assignedToUserId === membership?.userId)) ? (
+            <DeleteAction
+              testId="request-delete"
+              message={t("deleteConfirm")}
+              onDelete={async () => {
+                await deleteQuote({ quoteId });
+                router.replace(quote.channel === "field_b2b" ? "/app/quotes" : "/app/requests");
+              }}
+            />
+          ) : null}
           {whatsappUrl && (
             <button
               type="button"

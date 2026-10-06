@@ -10,6 +10,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import { useTranslations } from "next-intl";
 import { requestConfirm } from "@/lib/confirm-dialog";
+import { OPEN_BUTTON_CLASS } from "@/components/ui/open-button";
 
 const STATUS_KEY: Record<string, "statusDraft" | "statusPublished" | "statusArchived"> = {
   draft: "statusDraft",
@@ -196,7 +197,7 @@ export default function ConfiguratorsPage() {
                     href={`/c/${c.publicId}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-[var(--color-mint)] px-4 py-2 text-sm font-semibold text-[var(--color-mint-dark)] hover:opacity-90 transition-opacity"
+                    className={OPEN_BUTTON_CLASS}
                   >
                     {t("open")}
                     <ExternalLink size={14} aria-hidden="true" />

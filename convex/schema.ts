@@ -656,7 +656,7 @@ export default defineSchema({
     vatRatePercent: v.number(),
     currency: v.literal("EUR"),
     clientReportedPriceCents: v.optional(v.number()),
-    status: v.union(v.literal("new"), v.literal("contacted"), v.literal("quoted"),
+    status: v.union(v.literal("draft"), v.literal("new"), v.literal("contacted"), v.literal("quoted"),
                     v.literal("won"), v.literal("lost"), v.literal("spam")),
     assignedToUserId: v.optional(v.id("users")),
     internalNotes: v.optional(v.string()),

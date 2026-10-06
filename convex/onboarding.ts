@@ -42,7 +42,8 @@ export const getState = query({
     // Every tenant — including admins — goes through the plan quiz + picks a
     // plan before reaching the rest of the platform, regardless of whether
     // Stripe is live yet (see enforceActivePlan / onboarding.complete).
-    const needsPlan = !activeSub;
+    // Full-access accounts count as billed: no plan quiz, no checkout (the data steps still run).
+    const needsPlan = !activeSub && tenant.unlimitedAccess !== true;
 
     const configurators = (
       await ctx.db
@@ -54,6 +55,7 @@ export const getState = query({
     return {
       hasTenant: true as const,
       completed: !!tenant.onboardingCompletedAt,
+      fullAccess: tenant.unlimitedAccess === true,
       step: (LEGACY_STEP[tenant.onboardingStep ?? ""] ?? (tenant.onboardingStep as Step | undefined)) ?? "welcome",
       needsPlan,
       stripeConfigured,
@@ -273,7 +275,7 @@ export const profileGaps = query({
   handler: async (ctx) => {
     const userId = await requireUser(ctx);
     const found = await tenantOf(ctx, userId);
-    if (!found || !found.tenant.onboardingCompletedAt || found.tenant.planStatus === "pending_plan") return null;
+    if (!found || !found.tenant.onboardingCompletedAt || (found.tenant.planStatus === "pending_plan" && found.tenant.unlimitedAccess !== true)) return null;
     const missing = missingOnboardingData(found.tenant).filter((m): m is (typeof REQUIRED_PROFILE_SECTIONS)[number] => m !== "pricing");
     return { missing, canEdit: found.role === "owner" || found.role === "admin" };
   },
@@ -287,11 +289,14 @@ export const complete = mutation({
     if (found.tenant.onboardingCompletedAt) return;
     // Server-side guarantee, not just a client-side step order: nothing lets
     // a tenant into the rest of the platform while it still has no plan.
-    if (found.tenant.planStatus === "pending_plan") {
+    const fullAccess = found.tenant.unlimitedAccess === true;
+    if (found.tenant.planStatus === "pending_plan" && !fullAccess) {
       throw new ConvexError("PLAN_SELECTION_REQUIRED");
     }
     if (missingOnboardingData(found.tenant).length > 0) throw new ConvexError("ONBOARDING_INCOMPLETE");
     await ctx.db.patch(found.tenant._id, {
+      // A full-access account that was still waiting for a plan is billed by definition.
+      ...(fullAccess && found.tenant.planStatus === "pending_plan" ? { planStatus: "active" as const, plan: "enterprise" as const } : {}),
       onboardingCompletedAt: Date.now(),
       onboardingStep: undefined,
       updatedAt: Date.now(),
@@ -301,6 +306,31 @@ export const complete = mutation({
       actorUserId: userId,
       actorKind: "user",
       action: "onboarding.complete",
+      targetTable: "tenants",
+      targetId: found.tenant._id,
+      createdAt: Date.now(),
+    });
+  },
+});
+
+/**
+ * Re-opens the wizard for a full-access account (founders, platform admins) whose company data was removed or who wants to see it again.
+ * Billing is never asked of them. Everyone else keeps the one-way wizard: their data is edited from the account pages.
+ */
+export const restart = mutation({
+  handler: async (ctx) => {
+    const userId = await requireUser(ctx);
+    const found = await tenantOf(ctx, userId);
+    if (!found) throw new ConvexError("NO_TENANT");
+    if (found.role !== "owner") throw new ConvexError("INSUFFICIENT_ROLE");
+    const user = await ctx.db.get(userId);
+    if (found.tenant.unlimitedAccess !== true && user?.isPlatformAdmin !== true) throw new ConvexError("INSUFFICIENT_ROLE");
+    await ctx.db.patch(found.tenant._id, { onboardingCompletedAt: undefined, onboardingStep: "welcome", updatedAt: Date.now() });
+    await ctx.db.insert("auditLog", {
+      tenantId: found.tenant._id,
+      actorUserId: userId,
+      actorKind: "user",
+      action: "onboarding.restart",
       targetTable: "tenants",
       targetId: found.tenant._id,
       createdAt: Date.now(),

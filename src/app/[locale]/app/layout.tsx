@@ -34,7 +34,7 @@ export default async function AppLayout({
   // plan step even if onboarding was somehow marked complete. Every data
   // mutation is also refused server-side (enforceActivePlan); this keeps the UI
   // from ever rendering for an unpaid account.
-  if (!tenant.onboardingCompletedAt || tenant.planStatus === "pending_plan") {
+  if (!tenant.onboardingCompletedAt || (tenant.planStatus === "pending_plan" && tenant.unlimitedAccess !== true)) {
     redirect(`/${locale}/onboarding`);
   }
 

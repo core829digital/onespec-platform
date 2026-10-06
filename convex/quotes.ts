@@ -1,6 +1,7 @@
 ﻿import { ensureOrdered } from "./lib/supply";
-import { query, mutation } from "./_generated/server";
-import { v } from "convex/values";
+import { query, mutation, type MutationCtx } from "./_generated/server";
+import type { Id } from "./_generated/dataModel";
+import { v, type ObjectType } from "convex/values";
 import { ConvexError } from "convex/values";
 import { requireMembership } from "./lib/auth";
 import { requirePermission, requirePermissionOrNull } from "./lib/rbac";
@@ -19,6 +20,7 @@ import { assertCoherentItems, parseQuoteItems, nextOfferNumber } from "./lib/quo
 import { defaultItem } from "../src/shared/item-defaults";
 
 const QUOTE_STATUS = v.union(
+  v.literal("draft"),
   v.literal("new"),
   v.literal("contacted"),
   v.literal("quoted"),
@@ -102,6 +104,8 @@ export const updateStatus = mutation({
     const quote = await ctx.db.get(args.quoteId);
     if (!quote) throw new ConvexError("QUOTE_NOT_FOUND");
     const { userId } = await requirePermission(ctx, quote.tenantId, "quotes.manage");
+    // A draft is finished by editing it (updateFieldQuote), never by moving it through the pipeline.
+    if (quote.status === "draft") throw new ConvexError("QUOTE_IS_DRAFT");
 
     const oldStatus = quote.status;
     await ctx.db.patch(args.quoteId, { status: args.status });
@@ -180,8 +184,7 @@ export const addNote = mutation({
   },
 });
 
-export const createFieldQuote = mutation({
-  args: {
+const FIELD_QUOTE_ARGS = {
     tenantId: v.id("tenants"),
     configuratorId: v.id("configurators"),
     leadName: v.string(),
@@ -227,10 +230,17 @@ export const createFieldQuote = mutation({
     cantiereId: v.optional(v.id("cantieri")),
     /** Default true: the customer card and the cantiere are found or created from the quote's data. */
     autoLink: v.optional(v.boolean()),
-  },
-  handler: async (ctx, args) => {
-    await enforceForCreateQuote(ctx, args.tenantId);
-    const { userId } = await requirePermission(ctx, args.tenantId, "quotes.field");
+    /** Save as a draft: stays out of the pipeline, analytics, customer card and supply flow until finished. */
+    asDraft: v.optional(v.boolean()),
+  };
+type FieldQuoteArgs = ObjectType<typeof FIELD_QUOTE_ARGS>;
+
+/**
+ * Everything a B2B (field) quote is made of, computed by the server from the published catalogue: items validated, prices
+ * recalculated, VAT resolved, links checked. Shared by create / update so a quote edited later can never carry a figure the server
+ * did not compute itself.
+ */
+async function buildFieldQuote(ctx: MutationCtx, args: FieldQuoteArgs) {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator || configurator.tenantId !== args.tenantId) {
       throw new ConvexError("CONFIGURATOR_NOT_FOUND");
@@ -288,8 +298,14 @@ export const createFieldQuote = mutation({
       cantiereId: args.cantiereId,
     });
 
-    const quoteId = await ctx.db.insert("quoteRequests", {
-      offerNumber: await nextOfferNumber(ctx, args.tenantId),
+    return {
+      configurator,
+      targetVersion,
+      payload,
+      items,
+      links,
+      finalPriceCents,
+      fields: {
       tenantId: args.tenantId,
       configuratorId: args.configuratorId,
       catalogVersion: targetVersion,
@@ -302,7 +318,7 @@ export const createFieldQuote = mutation({
       customerPostalCode: args.customerPostalCode?.trim() || links.client?.sitePostalCode,
       leadLocale: args.leadLocale ?? configurator.defaultLocale ?? "it",
       leadMessage: args.leadMessage,
-      channel: "field_b2b",
+      channel: "field_b2b" as const,
       installationType: args.installationType,
       installationIncluded: installationIncluded(payload, items),
       installationPriceCents: installCost,
@@ -336,15 +352,23 @@ export const createFieldQuote = mutation({
       vatReason: vat.reason,
       vatManualReason: vat.manualReason,
       vatRatePercent: effectiveVat,
-      currency: "EUR",
-      status: "quoted",
-      assignedToUserId: userId,
+      currency: "EUR" as const,
       clientId: links.clientId,
       cantiereId: links.cantiereId,
-    });
+      },
+    };
+}
+
+/** What happens when a field quote becomes a real, sent quote: customer card + site card (found or created), activity, audit. */
+async function afterQuoteGoesLive(
+  ctx: MutationCtx,
+  p: { quoteId: Id<"quoteRequests">; userId: Id<"users">; args: FieldQuoteArgs; priceCents: number },
+) {
+  const { quoteId, userId, args } = p;
+  const links = await ctx.db.get(quoteId);
     // The quote leaves a customer card and a site card behind (found or created), unless the installer opted out.
     const crm = args.autoLink === false
-      ? { clientId: links.clientId, cantiereId: links.cantiereId }
+      ? { clientId: links?.clientId, cantiereId: links?.cantiereId }
       : await linkQuoteToCrm(ctx, { quoteId, userId, stage: "quoted" });
     await logClientActivity(ctx, {
       tenantId: args.tenantId,
@@ -363,9 +387,41 @@ export const createFieldQuote = mutation({
       action: "quote.field_create",
       targetTable: "quoteRequests",
       targetId: quoteId,
-      meta: { priceCents: finalPriceCents, leadName: args.leadName },
+      meta: { priceCents: p.priceCents, leadName: args.leadName },
       createdAt: Date.now(),
     });
+
+}
+
+export const createFieldQuote = mutation({
+  args: FIELD_QUOTE_ARGS,
+  handler: async (ctx, args) => {
+    await enforceForCreateQuote(ctx, args.tenantId);
+    const { userId } = await requirePermission(ctx, args.tenantId, "quotes.field");
+    const built = await buildFieldQuote(ctx, args);
+    const { finalPriceCents } = built;
+    const isDraft = args.asDraft === true;
+
+    const quoteId = await ctx.db.insert("quoteRequests", {
+      offerNumber: await nextOfferNumber(ctx, args.tenantId),
+      ...built.fields,
+      // A draft is a work in progress: not yet in the pipeline, the analytics, the customer card or the supply flow.
+      status: isDraft ? "draft" : "quoted",
+      assignedToUserId: userId,
+    });
+    if (!isDraft) await afterQuoteGoesLive(ctx, { quoteId, userId, args, priceCents: finalPriceCents });
+    else {
+      await ctx.db.insert("auditLog", {
+        tenantId: args.tenantId,
+        actorUserId: userId,
+        actorKind: "user",
+        action: "quote.field_draft",
+        targetTable: "quoteRequests",
+        targetId: quoteId,
+        meta: { priceCents: finalPriceCents },
+        createdAt: Date.now(),
+      });
+    }
 
     // Increment quote count for quota tracking
     const period = currentPeriod();
@@ -390,6 +446,90 @@ export const createFieldQuote = mutation({
   },
 });
 
+/**
+ * Edit a B2B quote that is not yet signed or won (a draft, or one already sent). Everything is recomputed by the server.
+ * A draft saved with `asDraft: false` goes live: only then it reaches the customer card, the pipeline and the analytics.
+ */
+export const updateFieldQuote = mutation({
+  args: { quoteId: v.id("quoteRequests"), ...FIELD_QUOTE_ARGS },
+  handler: async (ctx, args) => {
+    const { quoteId, ...rest } = args;
+    const quote = await ctx.db.get(quoteId);
+    if (!quote || quote.tenantId !== rest.tenantId) throw new ConvexError("QUOTE_NOT_FOUND");
+    if (quote.channel !== "field_b2b") throw new ConvexError("QUOTE_NOT_EDITABLE");
+    const { userId } = await requirePermission(ctx, quote.tenantId, "quotes.field");
+    if (quote.signedAt || quote.status === "won") throw new ConvexError("QUOTE_LOCKED");
+    const built = await buildFieldQuote(ctx, rest);
+    const wasDraft = quote.status === "draft";
+    const goesLive = wasDraft && rest.asDraft !== true;
+    await ctx.db.patch(quoteId, {
+      ...built.fields,
+      // A quote that was already sent never goes back to draft; a draft stays one until the user finishes it.
+      status: wasDraft ? (goesLive ? "quoted" : "draft") : quote.status,
+    });
+    if (goesLive) {
+      await afterQuoteGoesLive(ctx, { quoteId, userId, args: rest, priceCents: built.finalPriceCents });
+    } else {
+      if (!wasDraft && rest.autoLink !== false) await linkQuoteToCrm(ctx, { quoteId, userId, stage: "quoted" });
+      await ctx.db.insert("auditLog", {
+        tenantId: quote.tenantId,
+        actorUserId: userId,
+        actorKind: "user",
+        action: wasDraft ? "quote.field_draft_update" : "quote.field_update",
+        targetTable: "quoteRequests",
+        targetId: quoteId,
+        meta: { priceCents: built.finalPriceCents },
+        createdAt: Date.now(),
+      });
+    }
+    return { quoteId, priceCents: built.finalPriceCents };
+  },
+});
+
+/**
+ * Delete a quote or a request. Never a signed one (a signed offer is a document the company must keep) and never one the supply
+ * flow already works on. The survey / dossier / inspection / passport / site / delivery that pointed at it keep living, just detached.
+ * The customer and the site card the quote created stay: they are the installer's contacts, not part of the quote.
+ */
+export const deleteQuote = mutation({
+  args: { quoteId: v.id("quoteRequests") },
+  handler: async (ctx, args) => {
+    const quote = await ctx.db.get(args.quoteId);
+    if (!quote) throw new ConvexError("QUOTE_NOT_FOUND");
+    const { userId, membership } = await requirePermission(ctx, quote.tenantId, "quotes.use");
+    // Members can discard their own drafts; anything else that was sent or received needs an admin.
+    const ownDraft = quote.status === "draft" && quote.assignedToUserId === userId;
+    if (!ownDraft && membership.role === "member") throw new ConvexError("INSUFFICIENT_ROLE");
+    if (quote.signedAt) throw new ConvexError("QUOTE_SIGNED");
+    const supply = await ctx.db.query("supplies").withIndex("by_quote", (q) => q.eq("quoteId", args.quoteId)).first();
+    if (supply) throw new ConvexError("QUOTE_HAS_SUPPLY");
+
+    const detachFrom = async (table: "siteSurveys" | "installationDossiers" | "inspectionReports" | "serramentoPassports" | "deliveries") => {
+      const rows = await ctx.db.query(table).withIndex("by_quote", (q) => q.eq("quoteId", args.quoteId)).take(200);
+      for (const row of rows) await ctx.db.patch(row._id, { quoteId: undefined } as never);
+    };
+    for (const table of ["siteSurveys", "installationDossiers", "inspectionReports", "serramentoPassports", "deliveries"] as const) {
+      await detachFrom(table);
+    }
+    const cantiere = quote.cantiereId ? await ctx.db.get(quote.cantiereId) : null;
+    if (cantiere && cantiere.quoteId === args.quoteId) await ctx.db.patch(cantiere._id, { quoteId: undefined });
+
+    await ctx.db.delete(args.quoteId);
+    await ctx.db.insert("auditLog", {
+      tenantId: quote.tenantId,
+      actorUserId: userId,
+      actorKind: "user",
+      action: "quote.delete",
+      targetTable: "quoteRequests",
+      targetId: args.quoteId,
+      meta: { status: quote.status, offerNumber: quote.offerNumber, channel: quote.channel },
+      createdAt: Date.now(),
+    });
+    if (quote.cantiereId) await recomputeCantiereValue(ctx, quote.cantiereId);
+    return { ok: true as const };
+  },
+});
+
 export const signQuote = mutation({
   args: {
     quoteId: v.id("quoteRequests"),
@@ -399,7 +539,11 @@ export const signQuote = mutation({
   handler: async (ctx, args) => {
     const quote = await ctx.db.get(args.quoteId);
     if (!quote) throw new ConvexError("QUOTE_NOT_FOUND");
-    const { userId } = await requireMembership(ctx, quote.tenantId);
+    // Signing needs the same right as working on quotes (a grade outside sales cannot sign), and a quote is signed once:
+    // a second signature would silently replace the first.
+    const { userId } = await requirePermission(ctx, quote.tenantId, "quotes.use");
+    if (quote.status === "draft") throw new ConvexError("QUOTE_IS_DRAFT");
+    if (quote.signedAt) throw new ConvexError("QUOTE_ALREADY_SIGNED");
     await enforceForESignature(ctx, quote.tenantId);
 
     // Refuses a blank / transparent / unreadable picture: a quote is "signed" only when there is a signature to see.

@@ -289,7 +289,8 @@
       "quoted": "Devis envoyé",
       "won": "Gagnée",
       "lost": "Perdue",
-      "spam": "Spam"
+      "spam": "Spam",
+      "draft": "Brouillon"
     },
     "loadMore": "Afficher plus anciens"
   },
@@ -323,7 +324,11 @@
     "optional": "Optionnel",
     "required": "Requis",
     "loadingAria": "Chargement",
-    "menu": "Menu"
+    "menu": "Menu",
+    "open": "Ouvrir",
+    "saveDraft": "Enregistrer comme brouillon",
+    "draftSaved": "Brouillon enregistré",
+    "deleted": "Supprimé"
   },
   "errors": {
     "generic": "Une erreur est survenue. Réessayez dans un instant ; si cela persiste, contactez le support.",
@@ -456,7 +461,9 @@
     "supplyAlreadyDelivered": "La fourniture a déjà été livrée.",
     "supplyCannotRevert": "Impossible de revenir plus en arrière : la fourniture est à sa première étape.",
     "supplyCannotDelete": "Une fourniture ne peut être supprimée qu'avant la production.",
-    "supplyStageTooEarly": "Ce coût ne peut être saisi que lorsque la fourniture a atteint l'étape correspondante."
+    "supplyStageTooEarly": "Ce coût ne peut être saisi que lorsque la fourniture a atteint l'étape correspondante.",
+    "quoteIsDraft": "Ce devis est un brouillon : terminez-le et enregistrez-le avant de le signer ou de changer son statut.",
+    "quoteHasSupply": "Une fourniture a déjà démarré pour ce devis : il ne peut pas être supprimé."
   },
   "app": {
     "suspended": {
@@ -551,7 +558,16 @@
         "inSupply": "dont pose au m²",
         "compareWithout": "Sans pose : {amount} € (HT)",
         "compareWith": "Avec pose : {amount} € (HT)"
-      }
+      },
+      "saveDraft": "Enregistrer comme brouillon",
+      "saveChanges": "Enregistrer les modifications",
+      "editingBanner": "Vous modifiez le devis {number}. Le serveur recalcule le prix à l'enregistrement.",
+      "editingDraftBanner": "Vous modifiez un brouillon : il n'apparaît pas dans les clients, chantiers et statistiques tant qu'il n'est pas terminé.",
+      "lockedBanner": "Ce devis est déjà signé ou gagné et ne peut plus être modifié.",
+      "draftNoSuppliers": "Les lignes multi-fournisseurs ne s'enregistrent pas en brouillon : retirez-les ou continuez avec le devis.",
+      "draftSavedToast": "Brouillon enregistré. Vous le trouverez dans Devis.",
+      "savedToast": "Modifications enregistrées.",
+      "backToList": "Retour aux devis"
     },
     "list": {
       "kicker": "Outil B2B de chantier",
@@ -574,7 +590,21 @@
       "colDate": "Date",
       "pieces": "pcs",
       "sign": "✍️ Signer",
-      "pdf": "🖨️ PDF"
+      "pdf": "🖨️ PDF",
+      "open": "Ouvrir",
+      "edit": "Modifier",
+      "delete": "Supprimer",
+      "tabAll": "Tous",
+      "tabDrafts": "Brouillons",
+      "tabSent": "Envoyés",
+      "tabWon": "Gagnés",
+      "draftLabel": "Brouillon",
+      "deleteConfirm": "Supprimer le devis de {name} ? Cette action est irréversible. Le client et le chantier sont conservés.",
+      "deleteDraftConfirm": "Supprimer ce brouillon ? Cette action est irréversible.",
+      "noName": "Sans nom",
+      "emptyDrafts": "Aucun brouillon. Dans l'éditeur, utilisez « Enregistrer comme brouillon » pour continuer plus tard.",
+      "emptyFilter": "Aucun devis dans cet onglet.",
+      "statDrafts": "Brouillons"
     }
   },
   "billing": {
@@ -1283,7 +1313,11 @@
     "colStatus": "Statut",
     "colDate": "Date",
     "loading": "Chargement...",
-    "empty": "Aucune demande"
+    "empty": "Aucune demande",
+    "colActions": "Actions",
+    "deleteConfirm": "Supprimer la demande de {name} ? Les données du contact sont effacées, c'est irréversible.",
+    "noName": "Sans nom",
+    "statusDraft": "Brouillon"
   },
   "configurators": {
     "title": "Configurateurs",
@@ -1409,7 +1443,9 @@
     "itemDoor": "Porte-fenêtre",
     "itemScreen": "moustiquaire",
     "itemLeaves": "{count} vantaux",
-    "emptyItems": "Aucun élément enregistré."
+    "emptyItems": "Aucun élément enregistré.",
+    "editQuote": "Modifier le devis",
+    "deleteConfirm": "Supprimer cette demande ? Les données du contact sont effacées, c'est irréversible."
   },
   "passports": {
     "loading": "Chargement…",
@@ -2895,7 +2931,10 @@
     "todo": "À compléter",
     "done": "Complété",
     "back": "← Retour au compte",
-    "noPermission": "Seul le propriétaire ou un administrateur peut modifier les données de la société."
+    "noPermission": "Seul le propriétaire ou un administrateur peut modifier les données de la société.",
+    "reviewTitle": "Onboarding",
+    "reviewBody": "Votre compte a un accès complet : la facturation est considérée comme active, aucun forfait ne vous est demandé. Vous pouvez rouvrir l'assistant pour revoir ou ressaisir les données de l'entreprise.",
+    "reviewCta": "Rouvrir l'onboarding"
   },
   "clientsImport": {
     "button": "Importer depuis les devis",

@@ -7,6 +7,7 @@ import { toCsv } from "./lib/csv";
 import { redactQuoteRequest } from "./lib/quotaLock";
 
 const QUOTE_STATUS = v.union(
+  v.literal("draft"),
   v.literal("new"),
   v.literal("contacted"),
   v.literal("quoted"),
