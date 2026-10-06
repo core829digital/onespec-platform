@@ -1496,7 +1496,9 @@
     "labels": "Labels",
     "scansShort": "{count} scans",
     "afterSales": "After-sales requests (via QR)",
-    "emptyRequests": "No requests."
+    "emptyRequests": "No requests.",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this dossier? Its documents and service requests are erased and the printed QR label stops working."
   },
   "accountMain": {
     "loading": "Loading...",

@@ -1496,7 +1496,9 @@
     "labels": "Labels",
     "scansShort": "{count} scans",
     "afterSales": "Aftersales-aanvragen (via QR)",
-    "emptyRequests": "Geen aanvragen."
+    "emptyRequests": "Geen aanvragen.",
+    "delete": "Verwijderen",
+    "deleteConfirm": "Dit dossier verwijderen? Documenten en serviceverzoeken worden gewist en het geprinte QR-label werkt niet meer."
   },
   "accountMain": {
     "loading": "Laden...",

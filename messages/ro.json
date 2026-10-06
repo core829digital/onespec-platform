@@ -1496,7 +1496,9 @@
     "labels": "Etichete",
     "scansShort": "{count} scanări",
     "afterSales": "Cereri post-vânzare (via QR)",
-    "emptyRequests": "Nicio cerere."
+    "emptyRequests": "Nicio cerere.",
+    "delete": "Șterge",
+    "deleteConfirm": "Ștergi acest dosar? Documentele și cererile de service sunt șterse, iar eticheta QR tipărită nu va mai funcționa."
   },
   "accountMain": {
     "loading": "Se încarcă...",

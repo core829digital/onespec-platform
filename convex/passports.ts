@@ -398,6 +398,32 @@ export const linkQuote = mutation({
   },
 });
 
+/**
+ * Delete a passport (the dossier behind a QR label). Its uploaded documents and the service requests opened from its QR go with it,
+ * and the printed label stops resolving. Admin only: the end customer may still hold the label.
+ */
+export const remove = mutation({
+  args: { passportId: v.id("serramentoPassports") },
+  handler: async (ctx, args) => {
+    const p = await ctx.db.get(args.passportId);
+    if (!p) return;
+    const { userId } = await requirePermission(ctx, p.tenantId, "passports.manage");
+    for (const d of p.documents) if (d.storageId) await ctx.storage.delete(d.storageId).catch(() => {});
+    const interventions = await ctx.db.query("passportInterventions").withIndex("by_passport", (q) => q.eq("passportId", args.passportId)).take(500);
+    for (const i of interventions) await ctx.db.delete(i._id);
+    await ctx.db.delete(args.passportId);
+    await ctx.db.insert("auditLog", {
+      tenantId: p.tenantId,
+      actorUserId: userId,
+      actorKind: "user",
+      action: "passport.delete",
+      targetTable: "serramentoPassports",
+      targetId: args.passportId,
+      createdAt: Date.now(),
+    });
+  },
+});
+
 function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }

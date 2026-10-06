@@ -1496,7 +1496,9 @@
     "labels": "Etichette",
     "scansShort": "{count} scan",
     "afterSales": "Richieste post-vendita (da QR)",
-    "emptyRequests": "Nessuna richiesta."
+    "emptyRequests": "Nessuna richiesta.",
+    "delete": "Elimina",
+    "deleteConfirm": "Eliminare questo fascicolo? Documenti e richieste di assistenza collegati vengono cancellati e l'etichetta QR stampata non funzionerà più."
   },
   "accountMain": {
     "loading": "Caricamento...",

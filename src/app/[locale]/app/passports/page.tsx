@@ -9,7 +9,8 @@ import { Link } from "@/i18n/navigation";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import { useRunAction } from "@/hooks/useRunAction";
-import { OpenButton, OpenLink } from "@/components/ui/open-button";
+import { OpenButton } from "@/components/ui/open-button";
+import { DeleteAction } from "@/components/ui/delete-action";
 
 type PassportId = Id<"serramentoPassports">;
 
@@ -317,6 +318,7 @@ function PassportPanel({ passportId, tenantId }: { passportId: PassportId; tenan
 
 export default function PassportsPage() {
   const t = useTranslations("passports");
+  const removePassport = useMutation(api.passports.remove);
   const locale = useLocale();
   const run = useRunAction();
   const tenant = useQuery(api.tenants.getMyTenant);
@@ -457,6 +459,7 @@ export default function PassportsPage() {
                       >
                         {t("labels")}
                       </Link>
+                      <DeleteAction iconOnly testId="passport-delete" label={t("delete")} message={t("deleteConfirm")} onDelete={() => removePassport({ passportId: p._id })} />
                     </div>
                   </td>
                 </tr>

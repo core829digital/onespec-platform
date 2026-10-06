@@ -1,6 +1,5 @@
 "use client";
 
-import { requestConfirm } from "@/lib/confirm-dialog";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation } from "convex/react";
@@ -20,6 +19,8 @@ import {
   type SyncState,
 } from "@/lib/offline-sync";
 import { AlertTriangle, Globe, Settings } from "lucide-react";
+import { DeleteAction } from "@/components/ui/delete-action";
+import { OpenButton } from "@/components/ui/open-button";
 
 function SyncBadge({ state, onSync }: { state: SyncState; onSync: () => void }) {
   const tc = useTranslations("fieldCommon");
@@ -493,27 +494,8 @@ export default function InstallationsPage() {
                     >
                       {td("print")}
                     </Link>
-                    <button
-                      type="button"
-                      onClick={() => setEditing(d)}
-                      className="rounded border border-[var(--color-border)] px-2 py-1 text-xs"
-                    >
-                      {td("edit")}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        if (!(await requestConfirm(td("deleteConfirm"), { danger: true }))) return;
-                        try {
-                          await removeDossier({ dossierId: d._id });
-                        } catch (e) {
-                          setErr(toMessage(e));
-                        }
-                      }}
-                      className="rounded border border-[var(--color-border)] px-2 py-1 text-xs text-red-600 hover:bg-red-50"
-                    >
-                      {td("delete")}
-                    </button>
+                    <OpenButton onClick={() => setEditing(d)} data-testid="installation-open">{td("edit")}</OpenButton>
+                    <DeleteAction iconOnly testId="installation-delete" label={td("delete")} message={td("deleteConfirm")} onDelete={() => removeDossier({ dossierId: d._id })} />
                   </div>
                 </td>
               </tr>

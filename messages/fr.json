@@ -1496,7 +1496,9 @@
     "labels": "Étiquettes",
     "scansShort": "{count} scans",
     "afterSales": "Demandes SAV (via QR)",
-    "emptyRequests": "Aucune demande."
+    "emptyRequests": "Aucune demande.",
+    "delete": "Supprimer",
+    "deleteConfirm": "Supprimer ce dossier ? Ses documents et demandes de service sont effacés et l'étiquette QR imprimée ne fonctionnera plus."
   },
   "accountMain": {
     "loading": "Chargement...",

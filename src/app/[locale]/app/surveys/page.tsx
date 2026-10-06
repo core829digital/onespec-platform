@@ -10,6 +10,8 @@ import { useLocale, useTranslations } from "next-intl";
 import type { Id } from "@/convex/_generated/dataModel";
 import { LaserMeasure } from "@/components/surveys/LaserMeasure";
 import { useFriendlyError } from "@/lib/use-friendly-error";
+import { OpenLink } from "@/components/ui/open-button";
+import { DeleteAction } from "@/components/ui/delete-action";
 import { ClientCantierePicker, type PickedLinks } from "@/components/app-shell/client-cantiere-picker";
 import {
   DiagnosticChecklist,
@@ -98,6 +100,7 @@ export default function SurveysPage() {
   const generateUploadUrl = useMutation(api.surveys.generateUploadUrl);
   const createQuoteFromSurvey = useMutation(api.quotes.createFieldQuoteFromSurvey);
   const completeSurvey = useMutation(api.surveys.completeSurvey);
+  const removeSurvey = useMutation(api.surveys.remove);
   const toMessage = useFriendlyError();
   const configurators = useQuery(
     api.configurators.listConfigurators,
@@ -650,12 +653,9 @@ export default function SurveysPage() {
                 </td>
                 <td className="px-4 py-3 text-center">
                   <div className="flex flex-wrap items-center justify-center gap-1.5">
-                  <Link
-                    href={`/app/surveys/${s._id}`}
-                    className="rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-xs font-medium hover:bg-[var(--color-bg-alt)]"
-                  >
+                  <OpenLink href={`/app/surveys/${s._id}`} data-testid="survey-open">
                     {td("open")}
-                  </Link>
+                  </OpenLink>
                   {s.status !== "completed" && (
                     <button
                       onClick={async () => {
@@ -679,6 +679,7 @@ export default function SurveysPage() {
                       {td("generateQuote")}
                     </button>
                   )}
+                  <DeleteAction iconOnly testId="survey-delete" label={td("delete")} message={td("deleteConfirm")} onDelete={() => removeSurvey({ surveyId: s._id })} />
                   </div>
                 </td>
               </tr>

@@ -1496,7 +1496,9 @@
     "labels": "Etiketten",
     "scansShort": "{count} Scans",
     "afterSales": "Kundendienstanfragen (via QR)",
-    "emptyRequests": "Keine Anfragen."
+    "emptyRequests": "Keine Anfragen.",
+    "delete": "Löschen",
+    "deleteConfirm": "Diese Akte löschen? Dokumente und Serviceanfragen werden gelöscht, das gedruckte QR-Etikett funktioniert nicht mehr."
   },
   "accountMain": {
     "loading": "Wird geladen...",

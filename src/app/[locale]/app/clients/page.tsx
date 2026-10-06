@@ -1,6 +1,7 @@
 "use client";
 
 import { requestConfirm } from "@/lib/confirm-dialog";
+import { OpenLink } from "@/components/ui/open-button";
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -140,6 +141,7 @@ function ClientRow({
       </td>
       <td className="px-4 py-3">
         <div className="flex items-center justify-end gap-1">
+          <OpenLink href={`/app/clients/${client._id}`} data-testid="client-open" className="mr-1" />
           <button
             onClick={onEdit}
             className="p-2 rounded-lg hover:bg-[var(--color-bg-alt)] text-[var(--color-text-secondary)] transition-colors"
