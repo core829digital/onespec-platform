@@ -388,8 +388,8 @@ export default function InstallationsPage() {
               <div className="mx-auto w-full max-w-[420px] rounded-lg bg-white p-2">
                 <SceneSvg scene={buildPosaNodeScene({ nodeType, jobType }, locale)} ariaLabel={t("step2")} />
               </div>
-              <div className="overflow-hidden rounded-lg border border-[var(--color-border)]">
-                <table className="w-full text-sm" aria-label={t("materialsAria")}>
+              <div className="overflow-x-auto rounded-lg border border-[var(--color-border)]">
+                <table className="w-full min-w-[680px] text-sm" aria-label={t("materialsAria")}>
                   <tbody>
                     {preview.map((m) => (
                       <tr key={m.key} className="border-b border-[var(--color-border)] last:border-0">
@@ -434,8 +434,8 @@ export default function InstallationsPage() {
         </div>
       )}
 
-      <div className="overflow-hidden rounded-xl border border-[var(--color-border)]">
-        <table className="w-full text-sm" aria-label={t("listAria")}>
+      <div className="overflow-x-auto rounded-xl border border-[var(--color-border)]">
+        <table className="w-full min-w-[680px] text-sm" aria-label={t("listAria")}>
           <thead className="bg-[var(--color-muted)] text-xs text-[var(--color-muted-fg)]">
             <tr>
               <th className="px-4 py-2 text-left">{t("colNorm")}</th>

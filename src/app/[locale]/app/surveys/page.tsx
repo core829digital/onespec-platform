@@ -592,8 +592,8 @@ export default function SurveysPage() {
         </div>
       )}
 
-      <div className="w-full overflow-hidden rounded-xl border border-[var(--color-border)]">
-        <table className="w-full text-sm" aria-label={td("listAria")}>
+      <div className="w-full overflow-x-auto rounded-xl border border-[var(--color-border)]">
+        <table className="w-full min-w-[680px] text-sm" aria-label={td("listAria")}>
           <thead className="bg-[var(--color-muted)] text-xs text-[var(--color-muted-fg)]">
             <tr>
               <th className="px-4 py-2 text-left">{td("customer")}</th>

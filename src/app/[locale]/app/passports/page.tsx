@@ -437,11 +437,11 @@ export default function PassportsPage() {
       {selected && tenant && <PassportPanel passportId={selected} tenantId={tenant._id} />}
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="overflow-hidden rounded-xl border border-[var(--color-border)]">
+        <div className="overflow-x-auto rounded-xl border border-[var(--color-border)]">
           <div className="bg-[var(--color-muted)] px-4 py-2 text-xs font-semibold text-[var(--color-muted-fg)]">
             {t("dossiers")}
           </div>
-          <table className="w-full text-sm" aria-label={t("dossiers")}>
+          <table className="w-full min-w-[680px] text-sm" aria-label={t("dossiers")}>
             <tbody>
               {passports?.map((p) => (
                 <tr key={p._id} className="border-t border-[var(--color-border)]">
@@ -475,11 +475,11 @@ export default function PassportsPage() {
           </table>
         </div>
 
-        <div className="overflow-hidden rounded-xl border border-[var(--color-border)]">
+        <div className="overflow-x-auto rounded-xl border border-[var(--color-border)]">
           <div className="bg-[var(--color-muted)] px-4 py-2 text-xs font-semibold text-[var(--color-muted-fg)]">
             {t("afterSales")}
           </div>
-          <table className="w-full text-sm" aria-label={t("afterSales")}>
+          <table className="w-full min-w-[680px] text-sm" aria-label={t("afterSales")}>
             <tbody>
               {interventions?.map((iv) => (
                 <tr key={iv._id} className="border-t border-[var(--color-border)]">

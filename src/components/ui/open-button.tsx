@@ -10,15 +10,15 @@ import { cn } from "@/lib/utils";
  * Secondary actions (PDF, sign, edit…) stay outlined next to it.
  */
 export const OPEN_BUTTON_CLASS =
-  "inline-flex min-h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-[var(--color-mint)] px-3.5 py-1.5 text-xs font-semibold text-[var(--color-mint-dark)] shadow-sm transition hover:brightness-95 active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-mint)] disabled:opacity-50";
+  "inline-flex min-h-11 sm:min-h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-[var(--color-mint)] px-3.5 py-1.5 text-xs font-semibold text-[var(--color-mint-dark)] shadow-sm transition hover:brightness-95 active:scale-[0.98] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-mint)] disabled:opacity-50";
 
 /** Outlined secondary action that sits next to <OpenLink>. */
 export const ROW_ACTION_CLASS =
-  "inline-flex min-h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-xs font-medium text-[var(--color-text-secondary)] transition hover:bg-[var(--color-bg-alt)] hover:text-[var(--color-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-mint)] disabled:opacity-50";
+  "inline-flex min-h-11 sm:min-h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-xs font-medium text-[var(--color-text-secondary)] transition hover:bg-[var(--color-bg-alt)] hover:text-[var(--color-text)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-mint)] disabled:opacity-50";
 
 /** Destructive row action (delete): red text, outlined, never filled. */
 export const DANGER_ACTION_CLASS =
-  "inline-flex min-h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg border border-[var(--color-danger)]/40 px-3 py-1.5 text-xs font-medium text-[var(--color-danger)] transition hover:bg-[var(--color-danger)]/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-danger)] disabled:opacity-50";
+  "inline-flex min-h-11 sm:min-h-9 shrink-0 items-center justify-center gap-1.5 rounded-lg border border-[var(--color-danger)]/40 px-3 py-1.5 text-xs font-medium text-[var(--color-danger)] transition hover:bg-[var(--color-danger)]/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--color-danger)] disabled:opacity-50";
 
 export function OpenLink({ href, children, className, ...rest }: { href: string; children?: ReactNode; className?: string } & Record<`data-${string}`, string>) {
   const t = useTranslations("common");

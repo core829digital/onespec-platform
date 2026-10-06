@@ -78,7 +78,7 @@ export function StructurePanel({
       <section aria-labelledby="transoms-title">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h4 id="transoms-title" className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">{t("transomsTitle")}</h4>
-          <button type="button" data-testid="add-transom" disabled={!canAdd} onClick={() => update(addTransom(active))} className="min-h-9 rounded-lg border border-[var(--color-mint)] px-3 py-1 text-xs font-semibold text-[var(--color-mint-text)] hover:bg-[var(--color-mint)]/10 disabled:cursor-not-allowed disabled:opacity-40">
+          <button type="button" data-testid="add-transom" disabled={!canAdd} onClick={() => update(addTransom(active))} className="min-h-11 sm:min-h-9 rounded-lg border border-[var(--color-mint)] px-3 py-1 text-xs font-semibold text-[var(--color-mint-text)] hover:bg-[var(--color-mint)]/10 disabled:cursor-not-allowed disabled:opacity-40">
             + {t("addTransom")}
           </button>
         </div>
