@@ -1446,7 +1446,8 @@
     "itemLeaves": "{count} vleugels",
     "emptyItems": "Geen elementen geregistreerd.",
     "editQuote": "Offerte bewerken",
-    "deleteConfirm": "Deze aanvraag verwijderen? De contactgegevens worden gewist en dit kan niet ongedaan worden gemaakt."
+    "deleteConfirm": "Deze aanvraag verwijderen? De contactgegevens worden gewist en dit kan niet ongedaan worden gemaakt.",
+    "makeQuote": "B2B-offerte maken"
   },
   "passports": {
     "loading": "Laden…",

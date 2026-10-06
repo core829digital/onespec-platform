@@ -7,6 +7,7 @@ import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import { StatusBadge } from "@/components/app-shell/status-badge";
 import { Pagination } from "@/components/ui/Pagination";
+import { SkeletonTable } from "@/components/ui/skeleton";
 import { OpenLink, ROW_ACTION_CLASS } from "@/components/ui/open-button";
 import { DeleteAction } from "@/components/ui/delete-action";
 
@@ -153,9 +154,7 @@ export default function QuotesPage() {
 
       {/* Table */}
       {!fieldQuotes ? (
-        <div className="flex justify-center py-16">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-[var(--color-mint)] border-t-transparent" />
-        </div>
+        <SkeletonTable rows={6} cells={5} hasActions />
       ) : fieldQuotes.length === 0 ? (
         <div className="rounded-xl border border-dashed border-[var(--color-border)] bg-[var(--color-bg-alt)] p-12 text-center">
           <p className="text-lg font-medium text-[var(--color-text-secondary)]">{tab === "draft" ? t("emptyDrafts") : counts.all > 0 ? t("emptyFilter") : t("empty")}</p>

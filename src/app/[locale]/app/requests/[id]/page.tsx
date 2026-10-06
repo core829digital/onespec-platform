@@ -241,6 +241,11 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
               {t("editQuote")}
             </OpenLink>
           ) : null}
+          {quote.channel !== "field_b2b" && quote.status !== "spam" ? (
+            <OpenLink href={`/app/quotes/new?request=${quote._id}`} data-testid="request-to-quote">
+              {t("makeQuote")}
+            </OpenLink>
+          ) : null}
           {!quote.signedAt && (membership?.role === "owner" || membership?.role === "admin" || (quote.status === "draft" && quote.assignedToUserId === membership?.userId)) ? (
             <DeleteAction
               testId="request-delete"

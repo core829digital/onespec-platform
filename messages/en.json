@@ -1446,7 +1446,8 @@
     "itemLeaves": "{count} leaves",
     "emptyItems": "No items recorded.",
     "editQuote": "Edit quote",
-    "deleteConfirm": "Delete this request? The contact data is erased and this cannot be undone."
+    "deleteConfirm": "Delete this request? The contact data is erased and this cannot be undone.",
+    "makeQuote": "Create B2B quote"
   },
   "passports": {
     "loading": "Loading…",

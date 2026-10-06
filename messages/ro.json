@@ -1446,7 +1446,8 @@
     "itemLeaves": "{count} canaturi",
     "emptyItems": "Niciun element înregistrat.",
     "editQuote": "Modifică oferta",
-    "deleteConfirm": "Ștergi această cerere? Datele de contact sunt șterse, iar acțiunea nu poate fi anulată."
+    "deleteConfirm": "Ștergi această cerere? Datele de contact sunt șterse, iar acțiunea nu poate fi anulată.",
+    "makeQuote": "Creează ofertă B2B"
   },
   "passports": {
     "loading": "Se încarcă…",

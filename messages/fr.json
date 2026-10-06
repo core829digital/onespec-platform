@@ -1446,7 +1446,8 @@
     "itemLeaves": "{count} vantaux",
     "emptyItems": "Aucun élément enregistré.",
     "editQuote": "Modifier le devis",
-    "deleteConfirm": "Supprimer cette demande ? Les données du contact sont effacées, c'est irréversible."
+    "deleteConfirm": "Supprimer cette demande ? Les données du contact sont effacées, c'est irréversible.",
+    "makeQuote": "Créer un devis B2B"
   },
   "passports": {
     "loading": "Chargement…",

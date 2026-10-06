@@ -166,6 +166,9 @@ export default function NewFieldQuotePage() {
   // ?edit=<id>: a quote (draft or already sent, never a signed one) is opened here, changed and saved again.
   const editId = searchParams.get("edit") as Id<"quoteRequests"> | null;
   const editing = useQuery(api.quotes.getRequest, editId ? { quoteId: editId } : "skip");
+  // ?request=<id>: a request that came in from the public widget becomes a B2B quote without retyping the customer or the pieces.
+  const sourceId = searchParams.get("request") as Id<"quoteRequests"> | null;
+  const source = useQuery(api.quotes.getRequest, sourceId && !editId ? { quoteId: sourceId } : "skip");
   const configurators = useQuery(
     api.configurators.listConfigurators,
     tenant ? { tenantId: tenant._id } : "skip",
@@ -334,6 +337,33 @@ export default function NewFieldQuotePage() {
     return () => clearTimeout(id);
   }, [editing]);
 
+  // Starting from a widget request: the customer, the address, the pieces and the catalogue come across; prices are recalculated here.
+  const sourceApplied = useRef(false);
+  useEffect(() => {
+    if (!source || sourceApplied.current) return;
+    const id = setTimeout(() => {
+      if (sourceApplied.current) return;
+      sourceApplied.current = true;
+      const region = (source.regionCode && source.regionCode in REGION_CONFIGS ? source.regionCode : "IT") as RegionCode;
+      setSelectedConfigId(source.configuratorId);
+      setRegionCode(region);
+      setVatRatePercent(REGION_CONFIGS[region].defaultVat);
+      setDepositTerms(REGION_CONFIGS[region].defaultDeposit);
+      setLeadName(source.leadName ?? "");
+      setLeadEmail(source.leadEmail ?? "");
+      setLeadPhone(source.leadPhone ?? "");
+      setCustomerAddress(source.customerAddress ?? "");
+      setCustomerCity(source.customerCity ?? "");
+      setCustomerPostalCode(source.customerPostalCode ?? "");
+      setLeadMessage(source.leadMessage ?? "");
+      setClientId(source.clientId);
+      setCantiereId(source.cantiereId);
+      const saved = (Array.isArray(source.items) ? source.items : []) as ProjectItem[];
+      if (saved.length > 0) setItems(saved);
+    }, 0);
+    return () => clearTimeout(id);
+  }, [source]);
+
   function handleRegionChange(newRegion: RegionCode) {
     setRegionCode(newRegion);
     const meta = REGION_CONFIGS[newRegion];
@@ -406,7 +436,7 @@ export default function NewFieldQuotePage() {
   // Draft: the pieces and the client survive a reload or a dead signal on site.
   const draftKey = tenant ? `quote-new:${tenant._id}` : "quote-new";
   const [draftRestored, setDraftRestored] = useState(0);
-  useDraftRestore(draftKey, usingLiveCatalog && !editId && searchParams.get("from") !== "showroom", (draft) => {
+  useDraftRestore(draftKey, usingLiveCatalog && !editId && !sourceId && searchParams.get("from") !== "showroom", (draft) => {
     setItems(draft.items);
     if (draft.meta.clientName) setLeadName(draft.meta.clientName);
     if (draft.meta.clientPhone) setLeadPhone(draft.meta.clientPhone);

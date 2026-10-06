@@ -1446,7 +1446,8 @@
     "itemLeaves": "{count} Flügel",
     "emptyItems": "Keine Elemente erfasst.",
     "editQuote": "Angebot bearbeiten",
-    "deleteConfirm": "Diese Anfrage löschen? Die Kontaktdaten werden gelöscht, das kann nicht rückgängig gemacht werden."
+    "deleteConfirm": "Diese Anfrage löschen? Die Kontaktdaten werden gelöscht, das kann nicht rückgängig gemacht werden.",
+    "makeQuote": "B2B-Angebot erstellen"
   },
   "passports": {
     "loading": "Wird geladen…",

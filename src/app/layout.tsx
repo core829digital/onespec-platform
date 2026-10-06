@@ -5,19 +5,22 @@ import { THEME_INIT } from "@/lib/theme-init";
 import "./globals.css";
 
 const geistSans = Geist({ subsets: ["latin"], variable: "--font-geist-sans", display: "swap" });
-const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap" });
+// Only the body face is preloaded on every page; the display and mono faces load when something uses them (fewer bytes competing for the first paint).
+const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap", preload: false });
 // Display face for the auth scene — the same face the end customer meets in the
 // embeddable widget, set expanded + tracked like a drawing titleblock.
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-space-grotesk",
   display: "swap",
+  preload: false,
 });
 // Display face for the app — Fraunces with expanded tracking for headlines, like the reference configurator.
 const frauncesDisplay = Fraunces({
   subsets: ["latin"],
   variable: "--font-fraunces-display",
   display: "swap",
+  preload: false,
 });
 
 export const metadata: Metadata = {

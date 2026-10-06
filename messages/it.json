@@ -1446,7 +1446,8 @@
     "itemLeaves": "{count} ante",
     "emptyItems": "Nessun elemento registrato.",
     "editQuote": "Modifica preventivo",
-    "deleteConfirm": "Eliminare questa richiesta? I dati del contatto vengono cancellati e l'operazione non si può annullare."
+    "deleteConfirm": "Eliminare questa richiesta? I dati del contatto vengono cancellati e l'operazione non si può annullare.",
+    "makeQuote": "Crea preventivo B2B"
   },
   "passports": {
     "loading": "Caricamento…",
