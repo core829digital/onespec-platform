@@ -2,7 +2,7 @@
 
 import { useSubscriptionEnded } from "@/lib/plan-gates";
 import { useTranslations, useLocale } from "next-intl";
-import posthog from "posthog-js";
+import { analytics as posthog } from "@/lib/monitoring";
 import { useQuery } from "convex/react";
 import { Menu, LogOut, User, ChevronDown, Scale, Activity, Gem, Wallet } from "lucide-react";
 import { useAuthActions } from "@convex-dev/auth/react";

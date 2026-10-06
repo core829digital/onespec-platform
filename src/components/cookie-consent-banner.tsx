@@ -4,7 +4,7 @@ import { useEffect, useRef, useSyncExternalStore } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
 import { getConsent, setConsent, onConsentChange, type ConsentState } from "@/lib/consent";
-import { applyConsent } from "@/instrumentation-client";
+import { applyConsent } from "@/lib/monitoring";
 
 function subscribe(cb: () => void) {
   return onConsentChange(cb);

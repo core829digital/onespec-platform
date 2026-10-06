@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useState } from "react";
-import posthog from "posthog-js";
+import { analytics as posthog } from "@/lib/monitoring";
 import { useMutation, useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";

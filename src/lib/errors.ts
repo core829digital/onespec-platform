@@ -1,5 +1,5 @@
 import { ConvexError } from "convex/values";
-import * as Sentry from "@sentry/nextjs";
+import { sentry as Sentry } from "@/lib/monitoring";
 
 /**
  * Turn anything a Convex call can throw into a user-facing message key.

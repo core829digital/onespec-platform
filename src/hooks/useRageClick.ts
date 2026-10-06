@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useCallback } from "react";
-import * as Sentry from "@sentry/nextjs";
+import { sentry as Sentry } from "@/lib/monitoring";
 import React from "react";
 
 interface RageClickConfig {

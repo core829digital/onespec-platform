@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import posthog from "posthog-js";
+import { analytics as posthog } from "@/lib/monitoring";
 import { ERROR_COPY, detectClientErrorLocale } from "@/lib/error-copy";
 
 // Root error boundary — replaces the whole document, so it must render <html>.

@@ -4,7 +4,7 @@ import { requestConfirm } from "@/lib/confirm-dialog";
 
 import { useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
-import posthog from "posthog-js";
+import { analytics as posthog } from "@/lib/monitoring";
 import { useQuery, useMutation } from "convex/react";
 import { useTranslations, useFormatter } from "next-intl";
 import { api } from "@/convex/_generated/api";

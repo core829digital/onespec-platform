@@ -36,7 +36,18 @@ Il motore PDF (1,2 MB) NON è caricato in login: verificato. La somma è fatta d
 | Convex + UI (Radix) | ~83 + ~60 KB | indispensabili |
 | resto | ~275 KB | codice della pagina, i18n, stile |
 
-Monitoraggio (PostHog + Sentry) = ~560 KB, circa il 40% del totale, inizializzato in `src/instrumentation-client.ts`. Rimedio possibile: inizializzarli dopo il caricamento della pagina (import dinamico a riposo). Costo: errori ed eventi nei primissimi istanti non verrebbero registrati e va preservato il blocco del consenso cookie; PostHog è inoltre importato staticamente in molte pagine (login, registrazione, account…) e andrebbe isolato dietro un piccolo wrapper. Non applicato: tocca il monitoraggio in produzione, da decidere insieme.
+### Rimedio applicato: monitoraggio caricato "a riposo" (modalità sicura)
+
+PostHog e Sentry non sono più nel primo caricamento. `src/lib/monitoring.ts` è una facciata leggera: le chiamate fatte prima del caricamento vengono messe in coda (ordinata, max 100) e rigiocate appena le librerie arrivano. Le librerie vere e la loro inizializzazione sono in `src/lib/monitoring-init.ts`, caricate:
+- a pagina finita e browser a riposo (max ~4 s), oppure
+- subito, se qualcosa segnala un errore (le segnalazioni di crash non vengono ritardate di proposito).
+
+Garanzie:
+- Errori nei primissimi istanti: due listener minimi (`error`, `unhandledrejection`) li catturano, caricano Sentry e li inviano (verificato nel browser: l'evento arriva a `/monitoring`).
+- Consenso cookie invariato: PostHog e Replay partono sempre disattivati; "Accetta" carica subito e attiva; "Rifiuta" prima del caricamento non fa nulla.
+- Nessuno può reintrodurre il peso per sbaglio: `tests/monitoring.test.ts` fallisce se un file diverso da `monitoring-init.ts` e `instrumentation.ts` (server) importa `posthog-js` o `@sentry/nextjs`.
+
+Misura (login, build di produzione locale): JS fino all'evento load **1316 KB → 733 KB (-44%)**; i ~780 KB di monitoraggio arrivano dopo, a browser libero. FCP ~230-260 ms.
 
 ## Messaggi i18n: nessuno split
 

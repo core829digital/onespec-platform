@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import posthog from "posthog-js";
+import { analytics as posthog } from "@/lib/monitoring";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { MessageSquarePlus } from "lucide-react";

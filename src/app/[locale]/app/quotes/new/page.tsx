@@ -2,7 +2,7 @@
 
 import { ConvexError } from "convex/values";
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
-import posthog from "posthog-js";
+import { analytics as posthog } from "@/lib/monitoring";
 import { useSearchParams } from "next/navigation";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";

@@ -1,7 +1,7 @@
 "use client";
 
 import { Component, type ReactNode } from "react";
-import * as Sentry from "@sentry/nextjs";
+import { sentry as Sentry } from "@/lib/monitoring";
 
 /**
  * Isolates an auxiliary section (e.g. usage meters): if it throws — a query

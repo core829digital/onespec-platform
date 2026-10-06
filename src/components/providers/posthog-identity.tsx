@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useQuery } from "convex/react";
-import posthog from "posthog-js";
+import { analytics as posthog } from "@/lib/monitoring";
 import { api } from "@/convex/_generated/api";
 
 export function PostHogIdentity() {

@@ -5,7 +5,7 @@ import { OpenLink } from "@/components/ui/open-button";
 
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import posthog from "posthog-js";
+import { analytics as posthog } from "@/lib/monitoring";
 import { useQuery, useMutation } from "convex/react";
 import { useTranslations, useFormatter } from "next-intl";
 import { api } from "@/convex/_generated/api";
