@@ -59,3 +59,10 @@ malformato (non riflesso); stile wizard; nessun `innerHTML` / `eval` nel codice;
 - `dependabot.yml`: aggiornamenti settimanali (npm + GitHub Actions), minori/patch raggruppati.
 - `deploy-convex.yml`: rilascio del backend **manuale**, con ambiente `production` (segreto `CONVEX_DEPLOY_KEY`), dopo tipi e test.
 - Test `no-secrets`: nessuna chiave privata/live nei file tracciati.
+
+## Dipendenze (npm audit)
+- **Produzione: 0 vulnerabilità.** `sharp` (usato da Next per le immagini) aggiornato a 0.35.5 con `npm audit fix` (nessun cambio di versione di Next).
+- **Solo sviluppo, accettata e documentata:** `braces` → `micromatch` → `fast-glob` → `eslint-config-next` (stack-exhaustion con pattern annidati). Non esiste una versione corretta
+  di `braces` (la 3.0.3 è l'ultima) e `npm audit fix --force` proporrebbe di *retrocedere* a eslint-config-next 14, che romperebbe il lint con Next 16. Il pacchetto gira solo sul
+  nostro PC / in CI sui nostri file, mai su dati di utenti né in produzione. La CI controlla solo la produzione (`npm audit --omit=dev`).
+- Non usare mai `npm audit fix --force` su questo progetto.
