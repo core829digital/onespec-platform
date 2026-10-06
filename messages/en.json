@@ -463,7 +463,8 @@
     "supplyCannotDelete": "A supply can only be deleted before production.",
     "supplyStageTooEarly": "This cost can only be entered once the supply has reached the matching stage.",
     "quoteIsDraft": "This quote is a draft: finish and save it before signing it or changing its status.",
-    "quoteHasSupply": "A supply order already started from this quote: it cannot be deleted."
+    "quoteHasSupply": "A supply order already started from this quote: it cannot be deleted.",
+    "invalidAssembly": "The joined panels do not close a shape: they must touch, share the same height in a row and the same width in a column."
   },
   "app": {
     "suspended": {
@@ -3012,5 +3013,32 @@
     "download": "Download",
     "share": "Share",
     "refresh": "Refresh the document"
+  },
+  "structure": {
+    "transomsTitle": "Horizontal bars (transoms)",
+    "addTransom": "Add a transom",
+    "removeTransom": "Remove",
+    "transomsHint": "A horizontal bar across the full width, on panels and doors too (up to {max}). The price adds the extra profile.",
+    "transomN": "Transom {n}",
+    "transomHeight": "Height of transom {n} from the sill",
+    "mmFromSill": "mm from the bottom",
+    "fields": "Glass fields (top first): {heights} mm",
+    "joinTitle": "Join to other panels",
+    "joinHint": "Join several pieces to close a shape (corner, L, glazed wall). In the same row they share their height, in the same column their width.",
+    "group": "Assembly",
+    "notJoined": "Single piece",
+    "groupN": "Assembly {n}",
+    "column": "Column",
+    "row": "Row",
+    "alone": "Add another piece to the same assembly to close the shape.",
+    "previewLabel": "Drawing of assembly {n}",
+    "issue": {
+      "cellTaken": "Column {col}, row {row} is already taken.",
+      "notConnected": "The pieces do not touch: each piece must be next to another one.",
+      "rowHeight": "The pieces of row {row} must have the same height.",
+      "colWidth": "The pieces of column {col} must have the same width.",
+      "tooMany": "Too many pieces in one assembly (6 at most).",
+      "outOfGrid": "Invalid position."
+    }
   }
 }

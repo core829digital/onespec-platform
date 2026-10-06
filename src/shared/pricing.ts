@@ -8,6 +8,8 @@ import {
   type PieceCategory,
 } from "./configurator-model";
 import { applyMarginCents } from "./standard-pricing";
+import { assemblyGroups, assemblyJoins } from "./composition";
+import { normalizeTransoms, transomLengthM } from "./transoms";
 import { virtualQualityTier } from "./catalog-rules";
 
 export interface CatalogPayload {
@@ -182,6 +184,10 @@ export interface ProjectItem {
   width: number;
   height: number;
   quantity: number;
+  /** Horizontal bars (traversi) across the piece: height from the sill in mm to the bar's centre (see shared/transoms.ts). */
+  transoms?: number[];
+  /** Joined to other pieces to close a shape (see shared/composition.ts). */
+  composition?: { group: number; col: number; row: number };
   sashes: Array<{
     type: "fix" | "classic" | "tiltturn" | "tilt" | "sliding" | "liftslide";
     direction: "left" | "right";
@@ -370,7 +376,13 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
   const installDefault = payload.configurator.installationDefault !== "without";
   const itemBreakdowns: ItemBreakdown[] = [];
 
-  for (const item of items) {
+  // Coupling profile of each piece, mm: the shared edges it pays for (the upper / left piece of each pair pays).
+  const couplingMm = new Map<number, number>();
+  for (const { members } of assemblyGroups(items)) {
+    for (const j of assemblyJoins(items, members)) couplingMm.set(j.payer, (couplingMm.get(j.payer) ?? 0) + j.lengthMm);
+  }
+
+  for (const [itemIndex, item] of items.entries()) {
     const material = getMaterialConfig(payload, item.material);
     const quality = getQualityTier(payload, item.material, item.quality[item.material]);
     const glazing = getGlazingOption(payload, item.glazing);
@@ -402,7 +414,9 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
       : Math.round(
           material.basePerM2Cents * quality.multiplier * profileMult * finishMult * glazingMult * frameMult * areaM2,
         );
-    const profileCost = standard ? 0 : Math.round(material.profilePerMlCents * perimeterM * frameMult);
+    // Extra profile: every horizontal bar runs the full width; every edge this piece shares with a neighbour needs a coupling profile.
+    const extraProfileM = transomLengthM(item.width, normalizeTransoms(item.height, item.transoms)) + (couplingMm.get(itemIndex) ?? 0) / 1000;
+    const profileCost = standard ? 0 : Math.round(material.profilePerMlCents * (perimeterM + extraProfileM) * frameMult);
 
     let sashCost = 0;
     let hardwareCost = 0;

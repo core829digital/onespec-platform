@@ -5,6 +5,8 @@ import { ProjectItemSchema } from "../../src/shared/widget-types";
 import type { CatalogPayload, ProjectItem } from "../../src/shared/pricing";
 import { comboIssues } from "../../src/shared/catalog-rules";
 import { MAX_PIECES } from "../../src/shared/piece-ops";
+import { normalizeTransoms } from "../../src/shared/transoms";
+import { assemblyIssues } from "../../src/shared/composition";
 
 /**
  * Validate the pieces a client sends with a quote. `items` is `v.any()` in the
@@ -17,7 +19,10 @@ export function parseQuoteItems(raw: unknown): ProjectItem[] {
   return raw.map((r) => {
     const parsed = ProjectItemSchema.safeParse(r);
     if (!parsed.success) throw new ConvexError("INVALID_ITEM");
-    return parsed.data as unknown as ProjectItem;
+    const item = parsed.data as unknown as ProjectItem;
+    // The bars the server prices are the valid ones: anything that does not fit the piece is dropped here, never charged.
+    const transoms = normalizeTransoms(item.height, item.transoms);
+    return { ...item, transoms: transoms.length > 0 ? transoms : undefined };
   });
 }
 
@@ -29,6 +34,8 @@ export function assertCoherentItems(payload: Pick<CatalogPayload, "qualityTiers"
   for (const item of items) {
     if (comboIssues(payload, item).length > 0) throw new ConvexError("INVALID_COMBINATION");
   }
+  // Joined pieces must close a shape whose edges line up (same heights in a row, same widths in a column).
+  if (assemblyIssues(items).length > 0) throw new ConvexError("INVALID_ASSEMBLY");
 }
 
 /**

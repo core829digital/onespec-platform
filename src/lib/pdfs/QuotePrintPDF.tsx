@@ -1,12 +1,13 @@
 import "./pdf-setup";
 import { Document, Image, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import type { ProjectItem } from "@/shared/pricing";
-import { buildHardwareScene, buildPlanScene, buildSectionScene, DRAWING_TABS, finishFillFor, buildLegendScene, DRAWING_TITLES, drawingLocale, ScenePdf, WindowDrawingPdf } from "@/lib/drawing";
+import { buildAssemblyScene, buildHardwareScene, buildPlanScene, buildSectionScene, DRAWING_TABS, finishFillFor, buildLegendScene, DRAWING_TITLES, drawingLocale, ScenePdf, WindowDrawingPdf } from "@/lib/drawing";
 import { CATEGORY_DEFS } from "@/shared/configurator-model";
 import { computeItemThermal, type CatalogPayload } from "@/shared/pricing";
 import { dictFor, openingLabel } from "@/lib/quote-export/dictionary";
 import { pieceSpecs } from "@/lib/quote-export/specs";
 import { vatNote } from "@/shared/tax";
+import { assemblyGroups, assemblyIssues } from "@/shared/composition";
 import { fittingNote } from "@/shared/fitting";
 import { CompanyLogo } from "./CompanyLogo";
 
@@ -586,7 +587,7 @@ export function QuotePrintPDF({
                   </Text>
                   <WindowDrawingPdf
                     width={170}
-                    input={{ widthMm: item.width, heightMm: item.height, category: item.category, sashes: item.sashes ?? [], finish: item.color, frameType: item.frameType, accessories: item.accessories, glazing: item.glazing, finishFill: finishFillFor(catalog?.finish, item.color) }}
+                    input={{ widthMm: item.width, heightMm: item.height, category: item.category, sashes: item.sashes ?? [], finish: item.color, frameType: item.frameType, accessories: item.accessories, transomsMm: item.transoms, glazing: item.glazing, finishFill: finishFillFor(catalog?.finish, item.color) }}
                     options={{ handleGuide: "all", showLeafDimensions: true }}
                   />
                 </View>
@@ -726,7 +727,7 @@ export function QuotePrintPDF({
             {DRAWING_TITLES[drawingLocale(langKey)].technicalDrawings} · {DRAWING_TABS[drawingLocale(langKey)].plan} / {DRAWING_TABS[drawingLocale(langKey)].section} / {DRAWING_TABS[drawingLocale(langKey)].hardware}
           </Text>
           {items.map((item, idx) => {
-            const drawingInput = { widthMm: item.width, heightMm: item.height, category: item.category, sashes: item.sashes ?? [], finish: item.color, frameType: item.frameType, glazing: item.glazing, finishFill: finishFillFor(catalog?.finish, item.color) };
+            const drawingInput = { widthMm: item.width, heightMm: item.height, category: item.category, sashes: item.sashes ?? [], finish: item.color, frameType: item.frameType, transomsMm: item.transoms, glazing: item.glazing, finishFill: finishFillFor(catalog?.finish, item.color) };
             const thermal = catalog ? computeItemThermal(catalog, item) : null;
             return (
               <View key={idx} wrap={false} style={{ marginBottom: 10, paddingBottom: 6, borderBottomWidth: 0.5, borderBottomColor: colors.gray[200] }}>
@@ -744,6 +745,25 @@ export function QuotePrintPDF({
               </View>
             );
           })}
+          {assemblyIssues(items).length === 0 && assemblyGroups(items).map(({ group, members }) => (
+            <View key={`assembly-${group}`} wrap={false} style={{ marginBottom: 10, paddingBottom: 6, borderBottomWidth: 0.5, borderBottomColor: colors.gray[200] }}>
+              <Text style={{ fontSize: 8, fontWeight: "bold", marginBottom: 3 }}>
+                {members.map((m) => `#${m.index + 1}`).join(" + ")}
+              </Text>
+              <ScenePdf
+                width={260}
+                scene={buildAssemblyScene(
+                  items.map((item) => ({
+                    width: item.width,
+                    height: item.height,
+                    composition: item.composition,
+                    input: { widthMm: item.width, heightMm: item.height, category: item.category, sashes: item.sashes ?? [], finish: item.color, frameType: item.frameType, transomsMm: item.transoms, glazing: item.glazing, finishFill: finishFillFor(catalog?.finish, item.color) },
+                  })),
+                  members,
+                )}
+              />
+            </View>
+          ))}
         </View>
         )}
 

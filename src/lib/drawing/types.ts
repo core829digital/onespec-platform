@@ -24,6 +24,8 @@ export interface DrawingInput {
   /** 'dritto' | 'reno40' | 'reno65' | other. */
   frameType?: string;
   accessories?: ItemAccessories;
+  /** Horizontal bars (traversi): height from the sill in mm to each bar's centre, already normalised (shared/transoms.ts). */
+  transomsMm?: number[];
   /** Glazing catalogue key: panel packages draw opaque panels instead of glass, satin ones a frosted glass. */
   glazing?: string;
   /** Colour and (optional) texture of the chosen finish, from the catalogue row; overrides the built-in finish table. */
@@ -249,6 +251,8 @@ export interface SceneContext {
   /** Controtelaio band thickness, px (0 when none). */
   band: number;
   finish: { fill: string; stroke: string; strokeWidth: number };
+  /** Height the indicative glass label is computed from (the lowest field when bars divide the piece), mm. */
+  glassHeightMm?: number;
   /** Filled while building: the texture pattern the finish paints with, if any. */
   textures?: SceneTexture[];
   options: DrawingOptions;

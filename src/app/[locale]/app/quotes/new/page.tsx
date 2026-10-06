@@ -15,6 +15,7 @@ import { ClientCantierePicker, type PickedLinks } from "@/components/app-shell/c
 import { PiecesEditor } from "@/components/quotes/editor/pieces-editor";
 import { defaultItem } from "@/shared/item-defaults";
 import { blockingIssues, pieceIssues } from "@/shared/piece-ops";
+import { assemblyIssues } from "@/shared/composition";
 import { clearDraft, useDraftRestore, useDraftSave } from "@/lib/use-draft";
 import { MultiSupplierTable, type SupplierItem } from "@/components/quotes/MultiSupplierTable";
 import {
@@ -541,6 +542,10 @@ export default function NewFieldQuotePage() {
     const blocking = items.flatMap((it) => blockingIssues(pieceIssues(it, effectivePayload)));
     if (blocking.length > 0) {
       setError(t("fixPieces"));
+      return;
+    }
+    if (assemblyIssues(items).length > 0) {
+      setError(te("invalidAssembly"));
       return;
     }
 

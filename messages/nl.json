@@ -463,7 +463,8 @@
     "supplyCannotDelete": "Een levering kan alleen vóór de productie worden verwijderd.",
     "supplyStageTooEarly": "Deze kosten kunnen pas worden ingevoerd als de levering de bijbehorende fase heeft bereikt.",
     "quoteIsDraft": "Deze offerte is een concept: maak hem af en sla hem op voordat u hem ondertekent of de status wijzigt.",
-    "quoteHasSupply": "Voor deze offerte is al een levering gestart: hij kan niet worden verwijderd."
+    "quoteHasSupply": "Voor deze offerte is al een levering gestart: hij kan niet worden verwijderd.",
+    "invalidAssembly": "De gekoppelde panelen sluiten geen vorm: ze moeten elkaar raken, in een rij even hoog en in een kolom even breed zijn."
   },
   "app": {
     "suspended": {
@@ -3012,5 +3013,32 @@
     "download": "Downloaden",
     "share": "Delen",
     "refresh": "Document vernieuwen"
+  },
+  "structure": {
+    "transomsTitle": "Horizontale tussenregels",
+    "addTransom": "Tussenregel toevoegen",
+    "removeTransom": "Verwijderen",
+    "transomsHint": "Een horizontale balk over de volle breedte, ook bij panelen en deuren (tot {max}). De prijs telt het extra profiel mee.",
+    "transomN": "Tussenregel {n}",
+    "transomHeight": "Hoogte van tussenregel {n} vanaf de dorpel",
+    "mmFromSill": "mm van onderaf",
+    "fields": "Glasvlakken (van boven): {heights} mm",
+    "joinTitle": "Koppelen aan andere panelen",
+    "joinHint": "Koppel meerdere stukken om een vorm te sluiten (hoek, L, glaswand). In dezelfde rij even hoog, in dezelfde kolom even breed.",
+    "group": "Samenstel",
+    "notJoined": "Los stuk",
+    "groupN": "Samenstel {n}",
+    "column": "Kolom",
+    "row": "Rij",
+    "alone": "Voeg nog een stuk toe aan hetzelfde samenstel om de vorm te sluiten.",
+    "previewLabel": "Tekening van samenstel {n}",
+    "issue": {
+      "cellTaken": "Kolom {col}, rij {row} is al bezet.",
+      "notConnected": "De stukken raken elkaar niet: elk stuk moet naast een ander liggen.",
+      "rowHeight": "De stukken van rij {row} moeten even hoog zijn.",
+      "colWidth": "De stukken van kolom {col} moeten even breed zijn.",
+      "tooMany": "Te veel stukken in één samenstel (maximaal 6).",
+      "outOfGrid": "Ongeldige positie."
+    }
   }
 }

@@ -31,6 +31,7 @@ import { catalogChoices, labelOf } from "./catalog-labels";
 import { PieceForm } from "./piece-form";
 import { HandleColorPopover } from "./handle-color-popover";
 import { DrawingTabs } from "./drawing-tabs";
+import { StructurePanel } from "./structure-panel";
 
 interface Props {
   payload: CatalogPayload;
@@ -269,6 +270,7 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
                   finish: active.color,
                   frameType: active.frameType,
                   accessories: active.accessories,
+                  transomsMm: active.transoms,
                   glazing: active.glazing,
                   finishFill: finishFillFor(payload.finish, active.color),
                 }}
@@ -352,6 +354,8 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
               ) : null}
             </div>
           </div>
+
+          <StructurePanel payload={payload} items={items} activeIndex={activeIndex} onChange={onChange} />
 
           {frameRules(active.sashes as unknown as EditorSash[]).map((code) => (
             <p key={code} className="rounded-md bg-[var(--color-bg-alt)] px-2 py-1.5 text-[11px] leading-snug text-[var(--color-text-secondary)]" role="note">{ts(`frame_${code}`)}</p>

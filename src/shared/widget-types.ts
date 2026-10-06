@@ -28,6 +28,10 @@ export const ProjectItemSchema = z
     width: z.number().int().min(200).max(DIM_ABS_MAX),
     height: z.number().int().min(200).max(DIM_ABS_MAX),
     quantity: z.number().int().positive().max(50),
+    /** Horizontal bars (traversi): height from the sill in mm to the bar's centre. The server re-normalises them. */
+    transoms: z.array(z.number().int().min(0).max(DIM_ABS_MAX)).max(3).optional(),
+    /** Joined to other pieces to close a shape: assembly number and grid cell. */
+    composition: z.object({ group: z.number().int().min(1).max(4), col: z.number().int().min(0).max(3), row: z.number().int().min(0).max(3) }).optional(),
     sashes: z
       .array(
         z.object({

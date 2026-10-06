@@ -28,3 +28,4 @@ export type {
   SceneCell,
   SceneMeta,
 } from "./types";
+export { buildAssemblyScene, type AssemblyDrawingPiece } from "./build-assembly";

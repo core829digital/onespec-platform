@@ -463,7 +463,8 @@
     "supplyCannotDelete": "Une fourniture ne peut être supprimée qu'avant la production.",
     "supplyStageTooEarly": "Ce coût ne peut être saisi que lorsque la fourniture a atteint l'étape correspondante.",
     "quoteIsDraft": "Ce devis est un brouillon : terminez-le et enregistrez-le avant de le signer ou de changer son statut.",
-    "quoteHasSupply": "Une fourniture a déjà démarré pour ce devis : il ne peut pas être supprimé."
+    "quoteHasSupply": "Une fourniture a déjà démarré pour ce devis : il ne peut pas être supprimé.",
+    "invalidAssembly": "Les panneaux liés ne ferment pas une forme : ils doivent se toucher, avoir la même hauteur sur une ligne et la même largeur sur une colonne."
   },
   "app": {
     "suspended": {
@@ -3012,5 +3013,32 @@
     "download": "Télécharger",
     "share": "Partager",
     "refresh": "Actualiser le document"
+  },
+  "structure": {
+    "transomsTitle": "Traverses horizontales",
+    "addTransom": "Ajouter une traverse",
+    "removeTransom": "Retirer",
+    "transomsHint": "Une barre horizontale sur toute la largeur, aussi sur panneaux et portes (jusqu'à {max}). Le prix ajoute le profilé en plus.",
+    "transomN": "Traverse {n}",
+    "transomHeight": "Hauteur de la traverse {n} depuis l'appui",
+    "mmFromSill": "mm depuis le bas",
+    "fields": "Champs de verre (du haut) : {heights} mm",
+    "joinTitle": "Lier à d'autres panneaux",
+    "joinHint": "Reliez plusieurs pièces pour fermer une forme (angle, L, mur vitré). Sur une même ligne elles ont la même hauteur, sur une même colonne la même largeur.",
+    "group": "Ensemble",
+    "notJoined": "Pièce seule",
+    "groupN": "Ensemble {n}",
+    "column": "Colonne",
+    "row": "Ligne",
+    "alone": "Ajoutez une autre pièce au même ensemble pour fermer la forme.",
+    "previewLabel": "Dessin de l'ensemble {n}",
+    "issue": {
+      "cellTaken": "La colonne {col}, ligne {row} est déjà occupée.",
+      "notConnected": "Les pièces ne se touchent pas : chaque pièce doit être contre une autre.",
+      "rowHeight": "Les pièces de la ligne {row} doivent avoir la même hauteur.",
+      "colWidth": "Les pièces de la colonne {col} doivent avoir la même largeur.",
+      "tooMany": "Trop de pièces dans un ensemble (6 au maximum).",
+      "outOfGrid": "Position invalide."
+    }
   }
 }

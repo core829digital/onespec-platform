@@ -463,7 +463,8 @@
     "supplyCannotDelete": "Eine Lieferung kann nur vor der Produktion gelöscht werden.",
     "supplyStageTooEarly": "Diese Kosten können erst erfasst werden, wenn die Lieferung die passende Phase erreicht hat.",
     "quoteIsDraft": "Dieses Angebot ist ein Entwurf: Schließen Sie es ab und speichern Sie es, bevor Sie es unterschreiben oder den Status ändern.",
-    "quoteHasSupply": "Für dieses Angebot läuft bereits eine Lieferung: Es kann nicht gelöscht werden."
+    "quoteHasSupply": "Für dieses Angebot läuft bereits eine Lieferung: Es kann nicht gelöscht werden.",
+    "invalidAssembly": "Die verbundenen Elemente schließen keine Form: Sie müssen sich berühren, in einer Reihe gleich hoch und in einer Spalte gleich breit sein."
   },
   "app": {
     "suspended": {
@@ -3012,5 +3013,32 @@
     "download": "Herunterladen",
     "share": "Teilen",
     "refresh": "Dokument aktualisieren"
+  },
+  "structure": {
+    "transomsTitle": "Waagerechte Riegel",
+    "addTransom": "Riegel hinzufügen",
+    "removeTransom": "Entfernen",
+    "transomsHint": "Ein waagerechter Riegel über die volle Breite, auch bei Paneelen und Türen (bis zu {max}). Der Preis enthält das zusätzliche Profil.",
+    "transomN": "Riegel {n}",
+    "transomHeight": "Höhe von Riegel {n} ab Sohlbank",
+    "mmFromSill": "mm von unten",
+    "fields": "Glasfelder (von oben): {heights} mm",
+    "joinTitle": "Mit anderen Paneelen verbinden",
+    "joinHint": "Mehrere Teile verbinden, um eine Form zu schließen (Ecke, L, Glaswand). In einer Reihe gleiche Höhe, in einer Spalte gleiche Breite.",
+    "group": "Verbund",
+    "notJoined": "Einzelteil",
+    "groupN": "Verbund {n}",
+    "column": "Spalte",
+    "row": "Reihe",
+    "alone": "Fügen Sie dem Verbund ein weiteres Teil hinzu, um die Form zu schließen.",
+    "previewLabel": "Zeichnung von Verbund {n}",
+    "issue": {
+      "cellTaken": "Spalte {col}, Reihe {row} ist schon belegt.",
+      "notConnected": "Die Teile berühren sich nicht: Jedes Teil muss an einem anderen anliegen.",
+      "rowHeight": "Die Teile der Reihe {row} müssen gleich hoch sein.",
+      "colWidth": "Die Teile der Spalte {col} müssen gleich breit sein.",
+      "tooMany": "Zu viele Teile in einem Verbund (höchstens 6).",
+      "outOfGrid": "Ungültige Position."
+    }
   }
 }

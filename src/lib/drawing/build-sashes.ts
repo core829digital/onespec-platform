@@ -1,4 +1,5 @@
 import { leafWidthsMm } from "@/shared/leaf-widths";
+import { TRANSOM_MM } from "@/shared/transoms";
 import { jointsFor } from "@/shared/sash-rules";
 import { drawOpening } from "./build-openings";
 import { glassLabel } from "./glass-size";
@@ -123,7 +124,7 @@ export function drawLeaves(
         out.push(...drawPanel(ctx, { x: area.x, y: panelY, w: area.w, h: area.y + area.h - panelY }, i, false));
       }
       if (options.showGlassDimensions && s.active) {
-        const label = glassLabel(cell.mm, ctx.heightMm, isDoor);
+        const label = glassLabel(cell.mm, ctx.glassHeightMm ?? ctx.heightMm, isDoor);
         if (label && glass.w > label.length * 4.4 + 8) {
           const tag = { role: "leafLabel" as const, sashIndex: i, part: "glass" };
           const w = label.length * 4.6 + 8;
@@ -183,4 +184,17 @@ export function drawMullions(ctx: SceneContext, sashes: DrawingSash[], cells: Sc
     out.push(rect({ role: "frame", sashIndex: joint.inactive, part: "mullionMovable" }, x, inner.y + ctx.sashInset, w, inner.h - 2 * ctx.sashInset, { fill: finish.fill, stroke: PALETTE.outline, strokeWidth: 0.9 }));
   }
   return out;
+}
+
+/**
+ * Horizontal bars across the whole opening, in the frame colour, drawn over the leaves: a bar is part of the frame (or a glazing bar
+ * of the leaves), the glass is divided in fields either way. `transomsMm` are heights from the sill to each bar's centre.
+ */
+export function drawTransoms(ctx: SceneContext, transomsMm: readonly number[]): Primitive[] {
+  const { frame, inner, finish } = ctx;
+  const bar = Math.max(3, TRANSOM_MM * ctx.scale);
+  return transomsMm.map((mm) => {
+    const centre = frame.y + frame.h - mm * ctx.scale;
+    return rect({ role: "frame", part: "transom" }, inner.x, centre - bar / 2, inner.w, bar, { fill: finish.fill, stroke: PALETTE.outline, strokeWidth: 0.9 });
+  });
 }

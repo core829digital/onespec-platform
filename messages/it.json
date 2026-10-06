@@ -463,7 +463,8 @@
     "supplyCannotDelete": "Si può eliminare una fornitura solo prima della produzione.",
     "supplyStageTooEarly": "Questo costo si può inserire solo quando la fornitura ha raggiunto la fase corrispondente.",
     "quoteIsDraft": "Questo preventivo è una bozza: completalo e salvalo prima di firmarlo o cambiarne lo stato.",
-    "quoteHasSupply": "Per questo preventivo è già partita una fornitura: non può essere eliminato."
+    "quoteHasSupply": "Per questo preventivo è già partita una fornitura: non può essere eliminato.",
+    "invalidAssembly": "I pannelli collegati non chiudono una forma: devono toccarsi, avere la stessa altezza sulla stessa riga e la stessa larghezza sulla stessa colonna."
   },
   "app": {
     "suspended": {
@@ -3012,5 +3013,32 @@
     "download": "Scarica",
     "share": "Condividi",
     "refresh": "Aggiorna il documento"
+  },
+  "structure": {
+    "transomsTitle": "Traversi orizzontali",
+    "addTransom": "Aggiungi traverso",
+    "removeTransom": "Togli",
+    "transomsHint": "Una barra orizzontale su tutta la larghezza, anche su pannelli e porte (fino a {max}). Il prezzo aggiunge il profilo in più.",
+    "transomN": "Traverso {n}",
+    "transomHeight": "Altezza del traverso {n} dal davanzale",
+    "mmFromSill": "mm dal basso",
+    "fields": "Campi di vetro (dall'alto): {heights} mm",
+    "joinTitle": "Collega ad altri pannelli",
+    "joinHint": "Unisci più pezzi per chiudere una forma (angolo, L, parete vetrata). Sulla stessa riga hanno la stessa altezza, sulla stessa colonna la stessa larghezza.",
+    "group": "Insieme",
+    "notJoined": "Pezzo singolo",
+    "groupN": "Insieme {n}",
+    "column": "Colonna",
+    "row": "Riga",
+    "alone": "Aggiungi un altro pezzo allo stesso insieme per chiudere la forma.",
+    "previewLabel": "Disegno dell'insieme {n}",
+    "issue": {
+      "cellTaken": "La posizione colonna {col}, riga {row} è già occupata.",
+      "notConnected": "I pezzi non si toccano: ogni pezzo deve essere adiacente a un altro.",
+      "rowHeight": "I pezzi della riga {row} devono avere la stessa altezza.",
+      "colWidth": "I pezzi della colonna {col} devono avere la stessa larghezza.",
+      "tooMany": "Troppi pezzi in un solo insieme (massimo 6).",
+      "outOfGrid": "Posizione non valida."
+    }
   }
 }

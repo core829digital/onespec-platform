@@ -463,7 +463,8 @@
     "supplyCannotDelete": "O furnizare poate fi ștearsă doar înainte de producție.",
     "supplyStageTooEarly": "Acest cost poate fi introdus doar când furnizarea a ajuns la etapa corespunzătoare.",
     "quoteIsDraft": "Această ofertă este o ciornă: finalizeaz-o și salveaz-o înainte să o semnezi sau să îi schimbi starea.",
-    "quoteHasSupply": "Pentru această ofertă a început deja o aprovizionare: nu poate fi ștearsă."
+    "quoteHasSupply": "Pentru această ofertă a început deja o aprovizionare: nu poate fi ștearsă.",
+    "invalidAssembly": "Panourile legate nu închid o formă: trebuie să se atingă, să aibă aceeași înălțime pe rând și aceeași lățime pe coloană."
   },
   "app": {
     "suspended": {
@@ -3012,5 +3013,32 @@
     "download": "Descarcă",
     "share": "Partajează",
     "refresh": "Actualizează documentul"
+  },
+  "structure": {
+    "transomsTitle": "Traverse orizontale",
+    "addTransom": "Adaugă o traversă",
+    "removeTransom": "Elimină",
+    "transomsHint": "O bară orizontală pe toată lățimea, inclusiv la panouri și uși (până la {max}). Prețul adaugă profilul în plus.",
+    "transomN": "Traversa {n}",
+    "transomHeight": "Înălțimea traversei {n} de la pervaz",
+    "mmFromSill": "mm de jos",
+    "fields": "Câmpuri de sticlă (de sus): {heights} mm",
+    "joinTitle": "Leagă de alte panouri",
+    "joinHint": "Leagă mai multe piese pentru a închide o formă (colț, L, perete vitrat). Pe același rând au aceeași înălțime, pe aceeași coloană aceeași lățime.",
+    "group": "Ansamblu",
+    "notJoined": "Piesă singură",
+    "groupN": "Ansamblul {n}",
+    "column": "Coloană",
+    "row": "Rând",
+    "alone": "Adaugă încă o piesă în același ansamblu pentru a închide forma.",
+    "previewLabel": "Desenul ansamblului {n}",
+    "issue": {
+      "cellTaken": "Coloana {col}, rândul {row} este deja ocupată.",
+      "notConnected": "Piesele nu se ating: fiecare piesă trebuie să fie lângă alta.",
+      "rowHeight": "Piesele de pe rândul {row} trebuie să aibă aceeași înălțime.",
+      "colWidth": "Piesele din coloana {col} trebuie să aibă aceeași lățime.",
+      "tooMany": "Prea multe piese într-un ansamblu (maxim 6).",
+      "outOfGrid": "Poziție nevalidă."
+    }
   }
 }

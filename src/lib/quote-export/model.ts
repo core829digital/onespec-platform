@@ -133,6 +133,7 @@ export function buildExportModel(input: ExportInput): ExportModel {
                 finish: item.color,
                 frameType: item.frameType,
                 accessories: item.accessories,
+                transomsMm: item.transoms,
                 glazing: item.glazing,
                 finishFill: finishFillFor(payload.finish, item.color),
               },

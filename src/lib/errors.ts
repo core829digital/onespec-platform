@@ -117,6 +117,7 @@ export type ErrorKey =
   | "showroomQuotaExceeded"
   | "quoteLocked"
   | "quoteIsDraft"
+  | "invalidAssembly"
   | "quoteHasSupply"
   | "alreadySubscribed"
   | "annualNotAvailable"
@@ -264,6 +265,7 @@ const EXACT: Record<string, ErrorKey> = {
   QUOTE_ALREADY_SIGNED: "alreadySigned",
   QUOTE_SIGNED: "cannotDeleteSigned",
   QUOTE_IS_DRAFT: "quoteIsDraft",
+  INVALID_ASSEMBLY: "invalidAssembly",
   QUOTE_HAS_SUPPLY: "quoteHasSupply",
   ALREADY_SUBSCRIBED: "alreadySubscribed",
   ANNUAL_NOT_AVAILABLE: "annualNotAvailable",

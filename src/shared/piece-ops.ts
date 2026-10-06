@@ -11,6 +11,7 @@ import {
   type SashMixCode,
 } from "./sash-rules";
 import { leafWidthLimits, leafWidthsMm, setLeafWidth, type LeafWidthLimits } from "./leaf-widths";
+import { normalizeTransoms, suggestTransom } from "./transoms";
 import { DIM_ABS_MAX, SINGLE_SASH_MAX_HEIGHT, SINGLE_SASH_MAX_WIDTH } from "./widget-types";
 
 /**
@@ -151,7 +152,36 @@ export function setHeight(item: ProjectItem, height: number): ProjectItem {
     const scaled = Math.round((h / item.height) * height);
     return { ...s, handleHeightMm: Math.min(range.max, Math.max(Math.min(range.min, height - 100), scaled)) };
   });
-  return { ...item, height, sashes };
+  // The bars keep their proportional place on the taller / lower piece, and are dropped if they no longer fit.
+  const transoms = item.transoms && item.transoms.length > 0
+    ? normalizeTransoms(height, item.transoms.map((t) => Math.round((t / item.height) * height)))
+    : undefined;
+  return { ...item, height, sashes, ...(transoms && transoms.length > 0 ? { transoms } : { transoms: undefined }) };
+}
+
+/** Add a horizontal bar in the middle of the tallest field. No-op when no bar fits. */
+export function addTransom(item: ProjectItem): ProjectItem {
+  const pos = suggestTransom(item.height, item.transoms ?? []);
+  return pos === null ? item : { ...item, transoms: normalizeTransoms(item.height, [...(item.transoms ?? []), pos]) };
+}
+
+export function removeTransom(item: ProjectItem, index: number): ProjectItem {
+  const next = (item.transoms ?? []).filter((_, i) => i !== index);
+  return { ...item, transoms: next.length > 0 ? next : undefined };
+}
+
+/** Move one bar (height from the sill, mm). A position that does not fit leaves the piece as it was. */
+export function setTransomHeight(item: ProjectItem, index: number, mm: number): ProjectItem {
+  const list = [...(item.transoms ?? [])];
+  if (index < 0 || index >= list.length) return item;
+  list[index] = Math.round(mm);
+  const next = normalizeTransoms(item.height, list);
+  return next.length === list.length ? { ...item, transoms: next } : item;
+}
+
+/** Join the piece to an assembly (or leave it: `undefined`). */
+export function setComposition(item: ProjectItem, placement: ProjectItem["composition"]): ProjectItem {
+  return { ...item, composition: placement };
 }
 
 /** Start the piece over as `category`, keeping size, material and finishes. */
@@ -177,6 +207,8 @@ export function duplicateItem(items: ProjectItem[], index: number): ProjectItem[
   const src = items[index];
   if (!src || items.length >= MAX_PIECES) return items;
   const copy: ProjectItem = JSON.parse(JSON.stringify(src));
+  // The copy is a separate piece: it does not take over the cell of the original in an assembly.
+  delete copy.composition;
   return [...items.slice(0, index + 1), copy, ...items.slice(index + 1)];
 }
 
