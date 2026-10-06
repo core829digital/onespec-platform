@@ -7,6 +7,7 @@ import { auth } from "./auth";
 import { QuoteSubmissionSchema } from "../src/shared/widget-types";
 import { verifyStripeSignature } from "./billing";
 import { hashIp } from "./lib/ipHash";
+import { clientIp } from "./lib/clientIp";
 import { resendWebhook } from "./http/resend_webhook";
 import { createPostHogClient } from "./lib/posthog";
 import { checkWebhookSource } from "./lib/webhookIp";
@@ -33,14 +34,23 @@ function json(body: unknown, status = 200) {
 async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
   const secret = process.env.TURNSTILE_SECRET;
   if (!secret) return true; // disabled in dev
-  const form = new URLSearchParams({ secret, response: token, remoteip: ip });
-  const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: form.toString(),
-  });
-  const data = await res.json().catch(() => ({ success: false }));
-  return data.success === true;
+  const form = new URLSearchParams({ secret, response: token });
+  if (ip !== "unknown") form.set("remoteip", ip);
+  try {
+    const res = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: form.toString(),
+      signal: AbortSignal.timeout(8000),
+    });
+    // Cloudflare itself failing (5xx) must not turn every visitor away: the rate limits and the honeypot still apply.
+    if (res.status >= 500) return true;
+    const data = await res.json().catch(() => ({ success: false }));
+    return data.success === true;
+  } catch {
+    // Timeout / network error reaching Cloudflare: same reasoning, an outage of the checker is not the visitor's failure.
+    return true;
+  }
 }
 
 http.route({
@@ -67,10 +77,7 @@ http.route({
     }
     if (!body.publicId) return json({ ok: false }, 400);
 
-    const ip =
-      req.headers.get("cf-connecting-ip") ||
-      (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() ||
-      "0.0.0.0";
+    const ip = clientIp(req.headers);
     const token =
       body.viewToken && /^[A-Za-z0-9_-]{8,64}$/.test(body.viewToken)
         ? body.viewToken
@@ -113,11 +120,7 @@ http.route({
 
     if (body.honeypot) return json({ ok: false, error: "SPAM" }, 400);
 
-    const fwd = req.headers.get("x-forwarded-for");
-    const ip =
-      req.headers.get("CF-Connecting-IP") ||
-      (fwd ? fwd.split(",")[0].trim() : null) ||
-      "unknown";
+    const ip = clientIp(req.headers);
     const origin = req.headers.get("origin") || "";
     const userAgent = req.headers.get("user-agent") || "";
     const ipHash = await hashIp(ip);
@@ -222,10 +225,7 @@ http.route({
     if (!body.token || !/^[A-Za-z0-9]{8,32}$/.test(body.token)) return json({ ok: false }, 400);
     // Scan throttle: counted:false past the limit, never an error (page must not break).
     try {
-      const ip0 =
-        req.headers.get("cf-connecting-ip") ||
-        (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() ||
-        "0.0.0.0";
+      const ip0 = clientIp(req.headers);
       await ctx.runMutation(internal.lib.ratelimit.checkBucket, {
         bucketKey: `scan:${body.token}:${await hashIp(ip0)}`,
         tokens: 10,
@@ -263,10 +263,7 @@ http.route({
     if (!["adjustment", "warranty", "maintenance", "other"].includes(kind)) {
       return json({ ok: false, error: "BAD_KIND" }, 400);
     }
-    const ip =
-      req.headers.get("cf-connecting-ip") ||
-      (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() ||
-      "0.0.0.0";
+    const ip = clientIp(req.headers);
     const ipHash = await hashIp(ip);
     // Intervention throttle: per-IP bucket + global per-passport bucket (spam fan-out guard).
     try {
@@ -330,10 +327,7 @@ async function checkInspectionLimit(
   req: Request,
   token: string,
 ): Promise<Response | null> {
-  const ip =
-    req.headers.get("cf-connecting-ip") ||
-    (req.headers.get("x-forwarded-for") || "").split(",")[0].trim() ||
-    "0.0.0.0";
+  const ip = clientIp(req.headers);
   const ipHash = await hashIp(ip);
   try {
     await runBucket(`insp:${token}:${ipHash}`, 30, 10 * 60 * 1000);

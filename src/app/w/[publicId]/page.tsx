@@ -8,7 +8,7 @@ import { notFound } from "next/navigation";
 import { resolveWidgetLang, resolveWidgetTheme } from "@/lib/widget-params";
 import { WidgetLocked } from "@/components/widget/widget-locked";
 
-export const revalidate = 30;
+// No `revalidate`: these pages render per request (they read searchParams) because the CSP nonce must be fresh each time.
 
 // Shown to a visitor when the widget owner's plan doesn't include the public
 // widget. The owner is the one who must act, so keep it neutral and short.

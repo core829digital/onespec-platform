@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Space_Grotesk, Fraunces } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { THEME_INIT } from "@/lib/theme-init";
 import "./globals.css";
 
 const geistSans = Geist({ subsets: ["latin"], variable: "--font-geist-sans", display: "swap" });
@@ -56,8 +57,6 @@ export const viewport: Viewport = {
   initialScale: 1,
   themeColor: "#16d19d",
 };
-
-const THEME_INIT = `try{var t=localStorage.getItem('onespec-theme');if(t==='light'){document.documentElement.setAttribute('data-theme','light');}}catch(e){}`;
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -1,32 +1,59 @@
 // @vitest-environment node
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
+import { THEME_INIT } from "@/lib/theme-init";
+import { buildWidgetCsp, newNonce, widgetScriptSrc } from "@/lib/widget-csp";
+import { createHash } from "node:crypto";
 
-// The widget's Content-Security-Policy exists twice: as the static header in next.config.mjs (the fallback) and in src/proxy.ts, where the
-// per-dealer `frame-ancestors` is appended at request time. They must say the same thing, or a change to one silently weakens or breaks the other.
-const list = (src: string, name: string): string[] => {
-  const m = new RegExp(`const ${name} = \\[([\\s\\S]*?)\\]\\.join\\("; "\\)`).exec(src);
-  if (!m) throw new Error(`${name} not found`);
-  return [...m[1].matchAll(/^\s*"([^"]+)",?\s*$/gm)].map((x) => x[1]);
-};
+// The widget's Content-Security-Policy is built per request in src/lib/widget-csp.ts (nonce for scripts + per-dealer frame-ancestors) and applied by src/proxy.ts.
+const directives = (csp: string) => Object.fromEntries(csp.split("; ").map((d) => [d.split(" ")[0], d]));
 
 describe("widget CSP", () => {
-  const config = list(readFileSync("next.config.mjs", "utf8"), "WIDGET_CSP");
-  const proxy = list(readFileSync("src/proxy.ts", "utf8"), "WIDGET_CSP_BASE");
+  const nonce = newNonce();
+  const csp = buildWidgetCsp(nonce, "'self' https://dealer.example");
+  const d = directives(csp);
 
-  it("is identical in next.config.mjs and src/proxy.ts", () => {
-    expect(config.length).toBeGreaterThan(5);
-    expect(proxy).toEqual(config);
+  it("never allows inline or eval scripts in production", () => {
+    const prod = widgetScriptSrc(nonce, false);
+    expect(prod).not.toContain("'unsafe-inline'");
+    expect(prod).not.toContain("'unsafe-eval'");
+    expect(prod).toContain(`'nonce-${nonce}'`);
+    expect(prod).toContain("'strict-dynamic'");
+    expect(widgetScriptSrc(nonce, true)).toContain("'unsafe-eval'"); // development only
+  });
+
+  it("allows the theme-init inline script by its hash", () => {
+    const hash = createHash("sha256").update(THEME_INIT).digest("base64");
+    expect(d["script-src"]).toContain(`'sha256-${hash}'`);
+  });
+
+  it("uses a fresh, long nonce each time", () => {
+    const nonces = new Set(Array.from({ length: 50 }, newNonce));
+    expect(nonces.size).toBe(50);
+    expect([...nonces][0].length).toBeGreaterThanOrEqual(22);
   });
 
   it("keeps the protections the embed relies on", () => {
-    const csp = config.join("; ");
-    expect(csp).toContain("default-src 'self'");
-    expect(csp).toContain("base-uri 'self'");
-    expect(csp).toContain("form-action 'self'");
-    expect(csp).toContain("frame-src https://challenges.cloudflare.com"); // the Turnstile challenge is an iframe
-    expect(csp).not.toMatch(/\*(?![.]convex)(?!\s*;)/); // no bare wildcard source (only the convex sub-domain wildcards)
-    expect(csp).not.toContain("frame-ancestors"); // appended per dealer at request time
-    expect(csp).not.toContain("unsafe-eval");
+    expect(d["default-src"]).toBe("default-src 'self'");
+    expect(d["object-src"]).toBe("object-src 'none'");
+    expect(d["base-uri"]).toBe("base-uri 'self'");
+    expect(d["form-action"]).toBe("form-action 'self'");
+    expect(d["frame-src"]).toBe("frame-src https://challenges.cloudflare.com"); // the Turnstile challenge is an iframe
+    expect(d["frame-ancestors"]).toBe("frame-ancestors 'self' https://dealer.example");
+    expect(csp).not.toMatch(/\*(?![.]convex)(?!\s*;)(?!$)/); // no bare wildcard source (only the convex sub-domain wildcards)
+  });
+
+  it("is not duplicated as a static header (two CSPs would be intersected and block the nonce)", () => {
+    const config = readFileSync("next.config.mjs", "utf8");
+    expect(config).not.toMatch(/value:\s*WIDGET_CSP/);
+    expect(config.match(/key: "Content-Security-Policy"/g)).toHaveLength(1); // only the app's frame-ancestors 'none'
+    expect(config).not.toContain("script-src");
+  });
+
+  it("is applied by the proxy to every embeddable path", () => {
+    const proxy = readFileSync("src/proxy.ts", "utf8");
+    expect(proxy).toContain("nextWithCsp(request, ancestors)");
+    expect(proxy).toContain('pathname.startsWith("/demo/")');
+    expect(proxy).not.toContain("unsafe-inline");
   });
 });

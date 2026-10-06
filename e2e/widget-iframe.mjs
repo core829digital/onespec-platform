@@ -74,6 +74,11 @@ async function newContext(browser, { blockStorage = false } = {}) {
       await new Promise((r2) => setTimeout(r2, 60_000)).catch(() => {});
     }
   });
+  // Every frame records Content-Security-Policy violations so a blocked script or style fails the run (a blocked script is otherwise silent).
+  await ctx.addInitScript(() => {
+    window.__cspViolations = [];
+    document.addEventListener("securitypolicyviolation", (e) => window.__cspViolations.push(`${e.violatedDirective} ${e.blockedURI}`));
+  });
   if (blockStorage) {
     // Third-party iframes in strict browsers: touching sessionStorage / localStorage throws a SecurityError.
     await ctx.addInitScript(() => {
@@ -142,6 +147,18 @@ async function main() {
       const noXfo = await page.evaluate(async (u) => (await fetch(u, { mode: "no-cors" })).type, `${APP}/w/${ID}`);
       void noXfo;
       check(problems.length === 0, `no console errors / page errors / failed requests${problems.length ? ": " + problems.join(" | ") : ""}`);
+      // Strict script policy: a nonce, no 'unsafe-inline', every inline script in the frame carries that nonce or is the hashed theme script,
+      // and the browser reported no CSP violation while the widget loaded and ran.
+      const csp = (await (await fetch(`${APP}/w/${ID}`)).headers.get("content-security-policy")) ?? "";
+      const scriptSrc = /script-src [^;]*/.exec(csp)?.[0] ?? "";
+      check(/'nonce-[A-Za-z0-9+/=]{22,}'/.test(scriptSrc) && !scriptSrc.includes("'unsafe-inline'") && !scriptSrc.includes("'unsafe-eval'"), "script-src uses a nonce, no 'unsafe-inline', no 'unsafe-eval'");
+      check(!(await fetch(`${APP}/w/${ID}`)).headers.get("content-security-policy")?.includes("unsafe-inline") || /style-src[^;]*'unsafe-inline'/.test(csp), "'unsafe-inline' appears only for styles");
+      const inline = await frame.evaluate(() => [...document.scripts].filter((s) => !s.src).map((s) => ({ nonce: s.nonce || "", len: s.textContent.length })));
+      const nonceNow = (/'nonce-([^']+)'/.exec(scriptSrc) ?? [])[1];
+      check(inline.length > 0 && inline.every((s) => s.nonce || s.len < 200), `inline scripts: ${inline.filter((s) => s.nonce).length} with a nonce, the rest is the hashed theme script`);
+      void nonceNow;
+      const violations = await frame.evaluate(() => window.__cspViolations ?? []);
+      check(violations.length === 0, `no CSP violations${violations.length ? ": " + violations.join(" | ") : ""}`);
       const header = await (await fetch(`${APP}/w/${ID}`)).headers.get("content-security-policy");
       check(/frame-ancestors 'self' http:\/\/localhost:4000/.test(header ?? ""), "CSP frame-ancestors lists the dealer's site");
       check(!(await fetch(`${APP}/w/${ID}`)).headers.get("x-frame-options"), "no X-Frame-Options on the widget (it must be framable)");
@@ -331,6 +348,23 @@ async function main() {
       check(none.status === 404, "a widget whose plan does not include embedding gets no embed code");
       const foreign = await fetch(`${APP}/api/oembed?url=${encodeURIComponent(`https://evil.example/c/${ID}`)}`);
       check(foreign.status === 404, "links to other sites are refused");
+    }
+
+    // ── 11. every page under the nonce policy hydrates and runs without a CSP violation ─────────────────────────────
+    console.log("11. pages under the strict script policy");
+    for (const path of [`/c/${ID}`, "/demo/widget", "/demo/showroom"]) {
+      const problems = [];
+      const ctx = await newContext(browser);
+      const page = await ctx.newPage();
+      watch(page, path, problems);
+      await page.goto(`${APP}${path}`, { waitUntil: "networkidle" });
+      const hydrated = await page.evaluate(() => !!document.querySelector("[data-widget-root], .tw-widget-root, #widget-width"));
+      const violations = await page.evaluate(() => window.__cspViolations ?? []);
+      const scripts = await page.evaluate(() => [...document.scripts].filter((x) => !x.src).every((x) => x.nonce || x.textContent.length < 200));
+      check(hydrated && scripts, `${path}: renders, inline scripts are nonce-stamped or hashed`);
+      check(violations.length === 0, `${path}: no CSP violations${violations.length ? ": " + violations.join(" | ") : ""}`);
+      check(problems.length === 0, `${path}: no console errors${problems.length ? ": " + problems.join(" | ") : ""}`);
+      await ctx.close();
     }
   } finally {
     await browser.close();

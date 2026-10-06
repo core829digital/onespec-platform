@@ -8,7 +8,7 @@ import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { WidgetLocked } from "@/components/widget/widget-locked";
 
-export const revalidate = 30;
+// No `revalidate`: these pages render per request (they read searchParams) because the CSP nonce must be fresh each time.
 
 /** Share-preview text, in the configurator's default widget language. */
 const META: Record<string, { title: string; description: string }> = {

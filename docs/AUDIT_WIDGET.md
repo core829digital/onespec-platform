@@ -34,12 +34,24 @@ browser); invio completo e payload coerente (quote ante che sommano 1); backend 
 grezzo, si può riprovare); backend che non risponde; storage bloccato; telefono 360 px (nessuno scroll orizzontale); id sconosciuto (404) e id
 malformato (non riflesso); stile wizard; nessun `innerHTML` / `eval` nel codice; testi del dealer sempre escapati; messaggi `postMessage` accettati solo dal parent e dall'origine del sito.
 
+## Seconda passata: rischi chiusi
+- **CSP senza `'unsafe-inline'` negli script** su `/w`, `/c`, `/demo`: `src/proxy.ts` genera un nonce per richiesta (`src/lib/widget-csp.ts`), Next lo applica ai
+  propri script, lo script del tema è ammesso per hash SHA-256 e `'strict-dynamic'` lascia caricare Turnstile, PostHog e Speed Insights. Le pagine sono
+  dinamiche (niente cache statica: il nonce deve cambiare a ogni richiesta). La CSP statica doppia in `next.config.mjs` è stata tolta: due CSP vengono
+  *intersecate* dal browser e avrebbero bloccato gli script con nonce. Provato nel browser reale (nessuna violazione su `/w`, `/c`, `/demo/*`).
+  Restano `'unsafe-inline'` solo per gli **stili** (React scrive stili in linea nel disegno SVG; il CSS non esegue codice).
+- **IP del visitatore**: un'unica regola (`convex/lib/clientIp.ts`) al posto di cinque copie. Accetta solo indirizzi IPv4/IPv6 ben formati; valori
+  inventati finiscono tutti nella stessa identità "unknown" invece di creare un secchio nuovo a ogni richiesta. Un indirizzo falsificato può solo scegliere
+  un altro secchio valido: il limite globale per configuratore e Turnstile limitano comunque gli abusi. Turnstile ora ha timeout di 8 s e, se è
+  Cloudflare a non rispondere, non respinge i visitatori (restano limiti e honeypot); una risposta "non valido" respinge sempre.
+- **`/embed.js`**: il suo hash è fissato in `tests/embed-integrity.test.ts` (ogni modifica diventa volontaria e va rivista) e un test vieta `eval`, `innerHTML`, `document.write`.
+
 ## Rischi residui (consigliati, non bloccanti)
-- **CSP con `'unsafe-inline'` negli script** (necessario a Next senza nonce): passare a una CSP con nonce richiede pagine sempre dinamiche; da valutare.
-- **IP del visitatore**: se la piattaforma non sta dietro a Cloudflare, `X-Forwarded-For` (primo valore) è falsificabile e aggira il limite per IP; restano il limite globale per configuratore, Turnstile e honeypot. Attivare Turnstile (chiavi in ambiente) in produzione.
 - **Turnstile** va configurato (`NEXT_PUBLIC_TURNSTILE_SITE_KEY` + `TURNSTILE_SECRET`), altrimenti l'anti-bot è disattivato.
-- Il file `/embed.js` è codice eseguito sulle pagine dei montatori: è minimo, senza dipendenze, senza `eval`/`innerHTML`, accetta solo messaggi del proprio iframe e della propria origine; va tenuto protetto come il resto del repository (revisione obbligatoria sui cambi).
-- Attivare nel repository GitHub: *secret scanning* + *push protection*, protezione del ramo `main` con i controlli CI obbligatori.
+- **Falsificazione dell'IP**: senza Cloudflare davanti non si può provare quale intermediario ha scritto l'intestazione; l'abuso con indirizzi a rotazione è
+  limitato dal tetto globale per configuratore (può però esaurirlo: per questo Turnstile in produzione è importante).
+- Attivare nel repository GitHub: *secret scanning* + *push protection*, protezione del ramo `main` con i controlli CI obbligatori, e `CODEOWNERS` su `public/embed.js` e `src/proxy.ts`.
+- Non provati: la pagina B2B `/app/quotes/new` (serve il login) e i consumatori oEmbed reali (Notion, WordPress…).
 
 ## CI/CD (`.github/`)
 - `ci.yml`: tipi, lint, test, build · **widget end-to-end in browser reale** · audit delle dipendenze di produzione (alta gravità blocca).

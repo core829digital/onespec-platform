@@ -7,31 +7,12 @@ import createNextIntlPlugin from "next-intl/plugin";
 // on some machines. The ESM build of the plugin pulls no native binding.
 const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 
-// The embeddable widget (/w/*) runs a strict CSP but must be framable.
-// `frame-ancestors` is NOT set here: the Next middleware (src/proxy.ts) emits a
-// per-tenant `frame-ancestors` CSP header at request time from the configurator's
-// allow-listed origins. This static header is the fallback for the other
-// directives. Do not narrow to a single origin here — one build serves every tenant.
-// - font-src needs 'self' + data: because next/font self-hosts .woff2 under
-//   /_next/static/media and inlines some as data: URIs.
-// - Vercel Speed Insights injects /_vercel/... (same-origin) + va.vercel-scripts.com.
-const WIDGET_CSP = [
-  "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://va.vercel-scripts.com https://us-assets.i.posthog.com",
-  // frame-src: the Turnstile challenge itself renders in an iframe, not just a
-  // script — without this, default-src's 'self' fallback blocks the iframe and
-  // Turnstile silently fails ("execute() on a widget that is already
-  // executing" / "Cannot find Widget" as it re-inits in a loop).
-  "frame-src https://challenges.cloudflare.com",
-  "connect-src 'self' https://*.convex.cloud https://*.convex.site https://va.vercel-scripts.com https://vitals.vercel-insights.com https://us.i.posthog.com https://us-assets.i.posthog.com",
-  "img-src 'self' data: blob: https:",
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "font-src 'self' data: https://fonts.gstatic.com",
-  "base-uri 'self'",
-  "form-action 'self'",
-].join("; ");
+// The embeddable surfaces (/w, /c, /demo) get their Content-Security-Policy from src/proxy.ts (built in src/lib/widget-csp.ts), per request:
+// a nonce for scripts (no 'unsafe-inline') and the per-dealer `frame-ancestors`. It is deliberately NOT set here as well: browsers enforce
+// every CSP header they receive, so a second static policy would be intersected with the nonce one and block the nonce-stamped scripts.
+// tests/csp-sync.test.ts fails if a static CSP for these paths reappears in this file.
 
-// Baseline hardening for the application (everything except /w/*).
+// Baseline hardening for the application (everything except /w, /c and /demo).
 const APP_SECURITY_HEADERS = [
   { key: "X-Frame-Options", value: "DENY" },
   { key: "Content-Security-Policy", value: "frame-ancestors 'none';" },
@@ -77,15 +58,14 @@ const nextConfig = {
       {
         source: "/:kind(w|c|demo)/:path*",
         headers: [
-          { key: "Content-Security-Policy", value: WIDGET_CSP },
           { key: "Cross-Origin-Resource-Policy", value: "cross-origin" },
           { key: "X-Content-Type-Options", value: "nosniff" },
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
         ],
       },
       {
-        // The negative lookahead keeps /w/* and /c/* on their own CSP (the
-        // middleware adds the per-tenant frame-ancestors); without it this rule
+        // The negative lookahead keeps /w/*, /c/* and /demo/* on their own CSP (the
+        // proxy adds it, with the per-tenant frame-ancestors); without it this rule
         // (declared last) would win and break embedding.
         source: "/((?!w/|c/|demo/).*)",
         headers: APP_SECURITY_HEADERS,

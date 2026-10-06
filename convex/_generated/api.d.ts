@@ -41,6 +41,7 @@ import type * as lib_billingPlans from "../lib/billingPlans.js";
 import type * as lib_calcPreview from "../lib/calcPreview.js";
 import type * as lib_catalogExtras from "../lib/catalogExtras.js";
 import type * as lib_compliance from "../lib/compliance.js";
+import type * as lib_clientIp from "../lib/clientIp.js";
 import type * as lib_configResolution from "../lib/configResolution.js";
 import type * as lib_csv from "../lib/csv.js";
 import type * as lib_emailFrom from "../lib/emailFrom.js";
@@ -137,6 +138,7 @@ declare const fullApi: ApiFromModules<{
   "lib/calcPreview": typeof lib_calcPreview;
   "lib/catalogExtras": typeof lib_catalogExtras;
   "lib/compliance": typeof lib_compliance;
+  "lib/clientIp": typeof lib_clientIp;
   "lib/configResolution": typeof lib_configResolution;
   "lib/csv": typeof lib_csv;
   "lib/emailFrom": typeof lib_emailFrom;

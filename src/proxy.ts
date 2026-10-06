@@ -3,41 +3,25 @@ import {
   createRouteMatcher,
   nextjsMiddlewareRedirect,
 } from "@convex-dev/auth/nextjs/server";
-import { NextResponse } from "next/server";
+import { NextResponse, type NextRequest } from "next/server";
 import createMiddleware from "next-intl/middleware";
 import { fetchQuery } from "convex/nextjs";
 import { api } from "../convex/_generated/api";
 import { routing } from "./i18n/routing";
 import { localeForCountry } from "./lib/country-locale";
+import { buildWidgetCsp, newNonce } from "./lib/widget-csp";
 
 const intlMiddleware = createMiddleware(routing);
 
-// Non-widget directives for /w/* — kept in sync with next.config.mjs. The
-// per-tenant `frame-ancestors` is appended here, at request time.
-const WIDGET_CSP_BASE = [
-  "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://va.vercel-scripts.com https://us-assets.i.posthog.com",
-  // frame-src: the Turnstile challenge renders in an iframe, not just a
-  // script — without this, default-src's 'self' fallback blocks the iframe
-  // (console: "execute() on a widget that is already executing" / "Cannot
-  // find Widget", as it silently fails and re-inits in a loop).
-  "frame-src https://challenges.cloudflare.com",
-  "connect-src 'self' https://*.convex.cloud https://*.convex.site https://va.vercel-scripts.com https://vitals.vercel-insights.com https://us.i.posthog.com https://us-assets.i.posthog.com",
-  "img-src 'self' data: blob: https:",
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "font-src 'self' data: https://fonts.gstatic.com",
-  "base-uri 'self'",
-  "form-action 'self'",
-].join("; ");
-
 const IS_PROD = process.env.NODE_ENV === "production";
-const EMBED_CACHE = new Map<string, { csp: string; expires: number }>();
+const EMBED_CACHE = new Map<string, { ancestors: string; expires: number }>();
 const EMBED_TTL_MS = 5 * 60_000;
 const EMBED_CACHE_MAX = 5_000;
 
-async function widgetCsp(publicId: string): Promise<string> {
+/** The `frame-ancestors` source list of one widget (cached; the nonce-bearing rest of the CSP is built per request). */
+async function widgetAncestors(publicId: string): Promise<string> {
   const cached = EMBED_CACHE.get(publicId);
-  if (cached && cached.expires > Date.now()) return cached.csp;
+  if (cached && cached.expires > Date.now()) return cached.ancestors;
 
   let ancestors = "'self'";
   try {
@@ -53,7 +37,6 @@ async function widgetCsp(publicId: string): Promise<string> {
     ancestors = IS_PROD ? "'self'" : "*";
   }
 
-  const csp = `${WIDGET_CSP_BASE}; frame-ancestors ${ancestors}`;
   // Bounded: random publicIds (valid shape, nonexistent) must not grow this
   // per-instance cache without limit. A Map iterates in insertion order, so
   // the first key is the oldest entry.
@@ -61,8 +44,23 @@ async function widgetCsp(publicId: string): Promise<string> {
     const oldest = EMBED_CACHE.keys().next().value;
     if (oldest !== undefined) EMBED_CACHE.delete(oldest);
   }
-  EMBED_CACHE.set(publicId, { csp, expires: Date.now() + EMBED_TTL_MS });
-  return csp;
+  EMBED_CACHE.set(publicId, { ancestors, expires: Date.now() + EMBED_TTL_MS });
+  return ancestors;
+}
+
+/**
+ * Continues the request with a nonce-based CSP. Next reads the nonce from the CSP *request* header while rendering and stamps it on its
+ * own scripts; the same policy goes out on the response. Pages under it must render per request (never from a static cache).
+ */
+function nextWithCsp(request: NextRequest, frameAncestors: string): NextResponse {
+  const nonce = newNonce();
+  const csp = buildWidgetCsp(nonce, frameAncestors);
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-nonce", nonce);
+  requestHeaders.set("Content-Security-Policy", csp);
+  const res = NextResponse.next({ request: { headers: requestHeaders } });
+  res.headers.set("Content-Security-Policy", csp);
+  return res;
 }
 
 const isSignedOutOnly = createRouteMatcher([
@@ -116,20 +114,14 @@ export default convexAuthNextjsMiddleware(
     // dealer's allow-listed domains can frame the embed.
     if (pathname.startsWith("/w/") || pathname.startsWith("/c/")) {
       const publicId = pathname.split("/")[2] ?? "";
-      if (!/^[A-Za-z0-9_-]{6,16}$/.test(publicId)) return;
-      const res = NextResponse.next();
-      res.headers.set("Content-Security-Policy", await widgetCsp(publicId));
-      return res;
+      // A malformed id is a 404 page: still served under the strict policy, framable by nobody else.
+      const ancestors = /^[A-Za-z0-9_-]{6,16}$/.test(publicId) ? await widgetAncestors(publicId) : "'self'";
+      return nextWithCsp(request, ancestors);
     }
 
     // Public demo configurators (/demo/*), embedded on the marketing site only.
     if (pathname.startsWith("/demo/")) {
-      const res = NextResponse.next();
-      res.headers.set(
-        "Content-Security-Policy",
-        `${WIDGET_CSP_BASE}; frame-ancestors 'self' https://onespec.eu https://www.onespec.eu${IS_PROD ? "" : " http://localhost:*"}`,
-      );
-      return res;
+      return nextWithCsp(request, `'self' https://onespec.eu https://www.onespec.eu${IS_PROD ? "" : " http://localhost:*"}`);
     }
 
     // Public Fascicolo del serramento (QR target), App Posatore (/i/[token]) and
