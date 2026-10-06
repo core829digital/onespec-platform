@@ -25,6 +25,7 @@ export default function RegisterPage() {
 
 function RegisterForm() {
   const t = useTranslations("auth.register");
+  const tj = useTranslations("auth.join");
   const authMsg = useAuthErrorMessage();
   const locale = useLocale();
   const router = useRouter();
@@ -163,6 +164,10 @@ function RegisterForm() {
 
       <p className="text-center text-sm text-[var(--color-text-secondary)]">
         {t("hasAccount")} <Link href="/auth/login" className="text-[var(--color-mint-text)] underline underline-offset-2">{t("loginLink")}</Link>
+      </p>
+      <p className="text-center text-sm text-[var(--color-text-secondary)]">
+        {tj("prompt")}{" "}
+        <Link href="/auth/join" className="text-[var(--color-mint-text)] underline underline-offset-2">{tj("cta")}</Link>
       </p>
     </form>
   );

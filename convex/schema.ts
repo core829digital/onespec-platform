@@ -206,11 +206,63 @@ export default defineSchema({
     invitedByUserId: v.optional(v.id("users")),
     acceptedAt: v.optional(v.number()),
     status: v.union(v.literal("active"), v.literal("invited"), v.literal("removed")),
+    /** Professional grade (src/shared/grades.ts): which areas of the platform this member works in. Absent = no narrowing (older members). */
+    grade: v.optional(v.string()),
+    /** The team (sala) the member joined through. */
+    teamId: v.optional(v.id("teams")),
   })
     .index("by_tenant", ["tenantId"])
+    .index("by_team", ["teamId"])
     .index("by_user", ["userId"])
     .index("by_tenant_user", ["tenantId", "userId"]),
 
+  /**
+   * A team (sala): the group an admin creates to bring colleagues into the company. It has an alphanumeric password that the admin gives
+   * to the people in person (never by e-mail). Joining needs the invite link + the code e-mailed to that person + this password.
+   */
+  teams: defineTable({
+    tenantId: v.id("tenants"),
+    name: v.string(),
+    /** PBKDF2 hash of the password and its salt (base64); the password itself is shown once, when created or regenerated. */
+    passwordHash: v.string(),
+    passwordSalt: v.string(),
+    createdByUserId: v.id("users"),
+    passwordChangedAt: v.number(),
+    archivedAt: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"]),
+
+  /**
+   * One entry ticket into a team: the link (token) and the 6-digit code that travel together in the e-mail. Single use, short-lived,
+   * locked after 5 wrong codes. kind "invite" = an admin invited this e-mail with a grade; "login" = a member who is already in
+   * asked for a new way in (the session expired).
+   */
+  teamTickets: defineTable({
+    tenantId: v.id("tenants"),
+    teamId: v.id("teams"),
+    kind: v.union(v.literal("invite"), v.literal("login")),
+    email: v.string(),
+    grade: v.optional(v.string()),
+    /** Name the admin gave the invitee (shown in the e-mail and prefilled in the join form). */
+    inviteeName: v.optional(v.string()),
+    locale: v.string(),
+    token: v.string(),
+    codeHash: v.string(),
+    codeSalt: v.string(),
+    wrongAttempts: v.number(),
+    invitedByUserId: v.optional(v.id("users")),
+    expiresAt: v.number(),
+    usedAt: v.optional(v.number()),
+    lockedAt: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_token", ["token"])
+    .index("by_tenant", ["tenantId"])
+    .index("by_team", ["teamId"])
+    .index("by_email", ["email"]),
+
+  /** @deprecated Replaced by `teams` + `teamTickets` (convex/teams.ts). Kept only so the rows already stored stay valid; nothing reads or writes it. */
   invitations: defineTable({
     tenantId: v.id("tenants"),
     email: v.string(),
@@ -747,7 +799,7 @@ export default defineSchema({
                       v.literal("new_quote_request"), v.literal("quote_status_changed"),
                       v.literal("member_joined"), v.literal("configurator_published"),
                       v.literal("plan_limit"), v.literal("system"),
-                      v.literal("invitation"),
+                      v.literal("invitation"), v.literal("team_access"),
                       v.literal("admin_resend"), v.literal("purchase_receipt"),
                       v.literal("subscription_confirmation"),
                       v.literal("referral_invited"), v.literal("referral_registered"),

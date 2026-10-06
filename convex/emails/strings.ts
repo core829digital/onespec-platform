@@ -61,6 +61,19 @@ export interface EmailStrings {
     expires: string;
     text: string;
   };
+  teamAccess: {
+    invite: { subject: (company: string) => string; title: string; body: (inviter: string, company: string, team: string, grade: string) => string };
+    login: { subject: (company: string) => string; title: string; body: (company: string, team: string) => string };
+    colleague: string;
+    company: string;
+    codeLabel: string;
+    cta: string;
+    howTo: string;
+    expires7: string;
+    expires15: string;
+    neverShare: string;
+    text: string;
+  };
   referral: {
     invited: { subject: string; title: string; body: (percent: string) => string; cta: string };
     registered: { subject: string; title: string; body: string; cta: string };
@@ -144,6 +157,27 @@ const it: EmailStrings = {
     cta: "Accetta l'invito",
     expires: "L'invito scade tra 7 giorni.",
     text: "Sei stato invitato a onespec",
+  },
+  teamAccess: {
+    invite: {
+      subject: (c) => `Il tuo accesso a ${c} su onespec`,
+      title: "Sei stato invitato nel team",
+      body: (i, c, t, g) => `${i} ti ha invitato a entrare in <strong>${c}</strong> (gruppo <strong>${t}</strong>) come <strong>${g}</strong>.`,
+    },
+    login: {
+      subject: (c) => `Il tuo codice di accesso a ${c}`,
+      title: "Accedi al tuo team",
+      body: (c, t) => `Hai chiesto di accedere a <strong>${c}</strong> (gruppo <strong>${t}</strong>).`,
+    },
+    colleague: "Un collega",
+    company: "un'azienda",
+    codeLabel: "Il tuo codice di verifica",
+    cta: "Apri la pagina di accesso",
+    howTo: "Per entrare servono tre cose: questo link, il codice qui sopra e la password del gruppo, che ti dà di persona chi ti ha invitato. La password non è scritta in questa email.",
+    expires7: "Il link e il codice scadono tra 7 giorni e si usano una sola volta.",
+    expires15: "Il link e il codice scadono tra 15 minuti e si usano una sola volta.",
+    neverShare: "Non inoltrare questa email: chi ha link e codice, conoscendo la password del gruppo, può entrare al tuo posto.",
+    text: "Accesso al team su onespec",
   },
   referral: {
     invited: {
@@ -248,6 +282,27 @@ const en: EmailStrings = {
     expires: "This invitation expires in 7 days.",
     text: "You've been invited to onespec",
   },
+  teamAccess: {
+    invite: {
+      subject: (c) => `Your access to ${c} on onespec`,
+      title: "You have been invited to the team",
+      body: (i, c, t, g) => `${i} invited you to join <strong>${c}</strong> (group <strong>${t}</strong>) as <strong>${g}</strong>.`,
+    },
+    login: {
+      subject: (c) => `Your access code for ${c}`,
+      title: "Sign in to your team",
+      body: (c, t) => `You asked to sign in to <strong>${c}</strong> (group <strong>${t}</strong>).`,
+    },
+    colleague: "A colleague",
+    company: "a company",
+    codeLabel: "Your verification code",
+    cta: "Open the sign-in page",
+    howTo: "To get in you need three things: this link, the code above and the group password, which the person who invited you gives you in person. The password is not written in this e-mail.",
+    expires7: "The link and the code expire in 7 days and can be used only once.",
+    expires15: "The link and the code expire in 15 minutes and can be used only once.",
+    neverShare: "Do not forward this e-mail: anyone with the link and the code who also knows the group password can come in as you.",
+    text: "Team access on onespec",
+  },
   referral: {
     invited: {
       subject: "Your invitation discount — onespec",
@@ -350,6 +405,27 @@ const fr: EmailStrings = {
     cta: "Accepter l'invitation",
     expires: "Cette invitation expire dans 7 jours.",
     text: "Vous êtes invité sur onespec",
+  },
+  teamAccess: {
+    invite: {
+      subject: (c) => `Votre accès à ${c} sur onespec`,
+      title: "Vous êtes invité dans l'équipe",
+      body: (i, c, t, g) => `${i} vous invite à rejoindre <strong>${c}</strong> (groupe <strong>${t}</strong>) en tant que <strong>${g}</strong>.`,
+    },
+    login: {
+      subject: (c) => `Votre code d'accès à ${c}`,
+      title: "Connectez-vous à votre équipe",
+      body: (c, t) => `Vous avez demandé à vous connecter à <strong>${c}</strong> (groupe <strong>${t}</strong>).`,
+    },
+    colleague: "Un collègue",
+    company: "une entreprise",
+    codeLabel: "Votre code de vérification",
+    cta: "Ouvrir la page de connexion",
+    howTo: "Pour entrer, il faut trois choses : ce lien, le code ci-dessus et le mot de passe du groupe, que la personne qui vous a invité vous donne en main propre. Le mot de passe n'est pas écrit dans cet e-mail.",
+    expires7: "Le lien et le code expirent dans 7 jours et ne servent qu'une seule fois.",
+    expires15: "Le lien et le code expirent dans 15 minutes et ne servent qu'une seule fois.",
+    neverShare: "Ne transférez pas cet e-mail : quiconque a le lien et le code et connaît le mot de passe du groupe peut entrer à votre place.",
+    text: "Accès à l'équipe sur onespec",
   },
   referral: {
     invited: {
@@ -454,6 +530,27 @@ const de: EmailStrings = {
     expires: "Diese Einladung läuft in 7 Tagen ab.",
     text: "Sie wurden zu onespec eingeladen",
   },
+  teamAccess: {
+    invite: {
+      subject: (c) => `Ihr Zugang zu ${c} auf onespec`,
+      title: "Sie wurden ins Team eingeladen",
+      body: (i, c, t, g) => `${i} hat Sie eingeladen, <strong>${c}</strong> (Gruppe <strong>${t}</strong>) als <strong>${g}</strong> beizutreten.`,
+    },
+    login: {
+      subject: (c) => `Ihr Zugangscode für ${c}`,
+      title: "Bei Ihrem Team anmelden",
+      body: (c, t) => `Sie möchten sich bei <strong>${c}</strong> (Gruppe <strong>${t}</strong>) anmelden.`,
+    },
+    colleague: "Ein Kollege",
+    company: "ein Unternehmen",
+    codeLabel: "Ihr Bestätigungscode",
+    cta: "Anmeldeseite öffnen",
+    howTo: "Zum Eintritt brauchen Sie drei Dinge: diesen Link, den Code oben und das Gruppenpasswort, das Ihnen die einladende Person persönlich gibt. Das Passwort steht nicht in dieser E-Mail.",
+    expires7: "Link und Code verfallen in 7 Tagen und sind nur einmal verwendbar.",
+    expires15: "Link und Code verfallen in 15 Minuten und sind nur einmal verwendbar.",
+    neverShare: "Leiten Sie diese E-Mail nicht weiter: Wer Link und Code hat und das Gruppenpasswort kennt, kann an Ihrer Stelle eintreten.",
+    text: "Teamzugang auf onespec",
+  },
   referral: {
     invited: {
       subject: "Ihr Einladungsrabatt — onespec",
@@ -557,6 +654,27 @@ const nl: EmailStrings = {
     expires: "Deze uitnodiging verloopt over 7 dagen.",
     text: "Je bent uitgenodigd voor onespec",
   },
+  teamAccess: {
+    invite: {
+      subject: (c) => `Je toegang tot ${c} op onespec`,
+      title: "Je bent uitgenodigd voor het team",
+      body: (i, c, t, g) => `${i} nodigt je uit om <strong>${c}</strong> (groep <strong>${t}</strong>) te vervoegen als <strong>${g}</strong>.`,
+    },
+    login: {
+      subject: (c) => `Je toegangscode voor ${c}`,
+      title: "Meld je aan bij je team",
+      body: (c, t) => `Je vroeg om aan te melden bij <strong>${c}</strong> (groep <strong>${t}</strong>).`,
+    },
+    colleague: "Een collega",
+    company: "een bedrijf",
+    codeLabel: "Je verificatiecode",
+    cta: "Open de aanmeldpagina",
+    howTo: "Om binnen te komen heb je drie dingen nodig: deze link, de code hierboven en het groepswachtwoord, dat de persoon die je uitnodigde je persoonlijk geeft. Het wachtwoord staat niet in deze e-mail.",
+    expires7: "De link en de code verlopen over 7 dagen en kunnen maar één keer worden gebruikt.",
+    expires15: "De link en de code verlopen over 15 minuten en kunnen maar één keer worden gebruikt.",
+    neverShare: "Stuur deze e-mail niet door: wie de link en de code heeft en het groepswachtwoord kent, kan in jouw plaats binnenkomen.",
+    text: "Teamtoegang op onespec",
+  },
   referral: {
     invited: {
       subject: "Je uitnodigingskorting — onespec",
@@ -659,6 +777,27 @@ const ro: EmailStrings = {
     cta: "Acceptă invitația",
     expires: "Invitația expiră în 7 zile.",
     text: "Ai fost invitat în onespec",
+  },
+  teamAccess: {
+    invite: {
+      subject: (c) => `Accesul tău la ${c} pe onespec`,
+      title: "Ai fost invitat în echipă",
+      body: (i, c, t, g) => `${i} te-a invitat să te alături <strong>${c}</strong> (grupul <strong>${t}</strong>) ca <strong>${g}</strong>.`,
+    },
+    login: {
+      subject: (c) => `Codul tău de acces la ${c}`,
+      title: "Intră în echipa ta",
+      body: (c, t) => `Ai cerut să intri în <strong>${c}</strong> (grupul <strong>${t}</strong>).`,
+    },
+    colleague: "Un coleg",
+    company: "o companie",
+    codeLabel: "Codul tău de verificare",
+    cta: "Deschide pagina de acces",
+    howTo: "Pentru a intra îți trebuie trei lucruri: acest link, codul de mai sus și parola grupului, pe care ți-o dă personal cine te-a invitat. Parola nu este scrisă în acest e-mail.",
+    expires7: "Linkul și codul expiră în 7 zile și se pot folosi o singură dată.",
+    expires15: "Linkul și codul expiră în 15 minute și se pot folosi o singură dată.",
+    neverShare: "Nu redirecționa acest e-mail: cine are linkul și codul și cunoaște parola grupului poate intra în locul tău.",
+    text: "Acces în echipă pe onespec",
   },
   referral: {
     invited: {

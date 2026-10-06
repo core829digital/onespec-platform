@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 import { Lock, X } from "lucide-react";
 import { useSubscriptionEnded } from "@/lib/plan-gates";
 import { useSearchParams } from "next/navigation";
-import { lockedInNav, NAV_GROUPS, ADMIN_NAV_ITEM, isNavItemActive, navHref, type NavGroup } from "./nav-items";
+import { lockedInNav, NAV_GROUPS, ADMIN_NAV_ITEM, isNavItemActive, navHref, visibleNavGroups, type NavGroup } from "./nav-items";
 
 export function MobileNav({
   tenant,
@@ -48,9 +48,9 @@ export function MobileNav({
     };
   }, [open, onClose]);
 
-  const groups: NavGroup[] = isPlatformAdmin
-    ? [...NAV_GROUPS, { key: "admin", items: [ADMIN_NAV_ITEM] }]
-    : NAV_GROUPS;
+  const membership = useQuery(api.tenants.getMyMembership);
+  const own = visibleNavGroups(NAV_GROUPS, membership?.grade);
+  const groups: NavGroup[] = isPlatformAdmin ? [...own, { key: "admin", items: [ADMIN_NAV_ITEM] }] : own;
 
   return (
     <div

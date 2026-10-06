@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
 import { ChevronDown, Lock, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { planDisplayName, usePlanAccess, useSubscriptionEnded } from "@/lib/plan-gates";
 import { lockedInNav } from "./nav-items";
-import { NAV_GROUPS, ADMIN_NAV_ITEM, isNavItemActive, navHref, type NavItem } from "./nav-items";
+import { NAV_GROUPS, ADMIN_NAV_ITEM, isNavItemActive, navHref, visibleNavGroups, type NavItem } from "./nav-items";
 import { Logo } from "@/components/logo";
 
 const COLLAPSED_KEY = "onespec-sidebar-collapsed";
@@ -102,6 +102,9 @@ export function Sidebar({ tenant }: { tenant: Doc<"tenants"> }) {
   const access = usePlanAccess(tenant._id);
   const ended = useSubscriptionEnded(tenant);
   const { collapsed, closed, toggleCollapsed, toggleGroup } = useSidebarState();
+  // Only the areas this member's grade works in (the server refuses the rest anyway).
+  const membership = useQuery(api.tenants.getMyMembership);
+  const groups = visibleNavGroups(NAV_GROUPS, membership?.grade);
 
   return (
     <aside
@@ -131,7 +134,7 @@ export function Sidebar({ tenant }: { tenant: Doc<"tenants"> }) {
             collapsed ? "space-y-2 p-2" : "space-y-3 p-3",
           )}
         >
-          {NAV_GROUPS.map((group, gi) => {
+          {groups.map((group, gi) => {
             const open = collapsed || !closed.has(group.key);
             return (
               <div key={group.key}>

@@ -13,6 +13,7 @@
  * or values built server-side from trusted sources (SITE_URL, Convex IDs).
  */
 import { emailStrings, type QuoteStatus } from "./strings";
+import { gradeLabel } from "../../src/shared/grade-labels";
 
 type Rendered = { subject: string; html: string; text: string };
 
@@ -38,6 +39,15 @@ export interface AuthEmailData {
   inviterName?: string;
   role?: string;
   acceptUrl?: string;
+  /** team_access: "invite" (an admin invited this e-mail) or "login" (a member asked for a new way in). */
+  kind?: "invite" | "login";
+  teamName?: string;
+  inviteeName?: string;
+  /** team_access: key of the professional grade (named in the recipient's language). */
+  grade?: string;
+  joinUrl?: string;
+  /** team_access: how long the link and code last — "7d" or "15m". */
+  expiresText?: string;
   /** plan_limit: the monthly cap that was hit, rendered in the recipient's language. */
   limit?: number;
   /** Referral emails: a ready-to-print money amount (already formatted) and a discount percentage. */
@@ -245,6 +255,31 @@ export function renderAuthEmail(template: string, locale: string, data: AuthEmai
            ${data.href ? cta(href, L.system.open) : ""}`,
         ),
         text: line(data.message ?? "onespec"),
+      };
+    }
+
+    case "team_access": {
+      const T = L.teamAccess;
+      const team = esc(data.teamName ?? "");
+      const firstLine = data.kind === "login"
+        ? T.login.body(company || T.company, team)
+        : T.invite.body(inviter || T.colleague, company || T.company, team, esc(data.grade ? gradeLabel(locale, data.grade) : "—"));
+      const title = data.kind === "login" ? T.login.title : T.invite.title;
+      const subject = data.kind === "login" ? T.login.subject(data.companyName ?? "") : T.invite.subject(data.companyName ?? "");
+      const joinUrl = escUrl(data.joinUrl ?? base) === "#" ? base : String(data.joinUrl ?? base);
+      const expires = data.expiresText === "15m" ? T.expires15 : T.expires7;
+      return {
+        subject: line(subject),
+        html: wrap(
+          `${H1}${title}</h1>
+           ${P}${firstLine}</p>
+           ${P}${T.codeLabel}</p>
+           ${codeBox(data.code ?? "")}
+           ${cta(joinUrl, T.cta)}
+           ${P}${T.howTo}</p>
+           <p style="color:#6e6e73;font-size:13px;margin-top:14px">${expires}<br />${T.neverShare}</p>`,
+        ),
+        text: `${T.text}: ${line(data.companyName ?? "")} / ${line(data.teamName ?? "")}\n${T.codeLabel}: ${line(data.code ?? "")}\n${joinUrl}\n\n${T.howTo}\n${expires}`,
       };
     }
 

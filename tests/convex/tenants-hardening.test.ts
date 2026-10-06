@@ -1,37 +1,29 @@
-import { describe, expect, test, vi } from "vitest";
-import { api } from "../../convex/_generated/api";
+import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
+import { api, internal } from "../../convex/_generated/api";
 import { newDb, seedTenant } from "./_helpers";
 
 describe("tenants hardening (launch audit)", () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
+
   test("an invitation sent before a downgrade can't push the team over the new seat limit", async () => {
     const t = newDb();
     const s = await seedTenant(t, { plan: "pro" }); // 3 active members, Pro allows 5
-    const inviteeId = await t.run(async (ctx) => {
-      await ctx.db.insert("invitations", {
-        tenantId: s.tenantId, email: "late@example.com", role: "member", token: "tok_late_invite_000000000000000",
-        invitedByUserId: s.ownerId, expiresAt: Date.now() + 86_400_000,
-      });
-      // Downgrade to Base (2 seats) after the invitation was sent.
-      await ctx.db.patch(s.tenantId, { plan: "base" });
-      return ctx.db.insert("users", { name: "late", email: "late@example.com", emailVerificationTime: Date.now() });
-    });
-    await expect(
-      t.withIdentity({ subject: inviteeId }).mutation(api.tenants.acceptInvitation, { token: "tok_late_invite_000000000000000" }),
-    ).rejects.toThrow("MEMBER_LIMIT_REACHED");
+    const as = t.withIdentity({ subject: s.ownerId });
+    const team = await as.mutation(api.teams.createTeam, { tenantId: s.tenantId, name: "Posa" });
+    await as.mutation(api.teams.inviteToTeam, { teamId: team.teamId, email: "late@example.com", grade: "montatore" });
+    await t.finishAllScheduledFunctions(vi.runAllTimers);
+    const mail = (await t.run((ctx) => ctx.db.query("emailLog").collect())).find((r) => r.to === "late@example.com")!.bodyPreview!;
+    const token = /[?&]i=([A-Za-z0-9_-]+)/.exec(mail)![1];
+    const code = /\b(\d{6})\b/.exec(mail)![1];
+    // Downgrade to Base (2 seats) after the invitation was sent.
+    await t.run((ctx) => ctx.db.patch(s.tenantId, { plan: "base" }));
+    expect(await t.mutation(internal.teamAccess.consumeTicket, { token, code, password: team.password, name: "Late Person", consent: true })).toEqual({ ok: false, error: "MEMBER_LIMIT_REACHED" });
   });
 
-  test("an invitation within the seat limit is still accepted", async () => {
-    const t = newDb();
-    const s = await seedTenant(t, { plan: "pro" });
-    const inviteeId = await t.run(async (ctx) => {
-      await ctx.db.insert("invitations", {
-        tenantId: s.tenantId, email: "ok@example.com", role: "member", token: "tok_ok_invite_00000000000000000",
-        invitedByUserId: s.ownerId, expiresAt: Date.now() + 86_400_000,
-      });
-      return ctx.db.insert("users", { name: "ok", email: "ok@example.com", emailVerificationTime: Date.now() });
-    });
-    const r = await t.withIdentity({ subject: inviteeId }).mutation(api.tenants.acceptInvitation, { token: "tok_ok_invite_00000000000000000" });
-    expect(r.tenantId).toBe(s.tenantId);
+  test("the old invitation system is gone: no function creates or accepts an old-style invitation", async () => {
+    const tenants = (await import("../../convex/tenants")) as Record<string, unknown>;
+    for (const name of ["inviteMember", "acceptInvitation", "listInvitations", "cancelInvitation", "getInvitationByToken"]) expect(tenants[name], name).toBeUndefined();
   });
 
   test("company name and country are validated on update", async () => {
@@ -49,7 +41,6 @@ describe("tenants hardening (launch audit)", () => {
 
 describe("widget view counting (launch audit)", () => {
   test("a plan without the public widget gets counted:false, never an error", async () => {
-    const { internal } = await import("../../convex/_generated/api");
     const { seedPublishedConfigurator } = await import("./_helpers");
     const t = newDb();
     const s = await seedTenant(t, { plan: "base" });
@@ -60,7 +51,6 @@ describe("widget view counting (launch audit)", () => {
 
 describe("quote notes (launch audit)", () => {
   test("notes are bounded so the quote document can never hit the 1 MB limit", async () => {
-    const { internal } = await import("../../convex/_generated/api");
     const { seedPublishedConfigurator, sampleItem } = await import("./_helpers");
     vi.useFakeTimers();
     const t = newDb();

@@ -44,7 +44,7 @@ export const syncSupplierDirectories = mutation({
   handler: async (ctx, args) => {
     // Either module may be the one the user is in: whoever can use Fornitura or Logistica may link the directories.
     try {
-      await requirePermission(ctx, args.tenantId, "quotes.manage");
+      await requirePermission(ctx, args.tenantId, "supply.manage");
     } catch {
       await requirePermission(ctx, args.tenantId, "logistics.manage");
     }

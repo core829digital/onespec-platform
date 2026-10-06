@@ -74,6 +74,20 @@ export type ErrorKey =
   | "supplyDeliveryStockMoved"
   | "supplyDeliveryExists"
   | "cantiereHasLogistics"
+  | "teamNotFound"
+  | "teamNameInvalid"
+  | "teamLimit"
+  | "teamNameTaken"
+  | "gradeInvalid"
+  | "joinNotFound"
+  | "joinUsed"
+  | "joinExpired"
+  | "joinLocked"
+  | "joinCodeWrong"
+  | "joinPasswordWrong"
+  | "joinNameRequired"
+  | "joinConsentRequired"
+  | "joinOtherCompany"
   | "tenantMismatch"
   | "emailNotVerified"
   | "registrationClosed"
@@ -185,6 +199,20 @@ const EXACT: Record<string, ErrorKey> = {
   SUPPLY_DELIVERY_STOCK_MOVED: "supplyDeliveryStockMoved",
   SUPPLY_DELIVERY_EXISTS: "supplyDeliveryExists",
   CANTIERE_HAS_LOGISTICS: "cantiereHasLogistics",
+  TEAM_NOT_FOUND: "teamNotFound",
+  TEAM_NAME_INVALID: "teamNameInvalid",
+  TEAM_LIMIT_REACHED: "teamLimit",
+  TEAM_NAME_TAKEN: "teamNameTaken",
+  GRADE_INVALID: "gradeInvalid",
+  JOIN_NOT_FOUND: "joinNotFound",
+  JOIN_USED: "joinUsed",
+  JOIN_EXPIRED: "joinExpired",
+  JOIN_LOCKED: "joinLocked",
+  JOIN_CODE_WRONG: "joinCodeWrong",
+  JOIN_PASSWORD_WRONG: "joinPasswordWrong",
+  JOIN_NAME_REQUIRED: "joinNameRequired",
+  JOIN_CONSENT_REQUIRED: "joinConsentRequired",
+  JOIN_OTHER_COMPANY: "joinOtherCompany",
   QUALITY_IN_USE: "qualityInUse",
   PROFILE_QUALITY_UNKNOWN: "profileQualityUnknown",
   INVALID_COMBINATION: "invalidCombination",

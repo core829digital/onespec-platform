@@ -1,7 +1,7 @@
 import { query, mutation, internalMutation } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
-import { requirePermission } from "./lib/rbac";
+import { requirePermission, requirePermissionOrNull } from "./lib/rbac";
 import { listRelated } from "./lib/links";
 import { assertActiveMembers } from "./lib/links";
 import { propagateClientEdit } from "./lib/crmLink";
@@ -15,7 +15,8 @@ export const listClients = query({
     search: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    await requirePermission(ctx, args.tenantId, "clients.use");
+    const allowed = await requirePermissionOrNull(ctx, args.tenantId, "clients.use");
+    if (!allowed) return [];
     const limit = Math.min(Math.max(args.limit ?? 50, 1), 200);
 
     // Fetch all clients for tenant, then filter in memory

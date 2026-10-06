@@ -5,14 +5,11 @@ import { internal } from "./_generated/api";
 import type { Doc } from "./_generated/dataModel";
 import {
   requireVerifiedUser,
-  requireUser,
   requirePlatformAdmin,
   requireMembership,
 } from "./lib/auth";
 import { nanoid } from "./lib/ids";
 import { isFullAccessEmail } from "./lib/founding";
-import { resolveTenantEntitlements, assertQuota } from "./lib/entitlements";
-import { enforceForAddTeamMember } from "./lib/enforcement";
 import { requirePermission } from "./lib/rbac";
 import { emit } from "./lib/triggers";
 import { unlockOnReactivation } from "./usage";
@@ -98,6 +95,16 @@ export const getMyTenant = query({
     const membership = await ctx.db.query("memberships").withIndex("by_user", q => q.eq("userId", userId)).first();
     if (!membership) return null;
     return await ctx.db.get(membership.tenantId);
+  },
+});
+
+/** The caller's own membership (access tier + grade), for the menu: it shows only the areas this member works in. */
+export const getMyMembership = query({
+  handler: async (ctx) => {
+    const userId = await requireVerifiedUser(ctx);
+    const m = await ctx.db.query("memberships").withIndex("by_user", (q) => q.eq("userId", userId)).first();
+    if (!m || m.status !== "active") return null;
+    return { tenantId: m.tenantId, role: m.role, grade: m.grade ?? null };
   },
 });
 
@@ -231,121 +238,8 @@ export const getCompanyProfile = query({
   },
 });
 
-// ── Team invitations ────────────────────────────────────────────────────────
-
-const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
-const INVITE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
-
-export const listInvitations = query({
-  args: { tenantId: v.id("tenants") },
-  handler: async (ctx, args) => {
-    await requirePermission(ctx, args.tenantId, "tenant.settings");
-    const rows = await ctx.db
-      .query("invitations")
-      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
-      .collect();
-    return rows
-      .filter((r) => !r.acceptedAt && r.expiresAt > Date.now())
-      .map((r) => ({ _id: r._id, email: r.email, role: r.role, expiresAt: r.expiresAt }));
-  },
-});
-
-export const inviteMember = mutation({
-  args: {
-    tenantId: v.id("tenants"),
-    email: v.string(),
-    role: v.union(v.literal("admin"), v.literal("member")),
-  },
-  handler: async (ctx, args) => {
-    await enforceForAddTeamMember(ctx, args.tenantId);
-    const { userId } = await requirePermission(ctx, args.tenantId, "team.invite");
-    const email = args.email.trim().toLowerCase();
-    if (!EMAIL_RE.test(email) || email.length > 200) throw new ConvexError("INVALID_EMAIL");
-
-    const tenant = await ctx.db.get(args.tenantId);
-    if (!tenant) throw new ConvexError("TENANT_NOT_FOUND");
-
-    // Already a member?
-    const members = await ctx.db
-      .query("memberships")
-      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
-      .collect();
-    for (const m of members) {
-      const u = await ctx.db.get(m.userId);
-      if (u?.email?.toLowerCase() === email) throw new ConvexError("ALREADY_MEMBER");
-    }
-
-    // Pending invite for this email?
-    const existing = await ctx.db
-      .query("invitations")
-      .withIndex("by_email", (q) => q.eq("email", email))
-      .collect();
-    const pending = existing.find(
-      (i) => i.tenantId === args.tenantId && !i.acceptedAt && i.expiresAt > Date.now(),
-    );
-    if (pending) throw new ConvexError("ALREADY_INVITED");
-
-    // Seat quota: active members + pending invites.
-    const activeMembers = members.filter((m) => m.status === "active").length;
-    const pendingCount = existing.filter(
-      (i) => i.tenantId === args.tenantId && !i.acceptedAt && i.expiresAt > Date.now(),
-    ).length;
-    assertQuota(
-      activeMembers + pendingCount,
-      resolveTenantEntitlements(tenant).maxTeamMembers,
-      "MEMBER_LIMIT_REACHED",
-    );
-
-    const token = nanoid(32);
-    const invitationId = await ctx.db.insert("invitations", {
-      tenantId: args.tenantId,
-      email,
-      role: args.role,
-      token,
-      invitedByUserId: userId,
-      expiresAt: Date.now() + INVITE_TTL_MS,
-    });
-
-    const inviter = await ctx.db.get(userId);
-    // The invitee has no account yet: write in the inviter's language, else the
-    // company's market language — and open the invite page in that language.
-    const inviteLocale = inviter?.locale ?? regionForCountry(tenant.country).primaryLocale;
-    await ctx.scheduler.runAfter(0, internal.email.send, {
-      template: "invitation",
-      to: email,
-      locale: inviteLocale,
-      data: {
-        companyName: tenant.name,
-        inviterName: inviter?.name ?? inviter?.email ?? undefined,
-        // A key, translated by the template in the email's language.
-        role: args.role,
-        acceptUrl: `${process.env.SITE_URL ?? "http://localhost:3000"}${inviteLocale === "it" ? "" : `/${inviteLocale}`}/invite/${token}`,
-      },
-      tenantId: args.tenantId,
-    });
-    await ctx.db.insert("auditLog", {
-      tenantId: args.tenantId,
-      actorUserId: userId,
-      actorKind: "user",
-      action: "team.invite",
-      targetTable: "invitations",
-      targetId: invitationId,
-      meta: { email, role: args.role },
-      createdAt: Date.now(),
-    });
-    return { invitationId };
-  },
-});
-
-export const cancelInvitation = mutation({
-  args: { invitationId: v.id("invitations") },
-  handler: async (ctx, args) => {
-    const inv = await ctx.db.get(args.invitationId);
-    if (!inv) return;
-    await requirePermission(ctx, inv.tenantId, "team.cancelInvite");
-    await ctx.db.delete(args.invitationId);
-  },
-});
+// ── Team ────────────────────────────────────────────────────────────────────
+// Invitations live in convex/teams.ts (teams, invite link + code + team password) and convex/teamAccess.ts (the door).
 
 export const removeMember = mutation({
   args: { membershipId: v.id("memberships") },
@@ -364,83 +258,6 @@ export const removeMember = mutation({
       targetId: args.membershipId,
       createdAt: Date.now(),
     });
-  },
-});
-
-export const getInvitationByToken = query({
-  args: { token: v.string() },
-  handler: async (ctx, args) => {
-    const inv = await ctx.db
-      .query("invitations")
-      .withIndex("by_token", (q) => q.eq("token", args.token))
-      .unique();
-    if (!inv) return null;
-    const tenant = await ctx.db.get(inv.tenantId);
-    return {
-      email: inv.email,
-      role: inv.role,
-      tenantName: tenant?.name ?? "—",
-      expired: inv.expiresAt <= Date.now(),
-      accepted: !!inv.acceptedAt,
-    };
-  },
-});
-
-export const acceptInvitation = mutation({
-  args: { token: v.string() },
-  handler: async (ctx, args) => {
-    const userId = await requireUser(ctx);
-    const inv = await ctx.db
-      .query("invitations")
-      .withIndex("by_token", (q) => q.eq("token", args.token))
-      .unique();
-    if (!inv) throw new ConvexError("INVITATION_NOT_FOUND");
-    if (inv.acceptedAt) throw new ConvexError("INVITATION_USED");
-    if (inv.expiresAt <= Date.now()) throw new ConvexError("INVITATION_EXPIRED");
-
-    const user = await ctx.db.get(userId);
-    if (user?.email && user.email.toLowerCase() !== inv.email) {
-      throw new ConvexError("INVITATION_EMAIL_MISMATCH");
-    }
-
-    const existing = await ctx.db
-      .query("memberships")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
-      .first();
-    if (existing) throw new ConvexError("ALREADY_HAS_TENANT");
-
-    // Seats are re-checked at ACCEPT time too: an invitation sent before a
-    // downgrade must not push the team over the current plan's limit.
-    const tenant = await ctx.db.get(inv.tenantId);
-    if (!tenant) throw new ConvexError("TENANT_NOT_FOUND");
-    const seats = resolveTenantEntitlements(tenant).maxTeamMembers;
-    if (Number.isFinite(seats)) {
-      const active = await ctx.db
-        .query("memberships")
-        .withIndex("by_tenant", (q) => q.eq("tenantId", inv.tenantId))
-        .filter((q) => q.eq(q.field("status"), "active"))
-        .take(seats + 1);
-      assertQuota(active.length, seats, "MEMBER_LIMIT_REACHED");
-    }
-
-    await ctx.db.insert("memberships", {
-      tenantId: inv.tenantId,
-      userId,
-      role: inv.role,
-      invitedByUserId: inv.invitedByUserId,
-      status: "active",
-      acceptedAt: Date.now(),
-    });
-    await ctx.db.patch(inv._id, { acceptedAt: Date.now() });
-    await ctx.db.insert("auditLog", {
-      tenantId: inv.tenantId,
-      actorUserId: userId,
-      actorKind: "user",
-      action: "team.invite_accepted",
-      targetTable: "memberships",
-      createdAt: Date.now(),
-    });
-    return { tenantId: inv.tenantId };
   },
 });
 

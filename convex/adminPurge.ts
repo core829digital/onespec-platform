@@ -29,6 +29,8 @@ export const TENANT_TABLES = [
   "trialFingerprints",
   "memberships",
   "invitations",
+  "teams",
+  "teamTickets",
   "dpaAcceptances",
   "configurators",
   "branding",
@@ -181,6 +183,10 @@ export const dropKeptTenantLinks = internalMutation({
     }
     for (const i of await ctx.db.query("invitations").collect()) {
       if (doomed.has(i.invitedByUserId)) { await ctx.db.delete(i._id); n++; }
+    }
+    // Entry tickets sent by a deleted user are void with them.
+    for (const tk of await ctx.db.query("teamTickets").collect()) {
+      if (tk.invitedByUserId && doomed.has(tk.invitedByUserId)) { await ctx.db.delete(tk._id); n++; }
     }
     return n;
   },

@@ -1,7 +1,7 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
-import { requirePermission } from "./lib/rbac";
+import { requirePermission, requirePermissionOrNull } from "./lib/rbac";
 import { listRelated, assertOwnedRefs, assertActiveMembers } from "./lib/links";
 import { consumeToken, RATE_LIMITS } from "./lib/ratelimit";
 import { hashIp } from "./lib/ipHash";
@@ -28,7 +28,8 @@ export const listCantieri = query({
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    await requirePermission(ctx, args.tenantId, "cantieri.use");
+    const allowed = await requirePermissionOrNull(ctx, args.tenantId, "cantieri.use");
+    if (!allowed) return [];
     const limit = Math.min(Math.max(args.limit ?? 100, 1), 500);
 
     // Fetch all cantieri for tenant, then filter in memory

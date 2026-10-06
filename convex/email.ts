@@ -15,7 +15,8 @@ const TEMPLATE = v.union(
   v.literal("configurator_published"),
   v.literal("plan_limit"),
   v.literal("system"),
-  v.literal("invitation"),
+  v.literal("invitation"), // legacy: only so old log rows can still be re-rendered
+  v.literal("team_access"),
   v.literal("admin_resend"),
   v.literal("purchase_receipt"),
   v.literal("subscription_confirmation"),
@@ -37,6 +38,7 @@ function getFromAddress(template: string): string {
     case "welcome":
     case "welcome_alpha":
     case "invitation":
+    case "team_access":
     case "admin_resend":
     case "new_quote_request":
     default:

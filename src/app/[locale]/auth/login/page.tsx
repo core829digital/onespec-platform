@@ -24,6 +24,7 @@ export default function LoginPage() {
 
 function LoginForm() {
   const t = useTranslations("auth.login");
+  const tj = useTranslations("auth.join");
   const authMsg = useAuthErrorMessage();
   const router = useRouter();
   const redirect = getSafeRedirect(useSearchParams().get("redirect"), "/app/dashboard");
@@ -115,6 +116,15 @@ function LoginForm() {
       <p className="text-center text-sm text-[var(--color-text-secondary)]">
         <Link href="/auth/forgot-password" className="text-[var(--color-mint-text)] underline underline-offset-2">{t("forgotPassword")}</Link>
       </p>
+      <div className="border-t border-[var(--auth-line-dim)] pt-5 text-center text-sm text-[var(--color-text-secondary)]">
+        <p>{tj("prompt")}</p>
+        <Link
+          href="/auth/join"
+          className="mt-2 inline-flex w-full items-center justify-center rounded-lg border border-[var(--auth-line-dim)] px-4 py-2 font-medium text-[var(--color-text)] transition-colors hover:border-[var(--auth-live)] hover:text-[var(--color-mint-text)]"
+        >
+          {tj("cta")}
+        </Link>
+      </div>
     </form>
   );
 }

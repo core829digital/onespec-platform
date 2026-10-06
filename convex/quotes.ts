@@ -3,7 +3,7 @@ import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import { requireMembership } from "./lib/auth";
-import { requirePermission } from "./lib/rbac";
+import { requirePermission, requirePermissionOrNull } from "./lib/rbac";
 import { lockedSafeLeadName, redactQuoteRequest } from "./lib/quotaLock";
 import { hasMeteredEvent } from "./lib/metering";
 import { emit } from "./lib/triggers";
@@ -47,7 +47,8 @@ export const listRequests = query({
   },
   handler: async (ctx, args) => {
     // Redacted lead list stays readable while suspended (founder decision A).
-    await requirePermission(ctx, args.tenantId, "quotes.use", { allowSuspendedRead: true });
+    const allowed = await requirePermissionOrNull(ctx, args.tenantId, "quotes.use", { allowSuspendedRead: true });
+    if (!allowed) return []; // a grade outside sales sees an empty list, not an error
     const limit = Math.min(Math.max(args.limit ?? 50, 1), 200);
     if (args.status) {
       const status = args.status;

@@ -1,5 +1,8 @@
 import { Password } from "@convex-dev/auth/providers/Password";
 import { convexAuth } from "@convex-dev/auth/server";
+import { ConvexCredentials } from "@convex-dev/auth/providers/ConvexCredentials";
+import { ConvexError } from "convex/values";
+import { internal } from "./_generated/api";
 import { ResendOTP } from "./ResendOTP";
 import { ResendPasswordReset } from "./ResendPasswordReset";
 import { withTurnstileGuard, type Authorize } from "./lib/authGuard";
@@ -39,8 +42,30 @@ options.authorize = withTurnstileGuard(options.authorize);
 // server integration (dist/nextjs/server/cookies.js) — none of that needed
 // building, only these two durations needed shortening from the library's
 // generous 1h JWT / 30-day session defaults:
+/**
+ * "Join a company": the way a colleague comes in WITHOUT creating an account. The three keys are the invite link (token), the 6-digit code
+ * e-mailed with it and the team's password given in person. All the checking — and the lock after five wrong tries — happens in
+ * `teamAccess.consumeTicket`; this only hands over what the join page sent and signs the person in.
+ */
+const teamAccess = ConvexCredentials({
+  id: "team-access",
+  authorize: async (credentials, ctx) => {
+    const text = (k: string) => (typeof credentials[k] === "string" ? (credentials[k] as string) : "");
+    const result = await ctx.runMutation(internal.teamAccess.consumeTicket, {
+      token: text("token"),
+      code: text("code"),
+      password: text("password"),
+      name: text("name") || undefined,
+      locale: text("locale") || undefined,
+      consent: credentials.consent === true || credentials.consent === "true",
+    });
+    if (!result.ok) throw new ConvexError(result.error);
+    return { userId: result.userId };
+  },
+});
+
 export const { auth, signIn, signOut, store, isAuthenticated } = convexAuth({
-  providers: [password],
+  providers: [password, teamAccess],
   jwt: {
     // Access-token lifetime. Short on purpose: this is the window a stolen
     // JWT stays usable for even after the refresh token behind it is

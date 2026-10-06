@@ -5,7 +5,7 @@
 import { mutation, query, type MutationCtx } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
 import type { Doc, Id } from "./_generated/dataModel";
-import { requirePermission, roleAtLeast } from "./lib/rbac";
+import { requirePermission, requirePermissionOrNull, roleAtLeast } from "./lib/rbac";
 import { must } from "./lib/validate";
 import { lockedSafeLeadName } from "./lib/quotaLock";
 import { ensureOrdered } from "./lib/supply";
@@ -60,7 +60,7 @@ async function ownPartner(ctx: MutationCtx, tenantId: Id<"tenants">, id: Id<"sup
   return p._id;
 }
 
-async function ownSupply(ctx: MutationCtx, id: Id<"supplies">, action: "quotes.use" | "quotes.manage" = "quotes.use") {
+async function ownSupply(ctx: MutationCtx, id: Id<"supplies">, action: "supply.use" | "supply.manage" = "supply.use") {
   const s = await ctx.db.get(id);
   if (!s) throw new ConvexError("SUPPLY_NOT_FOUND");
   await requirePermission(ctx, s.tenantId, action);
@@ -71,7 +71,7 @@ async function ownSupply(ctx: MutationCtx, id: Id<"supplies">, action: "quotes.u
 export const access = query({
   args: { tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
-    const { membership } = await requirePermission(ctx, args.tenantId, "quotes.use");
+    const { membership } = await requirePermission(ctx, args.tenantId, "supply.use");
     return { canManage: roleAtLeast(membership.role, "admin") };
   },
 });
@@ -81,7 +81,7 @@ export const access = query({
 export const listPartners = query({
   args: { tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
-    await requirePermission(ctx, args.tenantId, "quotes.use");
+    await requirePermission(ctx, args.tenantId, "supply.use");
     return await ctx.db.query("supplyPartners").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).order("desc").collect();
   },
 });
@@ -106,7 +106,7 @@ function cleanPartner(a: { name: string; roles: PartnerRole[]; contactName?: str
 export const createPartner = mutation({
   args: { tenantId: v.id("tenants"), ...partnerFields },
   handler: async (ctx, args) => {
-    const { tenant } = await requirePermission(ctx, args.tenantId, "quotes.manage");
+    const { tenant } = await requirePermission(ctx, args.tenantId, "supply.manage");
     const now = Date.now();
     const id = await ctx.db.insert("supplyPartners", { tenantId: args.tenantId, ...cleanPartner(args, tenant.country), createdAt: now, updatedAt: now });
     // The supplier is also a shipper: it appears in Logistica straight away (or is linked to the one already there).
@@ -121,7 +121,7 @@ export const updatePartner = mutation({
   handler: async (ctx, args) => {
     const p = await ctx.db.get(args.partnerId);
     if (!p) throw new ConvexError("SUPPLY_PARTNER_NOT_FOUND");
-    const { tenant } = await requirePermission(ctx, p.tenantId, "quotes.manage");
+    const { tenant } = await requirePermission(ctx, p.tenantId, "supply.manage");
     await ctx.db.replace(args.partnerId, {
       tenantId: p.tenantId,
       ...cleanPartner(args, tenant.country),
@@ -141,7 +141,7 @@ export const updatePartner = mutation({
 export const list = query({
   args: { tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
-    await requirePermission(ctx, args.tenantId, "quotes.use");
+    await requirePermission(ctx, args.tenantId, "supply.use");
     const rows = await ctx.db.query("supplies").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).order("desc").take(500);
     return rows.map((s) => ({ ...s, costCents: supplyCostCents(s), profitCents: supplyProfitCents(s) }));
   },
@@ -153,7 +153,7 @@ export const forQuote = query({
   handler: async (ctx, args) => {
     const quote = await ctx.db.get(args.quoteId);
     if (!quote) return null;
-    await requirePermission(ctx, quote.tenantId, "quotes.use");
+    if (!(await requirePermissionOrNull(ctx, quote.tenantId, "supply.use"))) return null; // outside the member's area: nothing to show, nothing to start
     const s = await ctx.db.query("supplies").withIndex("by_quote", (q) => q.eq("quoteId", args.quoteId)).first();
     return s ? { _id: s._id, status: s.status } : null;
   },
@@ -181,7 +181,7 @@ export const forShipment = query({
 export const quotesWithoutSupply = query({
   args: { tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
-    await requirePermission(ctx, args.tenantId, "quotes.use");
+    await requirePermission(ctx, args.tenantId, "supply.use");
     const recent = await ctx.db.query("quoteRequests").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).order("desc").take(100);
     const out: Array<{ _id: Id<"quoteRequests">; reference: string; customerName: string; priceExVatCents: number; status: string }> = [];
     for (const q of recent) {
@@ -200,7 +200,7 @@ export const createFromQuote = mutation({
   handler: async (ctx, args) => {
     const first = await ctx.db.get(args.quoteId);
     if (!first) throw new ConvexError("QUOTE_NOT_FOUND");
-    const { userId } = await requirePermission(ctx, first.tenantId, "quotes.use");
+    const { userId } = await requirePermission(ctx, first.tenantId, "supply.use");
     if (first.status === "lost" || first.status === "spam") throw new ConvexError("SUPPLY_QUOTE_NOT_USABLE");
     const existing = await ctx.db.query("supplies").withIndex("by_quote", (q) => q.eq("quoteId", args.quoteId)).first();
     if (existing) throw new ConvexError("SUPPLY_ALREADY_EXISTS");
@@ -257,7 +257,7 @@ export const advance = mutation({
       if (quote && quote.status !== "won") {
         await ctx.db.patch(quote._id, { status: "won" });
         // Closing the deal makes the customer an active client and confirms the site (found or created if missing).
-        const { userId } = await requirePermission(ctx, s.tenantId, "quotes.use");
+        const { userId } = await requirePermission(ctx, s.tenantId, "supply.use");
         const crm = await linkQuoteToCrm(ctx, { quoteId: quote._id, userId, stage: "won" });
         if (crm.clientId !== s.clientId || crm.cantiereId !== s.cantiereId) {
           patch.clientId = crm.clientId;
@@ -302,7 +302,7 @@ export const advance = mutation({
 export const revert = mutation({
   args: { supplyId: v.id("supplies") },
   handler: async (ctx, args) => {
-    const s = await ownSupply(ctx, args.supplyId, "quotes.manage");
+    const s = await ownSupply(ctx, args.supplyId, "supply.manage");
     const to = previousStage(s.status);
     if (!to) throw new ConvexError("SUPPLY_CANNOT_REVERT");
     const now = Date.now();
@@ -359,7 +359,7 @@ export const setFactoryPaid = mutation({
 export const remove = mutation({
   args: { supplyId: v.id("supplies") },
   handler: async (ctx, args) => {
-    const s = await ownSupply(ctx, args.supplyId, "quotes.manage");
+    const s = await ownSupply(ctx, args.supplyId, "supply.manage");
     if (s.status !== "quote" && s.status !== "order") throw new ConvexError("SUPPLY_CANNOT_DELETE");
     await ctx.db.delete(s._id);
   },
@@ -371,7 +371,7 @@ export const remove = mutation({
 export const profit = query({
   args: { tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
-    await requirePermission(ctx, args.tenantId, "quotes.use");
+    await requirePermission(ctx, args.tenantId, "supply.use");
     const now = Date.now();
     const since = windowStart(now, 120);
     const delivered = (
@@ -396,7 +396,7 @@ const MAX_EXPORT_SPAN_MS = 11 * 366 * 24 * 3600 * 1000;
 export const exportRows = query({
   args: { tenantId: v.id("tenants"), from: v.number(), to: v.number() },
   handler: async (ctx, args) => {
-    await requirePermission(ctx, args.tenantId, "quotes.use");
+    await requirePermission(ctx, args.tenantId, "supply.use");
     if (!Number.isFinite(args.from) || !Number.isFinite(args.to) || args.from > args.to || args.to - args.from > MAX_EXPORT_SPAN_MS) {
       throw new ConvexError("INVALID_INPUT");
     }

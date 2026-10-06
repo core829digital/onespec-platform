@@ -56,6 +56,9 @@ crons.daily(
   internal.email.purgeOldEmailLogs,
 );
 
+// Team access tickets (link + code): used or long-expired ones carry e-mail addresses, so they are dropped.
+crons.daily("purge-old-team-tickets", { hourUTC: 4, minuteUTC: 55 }, internal.teams.purgeOldTickets);
+
 // Referral money flow (docs/PIANO_REFERRAL.md). Each step reads Stripe and is a no-op
 // without it; qualification also stops when REFERRALS_ENABLED is off, payouts do not.
 crons.interval("referral-qualify", { hours: 6 }, internal.referralPayouts.qualifySweep, {});

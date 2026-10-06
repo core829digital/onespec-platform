@@ -3,6 +3,7 @@ import type { Doc, Id } from "../_generated/dataModel";
 import type { ReadCtx } from "./auth";
 import { requireMembership, requirePlatformAdmin as requirePlatformAdminUser } from "./auth";
 import { resolveTenantEntitlements, type BooleanEntitlementKey } from "./entitlements";
+import { gradeAllows } from "../../src/shared/grades";
 
 /**
  * Central RBAC model for the platform. Two independent axes, both already
@@ -86,6 +87,9 @@ export const PERMISSIONS = {
   "surveys.delete": { minRole: "admin", entitlement: "moduleFieldOps" },
   "logistics.use": { minRole: "member", entitlement: "moduleLogistics" },
   "logistics.manage": { minRole: "admin", entitlement: "moduleLogistics" },
+  // Fornitura (supplies, partners, profit): the money side of the jobs — separate from quotes so a grade can have one without the other.
+  "supply.use": { minRole: "member" },
+  "supply.manage": { minRole: "admin" },
   // Module entitlements above (module*) are ON for every full-platform plan —
   // they only close on the widget-first plans (essentials / essentials_plus /
   // max), which is what renders those pages "locked" in the app.
@@ -117,6 +121,11 @@ export async function requirePermission(
   if (!roleAtLeast(membership.role, spec.minRole)) {
     throw new ConvexError("INSUFFICIENT_ROLE");
   }
+  // The professional grade narrows what the tier allows (a fitter does not see the prices, a salesperson does not run the warehouse).
+  // The owner is never narrowed; a member with no grade (joined before grades existed) is not narrowed either.
+  if (membership.role !== "owner" && !gradeAllows(membership.grade, action)) {
+    throw new ConvexError("INSUFFICIENT_ROLE");
+  }
   const tenant = await ctx.db.get(tenantId);
   if (!tenant) throw new ConvexError("TENANT_NOT_FOUND");
   // No plan, no platform: every permission-checked operation (team, catalogue,
@@ -137,6 +146,22 @@ export async function requirePermission(
     throw new ConvexError("PLAN_UPGRADE_REQUIRED");
   }
   return { userId, membership, tenant };
+}
+
+/**
+ * Like `requirePermission`, but a member whose GRADE keeps them out of this area gets `null` instead of an error. For the read-only lists that
+ * shared screens (dashboard, the client/site picker, the quote page) load: a fitter opening the dashboard sees an empty "quotes" box, not a crash.
+ * Every other refusal (role, plan, suspension) still throws exactly as before, and writes keep using `requirePermission`.
+ */
+export async function requirePermissionOrNull(
+  ctx: ReadCtx,
+  tenantId: Id<"tenants">,
+  action: PermissionKey,
+  opts: { allowSuspendedRead?: boolean } = {},
+): Promise<PermissionResult | null> {
+  const { membership } = await requireMembership(ctx, tenantId);
+  if (membership.role !== "owner" && !gradeAllows(membership.grade, action)) return null;
+  return await requirePermission(ctx, tenantId, action, opts);
 }
 
 /** Re-exported so call sites only need one RBAC import for both axes. */
