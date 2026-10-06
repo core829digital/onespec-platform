@@ -24,7 +24,19 @@ Misurate con Playwright/Chromium su `next start` locale (senza CDN né compressi
 | `/auth/login` primo hit a freddo | 561 ms | 956 ms | 1720 ms |
 
 Limiti: le pagine dopo il login non sono misurate (serve un backend di prova); Lighthouse su produzione e prova su telefono reale vanno fatti dal team.
-Da indagare: il JS iniziale delle pagine auth resta ~1,3 MB grezzi; verificare con un analyzer quale chunk condiviso lo domina.
+### Perché il JS di login è ~1,3 MB grezzi (indagato)
+
+Il motore PDF (1,2 MB) NON è caricato in login: verificato. La somma è fatta da pochi blocchi condivisi:
+
+| Blocco | Grezzi | Cosa contiene |
+|---|---|---|
+| PostHog | ~298 KB | analytics, caricato in ogni pagina |
+| Sentry | ~265 KB | segnalazione errori, caricato in ogni pagina |
+| React + Next (router) | ~235 + ~129 KB | indispensabili |
+| Convex + UI (Radix) | ~83 + ~60 KB | indispensabili |
+| resto | ~275 KB | codice della pagina, i18n, stile |
+
+Monitoraggio (PostHog + Sentry) = ~560 KB, circa il 40% del totale, inizializzato in `src/instrumentation-client.ts`. Rimedio possibile: inizializzarli dopo il caricamento della pagina (import dinamico a riposo). Costo: errori ed eventi nei primissimi istanti non verrebbero registrati e va preservato il blocco del consenso cookie; PostHog è inoltre importato staticamente in molte pagine (login, registrazione, account…) e andrebbe isolato dietro un piccolo wrapper. Non applicato: tocca il monitoraggio in produzione, da decidere insieme.
 
 ## Messaggi i18n: nessuno split
 
