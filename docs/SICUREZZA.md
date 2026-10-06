@@ -10,7 +10,7 @@
 ## Controlli eseguiti in questa sessione
 | Controllo | Esito |
 |---|---|
-| Scansione di tutte le funzioni Convex pubbliche per gate di permesso (273) | 38 senza gate diretto: tutte verificate a mano → gate dentro un helper o pubbliche per scelta (PIN ospite, token, widget pubblico). Nessun buco. |
+| Scansione di tutte le funzioni Convex pubbliche per gate di permesso (273) | 38 senza gate diretto nel corpo. Verificati a mano gli helper di catalogo, forniture, uso/PDF, VIES, onboarding e team (gate presente). Le restanti sono a livello utente (profilo, referral, lingua) o pubbliche per scelta (widget, token installatore, PIN ospite cantiere). Nessun buco trovato; non è una prova formale. |
 | Funzioni che usavano solo "sei membro" | **Corrette**: `quotes.getRequest`, `getQuoteForPrint`, `linksForQuote` (ora richiedono `quotes.use` + grado), statistiche ricavi/lead (`analytics.use`). Test negativi: altra azienda e grado fuori area vendite. |
 | `signQuote` | Ora richiede `quotes.use`, rifiuta bozze e seconda firma (prima poteva sovrascrivere la firma). |
 | Eliminazione preventivi | Mai se firmato o con fornitura; i membri solo le proprie bozze. Audit log su ogni cancellazione. |
