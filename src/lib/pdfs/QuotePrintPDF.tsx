@@ -1,7 +1,8 @@
 import "./pdf-setup";
 import { Document, Image, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import type { ProjectItem } from "@/shared/pricing";
-import { buildAssemblyScene, buildHardwareScene, buildPlanScene, buildSectionScene, DRAWING_TABS, finishFillFor, buildLegendScene, DRAWING_TITLES, drawingLocale, ScenePdf, WindowDrawingPdf } from "@/lib/drawing";
+import { buildAssemblyScene, buildHardwareScene, buildPlanScene, buildSectionScene, DRAWING_TABS, finishFillFor, buildLegendScene, DRAWING_TITLES, drawingLocale } from "@/lib/drawing";
+import { ScenePdf, WindowDrawingPdf } from "@/lib/drawing/pdf";
 import { CATEGORY_DEFS } from "@/shared/configurator-model";
 import { computeItemThermal, type CatalogPayload } from "@/shared/pricing";
 import { dictFor, openingLabel } from "@/lib/quote-export/dictionary";

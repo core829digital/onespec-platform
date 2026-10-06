@@ -2,7 +2,8 @@ import "./pdf-setup";
 import { fieldPdfCopy } from "./field-pdf-i18n";
 import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import { CompanyLogo } from "./CompanyLogo";
-import { ScenePdf, type Scene } from "@/lib/drawing";
+import type { Scene } from "@/lib/drawing";
+import { ScenePdf } from "@/lib/drawing/pdf";
 import { SignatureLine } from "./SignatureLine";
 
 const colors = {

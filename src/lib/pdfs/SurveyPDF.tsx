@@ -1,7 +1,8 @@
 import "./pdf-setup";
 import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import { CompanyLogo } from "./CompanyLogo";
-import { ScenePdf, type Scene } from "@/lib/drawing";
+import type { Scene } from "@/lib/drawing";
+import { ScenePdf } from "@/lib/drawing/pdf";
 
 /** All visible strings come in as props (built from the `surveyDoc` i18n
  * namespace), so the sheet is generated in the language the user works in. */

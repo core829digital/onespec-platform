@@ -4,7 +4,7 @@ import { deflateSync } from "node:zlib";
 import { expect, test } from "vitest";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { InspectionCertPDF } from "../src/lib/pdfs/InspectionCertPDF";
-import { WindowDrawingPdf } from "../src/lib/drawing";
+import { WindowDrawingPdf } from "../src/lib/drawing/pdf";
 
 // Valid 2x2 RGB PNG built on the fly.
 function makePng(): string {

@@ -41,14 +41,15 @@ function boundedText(value: string | undefined, max = TEXT_MAX): string | undefi
 }
 
 /**
- * A list row: the quote without its signature picture. The picture is a base64 image of tens of KB per signed quote; a list of 200-500
+ * A list row: the quote without its signature picture and its pieces. The picture is a base64 image of tens of KB per signed quote; a list of 200-500
  * quotes carried it all, was re-sent to every open screen whenever any quote changed, and came close to the per-function read limit.
  * Detail and print pages still read the full document.
  */
-function listRow<T extends { signatureDataUrl?: string }>(row: T): Omit<T, "signatureDataUrl"> {
-  const { signatureDataUrl: _signature, ...rest } = row;
+function listRow<T extends { signatureDataUrl?: string; items?: unknown }>(row: T): Omit<T, "signatureDataUrl" | "items"> & { pieceCount: number } {
+  const { signatureDataUrl: _signature, items, ...rest } = row;
   void _signature;
-  return rest;
+  // The pieces themselves (sashes, options, notes) are a few KB per quote: lists only need how many there are.
+  return { ...rest, pieceCount: Array.isArray(items) ? items.length : 0 };
 }
 
 export const listRequests = query({

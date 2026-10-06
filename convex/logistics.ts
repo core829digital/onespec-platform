@@ -515,15 +515,17 @@ export const getLogisticsSummary = query({
     const upcoming = await ctx.db
       .query("deliveries")
       .withIndex("by_tenant_date", (q) => q.eq("tenantId", args.tenantId).gte("scheduledDate", now).lt("scheduledDate", in7d))
-      .collect();
+      .take(300);
     const receivedThisMonth = await ctx.db
       .query("deliveries")
       .withIndex("by_tenant_status", (q) => q.eq("tenantId", args.tenantId).eq("status", "received"))
-      .collect();
+      // Newest first and bounded: the dashboard counts this month, it must not read every delivery ever received.
+      .order("desc")
+      .take(500);
     const inStockCount = await ctx.db
       .query("inventoryItems")
       .withIndex("by_tenant_status", (q) => q.eq("tenantId", args.tenantId).eq("status", "in_stock"))
-      .collect();
+      .take(2000);
 
     return {
       upcomingDeliveries7d: upcoming.filter((d) => d.status === "scheduled" || d.status === "in_transit").length,

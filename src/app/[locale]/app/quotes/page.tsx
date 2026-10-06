@@ -183,7 +183,6 @@ export default function QuotesPage() {
             </thead>
             <tbody className="divide-y divide-[var(--color-border)]">
               {pagedQuotes?.map((r) => {
-                const items = Array.isArray(r.items) ? r.items : [];
                 const locked = !!r.signedAt || r.status === "won";
                 const date = new Date(r._creationTime).toLocaleDateString(locale, {
                   day: "2-digit",
@@ -201,7 +200,7 @@ export default function QuotesPage() {
                       {r.customerPostalCode ? ` ${r.customerPostalCode}` : ""}
                     </td>
                     <td className="px-4 py-3 text-[var(--color-text-secondary)]">
-                      {items.length} {t("pieces")}
+                      {r.pieceCount} {t("pieces")}
                     </td>
                     <td className="px-4 py-3 text-right font-mono font-semibold text-[var(--color-text)]">
                       {fmt(r.priceCents)}
