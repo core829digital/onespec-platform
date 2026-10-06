@@ -1,5 +1,5 @@
 ﻿import { ensureOrdered } from "./lib/supply";
-import { query, mutation, type MutationCtx } from "./_generated/server";
+import { query, mutation, type MutationCtx, type QueryCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 import { v, type ObjectType } from "convex/values";
 import { ConvexError } from "convex/values";
@@ -51,6 +51,13 @@ function listRow<T extends { signatureDataUrl?: string; items?: unknown }>(row: 
   void _signature;
   // The pieces themselves (sashes, options, notes) are a few KB per quote: lists only need how many there are.
   return { ...rest, pieceCount: Array.isArray(items) ? items.length : 0 };
+}
+
+/** The quote with its signature picture put back (from the side table, or inline for quotes signed before it existed). */
+async function withSignature<T extends { _id: Id<"quoteRequests">; signedAt?: number; signatureDataUrl?: string }>(ctx: QueryCtx, quote: T): Promise<T> {
+  if (!quote.signedAt || quote.signatureDataUrl) return quote;
+  const row = await ctx.db.query("quoteSignatures").withIndex("by_quote", (q) => q.eq("quoteId", quote._id)).first();
+  return row ? { ...quote, signatureDataUrl: row.signatureDataUrl } : quote;
 }
 
 export const listRequests = query({
@@ -107,7 +114,7 @@ export const getRequest = query({
     if (!quote) return null;
     // Same right as the list: a grade outside sales, or another company, never reads a quote by its id.
     await requirePermission(ctx, quote.tenantId, "quotes.use", { allowSuspendedRead: true });
-    return redactQuoteRequest(quote);
+    return redactQuoteRequest(await withSignature(ctx, quote));
   },
 });
 
@@ -566,8 +573,9 @@ export const signQuote = mutation({
     if (!signedByName) throw new ConvexError("SIGNER_NAME_REQUIRED");
 
     const now = Date.now();
+    // The picture goes to its own table (see schema.quoteSignatures); the quote keeps only who signed and when.
+    await ctx.db.insert("quoteSignatures", { tenantId: quote.tenantId, quoteId: args.quoteId, signatureDataUrl: args.signatureDataUrl, createdAt: now });
     await ctx.db.patch(args.quoteId, {
-      signatureDataUrl: args.signatureDataUrl,
       signedByName,
       signedAt: now,
       status: "won",
@@ -636,7 +644,7 @@ export const getQuoteForPrint = query({
 
     return {
       gate: null,
-      quote: redactQuoteRequest(quote),
+      quote: redactQuoteRequest(await withSignature(ctx, quote)),
       tenant,
       branding,
       configurator,

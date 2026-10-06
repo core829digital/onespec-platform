@@ -593,6 +593,19 @@ export default defineSchema({
     checkedAt: v.number(),
   }).index("by_tenant_vat", ["tenantId", "vatNumber", "checkedAt"]),
 
+  /**
+   * The signature picture of a signed quote, apart from the quote itself: a base64 image of tens of KB would otherwise travel with
+   * every read of the quote (lists, statistics scans, every open screen). Older quotes still carry it inline; readers handle both.
+   */
+  quoteSignatures: defineTable({
+    tenantId: v.id("tenants"),
+    quoteId: v.id("quoteRequests"),
+    signatureDataUrl: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_quote", ["quoteId"])
+    .index("by_tenant", ["tenantId"]),
+
   quoteRequests: defineTable({
     tenantId: v.id("tenants"),
     configuratorId: v.id("configurators"),

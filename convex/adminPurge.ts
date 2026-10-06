@@ -31,6 +31,7 @@ export const TENANT_TABLES = [
   "invitations",
   "teams",
   "teamTickets",
+  "quoteSignatures",
   "dpaAcceptances",
   "configurators",
   "branding",

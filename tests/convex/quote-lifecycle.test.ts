@@ -147,4 +147,23 @@ describe("B2B quote: draft, edit, delete", () => {
     const asStranger = t.withIdentity({ subject: other.ownerId });
     await expect(asStranger.query(api.quotes.getRequest, { quoteId })).rejects.toThrow();
   });
+
+  test("the signature picture lives apart from the quote but every reader still gets it", async () => {
+    const { t, asOwner, base, seeded } = await setup();
+    const { quoteId } = await asOwner.mutation(api.quotes.createFieldQuote, base);
+    await asOwner.mutation(api.quotes.signQuote, { quoteId, signatureDataUrl: SIGNATURE_PNG, signedByName: "Mario Rossi" });
+    // The quote itself stays light.
+    expect((await t.run((ctx) => ctx.db.get(quoteId)))?.signatureDataUrl).toBeUndefined();
+    expect(await t.run((ctx) => ctx.db.query("quoteSignatures").collect())).toHaveLength(1);
+    // Detail and print still see it; the list never carries it.
+    expect((await asOwner.query(api.quotes.getRequest, { quoteId }))?.signatureDataUrl).toBe(SIGNATURE_PNG);
+    const printed = await asOwner.query(api.quotes.getQuoteForPrint, { quoteId });
+    expect(printed && "quote" in printed ? printed.quote?.signatureDataUrl : undefined).toBe(SIGNATURE_PNG);
+    const [row] = await asOwner.query(api.quotes.listRequests, { tenantId: seeded.tenantId });
+    expect("signatureDataUrl" in row).toBe(false);
+    // Quotes signed before the side table existed keep working.
+    const old = await asOwner.mutation(api.quotes.createFieldQuote, base);
+    await t.run((ctx) => ctx.db.patch(old.quoteId, { signatureDataUrl: SIGNATURE_PNG, signedAt: Date.now(), signedByName: "Anna", status: "won" }));
+    expect((await asOwner.query(api.quotes.getRequest, { quoteId: old.quoteId }))?.signatureDataUrl).toBe(SIGNATURE_PNG);
+  });
 });
