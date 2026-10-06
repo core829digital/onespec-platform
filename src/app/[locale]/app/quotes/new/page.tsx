@@ -16,6 +16,7 @@ import { PiecesEditor } from "@/components/quotes/editor/pieces-editor";
 import { defaultItem } from "@/shared/item-defaults";
 import { blockingIssues, pieceIssues } from "@/shared/piece-ops";
 import { assemblyIssues } from "@/shared/composition";
+import { quoteTotals, regionalExtrasCents } from "@/shared/quote-totals";
 import { clearDraft, useDraftRestore, useDraftSave } from "@/lib/use-draft";
 import { MultiSupplierTable, type SupplierItem } from "@/components/quotes/MultiSupplierTable";
 import {
@@ -208,8 +209,8 @@ export default function NewFieldQuotePage() {
 
   // Base calculation & options
   const [installationType, setInstallationType] = useState("posa_qualificata_uni_11673");
-  const [installationEuros, setInstallationEuros] = useState(250);
-  const [demolitionEuros, setDemolitionEuros] = useState(50);
+  const [installationEuros, setInstallationEuros] = useState(0);
+  const [demolitionEuros, setDemolitionEuros] = useState(0);
   // Fitting (posa) included or supply only (the customer fits the windows themselves); null = the configurator's default.
   const [withPosaChoice, setWithPosaChoice] = useState<boolean | null>(null);
   const [discountPercent, setDiscountPercent] = useState(0);
@@ -237,12 +238,12 @@ export default function NewFieldQuotePage() {
   const [rensonGrilleWidthMm, setRensonGrilleWidthMm] = useState(0);
   const [voletMonoblocHeightMm, setVoletMonoblocHeightMm] = useState(0);
   // NL
-  const [hvlJointCount, setHvlJointCount] = useState(4);
+  const [hvlJointCount, setHvlJointCount] = useState(0);
   const [isostoneSill, setIsostoneSill] = useState(false);
-  const [inmeetServiceCost, setInmeetServiceCost] = useState(65);
+  const [inmeetServiceCost, setInmeetServiceCost] = useState(0);
   // DE / LU
-  const [ralMontage, setRalMontage] = useState(true);
-  const [rcSecurityLevel, setRcSecurityLevel] = useState("RC2");
+  const [ralMontage, setRalMontage] = useState(false);
+  const [rcSecurityLevel, setRcSecurityLevel] = useState("standard");
   const [klimabonusEligible, setKlimabonusEligible] = useState(true);
 
   // Pieces: null until the dealer edits them, then the seed (built from the published catalogue) is replaced.
@@ -438,31 +439,22 @@ export default function NewFieldQuotePage() {
   const priceCalc = useMemo(() => {
     const base = calculatePrice(effectivePayload, pricedItems);
 
-    // Regional surcharges
-    let regionalExtraCents = 0;
-    if (regionCode === "NL") {
-      regionalExtraCents += (hvlJointCount * 4500); // 45€ per HVL joint
-      if (isostoneSill) regionalExtraCents += 9500; // 95€ IsoStone sill
-      regionalExtraCents += (inmeetServiceCost * 100);
-    } else if (regionCode === "BE") {
-      if (rensonGrilleWidthMm > 0) regionalExtraCents += Math.round((rensonGrilleWidthMm / 1000) * 8500); // 85€/ml Renson
-      if (voletMonoblocHeightMm > 0) regionalExtraCents += 22000; // 220€ Volet monobloc
-    } else if (regionCode === "DE" || regionCode === "LU") {
-      if (ralMontage) regionalExtraCents += (items.length * 4500); // 45€/window RAL kit
-      if (rcSecurityLevel === "RC2") regionalExtraCents += (items.length * 6500); // 65€ RC2 upgrade
-      if (rcSecurityLevel === "RC3") regionalExtraCents += (items.length * 12000); // 120€ RC3 upgrade
-    }
+    // Country-specific lump sums (all zero until the installer asks for them): the same function the server checks against.
+    const regionalExtraCents = regionalExtrasCents(regionCode, {
+      hvlJointCount, isostoneSill, inmeetServiceEuros: inmeetServiceCost, rensonGrilleWidthMm, voletMonoblocHeightMm, ralMontage, rcSecurityLevel, pieceCount: items.length,
+    });
 
     // Supply only: the lump-sum fitting and disposal lines are not charged either.
     const installCents = withPosa ? installationEuros * 100 : 0;
     const demoCents = withPosa ? demolitionEuros * 100 : 0;
-    const subtotalEx = base.priceExVatCents + installCents + demoCents + regionalExtraCents;
+    const totals = quoteTotals({ supplyExVatCents: base.priceExVatCents, installCents, demolitionCents: demoCents, regionalCents: regionalExtraCents, discountPercent, vatPercent: effectiveVat });
+    const subtotalEx = totals.subtotalExVatCents;
     // Both totals (ex VAT, after the discount), so the customer can compare "with fitting" and "supply only".
     const discountFactor = 1 - discountPercent / 100;
     const withoutPosaEx = Math.round(((base.installation?.exVatWithoutCents ?? base.priceExVatCents) + regionalExtraCents) * discountFactor);
     const withPosaEx = Math.round(((base.installation?.exVatWithCents ?? base.priceExVatCents) + installationEuros * 100 + demolitionEuros * 100 + regionalExtraCents) * discountFactor);
-    const discEx = Math.round(subtotalEx * (1 - discountPercent / 100));
-    const finalGross = Math.round(discEx * (1 + effectiveVat / 100));
+    const discEx = totals.discountedExVatCents;
+    const finalGross = totals.grossCents;
 
     // Subsidy deduction
     let subsidyDed = 0;

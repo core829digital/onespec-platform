@@ -17,6 +17,7 @@ import { assertSignature } from "./lib/fieldModules";
 import { resolveQuoteVat } from "./lib/vat";
 import { assertCoherentItems, parseQuoteItems, nextOfferNumber } from "./lib/quoteItems";
 import { defaultItem } from "../src/shared/item-defaults";
+import { quoteTotals } from "../src/shared/quote-totals";
 
 const QUOTE_STATUS = v.union(
   v.literal("draft"),
@@ -286,8 +287,9 @@ async function buildFieldQuote(ctx: MutationCtx, args: FieldQuoteArgs) {
     const ecobonusPct = Math.min(Math.max(args.ecobonusPercent ?? 0, 0), 100);
     const maPrimePct = Math.min(Math.max(args.maPrimeRenovPercent ?? 0, 0), 100);
 
-    const subtotalExVat = baseCalc.priceExVatCents + installCost + demolitionCost + regionalSurcharge;
-    const discountedExVat = Math.round(subtotalExVat * (1 - discountPct / 100));
+    // The same arithmetic the quote editor shows on screen (shared/quote-totals).
+    const afterDiscount = quoteTotals({ supplyExVatCents: baseCalc.priceExVatCents, installCents: installCost, demolitionCents: demolitionCost, regionalCents: regionalSurcharge, discountPercent: discountPct, vatPercent: 0 });
+    const discountedExVat = afterDiscount.discountedExVatCents;
 
     const tenantDoc = await ctx.db.get(args.tenantId);
     if (!tenantDoc) throw new ConvexError("TENANT_NOT_FOUND");
@@ -300,7 +302,7 @@ async function buildFieldQuote(ctx: MutationCtx, args: FieldQuoteArgs) {
       manualReason: args.vatManualReason,
     });
     const effectiveVat = vat.ratePercent;
-    const finalPriceCents = Math.round(discountedExVat * (1 + effectiveVat / 100));
+    const finalPriceCents = quoteTotals({ supplyExVatCents: discountedExVat, installCents: 0, demolitionCents: 0, regionalCents: 0, discountPercent: 0, vatPercent: effectiveVat }).grossCents;
     const ecobonusDeductionCents = ecobonusPct > 0 ? Math.round(finalPriceCents * (ecobonusPct / 100)) : undefined;
     const maPrimeRenovDeductionCents = maPrimePct > 0 ? Math.round(finalPriceCents * (maPrimePct / 100)) : undefined;
 

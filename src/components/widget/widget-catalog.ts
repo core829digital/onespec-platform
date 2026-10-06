@@ -134,6 +134,15 @@ function normalized(cat: WidgetCatalog | undefined): WidgetCatalog | undefined {
   return normalizeCatalog(cat as unknown as CatalogPayload) as unknown as WidgetCatalog;
 }
 
+/**
+ * The published catalogue as the one pricing engine reads it (`calculatePrice`), or null without a catalogue. The widget's live total
+ * comes from that engine, never from a parallel table, so the visitor sees the figure the server will record.
+ */
+export function pricingPayload(rawCat: WidgetCatalog | undefined | null): CatalogPayload | null {
+  if (!rawCat || !Array.isArray((rawCat as unknown as CatalogPayload).materials) || (rawCat as unknown as CatalogPayload).materials.length === 0) return null;
+  return normalized(rawCat) as unknown as CatalogPayload;
+}
+
 export function catalogOptions(
   rawCat: WidgetCatalog | undefined,
   dict: WidgetDict,

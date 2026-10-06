@@ -10,9 +10,10 @@ import { demoCopy, demoRegisterUrl } from "@/lib/demo/demo-copy";
 import { submitErrorMessage, wizardCopy } from "./simple-wizard-model";
 import { getTurnstileToken } from "@/lib/turnstile-client";
 import { postQuote } from "./post-quote";
-import { brandChoices, catalogOptions, catalogPricing, glazingChoices, reconcileState, type WidgetCatalog, type WidgetOptions } from "./widget-catalog";
+import { brandChoices, catalogOptions, catalogPricing, glazingChoices, pricingPayload, reconcileState, type WidgetCatalog, type WidgetOptions } from "./widget-catalog";
 import { withLeafWidth } from "./leaf-edit";
-import { REGION_FLAT_OPTION_KINDS } from "@/shared/pricing";
+import { REGION_FLAT_OPTION_KINDS, calculatePrice, type ProjectItem } from "@/shared/pricing";
+import { quoteTotals } from "@/shared/quote-totals";
 import { glazingAdvice, PACKAGE_DEPTHS, packageKey, parseGlazingKey } from "@/shared/glazing-packages";
 import { frameRules, inactiveLeaves, normalizedRatios, type EditorSash, directionFromOpening, hasOpeningDirection, openingSide, retypeSash, typeForAddedSash } from "@/shared/sash-rules";
 import {
@@ -295,19 +296,34 @@ export function Widget({
   // ---- derived ----
   const fittingOffered = pricing.installationPerM2 > 0;
   const withFitting = fittingChoice ?? pricing.installationDefault;
-  const result = useMemo(
-    () => calculate({ ...withRegionDefaults(state), withInstallation: withFitting }, pricing),
-    [state, pricing, withRegionDefaults, withFitting],
+  // The total of a piece comes from the one pricing engine of the platform (the same the server records, the Showroom and the B2B
+  // quote use); the local table only fills the breakdown lines and prices the demo, which has no catalogue.
+  const payload = useMemo(() => pricingPayload(catalog), [catalog]);
+  const sharedTotal = useCallback(
+    (it: ConfigState): { unit: number; total: number } | null => {
+      if (!payload) return null;
+      const priced = calculatePrice(payload, [toSubmitItem(it) as unknown as ProjectItem]).items[0];
+      return priced ? { unit: priced.unitPrice / 100, total: priced.itemTotalCents / 100 } : null;
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [payload, fittingOffered, withFitting],
   );
+  const result = useMemo(() => {
+    const local = calculate({ ...withRegionDefaults(state), withInstallation: withFitting }, pricing);
+    const shared = sharedTotal(withRegionDefaults(state));
+    return shared ? { ...local, unitPrice: shared.unit, totalPrice: shared.total } : local;
+  }, [state, pricing, withRegionDefaults, withFitting, sharedTotal]);
   const uw = useMemo(() => computeUw(state), [state]);
 
   // Saved pieces are priced again with the current choice, so switching it updates the whole project.
-  const itemPrice = (it: SavedItem) => calculate({ ...it, withInstallation: withFitting }, pricing).totalPrice;
+  const itemPrice = (it: SavedItem) => sharedTotal(it)?.total ?? calculate({ ...it, withInstallation: withFitting }, pricing).totalPrice;
   const itemsSubtotal = items.reduce((s, it) => s + itemPrice(it), 0);
   // Catalogue prices are net: the VAT of the chosen rate (0% included) goes on top.
-  const netGrand = itemsSubtotal + result.totalPrice;
-  const vatAmount = netGrand * (vatPct / 100);
-  const grossGrand = netGrand + vatAmount;
+  // In whole cents, rounded exactly as the server does (shared/quote-totals): 22 % of 123,45 is never shown one cent apart.
+  const netGrand = Math.round((itemsSubtotal + result.totalPrice) * 100) / 100;
+  const grossCents = quoteTotals({ supplyExVatCents: Math.round(netGrand * 100), installCents: 0, demolitionCents: 0, regionalCents: 0, discountPercent: 0, vatPercent: vatPct }).grossCents;
+  const vatAmount = (grossCents - Math.round(netGrand * 100)) / 100;
+  const grossGrand = grossCents / 100;
   const ecobonusAmount = grossGrand * (ecobonusPct / 100);
   const discountAmount = grossGrand * (discountPct / 100);
   const finalGrand = grossGrand - ecobonusAmount - discountAmount;
