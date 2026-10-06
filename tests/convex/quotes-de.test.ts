@@ -1,6 +1,6 @@
 import { test, expect } from "vitest";
 import { api } from "../../convex/_generated/api";
-import { newDb, seedTenant, seedPublishedConfigurator, sampleItem } from "./_helpers";
+import { newDb, seedTenant, seedPublishedConfigurator, sampleItem, SIGNATURE_PNG } from "./_helpers";
 
 test("Fase 25 DE: German field quote, RAL-Montage, RC2 security grade, 3-fach Verglasung", async () => {
   const t = newDb();
@@ -37,7 +37,7 @@ test("Fase 25 DE: German field quote, RAL-Montage, RC2 security grade, 3-fach Ve
   // Sign quote
   const signResult = await asOwner.mutation(api.quotes.signQuote, {
     quoteId: quoteResult.quoteId,
-    signatureDataUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+    signatureDataUrl: SIGNATURE_PNG,
     signedByName: "Thomas Müller",
   });
 

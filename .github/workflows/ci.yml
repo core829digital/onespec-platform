@@ -83,6 +83,8 @@ jobs:
 
       - name: Widget end-to-end
         run: npm run e2e
+      - name: Signature pad in a real browser
+        run: npm run e2e:signature
 
       - name: Upload the app log when something failed
         if: failure()

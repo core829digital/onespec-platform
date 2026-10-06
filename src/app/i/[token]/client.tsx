@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useState } from "react";
+import { SignaturePadBase } from "@/components/signature-pad";
 import { fieldCopy, fieldLang, FIELD_DATE_LOCALE } from "@/lib/field-public-i18n";
 
 const CONVEX_SITE =
@@ -38,86 +39,6 @@ function post(path: string, body: unknown) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   }).then((r) => r.json());
-}
-
-function SignPad({ onChange, clearLabel }: { onChange: (dataUrl: string | null) => void; clearLabel: string }) {
-  const ref = useRef<HTMLCanvasElement>(null);
-  const drawing = useRef(false);
-  const last = useRef<{ x: number; y: number } | null>(null);
-
-  useEffect(() => {
-    const c = ref.current;
-    if (!c) return;
-    const ctx = c.getContext("2d");
-    if (!ctx) return;
-    const dpr = window.devicePixelRatio || 1;
-    const r = c.getBoundingClientRect();
-    c.width = r.width * dpr;
-    c.height = r.height * dpr;
-    ctx.scale(dpr, dpr);
-    ctx.strokeStyle = "#111";
-    ctx.lineWidth = 2.4;
-    ctx.lineCap = "round";
-  }, []);
-
-  const pt = (e: React.TouchEvent | React.MouseEvent) => {
-    const c = ref.current!;
-    const r = c.getBoundingClientRect();
-    const s = "touches" in e ? e.touches[0] : (e as React.MouseEvent);
-    return { x: s.clientX - r.left, y: s.clientY - r.top };
-  };
-  const start = useCallback((e: React.TouchEvent | React.MouseEvent) => {
-    e.preventDefault();
-    drawing.current = true;
-    last.current = pt(e);
-  }, []);
-  const move = useCallback(
-    (e: React.TouchEvent | React.MouseEvent) => {
-      if (!drawing.current) return;
-      e.preventDefault();
-      const ctx = ref.current!.getContext("2d")!;
-      const p = pt(e);
-      if (last.current) {
-        ctx.beginPath();
-        ctx.moveTo(last.current.x, last.current.y);
-        ctx.lineTo(p.x, p.y);
-        ctx.stroke();
-      }
-      last.current = p;
-      onChange(ref.current!.toDataURL("image/png"));
-    },
-    [onChange],
-  );
-  const end = useCallback(() => {
-    drawing.current = false;
-    last.current = null;
-  }, []);
-
-  return (
-    <div>
-      <canvas
-        ref={ref}
-        onMouseDown={start}
-        onMouseMove={move}
-        onMouseUp={end}
-        onMouseLeave={end}
-        onTouchStart={start}
-        onTouchMove={move}
-        onTouchEnd={end}
-        className="h-36 w-full touch-none rounded-xl border-2 border-zinc-300 bg-white"
-      />
-      <button
-        onClick={() => {
-          const c = ref.current!;
-          c.getContext("2d")!.clearRect(0, 0, c.width, c.height);
-          onChange(null);
-        }}
-        className="mt-1 text-xs text-zinc-500 underline"
-      >
-        {clearLabel}
-      </button>
-    </div>
-  );
 }
 
 export function InstallerJob({ token, initial }: { token: string; initial: InstallerData }) {
@@ -184,6 +105,7 @@ export function InstallerJob({ token, initial }: { token: string; initial: Insta
       if (r.ok) setSigned(true);
       else if (r.error === "PHOTOS_INCOMPLETE") setErr(c.errPhotosIncomplete);
       else if (r.error === "ALREADY_SIGNED") setSigned(true);
+      else if (r.error === "SIGNATURE_EMPTY") setErr(c.errSignature);
       else setErr(c.errSign);
     } catch {
       setErr(c.errNetwork);
@@ -317,7 +239,7 @@ export function InstallerJob({ token, initial }: { token: string; initial: Insta
           placeholder={c.signerPlaceholder}
           className="mb-2 w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm"
         />
-        <SignPad onChange={setSig} clearLabel={c.clear} />
+        <SignaturePadBase onChange={setSig} surface="paper" height={150} hint={c.signHere} clearLabel={c.clear} />
         <textarea
           value={remarks}
           onChange={(e) => setRemarks(e.target.value)}

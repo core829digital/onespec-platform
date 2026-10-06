@@ -30,6 +30,7 @@ export interface FieldCopy {
     metaTitle: string;
     header: string;
     clear: string;
+    signHere: string;
     items: string;
     window: string;
     balconyDoor: string;
@@ -91,6 +92,7 @@ const it: FieldCopy = {
     metaTitle: "App Posatore",
     header: "App Posatore",
     clear: "Cancella",
+    signHere: "Firma qui con il dito",
     items: "Serramenti da posare",
     window: "Finestra",
     balconyDoor: "Porta-finestra",
@@ -152,6 +154,7 @@ const fr: FieldCopy = {
     metaTitle: "App Poseur",
     header: "App Poseur",
     clear: "Effacer",
+    signHere: "Signez ici avec le doigt",
     items: "Menuiseries à poser",
     window: "Fenêtre",
     balconyDoor: "Porte-fenêtre",
@@ -213,6 +216,7 @@ const de: FieldCopy = {
     metaTitle: "Monteur-App",
     header: "Monteur-App",
     clear: "Löschen",
+    signHere: "Hier mit dem Finger unterschreiben",
     items: "Zu montierende Elemente",
     window: "Fenster",
     balconyDoor: "Balkontür",
@@ -274,6 +278,7 @@ const nl: FieldCopy = {
     metaTitle: "Monteurs-app",
     header: "Monteurs-app",
     clear: "Wissen",
+    signHere: "Teken hier uw handtekening met uw vinger",
     items: "Te plaatsen elementen",
     window: "Raam",
     balconyDoor: "Balkondeur",

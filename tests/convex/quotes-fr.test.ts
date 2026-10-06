@@ -1,6 +1,6 @@
 import { test, expect } from "vitest";
 import { api } from "../../convex/_generated/api";
-import { newDb, seedTenant, seedPublishedConfigurator, sampleItem } from "./_helpers";
+import { newDb, seedTenant, seedPublishedConfigurator, sampleItem, SIGNATURE_PNG } from "./_helpers";
 
 test("Fase 22 FR: French Devis creation, DTU 36.5 pose en rénovation, TVA 5.5%, RGE & MaPrimeRénov'", async () => {
   const t = newDb();
@@ -40,7 +40,7 @@ test("Fase 22 FR: French Devis creation, DTU 36.5 pose en rénovation, TVA 5.5%,
   // Sign the Devis directly on touch tablet
   const signResult = await asOwner.mutation(api.quotes.signQuote, {
     quoteId: quoteResult.quoteId,
-    signatureDataUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+    signatureDataUrl: SIGNATURE_PNG,
     signedByName: "Jean-Pierre Dubois",
   });
 

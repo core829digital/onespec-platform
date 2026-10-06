@@ -16,6 +16,7 @@ import { mutation, query } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
 import { requirePermission } from "./lib/rbac";
 import { assertStoredFile } from "./lib/uploads";
+import { assertSignature } from "./lib/fieldModules";
 
 const LABEL_MAX = 200;
 const NAME_MAX = 120;
@@ -23,8 +24,6 @@ const NOTES_MAX = 4_000;
 const REASON_MAX = 500;
 const ITEMS_MAX = 200;
 const MEDIA_MAX = 4;
-/** Same bound as quotes.signQuote's MAX_SIGNATURE_LEN — a base64 PNG data URL. */
-const MAX_SIGNATURE_LEN = 300_000;
 const MEDIA_TYPES = [
   "image/png",
   "image/jpeg",
@@ -248,8 +247,7 @@ export const signSiteDelivery = mutation({
     const signedByName = args.signedByName.trim();
     if (!signedByName) throw new ConvexError("SIGNER_NAME_REQUIRED");
     assertLen(signedByName, NAME_MAX);
-    if (!args.signatureDataUrl.startsWith("data:image/")) throw new ConvexError("INVALID_SIGNATURE_FORMAT");
-    if (args.signatureDataUrl.length > MAX_SIGNATURE_LEN) throw new ConvexError("SIGNATURE_TOO_LARGE");
+    assertSignature(args.signatureDataUrl);
 
     const unresolved = row.items.some((i) => !i.loaded && !i.notLoadedReason);
     if (unresolved) throw new ConvexError("CHECKLIST_INCOMPLETE");

@@ -1,6 +1,6 @@
 import { test, expect, vi, beforeEach, afterEach } from "vitest";
 import { api, internal } from "../../convex/_generated/api";
-import { newDb, seedTenant, seedPublishedConfigurator, sampleItem } from "./_helpers";
+import { newDb, seedTenant, seedPublishedConfigurator, sampleItem, SIGNATURE_PNG } from "./_helpers";
 import { computePosaMaterials, complianceForRegion } from "../../convex/lib/compliance";
 import { guessZoneFromCap, buildAllegatoF } from "../../convex/lib/enea";
 
@@ -96,14 +96,14 @@ test("survey + installation dossier + inspection gate + passport flow", async ()
     t.mutation(internal.inspections.signByInstallerFromHttp, {
       token: iToken,
       signatureDataUrl:
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        SIGNATURE_PNG,
       signedByName: "Rossi Marco",
     }),
   ).rejects.toThrow(/PHOTOS_INCOMPLETE/);
 
   // cannot sign before all mandatory photos are attached
   const sig =
-    "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+    SIGNATURE_PNG;
   await expect(
     asOwner.mutation(api.inspections.sign, {
       reportId,

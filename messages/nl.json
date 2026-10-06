@@ -342,6 +342,7 @@
     "surveyNotCompleted": "Rond de opmeting af voordat je de offerte maakt.",
     "surveyAlreadyLinked": "Uit deze opmeting is al een offerte gemaakt.",
     "clientMismatch": "De gekozen werf hoort bij een andere klant.",
+    "signatureEmpty": "De handtekening is leeg of niet te zien: teken hem met je vinger of de muis in het vak en probeer opnieuw.",
     "supplyDeliveryStockMoved": "Een deel van de goederen van deze levering heeft het magazijn al verlaten: maak die bewegingen eerst ongedaan en zet de levering daarna terug.",
     "supplyDeliveryExists": "Deze levering heeft al een zending in Logistiek.",
     "cantiereHasLogistics": "Aan deze werf zijn zendingen of magazijnvoorraad gekoppeld: sluit of verplaats ze voordat je de werf verwijdert.",

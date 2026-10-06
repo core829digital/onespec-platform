@@ -342,6 +342,7 @@
     "surveyNotCompleted": "Terminez le relevé avant de générer le devis.",
     "surveyAlreadyLinked": "Un devis a déjà été généré depuis ce relevé.",
     "clientMismatch": "Le chantier choisi appartient à un autre client.",
+    "signatureEmpty": "La signature est vide ou invisible : dessinez-la dans le cadre avec le doigt ou la souris et réessayez.",
     "supplyDeliveryStockMoved": "Une partie de la marchandise de cette livraison a déjà quitté l'entrepôt : annulez d'abord ces mouvements, puis faites reculer la fourniture.",
     "supplyDeliveryExists": "Cette fourniture a déjà une livraison dans la Logistique.",
     "cantiereHasLogistics": "Ce chantier a des livraisons ou du stock en entrepôt liés : clôturez-les ou déplacez-les avant de le supprimer.",

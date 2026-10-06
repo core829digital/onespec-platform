@@ -342,6 +342,7 @@
     "surveyNotCompleted": "Finalizează măsurătoarea înainte de a genera oferta.",
     "surveyAlreadyLinked": "S-a generat deja o ofertă din această măsurătoare.",
     "clientMismatch": "Șantierul ales aparține altui client.",
+    "signatureEmpty": "Semnătura este goală sau nu se vede: desen-o în casetă cu degetul sau mouse-ul și încearcă din nou.",
     "supplyDeliveryStockMoved": "O parte din marfa acestei livrări a părăsit deja depozitul: anulează mai întâi acele mișcări, apoi dă înapoi aprovizionarea.",
     "supplyDeliveryExists": "Această aprovizionare are deja o livrare în Logistică.",
     "cantiereHasLogistics": "Acest șantier are livrări sau stoc în depozit legate: închide-le sau mută-le înainte de a-l șterge.",

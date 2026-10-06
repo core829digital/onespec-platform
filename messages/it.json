@@ -342,6 +342,7 @@
     "surveyNotCompleted": "Completa il rilievo prima di generare il preventivo.",
     "surveyAlreadyLinked": "Da questo rilievo è già stato generato un preventivo.",
     "clientMismatch": "Il cantiere scelto appartiene a un altro cliente.",
+    "signatureEmpty": "La firma è vuota o non si vede: disegnala nel riquadro con il dito o il mouse e riprova.",
     "supplyDeliveryStockMoved": "Una parte della merce di questa consegna è già uscita dal magazzino: sposta o annulla prima quei movimenti, poi torna indietro con la fornitura.",
     "supplyDeliveryExists": "Questa fornitura ha già una consegna in Logistica.",
     "cantiereHasLogistics": "Questo cantiere ha consegne o merce in magazzino collegate: chiudile o spostale prima di eliminarlo.",

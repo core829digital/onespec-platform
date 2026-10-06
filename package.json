@@ -13,6 +13,7 @@
     "test": "vitest run",
     "shadcn:add": "npx shadcn@latest add",
     "e2e": "node e2e/widget-iframe.mjs",
+    "e2e:signature": "node e2e/signature-pad.mjs",
     "audit:prod": "npm audit --omit=dev --audit-level=high"
   },
   "dependencies": {
@@ -45,6 +46,7 @@
     "clsx": "^2.1.1",
     "convex": "^1.17.0",
     "date-fns": "^4.1.0",
+    "fflate": "^0.8.3",
     "file-saver": "^2.0.5",
     "framer-motion": "^13.2.0",
     "konva": "^10.5.0",

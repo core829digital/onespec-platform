@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { api } from "../../convex/_generated/api";
-import { newDb, seedPublishedConfigurator, seedTenant, sampleItem } from "./_helpers";
+import { newDb, seedPublishedConfigurator, seedTenant, sampleItem, SIGNATURE_PNG } from "./_helpers";
 
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => vi.useRealTimers());
@@ -129,7 +129,7 @@ describe("edits flow both ways", () => {
     const { t, asOwner, quote, clients } = await setup();
     const open = await quote({ customerAddress: undefined });
     const signed = await quote({ customerAddress: undefined });
-    await asOwner.mutation(api.quotes.signQuote, { quoteId: signed.quoteId, signatureDataUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==", signedByName: "Mario Rossi" });
+    await asOwner.mutation(api.quotes.signQuote, { quoteId: signed.quoteId, signatureDataUrl: SIGNATURE_PNG, signedByName: "Mario Rossi" });
     const [c] = await clients();
     await asOwner.mutation(api.clients.updateClient, { clientId: c._id, name: "Mario Rossi Srl", phone: "+39 340 0000000" });
     expect(await t.run((ctx) => ctx.db.get(open.quoteId))).toMatchObject({ leadName: "Mario Rossi Srl", leadPhone: "+39 340 0000000" });

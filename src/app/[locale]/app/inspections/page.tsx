@@ -2,7 +2,8 @@
 
 import { requestConfirm } from "@/lib/confirm-dialog";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { SignaturePad } from "@/components/signature-pad";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
@@ -44,92 +45,6 @@ function SyncBadge({ state, onSync }: { state: SyncState; onSync: () => void }) 
         </button>
       )}
       {state.error && <span className="text-xs text-red-600">{state.error}</span>}
-    </div>
-  );
-}
-
-function SignaturePad({
-  onChange,
-}: {
-  onChange: (dataUrl: string | null) => void;
-}) {
-  const t = useTranslations("inspections");
-  const ref = useRef<HTMLCanvasElement>(null);
-  const drawing = useRef(false);
-  const last = useRef<{ x: number; y: number } | null>(null);
-
-  useEffect(() => {
-    const c = ref.current;
-    if (!c) return;
-    const ctx = c.getContext("2d");
-    if (!ctx) return;
-    const dpr = window.devicePixelRatio || 1;
-    const r = c.getBoundingClientRect();
-    c.width = r.width * dpr;
-    c.height = r.height * dpr;
-    ctx.scale(dpr, dpr);
-    ctx.strokeStyle = "#111";
-    ctx.lineWidth = 2.4;
-    ctx.lineCap = "round";
-  }, []);
-
-  const pt = (e: React.TouchEvent | React.MouseEvent) => {
-    const c = ref.current!;
-    const r = c.getBoundingClientRect();
-    const src = "touches" in e ? e.touches[0] : (e as React.MouseEvent);
-    return { x: src.clientX - r.left, y: src.clientY - r.top };
-  };
-
-  const start = useCallback((e: React.TouchEvent | React.MouseEvent) => {
-    e.preventDefault();
-    drawing.current = true;
-    last.current = pt(e);
-  }, []);
-  const move = useCallback(
-    (e: React.TouchEvent | React.MouseEvent) => {
-      if (!drawing.current) return;
-      e.preventDefault();
-      const ctx = ref.current!.getContext("2d")!;
-      const p = pt(e);
-      if (last.current) {
-        ctx.beginPath();
-        ctx.moveTo(last.current.x, last.current.y);
-        ctx.lineTo(p.x, p.y);
-        ctx.stroke();
-      }
-      last.current = p;
-      onChange(ref.current!.toDataURL("image/png"));
-    },
-    [onChange],
-  );
-  const end = useCallback(() => {
-    drawing.current = false;
-    last.current = null;
-  }, []);
-
-  return (
-    <div>
-      <canvas
-        ref={ref}
-        onMouseDown={start}
-        onMouseMove={move}
-        onMouseUp={end}
-        onMouseLeave={end}
-        onTouchStart={start}
-        onTouchMove={move}
-        onTouchEnd={end}
-        className="h-32 w-full touch-none rounded-lg border-2 border-[var(--color-border)] bg-white"
-      />
-      <button
-        onClick={() => {
-          const c = ref.current!;
-          c.getContext("2d")!.clearRect(0, 0, c.width, c.height);
-          onChange(null);
-        }}
-        className="mt-1 text-xs text-[var(--color-muted-fg)] underline"
-      >
-        {t("clearSignature")}
-      </button>
     </div>
   );
 }
@@ -310,7 +225,7 @@ function ReportEditor({ reportId, tenantId }: { reportId: ReportId; tenantId: Id
             placeholder={t("signerPlaceholder")}
             className="w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2 text-sm"
           />
-          <SignaturePad onChange={setSig} />
+          <SignaturePad onChange={setSig} height={150} clearLabel={t("clearSignature")} />
           {err && <p className="text-sm text-red-600">{err}</p>}
           <button
             onClick={doSign}

@@ -342,6 +342,7 @@
     "surveyNotCompleted": "Aufmaß abschließen, bevor das Angebot erstellt wird.",
     "surveyAlreadyLinked": "Aus diesem Aufmaß wurde bereits ein Angebot erstellt.",
     "clientMismatch": "Die gewählte Baustelle gehört zu einem anderen Kunden.",
+    "signatureEmpty": "Die Unterschrift ist leer oder nicht sichtbar: Zeichnen Sie sie mit dem Finger oder der Maus in das Feld und versuchen Sie es erneut.",
     "supplyDeliveryStockMoved": "Ein Teil der Ware dieser Lieferung hat das Lager bereits verlassen: Machen Sie diese Bewegungen zuerst rückgängig, dann setzen Sie die Lieferung zurück.",
     "supplyDeliveryExists": "Für diese Lieferung gibt es in der Logistik bereits eine Sendung.",
     "cantiereHasLogistics": "Mit dieser Baustelle sind Sendungen oder Lagerbestand verknüpft: Schließen oder verschieben Sie sie, bevor Sie die Baustelle löschen.",

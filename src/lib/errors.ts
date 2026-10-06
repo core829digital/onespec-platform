@@ -70,6 +70,7 @@ export type ErrorKey =
   | "surveyNotCompleted"
   | "surveyAlreadyLinked"
   | "clientMismatch"
+  | "signatureEmpty"
   | "supplyDeliveryStockMoved"
   | "supplyDeliveryExists"
   | "cantiereHasLogistics"
@@ -203,6 +204,7 @@ const EXACT: Record<string, ErrorKey> = {
   BILLING_PRICE_NOT_CONFIGURED: "billingNotConfigured",
   NO_SUBSCRIPTION: "billingNotConfigured",
   INVALID_SIGNATURE: "signatureInvalid",
+  SIGNATURE_EMPTY: "signatureEmpty",
   SIGNATURE_TOO_LARGE: "signatureInvalid",
   UNSUPPORTED_IMAGE_TYPE: "imageType",
   IMAGE_TOO_LARGE: "imageTooLarge",

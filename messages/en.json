@@ -342,6 +342,7 @@
     "surveyNotCompleted": "Complete the survey before generating the quote.",
     "surveyAlreadyLinked": "A quote was already generated from this survey.",
     "clientMismatch": "The chosen site belongs to a different client.",
+    "signatureEmpty": "The signature is empty or cannot be seen: draw it in the box with your finger or the mouse and try again.",
     "supplyDeliveryStockMoved": "Part of this shipment's goods has already left the warehouse: undo those movements first, then step the supply back.",
     "supplyDeliveryExists": "This supply already has a shipment in Logistics.",
     "cantiereHasLogistics": "This site has shipments or warehouse stock linked to it: close or move them before deleting it.",

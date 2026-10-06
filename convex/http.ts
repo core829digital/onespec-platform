@@ -488,6 +488,7 @@ http.route({
       const msg = e instanceof Error ? e.message : String(e);
       if (msg.includes("PHOTOS_INCOMPLETE")) return json({ ok: false, error: "PHOTOS_INCOMPLETE" }, 400);
       if (msg.includes("ALREADY_SIGNED")) return json({ ok: false, error: "ALREADY_SIGNED" }, 409);
+      if (msg.includes("SIGNATURE_EMPTY") || msg.includes("INVALID_SIGNATURE")) return json({ ok: false, error: "SIGNATURE_EMPTY" }, 400);
       return json({ ok: false, error: "SIGN_FAILED" }, 400);
     }
   }),

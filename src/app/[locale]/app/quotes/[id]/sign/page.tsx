@@ -1,12 +1,13 @@
 "use client";
 
-import { use, useRef, useState, useEffect, useCallback } from "react";
+import { use, useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useRouter } from "@/i18n/navigation";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import { useLocale, useTranslations } from "next-intl";
+import { SignaturePad } from "@/components/signature-pad";
 
 interface Props {
   params: Promise<{ id: string; locale: string }>;
@@ -23,12 +24,8 @@ export default function SignQuotePage({ params }: Props) {
   const data = useQuery(api.quotes.getQuoteForPrint, { quoteId });
   const signQuote = useMutation(api.quotes.signQuote);
 
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const isDrawing = useRef(false);
-  const lastPoint = useRef<{ x: number; y: number } | null>(null);
-
-  const [hasSignature, setHasSignature] = useState(false);
+  // The PNG to save, once a real signature has been drawn; null while the pad is empty (the pad owns the drawing).
+  const [signature, setSignature] = useState<string | null>(null);
   // null until the operator edits the field — falls back to the lead name.
   const [signerNameEdit, setSignerNameEdit] = useState<string | null>(null);
   const [signing, setSigning] = useState(false);
@@ -37,81 +34,8 @@ export default function SignQuotePage({ params }: Props) {
 
   const signerName = signerNameEdit ?? data?.quote?.leadName ?? "";
 
-  // Canvas setup
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    const dpr = window.devicePixelRatio || 1;
-    const rect = canvas.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-    ctx.scale(dpr, dpr);
-    ctx.strokeStyle = "#042f24";
-    ctx.lineWidth = 2.5;
-    ctx.lineCap = "round";
-    ctx.lineJoin = "round";
-  }, []);
-
-  const getPoint = (e: React.TouchEvent | React.MouseEvent, canvas: HTMLCanvasElement) => {
-    const rect = canvas.getBoundingClientRect();
-    if ("touches" in e) {
-      const touch = e.touches[0];
-      return {
-        x: touch.clientX - rect.left,
-        y: touch.clientY - rect.top,
-      };
-    }
-    return {
-      x: (e as React.MouseEvent).clientX - rect.left,
-      y: (e as React.MouseEvent).clientY - rect.top,
-    };
-  };
-
-  const startDraw = useCallback((e: React.TouchEvent | React.MouseEvent) => {
-    e.preventDefault();
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    isDrawing.current = true;
-    lastPoint.current = getPoint(e, canvas);
-  }, []);
-
-  const draw = useCallback((e: React.TouchEvent | React.MouseEvent) => {
-    e.preventDefault();
-    if (!isDrawing.current) return;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const point = getPoint(e, canvas);
-    if (lastPoint.current) {
-      ctx.beginPath();
-      ctx.moveTo(lastPoint.current.x, lastPoint.current.y);
-      ctx.lineTo(point.x, point.y);
-      ctx.stroke();
-      setHasSignature(true);
-    }
-    lastPoint.current = point;
-  }, []);
-
-  const endDraw = useCallback(() => {
-    isDrawing.current = false;
-    lastPoint.current = null;
-  }, []);
-
-  const clearCanvas = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    setHasSignature(false);
-  }, []);
-
   async function handleSign() {
-    if (!hasSignature) {
+    if (!signature) {
       setError(t("errNeedSignature"));
       return;
     }
@@ -120,17 +44,13 @@ export default function SignQuotePage({ params }: Props) {
       return;
     }
 
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const dataUrl = canvas.toDataURL("image/png");
-
     setSigning(true);
     setError("");
 
     try {
       await signQuote({
         quoteId,
-        signatureDataUrl: dataUrl,
+        signatureDataUrl: signature,
         signedByName: signerName.trim(),
       });
       setSigned(true);
@@ -278,15 +198,6 @@ export default function SignQuotePage({ params }: Props) {
           <h2 className="text-sm font-semibold text-[var(--color-text-secondary)] uppercase tracking-wider">
             {t("signatureTitle")}
           </h2>
-          {hasSignature && (
-            <button
-              type="button"
-              onClick={clearCanvas}
-              className="text-xs text-[var(--color-danger)] hover:underline"
-            >
-              {t("clearRetry")}
-            </button>
-          )}
         </div>
 
         {/* Signer name */}
@@ -302,46 +213,26 @@ export default function SignQuotePage({ params }: Props) {
           />
         </div>
 
-        {/* Canvas pad */}
-        <div
-          ref={containerRef}
-          className="relative rounded-xl border-2 border-dashed border-[var(--color-border)] bg-white overflow-hidden"
-          style={{ height: 200 }}
-        >
-          <canvas
-            ref={canvasRef}
-            className="absolute inset-0 w-full h-full touch-none cursor-crosshair"
-            style={{ touchAction: "none" }}
-            onMouseDown={startDraw}
-            onMouseMove={draw}
-            onMouseUp={endDraw}
-            onMouseLeave={endDraw}
-            onTouchStart={startDraw}
-            onTouchMove={draw}
-            onTouchEnd={endDraw}
-          />
-          {!hasSignature && (
-            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center gap-2 text-gray-400">
-              <svg className="h-8 w-8 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                  d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-              </svg>
-              <span className="text-sm font-medium">{t("signHere")}</span>
-              <span className="text-xs">{t("signHint")}</span>
-            </div>
-          )}
-          {/* Baseline */}
-          <div className="pointer-events-none absolute bottom-12 left-8 right-8 border-b border-gray-300" />
-        </div>
+        <SignaturePad
+          height={200}
+          onChange={(url) => {
+            setSignature(url);
+            if (url) setError("");
+          }}
+          hint={t("signHere")}
+          subHint={t("signHint")}
+          clearLabel={t("clearRetry")}
+          disabled={signing}
+        />
 
         {error && (
-          <p className="text-sm text-[var(--color-danger)]">{error}</p>
+          <p role="alert" className="text-sm text-[var(--color-danger)]">{error}</p>
         )}
 
         <button
           type="button"
           onClick={handleSign}
-          disabled={signing || !hasSignature}
+          disabled={signing || !signature}
           className="w-full rounded-xl bg-[var(--color-mint)] py-4 text-base font-bold text-[var(--color-mint-dark)] shadow-sm hover:opacity-90 disabled:opacity-40 transition-opacity flex items-center justify-center gap-2"
         >
           {signing ? (

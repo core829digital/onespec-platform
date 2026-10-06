@@ -13,12 +13,10 @@ import { currentPeriod, resolveTenantEntitlements } from "./lib/entitlements";
 import { regionForCountry } from "./lib/regions";
 import { resolveLinks, logClientActivity } from "./lib/links";
 import { linkQuoteToCrm, recomputeCantiereValue } from "./lib/crmLink";
+import { assertSignature } from "./lib/fieldModules";
 import { resolveQuoteVat } from "./lib/vat";
 import { assertCoherentItems, parseQuoteItems, nextOfferNumber } from "./lib/quoteItems";
 import { defaultItem } from "../src/shared/item-defaults";
-
-/** Max size of a base64 signature PNG data URL (~200 KB of characters). */
-const MAX_SIGNATURE_LEN = 200_000;
 
 const QUOTE_STATUS = v.union(
   v.literal("new"),
@@ -403,12 +401,8 @@ export const signQuote = mutation({
     const { userId } = await requireMembership(ctx, quote.tenantId);
     await enforceForESignature(ctx, quote.tenantId);
 
-    if (!args.signatureDataUrl.startsWith("data:image/")) {
-      throw new ConvexError("INVALID_SIGNATURE");
-    }
-    if (args.signatureDataUrl.length > MAX_SIGNATURE_LEN) {
-      throw new ConvexError("SIGNATURE_TOO_LARGE");
-    }
+    // Refuses a blank / transparent / unreadable picture: a quote is "signed" only when there is a signature to see.
+    assertSignature(args.signatureDataUrl);
     const signedByName = args.signedByName.trim();
     if (!signedByName) throw new ConvexError("SIGNER_NAME_REQUIRED");
 

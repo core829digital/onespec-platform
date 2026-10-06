@@ -1,4 +1,5 @@
 import { convexTest } from "convex-test";
+import { zlibSync } from "fflate";
 import schema from "../../convex/schema";
 import type { Id } from "../../convex/_generated/dataModel";
 
@@ -157,3 +158,54 @@ export async function fillOnboardingProfile(t: T, tenantId: Id<"tenants">, count
     }),
   );
 }
+
+// ── PNG signatures for tests: a real picture (pen stroke) and an empty one, built byte by byte ─────────────────────────────────────────────
+function crc32(bytes: Uint8Array): number {
+  let c = ~0;
+  for (const b of bytes) {
+    c ^= b;
+    for (let k = 0; k < 8; k++) c = c & 1 ? (c >>> 1) ^ 0xedb88320 : c >>> 1;
+  }
+  return ~c >>> 0;
+}
+function chunk(type: string, data: Uint8Array): Uint8Array {
+  const out = new Uint8Array(12 + data.length);
+  const view = new DataView(out.buffer);
+  view.setUint32(0, data.length);
+  for (let i = 0; i < 4; i++) out[4 + i] = type.charCodeAt(i);
+  out.set(data, 8);
+  view.setUint32(8 + data.length, crc32(out.subarray(4, 8 + data.length)));
+  return out;
+}
+/** An RGBA 8-bit PNG data URL whose pixels come from `pixel(x, y)`. */
+export function makePng(width: number, height: number, pixel: (x: number, y: number) => [number, number, number, number]): string {
+  const raw = new Uint8Array((width * 4 + 1) * height);
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) raw.set(pixel(x, y), y * (width * 4 + 1) + 1 + x * 4);
+  }
+  const ihdr = new Uint8Array(13);
+  const v = new DataView(ihdr.buffer);
+  v.setUint32(0, width);
+  v.setUint32(4, height);
+  ihdr[8] = 8;
+  ihdr[9] = 6;
+  const parts = [new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]), chunk("IHDR", ihdr), chunk("IDAT", zlibSync(raw)), chunk("IEND", new Uint8Array(0))];
+  const png = new Uint8Array(parts.reduce((n, p) => n + p.length, 0));
+  let o = 0;
+  for (const p of parts) {
+    png.set(p, o);
+    o += p.length;
+  }
+  return "data:image/png;base64," + Buffer.from(png).toString("base64");
+}
+const WHITE: [number, number, number, number] = [255, 255, 255, 255];
+const BLACK: [number, number, number, number] = [0, 0, 0, 255];
+/** A signature: a thick diagonal-ish stroke, black on white. */
+export const SIGNATURE_PNG = makePng(240, 80, (x, y) => (Math.abs(y - (20 + x / 6)) <= 2 ? BLACK : WHITE));
+/** Nothing drawn: a white page. */
+export const BLANK_PNG = makePng(240, 80, () => WHITE);
+/** A stroke that exists but cannot be seen: white ink on a white page. */
+export const WHITE_ON_WHITE_PNG = BLANK_PNG;
+/** A transparent picture (what a pad with an unseen stroke produces). */
+export const TRANSPARENT_PNG = makePng(240, 80, () => [0, 0, 0, 0]);
+export { chunk as pngChunk };

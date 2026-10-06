@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
-import { newDb, seedTenant } from "./_helpers";
+import { newDb, seedTenant, SIGNATURE_PNG } from "./_helpers";
 
 async function seedCantiere(t: ReturnType<typeof newDb>, tenantId: Id<"tenants">) {
   return t.run((ctx) =>
@@ -35,7 +35,7 @@ async function seedInStockItem(t: ReturnType<typeof newDb>, tenantId: Id<"tenant
   );
 }
 
-const SIGNATURE = "data:image/png;base64,AAAA";
+const SIGNATURE = SIGNATURE_PNG;
 
 describe("siteDeliveries (warehouse -> cantiere shipment leg)", () => {
   test("full lifecycle: create -> checklist -> sign (moves inventory out of stock) -> deliver", async () => {

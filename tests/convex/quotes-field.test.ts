@@ -1,6 +1,6 @@
 import { test, expect } from "vitest";
 import { api } from "../../convex/_generated/api";
-import { newDb, seedTenant, seedPublishedConfigurator, sampleItem } from "./_helpers";
+import { newDb, seedTenant, seedPublishedConfigurator, sampleItem, SIGNATURE_PNG } from "./_helpers";
 
 test("Fase 21 IT: Field quote creation, UNI 11673 posa, Ecobonus, and digital signature", async () => {
   const t = newDb();
@@ -34,7 +34,7 @@ test("Fase 21 IT: Field quote creation, UNI 11673 posa, Ecobonus, and digital si
   // Sign the quote directly on touch tablet
   const signResult = await asOwner.mutation(api.quotes.signQuote, {
     quoteId: quoteResult.quoteId,
-    signatureDataUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+    signatureDataUrl: SIGNATURE_PNG,
     signedByName: "Giuseppe Verdi",
   });
 

@@ -1,6 +1,6 @@
 import { test, expect } from "vitest";
 import { api } from "../../convex/_generated/api";
-import { newDb, seedTenant, seedPublishedConfigurator, sampleItem } from "./_helpers";
+import { newDb, seedTenant, seedPublishedConfigurator, sampleItem, SIGNATURE_PNG } from "./_helpers";
 
 test("Fase 24 NL: Dutch field quote, Blokprofiel 120mm, HVL 90 deg corner joints, IsoStone", async () => {
   const t = newDb();
@@ -37,7 +37,7 @@ test("Fase 24 NL: Dutch field quote, Blokprofiel 120mm, HVL 90 deg corner joints
   // Sign quote
   const signResult = await asOwner.mutation(api.quotes.signQuote, {
     quoteId: quoteResult.quoteId,
-    signatureDataUrl: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+    signatureDataUrl: SIGNATURE_PNG,
     signedByName: "Jan de Vries",
   });
 
