@@ -9,7 +9,9 @@ import {
 } from "./configurator-model";
 import { applyMarginCents } from "./standard-pricing";
 import { assemblyGroups, assemblyJoins } from "./composition";
-import { normalizeTransoms, transomLengthM } from "./transoms";
+import { leafFieldOpenings, leafTransoms, transomLengthForLeavesM, type FieldOpening } from "./transoms";
+import { leafWidthsMm } from "./leaf-widths";
+import { normalizedRatios, type EditorSash } from "./sash-rules";
 import { virtualQualityTier } from "./catalog-rules";
 
 export interface CatalogPayload {
@@ -200,6 +202,10 @@ export interface ProjectItem {
     widthRatio?: number;
     /** Handle centre height in mm from the sill; absent = frame height / 2. */
     handleHeightMm?: number;
+    /** Horizontal bars on THIS leaf (heights from the sill, mm); absent = the piece's bars, [] = none (see shared/transoms.ts). */
+    transoms?: number[];
+    /** Openings of the fields above the lowest, one per bar of this leaf (fixed glass unless chosen otherwise). */
+    fields?: FieldOpening[];
   }>;
   glazing: string;
   color: string;
@@ -414,8 +420,9 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
       : Math.round(
           material.basePerM2Cents * quality.multiplier * profileMult * finishMult * glazingMult * frameMult * areaM2,
         );
-    // Extra profile: every horizontal bar runs the full width; every edge this piece shares with a neighbour needs a coupling profile.
-    const extraProfileM = transomLengthM(item.width, normalizeTransoms(item.height, item.transoms)) + (couplingMm.get(itemIndex) ?? 0) / 1000;
+    // Extra profile: every horizontal bar runs the width of its leaf; every edge this piece shares with a neighbour needs a coupling profile.
+    const leafMm = leafWidthsMm(item.width, normalizedRatios(item.sashes as unknown as EditorSash[]));
+    const extraProfileM = transomLengthForLeavesM(item.height, leafMm, item.sashes, item.transoms) + (couplingMm.get(itemIndex) ?? 0) / 1000;
     const profileCost = standard ? 0 : Math.round(material.profilePerMlCents * (perimeterM + extraProfileM) * frameMult);
 
     let sashCost = 0;
@@ -425,6 +432,17 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
       const sashType = getHardwareOption(payload, "sashType", sash.type);
       if (sashType) sashCost += sashType.priceCents;
       if (sash.type !== "fix") {
+        const hardware = getHardwareOption(payload, "hardware", sash.hardware);
+        const hwColor = getHardwareOption(payload, "hardwareColor", sash.hardwareColor);
+        if (hardware) hardwareCost += hardware.priceCents;
+        if (hwColor) hardwareCost += hwColor.priceCents;
+      }
+      // A field above a bar that opens (a tilting fanlight) is one more operable leaf: its type and hardware are charged like any other.
+      const fields = leafFieldOpenings(leafTransoms(item.height, sash, item.transoms).length, sash.fields);
+      for (const f of fields) {
+        if (f.type === "fix") continue;
+        const fieldType = getHardwareOption(payload, "sashType", f.type);
+        if (fieldType) sashCost += fieldType.priceCents;
         const hardware = getHardwareOption(payload, "hardware", sash.hardware);
         const hwColor = getHardwareOption(payload, "hardwareColor", sash.hardwareColor);
         if (hardware) hardwareCost += hardware.priceCents;

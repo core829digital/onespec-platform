@@ -2,7 +2,7 @@ import { inactiveLeaves, normalizedRatios, violationsFor, type EditorSash } from
 import { accessoryRightExtent, drawAccessories } from "./build-accessories";
 import { drawDimensions } from "./build-dimensions";
 import { drawLeaves, drawMullions, drawTransoms, hitRects, layoutCells } from "./build-sashes";
-import { normalizeTransoms, transomZonesMm } from "@/shared/transoms";
+import { normalizeTransoms } from "@/shared/transoms";
 import { glazingShape } from "@/shared/glazing-packages";
 import { darken, finishStyle, PALETTE, TEXTURE_TILE } from "./finishes";
 import { boundsOf, mirror, place, rect } from "./prims";
@@ -69,10 +69,10 @@ export function buildScene(input: DrawingInput, options: DrawingOptions = {}): S
   const reno = input.frameType ? RENO_MM[input.frameType] : undefined;
 
   const transoms = normalizeTransoms(heightMm, input.transomsMm);
-  const lowestFieldMm = transomZonesMm(heightMm, transoms)[0] ?? heightMm;
 
   const ctx: SceneContext = {
-    glassHeightMm: transoms.length > 0 ? lowestFieldMm + 100 : heightMm,
+    glassHeightMm: heightMm,
+    pieceTransoms: transoms,
     scale,
     widthMm,
     heightMm,
@@ -121,7 +121,7 @@ export function buildScene(input: DrawingInput, options: DrawingOptions = {}): S
     ...frameLayers(ctx, input.frameType),
     ...leaves.filter((p) => p.role !== "handle"),
     ...drawMullions(ctx, sashes, cells),
-    ...drawTransoms(ctx, transoms),
+    ...drawTransoms(ctx, sashes, cells),
     // Handles stay on top of the mullions standing next to them.
     ...leaves.filter((p) => p.role === "handle"),
     ...drawAccessories(ctx, input.accessories, leaves),

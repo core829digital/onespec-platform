@@ -44,6 +44,9 @@ export const ProjectItemSchema = z
           hardwareColor: z.string().max(40),
           widthRatio: z.number().positive().max(1).optional(),
           handleHeightMm: z.number().int().nonnegative().max(4000).optional(),
+          /** Bars on this leaf only, and the opening of each field above the lowest (see shared/transoms.ts); the server re-normalises both. */
+          transoms: z.array(z.number().int().min(0).max(DIM_ABS_MAX)).max(3).optional(),
+          fields: z.array(z.object({ type: z.enum(["fix", "tilt", "classic", "tiltturn"]), direction: z.enum(["left", "right"]) })).max(3).optional(),
         }),
       )
       .min(1)

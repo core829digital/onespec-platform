@@ -3020,7 +3020,7 @@
     "transomsTitle": "Traverse orizontale",
     "addTransom": "Adaugă o traversă",
     "removeTransom": "Elimină",
-    "transomsHint": "O bară orizontală pe toată lățimea, inclusiv la panouri și uși (până la {max}). Prețul adaugă profilul în plus.",
+    "transomsHint": "Pune o traversă pe o singură canat (până la {max}): deasupra și dedesubt canatul este împărțit în părți, fiecare cu propria deschidere. Util pentru o supralumină sau mai multă lumină. Prețul adaugă doar profilul acelui canat.",
     "transomN": "Traversa {n}",
     "transomHeight": "Înălțimea traversei {n} de la pervaz",
     "mmFromSill": "mm de jos",
@@ -3041,6 +3041,19 @@
       "colWidth": "Piesele din coloana {col} trebuie să aibă aceeași lățime.",
       "tooMany": "Prea multe piese într-un ansamblu (maxim 6).",
       "outOfGrid": "Poziție nevalidă."
-    }
+    },
+    "leafPick": "Canat",
+    "leafN": "Canat {n}",
+    "fieldAbove": "Partea de deasupra traversei {n}",
+    "fieldBelow": "Partea de sub traversă (deschiderea canatului)",
+    "fieldFix": "Fix (supralumină)",
+    "fieldTilt": "Oscilant",
+    "fieldClassic": "Battant",
+    "fieldTiltturn": "Oscilo-batant",
+    "hinge": "Balamale",
+    "hingeLeft": "în stânga",
+    "hingeRight": "în dreapta",
+    "applyAll": "Aplică la toate canatele",
+    "noBarOnLeaf": "Nicio traversă pe acest canat."
   }
 }

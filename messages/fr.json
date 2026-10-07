@@ -3020,7 +3020,7 @@
     "transomsTitle": "Traverses horizontales",
     "addTransom": "Ajouter une traverse",
     "removeTransom": "Retirer",
-    "transomsHint": "Une barre horizontale sur toute la largeur, aussi sur panneaux et portes (jusqu'à {max}). Le prix ajoute le profilé en plus.",
+    "transomsHint": "Placez une traverse sur un seul ouvrant (jusqu'à {max}) : au-dessus et en dessous, l'ouvrant est séparé en parties, chacune avec sa propre ouverture. Utile pour une imposte ou plus de lumière. Le prix ajoute le profilé de cet ouvrant seulement.",
     "transomN": "Traverse {n}",
     "transomHeight": "Hauteur de la traverse {n} depuis l'appui",
     "mmFromSill": "mm depuis le bas",
@@ -3041,6 +3041,19 @@
       "colWidth": "Les pièces de la colonne {col} doivent avoir la même largeur.",
       "tooMany": "Trop de pièces dans un ensemble (6 au maximum).",
       "outOfGrid": "Position invalide."
-    }
+    },
+    "leafPick": "Ouvrant",
+    "leafN": "Ouvrant {n}",
+    "fieldAbove": "Partie au-dessus de la traverse {n}",
+    "fieldBelow": "Partie sous la traverse (ouverture de l'ouvrant)",
+    "fieldFix": "Fixe (imposte)",
+    "fieldTilt": "Soufflet",
+    "fieldClassic": "Battant",
+    "fieldTiltturn": "Oscillo-battant",
+    "hinge": "Charnières",
+    "hingeLeft": "à gauche",
+    "hingeRight": "à droite",
+    "applyAll": "Appliquer à tous les ouvrants",
+    "noBarOnLeaf": "Aucune traverse sur cet ouvrant."
   }
 }

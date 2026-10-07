@@ -1,5 +1,5 @@
 import { leafWidthsMm } from "@/shared/leaf-widths";
-import { TRANSOM_MM } from "@/shared/transoms";
+import { leafFieldOpenings, leafTransoms, TRANSOM_MM, transomZonesMm } from "@/shared/transoms";
 import { jointsFor } from "@/shared/sash-rules";
 import { drawOpening } from "./build-openings";
 import { glassLabel } from "./glass-size";
@@ -66,6 +66,26 @@ function drawViolation(cell: SceneCell, i: number): Primitive[] {
   ];
 }
 
+/** A leaf (or a part of it): the box of one field, with the height of its glass in millimetres. */
+interface LeafField {
+  cell: SceneCell;
+  zoneMm: number | null;
+}
+
+/** The fields a leaf is divided in by its bars, from the sill up; a leaf without bars is one field (the cell itself). */
+function fieldsOf(ctx: SceneContext, cell: SceneCell, bars: readonly number[]): LeafField[] {
+  if (bars.length === 0) return [{ cell, zoneMm: null }];
+  const bar = Math.max(3, TRANSOM_MM * ctx.scale);
+  const bottom = cell.y + cell.h;
+  const centres = bars.map((mm) => ctx.frame.y + ctx.frame.h - mm * ctx.scale);
+  const zones = transomZonesMm(ctx.heightMm, bars);
+  return zones.map((zoneMm, k) => {
+    const yBottom = k === 0 ? bottom : centres[k - 1] - bar / 2;
+    const yTop = k === bars.length ? cell.y : centres[k] + bar / 2;
+    return { cell: { ...cell, y: yTop, h: Math.max(1, yBottom - yTop) }, zoneMm };
+  });
+}
+
 export function drawLeaves(
   ctx: SceneContext,
   sashes: DrawingSash[],
@@ -75,85 +95,112 @@ export function drawLeaves(
   const out: Primitive[] = [];
   const { finish, sashInset: inset, category, options } = ctx;
 
-  cells.forEach((cell, i) => {
-    const s = sashes[i];
-    const tag = { role: "sashOutline" as const, sashIndex: i };
-    out.push(rect(tag, cell.x, cell.y, cell.w, cell.h, { fill: finish.fill, stroke: PALETTE.outline, strokeWidth: 0.9 }));
+  cells.forEach((wholeCell, i) => {
+    const leaf = sashes[i];
+    const bars = leafTransoms(ctx.heightMm, leaf, ctx.pieceTransoms);
+    const upper = leafFieldOpenings(bars.length, leaf.fields);
+    const fields = fieldsOf(ctx, wholeCell, bars);
 
-    const area: Box = {
-      x: cell.x + inset,
-      y: cell.y + inset,
-      w: Math.max(1, cell.w - 2 * inset),
-      h: Math.max(1, cell.h - 2 * inset),
-    };
+    fields.forEach((field, k) => {
+      const cell = field.cell;
+      // The lowest field is the leaf itself (its opening, handle, hinges); a field above a bar is a part of its own: fixed glass or an opening of its own.
+      const isLowest = k === 0;
+      const s: DrawingSash = isLowest ? leaf : { ...leaf, type: upper[k - 1].type, direction: upper[k - 1].direction, active: true, handleHeightMm: undefined };
+      // Its handle sits in the middle of the field and is not draggable; the leaf's own handle rules do not apply to it.
+      const fctx: SceneContext = isLowest
+        ? ctx
+        : { ...ctx, handles: undefined, noHandle: new Set<number>(), heightMm: ctx.heightMm, glassHeightMm: ctx.glassHeightMm };
+      const fieldS = !isLowest && field.zoneMm !== null
+        ? { ...s, handleHeightMm: Math.round(field.zoneMm / 2 + (bars[k - 1] ?? 0) + TRANSOM_MM / 2) }
+        : s;
+      out.push(...drawField(fctx, fieldS, i, cell, field.zoneMm, isLowest));
+    });
 
-    if (category === "pannello") {
-      out.push(...drawPanel(ctx, area, i, true));
-    } else if (ctx.glazingKind && ctx.glazingKind !== "glass") {
-      // Panel package: an opaque panel in the frame colour (ornamental ones with mouldings), the opening symbols stay.
-      out.push(...drawPanel(ctx, area, i, ctx.glazingKind === "ornamentalPanel"));
-      if (s.active) out.push(...drawOpening(ctx, s, i, cell, area));
-    } else {
-      const isDoor = category === "porta";
-      const glass: Box = isDoor
-        ? { ...area, h: Math.max(1, area.h * (1 - DOOR_PANEL_SHARE) - inset) }
-        : area;
-      out.push(
-        rect({ role: "glass", sashIndex: i, part: s.active ? undefined : "inactive" }, glass.x, glass.y, glass.w, glass.h, {
-          fill: ctx.satin ? "#E8EEF1" : GLASS_FILL,
-          stroke: PALETTE.ink,
-          strokeWidth: 0.8,
-          opacity: s.active ? undefined : 0.55,
-        }),
-      );
-      if (!ctx.satin && s.active) {
-        // Reflections: two soft diagonal bands, as on a real pane.
-        const sum = glass.w + glass.h;
-        for (const [a, b, o] of [[0.46, 0.57, 0.28], [0.63, 0.67, 0.18]] as const) {
-          const pts = diagonalBand(glass.x, glass.y, glass.w, glass.h, sum * a, sum * b);
-          if (pts.length >= 3) out.push(poly({ role: "glass", sashIndex: i, part: "reflection" }, pts, { fill: "#FFFFFF", stroke: "none", opacity: o }));
-        }
-      }
-      if (ctx.satin) {
-        for (const [x1, y1, x2, y2] of hatchSegments(glass.x, glass.y, glass.w, glass.h, 6)) {
-          out.push(line({ role: "hatch", sashIndex: i, part: "satin" }, x1, y1, x2, y2, { stroke: PALETTE.dimLine, strokeWidth: 0.5, opacity: 0.35 }));
-        }
-      }
-      if (isDoor) {
-        const panelY = area.y + area.h * (1 - DOOR_PANEL_SHARE);
-        out.push(...drawPanel(ctx, { x: area.x, y: panelY, w: area.w, h: area.y + area.h - panelY }, i, false));
-      }
-      if (options.showGlassDimensions && s.active) {
-        const label = glassLabel(cell.mm, ctx.glassHeightMm ?? ctx.heightMm, isDoor);
-        if (label && glass.w > label.length * 4.4 + 8) {
-          const tag = { role: "leafLabel" as const, sashIndex: i, part: "glass" };
-          const w = label.length * 4.6 + 8;
-          out.push(
-            rect(tag, glass.x + glass.w / 2 - w / 2, glass.y + glass.h - 20, w, 12, { fill: "#FFFFFF", radius: 3, opacity: 0.85 }),
-            text(tag, glass.x + glass.w / 2, glass.y + glass.h - 11.2, label, { fontSize: 7.5, fill: PALETTE.dim, weight: "bold" }),
-          );
-        }
-      }
-      if (!s.active) {
-        for (const [x1, y1, x2, y2] of hatchSegments(glass.x, glass.y, glass.w, glass.h, 9)) {
-          out.push(line({ role: "hatch", sashIndex: i }, x1, y1, x2, y2, { stroke: PALETTE.hatch, strokeWidth: 0.8, opacity: 0.6 }));
-        }
-      } else {
-        out.push(...drawOpening(ctx, s, i, cell, isDoor ? area : glass));
-      }
-    }
-
+    const cell = wholeCell;
     if (category === "scorrevole") {
       const y = cell.y + inset / 2;
       out.push(line({ role: "opening", sashIndex: i, part: "track" }, cell.x + inset, y, cell.x + cell.w - inset, y, { stroke: PALETTE.dimLine, strokeWidth: 1.6 }));
     }
-
-    if (options.showMainBadge && s.main && s.active) out.push(...drawBadge(ctx, cell, i));
+    if (options.showMainBadge && leaf.main && leaf.active) out.push(...drawBadge(ctx, cell, i));
     if (violated.has(i)) out.push(...drawViolation(cell, i));
     else if (options.selectedSash === i) {
       out.push(rect({ role: "selection", sashIndex: i }, cell.x + 2, cell.y + 2, cell.w - 4, cell.h - 4, { stroke: PALETTE.guide, strokeWidth: 1.8, dash: "4 3" }));
     }
   });
+  void finish;
+  return out;
+}
+
+/** One field of a leaf: its frame, glass (or panel), opening symbol, hinges and handle. */
+function drawField(ctx: SceneContext, s: DrawingSash, i: number, cell: SceneCell, zoneMm: number | null, isLowest: boolean): Primitive[] {
+  const out: Primitive[] = [];
+  const { finish, sashInset: inset, category, options } = ctx;
+  const tag = { role: "sashOutline" as const, sashIndex: i };
+  out.push(rect(tag, cell.x, cell.y, cell.w, cell.h, { fill: finish.fill, stroke: PALETTE.outline, strokeWidth: 0.9 }));
+
+  const area: Box = {
+    x: cell.x + inset,
+    y: cell.y + inset,
+    w: Math.max(1, cell.w - 2 * inset),
+    h: Math.max(1, cell.h - 2 * inset),
+  };
+
+  if (category === "pannello") {
+    out.push(...drawPanel(ctx, area, i, true));
+  } else if (ctx.glazingKind && ctx.glazingKind !== "glass") {
+    // Panel package: an opaque panel in the frame colour (ornamental ones with mouldings), the opening symbols stay.
+    out.push(...drawPanel(ctx, area, i, ctx.glazingKind === "ornamentalPanel"));
+    if (s.active) out.push(...drawOpening(ctx, s, i, cell, area));
+  } else {
+    const isDoor = category === "porta" && isLowest;
+    const glass: Box = isDoor
+      ? { ...area, h: Math.max(1, area.h * (1 - DOOR_PANEL_SHARE) - inset) }
+      : area;
+    out.push(
+      rect({ role: "glass", sashIndex: i, part: s.active ? undefined : "inactive" }, glass.x, glass.y, glass.w, glass.h, {
+        fill: ctx.satin ? "#E8EEF1" : GLASS_FILL,
+        stroke: PALETTE.ink,
+        strokeWidth: 0.8,
+        opacity: s.active ? undefined : 0.55,
+      }),
+    );
+    if (!ctx.satin && s.active) {
+      // Reflections: two soft diagonal bands, as on a real pane.
+      const sum = glass.w + glass.h;
+      for (const [a, b, o] of [[0.46, 0.57, 0.28], [0.63, 0.67, 0.18]] as const) {
+        const pts = diagonalBand(glass.x, glass.y, glass.w, glass.h, sum * a, sum * b);
+        if (pts.length >= 3) out.push(poly({ role: "glass", sashIndex: i, part: "reflection" }, pts, { fill: "#FFFFFF", stroke: "none", opacity: o }));
+      }
+    }
+    if (ctx.satin) {
+      for (const [x1, y1, x2, y2] of hatchSegments(glass.x, glass.y, glass.w, glass.h, 6)) {
+        out.push(line({ role: "hatch", sashIndex: i, part: "satin" }, x1, y1, x2, y2, { stroke: PALETTE.dimLine, strokeWidth: 0.5, opacity: 0.35 }));
+      }
+    }
+    if (isDoor) {
+      const panelY = area.y + area.h * (1 - DOOR_PANEL_SHARE);
+      out.push(...drawPanel(ctx, { x: area.x, y: panelY, w: area.w, h: area.y + area.h - panelY }, i, false));
+    }
+    if (options.showGlassDimensions && s.active) {
+      const glassMm = zoneMm === null ? (ctx.glassHeightMm ?? ctx.heightMm) : zoneMm + 100;
+      const label = glassLabel(cell.mm, glassMm, isDoor);
+      if (label && glass.w > label.length * 4.4 + 8) {
+        const ltag = { role: "leafLabel" as const, sashIndex: i, part: "glass" };
+        const w = label.length * 4.6 + 8;
+        out.push(
+          rect(ltag, glass.x + glass.w / 2 - w / 2, glass.y + glass.h - 20, w, 12, { fill: "#FFFFFF", radius: 3, opacity: 0.85 }),
+          text(ltag, glass.x + glass.w / 2, glass.y + glass.h - 11.2, label, { fontSize: 7.5, fill: PALETTE.dim, weight: "bold" }),
+        );
+      }
+    }
+    if (!s.active) {
+      for (const [x1, y1, x2, y2] of hatchSegments(glass.x, glass.y, glass.w, glass.h, 9)) {
+        out.push(line({ role: "hatch", sashIndex: i }, x1, y1, x2, y2, { stroke: PALETTE.hatch, strokeWidth: 0.8, opacity: 0.6 }));
+      }
+    } else {
+      out.push(...drawOpening(ctx, s, i, cell, isDoor ? area : glass));
+    }
+  }
   return out;
 }
 
@@ -187,14 +234,16 @@ export function drawMullions(ctx: SceneContext, sashes: DrawingSash[], cells: Sc
 }
 
 /**
- * Horizontal bars across the whole opening, in the frame colour, drawn over the leaves: a bar is part of the frame (or a glazing bar
- * of the leaves), the glass is divided in fields either way. `transomsMm` are heights from the sill to each bar's centre.
+ * Horizontal bars, in the frame colour, between the fields of each leaf: a bar is part of the frame (or a glazing bar of the leaf) and
+ * spans the width of ITS leaf, so a bar on one leaf stops at the mullion. `transomsMm` are heights from the sill to each bar's centre.
  */
-export function drawTransoms(ctx: SceneContext, transomsMm: readonly number[]): Primitive[] {
-  const { frame, inner, finish } = ctx;
+export function drawTransoms(ctx: SceneContext, sashes: DrawingSash[], cells: SceneCell[]): Primitive[] {
+  const { frame, finish } = ctx;
   const bar = Math.max(3, TRANSOM_MM * ctx.scale);
-  return transomsMm.map((mm) => {
-    const centre = frame.y + frame.h - mm * ctx.scale;
-    return rect({ role: "frame", part: "transom" }, inner.x, centre - bar / 2, inner.w, bar, { fill: finish.fill, stroke: PALETTE.outline, strokeWidth: 0.9 });
-  });
+  return cells.flatMap((cell, i) =>
+    leafTransoms(ctx.heightMm, sashes[i], ctx.pieceTransoms).map((mm) => {
+      const centre = frame.y + frame.h - mm * ctx.scale;
+      return rect({ role: "frame", sashIndex: i, part: "transom" }, cell.x, centre - bar / 2, cell.w, bar, { fill: finish.fill, stroke: PALETTE.outline, strokeWidth: 0.9 });
+    }),
+  );
 }

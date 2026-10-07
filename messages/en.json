@@ -3020,7 +3020,7 @@
     "transomsTitle": "Horizontal bars (transoms)",
     "addTransom": "Add a transom",
     "removeTransom": "Remove",
-    "transomsHint": "A horizontal bar across the full width, on panels and doors too (up to {max}). The price adds the extra profile.",
+    "transomsHint": "Put a transom on a single leaf (up to {max}): above and below it the leaf is split into separate parts, each with its own opening. Useful for a fanlight or more light. The price adds the profile of that leaf only.",
     "transomN": "Transom {n}",
     "transomHeight": "Height of transom {n} from the sill",
     "mmFromSill": "mm from the bottom",
@@ -3041,6 +3041,19 @@
       "colWidth": "The pieces of column {col} must have the same width.",
       "tooMany": "Too many pieces in one assembly (6 at most).",
       "outOfGrid": "Invalid position."
-    }
+    },
+    "leafPick": "Leaf",
+    "leafN": "Leaf {n}",
+    "fieldAbove": "Part above transom {n}",
+    "fieldBelow": "Part below the transom (the leaf's opening)",
+    "fieldFix": "Fixed (fanlight)",
+    "fieldTilt": "Tilt only",
+    "fieldClassic": "Casement",
+    "fieldTiltturn": "Tilt & turn",
+    "hinge": "Hinges",
+    "hingeLeft": "on the left",
+    "hingeRight": "on the right",
+    "applyAll": "Apply to all leaves",
+    "noBarOnLeaf": "No transom on this leaf."
   }
 }

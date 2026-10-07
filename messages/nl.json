@@ -3020,7 +3020,7 @@
     "transomsTitle": "Horizontale tussenregels",
     "addTransom": "Tussenregel toevoegen",
     "removeTransom": "Verwijderen",
-    "transomsHint": "Een horizontale balk over de volle breedte, ook bij panelen en deuren (tot {max}). De prijs telt het extra profiel mee.",
+    "transomsHint": "Plaats een kalf in één vleugel (tot {max}): erboven en eronder is de vleugel gesplitst in delen, elk met een eigen opening. Handig voor een bovenlicht of meer licht. De prijs telt alleen het profiel van die vleugel.",
     "transomN": "Tussenregel {n}",
     "transomHeight": "Hoogte van tussenregel {n} vanaf de dorpel",
     "mmFromSill": "mm van onderaf",
@@ -3041,6 +3041,19 @@
       "colWidth": "De stukken van kolom {col} moeten even breed zijn.",
       "tooMany": "Te veel stukken in één samenstel (maximaal 6).",
       "outOfGrid": "Ongeldige positie."
-    }
+    },
+    "leafPick": "Vleugel",
+    "leafN": "Vleugel {n}",
+    "fieldAbove": "Deel boven kalf {n}",
+    "fieldBelow": "Deel onder het kalf (opening van de vleugel)",
+    "fieldFix": "Vast (bovenlicht)",
+    "fieldTilt": "Kiepraam",
+    "fieldClassic": "Draairaam",
+    "fieldTiltturn": "Draai-kiep",
+    "hinge": "Scharnieren",
+    "hingeLeft": "links",
+    "hingeRight": "rechts",
+    "applyAll": "Toepassen op alle vleugels",
+    "noBarOnLeaf": "Geen kalf op deze vleugel."
   }
 }

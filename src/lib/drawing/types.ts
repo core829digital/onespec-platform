@@ -1,5 +1,6 @@
 import type { ItemAccessories, PieceCategory } from "@/shared/configurator-model";
 import type { SashKind } from "@/shared/sash-rules";
+import type { FieldOpening } from "@/shared/transoms";
 
 export type { ItemAccessories, PieceCategory, SashKind };
 
@@ -12,6 +13,10 @@ export interface DrawingSash {
   handleHeightMm?: number;
   main?: boolean;
   hardwareColor?: string;
+  /** Bars on this leaf only (heights from the sill, mm); absent = the piece's bars. */
+  transoms?: number[];
+  /** Opening of each field above the lowest, one per bar of this leaf (absent = fixed glass). */
+  fields?: FieldOpening[];
 }
 
 export interface DrawingInput {
@@ -251,8 +256,10 @@ export interface SceneContext {
   /** Controtelaio band thickness, px (0 when none). */
   band: number;
   finish: { fill: string; stroke: string; strokeWidth: number };
-  /** Height the indicative glass label is computed from (the lowest field when bars divide the piece), mm. */
+  /** Height the indicative glass label is computed from when no bar divides the leaf, mm. */
   glassHeightMm?: number;
+  /** The piece's own bars, the default for leaves that carry no list of their own. */
+  pieceTransoms?: number[];
   /** Filled while building: the texture pattern the finish paints with, if any. */
   textures?: SceneTexture[];
   options: DrawingOptions;

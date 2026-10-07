@@ -3020,7 +3020,7 @@
     "transomsTitle": "Waagerechte Riegel",
     "addTransom": "Riegel hinzufügen",
     "removeTransom": "Entfernen",
-    "transomsHint": "Ein waagerechter Riegel über die volle Breite, auch bei Paneelen und Türen (bis zu {max}). Der Preis enthält das zusätzliche Profil.",
+    "transomsHint": "Setzen Sie einen Kämpfer in einen einzelnen Flügel (bis zu {max}): darüber und darunter ist der Flügel in Teile getrennt, jeweils mit eigener Öffnung. Praktisch für ein Oberlicht oder mehr Licht. Der Preis enthält nur das Profil dieses Flügels.",
     "transomN": "Riegel {n}",
     "transomHeight": "Höhe von Riegel {n} ab Sohlbank",
     "mmFromSill": "mm von unten",
@@ -3041,6 +3041,19 @@
       "colWidth": "Die Teile der Spalte {col} müssen gleich breit sein.",
       "tooMany": "Zu viele Teile in einem Verbund (höchstens 6).",
       "outOfGrid": "Ungültige Position."
-    }
+    },
+    "leafPick": "Flügel",
+    "leafN": "Flügel {n}",
+    "fieldAbove": "Teil über dem Kämpfer {n}",
+    "fieldBelow": "Teil unter dem Kämpfer (Öffnung des Flügels)",
+    "fieldFix": "Fest (Oberlicht)",
+    "fieldTilt": "Kippflügel",
+    "fieldClassic": "Drehflügel",
+    "fieldTiltturn": "Dreh-Kipp",
+    "hinge": "Bänder",
+    "hingeLeft": "links",
+    "hingeRight": "rechts",
+    "applyAll": "Auf alle Flügel anwenden",
+    "noBarOnLeaf": "Kein Kämpfer an diesem Flügel."
   }
 }

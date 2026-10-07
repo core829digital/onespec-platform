@@ -3020,7 +3020,7 @@
     "transomsTitle": "Traversi orizzontali",
     "addTransom": "Aggiungi traverso",
     "removeTransom": "Togli",
-    "transomsHint": "Una barra orizzontale su tutta la larghezza, anche su pannelli e porte (fino a {max}). Il prezzo aggiunge il profilo in più.",
+    "transomsHint": "Il traverso si mette su una singola anta (fino a {max}): sopra e sotto il traverso la parte è separata, con la propria apertura. Utile per un sopraluce o per più luce. Il prezzo aggiunge il profilo della sola anta.",
     "transomN": "Traverso {n}",
     "transomHeight": "Altezza del traverso {n} dal davanzale",
     "mmFromSill": "mm dal basso",
@@ -3041,6 +3041,19 @@
       "colWidth": "I pezzi della colonna {col} devono avere la stessa larghezza.",
       "tooMany": "Troppi pezzi in un solo insieme (massimo 6).",
       "outOfGrid": "Posizione non valida."
-    }
+    },
+    "leafPick": "Anta",
+    "leafN": "Anta {n}",
+    "fieldAbove": "Parte sopra il traverso {n}",
+    "fieldBelow": "Parte sotto il traverso (apertura dell'anta)",
+    "fieldFix": "Fisso (sopraluce)",
+    "fieldTilt": "Vasistas",
+    "fieldClassic": "Battente",
+    "fieldTiltturn": "Anta-ribalta",
+    "hinge": "Cerniere",
+    "hingeLeft": "a sinistra",
+    "hingeRight": "a destra",
+    "applyAll": "Applica a tutte le ante",
+    "noBarOnLeaf": "Nessun traverso su questa anta."
   }
 }

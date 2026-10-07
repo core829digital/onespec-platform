@@ -5,7 +5,7 @@ import { ProjectItemSchema } from "../../src/shared/widget-types";
 import type { CatalogPayload, ProjectItem } from "../../src/shared/pricing";
 import { comboIssues } from "../../src/shared/catalog-rules";
 import { MAX_PIECES } from "../../src/shared/piece-ops";
-import { normalizeTransoms } from "../../src/shared/transoms";
+import { leafFieldOpenings, leafTransoms, normalizeTransoms } from "../../src/shared/transoms";
 import { assemblyIssues } from "../../src/shared/composition";
 
 /**
@@ -22,7 +22,14 @@ export function parseQuoteItems(raw: unknown): ProjectItem[] {
     const item = parsed.data as unknown as ProjectItem;
     // The bars the server prices are the valid ones: anything that does not fit the piece is dropped here, never charged.
     const transoms = normalizeTransoms(item.height, item.transoms);
-    return { ...item, transoms: transoms.length > 0 ? transoms : undefined };
+    // Same for the bars of a single leaf and the openings of the fields they leave (fixed glass unless a valid opening was sent).
+    const sashes = item.sashes.map((s) => {
+      if (s.transoms === undefined && s.fields === undefined) return s;
+      const own = s.transoms === undefined ? undefined : normalizeTransoms(item.height, s.transoms);
+      const bars = leafTransoms(item.height, { transoms: own }, transoms);
+      return { ...s, transoms: own, fields: bars.length > 0 ? leafFieldOpenings(bars.length, s.fields) : undefined };
+    });
+    return { ...item, sashes, transoms: transoms.length > 0 ? transoms : undefined };
   });
 }
 

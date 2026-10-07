@@ -56,3 +56,53 @@ export function suggestTransom(heightMm: number, transoms: readonly number[]): n
 export function transomLengthM(widthMm: number, transoms: readonly number[]): number {
   return (transoms.length * widthMm) / 1000;
 }
+
+// ---------------------------------------------------------------------------------------------------------------------
+// Bars per leaf (anta)
+//
+// A bar can sit on ONE leaf instead of the whole piece (a fanlight over the door leaf only, a bar in the middle leaf of three).
+// The leaf is then split in fields, from the sill up: the lowest field keeps the leaf's own opening (type, hinge side, handle);
+// every field above has its own opening, which is what makes a "sopraluce" (fixed, or tilting for ventilation) a real part and
+// not a drawing trick. `item.transoms` stays valid as the default for leaves that do not carry their own list.
+// ---------------------------------------------------------------------------------------------------------------------
+
+/** What a field above the lowest one can do: fixed glass, tilt-only (vasistas), or hinged / tilt-and-turn. Never sliding. */
+export const FIELD_OPENING_TYPES = ["fix", "tilt", "classic", "tiltturn"] as const;
+export type FieldOpeningType = (typeof FIELD_OPENING_TYPES)[number];
+export interface FieldOpening {
+  type: FieldOpeningType;
+  direction: "left" | "right";
+}
+
+interface LeafBars {
+  transoms?: number[];
+  fields?: FieldOpening[];
+}
+
+/** The bars of one leaf: its own list when it has one (an empty list means "none"), else the piece's. Normalised. */
+export function leafTransoms(heightMm: number, leaf: LeafBars | undefined, pieceDefault: readonly number[] | undefined): number[] {
+  return normalizeTransoms(heightMm, leaf?.transoms !== undefined ? leaf.transoms : pieceDefault);
+}
+
+/** Openings of the fields ABOVE the lowest, one per bar: missing or invalid entries are fixed glass. */
+export function leafFieldOpenings(barCount: number, raw: readonly FieldOpening[] | undefined): FieldOpening[] {
+  return Array.from({ length: barCount }, (_, i) => {
+    const f = raw?.[i];
+    const type = f && (FIELD_OPENING_TYPES as readonly string[]).includes(f.type) ? f.type : "fix";
+    return { type, direction: f?.direction === "right" ? "right" : "left" } as FieldOpening;
+  });
+}
+
+/** Total bar length in metres: each bar runs the width of ITS leaf. `leafWidthsMm` are the whole-millimetre widths of the leaves. */
+export function transomLengthForLeavesM(
+  heightMm: number,
+  leafWidthsMm: readonly number[],
+  leaves: readonly LeafBars[],
+  pieceDefault: readonly number[] | undefined,
+): number {
+  let mm = 0;
+  leaves.forEach((leaf, i) => {
+    mm += (leafWidthsMm[i] ?? 0) * leafTransoms(heightMm, leaf, pieceDefault).length;
+  });
+  return mm / 1000;
+}

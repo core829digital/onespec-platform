@@ -11,7 +11,7 @@ import {
   type SashMixCode,
 } from "./sash-rules";
 import { leafWidthLimits, leafWidthsMm, setLeafWidth, type LeafWidthLimits } from "./leaf-widths";
-import { normalizeTransoms, suggestTransom } from "./transoms";
+import { FIELD_OPENING_TYPES, leafFieldOpenings, leafTransoms, normalizeTransoms, suggestTransom, type FieldOpening } from "./transoms";
 import { DIM_ABS_MAX, SINGLE_SASH_MAX_HEIGHT, SINGLE_SASH_MAX_WIDTH } from "./widget-types";
 
 /**
@@ -150,7 +150,9 @@ export function setHeight(item: ProjectItem, height: number): ProjectItem {
   const sashes = item.sashes.map((s) => {
     const h = s.handleHeightMm ?? Math.round(item.height / 2);
     const scaled = Math.round((h / item.height) * height);
-    return { ...s, handleHeightMm: Math.min(range.max, Math.max(Math.min(range.min, height - 100), scaled)) };
+    const own = s.transoms === undefined ? undefined : normalizeTransoms(height, s.transoms.map((t) => Math.round((t / item.height) * height)));
+    const bars = leafTransoms(height, { transoms: own }, undefined).length;
+    return { ...s, ...(s.transoms !== undefined ? { transoms: own, fields: s.fields ? leafFieldOpenings(bars, s.fields) : undefined } : {}), handleHeightMm: Math.min(range.max, Math.max(Math.min(range.min, height - 100), scaled)) };
   });
   // The bars keep their proportional place on the taller / lower piece, and are dropped if they no longer fit.
   const transoms = item.transoms && item.transoms.length > 0
@@ -177,6 +179,76 @@ export function setTransomHeight(item: ProjectItem, index: number, mm: number): 
   list[index] = Math.round(mm);
   const next = normalizeTransoms(item.height, list);
   return next.length === list.length ? { ...item, transoms: next } : item;
+}
+
+// --- Bars on a single leaf ------------------------------------------------------------------------------------------------
+
+/** The bars this leaf has now (its own list, or the piece's). */
+export function barsOfLeaf(item: ProjectItem, sashIndex: number): number[] {
+  return leafTransoms(item.height, item.sashes[sashIndex], item.transoms);
+}
+
+function withLeafBars(item: ProjectItem, sashIndex: number, bars: number[], fields?: FieldOpening[]): ProjectItem {
+  const kept = leafFieldOpenings(bars.length, fields ?? item.sashes[sashIndex]?.fields);
+  return {
+    ...item,
+    sashes: item.sashes.map((s, i) => (i === sashIndex ? { ...s, transoms: bars, fields: bars.length > 0 ? kept : undefined } : s)),
+  };
+}
+
+/** Put a bar on ONE leaf, in the middle of its tallest field. The leaf then carries its own list (no longer the piece's). No-op when none fits. */
+export function addLeafTransom(item: ProjectItem, sashIndex: number): ProjectItem {
+  if (!item.sashes[sashIndex]) return item;
+  const current = barsOfLeaf(item, sashIndex);
+  const pos = suggestTransom(item.height, current);
+  if (pos === null) return item;
+  const bars = normalizeTransoms(item.height, [...current, pos]);
+  // The new field above the new bar starts as fixed glass (a fanlight); existing fields keep their opening.
+  const old = leafFieldOpenings(current.length, item.sashes[sashIndex].fields);
+  const at = bars.indexOf(pos);
+  const fields = [...old.slice(0, at), { type: "fix" as const, direction: "left" as const }, ...old.slice(at)];
+  return withLeafBars(item, sashIndex, bars, fields);
+}
+
+export function removeLeafTransom(item: ProjectItem, sashIndex: number, barIndex: number): ProjectItem {
+  if (!item.sashes[sashIndex]) return item;
+  const current = barsOfLeaf(item, sashIndex);
+  if (barIndex < 0 || barIndex >= current.length) return item;
+  const fields = leafFieldOpenings(current.length, item.sashes[sashIndex].fields).filter((_, i) => i !== barIndex);
+  return withLeafBars(item, sashIndex, current.filter((_, i) => i !== barIndex), fields);
+}
+
+/** Move one bar of one leaf (height from the sill, mm). A position that does not fit leaves the piece as it was. */
+export function setLeafTransomHeight(item: ProjectItem, sashIndex: number, barIndex: number, mm: number): ProjectItem {
+  if (!item.sashes[sashIndex]) return item;
+  const list = [...barsOfLeaf(item, sashIndex)];
+  if (barIndex < 0 || barIndex >= list.length) return item;
+  list[barIndex] = Math.round(mm);
+  const next = normalizeTransoms(item.height, list);
+  return next.length === list.length ? withLeafBars(item, sashIndex, next) : item;
+}
+
+/** Choose how the field ABOVE bar `barIndex` of a leaf opens (fixed glass, tilt, hinged, tilt-and-turn) and on which hinge side. */
+export function setLeafFieldOpening(item: ProjectItem, sashIndex: number, barIndex: number, opening: FieldOpening): ProjectItem {
+  const sash = item.sashes[sashIndex];
+  if (!sash || !(FIELD_OPENING_TYPES as readonly string[]).includes(opening.type)) return item;
+  const bars = barsOfLeaf(item, sashIndex);
+  if (barIndex < 0 || barIndex >= bars.length) return item;
+  const fields = leafFieldOpenings(bars.length, sash.fields).map((f, i) => (i === barIndex ? { type: opening.type, direction: opening.direction } : f));
+  return withLeafBars(item, sashIndex, bars, fields);
+}
+
+/** Give every leaf the same bars and field openings as leaf `sashIndex` (the piece's own bars are cleared: each leaf now carries its list). */
+export function applyLeafBarsToAll(item: ProjectItem, sashIndex: number): ProjectItem {
+  const from = item.sashes[sashIndex];
+  if (!from) return item;
+  const bars = barsOfLeaf(item, sashIndex);
+  const fields = leafFieldOpenings(bars.length, from.fields);
+  return {
+    ...item,
+    transoms: undefined,
+    sashes: item.sashes.map((s) => ({ ...s, transoms: [...bars], fields: bars.length > 0 ? fields.map((f) => ({ ...f })) : undefined })),
+  };
 }
 
 /** Join the piece to an assembly (or leave it: `undefined`). */
