@@ -1,5 +1,6 @@
 import { withSentryConfig } from "@sentry/nextjs";
 import createNextIntlPlugin from "next-intl/plugin";
+import { APP_CSP_REPORT_ONLY } from "./csp-report-only.mjs";
 
 // Keep this file as .mjs (not .ts): a TS config is transpiled to CommonJS,
 // which makes `next-intl/plugin` resolve to its CJS build that hard-requires
@@ -16,6 +17,8 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts");
 const APP_SECURITY_HEADERS = [
   { key: "X-Frame-Options", value: "DENY" },
   { key: "Content-Security-Policy", value: "frame-ancestors 'none';" },
+  // Observation only (blocks nothing): see csp-report-only.mjs.
+  { key: "Content-Security-Policy-Report-Only", value: APP_CSP_REPORT_ONLY },
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   {

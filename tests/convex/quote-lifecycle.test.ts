@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { api } from "../../convex/_generated/api";
+import { api, internal } from "../../convex/_generated/api";
 import { newDb, seedPublishedConfigurator, seedTenant, sampleItem, SIGNATURE_PNG } from "./_helpers";
 
 beforeEach(() => vi.useFakeTimers());
@@ -165,5 +165,25 @@ describe("B2B quote: draft, edit, delete", () => {
     const old = await asOwner.mutation(api.quotes.createFieldQuote, base);
     await t.run((ctx) => ctx.db.patch(old.quoteId, { signatureDataUrl: SIGNATURE_PNG, signedAt: Date.now(), signedByName: "Anna", status: "won" }));
     expect((await asOwner.query(api.quotes.getRequest, { quoteId: old.quoteId }))?.signatureDataUrl).toBe(SIGNATURE_PNG);
+  });
+});
+
+describe("moving old inline signatures", () => {
+  test("moveQuoteSignatures relocates the picture, keeps reads working and is idempotent", async () => {
+    const { t, asOwner, base } = await setup();
+    const { quoteId } = await asOwner.mutation(api.quotes.createFieldQuote, base);
+    // A quote signed before the side table existed: the picture sits inside the quote.
+    await t.run((ctx) => ctx.db.patch(quoteId, { signatureDataUrl: SIGNATURE_PNG, signedAt: Date.now(), signedByName: "Anna", status: "won" }));
+    const first = await t.mutation(internal.migrations.moveQuoteSignatures, {});
+    expect(first.migrated).toBe(1);
+    const after = await t.run(async (ctx) => ({
+      quote: await ctx.db.get(quoteId),
+      rows: await ctx.db.query("quoteSignatures").withIndex("by_quote", (q) => q.eq("quoteId", quoteId)).collect(),
+    }));
+    expect(after.quote?.signatureDataUrl).toBeUndefined();
+    expect(after.rows).toHaveLength(1);
+    expect(after.rows[0].signatureDataUrl).toBe(SIGNATURE_PNG);
+    const again = await t.mutation(internal.migrations.moveQuoteSignatures, {});
+    expect(again.migrated).toBe(0);
   });
 });

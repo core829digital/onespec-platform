@@ -36,7 +36,7 @@ export const listLogisticsSuppliers = query({
       .query("logisticsSuppliers")
       .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
       .order("desc")
-      .collect();
+      .take(500);
   },
 });
 
@@ -149,7 +149,7 @@ export const listCarriers = query({
       .query("carriers")
       .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
       .order("desc")
-      .collect();
+      .take(500);
   },
 });
 

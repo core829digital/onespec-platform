@@ -58,7 +58,7 @@ export const listCantieri = query({
         const tasks = await ctx.db
           .query("cantiereTasks")
           .withIndex("by_cantiere", (q) => q.eq("cantiereId", c._id))
-          .collect();
+          .take(1000);
         const taskCounts = TASK_STATUSES.reduce(
           (acc, s) => ({ ...acc, [s]: tasks.filter((t) => t.status === s).length }),
           {} as Record<string, number>,
@@ -92,7 +92,7 @@ export const getCantiere = query({
       .query("cantiereTasks")
       .withIndex("by_cantiere", (q) => q.eq("cantiereId", args.cantiereId))
       .order("asc")
-      .collect();
+      .take(2000);
 
     // Get client info if linked
     let client = null;

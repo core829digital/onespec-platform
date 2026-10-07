@@ -57,3 +57,15 @@ describe("widget CSP", () => {
     expect(proxy).not.toContain("unsafe-inline");
   });
 });
+
+describe("application CSP (report-only phase)", () => {
+  it("is report-only, never enforced, and sends reports to Sentry", async () => {
+    const { APP_CSP_REPORT_ONLY } = await import("../csp-report-only.mjs");
+    const config = readFileSync("next.config.mjs", "utf8");
+    expect(config).toContain('key: "Content-Security-Policy-Report-Only"');
+    expect(config.match(/key: "Content-Security-Policy"/g)).toHaveLength(1); // the enforced one stays frame-ancestors only
+    expect(APP_CSP_REPORT_ONLY).toContain("report-uri https://");
+    expect(APP_CSP_REPORT_ONLY).toContain("object-src 'none'");
+    expect(APP_CSP_REPORT_ONLY).not.toContain("frame-ancestors"); // not allowed in report-only via meta, and the enforced header owns it
+  });
+});

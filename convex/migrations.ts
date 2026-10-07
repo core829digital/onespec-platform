@@ -596,3 +596,34 @@ export const classifyProfilesOne = internalMutation({
     return await ensureProfileClassification(ctx, { tenantId: c.tenantId, configuratorId: c._id });
   },
 });
+
+/**
+ * Moves signature pictures that were stored INSIDE a quote (before the `quoteSignatures` table) into that table, then clears the
+ * field on the quote so lists and reads stay light. Idempotent and resumable (cursor); reads keep working at every step because
+ * `withSignature` falls back to the inline copy until it is gone.
+ *
+ *   npx convex run migrations:moveQuoteSignatures
+ *   (repeat with '{"cursor":"<cursor>"}' until done is true)
+ */
+export const moveQuoteSignatures = internalMutation({
+  args: { cursor: v.optional(v.string()), limit: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    const page = await ctx.db.query("quoteRequests").paginate({ cursor: args.cursor ?? null, numItems: Math.min(args.limit ?? 25, 50) });
+    let moved = 0;
+    for (const quote of page.page) {
+      if (!quote.signatureDataUrl) continue;
+      const existing = await ctx.db.query("quoteSignatures").withIndex("by_quote", (q) => q.eq("quoteId", quote._id)).first();
+      if (!existing) {
+        await ctx.db.insert("quoteSignatures", {
+          tenantId: quote.tenantId,
+          quoteId: quote._id,
+          signatureDataUrl: quote.signatureDataUrl,
+          createdAt: quote.signedAt ?? Date.now(),
+        });
+      }
+      await ctx.db.patch(quote._id, { signatureDataUrl: undefined });
+      moved++;
+    }
+    return { migrated: moved, done: page.isDone, cursor: page.continueCursor };
+  },
+});

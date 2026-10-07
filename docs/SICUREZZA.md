@@ -18,7 +18,7 @@
 | E-mail | Tutto l'HTML è escapato; test su 16 modelli × 6 lingue (anche con tentativi di iniezione). |
 
 ## Cosa NON è ancora fatto (onesto)
-- **CSP completa sulle pagine della piattaforma** (/app, /auth): oggi hanno `frame-ancestors 'none'` ma non un `script-src` con nonce. Si può fare, ma tocca PostHog, Sentry, Turnstile, Vercel: da introdurre prima in modalità *report-only* con un endpoint di raccolta.
+- **CSP completa sulle pagine della piattaforma** (attiva la fase *solo segnalazione* dal 7 ottobre: `Content-Security-Policy-Report-Only`, vedi `csp-report-only.mjs`; resta da renderla bloccante con nonce) (/app, /auth): oggi hanno `frame-ancestors 'none'` ma non un `script-src` con nonce. Si può fare, ma tocca PostHog, Sentry, Turnstile, Vercel: da introdurre prima in modalità *report-only* con un endpoint di raccolta.
 - **Chiave di deploy Convex**: era stata incollata in chat → **ruotarla** (Convex Dashboard → Settings → Deploy keys).
 - **Firma del preventivo**: ora in una tabella separata (`quoteSignatures`). I preventivi firmati prima di questa modifica conservano la firma dentro il documento (lettura compatibile); una migrazione facoltativa può spostarla.
 - Test automatici delle pagine dopo il login (richiedono un backend di prova): sono stati verificati solo accesso/registrazione/unisciti a 360–768 px.

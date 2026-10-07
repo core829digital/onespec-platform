@@ -18,7 +18,7 @@ export const listSuppliers = query({
       ? await ctx.db
           .query("catalogSuppliers")
           .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
-          .collect()
+          .take(500)
       : [];
     return {
       allowed,
@@ -48,7 +48,7 @@ export const createSupplier = mutation({
     const existing = await ctx.db
       .query("catalogSuppliers")
       .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
-      .collect();
+      .take(500);
     const dup = existing.find((s) => s.name.toLowerCase() === name.toLowerCase());
     const now = Date.now();
     if (dup) {
