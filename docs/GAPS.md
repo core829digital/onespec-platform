@@ -40,3 +40,11 @@ Cosa è stato verificato (con esito) e cosa NON è coperto. Aggiornare a ogni gi
 | 8 | Migrazione firme vecchie pronta ma da lanciare a mano dopo il deploy | Basso | Un comando (vedi sopra) |
 | 9 | Avvisi GitHub Actions su Node 20 (azioni v4) | Basso | Dependabot propone già gli aggiornamenti: accettare le sue PR |
 | 10 | Monitoraggio caricato "a riposo": va verificato in produzione che Sentry/PostHog ricevano eventi | Medio | Controllare dashboard dopo il deploy |
+
+## Menu e animazioni (7 ottobre 2026)
+- **Menu Radix** (profilo, lingua, notifiche…): classi `os-menu` / `os-menu-item` in `globals.css`, colori OneSpec dentro e fuori (sfondo, bordo, voce evidenziata e selezionata in menta, etichette, separatori), light e dark, apertura/chiusura animate (opacity + 4 px + scala, 110-170 ms).
+- **Select nativi** (36 file, nessuna modifica ai componenti): popup completamente tematizzato e animato sui browser che supportano `appearance: base-select` (Chrome/Edge 135+); sugli altri restano i colori OneSpec nelle opzioni e una freccia propria sul controllo chiuso. Su telefono resta il selettore del sistema (la scelta migliore per l'uso con il pollice).
+- **Scoperta**: le classi `animate-in/out` che i vecchi menu e i toast usavano non venivano mai caricate (`tw-animate-css` non era importato): non si animava nulla.
+- **Movimento in tutta la piattaforma**: ingresso delle pagine in `/app` (`template.tsx`), finestre di dialogo e sfondo, righe delle tabelle (entrata a cascata leggera), pressione dei pulsanti, hover dei controlli, `color-scheme` allineato al tema (i controlli nativi seguono dark/light). Solo opacity/transform; `prefers-reduced-motion` spegne tutto.
+- Nota tecnica: il minificatore CSS di Next elimina `::picker(select):popover-open`; si usa `select:open::picker(select)` (test di guardia in `tests/menu-theme-guard.test.ts`).
+- Limite onesto: i menu Radix dentro `/app` richiedono il login e non sono stati provati nel browser in questo ambiente (verificati classi compilate e CSS); i select sono stati provati nel browser reale in dark e light.

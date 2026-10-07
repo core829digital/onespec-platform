@@ -519,3 +519,158 @@ button:disabled,
 .focus-ring {
   @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-[var(--color-mint)];
 }
+/* ======================================================================================================================
+   OneSpec menus and motion
+   Every menu (Radix dropdown, native <select>) wears the OneSpec palette inside and out, and everything that opens, appears or is
+   pressed moves a little. Only opacity and transform animate (GPU, no layout shift), 110-240 ms; prefers-reduced-motion switches
+   all of it off (rule above). The `tw-animate-css` classes the old menus relied on were never imported, so nothing animated.
+   ====================================================================================================================== */
+
+/* Native controls (select popups, scrollbars, date pickers) follow the app theme instead of the OS one. */
+:root { color-scheme: dark; }
+:root[data-theme="light"] { color-scheme: light; }
+
+@keyframes os-pop-in {
+  from { opacity: 0; transform: translateY(var(--os-slide, -4px)) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes os-pop-out {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: translateY(var(--os-slide, -4px)) scale(0.97); }
+}
+@keyframes os-dialog-in {
+  from { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes os-backdrop-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes os-page-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes os-row-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---- Radix menus (ui/dropdown-menu.tsx) ---- */
+.os-menu {
+  z-index: 50;
+  min-width: 8rem;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-bg-alt);
+  color: var(--color-text);
+  padding: 6px;
+  box-shadow: 0 14px 34px -10px rgb(0 0 0 / 0.5), 0 0 0 1px color-mix(in oklab, var(--color-mint) 7%, transparent);
+  transform-origin: var(--radix-dropdown-menu-content-transform-origin, top);
+  will-change: transform, opacity;
+}
+:root[data-theme="light"] .os-menu { box-shadow: 0 14px 34px -10px rgb(20 30 40 / 0.22), 0 0 0 1px color-mix(in oklab, var(--color-mint) 10%, transparent); }
+.os-menu[data-side="top"] { --os-slide: 4px; }
+.os-menu[data-side="left"] { --os-slide: 0px; }
+.os-menu[data-state="open"] { animation: os-pop-in 170ms var(--ease-out-apple); }
+.os-menu[data-state="closed"] { animation: os-pop-out 110ms ease-in forwards; }
+
+.os-menu-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  color: var(--color-text);
+  cursor: default;
+  user-select: none;
+  outline: none;
+  transition: background-color 120ms ease, color 120ms ease, padding-left 160ms var(--ease-out-apple);
+}
+.os-menu-item[data-highlighted],
+.os-menu-item[data-state="open"] { background: var(--color-mint-light); color: var(--color-mint-text); }
+.os-menu-item[data-state="checked"] { color: var(--color-mint-text); font-weight: 600; }
+.os-menu-item[data-disabled] { pointer-events: none; opacity: 0.45; }
+.os-menu-item-inset { padding-left: 2rem; }
+.os-menu-item-indicator { padding-left: 2rem; }
+.os-menu-label { padding: 6px 10px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-text-secondary); }
+.os-menu-sep { margin: 6px -6px; height: 1px; background: var(--color-border-subtle); }
+@media (hover: none) { .os-menu-item { min-height: 44px; } }
+
+/* ---- Native <select>: OneSpec colours everywhere, a fully styled animated popup where the browser supports it ---- */
+select option { background-color: var(--color-bg-alt); color: var(--color-text); }
+select option:checked { background-color: var(--color-mint-light); color: var(--color-mint-text); }
+select { transition: border-color 140ms ease, box-shadow 140ms ease, background-color 140ms ease; }
+select:hover:not(:disabled) { border-color: color-mix(in oklab, var(--color-mint) 55%, var(--color-border)); }
+select:focus-visible { box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-mint) 22%, transparent); }
+
+/* Browsers without customisable selects: our own chevron on the closed control (the popup stays the native one, which is the best picker on phones). */
+@supports not (appearance: base-select) {
+  select:where(:not([multiple]):not([size])) {
+    appearance: none;
+    -webkit-appearance: none;
+    padding-inline-end: 2rem;
+    background-repeat: no-repeat;
+    background-position: right 0.65rem center;
+    background-size: 0.9rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%239a9aa0' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  }
+}
+
+@supports (appearance: base-select) {
+  select:where(:not([multiple]):not([size])),
+  select:where(:not([multiple]):not([size]))::picker(select) { appearance: base-select; }
+  select:where(:not([multiple]):not([size])) { padding-inline-end: 0.5rem; }
+  select::picker-icon { color: var(--color-text-secondary); transition: rotate 200ms var(--ease-out-apple); }
+  select:open::picker-icon { rotate: 180deg; color: var(--color-mint-text); }
+  select::picker(select) {
+    margin-top: 6px;
+    padding: 6px;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    background: var(--color-bg-alt);
+    color: var(--color-text);
+    box-shadow: 0 14px 34px -10px rgb(0 0 0 / 0.5), 0 0 0 1px color-mix(in oklab, var(--color-mint) 7%, transparent);
+    max-height: min(22rem, 60vh);
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+    transition: opacity 160ms ease, transform 170ms var(--ease-out-apple), overlay 170ms allow-discrete, display 170ms allow-discrete;
+  }
+  select:open::picker(select) { opacity: 1; transform: none; }
+  @starting-style {
+    select:open::picker(select) { opacity: 0; transform: translateY(-4px) scale(0.98); }
+  }
+  select option {
+    min-height: 36px;
+    padding: 7px 10px;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--color-text);
+    transition: background-color 120ms ease, color 120ms ease;
+  }
+  select option:hover, select option:focus-visible { background: var(--color-mint-light); color: var(--color-mint-text); outline: none; }
+  select option:checked { background: var(--color-mint-light); color: var(--color-mint-text); font-weight: 600; }
+  select option::checkmark { color: var(--color-mint-text); }
+  @media (hover: none) { select option { min-height: 44px; } }
+}
+
+/* ---- Dialogs, sheets and popovers ---- */
+[role="dialog"], [role="alertdialog"] { animation: os-dialog-in 200ms var(--ease-out-apple) backwards; }
+.fixed.inset-0[class*="bg-black"], .fixed.inset-0[class*="backdrop"] { animation: os-backdrop-in 180ms ease backwards; }
+
+/* ---- Pages, lists, controls ---- */
+.os-page { animation: os-page-in 240ms var(--ease-out-apple) backwards; }
+tbody > tr { animation: os-row-in 240ms var(--ease-out-apple) backwards; transition: background-color 120ms ease; }
+tbody > tr:nth-child(2) { animation-delay: 25ms; }
+tbody > tr:nth-child(3) { animation-delay: 50ms; }
+tbody > tr:nth-child(4) { animation-delay: 75ms; }
+tbody > tr:nth-child(5) { animation-delay: 100ms; }
+tbody > tr:nth-child(n + 6) { animation-delay: 125ms; }
+button, [role="button"], a { transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease, opacity 150ms ease; }
+/* The press effect is skipped on elements positioned by script (drag handles carry an inline transform). */
+button:not([style*="transform"]), [role="button"]:not([style*="transform"]) { transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease, opacity 150ms ease, transform 120ms var(--ease-out-apple); }
+button:not(:disabled):active, [role="button"]:not([aria-disabled="true"]):active { transform: scale(0.97); }
+@media (hover: hover) {
+  .os-lift { transition: transform 180ms var(--ease-out-apple), box-shadow 180ms ease, border-color 180ms ease; }
+  .os-lift:hover { transform: translateY(-2px); box-shadow: 0 10px 24px -12px rgb(0 0 0 / 0.45); border-color: color-mix(in oklab, var(--color-mint) 45%, var(--color-border)); }
+}
