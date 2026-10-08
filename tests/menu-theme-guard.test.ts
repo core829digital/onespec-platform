@@ -32,4 +32,11 @@ describe("OneSpec menus", () => {
     expect(css).toContain('[data-theme="light"] { color-scheme: light; }');
     expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)[\s\S]*animation-duration: 0\.001ms/);
   });
+  test("the press effect never reaches SVG elements (it made the drawing's dimensions impossible to edit)", () => {
+    const press = css.split("\n").filter((l) => l.includes("scale(0.97)") && l.includes(":active"));
+    expect(press.length).toBeGreaterThan(0);
+    for (const line of press) expect(line).toContain(":not(svg *)");
+    // Any rule that sets a transform on every [role=button] must also exclude SVG.
+    for (const line of css.split("\n")) if (/\[role="button"\][^{]*\{[^}]*transform:/.test(line)) expect(line).toContain(":not(svg *)");
+  });
 });

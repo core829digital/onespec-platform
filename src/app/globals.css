@@ -667,9 +667,14 @@ tbody > tr:nth-child(4) { animation-delay: 75ms; }
 tbody > tr:nth-child(5) { animation-delay: 100ms; }
 tbody > tr:nth-child(n + 6) { animation-delay: 125ms; }
 button, [role="button"], a { transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease, opacity 150ms ease; }
-/* The press effect is skipped on elements positioned by script (drag handles carry an inline transform). */
-button:not([style*="transform"]), [role="button"]:not([style*="transform"]) { transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease, opacity 150ms ease, transform 120ms var(--ease-out-apple); }
-button:not(:disabled):active, [role="button"]:not([aria-disabled="true"]):active { transform: scale(0.97); }
+/*
+ * The press effect is for HTML controls only. It must never reach an SVG element (`<rect role="button">` in the technical drawing, the
+ * flip and handle buttons): there a CSS transform pivots on the drawing's corner, the element slides out from under the pointer between
+ * press and release, and the click lands on the <svg> instead — which is what made the dimensions in the drawing impossible to edit.
+ * Elements positioned by script (drag handles carry an inline transform) are skipped as well.
+ */
+:where(button, [role="button"]):not(svg *):not([style*="transform"]) { transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease, opacity 150ms ease, transform 120ms var(--ease-out-apple); }
+:where(button:not(:disabled), [role="button"]:not([aria-disabled="true"])):not(svg *):active { transform: scale(0.97); }
 @media (hover: hover) {
   .os-lift { transition: transform 180ms var(--ease-out-apple), box-shadow 180ms ease, border-color 180ms ease; }
   .os-lift:hover { transform: translateY(-2px); box-shadow: 0 10px 24px -12px rgb(0 0 0 / 0.45); border-color: color-mix(in oklab, var(--color-mint) 45%, var(--color-border)); }

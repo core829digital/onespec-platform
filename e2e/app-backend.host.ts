@@ -44,6 +44,12 @@ function subjectOf(token: string | undefined): string | null {
 }
 
 type Kind = "query" | "mutation" | "action";
+
+const OWNER_EMAIL = "owner@example.com";
+const OWNER_PASSWORD = "e2e-password-123";
+const REFRESH_PREFIX = "e2e-refresh.";
+// Convex ids contain ";", which a cookie value cannot carry: the subject travels base64url-encoded.
+const refreshFor = (subject: string) => REFRESH_PREFIX + Buffer.from(subject).toString("base64url");
 type Failure = { message: string; data?: JSONValue };
 
 test("app backend (runs until stopped)", async () => {
@@ -53,11 +59,12 @@ test("app backend (runs until stopped)", async () => {
 
   // ── seed: one company, fully onboarded, with a published catalogue and a customer ──────────────────────────────────────────────
   const s = await seedTenant(t, { plan: "pro" });
+  const ownerId: string = s.ownerId;
   await fillOnboardingProfile(t, s.tenantId);
   await t.run((ctx) => ctx.db.patch(s.tenantId, { name: "Acme Serramenti", onboardingCompletedAt: Date.now() }));
   await t.run(async (ctx) => {
     for (const [id, name] of [[s.ownerId, "Mario Rossi"], [s.adminId, "Admin"], [s.memberId, "Member"]] as const) {
-      await ctx.db.patch(id, { name, emailVerificationTime: Date.now() });
+      await ctx.db.patch(id, { name, ...(id === s.ownerId ? { email: OWNER_EMAIL } : {}), emailVerificationTime: Date.now() });
     }
   });
   const configuratorId = await seedPublishedConfigurator(t, s.tenantId);
@@ -70,7 +77,7 @@ test("app backend (runs until stopped)", async () => {
   );
   writeFileSync(
     SEED_FILE,
-    JSON.stringify({ tenantId: s.tenantId, configuratorId, clientId, owner: { id: s.ownerId, token: makeToken(s.ownerId) }, member: { id: s.memberId, token: makeToken(s.memberId) } }),
+    JSON.stringify({ tenantId: s.tenantId, configuratorId, clientId, owner: { id: s.ownerId, token: makeToken(s.ownerId), refresh: refreshFor(s.ownerId), email: OWNER_EMAIL, password: OWNER_PASSWORD }, member: { id: s.memberId, token: makeToken(s.memberId), refresh: refreshFor(s.memberId) } }),
   );
 
   // ── execution ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────
@@ -81,9 +88,33 @@ test("app backend (runs until stopped)", async () => {
     return run;
   };
 
+  /**
+   * Convex Auth's own actions (`auth:signIn` / `auth:signOut`) need its key pair and session tables; the harness answers them itself with
+   * the same shapes the library returns: password sign-in for the seeded owner, token refresh, sign-out. Everything else is the real code.
+   */
+  function authAction(path: string, args: Record<string, unknown>): { ok: true; value: JSONValue } | { ok: false; failure: Failure } | null {
+    if (path === "auth:signOut") return { ok: true, value: null };
+    if (path !== "auth:signIn") return null;
+    const refresh = args.refreshToken;
+    if (typeof refresh === "string") {
+      return refresh.startsWith(REFRESH_PREFIX)
+        ? { ok: true, value: { tokens: { token: makeToken(Buffer.from(refresh.slice(REFRESH_PREFIX.length), "base64url").toString("utf8")), refreshToken: refresh } } }
+        : { ok: true, value: { tokens: null } };
+    }
+    const params = (args.params ?? {}) as Record<string, unknown>;
+    if (args.provider === "password" && params.email === OWNER_EMAIL && params.password === OWNER_PASSWORD) {
+      return { ok: true, value: { tokens: { token: makeToken(ownerId), refreshToken: refreshFor(ownerId) } } };
+    }
+    return { ok: false, failure: { message: "Uncaught Error: InvalidAccountId" } };
+  }
+
   async function exec(kind: Kind, path: string, argsJson: JSONValue | undefined, subject: string | null): Promise<{ ok: true; value: JSONValue } | { ok: false; failure: Failure }> {
     try {
       const args = jsonToConvex(argsJson ?? {}) as Record<string, unknown>;
+      if (kind === "action") {
+        const handled = authAction(path, args);
+        if (handled) return handled;
+      }
       const scoped = subject ? t.withIdentity({ subject, issuer: "e2e", tokenIdentifier: `e2e|${subject}` }) : t;
       const ref = makeFunctionReference<Kind>(path) as never;
       const result = await (scoped[kind] as (r: never, a: Record<string, unknown>) => Promise<unknown>)(ref, args);
