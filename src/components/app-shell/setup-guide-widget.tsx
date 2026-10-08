@@ -79,7 +79,7 @@ export function SetupGuideWidget({ tenantId }: { tenantId: Id<"tenants"> }) {
     // Only worth showing the "all done" state once per session-ish; let the
     // user dismiss it permanently rather than re-litigating it every page.
     return (
-      <div className="fixed bottom-4 right-4 z-40 w-72 rounded-xl border border-[var(--color-mint)]/40 bg-[var(--color-bg)] p-4 shadow-xl">
+      <div className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] right-4 z-40 lg:bottom-4 w-72 rounded-xl border border-[var(--color-mint)]/40 bg-[var(--color-bg)] p-4 shadow-xl">
         <div className="flex items-start justify-between gap-2">
           <p className="text-sm font-semibold text-[var(--color-text)]">{t("allDoneTitle")}</p>
           <button type="button" aria-label={t("close")} onClick={dismiss} className="text-[var(--color-text-secondary)]">
@@ -94,7 +94,7 @@ export function SetupGuideWidget({ tenantId }: { tenantId: Id<"tenants"> }) {
   const pct = Math.round((progress.doneCount / progress.totalCount) * 100);
 
   return (
-    <div className="fixed bottom-4 right-4 z-40 w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] shadow-xl">
+    <div className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] right-4 z-40 lg:bottom-4 w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] shadow-xl">
       <button
         type="button"
         onClick={toggle}

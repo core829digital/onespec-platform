@@ -9,6 +9,7 @@ import type { Doc } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
 import { Lock, X } from "lucide-react";
 import { useSubscriptionEnded } from "@/lib/plan-gates";
+import { InstallAppButton } from "@/components/pwa/install-app-button";
 import { useSearchParams } from "next/navigation";
 import { lockedInNav, NAV_GROUPS, ADMIN_NAV_ITEM, isNavItemActive, navHref, visibleNavGroups, type NavGroup } from "./nav-items";
 
@@ -77,7 +78,8 @@ export function MobileNav({
           </button>
         </div>
         <p className="text-xs text-[var(--color-text-secondary)] mt-3 capitalize truncate">{tenant.name}</p>
-        <div className="mt-3 flex-1 space-y-4 overflow-y-auto">
+        <div className="mt-3"><InstallAppButton variant="menu" onDone={onClose} /></div>
+        <div className="mt-3 flex-1 space-y-4 overflow-y-auto pb-[env(safe-area-inset-bottom)]">
           {groups.map((group) => (
             <div key={group.key}>
               {group.key !== "admin" ? (

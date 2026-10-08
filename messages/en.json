@@ -3055,5 +3055,37 @@
     "hingeRight": "on the right",
     "applyAll": "Apply to all leaves",
     "noBarOnLeaf": "No transom on this leaf."
+  },
+  "bottomBar": {
+    "aria": "Quick navigation",
+    "home": "Home",
+    "configurators": "Configurators",
+    "showroom": "Showroom",
+    "quotes": "Quotes",
+    "requests": "Requests",
+    "clients": "Clients",
+    "more": "More"
+  },
+  "install": {
+    "button": "Add to Home Screen",
+    "short": "Install app",
+    "benefit": "Open OneSpec like an app, full screen and one tap away.",
+    "title": "Add OneSpec to your Home Screen",
+    "close": "Close",
+    "done": "Done",
+    "iosShare": "Tap the Share button (the square with an arrow pointing up) in Safari's toolbar.",
+    "iosAdd": "Scroll and choose “Add to Home Screen”.",
+    "iosConfirm": "Tap “Add” at the top right: the OneSpec icon will appear among your apps.",
+    "iosOtherBrowser": "Tap Share (or the ⋯ menu), then “Add to Home Screen”. If you do not see it, open this page in Safari.",
+    "androidMenu": "Open the browser menu (⋮ at the top right).",
+    "androidAdd": "Choose “Install app” or “Add to Home screen”.",
+    "androidConfirm": "Confirm: the OneSpec icon will appear among your apps.",
+    "desktopChrome": "Click the install icon in the address bar (or menu ⋮ → “Install OneSpec”).",
+    "desktopSafari": "In Safari: File menu → “Add to Dock”.",
+    "desktopFirefox": "Firefox on desktop does not install apps: use Chrome, Edge or Safari, or bookmark the page.",
+    "generic": "In the browser menu look for “Install app” or “Add to Home screen”.",
+    "inApp": "You are in another app's built-in browser. Open this page in Safari or Chrome (⋯ menu → “Open in browser”) and try again.",
+    "installed": "OneSpec is already installed on this device.",
+    "installing": "Installing…"
   }
 }

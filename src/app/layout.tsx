@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Space_Grotesk, Fraunces } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { THEME_INIT } from "@/lib/theme-init";
+import { PwaRegister } from "@/components/pwa/pwa-register";
 import "./globals.css";
 
 const geistSans = Geist({ subsets: ["latin"], variable: "--font-geist-sans", display: "swap" });
@@ -48,6 +49,9 @@ export const metadata: Metadata = {
   },
   twitter: { card: "summary_large_image", images: ["/og-image.png"] },
   manifest: "/manifest.json",
+  // iPhone / iPad "Add to Home Screen": open as an app (no browser bars) with a solid status bar, named OneSpec.
+  appleWebApp: { capable: true, title: "OneSpec", statusBarStyle: "black" },
+  formatDetection: { telephone: false },
 };
 
 // `viewport`/`themeColor` used to live inside `metadata` (pre-Next.js-14 API).
@@ -58,6 +62,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  // Lets the page use the whole screen on notched phones; the bottom bar and sheets keep clear of the home indicator with env(safe-area-inset-*).
+  viewportFit: "cover",
   themeColor: "#16d19d",
 };
 
@@ -79,6 +85,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             Vercel's stale auto-injected web-vitals script (the source of the
             "Cannot read properties of undefined (reading 'startTime')" crash). */}
         <SpeedInsights />
+        <PwaRegister />
       </body>
     </html>
   );

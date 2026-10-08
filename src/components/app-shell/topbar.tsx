@@ -12,6 +12,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { NotificationBell } from "./notification-bell";
 import { FeedbackButton } from "./feedback-modal";
 import { LanguageSwitcher } from "@/components/language-switcher";
+import { InstallAppButton } from "@/components/pwa/install-app-button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LEGAL_DOCS } from "@/content/legal";
 import { api } from "@/convex/_generated/api";
@@ -103,6 +104,8 @@ export function Topbar({
       </div>
 
       <div className="flex items-center gap-3">
+        {/* "Add to Home Screen": here on large screens; on phones it is the first entry of the menu. */}
+        <div className="hidden lg:block"><InstallAppButton variant="header" /></div>
         <Button variant="ghost" className="flex items-center gap-2 px-3 py-1.5" asChild>
           <a href="https://cloud.onespec.eu" target="_blank" rel="noopener noreferrer" aria-label={t("status")}>
             <Activity size={18} />

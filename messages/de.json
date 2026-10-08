@@ -3055,5 +3055,37 @@
     "hingeRight": "rechts",
     "applyAll": "Auf alle Flügel anwenden",
     "noBarOnLeaf": "Kein Kämpfer an diesem Flügel."
+  },
+  "bottomBar": {
+    "aria": "Schnellnavigation",
+    "home": "Start",
+    "configurators": "Konfiguratoren",
+    "showroom": "Showroom",
+    "quotes": "Angebote",
+    "requests": "Anfragen",
+    "clients": "Kunden",
+    "more": "Mehr"
+  },
+  "install": {
+    "button": "Zum Home-Bildschirm hinzufügen",
+    "short": "App installieren",
+    "benefit": "Öffnen Sie OneSpec wie eine App: Vollbild, mit einem Tipp.",
+    "title": "OneSpec zum Home-Bildschirm hinzufügen",
+    "close": "Schließen",
+    "done": "Fertig",
+    "iosShare": "Tippen Sie in der Safari-Leiste auf „Teilen“ (das Quadrat mit dem Pfeil nach oben).",
+    "iosAdd": "Scrollen Sie und wählen Sie „Zum Home-Bildschirm“.",
+    "iosConfirm": "Tippen Sie oben rechts auf „Hinzufügen“: Das OneSpec-Symbol erscheint bei Ihren Apps.",
+    "iosOtherBrowser": "Tippen Sie auf „Teilen“ (oder das Menü ⋯), dann auf „Zum Home-Bildschirm“. Falls nicht sichtbar, öffnen Sie diese Seite in Safari.",
+    "androidMenu": "Öffnen Sie das Browsermenü (⋮ oben rechts).",
+    "androidAdd": "Wählen Sie „App installieren“ oder „Zum Startbildschirm hinzufügen“.",
+    "androidConfirm": "Bestätigen Sie: Das OneSpec-Symbol erscheint bei Ihren Apps.",
+    "desktopChrome": "Klicken Sie in der Adressleiste auf das Installationssymbol (oder Menü ⋮ → „OneSpec installieren“).",
+    "desktopSafari": "In Safari: Menü „Ablage“ → „Zum Dock hinzufügen“.",
+    "desktopFirefox": "Firefox am Computer installiert keine Apps: Nutzen Sie Chrome, Edge oder Safari oder setzen Sie ein Lesezeichen.",
+    "generic": "Suchen Sie im Browsermenü nach „App installieren“ oder „Zum Startbildschirm hinzufügen“.",
+    "inApp": "Sie nutzen den integrierten Browser einer anderen App. Öffnen Sie diese Seite in Safari oder Chrome (Menü ⋯ → „Im Browser öffnen“) und versuchen Sie es erneut.",
+    "installed": "OneSpec ist auf diesem Gerät bereits installiert.",
+    "installing": "Wird installiert…"
   }
 }

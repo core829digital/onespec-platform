@@ -3055,5 +3055,37 @@
     "hingeRight": "a destra",
     "applyAll": "Applica a tutte le ante",
     "noBarOnLeaf": "Nessun traverso su questa anta."
+  },
+  "bottomBar": {
+    "aria": "Navigazione rapida",
+    "home": "Home",
+    "configurators": "Configuratori",
+    "showroom": "Showroom",
+    "quotes": "Preventivi",
+    "requests": "Richieste",
+    "clients": "Clienti",
+    "more": "Altro"
+  },
+  "install": {
+    "button": "Aggiungi alla schermata Home",
+    "short": "Installa app",
+    "benefit": "Apri OneSpec come un'app, a tutto schermo e con un tocco.",
+    "title": "Aggiungi OneSpec alla schermata Home",
+    "close": "Chiudi",
+    "done": "Fatto",
+    "iosShare": "Tocca il pulsante Condividi (il quadrato con la freccia verso l'alto) nella barra di Safari.",
+    "iosAdd": "Scorri e scegli «Aggiungi alla schermata Home».",
+    "iosConfirm": "Tocca «Aggiungi» in alto a destra: l'icona di OneSpec comparirà tra le tue app.",
+    "iosOtherBrowser": "Tocca Condividi (o il menu ⋯), poi «Aggiungi alla schermata Home». Se non la vedi, apri questa pagina in Safari.",
+    "androidMenu": "Apri il menu del browser (⋮ in alto a destra).",
+    "androidAdd": "Scegli «Installa app» oppure «Aggiungi a schermata Home».",
+    "androidConfirm": "Conferma: l'icona di OneSpec comparirà tra le tue app.",
+    "desktopChrome": "Nella barra degli indirizzi clicca l'icona di installazione (o menu ⋮ → «Installa OneSpec»).",
+    "desktopSafari": "In Safari: menu File → «Aggiungi al Dock».",
+    "desktopFirefox": "Firefox su computer non installa le app: usa Chrome, Edge o Safari, oppure aggiungi la pagina ai segnalibri.",
+    "generic": "Nel menu del browser cerca «Installa app» o «Aggiungi alla schermata Home».",
+    "inApp": "Stai usando il browser interno di un'altra app. Apri questa pagina in Safari o Chrome (menu ⋯ → «Apri nel browser») e riprova.",
+    "installed": "OneSpec è già installata su questo dispositivo.",
+    "installing": "Installazione in corso…"
   }
 }

@@ -3055,5 +3055,37 @@
     "hingeRight": "à droite",
     "applyAll": "Appliquer à tous les ouvrants",
     "noBarOnLeaf": "Aucune traverse sur cet ouvrant."
+  },
+  "bottomBar": {
+    "aria": "Navigation rapide",
+    "home": "Accueil",
+    "configurators": "Configurateurs",
+    "showroom": "Showroom",
+    "quotes": "Devis",
+    "requests": "Demandes",
+    "clients": "Clients",
+    "more": "Plus"
+  },
+  "install": {
+    "button": "Ajouter à l'écran d'accueil",
+    "short": "Installer l'app",
+    "benefit": "Ouvrez OneSpec comme une application, en plein écran et en un geste.",
+    "title": "Ajouter OneSpec à l'écran d'accueil",
+    "close": "Fermer",
+    "done": "Terminé",
+    "iosShare": "Touchez le bouton Partager (le carré avec une flèche vers le haut) dans la barre de Safari.",
+    "iosAdd": "Faites défiler et choisissez « Sur l'écran d'accueil ».",
+    "iosConfirm": "Touchez « Ajouter » en haut à droite : l'icône OneSpec apparaîtra parmi vos apps.",
+    "iosOtherBrowser": "Touchez Partager (ou le menu ⋯), puis « Sur l'écran d'accueil ». Si vous ne le voyez pas, ouvrez cette page dans Safari.",
+    "androidMenu": "Ouvrez le menu du navigateur (⋮ en haut à droite).",
+    "androidAdd": "Choisissez « Installer l'application » ou « Ajouter à l'écran d'accueil ».",
+    "androidConfirm": "Confirmez : l'icône OneSpec apparaîtra parmi vos apps.",
+    "desktopChrome": "Cliquez sur l'icône d'installation dans la barre d'adresse (ou menu ⋮ → « Installer OneSpec »).",
+    "desktopSafari": "Dans Safari : menu Fichier → « Ajouter au Dock ».",
+    "desktopFirefox": "Firefox sur ordinateur n'installe pas les apps : utilisez Chrome, Edge ou Safari, ou ajoutez la page aux favoris.",
+    "generic": "Dans le menu du navigateur, cherchez « Installer l'application » ou « Ajouter à l'écran d'accueil ».",
+    "inApp": "Vous utilisez le navigateur intégré d'une autre application. Ouvrez cette page dans Safari ou Chrome (menu ⋯ → « Ouvrir dans le navigateur ») et réessayez.",
+    "installed": "OneSpec est déjà installée sur cet appareil.",
+    "installing": "Installation…"
   }
 }

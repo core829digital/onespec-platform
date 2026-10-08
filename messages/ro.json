@@ -3055,5 +3055,37 @@
     "hingeRight": "în dreapta",
     "applyAll": "Aplică la toate canatele",
     "noBarOnLeaf": "Nicio traversă pe acest canat."
+  },
+  "bottomBar": {
+    "aria": "Navigare rapidă",
+    "home": "Acasă",
+    "configurators": "Configuratoare",
+    "showroom": "Showroom",
+    "quotes": "Oferte",
+    "requests": "Cereri",
+    "clients": "Clienți",
+    "more": "Mai mult"
+  },
+  "install": {
+    "button": "Adaugă pe ecranul principal",
+    "short": "Instalează aplicația",
+    "benefit": "Deschide OneSpec ca pe o aplicație, pe tot ecranul și dintr-o atingere.",
+    "title": "Adaugă OneSpec pe ecranul principal",
+    "close": "Închide",
+    "done": "Gata",
+    "iosShare": "Atinge butonul Partajare (pătratul cu săgeata în sus) din bara Safari.",
+    "iosAdd": "Derulează și alege „Adaugă pe ecranul principal”.",
+    "iosConfirm": "Atinge „Adaugă” în dreapta sus: pictograma OneSpec va apărea printre aplicațiile tale.",
+    "iosOtherBrowser": "Atinge Partajare (sau meniul ⋯), apoi „Adaugă pe ecranul principal”. Dacă nu o vezi, deschide această pagină în Safari.",
+    "androidMenu": "Deschide meniul browserului (⋮ în dreapta sus).",
+    "androidAdd": "Alege „Instalează aplicația” sau „Adaugă pe ecranul de start”.",
+    "androidConfirm": "Confirmă: pictograma OneSpec va apărea printre aplicațiile tale.",
+    "desktopChrome": "Apasă pictograma de instalare din bara de adrese (sau meniu ⋮ → „Instalează OneSpec”).",
+    "desktopSafari": "În Safari: meniul Fișier → „Adaugă în Dock”.",
+    "desktopFirefox": "Firefox pe calculator nu instalează aplicații: folosește Chrome, Edge sau Safari ori adaugă pagina la favorite.",
+    "generic": "În meniul browserului caută „Instalează aplicația” sau „Adaugă pe ecranul de start”.",
+    "inApp": "Folosești browserul integrat al altei aplicații. Deschide pagina în Safari sau Chrome (meniul ⋯ → „Deschide în browser”) și încearcă din nou.",
+    "installed": "OneSpec este deja instalată pe acest dispozitiv.",
+    "installing": "Se instalează…"
   }
 }

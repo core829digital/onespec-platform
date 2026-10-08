@@ -3055,5 +3055,37 @@
     "hingeRight": "rechts",
     "applyAll": "Toepassen op alle vleugels",
     "noBarOnLeaf": "Geen kalf op deze vleugel."
+  },
+  "bottomBar": {
+    "aria": "Snelle navigatie",
+    "home": "Home",
+    "configurators": "Configurators",
+    "showroom": "Showroom",
+    "quotes": "Offertes",
+    "requests": "Aanvragen",
+    "clients": "Klanten",
+    "more": "Meer"
+  },
+  "install": {
+    "button": "Toevoegen aan beginscherm",
+    "short": "App installeren",
+    "benefit": "Open OneSpec als een app: schermvullend en met één tik.",
+    "title": "OneSpec toevoegen aan je beginscherm",
+    "close": "Sluiten",
+    "done": "Klaar",
+    "iosShare": "Tik in de Safari-balk op Deel (het vierkant met een pijl omhoog).",
+    "iosAdd": "Scrol en kies “Zet op beginscherm”.",
+    "iosConfirm": "Tik rechtsboven op “Voeg toe”: het OneSpec-icoon verschijnt tussen je apps.",
+    "iosOtherBrowser": "Tik op Deel (of het menu ⋯) en dan op “Zet op beginscherm”. Zie je dit niet, open deze pagina dan in Safari.",
+    "androidMenu": "Open het browsermenu (⋮ rechtsboven).",
+    "androidAdd": "Kies “App installeren” of “Toevoegen aan startscherm”.",
+    "androidConfirm": "Bevestig: het OneSpec-icoon verschijnt tussen je apps.",
+    "desktopChrome": "Klik op het installatie-icoon in de adresbalk (of menu ⋮ → “OneSpec installeren”).",
+    "desktopSafari": "In Safari: menu Archief → “Voeg toe aan Dock”.",
+    "desktopFirefox": "Firefox op de computer installeert geen apps: gebruik Chrome, Edge of Safari, of maak een bladwijzer.",
+    "generic": "Zoek in het browsermenu naar “App installeren” of “Toevoegen aan startscherm”.",
+    "inApp": "Je gebruikt de ingebouwde browser van een andere app. Open deze pagina in Safari of Chrome (menu ⋯ → “Open in browser”) en probeer opnieuw.",
+    "installed": "OneSpec is al geïnstalleerd op dit apparaat.",
+    "installing": "Installeren…"
   }
 }
