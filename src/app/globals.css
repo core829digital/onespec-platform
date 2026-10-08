@@ -679,3 +679,9 @@ button, [role="button"], a { transition: background-color 150ms ease, border-col
   .os-lift { transition: transform 180ms var(--ease-out-apple), box-shadow 180ms ease, border-color 180ms ease; }
   .os-lift:hover { transform: translateY(-2px); box-shadow: 0 10px 24px -12px rgb(0 0 0 / 0.45); border-color: color-mix(in oklab, var(--color-mint) 45%, var(--color-border)); }
 }
+
+/* Phone "More" sheet: slides up from the bottom edge. */
+@keyframes sheet-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: none; }
+}

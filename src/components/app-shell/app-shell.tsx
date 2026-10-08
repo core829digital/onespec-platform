@@ -6,6 +6,7 @@ import { Sidebar } from "./sidebar";
 import { Topbar } from "./topbar";
 import { MobileNav } from "./mobile-nav";
 import { BottomIsland } from "./bottom-island";
+import { MobileMoreSheet } from "./mobile-more-sheet";
 import { SkipToMainContent } from "./skip-link";
 import { PlanGate } from "./plan-gate";
 import { ProfileGapsBanner } from "./profile-gaps-banner";
@@ -18,6 +19,7 @@ export function AppShell({
   children: React.ReactNode;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
 
   return (
     <div className="relative flex h-dvh overflow-clip bg-[var(--color-bg)]">
@@ -38,7 +40,8 @@ export function AppShell({
           <PlanGate tenant={tenant}>{children}</PlanGate>
         </main>
       </div>
-      <BottomIsland onMore={() => setMobileOpen(true)} />
+      <BottomIsland onMore={() => setMoreOpen(true)} onMenu={() => setMobileOpen(true)} />
+      <MobileMoreSheet open={moreOpen} onClose={() => setMoreOpen(false)} />
     </div>
   );
 }

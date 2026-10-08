@@ -3059,12 +3059,23 @@
   "bottomBar": {
     "aria": "Navigazione rapida",
     "home": "Home",
-    "configurators": "Configuratori",
+    "configurators": "Config.",
     "showroom": "Showroom",
     "quotes": "Preventivi",
     "requests": "Richieste",
     "clients": "Clienti",
-    "more": "Altro"
+    "more": "Altro",
+    "menu": "Menu",
+    "moreTitle": "Altro",
+    "appearance": "Aspetto",
+    "language": "Lingua",
+    "notifications": "Centro notifiche",
+    "account": "Impostazioni account",
+    "plan": "Piano d'abbonamento",
+    "status": "Stato del servizio",
+    "legal": "Pagine legali",
+    "close": "Chiudi",
+    "menuAria": "Apri il menu laterale"
   },
   "install": {
     "button": "Aggiungi alla schermata Home",

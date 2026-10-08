@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { analytics as posthog } from "@/lib/monitoring";
-import { useQuery, useMutation } from "convex/react";
+import { useMutation } from "convex/react";
+import { useQuery } from "@/lib/convex-query";
 import { api } from "@/convex/_generated/api";
 import { Link, useRouter } from "@/i18n/navigation";
 import { ExternalLink } from "lucide-react";

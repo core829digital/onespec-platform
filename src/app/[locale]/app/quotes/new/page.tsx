@@ -4,7 +4,8 @@ import { ConvexError } from "convex/values";
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { analytics as posthog } from "@/lib/monitoring";
 import { useSearchParams } from "next/navigation";
-import { useQuery, useMutation } from "convex/react";
+import { useMutation } from "convex/react";
+import { useQuery } from "@/lib/convex-query";
 import { api } from "@/convex/_generated/api";
 import { useRouter } from "@/i18n/navigation";
 import { Link } from "@/i18n/navigation";
@@ -799,7 +800,7 @@ export default function NewFieldQuotePage() {
             {activeConfig ? (
               <Link
                 href={`/app/configurators/${activeConfig._id}`}
-                className="text-xs font-semibold text-[var(--color-mint-text)] hover:underline"
+                className="inline-flex min-h-10 items-center text-xs font-semibold text-[var(--color-mint-text)] hover:underline sm:min-h-0"
               >
                 {t("editCatalog")}
               </Link>

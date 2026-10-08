@@ -3,7 +3,8 @@
 import { requestConfirm } from "@/lib/confirm-dialog";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useQuery, useMutation } from "convex/react";
+import { useMutation } from "convex/react";
+import { useQuery } from "@/lib/convex-query";
 import { api } from "@/convex/_generated/api";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useLocale, useTranslations } from "next-intl";

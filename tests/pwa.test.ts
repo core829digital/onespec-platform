@@ -60,13 +60,13 @@ describe("add to home screen: platform and instructions", () => {
 
 describe("bottom bar", () => {
   const flat = (grade?: string | null) => visibleNavGroups(NAV_GROUPS, grade).flatMap((g) => g.items);
-  test("the whole menu gives dashboard, configurators, quotes, requests", () => {
-    expect(pickBarItems(flat(null)).map((i) => i.href)).toEqual(["/app/dashboard", "/app/configurators", "/app/quotes", "/app/requests"]);
+  test("the whole menu gives dashboard, configurators, quotes (three pages + More + Menu)", () => {
+    expect(pickBarItems(flat(null)).map((i) => i.href)).toEqual(["/app/dashboard", "/app/configurators", "/app/quotes"]);
   });
   test("a grade that does not work in sales still gets pages it may open (never an empty bar)", () => {
     const items = pickBarItems(flat("posatore"));
     expect(items.length).toBeGreaterThan(0);
     expect(items.every((i) => !!i.href)).toBe(true);
-    expect(items.length).toBeLessThanOrEqual(4);
+    expect(items.length).toBeLessThanOrEqual(3);
   });
 });

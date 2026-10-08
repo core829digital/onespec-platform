@@ -3059,12 +3059,23 @@
   "bottomBar": {
     "aria": "Snelle navigatie",
     "home": "Home",
-    "configurators": "Configurators",
+    "configurators": "Config.",
     "showroom": "Showroom",
     "quotes": "Offertes",
     "requests": "Aanvragen",
     "clients": "Klanten",
-    "more": "Meer"
+    "more": "Meer",
+    "menu": "Menu",
+    "moreTitle": "Meer",
+    "appearance": "Weergave",
+    "language": "Taal",
+    "notifications": "Meldingencentrum",
+    "account": "Accountinstellingen",
+    "plan": "Abonnement",
+    "status": "Servicestatus",
+    "legal": "Juridische pagina's",
+    "close": "Sluiten",
+    "menuAria": "Zijmenu openen"
   },
   "install": {
     "button": "Toevoegen aan beginscherm",

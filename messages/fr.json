@@ -3059,12 +3059,23 @@
   "bottomBar": {
     "aria": "Navigation rapide",
     "home": "Accueil",
-    "configurators": "Configurateurs",
+    "configurators": "Config.",
     "showroom": "Showroom",
     "quotes": "Devis",
     "requests": "Demandes",
     "clients": "Clients",
-    "more": "Plus"
+    "more": "Plus",
+    "menu": "Menu",
+    "moreTitle": "Plus",
+    "appearance": "Apparence",
+    "language": "Langue",
+    "notifications": "Centre de notifications",
+    "account": "Paramètres du compte",
+    "plan": "Abonnement",
+    "status": "État du service",
+    "legal": "Pages légales",
+    "close": "Fermer",
+    "menuAria": "Ouvrir le menu latéral"
   },
   "install": {
     "button": "Ajouter à l'écran d'accueil",

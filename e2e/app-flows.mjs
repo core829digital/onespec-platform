@@ -106,6 +106,18 @@ async function step(name, page, problems, fn) {
   }
 }
 
+// Elements wider than the screen (not inside their own sideways-scroll area), listed one by one: a parent that hides the page scroll cannot hide them.
+const sticksOut = () => {
+          const vw = window.innerWidth;
+          const scrolls = (el) => { for (let n = el.parentElement; n && n !== document.body; n = n.parentElement) { const o = getComputedStyle(n).overflowX; if (o === "auto" || o === "scroll") return true; } return false; };
+          return [...document.querySelectorAll("body *")].filter((el) => {
+            const r = el.getBoundingClientRect();
+            if (r.width === 0 || r.height === 0 || (r.right <= vw + 1 && r.left >= -1)) return false;
+            const cs = getComputedStyle(el);
+            return cs.position !== "fixed" && cs.visibility !== "hidden" && cs.display !== "none" && !scrolls(el) && !el.closest("svg, [aria-hidden='true'], .sr-only");
+          }).slice(0, 6).map((el) => `${el.tagName.toLowerCase()}.${String(el.className).slice(0, 60)} [${Math.round(el.getBoundingClientRect().left)}..${Math.round(el.getBoundingClientRect().right)}]`);
+        };
+
 const url = (path) => `${APP}/${LOCALE}${path}`;
 
 async function main() {
@@ -198,22 +210,66 @@ async function main() {
     // ── the same pages on a phone: no sideways scroll, the bottom island is there and sits clear of the page content ───────────────
     const phone = await newSession(browser, seed.owner.token, seed.owner.refresh, { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
     const mobile = await phone.context.newPage();
-    for (const path of ["/app/dashboard", "/app/quotes", "/app/quotes/new", "/app/clients", "/app/requests", "/app/configurators", "/app/supply", "/app/account"]) {
-      await step(`phone ${path}`, mobile, phone.problems, async () => {
+    for (const width of [390, 360]) {
+      await mobile.setViewportSize({ width, height: 844 });
+    for (const path of ["/app/dashboard", "/app/quotes", "/app/quotes/new", "/app/clients", "/app/requests", "/app/configurators", `/app/configurators/${seed.configuratorId}`, `/app/configurators/${seed.configuratorId}/setup`, "/app/showroom", "/app/supply", "/app/account"]) {
+      await step(`phone ${width}px ${path.replace(seed.configuratorId, ":id")}`, mobile, phone.problems, async () => {
         await mobile.goto(url(path), { waitUntil: "domcontentloaded" });
         await mobile.getByTestId("bottom-island").waitFor({ timeout: 25_000 });
         await mobile.waitForFunction(() => ((document.querySelector("main#main-content")?.textContent ?? "").trim().length > 20), null, { timeout: 25_000 });
         const overflow = await mobile.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
         if (overflow > 1) throw new Error(`horizontal overflow of ${overflow}px`);
-        const small = await mobile.evaluate(() => [...document.querySelectorAll("main a[href], main button")].filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.height < 28 && getComputedStyle(el).visibility !== "hidden"; }).length);
-        if (small > 12) throw new Error(`${small} tap targets shorter than 28px`);
+        // nothing may stick out of the screen, even when a parent hides the sideways scroll (checked element by element)
+        const outside = await mobile.evaluate(sticksOut);
+        if (outside.length) throw new Error(`sticks out of the screen: ${outside.join(" ; ")}`);
+        if (process.env.E2E_SHOTS && /configurators|showroom/.test(path)) await mobile.screenshot({ path: `${process.env.E2E_SHOTS}/${width}-${path.replace(/[^a-z]/gi,"_").slice(0,40)}.png`, fullPage: true });
+        const small = await mobile.evaluate(() => [...document.querySelectorAll("main a[href], main button")].filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.height < 28 && getComputedStyle(el).visibility !== "hidden"; }).map((el) => `${el.tagName.toLowerCase()}:${(el.getAttribute("aria-label") || el.textContent || "").trim().slice(0, 24)}`));
+        if (small.length > 12) throw new Error(`${small.length} tap targets shorter than 28px: ${small.slice(0, 8).join(" | ")}`);
       });
     }
-    await step("phone: the menu opens from the island and offers Add to Home Screen", mobile, phone.problems, async () => {
+    }
+    await mobile.setViewportSize({ width: 390, height: 844 });
+    await step("phone: every tab of the configurator editor fits the screen", mobile, phone.problems, async () => {
+      await mobile.setViewportSize({ width: 360, height: 800 });
+      await mobile.goto(url(`/app/configurators/${seed.configuratorId}`), { waitUntil: "domcontentloaded" });
+      const bar = mobile.locator("div.overflow-x-auto").filter({ has: mobile.locator("button[aria-current], button") }).first();
+      await bar.waitFor({ timeout: 25_000 });
+      const count = await bar.locator("button").count();
+      const bad = [];
+      for (let i = 0; i < count; i++) {
+        const tab = bar.locator("button").nth(i);
+        const name = (await tab.innerText()).trim();
+        await tab.click();
+        await mobile.waitForTimeout(700);
+        if (process.env.E2E_SHOTS) await mobile.screenshot({ path: `${process.env.E2E_SHOTS}/tab-${i}.png`, fullPage: true });
+        const out = await mobile.evaluate(sticksOut);
+        if (out.length) bad.push(`${name}: ${out.join(" ; ")}`);
+      }
+      if (bad.length) throw new Error(`sticks out of the screen — ${bad.join(" || ")}`);
+    });
+    await step("phone: 'Altro' opens the controls sheet (light/dark, Add to Home Screen, links) and the side menu has its own button", mobile, phone.problems, async () => {
       await mobile.goto(url("/app/dashboard"), { waitUntil: "domcontentloaded" });
       await mobile.getByTestId("bottom-island-more").click();
-      await mobile.getByTestId("install-app-menu").click();
+      const sheet = mobile.getByTestId("more-sheet");
+      await sheet.waitFor({ timeout: 5000 });
+      const theme = () => mobile.evaluate(() => document.documentElement.getAttribute("data-theme") ?? "dark");
+      const before = await theme();
+      if (process.env.E2E_SHOTS) { await mobile.waitForTimeout(500); await mobile.screenshot({ path: `${process.env.E2E_SHOTS}/sheet.png` }); }
+      await sheet.getByTestId("theme-toggle-row").click();
+      await mobile.waitForFunction((b) => (document.documentElement.getAttribute("data-theme") ?? "dark") !== b, before, { timeout: 3000 });
+      await sheet.getByTestId("theme-toggle-row").click(); // back to where it was
+      for (const href of ["/app/notifications", "/app/account", "/app/account/billing?tab=plan"]) {
+        if ((await sheet.locator(`a[href$="${href}"]`).count()) === 0) throw new Error(`the sheet has no link to ${href}`);
+      }
+      if ((await sheet.locator('a[href*="/legal/"]').count()) === 0) throw new Error("the sheet has no legal pages");
+      if ((await sheet.locator('a[href="https://cloud.onespec.eu"]').count()) === 0) throw new Error("the sheet has no service status link");
+      await sheet.getByTestId("install-app-menu").click();
       await mobile.getByTestId("install-dialog").waitFor({ timeout: 5000 });
+      await mobile.keyboard.press("Escape");
+      await mobile.keyboard.press("Escape");
+      await sheet.waitFor({ state: "detached", timeout: 3000 });
+      await mobile.getByTestId("bottom-island-menu").click();
+      await mobile.locator('nav[aria-label="Menu"]').getByRole("link").first().waitFor({ state: "visible", timeout: 5000 });
     });
     await phone.context.close();
   } finally {

@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
+import { useQuery } from "@/lib/convex-query";
 import { useTranslations } from "next-intl";
 import { PackageCheck, TrendingUp, Truck } from "lucide-react";
 import { api } from "@/convex/_generated/api";

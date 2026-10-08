@@ -3059,12 +3059,23 @@
   "bottomBar": {
     "aria": "Schnellnavigation",
     "home": "Start",
-    "configurators": "Konfiguratoren",
+    "configurators": "Konfig.",
     "showroom": "Showroom",
     "quotes": "Angebote",
     "requests": "Anfragen",
     "clients": "Kunden",
-    "more": "Mehr"
+    "more": "Mehr",
+    "menu": "Menü",
+    "moreTitle": "Mehr",
+    "appearance": "Darstellung",
+    "language": "Sprache",
+    "notifications": "Benachrichtigungen",
+    "account": "Kontoeinstellungen",
+    "plan": "Abo-Tarif",
+    "status": "Servicestatus",
+    "legal": "Rechtliches",
+    "close": "Schließen",
+    "menuAria": "Seitenmenü öffnen"
   },
   "install": {
     "button": "Zum Home-Bildschirm hinzufügen",

@@ -12,6 +12,7 @@ import ro from "../messages/ro.json";
 
 let queryResult: unknown;
 let exportResult: unknown[] | undefined = [];
+vi.mock("@/hooks/useHydrated", () => ({ useHydrated: () => true })); // the page is rendered as if hydration were over, so the (mocked) live answers show
 vi.mock("convex/react", () => ({ useQuery: (_f: unknown, args?: Record<string, unknown>) => (args && "from" in args ? exportResult : queryResult), useMutation: () => async () => ({}), useAction: () => async () => ({}) }));
 vi.mock("@/lib/use-friendly-error", () => ({ useFriendlyError: () => (e: unknown) => String(e) }));
 vi.mock("@/i18n/navigation", () => ({ Link: ({ href, children, ...rest }: { href: string; children?: unknown }) => h("a", { href, ...rest }, children as never) }));

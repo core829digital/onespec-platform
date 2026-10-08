@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useQuery } from "convex/react";
+import { useQuery } from "@/lib/convex-query";
 import { useLocale, useTranslations } from "next-intl";
 import { Download } from "lucide-react";
 import { api } from "@/convex/_generated/api";

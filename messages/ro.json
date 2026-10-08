@@ -3059,12 +3059,23 @@
   "bottomBar": {
     "aria": "Navigare rapidă",
     "home": "Acasă",
-    "configurators": "Configuratoare",
+    "configurators": "Config.",
     "showroom": "Showroom",
     "quotes": "Oferte",
     "requests": "Cereri",
     "clients": "Clienți",
-    "more": "Mai mult"
+    "more": "Mai mult",
+    "menu": "Meniu",
+    "moreTitle": "Mai mult",
+    "appearance": "Aspect",
+    "language": "Limbă",
+    "notifications": "Centru de notificări",
+    "account": "Setări cont",
+    "plan": "Abonament",
+    "status": "Starea serviciului",
+    "legal": "Pagini legale",
+    "close": "Închide",
+    "menuAria": "Deschide meniul lateral"
   },
   "install": {
     "button": "Adaugă pe ecranul principal",

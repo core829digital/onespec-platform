@@ -4,7 +4,8 @@ import { requestConfirm } from "@/lib/confirm-dialog";
 
 import { useCallback, useEffect, useState } from "react";
 import { SignaturePad } from "@/components/signature-pad";
-import { useQuery, useMutation } from "convex/react";
+import { useMutation } from "convex/react";
+import { useQuery } from "@/lib/convex-query";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";

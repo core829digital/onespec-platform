@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useQuery } from "convex/react";
+import { useQuery } from "@/lib/convex-query";
 import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { api } from "@/convex/_generated/api";
@@ -87,7 +87,7 @@ export function ClientCantierePicker({
     <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4 space-y-3">
       <div className="flex items-center justify-between gap-2">
         <p className="text-sm font-semibold text-[var(--color-text)]">{t("title")}</p>
-        <Link href="/app/clients" className="text-xs text-[var(--color-mint-text)] hover:underline">
+        <Link href="/app/clients" className="inline-flex min-h-10 items-center text-xs text-[var(--color-mint-text)] hover:underline sm:min-h-0">
           {t("manage")}
         </Link>
       </div>

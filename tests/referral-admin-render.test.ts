@@ -11,6 +11,7 @@ import nl from "../messages/nl.json";
 import ro from "../messages/ro.json";
 
 const state = vi.hoisted(() => ({ viewer: undefined as unknown, rows: undefined as unknown }));
+vi.mock("@/hooks/useHydrated", () => ({ useHydrated: () => true })); // the page is rendered as if hydration were over, so the (mocked) live answers show
 vi.mock("convex/react", () => ({
   useQuery: (_fn: unknown, args: unknown) => (args === undefined ? state.viewer : args === "skip" ? undefined : state.rows),
   useMutation: () => async () => null,

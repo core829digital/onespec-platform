@@ -1,7 +1,7 @@
 "use client";
 
 import { use, useState, Suspense } from "react";
-import { useQuery } from "convex/react";
+import { useQuery } from "@/lib/convex-query";
 import type { FunctionReturnType } from "convex/server";
 import { pdf } from "@react-pdf/renderer";
 import { api } from "@/convex/_generated/api";

@@ -2,7 +2,8 @@
 
 import { useTranslations } from "next-intl";
 import { useState } from "react";
-import { useQuery, useMutation } from "convex/react";
+import { useMutation } from "convex/react";
+import { useQuery } from "@/lib/convex-query";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import type { Id } from "@/convex/_generated/dataModel";

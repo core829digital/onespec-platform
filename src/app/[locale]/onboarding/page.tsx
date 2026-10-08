@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { analytics as posthog } from "@/lib/monitoring";
-import { useAction, useMutation, useQuery } from "convex/react";
+import { useAction, useMutation } from "convex/react";
+import { useQuery } from "@/lib/convex-query";
 import { useLocale, useTranslations } from "next-intl";
 import { routing } from "@/i18n/routing";
 import { api } from "@/convex/_generated/api";

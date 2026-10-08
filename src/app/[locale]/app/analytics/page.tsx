@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, Suspense, lazy } from "react";
-import { useQuery } from "convex/react";
+import { useQuery } from "@/lib/convex-query";
 import { useTranslations, useLocale } from "next-intl";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";

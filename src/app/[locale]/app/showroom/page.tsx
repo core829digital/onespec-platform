@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
+import { useQuery } from "@/lib/convex-query";
 import { useLocale, useTranslations } from "next-intl";
 import type { FunctionReturnType } from "convex/server";
 import { api } from "@/convex/_generated/api";

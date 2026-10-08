@@ -1,7 +1,8 @@
 "use client";
 
 import { use, useState } from "react";
-import { useMutation, useQuery } from "convex/react";
+import { useMutation } from "convex/react";
+import { useQuery } from "@/lib/convex-query";
 import { useFormatter, useTranslations } from "next-intl";
 import { ArrowLeft, Key, MapPin, Trash2, User } from "lucide-react";
 import { api } from "@/convex/_generated/api";

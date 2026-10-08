@@ -41,7 +41,7 @@ export function DrawingTabs({ tabs, value, onChange, locale }: Props) {
           aria-controls={`drawing-panel-${tab}`}
           tabIndex={value === tab ? 0 : -1}
           onClick={() => onChange(tab)}
-          className={`rounded-md px-3 py-1 text-xs font-medium transition-colors ${
+          className={`min-h-10 rounded-md px-3 py-1 text-xs font-medium transition-colors sm:min-h-0 ${
             value === tab
               ? "bg-[var(--color-mint)] text-[var(--color-mint-dark)]"
               : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-alt)] hover:text-[var(--color-text)]"

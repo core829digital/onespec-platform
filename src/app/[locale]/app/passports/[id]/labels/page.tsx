@@ -1,6 +1,7 @@
 "use client";
 
-import { useQuery, useMutation } from "convex/react";
+import { useMutation } from "convex/react";
+import { useQuery } from "@/lib/convex-query";
 import { useState } from "react";
 import QRCode from "qrcode";
 import { pdf } from "@react-pdf/renderer";

@@ -12,6 +12,7 @@ import ro from "../messages/ro.json";
 
 const state = vi.hoisted(() => ({ tenant: undefined as unknown, info: undefined as unknown, payout: undefined as unknown, visible: true }));
 
+vi.mock("@/hooks/useHydrated", () => ({ useHydrated: () => true })); // the page is rendered as if hydration were over, so the (mocked) live answers show
 vi.mock("convex/react", async () => {
   const { getFunctionName } = await import("convex/server");
   return {

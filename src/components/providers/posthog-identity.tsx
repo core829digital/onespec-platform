@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { useQuery } from "convex/react";
+import { useQuery } from "@/lib/convex-query";
 import { analytics as posthog } from "@/lib/monitoring";
 import { api } from "@/convex/_generated/api";
 

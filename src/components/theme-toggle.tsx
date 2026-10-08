@@ -27,7 +27,7 @@ function getSnapshot() {
  * `inline`: a compact pill matching `LanguageSwitcher`'s look, meant to sit
  * right next to it in the authenticated app header (Topbar).
  */
-export function ThemeToggle({ variant = "floating" }: { variant?: "floating" | "inline" }) {
+export function ThemeToggle({ variant = "floating" }: { variant?: "floating" | "inline" | "row" }) {
   const t = useTranslations("theme");
   // `undefined` server snapshot => the button renders nothing until hydrated,
   // which is fine (it's a floating affordance, not content).
@@ -44,6 +44,22 @@ export function ThemeToggle({ variant = "floating" }: { variant?: "floating" | "
       document.documentElement.setAttribute("data-theme", "light");
       localStorage.setItem(STORAGE_KEY, "light");
     }
+  }
+
+  if (variant === "row") {
+    // Full-width, thumb-sized row for the phone "More" sheet: icon + what a tap will do.
+    return (
+      <button
+        type="button"
+        onClick={toggle}
+        data-testid="theme-toggle-row"
+        aria-pressed={isLight}
+        className="flex min-h-12 w-full items-center gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] px-3 text-left text-sm font-medium text-[var(--color-text)]"
+      >
+        {isLight ? <Moon size={20} weight="bold" /> : <Sun size={20} weight="bold" />}
+        <span>{isLight ? t("toDark") : t("toLight")}</span>
+      </button>
+    );
   }
 
   if (variant === "inline") {

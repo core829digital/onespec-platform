@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "convex/react";
+import { useQuery } from "@/lib/convex-query";
 import { useTranslations } from "next-intl";
 import { Check, CircleAlert } from "lucide-react";
 import { api } from "@/convex/_generated/api";

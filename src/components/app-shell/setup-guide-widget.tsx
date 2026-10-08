@@ -1,7 +1,8 @@
 "use client";
 
+import { cn } from "@/lib/utils";
 import { useState } from "react";
-import { useQuery } from "convex/react";
+import { useQuery } from "@/lib/convex-query";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
@@ -94,17 +95,18 @@ export function SetupGuideWidget({ tenantId }: { tenantId: Id<"tenants"> }) {
   const pct = Math.round((progress.doneCount / progress.totalCount) * 100);
 
   return (
-    <div className="fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] right-4 z-40 lg:bottom-4 w-80 max-w-[calc(100vw-2rem)] rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] shadow-xl">
+    // Closed on a phone it shrinks to a small "4/7" chip, so it never covers the page content above the bottom island.
+    <div className={cn("fixed bottom-[calc(6rem+env(safe-area-inset-bottom))] right-4 z-40 lg:bottom-4 max-w-[calc(100vw-2rem)] rounded-xl border border-[var(--color-border)] bg-[var(--color-bg)] shadow-xl lg:w-80", collapsed ? "w-auto max-lg:rounded-full" : "w-80")}>
       <button
         type="button"
         onClick={toggle}
-        className="flex w-full items-center justify-between gap-2 rounded-t-xl px-4 py-3 text-left"
+        className={cn("flex w-full items-center justify-between gap-2 rounded-t-xl px-4 py-3 text-left", collapsed && "max-lg:rounded-full max-lg:px-3 max-lg:py-2")}
         aria-expanded={!collapsed}
       >
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-[var(--color-text)]">{t("title")}</p>
+          <p className={cn("text-sm font-semibold text-[var(--color-text)]", collapsed && "max-lg:hidden")}>{t("title")}</p>
           <div className="mt-1.5 flex items-center gap-2">
-            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--color-bg-alt)]">
+            <div className={cn("h-1.5 flex-1 overflow-hidden rounded-full bg-[var(--color-bg-alt)]", collapsed && "max-lg:hidden")}>
               <div
                 className="h-full rounded-full bg-[var(--color-mint)] transition-all"
                 style={{ width: `${pct}%` }}

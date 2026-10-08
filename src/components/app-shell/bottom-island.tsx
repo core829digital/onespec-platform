@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
-import { useQuery } from "convex/react";
-import { Ellipsis } from "lucide-react";
+import { useQuery } from "@/lib/convex-query";
+import { Ellipsis, PanelLeft } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { api } from "@/convex/_generated/api";
 import { cn } from "@/lib/utils";
@@ -15,7 +15,7 @@ import { BAR_LABEL, pickBarItems } from "./bottom-bar-items";
  * the current one, and "More" for the full menu. It sits above the home indicator (safe area), steps aside while a field is being typed in
  * (the on-screen keyboard needs the room) and is not rendered on large screens, where the sidebar does this job.
  */
-export function BottomIsland({ onMore }: { onMore: () => void }) {
+export function BottomIsland({ onMore, onMenu }: { onMore: () => void; onMenu: () => void }) {
   const t = useTranslations("bottomBar");
   const pathname = usePathname();
   const membership = useQuery(api.tenants.getMyMembership);
@@ -45,12 +45,12 @@ export function BottomIsland({ onMore }: { onMore: () => void }) {
       aria-label={t("aria")}
       data-testid="bottom-island"
       className={cn(
-        "lg:hidden fixed left-1/2 z-40 w-[min(94vw,26rem)] -translate-x-1/2 transition-[transform,opacity] duration-300 ease-out",
+        "lg:hidden fixed left-1/2 z-40 flex w-[min(94vw,28rem)] -translate-x-1/2 items-stretch gap-2 transition-[transform,opacity] duration-300 ease-out",
         "bottom-[max(0.75rem,env(safe-area-inset-bottom))]",
         typing ? "pointer-events-none translate-y-[160%] opacity-0" : "translate-y-0 opacity-100",
       )}
     >
-      <div className="relative grid rounded-[1.75rem] border border-[var(--color-border)] bg-[var(--color-bg-alt)]/80 p-1.5 shadow-[0_18px_40px_-12px_rgb(0_0_0/0.55)] backdrop-blur-2xl" style={{ gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))` }}>
+      <div className="relative grid min-w-0 flex-1 rounded-[1.75rem] border border-[var(--color-border)] bg-[var(--color-bg-alt)]/80 p-1.5 shadow-[0_18px_40px_-12px_rgb(0_0_0/0.55)] backdrop-blur-2xl" style={{ gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))` }}>
         {highlight >= 0 ? (
           <span
             aria-hidden="true"
@@ -85,6 +85,17 @@ export function BottomIsland({ onMore }: { onMore: () => void }) {
           <span>{t("more")}</span>
         </button>
       </div>
+      {/* The side menu has its own round button next to the bar, so "More" can be the controls sheet. */}
+      <button
+        type="button"
+        onClick={onMenu}
+        data-testid="bottom-island-menu"
+        aria-label={t("menuAria")}
+        className="flex w-[4.25rem] shrink-0 flex-col items-center justify-center gap-0.5 rounded-[1.75rem] border border-[var(--color-border)] bg-[var(--color-bg-alt)]/80 text-[0.625rem] font-semibold leading-tight text-[var(--color-text-secondary)] shadow-[0_18px_40px_-12px_rgb(0_0_0/0.55)] backdrop-blur-2xl"
+      >
+        <PanelLeft size={22} aria-hidden="true" strokeWidth={1.9} />
+        <span>{t("menu")}</span>
+      </button>
     </nav>
   );
 }

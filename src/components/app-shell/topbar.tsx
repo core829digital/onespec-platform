@@ -3,7 +3,7 @@
 import { useSubscriptionEnded } from "@/lib/plan-gates";
 import { useTranslations, useLocale } from "next-intl";
 import { analytics as posthog } from "@/lib/monitoring";
-import { useQuery } from "convex/react";
+import { useQuery } from "@/lib/convex-query";
 import { Menu, LogOut, User, ChevronDown, Scale, Activity, Gem, Wallet } from "lucide-react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Link } from "@/i18n/navigation";
@@ -86,8 +86,8 @@ export function Topbar({
   }
 
   return (
-    <header className="sticky top-0 z-20 mx-3 mt-3 flex h-16 items-center justify-between rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-alt)]/70 px-4 shadow-[0_8px_30px_rgb(0_0_0/0.10)] backdrop-blur-xl lg:px-6">
-      <div className="flex items-center gap-4">
+    <header className="sticky top-0 z-20 mx-3 mt-3 flex h-16 items-center justify-between rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-alt)]/70 px-2 shadow-[0_8px_30px_rgb(0_0_0/0.10)] backdrop-blur-xl sm:px-4 lg:px-6">
+      <div className="flex shrink-0 items-center gap-4">
         <button
           type="button"
           className="lg:hidden p-2 rounded-lg hover:bg-[var(--color-bg-alt)]"
@@ -103,17 +103,17 @@ export function Topbar({
         </div>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex min-w-0 items-center gap-0.5 sm:gap-3">
         {/* "Add to Home Screen": here on large screens; on phones it is the first entry of the menu. */}
         <div className="hidden lg:block"><InstallAppButton variant="header" /></div>
-        <Button variant="ghost" className="flex items-center gap-2 px-3 py-1.5" asChild>
+        <Button variant="ghost" className="flex items-center gap-2 px-2 py-1.5 sm:px-3" asChild>
           <a href="https://cloud.onespec.eu" target="_blank" rel="noopener noreferrer" aria-label={t("status")}>
             <Activity size={18} />
             <span className="hidden md:block text-sm font-medium text-[var(--color-text)]">{t("status")}</span>
           </a>
         </Button>
         {plan ? (
-          <Button variant="ghost" className="flex items-center gap-2 px-3 py-1.5" asChild>
+          <Button variant="ghost" className="flex items-center gap-2 px-2 py-1.5 sm:px-3" asChild>
             <Link href="/app/account/billing?tab=plan" aria-label={`${tNav("plan")}: ${ended ? tNav("planNone") : plan}`}>
               <Gem size={18} className={ended ? "text-[var(--color-text-secondary)]" : "text-[var(--color-mint-text)]"} />
               <span className="hidden md:block text-sm font-medium capitalize text-[var(--color-text)]">
@@ -128,7 +128,7 @@ export function Topbar({
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="flex items-center gap-2 px-3 py-1.5" aria-label={t("legal")}>
+            <Button variant="ghost" className="flex items-center gap-2 px-2 py-1.5 sm:px-3" aria-label={t("legal")}>
               <Scale size={18} />
               <span className="hidden md:block text-sm font-medium text-[var(--color-text)]">{t("legal")}</span>
               <ChevronDown size={14} />
@@ -149,7 +149,7 @@ export function Topbar({
         
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="flex items-center gap-2 px-3 py-1.5">
+            <Button variant="ghost" className="flex items-center gap-2 px-2 py-1.5 sm:px-3">
               <User size={18} />
               <span className="hidden sm:block text-sm font-medium text-[var(--color-text)]">
                 {t("account")}

@@ -3059,12 +3059,23 @@
   "bottomBar": {
     "aria": "Quick navigation",
     "home": "Home",
-    "configurators": "Configurators",
+    "configurators": "Config",
     "showroom": "Showroom",
     "quotes": "Quotes",
     "requests": "Requests",
     "clients": "Clients",
-    "more": "More"
+    "more": "More",
+    "menu": "Menu",
+    "moreTitle": "More",
+    "appearance": "Appearance",
+    "language": "Language",
+    "notifications": "Notification centre",
+    "account": "Account settings",
+    "plan": "Subscription plan",
+    "status": "Service status",
+    "legal": "Legal pages",
+    "close": "Close",
+    "menuAria": "Open the side menu"
   },
   "install": {
     "button": "Add to Home Screen",
