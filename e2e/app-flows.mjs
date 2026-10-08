@@ -229,6 +229,16 @@ async function main() {
     }
     }
     await mobile.setViewportSize({ width: 390, height: 844 });
+    await step("phone: the public widget (what the dealer's customers see) fits the screen at 360 and 390 px (layout only: the widget policy only allows *.convex.site, not the stand-in backend)", mobile, [], async () => {
+      for (const width of [360, 390]) {
+        await mobile.setViewportSize({ width, height: 800 });
+        await mobile.goto(`${APP}/w/PUBID12345`, { waitUntil: "domcontentloaded" });
+        await mobile.waitForTimeout(2500);
+        if (process.env.E2E_SHOTS) await mobile.screenshot({ path: `${process.env.E2E_SHOTS}/widget-${width}.png`, fullPage: true });
+        const out = await mobile.evaluate(sticksOut);
+        if (out.length) throw new Error(`${width}px: sticks out of the screen: ${out.join(" ; ")}`);
+      }
+    });
     await step("phone: every tab of the configurator editor fits the screen", mobile, phone.problems, async () => {
       await mobile.setViewportSize({ width: 360, height: 800 });
       await mobile.goto(url(`/app/configurators/${seed.configuratorId}`), { waitUntil: "domcontentloaded" });
