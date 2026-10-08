@@ -65,8 +65,8 @@ const THIRD_PARTY = /posthog\.com|sentry\.io|vercel-scripts|vercel-insights|goog
 // Hosted-only or tunnelled-to-third-party endpoints that cannot answer on a test machine: not the app's own behaviour.
 const NOISE = /\/monitoring(\?|$)|\/_vercel\/|_rsc=/;
 
-async function newSession(browser, token, refresh) {
-  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: "it-IT" });
+async function newSession(browser, token, refresh, device = {}) {
+  const context = await browser.newContext({ viewport: { width: 1280, height: 900 }, locale: "it-IT", ...device });
   const host = new URL(APP).hostname;
   await context.addCookies([
     { name: "__convexAuthJWT", value: token, domain: host, path: "/" },
@@ -154,6 +154,68 @@ async function main() {
       await page.getByTestId("dim-input-width").press("Enter");
       await page.getByRole("alert").filter({ hasText: /mm/ }).first().waitFor({ timeout: 3000 });
     });
+
+    // ── page by page: every platform page opens for the owner, renders content, and the browser stays clean ────────────────────────
+    const PAGES = [
+      "/app/dashboard", "/app/analytics", "/app/pipeline", "/app/quotes", "/app/quotes/new", "/app/clients", `/app/clients/${seed.clientId}`,
+      "/app/requests", "/app/cantieri", "/app/surveys", "/app/installations", "/app/inspections", "/app/passports", "/app/supply", "/app/logistics",
+      "/app/configurators", `/app/configurators/${seed.configuratorId}`, `/app/configurators/${seed.configuratorId}/setup`, "/app/showroom",
+      "/app/notifications", "/app/account", "/app/account/company", "/app/account/team", "/app/account/billing", "/app/account/referral", "/app/account/dpa",
+    ];
+    for (const path of PAGES) {
+      await step(`page ${path.replace(seed.clientId, ":id").replace(seed.configuratorId, ":id")}`, page, problems, async () => {
+        await page.goto(url(path), { waitUntil: "domcontentloaded" });
+        await page.locator("main#main-content").waitFor({ timeout: 20_000 });
+        // wait for live data to settle: no skeleton left and some text on the page
+        await page.waitForFunction(() => {
+          const m = document.querySelector("main#main-content");
+          return !!m && (m.textContent ?? "").trim().length > 20 && !m.querySelector('[aria-busy="true"], .animate-pulse');
+        }, null, { timeout: 25_000 });
+        const text = (await page.locator("main#main-content").innerText()).slice(0, 4000);
+        if (/Qualcosa è andato storto|Something went wrong|Application error|404/.test(text)) throw new Error("the page shows an error screen");
+        const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+        if (overflow > 1) throw new Error(`horizontal overflow of ${overflow}px`);
+      });
+    }
+
+    // ── quote draft: create → saved → listed under "Bozze" → reopened for editing ──────────────────────────────────────────────────
+    await step("quote: save as draft, find it under Bozze, reopen it for editing", page, problems, async () => {
+      await page.goto(url("/app/quotes/new"), { waitUntil: "domcontentloaded" });
+      await page.locator('svg[role="group"][aria-label^="Disegno tecnico"]').first().waitFor({ timeout: 30_000 });
+      await page.getByPlaceholder("Es. Mario Rossi").fill("Rossi Bozza E2E");
+      const save = page.getByTestId("save-quote");
+      await save.waitFor();
+      await page.waitForFunction(() => !document.querySelector('[data-testid="save-quote"]')?.hasAttribute("disabled"), null, { timeout: 15_000 });
+      await save.click();
+      await page.waitForURL(/\/app\/quotes(\?|$)/, { timeout: 20_000 });
+      await page.getByText("Rossi Bozza E2E").first().waitFor({ timeout: 20_000 });
+      // reopen it through the row's edit link: the editor comes back with the saved customer and the "editing" banner
+      await page.locator('a[href*="edit="]').first().click();
+      await page.getByTestId("editing-banner").waitFor({ timeout: 20_000 });
+      await page.waitForFunction(() => [...document.querySelectorAll("input")].some((i) => i.value === "Rossi Bozza E2E"), null, { timeout: 10_000 });
+    });
+
+    // ── the same pages on a phone: no sideways scroll, the bottom island is there and sits clear of the page content ───────────────
+    const phone = await newSession(browser, seed.owner.token, seed.owner.refresh, { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+    const mobile = await phone.context.newPage();
+    for (const path of ["/app/dashboard", "/app/quotes", "/app/quotes/new", "/app/clients", "/app/requests", "/app/configurators", "/app/supply", "/app/account"]) {
+      await step(`phone ${path}`, mobile, phone.problems, async () => {
+        await mobile.goto(url(path), { waitUntil: "domcontentloaded" });
+        await mobile.getByTestId("bottom-island").waitFor({ timeout: 25_000 });
+        await mobile.waitForFunction(() => ((document.querySelector("main#main-content")?.textContent ?? "").trim().length > 20), null, { timeout: 25_000 });
+        const overflow = await mobile.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+        if (overflow > 1) throw new Error(`horizontal overflow of ${overflow}px`);
+        const small = await mobile.evaluate(() => [...document.querySelectorAll("main a[href], main button")].filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.height < 28 && getComputedStyle(el).visibility !== "hidden"; }).length);
+        if (small > 12) throw new Error(`${small} tap targets shorter than 28px`);
+      });
+    }
+    await step("phone: the menu opens from the island and offers Add to Home Screen", mobile, phone.problems, async () => {
+      await mobile.goto(url("/app/dashboard"), { waitUntil: "domcontentloaded" });
+      await mobile.getByTestId("bottom-island-more").click();
+      await mobile.getByTestId("install-app-menu").click();
+      await mobile.getByTestId("install-dialog").waitFor({ timeout: 5000 });
+    });
+    await phone.context.close();
   } finally {
     await browser.close();
     backend.stop();

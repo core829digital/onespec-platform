@@ -16,7 +16,7 @@ export const APP_CSP_REPORT_ONLY = [
   "font-src 'self' data: https://fonts.gstatic.com",
   "img-src 'self' data: blob: https:",
   "connect-src 'self' https://*.convex.cloud wss://*.convex.cloud https://*.convex.site https://us.i.posthog.com https://us-assets.i.posthog.com https://*.ingest.us.sentry.io https://va.vercel-scripts.com https://vitals.vercel-insights.com",
-  "frame-src https://challenges.cloudflare.com",
+  "frame-src 'self' blob: https://challenges.cloudflare.com", // 'self': the widget preview in the configurator setup; blob: the in-app PDF viewer
   "worker-src 'self' blob:",
   "object-src 'none'",
   "base-uri 'self'",

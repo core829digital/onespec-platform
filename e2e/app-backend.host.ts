@@ -110,7 +110,9 @@ test("app backend (runs until stopped)", async () => {
 
   async function exec(kind: Kind, path: string, argsJson: JSONValue | undefined, subject: string | null): Promise<{ ok: true; value: JSONValue } | { ok: false; failure: Failure }> {
     try {
-      const args = jsonToConvex(argsJson ?? {}) as Record<string, unknown>;
+      // convex-test ids look like "10381;clients"; the browser sends them back URL-encoded when they travel in a route (real ids are plain letters/digits).
+      const unescapeIds = (v: unknown): unknown => (typeof v === "string" ? v.replace(/%3B/gi, ";") : Array.isArray(v) ? v.map(unescapeIds) : v && typeof v === "object" ? Object.fromEntries(Object.entries(v).map(([k, x]) => [k, unescapeIds(x)])) : v);
+      const args = unescapeIds(jsonToConvex(argsJson ?? {})) as Record<string, unknown>;
       if (kind === "action") {
         const handled = authAction(path, args);
         if (handled) return handled;

@@ -66,6 +66,7 @@ describe("application CSP (report-only phase)", () => {
     expect(config.match(/key: "Content-Security-Policy"/g)).toHaveLength(1); // the enforced one stays frame-ancestors only
     expect(APP_CSP_REPORT_ONLY).toContain("report-uri https://");
     expect(APP_CSP_REPORT_ONLY).toContain("object-src 'none'");
+    expect(APP_CSP_REPORT_ONLY).toMatch(/frame-src 'self'/); // the configurator setup page frames the widget preview from our own origin
     expect(APP_CSP_REPORT_ONLY).not.toContain("frame-ancestors"); // not allowed in report-only via meta, and the enforced header owns it
   });
 });
