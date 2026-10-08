@@ -86,6 +86,12 @@ jobs:
       - name: Signature pad in a real browser
         run: npm run e2e:signature
 
+      # The logged-in platform in a real browser, against the real Convex functions (e2e/app-backend.host.ts), on the same production build.
+      - name: Logged-in platform paths
+        run: npm run e2e:app
+        env:
+          APP_URL: "http://localhost:3100"
+
       - name: Upload the app log when something failed
         if: failure()
         uses: actions/upload-artifact@v4

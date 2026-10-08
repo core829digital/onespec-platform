@@ -14,6 +14,7 @@
     "shadcn:add": "npx shadcn@latest add",
     "e2e": "node e2e/widget-iframe.mjs",
     "e2e:signature": "node e2e/signature-pad.mjs",
+    "e2e:app": "node e2e/app-flows.mjs",
     "audit:prod": "npm audit --omit=dev --audit-level=high"
   },
   "dependencies": {
