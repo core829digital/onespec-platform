@@ -176,14 +176,14 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
             const price = calculatePrice(payload, [it]).priceCents;
             return (
               <div key={idx} className={`flex max-w-full items-center gap-1 rounded-lg border px-2 py-1.5 text-xs ${activeIndex === idx ? "border-[var(--color-mint)] bg-[var(--color-mint)] text-[var(--color-mint-dark)]" : "border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text-secondary)]"}`}>
-                <button type="button" onClick={() => { onActiveChange(idx); setSelectedSash(0); }} className="min-h-10 min-w-0 text-left font-bold sm:min-h-0">
+                <button type="button" onClick={() => { onActiveChange(idx); setSelectedSash(0); }} className="min-h-10 min-w-0 text-left font-bold lg:min-h-0">
                   {t("position", { n: idx + 1 })} · {def.labels[locale] ?? def.labels.it} · {it.width}×{it.height}
                   <span className="ml-1 font-mono font-normal">{eur(price, locale)}</span>
                 </button>
-                <button type="button" title={t("moveUp")} disabled={idx === 0} onClick={() => { onChange(moveItem(items, idx, idx - 1)); onActiveChange(idx - 1); }} className="px-1 disabled:opacity-30 min-h-10 min-w-9 sm:min-h-0 sm:min-w-0">↑</button>
-                <button type="button" title={t("moveDown")} disabled={idx === items.length - 1} onClick={() => { onChange(moveItem(items, idx, idx + 1)); onActiveChange(idx + 1); }} className="px-1 disabled:opacity-30 min-h-10 min-w-9 sm:min-h-0 sm:min-w-0">↓</button>
-                <button type="button" title={t("duplicate")} disabled={items.length >= MAX_PIECES} onClick={() => { onChange(duplicateItem(items, idx)); onActiveChange(idx + 1); }} className="px-1 min-h-10 min-w-9 sm:min-h-0 sm:min-w-0">⧉</button>
-                {items.length > 1 ? <button type="button" title={t("remove")} onClick={() => removePiece(idx)} className="px-1 hover:text-[var(--color-danger)] min-h-10 min-w-9 sm:min-h-0 sm:min-w-0">×</button> : null}
+                <button type="button" title={t("moveUp")} disabled={idx === 0} onClick={() => { onChange(moveItem(items, idx, idx - 1)); onActiveChange(idx - 1); }} className="px-1 disabled:opacity-30 min-h-10 min-w-9 lg:min-h-0 lg:min-w-0">↑</button>
+                <button type="button" title={t("moveDown")} disabled={idx === items.length - 1} onClick={() => { onChange(moveItem(items, idx, idx + 1)); onActiveChange(idx + 1); }} className="px-1 disabled:opacity-30 min-h-10 min-w-9 lg:min-h-0 lg:min-w-0">↓</button>
+                <button type="button" title={t("duplicate")} disabled={items.length >= MAX_PIECES} onClick={() => { onChange(duplicateItem(items, idx)); onActiveChange(idx + 1); }} className="px-1 min-h-10 min-w-9 lg:min-h-0 lg:min-w-0">⧉</button>
+                {items.length > 1 ? <button type="button" title={t("remove")} onClick={() => removePiece(idx)} className="px-1 hover:text-[var(--color-danger)] min-h-10 min-w-9 lg:min-h-0 lg:min-w-0">×</button> : null}
               </div>
             );
           })}
@@ -206,7 +206,7 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
               ))}
             </select>
             {active.category ? (
-              <button type="button" onClick={() => update(activeIndex, setCategory(active, active.category!, keys))} className="inline-flex min-h-10 items-center text-xs text-[var(--color-mint-text)] hover:underline sm:min-h-0">{t("resetLeaves")}</button>
+              <button type="button" onClick={() => update(activeIndex, setCategory(active, active.category!, keys))} className="inline-flex min-h-10 items-center text-xs text-[var(--color-mint-text)] hover:underline lg:min-h-0">{t("resetLeaves")}</button>
             ) : null}
           </div>
 

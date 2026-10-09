@@ -26,8 +26,8 @@ export function useSwipeDismiss(ref: RefObject<HTMLElement | null>, onDismiss: (
  * For a dialog's panel element: `const swipe = useSwipeDismissProps(onClose);` then `<div {...swipe} className=…>`. Gives it the dialog role
  * and makes it swipe-to-close (down), in one line.
  */
-export function useSwipeDismissProps(onDismiss: () => void, direction: "down" | "left" | "right" = "down") {
-  const ref = useRef<HTMLDivElement>(null);
+export function useSwipeDismissProps<T extends HTMLElement = HTMLDivElement>(onDismiss: () => void, direction: "down" | "left" | "right" = "down") {
+  const ref = useRef<T>(null);
   useSwipeDismiss(ref, onDismiss);
   return { ref, role: "dialog" as const, "aria-modal": true as const, "data-swipe-close": direction };
 }

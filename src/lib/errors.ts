@@ -146,7 +146,14 @@ export type ErrorKey =
   | "turnstileFailed"
   | "uploadFailed"
   | "noSupplierLines"
-  | "quoteCreateFailed";
+  | "quoteCreateFailed"
+  | "importTooManyRows"
+  | "importRateLimited"
+  | "importClosed"
+  | "leadDuplicate"
+  | "leadInvalid"
+  | "leadAlreadyConverted"
+  | "cantiereAlreadyLinked";
 
 const EXACT: Record<string, ErrorKey> = {
   UNAUTHENTICATED: "unauthenticated",
@@ -302,6 +309,16 @@ const EXACT: Record<string, ErrorKey> = {
   NO_SUPPLIER_LINES: "noSupplierLines",
   QUOTE_CREATE_FAILED: "quoteCreateFailed",
   INVALID_SIGNATURE_FORMAT: "signatureInvalid",
+  IMPORT_TOO_MANY_ROWS: "importTooManyRows",
+  IMPORT_RATE_LIMITED: "importRateLimited",
+  IMPORT_CLOSED: "importClosed",
+  LEAD_DUPLICATE: "leadDuplicate",
+  LEAD_EMPTY_ROW: "leadInvalid",
+  LEAD_NO_IDENTITY: "leadInvalid",
+  LEAD_INVALID_CHARS: "leadInvalid",
+  LEAD_TOO_MANY_EXTRA: "leadInvalid",
+  LEAD_ALREADY_CONVERTED: "leadAlreadyConverted",
+  CANTIERE_ALREADY_LINKED: "cantiereAlreadyLinked",
 };
 
 /** Map a backend error code to a message key (pattern fallbacks for families). */

@@ -800,7 +800,7 @@ export default function NewFieldQuotePage() {
             {activeConfig ? (
               <Link
                 href={`/app/configurators/${activeConfig._id}`}
-                className="inline-flex min-h-10 items-center text-xs font-semibold text-[var(--color-mint-text)] hover:underline sm:min-h-0"
+                className="inline-flex min-h-10 items-center text-xs font-semibold text-[var(--color-mint-text)] hover:underline lg:min-h-0"
               >
                 {t("editCatalog")}
               </Link>

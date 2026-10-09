@@ -14,6 +14,7 @@ import {
   QrCode,
   Store,
   Contact,
+  UserPlus,
   Building2,
   Users,
   Gem,
@@ -68,6 +69,7 @@ export const NAV_GROUPS: NavGroup[] = [
   {
     key: "field",
     items: [
+      { href: "/app/leads", label: "leads", icon: UserPlus, group: "commercial", feature: "crm" },
       { href: "/app/clients", label: "clients", icon: Contact, group: "commercial", feature: "crm" },
       { href: "/app/cantieri", label: "cantieri", icon: Building2, group: "field", feature: "cantieri" },
       { href: "/app/surveys", label: "surveys", icon: Ruler, group: "field", feature: "fieldOps" },

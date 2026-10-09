@@ -12,6 +12,7 @@
 import { spawn } from "node:child_process";
 import { existsSync, readFileSync, rmSync } from "node:fs";
 import { createRequire } from "node:module";
+import { strToU8, zipSync } from "fflate";
 
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE ?? "playwright");
@@ -118,6 +119,21 @@ const sticksOut = () => {
           }).slice(0, 6).map((el) => `${el.tagName.toLowerCase()}.${String(el.className).slice(0, 60)} [${Math.round(el.getBoundingClientRect().left)}..${Math.round(el.getBoundingClientRect().right)}]`);
         };
 
+
+// A real .xlsx built in memory (inline strings, one sheet) and a few hostile files, for the lead importer.
+function makeXlsx(rows, extraFiles = {}) {
+  const colName = (i) => String.fromCharCode(65 + i);
+  const esc = (v) => String(v).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const sheet = `<?xml version="1.0"?><worksheet><sheetData>${rows.map((r, ri) => `<row r="${ri + 1}">${r.map((v, ci) => `<c r="${colName(ci)}${ri + 1}" t="inlineStr"><is><t>${esc(v)}</t></is></c>`).join("")}</row>`).join("")}</sheetData></worksheet>`;
+  return Buffer.from(zipSync({
+    "[Content_Types].xml": strToU8('<?xml version="1.0"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"/>'),
+    "xl/workbook.xml": strToU8('<?xml version="1.0"?><workbook xmlns:r="r"><sheets><sheet name="Contatti" sheetId="1" r:id="rId1"/></sheets></workbook>'),
+    "xl/_rels/workbook.xml.rels": strToU8('<?xml version="1.0"?><Relationships><Relationship Id="rId1" Target="worksheets/sheet1.xml"/></Relationships>'),
+    "xl/worksheets/sheet1.xml": strToU8(sheet),
+    ...extraFiles,
+  }));
+}
+
 const url = (path) => `${APP}/${LOCALE}${path}`;
 
 async function main() {
@@ -169,7 +185,7 @@ async function main() {
 
     // ── page by page: every platform page opens for the owner, renders content, and the browser stays clean ────────────────────────
     const PAGES = [
-      "/app/dashboard", "/app/analytics", "/app/pipeline", "/app/quotes", "/app/quotes/new", "/app/clients", `/app/clients/${seed.clientId}`,
+      "/app/dashboard", "/app/analytics", "/app/pipeline", "/app/quotes", "/app/quotes/new", "/app/clients", "/app/leads", `/app/clients/${seed.clientId}`,
       "/app/requests", "/app/cantieri", "/app/surveys", "/app/installations", "/app/inspections", "/app/passports", "/app/supply", "/app/logistics",
       "/app/configurators", `/app/configurators/${seed.configuratorId}`, `/app/configurators/${seed.configuratorId}/setup`, "/app/showroom",
       "/app/notifications", "/app/account", "/app/account/company", "/app/account/team", "/app/account/billing", "/app/account/referral", "/app/account/dpa",
@@ -232,6 +248,66 @@ async function main() {
       await page.getByTestId("field-type-0").waitFor({ state: "detached", timeout: 5000 });
     });
 
+    // ── leads: import a real spreadsheet, see the leads, make one a customer and tie another to a site ─────────────────────────────
+    await step("leads: a hostile file is refused with a clear message (macros, old Office format, not a spreadsheet)", page, problems, async () => {
+      await page.goto(url("/app/leads"), { waitUntil: "domcontentloaded" });
+      await page.getByTestId("lead-import-open").click();
+      const input = page.getByTestId("lead-file-input");
+      await input.setInputFiles({ name: "macro.xlsx", mimeType: "application/vnd.ms-excel.sheet.macroEnabled.12", buffer: makeXlsx([["Azienda"], ["X"]], { "xl/vbaProject.bin": new Uint8Array([1, 2, 3]) }) });
+      await page.getByRole("alert").filter({ hasText: /macro/i }).waitFor({ timeout: 8000 });
+      await input.setInputFiles({ name: "old.xls", mimeType: "application/vnd.ms-excel", buffer: Buffer.from([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1, 0, 0, 0, 0]) });
+      await page.getByRole("alert").filter({ hasText: /\.xls/ }).waitFor({ timeout: 8000 });
+      await input.setInputFiles({ name: "photo.csv", mimeType: "text/csv", buffer: Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a]) });
+      await page.getByRole("alert").filter({ hasText: /non supportato/i }).waitFor({ timeout: 8000 });
+    });
+    await step("leads: import an .xlsx — columns recognised, checked, imported, listed", page, problems, async () => {
+      await page.goto(url("/app/leads"), { waitUntil: "domcontentloaded" });
+      await page.getByTestId("lead-import-open").click();
+      const rows = [
+        ["Ragione Sociale", "Nome", "Cognome", "E-mail", "Cellulare", "P.IVA", "Città", "CAP", "Taglia scarpe"],
+        ["Rossi Serramenti Srl", "Mario", "Rossi", "mario@rossi-e2e.it", "333 1234567", "IT00905811006", "Prato", "59100", "42"],
+        ["", "Anna", "Neri", "anna@neri-e2e.it", "338 7654321", "", "Siena", "53100", ""],
+        ["Doppione Srl", "", "", "mario@rossi-e2e.it", "", "", "", "", ""],
+        ["<script>alert(1)</script>", "", "", "x@y.it", "", "", "", "", ""],
+      ];
+      await page.getByTestId("lead-file-input").setInputFiles({ name: "contatti.xlsx", mimeType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", buffer: makeXlsx(rows) });
+      // step 2: the columns are proposed; "Ragione Sociale" must have become the company
+      await page.getByText(/Abbiamo riconosciuto le colonne/).waitFor({ timeout: 10_000 });
+      const company = page.getByLabel(/Diventa: Ragione Sociale/);
+      if ((await company.inputValue()) !== "company") throw new Error("Ragione Sociale was not recognised as the company");
+      if ((await page.getByLabel(/Diventa: E-mail/).inputValue()) !== "email") throw new Error("E-mail not recognised");
+      if ((await page.getByLabel(/Diventa: Taglia scarpe/).inputValue()) !== "extra") throw new Error("an unknown column should be kept as other data");
+      await page.getByRole("button", { name: "Avanti" }).click();
+      // step 3: the same checks the server repeats
+      const summary = page.getByTestId("lead-check-summary");
+      await summary.waitFor({ timeout: 5000 });
+      const text = await summary.innerText();
+      if (!/3 pronte/.test(text) || !/1 scartate/.test(text)) throw new Error(`unexpected check summary: ${text}`);
+      await page.getByTestId("lead-import-go").click();
+      await page.getByTestId("lead-import-done").waitFor({ timeout: 20_000 });
+      const done = await page.getByTestId("lead-import-done").innerText();
+      if (!/2 lead importati/.test(done) || !/1 già presenti/.test(done) || !/1 scartati/.test(done)) throw new Error(`unexpected result: ${done}`);
+      await page.getByRole("button", { name: "Vedi i lead" }).click();
+      await page.getByText("Rossi Serramenti Srl").first().waitFor({ timeout: 10_000 });
+      await page.getByText("Anna Neri").first().waitFor({ timeout: 5000 });
+      if ((await page.getByText("Doppione Srl").count()) !== 0) throw new Error("the duplicate was imported");
+      if ((await page.getByText(/<script>/).count()) !== 0) throw new Error("the markup row was imported");
+    });
+    await step("leads: add one as a customer, tie another to a new site, search finds it", page, problems, async () => {
+      await page.goto(url("/app/leads"), { waitUntil: "domcontentloaded" });
+      const row = page.getByTestId("lead-row").filter({ hasText: "Rossi Serramenti Srl" });
+      await row.waitFor({ timeout: 15_000 });
+      await row.getByTestId("lead-as-client").click();
+      await row.getByRole("link", { name: "Apri cliente" }).waitFor({ timeout: 10_000 });
+      const anna = page.getByTestId("lead-row").filter({ hasText: "Anna Neri" });
+      await anna.getByTestId("lead-to-cantiere").click();
+      await page.getByRole("button", { name: "Collega", exact: true }).click();
+      await anna.getByRole("link", { name: "Apri cantiere" }).waitFor({ timeout: 10_000 });
+      await anna.getByRole("link", { name: "Apri cliente" }).waitFor({ timeout: 5000 });
+      await page.getByRole("searchbox").fill("siena");
+      await page.waitForFunction(() => document.querySelectorAll('[data-testid="lead-row"]').length === 1, null, { timeout: 8000 });
+    });
+
     // ── quote → signature → printable document, on a desktop and then on a phone ─────────────────────────────────────────────────
     async function signQuoteFlow(p, name, prob) {
       await p.goto(url("/app/quotes/new"), { waitUntil: "domcontentloaded" });
@@ -288,7 +364,7 @@ async function main() {
     const mobile = await phone.context.newPage();
     for (const width of [390, 360, 768]) {
       await mobile.setViewportSize({ width, height: width === 768 ? 1024 : 844 });
-    for (const path of ["/app/dashboard", "/app/quotes", "/app/quotes/new", "/app/clients", "/app/requests", "/app/configurators", `/app/configurators/${seed.configuratorId}`, `/app/configurators/${seed.configuratorId}/setup`, "/app/showroom", "/app/supply", "/app/account"]) {
+    for (const path of ["/app/dashboard", "/app/quotes", "/app/quotes/new", "/app/clients", "/app/leads", "/app/requests", "/app/configurators", `/app/configurators/${seed.configuratorId}`, `/app/configurators/${seed.configuratorId}/setup`, "/app/showroom", "/app/supply", "/app/account"]) {
       await step(`phone ${width}px ${path.replace(seed.configuratorId, ":id")}`, mobile, phone.problems, async () => {
         await mobile.goto(url(path), { waitUntil: "domcontentloaded" });
         await mobile.getByTestId("bottom-island").waitFor({ timeout: 25_000 });
@@ -298,7 +374,7 @@ async function main() {
         // nothing may stick out of the screen, even when a parent hides the sideways scroll (checked element by element)
         const outside = await mobile.evaluate(sticksOut);
         if (outside.length) throw new Error(`sticks out of the screen: ${outside.join(" ; ")}`);
-        if (process.env.E2E_SHOTS && /configurators|showroom/.test(path)) await mobile.screenshot({ path: `${process.env.E2E_SHOTS}/${width}-${path.replace(/[^a-z]/gi,"_").slice(0,40)}.png`, fullPage: true });
+        if (process.env.E2E_SHOTS && /configurators|showroom|leads/.test(path)) await mobile.screenshot({ path: `${process.env.E2E_SHOTS}/${width}-${path.replace(/[^a-z]/gi,"_").slice(0,40)}.png`, fullPage: true });
         const small = await mobile.evaluate(() => [...document.querySelectorAll("main a[href], main button")].filter((el) => { const r = el.getBoundingClientRect(); return r.width > 0 && r.height > 0 && r.height < 28 && getComputedStyle(el).visibility !== "hidden"; }).map((el) => `${el.tagName.toLowerCase()}:${(el.getAttribute("aria-label") || el.textContent || "").trim().slice(0, 24)}`));
         if (small.length > 12) throw new Error(`${small.length} tap targets shorter than 28px: ${small.slice(0, 8).join(" | ")}`);
       });

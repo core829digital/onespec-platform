@@ -1142,6 +1142,68 @@ export default defineSchema({
     .index("by_tenant_email", ["tenantId", "email"])
     .index("by_assigned", ["assignedToUserId"]),
 
+  /**
+   * Leads: contacts a workspace owns but has not (yet) turned into customers — usually imported from a spreadsheet. A lead becomes a
+   * customer (`clients`) with one action, and can be tied to a building site (`cantieri`). Everything in here has passed the shared
+   * normaliser (src/shared/leads.ts) on the server, whatever the browser claimed.
+   */
+  leads: defineTable({
+    tenantId: v.id("tenants"),
+    /** What the list shows: company, else person, else e-mail / phone. */
+    name: v.string(),
+    contactName: v.optional(v.string()),
+    company: v.optional(v.string()),
+    email: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    phone2: v.optional(v.string()),
+    vatNumber: v.optional(v.string()),
+    fiscalCode: v.optional(v.string()),
+    address: v.optional(v.string()),
+    city: v.optional(v.string()),
+    postalCode: v.optional(v.string()),
+    province: v.optional(v.string()),
+    country: v.optional(v.string()),
+    website: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    tags: v.array(v.string()),
+    source: v.optional(v.string()),
+    /** Columns of the file that matched no field: label → value (at most 20). */
+    extra: v.optional(v.record(v.string(), v.string())),
+    status: v.union(v.literal("new"), v.literal("contacted"), v.literal("qualified"), v.literal("converted"), v.literal("discarded")),
+    importId: v.optional(v.id("leadImports")),
+    rowNumber: v.optional(v.number()),
+    clientId: v.optional(v.id("clients")),
+    cantiereId: v.optional(v.id("cantieri")),
+    /** Lower-case text the search box matches. */
+    searchText: v.string(),
+    createdBy: v.id("users"),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_tenant_email", ["tenantId", "email"])
+    .index("by_tenant_phone", ["tenantId", "phone"])
+    .index("by_import", ["importId"])
+    .index("by_client", ["clientId"])
+    .searchIndex("search_text", { searchField: "searchText", filterFields: ["tenantId", "status"] }),
+
+  /** One run of the lead importer: what file, how many rows came in, how many were refused or already there. */
+  leadImports: defineTable({
+    tenantId: v.id("tenants"),
+    fileName: v.string(),
+    fileKind: v.union(v.literal("xlsx"), v.literal("csv"), v.literal("docx"), v.literal("manual")),
+    totalRows: v.number(),
+    inserted: v.number(),
+    duplicates: v.number(),
+    invalid: v.number(),
+    warnings: v.number(),
+    status: v.union(v.literal("running"), v.literal("done"), v.literal("cancelled")),
+    createdBy: v.id("users"),
+    createdAt: v.number(),
+    finishedAt: v.optional(v.number()),
+  }).index("by_tenant", ["tenantId"]),
+
   /** Client activities/interactions timeline. */
   clientActivities: defineTable({
     tenantId: v.id("tenants"),
