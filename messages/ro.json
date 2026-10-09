@@ -3360,5 +3360,9 @@
     "badge": "DEMO",
     "banner": "Date de exemplu: încercați liber orice, nu se trimite nimic. Modificările se șterg când reîncărcați pagina.",
     "restart": "Repornește demonstrația"
+  },
+  "appVersion": {
+    "label": "Versiune",
+    "title": "Versiunea {version}: vezi noutățile"
   }
 }

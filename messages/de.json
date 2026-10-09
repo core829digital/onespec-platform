@@ -3360,5 +3360,9 @@
     "badge": "DEMO",
     "banner": "Beispieldaten: alles frei ausprobieren, es wird nichts versendet. Änderungen werden beim Neuladen der Seite zurückgesetzt.",
     "restart": "Demo neu starten"
+  },
+  "appVersion": {
+    "label": "Version",
+    "title": "Version {version}: Neuigkeiten ansehen"
   }
 }

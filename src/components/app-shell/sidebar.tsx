@@ -9,6 +9,7 @@ import { api } from "@/convex/_generated/api";
 import type { Doc } from "@/convex/_generated/dataModel";
 import { cn } from "@/lib/utils";
 import { ChevronDown, Lock, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { AppVersion } from "./app-version";
 import { planDisplayName, usePlanAccess, useSubscriptionEnded } from "@/lib/plan-gates";
 import { lockedInNav } from "./nav-items";
 import { NAV_GROUPS, ADMIN_NAV_ITEM, isNavItemActive, navHref, visibleNavGroups, type NavItem } from "./nav-items";
@@ -192,15 +193,15 @@ export function Sidebar({ tenant }: { tenant: Doc<"tenants"> }) {
 
         <div className={cn("border-t border-[var(--color-border)]", collapsed ? "p-2" : "p-3")}>
           {!collapsed ? (
-            <Link
-              href="/app/account/billing?tab=plan"
-              className="mb-2 block rounded-lg px-3 py-1 text-xs text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-text)]"
-            >
-              {t("plan")}:{" "}
-              <span className="font-semibold capitalize text-[var(--color-text)]">
-                {ended ? t("planNone") : planDisplayName(tenant.plan)}
-              </span>
-            </Link>
+            <div className="mb-2 flex items-center justify-between gap-2 px-3 py-1 text-xs text-[var(--color-text-secondary)]">
+              <Link href="/app/account/billing?tab=plan" className="min-w-0 truncate transition-colors hover:text-[var(--color-text)]">
+                {t("plan")}:{" "}
+                <span className="font-semibold capitalize text-[var(--color-text)]">
+                  {ended ? t("planNone") : planDisplayName(tenant.plan)}
+                </span>
+              </Link>
+              <AppVersion className="shrink-0 rounded-md bg-[var(--color-bg)] px-1.5 py-0.5 font-mono text-[11px] font-semibold text-[var(--color-text-secondary)] transition-colors hover:text-[var(--color-mint-text)]" />
+            </div>
           ) : null}
           <button
             type="button"

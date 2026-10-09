@@ -3360,5 +3360,9 @@
     "badge": "DEMO",
     "banner": "Voorbeeldgegevens: probeer alles vrij, er wordt niets verstuurd. Wijzigingen worden gewist als je de pagina herlaadt.",
     "restart": "Demo opnieuw starten"
+  },
+  "appVersion": {
+    "label": "Versie",
+    "title": "Versie {version}: bekijk wat er nieuw is"
   }
 }

@@ -3360,5 +3360,9 @@
     "badge": "DEMO",
     "banner": "Dati di esempio: provi tutto liberamente, non viene inviato nulla. Le modifiche si azzerano quando ricarichi la pagina.",
     "restart": "Ricomincia la demo"
+  },
+  "appVersion": {
+    "label": "Versione",
+    "title": "Versione {version}: scopri le novità"
   }
 }

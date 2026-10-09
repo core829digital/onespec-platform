@@ -3360,5 +3360,9 @@
     "badge": "DEMO",
     "banner": "Sample data: try everything freely, nothing is sent anywhere. Changes reset when you reload the page.",
     "restart": "Restart the demo"
+  },
+  "appVersion": {
+    "label": "Version",
+    "title": "Version {version}: see what's new"
   }
 }

@@ -25,3 +25,15 @@ Le funzioni sono **quelle vere** di `convex/` (motore prezzi, permessi, validazi
 ## Limiti noti
 - Il primo caricamento prepara i dati (alcuni secondi); i dati si perdono alla chiusura della scheda (voluto).
 - Il caricamento di file funziona solo in locale nel browser; Stripe/VIES/email sono volutamente spenti.
+
+---
+
+# Versione del prodotto nel menu laterale
+Il numero (es. `v1.15.0`) compare accanto al piano nel menu laterale (desktop) e nel foglio «Altro» (telefono), con link alla pagina **Versioni** del sito.
+- **Fonte unica**: il changelog del sito (`CHANGELOG_META` in `onespec-website/src/lib/site-config.ts`). La versione corrente è la più alta; il sito la espone su `https://onespec.eu/api/version`.
+- **Aggiornamento automatico**: la piattaforma la legge lato server da `/api/version` (cache 5 minuti), e le schede aperte la rileggono ogni 10 minuti e al ritorno sulla scheda. Pubblicare una nuova voce del changelog sul sito aggiorna quindi la piattaforma **senza rideploy** della piattaforma.
+- **Se il sito non risponde**: si usa `BUNDLED_VERSION` in `src/shared/app-version.ts` (aggiornarla ogni tanto; non è necessario per il funzionamento).
+- Variabili: `MARKETING_SITE_URL` (server) e `NEXT_PUBLIC_MARKETING_SITE_URL` (link), default `https://onespec.eu`.
+
+# Accessi illimitati (non admin)
+`convex/lib/founding.ts`: `FOUNDER_EMAILS` (illimitato + admin) e `PARTNER_FULL_ACCESS_EMAILS` (illimitato, **mai admin**). Alla registrazione l'azienda nasce Enterprise attiva con `unlimitedAccess`, senza piano né pagamento. Per account già esistenti: `npx convex run migrations:grantFullAccessToPartners --prod`.

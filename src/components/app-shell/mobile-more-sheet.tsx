@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useSwipeDismiss } from "@/hooks/useSwipeDismiss";
 import { useLocale, useTranslations } from "next-intl";
+import { AppVersion } from "./app-version";
 import { Activity, Bell, ChevronRight, Gem, Scale, Settings, X } from "lucide-react";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { routing, LOCALE_LABELS, type AppLocale } from "@/i18n/routing";
@@ -37,6 +38,7 @@ function Row({ children, icon, ...link }: { children: React.ReactNode; icon: Rea
 export function MobileMoreSheet({ open, onClose }: { open: boolean; onClose: () => void }) {
   const t = useTranslations("bottomBar");
   const tTop = useTranslations("topbar");
+  const tVersion = useTranslations("appVersion");
   const locale = useLocale() as AppLocale;
   const pathname = usePathname();
   const router = useRouter();
@@ -112,6 +114,9 @@ export function MobileMoreSheet({ open, onClose }: { open: boolean; onClose: () 
           <Row href="/app/account/billing?tab=plan" icon={<Gem size={20} aria-hidden="true" />}>{t("plan")}</Row>
           <Row href="https://cloud.onespec.eu" external icon={<Activity size={20} aria-hidden="true" />}>{t("status")}</Row>
         </nav>
+        <p className="mt-3 px-1 text-xs text-[var(--color-text-secondary)]">
+          {tVersion("label")} <AppVersion className="font-mono font-semibold text-[var(--color-text)] underline-offset-2 hover:underline" />
+        </p>
 
         <p className="mb-1.5 mt-4 px-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">
           <Scale size={12} aria-hidden="true" className="mr-1 inline" />{t("legal")}

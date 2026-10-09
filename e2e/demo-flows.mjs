@@ -43,6 +43,10 @@ try {
       check(text.length > 600 && !/404|Page not found/i.test(text.slice(0, 120)), `${name} /${slug}: content present`);
       check(overflow <= 1, `${name} /${slug}: no horizontal overflow (${overflow}px)`);
     }
+    if (name === "desktop") {
+      const label = (await page.getByTestId("app-version").first().innerText().catch(() => "")).trim();
+      check(/^v\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(label), `${name}: version number next to the plan in the side menu (${label || "missing"})`);
+    }
     check(await page.getByRole("note").first().isVisible().catch(() => false), `${name}: demo banner visible`);
     check(errors.length === 0, `${name}: no console errors${errors.length ? ` — ${[...new Set(errors)].slice(0, 3).join(" | ")}` : ""}`);
     await context.close();
