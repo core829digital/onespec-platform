@@ -3,7 +3,7 @@ import { internal } from "./_generated/api";
 import { internalMutation, internalQuery } from "./_generated/server";
 import { v } from "convex/values";
 import { seedExtras, seedFinishLibrary, seedGlazingPackages } from "./lib/catalogExtras";
-import { FULL_ACCESS_EMAILS } from "./lib/founding";
+import { FOUNDER_EMAILS, FULL_ACCESS_EMAILS, PARTNER_FULL_ACCESS_EMAILS } from "./lib/founding";
 import type { TableNames } from "./_generated/dataModel";
 
 /**
@@ -518,6 +518,37 @@ export const resetToFoundingAdmins = internalMutation({
 });
 
 /**
+ * Full access for the partner accounts (PARTNER_FULL_ACCESS_EMAILS): unlimitedAccess + Enterprise label on every tenant they own,
+ * and NOTHING else — they are never made platform admins (and a flag set by mistake is not touched here: see the report).
+ * New sign-ups of these addresses get the same automatically (tenants:registerTenant); this covers accounts created earlier.
+ * Idempotent. Run AFTER deploy: npx convex run migrations:grantFullAccessToPartners --prod
+ */
+export const grantFullAccessToPartners = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const report = { usersFound: 0, tenantsFlagged: 0, adminFlagsFound: 0 };
+    for (const email of PARTNER_FULL_ACCESS_EMAILS) {
+      const u = await ctx.db.query("users").withIndex("email", (q) => q.eq("email", email)).first();
+      if (!u) continue;
+      report.usersFound++;
+      if (u.isPlatformAdmin) report.adminFlagsFound++;
+      const tenants = await ctx.db.query("tenants").withIndex("by_owner", (q) => q.eq("ownerUserId", u._id)).take(100);
+      for (const t of tenants) {
+        const patch: Record<string, unknown> = {};
+        if (t.unlimitedAccess !== true) patch.unlimitedAccess = true;
+        if (t.plan !== "enterprise") patch.plan = "enterprise";
+        if (t.planStatus === "pending_plan" || t.planStatus === "suspended") patch.planStatus = "active";
+        if (Object.keys(patch).length === 0) continue;
+        await ctx.db.patch(t._id, { ...patch, updatedAt: Date.now() });
+        await ctx.db.insert("auditLog", { actorKind: "system", action: "tenant.grant_full_access", targetTable: "tenants", targetId: t._id, meta: { reason: "partner full access", ...patch }, createdAt: Date.now() });
+        report.tenantsFlagged++;
+      }
+    }
+    return report;
+  },
+});
+
+/**
  * Grant founding full-access: isPlatformAdmin for both founding users +
  * unlimitedAccess on every tenant they own. Idempotent — safe to re-run.
  * Run AFTER deploy: npx convex run migrations:grantFullAccessToFounders --prod
@@ -529,7 +560,7 @@ export const grantFullAccessToFounders = internalMutation({
     // Indexed lookups only (email → user, owner → tenants): safe at any
     // user count, unlike the old full-table scans.
     const founders = [];
-    for (const email of FULL_ACCESS_EMAILS) {
+    for (const email of FOUNDER_EMAILS) {
       const u = await ctx.db.query("users").withIndex("email", (q) => q.eq("email", email)).first();
       if (u) founders.push(u);
     }
