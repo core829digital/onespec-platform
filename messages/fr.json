@@ -2304,7 +2304,8 @@
       "historyTitle": "Historique des imports",
       "historyRows": "{count} lignes",
       "undone": "annulé",
-      "undo": "Annuler"
+      "undo": "Annuler",
+      "errTooBig": "Le fichier est trop volumineux (maximum 2 Mo). Un tarif CSV est bien plus petit : vérifiez que vous avez choisi le bon fichier."
     },
     "catalog": {
       "draftNote": "Les modifications du catalogue restent en brouillon jusqu'à la publication : le widget public continue d'utiliser la dernière version publiée. Les libellés modifiés ici sont ceux en {lang}, la langue par défaut du widget.",

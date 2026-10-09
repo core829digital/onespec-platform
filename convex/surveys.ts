@@ -7,7 +7,7 @@ import { requireTenantRegion } from "./lib/fieldModules";
 import { enforceForFieldSurvey } from "./lib/enforcement";
 import { resolveLinks, logClientActivity, assertOwnedRefs } from "./lib/links";
 import { linkRecordToCrm } from "./lib/crmLink";
-import { assertStoredFile } from "./lib/uploads";
+import { assertStoredFile, consumeUploadSlot } from "./lib/uploads";
 import { assertLongText } from "./lib/inputs";
 
 const openingValidator = v.object({
@@ -149,7 +149,8 @@ export const getForPrint = query({
 export const generateUploadUrl = mutation({
   args: { tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
-    await requirePermission(ctx, args.tenantId, "surveys.use");
+    const { userId } = await requirePermission(ctx, args.tenantId, "surveys.use");
+    await consumeUploadSlot(ctx, args.tenantId, userId);
     return await ctx.storage.generateUploadUrl();
   },
 });

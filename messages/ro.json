@@ -2304,7 +2304,8 @@
       "historyTitle": "Istoricul importurilor",
       "historyRows": "{count} rânduri",
       "undone": "anulat",
-      "undo": "Anulează"
+      "undo": "Anulează",
+      "errTooBig": "Fișierul este prea mare (maxim 2 MB). O listă de prețuri CSV este mult mai mică: verifică dacă ai ales fișierul corect."
     },
     "catalog": {
       "draftNote": "Modificările catalogului rămân în ciornă până la publicare: widgetul public folosește în continuare ultima versiune publicată. Etichetele editate aici sunt cele în {lang}, limba implicită a widgetului.",

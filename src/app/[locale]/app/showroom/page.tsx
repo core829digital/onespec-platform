@@ -232,7 +232,7 @@ function ShowroomWorkspace({
   }
 
   async function restoreFile(file: File | undefined) {
-    if (!file) return;
+    if (!file || file.size > 2 * 1024 * 1024) return; // a saved quote draft is a few KB: anything bigger is not one
     const draft = parseBackup(await file.text());
     if (!draft || draft.items.length === 0) return;
     setItems(draft.items);

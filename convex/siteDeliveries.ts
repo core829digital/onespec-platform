@@ -15,7 +15,7 @@
 import { mutation, query } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
 import { requirePermission } from "./lib/rbac";
-import { assertStoredFile } from "./lib/uploads";
+import { assertStoredFile, consumeUploadSlot } from "./lib/uploads";
 import { assertSignature } from "./lib/fieldModules";
 
 const LABEL_MAX = 200;
@@ -184,10 +184,11 @@ export const generateUploadUrl = mutation({
   args: { siteDeliveryId: v.id("siteDeliveries"), contentType: v.string() },
   handler: async (ctx, args) => {
     const row = await loadOwned(ctx, args.siteDeliveryId);
-    await requirePermission(ctx, row.tenantId, "logistics.use");
+    const { userId } = await requirePermission(ctx, row.tenantId, "logistics.use");
     if (row.status !== "preparing") throw new ConvexError("SITE_DELIVERY_NOT_EDITABLE");
     if (!MEDIA_TYPES.includes(args.contentType)) throw new ConvexError("UNSUPPORTED_MEDIA_TYPE");
     if (row.packagingMediaIds.length >= MEDIA_MAX) throw new ConvexError("MEDIA_LIMIT_REACHED");
+    await consumeUploadSlot(ctx, row.tenantId, userId);
     const uploadUrl = await ctx.storage.generateUploadUrl();
     return { uploadUrl };
   },

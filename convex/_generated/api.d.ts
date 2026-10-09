@@ -100,6 +100,7 @@ import type * as surveys from "../surveys.js";
 import type * as teamAccess from "../teamAccess.js";
 import type * as teams from "../teams.js";
 import type * as tenants from "../tenants.js";
+import type * as uploadsGuard from "../uploadsGuard.js";
 import type * as usage from "../usage.js";
 import type * as users from "../users.js";
 import type * as widget from "../widget.js";
@@ -207,6 +208,7 @@ declare const fullApi: ApiFromModules<{
   teamAccess: typeof teamAccess;
   teams: typeof teams;
   tenants: typeof tenants;
+  uploadsGuard: typeof uploadsGuard;
   usage: typeof usage;
   users: typeof users;
   widget: typeof widget;

@@ -13,7 +13,7 @@ import { internal } from "./_generated/api";
 import { enforceForESignature, enforceForFieldSurvey, enforceActivePlan } from "./lib/enforcement";
 import { resolveLinks, logClientActivity } from "./lib/links";
 import { linkRecordToCrm } from "./lib/crmLink";
-import { assertStoredFile } from "./lib/uploads";
+import { assertStoredFile, consumeUploadSlot } from "./lib/uploads";
 import { assertShortText } from "./lib/inputs";
 
 /** Per-market inspection template (title, legal basis, photo + check lists). */
@@ -73,7 +73,8 @@ export const get = query({
 export const generateUploadUrl = mutation({
   args: { tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
-    await requirePermission(ctx, args.tenantId, "inspections.use");
+    const { userId } = await requirePermission(ctx, args.tenantId, "inspections.use");
+    await consumeUploadSlot(ctx, args.tenantId, userId);
     return await ctx.storage.generateUploadUrl();
   },
 });

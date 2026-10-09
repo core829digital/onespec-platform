@@ -2304,7 +2304,8 @@
       "historyTitle": "Importverlauf",
       "historyRows": "{count} Zeilen",
       "undone": "rückgängig gemacht",
-      "undo": "Rückgängig"
+      "undo": "Rückgängig",
+      "errTooBig": "Die Datei ist zu groß (maximal 2 MB). Eine CSV-Preisliste ist viel kleiner: Prüfen Sie, ob Sie die richtige Datei gewählt haben."
     },
     "catalog": {
       "draftNote": "Katalogänderungen bleiben bis zur Veröffentlichung Entwurf: Das öffentliche Widget nutzt weiter die zuletzt veröffentlichte Version. Hier bearbeiten Sie die Bezeichnungen in {lang}, der Standardsprache des Widgets.",

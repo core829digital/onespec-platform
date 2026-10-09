@@ -2304,7 +2304,8 @@
       "historyTitle": "Import history",
       "historyRows": "{count} rows",
       "undone": "undone",
-      "undo": "Undo"
+      "undo": "Undo",
+      "errTooBig": "The file is too large (maximum 2 MB). A CSV price list is much smaller: check that you picked the right file."
     },
     "catalog": {
       "draftNote": "Catalogue changes stay in draft until you publish: the public widget keeps using the last published version. The labels you edit here are the {lang} ones, the widget's default language.",

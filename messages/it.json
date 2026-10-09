@@ -2304,7 +2304,8 @@
       "historyTitle": "Cronologia importazioni",
       "historyRows": "{count} righe",
       "undone": "annullato",
-      "undo": "Annulla"
+      "undo": "Annulla",
+      "errTooBig": "Il file è troppo grande (massimo 2 MB). Un listino CSV è molto più piccolo: controlla di aver scelto il file giusto."
     },
     "catalog": {
       "draftNote": "Le modifiche al catalogo restano in bozza finché non pubblichi: il widget pubblico continua a usare l'ultima versione pubblicata. Le etichette che modifichi qui sono quelle in {lang}, la lingua predefinita del widget.",

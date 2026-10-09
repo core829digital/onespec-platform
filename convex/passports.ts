@@ -13,7 +13,7 @@ import { computeOverallUw, type CatalogPayload, type ProjectItem } from "../src/
 import { nanoid } from "./lib/ids";
 import { internal } from "./_generated/api";
 import { assertOwnedRefs } from "./lib/links";
-import { assertStoredFile } from "./lib/uploads";
+import { assertStoredFile, consumeUploadSlot } from "./lib/uploads";
 
 /* ----------------------------- dealer side ------------------------------ */
 
@@ -63,7 +63,8 @@ export const get = query({
 export const generateUploadUrl = mutation({
   args: { tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
-    await requirePermission(ctx, args.tenantId, "passports.use");
+    const { userId } = await requirePermission(ctx, args.tenantId, "passports.use");
+    await consumeUploadSlot(ctx, args.tenantId, userId);
     return await ctx.storage.generateUploadUrl();
   },
 });

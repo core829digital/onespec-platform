@@ -19,6 +19,7 @@ import { must } from "./lib/validate";
 import { checkEmail, checkPhone, checkText, checkWebsite, isCountryCode } from "../src/shared/validation";
 import { attachReferral } from "./referrals";
 import { assertShortText } from "./lib/inputs";
+import { consumeUploadSlot, scheduleSniff } from "./lib/uploads";
 
 const COUNTRY_RE = /^[A-Za-z]{2}$/;
 const ADDRESS_LINE = /^[\p{L}\p{N} .,'’\-/()°#]+$/u;
@@ -191,7 +192,8 @@ const LOGO_MAX_BYTES = 2 * 1024 * 1024;
 export const generateLogoUploadUrl = mutation({
   args: { tenantId: v.id("tenants") },
   handler: async (ctx, args) => {
-    await requirePermission(ctx, args.tenantId, "tenant.settings");
+    const { userId } = await requirePermission(ctx, args.tenantId, "tenant.settings");
+    await consumeUploadSlot(ctx, args.tenantId, userId);
     return await ctx.storage.generateUploadUrl();
   },
 });
@@ -214,8 +216,9 @@ export const setCompanyLogo = mutation({
         throw new ConvexError("IMAGE_TOO_LARGE");
       }
     }
+    if (args.storageId) await scheduleSniff(ctx, args.storageId, "logo");
     if (tenant.logoStorageId && tenant.logoStorageId !== args.storageId) {
-      await ctx.storage.delete(tenant.logoStorageId);
+      await ctx.storage.delete(tenant.logoStorageId).catch(() => undefined); // may already be gone (quarantined)
     }
     await ctx.db.patch(args.tenantId, { logoStorageId: args.storageId ?? undefined, updatedAt: Date.now() });
   },

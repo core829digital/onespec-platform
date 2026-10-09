@@ -2304,7 +2304,8 @@
       "historyTitle": "Importgeschiedenis",
       "historyRows": "{count} regels",
       "undone": "ongedaan gemaakt",
-      "undo": "Ongedaan maken"
+      "undo": "Ongedaan maken",
+      "errTooBig": "Het bestand is te groot (maximaal 2 MB). Een csv-prijslijst is veel kleiner: controleer of u het juiste bestand koos."
     },
     "catalog": {
       "draftNote": "Cataloguswijzigingen blijven concept tot je publiceert: de publieke widget blijft de laatst gepubliceerde versie gebruiken. Hier bewerk je de labels in het {lang}, de standaardtaal van de widget.",

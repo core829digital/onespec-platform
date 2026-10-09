@@ -5,6 +5,7 @@ import type { Doc } from "./_generated/dataModel";
 import { requireMembership } from "./lib/auth";
 import { requirePermission } from "./lib/rbac";
 import { resolveTenantEntitlements } from "./lib/entitlements";
+import { consumeUploadSlot, scheduleSniff } from "./lib/uploads";
 
 const IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
 const LOGO_MAX_BYTES = 2 * 1024 * 1024;
@@ -105,8 +106,9 @@ export const generateUploadUrl = mutation({
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
-    await requirePermission(ctx, configurator.tenantId, "branding.manage");
+    const { userId } = await requirePermission(ctx, configurator.tenantId, "branding.manage");
     if (!IMAGE_TYPES.includes(args.contentType)) throw new ConvexError("UNSUPPORTED_IMAGE_TYPE");
+    await consumeUploadSlot(ctx, configurator.tenantId, userId);
 
     const uploadUrl = await ctx.storage.generateUploadUrl();
     return { uploadUrl };
@@ -131,8 +133,9 @@ export const setLogo = mutation({
       throw new ConvexError(meta && meta.size > LOGO_MAX_BYTES ? "IMAGE_TOO_LARGE" : "UNSUPPORTED_IMAGE_TYPE");
     }
 
+    await scheduleSniff(ctx, args.storageId, "brandLogo");
     const prev = args.variant === "dark" ? branding.logoStorageId : branding.logoLightStorageId;
-    if (prev && prev !== args.storageId) await ctx.storage.delete(prev);
+    if (prev && prev !== args.storageId) await ctx.storage.delete(prev).catch(() => undefined); // may already be gone (quarantined)
     await ctx.db.patch(
       branding._id,
       args.variant === "dark"
@@ -153,7 +156,7 @@ export const deleteLogo = mutation({
     if (!branding) throw new ConvexError("BRANDING_NOT_FOUND");
 
     const prev = args.variant === "dark" ? branding.logoStorageId : branding.logoLightStorageId;
-    if (prev) await ctx.storage.delete(prev);
+    if (prev) await ctx.storage.delete(prev).catch(() => undefined);
     await ctx.db.patch(
       branding._id,
       args.variant === "dark" ? { logoStorageId: undefined } : { logoLightStorageId: undefined },

@@ -48,6 +48,11 @@ export function ImportTab({ configuratorId }: { configuratorId: Id<"configurator
   function onFile(file: File) {
     setErr("");
     setResult(null);
+    // A price list is text of a few hundred KB at most: refuse anything bigger before reading it into memory.
+    if (file.size > 2 * 1024 * 1024) {
+      setErr(t("errTooBig"));
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => {
       const parsed = parseCsv(String(reader.result ?? ""));
