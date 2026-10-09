@@ -843,7 +843,10 @@ export default defineSchema({
     timestamp: v.number(),
     detail: v.optional(v.any()),
     recipient: v.string(),
+    /** Svix delivery id: the same webhook delivery is applied once (replay / retry safe). */
+    svixId: v.optional(v.string()),
   })
+    .index("by_svix", ["svixId"])
     .index("by_emailLog", ["emailLogId"])
     .index("by_tenant", ["tenantId"])
     .index("by_event", ["event"]),

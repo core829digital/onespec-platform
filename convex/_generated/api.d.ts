@@ -71,6 +71,7 @@ import type * as lib_teamCrypto from "../lib/teamCrypto.js";
 import type * as lib_referral from "../lib/referral.js";
 import type * as lib_referralCoupon from "../lib/referralCoupon.js";
 import type * as lib_referralRewards from "../lib/referralRewards.js";
+import type * as lib_resendEvent from "../lib/resendEvent.js";
 import type * as lib_regions from "../lib/regions.js";
 import type * as lib_standardCatalog from "../lib/standardCatalog.js";
 import type * as lib_standardPricing from "../lib/standardPricing.js";
@@ -179,6 +180,7 @@ declare const fullApi: ApiFromModules<{
   "lib/referral": typeof lib_referral;
   "lib/referralCoupon": typeof lib_referralCoupon;
   "lib/referralRewards": typeof lib_referralRewards;
+  "lib/resendEvent": typeof lib_resendEvent;
   "lib/regions": typeof lib_regions;
   "lib/standardCatalog": typeof lib_standardCatalog;
   "lib/standardPricing": typeof lib_standardPricing;

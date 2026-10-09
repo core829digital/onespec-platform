@@ -188,9 +188,18 @@ export const createDeliveryLog = internalMutation({
     timestamp: v.number(),
     detail: v.optional(v.any()),
     recipient: v.string(),
+    svixId: v.optional(v.string()),
   },
+  returns: v.boolean(),
   handler: async (ctx, args) => {
-    await ctx.db.insert("emailDeliveryLog", args);
+    // Replay / Svix retry of the same delivery: applied once.
+    if (args.svixId) {
+      const seen = await ctx.db.query("emailDeliveryLog").withIndex("by_svix", (q) => q.eq("svixId", args.svixId)).first();
+      if (seen) return false;
+    }
+    const log = await ctx.db.get(args.emailLogId);
+    await ctx.db.insert("emailDeliveryLog", { ...args, tenantId: log?.tenantId });
+    return true;
   },
 });
 

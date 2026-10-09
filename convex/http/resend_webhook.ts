@@ -1,6 +1,7 @@
 import { httpAction } from "../_generated/server";
 import { internal } from "../_generated/api";
 import { checkWebhookSource } from "../lib/webhookIp";
+import { parseResendEvent } from "../lib/resendEvent";
 
 // Resend webhooks are signed by Svix, not a plain HMAC of the body: headers
 // are `svix-id`/`svix-timestamp`/`svix-signature`, the signed content is
@@ -74,46 +75,31 @@ export const resendWebhook = httpAction(async (ctx, request: Request) => {
     }
   }
 
-  if (typeof payload !== "object" || payload === null || !("type" in payload)) {
-    return new Response(JSON.stringify({ error: "Invalid payload" }), { status: 400 });
-  }
+  const parsed = parseResendEvent(payload);
+  // Unknown families / untracked events: acknowledged, no side effects.
+  if (!parsed) return new Response(JSON.stringify({ ok: true }));
 
-  const { type, data } = payload as { type: string; data: Record<string, unknown> };
-
-  if (type !== "email") {
-    return new Response(JSON.stringify({ ok: true }));
-  }
-
-  const { email_id: resendId, event, created_at, recipient, ...detail } = data as {
-    email_id: string;
-    event: "delivered" | "bounced" | "complained" | "opened" | "clicked";
-    created_at: string;
-    recipient: string;
-    [key: string]: unknown;
-  };
-
-  const emailLogs = await ctx.runQuery(internal.email.getByResendId, { resendId });
+  const emailLogs = await ctx.runQuery(internal.email.getByResendId, { resendId: parsed.resendId });
   if (!emailLogs || emailLogs.length === 0) {
-    console.warn(`[email-webhook] No emailLog found for resendId: ${resendId}`);
+    console.warn(`[email-webhook] No emailLog found for resendId: ${parsed.resendId}`);
     return new Response(JSON.stringify({ ok: true }));
   }
 
   const emailLog = emailLogs[0];
-  const timestamp = new Date(created_at).getTime();
-
-  await ctx.runMutation(internal.email.createDeliveryLog, {
+  const applied = await ctx.runMutation(internal.email.createDeliveryLog, {
     emailLogId: emailLog._id,
-    event,
-    timestamp,
-    detail,
-    recipient,
+    event: parsed.event,
+    timestamp: parsed.timestamp,
+    detail: parsed.detail,
+    recipient: parsed.recipient,
+    svixId: svixId ?? undefined,
   });
 
-  if (event === "bounced" || event === "complained") {
+  if (applied && (parsed.event === "bounced" || parsed.event === "complained")) {
     await ctx.runMutation(internal.email.updateStatus, {
       emailLogId: emailLog._id,
       status: "failed",
-      error: `${event}: ${JSON.stringify(detail)}`,
+      error: `${parsed.event}: ${JSON.stringify(parsed.detail)}`.slice(0, 1000),
     });
   }
 
