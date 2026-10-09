@@ -165,6 +165,41 @@ async function main() {
       await anon.close();
     }
 
+    // ── the register page: show/hide password, age gate, company block, nothing sticks out on a phone ───────────────────────────────
+    for (const [label, device] of [["desktop", {}], ["phone 390", { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }]]) {
+      const anon = await newSession(browser, "", "", { ...device });
+      const rp = await anon.context.newPage();
+      await anon.context.clearCookies();
+      await step(`register page (${label}): password toggle, minors refused before anything is sent, no overflow`, rp, anon.problems, async () => {
+        await rp.goto(url("/auth/register"), { waitUntil: "domcontentloaded" });
+        await rp.locator("#name").waitFor({ timeout: 20_000 });
+        await rp.locator("#name").fill("Mario Rossi");
+        await rp.locator("#email").fill("mario@example.com");
+        await rp.locator("#password").fill("abcdef12");
+        check((await rp.locator("#password").getAttribute("type")) === "password", "password starts hidden");
+        await rp.getByRole("button", { name: /mostra password/i }).first().click();
+        check((await rp.locator("#password").getAttribute("type")) === "text", "the eye shows the password");
+        await rp.getByRole("button", { name: /nascondi password/i }).first().click();
+        check((await rp.locator("#password").getAttribute("type")) === "password", "and hides it again");
+        await rp.locator("#confirmPassword").fill("abcdef12");
+        const minor = new Date(); minor.setFullYear(minor.getFullYear() - 15);
+        await rp.locator("#birthDate").fill(minor.toISOString().slice(0, 10));
+        await rp.locator('input[type="checkbox"]').last().check();
+        await rp.getByRole("button", { name: /^registrati$/i }).click();
+        await rp.getByText(/almeno 18 anni/i).first().waitFor({ timeout: 10_000 });
+        check(/\/auth\/register/.test(rp.url()), "a minor stays on the register page");
+        // The agreement can only be ticked once the data it names is there.
+        check(await rp.locator('input[type="checkbox"]').first().isDisabled(), "DPA box is locked until company, VAT and address are filled");
+        await rp.locator("#companyName").fill("Serramenti Rossi Srl");
+        await rp.locator("#vatId").fill("IT00905811006");
+        await rp.locator("#street").fill("Via Roma 1");
+        check(await rp.locator('input[type="checkbox"]').first().isEnabled(), "DPA box unlocks with company, VAT and address");
+        const out = await rp.evaluate(sticksOut);
+        check(out.length === 0, `register page: nothing sticks out of the screen (${out.join("; ")})`);
+      });
+      await anon.context.close();
+    }
+
     await step("dashboard opens for the signed-in owner and shows the company", page, problems, async () => {
       await page.goto(url("/app/dashboard"), { waitUntil: "domcontentloaded" });
       await page.getByText("Acme Serramenti").first().waitFor({ timeout: 20_000 });

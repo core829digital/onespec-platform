@@ -179,7 +179,28 @@
       "loginLink": "Anmelden",
       "passwordMismatch": "Passwörter stimmen nicht überein",
       "error": "Registrierungsfehler",
-      "footer": "© 2026 onespec. Alle Rechte vorbehalten."
+      "footer": "© 2026 onespec. Alle Rechte vorbehalten.",
+      "birthDateLabel": "Geburtsdatum",
+      "birthDateHint": "Dient nur der Prüfung der Volljährigkeit (ab 18). Für andere nicht sichtbar.",
+      "showPassword": "Passwort anzeigen",
+      "hidePassword": "Passwort verbergen",
+      "passwordRules": "Mindestens 8 Zeichen, mit Buchstabe und Zahl.",
+      "companySection": "Firmendaten",
+      "companyHint": "Jetzt optional: Wir nutzen sie, um Ihr Unternehmen anzulegen und den DPA vorzubereiten. Sie können sie auch später ergänzen.",
+      "companyNameLabel": "Firmenname",
+      "countryLabel": "Land",
+      "vatLabel": "USt-IdNr.",
+      "streetLabel": "Straße und Nummer",
+      "postalCodeLabel": "PLZ",
+      "cityLabel": "Ort",
+      "termsPrefix": "Ich akzeptiere die ",
+      "termsLink": "Nutzungsbedingungen",
+      "termsAnd": " und die ",
+      "privacyLink": "Datenschutzerklärung",
+      "dpaPrefix": "Im Namen des Unternehmens erkläre ich, zeichnungsberechtigt zu sein, und akzeptiere die ",
+      "dpaLink": "Auftragsverarbeitungsvertrag (DPA, Art. 28 DSGVO)",
+      "dpaVersion": "Version {version}",
+      "dpaNeedsData": "Zum Unterzeichnen des DPA jetzt benötigen wir Firmenname, USt-IdNr. und Adresse. Sonst können Sie ihn später in den Einstellungen unterzeichnen."
     },
     "verify": {
       "title": "E-Mail verifizieren",
@@ -478,7 +499,13 @@
     "documentActive": "Das PDF enthält Skripte oder aktive Inhalte und wird aus Sicherheitsgründen nicht akzeptiert. Exportieren Sie es erneut als einfaches PDF (als PDF drucken).",
     "documentTooLarge": "Das PDF ist größer als 15 MB. Komprimieren oder teilen Sie es.",
     "documentAttached": "Diese Datei wurde bereits hochgeladen.",
-    "documentLimit": "Dieser Kunde hat bereits zu viele Dokumente (maximal 200)."
+    "documentLimit": "Dieser Kunde hat bereits zu viele Dokumente (maximal 200).",
+    "validationBirthdate": "Geben Sie ein gültiges Geburtsdatum ein.",
+    "validationUnderage": "Zur Registrierung müssen Sie mindestens 18 Jahre alt sein.",
+    "validationPasswordWeak": "Das Passwort muss mindestens 8 Zeichen enthalten, darunter einen Buchstaben und eine Zahl.",
+    "validationPasswordTooLong": "Das Passwort ist zu lang (höchstens 128 Zeichen).",
+    "validationDpaRequired": "Für die Unterzeichnung des DPA sind Firmenname, USt-IdNr. und Adresse erforderlich.",
+    "validationTermsRequired": "Sie müssen die Nutzungsbedingungen und die Datenschutzerklärung akzeptieren."
   },
   "app": {
     "suspended": {

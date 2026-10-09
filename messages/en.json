@@ -180,7 +180,28 @@
       "loginLink": "Sign in",
       "passwordMismatch": "Passwords do not match",
       "error": "Registration error",
-      "footer": "© 2026 onespec. All rights reserved."
+      "footer": "© 2026 onespec. All rights reserved.",
+      "birthDateLabel": "Date of birth",
+      "birthDateHint": "Used only to check that you are of legal age (18+). Not visible to anyone else.",
+      "showPassword": "Show password",
+      "hidePassword": "Hide password",
+      "passwordRules": "At least 8 characters, with a letter and a number.",
+      "companySection": "Company details",
+      "companyHint": "Optional now: we use them to create your company and prepare the DPA. You can also complete them later.",
+      "companyNameLabel": "Company name",
+      "countryLabel": "Country",
+      "vatLabel": "VAT number",
+      "streetLabel": "Street and number",
+      "postalCodeLabel": "Postal code",
+      "cityLabel": "City",
+      "termsPrefix": "I accept the ",
+      "termsLink": "Terms of Service",
+      "termsAnd": " and the ",
+      "privacyLink": "Privacy Policy",
+      "dpaPrefix": "On behalf of the company, I declare I have signing authority and accept the ",
+      "dpaLink": "data processing agreement (DPA, Art. 28 GDPR)",
+      "dpaVersion": "version {version}",
+      "dpaNeedsData": "To sign the DPA now we need company name, VAT number and address. Otherwise you can sign it later in the settings."
     },
     "verify": {
       "title": "Verify your email",
@@ -478,7 +499,13 @@
     "documentActive": "The PDF contains scripts or active content and we do not accept it for safety. Export it again as a plain PDF (print to PDF).",
     "documentTooLarge": "The PDF is over 15 MB. Compress or split it.",
     "documentAttached": "This file has already been uploaded.",
-    "documentLimit": "This customer already has too many documents (maximum 200)."
+    "documentLimit": "This customer already has too many documents (maximum 200).",
+    "validationBirthdate": "Enter a valid date of birth.",
+    "validationUnderage": "You must be at least 18 years old to register.",
+    "validationPasswordWeak": "The password must have at least 8 characters, including a letter and a number.",
+    "validationPasswordTooLong": "The password is too long (128 characters at most).",
+    "validationDpaRequired": "Signing the DPA requires the company name, VAT number and address.",
+    "validationTermsRequired": "You must accept the Terms of Service and the Privacy Policy."
   },
   "app": {
     "suspended": {

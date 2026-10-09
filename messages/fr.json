@@ -179,7 +179,28 @@
       "loginLink": "Se connecter",
       "passwordMismatch": "Les mots de passe ne correspondent pas",
       "error": "Erreur d'inscription",
-      "footer": "© 2026 onespec. Tous droits réservés."
+      "footer": "© 2026 onespec. Tous droits réservés.",
+      "birthDateLabel": "Date de naissance",
+      "birthDateHint": "Sert uniquement à vérifier la majorité (18 ans et plus). Non visible par les autres.",
+      "showPassword": "Afficher le mot de passe",
+      "hidePassword": "Masquer le mot de passe",
+      "passwordRules": "Au moins 8 caractères, avec une lettre et un chiffre.",
+      "companySection": "Données de l'entreprise",
+      "companyHint": "Facultatif pour l'instant : nous les utilisons pour créer votre entreprise et préparer le DPA. Vous pouvez les compléter plus tard.",
+      "companyNameLabel": "Raison sociale",
+      "countryLabel": "Pays",
+      "vatLabel": "Numéro de TVA",
+      "streetLabel": "Adresse (rue et numéro)",
+      "postalCodeLabel": "Code postal",
+      "cityLabel": "Ville",
+      "termsPrefix": "J'accepte les ",
+      "termsLink": "Conditions d'utilisation",
+      "termsAnd": " et la ",
+      "privacyLink": "Politique de confidentialité",
+      "dpaPrefix": "Au nom de l'entreprise, je déclare avoir le pouvoir de signature et j'accepte l'",
+      "dpaLink": "accord de traitement des données (DPA, art. 28 RGPD)",
+      "dpaVersion": "version {version}",
+      "dpaNeedsData": "Pour signer le DPA maintenant, il faut la raison sociale, le numéro de TVA et l'adresse. Sinon, vous pourrez le signer plus tard dans les paramètres."
     },
     "verify": {
       "title": "Vérifiez votre email",
@@ -478,7 +499,13 @@
     "documentActive": "Le PDF contient des scripts ou du contenu actif et nous ne l'acceptons pas par sécurité. Exportez-le à nouveau en PDF simple (imprimer en PDF).",
     "documentTooLarge": "Le PDF dépasse 15 Mo. Compressez-le ou divisez-le.",
     "documentAttached": "Ce fichier a déjà été téléversé.",
-    "documentLimit": "Ce client a déjà trop de documents (maximum 200)."
+    "documentLimit": "Ce client a déjà trop de documents (maximum 200).",
+    "validationBirthdate": "Saisissez une date de naissance valide.",
+    "validationUnderage": "Vous devez avoir au moins 18 ans pour vous inscrire.",
+    "validationPasswordWeak": "Le mot de passe doit comporter au moins 8 caractères, dont une lettre et un chiffre.",
+    "validationPasswordTooLong": "Le mot de passe est trop long (128 caractères maximum).",
+    "validationDpaRequired": "La signature du DPA exige le nom de l'entreprise, le numéro de TVA et l'adresse.",
+    "validationTermsRequired": "Vous devez accepter les Conditions d'utilisation et la Politique de confidentialité."
   },
   "app": {
     "suspended": {

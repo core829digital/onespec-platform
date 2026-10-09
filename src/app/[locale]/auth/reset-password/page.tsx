@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { useAuthErrorMessage } from "@/lib/use-friendly-error";
 import { useTurnstile } from "@/lib/use-turnstile";
@@ -98,9 +99,8 @@ function ResetPasswordContent() {
           <Label htmlFor="password" className="text-sm font-medium text-[var(--color-text)]">
             {t("passwordLabel")}
           </Label>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
             value={password}
             onChange={e => setPassword(e.target.value)}
             placeholder={t("passwordPlaceholder")}
@@ -115,9 +115,8 @@ function ResetPasswordContent() {
           <Label htmlFor="confirmPassword" className="text-sm font-medium text-[var(--color-text)]">
             {t("confirmPasswordLabel")}
           </Label>
-          <Input
+          <PasswordInput
             id="confirmPassword"
-            type="password"
             value={confirmPassword}
             onChange={e => setConfirmPassword(e.target.value)}
             placeholder={t("confirmPasswordPlaceholder")}

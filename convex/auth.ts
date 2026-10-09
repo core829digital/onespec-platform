@@ -5,19 +5,46 @@ import { ConvexError } from "convex/values";
 import { internal } from "./_generated/api";
 import { ResendOTP } from "./ResendOTP";
 import { ResendPasswordReset } from "./ResendPasswordReset";
-import { withTurnstileGuard, type Authorize } from "./lib/authGuard";
+import { withInputGuards, withTurnstileGuard, type Authorize } from "./lib/authGuard";
 import { isEmailLocale } from "./emails/strings";
+import { checkPassword, checkSignup } from "../src/shared/signup";
+import { must } from "./lib/validate";
 
 const password = Password({
   verify: ResendOTP,
   reset: ResendPasswordReset,
+  // New passwords (sign-up and reset) follow the shared rules; the library calls this for both.
+  validatePasswordRequirements(pw: string) {
+    must(checkPassword(pw));
+  },
   // Same as the library default ({ email }) plus the UI language the account
   // was created in, so the verification email and every later email are sent
   // in that language. Only one of the six platform locales is ever stored.
   profile(params) {
-    return {
+    const base = {
       email: params.email as string,
       ...(isEmailLocale(params.locale) ? { locale: params.locale } : {}),
+    };
+    if (params.flow !== "signUp") return base;
+    // Already validated in `withInputGuards` before anything is created; the cleaned values are what get stored.
+    const parsed = checkSignup(params);
+    if (!parsed.ok) throw new ConvexError(`VALIDATION_${parsed.code}`);
+    const { name, birthDate, company, dpa } = parsed.value;
+    return {
+      ...base,
+      name,
+      birthDate,
+      ...(company
+        ? {
+            signupIntake: {
+              companyName: company.companyName,
+              country: company.country,
+              ...(company.vatId ? { vatId: company.vatId } : {}),
+              ...(company.street ? { street: company.street, postalCode: company.postalCode, city: company.city } : {}),
+              ...(dpa ? { dpaVersion: dpa.version, dpaAcceptedAt: dpa.acceptedAt, dpaSignerName: dpa.signerName } : {}),
+            },
+          }
+        : {}),
     };
   },
 });
@@ -31,7 +58,7 @@ if (typeof options?.authorize !== "function") {
   // the front door unprotected.
   throw new Error("Password provider shape changed; Turnstile guard cannot be attached.");
 }
-options.authorize = withTurnstileGuard(options.authorize);
+options.authorize = withInputGuards(withTurnstileGuard(options.authorize));
 
 // Auth token lifecycle hardening (2026-09-28): a stolen long-lived token is a
 // long-lived attacker window. Convex Auth already does refresh-token rotation

@@ -21,7 +21,13 @@ export type ValidationCode =
   | "PHONE_FORMAT"
   | "EMAIL_FORMAT"
   | "URL_FORMAT"
-  | "COUNTRY_UNSUPPORTED";
+  | "COUNTRY_UNSUPPORTED"
+  | "BIRTHDATE_FORMAT"
+  | "UNDERAGE"
+  | "PASSWORD_WEAK"
+  | "PASSWORD_TOO_LONG"
+  | "DPA_REQUIRED"
+  | "TERMS_REQUIRED";
 
 const ok = <T,>(value: T): Check<T> => ({ ok: true, value });
 const fail = (code: ValidationCode): Check<never> => ({ ok: false, code });

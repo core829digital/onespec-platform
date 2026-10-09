@@ -16,6 +16,7 @@ import { unlockOnReactivation } from "./usage";
 import { regionForCountry } from "./lib/regions";
 import { companyName, companyVat } from "./lib/companyProfile";
 import { must } from "./lib/validate";
+import { DPA_VERSION } from "../src/shared/dpa";
 import { checkEmail, checkPhone, checkText, checkWebsite, isCountryCode } from "../src/shared/validation";
 import { attachReferral } from "./referrals";
 import { assertShortText } from "./lib/inputs";
@@ -31,15 +32,30 @@ function cleanCompanyName(raw: string): string {
   return name;
 }
 
+/** What the person typed on the register page (company data + agreement), if anything — lets the onboarding step fill itself in. */
+export const getSignupIntake = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await requireVerifiedUser(ctx);
+    const user = await ctx.db.get(userId);
+    const i = user?.signupIntake;
+    if (!i) return null;
+    return { companyName: i.companyName, country: i.country, hasDpa: !!i.dpaAcceptedAt };
+  },
+});
+
 export const registerTenant = mutation({
   args: { companyName: v.string(), country: v.optional(v.string()), referralCode: v.optional(v.string()) },
   handler: async (ctx, args) => {
     const userId = await requireVerifiedUser(ctx);
     const existing = await ctx.db.query("memberships").withIndex("by_user", q => q.eq("userId", userId)).first();
     if (existing) throw new ConvexError("ALREADY_HAS_TENANT");
-    const companyName = cleanCompanyName(args.companyName);
+    // Data given at registration was validated by the auth front door and wins over whatever the browser sends now.
+    const intake = (await ctx.db.get(userId))?.signupIntake;
+    const companyName = intake ? intake.companyName : cleanCompanyName(args.companyName);
 
-    const country = args.country && COUNTRY_RE.test(args.country) ? args.country.toUpperCase() : undefined;
+    const rawCountry = intake ? intake.country : args.country;
+    const country = rawCountry && COUNTRY_RE.test(rawCountry) ? rawCountry.toUpperCase() : undefined;
     if (country) await ctx.db.patch(userId, { country });
 
     const settings = await ctx.db.query("appSettings").withIndex("by_key", q => q.eq("key", "global")).unique();
@@ -58,6 +74,10 @@ export const registerTenant = mutation({
       planStatus: fullAccess ? "active" : "pending_plan",
       createdVia: "open_signup",
       createdAt: Date.now(),
+      ...(intake?.vatId ? { vatId: intake.vatId } : {}),
+      ...(intake?.street && intake.postalCode && intake.city
+        ? { addressStreet: intake.street, addressPostalCode: intake.postalCode, addressCity: intake.city, address: `${intake.street}, ${intake.postalCode} ${intake.city}` }
+        : {}),
       // Founding accounts skip every plan limit from day one.
       unlimitedAccess: fullAccess ? true : undefined,
     });
@@ -69,6 +89,35 @@ export const registerTenant = mutation({
       status: "active",
       acceptedAt: Date.now(),
     });
+
+    // The agreement accepted on the register page becomes the tenant's acceptance, with the moment and version the person
+    // actually saw — only when the identity data it needs is there (the form already refuses the box otherwise).
+    if (intake?.dpaAcceptedAt && intake.dpaVersion === DPA_VERSION && intake.vatId && intake.street) {
+      const owner0 = await ctx.db.get(userId);
+      const controller = { name: companyName, vatId: intake.vatId, address: `${intake.street}, ${intake.postalCode} ${intake.city}`, email: owner0?.email ?? undefined };
+      const acceptanceId = await ctx.db.insert("dpaAcceptances", {
+        tenantId,
+        version: DPA_VERSION,
+        acceptedByUserId: userId,
+        signerName: intake.dpaSignerName ?? owner0?.name ?? "—",
+        signerRole: "Legal representative (declared at registration)",
+        signerEmail: owner0?.email ?? undefined,
+        controller,
+        acceptedAt: intake.dpaAcceptedAt,
+      });
+      await ctx.db.insert("auditLog", {
+        tenantId,
+        actorUserId: userId,
+        actorKind: "user",
+        action: "dpa.accept",
+        targetTable: "dpaAcceptances",
+        targetId: acceptanceId,
+        meta: { version: DPA_VERSION, via: "signup" },
+        createdAt: Date.now(),
+      });
+    }
+    // Used once; the personal copy is not kept.
+    if (intake) await ctx.db.patch(userId, { signupIntake: undefined });
 
     // Referral link (no-op unless REFERRALS_ENABLED). A bad code or any failure here must
     // never get in the way of creating the account.

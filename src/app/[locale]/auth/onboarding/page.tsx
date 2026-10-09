@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "@/i18n/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { useMutation } from "convex/react";
+import { useQuery } from "@/lib/convex-query";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +37,24 @@ export default function OnboardingPage() {
   const [result, setResult] = useState<{ tenantId: string } | null>(null);
 
   const registerTenant = useMutation(api.tenants.registerTenant);
+  // Company data given on the register page: no second form, the company is created from it automatically.
+  const intake = useQuery(api.tenants.getSignupIntake);
+  const autoStarted = useRef(false);
+
+  useEffect(() => {
+    if (!intake || autoStarted.current) return;
+    autoStarted.current = true;
+    setCompanyName(intake.companyName);
+    setCountry(intake.country);
+    setLoading(true);
+    registerTenant({ companyName: intake.companyName, country: intake.country, referralCode: readStoredReferral() })
+      .then((res) => {
+        clearStoredReferral();
+        setResult(res);
+      })
+      .catch((err) => setError(authMsg(err, t("error"))))
+      .finally(() => setLoading(false));
+  }, [intake, registerTenant, authMsg, t]);
 
   useEffect(() => {
     let cancelled = false;

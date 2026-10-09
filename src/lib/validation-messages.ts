@@ -14,4 +14,10 @@ export const VALIDATION_ERROR_KEY: Record<ValidationCode, string> = {
   EMAIL_FORMAT: "validationEmailFormat",
   URL_FORMAT: "validationUrlFormat",
   COUNTRY_UNSUPPORTED: "validationCountryUnsupported",
+  BIRTHDATE_FORMAT: "validationBirthdate",
+  UNDERAGE: "validationUnderage",
+  PASSWORD_WEAK: "validationPasswordWeak",
+  PASSWORD_TOO_LONG: "validationPasswordTooLong",
+  DPA_REQUIRED: "validationDpaRequired",
+  TERMS_REQUIRED: "validationTermsRequired",
 };

@@ -179,7 +179,28 @@
       "loginLink": "Autentificare",
       "passwordMismatch": "Parolele nu coincid",
       "error": "Eroare la înregistrare",
-      "footer": "© 2026 onespec. Toate drepturile rezervate."
+      "footer": "© 2026 onespec. Toate drepturile rezervate.",
+      "birthDateLabel": "Data nașterii",
+      "birthDateHint": "Folosită doar pentru a verifica majoratul (18+). Nu este vizibilă altora.",
+      "showPassword": "Arată parola",
+      "hidePassword": "Ascunde parola",
+      "passwordRules": "Cel puțin 8 caractere, cu o literă și o cifră.",
+      "companySection": "Datele firmei",
+      "companyHint": "Opționale acum: le folosim pentru a crea firma și a pregăti DPA. Le puteți completa și mai târziu.",
+      "companyNameLabel": "Denumirea firmei",
+      "countryLabel": "Țara",
+      "vatLabel": "Cod de TVA",
+      "streetLabel": "Adresa (stradă și număr)",
+      "postalCodeLabel": "Cod poștal",
+      "cityLabel": "Oraș",
+      "termsPrefix": "Accept ",
+      "termsLink": "Termenii de utilizare",
+      "termsAnd": " și ",
+      "privacyLink": "Politica de confidențialitate",
+      "dpaPrefix": "În numele firmei, declar că am putere de semnătură și accept ",
+      "dpaLink": "acordul de prelucrare a datelor (DPA, art. 28 GDPR)",
+      "dpaVersion": "versiunea {version}",
+      "dpaNeedsData": "Pentru a semna acum DPA sunt necesare denumirea firmei, codul de TVA și adresa. Altfel îl puteți semna mai târziu, din setări."
     },
     "verify": {
       "title": "Verifică emailul",
@@ -478,7 +499,13 @@
     "documentActive": "PDF-ul conține scripturi sau conținut activ și nu îl acceptăm din motive de securitate. Exportă-l din nou ca PDF simplu (tipărește în PDF).",
     "documentTooLarge": "PDF-ul depășește 15 MB. Comprimă-l sau împarte-l.",
     "documentAttached": "Acest fișier a fost deja încărcat.",
-    "documentLimit": "Acest client are deja prea multe documente (maximum 200)."
+    "documentLimit": "Acest client are deja prea multe documente (maximum 200).",
+    "validationBirthdate": "Introduceți o dată de naștere validă.",
+    "validationUnderage": "Trebuie să aveți cel puțin 18 ani pentru a vă înregistra.",
+    "validationPasswordWeak": "Parola trebuie să aibă cel puțin 8 caractere, inclusiv o literă și o cifră.",
+    "validationPasswordTooLong": "Parola este prea lungă (maximum 128 de caractere).",
+    "validationDpaRequired": "Pentru semnarea DPA sunt necesare numele firmei, codul de TVA și adresa.",
+    "validationTermsRequired": "Trebuie să acceptați Termenii de utilizare și Politica de confidențialitate."
   },
   "app": {
     "suspended": {

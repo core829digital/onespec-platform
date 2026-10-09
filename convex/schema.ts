@@ -15,6 +15,22 @@ export default defineSchema({
     /** Best-effort ISO-3166-1 alpha-2, captured at sign-up (geo header / Accept-Language). */
     country: v.optional(v.string()),
     lastSeenAt: v.optional(v.number()),
+    /** ISO date (YYYY-MM-DD) given at sign-up; validated server-side to be 18+ (src/shared/signup.ts). */
+    birthDate: v.optional(v.string()),
+    /** Company data and agreement acceptance entered on the register page, applied when the company is created after e-mail verification. */
+    signupIntake: v.optional(
+      v.object({
+        companyName: v.string(),
+        country: v.string(),
+        vatId: v.optional(v.string()),
+        street: v.optional(v.string()),
+        postalCode: v.optional(v.string()),
+        city: v.optional(v.string()),
+        dpaVersion: v.optional(v.string()),
+        dpaAcceptedAt: v.optional(v.number()),
+        dpaSignerName: v.optional(v.string()),
+      }),
+    ),
   })
     .index("email", ["email"])
     // Platform admins are a handful of rows: lets feedback notify them without

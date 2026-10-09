@@ -179,7 +179,28 @@
       "loginLink": "Inloggen",
       "passwordMismatch": "Wachtwoorden komen niet overeen",
       "error": "Registratiefout",
-      "footer": "© 2026 onespec. Alle rechten voorbehouden."
+      "footer": "© 2026 onespec. Alle rechten voorbehouden.",
+      "birthDateLabel": "Geboortedatum",
+      "birthDateHint": "Alleen om de meerderjarigheid te controleren (18+). Voor anderen niet zichtbaar.",
+      "showPassword": "Toon wachtwoord",
+      "hidePassword": "Verberg wachtwoord",
+      "passwordRules": "Minstens 8 tekens, met een letter en een cijfer.",
+      "companySection": "Bedrijfsgegevens",
+      "companyHint": "Nu optioneel: we gebruiken ze om je bedrijf aan te maken en de DPA voor te bereiden. Je kunt ze ook later aanvullen.",
+      "companyNameLabel": "Bedrijfsnaam",
+      "countryLabel": "Land",
+      "vatLabel": "Btw-nummer",
+      "streetLabel": "Straat en nummer",
+      "postalCodeLabel": "Postcode",
+      "cityLabel": "Plaats",
+      "termsPrefix": "Ik accepteer de ",
+      "termsLink": "Servicevoorwaarden",
+      "termsAnd": " en het ",
+      "privacyLink": "Privacybeleid",
+      "dpaPrefix": "Namens het bedrijf verklaar ik tekenbevoegd te zijn en accepteer ik de ",
+      "dpaLink": "verwerkersovereenkomst (DPA, art. 28 AVG)",
+      "dpaVersion": "versie {version}",
+      "dpaNeedsData": "Om de DPA nu te ondertekenen zijn bedrijfsnaam, btw-nummer en adres nodig. Anders kun je hem later in de instellingen ondertekenen."
     },
     "verify": {
       "title": "Verifieer je e-mail",
@@ -478,7 +499,13 @@
     "documentActive": "De pdf bevat scripts of actieve inhoud en wordt uit veiligheid niet geaccepteerd. Exporteer hem opnieuw als gewone pdf (afdrukken naar pdf).",
     "documentTooLarge": "De pdf is groter dan 15 MB. Comprimeer of splits hem.",
     "documentAttached": "Dit bestand is al geüpload.",
-    "documentLimit": "Deze klant heeft al te veel documenten (maximaal 200)."
+    "documentLimit": "Deze klant heeft al te veel documenten (maximaal 200).",
+    "validationBirthdate": "Voer een geldige geboortedatum in.",
+    "validationUnderage": "Je moet minstens 18 jaar zijn om je te registreren.",
+    "validationPasswordWeak": "Het wachtwoord moet minstens 8 tekens bevatten, met een letter en een cijfer.",
+    "validationPasswordTooLong": "Het wachtwoord is te lang (maximaal 128 tekens).",
+    "validationDpaRequired": "Voor het ondertekenen van de DPA zijn bedrijfsnaam, btw-nummer en adres nodig.",
+    "validationTermsRequired": "Je moet de Servicevoorwaarden en het Privacybeleid accepteren."
   },
   "app": {
     "suspended": {

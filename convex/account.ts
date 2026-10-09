@@ -178,6 +178,7 @@ export const exportMyData = mutation({
         name: user.name ?? null,
         email: user.email ?? null,
         locale: user.locale ?? null,
+        birthDate: user.birthDate ?? null,
         emailVerified: !!user.emailVerificationTime,
         createdAt: new Date(user._creationTime).toISOString(),
       },

@@ -44,6 +44,12 @@ export type ErrorKey =
   | "validationEmailFormat"
   | "validationUrlFormat"
   | "validationCountryUnsupported"
+  | "validationBirthdate"
+  | "validationUnderage"
+  | "validationPasswordWeak"
+  | "validationPasswordTooLong"
+  | "validationDpaRequired"
+  | "validationTermsRequired"
   | "vatZeroNotAllowed"
   | "vatManualReasonRequired"
   | "viesUnavailable"
@@ -195,6 +201,12 @@ const EXACT: Record<string, ErrorKey> = {
   VALIDATION_EMAIL_FORMAT: "validationEmailFormat",
   VALIDATION_URL_FORMAT: "validationUrlFormat",
   VALIDATION_COUNTRY_UNSUPPORTED: "validationCountryUnsupported",
+  VALIDATION_BIRTHDATE_FORMAT: "validationBirthdate",
+  VALIDATION_UNDERAGE: "validationUnderage",
+  VALIDATION_PASSWORD_WEAK: "validationPasswordWeak",
+  VALIDATION_PASSWORD_TOO_LONG: "validationPasswordTooLong",
+  VALIDATION_DPA_REQUIRED: "validationDpaRequired",
+  VALIDATION_TERMS_REQUIRED: "validationTermsRequired",
   VAT_ZERO_NOT_ALLOWED: "vatZeroNotAllowed",
   VAT_MANUAL_REASON_REQUIRED: "vatManualReasonRequired",
   VIES_UNAVAILABLE: "viesUnavailable",
