@@ -472,7 +472,13 @@
     "supplyStageTooEarly": "Ce coût ne peut être saisi que lorsque la fourniture a atteint l'étape correspondante.",
     "quoteIsDraft": "Ce devis est un brouillon : terminez-le et enregistrez-le avant de le signer ou de changer son statut.",
     "quoteHasSupply": "Une fourniture a déjà démarré pour ce devis : il ne peut pas être supprimé.",
-    "invalidAssembly": "Les panneaux liés ne ferment pas une forme : ils doivent se toucher, avoir la même hauteur sur une ligne et la même largeur sur une colonne."
+    "invalidAssembly": "Les panneaux liés ne ferment pas une forme : ils doivent se toucher, avoir la même hauteur sur une ligne et la même largeur sur une colonne.",
+    "documentNotPdf": "Le fichier n'est pas un PDF valide. Téléversez le devis au format PDF.",
+    "documentCorrupt": "Le PDF semble incomplet ou endommagé. Exportez-le à nouveau et réessayez.",
+    "documentActive": "Le PDF contient des scripts ou du contenu actif et nous ne l'acceptons pas par sécurité. Exportez-le à nouveau en PDF simple (imprimer en PDF).",
+    "documentTooLarge": "Le PDF dépasse 15 Mo. Compressez-le ou divisez-le.",
+    "documentAttached": "Ce fichier a déjà été téléversé.",
+    "documentLimit": "Ce client a déjà trop de documents (maximum 200)."
   },
   "app": {
     "suspended": {
@@ -1044,7 +1050,8 @@
     "logistics": "Logistique",
     "newSupply": "Nouvelle fourniture",
     "newShipment": "Nouvelle livraison",
-    "fromSupply": "Depuis une fourniture"
+    "fromSupply": "Depuis une fourniture",
+    "documents": "Devis finaux"
   },
   "surveyDoc": {
     "title": "Relevé de chantier",
@@ -3266,5 +3273,44 @@
     "again": "Importer un autre fichier",
     "failed": "L'importation s'est arrêtée. Les lignes déjà envoyées sont enregistrées : vous pouvez réessayer, les doublons sont ignorés.",
     "warningsTitle": "Champs invalides (ils restent vides, la ligne est quand même importée)"
+  },
+  "docs": {
+    "title": "Devis finaux et documents",
+    "hint": "Téléversez en PDF le devis final remis au client : il reste dans son dossier, à côté du devis fait avec OneSpec et du chantier.",
+    "upload": "Téléverser un PDF",
+    "chooseFile": "Choisir le fichier PDF",
+    "limits": "PDF uniquement, jusqu'à 15 Mo. Nous vérifions le contenu du fichier : les PDF avec scripts ou contenu actif ne sont pas acceptés.",
+    "kindLabel": "Type de document",
+    "kind": {
+      "final_quote": "Devis final (offre au client)",
+      "other": "Autre document"
+    },
+    "titleLabel": "Titre",
+    "amount": "Montant de l'offre (€, facultatif)",
+    "site": "Chantier",
+    "noSite": "— aucun chantier —",
+    "quote": "Devis OneSpec lié",
+    "noQuote": "— aucun devis —",
+    "submit": "Téléverser et vérifier",
+    "uploading": "Vérification et téléversement…",
+    "notPdf": "Choisissez un fichier PDF.",
+    "tooLarge": "Le fichier dépasse 15 Mo.",
+    "uploaded": "Document téléversé et vérifié.",
+    "empty": "Aucun document pour l'instant. Téléversez le premier devis final.",
+    "open": "Ouvrir le PDF",
+    "delete": "Supprimer",
+    "confirmDelete": "Supprimer ce document ? Le fichier est effacé.",
+    "outcomeLabel": "Résultat",
+    "outcome": {
+      "pending": "En attente",
+      "accepted": "Accepté",
+      "rejected": "Refusé"
+    },
+    "linkedQuote": "Devis OneSpec : {amount}",
+    "finalAmount": "Offre finale : {amount}",
+    "difference": "Écart : {amount}",
+    "openQuote": "Ouvrir le devis",
+    "forSite": "Chantier : {name}",
+    "uploadedOn": "Téléversé le {date}"
   }
 }

@@ -153,7 +153,13 @@ export type ErrorKey =
   | "leadDuplicate"
   | "leadInvalid"
   | "leadAlreadyConverted"
-  | "cantiereAlreadyLinked";
+  | "cantiereAlreadyLinked"
+  | "documentNotPdf"
+  | "documentCorrupt"
+  | "documentActive"
+  | "documentTooLarge"
+  | "documentAttached"
+  | "documentLimit";
 
 const EXACT: Record<string, ErrorKey> = {
   UNAUTHENTICATED: "unauthenticated",
@@ -319,6 +325,12 @@ const EXACT: Record<string, ErrorKey> = {
   LEAD_TOO_MANY_EXTRA: "leadInvalid",
   LEAD_ALREADY_CONVERTED: "leadAlreadyConverted",
   CANTIERE_ALREADY_LINKED: "cantiereAlreadyLinked",
+  DOCUMENT_NOT_PDF: "documentNotPdf",
+  DOCUMENT_CORRUPT: "documentCorrupt",
+  DOCUMENT_ACTIVE_CONTENT: "documentActive",
+  DOCUMENT_TOO_LARGE: "documentTooLarge",
+  DOCUMENT_ALREADY_ATTACHED: "documentAttached",
+  DOCUMENT_LIMIT: "documentLimit",
 };
 
 /** Map a backend error code to a message key (pattern fallbacks for families). */

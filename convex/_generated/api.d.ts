@@ -23,6 +23,7 @@ import type * as calculations from "../calculations.js";
 import type * as cantieri from "../cantieri.js";
 import type * as catalog from "../catalog.js";
 import type * as catalogImport from "../catalogImport.js";
+import type * as clientDocuments from "../clientDocuments.js";
 import type * as clients from "../clients.js";
 import type * as crm from "../crm.js";
 import type * as configurators from "../configurators.js";
@@ -129,6 +130,7 @@ declare const fullApi: ApiFromModules<{
   cantieri: typeof cantieri;
   catalog: typeof catalog;
   catalogImport: typeof catalogImport;
+  clientDocuments: typeof clientDocuments;
   clients: typeof clients;
   crm: typeof crm;
   configurators: typeof configurators;

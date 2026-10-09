@@ -12,10 +12,11 @@ import { EmptyState } from "@/components/app-shell/empty-state";
 import { RelatedRecords, type RelatedTab } from "@/components/app-shell/related-records";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import { OpenLink } from "@/components/ui/open-button";
+import { DocumentsPanel } from "@/components/clients/documents-panel";
 
-type Tab = "overview" | "cantieri" | Exclude<RelatedTab, "logistics"> | "activity";
+type Tab = "overview" | "cantieri" | Exclude<RelatedTab, "logistics"> | "documents" | "activity";
 
-const TABS: Tab[] = ["overview", "cantieri", "quotes", "surveys", "inspections", "installations", "activity"];
+const TABS: Tab[] = ["overview", "cantieri", "quotes", "documents", "surveys", "inspections", "installations", "activity"];
 
 function Field({ label, value }: { label: string; value?: string | null }) {
   if (!value) return null;
@@ -58,6 +59,7 @@ export default function ClientFolderPage({ params }: { params: Promise<{ id: str
     inspections: data.inspections.length,
     installations: data.installations.length,
     supplies: data.supplies.length,
+    documents: null,
     activity: activities.length,
   };
   const linkQuery = `clientId=${clientId}`;
@@ -199,6 +201,14 @@ export default function ClientFolderPage({ params }: { params: Promise<{ id: str
 
       {(tab === "quotes" || tab === "surveys" || tab === "inspections" || tab === "installations" || tab === "supplies") && (
         <RelatedRecords data={data} tab={tab} linkQuery={linkQuery} />
+      )}
+
+      {tab === "documents" && (
+        <DocumentsPanel
+          clientId={clientId}
+          sites={cantieri.map((c) => ({ _id: c._id, name: c.name }))}
+          quotes={data.quotes.map((q) => ({ _id: q._id, leadName: q.leadName, priceCents: q.priceCents }))}
+        />
       )}
 
       {tab === "activity" && (

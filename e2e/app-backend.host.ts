@@ -122,7 +122,12 @@ test("app backend (runs until stopped)", async () => {
       const result = await (scoped[kind] as (r: never, a: Record<string, unknown>) => Promise<unknown>)(ref, args);
       return { ok: true, value: convexToJson((result === undefined ? null : result) as never) };
     } catch (e) {
-      if (e instanceof ConvexError) return { ok: false, failure: { message: `Uncaught ConvexError: ${typeof e.data === "string" ? e.data : JSON.stringify(e.data)}`, data: convexToJson(e.data as never) } };
+      if (e instanceof ConvexError) {
+        // convex-test hands back the data of an error thrown by an ACTION as a JSON string ("\"CODE\""); the real backend keeps the value as it was.
+        let data: unknown = e.data;
+        if (typeof data === "string" && /^["{[]/.test(data)) { try { data = JSON.parse(data); } catch { /* keep as is */ } }
+        return { ok: false, failure: { message: `Uncaught ConvexError: ${typeof data === "string" ? data : JSON.stringify(data)}`, data: convexToJson(data as never) } };
+      }
       return { ok: false, failure: { message: `Uncaught Error: ${(e as Error).message}` } };
     }
   }
@@ -256,6 +261,14 @@ test("app backend (runs until stopped)", async () => {
       });
       const payload = out.ok ? { status: "success", value: out.value, logLines: [] } : { status: "error", errorMessage: out.failure.message, errorData: out.failure.data, logLines: [] };
       return void res.writeHead(200, { ...cors, "content-type": "application/json" }).end(JSON.stringify(payload));
+    }
+    // Stand-in for Convex's storage upload endpoint (the browser's request to the fake upload URL is redirected here by the driver).
+    if (req.method === "POST" && url.pathname === "/api/storage/upload") {
+      const chunks: Buffer[] = [];
+      for await (const c of req) chunks.push(c as Buffer);
+      const blob = new Blob([Buffer.concat(chunks)], { type: String(req.headers["content-type"] ?? "application/octet-stream") });
+      const storageId = await serial(() => t.run((ctx) => ctx.storage.store(blob)));
+      return void res.writeHead(200, { ...cors, "content-type": "application/json" }).end(JSON.stringify({ storageId }));
     }
     if (url.pathname === "/version" || url.pathname === "/") return void res.writeHead(200, cors).end("ok");
     res.writeHead(404, cors).end();

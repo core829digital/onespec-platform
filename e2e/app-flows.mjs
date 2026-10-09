@@ -77,6 +77,14 @@ async function newSession(browser, token, refresh, device = {}) {
   // The cookie banner reads its choice from localStorage; "denied" keeps analytics and replay off and the banner out of the way.
   await context.addInitScript(() => { try { localStorage.setItem("onespec-cookie-consent", "denied"); } catch { /* storage blocked */ } });
   await context.route(THIRD_PARTY, (r) => r.abort());
+  // The stand-in backend hands out Convex's upload URL shape; the file really goes to the stand-in's own storage endpoint.
+  await context.route(/some-deployment\.convex\.cloud\/api\/storage\/upload/, async (route) => {
+    const cors = { "access-control-allow-origin": "*", "access-control-allow-headers": "*", "access-control-allow-methods": "*" };
+    const req = route.request();
+    if (req.method() === "OPTIONS") return route.fulfill({ status: 204, headers: cors });
+    const upstream = await fetch(`http://localhost:${BACKEND_PORT}/api/storage/upload`, { method: "POST", headers: { "content-type": req.headers()["content-type"] ?? "application/octet-stream" }, body: req.postDataBuffer() });
+    return route.fulfill({ status: upstream.status, headers: { ...cors, "content-type": "application/json" }, body: await upstream.text() });
+  });
   const problems = [];
   context.on("page", (page) => {
     page.on("console", (m) => {
@@ -85,6 +93,8 @@ async function newSession(browser, token, refresh, device = {}) {
       const where = m.location().url ?? "";
       if (/Failed to load resource/.test(text) && (THIRD_PARTY.test(where) || NOISE.test(where))) return;
       if (/speed-insights|_vercel\/insights/.test(text)) return;
+      // The Convex client logs every refused call; these refusals are what a test provokes on purpose (hostile files).
+      if (/\[CONVEX [MA]\(.+\)\] Uncaught ConvexError: DOCUMENT_(ACTIVE_CONTENT|NOT_PDF|CORRUPT)/.test(text)) return;
       problems.push(`console.error: ${text.slice(0, 300)}`);
     });
     page.on("pageerror", (e) => problems.push(`pageerror: ${String(e.message).slice(0, 300)}`));
@@ -102,7 +112,8 @@ async function step(name, page, problems, fn) {
     const fresh = problems.slice(before);
     check(fresh.length === 0, fresh.length === 0 ? name : `${name} — errors in the browser: ${fresh.join(" | ")}`);
   } catch (e) {
-    check(false, `${name} — ${String(e.message).split("\n")[0]}`);
+    const fresh = problems.slice(before);
+    check(false, `${name} — ${String(e.message).split("\n")[0]}${fresh.length ? ` [browser: ${fresh.join(" | ").slice(0, 600)}]` : ""}`);
     try { await page.screenshot({ path: process.env.E2E_SHOT ?? "e2e-failure.png", fullPage: true }); } catch { /* ignore */ }
   }
 }
@@ -306,6 +317,28 @@ async function main() {
       await anna.getByRole("link", { name: "Apri cliente" }).waitFor({ timeout: 5000 });
       await page.getByRole("searchbox").fill("siena");
       await page.waitForFunction(() => document.querySelectorAll('[data-testid="lead-row"]').length === 1, null, { timeout: 8000 });
+    });
+
+    // ── documents: the final quote (PDF) goes into the customer's folder, next to the internal quote ─────────────────────────────
+    const pdf = (body) => Buffer.from(`%PDF-1.7\n1 0 obj\n<< /Type /Catalog ${body} >>\nendobj\ntrailer\n<< /Root 1 0 R >>\nstartxref\n0\n%%EOF\n`);
+    await step("documents: a clean final-quote PDF is verified, stored and shown in the customer's folder; hostile files are refused", page, problems, async () => {
+      await page.goto(url(`/app/clients/${seed.clientId}`), { waitUntil: "domcontentloaded" });
+      await page.getByRole("tab", { name: /Preventivi finali/ }).click();
+      const input = page.getByTestId("doc-file-input");
+      // not a PDF at all (a script renamed .pdf): refused in the browser before anything is sent
+      await input.setInputFiles({ name: "evil.pdf", mimeType: "application/pdf", buffer: Buffer.from("<script>alert(1)</script>") });
+      await page.getByRole("alert").filter({ hasText: /Scegli un file PDF/ }).waitFor({ timeout: 5000 });
+      // looks like a PDF but carries JavaScript: refused by the server, which read the bytes
+      await input.setInputFiles({ name: "active.pdf", mimeType: "application/pdf", buffer: pdf("/OpenAction << /S /JavaScript /JS (app.alert(1)) >>") });
+      await page.getByTestId("doc-submit").click();
+      await page.getByRole("alert").filter({ hasText: /script o contenuti attivi/ }).waitFor({ timeout: 15_000 });
+      // a clean one
+      await input.setInputFiles({ name: "offerta-finale.pdf", mimeType: "application/pdf", buffer: pdf("/Pages 2 0 R") });
+      await page.getByTestId("doc-submit").click();
+      await page.getByTestId("doc-row").filter({ hasText: "offerta-finale" }).waitFor({ timeout: 15_000 });
+      if ((await page.getByTestId("doc-row").count()) !== 1) throw new Error("only the clean PDF should be listed");
+      await page.getByTestId("doc-row").getByLabel(/Esito/).selectOption("accepted");
+      await page.waitForFunction(() => document.querySelector('[data-testid="doc-row"] select')?.value === "accepted", null, { timeout: 5000 });
     });
 
     // ── quote → signature → printable document, on a desktop and then on a phone ─────────────────────────────────────────────────

@@ -472,7 +472,13 @@
     "supplyStageTooEarly": "This cost can only be entered once the supply has reached the matching stage.",
     "quoteIsDraft": "This quote is a draft: finish and save it before signing it or changing its status.",
     "quoteHasSupply": "A supply order already started from this quote: it cannot be deleted.",
-    "invalidAssembly": "The joined panels do not close a shape: they must touch, share the same height in a row and the same width in a column."
+    "invalidAssembly": "The joined panels do not close a shape: they must touch, share the same height in a row and the same width in a column.",
+    "documentNotPdf": "The file is not a valid PDF. Upload the quote as a PDF.",
+    "documentCorrupt": "The PDF looks incomplete or damaged. Export it again and retry.",
+    "documentActive": "The PDF contains scripts or active content and we do not accept it for safety. Export it again as a plain PDF (print to PDF).",
+    "documentTooLarge": "The PDF is over 15 MB. Compress or split it.",
+    "documentAttached": "This file has already been uploaded.",
+    "documentLimit": "This customer already has too many documents (maximum 200)."
   },
   "app": {
     "suspended": {
@@ -1044,7 +1050,8 @@
     "logistics": "Logistics",
     "newSupply": "New supply",
     "newShipment": "New shipment",
-    "fromSupply": "From a supply"
+    "fromSupply": "From a supply",
+    "documents": "Final quotes"
   },
   "surveyDoc": {
     "title": "Site survey",
@@ -3266,5 +3273,44 @@
     "again": "Import another file",
     "failed": "The import stopped. Rows already sent are saved: you can retry, duplicates are skipped.",
     "warningsTitle": "Invalid fields (they stay empty, the row is still imported)"
+  },
+  "docs": {
+    "title": "Final quotes and documents",
+    "hint": "Upload as a PDF the final quote you gave the customer: it stays in the customer's folder, next to the quote made with OneSpec and the site.",
+    "upload": "Upload a PDF",
+    "chooseFile": "Choose the PDF file",
+    "limits": "PDF only, up to 15 MB. We check the content of the file: PDFs with scripts or active content are not accepted.",
+    "kindLabel": "Document type",
+    "kind": {
+      "final_quote": "Final quote (offer to the customer)",
+      "other": "Other document"
+    },
+    "titleLabel": "Title",
+    "amount": "Offer amount (€, optional)",
+    "site": "Site",
+    "noSite": "— no site —",
+    "quote": "Linked OneSpec quote",
+    "noQuote": "— no quote —",
+    "submit": "Upload and verify",
+    "uploading": "Checking and uploading…",
+    "notPdf": "Choose a PDF file.",
+    "tooLarge": "The file is over 15 MB.",
+    "uploaded": "Document uploaded and verified.",
+    "empty": "No documents yet. Upload the first final quote.",
+    "open": "Open PDF",
+    "delete": "Delete",
+    "confirmDelete": "Delete this document? The file is removed.",
+    "outcomeLabel": "Outcome",
+    "outcome": {
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "rejected": "Rejected"
+    },
+    "linkedQuote": "OneSpec quote: {amount}",
+    "finalAmount": "Final offer: {amount}",
+    "difference": "Difference: {amount}",
+    "openQuote": "Open the quote",
+    "forSite": "Site: {name}",
+    "uploadedOn": "Uploaded on {date}"
   }
 }

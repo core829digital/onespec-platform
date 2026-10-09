@@ -472,7 +472,13 @@
     "supplyStageTooEarly": "Acest cost poate fi introdus doar când furnizarea a ajuns la etapa corespunzătoare.",
     "quoteIsDraft": "Această ofertă este o ciornă: finalizeaz-o și salveaz-o înainte să o semnezi sau să îi schimbi starea.",
     "quoteHasSupply": "Pentru această ofertă a început deja o aprovizionare: nu poate fi ștearsă.",
-    "invalidAssembly": "Panourile legate nu închid o formă: trebuie să se atingă, să aibă aceeași înălțime pe rând și aceeași lățime pe coloană."
+    "invalidAssembly": "Panourile legate nu închid o formă: trebuie să se atingă, să aibă aceeași înălțime pe rând și aceeași lățime pe coloană.",
+    "documentNotPdf": "Fișierul nu este un PDF valid. Încarcă oferta în format PDF.",
+    "documentCorrupt": "PDF-ul pare incomplet sau deteriorat. Exportă-l din nou și reîncearcă.",
+    "documentActive": "PDF-ul conține scripturi sau conținut activ și nu îl acceptăm din motive de securitate. Exportă-l din nou ca PDF simplu (tipărește în PDF).",
+    "documentTooLarge": "PDF-ul depășește 15 MB. Comprimă-l sau împarte-l.",
+    "documentAttached": "Acest fișier a fost deja încărcat.",
+    "documentLimit": "Acest client are deja prea multe documente (maximum 200)."
   },
   "app": {
     "suspended": {
@@ -1044,7 +1050,8 @@
     "logistics": "Logistică",
     "newSupply": "Aprovizionare nouă",
     "newShipment": "Livrare nouă",
-    "fromSupply": "Dintr-o aprovizionare"
+    "fromSupply": "Dintr-o aprovizionare",
+    "documents": "Oferte finale"
   },
   "surveyDoc": {
     "title": "Măsurătoare șantier",
@@ -3266,5 +3273,44 @@
     "again": "Importă alt fișier",
     "failed": "Importul s-a oprit. Rândurile deja trimise sunt salvate: poți reîncerca, dublurile sunt omise.",
     "warningsTitle": "Câmpuri invalide (rămân goale, rândul se importă oricum)"
+  },
+  "docs": {
+    "title": "Oferte finale și documente",
+    "hint": "Încarcă în PDF oferta finală dată clientului: rămâne în dosarul clientului, lângă oferta făcută cu OneSpec și șantier.",
+    "upload": "Încarcă un PDF",
+    "chooseFile": "Alege fișierul PDF",
+    "limits": "Doar PDF, până la 15 MB. Verificăm conținutul fișierului: PDF-urile cu scripturi sau conținut activ nu sunt acceptate.",
+    "kindLabel": "Tip document",
+    "kind": {
+      "final_quote": "Ofertă finală (ofertă către client)",
+      "other": "Alt document"
+    },
+    "titleLabel": "Titlu",
+    "amount": "Suma ofertei (€, opțional)",
+    "site": "Șantier",
+    "noSite": "— niciun șantier —",
+    "quote": "Ofertă OneSpec legată",
+    "noQuote": "— nicio ofertă —",
+    "submit": "Încarcă și verifică",
+    "uploading": "Se verifică și se încarcă…",
+    "notPdf": "Alege un fișier PDF.",
+    "tooLarge": "Fișierul depășește 15 MB.",
+    "uploaded": "Document încărcat și verificat.",
+    "empty": "Niciun document încă. Încarcă prima ofertă finală.",
+    "open": "Deschide PDF",
+    "delete": "Șterge",
+    "confirmDelete": "Ștergi acest document? Fișierul este eliminat.",
+    "outcomeLabel": "Rezultat",
+    "outcome": {
+      "pending": "În așteptare",
+      "accepted": "Acceptat",
+      "rejected": "Respins"
+    },
+    "linkedQuote": "Ofertă OneSpec: {amount}",
+    "finalAmount": "Ofertă finală: {amount}",
+    "difference": "Diferență: {amount}",
+    "openQuote": "Deschide oferta",
+    "forSite": "Șantier: {name}",
+    "uploadedOn": "Încărcat la {date}"
   }
 }

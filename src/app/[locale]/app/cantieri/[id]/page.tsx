@@ -11,9 +11,10 @@ import { Link } from "@/i18n/navigation";
 import { EmptyState } from "@/components/app-shell/empty-state";
 import { RelatedRecords, type RelatedTab } from "@/components/app-shell/related-records";
 import { useFriendlyError } from "@/lib/use-friendly-error";
+import { DocumentsPanel } from "@/components/clients/documents-panel";
 
-type Tab = "overview" | RelatedTab;
-const TABS: Tab[] = ["overview", "quotes", "surveys", "inspections", "installations", "supplies", "logistics"];
+type Tab = "overview" | "documents" | RelatedTab;
+const TABS: Tab[] = ["overview", "quotes", "documents", "surveys", "inspections", "installations", "supplies", "logistics"];
 const TASK_STATUSES = ["todo", "in_progress", "review", "done"] as const;
 
 export default function CantiereFolderPage({ params }: { params: Promise<{ id: string }> }) {
@@ -107,7 +108,7 @@ export default function CantiereFolderPage({ params }: { params: Promise<{ id: s
             }`}
           >
             {t(k)}
-            {k !== "overview" ? (
+            {k !== "overview" && k !== "documents" ? (
               <span className="ml-1.5 rounded-full bg-[var(--color-bg-alt)] px-1.5 text-xs tabular-nums">{counts[k]}</span>
             ) : null}
           </button>
@@ -227,7 +228,13 @@ export default function CantiereFolderPage({ params }: { params: Promise<{ id: s
         </div>
       )}
 
-      {tab !== "overview" && <RelatedRecords data={data} tab={tab} linkQuery={`cantiereId=${cantiereId}`} />}
+      {tab === "documents" && (client ? (
+        <DocumentsPanel clientId={client._id} fixedSiteId={cantiereId} sites={[{ _id: cantiereId, name: cantiere.name }]} quotes={data.quotes.map((q) => ({ _id: q._id, leadName: q.leadName, priceCents: q.priceCents }))} />
+      ) : (
+        <EmptyState title={t("emptyTitle")} hint={t("emptyHint")} />
+      ))}
+
+      {tab !== "overview" && tab !== "documents" && <RelatedRecords data={data} tab={tab} linkQuery={`cantiereId=${cantiereId}`} />}
     </div>
   );
 }

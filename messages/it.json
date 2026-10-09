@@ -472,7 +472,13 @@
     "supplyStageTooEarly": "Questo costo si può inserire solo quando la fornitura ha raggiunto la fase corrispondente.",
     "quoteIsDraft": "Questo preventivo è una bozza: completalo e salvalo prima di firmarlo o cambiarne lo stato.",
     "quoteHasSupply": "Per questo preventivo è già partita una fornitura: non può essere eliminato.",
-    "invalidAssembly": "I pannelli collegati non chiudono una forma: devono toccarsi, avere la stessa altezza sulla stessa riga e la stessa larghezza sulla stessa colonna."
+    "invalidAssembly": "I pannelli collegati non chiudono una forma: devono toccarsi, avere la stessa altezza sulla stessa riga e la stessa larghezza sulla stessa colonna.",
+    "documentNotPdf": "Il file non è un PDF valido. Carica il preventivo in formato PDF.",
+    "documentCorrupt": "Il PDF sembra incompleto o danneggiato. Riesportalo e riprova.",
+    "documentActive": "Il PDF contiene script o contenuti attivi e per sicurezza non lo accettiamo. Esportalo di nuovo come PDF semplice (stampa in PDF).",
+    "documentTooLarge": "Il PDF supera i 15 MB. Comprimilo o dividilo.",
+    "documentAttached": "Questo file è già stato caricato.",
+    "documentLimit": "Questo cliente ha già troppi documenti (massimo 200)."
   },
   "app": {
     "suspended": {
@@ -1044,7 +1050,8 @@
     "logistics": "Logistica",
     "newSupply": "Nuova fornitura",
     "newShipment": "Nuova consegna",
-    "fromSupply": "Dalla fornitura"
+    "fromSupply": "Dalla fornitura",
+    "documents": "Preventivi finali"
   },
   "surveyDoc": {
     "title": "Rilievo cantiere",
@@ -3266,5 +3273,44 @@
     "again": "Importa un altro file",
     "failed": "L'importazione si è interrotta. Le righe già inviate restano salvate: puoi riprovare, i doppioni vengono saltati.",
     "warningsTitle": "Campi non validi (resteranno vuoti, la riga si importa lo stesso)"
+  },
+  "docs": {
+    "title": "Preventivi finali e documenti",
+    "hint": "Carica in PDF il preventivo finale che hai consegnato al cliente: resta nella sua cartella, accanto al preventivo fatto con OneSpec e al cantiere.",
+    "upload": "Carica un PDF",
+    "chooseFile": "Scegli il file PDF",
+    "limits": "Solo PDF, fino a 15 MB. Controlliamo il contenuto del file: non accettiamo PDF con script o contenuti attivi.",
+    "kindLabel": "Tipo di documento",
+    "kind": {
+      "final_quote": "Preventivo finale (offerta al cliente)",
+      "other": "Altro documento"
+    },
+    "titleLabel": "Titolo",
+    "amount": "Importo dell'offerta (€, facoltativo)",
+    "site": "Cantiere",
+    "noSite": "— nessun cantiere —",
+    "quote": "Preventivo OneSpec collegato",
+    "noQuote": "— nessun preventivo —",
+    "submit": "Carica e verifica",
+    "uploading": "Controllo e caricamento…",
+    "notPdf": "Scegli un file PDF.",
+    "tooLarge": "Il file supera i 15 MB.",
+    "uploaded": "Documento caricato e verificato.",
+    "empty": "Nessun documento ancora. Carica il primo preventivo finale.",
+    "open": "Apri PDF",
+    "delete": "Elimina",
+    "confirmDelete": "Eliminare questo documento? Il file viene cancellato.",
+    "outcomeLabel": "Esito",
+    "outcome": {
+      "pending": "In attesa",
+      "accepted": "Accettato",
+      "rejected": "Rifiutato"
+    },
+    "linkedQuote": "Preventivo OneSpec: {amount}",
+    "finalAmount": "Offerta finale: {amount}",
+    "difference": "Differenza: {amount}",
+    "openQuote": "Apri il preventivo",
+    "forSite": "Cantiere: {name}",
+    "uploadedOn": "Caricato il {date}"
   }
 }

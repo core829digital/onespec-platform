@@ -1188,6 +1188,34 @@ export default defineSchema({
     .index("by_client", ["clientId"])
     .searchIndex("search_text", { searchField: "searchText", filterFields: ["tenantId", "status"] }),
 
+  /**
+   * Documents a workspace attaches to a customer's folder — above all the FINAL offer (PDF) the customer received, kept next to the
+   * internal quote OneSpec produced. Every file here was verified by an action that read its bytes (see convex/clientDocuments.ts).
+   */
+  clientDocuments: defineTable({
+    tenantId: v.id("tenants"),
+    clientId: v.id("clients"),
+    cantiereId: v.optional(v.id("cantieri")),
+    /** The internal quote (made in the platform) this final offer corresponds to. */
+    quoteId: v.optional(v.id("quoteRequests")),
+    kind: v.union(v.literal("final_quote"), v.literal("other")),
+    title: v.string(),
+    fileName: v.string(),
+    storageId: v.id("_storage"),
+    sizeBytes: v.number(),
+    contentSha256: v.string(),
+    /** What the customer decided about the final offer. */
+    outcome: v.union(v.literal("pending"), v.literal("accepted"), v.literal("rejected")),
+    amountCents: v.optional(v.number()),
+    uploadedBy: v.id("users"),
+    createdAt: v.number(),
+  })
+    .index("by_client", ["clientId"])
+    .index("by_cantiere", ["cantiereId"])
+    .index("by_quote", ["quoteId"])
+    .index("by_storage", ["storageId"])
+    .index("by_tenant", ["tenantId"]),
+
   /** One run of the lead importer: what file, how many rows came in, how many were refused or already there. */
   leadImports: defineTable({
     tenantId: v.id("tenants"),

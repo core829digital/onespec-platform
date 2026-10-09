@@ -472,7 +472,13 @@
     "supplyStageTooEarly": "Diese Kosten können erst erfasst werden, wenn die Lieferung die passende Phase erreicht hat.",
     "quoteIsDraft": "Dieses Angebot ist ein Entwurf: Schließen Sie es ab und speichern Sie es, bevor Sie es unterschreiben oder den Status ändern.",
     "quoteHasSupply": "Für dieses Angebot läuft bereits eine Lieferung: Es kann nicht gelöscht werden.",
-    "invalidAssembly": "Die verbundenen Elemente schließen keine Form: Sie müssen sich berühren, in einer Reihe gleich hoch und in einer Spalte gleich breit sein."
+    "invalidAssembly": "Die verbundenen Elemente schließen keine Form: Sie müssen sich berühren, in einer Reihe gleich hoch und in einer Spalte gleich breit sein.",
+    "documentNotPdf": "Die Datei ist kein gültiges PDF. Laden Sie das Angebot als PDF hoch.",
+    "documentCorrupt": "Das PDF wirkt unvollständig oder beschädigt. Exportieren Sie es erneut und versuchen Sie es noch einmal.",
+    "documentActive": "Das PDF enthält Skripte oder aktive Inhalte und wird aus Sicherheitsgründen nicht akzeptiert. Exportieren Sie es erneut als einfaches PDF (als PDF drucken).",
+    "documentTooLarge": "Das PDF ist größer als 15 MB. Komprimieren oder teilen Sie es.",
+    "documentAttached": "Diese Datei wurde bereits hochgeladen.",
+    "documentLimit": "Dieser Kunde hat bereits zu viele Dokumente (maximal 200)."
   },
   "app": {
     "suspended": {
@@ -1044,7 +1050,8 @@
     "logistics": "Logistik",
     "newSupply": "Neue Lieferung",
     "newShipment": "Neue Sendung",
-    "fromSupply": "Aus einer Lieferung"
+    "fromSupply": "Aus einer Lieferung",
+    "documents": "Endangebote"
   },
   "surveyDoc": {
     "title": "Aufmaß Baustelle",
@@ -3266,5 +3273,44 @@
     "again": "Weitere Datei importieren",
     "failed": "Der Import wurde abgebrochen. Bereits gesendete Zeilen sind gespeichert: Sie können es erneut versuchen, Duplikate werden übersprungen.",
     "warningsTitle": "Ungültige Felder (bleiben leer, die Zeile wird trotzdem importiert)"
+  },
+  "docs": {
+    "title": "Endangebote und Dokumente",
+    "hint": "Laden Sie das dem Kunden übergebene Endangebot als PDF hoch: Es bleibt im Kundenordner, neben dem mit OneSpec erstellten Angebot und der Baustelle.",
+    "upload": "PDF hochladen",
+    "chooseFile": "PDF-Datei wählen",
+    "limits": "Nur PDF, bis 15 MB. Wir prüfen den Inhalt der Datei: PDFs mit Skripten oder aktiven Inhalten werden nicht akzeptiert.",
+    "kindLabel": "Dokumenttyp",
+    "kind": {
+      "final_quote": "Endangebot (Angebot an den Kunden)",
+      "other": "Anderes Dokument"
+    },
+    "titleLabel": "Titel",
+    "amount": "Angebotssumme (€, optional)",
+    "site": "Baustelle",
+    "noSite": "— keine Baustelle —",
+    "quote": "Verknüpftes OneSpec-Angebot",
+    "noQuote": "— kein Angebot —",
+    "submit": "Hochladen und prüfen",
+    "uploading": "Prüfung und Upload…",
+    "notPdf": "Wählen Sie eine PDF-Datei.",
+    "tooLarge": "Die Datei ist größer als 15 MB.",
+    "uploaded": "Dokument hochgeladen und geprüft.",
+    "empty": "Noch keine Dokumente. Laden Sie das erste Endangebot hoch.",
+    "open": "PDF öffnen",
+    "delete": "Löschen",
+    "confirmDelete": "Dieses Dokument löschen? Die Datei wird entfernt.",
+    "outcomeLabel": "Ergebnis",
+    "outcome": {
+      "pending": "Ausstehend",
+      "accepted": "Angenommen",
+      "rejected": "Abgelehnt"
+    },
+    "linkedQuote": "OneSpec-Angebot: {amount}",
+    "finalAmount": "Endangebot: {amount}",
+    "difference": "Differenz: {amount}",
+    "openQuote": "Angebot öffnen",
+    "forSite": "Baustelle: {name}",
+    "uploadedOn": "Hochgeladen am {date}"
   }
 }

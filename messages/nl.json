@@ -472,7 +472,13 @@
     "supplyStageTooEarly": "Deze kosten kunnen pas worden ingevoerd als de levering de bijbehorende fase heeft bereikt.",
     "quoteIsDraft": "Deze offerte is een concept: maak hem af en sla hem op voordat u hem ondertekent of de status wijzigt.",
     "quoteHasSupply": "Voor deze offerte is al een levering gestart: hij kan niet worden verwijderd.",
-    "invalidAssembly": "De gekoppelde panelen sluiten geen vorm: ze moeten elkaar raken, in een rij even hoog en in een kolom even breed zijn."
+    "invalidAssembly": "De gekoppelde panelen sluiten geen vorm: ze moeten elkaar raken, in een rij even hoog en in een kolom even breed zijn.",
+    "documentNotPdf": "Het bestand is geen geldige pdf. Upload de offerte als pdf.",
+    "documentCorrupt": "De pdf lijkt onvolledig of beschadigd. Exporteer hem opnieuw en probeer het nog eens.",
+    "documentActive": "De pdf bevat scripts of actieve inhoud en wordt uit veiligheid niet geaccepteerd. Exporteer hem opnieuw als gewone pdf (afdrukken naar pdf).",
+    "documentTooLarge": "De pdf is groter dan 15 MB. Comprimeer of splits hem.",
+    "documentAttached": "Dit bestand is al geüpload.",
+    "documentLimit": "Deze klant heeft al te veel documenten (maximaal 200)."
   },
   "app": {
     "suspended": {
@@ -1044,7 +1050,8 @@
     "logistics": "Logistiek",
     "newSupply": "Nieuwe levering",
     "newShipment": "Nieuwe zending",
-    "fromSupply": "Uit een levering"
+    "fromSupply": "Uit een levering",
+    "documents": "Definitieve offertes"
   },
   "surveyDoc": {
     "title": "Opmeting werf",
@@ -3266,5 +3273,44 @@
     "again": "Nog een bestand importeren",
     "failed": "De import is gestopt. Reeds verzonden rijen zijn opgeslagen: u kunt het opnieuw proberen, dubbelen worden overgeslagen.",
     "warningsTitle": "Ongeldige velden (blijven leeg, de rij wordt toch geïmporteerd)"
+  },
+  "docs": {
+    "title": "Definitieve offertes en documenten",
+    "hint": "Upload de definitieve offerte die u de klant gaf als pdf: ze blijft in het klantdossier, naast de met OneSpec gemaakte offerte en de bouwplaats.",
+    "upload": "Pdf uploaden",
+    "chooseFile": "Kies het pdf-bestand",
+    "limits": "Alleen pdf, tot 15 MB. We controleren de inhoud van het bestand: pdf's met scripts of actieve inhoud worden niet geaccepteerd.",
+    "kindLabel": "Type document",
+    "kind": {
+      "final_quote": "Definitieve offerte (aanbod aan de klant)",
+      "other": "Ander document"
+    },
+    "titleLabel": "Titel",
+    "amount": "Bedrag van de offerte (€, optioneel)",
+    "site": "Bouwplaats",
+    "noSite": "— geen bouwplaats —",
+    "quote": "Gekoppelde OneSpec-offerte",
+    "noQuote": "— geen offerte —",
+    "submit": "Uploaden en controleren",
+    "uploading": "Controleren en uploaden…",
+    "notPdf": "Kies een pdf-bestand.",
+    "tooLarge": "Het bestand is groter dan 15 MB.",
+    "uploaded": "Document geüpload en gecontroleerd.",
+    "empty": "Nog geen documenten. Upload de eerste definitieve offerte.",
+    "open": "Pdf openen",
+    "delete": "Verwijderen",
+    "confirmDelete": "Dit document verwijderen? Het bestand wordt verwijderd.",
+    "outcomeLabel": "Uitkomst",
+    "outcome": {
+      "pending": "In afwachting",
+      "accepted": "Geaccepteerd",
+      "rejected": "Afgewezen"
+    },
+    "linkedQuote": "OneSpec-offerte: {amount}",
+    "finalAmount": "Definitieve offerte: {amount}",
+    "difference": "Verschil: {amount}",
+    "openQuote": "Offerte openen",
+    "forSite": "Bouwplaats: {name}",
+    "uploadedOn": "Geüpload op {date}"
   }
 }
