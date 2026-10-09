@@ -85,6 +85,23 @@ export const setInstallation = mutation({
   },
 });
 
+/** Highest bicolour surcharge accepted: 1000 EUR per m², in cents. */
+export const MAX_BICOLOR_PER_M2_CENTS = 100_000;
+
+/** Whether this configurator offers a different finish inside and outside, and what it adds per m². Published with the catalogue. */
+export const setBicolor = mutation({
+  args: { configuratorId: v.id("configurators"), enabled: v.boolean(), perM2Cents: v.number() },
+  handler: async (ctx, args) => {
+    const configurator = await ctx.db.get(args.configuratorId);
+    if (!configurator || configurator.deletingAt !== undefined) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
+    await requirePermission(ctx, configurator.tenantId, "configurators.manage");
+    const c = args.perM2Cents;
+    if (!Number.isInteger(c) || c < 0 || c > MAX_BICOLOR_PER_M2_CENTS) throw new ConvexError("INVALID_INPUT");
+    await ctx.db.patch(args.configuratorId, { bicolorEnabled: args.enabled, bicolorPerM2Cents: c, updatedAt: Date.now() });
+    return { bicolorEnabled: args.enabled, bicolorPerM2Cents: c };
+  },
+});
+
 /** Price this configurator from the standard price list of the installer's zone (nothing is deleted). */
 export const applyStandard = mutation({
   args: { configuratorId: v.id("configurators") },

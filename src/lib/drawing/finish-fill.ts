@@ -23,3 +23,12 @@ export function finishFillFor(rows: FinishRow[] | undefined, key: string | undef
     ...(textured ? { texture: { href: row.texture!, w: row.textureW!, h: row.textureH! } } : {}),
   };
 }
+
+/** The inside-face fields of a bicolour piece for DrawingInput (nothing when both faces share one finish). */
+export function insideFinishFor(
+  rows: FinishRow[] | undefined,
+  item: { color: string; colorInside?: string },
+): { finishInside?: string; finishFillInside?: FinishFill } {
+  if (!item.colorInside || item.colorInside === item.color) return {};
+  return { finishInside: item.colorInside, finishFillInside: finishFillFor(rows, item.colorInside) };
+}

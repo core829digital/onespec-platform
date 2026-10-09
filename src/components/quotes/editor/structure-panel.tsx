@@ -6,7 +6,7 @@ import { assemblyGroups, assemblyIssues, MAX_ASSEMBLY_COLS, MAX_ASSEMBLY_GROUPS,
 import { FIELD_OPENING_TYPES, leafFieldOpenings, MAX_TRANSOMS, suggestTransom, transomZonesMm, type FieldOpeningType } from "@/shared/transoms";
 import { addLeafTransom, applyLeafBarsToAll, barsOfLeaf, removeLeafTransom, setComposition, setLeafFieldOpening, setLeafTransomHeight } from "@/shared/piece-ops";
 import type { ProjectItem } from "@/shared/pricing";
-import { buildAssemblyScene, finishFillFor, SceneSvg } from "@/lib/drawing";
+import { buildAssemblyScene, finishFillFor, insideFinishFor, SceneSvg } from "@/lib/drawing";
 import type { CatalogPayload } from "@/shared/pricing";
 
 const FIELD = "min-h-10 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1.5 text-sm text-[var(--color-text)]";
@@ -55,6 +55,7 @@ export function StructurePanel({
           transomsMm: it.transoms,
           glazing: it.glazing,
           finishFill: finishFillFor(payload.finish, it.color),
+          ...insideFinishFor(payload.finish, it),
         },
       })),
       myGroup.members,

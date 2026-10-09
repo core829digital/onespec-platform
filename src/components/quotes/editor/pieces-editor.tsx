@@ -25,7 +25,7 @@ import {
 import { defaultItem } from "@/shared/item-defaults";
 import { reconcileItem } from "@/shared/catalog-rules";
 import { DIM_ABS_MAX } from "@/shared/widget-types";
-import { finishFillFor, buildHardwareScene, buildLegendScene, buildPlanScene, buildSectionScene, DRAWING_DIMENSION, DRAWING_FLIP, DRAWING_HANDLE, DRAWING_LEAF, DRAWING_OPTIONS, DRAWING_TABS, DRAWING_TITLES, DRAWING_VIEW, drawingLocale, SceneSvg, WindowDrawing, type DrawingTab, type DrawingView } from "@/lib/drawing";
+import { finishFillFor, insideFinishFor, buildHardwareScene, buildLegendScene, buildPlanScene, buildSectionScene, DRAWING_DIMENSION, DRAWING_FLIP, DRAWING_HANDLE, DRAWING_LEAF, DRAWING_OPTIONS, DRAWING_TABS, DRAWING_TITLES, DRAWING_VIEW, drawingLocale, SceneSvg, WindowDrawing, type DrawingTab, type DrawingView } from "@/lib/drawing";
 import { SashPanel } from "@/components/quotes/sash-panel";
 import { catalogChoices, labelOf } from "./catalog-labels";
 import { PieceForm } from "./piece-form";
@@ -273,6 +273,7 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
                   transomsMm: active.transoms,
                   glazing: active.glazing,
                   finishFill: finishFillFor(payload.finish, active.color),
+                  ...insideFinishFor(payload.finish, active),
                 }}
                 options={{ selectedSash, handleGuide: "selected", showMainBadge: true, showViolations: true, showLeafDimensions: leafDims, showGlassDimensions: glassDims, invalidAxes, view }}
                 onSelectSash={setSelectedSash}
@@ -329,7 +330,7 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
             {tab === "hardware" ? (
               <div role="tabpanel" id="drawing-panel-hardware" aria-labelledby="drawing-tab-hardware" className="mx-auto w-full max-w-[420px] rounded-lg bg-white p-2">
                 <SceneSvg
-                  scene={buildHardwareScene({ widthMm: active.width, heightMm: active.height, category: active.category, sashes: active.sashes, finish: active.color, frameType: active.frameType, glazing: active.glazing, finishFill: finishFillFor(payload.finish, active.color) }, locale)}
+                  scene={buildHardwareScene({ widthMm: active.width, heightMm: active.height, category: active.category, sashes: active.sashes, finish: active.color, frameType: active.frameType, glazing: active.glazing, finishFill: finishFillFor(payload.finish, active.color), ...insideFinishFor(payload.finish, active) }, locale)}
                   ariaLabel={DRAWING_TABS[drawingLocale(locale)].hardware}
                 />
               </div>

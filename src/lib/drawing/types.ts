@@ -35,6 +35,9 @@ export interface DrawingInput {
   glazing?: string;
   /** Colour and (optional) texture of the chosen finish, from the catalogue row; overrides the built-in finish table. */
   finishFill?: FinishFill;
+  /** Bicolour: finish key (and catalogue fill) of the INSIDE face. The default (inside) view paints the frame with it, the outside view with `finish`. */
+  finishInside?: string;
+  finishFillInside?: FinishFill;
 }
 
 /** A catalogue finish as the drawings need it: its colour, and for decors / stone the texture swatch. */

@@ -51,6 +51,17 @@
   }
 }
 
+/* Simple wizard on a phone: a card with side margins (not glued to the screen edges), cards and buttons easy to hit. */
+@media (max-width: 600px) {
+  [data-tw-wizard] {
+    width: calc(100% - 24px) !important;
+    margin: 12px auto !important;
+  }
+  [data-tw-wizard] button {
+    min-height: 44px;
+  }
+}
+
 .tw-widget-root select,
 .tw-widget-root input,
 .tw-widget-root textarea {

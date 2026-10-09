@@ -299,7 +299,7 @@ export type PieceIssue =
   | { code: "mix"; reason: string; mix?: SashMixCode }
   | { code: "profileQuality"; profile: string; quality: string }
   | { code: "glazingDepth"; glazing: string; profile: string; maxMm: number; depthMm: number }
-  | { code: "unknownKey"; field: "material" | "quality" | "glazing" | "color" | "frameType" | "profileSystem" | "hardware"; key: string };
+  | { code: "unknownKey"; field: "material" | "quality" | "glazing" | "color" | "colorInside" | "frameType" | "profileSystem" | "hardware"; key: string };
 
 /**
  * Everything wrong with a piece, as data the UI translates. Hard problems (size
@@ -337,6 +337,7 @@ export function pieceIssues(item: ProjectItem, payload?: CatalogPayload): PieceI
     }
     if (!has(payload.glazing, item.glazing)) out.push({ code: "unknownKey", field: "glazing", key: item.glazing });
     if (!has(payload.finish, item.color)) out.push({ code: "unknownKey", field: "color", key: item.color });
+    if (item.colorInside && !has(payload.finish, item.colorInside)) out.push({ code: "unknownKey", field: "colorInside", key: item.colorInside });
     if (item.frameType && payload.frameTypes && !has(payload.frameTypes, item.frameType)) out.push({ code: "unknownKey", field: "frameType", key: item.frameType });
   }
   return out;

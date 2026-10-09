@@ -135,6 +135,8 @@ export function SimpleWizardWidget({
   const [larghezza, setLarghezza] = useState("");
   const [altezza, setAltezza] = useState("");
   const [colour, setColour] = useState<ColourKey | "">("");
+  const [colourInside, setColourInside] = useState<ColourKey | "">("");
+  const [bicolor, setBicolor] = useState(false);
   const [glazing, setGlazing] = useState<GlazingKey>("double");
   const [frame, setFrame] = useState<FrameKey>("straight");
   const [smaltimento, setSmaltimento] = useState(false);
@@ -203,6 +205,7 @@ export function SimpleWizardWidget({
       widthCm: larghezza,
       heightCm: altezza,
       colour,
+      colourInside: bicolor ? colourInside : "",
       glazing,
       frame,
       disposal: smaltimento,
@@ -266,7 +269,7 @@ export function SimpleWizardWidget({
 
   if (done) {
     return (
-      <div className="tw-widget-root" style={s.wrap}>
+      <div className="tw-widget-root" style={s.wrap} data-tw-wizard>
         <div style={{ ...s.panel, textAlign: "center", padding: 32 }}>
           <div style={{ fontSize: 34, marginBottom: 8, color: "#28a745" }}>✓</div>
           <h3 style={{ margin: "0 0 8px" }}>{copy.successTitle}</h3>
@@ -283,7 +286,7 @@ export function SimpleWizardWidget({
     : copy.installation;
 
   return (
-    <div className="tw-widget-root" style={s.wrap}>
+    <div className="tw-widget-root" style={s.wrap} data-tw-wizard>
       <div style={s.header}>
         <h2 style={{ margin: "0 0 4px", fontSize: "1.15rem" }}>{ownCopy?.headline?.trim() || copy.title}</h2>
         {ownCopy?.subheadline?.trim() ? (
@@ -341,8 +344,27 @@ export function SimpleWizardWidget({
             {cards<ColourKey | "">(
               COLOUR_KEYS.map((k) => ({ value: k, label: copy.colours[k] })),
               colour,
-              setColour,
+              (k) => { setColour(k); if (colourInside === k) setColourInside(""); },
             )}
+            <label style={{ ...s.checkboxLabel, marginTop: 12 }}>
+              <input
+                type="checkbox"
+                style={{ width: 20, height: 20, flexShrink: 0 }}
+                checked={bicolor}
+                onChange={(e) => { setBicolor(e.target.checked); if (!e.target.checked) setColourInside(""); }}
+              />
+              <span>{copy.bicolorToggle}</span>
+            </label>
+            {bicolor ? (
+              <div style={{ marginTop: 10 }}>
+                <label style={s.label}>{copy.colourInsideLabel}</label>
+                {cards<ColourKey | "">(
+                  COLOUR_KEYS.filter((k) => k !== colour).map((k) => ({ value: k, label: copy.colours[k] })),
+                  colourInside,
+                  setColourInside,
+                )}
+              </div>
+            ) : null}
             <div style={{ marginTop: 14 }}>
               <label style={s.label} htmlFor="wizard-vetro">{copy.glazingLabel}</label>
               <select id="wizard-vetro" style={s.input} value={glazing} onChange={(e) => setGlazing(e.target.value as GlazingKey)}>
@@ -403,7 +425,7 @@ export function SimpleWizardWidget({
               <strong>{copy.summary}</strong>
               <br />• {work ? copy.work[work] : ""}
               <br />• {product ? copy.products[product] : ""} ({larghezza || "?"} x {altezza || "?"} cm)
-              <br />• {colour ? copy.colours[colour] : ""} — {copy.glazings[glazing]} — {copy.frames[frame]}
+              <br />• {colour ? copy.colours[colour] : ""}{bicolor && colourInside ? ` / ${copy.colours[colourInside]}` : ""} — {copy.glazings[glazing]} — {copy.frames[frame]}
             </div>
             <div style={{ marginBottom: 14 }}>
               <label style={s.label} htmlFor="wizard-nome">{copy.name}</label>

@@ -1263,7 +1263,10 @@
       "gasket_triple": "garnitură triplă",
       "maxGlass": "geam până la {mm} mm"
     },
-    "glazingFiltered": "Geamuri afișate: {shown} din {total}, doar cele pe care profilul ales le poate primi (până la {mm} mm)."
+    "glazingFiltered": "Geamuri afișate: {shown} din {total}, doar cele pe care profilul ales le poate primi (până la {mm} mm).",
+    "colorOutside": "Culoare / finisaj exterior",
+    "colorInside": "Culoare / finisaj interior",
+    "bicolorToggle": "Culoare interioară diferită de cea exterioară (bicolor)"
   },
   "quoteExport": {
     "title": "Exportă",
@@ -2822,6 +2825,12 @@
       "withoutHint": "Prețul este doar furnizare; clientul poate alege să adauge montajul.",
       "exampleWithout": "Doar furnizare",
       "exampleWith": "Cu montaj"
+    },
+    "bicolor": {
+      "title": "Bicolor (culoare interioară diferită de exterior)",
+      "help": "Dacă este activ, clientul poate alege un finisaj pentru exterior și altul pentru interior. Prețul folosește media celor două finisaje (coeficientul și suma fixă a fiecăruia), plus suplimentul introdus mai jos.",
+      "enabled": "Oferă varianta bicolor clienților",
+      "surcharge": "Supliment bicolor"
     }
   },
   "fiscal": {

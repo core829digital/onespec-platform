@@ -59,6 +59,8 @@ export interface WizardCopy {
   height: string;
   measureDisclaimer: string;
   colourLabel: string;
+  bicolorToggle: string;
+  colourInsideLabel: string;
   colours: Record<ColourKey, string>;
   glazingLabel: string;
   glazings: Record<GlazingKey, string>;
@@ -84,6 +86,7 @@ export interface WizardCopy {
     product: string;
     measure: string;
     colour: string;
+    colourInside: string;
     glazing: string;
     frame: string;
     disposal: string;
@@ -125,6 +128,8 @@ const it: WizardCopy = {
   height: "Altezza (cm)",
   measureDisclaimer: "* Le misure definitive saranno rilevate durante il sopralluogo tecnico.",
   colourLabel: "Colore profilo",
+  bicolorToggle: "Colore interno diverso da quello esterno (bicolore)",
+  colourInsideLabel: "Colore interno",
   colours: { white: "Bianco standard", woodgrain: "Effetto legno", custom: "Tinta unita / RAL" },
   glazingLabel: "Tipologia vetro",
   glazings: { double: "Doppio vetro (isolamento standard)", triple: "Triplo vetro (massimo isolamento)" },
@@ -166,6 +171,7 @@ const it: WizardCopy = {
     product: "Prodotto",
     measure: "misura indicata dal cliente",
     colour: "Colore",
+    colourInside: "Colore interno",
     glazing: "Vetro",
     frame: "Telaio",
     disposal: "Smaltimento vecchi infissi",
@@ -213,6 +219,8 @@ const en: WizardCopy = {
   height: "Height (cm)",
   measureDisclaimer: "* Final measurements will be taken during the technical survey.",
   colourLabel: "Profile colour",
+  bicolorToggle: "Different colour inside than outside (bicolour)",
+  colourInsideLabel: "Inside colour",
   colours: { white: "Standard white", woodgrain: "Wood effect", custom: "Solid colour / RAL" },
   glazingLabel: "Glazing",
   glazings: { double: "Double glazing (standard insulation)", triple: "Triple glazing (maximum insulation)" },
@@ -254,6 +262,7 @@ const en: WizardCopy = {
     product: "Product",
     measure: "size given by the customer",
     colour: "Colour",
+    colourInside: "Inside colour",
     glazing: "Glazing",
     frame: "Frame",
     disposal: "Old window disposal",
@@ -301,6 +310,8 @@ const fr: WizardCopy = {
   height: "Hauteur (cm)",
   measureDisclaimer: "* Les mesures définitives seront relevées lors de la visite technique.",
   colourLabel: "Couleur du profilé",
+  bicolorToggle: "Couleur intérieure différente de l'extérieure (bicolore)",
+  colourInsideLabel: "Couleur intérieure",
   colours: { white: "Blanc standard", woodgrain: "Aspect bois", custom: "Teinte unie / RAL" },
   glazingLabel: "Vitrage",
   glazings: { double: "Double vitrage (isolation standard)", triple: "Triple vitrage (isolation maximale)" },
@@ -342,6 +353,7 @@ const fr: WizardCopy = {
     product: "Produit",
     measure: "dimensions indiquées par le client",
     colour: "Couleur",
+    colourInside: "Couleur intérieure",
     glazing: "Vitrage",
     frame: "Dormant",
     disposal: "Dépose des anciennes fenêtres",
@@ -389,6 +401,8 @@ const de: WizardCopy = {
   height: "Höhe (cm)",
   measureDisclaimer: "* Die endgültigen Maße werden beim technischen Aufmaß vor Ort ermittelt.",
   colourLabel: "Profilfarbe",
+  bicolorToggle: "Innenfarbe abweichend von der Außenfarbe (zweifarbig)",
+  colourInsideLabel: "Innenfarbe",
   colours: { white: "Standardweiß", woodgrain: "Holzdekor", custom: "Unifarbe / RAL" },
   glazingLabel: "Verglasung",
   glazings: { double: "2-fach-Verglasung (Standarddämmung)", triple: "3-fach-Verglasung (maximale Dämmung)" },
@@ -430,6 +444,7 @@ const de: WizardCopy = {
     product: "Produkt",
     measure: "vom Kunden angegebene Maße",
     colour: "Farbe",
+    colourInside: "Innenfarbe",
     glazing: "Verglasung",
     frame: "Rahmen",
     disposal: "Entsorgung alter Fenster",
@@ -477,6 +492,8 @@ const nl: WizardCopy = {
   height: "Hoogte (cm)",
   measureDisclaimer: "* De definitieve maten worden opgenomen tijdens het technisch bezoek.",
   colourLabel: "Profielkleur",
+  bicolorToggle: "Binnenkleur verschilt van buitenkleur (tweekleurig)",
+  colourInsideLabel: "Binnenkleur",
   colours: { white: "Standaard wit", woodgrain: "Houtlook", custom: "Effen kleur / RAL" },
   glazingLabel: "Beglazing",
   glazings: { double: "Dubbel glas (standaard isolatie)", triple: "Triple glas (maximale isolatie)" },
@@ -518,6 +535,7 @@ const nl: WizardCopy = {
     product: "Product",
     measure: "maten opgegeven door de klant",
     colour: "Kleur",
+    colourInside: "Binnenkleur",
     glazing: "Beglazing",
     frame: "Kozijn",
     disposal: "Afvoer oude kozijnen",
@@ -621,6 +639,8 @@ export interface WizardSelection {
   widthCm: string;
   heightCm: string;
   colour: ColourKey;
+  /** Inside colour of a bicolour window; "" = the same colour on both faces. */
+  colourInside?: ColourKey | "";
   glazing: GlazingKey;
   frame: FrameKey;
   disposal: boolean;
@@ -638,6 +658,7 @@ export function buildWizardNotes(sel: WizardSelection, market: WizardMarket): st
     `${n.work}: ${c.work[sel.work]}`,
     `${n.product}: ${c.products[sel.product]} — ${n.measure}: ${sel.widthCm || "?"} x ${sel.heightCm || "?"} cm`,
     `${n.colour}: ${c.colours[sel.colour]}`,
+    ...(sel.colourInside && sel.colourInside !== sel.colour ? [`${n.colourInside}: ${c.colours[sel.colourInside]}`] : []),
     `${n.glazing}: ${c.glazings[sel.glazing]}`,
     `${n.frame}: ${c.frames[sel.frame]}`,
     `${n.disposal}: ${yn(sel.disposal)}`,
@@ -681,6 +702,7 @@ export function buildWizardItem(sel: WizardSelection, notes: string) {
     sashes,
     glazing: sel.glazing,
     color: sel.colour,
+    ...(sel.colourInside && sel.colourInside !== sel.colour ? { colorInside: sel.colourInside } : {}),
     insectScreen: false,
     notes: notes.slice(0, 500),
   };

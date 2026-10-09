@@ -1263,7 +1263,10 @@
       "gasket_triple": "drievoudige afdichting",
       "maxGlass": "glas tot {mm} mm"
     },
-    "glazingFiltered": "Getoonde beglazing: {shown} van {total}, alleen wat het gekozen profiel kan opnemen (tot {mm} mm)."
+    "glazingFiltered": "Getoonde beglazing: {shown} van {total}, alleen wat het gekozen profiel kan opnemen (tot {mm} mm).",
+    "colorOutside": "Buitenkleur / afwerking",
+    "colorInside": "Binnenkleur / afwerking",
+    "bicolorToggle": "Binnenkleur verschilt van buitenkleur (tweekleurig)"
   },
   "quoteExport": {
     "title": "Exporteren",
@@ -2822,6 +2825,12 @@
       "withoutHint": "De prijs is alleen levering; de klant kan montage toevoegen.",
       "exampleWithout": "Alleen levering",
       "exampleWith": "Met montage"
+    },
+    "bicolor": {
+      "title": "Tweekleurig (binnenkleur verschilt van buiten)",
+      "help": "Indien actief kan de klant buiten en binnen een andere afwerking kiezen. De prijs gebruikt het gemiddelde van beide afwerkingen (factor en vast bedrag van elk) plus de toeslag die je hieronder invult.",
+      "enabled": "Tweekleurig aanbieden",
+      "surcharge": "Toeslag tweekleurig"
     }
   },
   "fiscal": {

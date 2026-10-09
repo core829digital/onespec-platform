@@ -1263,7 +1263,10 @@
       "gasket_triple": "triple gasket",
       "maxGlass": "glass up to {mm} mm"
     },
-    "glazingFiltered": "Glazing shown: {shown} of {total}, only what the chosen profile can hold (up to {mm} mm)."
+    "glazingFiltered": "Glazing shown: {shown} of {total}, only what the chosen profile can hold (up to {mm} mm).",
+    "colorOutside": "Outside colour / finish",
+    "colorInside": "Inside colour / finish",
+    "bicolorToggle": "Different colour inside than outside (bicolour)"
   },
   "quoteExport": {
     "title": "Export",
@@ -2822,6 +2825,12 @@
       "withoutHint": "The price is supply only; the customer can choose to add fitting.",
       "exampleWithout": "Supply only",
       "exampleWith": "With fitting"
+    },
+    "bicolor": {
+      "title": "Bicolour (inside colour different from outside)",
+      "help": "When on, the customer can pick one finish for the outside and another for the inside. The price uses the average of the two finishes (each one's multiplier and flat price), plus the surcharge you enter below.",
+      "enabled": "Offer bicolour to customers",
+      "surcharge": "Bicolour surcharge"
     }
   },
   "fiscal": {

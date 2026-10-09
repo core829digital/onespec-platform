@@ -55,7 +55,7 @@ interface HardwareRow extends Row {
 }
 
 export interface WidgetCatalog {
-  configurator?: { pricingMode?: "standard" | "custom"; marginPercent?: number; deliveryMode?: "factory" | "own"; ownServicePerM2Cents?: number; installationPerM2Cents?: number; installationDefault?: "with" | "without" };
+  configurator?: { pricingMode?: "standard" | "custom"; marginPercent?: number; deliveryMode?: "factory" | "own"; ownServicePerM2Cents?: number; installationPerM2Cents?: number; installationDefault?: "with" | "without"; bicolorEnabled?: boolean; bicolorPerM2Cents?: number };
   materials?: MaterialRow[];
   qualityTiers?: QualityRow[];
   profileSystems?: QualityRow[];
@@ -278,6 +278,9 @@ export function catalogPricing(rawCat: WidgetCatalog | undefined): Pricing {
   const posa = cat.configurator?.installationPerM2Cents;
   p.installationPerM2 = typeof posa === "number" && Number.isFinite(posa) && posa > 0 ? posa / 100 : 0;
   p.installationDefault = cat.configurator?.installationDefault !== "without";
+  p.bicolorEnabled = cat.configurator?.bicolorEnabled !== false;
+  const bic = cat.configurator?.bicolorPerM2Cents;
+  p.bicolorPerM2 = typeof bic === "number" && Number.isFinite(bic) && bic > 0 ? bic / 100 : 0;
 
   const hw = (kind: string) => priceMap(cat.hardware?.filter((h) => h.kind === kind));
   const sashType = hw("sashType");

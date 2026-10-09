@@ -38,6 +38,8 @@ export function catalogChoices(raw: CatalogPayload, materialKey: string, locale:
     glazing: bySort(glazingForProfile(payload.glazing, chosen)).map((g) => ({ key: g.key, label: labelOf(g, locale), uGlass: g.uGlass })),
     glazingTotal: bySort(payload.glazing).length,
     finishes: bySort(payload.finish).map((f) => ({ key: f.key, label: labelOf(f, locale), swatch: f.swatchHex, texture: f.texture, range: f.range, group: f.group, warrantyYears: f.warrantyYears })),
+    /** Whether a different finish inside and outside is offered (unless the installer switched it off). */
+    bicolor: payload.configurator.bicolorEnabled !== false,
     frames: bySort(payload.frameTypes).map((f) => ({
       key: f.key,
       label: labelOf(f, locale),

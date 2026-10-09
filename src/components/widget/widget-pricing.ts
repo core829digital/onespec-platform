@@ -40,6 +40,8 @@ export interface ConfigState {
   sashes: Sash[];
   glazing: string;
   color: string;
+  /** Finish of the inside face for a bicolour piece; "" = the same finish on both faces. */
+  colorInside: string;
   installation: string;
   /** Fitting (posa) at the installer's price per m²: true = included, false = supply only; absent = the catalogue's default. */
   withInstallation?: boolean;
@@ -116,6 +118,9 @@ export interface Pricing {
   marginPercent: number;
   /** The installer's own transporter / fitter, euros per m² (0 = the factory's transport is in the price). */
   ownServicePerM2: number;
+  /** Bicolour surcharge per m² (EUR) and whether bicolour is offered at all. */
+  bicolorPerM2: number;
+  bicolorEnabled: boolean;
   /** The installer's fitting (posa) price, euros per m² (0 = not offered), and whether quotes include it by default. */
   installationPerM2: number;
   installationDefault: boolean;
@@ -166,6 +171,8 @@ export function defaultPricing(): Pricing {
     glazingMult: {},
     marginPercent: 0,
     ownServicePerM2: 0,
+    bicolorPerM2: 0,
+    bicolorEnabled: true,
     installationPerM2: 0,
     installationDefault: true,
     brandMultiplier: {
@@ -194,6 +201,7 @@ export function defaultConfig(): ConfigState {
     sashes: defaultSashPreset(),
     glazing: "double",
     color: "white",
+    colorInside: "",
     installation: "classico",
     poseType: "",
     ventilationGrille: "",
@@ -266,7 +274,10 @@ export function calculate(state: ConfigState, pricing: Pricing, src?: ConfigStat
   const brandKey = s.material === "pvc" || s.material === "aluminum" ? s.brand[s.material] : undefined;
   const brandMult = brandTable && brandKey && brandTable[brandKey] !== undefined ? brandTable[brandKey] : 1;
 
-  const colorMult = pricing.colorMult[s.color] ?? 1;
+  // Bicolour: the two faces average their multiplier and flat price (same face twice = the one-colour price), plus the surcharge per m².
+  const bicolor = pricing.bicolorEnabled && !!s.colorInside && s.colorInside !== s.color;
+  const colorMult = bicolor ? ((pricing.colorMult[s.color] ?? 1) + (pricing.colorMult[s.colorInside] ?? 1)) / 2 : (pricing.colorMult[s.color] ?? 1);
+  const colorFlat = bicolor ? Math.round((((pricing.color[s.color] ?? 0) + (pricing.color[s.colorInside] ?? 0)) / 2) * 100) / 100 : (pricing.color[s.color] ?? 0);
   const glazingMult = pricing.glazingMult[s.glazing] ?? 1;
   // Standard price list (PVC only): complete price per m² of the chosen profile, colour surcharge on top.
   const standardPerM2 =
@@ -312,7 +323,8 @@ export function calculate(state: ConfigState, pricing: Pricing, src?: ConfigStat
     screenCost +
     (pricing.glazing[s.glazing] ?? 0) +
     (pricing.glazingPerM2[s.glazing] ?? 0) * areaM2 +
-    (pricing.color[s.color] ?? 0);
+    colorFlat +
+    (bicolor ? Math.round(Math.max(0, pricing.bicolorPerM2) * 100 * areaM2) / 100 : 0);
 
   // The margin is applied to the unit price in whole cents (basis points), exactly as the server does.
   const serviceCost = Math.round(Math.max(0, pricing.ownServicePerM2) * 100 * areaM2) / 100;

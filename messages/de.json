@@ -1263,7 +1263,10 @@
       "gasket_triple": "Dreifachdichtung",
       "maxGlass": "Glas bis {mm} mm"
     },
-    "glazingFiltered": "Angezeigte Verglasungen: {shown} von {total}, nur die, die das gewählte Profil aufnehmen kann (bis {mm} mm)."
+    "glazingFiltered": "Angezeigte Verglasungen: {shown} von {total}, nur die, die das gewählte Profil aufnehmen kann (bis {mm} mm).",
+    "colorOutside": "Außenfarbe / Ausführung",
+    "colorInside": "Innenfarbe / Ausführung",
+    "bicolorToggle": "Innenfarbe abweichend von der Außenfarbe (zweifarbig)"
   },
   "quoteExport": {
     "title": "Exportieren",
@@ -2822,6 +2825,12 @@
       "withoutHint": "Der Preis ist nur Lieferung; der Kunde kann die Montage hinzufügen.",
       "exampleWithout": "Nur Lieferung",
       "exampleWith": "Mit Montage"
+    },
+    "bicolor": {
+      "title": "Zweifarbig (Innenfarbe abweichend von außen)",
+      "help": "Wenn aktiv, kann der Kunde außen und innen unterschiedliche Ausführungen wählen. Der Preis nutzt den Durchschnitt beider Ausführungen (jeweils Faktor und Festbetrag) plus den unten eingetragenen Aufschlag.",
+      "enabled": "Zweifarbig anbieten",
+      "surcharge": "Aufschlag zweifarbig"
     }
   },
   "fiscal": {

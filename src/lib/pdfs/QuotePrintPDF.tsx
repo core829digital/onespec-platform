@@ -1,12 +1,13 @@
 import "./pdf-setup";
 import { Document, Image, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
 import type { ProjectItem } from "@/shared/pricing";
-import { buildAssemblyScene, buildHardwareScene, buildPlanScene, buildSectionScene, DRAWING_TABS, finishFillFor, buildLegendScene, DRAWING_TITLES, drawingLocale } from "@/lib/drawing";
+import { buildAssemblyScene, buildHardwareScene, buildPlanScene, buildSectionScene, DRAWING_TABS, finishFillFor, insideFinishFor, buildLegendScene, DRAWING_TITLES, drawingLocale } from "@/lib/drawing";
 import { ScenePdf, WindowDrawingPdf } from "@/lib/drawing/pdf";
 import { CATEGORY_DEFS } from "@/shared/configurator-model";
 import { computeItemThermal, type CatalogPayload } from "@/shared/pricing";
 import { dictFor, openingLabel } from "@/lib/quote-export/dictionary";
 import { pieceSpecs } from "@/lib/quote-export/specs";
+import { finishText } from "@/lib/quote-export/finish-text";
 import { vatNote } from "@/shared/tax";
 import { assemblyGroups, assemblyIssues } from "@/shared/composition";
 import { fittingNote } from "@/shared/fitting";
@@ -504,7 +505,7 @@ export function QuotePrintPDF({
             const finishRow = catalog?.finish.find((f) => f.key === item.color);
             // Texture images are served by the platform: absolute URL so the PDF engine can fetch them.
             const assetOrigin = typeof window !== "undefined" ? window.location.origin : "";
-            const finishLabel = catalog ? lab(catalog.finish.find((f) => f.key === item.color), COLOR_LABELS[item.color] ?? item.color) : COLOR_LABELS[item.color] ?? item.color;
+            const finishLabel = finishText(catalog?.finish, item, langKey, dict, (k) => COLOR_LABELS[k] ?? k);
             const accessoryLabels = (["zanz", "cass", "avv", "pers"] as const).flatMap((c) => {
               const key = item.accessories?.[c];
               return key && key !== "none" ? [lab(catalog?.accessories?.find((a) => a.category === c && a.key === key), key)] : [];
@@ -588,7 +589,7 @@ export function QuotePrintPDF({
                   </Text>
                   <WindowDrawingPdf
                     width={170}
-                    input={{ widthMm: item.width, heightMm: item.height, category: item.category, sashes: item.sashes ?? [], finish: item.color, frameType: item.frameType, accessories: item.accessories, transomsMm: item.transoms, glazing: item.glazing, finishFill: finishFillFor(catalog?.finish, item.color) }}
+                    input={{ widthMm: item.width, heightMm: item.height, category: item.category, sashes: item.sashes ?? [], finish: item.color, frameType: item.frameType, accessories: item.accessories, transomsMm: item.transoms, glazing: item.glazing, finishFill: finishFillFor(catalog?.finish, item.color), ...insideFinishFor(catalog?.finish, item) }}
                     options={{ handleGuide: "all", showLeafDimensions: true }}
                   />
                 </View>
@@ -728,7 +729,7 @@ export function QuotePrintPDF({
             {DRAWING_TITLES[drawingLocale(langKey)].technicalDrawings} · {DRAWING_TABS[drawingLocale(langKey)].plan} / {DRAWING_TABS[drawingLocale(langKey)].section} / {DRAWING_TABS[drawingLocale(langKey)].hardware}
           </Text>
           {items.map((item, idx) => {
-            const drawingInput = { widthMm: item.width, heightMm: item.height, category: item.category, sashes: item.sashes ?? [], finish: item.color, frameType: item.frameType, transomsMm: item.transoms, glazing: item.glazing, finishFill: finishFillFor(catalog?.finish, item.color) };
+            const drawingInput = { widthMm: item.width, heightMm: item.height, category: item.category, sashes: item.sashes ?? [], finish: item.color, frameType: item.frameType, transomsMm: item.transoms, glazing: item.glazing, finishFill: finishFillFor(catalog?.finish, item.color), ...insideFinishFor(catalog?.finish, item) };
             const thermal = catalog ? computeItemThermal(catalog, item) : null;
             return (
               <View key={idx} wrap={false} style={{ marginBottom: 10, paddingBottom: 6, borderBottomWidth: 0.5, borderBottomColor: colors.gray[200] }}>
@@ -758,7 +759,7 @@ export function QuotePrintPDF({
                     width: item.width,
                     height: item.height,
                     composition: item.composition,
-                    input: { widthMm: item.width, heightMm: item.height, category: item.category, sashes: item.sashes ?? [], finish: item.color, frameType: item.frameType, transomsMm: item.transoms, glazing: item.glazing, finishFill: finishFillFor(catalog?.finish, item.color) },
+                    input: { widthMm: item.width, heightMm: item.height, category: item.category, sashes: item.sashes ?? [], finish: item.color, frameType: item.frameType, transomsMm: item.transoms, glazing: item.glazing, finishFill: finishFillFor(catalog?.finish, item.color), ...insideFinishFor(catalog?.finish, item) },
                   })),
                   members,
                 )}

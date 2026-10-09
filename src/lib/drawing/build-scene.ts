@@ -55,7 +55,12 @@ function frameLayers(ctx: SceneContext, frameType: string | undefined): Primitiv
 }
 
 /** Pure, deterministic drawing geometry shared by the DOM and PDF renderers. */
-export function buildScene(input: DrawingInput, options: DrawingOptions = {}): Scene {
+export function buildScene(rawInput: DrawingInput, options: DrawingOptions = {}): Scene {
+  // Bicolour: each face shows its own finish — the inside view (default) the inside one, the outside view the outside one.
+  const input: DrawingInput =
+    rawInput.finishInside && options.view !== "outside"
+      ? { ...rawInput, finish: rawInput.finishInside, finishFill: rawInput.finishFillInside }
+      : rawInput;
   const widthMm = positive(input.widthMm, 1000);
   const heightMm = positive(input.heightMm, 1000);
   const sashes: DrawingSash[] = input.sashes.length > 0 ? input.sashes : [{ type: "fix", direction: "left", active: true }];

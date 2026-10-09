@@ -133,7 +133,27 @@ export function PieceForm({ item, choices, locale, onPatch, onWidth, onHeight, o
         {choices.glazing.length < choices.glazingTotal ? (
           <p className="text-xs text-[var(--color-text-secondary)] sm:col-span-2">{t("glazingFiltered", { shown: choices.glazing.length, total: choices.glazingTotal, mm: chosenProfile?.spec.maxGlassMm ?? 0 })}</p>
         ) : null}
-        <FinishPicker idBase={baseId} value={item.color} finishes={choices.finishes.map((f) => ({ key: f.key, label: f.label, hex: f.swatch, texture: f.texture, range: f.range, group: f.group, warrantyYears: f.warrantyYears }))} onChange={(key) => onPatch({ color: key })} labelClass={label} />
+        {(() => {
+          const finishes = choices.finishes.map((f) => ({ key: f.key, label: f.label, hex: f.swatch, texture: f.texture, range: f.range, group: f.group, warrantyYears: f.warrantyYears }));
+          const bicolor = !!item.colorInside && item.colorInside !== item.color;
+          return (
+            <div className="space-y-3 sm:col-span-2">
+              <FinishPicker idBase={baseId} value={item.color} finishes={finishes} onChange={(key) => onPatch({ color: key, ...(item.colorInside === key ? { colorInside: undefined } : {}) })} labelClass={label} label={bicolor ? t("colorOutside") : undefined} />
+              {choices.bicolor ? (
+                <label className="flex min-h-11 cursor-pointer items-center gap-3 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]">
+                  <input
+                    type="checkbox"
+                    className="h-5 w-5 shrink-0 accent-[var(--color-mint)]"
+                    checked={bicolor}
+                    onChange={(e) => onPatch({ colorInside: e.target.checked ? (finishes.find((f) => f.key !== item.color)?.key ?? undefined) : undefined })}
+                  />
+                  <span>{t("bicolorToggle")}</span>
+                </label>
+              ) : null}
+              {bicolor ? <FinishPicker idBase={`${baseId}-in`} value={item.colorInside!} finishes={finishes} onChange={(key) => onPatch({ colorInside: key === item.color ? undefined : key })} labelClass={label} label={t("colorInside")} /> : null}
+            </div>
+          );
+        })()}
       </div>
 
       <details className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)]" open={anyAccessory}>

@@ -1263,7 +1263,10 @@
       "gasket_triple": "triple joint",
       "maxGlass": "vitrage jusqu'à {mm} mm"
     },
-    "glazingFiltered": "Vitrages affichés : {shown} sur {total}, uniquement ceux que le profilé choisi peut accueillir (jusqu'à {mm} mm)."
+    "glazingFiltered": "Vitrages affichés : {shown} sur {total}, uniquement ceux que le profilé choisi peut accueillir (jusqu'à {mm} mm).",
+    "colorOutside": "Couleur / finition extérieure",
+    "colorInside": "Couleur / finition intérieure",
+    "bicolorToggle": "Couleur intérieure différente de l'extérieure (bicolore)"
   },
   "quoteExport": {
     "title": "Exporter",
@@ -2822,6 +2825,12 @@
       "withoutHint": "Le prix est fourniture seule ; le client peut choisir d'ajouter la pose.",
       "exampleWithout": "Fourniture seule",
       "exampleWith": "Avec pose"
+    },
+    "bicolor": {
+      "title": "Bicolore (couleur intérieure différente de l'extérieure)",
+      "help": "Si activé, le client peut choisir une finition extérieure et une autre intérieure. Le prix utilise la moyenne des deux finitions (coefficient et montant fixe de chacune), plus le supplément indiqué ci-dessous.",
+      "enabled": "Proposer le bicolore aux clients",
+      "surcharge": "Supplément bicolore"
     }
   },
   "fiscal": {

@@ -41,6 +41,7 @@ interface ItemLike {
   quantity?: number;
   glazing?: string;
   color?: string;
+  colorInside?: string;
   insectScreen?: boolean;
   sashes?: SashLike[];
 }
@@ -403,7 +404,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
                     {[
                       it.material?.toUpperCase(),
                       it.glazing,
-                      it.color,
+                      it.colorInside && it.colorInside !== it.color ? `${it.color} / ${it.colorInside}` : it.color,
                       it.insectScreen ? t("itemScreen") : null,
                       it.sashes?.length ? t("itemLeaves", { count: it.sashes.length }) : null,
                     ]

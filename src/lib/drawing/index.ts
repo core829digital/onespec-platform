@@ -1,5 +1,5 @@
 export { buildScene } from "./build-scene";
-export { finishFillFor } from "./finish-fill";
+export { finishFillFor, insideFinishFor } from "./finish-fill";
 export { buildLegendScene } from "./build-legend";
 export { buildSectionScene, paneCount, glazingThicknessMm, pvcChambers, type SectionInput } from "./build-section";
 export { buildHardwareScene, hingeCount, lockCount } from "./build-hardware";

@@ -1263,7 +1263,10 @@
       "gasket_triple": "guarnizione tripla",
       "maxGlass": "vetro fino a {mm} mm"
     },
-    "glazingFiltered": "Vetri mostrati: {shown} di {total}, solo quelli che il profilo scelto può ospitare (fino a {mm} mm)."
+    "glazingFiltered": "Vetri mostrati: {shown} di {total}, solo quelli che il profilo scelto può ospitare (fino a {mm} mm).",
+    "colorOutside": "Colore / finitura esterno",
+    "colorInside": "Colore / finitura interno",
+    "bicolorToggle": "Colore interno diverso da quello esterno (bicolore)"
   },
   "quoteExport": {
     "title": "Esporta",
@@ -2822,6 +2825,12 @@
       "withoutHint": "Il prezzo è solo fornitura; il cliente può scegliere di aggiungere la posa.",
       "exampleWithout": "Solo fornitura",
       "exampleWith": "Con posa"
+    },
+    "bicolor": {
+      "title": "Bicolore (colore interno diverso dall'esterno)",
+      "help": "Se attivo, il cliente può scegliere una finitura per l'esterno e una diversa per l'interno. Il prezzo usa la media delle due finiture (moltiplicatore e importo fisso di ciascuna), più il supplemento che indichi qui sotto.",
+      "enabled": "Offri il bicolore ai clienti",
+      "surcharge": "Supplemento bicolore"
     }
   },
   "fiscal": {

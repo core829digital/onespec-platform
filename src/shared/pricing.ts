@@ -37,6 +37,10 @@ export interface CatalogPayload {
     installationPerM2Cents?: number;
     /** Whether a piece includes the fitting when it does not say so itself. */
     installationDefault?: "with" | "without";
+    /** Bicolour (different finish inside and outside): false = not offered. Absent = offered. */
+    bicolorEnabled?: boolean;
+    /** Extra the installer charges for a bicolour piece, per m², VAT excluded (before margin). */
+    bicolorPerM2Cents?: number;
   };
   branding: {
     whiteLabel: boolean;
@@ -208,7 +212,10 @@ export interface ProjectItem {
     fields?: FieldOpening[];
   }>;
   glazing: string;
+  /** Finish key of the OUTSIDE face (the only one when `colorInside` is absent). */
   color: string;
+  /** Finish key of the INSIDE face when it differs from `color` (bicolour); absent or equal = one colour on both faces. */
+  colorInside?: string;
   insectScreen: boolean;
   insectScreenType?: string;
   insectScreenColor?: string;
@@ -248,6 +255,11 @@ export interface ProjectItem {
  * item under a field of the same name. A country phase adds its kinds here and
  * the pricing loop + widget submit pick them up automatically.
  */
+/** A piece with a different finish inside than outside. */
+export function isBicolor(item: { color: string; colorInside?: string }): boolean {
+  return !!item.colorInside && item.colorInside !== item.color;
+}
+
 export const REGION_FLAT_OPTION_KINDS = [
   "poseType",
   "ventilationGrille",
@@ -392,7 +404,13 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
     const material = getMaterialConfig(payload, item.material);
     const quality = getQualityTier(payload, item.material, item.quality[item.material]);
     const glazing = getGlazingOption(payload, item.glazing);
-    const finish = getFinishOption(payload, item.color);
+    const outside = getFinishOption(payload, item.color);
+    const inside = isBicolor(item) && payload.configurator.bicolorEnabled !== false ? getFinishOption(payload, item.colorInside!) : undefined;
+    // One colour: its own multiplier and flat price. Bicolour: each face is half of the coating, so the two are averaged
+    // (identical faces give exactly the one-colour price), plus the installer's bicolour surcharge per m².
+    const finish = outside && inside
+      ? { ...outside, multiplier: ((outside.multiplier ?? 1) + (inside.multiplier ?? 1)) / 2, priceCents: Math.round(((outside.priceCents || 0) + (inside.priceCents || 0)) / 2) }
+      : outside;
 
     if (!material || !quality) {
       itemBreakdowns.push({
@@ -481,7 +499,7 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
     const optionsCost =
       sashCost + hardwareCost + thresholdCost + installationCost + regionOptionsCost +
       (glazing?.priceCents || 0) + Math.round((glazing?.pricePerM2Cents || 0) * areaM2) +
-      (finish?.priceCents || 0) + screenCost + accessoriesCost + categoryBase;
+      (finish?.priceCents || 0) + (inside ? Math.round(Math.max(0, payload.configurator.bicolorPerM2Cents ?? 0) * areaM2) : 0) + screenCost + accessoriesCost + categoryBase;
 
     // The installer's own transporter / fitter, charged per m² (VAT excluded), instead of the factory's transport.
     const serviceCost = payload.configurator.deliveryMode === "own" ? Math.round(Math.max(0, payload.configurator.ownServicePerM2Cents ?? 0) * areaM2) : 0;

@@ -45,6 +45,11 @@ export interface WidgetDict {
   glazingLabel: string;
   glazing: Pair[];
   colorLabel: string;
+  bicolorToggle: string;
+  colorOutsideLabel: string;
+  colorInsideLabel: string;
+  faceInside: string;
+  faceOutside: string;
   color: Pair[];
   insectScreenLabel: string;
   insectScreenTypeLabel: string;
@@ -163,6 +168,11 @@ const en: WidgetDict = {
   glazingLabel: "Glazing",
   glazing: [["double", "Double glazing"], ["triple", "Triple glazing"], ["tripleLowE", "Triple + Low-E + argon"]],
   colorLabel: "Colour / finish",
+  bicolorToggle: "Different colour inside than outside (bicolour)",
+  colorOutsideLabel: "Outside colour / finish",
+  colorInsideLabel: "Inside colour / finish",
+  faceInside: "Inside face",
+  faceOutside: "Outside face",
   color: [["white", "Standard white"], ["ral", "RAL colour"], ["woodeffect", "Wood-effect foil"]],
   insectScreenLabel: "Add insect screen",
   insectScreenTypeLabel: "Screen type",
@@ -293,6 +303,11 @@ const it: WidgetDict = {
   glazingLabel: "Vetro",
   glazing: [["double", "Doppio vetro"], ["triple", "Triplo vetro"], ["tripleLowE", "Triplo + basso emissivo + argon"]],
   colorLabel: "Colore / finitura",
+  bicolorToggle: "Colore interno diverso da quello esterno (bicolore)",
+  colorOutsideLabel: "Colore / finitura esterno",
+  colorInsideLabel: "Colore / finitura interno",
+  faceInside: "Faccia interna",
+  faceOutside: "Faccia esterna",
   color: [["white", "Bianco standard"], ["ral", "Colore RAL"], ["woodeffect", "Pellicola effetto legno"]],
   insectScreenLabel: "Aggiungi zanzariera",
   insectScreenTypeLabel: "Tipo di zanzariera",
@@ -420,6 +435,11 @@ const fr: WidgetDict = {
   glazingLabel: "Vitrage",
   glazing: [["double", "Double vitrage"], ["triple", "Triple vitrage"], ["tripleLowE", "Triple + Low-E + argon"]],
   colorLabel: "Couleur / finition",
+  bicolorToggle: "Couleur intérieure différente de l'extérieure (bicolore)",
+  colorOutsideLabel: "Couleur / finition extérieure",
+  colorInsideLabel: "Couleur / finition intérieure",
+  faceInside: "Face intérieure",
+  faceOutside: "Face extérieure",
   color: [["white", "Blanc standard"], ["ral", "Couleur RAL"], ["woodeffect", "Film effet bois"]],
   insectScreenLabel: "Ajouter une moustiquaire",
   insectScreenTypeLabel: "Type de moustiquaire",
@@ -547,6 +567,11 @@ const de: WidgetDict = {
   glazingLabel: "Verglasung",
   glazing: [["double", "Zweifachverglasung"], ["triple", "Dreifachverglasung"], ["tripleLowE", "Dreifach + Low-E + Argon"]],
   colorLabel: "Farbe / Ausführung",
+  bicolorToggle: "Innenfarbe abweichend von der Außenfarbe (zweifarbig)",
+  colorOutsideLabel: "Außenfarbe / Ausführung",
+  colorInsideLabel: "Innenfarbe / Ausführung",
+  faceInside: "Innenseite",
+  faceOutside: "Außenseite",
   color: [["white", "Weiß (Standard)"], ["ral", "RAL Farbe"], ["woodeffect", "Holzdekor"]],
   insectScreenLabel: "Insektenschutz hinzufügen",
   insectScreenTypeLabel: "Insektenschutz-Typ",
@@ -674,6 +699,11 @@ const nl: WidgetDict = {
   glazingLabel: "Bezegeling",
   glazing: [["double", "Dubbel glas"], ["triple", "Drievoudig glas"], ["tripleLowE", "Drievoudig + Low-E + argon"]],
   colorLabel: "Kleur / Afwerking",
+  bicolorToggle: "Binnenkleur verschilt van buitenkleur (tweekleurig)",
+  colorOutsideLabel: "Buitenkleur / afwerking",
+  colorInsideLabel: "Binnenkleur / afwerking",
+  faceInside: "Binnenzijde",
+  faceOutside: "Buitenzijde",
   color: [["white", "Wit standaard"], ["ral", "RAL kleur"], ["woodeffect", "Houtdecor"]],
   insectScreenLabel: "Vliegwerk toevoegen",
   insectScreenTypeLabel: "Vliegwerk type",

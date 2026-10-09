@@ -351,6 +351,11 @@ export function Widget({
 
   // ---- mutators ----
   // Every change goes through reconcileState: a new quality swaps the profile, a new profile adapts the glazing.
+  // Bicolour: which face the drawing shows (the inside one by default, like the technical drawing).
+  const [face, setFace] = useState<"inside" | "outside">("inside");
+  const bicolorOffered = pricing.bicolorEnabled && options.color.length > 1;
+  const isBicolor = bicolorOffered && !!state.colorInside && state.colorInside !== state.color;
+  const drawnColor = isBicolor && face === "inside" ? state.colorInside : state.color;
   const set = (patch: Partial<ConfigState>) => setState((s) => reconcileState(options, { ...s, ...patch }));
 
   const setSash = (i: number, patch: Partial<Sash>) =>
@@ -416,7 +421,10 @@ export function Widget({
           ? labelFromList(options.profileSystems[it.material] ?? dict.brands[it.material] ?? [], it.brand[it.material])
           : "";
       const glz = labelFromList(options.glazing.length > 0 ? options.glazing : dict.glazing, it.glazing);
-      const col = labelFromList(dict.color, it.color);
+      const colOut = labelFromList(options.color.length > 0 ? options.color : dict.color, it.color);
+      const col = it.colorInside && it.colorInside !== it.color && pricing.bicolorEnabled
+        ? `${colOut} (${dict.faceOutside.toLowerCase()}) / ${labelFromList(options.color.length > 0 ? options.color : dict.color, it.colorInside)} (${dict.faceInside.toLowerCase()})`
+        : colOut;
       const inst = labelFromList(dict.installationOptions, it.installation);
       const regionBits = REGION_FLAT_OPTION_KINDS.map((kind) => {
         const chosen = it[kind];
@@ -466,6 +474,7 @@ export function Widget({
       })),
       glazing: it.glazing,
       color: it.color,
+      colorInside: pricing.bicolorEnabled && it.colorInside && it.colorInside !== it.color ? it.colorInside : undefined,
       insectScreen: it.insectScreen,
       insectScreenType: it.insectScreen ? it.insectScreenType : undefined,
       insectScreenColor: it.insectScreen ? it.insectScreenColor : undefined,
@@ -884,9 +893,25 @@ export function Widget({
             );
           })()}
 
-          <Field label={dict.colorLabel} id="widget-color">
-            <WidgetFinishPicker id="widget-color" lang={lang} value={state.color} pairs={options.color} meta={options.colorMeta} text={dict.finishPicker} onChange={(key) => set({ color: key })} styles={s} />
+          <Field label={isBicolor ? dict.colorOutsideLabel : dict.colorLabel} id="widget-color">
+            <WidgetFinishPicker id="widget-color" lang={lang} value={state.color} pairs={options.color} meta={options.colorMeta} text={dict.finishPicker} onChange={(key) => set({ color: key, ...(state.colorInside === key ? { colorInside: "" } : {}) })} styles={s} />
           </Field>
+          {bicolorOffered ? (
+            <label style={{ display: "flex", alignItems: "center", gap: 10, minHeight: 44, margin: "2px 0 10px", fontSize: 13.5, cursor: "pointer", color: "var(--color-text)" }}>
+              <input
+                type="checkbox"
+                style={{ width: 20, height: 20, flexShrink: 0, accentColor: accent }}
+                checked={isBicolor}
+                onChange={(e) => set({ colorInside: e.target.checked ? (options.color.find(([k]) => k !== state.color)?.[0] ?? "") : "" })}
+              />
+              <span>{dict.bicolorToggle}</span>
+            </label>
+          ) : null}
+          {isBicolor ? (
+            <Field label={dict.colorInsideLabel} id="widget-color-inside">
+              <WidgetFinishPicker id="widget-color-inside" lang={lang} value={state.colorInside} pairs={options.color} meta={options.colorMeta} text={dict.finishPicker} onChange={(key) => set({ colorInside: key === state.color ? "" : key })} styles={s} />
+            </Field>
+          ) : null}
 
           <Field label={dict.installationLabel} id="widget-installation">
             <select id="widget-installation" style={s.select} value={state.installation} onChange={(e) => set({ installation: e.target.value })}>
@@ -984,10 +1009,25 @@ export function Widget({
                   })
                 }
                 leafText={{ edit: dict.leafEdit, invalid: dict.leafInvalid }}
-                finish={state.color}
-                finishHex={options.colorMeta[state.color]?.texture || !["white", "anthracite", "woodgrain"].includes(state.color) ? options.colorMeta[state.color]?.hex : undefined}
-                finishTexture={options.colorMeta[state.color]?.texture}
+                finish={drawnColor}
+                finishHex={options.colorMeta[drawnColor]?.texture || !["white", "anthracite", "woodgrain"].includes(drawnColor) ? options.colorMeta[drawnColor]?.hex : undefined}
+                finishTexture={options.colorMeta[drawnColor]?.texture}
               />
+              {isBicolor ? (
+                <div role="group" aria-label={dict.diagramViewLabel} style={{ display: "flex", justifyContent: "center", gap: 6, marginTop: 8 }}>
+                  {(["inside", "outside"] as const).map((f) => (
+                    <button
+                      key={f}
+                      type="button"
+                      aria-pressed={face === f}
+                      onClick={() => setFace(f)}
+                      style={{ minHeight: 36, padding: "6px 12px", borderRadius: 999, fontSize: 12.5, fontWeight: 600, cursor: "pointer", border: `1.5px solid ${face === f ? accent : "var(--color-border)"}`, background: face === f ? "var(--color-mint-light)" : "var(--color-bg-alt)", color: "var(--color-text)" }}
+                    >
+                      {f === "inside" ? dict.faceInside : dict.faceOutside}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
             </div>
             <div style={{ fontSize: 11, color: "var(--color-text-secondary)", textAlign: "center", marginTop: 4 }}>{dict.diagramLegend}</div>
             <div style={{ fontSize: 11, color: "var(--color-text-secondary)", textAlign: "center", marginTop: 2 }}>{dict.diagramClickHint}</div>

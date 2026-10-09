@@ -11,6 +11,8 @@ interface Props {
   finishes: PickerFinish[];
   onChange: (key: string) => void;
   labelClass: string;
+  /** Replaces the default "Colour / finish" caption (e.g. "Outside finish" for a bicolour piece). */
+  label?: string;
 }
 
 const LOCALES = ["it", "en", "fr", "de", "nl", "ro"] as const;
@@ -20,7 +22,7 @@ type Loc = (typeof LOCALES)[number];
  * Finish picker with swatch squares: tabs for the base finishes, foil decors, painted RAL colours and stone
  * effects, group chips, a search and a grid of squares showing the colour or the texture before choosing it.
  */
-export function FinishPicker({ idBase, value, finishes, onChange, labelClass }: Props) {
+export function FinishPicker({ idBase, value, finishes, onChange, labelClass, label }: Props) {
   const t = useTranslations("finishPicker");
   const rawLocale = useLocale();
   const locale: Loc = (LOCALES as readonly string[]).includes(rawLocale) ? (rawLocale as Loc) : "it";
@@ -45,7 +47,7 @@ export function FinishPicker({ idBase, value, finishes, onChange, labelClass }: 
 
   return (
     <div>
-      <span className={labelClass} id={`${idBase}-finish-label`}>{t("finish")}</span>
+      <span className={labelClass} id={`${idBase}-finish-label`}>{label ?? t("finish")}</span>
       <button
         type="button"
         id={`${idBase}-finish`}

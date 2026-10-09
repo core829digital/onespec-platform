@@ -2,7 +2,8 @@ import { CATEGORY_DEFS } from "@/shared/configurator-model";
 import { calculatePrice, computeItemThermal, computeOverallUw, type CatalogPayload, type ProjectItem } from "@/shared/pricing";
 import { normalizedRatios, type EditorSash } from "@/shared/sash-rules";
 import { buildScene } from "@/lib/drawing/build-scene";
-import { finishFillFor } from "@/lib/drawing/finish-fill";
+import { finishFillFor, insideFinishFor } from "@/lib/drawing/finish-fill";
+import { finishText } from "./finish-text";
 import { sceneToSvg } from "@/lib/drawing/to-svg";
 import { dictFor, openingLabel } from "./dictionary";
 import { pieceSpecs } from "./specs";
@@ -114,7 +115,7 @@ export function buildExportModel(input: ExportInput): ExportModel {
       heightMm: item.height,
       profile: lab(payload.profileSystems?.find((p) => p.materialKey === item.material && p.key === item.profileSystem), locale, item.profileSystem ?? ""),
       ...(({ quality, profileSpec, glassUnit }) => ({ quality, profileSpec, glassUnit }))(pieceSpecs(payload, item, locale, dict)),
-      finish: lab(payload.finish.find((f) => f.key === item.color), locale, item.color),
+      finish: finishText(payload.finish, item, locale, dict, (k) => k),
       glazing: lab(payload.glazing.find((g) => g.key === item.glazing), locale, item.glazing),
       frame: lab(payload.frameTypes?.find((f) => f.key === item.frameType), locale, ""),
       leaves,
@@ -136,6 +137,7 @@ export function buildExportModel(input: ExportInput): ExportModel {
                 transomsMm: item.transoms,
                 glazing: item.glazing,
                 finishFill: finishFillFor(payload.finish, item.color),
+                ...insideFinishFor(payload.finish, item),
               },
               { showMainBadge: false, handleGuide: "all", showLeafDimensions: true },
             ),

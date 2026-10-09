@@ -361,6 +361,10 @@ export default defineSchema({
     installationPerM2Cents: v.optional(v.number()),
     /** Whether quotes include the fitting by default ("with", default) or are supply only ("without"). */
     installationDefault: v.optional(v.union(v.literal("with"), v.literal("without"))),
+    /** Bicolour (a different finish inside and outside): offered unless false. */
+    bicolorEnabled: v.optional(v.boolean()),
+    /** What the installer adds for a bicolour piece, per m², cents, VAT excluded (before margin). */
+    bicolorPerM2Cents: v.optional(v.number()),
   })
     .index("by_tenant", ["tenantId"])
     .index("by_publicId", ["publicId"])

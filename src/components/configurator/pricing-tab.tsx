@@ -37,6 +37,7 @@ export function PricingTab({ configuratorId, configurator }: { configuratorId: I
   const setCustom = useMutation(api.pricing.useCustomPricing);
   const setDelivery = useMutation(api.pricing.setDelivery);
   const setInstallation = useMutation(api.pricing.setInstallation);
+  const setBicolor = useMutation(api.pricing.setBicolor);
 
   const saved = configurator.marginPercent ?? 0;
   const [value, setValue] = useState(saved);
@@ -92,6 +93,30 @@ export function PricingTab({ configuratorId, configurator }: { configuratorId: I
     if (posaParsed === savedPosa && nextDefault === savedPosaDefault) return;
     try {
       await setInstallation({ configuratorId, perM2Cents: posaParsed, defaultMode: nextDefault });
+      setNote(t("republish"));
+    } catch (e) {
+      setErr(tf(e));
+    }
+  }
+
+  // Bicolour: a different finish inside and outside; offered unless switched off, with an optional surcharge per m².
+  const savedBicolor = configurator.bicolorPerM2Cents ?? 0;
+  const savedBicolorOn = configurator.bicolorEnabled !== false;
+  const [bicolorOn, setBicolorOn] = useState(savedBicolorOn);
+  const [bicolorText, setBicolorText] = useState(savedBicolor ? (savedBicolor / 100).toFixed(2).replace(".", ",") : "");
+  const [prevBicolor, setPrevBicolor] = useState(`${savedBicolorOn}:${savedBicolor}`);
+  if (prevBicolor !== `${savedBicolorOn}:${savedBicolor}`) {
+    setPrevBicolor(`${savedBicolorOn}:${savedBicolor}`);
+    setBicolorOn(savedBicolorOn);
+    setBicolorText(savedBicolor ? (savedBicolor / 100).toFixed(2).replace(".", ",") : "");
+  }
+  const bicolorParsed = bicolorText.trim() === "" ? 0 : parseEuroPerM2Input(bicolorText);
+  async function saveBicolor(nextOn: boolean = bicolorOn) {
+    setErr("");
+    if (bicolorParsed === null) return;
+    if (bicolorParsed === savedBicolor && nextOn === savedBicolorOn) return;
+    try {
+      await setBicolor({ configuratorId, enabled: nextOn, perM2Cents: bicolorParsed });
       setNote(t("republish"));
     } catch (e) {
       setErr(tf(e));
@@ -281,6 +306,40 @@ export function PricingTab({ configuratorId, configurator }: { configuratorId: I
         ) : (
           <p className="text-xs text-[var(--color-text-secondary)]">{t("posa.off")}</p>
         )}
+      </section>
+
+      <section className="space-y-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">
+        <h3 className="font-semibold text-[var(--color-text)]">{t("bicolor.title")}</h3>
+        <p className="text-sm text-[var(--color-text-secondary)]">{t("bicolor.help")}</p>
+        <label className="flex min-h-11 cursor-pointer items-center gap-3 text-sm text-[var(--color-text)]">
+          <input
+            type="checkbox"
+            className="h-5 w-5 shrink-0 accent-[var(--color-mint)]"
+            checked={bicolorOn}
+            onChange={(e) => { setBicolorOn(e.target.checked); void saveBicolor(e.target.checked); }}
+          />
+          <span>{t("bicolor.enabled")}</span>
+        </label>
+        {bicolorOn ? (
+          <div className="flex flex-wrap items-center gap-3">
+            <label className="flex items-center gap-2 text-sm text-[var(--color-text)]">
+              <span>{t("bicolor.surcharge")}</span>
+              <input
+                type="text"
+                inputMode="decimal"
+                value={bicolorText}
+                aria-invalid={bicolorParsed === null}
+                placeholder="0,00"
+                onChange={(e) => setBicolorText(e.target.value.replace(/[^\d.,]/g, "").slice(0, 8))}
+                onBlur={() => void saveBicolor()}
+                onKeyDown={(e) => { if (e.key === "Enter") void saveBicolor(); }}
+                className="w-28 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-right"
+              />
+              <span aria-hidden>€/m²</span>
+            </label>
+            {bicolorParsed === null ? <p className="text-xs text-[var(--color-danger)]">{t("posa.invalid")}</p> : null}
+          </div>
+        ) : null}
       </section>
 
       <section className="space-y-4 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5">

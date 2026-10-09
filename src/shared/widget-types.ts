@@ -53,6 +53,8 @@ export const ProjectItemSchema = z
       .max(6),
     glazing: z.string().min(1).max(40),
     color: z.string().min(1).max(40),
+    /** Finish of the inside face when it differs from `color` (bicolour). */
+    colorInside: z.string().min(1).max(40).optional(),
     insectScreen: z.boolean(),
     insectScreenType: z.string().max(40).optional(),
     insectScreenColor: z.string().max(40).optional(),
