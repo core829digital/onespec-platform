@@ -46,7 +46,7 @@ describe("widget CSP", () => {
   it("is not duplicated as a static header (two CSPs would be intersected and block the nonce)", () => {
     const config = readFileSync("next.config.mjs", "utf8");
     expect(config).not.toMatch(/value:\s*WIDGET_CSP/);
-    expect(config.match(/key: "Content-Security-Policy"/g)).toHaveLength(1); // only the app's frame-ancestors 'none'
+    expect(config.match(/key: "Content-Security-Policy"/g)).toHaveLength(2); // the app's frame-ancestors 'none' + the demo host's variant (framable by the marketing site only)
     expect(config).not.toContain("script-src");
   });
 
@@ -63,7 +63,7 @@ describe("application CSP (report-only phase)", () => {
     const { APP_CSP_REPORT_ONLY } = await import("../csp-report-only.mjs");
     const config = readFileSync("next.config.mjs", "utf8");
     expect(config).toContain('key: "Content-Security-Policy-Report-Only"');
-    expect(config.match(/key: "Content-Security-Policy"/g)).toHaveLength(1); // the enforced one stays frame-ancestors only
+    expect(config.match(/key: "Content-Security-Policy"/g)).toHaveLength(2); // the enforced one stays frame-ancestors only
     expect(APP_CSP_REPORT_ONLY).toContain("report-uri https://");
     expect(APP_CSP_REPORT_ONLY).toContain("object-src 'none'");
     expect(APP_CSP_REPORT_ONLY).toMatch(/frame-src 'self'/); // the configurator setup page frames the widget preview from our own origin
