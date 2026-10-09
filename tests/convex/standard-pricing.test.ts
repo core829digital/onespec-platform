@@ -148,6 +148,32 @@ describe("fitting (posa): the installer's price per m², with or without", () =>
   });
 });
 
+describe("bicolour: offered or not, with its surcharge per m²", () => {
+  test("setBicolor validates, publishes the switch and the surcharge, and needs the permission", async () => {
+    const { t, s, as, asMember } = await italianTenant("centro");
+    const { configuratorId } = await as.mutation(api.configurators.createConfigurator, { tenantId: s.tenantId, name: "Bicolore test" });
+    const snapshot = async () => {
+      await as.mutation(api.configurators.publishConfigurator, { configuratorId });
+      const versions = await t.run((ctx) => ctx.db.query("catalogVersions").withIndex("by_configurator_version", (q) => q.eq("configuratorId", configuratorId)).collect());
+      return versions.sort((a, b) => a.version - b.version).at(-1)!.payload as { configurator: { bicolorEnabled?: boolean; bicolorPerM2Cents?: number } };
+    };
+    // Default: offered, no surcharge, nothing published.
+    expect((await snapshot()).configurator).toMatchObject({});
+    expect((await snapshot()).configurator.bicolorEnabled).toBeUndefined();
+    for (const bad of [-1, 100_001, 12.5, Number.NaN]) {
+      await expect(as.mutation(api.pricing.setBicolor, { configuratorId, enabled: true, perM2Cents: bad })).rejects.toThrow();
+    }
+    await expect(asMember.mutation(api.pricing.setBicolor, { configuratorId, enabled: true, perM2Cents: 2500 })).rejects.toThrow();
+    expect(await as.mutation(api.pricing.setBicolor, { configuratorId, enabled: true, perM2Cents: 2500 })).toEqual({ bicolorEnabled: true, bicolorPerM2Cents: 2500 });
+    expect((await snapshot()).configurator).toMatchObject({ bicolorPerM2Cents: 2500 });
+    // Switched off: the switch is published and the surcharge is not.
+    await as.mutation(api.pricing.setBicolor, { configuratorId, enabled: false, perM2Cents: 2500 });
+    const off = (await snapshot()).configurator;
+    expect(off.bicolorEnabled).toBe(false);
+    expect(off.bicolorPerM2Cents).toBeUndefined();
+  });
+});
+
 describe("delivery: factory transport or the installer's own transporter / fitter", () => {
   test("setDelivery stores the rate, publishes it only in own mode, validates it and needs the permission", async () => {
     const { t, s, as, asMember } = await italianTenant("centro");
