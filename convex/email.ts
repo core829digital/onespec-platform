@@ -70,6 +70,11 @@ export const send = internalAction({
   handler: async (ctx, args) => {
     const live = process.env.RESEND_MODE === "live" && !!process.env.AUTH_RESEND_KEY;
     const attempt = args.attempt ?? 1;
+    // One plain address, no header-injection characters, no display-name or list tricks.
+    if (!/^[^\s@,;<>"()\\]{1,64}@[^\s@,;<>"()\\]{1,255}$/.test(args.to) || args.to.length > 320) {
+      await ctx.runMutation(internal.email.log, { to: args.to.slice(0, 320), template: args.template, subject: "(invalid recipient)", status: "failed", error: "INVALID_RECIPIENT", tenantId: args.tenantId, relatedEntityId: args.relatedEntityId, createdAt: Date.now() });
+      return;
+    }
     const { subject, html, text } = renderAuthEmail(args.template, args.locale, args.data);
     const from = getFromAddress(args.template);
 

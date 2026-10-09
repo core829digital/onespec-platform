@@ -38,7 +38,7 @@ describe("email delivery", () => {
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({ message: "invalid to" }), { status: 422 }));
     vi.stubGlobal("fetch", fetchMock);
     const t = newDb();
-    await t.action(internal.email.send, { template: "welcome", to: "bad", locale: "it", data: {} });
+    await t.action(internal.email.send, { template: "welcome", to: "bad@example.com", locale: "it", data: {} });
     await t.finishAllScheduledFunctions(vi.runAllTimers);
     expect(fetchMock).toHaveBeenCalledTimes(1);
   });

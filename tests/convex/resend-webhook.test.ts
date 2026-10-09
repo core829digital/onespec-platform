@@ -104,3 +104,16 @@ describe("POST /api/email/webhook", () => {
     expect((await t.run((ctx) => ctx.db.get(logId)))?.status).toBe("sent");
   });
 });
+
+describe("email hardening (S3)", () => {
+  test("send refuses recipients with header-injection / multiple addresses", async () => {
+    const { internal } = await import("../../convex/_generated/api");
+    const t = newDb();
+    for (const to of ["a@b.co\r\nBcc: x@y.z", "a@b.co, c@d.ef", "Name <a@b.co>", "not-an-email"]) {
+      await t.action(internal.email.send, { template: "welcome", to, locale: "it", data: {} });
+    }
+    const logs = await t.run((ctx) => ctx.db.query("emailLog").collect());
+    expect(logs).toHaveLength(4);
+    expect(logs.every((l) => l.status === "failed" && l.error === "INVALID_RECIPIENT")).toBe(true);
+  });
+});

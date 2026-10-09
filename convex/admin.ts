@@ -42,12 +42,19 @@ export const listEmails = query({
  * resend re-renders with empty data (fine for welcome/verify/reset which read a
  * code we no longer have — use this mainly to retry a `new_quote_request`).
  */
+/** Templates that carry a credential or link: never re-sent from the log (the data is gone and a stale resend would mislead). */
+const NO_RESEND = new Set(["verify", "reset", "team_access", "invitation"]);
+
 export const resendEmail = mutation({
   args: { emailLogId: v.id("emailLog") },
   handler: async (ctx, args) => {
-    await requirePlatformAdmin(ctx);
+    const adminId = await requirePlatformAdmin(ctx);
     const log = await ctx.db.get(args.emailLogId);
     if (!log) throw new ConvexError("EMAIL_LOG_NOT_FOUND");
+    if (NO_RESEND.has(log.template)) throw new ConvexError("INVALID_INPUT");
+    // Never write again to an address that bounced or filed a complaint for this very message.
+    const events = await ctx.db.query("emailDeliveryLog").withIndex("by_emailLog", (q) => q.eq("emailLogId", log._id)).take(50);
+    if (events.some((e) => e.event === "bounced" || e.event === "complained")) throw new ConvexError("INVALID_INPUT");
     await ctx.scheduler.runAfter(0, internal.email.send, {
       template: log.template,
       to: log.to,
@@ -55,6 +62,15 @@ export const resendEmail = mutation({
       data: {},
       tenantId: log.tenantId ?? undefined,
       relatedEntityId: log.relatedEntityId ?? undefined,
+    });
+    await ctx.scheduler.runAfter(0, internal.audit.log, {
+      tenantId: log.tenantId ?? undefined,
+      actorUserId: adminId,
+      actorKind: "admin",
+      action: "admin.email_resend",
+      targetTable: "emailLog",
+      targetId: String(log._id),
+      meta: { template: log.template },
     });
   },
 });
