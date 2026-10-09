@@ -31,3 +31,6 @@ niente overflow, menu «Altro» con «Aggiungi alla schermata Home».
 
 Prima: `NEXT_PUBLIC_CONVEX_URL=http://localhost:3210 npm run build` e `npx next start -p 3100`; poi `npm run e2e:app`.
 Se la porta 3210 è occupata, lo script si ferma con un messaggio (non riusa un backend altrui).
+
+# Demo pubblica (`npm run e2e:demo`)
+Percorre le 12 pagine principali su `demo.localhost:3100` (desktop, tablet, telefono): contenuto presente, niente overflow, niente errori in console, banner demo. Non serve alcun backend. Vedi `docs/DEMO.md`.
