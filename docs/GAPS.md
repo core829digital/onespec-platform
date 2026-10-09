@@ -30,7 +30,7 @@ Cosa è stato verificato (con esito) e cosa NON è coperto. Aggiornare a ogni gi
 ## Lacune NON coperte (onesto)
 | # | Lacuna | Rischio | Cosa serve |
 |---|---|---|---|
-| 1 | Dopo il login sono coperti in browser reale: 27 pagine `/app` (desktop), 8 pagine su iPhone, editor misure, bozza preventivo, menu mobile + «Aggiungi alla Home». Restano fuori: firma → PDF, traverso per anta, pagamenti reali | Basso | Estendere `e2e/app-flows.mjs` (vedi `e2e/README.md`) |
+| 1 | Dopo il login sono coperti in browser reale: 27 pagine `/app`, 11 pagine su iPhone (390/360 px), editor misure, traverso per anta, bozza preventivo, firma → documento stampabile (desktop e telefono), foglio «Altro» + «Aggiungi alla Home». Restano fuori: pagamenti reali, download PDF binario | Basso | Estendere `e2e/app-flows.mjs` |
 | 2 | CSP **bloccante** con nonce su `/app` e `/auth` (la fase solo-segnalazione è attiva) | Medio | Leggere le segnalazioni in Sentry, poi irrigidire |
 | 3 | `CONVEX_DEPLOY_KEY` comparsa in chat | Alto finché non ruotata | Ruotarla dal Convex Dashboard (azione tua) |
 | 4 | Stripe/Resend/VIES provati solo con simulazioni | Medio | Prova in modalità test reale (guida in `docs/`) |

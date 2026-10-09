@@ -207,6 +207,70 @@ async function main() {
       await page.waitForFunction(() => [...document.querySelectorAll("input")].some((i) => i.value === "Rossi Bozza E2E"), null, { timeout: 10_000 });
     });
 
+    // ── a horizontal bar on a single leaf: panel, drawing and the glass fields ───────────────────────────────────────────────────
+    await step("quote editor: a transom on one leaf changes the drawing and splits it into fields", page, problems, async () => {
+      await page.goto(url("/app/quotes/new"), { waitUntil: "domcontentloaded" });
+      const drawing = page.locator('svg[role="group"][aria-label^="Disegno tecnico"]').first();
+      await drawing.waitFor({ timeout: 30_000 });
+      const before = (await drawing.innerHTML()).length;
+      const add = page.getByTestId("add-transom");
+      await add.scrollIntoViewIfNeeded();
+      await add.click();
+      await page.getByLabel(/Altezza del traverso 1/).waitFor({ timeout: 5000 });
+      await page.getByText(/Campi di vetro \(dall'alto\)/).first().waitFor({ timeout: 5000 });
+      await page.waitForFunction((n) => (document.querySelector('svg[role="group"][aria-label^="Disegno tecnico"]')?.innerHTML.length ?? 0) !== n, before, { timeout: 5000 });
+      // the field above the bar gets its own opening type, and the drawing follows
+      const typeSel = page.getByTestId("field-type-0");
+      await typeSel.waitFor({ timeout: 3000 });
+      const afterAdd = (await drawing.innerHTML()).length;
+      const current = await typeSel.inputValue();
+      const other = await typeSel.locator("option").evaluateAll((os, cur) => os.map((o) => o.value).find((v) => v !== cur && v !== "fixed") ?? os.map((o) => o.value).find((v) => v !== cur), current);
+      await typeSel.selectOption(other);
+      await page.waitForFunction((n) => (document.querySelector('svg[role="group"][aria-label^="Disegno tecnico"]')?.innerHTML.length ?? 0) !== n, afterAdd, { timeout: 5000 });
+      // taking the bar away brings back the single field
+      await page.getByRole("button", { name: "Togli" }).first().click();
+      await page.getByTestId("field-type-0").waitFor({ state: "detached", timeout: 5000 });
+    });
+
+    // ── quote → signature → printable document, on a desktop and then on a phone ─────────────────────────────────────────────────
+    async function signQuoteFlow(p, name, prob) {
+      await p.goto(url("/app/quotes/new"), { waitUntil: "domcontentloaded" });
+      await p.locator('svg[role="group"][aria-label^="Disegno tecnico"]').first().waitFor({ timeout: 30_000 });
+      await p.getByPlaceholder("Es. Mario Rossi").fill(name);
+      await p.getByPlaceholder("cliente@email.it").fill("cliente.e2e@example.com");
+      await p.getByPlaceholder("+39 / +33 / +32 / +31 / +49...").fill("+39 333 1234567");
+      await p.getByPlaceholder("Via Roma 12").fill("Via Roma 12");
+      await p.getByPlaceholder("Milano / Roma").fill("Milano");
+      await p.getByPlaceholder("20100 / 75001 / 1012...").fill("20100");
+      const go = p.locator('form button[type="submit"]').last();
+      await p.waitForFunction(() => !document.querySelector('form button[type="submit"]:last-of-type')?.hasAttribute("disabled"), null, { timeout: 15_000 });
+      await go.click();
+      await p.waitForURL(/\/app\/quotes\/[^/]+\/sign/, { timeout: 25_000 });
+      const confirm = p.getByRole("button", { name: /Conferma Accettazione/ });
+      await confirm.waitFor({ timeout: 20_000 });
+      if (!(await confirm.isDisabled())) throw new Error("the confirm button must stay disabled until something is signed");
+      await p.getByPlaceholder(/./).first().isVisible();
+      const pad = p.locator("canvas").first();
+      await pad.scrollIntoViewIfNeeded();
+      const box = await pad.boundingBox();
+      if (!box) throw new Error("no signature pad");
+      await p.mouse.move(box.x + box.width * 0.15, box.y + box.height * 0.6);
+      await p.mouse.down();
+      for (let i = 1; i <= 12; i++) await p.mouse.move(box.x + box.width * (0.15 + i * 0.06), box.y + box.height * (0.6 - Math.sin(i / 2) * 0.3), { steps: 3 });
+      await p.mouse.up();
+      await p.waitForFunction(() => !document.evaluate("//button[contains(., 'Conferma Accettazione')]", document, null, 9, null).singleNodeValue?.hasAttribute("disabled"), null, { timeout: 5000 });
+      await confirm.click();
+      await p.waitForURL(/\/app\/quotes\/[^/]+\/print/, { timeout: 20_000 });
+      await p.getByText(name).first().waitFor({ timeout: 20_000 });
+      const overflow = await p.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+      if (overflow > 1) throw new Error(`the printable quote overflows by ${overflow}px`);
+    }
+    await step("quote: sign on the pad, land on the printable document (desktop)", page, problems, () => signQuoteFlow(page, "Verdi Firma E2E"));
+    const phone2 = await newSession(browser, seed.owner.token, seed.owner.refresh, { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
+    const mob2 = await phone2.context.newPage();
+    await step("quote: the same signature flow works on a phone", mob2, phone2.problems, () => signQuoteFlow(mob2, "Neri Telefono E2E"));
+    await phone2.context.close();
+
     // ── the same pages on a phone: no sideways scroll, the bottom island is there and sits clear of the page content ───────────────
     const phone = await newSession(browser, seed.owner.token, seed.owner.refresh, { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
     const mobile = await phone.context.newPage();

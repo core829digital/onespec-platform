@@ -26,7 +26,7 @@ Variabili utili: `APP_URL` (default `http://localhost:3100`), `PLAYWRIGHT_CHROMI
 Il backend è finto ma **le funzioni sono quelle vere** del repo (convex-test dietro il protocollo HTTP/WebSocket di Convex: `e2e/app-backend.host.ts`).
 Lo script `e2e/app-flows.mjs` lo avvia da solo, accede come titolare con i cookie di Convex Auth e percorre:
 accesso negato se non autenticati, 27 pagine `/app` (nessun errore in console, nessuno scroll orizzontale, contenuto presente), l'editor misure
-del preventivo B2B (larghezza/altezza digitate sul disegno), bozza preventivo (salva → «Bozze» → riapri), e su iPhone 390 px: isola in basso,
+del preventivo B2B (larghezza/altezza digitate sul disegno), bozza preventivo (salva → «Bozze» → riapri), traverso su una singola anta, firma sul canvas → documento stampabile (desktop e telefono), e su iPhone 390 px: isola in basso,
 niente overflow, menu «Altro» con «Aggiungi alla schermata Home».
 
 Prima: `NEXT_PUBLIC_CONVEX_URL=http://localhost:3210 npm run build` e `npx next start -p 3100`; poi `npm run e2e:app`.
