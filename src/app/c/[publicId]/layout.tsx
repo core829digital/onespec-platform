@@ -18,7 +18,7 @@ export default function HostedConfiguratorLayout({ children }: { children: React
       style={{ background: "var(--color-bg)" }}
       data-widget-root
     >
-      <div className="mx-auto w-full max-w-3xl px-3 sm:px-5 py-6">{children}</div>
+      <div className="mx-auto w-full max-w-3xl px-[env(safe-area-inset-left,0px)] sm:px-5 py-4 sm:py-6">{children}</div>
     </div>
   );
 }

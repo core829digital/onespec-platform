@@ -24,6 +24,33 @@
   }
 }
 
+/* Phones: brand block centred, material tabs one even row (icon over label) instead of a 2 + 1 wrap. */
+@media (max-width: 600px) {
+  .tw-widget-root [data-tw-header] {
+    justify-content: center !important;
+    margin-bottom: 16px !important;
+  }
+  .tw-widget-root [data-tw-brand] {
+    flex-direction: column;
+    text-align: center;
+    gap: 8px !important;
+    width: 100%;
+  }
+  .tw-widget-root [data-tw-materials] {
+    display: grid !important;
+    grid-template-columns: repeat(var(--tw-n, 3), minmax(0, 1fr));
+    gap: 8px !important;
+  }
+  .tw-widget-root [data-tw-material] {
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px !important;
+    padding: 12px 6px !important;
+    min-height: 44px;
+    text-align: center !important;
+  }
+}
+
 .tw-widget-root select,
 .tw-widget-root input,
 .tw-widget-root textarea {

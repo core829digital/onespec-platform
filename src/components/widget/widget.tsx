@@ -640,8 +640,8 @@ export function Widget({
   return (
     <div style={s.wrap}>
       {/* header */}
-      <div style={s.header}>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+      <div style={s.header} data-tw-header>
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }} data-tw-brand>
           {configurator.branding?.logoUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={configurator.branding.logoUrl} alt="" style={{ width: 40, height: 40, objectFit: "contain", borderRadius: 8 }} />
@@ -660,7 +660,7 @@ export function Widget({
       </div>
 
       {/* material tabs */}
-      <div style={s.materials}>
+      <div style={{ ...s.materials, ["--tw-n" as string]: materialTabs.length }} data-tw-materials>
         {materialTabs.map((m) => {
           const active = state.material === m.key;
           return (
@@ -668,6 +668,7 @@ export function Widget({
               key={m.key}
               type="button"
               data-tw-tab
+              data-tw-material
               onClick={() => changeMaterial(m.key)}
               style={{ ...s.materialTab, ...(active ? { borderColor: accent, background: "var(--color-mint-light)" } : {}) }}
             >
