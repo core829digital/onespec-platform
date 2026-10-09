@@ -479,6 +479,7 @@
     "viesUnavailable": "Le service VIES de la Commission européenne ne répond pas pour le moment : réessayez bientôt. Sans vérification, vous ne pouvez pas appliquer 0 %.",
     "onboardingIncomplete": "Des données obligatoires manquent : revenez aux étapes précédentes et complétez entreprise, adresse, contacts, fiscalité et prix.",
     "viesAckRequired": "Pour continuer, confirmez avoir lu comment fonctionnent le VIES et la TVA à 0 %.",
+    "demoDisabled": "Cette action est désactivée dans la démo (paiements, vérifications externes et envois réels). Dans le vrai produit, elle fonctionne normalement.",
     "supplyInvalidAmount": "Montant invalide : saisissez un montant en euros de 0 à 10 000 000, avec au plus deux décimales.",
     "supplyPartnerRoleRequired": "Choisissez au moins un rôle : fabrique les fenêtres, les livre, ou les deux.",
     "supplyPartnerNotFound": "Partenaire introuvable.",
@@ -910,7 +911,8 @@
     "guestAccessUrl": "Lien d'accès",
     "copyLink": "Copier le lien",
     "confirmRevokePin": "Révoquer le PIN invité ? Toute personne disposant du lien perd immédiatement l'accès.",
-    "dueOn": "Échéance : {date}"
+    "dueOn": "Échéance : {date}",
+    "dragHandle": "Glisser pour déplacer"
   },
   "installations": {
     "title": "Pose Qualifiée",

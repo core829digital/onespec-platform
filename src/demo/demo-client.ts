@@ -33,6 +33,9 @@ function normaliseError(e: unknown): unknown {
   return e;
 }
 
+/** Actions that would reach a real service (Stripe, VIES, Stripe Connect). The demo answers them with a friendly refusal instead of trying the network. */
+const EXTERNAL_ACTIONS = /^(billing|referralPayoutAccount|vies):/;
+
 export class DemoConvexClient {
   private entries = new Map<string, Entry>();
   private refreshing = false;
@@ -132,6 +135,7 @@ export class DemoConvexClient {
   }
 
   async action(action: FunctionReference<"action">, args: Record<string, unknown> = {}) {
+    if (EXTERNAL_ACTIONS.test(getFunctionName(action))) throw new ConvexError("DEMO_DISABLED");
     try {
       const result = await this.runner.action(makeFunctionReference<"action">(getFunctionName(action)), args);
       this.onWrite?.();

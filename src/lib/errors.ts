@@ -55,6 +55,7 @@ export type ErrorKey =
   | "viesUnavailable"
   | "onboardingIncomplete"
   | "viesAckRequired"
+  | "demoDisabled"
   | "supplyInvalidAmount"
   | "supplyPartnerRoleRequired"
   | "supplyPartnerNotFound"
@@ -212,6 +213,7 @@ const EXACT: Record<string, ErrorKey> = {
   VIES_UNAVAILABLE: "viesUnavailable",
   ONBOARDING_INCOMPLETE: "onboardingIncomplete",
   VIES_ACK_REQUIRED: "viesAckRequired",
+  DEMO_DISABLED: "demoDisabled",
   SUPPLY_INVALID_AMOUNT: "supplyInvalidAmount",
   SUPPLY_PARTNER_ROLE_REQUIRED: "supplyPartnerRoleRequired",
   SUPPLY_PARTNER_NOT_FOUND: "supplyPartnerNotFound",

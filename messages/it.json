@@ -479,6 +479,7 @@
     "viesUnavailable": "Il servizio VIES della Commissione europea non risponde in questo momento: riprova tra poco. Senza verifica non puoi applicare lo 0%.",
     "onboardingIncomplete": "Mancano dei dati obbligatori: torna ai passaggi precedenti e completa azienda, indirizzo, contatti, fiscalità e prezzi.",
     "viesAckRequired": "Per proseguire conferma di aver letto come funziona il VIES e l'IVA allo 0%.",
+    "demoDisabled": "Questa azione è disattivata nella demo (pagamenti, verifiche esterne e invii reali). Nella versione vera funziona normalmente.",
     "supplyInvalidAmount": "Importo non valido: inserisci un importo in euro da 0 a 10.000.000, con al massimo due decimali.",
     "supplyPartnerRoleRequired": "Scegli almeno un ruolo: produce i serramenti, li consegna, oppure entrambi.",
     "supplyPartnerNotFound": "Fornitore non trovato.",
@@ -910,7 +911,8 @@
     "guestAccessUrl": "Link di accesso",
     "copyLink": "Copia link",
     "confirmRevokePin": "Revocare il PIN ospite? Chi ha il link perderà subito l'accesso.",
-    "dueOn": "Scadenza: {date}"
+    "dueOn": "Scadenza: {date}",
+    "dragHandle": "Trascina per spostare"
   },
   "installations": {
     "title": "Posa Qualificata",

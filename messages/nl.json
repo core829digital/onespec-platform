@@ -479,6 +479,7 @@
     "viesUnavailable": "De VIES-dienst van de Europese Commissie reageert nu niet: probeer het zo opnieuw. Zonder controle kunt u 0% niet toepassen.",
     "onboardingIncomplete": "Er ontbreken verplichte gegevens: ga terug naar de vorige stappen en vul bedrijf, adres, contact, belasting en prijzen aan.",
     "viesAckRequired": "Bevestig om door te gaan dat u hebt gelezen hoe VIES en 0% btw werken.",
+    "demoDisabled": "Deze actie is uitgeschakeld in de demo (betalingen, externe controles en echt verzenden). In de echte versie werkt ze gewoon.",
     "supplyInvalidAmount": "Ongeldig bedrag: voer een bedrag in euro in van 0 tot 10.000.000 met hoogstens twee decimalen.",
     "supplyPartnerRoleRequired": "Kies minstens één rol: maakt de ramen, levert ze, of beide.",
     "supplyPartnerNotFound": "Partner niet gevonden.",
@@ -910,7 +911,8 @@
     "guestAccessUrl": "Toegangslink",
     "copyLink": "Link kopiëren",
     "confirmRevokePin": "Gast-PIN intrekken? Iedereen met de link verliest direct de toegang.",
-    "dueOn": "Deadline: {date}"
+    "dueOn": "Deadline: {date}",
+    "dragHandle": "Sleep om te verplaatsen"
   },
   "installations": {
     "title": "Gekwalificeerde Montage",

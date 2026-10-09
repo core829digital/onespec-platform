@@ -479,6 +479,7 @@
     "viesUnavailable": "Serviciul VIES al Comisiei Europene nu răspunde acum: încercați din nou în curând. Fără verificare nu puteți aplica 0%.",
     "onboardingIncomplete": "Lipsesc date obligatorii: reveniți la pașii anteriori și completați compania, adresa, contactele, fiscalitatea și prețurile.",
     "viesAckRequired": "Pentru a continua, confirmați că ați citit cum funcționează VIES și TVA 0%.",
+    "demoDisabled": "Această acțiune este dezactivată în demo (plăți, verificări externe și trimiteri reale). În produsul real funcționează normal.",
     "supplyInvalidAmount": "Sumă invalidă: introduceți o sumă în euro de la 0 la 10.000.000, cu cel mult două zecimale.",
     "supplyPartnerRoleRequired": "Alegeți cel puțin un rol: produce ferestrele, le livrează sau ambele.",
     "supplyPartnerNotFound": "Partenerul nu a fost găsit.",
@@ -910,7 +911,8 @@
     "guestAccessUrl": "Link de acces",
     "copyLink": "Copiază linkul",
     "confirmRevokePin": "Revoci PIN-ul de oaspete? Oricine are linkul pierde imediat accesul.",
-    "dueOn": "Termen: {date}"
+    "dueOn": "Termen: {date}",
+    "dragHandle": "Trage pentru a muta"
   },
   "installations": {
     "title": "Montare Calificată",

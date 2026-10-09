@@ -479,6 +479,7 @@
     "viesUnavailable": "The European Commission's VIES service is not responding right now: try again shortly. Without a check you cannot apply 0%.",
     "onboardingIncomplete": "Some required data is missing: go back to the previous steps and complete company, address, contacts, tax and prices.",
     "viesAckRequired": "To continue, confirm that you have read how VIES and 0% VAT work.",
+    "demoDisabled": "This action is turned off in the demo (payments, external checks and real sending). In the real product it works as usual.",
     "supplyInvalidAmount": "Invalid amount: enter an amount in euros from 0 to 10,000,000 with at most two decimals.",
     "supplyPartnerRoleRequired": "Choose at least one role: makes the windows, delivers them, or both.",
     "supplyPartnerNotFound": "Partner not found.",
@@ -910,7 +911,8 @@
     "guestAccessUrl": "Access link",
     "copyLink": "Copy link",
     "confirmRevokePin": "Revoke the guest PIN? Anyone with the link loses access immediately.",
-    "dueOn": "Due: {date}"
+    "dueOn": "Due: {date}",
+    "dragHandle": "Drag to move"
   },
   "installations": {
     "title": "Qualified Installation",

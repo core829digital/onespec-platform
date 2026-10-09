@@ -479,6 +479,7 @@
     "viesUnavailable": "Der VIES-Dienst der Europäischen Kommission antwortet gerade nicht: Versuchen Sie es gleich noch einmal. Ohne Prüfung können Sie 0 % nicht anwenden.",
     "onboardingIncomplete": "Es fehlen Pflichtangaben: Gehen Sie zu den vorherigen Schritten zurück und vervollständigen Sie Unternehmen, Adresse, Kontakte, Steuern und Preise.",
     "viesAckRequired": "Bestätigen Sie zum Fortfahren, dass Sie gelesen haben, wie VIES und 0 % MwSt. funktionieren.",
+    "demoDisabled": "Diese Aktion ist in der Demo deaktiviert (Zahlungen, externe Prüfungen und echter Versand). In der echten Version funktioniert sie ganz normal.",
     "supplyInvalidAmount": "Ungültiger Betrag: Geben Sie einen Eurobetrag von 0 bis 10.000.000 mit höchstens zwei Dezimalstellen ein.",
     "supplyPartnerRoleRequired": "Wählen Sie mindestens eine Rolle: fertigt die Fenster, liefert sie, oder beides.",
     "supplyPartnerNotFound": "Partner nicht gefunden.",
@@ -910,7 +911,8 @@
     "guestAccessUrl": "Zugangslink",
     "copyLink": "Link kopieren",
     "confirmRevokePin": "Gast-PIN widerrufen? Wer den Link hat, verliert sofort den Zugang.",
-    "dueOn": "Fällig: {date}"
+    "dueOn": "Fällig: {date}",
+    "dragHandle": "Zum Verschieben ziehen"
   },
   "installations": {
     "title": "Qualifizierte Montage",
