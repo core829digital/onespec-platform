@@ -1,4 +1,6 @@
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { isDemoHost } from "@/demo/is-demo";
 import { fetchQuery } from "convex/nextjs";
 import { isAuthenticatedNextjs, convexAuthNextjsToken } from "@convex-dev/auth/nextjs/server";
 import { api } from "@/convex/_generated/api";
@@ -13,6 +15,9 @@ export default async function OnboardingLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+  // The demo company is already set up.
+  const h = await headers();
+  if (isDemoHost(h.get("x-forwarded-host") ?? h.get("host"))) redirect(`/${locale}/app/dashboard`);
 
   if (!(await isAuthenticatedNextjs())) {
     redirect(`/${locale}/auth/login`);

@@ -5,7 +5,7 @@ import { useTranslations, useLocale } from "next-intl";
 import { analytics as posthog } from "@/lib/monitoring";
 import { useQuery } from "@/lib/convex-query";
 import { LogOut, User, ChevronDown, Scale, Activity, Gem, Wallet } from "lucide-react";
-import { useAuthActions } from "@convex-dev/auth/react";
+import { useAppAuthActions as useAuthActions } from "@/lib/auth-actions";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";

@@ -3349,5 +3349,14 @@
     "openQuote": "Deschide oferta",
     "forSite": "Șantier: {name}",
     "uploadedOn": "Încărcat la {date}"
+  },
+  "demo": {
+    "loadingTitle": "Pregătesc demonstrația…",
+    "loadingBody": "Se încarcă o firmă completă cu clienți, șantiere și oferte. Durează doar un moment.",
+    "failedTitle": "Demonstrația nu a putut porni",
+    "failedBody": "Reîncărcați pagina. Dacă problema persistă, încercați alt browser actualizat.",
+    "badge": "DEMO",
+    "banner": "Date de exemplu: încercați liber orice, nu se trimite nimic. Modificările se șterg când reîncărcați pagina.",
+    "restart": "Repornește demonstrația"
   }
 }

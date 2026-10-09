@@ -3349,5 +3349,14 @@
     "openQuote": "Apri il preventivo",
     "forSite": "Cantiere: {name}",
     "uploadedOn": "Caricato il {date}"
+  },
+  "demo": {
+    "loadingTitle": "Preparo la demo…",
+    "loadingBody": "Sto caricando un'azienda completa con clienti, cantieri e preventivi. Ci vuole pochissimo.",
+    "failedTitle": "Non riesco ad avviare la demo",
+    "failedBody": "Ricarica la pagina. Se il problema continua, prova con un altro browser aggiornato.",
+    "badge": "DEMO",
+    "banner": "Dati di esempio: provi tutto liberamente, non viene inviato nulla. Le modifiche si azzerano quando ricarichi la pagina.",
+    "restart": "Ricomincia la demo"
   }
 }

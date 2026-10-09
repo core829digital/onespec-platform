@@ -3349,5 +3349,14 @@
     "openQuote": "Angebot öffnen",
     "forSite": "Baustelle: {name}",
     "uploadedOn": "Hochgeladen am {date}"
+  },
+  "demo": {
+    "loadingTitle": "Demo wird vorbereitet…",
+    "loadingBody": "Eine komplette Firma mit Kunden, Baustellen und Angeboten wird geladen. Das dauert nur einen Moment.",
+    "failedTitle": "Die Demo konnte nicht gestartet werden",
+    "failedBody": "Laden Sie die Seite neu. Besteht das Problem weiter, versuchen Sie einen anderen aktuellen Browser.",
+    "badge": "DEMO",
+    "banner": "Beispieldaten: alles frei ausprobieren, es wird nichts versendet. Änderungen werden beim Neuladen der Seite zurückgesetzt.",
+    "restart": "Demo neu starten"
   }
 }

@@ -10,6 +10,7 @@ import { api } from "../convex/_generated/api";
 import { routing } from "./i18n/routing";
 import { localeForCountry } from "./lib/country-locale";
 import { buildWidgetCsp, newNonce } from "./lib/widget-csp";
+import { isDemoHost } from "./demo/is-demo";
 
 const intlMiddleware = createMiddleware(routing);
 
@@ -107,6 +108,17 @@ export default convexAuthNextjsMiddleware(
     // client-side error report (the POST never reaches the rewrite).
     if (pathname === "/monitoring") {
       return NextResponse.next();
+    }
+
+    // The public demo host (demo.<domain>): the whole platform runs against an in-browser database, so there is nothing to sign in to.
+    // Only locale routing is left; the sign-in / onboarding / home screens lead straight to the demo dashboard.
+    if (isDemoHost(request.headers.get("x-forwarded-host") ?? request.headers.get("host")) && !pathname.startsWith("/demo/")) {
+      const prefix = localePrefix(pathname);
+      const rest = prefix ? pathname.slice(prefix.length) : pathname;
+      if (rest === "" || rest === "/" || /^\/(auth|onboarding)(\/|$)/.test(rest)) {
+        return nextjsMiddlewareRedirect(request, `${prefix}/app/dashboard`);
+      }
+      return intlMiddleware(request);
     }
 
     // The embeddable widget (/w/) and the hosted single-page configurator (/c/):

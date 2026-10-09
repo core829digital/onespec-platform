@@ -1,4 +1,7 @@
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { isDemoHost } from "@/demo/is-demo";
+import { DemoAppRoot } from "@/demo/demo-app-root";
 import { fetchQuery } from "convex/nextjs";
 import { isAuthenticatedNextjs, convexAuthNextjsToken } from "@convex-dev/auth/nextjs/server";
 import { getTranslations } from "next-intl/server";
@@ -18,6 +21,10 @@ export default async function AppLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
+
+  // The public demo host: no sign-in and no server-side data; the whole app runs against the in-browser demo database.
+  const h = await headers();
+  if (isDemoHost(h.get("x-forwarded-host") ?? h.get("host"))) return <DemoAppRoot>{children}</DemoAppRoot>;
 
   if (!(await isAuthenticatedNextjs())) {
     redirect(`/${locale}/auth/login`);

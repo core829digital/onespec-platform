@@ -2,7 +2,7 @@
 
 import { useQuery } from "@/lib/convex-query";
 import { useTranslations } from "next-intl";
-import { useAuthActions } from "@convex-dev/auth/react";
+import { useAppAuthActions as useAuthActions } from "@/lib/auth-actions";
 import { api } from "@/convex/_generated/api";
 import { Link, usePathname } from "@/i18n/navigation";
 

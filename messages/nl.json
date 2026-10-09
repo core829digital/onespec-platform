@@ -3349,5 +3349,14 @@
     "openQuote": "Offerte openen",
     "forSite": "Bouwplaats: {name}",
     "uploadedOn": "Geüpload op {date}"
+  },
+  "demo": {
+    "loadingTitle": "Demo wordt voorbereid…",
+    "loadingBody": "Een complete onderneming met klanten, projecten en offertes wordt geladen. Dit duurt maar even.",
+    "failedTitle": "De demo kon niet starten",
+    "failedBody": "Laad de pagina opnieuw. Blijft het probleem, probeer dan een andere, bijgewerkte browser.",
+    "badge": "DEMO",
+    "banner": "Voorbeeldgegevens: probeer alles vrij, er wordt niets verstuurd. Wijzigingen worden gewist als je de pagina herlaadt.",
+    "restart": "Demo opnieuw starten"
   }
 }

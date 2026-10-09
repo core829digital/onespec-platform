@@ -6,7 +6,7 @@ import { useMutation } from "convex/react";
 import { useQuery } from "@/lib/convex-query";
 import { useLocale, useTranslations } from "next-intl";
 import { api } from "@/convex/_generated/api";
-import { useAuthActions } from "@convex-dev/auth/react";
+import { useAppAuthActions as useAuthActions } from "@/lib/auth-actions";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Section, Field, TextInput, SelectInput, Toggle } from "@/components/configurator/editor-primitives";
 import type { Id } from "@/convex/_generated/dataModel";

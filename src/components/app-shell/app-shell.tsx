@@ -11,6 +11,7 @@ import { OPEN_SIDE_MENU_EVENT, SwipeGestures } from "./swipe-gestures";
 import { SkipToMainContent } from "./skip-link";
 import { PlanGate } from "./plan-gate";
 import { ProfileGapsBanner } from "./profile-gaps-banner";
+import { DemoBanner } from "@/demo/demo-banner";
 
 export function AppShell({
   tenant,
@@ -50,6 +51,7 @@ export function AppShell({
             "sm:pt-[calc(env(safe-area-inset-top,0px)+1.25rem)] sm:pl-[max(1.5rem,env(safe-area-inset-left))] sm:pr-[max(1.5rem,env(safe-area-inset-right))]",
             "lg:p-6",
           ].join(" ")}>
+          <DemoBanner />
           <ProfileGapsBanner />
           <PlanGate tenant={tenant}>{children}</PlanGate>
         </main>

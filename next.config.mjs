@@ -37,8 +37,11 @@ const nextConfig = {
   poweredByHeader: false,
   // Exclude the status-page app from the main build
   pageExtensions: ["tsx", "ts", "jsx", "js"],
+  // The in-browser demo database (convex-test) wants Node's `crypto`; the browser gets a tiny stand-in (client bundles only).
+  turbopack: { resolveAlias: { crypto: { browser: "./src/demo/shims/crypto.ts" } } },
   // (`experimental.turbo` was removed: Next 16 rejects the key and warned on every build / start.)
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
+    if (!isServer) config.resolve = { ...config.resolve, alias: { ...config.resolve?.alias, crypto: new URL("./src/demo/shims/crypto.ts", import.meta.url).pathname } };
     config.watchOptions = {
       ...config.watchOptions,
       ignored: ["**/apps/**"],
@@ -71,7 +74,17 @@ const nextConfig = {
         // proxy adds it, with the per-tenant frame-ancestors); without it this rule
         // (declared last) would win and break embedding.
         source: "/((?!w/|c/|demo/).*)",
+        // The public demo host (demo.<domain>) is shown inside an iframe on the marketing site: same hardening, but only that site may frame it.
+        missing: [{ type: "host", value: "demo\\..+" }],
         headers: APP_SECURITY_HEADERS,
+      },
+      {
+        source: "/((?!w/|c/|demo/).*)",
+        has: [{ type: "host", value: "demo\\..+" }],
+        headers: [
+          ...APP_SECURITY_HEADERS.filter((h) => !["X-Frame-Options", "Content-Security-Policy"].includes(h.key)),
+          { key: "Content-Security-Policy", value: "frame-ancestors https://onespec.eu https://www.onespec.eu;" },
+        ],
       },
     ];
   },

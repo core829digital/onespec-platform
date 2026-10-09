@@ -3,6 +3,8 @@ import { getMessages, setRequestLocale } from "next-intl/server";
 import { routing } from "@/i18n/routing";
 import { NextIntlClientProvider } from "next-intl";
 import { notFound } from "next/navigation";
+import { headers } from "next/headers";
+import { isDemoHost } from "@/demo/is-demo";
 import { ConvexClientProvider } from "@/components/providers/convex-provider";
 import { PostHogIdentity } from "@/components/providers/posthog-identity";
 import { ThemeToggleGate } from "@/components/theme-toggle-gate";
@@ -31,6 +33,8 @@ export default async function LocaleLayout({
 
   setRequestLocale(locale);
   const messages = await getMessages();
+  const h = await headers();
+  const demo = isDemoHost(h.get("x-forwarded-host") ?? h.get("host"));
 
   return (
     <NextIntlClientProvider messages={messages} locale={locale}>
@@ -39,7 +43,7 @@ export default async function LocaleLayout({
           (/w widget, /c, /demo, /f, /i, /k) never touch it: inside a dealer's iframe, browsers that block third-party storage make
           that access throw, and the whole widget used to fall over with it. */}
       <ConvexAuthNextjsServerProvider>
-      <ConvexClientProvider>
+      <ConvexClientProvider demo={demo}>
         <PostHogIdentity />
         <RageClickDetector config={{ threshold: 7, windowMs: 2000 }}>
           <MotionConfig reducedMotion="user">

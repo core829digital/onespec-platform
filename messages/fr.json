@@ -3349,5 +3349,14 @@
     "openQuote": "Ouvrir le devis",
     "forSite": "Chantier : {name}",
     "uploadedOn": "Téléversé le {date}"
+  },
+  "demo": {
+    "loadingTitle": "Préparation de la démo…",
+    "loadingBody": "Chargement d'une entreprise complète avec clients, chantiers et devis. Cela ne prend qu'un instant.",
+    "failedTitle": "Impossible de démarrer la démo",
+    "failedBody": "Rechargez la page. Si le problème persiste, essayez un autre navigateur à jour.",
+    "badge": "DÉMO",
+    "banner": "Données d'exemple : essayez tout librement, rien n'est envoyé. Les modifications sont effacées au rechargement de la page.",
+    "restart": "Recommencer la démo"
   }
 }

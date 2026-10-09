@@ -3349,5 +3349,14 @@
     "openQuote": "Open the quote",
     "forSite": "Site: {name}",
     "uploadedOn": "Uploaded on {date}"
+  },
+  "demo": {
+    "loadingTitle": "Preparing the demo…",
+    "loadingBody": "Loading a complete company with customers, sites and quotes. It only takes a moment.",
+    "failedTitle": "The demo could not start",
+    "failedBody": "Reload the page. If it keeps happening, try another up-to-date browser.",
+    "badge": "DEMO",
+    "banner": "Sample data: try everything freely, nothing is sent anywhere. Changes reset when you reload the page.",
+    "restart": "Restart the demo"
   }
 }
