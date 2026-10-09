@@ -32,6 +32,7 @@ export function CookieConsentBanner() {
 
   return (
     <div
+      data-no-swipe
       role="dialog"
       aria-live="polite"
       aria-label={t("title")}

@@ -255,8 +255,9 @@ export default function BillingPage() {
         </div>
       ) : null}
       {notice ? (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4" onClick={() => setNotice(null)}>
           <div
+            onClick={(e) => e.stopPropagation()}
             role="dialog"
             aria-modal="true"
             aria-labelledby="plan-notice-title"

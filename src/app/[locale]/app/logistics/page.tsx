@@ -4,6 +4,7 @@ import { requestConfirm } from "@/lib/confirm-dialog";
 
 import { useEffect, useMemo, useState } from "react";
 import { useMutation } from "convex/react";
+import { useSwipeDismissProps } from "@/hooks/useSwipeDismiss";
 import { useQuery } from "@/lib/convex-query";
 import { useTranslations, useFormatter, useLocale } from "next-intl";
 import { api } from "@/convex/_generated/api";
@@ -353,6 +354,7 @@ function NewDeliveryModal({
     expectedItems?: string[];
   }) => void;
 }) {
+  const swipe = useSwipeDismissProps(onClose);
   const t = useTranslations("logistics.calendar");
   const tl = useTranslations("shipment");
   const [supplyId, setSupplyId] = useState<string>("");
@@ -367,7 +369,7 @@ function NewDeliveryModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
-      <div className="w-full max-w-lg rounded-xl bg-[var(--color-bg)] shadow-xl" onClick={(e) => e.stopPropagation()}>
+      <div {...swipe} className="w-full max-w-lg rounded-xl bg-[var(--color-bg)] shadow-xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b border-[var(--color-border)] p-4">
           <h2 className="text-lg font-semibold text-[var(--color-text)]">{t("newDelivery")}</h2>
         </div>

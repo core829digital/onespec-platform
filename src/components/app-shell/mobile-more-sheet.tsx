@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { useSwipeDismiss } from "@/hooks/useSwipeDismiss";
 import { useLocale, useTranslations } from "next-intl";
 import { Activity, Bell, ChevronRight, Gem, Scale, Settings, X } from "lucide-react";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
@@ -39,6 +40,8 @@ export function MobileMoreSheet({ open, onClose }: { open: boolean; onClose: () 
   const locale = useLocale() as AppLocale;
   const pathname = usePathname();
   const router = useRouter();
+  const panelRef = useRef<HTMLDivElement>(null);
+  useSwipeDismiss(panelRef, onClose, open);
 
   useEffect(() => {
     onClose();
@@ -62,12 +65,14 @@ export function MobileMoreSheet({ open, onClose }: { open: boolean; onClose: () 
   return (
     <div className="lg:hidden fixed inset-0 z-[60] flex items-end justify-center bg-black/55" onClick={onClose}>
       <div
+        ref={panelRef}
+        data-swipe-close="down"
         role="dialog"
         aria-modal="true"
         aria-label={t("moreTitle")}
         data-testid="more-sheet"
         onClick={(e) => e.stopPropagation()}
-        className="max-h-[88dvh] w-full max-w-xl overflow-y-auto rounded-t-3xl border border-b-0 border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl [animation:sheet-up_260ms_var(--ease-out-apple)_both]"
+        className="max-h-[88dvh] w-full max-w-xl overflow-y-auto overscroll-contain rounded-t-3xl border border-b-0 border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4 pb-[calc(1.25rem+env(safe-area-inset-bottom))] shadow-2xl [animation:sheet-up_260ms_var(--ease-out-apple)_both]"
       >
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-base font-semibold text-[var(--color-text)]">{t("moreTitle")}</h2>

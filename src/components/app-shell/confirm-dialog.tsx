@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useSwipeDismiss } from "@/hooks/useSwipeDismiss";
 import { useTranslations } from "next-intl";
 import {
   answerConfirm,
@@ -18,6 +19,8 @@ export function ConfirmDialog() {
   const t = useTranslations("common");
   const [pending, setPending] = useState<ConfirmRequestDetail | null>(null);
   const confirmRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  useSwipeDismiss(panelRef, () => respond(false), !!pending);
 
   useEffect(() => {
     const onRequest = (e: Event) => setPending((e as CustomEvent<ConfirmRequestDetail>).detail);
@@ -55,6 +58,8 @@ export function ConfirmDialog() {
       onClick={() => respond(false)}
     >
       <div
+        ref={panelRef}
+        data-swipe-close="down"
         role="alertdialog"
         aria-modal="true"
         aria-describedby="confirm-dialog-message"

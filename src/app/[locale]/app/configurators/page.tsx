@@ -173,16 +173,16 @@ export default function ConfiguratorsPage() {
           configurators.map((c) => (
             <div
               key={c._id}
-              className="px-6 py-4 flex items-center justify-between"
+              className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6"
             >
-              <div>
-                <p className="font-medium text-[var(--color-text)]">{c.name}</p>
-                <p className="text-sm text-[var(--color-text-secondary)]">
+              <div className="min-w-0">
+                <p className="break-words font-medium text-[var(--color-text)]">{c.name}</p>
+                <p className="break-all text-sm text-[var(--color-text-secondary)]">
                   <span>{c.status in STATUS_KEY ? t(STATUS_KEY[c.status]) : c.status}</span> · /w/
                   {c.publicId}
                 </p>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 [&>a]:min-h-10 [&>button]:min-h-10 sm:[&>a]:min-h-0 sm:[&>button]:min-h-0">
                 {c.status === "draft" && (
                   <button
                     type="button"
@@ -206,7 +206,7 @@ export default function ConfiguratorsPage() {
                 )}
                 <Link
                   href={`/app/configurators/${c._id}`}
-                  className="text-[var(--color-mint-text)] text-sm hover:underline"
+                  className="inline-flex items-center px-1 text-[var(--color-mint-text)] text-sm hover:underline"
                 >
                   {t("edit")}
                 </Link>

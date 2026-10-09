@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useSwipeDismiss } from "@/hooks/useSwipeDismiss";
 import { useTranslations } from "next-intl";
 import { Check, MoreVertical, PlusSquare, Share, SquarePlus, X } from "lucide-react";
 import { useInstallApp } from "@/hooks/useInstallApp";
@@ -55,6 +56,8 @@ function Guide({ guide }: { guide: InstallGuide }) {
 function GuideDialog({ guide, onClose }: { guide: InstallGuide; onClose: () => void }) {
   const t = useTranslations("install");
   const closeRef = useRef<HTMLButtonElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  useSwipeDismiss(panelRef, onClose);
   useEffect(() => {
     closeRef.current?.focus();
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
@@ -64,6 +67,8 @@ function GuideDialog({ guide, onClose }: { guide: InstallGuide; onClose: () => v
   return (
     <div className="fixed inset-0 z-[90] flex items-end justify-center bg-black/55 p-3 sm:items-center" onClick={onClose}>
       <div
+        ref={panelRef}
+        data-swipe-close="down"
         role="dialog"
         aria-modal="true"
         aria-labelledby="install-title"

@@ -271,11 +271,23 @@ async function main() {
     await step("quote: the same signature flow works on a phone", mob2, phone2.problems, () => signQuoteFlow(mob2, "Neri Telefono E2E"));
     await phone2.context.close();
 
+    // more configurators on the list (a draft each), so the row actions are many; then the list is checked on phone and tablet widths
+    await step("configurators: create two more so the list has several rows with their action buttons", page, problems, async () => {
+      for (let i = 0; i < 2; i++) {
+        await page.goto(url("/app/configurators"), { waitUntil: "domcontentloaded" });
+        const create = page.getByRole("button", { name: /Crea configuratore/ });
+        await create.waitFor({ timeout: 20_000 });
+        await page.waitForFunction(() => !document.evaluate("//button[contains(., 'Crea configuratore')]", document, null, 9, null).singleNodeValue?.hasAttribute("disabled"), null, { timeout: 15_000 });
+        await create.click();
+        await page.waitForURL(/\/setup/, { timeout: 20_000 });
+      }
+    });
+
     // ── the same pages on a phone: no sideways scroll, the bottom island is there and sits clear of the page content ───────────────
     const phone = await newSession(browser, seed.owner.token, seed.owner.refresh, { viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
     const mobile = await phone.context.newPage();
-    for (const width of [390, 360]) {
-      await mobile.setViewportSize({ width, height: 844 });
+    for (const width of [390, 360, 768]) {
+      await mobile.setViewportSize({ width, height: width === 768 ? 1024 : 844 });
     for (const path of ["/app/dashboard", "/app/quotes", "/app/quotes/new", "/app/clients", "/app/requests", "/app/configurators", `/app/configurators/${seed.configuratorId}`, `/app/configurators/${seed.configuratorId}/setup`, "/app/showroom", "/app/supply", "/app/account"]) {
       await step(`phone ${width}px ${path.replace(seed.configuratorId, ":id")}`, mobile, phone.problems, async () => {
         await mobile.goto(url(path), { waitUntil: "domcontentloaded" });
@@ -320,6 +332,39 @@ async function main() {
         if (out.length) bad.push(`${name}: ${out.join(" ; ")}`);
       }
       if (bad.length) throw new Error(`sticks out of the screen — ${bad.join(" || ")}`);
+    });
+    await step("phone: swipe down closes the sheet, edge swipe opens the side menu, swipe left closes it", mobile, phone.problems, async () => {
+      await mobile.goto(url("/app/dashboard"), { waitUntil: "domcontentloaded" });
+      const cdp = await phone.context.newCDPSession(mobile);
+      const swipe = async (x1, y1, x2, y2, steps = 8) => {
+        await cdp.send("Input.dispatchTouchEvent", { type: "touchStart", touchPoints: [{ x: x1, y: y1 }] });
+        for (let i = 1; i <= steps; i++) await cdp.send("Input.dispatchTouchEvent", { type: "touchMove", touchPoints: [{ x: x1 + ((x2 - x1) * i) / steps, y: y1 + ((y2 - y1) * i) / steps }] });
+        await cdp.send("Input.dispatchTouchEvent", { type: "touchEnd", touchPoints: [] });
+      };
+      await mobile.getByTestId("bottom-island-more").click();
+      const sheet = mobile.getByTestId("more-sheet");
+      await sheet.waitFor({ timeout: 5000 });
+      await mobile.waitForTimeout(400);
+      const box = await sheet.boundingBox();
+      await swipe(180, box.y + 24, 180, box.y + 300);
+      await sheet.waitFor({ state: "detached", timeout: 4000 });
+      // a short, slow nudge must NOT close it
+      await mobile.getByTestId("bottom-island-more").click();
+      await sheet.waitFor({ timeout: 5000 });
+      await mobile.waitForTimeout(400);
+      const box2 = await sheet.boundingBox();
+      await swipe(180, box2.y + 24, 180, box2.y + 30, 3);
+      await mobile.waitForTimeout(500);
+      if (!(await sheet.isVisible())) throw new Error("a tiny nudge closed the sheet");
+      await mobile.keyboard.press("Escape");
+      await sheet.waitFor({ state: "detached", timeout: 3000 });
+      // edge swipe opens the side menu
+      const menu = mobile.locator('nav[aria-label="Menu"]');
+      await swipe(4, 400, 160, 410);
+      await mobile.waitForFunction(() => { const n = document.querySelector('nav[aria-label="Menu"]'); return !!n && n.getBoundingClientRect().left >= -1; }, null, { timeout: 4000 });
+      await swipe(250, 300, 20, 305);
+      await mobile.waitForFunction(() => { const n = document.querySelector('nav[aria-label="Menu"]'); return !!n && n.getBoundingClientRect().right <= 1; }, null, { timeout: 4000 });
+      void menu;
     });
     await step("phone: 'Altro' opens the controls sheet (light/dark, Add to Home Screen, links) and the side menu has its own button", mobile, phone.problems, async () => {
       await mobile.goto(url("/app/dashboard"), { waitUntil: "domcontentloaded" });

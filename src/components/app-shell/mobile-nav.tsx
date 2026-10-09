@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { useSwipeDismiss } from "@/hooks/useSwipeDismiss";
 import { Link, usePathname } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { useQuery } from "@/lib/convex-query";
@@ -27,6 +28,8 @@ export function MobileNav({
   const viewer = useQuery(api.users.viewer);
   const isPlatformAdmin = viewer?.isPlatformAdmin === true;
   const ended = useSubscriptionEnded(tenant);
+  const panelRef = useRef<HTMLElement>(null);
+  useSwipeDismiss(panelRef, onClose, open);
 
   // Close on route change + lock scroll while open.
   useEffect(() => {
@@ -64,6 +67,8 @@ export function MobileNav({
         aria-label={t("menu")}
       />
       <nav
+        ref={panelRef}
+        data-swipe-close="left"
         className={cn(
           "absolute left-0 top-0 h-full w-72 max-w-[85vw] bg-[var(--color-bg-alt)] border-r border-[var(--color-border)] p-4 transition-transform duration-200 ease-out flex flex-col",
           open ? "translate-x-0" : "-translate-x-full",

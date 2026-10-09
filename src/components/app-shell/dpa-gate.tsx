@@ -31,7 +31,7 @@ export function DpaGate() {
   }
 
   return (
-    <div className="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 p-4" role="dialog" aria-modal="true" aria-labelledby="dpa-gate-title">
+    <div data-no-swipe className="fixed inset-0 z-[90] flex items-center justify-center bg-black/60 p-4" role="dialog" aria-modal="true" aria-labelledby="dpa-gate-title">
       <div className="w-full max-w-md rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg)] p-6 shadow-2xl">
         <h2 id="dpa-gate-title" className="text-lg font-bold text-[var(--color-text)]">{t("gateTitle")}</h2>
         <p className="mt-2 text-sm text-[var(--color-text-secondary)]">{t("gateBody")}</p>

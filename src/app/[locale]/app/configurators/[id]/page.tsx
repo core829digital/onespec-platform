@@ -73,13 +73,13 @@ export default function ConfiguratorEditorPage({
         >
           ←
         </Link>
-        <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-text)]">{cfg.name}</h1>
+        <h1 className="min-w-0 break-words text-2xl sm:text-3xl font-bold text-[var(--color-text)]">{cfg.name}</h1>
         <StatusBadge status={cfg.status} kind="configurator" />
-        <span className="text-xs text-[var(--color-text-secondary)]">
+        <span className="break-all text-xs text-[var(--color-text-secondary)]">
           /w/{cfg.publicId}
           {cfg.publishedCatalogVersion ? ` · v${cfg.publishedCatalogVersion}` : ""}
         </span>
-        <div className="ml-auto flex items-center gap-2">
+        <div className="ml-auto flex flex-wrap items-center gap-2">
           <a
             href={`/w/${cfg.publicId}?preview=1`}
             target="_blank"

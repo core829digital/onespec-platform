@@ -6,6 +6,7 @@ import { useState, useCallback } from "react";
 import { useSearchParams } from "next/navigation";
 import { analytics as posthog } from "@/lib/monitoring";
 import { useMutation } from "convex/react";
+import { useSwipeDismissProps } from "@/hooks/useSwipeDismiss";
 import { useQuery } from "@/lib/convex-query";
 import { useTranslations, useFormatter } from "next-intl";
 import { api } from "@/convex/_generated/api";
@@ -168,6 +169,7 @@ function CantiereModal({
   saving: boolean;
   t: (key: string) => string;
 }) {
+  const swipe = useSwipeDismissProps(onClose);
   const [formData, setFormData] = useState<{
     name: string;
     address: string;
@@ -235,7 +237,7 @@ function CantiereModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-      <div className="bg-[var(--color-bg)] rounded-xl shadow-xl max-w-xl w-full max-h-[90vh] overflow-y-auto">
+      <div {...swipe} className="bg-[var(--color-bg)] rounded-xl shadow-xl max-w-xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-4 border-b border-[var(--color-border)] sticky top-0 bg-[var(--color-bg)] z-10">
           <h2 className="text-lg font-semibold text-[var(--color-text)]">{cantiere ? t("editCantiere") : t("newCantiere")}</h2>
           <button onClick={onClose} className="p-2 rounded-lg hover:bg-[var(--color-bg-alt)]">
@@ -458,11 +460,12 @@ function GuestPinModal({
   format: ReturnType<typeof useFormatter>;
   t: (key: string) => string;
 }) {
+  const swipe = useSwipeDismissProps(onClose);
   const guestUrl = typeof window !== "undefined" ? `${window.location.origin}/k/${pin}` : `/k/${pin}`;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-      <div className="bg-[var(--color-bg)] rounded-xl shadow-xl max-w-md w-full">
+      <div {...swipe} className="bg-[var(--color-bg)] rounded-xl shadow-xl max-w-md w-full">
         <div className="flex items-center justify-between p-4 border-b border-[var(--color-border)]">
           <h2 className="text-lg font-semibold">{t("guestPinGenerated")}</h2>
           <button onClick={onClose} className="p-2 rounded-lg hover:bg-[var(--color-bg-alt)]">

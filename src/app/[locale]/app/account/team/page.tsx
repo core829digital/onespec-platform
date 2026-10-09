@@ -23,7 +23,7 @@ function PasswordReveal({ name, password, onClose }: { name: string; password: s
   const t = useTranslations("team");
   const [copied, setCopied] = useState(false);
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" role="dialog" aria-modal="true" aria-label={t("passwordTitle", { name })}>
+    <div data-no-swipe className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" role="dialog" aria-modal="true" aria-label={t("passwordTitle", { name })}>
       <div className="w-full max-w-md space-y-4 rounded-xl bg-[var(--color-bg)] p-6 shadow-xl">
         <h2 className="text-lg font-semibold text-[var(--color-text)]">{t("passwordTitle", { name })}</h2>
         <p className="select-all rounded-lg border border-[var(--color-mint)] bg-[var(--color-bg-alt)] p-4 text-center font-mono text-2xl font-semibold tracking-[0.25em] text-[var(--color-mint-text)]">

@@ -4,7 +4,7 @@ import { useSubscriptionEnded } from "@/lib/plan-gates";
 import { useTranslations, useLocale } from "next-intl";
 import { analytics as posthog } from "@/lib/monitoring";
 import { useQuery } from "@/lib/convex-query";
-import { Menu, LogOut, User, ChevronDown, Scale, Activity, Gem, Wallet } from "lucide-react";
+import { LogOut, User, ChevronDown, Scale, Activity, Gem, Wallet } from "lucide-react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
@@ -66,11 +66,9 @@ function PlatformBalanceBadge({ tenantId }: { tenantId: Id<"tenants"> }) {
 }
 
 export function Topbar({
-  onMenuClick,
   plan,
   tenantId,
 }: {
-  onMenuClick?: () => void;
   plan?: string;
   tenantId?: Id<"tenants">;
 }) {
@@ -86,17 +84,8 @@ export function Topbar({
   }
 
   return (
-    <header className="sticky top-0 z-20 mx-3 mt-3 flex h-16 items-center justify-between rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-alt)]/70 px-2 shadow-[0_8px_30px_rgb(0_0_0/0.10)] backdrop-blur-xl sm:px-4 lg:px-6">
+    <header className="sticky top-0 z-20 mx-3 mt-3 hidden h-16 lg:flex items-center justify-between rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-alt)]/70 px-2 shadow-[0_8px_30px_rgb(0_0_0/0.10)] backdrop-blur-xl sm:px-4 lg:px-6">
       <div className="flex shrink-0 items-center gap-4">
-        <button
-          type="button"
-          className="lg:hidden p-2 rounded-lg hover:bg-[var(--color-bg-alt)]"
-          onClick={() => onMenuClick?.()}
-          aria-label={t("menu")}
-        >
-          <Menu size={20} />
-        </button>
-
         <div className="hidden lg:flex items-center gap-3">
           <LanguageSwitcher />
           <ThemeToggle variant="inline" />
