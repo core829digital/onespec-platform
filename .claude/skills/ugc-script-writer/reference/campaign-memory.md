@@ -93,3 +93,18 @@ plan extra generations for it.
 Watch time in the first 3 seconds (hook), completion, comments that repeat "banco che lavora anche di notte" (scale signal). Next variations to
 write if W1 works: same script with the creator man 40-50 in a workshop; the "Tested it" and "Accidental discovery" voices; a deep pain angle (the
 evening mental tax of rebuilding quotes).
+
+## Update 2026-10-10 (video W1 v2 consegnato, poi richiesta W2)
+- W1 consegnato: clip Seedance 2.5 1080p 9:16 (23 s) + voce TTS italiana femminile "Elena" riallineata + sottotitoli + schermata widget reale (dalla demo pubblica) + end card logo e onespec.eu. Stefan NON vuole la scritta "Contenuto generato con IA" nel video (si segnala con l'opzione AI della piattaforma alla pubblicazione).
+- Lezione: la voce interna di Seedance sbaglia parole ("sotto" -> "bosso"): usare sempre TTS pulita come traccia finale e controllare con Whisper.
+- Costo: Seedance 2.5, 25 s, 1080p, audio = 300 crediti (saldo 427,71 dopo il W1). Una sola generazione completa possibile per volta.
+
+### Decisioni Stefan per W2
+- Formato: 9:16 verticale (scritto "16:9" per errore, confermato 9:16). Look cinematico, camera shake leggero, piu angolazioni.
+- Problema centrale: curiosi che chiedono solo il prezzo, il montatore perde tempo, nessuna risposta. Il video di "Marco" non e disponibile: usare solo la descrizione di Stefan.
+- Deve presentare: il montatore mette il configuratore sul suo sito con UNA riga di codice (copia e incolla). Claim verificato (embed.js).
+- La creator mostra il telefono con il prodotto alla camera, schermo ben leggibile.
+- Vestito con logo OneSpec: logo vero applicato in montaggio (non generato dall'IA).
+
+### Script W2 (75 parole, checker mid OK; sopra il range 55-70, runtime ~24-25 s)
+> Clienti che chiedono solo il prezzo, ti fanno perdere tempo e poi spariscono? Non è un problema di traffico, è un problema di processo. Pensalo meno come un listino di carta e più come un banco che lavora anche di notte: il cliente configura la finestra, vede il prezzo e ti manda una richiesta completa. Lo metti sul tuo sito con una sola riga di codice. Lascio il link qui sotto se vuoi dargli un'occhiata.
