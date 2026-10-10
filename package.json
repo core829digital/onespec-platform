@@ -77,7 +77,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "convex-test": "^0.0.35",
-    "eslint": "^9",
+    "eslint": "^10",
     "eslint-config-next": "16.3.2",
     "playwright": "^1.56.1",
     "tailwindcss": "^4",
