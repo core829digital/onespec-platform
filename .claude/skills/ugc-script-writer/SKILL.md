@@ -16,12 +16,15 @@ Talk to Stefan in **Italian**, professional, honest, minimal jargon, suggest nex
 - `reference/software-adaptation.md`: how the physical-product blocks become software blocks, truthfulness and AI-disclosure rules,
   language/market notes, creator types for the window-trade audience. **Read for any OneSpec / software job.**
 - `reference/onespec-brief.md`: Section 10 variables pre-filled, verified capabilities, DRAFT items awaiting Stefan, asset checklist.
+- `reference/campaign-memory.md`: **decisions Stefan already made** (format, analogy, audience, creator, brand-spoken), open questions, and every
+  approved script with its production prompt. Read it at intake so nothing is asked twice; update it after every answer or approved script.
 - `scripts/check_voiceover.py`: mechanical audit (dashes, bold, runtime, choppy rhythm, hard-sell words, soft CTA).
   `python3 .claude/skills/ugc-script-writer/scripts/check_voiceover.py --format mid|full script.txt`
 
 ## Workflow
 
 ### 1. Intake (never invent, section 10)
+First read `reference/campaign-memory.md`: anything already decided there is not asked again.
 Collect or confirm: brand and product spelling, whether the brand is spoken and its pronunciation, category, mechanism in 12-year-old
 language, **the tactile analogy**, failed alternatives, avatar, pain point, setting, reference image/screen capture, words the voice
 mispronounces. For OneSpec start from `onespec-brief.md`; items marked DRAFT or ASK must be confirmed by Stefan before they appear in
