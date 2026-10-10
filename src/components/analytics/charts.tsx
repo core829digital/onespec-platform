@@ -131,8 +131,14 @@ export function TrendChart({ data, title, color = "var(--color-mint)", formatVal
 
           {hover !== null && data[hover] ? (
             <div
-              className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full whitespace-nowrap rounded-md bg-[var(--color-bg-inverse)] px-2.5 py-1.5 text-xs text-[var(--color-text-inverse)] shadow-lg"
-              style={{ left: `${(x(hover) / W) * 100}%`, top: `${(y(data[hover].value) / H) * 100}%`, marginTop: -10 }}
+              className="pointer-events-none absolute z-10 whitespace-nowrap rounded-md bg-[var(--color-bg-inverse)] px-2.5 py-1.5 text-xs text-[var(--color-text-inverse)] shadow-lg"
+              // Centred on the point, but kept inside the chart near its edges: a tip sticking out past the screen lets the phone pan sideways.
+              style={{
+                left: `${(x(hover) / W) * 100}%`,
+                top: `${(y(data[hover].value) / H) * 100}%`,
+                marginTop: -10,
+                transform: `translate(${x(hover) / W < 0.15 ? "-10%" : x(hover) / W > 0.85 ? "-90%" : "-50%"}, -100%)`,
+              }}
             >
               <div className="opacity-70">{data[hover].label}</div>
               <div className="font-semibold">{formatValue(data[hover].value)}</div>
@@ -265,7 +271,12 @@ export function PeakHoursChart({ data, title, locale, labels, formatValue }: Pea
                           transition={{ duration: 0.6, delay: i * (mode === "hour" ? 0.02 : 0.05), ease: "easeOut" }}
                         />
                         {hover === i ? (
-                          <div className="pointer-events-none absolute bottom-full left-1/2 z-10 mb-1 -translate-x-1/2 whitespace-nowrap rounded-md bg-[var(--color-bg-inverse)] px-2.5 py-1.5 text-xs text-[var(--color-text-inverse)] shadow-lg">
+                          <div
+                            className={`pointer-events-none absolute bottom-full z-10 mb-1 whitespace-nowrap rounded-md bg-[var(--color-bg-inverse)] px-2.5 py-1.5 text-xs text-[var(--color-text-inverse)] shadow-lg ${
+                              // Near the right / left edge the tip is anchored to that edge so it never leaves the chart (and the screen).
+                              i >= values.length * 0.85 ? "right-0" : i < values.length * 0.15 ? "left-0" : "left-1/2 -translate-x-1/2"
+                            }`}
+                          >
                             <div className="capitalize opacity-70">{nameOf(i)}</div>
                             <div className="font-semibold">{formatValue(v)}</div>
                           </div>

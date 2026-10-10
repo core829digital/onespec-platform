@@ -149,6 +149,27 @@
 html {
   scroll-behavior: auto;
   overscroll-behavior-y: none;
+  /* The browser must not inflate text on rotation / small screens. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* Phones: the page is never wider than the screen. `clip` (unlike `hidden`) makes no scroll container, so sticky and fixed keep working.
+   It is a safety net: wide content is fixed where it is born (tests/e2e/phone-layout.mjs measures every page). */
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+/* iOS Safari zooms the whole page when a field with text under 16px is focused, and leaves it zoomed and shifted to the right.
+   16px on every text field of a touch screen is the only cure that keeps pinch-zoom available to the user (accessibility). */
+@media (max-width: 1023px), (hover: none) and (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):not([type="hidden"]),
+  select,
+  textarea {
+    font-size: 16px;
+  }
 }
 
 body {

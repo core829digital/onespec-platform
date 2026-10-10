@@ -16,6 +16,7 @@
     "e2e:signature": "node e2e/signature-pad.mjs",
     "e2e:app": "node e2e/app-flows.mjs",
     "e2e:demo": "node e2e/demo-flows.mjs",
+    "e2e:phone": "node e2e/phone-layout.mjs",
     "audit:prod": "npm audit --omit=dev --audit-level=high"
   },
   "dependencies": {

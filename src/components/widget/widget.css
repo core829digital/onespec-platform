@@ -16,11 +16,15 @@
 }
 
 @media (max-width: 860px) {
-  .tw-widget-root [data-tw-grid] {
-    grid-template-columns: 1fr !important;
-  }
+  /* minmax(0, 1fr), not 1fr: a bare 1fr is minmax(auto, 1fr), so one wide child (a long label, a row of buttons) widens the whole
+     column past the screen and the page can be dragged sideways. */
+  .tw-widget-root [data-tw-grid],
   .tw-widget-root [data-tw-row] {
-    grid-template-columns: 1fr !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+  .tw-widget-root [data-tw-grid] > *,
+  .tw-widget-root [data-tw-row] > * {
+    min-width: 0;
   }
 }
 
@@ -109,5 +113,18 @@
   .tw-widget-root *::after {
     transition-duration: 0.001ms !important;
     animation-duration: 0.001ms !important;
+  }
+}
+
+/* Same iOS rule inside the embedded widget / wizard (inline styles need !important): a field under 16px makes the phone zoom in on
+   focus and leaves the host page shifted to the right. */
+@media (max-width: 1023px), (hover: none) and (pointer: coarse) {
+  .tw-widget-root input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="hidden"]),
+  .tw-widget-root select,
+  .tw-widget-root textarea,
+  [data-tw-wizard] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="hidden"]),
+  [data-tw-wizard] select,
+  [data-tw-wizard] textarea {
+    font-size: 16px !important;
   }
 }

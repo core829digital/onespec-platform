@@ -96,6 +96,10 @@ jobs:
       - name: Public demo
         run: npm run e2e:demo
 
+      # Phone layout guard: nothing wider than the screen, nothing shifted right, no text field under 16px (iOS zoom on focus).
+      - name: Phone layout
+        run: npm run e2e:phone
+
       - name: Upload the app log when something failed
         if: failure()
         uses: actions/upload-artifact@v4
