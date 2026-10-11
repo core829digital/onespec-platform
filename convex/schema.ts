@@ -805,6 +805,61 @@ export default defineSchema({
     .index("by_status", ["status"])
     .index("by_user", ["userId"]),
 
+  /** Support tickets (customer <-> CORE829 platform admins). */
+  supportTickets: defineTable({
+    tenantId: v.id("tenants"),
+    /** Requester. */
+    userId: v.id("users"),
+    /** Human-friendly sequential number (TKT-0001). */
+    number: v.number(),
+    subject: v.string(),
+    category: v.union(v.literal("bug"), v.literal("billing"), v.literal("account"),
+                      v.literal("howto"), v.literal("feature"), v.literal("other")),
+    priority: v.union(v.literal("low"), v.literal("normal"), v.literal("high"), v.literal("urgent")),
+    status: v.union(v.literal("open"), v.literal("waiting"), v.literal("resolved"), v.literal("closed")),
+    assignedToUserId: v.optional(v.id("users")),
+    pagePath: v.optional(v.string()),
+    messageCount: v.number(),
+    lastMessageAt: v.number(),
+    lastMessageBy: v.union(v.literal("customer"), v.literal("support")),
+    /** Unread flags drive the badges on each side. */
+    customerUnread: v.boolean(),
+    supportUnread: v.boolean(),
+    firstResponseAt: v.optional(v.number()),
+    resolvedAt: v.optional(v.number()),
+    closedAt: v.optional(v.number()),
+    rating: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_tenant_and_lastMessageAt", ["tenantId", "lastMessageAt"])
+    .index("by_user_and_lastMessageAt", ["userId", "lastMessageAt"])
+    .index("by_status_and_lastMessageAt", ["status", "lastMessageAt"])
+    .index("by_assignedToUserId_and_status", ["assignedToUserId", "status"])
+    .index("by_number", ["number"]),
+
+  /** Customer-visible conversation. Children of a ticket (never embedded). */
+  supportMessages: defineTable({
+    ticketId: v.id("supportTickets"),
+    authorUserId: v.id("users"),
+    authorKind: v.union(v.literal("customer"), v.literal("support")),
+    body: v.string(),
+    createdAt: v.number(),
+  }).index("by_ticketId", ["ticketId"]),
+
+  /** Staff-only notes. A separate table so a customer query can never leak them. */
+  supportInternalNotes: defineTable({
+    ticketId: v.id("supportTickets"),
+    authorUserId: v.id("users"),
+    body: v.string(),
+    createdAt: v.number(),
+  }).index("by_ticketId", ["ticketId"]),
+
+  /** Monotonic counters (ticket numbers). */
+  supportCounters: defineTable({
+    key: v.string(),
+    value: v.number(),
+  }).index("by_key", ["key"]),
+
   /** GDPR — explicit, revocable consents, kept separate from auth + prefs. */
   userConsents: defineTable({
     userId: v.id("users"),

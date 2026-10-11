@@ -21,6 +21,7 @@ import {
   Receipt,
   Truck,
   Gift,
+  LifeBuoy,
   PackageCheck,
   type LucideIcon,
 } from "lucide-react";
@@ -85,6 +86,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: "/app/account/team", label: "team", icon: Users },
       { href: "/app/account/billing", label: "plan", icon: Gem, search: "tab=plan" },
       { href: "/app/account/billing", label: "billing", icon: Receipt, search: "tab=billing" },
+      { href: "/app/support", label: "support", icon: LifeBuoy },
       { href: "/app/account/referral", label: "referral", icon: Gift },
       { href: "/app/account", label: "account", icon: Settings },
     ],

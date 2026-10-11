@@ -156,6 +156,11 @@ export type ErrorKey =
   | "quoteCreateFailed"
   | "importTooManyRows"
   | "importRateLimited"
+  | "ticketClosed"
+  | "ticketFull"
+  | "ticketNotResolved"
+  | "ticketAlreadyRated"
+  | "tooManyOpenTickets"
   | "importClosed"
   | "leadDuplicate"
   | "leadInvalid"
@@ -331,6 +336,15 @@ const EXACT: Record<string, ErrorKey> = {
   INVALID_SIGNATURE_FORMAT: "signatureInvalid",
   IMPORT_TOO_MANY_ROWS: "importTooManyRows",
   IMPORT_RATE_LIMITED: "importRateLimited",
+  TICKET_CLOSED: "ticketClosed",
+  TICKET_FULL: "ticketFull",
+  TICKET_NOT_RESOLVED: "ticketNotResolved",
+  TICKET_ALREADY_RATED: "ticketAlreadyRated",
+  TOO_MANY_OPEN_TICKETS: "tooManyOpenTickets",
+  TICKET_NOT_FOUND: "notFound",
+  INVALID_SUBJECT: "invalidInput",
+  INVALID_RATING: "invalidInput",
+  INVALID_TRANSITION: "invalidInput",
   IMPORT_CLOSED: "importClosed",
   LEAD_DUPLICATE: "leadDuplicate",
   LEAD_EMPTY_ROW: "leadInvalid",

@@ -129,9 +129,14 @@ export default function AdminPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-3xl font-bold text-[var(--color-text)]">{t("title")}</h1>
-        <Link href="/app/admin/referrals" className="rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm font-medium text-[var(--color-text)] hover:border-[var(--color-mint)]">
-          {t("referralsLink")}
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link href="/app/admin/support" className="rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm font-medium text-[var(--color-text)] hover:border-[var(--color-mint)]">
+            {t("supportLink")}
+          </Link>
+          <Link href="/app/admin/referrals" className="rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm font-medium text-[var(--color-text)] hover:border-[var(--color-mint)]">
+            {t("referralsLink")}
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
