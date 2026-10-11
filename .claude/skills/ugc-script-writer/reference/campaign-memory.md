@@ -108,3 +108,12 @@ evening mental tax of rebuilding quotes).
 
 ### Script W2 (75 parole, checker mid OK; sopra il range 55-70, runtime ~24-25 s)
 > Clienti che chiedono solo il prezzo, ti fanno perdere tempo e poi spariscono? Non è un problema di traffico, è un problema di processo. Pensalo meno come un listino di carta e più come un banco che lavora anche di notte: il cliente configura la finestra, vede il prezzo e ti manda una richiesta completa. Lo metti sul tuo sito con una sola riga di codice. Lascio il link qui sotto se vuoi dargli un'occhiata.
+
+## Update 2026-10-11 (W2 delivered, Scenario 1 delivered, voice choice)
+- **W2** (Seedance 2.5, 1080p, 26 s, six angles, phone with real widget/embed screens composited, logo composited on the vest) delivered in the Higgsfield library; cost 78 (480p draft) + 312 (1080p).
+- **Scenario 1 "Lo showroom che non dorme mai"** (from Stefan's 5-scenario package) delivered with **Kling 3.0 Turbo** (Kling 2.0 does not exist in the catalogue; 2.6 costs 10 credits/5 s, Turbo 7.5 credits/5 s at 720p): 3 silent B-roll clips + TTS + real screens + captions + end card "PROVALO TU · LINK IN BIO". Total 23.55 credits, 29 s.
+- **Voice locked by Stefan: "Soraya"** (text2speech_v2, variant elevenlabs, voice_id `5c1d2f7f-cdb4-5b1d-bca9-156439e3275e`). "Elena" was judged too cold and aggressive; "Livia" was too slow (30 s).
+- Claims removed from the package scripts because they are not verifiable (never reuse without Stefan's proof): "-60% sopralluoghi", "EUR 8.400 in 3 minuti", "rata EUR 89/mese con detrazione", price "forchetta" with the final price visible only to the dealer, "30 widget brandizzati / un solo listino CSV", "configuratore da EUR 2000", dashboard numbers, "signora Maria".
+- Stefan does not want the "Contenuto generato con IA" text burned into the video (the platform's own AI label is applied at publishing).
+- Technique that works: chroma-key placeholders (flat magenta phone screen and chest patch) in the generated clip, then a per-frame OpenCV tracker warps the real screen/logo onto them (HSV mask, minAreaRect, EMA smoothing). Seedance's own voice mispronounces Italian ("sotto" -> "bosso"): always replace it with clean TTS and re-check with Whisper.
+- Open: remaining 10 credits; scenarios 2-5 need more credits and (for 2 and 4) the real product facts first.
