@@ -8,6 +8,7 @@ import { api } from "@/convex/_generated/api";
 import { Link, useRouter } from "@/i18n/navigation";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import { StatusBadge } from "@/components/support/ticket-badges";
+import { AttachmentPicker, type PendingFile } from "@/components/support/attachments";
 import { SUPPORT_CATEGORIES, SUPPORT_LIMITS, type SupportCategory } from "@/shared/support";
 
 const card = "rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5";
@@ -26,6 +27,7 @@ export default function SupportPage() {
   const [category, setCategory] = useState<SupportCategory>("bug");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
+  const [files, setFiles] = useState<PendingFile[]>([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
 
@@ -38,7 +40,7 @@ export default function SupportPage() {
     setBusy(true);
     setError("");
     try {
-      const { id } = await create({ tenantId: tenant._id, subject, body, category, pagePath: window.location.pathname.replace(/^\/(it|en|fr|de|nl|ro)(?=\/)/, "") });
+      const { id } = await create({ tenantId: tenant._id, subject, body, category, attachmentIds: files.map((f) => f.attachmentId), pagePath: window.location.pathname.replace(/^\/(it|en|fr|de|nl|ro)(?=\/)/, "") });
       router.push(`/app/support/${id}`);
     } catch (err) {
       setError(tf(err));
@@ -77,6 +79,7 @@ export default function SupportPage() {
             <span className="shrink-0">{t("chars", { n: body.length, max: SUPPORT_LIMITS.bodyMax })}</span>
           </span>
         </label>
+        <AttachmentPicker tenantId={tenant?._id} value={files} onChange={setFiles} disabled={busy || !tenant} />
         {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
         <button type="submit" disabled={!valid || busy || !tenant} className="inline-flex min-h-11 items-center justify-center rounded-lg bg-[var(--color-accent)] px-5 py-2 text-sm font-semibold text-[var(--color-accent-ink)] disabled:opacity-50">
           {busy ? t("sending") : t("send")}

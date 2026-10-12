@@ -357,6 +357,7 @@
     "importTooManyRows": "Fișierul are prea multe rânduri (maximum 20.000 per import). Împarte-l în mai multe fișiere.",
     "importRateLimited": "Ai făcut deja multe importuri în ultimele 24 de ore. Încearcă mâine sau contactează suportul.",
     "ticketClosed": "Acest tichet este închis. Deschide un tichet nou pentru a continua.",
+    "tooManyAttachments": "Poți atașa cel mult 3 fișiere pe mesaj și poți ține puține fișiere în așteptare. Trimite mesajul sau elimină un fișier.",
     "ticketFull": "Acest tichet a atins limita de mesaje. Deschide un tichet nou.",
     "ticketNotResolved": "Poți evalua suportul doar după ce tichetul a fost rezolvat.",
     "ticketAlreadyRated": "Ai evaluat deja acest tichet.",
@@ -3411,7 +3412,13 @@
     "cat_account": "Cont și acces",
     "cat_howto": "Cum se face?",
     "cat_feature": "Idee sau cerere",
-    "cat_other": "Altele"
+    "cat_other": "Altele",
+    "attach": "Atașează fișiere",
+    "attaching": "Se încarcă și se verifică…",
+    "attachHint": "Imagini PNG, JPG, WebP sau PDF · până la 3 fișiere · maximum 8 MB fiecare. Nu atașa documente cu date inutile.",
+    "attachTooBig": "Fișierul depășește 8 MB.",
+    "attachRemove": "Elimină fișierul",
+    "attachOpen": "Deschide atașamentul {name}"
   },
   "supportAdmin": {
     "title": "Tichete de suport",

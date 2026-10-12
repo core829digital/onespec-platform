@@ -5,7 +5,7 @@ import { requireMembership } from "./lib/auth";
 import { consumeToken } from "./lib/ratelimit";
 import { SUPPORT_LIMITS } from "../src/shared/support";
 import {
-  assertCustomerAccess, auditSupport, categoryV, cleanBody, cleanPagePath, cleanSubject,
+  assertCustomerAccess, attachmentIdsV, attachmentsByMessage, auditSupport, categoryV, claimAttachments, cleanBody, cleanPagePath, cleanSubject,
   nextTicketNumber, notifyPlatformAdmins,
 } from "./lib/support";
 import { getUserId } from "./lib/auth";
@@ -21,7 +21,7 @@ function publicTicket(t: import("./_generated/dataModel").Doc<"supportTickets">)
 }
 
 export const create = mutation({
-  args: { tenantId: v.id("tenants"), subject: v.string(), body: v.string(), category: categoryV, pagePath: v.optional(v.string()) },
+  args: { tenantId: v.id("tenants"), subject: v.string(), body: v.string(), category: categoryV, pagePath: v.optional(v.string()), attachmentIds: attachmentIdsV },
   handler: async (ctx, args) => {
     const { userId } = await requireMembership(ctx, args.tenantId);
     const subject = cleanSubject(args.subject);
@@ -43,10 +43,11 @@ export const create = mutation({
       messageCount: 1, lastMessageAt: now, lastMessageBy: "customer",
       customerUnread: false, supportUnread: true, createdAt: now,
     });
-    await ctx.db.insert("supportMessages", { ticketId, authorUserId: userId, authorKind: "customer", body, createdAt: now });
+    const messageId = await ctx.db.insert("supportMessages", { ticketId, authorUserId: userId, authorKind: "customer", body, createdAt: now });
     const ticket = (await ctx.db.get(ticketId))!;
+    await claimAttachments(ctx, args.attachmentIds, userId, ticket, messageId);
     await auditSupport(ctx, ticket, userId, "user", "support.ticket.create", { category: args.category });
-    await notifyPlatformAdmins(ctx, ticket, `Nuovo ticket TKT-${number}: ${subject}`.slice(0, 160), "support.new");
+    await notifyPlatformAdmins(ctx, ticket, `Nuovo ticket TKT-${number}: ${subject}`.slice(0, 160), "support.new", "new");
     return { id: ticketId, number };
   },
 });
@@ -84,10 +85,12 @@ export const get = query({
         authors.set(m.authorUserId, u?.name ?? u?.email ?? "");
       }
     }
+    const files = await attachmentsByMessage(ctx, messages.map((m) => m._id));
     return {
       ticket: publicTicket(ticket),
       messages: messages.map((m) => ({
-        _id: m._id, authorKind: m.authorKind, body: m.body, createdAt: m.createdAt,
+        _id: m._id,
+        attachments: files.get(m._id) ?? [], authorKind: m.authorKind, body: m.body, createdAt: m.createdAt,
         // Support staff are shown as the team, never by personal identity.
         authorName: m.authorKind === "customer" ? authors.get(m.authorUserId) ?? "" : null,
         mine: m.authorUserId === userId,
@@ -118,7 +121,7 @@ export const markRead = mutation({
 });
 
 export const reply = mutation({
-  args: { ticketId: v.id("supportTickets"), body: v.string() },
+  args: { ticketId: v.id("supportTickets"), body: v.string(), attachmentIds: attachmentIdsV },
   handler: async (ctx, args) => {
     const userId = await getUserId(ctx);
     if (!userId) throw new ConvexError("UNAUTHENTICATED");
@@ -133,7 +136,8 @@ export const reply = mutation({
     }
     if (ticket.messageCount >= SUPPORT_LIMITS.messagesPerTicket) throw new ConvexError("TICKET_FULL");
     const now = Date.now();
-    await ctx.db.insert("supportMessages", { ticketId: ticket._id, authorUserId: userId, authorKind: "customer", body, createdAt: now });
+    const messageId = await ctx.db.insert("supportMessages", { ticketId: ticket._id, authorUserId: userId, authorKind: "customer", body, createdAt: now });
+    await claimAttachments(ctx, args.attachmentIds, userId, ticket, messageId);
     await ctx.db.patch(ticket._id, {
       status: "open", messageCount: ticket.messageCount + 1, lastMessageAt: now, lastMessageBy: "customer",
       supportUnread: true, resolvedAt: undefined,
@@ -141,7 +145,9 @@ export const reply = mutation({
     });
     const fresh = (await ctx.db.get(ticket._id))!;
     await auditSupport(ctx, fresh, userId, "user", "support.ticket.reply");
-    await notifyPlatformAdmins(ctx, fresh, `Risposta su TKT-${ticket.number}: ${ticket.subject}`.slice(0, 160), "support.customer_reply");
+    await notifyPlatformAdmins(ctx, fresh, `Risposta su TKT-${ticket.number}: ${ticket.subject}`.slice(0, 160), "support.customer_reply",
+      // One e-mail per "turn": follow-ups sent before the team answers stay in-app only.
+      ticket.lastMessageBy === "support" ? "customer_reply" : undefined);
   },
 });
 

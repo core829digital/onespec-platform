@@ -1,9 +1,9 @@
 # Sistema di supporto (ticket) — progetto, sicurezza, lacune
 
-Versione 1.17.0 · 11 ottobre 2026
+Versione 1.18.0 · 12 ottobre 2026 (1.17.0: ticket; 1.18.0: email e allegati)
 
 ## Cosa c'è
-- **Cliente** (`/app/support`, voce «Supporto» nel menu Account): apre un ticket (categoria, oggetto, messaggio), vede lo storico, risponde, chiude, valuta (1–5) a ticket risolto. Le risposte del team arrivano anche come notifica nel campanello.
+- **Cliente** (`/app/support`, voce «Supporto» nel menu Account): apre un ticket (categoria, oggetto, messaggio), vede lo storico, risponde, chiude, valuta (1–5) a ticket risolto. Le risposte del team arrivano come notifica nel campanello **e per email** (nella lingua dell'utente).
 - **Admin piattaforma** (`/app/admin/support`, link dalla pagina Admin): coda per stato (Da gestire / In attesa cliente / Risolti / Chiusi), filtro «Assegnati a me», contatori, obiettivo di prima risposta (SLA indicativo 4/8/24/72 h per urgente/alta/normale/bassa), dettaglio con dati azienda e piano, risposta al cliente, «invia e segna come risolto», **note interne**, priorità, assegnazione, chiusura definitiva, riapertura.
 - **Ciclo di vita**: `open` (tocca al team) → `waiting` (tocca al cliente) → `resolved` → `closed`. Se il cliente risponde a un ticket risolto, si riapre. Un ticket risolto e senza risposte per 7 giorni si chiude da solo (cron). `closed` è definitivo.
 
@@ -18,6 +18,8 @@ Versione 1.17.0 · 11 ottobre 2026
 | XSS | Testo mostrato solo come testo React (`whitespace-pre-wrap`), mai HTML; `pagePath` accettato solo se è un percorso interno |
 | Falsificazione del registro | Audit (`auditLog`) scritto solo dal server: crea, risposta, stato, priorità, assegnazione, nota, valutazione |
 | Transizioni di stato incoerenti | Tabella delle transizioni condivisa (`src/shared/support.ts`), `closed` finale, valutazione una sola volta |
+| Email | Una sola email per «turno»: i messaggi di follow-up del cliente prima della risposta del team restano solo in-app. L'email contiene numero e oggetto del ticket e un link, **mai il testo del messaggio**; si può spegnere dalle preferenze notifiche (tipo «system»). Il link è accettato solo se è un percorso interno `/app/...` |
+| Allegati | Fino a 3 file per messaggio, 8 MB, solo PNG/JPG/WebP/PDF. Il server **legge i byte** (non si fida del tipo dichiarato dal browser): un file finto (HTML rinominato .png, eseguibile, HEIC, PDF con script) viene cancellato dallo storage. Il tipo è quello rilevato dai byte; il nome file è ripulito; i file non inviati (in attesa) si cancellano dopo 24 h; un file può essere usato solo dall'utente che l'ha caricato e una volta sola; il download usa un link breve generato al momento, con le stesse regole di visibilità del ticket, e viene registrato nell'audit |
 | Crescita infinita dei dati | Messaggi in tabella figlia con tetto; cron di pulizia: ticket chiusi da > 730 giorni e ticket di aziende cancellate (con messaggi e note) |
 
 ## File
@@ -26,8 +28,8 @@ Versione 1.17.0 · 11 ottobre 2026
 ## Lacune (onesto) — cosa manca per completare
 | # | Lacuna | Priorità | Nota |
 |---|---|---|---|
-| 1 | **Email** al cliente quando il team risponde, e allo staff per un nuovo ticket (oggi: solo notifica nel campanello) | Alta | Serve un nuovo template in 6 lingue in `convex/emails` e l'invio con `internal.email.send`; rispettare `notificationPrefs` |
-| 2 | **Allegati/screenshot** nei ticket | Alta | Riusare `assertStoredFile` + quarantena `uploadsGuard.sniff` (stesso schema degli upload esistenti); non farlo senza quel controllo |
+| 1 | ~~Email~~ **fatto in 1.18.0** | — | Template `support` in 6 lingue, rispetta le preferenze |
+| 2 | ~~Allegati~~ **fatto in 1.18.0** | — | Resta da fare: scansione antivirus dedicata (oggi: verifica dei byte, non un antivirus) |
 | 3 | Badge «risposta non letta» sulla voce di menu | Media | Query `support.unreadCount` già pronta; manca solo il punto nel menu laterale e nell'isola mobile |
 | 4 | Chi non riesce ad accedere non può aprire ticket | Media | Pagina pubblica «Contattaci» con Turnstile + rate limit per IP, oppure indirizzo email di supporto |
 | 5 | Risposte rapide (modelli) per lo staff, ricerca per testo/azienda, filtro per categoria | Media | Tabella `supportCannedReplies` e indice di ricerca |

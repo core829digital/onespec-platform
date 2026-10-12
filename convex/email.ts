@@ -23,6 +23,7 @@ const TEMPLATE = v.union(
   v.literal("referral_invited"),
   v.literal("referral_registered"),
   v.literal("referral_rewarded"),
+  v.literal("support"),
 );
 
 function getFromAddress(template: string): string {

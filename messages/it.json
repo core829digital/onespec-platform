@@ -357,6 +357,7 @@
     "importTooManyRows": "Il file contiene troppe righe (massimo 20.000 per importazione). Dividilo in più file.",
     "importRateLimited": "Hai già fatto molte importazioni nelle ultime 24 ore. Riprova domani o contatta il supporto.",
     "ticketClosed": "Questo ticket è chiuso. Apri un nuovo ticket per continuare.",
+    "tooManyAttachments": "Puoi allegare al massimo 3 file per messaggio e avere pochi file in attesa. Invia il messaggio o rimuovi un file.",
     "ticketFull": "Questo ticket ha raggiunto il limite di messaggi. Apri un nuovo ticket.",
     "ticketNotResolved": "Puoi valutare il supporto solo dopo che il ticket è stato risolto.",
     "ticketAlreadyRated": "Hai già valutato questo ticket.",
@@ -3411,7 +3412,13 @@
     "cat_account": "Account e accesso",
     "cat_howto": "Come si fa?",
     "cat_feature": "Idea o richiesta",
-    "cat_other": "Altro"
+    "cat_other": "Altro",
+    "attach": "Allega file",
+    "attaching": "Caricamento e controllo…",
+    "attachHint": "Immagini PNG, JPG, WebP o PDF · fino a 3 file · massimo 8 MB ciascuno. Non allegare documenti con dati che non servono.",
+    "attachTooBig": "Il file supera 8 MB.",
+    "attachRemove": "Rimuovi file",
+    "attachOpen": "Apri allegato {name}"
   },
   "supportAdmin": {
     "title": "Ticket di supporto",

@@ -357,6 +357,7 @@
     "importTooManyRows": "Le fichier contient trop de lignes (maximum 20 000 par importation). Divisez-le en plusieurs fichiers.",
     "importRateLimited": "Vous avez déjà effectué de nombreuses importations ces dernières 24 heures. Réessayez demain ou contactez le support.",
     "ticketClosed": "Ce ticket est clos. Ouvrez un nouveau ticket pour continuer.",
+    "tooManyAttachments": "Vous pouvez joindre au plus 3 fichiers par message et en garder peu en attente. Envoyez le message ou retirez un fichier.",
     "ticketFull": "Ce ticket a atteint sa limite de messages. Ouvrez un nouveau ticket.",
     "ticketNotResolved": "Vous ne pouvez évaluer le support qu'une fois le ticket résolu.",
     "ticketAlreadyRated": "Vous avez déjà évalué ce ticket.",
@@ -3411,7 +3412,13 @@
     "cat_account": "Compte et accès",
     "cat_howto": "Comment faire ?",
     "cat_feature": "Idée ou demande",
-    "cat_other": "Autre"
+    "cat_other": "Autre",
+    "attach": "Joindre des fichiers",
+    "attaching": "Envoi et contrôle…",
+    "attachHint": "Images PNG, JPG, WebP ou PDF · jusqu'à 3 fichiers · 8 Mo chacun. Ne joignez pas de documents contenant des données inutiles.",
+    "attachTooBig": "Le fichier dépasse 8 Mo.",
+    "attachRemove": "Retirer le fichier",
+    "attachOpen": "Ouvrir la pièce jointe {name}"
   },
   "supportAdmin": {
     "title": "Tickets de support",

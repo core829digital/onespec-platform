@@ -25,6 +25,10 @@ export const SUPPORT_LIMITS = {
   bodyMin: 3,
   bodyMax: 4000,
   messagesPerTicket: 200,
+  attachmentsPerMessage: 3,
+  attachmentMaxBytes: 8 * 1024 * 1024,
+  pendingAttachmentsPerUser: 6,
+  uploadsPerHour: 20,
   openTicketsPerUser: 10,
   createPerHour: 5,
   replyPerHour: 30,
@@ -53,3 +57,6 @@ export const SUPPORT_SLA_HOURS: Record<SupportPriority, number> = {
   normal: 24,
   low: 72,
 };
+
+/** Types a ticket attachment may have (detected from the bytes on the server). */
+export const SUPPORT_ATTACHMENT_ACCEPT = "image/png,image/jpeg,image/webp,application/pdf";

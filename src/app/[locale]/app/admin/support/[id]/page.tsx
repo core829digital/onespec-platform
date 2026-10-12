@@ -10,6 +10,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { Link } from "@/i18n/navigation";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import { PriorityLabel, StatusBadge } from "@/components/support/ticket-badges";
+import { AttachmentList, AttachmentPicker, type PendingFile } from "@/components/support/attachments";
 import { SUPPORT_LIMITS, SUPPORT_PRIORITIES } from "@/shared/support";
 
 const card = "rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4";
@@ -33,6 +34,7 @@ export default function AdminTicketPage() {
   const setPriority = useMutation(api.supportAdmin.setPriority);
   const assign = useMutation(api.supportAdmin.assign);
   const markRead = useMutation(api.supportAdmin.markRead);
+  const [files, setFiles] = useState<PendingFile[]>([]);
   const [body, setBody] = useState("");
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState(false);
@@ -101,19 +103,21 @@ export default function AdminTicketPage() {
           <li key={m._id} className={`rounded-xl border p-4 ${m.authorKind === "support" ? "border-[var(--color-mint)] bg-[var(--color-bg-alt)]" : "border-[var(--color-border)] bg-[var(--color-bg)]"}`}>
             <p className="mb-1 text-xs text-[var(--color-text-secondary)]">{m.authorKind === "support" ? t("supportMsg") : t("customerMsg")} · {date(m.createdAt)}</p>
             <p className="whitespace-pre-wrap break-words text-sm text-[var(--color-text)]">{m.body}</p>
+            <AttachmentList items={m.attachments} asStaff />
           </li>
         ))}
       </ol>
 
       {!closed && (
-        <form onSubmit={(e) => { e.preventDefault(); if (body.trim().length >= SUPPORT_LIMITS.bodyMin) run(() => reply({ ticketId, body }), () => setBody("")); }} className="space-y-3">
+        <form onSubmit={(e) => { e.preventDefault(); if (body.trim().length >= SUPPORT_LIMITS.bodyMin) run(() => reply({ ticketId, body, attachmentIds: files.map((f) => f.attachmentId) }), () => { setBody(""); setFiles([]); }); }} className="space-y-3">
           <label className="block space-y-1">
             <span className="text-sm font-medium text-[var(--color-text)]">{t("replyToCustomer")}</span>
             <textarea value={body} onChange={(e) => setBody(e.target.value)} maxLength={SUPPORT_LIMITS.bodyMax} rows={5} className={field} />
           </label>
+          <AttachmentPicker value={files} onChange={setFiles} disabled={busy} />
           <div className="flex flex-wrap gap-2">
             <button type="submit" disabled={busy || body.trim().length < SUPPORT_LIMITS.bodyMin} className={primary}>{t("send")}</button>
-            <button type="button" disabled={busy || body.trim().length < SUPPORT_LIMITS.bodyMin} onClick={() => run(() => reply({ ticketId, body, resolve: true }), () => setBody(""))} className={ghost}>{t("sendResolve")}</button>
+            <button type="button" disabled={busy || body.trim().length < SUPPORT_LIMITS.bodyMin} onClick={() => run(() => reply({ ticketId, body, resolve: true, attachmentIds: files.map((f) => f.attachmentId) }), () => { setBody(""); setFiles([]); })} className={ghost}>{t("sendResolve")}</button>
           </div>
         </form>
       )}

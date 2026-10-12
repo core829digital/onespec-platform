@@ -10,6 +10,7 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { Link } from "@/i18n/navigation";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import { StatusBadge } from "@/components/support/ticket-badges";
+import { AttachmentList, AttachmentPicker, type PendingFile } from "@/components/support/attachments";
 import { SUPPORT_LIMITS } from "@/shared/support";
 
 const card = "rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5";
@@ -27,6 +28,8 @@ export default function TicketPage() {
   const close = useMutation(api.support.close);
   const rate = useMutation(api.support.rate);
   const markRead = useMutation(api.support.markRead);
+  const tenant = useQuery(api.tenants.getMyTenant);
+  const [files, setFiles] = useState<PendingFile[]>([]);
   const [body, setBody] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -48,8 +51,9 @@ export default function TicketPage() {
     setBusy(true);
     setError("");
     try {
-      await reply({ ticketId, body });
+      await reply({ ticketId, body, attachmentIds: files.map((f) => f.attachmentId) });
       setBody("");
+      setFiles([]);
     } catch (err) {
       setError(tf(err));
     } finally {
@@ -84,6 +88,7 @@ export default function TicketPage() {
               {m.authorKind === "support" ? t("team") : m.mine ? t("you") : m.authorName} · {date(m.createdAt)}
             </p>
             <p className="whitespace-pre-wrap break-words text-sm text-[var(--color-text)]">{m.body}</p>
+            <AttachmentList items={m.attachments} />
           </li>
         ))}
       </ol>
@@ -116,6 +121,7 @@ export default function TicketPage() {
             <span className="text-sm font-medium text-[var(--color-text)]">{t("reply")}</span>
             <textarea value={body} onChange={(e) => setBody(e.target.value)} maxLength={SUPPORT_LIMITS.bodyMax} rows={5} placeholder={t("replyPlaceholder")} className={field} />
           </label>
+          <AttachmentPicker tenantId={tenant?._id} value={files} onChange={setFiles} disabled={busy || !tenant} />
           <div className="flex flex-wrap items-center gap-3">
             <button type="submit" disabled={busy || body.trim().length < SUPPORT_LIMITS.bodyMin} className="inline-flex min-h-11 items-center justify-center rounded-lg bg-[var(--color-accent)] px-5 py-2 text-sm font-semibold text-[var(--color-accent-ink)] disabled:opacity-50">
               {busy ? t("sending") : t("send")}

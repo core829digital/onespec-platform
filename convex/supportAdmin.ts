@@ -4,7 +4,7 @@ import { paginationOptsValidator } from "convex/server";
 import { requirePlatformAdmin } from "./lib/auth";
 import { consumeToken } from "./lib/ratelimit";
 import { SUPPORT_LIMITS, SUPPORT_SLA_HOURS, canTransition } from "../src/shared/support";
-import { auditSupport, cleanBody, notifyUser, priorityV, statusV } from "./lib/support";
+import { attachmentIdsV, attachmentsByMessage, auditSupport, claimAttachments, cleanBody, deleteTicketAttachments, notifyUser, priorityV, statusV } from "./lib/support";
 
 /** Queue of tickets for platform admins, newest activity first. */
 export const queue = query({
@@ -51,9 +51,10 @@ export const get = query({
       ctx.db.query("supportMessages").withIndex("by_ticketId", (q) => q.eq("ticketId", t._id)).take(SUPPORT_LIMITS.messagesPerTicket + 1),
       ctx.db.query("supportInternalNotes").withIndex("by_ticketId", (q) => q.eq("ticketId", t._id)).take(200),
     ]);
+    const files = await attachmentsByMessage(ctx, messages.map((m) => m._id));
     return {
       ticket: { ...t, tenantName: tenant?.name ?? "—", tenantPlan: tenant?.plan ?? null, requester: user?.email ?? user?.name ?? "—" },
-      messages: messages.map((m) => ({ _id: m._id, authorKind: m.authorKind, body: m.body, createdAt: m.createdAt })),
+      messages: messages.map((m) => ({ _id: m._id, authorKind: m.authorKind, body: m.body, createdAt: m.createdAt, attachments: files.get(m._id) ?? [] })),
       notes: notes.map((n) => ({ _id: n._id, body: n.body, createdAt: n.createdAt, authorUserId: n.authorUserId })),
     };
   },
@@ -69,7 +70,7 @@ export const markRead = mutation({
 });
 
 export const reply = mutation({
-  args: { ticketId: v.id("supportTickets"), body: v.string(), resolve: v.optional(v.boolean()) },
+  args: { ticketId: v.id("supportTickets"), body: v.string(), resolve: v.optional(v.boolean()), attachmentIds: attachmentIdsV },
   handler: async (ctx, args) => {
     const adminId = await requirePlatformAdmin(ctx);
     const t = await ctx.db.get(args.ticketId);
@@ -80,7 +81,8 @@ export const reply = mutation({
     if (t.messageCount >= SUPPORT_LIMITS.messagesPerTicket) throw new ConvexError("TICKET_FULL");
     const now = Date.now();
     const status = args.resolve ? "resolved" : "waiting";
-    await ctx.db.insert("supportMessages", { ticketId: t._id, authorUserId: adminId, authorKind: "support", body, createdAt: now });
+    const messageId = await ctx.db.insert("supportMessages", { ticketId: t._id, authorUserId: adminId, authorKind: "support", body, createdAt: now });
+    await claimAttachments(ctx, args.attachmentIds, adminId, t, messageId);
     await ctx.db.patch(t._id, {
       status, messageCount: t.messageCount + 1, lastMessageAt: now, lastMessageBy: "support",
       customerUnread: true, supportUnread: false,
@@ -90,7 +92,7 @@ export const reply = mutation({
     });
     const fresh = (await ctx.db.get(t._id))!;
     await auditSupport(ctx, fresh, adminId, "admin", "support.ticket.staff_reply", { resolve: args.resolve === true });
-    await notifyUser(ctx, t.userId, fresh, `Risposta dal supporto: TKT-${t.number}`, `/app/support/${t._id}`, "support.reply");
+    await notifyUser(ctx, t.userId, fresh, `Risposta dal supporto: TKT-${t.number}`, `/app/support/${t._id}`, "support.reply", args.resolve ? "resolved" : "reply");
   },
 });
 
@@ -122,7 +124,7 @@ export const setStatus = mutation({
     });
     await auditSupport(ctx, t, adminId, "admin", "support.ticket.status", { from: t.status, to: args.status });
     if (args.status === "resolved" || args.status === "closed") {
-      await notifyUser(ctx, t.userId, t, `Ticket TKT-${t.number} ${args.status === "resolved" ? "risolto" : "chiuso"}`, `/app/support/${t._id}`, "support.status");
+      await notifyUser(ctx, t.userId, t, `Ticket TKT-${t.number} ${args.status === "resolved" ? "risolto" : "chiuso"}`, `/app/support/${t._id}`, "support.status", args.status === "resolved" ? "resolved" : undefined);
     }
   },
 });
@@ -176,6 +178,7 @@ export const purgeOldAndOrphans = internalMutation({
     for (const t of recent) if (!(await ctx.db.get(t.tenantId))) orphans.push(t);
     for (const t of [...old, ...orphans]) {
       for (const m of await ctx.db.query("supportMessages").withIndex("by_ticketId", (q) => q.eq("ticketId", t._id)).take(300)) await ctx.db.delete(m._id);
+      await deleteTicketAttachments(ctx, t._id);
       for (const n of await ctx.db.query("supportInternalNotes").withIndex("by_ticketId", (q) => q.eq("ticketId", t._id)).take(300)) await ctx.db.delete(n._id);
       await ctx.db.delete(t._id);
     }

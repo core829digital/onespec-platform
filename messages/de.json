@@ -357,6 +357,7 @@
     "importTooManyRows": "Die Datei enthält zu viele Zeilen (maximal 20.000 pro Import). Teilen Sie sie in mehrere Dateien auf.",
     "importRateLimited": "Sie haben in den letzten 24 Stunden bereits viele Importe durchgeführt. Versuchen Sie es morgen erneut oder kontaktieren Sie den Support.",
     "ticketClosed": "Dieses Ticket ist geschlossen. Eröffnen Sie ein neues Ticket, um fortzufahren.",
+    "tooManyAttachments": "Sie können höchstens 3 Dateien pro Nachricht anhängen und nur wenige Dateien bereithalten. Senden Sie die Nachricht oder entfernen Sie eine Datei.",
     "ticketFull": "Dieses Ticket hat das Nachrichtenlimit erreicht. Bitte eröffnen Sie ein neues Ticket.",
     "ticketNotResolved": "Sie können den Support erst bewerten, wenn das Ticket gelöst wurde.",
     "ticketAlreadyRated": "Sie haben dieses Ticket bereits bewertet.",
@@ -3411,7 +3412,13 @@
     "cat_account": "Konto und Zugang",
     "cat_howto": "Wie geht das?",
     "cat_feature": "Idee oder Wunsch",
-    "cat_other": "Sonstiges"
+    "cat_other": "Sonstiges",
+    "attach": "Dateien anhängen",
+    "attaching": "Wird hochgeladen und geprüft…",
+    "attachHint": "PNG-, JPG-, WebP-Bilder oder PDF · bis zu 3 Dateien · je 8 MB. Hängen Sie keine Dokumente mit unnötigen Daten an.",
+    "attachTooBig": "Die Datei ist größer als 8 MB.",
+    "attachRemove": "Datei entfernen",
+    "attachOpen": "Anhang {name} öffnen"
   },
   "supportAdmin": {
     "title": "Support-Tickets",

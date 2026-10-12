@@ -81,7 +81,16 @@ export interface EmailStrings {
     /** Reward paid as money to the inviter's Stripe account. */
     paid: { subject: (amount: string) => string; title: string; body: (amount: string) => string; cta: string };
   };
+  /** Support tickets: one mail shape, four situations. */
+  support: { reply: SupportMail; resolved: SupportMail; staffNew: SupportMail; staffReply: SupportMail };
   notification: string;
+}
+
+interface SupportMail {
+  subject: (ticket: string) => string;
+  title: string;
+  body: (ticketSubject: string) => string;
+  cta: string;
 }
 
 const it: EmailStrings = {
@@ -203,6 +212,32 @@ const it: EmailStrings = {
       title: "Premio invito pagato",
       body: (a) => `Abbiamo trasferito ${a} sul tuo conto Stripe collegato: lo vedrai tra i tuoi pagamenti Stripe nei prossimi giorni. Grazie per aver portato un nuovo cliente.`,
       cta: "Vedi i tuoi inviti",
+    },
+  },
+  support: {
+    reply: {
+      subject: (n) => `Risposta al tuo ticket ${n} — onespec`,
+      title: "Il team ha risposto al tuo ticket",
+      body: (s) => `Il team CORE829 ha risposto al ticket «${s}». Apri la conversazione per leggere la risposta.`,
+      cta: "Leggi la risposta",
+    },
+    resolved: {
+      subject: (n) => `Ticket ${n} risolto — onespec`,
+      title: "Il tuo ticket è stato risolto",
+      body: (s) => `Il team ha segnato come risolto il ticket «${s}». Se il problema persiste, rispondi e lo riapriamo; in caso contrario si chiuderà da solo tra 7 giorni.`,
+      cta: "Apri il ticket",
+    },
+    staffNew: {
+      subject: (n) => `Nuovo ticket ${n} — onespec`,
+      title: "Nuovo ticket di supporto",
+      body: (s) => `È stato aperto il ticket «${s}». Apri la coda per prenderlo in carico.`,
+      cta: "Apri il ticket",
+    },
+    staffReply: {
+      subject: (n) => `Il cliente ha risposto al ticket ${n} — onespec`,
+      title: "Nuova risposta del cliente",
+      body: (s) => `Il cliente ha risposto al ticket «${s}».`,
+      cta: "Apri il ticket",
     },
   },
   notification: "Notifica",
@@ -329,6 +364,32 @@ const en: EmailStrings = {
       cta: "See your invitations",
     },
   },
+  support: {
+    reply: {
+      subject: (n) => `Reply to your ticket ${n} — onespec`,
+      title: "The team replied to your ticket",
+      body: (s) => `The CORE829 team replied to the ticket “${s}”. Open the conversation to read the reply.`,
+      cta: "Read the reply",
+    },
+    resolved: {
+      subject: (n) => `Ticket ${n} resolved — onespec`,
+      title: "Your ticket has been resolved",
+      body: (s) => `The team marked the ticket “${s}” as resolved. If the problem persists, reply and we will reopen it; otherwise it will close by itself in 7 days.`,
+      cta: "Open the ticket",
+    },
+    staffNew: {
+      subject: (n) => `New ticket ${n} — onespec`,
+      title: "New support ticket",
+      body: (s) => `The ticket “${s}” was opened. Open the queue to pick it up.`,
+      cta: "Open the ticket",
+    },
+    staffReply: {
+      subject: (n) => `Customer replied to ticket ${n} — onespec`,
+      title: "New reply from the customer",
+      body: (s) => `The customer replied to the ticket “${s}”.`,
+      cta: "Open the ticket",
+    },
+  },
   notification: "Notification",
 };
 
@@ -451,6 +512,32 @@ const fr: EmailStrings = {
       title: "Récompense d'invitation versée",
       body: (a) => `Nous avons transféré ${a} sur votre compte Stripe connecté : vous le verrez parmi vos versements Stripe dans les prochains jours. Merci d'avoir amené un nouveau client.`,
       cta: "Voir mes invitations",
+    },
+  },
+  support: {
+    reply: {
+      subject: (n) => `Réponse à votre ticket ${n} — onespec`,
+      title: "L'équipe a répondu à votre ticket",
+      body: (s) => `L'équipe CORE829 a répondu au ticket « ${s} ». Ouvrez la conversation pour lire la réponse.`,
+      cta: "Lire la réponse",
+    },
+    resolved: {
+      subject: (n) => `Ticket ${n} résolu — onespec`,
+      title: "Votre ticket a été résolu",
+      body: (s) => `L'équipe a marqué le ticket « ${s} » comme résolu. Si le problème persiste, répondez et nous le rouvrirons ; sinon il se fermera tout seul dans 7 jours.`,
+      cta: "Ouvrir le ticket",
+    },
+    staffNew: {
+      subject: (n) => `Nouveau ticket ${n} — onespec`,
+      title: "Nouveau ticket de support",
+      body: (s) => `Le ticket « ${s} » a été ouvert. Ouvrez la file pour le prendre en charge.`,
+      cta: "Ouvrir le ticket",
+    },
+    staffReply: {
+      subject: (n) => `Le client a répondu au ticket ${n} — onespec`,
+      title: "Nouvelle réponse du client",
+      body: (s) => `Le client a répondu au ticket « ${s} ».`,
+      cta: "Ouvrir le ticket",
     },
   },
   notification: "Notification",
@@ -577,6 +664,32 @@ const de: EmailStrings = {
       cta: "Meine Einladungen ansehen",
     },
   },
+  support: {
+    reply: {
+      subject: (n) => `Antwort auf Ihr Ticket ${n} — onespec`,
+      title: "Das Team hat auf Ihr Ticket geantwortet",
+      body: (s) => `Das CORE829-Team hat auf das Ticket „${s}“ geantwortet. Öffnen Sie die Unterhaltung, um die Antwort zu lesen.`,
+      cta: "Antwort lesen",
+    },
+    resolved: {
+      subject: (n) => `Ticket ${n} gelöst — onespec`,
+      title: "Ihr Ticket wurde gelöst",
+      body: (s) => `Das Team hat das Ticket „${s}“ als gelöst markiert. Besteht das Problem weiter, antworten Sie und wir öffnen es erneut; andernfalls schließt es sich in 7 Tagen von selbst.`,
+      cta: "Ticket öffnen",
+    },
+    staffNew: {
+      subject: (n) => `Neues Ticket ${n} — onespec`,
+      title: "Neues Support-Ticket",
+      body: (s) => `Das Ticket „${s}“ wurde eröffnet. Öffnen Sie die Warteschlange, um es zu übernehmen.`,
+      cta: "Ticket öffnen",
+    },
+    staffReply: {
+      subject: (n) => `Kunde hat auf Ticket ${n} geantwortet — onespec`,
+      title: "Neue Antwort des Kunden",
+      body: (s) => `Der Kunde hat auf das Ticket „${s}“ geantwortet.`,
+      cta: "Ticket öffnen",
+    },
+  },
   notification: "Benachrichtigung",
 };
 
@@ -701,6 +814,32 @@ const nl: EmailStrings = {
       cta: "Bekijk je uitnodigingen",
     },
   },
+  support: {
+    reply: {
+      subject: (n) => `Antwoord op uw ticket ${n} — onespec`,
+      title: "Het team heeft op uw ticket gereageerd",
+      body: (s) => `Het CORE829-team heeft gereageerd op het ticket “${s}”. Open het gesprek om het antwoord te lezen.`,
+      cta: "Antwoord lezen",
+    },
+    resolved: {
+      subject: (n) => `Ticket ${n} opgelost — onespec`,
+      title: "Uw ticket is opgelost",
+      body: (s) => `Het team heeft het ticket “${s}” als opgelost gemarkeerd. Blijft het probleem bestaan, antwoord dan en we heropenen het; anders sluit het over 7 dagen vanzelf.`,
+      cta: "Ticket openen",
+    },
+    staffNew: {
+      subject: (n) => `Nieuw ticket ${n} — onespec`,
+      title: "Nieuw supportticket",
+      body: (s) => `Het ticket “${s}” is geopend. Open de wachtrij om het op te pakken.`,
+      cta: "Ticket openen",
+    },
+    staffReply: {
+      subject: (n) => `Klant heeft gereageerd op ticket ${n} — onespec`,
+      title: "Nieuw antwoord van de klant",
+      body: (s) => `De klant heeft gereageerd op het ticket “${s}”.`,
+      cta: "Ticket openen",
+    },
+  },
   notification: "Melding",
 };
 
@@ -823,6 +962,32 @@ const ro: EmailStrings = {
       title: "Recompensă de invitație plătită",
       body: (a) => `Am transferat ${a} în contul tău Stripe conectat: îl vei vedea printre plățile tale Stripe în următoarele zile. Mulțumim că ai adus un client nou.`,
       cta: "Vezi invitațiile tale",
+    },
+  },
+  support: {
+    reply: {
+      subject: (n) => `Răspuns la tichetul tău ${n} — onespec`,
+      title: "Echipa a răspuns la tichetul tău",
+      body: (s) => `Echipa CORE829 a răspuns la tichetul „${s}”. Deschide conversația pentru a citi răspunsul.`,
+      cta: "Citește răspunsul",
+    },
+    resolved: {
+      subject: (n) => `Tichetul ${n} rezolvat — onespec`,
+      title: "Tichetul tău a fost rezolvat",
+      body: (s) => `Echipa a marcat tichetul „${s}” ca rezolvat. Dacă problema persistă, răspunde și îl redeschidem; altfel se închide singur în 7 zile.`,
+      cta: "Deschide tichetul",
+    },
+    staffNew: {
+      subject: (n) => `Tichet nou ${n} — onespec`,
+      title: "Tichet nou de suport",
+      body: (s) => `Tichetul „${s}” a fost deschis. Deschide coada pentru a-l prelua.`,
+      cta: "Deschide tichetul",
+    },
+    staffReply: {
+      subject: (n) => `Clientul a răspuns la tichetul ${n} — onespec`,
+      title: "Răspuns nou de la client",
+      body: (s) => `Clientul a răspuns la tichetul „${s}”.`,
+      cta: "Deschide tichetul",
     },
   },
   notification: "Notificare",

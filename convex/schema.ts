@@ -854,6 +854,30 @@ export default defineSchema({
     createdAt: v.number(),
   }).index("by_ticketId", ["ticketId"]),
 
+  /**
+   * Files attached to support messages. A file is "pending" (uploaded and
+   * byte-verified, not yet sent) until a message claims it; unclaimed files are
+   * deleted by a cron after 24 h.
+   */
+  supportAttachments: defineTable({
+    tenantId: v.optional(v.id("tenants")),
+    uploaderUserId: v.id("users"),
+    pending: v.boolean(),
+    ticketId: v.optional(v.id("supportTickets")),
+    messageId: v.optional(v.id("supportMessages")),
+    storageId: v.id("_storage"),
+    fileName: v.string(),
+    /** Detected from the bytes, never taken from the browser. */
+    contentType: v.union(v.literal("image/png"), v.literal("image/jpeg"), v.literal("image/webp"), v.literal("application/pdf")),
+    sizeBytes: v.number(),
+    createdAt: v.number(),
+  })
+    .index("by_messageId", ["messageId"])
+    .index("by_ticketId", ["ticketId"])
+    .index("by_storageId", ["storageId"])
+    .index("by_uploaderUserId_and_pending", ["uploaderUserId", "pending"])
+    .index("by_pending_and_createdAt", ["pending", "createdAt"]),
+
   /** Monotonic counters (ticket numbers). */
   supportCounters: defineTable({
     key: v.string(),
@@ -891,7 +915,7 @@ export default defineSchema({
                       v.literal("admin_resend"), v.literal("purchase_receipt"),
                       v.literal("subscription_confirmation"),
                       v.literal("referral_invited"), v.literal("referral_registered"),
-                      v.literal("referral_rewarded")),
+                      v.literal("referral_rewarded"), v.literal("support")),
     subject: v.string(),
     status: v.union(v.literal("queued"), v.literal("sent"),
                     v.literal("noop"), v.literal("failed")),

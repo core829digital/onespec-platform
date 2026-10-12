@@ -157,6 +157,7 @@ export type ErrorKey =
   | "importTooManyRows"
   | "importRateLimited"
   | "ticketClosed"
+  | "tooManyAttachments"
   | "ticketFull"
   | "ticketNotResolved"
   | "ticketAlreadyRated"
@@ -271,6 +272,7 @@ const EXACT: Record<string, ErrorKey> = {
   SIGNATURE_TOO_LARGE: "signatureInvalid",
   UNSUPPORTED_IMAGE_TYPE: "imageType",
   IMAGE_TOO_LARGE: "imageTooLarge",
+  IMAGE_TOO_LARGE_PIXELS: "imageTooLarge",
   UNSUPPORTED_FILE_TYPE: "fileType",
   FILE_TOO_LARGE: "fileTooLarge",
   ALREADY_MEMBER: "alreadyMember",
@@ -337,6 +339,8 @@ const EXACT: Record<string, ErrorKey> = {
   IMPORT_TOO_MANY_ROWS: "importTooManyRows",
   IMPORT_RATE_LIMITED: "importRateLimited",
   TICKET_CLOSED: "ticketClosed",
+  TOO_MANY_ATTACHMENTS: "tooManyAttachments",
+  ATTACHMENT_NOT_FOUND: "notFound",
   TICKET_FULL: "ticketFull",
   TICKET_NOT_RESOLVED: "ticketNotResolved",
   TICKET_ALREADY_RATED: "ticketAlreadyRated",

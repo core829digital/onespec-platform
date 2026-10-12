@@ -55,6 +55,11 @@ export interface AuthEmailData {
   percent?: number;
   /** referral_rewarded: how the reward was paid ("credit" on the subscription, or "stripe" = money). */
   payout?: string;
+  /** support: which situation ("reply" | "resolved" | "new" | "customer_reply"), the ticket number, its subject and the in-app path to open. */
+  supportKind?: string;
+  ticketNumber?: number;
+  ticketSubject?: string;
+  ticketPath?: string;
 }
 
 /** HTML-entity-escape a string for safe interpolation into element text/attributes. */
@@ -368,6 +373,25 @@ export function renderAuthEmail(template: string, locale: string, data: AuthEmai
            ${cta(href, T.cta)}`,
         ),
         text: `${line(T.subject(amount))}\n${href}`,
+      };
+    }
+
+    case "support": {
+      const S = L.support;
+      const M = data.supportKind === "resolved" ? S.resolved : data.supportKind === "new" ? S.staffNew : data.supportKind === "customer_reply" ? S.staffReply : S.reply;
+      const num = `TKT-${String(Math.max(0, Math.floor(Number(data.ticketNumber ?? 0)))).padStart(4, "0")}`;
+      // Only same-app paths are linked; anything else falls back to the support page.
+      const path = typeof data.ticketPath === "string" && /^\/app\/[A-Za-z0-9/_-]{1,120}$/.test(data.ticketPath) ? data.ticketPath : "/app/support";
+      const href = `${base}${path}`;
+      const subj = line(String(data.ticketSubject ?? "")).slice(0, 120);
+      return {
+        subject: line(M.subject(num)),
+        html: wrap(
+          `${H1}${M.title}</h1>
+           ${P}${M.body(esc(subj))}</p>
+           ${cta(href, M.cta)}`,
+        ),
+        text: `${M.title}\n${line(M.body(subj))}\n${href}`,
       };
     }
 

@@ -357,6 +357,7 @@
     "importTooManyRows": "The file has too many rows (maximum 20,000 per import). Split it into several files.",
     "importRateLimited": "You have already run many imports in the last 24 hours. Try again tomorrow or contact support.",
     "ticketClosed": "This ticket is closed. Open a new ticket to continue.",
+    "tooManyAttachments": "You can attach at most 3 files per message and keep only a few files waiting. Send the message or remove a file.",
     "ticketFull": "This ticket has reached its message limit. Please open a new ticket.",
     "ticketNotResolved": "You can rate support only after the ticket has been resolved.",
     "ticketAlreadyRated": "You have already rated this ticket.",
@@ -3411,7 +3412,13 @@
     "cat_account": "Account and access",
     "cat_howto": "How do I…?",
     "cat_feature": "Idea or request",
-    "cat_other": "Other"
+    "cat_other": "Other",
+    "attach": "Attach files",
+    "attaching": "Uploading and checking…",
+    "attachHint": "PNG, JPG, WebP images or PDF · up to 3 files · 8 MB each. Do not attach documents with data that is not needed.",
+    "attachTooBig": "The file is larger than 8 MB.",
+    "attachRemove": "Remove file",
+    "attachOpen": "Open attachment {name}"
   },
   "supportAdmin": {
     "title": "Support tickets",

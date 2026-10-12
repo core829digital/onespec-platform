@@ -2,7 +2,7 @@
 import { describe, expect, test } from "vitest";
 import { renderAuthEmail, type AuthEmailData } from "../convex/emails/auth";
 
-const TEMPLATES = ["verify", "reset", "welcome_alpha", "welcome", "new_quote_request", "quote_status_changed", "member_joined", "configurator_published", "plan_limit", "system", "team_access", "invitation", "referral_invited", "referral_registered", "referral_rewarded", "admin_resend"];
+const TEMPLATES = ["verify", "reset", "welcome_alpha", "welcome", "new_quote_request", "quote_status_changed", "member_joined", "configurator_published", "plan_limit", "system", "team_access", "invitation", "referral_invited", "referral_registered", "referral_rewarded", "support", "admin_resend"];
 const LOCALES = ["it", "en", "fr", "de", "nl", "ro"];
 
 const DATA: AuthEmailData = {
@@ -32,6 +32,10 @@ const DATA: AuthEmailData = {
   amount: "€ 25,00",
   percent: 20,
   payout: "credit",
+  supportKind: "reply",
+  ticketNumber: 7,
+  ticketSubject: "Problema <b>preventivo</b>",
+  ticketPath: "/app/support/abc",
 };
 
 describe("automatic e-mails: every template, every language", () => {
