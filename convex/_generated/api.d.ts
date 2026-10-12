@@ -100,6 +100,7 @@ import type * as supplies from "../supplies.js";
 import type * as suppliers from "../suppliers.js";
 import type * as support from "../support.js";
 import type * as supportAdmin from "../supportAdmin.js";
+import type * as supportContact from "../supportContact.js";
 import type * as supportFiles from "../supportFiles.js";
 import type * as surveys from "../surveys.js";
 import type * as teamAccess from "../teamAccess.js";
@@ -213,6 +214,7 @@ declare const fullApi: ApiFromModules<{
   suppliers: typeof suppliers;
   support: typeof support;
   supportAdmin: typeof supportAdmin;
+  supportContact: typeof supportContact;
   supportFiles: typeof supportFiles;
   surveys: typeof surveys;
   teamAccess: typeof teamAccess;

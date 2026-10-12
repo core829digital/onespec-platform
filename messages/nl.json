@@ -44,7 +44,8 @@
     "referral": "Nodig uit en bespaar",
     "supply": "Levering",
     "leads": "Leads",
-    "support": "Support"
+    "support": "Support",
+    "supportUnread": "{n, plural, one {# ongelezen antwoord} other {# ongelezen antwoorden}}"
   },
   "dashboard": {
     "title": "Overzicht",
@@ -274,7 +275,8 @@
     "join": {
       "prompt": "Ben je uitgenodigd voor het team van een bedrijf?",
       "cta": "Een bedrijf vervoegen"
-    }
+    },
+    "contactHelp": "Problemen met inloggen? Neem contact op"
   },
   "notifications": {
     "title": "Notifications",
@@ -3137,7 +3139,9 @@
     "status": "Servicestatus",
     "legal": "Juridische pagina's",
     "close": "Sluiten",
-    "menuAria": "Zijmenu openen"
+    "menuAria": "Zijmenu openen",
+    "supportUnread": "{n, plural, one {# ongelezen antwoord} other {# ongelezen antwoorden}}",
+    "support": "Support"
   },
   "install": {
     "button": "Toevoegen aan beginscherm",
@@ -3469,6 +3473,40 @@
     "cat_account": "Account en toegang",
     "cat_howto": "Hoe doe ik dat?",
     "cat_feature": "Idee of verzoek",
-    "cat_other": "Overig"
+    "cat_other": "Overig",
+    "contactsLink": "Contactaanvragen",
+    "contactsTitle": "Aanvragen van de contactpagina",
+    "contactsHelp": "Berichten van mensen zonder toegang. Antwoord met uw mailprogramma (knop “Antwoorden per e-mail”). Afgehandelde berichten worden na 90 dagen verwijderd, alle na een jaar.",
+    "contactsNew": "Te behandelen",
+    "contactsHandled": "Afgehandeld",
+    "contactsEmpty": "Geen berichten.",
+    "replyByEmail": "Antwoorden per e-mail",
+    "markHandled": "Markeren als afgehandeld",
+    "delete": "Verwijderen",
+    "deleteConfirm": "Dit bericht verwijderen?",
+    "topic_login": "Ik kan niet inloggen",
+    "topic_billing": "Betalingen en abonnement",
+    "topic_info": "Productinformatie",
+    "topic_other": "Overig"
+  },
+  "contact": {
+    "title": "Contact",
+    "subtitle": "Kunt u niet inloggen of heeft u een vraag voor u zich registreert? Schrijf ons: we antwoorden per e-mail.",
+    "name": "Naam",
+    "email": "E-mail voor het antwoord",
+    "topic": "Onderwerp",
+    "topic_login": "Ik kan niet inloggen",
+    "topic_billing": "Betalingen en abonnement",
+    "topic_info": "Productinformatie",
+    "topic_other": "Overig",
+    "message": "Bericht",
+    "messageHint": "Beschrijf het probleem. Schrijf nooit uw wachtwoord.",
+    "send": "Verzenden",
+    "sending": "Verzenden…",
+    "sentTitle": "Bericht verzonden",
+    "sentBody": "Bedankt. We antwoorden zo snel mogelijk per e-mail. Controleer ook uw spammap.",
+    "privacy": "We gebruiken uw naam, e-mail en bericht alleen om te antwoorden en verwijderen ze na korte tijd.",
+    "privacyLink": "Privacybeleid",
+    "backToLogin": "Terug naar inloggen"
   }
 }

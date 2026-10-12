@@ -63,3 +63,22 @@ describe("automatic e-mails: every template, every language", () => {
     }
   }
 });
+
+describe("support e-mails: every situation, every language", () => {
+  for (const kind of ["reply", "resolved", "new", "customer_reply", "contact"]) {
+    for (const locale of LOCALES) {
+      test(`${kind} / ${locale}`, () => {
+        const r = renderAuthEmail("support", locale, { supportKind: kind, ticketNumber: 12, ticketSubject: "Oggetto <b>x</b>", ticketPath: "/app/support/abc" });
+        expect(r.subject.trim().length).toBeGreaterThan(5);
+        expect(r.html).not.toContain("<b>x</b>");
+        expect(r.html).toContain("/app/");
+        for (const bad of ["undefined", "NaN", "[object"]) expect(r.html).not.toContain(bad);
+      });
+    }
+  }
+  test("a hostile link path falls back to the support page", () => {
+    const r = renderAuthEmail("support", "it", { supportKind: "reply", ticketNumber: 1, ticketSubject: "x", ticketPath: "https://evil.example/phish" });
+    expect(r.html).not.toContain("evil.example");
+    expect(r.html).toContain("/app/support");
+  });
+});

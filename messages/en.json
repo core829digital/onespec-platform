@@ -44,7 +44,8 @@
     "referral": "Invite & save",
     "supply": "Supply",
     "leads": "Leads",
-    "support": "Support"
+    "support": "Support",
+    "supportUnread": "{n, plural, one {# unread reply} other {# unread replies}}"
   },
   "dashboard": {
     "title": "Overview",
@@ -274,7 +275,8 @@
     "join": {
       "prompt": "Were you invited to a company's team?",
       "cta": "Join a company"
-    }
+    },
+    "contactHelp": "Trouble signing in? Contact us"
   },
   "notifications": {
     "title": "Notifications",
@@ -3137,7 +3139,9 @@
     "status": "Service status",
     "legal": "Legal pages",
     "close": "Close",
-    "menuAria": "Open the side menu"
+    "menuAria": "Open the side menu",
+    "supportUnread": "{n, plural, one {# unread reply} other {# unread replies}}",
+    "support": "Support"
   },
   "install": {
     "button": "Add to Home Screen",
@@ -3469,6 +3473,40 @@
     "cat_account": "Account and access",
     "cat_howto": "How do I…?",
     "cat_feature": "Idea or request",
-    "cat_other": "Other"
+    "cat_other": "Other",
+    "contactsLink": "“Contact us” requests",
+    "contactsTitle": "Requests from the Contact page",
+    "contactsHelp": "Messages from people without access. Reply with your mail program (the “Reply by email” button). Handled messages are deleted after 90 days, all after one year.",
+    "contactsNew": "To handle",
+    "contactsHandled": "Handled",
+    "contactsEmpty": "No messages.",
+    "replyByEmail": "Reply by email",
+    "markHandled": "Mark as handled",
+    "delete": "Delete",
+    "deleteConfirm": "Delete this message?",
+    "topic_login": "I cannot sign in",
+    "topic_billing": "Payments and subscription",
+    "topic_info": "Product information",
+    "topic_other": "Other"
+  },
+  "contact": {
+    "title": "Contact us",
+    "subtitle": "Cannot sign in, or have a question before signing up? Write to us: we reply by email.",
+    "name": "Name",
+    "email": "Email for the reply",
+    "topic": "Topic",
+    "topic_login": "I cannot sign in",
+    "topic_billing": "Payments and subscription",
+    "topic_info": "Product information",
+    "topic_other": "Other",
+    "message": "Message",
+    "messageHint": "Describe the problem. Never write your password.",
+    "send": "Send",
+    "sending": "Sending…",
+    "sentTitle": "Message sent",
+    "sentBody": "Thank you. We will reply by email as soon as possible. Check your spam folder too.",
+    "privacy": "We use your name, email and message only to reply, and delete them after a short time.",
+    "privacyLink": "Privacy policy",
+    "backToLogin": "Back to sign in"
   }
 }

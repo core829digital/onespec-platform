@@ -5,7 +5,7 @@ import { assertLongText, assertShortText } from "./inputs";
 import { internal } from "../_generated/api";
 import { SUPPORT_LIMITS } from "../../src/shared/support";
 
-export type SupportMailKind = "reply" | "resolved" | "new" | "customer_reply";
+export type SupportMailKind = "reply" | "resolved" | "new" | "customer_reply" | "contact";
 
 export const categoryV = v.union(
   v.literal("bug"), v.literal("billing"), v.literal("account"),

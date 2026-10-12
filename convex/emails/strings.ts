@@ -82,7 +82,7 @@ export interface EmailStrings {
     paid: { subject: (amount: string) => string; title: string; body: (amount: string) => string; cta: string };
   };
   /** Support tickets: one mail shape, four situations. */
-  support: { reply: SupportMail; resolved: SupportMail; staffNew: SupportMail; staffReply: SupportMail };
+  support: { reply: SupportMail; resolved: SupportMail; staffNew: SupportMail; staffReply: SupportMail; staffContact: SupportMail };
   notification: string;
 }
 
@@ -239,6 +239,12 @@ const it: EmailStrings = {
       body: (s) => `Il cliente ha risposto al ticket «${s}».`,
       cta: "Apri il ticket",
     },
+    staffContact: {
+      subject: () => "Nuova richiesta dalla pagina Contattaci — onespec",
+      title: "Nuova richiesta di contatto",
+      body: () => "Qualcuno ha scritto dalla pagina «Contattaci» (senza account). Apri la casella per leggerla e rispondere.",
+      cta: "Apri le richieste",
+    },
   },
   notification: "Notifica",
 };
@@ -388,6 +394,12 @@ const en: EmailStrings = {
       title: "New reply from the customer",
       body: (s) => `The customer replied to the ticket “${s}”.`,
       cta: "Open the ticket",
+    },
+    staffContact: {
+      subject: () => "New message from the Contact page — onespec",
+      title: "New contact request",
+      body: () => "Someone wrote from the “Contact us” page (no account). Open the inbox to read and reply.",
+      cta: "Open the inbox",
     },
   },
   notification: "Notification",
@@ -539,6 +551,12 @@ const fr: EmailStrings = {
       body: (s) => `Le client a répondu au ticket « ${s} ».`,
       cta: "Ouvrir le ticket",
     },
+    staffContact: {
+      subject: () => "Nouveau message de la page Contact — onespec",
+      title: "Nouvelle demande de contact",
+      body: () => "Quelqu'un a écrit depuis la page « Contact » (sans compte). Ouvrez la boîte pour lire et répondre.",
+      cta: "Ouvrir la boîte",
+    },
   },
   notification: "Notification",
 };
@@ -688,6 +706,12 @@ const de: EmailStrings = {
       title: "Neue Antwort des Kunden",
       body: (s) => `Der Kunde hat auf das Ticket „${s}“ geantwortet.`,
       cta: "Ticket öffnen",
+    },
+    staffContact: {
+      subject: () => "Neue Nachricht von der Kontaktseite — onespec",
+      title: "Neue Kontaktanfrage",
+      body: () => "Jemand hat über die Seite „Kontakt“ geschrieben (ohne Konto). Öffnen Sie den Posteingang, um zu lesen und zu antworten.",
+      cta: "Posteingang öffnen",
     },
   },
   notification: "Benachrichtigung",
@@ -839,6 +863,12 @@ const nl: EmailStrings = {
       body: (s) => `De klant heeft gereageerd op het ticket “${s}”.`,
       cta: "Ticket openen",
     },
+    staffContact: {
+      subject: () => "Nieuw bericht via de contactpagina — onespec",
+      title: "Nieuwe contactaanvraag",
+      body: () => "Iemand schreef via de pagina “Contact” (zonder account). Open de inbox om te lezen en te antwoorden.",
+      cta: "Inbox openen",
+    },
   },
   notification: "Melding",
 };
@@ -988,6 +1018,12 @@ const ro: EmailStrings = {
       title: "Răspuns nou de la client",
       body: (s) => `Clientul a răspuns la tichetul „${s}”.`,
       cta: "Deschide tichetul",
+    },
+    staffContact: {
+      subject: () => "Mesaj nou de la pagina Contact — onespec",
+      title: "Cerere nouă de contact",
+      body: () => "Cineva a scris de pe pagina „Contact” (fără cont). Deschide căsuța pentru a citi și a răspunde.",
+      cta: "Deschide căsuța",
     },
   },
   notification: "Notificare",

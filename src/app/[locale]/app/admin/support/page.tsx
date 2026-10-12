@@ -19,6 +19,7 @@ export default function AdminSupportPage() {
   const [mine, setMine] = useState(false);
   const [now] = useState(() => Date.now());
   const stats = useQuery(api.supportAdmin.stats);
+  const contactsNew = useQuery(api.supportContact.newCount);
   const list = usePaginatedQuery(api.supportAdmin.queue, { status, mine }, { initialNumItems: 20 });
   const date = (ms: number) => new Date(ms).toLocaleString(locale, { dateStyle: "medium", timeStyle: "short" });
   const tab = (active: boolean) =>
@@ -26,7 +27,12 @@ export default function AdminSupportPage() {
 
   return (
     <div className="space-y-5">
-      <h1 className="text-2xl font-bold text-[var(--color-text)] sm:text-3xl">{t("title")}</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold text-[var(--color-text)] sm:text-3xl">{t("title")}</h1>
+        <Link href="/app/admin/support/contacts" className="rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm font-medium text-[var(--color-text)] hover:border-[var(--color-mint)]">
+          {t("contactsLink")}{contactsNew ? ` (${contactsNew})` : ""}
+        </Link>
+      </div>
 
       <div className="grid grid-cols-3 gap-3">
         {([["openCount", stats?.open], ["waitingCount", stats?.waiting], ["resolvedCount", stats?.resolved]] as const).map(([k, n]) => (

@@ -7,6 +7,7 @@ import { Ellipsis, PanelLeft } from "lucide-react";
 import { Link, usePathname } from "@/i18n/navigation";
 import { api } from "@/convex/_generated/api";
 import { cn } from "@/lib/utils";
+import { useSupportUnread } from "@/hooks/useSupportUnread";
 import { NAV_GROUPS, visibleNavGroups } from "./nav-items";
 import { BAR_LABEL, pickBarItems } from "./bottom-bar-items";
 
@@ -19,6 +20,8 @@ export function BottomIsland({ onMore, onMenu }: { onMore: () => void; onMenu: (
   const t = useTranslations("bottomBar");
   const pathname = usePathname();
   const membership = useQuery(api.tenants.getMyMembership);
+  const tenant = useQuery(api.tenants.getMyTenant);
+  const supportUnread = useSupportUnread(tenant?._id);
   const [typing, setTyping] = useState(false);
 
   useEffect(() => {
@@ -81,8 +84,12 @@ export function BottomIsland({ onMore, onMenu }: { onMore: () => void; onMenu: (
           data-testid="bottom-island-more"
           className="relative flex min-h-[3.5rem] flex-col items-center justify-center gap-0.5 rounded-[1.25rem] px-1 text-[0.625rem] font-semibold leading-tight text-[var(--color-text-secondary)]"
         >
-          <Ellipsis size={22} aria-hidden="true" strokeWidth={1.9} />
+          <span className="relative inline-flex">
+            <Ellipsis size={22} aria-hidden="true" strokeWidth={1.9} />
+            {supportUnread > 0 ? <span data-testid="bottom-island-more-dot" aria-hidden="true" className="absolute -right-1 -top-0.5 h-2.5 w-2.5 rounded-full bg-[var(--color-accent)] ring-2 ring-[var(--color-bg-alt)]" /> : null}
+          </span>
           <span>{t("more")}</span>
+          {supportUnread > 0 ? <span className="sr-only">{t("supportUnread", { n: supportUnread })}</span> : null}
         </button>
       </div>
       {/* The side menu has its own round button next to the bar, so "More" can be the controls sheet. */}

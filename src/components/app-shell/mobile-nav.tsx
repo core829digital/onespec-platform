@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { Lock, X } from "lucide-react";
 import { useSubscriptionEnded } from "@/lib/plan-gates";
 import { useSearchParams } from "next/navigation";
+import { useSupportUnread } from "@/hooks/useSupportUnread";
 import { lockedInNav, NAV_GROUPS, ADMIN_NAV_ITEM, isNavItemActive, navHref, visibleNavGroups, type NavGroup } from "./nav-items";
 
 export function MobileNav({
@@ -51,6 +52,7 @@ export function MobileNav({
     };
   }, [open, onClose]);
 
+  const supportUnread = useSupportUnread(tenant._id);
   const membership = useQuery(api.tenants.getMyMembership);
   const own = visibleNavGroups(NAV_GROUPS, membership?.grade);
   const groups: NavGroup[] = isPlatformAdmin ? [...own, { key: "admin", items: [ADMIN_NAV_ITEM] }] : own;
@@ -110,6 +112,12 @@ export function MobileNav({
                     >
                       <item.icon size={18} aria-hidden="true" />
                       <span>{t(item.label)}</span>
+                      {item.label === "support" && supportUnread > 0 ? (
+                        <span className="ml-auto inline-flex min-w-5 items-center justify-center rounded-full bg-[var(--color-accent)] px-1.5 text-[11px] font-bold leading-5 text-[var(--color-accent-ink)]">
+                          <span className="sr-only">{t("supportUnread", { n: supportUnread })}</span>
+                          <span aria-hidden="true">{supportUnread > 9 ? "9+" : supportUnread}</span>
+                        </span>
+                      ) : null}
                       {locked ? <Lock size={13} aria-hidden="true" className="ml-auto shrink-0 opacity-70" /> : null}
                     </Link>
                   );

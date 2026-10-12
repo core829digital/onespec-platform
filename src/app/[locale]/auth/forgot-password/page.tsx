@@ -14,6 +14,7 @@ import { getOptionalRedirect } from "@/lib/redirect-validator";
 
 export default function ForgotPasswordPage() {
   const t = useTranslations("auth.forgotPassword");
+  const tc = useTranslations("auth");
   const authMsg = useAuthErrorMessage();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -77,6 +78,9 @@ export default function ForgotPasswordPage() {
 
       <p className="text-center text-sm text-[var(--color-text-secondary)]">
         {t("backToLogin")} <Link href="/auth/login" className="text-[var(--color-mint-text)] underline underline-offset-2">{t("loginLink")}</Link>
+      </p>
+      <p className="text-center text-sm text-[var(--color-text-secondary)]">
+        <Link href="/auth/contact" className="underline underline-offset-2">{tc("contactHelp")}</Link>
       </p>
     </form>
   );

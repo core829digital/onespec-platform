@@ -301,3 +301,51 @@ describe("support attachments", () => {
     expect(await t.run((ctx) => ctx.db.query("supportAttachments").collect())).toHaveLength(0);
   });
 });
+
+describe("public contact form", () => {
+  const msg = { name: "Mario Rossi", email: "Mario@Example.com", topic: "login" as const, message: "Non riesco ad entrare nel mio account da ieri.", locale: "it", ipHash: "iphash1" };
+
+  test("stores the message, mails the platform admins (without the text), lists it for admins only", async () => {
+    const { t, a, staff } = await world();
+    await t.mutation(internal.supportContact.submit, msg);
+    await t.finishAllScheduledFunctions(vi.runAllTimers);
+    const rows = await t.withIdentity({ subject: staff }).query(api.supportContact.list, { status: "new", paginationOpts: page });
+    expect(rows.page).toHaveLength(1);
+    expect(rows.page[0].email).toBe("mario@example.com");
+    expect(await t.withIdentity({ subject: staff }).query(api.supportContact.newCount, {})).toBe(1);
+    const sent = await t.run((ctx) => ctx.db.query("emailLog").filter((q) => q.eq(q.field("template"), "support")).collect());
+    expect(sent.length).toBeGreaterThan(0);
+    expect(JSON.stringify(sent)).not.toMatch(/Non riesco ad entrare/);
+    // customers (any tenant role) cannot read the inbox
+    await expect(t.withIdentity({ subject: a.ownerId }).query(api.supportContact.list, { status: "new", paginationOpts: page })).rejects.toThrow(/NOT_PLATFORM_ADMIN/);
+    await expect(t.withIdentity({ subject: a.ownerId }).mutation(api.supportContact.remove, { id: rows.page[0]._id })).rejects.toThrow(/NOT_PLATFORM_ADMIN/);
+  });
+
+  test("validation: bad e-mail, short name, short/long message", async () => {
+    const { t } = await world();
+    await expect(t.mutation(internal.supportContact.submit, { ...msg, email: "not-an-email" })).rejects.toThrow(/INVALID_EMAIL/);
+    await expect(t.mutation(internal.supportContact.submit, { ...msg, name: "x" })).rejects.toThrow(/INVALID_NAME/);
+    await expect(t.mutation(internal.supportContact.submit, { ...msg, message: "corto" })).rejects.toThrow(/INVALID_MESSAGE/);
+    await expect(t.mutation(internal.supportContact.submit, { ...msg, message: "x".repeat(2001) })).rejects.toThrow(/INVALID_MESSAGE/);
+  });
+
+  test("limits: 3 per address per hour, 3 per e-mail per day", async () => {
+    const { t } = await world();
+    for (let i = 0; i < 3; i++) await t.mutation(internal.supportContact.submit, { ...msg, email: `p${i}@example.com` });
+    await expect(t.mutation(internal.supportContact.submit, { ...msg, email: "p9@example.com" })).rejects.toThrow(/RATE_LIMITED/);
+    for (let i = 0; i < 3; i++) await t.mutation(internal.supportContact.submit, { ...msg, ipHash: `ip${i}` });
+    await expect(t.mutation(internal.supportContact.submit, { ...msg, ipHash: "ip-new" })).rejects.toThrow(/RATE_LIMITED/);
+  });
+
+  test("handled / reopen / delete, and the retention cron", async () => {
+    const { t, staff } = await world();
+    await t.mutation(internal.supportContact.submit, msg);
+    const s = t.withIdentity({ subject: staff });
+    const id = (await s.query(api.supportContact.list, { status: "new", paginationOpts: page })).page[0]._id;
+    await s.mutation(api.supportContact.setHandled, { id, handled: true });
+    expect((await s.query(api.supportContact.list, { status: "handled", paginationOpts: page })).page).toHaveLength(1);
+    await t.run((ctx) => ctx.db.patch(id, { createdAt: Date.now() - 100 * 86_400_000 }));
+    expect(await t.mutation(internal.supportContact.purgeOld, {})).toBe(1);
+    expect(await t.run((ctx) => ctx.db.get(id))).toBeNull();
+  });
+});

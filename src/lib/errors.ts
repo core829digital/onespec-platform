@@ -346,6 +346,7 @@ const EXACT: Record<string, ErrorKey> = {
   TICKET_ALREADY_RATED: "ticketAlreadyRated",
   TOO_MANY_OPEN_TICKETS: "tooManyOpenTickets",
   TICKET_NOT_FOUND: "notFound",
+  CONTACT_NOT_FOUND: "notFound",
   INVALID_SUBJECT: "invalidInput",
   INVALID_RATING: "invalidInput",
   INVALID_TRANSITION: "invalidInput",

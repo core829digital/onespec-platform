@@ -60,3 +60,19 @@ export const SUPPORT_SLA_HOURS: Record<SupportPriority, number> = {
 
 /** Types a ticket attachment may have (detected from the bytes on the server). */
 export const SUPPORT_ATTACHMENT_ACCEPT = "image/png,image/jpeg,image/webp,application/pdf";
+
+/** Public "Contact us" page. */
+export const CONTACT_TOPICS = ["login", "billing", "info", "other"] as const;
+export type ContactTopic = (typeof CONTACT_TOPICS)[number];
+export const CONTACT_LIMITS = {
+  nameMin: 2,
+  nameMax: 80,
+  messageMin: 10,
+  messageMax: 2000,
+  perIpPerHour: 3,
+  perEmailPerDay: 3,
+  globalPerHour: 100,
+  /** Handled messages are deleted after this many days; any message after the second value. */
+  handledRetentionDays: 90,
+  maxRetentionDays: 365,
+} as const;

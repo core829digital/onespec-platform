@@ -54,6 +54,53 @@ async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
 }
 
 http.route({
+  path: "/api/support/contact",
+  method: "OPTIONS",
+  handler: httpAction(async () => new Response(null, { status: 204, headers: CORS })),
+});
+
+/**
+ * Public "Contact us" form (for people who cannot sign in). Body capped at 16 KB; a filled honeypot gets a fake "ok" so bots learn nothing;
+ * the bot challenge is checked when configured; the mutation applies per-address, per-e-mail and global limits.
+ */
+http.route({
+  path: "/api/support/contact",
+  method: "POST",
+  handler: httpAction(async (ctx, req) => {
+    if (Number(req.headers.get("content-length") ?? "0") > 16 * 1024) return json({ ok: false, error: "PAYLOAD_TOO_LARGE" }, 413);
+    let raw: Record<string, unknown>;
+    try {
+      const text = await req.text();
+      if (text.length > 16 * 1024) return json({ ok: false, error: "PAYLOAD_TOO_LARGE" }, 413);
+      const parsed: unknown = JSON.parse(text);
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return json({ ok: false, error: "BAD_JSON" }, 400);
+      raw = parsed as Record<string, unknown>;
+    } catch {
+      return json({ ok: false, error: "BAD_JSON" }, 400);
+    }
+    const str = (k: string) => (typeof raw[k] === "string" ? (raw[k] as string) : "");
+    if (str("website")) return json({ ok: true }); // honeypot
+    const topic = str("topic");
+    if (!["login", "billing", "info", "other"].includes(topic)) return json({ ok: false, error: "VALIDATION" }, 400);
+
+    const ip = clientIp(req.headers);
+    if (!(await verifyTurnstile(str("turnstileToken"), ip))) return json({ ok: false, error: "TURNSTILE_FAILED" }, 403);
+    try {
+      await ctx.runMutation(internal.supportContact.submit, {
+        name: str("name"), email: str("email"), topic: topic as "login" | "billing" | "info" | "other",
+        message: str("message"), locale: str("locale"), ipHash: await hashIp(ip),
+      });
+    } catch (e) {
+      const code = e instanceof ConvexError && typeof e.data === "string" ? e.data : "ERROR";
+      if (code === "RATE_LIMITED") return json({ ok: false, error: code }, 429);
+      if (code === "INVALID_NAME" || code === "INVALID_EMAIL" || code === "INVALID_MESSAGE") return json({ ok: false, error: code }, 400);
+      return json({ ok: false, error: "ERROR" }, 500);
+    }
+    return json({ ok: true });
+  }),
+});
+
+http.route({
   path: "/api/widget/quote",
   method: "OPTIONS",
   handler: httpAction(async () => new Response(null, { status: 204, headers: CORS })),

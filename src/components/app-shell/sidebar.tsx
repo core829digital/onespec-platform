@@ -12,6 +12,7 @@ import { ChevronDown, Lock, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { AppVersion } from "./app-version";
 import { planDisplayName, usePlanAccess, useSubscriptionEnded } from "@/lib/plan-gates";
 import { lockedInNav } from "./nav-items";
+import { useSupportUnread } from "@/hooks/useSupportUnread";
 import { NAV_GROUPS, ADMIN_NAV_ITEM, isNavItemActive, navHref, visibleNavGroups, type NavItem } from "./nav-items";
 import { Logo } from "@/components/logo";
 
@@ -71,8 +72,9 @@ function useSidebarState() {
   return { collapsed, closed, toggleCollapsed, toggleGroup };
 }
 
-function NavLink({ item, active, collapsed, label, locked = false, dimmed = false }: { item: NavItem; active: boolean; collapsed: boolean; label: string; locked?: boolean; dimmed?: boolean }) {
+function NavLink({ item, active, collapsed, label, locked = false, dimmed = false, badge = 0 }: { item: NavItem; active: boolean; collapsed: boolean; label: string; locked?: boolean; dimmed?: boolean; badge?: number }) {
   const Icon = item.icon;
+  const tBadge = useTranslations("nav");
   return (
     <Link
       href={navHref(item)}
@@ -87,8 +89,17 @@ function NavLink({ item, active, collapsed, label, locked = false, dimmed = fals
           : "text-[var(--color-text-secondary)] hover:bg-[var(--color-bg)]/70 hover:text-[var(--color-text)]",
       )}
     >
-      <Icon size={18} aria-hidden="true" />
+      <span className="relative inline-flex">
+        <Icon size={18} aria-hidden="true" />
+        {collapsed && badge > 0 ? <span aria-hidden="true" className="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-[var(--color-accent)] ring-2 ring-[var(--color-bg-alt)]" /> : null}
+      </span>
       {collapsed ? <span className="sr-only">{label}</span> : <span className="truncate">{label}</span>}
+      {badge > 0 ? (
+        <span className={cn("sr-only")}>{tBadge("supportUnread", { n: badge })}</span>
+      ) : null}
+      {!collapsed && badge > 0 ? (
+        <span aria-hidden="true" className="ml-auto inline-flex min-w-5 items-center justify-center rounded-full bg-[var(--color-accent)] px-1.5 text-[11px] font-bold leading-5 text-[var(--color-accent-ink)]">{badge > 9 ? "9+" : badge}</span>
+      ) : null}
       {locked ? <Lock size={13} aria-hidden="true" className={cn("shrink-0 opacity-70", !collapsed && "ml-auto")} /> : null}
     </Link>
   );
@@ -104,6 +115,7 @@ export function Sidebar({ tenant }: { tenant: Doc<"tenants"> }) {
   const ended = useSubscriptionEnded(tenant);
   const { collapsed, closed, toggleCollapsed, toggleGroup } = useSidebarState();
   // Only the areas this member's grade works in (the server refuses the rest anyway).
+  const supportUnread = useSupportUnread(tenant._id);
   const membership = useQuery(api.tenants.getMyMembership);
   const groups = visibleNavGroups(NAV_GROUPS, membership?.grade);
 
@@ -170,6 +182,7 @@ export function Sidebar({ tenant }: { tenant: Doc<"tenants"> }) {
                         label={t(item.label)}
                         locked={lockedInNav(item, ended) || (!!item.feature && access?.isLocked(item.feature) === true)}
                         dimmed={lockedInNav(item, ended)}
+                        badge={item.label === "support" ? supportUnread : 0}
                       />
                     ))}
                   </div>

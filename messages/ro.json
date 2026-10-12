@@ -44,7 +44,8 @@
     "referral": "Invită și economisește",
     "supply": "Furnizare",
     "leads": "Lead-uri",
-    "support": "Suport"
+    "support": "Suport",
+    "supportUnread": "{n, plural, one {# răspuns necitit} other {# răspunsuri necitite}}"
   },
   "dashboard": {
     "title": "Prezentare generală",
@@ -274,7 +275,8 @@
     "join": {
       "prompt": "Ai fost invitat în echipa unei companii?",
       "cta": "Alătură-te unei companii"
-    }
+    },
+    "contactHelp": "Probleme la autentificare? Contactează-ne"
   },
   "notifications": {
     "title": "Notifications",
@@ -3137,7 +3139,9 @@
     "status": "Starea serviciului",
     "legal": "Pagini legale",
     "close": "Închide",
-    "menuAria": "Deschide meniul lateral"
+    "menuAria": "Deschide meniul lateral",
+    "supportUnread": "{n, plural, one {# răspuns necitit} other {# răspunsuri necitite}}",
+    "support": "Suport"
   },
   "install": {
     "button": "Adaugă pe ecranul principal",
@@ -3469,6 +3473,40 @@
     "cat_account": "Cont și acces",
     "cat_howto": "Cum se face?",
     "cat_feature": "Idee sau cerere",
-    "cat_other": "Altele"
+    "cat_other": "Altele",
+    "contactsLink": "Cereri «Contact»",
+    "contactsTitle": "Cereri de pe pagina Contact",
+    "contactsHelp": "Mesaje de la persoane fără acces. Răspunde cu programul tău de e-mail (butonul «Răspunde prin e-mail»). Mesajele tratate se șterg după 90 de zile, toate după un an.",
+    "contactsNew": "De tratat",
+    "contactsHandled": "Tratate",
+    "contactsEmpty": "Niciun mesaj.",
+    "replyByEmail": "Răspunde prin e-mail",
+    "markHandled": "Marchează ca tratat",
+    "delete": "Șterge",
+    "deleteConfirm": "Ștergi acest mesaj?",
+    "topic_login": "Nu mă pot conecta",
+    "topic_billing": "Plăți și abonament",
+    "topic_info": "Informații despre produs",
+    "topic_other": "Altele"
+  },
+  "contact": {
+    "title": "Contactează-ne",
+    "subtitle": "Nu te poți conecta sau ai o întrebare înainte de înscriere? Scrie-ne: răspundem prin e-mail.",
+    "name": "Nume",
+    "email": "E-mail pentru răspuns",
+    "topic": "Subiect",
+    "topic_login": "Nu mă pot conecta",
+    "topic_billing": "Plăți și abonament",
+    "topic_info": "Informații despre produs",
+    "topic_other": "Altele",
+    "message": "Mesaj",
+    "messageHint": "Descrie problema. Nu scrie niciodată parola.",
+    "send": "Trimite",
+    "sending": "Se trimite…",
+    "sentTitle": "Mesaj trimis",
+    "sentBody": "Mulțumim. Îți vom răspunde prin e-mail cât mai curând. Verifică și folderul spam.",
+    "privacy": "Folosim numele, e-mailul și mesajul doar pentru a-ți răspunde și le ștergem după puțin timp.",
+    "privacyLink": "Politica de confidențialitate",
+    "backToLogin": "Înapoi la autentificare"
   }
 }

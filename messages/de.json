@@ -44,7 +44,8 @@
     "referral": "Einladen & sparen",
     "supply": "Lieferung",
     "leads": "Leads",
-    "support": "Support"
+    "support": "Support",
+    "supportUnread": "{n, plural, one {# ungelesene Antwort} other {# ungelesene Antworten}}"
   },
   "dashboard": {
     "title": "Übersicht",
@@ -274,7 +275,8 @@
     "join": {
       "prompt": "Wurden Sie in das Team eines Unternehmens eingeladen?",
       "cta": "Einem Unternehmen beitreten"
-    }
+    },
+    "contactHelp": "Probleme bei der Anmeldung? Kontaktieren Sie uns"
   },
   "notifications": {
     "title": "Notifications",
@@ -3137,7 +3139,9 @@
     "status": "Servicestatus",
     "legal": "Rechtliches",
     "close": "Schließen",
-    "menuAria": "Seitenmenü öffnen"
+    "menuAria": "Seitenmenü öffnen",
+    "supportUnread": "{n, plural, one {# ungelesene Antwort} other {# ungelesene Antworten}}",
+    "support": "Support"
   },
   "install": {
     "button": "Zum Home-Bildschirm hinzufügen",
@@ -3469,6 +3473,40 @@
     "cat_account": "Konto und Zugang",
     "cat_howto": "Wie geht das?",
     "cat_feature": "Idee oder Wunsch",
-    "cat_other": "Sonstiges"
+    "cat_other": "Sonstiges",
+    "contactsLink": "Kontaktanfragen",
+    "contactsTitle": "Anfragen von der Kontaktseite",
+    "contactsHelp": "Nachrichten von Personen ohne Zugang. Antworten Sie mit Ihrem Mailprogramm (Schaltfläche „Per E-Mail antworten“). Bearbeitete Nachrichten werden nach 90 Tagen gelöscht, alle nach einem Jahr.",
+    "contactsNew": "Zu bearbeiten",
+    "contactsHandled": "Bearbeitet",
+    "contactsEmpty": "Keine Nachrichten.",
+    "replyByEmail": "Per E-Mail antworten",
+    "markHandled": "Als bearbeitet markieren",
+    "delete": "Löschen",
+    "deleteConfirm": "Diese Nachricht löschen?",
+    "topic_login": "Ich kann mich nicht anmelden",
+    "topic_billing": "Zahlungen und Abonnement",
+    "topic_info": "Produktinformationen",
+    "topic_other": "Sonstiges"
+  },
+  "contact": {
+    "title": "Kontakt",
+    "subtitle": "Sie können sich nicht anmelden oder haben vor der Registrierung eine Frage? Schreiben Sie uns: Wir antworten per E-Mail.",
+    "name": "Name",
+    "email": "E-Mail für die Antwort",
+    "topic": "Thema",
+    "topic_login": "Ich kann mich nicht anmelden",
+    "topic_billing": "Zahlungen und Abonnement",
+    "topic_info": "Produktinformationen",
+    "topic_other": "Sonstiges",
+    "message": "Nachricht",
+    "messageHint": "Beschreiben Sie das Problem. Schreiben Sie nie Ihr Passwort.",
+    "send": "Senden",
+    "sending": "Wird gesendet…",
+    "sentTitle": "Nachricht gesendet",
+    "sentBody": "Danke. Wir antworten so bald wie möglich per E-Mail. Prüfen Sie auch Ihren Spam-Ordner.",
+    "privacy": "Wir verwenden Name, E-Mail und Nachricht nur für die Antwort und löschen sie nach kurzer Zeit.",
+    "privacyLink": "Datenschutzerklärung",
+    "backToLogin": "Zurück zur Anmeldung"
   }
 }

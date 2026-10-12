@@ -878,6 +878,25 @@ export default defineSchema({
     .index("by_uploaderUserId_and_pending", ["uploaderUserId", "pending"])
     .index("by_pending_and_createdAt", ["pending", "createdAt"]),
 
+  /**
+   * Messages from the public "Contact us" page (people who cannot sign in, so
+   * there is no account or tenant). Kept short-term: purged by a cron.
+   */
+  supportContacts: defineTable({
+    name: v.string(),
+    email: v.string(),
+    topic: v.union(v.literal("login"), v.literal("billing"), v.literal("info"), v.literal("other")),
+    message: v.string(),
+    locale: v.string(),
+    ipHash: v.string(),
+    status: v.union(v.literal("new"), v.literal("handled")),
+    createdAt: v.number(),
+    handledAt: v.optional(v.number()),
+    handledBy: v.optional(v.id("users")),
+  })
+    .index("by_status_and_createdAt", ["status", "createdAt"])
+    .index("by_createdAt", ["createdAt"]),
+
   /** Monotonic counters (ticket numbers). */
   supportCounters: defineTable({
     key: v.string(),

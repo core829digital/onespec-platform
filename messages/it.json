@@ -44,7 +44,8 @@
     "referral": "Invita e risparmia",
     "supply": "Fornitura",
     "leads": "Lead",
-    "support": "Supporto"
+    "support": "Supporto",
+    "supportUnread": "{n, plural, one {# risposta non letta} other {# risposte non lette}}"
   },
   "dashboard": {
     "title": "Panoramica",
@@ -274,7 +275,8 @@
     "join": {
       "prompt": "Sei stato invitato nel team di un'azienda?",
       "cta": "Unisciti a un'azienda"
-    }
+    },
+    "contactHelp": "Problemi ad accedere? Contattaci"
   },
   "notifications": {
     "title": "Notifiche",
@@ -3137,7 +3139,9 @@
     "status": "Stato del servizio",
     "legal": "Pagine legali",
     "close": "Chiudi",
-    "menuAria": "Apri il menu laterale"
+    "menuAria": "Apri il menu laterale",
+    "supportUnread": "{n, plural, one {# risposta non letta} other {# risposte non lette}}",
+    "support": "Supporto"
   },
   "install": {
     "button": "Aggiungi alla schermata Home",
@@ -3469,6 +3473,40 @@
     "cat_account": "Account e accesso",
     "cat_howto": "Come si fa?",
     "cat_feature": "Idea o richiesta",
-    "cat_other": "Altro"
+    "cat_other": "Altro",
+    "contactsLink": "Richieste «Contattaci»",
+    "contactsTitle": "Richieste dalla pagina Contattaci",
+    "contactsHelp": "Messaggi di persone senza accesso. Rispondi con il tuo programma di posta (pulsante «Rispondi via email»). I messaggi gestiti si cancellano dopo 90 giorni, tutti dopo un anno.",
+    "contactsNew": "Da gestire",
+    "contactsHandled": "Gestite",
+    "contactsEmpty": "Nessun messaggio.",
+    "replyByEmail": "Rispondi via email",
+    "markHandled": "Segna come gestito",
+    "delete": "Elimina",
+    "deleteConfirm": "Eliminare questo messaggio?",
+    "topic_login": "Non riesco ad accedere",
+    "topic_billing": "Pagamenti e abbonamento",
+    "topic_info": "Informazioni sul prodotto",
+    "topic_other": "Altro"
+  },
+  "contact": {
+    "title": "Contattaci",
+    "subtitle": "Non riesci ad accedere o hai una domanda prima di iscriverti? Scrivici: ti rispondiamo via email.",
+    "name": "Nome",
+    "email": "Email per la risposta",
+    "topic": "Argomento",
+    "topic_login": "Non riesco ad accedere",
+    "topic_billing": "Pagamenti e abbonamento",
+    "topic_info": "Informazioni sul prodotto",
+    "topic_other": "Altro",
+    "message": "Messaggio",
+    "messageHint": "Descrivi il problema. Non scrivere mai la password.",
+    "send": "Invia",
+    "sending": "Invio…",
+    "sentTitle": "Messaggio inviato",
+    "sentBody": "Grazie. Ti risponderemo via email appena possibile. Controlla anche la cartella spam.",
+    "privacy": "Usiamo nome, email e messaggio solo per risponderti e li cancelliamo dopo poco tempo.",
+    "privacyLink": "Informativa privacy",
+    "backToLogin": "Torna all'accesso"
   }
 }

@@ -4,7 +4,10 @@ import { useEffect, useRef } from "react";
 import { useSwipeDismiss } from "@/hooks/useSwipeDismiss";
 import { useLocale, useTranslations } from "next-intl";
 import { AppVersion } from "./app-version";
-import { Activity, Bell, ChevronRight, Gem, Scale, Settings, X } from "lucide-react";
+import { Activity, Bell, ChevronRight, Gem, LifeBuoy, Scale, Settings, X } from "lucide-react";
+import { useQuery } from "@/lib/convex-query";
+import { api } from "@/convex/_generated/api";
+import { useSupportUnread } from "@/hooks/useSupportUnread";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { routing, LOCALE_LABELS, type AppLocale } from "@/i18n/routing";
 import { persistLocaleChoice } from "@/components/language-switcher";
@@ -14,12 +17,13 @@ import { LEGAL_DOCS } from "@/content/legal";
 import { cn } from "@/lib/utils";
 
 /** One tappable line of the sheet: icon, label, chevron. */
-function Row({ children, icon, ...link }: { children: React.ReactNode; icon: React.ReactNode } & ({ href: string; external?: false } | { href: string; external: true })) {
+function Row({ children, icon, badge = 0, ...link }: { children: React.ReactNode; icon: React.ReactNode; badge?: number } & ({ href: string; external?: false } | { href: string; external: true })) {
   const cls = "flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-sm font-medium text-[var(--color-text)] hover:bg-[var(--color-bg)]";
   const body = (
     <>
       <span className="text-[var(--color-text-secondary)]">{icon}</span>
       <span className="min-w-0 flex-1 truncate">{children}</span>
+      {badge > 0 ? <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-[var(--color-accent)] px-1.5 text-[11px] font-bold leading-5 text-[var(--color-accent-ink)]">{badge > 9 ? "9+" : badge}</span> : null}
       <ChevronRight size={16} aria-hidden="true" className="shrink-0 text-[var(--color-text-secondary)]" />
     </>
   );
@@ -43,6 +47,8 @@ export function MobileMoreSheet({ open, onClose }: { open: boolean; onClose: () 
   const pathname = usePathname();
   const router = useRouter();
   const panelRef = useRef<HTMLDivElement>(null);
+  const tenant = useQuery(api.tenants.getMyTenant);
+  const supportUnread = useSupportUnread(tenant?._id);
   useSwipeDismiss(panelRef, onClose, open);
 
   useEffect(() => {
@@ -110,6 +116,7 @@ export function MobileMoreSheet({ open, onClose }: { open: boolean; onClose: () 
 
         <nav className="mt-4 space-y-0.5" aria-label={t("moreTitle")}>
           <Row href="/app/notifications" icon={<Bell size={20} aria-hidden="true" />}>{t("notifications")}</Row>
+          <Row href="/app/support" badge={supportUnread} icon={<LifeBuoy size={20} aria-hidden="true" />}>{t("support")}</Row>
           <Row href="/app/account" icon={<Settings size={20} aria-hidden="true" />}>{t("account")}</Row>
           <Row href="/app/account/billing?tab=plan" icon={<Gem size={20} aria-hidden="true" />}>{t("plan")}</Row>
           <Row href="https://cloud.onespec.eu" external icon={<Activity size={20} aria-hidden="true" />}>{t("status")}</Row>

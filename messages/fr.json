@@ -44,7 +44,8 @@
     "referral": "Inviter et économiser",
     "supply": "Fourniture",
     "leads": "Leads",
-    "support": "Support"
+    "support": "Support",
+    "supportUnread": "{n, plural, one {# réponse non lue} other {# réponses non lues}}"
   },
   "dashboard": {
     "title": "Aperçu",
@@ -274,7 +275,8 @@
     "join": {
       "prompt": "Vous avez été invité dans l'équipe d'une entreprise ?",
       "cta": "Rejoindre une entreprise"
-    }
+    },
+    "contactHelp": "Un problème pour vous connecter ? Contactez-nous"
   },
   "notifications": {
     "title": "Notifications",
@@ -3137,7 +3139,9 @@
     "status": "État du service",
     "legal": "Pages légales",
     "close": "Fermer",
-    "menuAria": "Ouvrir le menu latéral"
+    "menuAria": "Ouvrir le menu latéral",
+    "supportUnread": "{n, plural, one {# réponse non lue} other {# réponses non lues}}",
+    "support": "Support"
   },
   "install": {
     "button": "Ajouter à l'écran d'accueil",
@@ -3469,6 +3473,40 @@
     "cat_account": "Compte et accès",
     "cat_howto": "Comment faire ?",
     "cat_feature": "Idée ou demande",
-    "cat_other": "Autre"
+    "cat_other": "Autre",
+    "contactsLink": "Demandes « Contact »",
+    "contactsTitle": "Demandes de la page Contact",
+    "contactsHelp": "Messages de personnes sans accès. Répondez avec votre messagerie (bouton « Répondre par e-mail »). Les messages traités sont supprimés après 90 jours, tous après un an.",
+    "contactsNew": "À traiter",
+    "contactsHandled": "Traités",
+    "contactsEmpty": "Aucun message.",
+    "replyByEmail": "Répondre par e-mail",
+    "markHandled": "Marquer comme traité",
+    "delete": "Supprimer",
+    "deleteConfirm": "Supprimer ce message ?",
+    "topic_login": "Je n'arrive pas à me connecter",
+    "topic_billing": "Paiements et abonnement",
+    "topic_info": "Informations sur le produit",
+    "topic_other": "Autre"
+  },
+  "contact": {
+    "title": "Contactez-nous",
+    "subtitle": "Vous ne pouvez pas vous connecter ou avez une question avant de vous inscrire ? Écrivez-nous : nous répondons par e-mail.",
+    "name": "Nom",
+    "email": "E-mail pour la réponse",
+    "topic": "Sujet",
+    "topic_login": "Je n'arrive pas à me connecter",
+    "topic_billing": "Paiements et abonnement",
+    "topic_info": "Informations sur le produit",
+    "topic_other": "Autre",
+    "message": "Message",
+    "messageHint": "Décrivez le problème. N'écrivez jamais votre mot de passe.",
+    "send": "Envoyer",
+    "sending": "Envoi…",
+    "sentTitle": "Message envoyé",
+    "sentBody": "Merci. Nous vous répondrons par e-mail dès que possible. Vérifiez aussi vos spams.",
+    "privacy": "Nous utilisons votre nom, e-mail et message uniquement pour vous répondre et les supprimons après peu de temps.",
+    "privacyLink": "Politique de confidentialité",
+    "backToLogin": "Retour à la connexion"
   }
 }

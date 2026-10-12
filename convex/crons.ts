@@ -69,5 +69,6 @@ crons.interval("referral-clawback", { hours: 12 }, internal.referralPayouts.claw
 crons.daily("support-auto-close", { hourUTC: 5, minuteUTC: 10 }, internal.supportAdmin.autoCloseResolved, {});
 crons.daily("support-purge", { hourUTC: 5, minuteUTC: 30 }, internal.supportAdmin.purgeOldAndOrphans, {});
 crons.daily("support-purge-pending-files", { hourUTC: 5, minuteUTC: 45 }, internal.supportFiles.purgePending, {});
+crons.daily("support-purge-contacts", { hourUTC: 5, minuteUTC: 55 }, internal.supportContact.purgeOld, {});
 
 export default crons;
