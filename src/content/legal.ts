@@ -36,10 +36,10 @@ const SUBPROCESSORS: LegalSection = {
   h: "Fornitori e sub-responsabili",
   p: [
     "OneSpec si appoggia ai seguenti fornitori, che trattano dati per conto del Titolare sulla base di accordi ai sensi dell'art. 28 GDPR:",
-    "• Convex (Convex, Inc.) — database e backend applicativo. Ubicazione dei dati: [[regione di hosting Convex]].",
+    "• Convex (Convex, Inc.) — database, backend applicativo e archiviazione dei file allegati ai ticket di assistenza. Ubicazione dei dati: [[regione di hosting Convex]].",
     "• Stripe (Stripe Payments Europe, Ltd.) — gestione degli abbonamenti e dei pagamenti; i dati della carta sono trattati direttamente da Stripe e non transitano né sono conservati da OneSpec.",
-    "• Resend (Resend, Inc.) — invio delle email transazionali (codici di verifica, notifiche di preventivo).",
-    "• Cloudflare Turnstile (Cloudflare, Inc.) — verifica anti-bot sull'invio dei preventivi dal widget.",
+    "• Resend (Resend, Inc.) — invio delle email transazionali (codici di verifica, notifiche di preventivo, avvisi sui ticket di assistenza; queste ultime non riportano il testo dei messaggi).",
+    "• Cloudflare Turnstile (Cloudflare, Inc.) — verifica anti-bot sull'invio dei preventivi dal widget e sui moduli di accesso, registrazione, recupero password e «Contattaci».",
     "• Vercel (Vercel, Inc.) — hosting dell'applicazione web e misurazione delle prestazioni (Speed Insights, senza cookie).",
     "• PostHog (PostHog Inc.) — analisi di prodotto e registrazione della sessione (click, scroll, navigazione) per individuare e correggere malfunzionamenti; i valori digitati nei campi dei moduli restano oscurati. Attivo solo dopo il consenso esplicito tramite il banner cookie.",
     "• Sentry (Functional Software, Inc.) — rilevamento errori tecnici; la registrazione visiva della sessione (Session Replay) è attiva solo dopo lo stesso consenso, la sola segnalazione degli errori resta sempre attiva per garantire la sicurezza e la stabilità del servizio.",
@@ -58,9 +58,9 @@ const RIGHTS: LegalSection = {
   h: "Diritti dell'interessato",
   p: [
     "In qualità di interessato puoi esercitare i diritti previsti dagli artt. 15–22 GDPR: accesso, rettifica, cancellazione, limitazione, portabilità, opposizione e revoca del consenso.",
-    "Accesso e portabilità: dalla pagina Account puoi scaricare in qualsiasi momento una copia dei tuoi dati in formato JSON.",
-    "Cancellazione: dalla pagina Account puoi richiedere l'eliminazione dell'account; la richiesta viene eseguita dopo un periodo di ripensamento di 30 giorni, salvo obblighi di conservazione.",
-    "Reclamo: puoi rivolgerti all'autorità di controllo competente (per l'Italia, il Garante per la protezione dei dati personali) se ritieni che il trattamento violi la normativa.",
+    "Accesso e portabilità: dalla pagina Account puoi scaricare in qualsiasi momento una copia dei tuoi dati in formato JSON; l'esportazione comprende anche i ticket di assistenza che hai aperto (con le risposte del nostro team e i nomi dei file allegati) e i messaggi inviati dalla pagina «Contattaci» con il tuo indirizzo email. Le note interne di lavorazione del team non sono incluse nell'esportazione automatica: puoi richiederle a [[email di contatto privacy]] e le forniamo nei limiti previsti dalla legge (ad esempio quando non contengano dati di altre persone).",
+    "Cancellazione: dalla pagina Account puoi richiedere l'eliminazione dell'account; la richiesta viene eseguita dopo un periodo di ripensamento di 30 giorni, salvo obblighi di conservazione. Con l'account vengono eliminati anche i ticket di assistenza che hai aperto, i relativi messaggi, note interne e allegati, e i messaggi inviati dalla pagina «Contattaci» con la tua email.",
+    "Reclamo: puoi proporre reclamo all'autorità di controllo se ritieni che il trattamento violi la normativa. Poiché il Titolare ha sede in Romania, l'autorità capofila è l'Autoritatea Națională de Supraveghere a Prelucrării Datelor cu Caracter Personal (ANSPDCP, dataprotection.ro); puoi in ogni caso rivolgerti all'autorità del paese in cui risiedi o lavori (per l'Italia, il Garante per la protezione dei dati personali).",
   ],
 };
 
@@ -68,7 +68,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
   {
     slug: "privacy",
     title: "Informativa sulla privacy",
-    updated: "2026-09-23",
+    updated: "2026-10-12",
     summary: "Quali dati personali trattiamo, perché e per quanto tempo.",
     sections: [
       IDENTITY_INTRO,
@@ -79,14 +79,18 @@ export const LEGAL_DOCS: LegalDoc[] = [
           "Organizzazione: ragione sociale, P.IVA, indirizzo, telefono ed email inseriti dall'utente nelle impostazioni di branding.",
           "Richieste di preventivo generate dal widget: nome, email, telefono, azienda e messaggio del potenziale cliente, insieme alla configurazione tecnica scelta e al prezzo indicativo calcolato.",
           "Dati tecnici del widget: hash dell'indirizzo IP (l'IP in chiaro non viene conservato), user agent, esito della verifica anti-bot, punteggio anti-spam.",
-          "Registro attività (audit log) delle azioni amministrative e delle operazioni sensibili.",
+          "Assistenza: oggetto, testo e allegati (immagini o PDF) dei ticket che apri dalla piattaforma, categoria, stato, eventuale valutazione da 1 a 5, le risposte del nostro team e le note interne di lavorazione (non visibili a te).",
+          "Pagina «Contattaci» (per chi non riesce ad accedere): nome, indirizzo email e messaggio che inserisci, argomento scelto, lingua e hash dell'indirizzo IP (l'IP in chiaro non viene conservato) usato per limitare gli abusi.",
+          "Registro attività (audit log) delle azioni amministrative e delle operazioni sensibili, comprese le azioni sui ticket (identificativi e tipo di azione, senza il testo dei messaggi).",
         ],
       },
       {
         h: "Finalità e basi giuridiche",
         p: [
           "Erogazione del servizio e gestione dell'account — esecuzione del contratto (art. 6.1.b GDPR).",
-          "Sicurezza, prevenzione degli abusi, limitazione della frequenza e audit — legittimo interesse (art. 6.1.f).",
+          "Assistenza tramite ticket — esecuzione del contratto (art. 6.1.b). Risposta ai messaggi inviati dalla pagina «Contattaci» da chi non ha un account — misure precontrattuali o contrattuali adottate su richiesta dell'interessato (art. 6.1.b) e, per le richieste non contrattuali, legittimo interesse a rispondere (art. 6.1.f).",
+          "Sicurezza, prevenzione degli abusi, limitazione della frequenza e audit (anche sulla pagina «Contattaci» e sui ticket) — legittimo interesse (art. 6.1.f).",
+          "Le email sui ticket (nuova risposta, ticket risolto) sono comunicazioni di servizio legate alla tua richiesta, non comunicazioni commerciali; puoi disattivarle dalle preferenze di notifica.",
           "Invio di comunicazioni sul prodotto e commerciali — consenso (art. 6.1.a), revocabile dalla pagina Account.",
           "Adempimenti fiscali e contabili relativi agli abbonamenti a pagamento — obbligo legale (art. 6.1.c).",
         ],
@@ -96,7 +100,19 @@ export const LEGAL_DOCS: LegalDoc[] = [
         p: [
           "Dati dell'account: per tutta la durata del rapporto e cancellati entro [[numero]] giorni dalla richiesta di cancellazione.",
           "Richieste di preventivo, registro attività e log di sicurezza: conservati per tutta la durata di attività dell'organizzazione sulla piattaforma; non esiste al momento una cancellazione automatica programmata di questi dati, che vengono eliminati su richiesta secondo la procedura descritta nella sezione «Diritti dell'interessato».",
+          "Ticket di assistenza: i ticket chiusi sono eliminati automaticamente con messaggi, note interne e allegati 730 giorni (24 mesi) dopo l'ultima attività; i ticket risolti senza ulteriori risposte si chiudono da soli dopo 7 giorni; i file caricati ma mai inviati sono eliminati dopo 24 ore. Questo periodo serve a gestire eventuali contestazioni sull'assistenza prestata e a difendere un diritto in giudizio.",
+          "Messaggi della pagina «Contattaci»: eliminati 90 giorni dopo essere stati gestiti e in ogni caso entro 365 giorni dalla ricezione.",
+          "Notifiche nell'applicazione: 365 giorni. Registro delle email di servizio inviate: 90 giorni.",
+          "Alla cancellazione dell'account eliminiamo anche i ticket, i messaggi, le note interne e gli allegati che hai aperto e i messaggi «Contattaci» inviati con la tua email; nel registro attività restano soltanto identificativi e tipo di azione, senza testo.",
           "Documenti fiscali relativi ad abbonamenti a pagamento: per il periodo previsto dalla normativa fiscale e contabile applicabile alla sede legale del Titolare.",
+        ],
+      },
+      {
+        h: "Assistenza e ticket: chi vede cosa",
+        p: [
+          "Un ticket è visibile alla persona che lo ha aperto, ai proprietari e agli amministratori della sua organizzazione sulla piattaforma e al personale di supporto di OneSpec espressamente autorizzato e vincolato alla riservatezza. Ogni apertura di un allegato da parte del nostro personale è registrata. Le note interne del team non sono visibili al cliente.",
+          "Per i tuoi dati di contatto e per la gestione dell'assistenza OneSpec agisce come Titolare. Se invece nel ticket inserisci dati personali di terzi (ad esempio i clienti della tua organizzazione), OneSpec li tratta come Responsabile, per conto della tua organizzazione, secondo l'accordo sul trattamento dei dati (DPA) e solo per risolvere la richiesta. Inserisci soltanto i dati strettamente necessari.",
+          "Non inviare mai password, codici di verifica, dati di carte di pagamento né categorie particolari di dati personali (art. 9 GDPR, ad esempio dati sulla salute) o documenti d'identità: non servono per l'assistenza.",
         ],
       },
       SUBPROCESSORS,
@@ -112,7 +128,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
   {
     slug: "termini-di-servizio",
     title: "Termini di servizio",
-    updated: "2026-09-30",
+    updated: "2026-10-12",
     summary: "Le condizioni contrattuali tra OneSpec e l'organizzazione cliente.",
     sections: [
       {
@@ -171,6 +187,15 @@ export const LEGAL_DOCS: LegalDoc[] = [
         p: [
           "Il Cliente si impegna a non utilizzare il servizio per attività illecite, a non tentare di aggirare i limiti tecnici, di sicurezza o i limiti di utilizzo del proprio piano e a non caricare contenuti di cui non detiene i diritti.",
           "Il Cliente è responsabile dei contenuti, dei listini e dei dati che inserisce e della loro conformità alle normative applicabili.",
+        ],
+      },
+      {
+        h: "Assistenza",
+        p: [
+          "L'assistenza è prestata tramite i ticket della sezione «Supporto» della piattaforma e, per chi non riesce ad accedere, tramite la pagina «Contattaci». Risponde il personale di OneSpec nei giorni lavorativi.",
+          "I tempi di prima risposta e di risoluzione che OneSpec si prefigge sono obiettivi interni, non garanzie né livelli di servizio vincolanti, salvo diverso accordo scritto con il Cliente Enterprise (v. «Limitazione di responsabilità» e le condizioni di disponibilità concordate).",
+          "Nei ticket il Cliente si impegna a non inserire password, codici di verifica, dati di carte di pagamento o dati personali non necessari, a non allegare contenuti illeciti, offensivi o di cui non detiene i diritti, e a usare solo gli allegati consentiti (immagini PNG, JPG, WebP e PDF, fino a 3 file per messaggio e 8 MB ciascuno). OneSpec può rimuovere contenuti non conformi e chiudere i ticket che abusano del servizio.",
+          "Un ticket risolto senza ulteriori risposte si chiude automaticamente dopo 7 giorni; i ticket chiusi e i relativi allegati sono eliminati secondo i tempi indicati nell'informativa sulla privacy.",
         ],
       },
       {
@@ -234,7 +259,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
   {
     slug: "cookie",
     title: "Cookie e tecnologie simili",
-    updated: "2026-09-23",
+    updated: "2026-10-12",
     summary: "Quali cookie e archiviazioni locali utilizza l'applicazione.",
     sections: [
       {
@@ -256,6 +281,12 @@ export const LEGAL_DOCS: LegalDoc[] = [
         ],
       },
       {
+        h: "Verifica anti-bot (Cloudflare Turnstile)",
+        p: [
+          "I moduli di accesso, registrazione, recupero password e «Contattaci», e l'invio dei preventivi dal widget, usano Cloudflare Turnstile per verificare che a compilarli sia una persona. È una misura di sicurezza strettamente necessaria e non richiede consenso; non è usata per pubblicità né per profilare gli utenti.",
+        ],
+      },
+      {
         h: "Misurazione delle prestazioni",
         p: [
           "Le prestazioni delle pagine sono misurate tramite Vercel Speed Insights, che non utilizza cookie e non traccia i singoli utenti.",
@@ -274,7 +305,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
   {
     slug: "gdpr",
     title: "Diritti degli interessati (GDPR)",
-    updated: "2026-09-02",
+    updated: "2026-10-12",
     summary: "Come esercitare accesso, portabilità, rettifica, cancellazione e opposizione.",
     sections: [
       IDENTITY_INTRO,
@@ -282,7 +313,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
       {
         h: "Come esercitare i diritti",
         p: [
-          "Dalla pagina Account: esportazione dati (JSON), aggiornamento del profilo, gestione dei consensi, richiesta di cancellazione.",
+          "Dalla pagina Account: esportazione dati (JSON, inclusi ticket di assistenza e messaggi «Contattaci»), aggiornamento del profilo, gestione dei consensi, richiesta di cancellazione.",
           "Via email a [[email di contatto privacy]] per richieste che non è possibile evadere in autonomia. Rispondiamo entro un mese, prorogabile di due mesi per richieste complesse.",
         ],
       },

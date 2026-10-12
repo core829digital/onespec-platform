@@ -3503,7 +3503,7 @@
     "edit": "Modifica",
     "repliesEmpty": "Nessun modello ancora. Crea il primo qui sopra.",
     "replyDeleteConfirm": "Eliminare questo modello?",
-    "searchPlaceholder": "Cerca: numero, oggetto o parole del messaggio",
+    "searchPlaceholder": "Cerca: numero, oggetto, messaggio o azienda",
     "searchResults": "{n, plural, one {# risultato} other {# risultati}}",
     "noResults": "Nessun ticket trovato.",
     "category": "Categoria",
@@ -3524,7 +3524,15 @@
     "statRating": "Valutazione media",
     "statRatingCount": "{n, plural, one {# valutazione} other {# valutazioni}}",
     "statByCategory": "Per categoria",
-    "statByPriority": "Per priorità"
+    "statByPriority": "Per priorità",
+    "statTrend": "Andamento giornaliero",
+    "statByAgent": "Per agente (persona assegnata)",
+    "statAgent": "Agente",
+    "statAssigned": "Assegnati",
+    "replyHere": "Rispondi da qui",
+    "replyHelp": "Invia un'email a {email} nella lingua del messaggio. La persona può rispondere direttamente all'email. Massimo 5 risposte per messaggio.",
+    "replySendEmail": "Invia risposta via email",
+    "repliedAt": "Risposto il {date} ({n, plural, one {# volta} other {# volte}})"
   },
   "contact": {
     "title": "Contattaci",

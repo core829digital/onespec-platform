@@ -464,3 +464,58 @@ describe("search and statistics", () => {
     await expect(t.withIdentity({ subject: a.ownerId }).query(api.supportAdmin.metrics, { days: 30 })).rejects.toThrow(/NOT_PLATFORM_ADMIN/);
   });
 });
+
+describe("company search, trend and per-agent figures", () => {
+  test("search finds the tickets of a company by its name", async () => {
+    const { t, a, b, staff } = await world();
+    await t.run(async (ctx) => {
+      await ctx.db.patch(a.tenantId, { name: "Serramenti Bellavista" });
+      await ctx.db.patch(b.tenantId, { name: "Finestre Alpine" });
+    });
+    await open(t, a.tenantId as never, a.memberId as never, "Domanda qualsiasi");
+    await open(t, b.tenantId as never, b.memberId as never, "Altra domanda");
+    const r = await t.withIdentity({ subject: staff }).query(api.supportAdmin.search, { text: "Bellavista" });
+    expect(r.map((x) => x.tenantName)).toEqual(["Serramenti Bellavista"]);
+  });
+
+  test("metrics: one entry per day, and a row per assigned agent", async () => {
+    const { t, a, staff } = await world();
+    const s = t.withIdentity({ subject: staff });
+    const one = await open(t, a.tenantId as never, a.memberId as never, "Primo");
+    await open(t, a.tenantId as never, a.memberId as never, "Secondo");
+    await s.mutation(api.supportAdmin.reply, { ticketId: one.id, body: "Risolto subito", resolve: true });
+    const m = await s.query(api.supportAdmin.metrics, { days: 7 });
+    expect(m.daily).toHaveLength(7);
+    const today = m.daily[m.daily.length - 1];
+    expect(today.created).toBe(2);
+    expect(today.solved).toBe(1);
+    expect(m.agents).toHaveLength(1);
+    expect(m.agents[0].handled).toBe(1);
+    expect(m.agents[0].solved).toBe(1);
+    expect(m.agents[0].firstResponseMedianMs).not.toBeNull();
+  });
+});
+
+describe("answering Contact-page messages from the platform", () => {
+  const msg = { name: "Mario Rossi", email: "mario@example.com", topic: "login" as const, message: "Non riesco ad entrare nel mio account.", locale: "fr", ipHash: "iph" };
+
+  test("an admin replies: handled, e-mail goes to the visitor in their language with the admin's text; limits and permissions hold", async () => {
+    const { t, a, staff } = await world();
+    await t.mutation(internal.supportContact.submit, msg);
+    const s = t.withIdentity({ subject: staff });
+    const id = (await s.query(api.supportContact.list, { status: "new", paginationOpts: page })).page[0]._id;
+    await expect(t.withIdentity({ subject: a.ownerId }).mutation(api.supportContact.reply, { id, text: "Ciao a tutti!" })).rejects.toThrow(/NOT_PLATFORM_ADMIN/);
+    await expect(s.mutation(api.supportContact.reply, { id, text: " " })).rejects.toThrow(/INVALID_MESSAGE/);
+    await s.mutation(api.supportContact.reply, { id, text: "Ciao Mario, abbiamo reimpostato l'accesso." });
+    await t.finishAllScheduledFunctions(vi.runAllTimers);
+    const row = await t.run((ctx) => ctx.db.get(id));
+    expect(row?.status).toBe("handled");
+    expect(row?.replyCount).toBe(1);
+    const sent = await t.run((ctx) => ctx.db.query("emailLog").filter((q) => q.eq(q.field("to"), "mario@example.com")).collect());
+    expect(sent).toHaveLength(1);
+    expect(sent[0].subject).toMatch(/Réponse/);
+    expect(sent[0].bodyPreview ?? "").toContain("abbiamo reimpostato");
+    for (let i = 0; i < 4; i++) await s.mutation(api.supportContact.reply, { id, text: `Altro messaggio ${i}` });
+    await expect(s.mutation(api.supportContact.reply, { id, text: "Sesto messaggio" })).rejects.toThrow(/TOO_MANY_REPLIES/);
+  });
+});

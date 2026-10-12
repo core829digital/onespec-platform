@@ -41,8 +41,8 @@ export const queue = query({
 });
 
 /**
- * Finds tickets by number ("TKT-0007", "7"), by words in the subject, or by words in any message. At most 25, newest first.
- * (Company name is not searched: the queue already shows it, and tenants have no search index.)
+ * Finds tickets by number ("TKT-0007", "7"), by words in the subject, by words in any message, or by company name. At most 25, newest first.
+ * Also finds the latest tickets of companies whose name matches.
  */
 export const search = query({
   args: { text: v.string() },
@@ -62,6 +62,10 @@ export const search = query({
       if (found.has(m.ticketId)) continue;
       const t = await ctx.db.get(m.ticketId);
       if (t) found.set(t._id, t);
+    }
+    // By company name: a few matching companies, their latest tickets.
+    for (const tenant of await ctx.db.query("tenants").withSearchIndex("search_name", (q) => q.search("name", text)).take(5)) {
+      for (const t of await ctx.db.query("supportTickets").withIndex("by_tenant_and_lastMessageAt", (q) => q.eq("tenantId", tenant._id)).order("desc").take(10)) found.set(t._id, t);
     }
     const tickets = [...found.values()].sort((a, b) => b.lastMessageAt - a.lastMessageAt).slice(0, 25);
     return await Promise.all(tickets.map((t) => queueRow(ctx, t)));
@@ -107,6 +111,28 @@ export const metrics = query({
         if (end !== undefined) solveTimes.push(Math.max(0, end - t.createdAt));
       }
     }
+    // Day-by-day trend (UTC days): tickets opened and tickets resolved/closed.
+    const dayKey = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+    const daily = new Map<string, { created: number; solved: number }>();
+    for (let i = days - 1; i >= 0; i--) daily.set(dayKey(Date.now() - i * 86_400_000), { created: 0, solved: 0 });
+    for (const t of tickets) {
+      const c = daily.get(dayKey(t.createdAt));
+      if (c) c.created++;
+      const end = t.resolvedAt ?? t.closedAt;
+      const sd = end !== undefined ? daily.get(dayKey(end)) : undefined;
+      if (sd) sd.solved++;
+    }
+    // Per agent (the assignee): tickets, resolved, median first response, rating.
+    const agents = new Map<string, { handled: number; solved: number; first: number[]; ratingSum: number; ratingCount: number }>();
+    for (const t of tickets) {
+      if (!t.assignedToUserId) continue;
+      const a = agents.get(t.assignedToUserId) ?? { handled: 0, solved: 0, first: [], ratingSum: 0, ratingCount: 0 };
+      a.handled++;
+      if (t.status === "resolved" || t.status === "closed") a.solved++;
+      if (t.firstResponseAt !== undefined) a.first.push(Math.max(0, t.firstResponseAt - t.createdAt));
+      if (t.rating !== undefined) { a.ratingSum += t.rating; a.ratingCount++; }
+      agents.set(t.assignedToUserId, a);
+    }
     const median = (xs: number[]) => {
       if (!xs.length) return null;
       const s = [...xs].sort((a, b) => a - b);
@@ -121,6 +147,15 @@ export const metrics = query({
       withinTargetPct: answered ? Math.round((withinTarget / answered) * 100) : null,
       ratingAvg: ratingCount ? Math.round((ratingSum / ratingCount) * 10) / 10 : null, ratingCount,
       byCategory, byPriority,
+      daily: [...daily.entries()].map(([day, v]) => ({ day, ...v })),
+      agents: await Promise.all([...agents.entries()].slice(0, 20).map(async ([id, a]) => {
+        const u = await ctx.db.get(id as Id<"users">);
+        return {
+          name: u?.name ?? u?.email ?? "—", handled: a.handled, solved: a.solved,
+          firstResponseMedianMs: median(a.first),
+          ratingAvg: a.ratingCount ? Math.round((a.ratingSum / a.ratingCount) * 10) / 10 : null, ratingCount: a.ratingCount,
+        };
+      })),
     };
   },
 });

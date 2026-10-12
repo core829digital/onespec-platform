@@ -3503,7 +3503,7 @@
     "edit": "Bearbeiten",
     "repliesEmpty": "Noch keine Vorlagen. Erstellen Sie oben die erste.",
     "replyDeleteConfirm": "Diese Vorlage löschen?",
-    "searchPlaceholder": "Suche: Nummer, Betreff oder Wörter in einer Nachricht",
+    "searchPlaceholder": "Suche: Nummer, Betreff, Nachricht oder Unternehmen",
     "searchResults": "{n, plural, one {# Ergebnis} other {# Ergebnisse}}",
     "noResults": "Keine Tickets gefunden.",
     "category": "Kategorie",
@@ -3524,7 +3524,15 @@
     "statRating": "Durchschnittsbewertung",
     "statRatingCount": "{n, plural, one {# Bewertung} other {# Bewertungen}}",
     "statByCategory": "Nach Kategorie",
-    "statByPriority": "Nach Priorität"
+    "statByPriority": "Nach Priorität",
+    "statTrend": "Tagesverlauf",
+    "statByAgent": "Nach Mitarbeiter (Zuweisung)",
+    "statAgent": "Mitarbeiter",
+    "statAssigned": "Zugewiesen",
+    "replyHere": "Hier antworten",
+    "replyHelp": "Sendet eine E-Mail an {email} in der Sprache der Nachricht. Die Person kann direkt auf die E-Mail antworten. Höchstens 5 Antworten pro Nachricht.",
+    "replySendEmail": "Antwort per E-Mail senden",
+    "repliedAt": "Beantwortet am {date} ({n, plural, one {# Mal} other {# Mal}})"
   },
   "contact": {
     "title": "Kontakt",

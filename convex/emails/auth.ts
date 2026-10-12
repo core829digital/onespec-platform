@@ -378,6 +378,16 @@ export function renderAuthEmail(template: string, locale: string, data: AuthEmai
 
     case "support": {
       const S = L.support;
+      if (data.supportKind === "contact_reply") {
+        // Free text written by a platform admin, answering a message from the Contact page: escaped, line breaks kept, no button.
+        const R = S.contactReply;
+        const body = esc(String(data.message ?? "").slice(0, 4000)).replace(/\r?\n/g, "<br>");
+        return {
+          subject: line(R.subject("")),
+          html: wrap(`${H1}${R.title}</h1>\n           ${P}${R.body(body)}</p>\n           <p style="color:#6e6e73;font-size:13px;margin-top:18px">${R.cta}</p>`),
+          text: `${R.title}\n\n${String(data.message ?? "").slice(0, 4000)}\n\n${R.cta}`,
+        };
+      }
       const M = data.supportKind === "resolved" ? S.resolved : data.supportKind === "new" ? S.staffNew : data.supportKind === "customer_reply" ? S.staffReply : data.supportKind === "contact" ? S.staffContact : data.supportKind === "sla" ? S.staffSla : S.reply;
       const num = `TKT-${String(Math.max(0, Math.floor(Number(data.ticketNumber ?? 0)))).padStart(4, "0")}`;
       // Only same-app paths are linked; anything else falls back to the support page.

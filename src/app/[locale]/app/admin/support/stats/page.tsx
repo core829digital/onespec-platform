@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useQuery } from "@/lib/convex-query";
 import { api } from "@/convex/_generated/api";
+import { useIsPlatformAdmin } from "@/hooks/useIsPlatformAdmin";
 import { Link } from "@/i18n/navigation";
 import { SUPPORT_CATEGORIES, SUPPORT_PRIORITIES } from "@/shared/support";
 
@@ -49,11 +50,34 @@ function Bars({ title, rows, total }: { title: string; rows: { label: string; n:
   );
 }
 
+/** Two bars per day (opened / resolved), scaled to the busiest day. Pure CSS, no chart library. */
+function Trend({ rows, createdLabel, solvedLabel }: { rows: { day: string; created: number; solved: number }[]; createdLabel: string; solvedLabel: string }) {
+  const max = Math.max(1, ...rows.map((r) => Math.max(r.created, r.solved)));
+  return (
+    <div>
+      <div className="flex h-28 items-end gap-px sm:gap-0.5" role="img" aria-label={`${createdLabel}: ${rows.reduce((n, r) => n + r.created, 0)}; ${solvedLabel}: ${rows.reduce((n, r) => n + r.solved, 0)}`}>
+        {rows.map((r) => (
+          <div key={r.day} title={`${r.day} · ${createdLabel} ${r.created} · ${solvedLabel} ${r.solved}`} className="flex h-full min-w-0 flex-1 items-end justify-center gap-px">
+            <div className="w-1/2 rounded-t-sm bg-[var(--color-mint)]" style={{ height: `${(r.created / max) * 100}%`, minHeight: r.created ? 2 : 0 }} />
+            <div className="w-1/2 rounded-t-sm bg-[var(--color-text-secondary)]/50" style={{ height: `${(r.solved / max) * 100}%`, minHeight: r.solved ? 2 : 0 }} />
+          </div>
+        ))}
+      </div>
+      <div className="mt-2 flex flex-wrap gap-4 text-xs text-[var(--color-text-secondary)]">
+        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-[var(--color-mint)]" />{createdLabel}</span>
+        <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-[var(--color-text-secondary)]/50" />{solvedLabel}</span>
+        <span className="ml-auto">{rows[0]?.day} → {rows[rows.length - 1]?.day}</span>
+      </div>
+    </div>
+  );
+}
+
 export default function SupportStatsPage() {
   const t = useTranslations("supportAdmin");
   const duration = useDuration();
   const [days, setDays] = useState<(typeof PERIODS)[number]>(30);
-  const m = useQuery(api.supportAdmin.metrics, { days });
+  const isAdmin = useIsPlatformAdmin() === true;
+  const m = useQuery(api.supportAdmin.metrics, isAdmin ? { days } : "skip");
   const tab = (active: boolean) =>
     `min-h-11 rounded-lg border px-3 py-2 text-sm font-medium ${active ? "border-[var(--color-mint)] bg-[var(--color-bg-alt)] text-[var(--color-text)]" : "border-[var(--color-border)] text-[var(--color-text-secondary)]"}`;
 
@@ -84,6 +108,39 @@ export default function SupportStatsPage() {
             <Bars title={t("statByCategory")} total={m.created} rows={SUPPORT_CATEGORIES.map((c) => ({ label: t(`cat_${c}`), n: m.byCategory[c] ?? 0 }))} />
             <Bars title={t("statByPriority")} total={m.created} rows={SUPPORT_PRIORITIES.map((p) => ({ label: t(`prio_${p}`), n: m.byPriority[p] ?? 0 }))} />
           </div>
+
+          <section className={card}>
+            <h2 className="mb-3 text-sm font-semibold text-[var(--color-text)]">{t("statTrend")}</h2>
+            <Trend rows={m.daily} createdLabel={t("statCreated")} solvedLabel={t("statSolved")} />
+          </section>
+
+          {m.agents.length > 0 && (
+            <section className={`${card} overflow-x-auto`}>
+              <h2 className="mb-3 text-sm font-semibold text-[var(--color-text)]">{t("statByAgent")}</h2>
+              <table className="w-full min-w-[32rem] text-left text-sm">
+                <thead className="text-xs text-[var(--color-text-secondary)]">
+                  <tr>
+                    <th className="py-1 pr-3 font-medium">{t("statAgent")}</th>
+                    <th className="py-1 pr-3 font-medium">{t("statAssigned")}</th>
+                    <th className="py-1 pr-3 font-medium">{t("statSolved")}</th>
+                    <th className="py-1 pr-3 font-medium">{t("statFirstResponse")}</th>
+                    <th className="py-1 font-medium">{t("statRating")}</th>
+                  </tr>
+                </thead>
+                <tbody className="text-[var(--color-text)]">
+                  {m.agents.map((a) => (
+                    <tr key={a.name} className="border-t border-[var(--color-border)]">
+                      <td className="py-2 pr-3">{a.name}</td>
+                      <td className="py-2 pr-3 font-mono">{a.handled}</td>
+                      <td className="py-2 pr-3 font-mono">{a.solved}</td>
+                      <td className="py-2 pr-3">{duration(a.firstResponseMedianMs)}</td>
+                      <td className="py-2">{a.ratingAvg === null ? "—" : `${a.ratingAvg} / 5 (${a.ratingCount})`}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </section>
+          )}
         </>
       )}
     </div>

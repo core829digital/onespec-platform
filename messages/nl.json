@@ -3503,7 +3503,7 @@
     "edit": "Bewerken",
     "repliesEmpty": "Nog geen sjablonen. Maak hierboven de eerste.",
     "replyDeleteConfirm": "Dit sjabloon verwijderen?",
-    "searchPlaceholder": "Zoeken: nummer, onderwerp of woorden in een bericht",
+    "searchPlaceholder": "Zoeken: nummer, onderwerp, bericht of bedrijf",
     "searchResults": "{n, plural, one {# resultaat} other {# resultaten}}",
     "noResults": "Geen tickets gevonden.",
     "category": "Categorie",
@@ -3524,7 +3524,15 @@
     "statRating": "Gemiddelde beoordeling",
     "statRatingCount": "{n, plural, one {# beoordeling} other {# beoordelingen}}",
     "statByCategory": "Per categorie",
-    "statByPriority": "Per prioriteit"
+    "statByPriority": "Per prioriteit",
+    "statTrend": "Dagelijks verloop",
+    "statByAgent": "Per medewerker (toegewezen)",
+    "statAgent": "Medewerker",
+    "statAssigned": "Toegewezen",
+    "replyHere": "Hier antwoorden",
+    "replyHelp": "Stuurt een e-mail naar {email} in de taal van het bericht. De persoon kan direct op de e-mail antwoorden. Maximaal 5 antwoorden per bericht.",
+    "replySendEmail": "Antwoord per e-mail verzenden",
+    "repliedAt": "Beantwoord op {date} ({n, plural, one {# keer} other {# keer}})"
   },
   "contact": {
     "title": "Contact",

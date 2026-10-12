@@ -123,6 +123,7 @@ export default defineSchema({
   })
     .index("by_slug", ["slug"])
     .index("by_owner", ["ownerUserId"])
+    .searchIndex("search_name", { searchField: "name" })
     .index("by_stripeCustomer", ["stripeCustomerId"])
     .index("by_planStatus", ["planStatus"])
     .index("by_plan", ["plan"]),
@@ -908,9 +909,13 @@ export default defineSchema({
     createdAt: v.number(),
     handledAt: v.optional(v.number()),
     handledBy: v.optional(v.id("users")),
+    /** Replies sent from the platform (max 5 per message). */
+    repliedAt: v.optional(v.number()),
+    replyCount: v.optional(v.number()),
   })
     .index("by_status_and_createdAt", ["status", "createdAt"])
-    .index("by_createdAt", ["createdAt"]),
+    .index("by_createdAt", ["createdAt"])
+    .index("by_email", ["email"]),
 
   /** Monotonic counters (ticket numbers). */
   supportCounters: defineTable({

@@ -65,17 +65,26 @@ describe("automatic e-mails: every template, every language", () => {
 });
 
 describe("support e-mails: every situation, every language", () => {
-  for (const kind of ["reply", "resolved", "new", "customer_reply", "contact", "sla"]) {
+  for (const kind of ["reply", "resolved", "new", "customer_reply", "contact", "sla", "contact_reply"]) {
     for (const locale of LOCALES) {
       test(`${kind} / ${locale}`, () => {
         const r = renderAuthEmail("support", locale, { supportKind: kind, ticketNumber: 12, ticketSubject: "Oggetto <b>x</b>", ticketPath: "/app/support/abc" });
         expect(r.subject.trim().length).toBeGreaterThan(5);
         expect(r.html).not.toContain("<b>x</b>");
-        expect(r.html).toContain("/app/");
+        if (kind !== "contact_reply") expect(r.html).toContain("/app/");
         for (const bad of ["undefined", "NaN", "[object"]) expect(r.html).not.toContain(bad);
       });
     }
   }
+  test("a contact reply shows the admin's text escaped, with line breaks, and no link", () => {
+    for (const l of LOCALES) {
+      const r = renderAuthEmail("support", l, { supportKind: "contact_reply", message: "Riga uno\n<script>x()</script> riga due" });
+      expect(r.html).toContain("Riga uno<br>");
+      expect(r.html).not.toContain("<script>");
+      expect(r.html).toContain("&lt;script&gt;");
+      expect(r.subject).not.toMatch(/[\r\n]/);
+    }
+  });
   test("a hostile link path falls back to the support page", () => {
     const r = renderAuthEmail("support", "it", { supportKind: "reply", ticketNumber: 1, ticketSubject: "x", ticketPath: "https://evil.example/phish" });
     expect(r.html).not.toContain("evil.example");

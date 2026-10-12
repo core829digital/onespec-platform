@@ -65,6 +65,8 @@ export const send = internalAction({
     data: v.any(),
     tenantId: v.optional(v.id("tenants")),
     relatedEntityId: v.optional(v.string()),
+    /** Optional Reply-To (one plain address), e.g. so a visitor can answer a support reply. */
+    replyTo: v.optional(v.string()),
     /** Delivery attempt (1-based); transient provider errors are retried. */
     attempt: v.optional(v.number()),
   },
@@ -111,6 +113,7 @@ export const send = internalAction({
           subject,
           html,
           text,
+          ...(args.replyTo && /^[^\s@,;<>"()\\]{1,64}@[^\s@,;<>"()\\]{1,255}$/.test(args.replyTo) ? { reply_to: args.replyTo } : {}),
         }),
       });
       const body = await res.json().catch(() => ({}));

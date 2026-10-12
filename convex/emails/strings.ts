@@ -82,7 +82,7 @@ export interface EmailStrings {
     paid: { subject: (amount: string) => string; title: string; body: (amount: string) => string; cta: string };
   };
   /** Support tickets: one mail shape, four situations. */
-  support: { reply: SupportMail; resolved: SupportMail; staffNew: SupportMail; staffReply: SupportMail; staffContact: SupportMail; staffSla: SupportMail };
+  support: { reply: SupportMail; resolved: SupportMail; staffNew: SupportMail; staffReply: SupportMail; staffContact: SupportMail; staffSla: SupportMail; contactReply: SupportMail };
   notification: string;
 }
 
@@ -251,6 +251,12 @@ const it: EmailStrings = {
       body: (s) => `Il ticket «${s}» non ha ancora ricevuto una prima risposta entro l'obiettivo previsto. Aprilo per rispondere.`,
       cta: "Apri il ticket",
     },
+    contactReply: {
+      subject: () => "Risposta alla tua richiesta — onespec",
+      title: "Risposta dal team onespec",
+      body: (s) => s,
+      cta: "Hai ricevuto questa email perché hai scritto dalla pagina «Contattaci». Puoi rispondere direttamente a questo messaggio.",
+    },
   },
   notification: "Notifica",
 };
@@ -412,6 +418,12 @@ const en: EmailStrings = {
       title: "Ticket overdue",
       body: (s) => `The ticket “${s}” has not had a first reply within its target. Open it to respond.`,
       cta: "Open the ticket",
+    },
+    contactReply: {
+      subject: () => "Reply to your request — onespec",
+      title: "Reply from the onespec team",
+      body: (s) => s,
+      cta: "You received this email because you wrote from the “Contact us” page. You can reply directly to this message.",
     },
   },
   notification: "Notification",
@@ -575,6 +587,12 @@ const fr: EmailStrings = {
       body: (s) => `Le ticket « ${s} » n'a pas reçu de première réponse dans l'objectif prévu. Ouvrez-le pour répondre.`,
       cta: "Ouvrir le ticket",
     },
+    contactReply: {
+      subject: () => "Réponse à votre demande — onespec",
+      title: "Réponse de l'équipe onespec",
+      body: (s) => s,
+      cta: "Vous recevez cet e-mail parce que vous avez écrit depuis la page « Contact ». Vous pouvez répondre directement à ce message.",
+    },
   },
   notification: "Notification",
 };
@@ -736,6 +754,12 @@ const de: EmailStrings = {
       title: "Ticket überfällig",
       body: (s) => `Das Ticket „${s}“ hat innerhalb des Ziels noch keine erste Antwort erhalten. Öffnen Sie es, um zu antworten.`,
       cta: "Ticket öffnen",
+    },
+    contactReply: {
+      subject: () => "Antwort auf Ihre Anfrage — onespec",
+      title: "Antwort vom onespec-Team",
+      body: (s) => s,
+      cta: "Sie erhalten diese E-Mail, weil Sie über die Seite „Kontakt“ geschrieben haben. Sie können direkt auf diese Nachricht antworten.",
     },
   },
   notification: "Benachrichtigung",
@@ -899,6 +923,12 @@ const nl: EmailStrings = {
       body: (s) => `Het ticket “${s}” heeft binnen het doel nog geen eerste reactie gekregen. Open het om te antwoorden.`,
       cta: "Ticket openen",
     },
+    contactReply: {
+      subject: () => "Antwoord op uw aanvraag — onespec",
+      title: "Antwoord van het onespec-team",
+      body: (s) => s,
+      cta: "U ontvangt deze e-mail omdat u via de pagina “Contact” heeft geschreven. U kunt direct op dit bericht antwoorden.",
+    },
   },
   notification: "Melding",
 };
@@ -1060,6 +1090,12 @@ const ro: EmailStrings = {
       title: "Tichet întârziat",
       body: (s) => `Tichetul „${s}” nu a primit un prim răspuns în ținta prevăzută. Deschide-l pentru a răspunde.`,
       cta: "Deschide tichetul",
+    },
+    contactReply: {
+      subject: () => "Răspuns la cererea ta — onespec",
+      title: "Răspuns de la echipa onespec",
+      body: (s) => s,
+      cta: "Primești acest e-mail pentru că ai scris de pe pagina «Contact». Poți răspunde direct la acest mesaj.",
     },
   },
   notification: "Notificare",

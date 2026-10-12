@@ -5,6 +5,7 @@ import { useMutation } from "convex/react";
 import { useQuery } from "@/lib/convex-query";
 import { useTranslations } from "next-intl";
 import { api } from "@/convex/_generated/api";
+import { useIsPlatformAdmin } from "@/hooks/useIsPlatformAdmin";
 import type { Id } from "@/convex/_generated/dataModel";
 import { Link } from "@/i18n/navigation";
 import { useFriendlyError } from "@/lib/use-friendly-error";
@@ -19,7 +20,8 @@ const primary = "inline-flex min-h-11 items-center justify-center rounded-lg bg-
 export default function QuickRepliesPage() {
   const t = useTranslations("supportAdmin");
   const tf = useFriendlyError();
-  const replies = useQuery(api.supportReplies.list);
+  const isAdmin = useIsPlatformAdmin() === true;
+  const replies = useQuery(api.supportReplies.list, isAdmin ? {} : "skip");
   const save = useMutation(api.supportReplies.save);
   const remove = useMutation(api.supportReplies.remove);
   const [editing, setEditing] = useState<Id<"supportCannedReplies"> | null>(null);

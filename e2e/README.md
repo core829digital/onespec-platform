@@ -29,6 +29,8 @@ accesso negato se non autenticati, 27 pagine `/app` (nessun errore in console, n
 del preventivo B2B (larghezza/altezza digitate sul disegno), bozza preventivo (salva → «Bozze» → riapri), traverso su una singola anta, firma sul canvas → documento stampabile (desktop e telefono), e su iPhone 390 px: isola in basso,
 niente overflow, menu «Altro» con «Aggiungi alla schermata Home».
 
+Dal 12/10/2026 percorre anche il **supporto**: un cliente apre un ticket, il team lo trova (ricerca) e risponde, il cliente vede il pallino «non letto» e lo azzera aprendo il ticket, pagine statistiche / risposte rapide / casella «Contattaci» per il team, un cliente non entra nelle pagine del team, e la pagina pubblica «Contattaci» (desktop e telefono, senza invio reale: l'invio passa dal server HTTP di Convex, che il backend finto non riproduce).
+
 Prima: `NEXT_PUBLIC_CONVEX_URL=http://localhost:3210 npm run build` e `npx next start -p 3100`; poi `npm run e2e:app`.
 Se la porta 3210 è occupata, lo script si ferma con un messaggio (non riusa un backend altrui).
 

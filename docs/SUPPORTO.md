@@ -1,6 +1,6 @@
 # Sistema di supporto (ticket) — progetto, sicurezza, lacune
 
-Versione 1.21.0 · 12 ottobre 2026 (1.17.0: ticket; 1.18.0: email e allegati; 1.19.0: pallino non letti e pagina Contattaci; 1.20.0: risposte rapide e avviso di ritardo; 1.21.0: statistiche e ricerca)
+Versione 1.22.0 · 12 ottobre 2026 (1.17.0: ticket; 1.18.0: email e allegati; 1.19.0: pallino non letti e pagina Contattaci; 1.20.0: risposte rapide e avviso di ritardo; 1.21.0: statistiche e ricerca; 1.22.0: privacy/GDPR, risposta ai messaggi Contattaci, ricerca per azienda, andamento e statistiche per agente, test in browser reale). Analisi legale: `docs/SUPPORTO_LEGALE.md`.
 
 ## Cosa c'è
 - **Cliente** (`/app/support`, voce «Supporto» nel menu Account): apre un ticket (categoria, oggetto, messaggio), vede lo storico, risponde, chiude, valuta (1–5) a ticket risolto. Le risposte del team arrivano come notifica nel campanello **e per email** (nella lingua dell'utente).
@@ -29,16 +29,14 @@ Versione 1.21.0 · 12 ottobre 2026 (1.17.0: ticket; 1.18.0: email e allegati; 1.
 ## File
 `convex/support.ts` (cliente) · `convex/supportAdmin.ts` (admin + cron) · `convex/lib/support.ts` (regole comuni) · `src/shared/support.ts` (costanti) · pagine in `src/app/[locale]/app/support` e `admin/support` · stringhe `support`, `supportAdmin`, `nav.support` in 6 lingue · codici errore `TICKET_*` in `src/lib/errors.ts`.
 
-## Lacune (onesto) — cosa manca per completare
+## Lacune (onesto) — cosa resta
 | # | Lacuna | Priorità | Nota |
 |---|---|---|---|
-| 1 | ~~Email~~ **fatto in 1.18.0** | — | Template `support` in 6 lingue, rispetta le preferenze |
-| 2 | ~~Allegati~~ **fatto in 1.18.0** | — | Resta da fare: scansione antivirus dedicata (oggi: verifica dei byte, non un antivirus) |
-| 3 | ~~Pallino risposte non lette~~ **fatto in 1.19.0** | — | Menu laterale, drawer mobile, foglio «Altro» e puntino sull'isola |
-| 4 | ~~Pagina Contattaci~~ **fatto in 1.19.0** | — | Resta: collegare anche il sito onespec.eu alla pagina; le risposte partono dal programma di posta, non dalla piattaforma |
-| 5 | ~~Risposte rapide~~ **fatto in 1.20.0**; ~~ricerca e filtro categoria~~ **fatti in 1.21.0**. Resta: ricerca per nome azienda | Bassa | Indice di ricerca sulle aziende |
-| 6 | ~~Avviso di ritardo~~ **fatto in 1.20.0** (solo prima risposta; nessun avviso sulle risposte successive né escalation) | — | — |
-| 7 | Esportazione dati personali (GDPR art. 15/20) non include i ticket; alla cancellazione account i ticket restano (record aziendale) con richiedente non più risolvibile | Media | Decidere con il consulente legale: anonimizzare o cancellare; aggiornare informativa privacy |
-| 8 | ~~Statistiche~~ **fatte in 1.21.0** (tempi mediani, % entro obiettivo, valutazione) | — | Resta: andamento nel tempo (grafico) e statistiche per singolo agente |
-| 9 | Test in browser reale (E2E) delle nuove pagine e demo online senza ticket | Bassa | Le pagine sono coperte da test di render in 6 lingue e da 13 test backend, non da Playwright |
-| 10 | Il supporto è per ora **solo** nella lingua dei messaggi scritti dall'utente: nessuna traduzione automatica | Bassa | Valutare con volumi reali |
+| 1 | **Antivirus dedicato sugli allegati**: oggi i file sono verificati sui byte (tipo reale, PDF senza script, dimensioni) ma non scansionati da un antivirus | Media | Richiede un servizio esterno a pagamento (es. ClamAV gestito) e una decisione tua; vedi `docs/SUPPORTO_LEGALE.md` §9.7 |
+| 2 | **Revisione legale umana**: i testi privacy/termini/DPA e le scelte di conservazione sono state preparate con cura ma vanno validate da un avvocato (elenco in `docs/SUPPORTO_LEGALE.md` §9) | **Alta** | Prima del lancio commerciale |
+| 3 | Verifica che il servizio email sia in modalità **live** e che il dominio mittente (SPF/DKIM/DMARC) sia a posto: senza, le email dei ticket non partono | Alta | Guida in `docs/RESEND_SPF_DKIM_DMARC_SETUP.md` |
+| 4 | Il modulo pubblico «Contattaci» è provato in browser solo come pagina (non l'invio reale, che passa dal server Convex vero) | Media | Prova manuale dopo il deploy |
+| 5 | Le statistiche coprono i 1000 ticket più recenti del periodo; nessun export CSV | Bassa | Da fare se i volumi crescono |
+| 6 | Nessuna traduzione automatica dei messaggi e nessun assistente AI sui ticket (e se si aggiungesse: rifare la DPIA) | Bassa | — |
+
+Chiuso nelle versioni 1.18–1.22: email, allegati, pallino non letti, pagina Contattaci (con risposta dalla piattaforma), risposte rapide, avviso di ritardo, statistiche (andamento giornaliero, per agente), ricerca (numero, oggetto, messaggi, azienda), filtro categoria, esportazione/cancellazione GDPR, testi legali aggiornati e sincronizzati con il sito, test in browser reale.

@@ -67,6 +67,8 @@ test("app backend (runs until stopped)", async () => {
       await ctx.db.patch(id, { name, ...(id === s.ownerId ? { email: OWNER_EMAIL } : {}), emailVerificationTime: Date.now() });
     }
   });
+  // A platform admin (the tenant's "admin" member also works the support desk) for the support flows.
+  await t.run((ctx) => ctx.db.patch(s.adminId, { isPlatformAdmin: true, email: "staff@example.com" }));
   const configuratorId = await seedPublishedConfigurator(t, s.tenantId);
   await t.mutation(internal.catalog.seedDefaultCatalog, { configuratorId, tenantId: s.tenantId });
   const clientId = await t.run((ctx) =>
@@ -77,7 +79,7 @@ test("app backend (runs until stopped)", async () => {
   );
   writeFileSync(
     SEED_FILE,
-    JSON.stringify({ tenantId: s.tenantId, configuratorId, clientId, owner: { id: s.ownerId, token: makeToken(s.ownerId), refresh: refreshFor(s.ownerId), email: OWNER_EMAIL, password: OWNER_PASSWORD }, member: { id: s.memberId, token: makeToken(s.memberId), refresh: refreshFor(s.memberId) } }),
+    JSON.stringify({ tenantId: s.tenantId, configuratorId, clientId, owner: { id: s.ownerId, token: makeToken(s.ownerId), refresh: refreshFor(s.ownerId), email: OWNER_EMAIL, password: OWNER_PASSWORD }, member: { id: s.memberId, token: makeToken(s.memberId), refresh: refreshFor(s.memberId) }, admin: { id: s.adminId, token: makeToken(s.adminId), refresh: refreshFor(s.adminId) } }),
   );
 
   // ── execution ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────

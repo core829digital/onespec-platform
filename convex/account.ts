@@ -1,3 +1,4 @@
+import { eraseUserSupportData } from "./supportErase";
 import { query, mutation, internalMutation } from "./_generated/server";
 import { internal } from "./_generated/api";
 import { v } from "convex/values";
@@ -171,6 +172,25 @@ export const exportMyData = mutation({
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .unique();
 
+    // Support tickets the person opened (their words and the team's replies), without the team's internal notes — those are
+    // handled on request (see the privacy notice).
+    const tickets = await ctx.db.query("supportTickets").withIndex("by_user_and_lastMessageAt", (q) => q.eq("userId", userId)).order("desc").take(200);
+    const supportTickets = [];
+    for (const t of tickets) {
+      const messages = await ctx.db.query("supportMessages").withIndex("by_ticketId", (q) => q.eq("ticketId", t._id)).take(200);
+      const files = await ctx.db.query("supportAttachments").withIndex("by_ticketId", (q) => q.eq("ticketId", t._id)).take(600);
+      supportTickets.push({
+        number: t.number, subject: t.subject, category: t.category, status: t.status, rating: t.rating ?? null,
+        openedAt: new Date(t.createdAt).toISOString(),
+        messages: messages.map((m) => ({ from: m.authorKind === "support" ? "support" : "you", at: new Date(m.createdAt).toISOString(), text: m.body })),
+        attachments: files.map((a) => ({ fileName: a.fileName, type: a.contentType, sizeBytes: a.sizeBytes })),
+      });
+    }
+    // Messages sent through the public "Contact us" page with this e-mail address.
+    const contactRows = user.email
+      ? await ctx.db.query("supportContacts").withIndex("by_email", (q) => q.eq("email", user.email!.trim().toLowerCase())).take(50)
+      : [];
+
     const payload = {
       exportedAt: new Date().toISOString(),
       account: {
@@ -200,6 +220,8 @@ export const exportMyData = mutation({
       consent: consent
         ? { productUpdates: consent.productUpdates, marketing: consent.marketing }
         : null,
+      supportTickets,
+      contactMessages: contactRows.map((c) => ({ name: c.name, topic: c.topic, message: c.message, sentAt: new Date(c.createdAt).toISOString() })),
     };
 
     return {
@@ -358,6 +380,9 @@ async function anonymiseUser(ctx: import("./_generated/server").MutationCtx, use
     for (const c of codes) await ctx.db.delete(c._id);
     await ctx.db.delete(a._id);
   }
+
+  const erasing = await ctx.db.get(userId);
+  await eraseUserSupportData(ctx, userId, erasing?.email ?? undefined);
 
   const notifications = await ctx.db.query("notifications").withIndex("by_user", (q) => q.eq("userId", userId)).take(1000);
   for (const n of notifications) await ctx.db.delete(n._id);

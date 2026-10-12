@@ -535,6 +535,74 @@ async function main() {
       await mobile.locator('nav[aria-label="Menu"]').getByRole("link").first().waitFor({ state: "visible", timeout: 5000 });
     });
     await phone.context.close();
+
+    // ── support: a ticket travels between a customer and the platform team; the unread badge; the public Contact page ────────────────
+    {
+      const admin = await newSession(browser, seed.admin.token, seed.admin.refresh);
+      const staff = await admin.context.newPage();
+      const SUBJECT = "Il PDF non si scarica";
+      await step("support: the customer opens a ticket and lands on its conversation", page, problems, async () => {
+        await page.goto(url("/app/support"), { waitUntil: "domcontentloaded" });
+        await page.getByLabel("Oggetto").fill(SUBJECT);
+        await page.getByLabel("Messaggio").fill("Quando premo Scarica non succede nulla, da ieri.");
+        await page.getByRole("button", { name: /^invia$/i }).click();
+        await page.waitForURL(/\/app\/support\/[^/]+$/, { timeout: 15_000 });
+        await page.getByRole("heading", { name: SUBJECT }).waitFor({ timeout: 10_000 });
+        await page.getByText("Quando premo Scarica").first().waitFor({ timeout: 10_000 });
+      });
+      await step("support: the platform team sees it in the queue (and finds it by search) and replies", staff, admin.problems, async () => {
+        await staff.goto(url("/app/admin/support"), { waitUntil: "domcontentloaded" });
+        await staff.getByText(SUBJECT).first().waitFor({ timeout: 15_000 });
+        await staff.getByPlaceholder(/cerca/i).fill("scarica");
+        await staff.getByText(SUBJECT).first().waitFor({ timeout: 10_000 });
+        await staff.getByText(/1 risultato/i).waitFor({ timeout: 10_000 });
+      });
+      await step("support: the customer, elsewhere in the app, gets the unread badge when the team replies", page, problems, async () => {
+        await page.goto(url("/app/dashboard"), { waitUntil: "domcontentloaded" });
+        await staff.getByText(SUBJECT).first().click();
+        await staff.getByLabel(/risposta al cliente/i).fill("Stiamo verificando, riprova tra qualche minuto.");
+        await staff.getByRole("button", { name: /^invia risposta$/i }).click();
+        await staff.getByText("Stiamo verificando").first().waitFor({ timeout: 10_000 });
+        const link = page.locator('aside a[href$="/app/support"]');
+        await link.filter({ hasText: /1/ }).first().waitFor({ timeout: 15_000 });
+      });
+      await step("support: opening the ticket shows the reply and clears the badge", page, problems, async () => {
+        await page.locator('aside a[href$="/app/support"]').first().click();
+        await page.getByText(/nuova risposta/i).first().waitFor({ timeout: 10_000 });
+        await page.getByText(SUBJECT).first().click();
+        await page.getByText("Stiamo verificando").first().waitFor({ timeout: 10_000 });
+        await page.waitForFunction(() => ![...document.querySelectorAll('aside a[href$="/app/support"] span')].some((e) => e.getAttribute("aria-hidden") === "true" && /^\d/.test(e.textContent ?? "")), null, { timeout: 10_000 });
+      });
+      await step("support: statistics, quick replies and Contact inbox pages render for the team", staff, admin.problems, async () => {
+        await staff.goto(url("/app/admin/support/stats"), { waitUntil: "domcontentloaded" });
+        await staff.getByText("Ticket aperti").first().waitFor({ timeout: 15_000 });
+        await staff.goto(url("/app/admin/support/replies"), { waitUntil: "domcontentloaded" });
+        await staff.getByRole("heading", { name: /risposte rapide/i }).waitFor({ timeout: 15_000 });
+        await staff.goto(url("/app/admin/support/contacts"), { waitUntil: "domcontentloaded" });
+        await staff.getByText("Nessun messaggio.").waitFor({ timeout: 15_000 });
+      });
+      await step("support: a customer cannot open the team's pages", page, problems, async () => {
+        await page.goto(url("/app/admin/support"), { waitUntil: "domcontentloaded" });
+        await page.getByText(/non hai i permessi/i).first().waitFor({ timeout: 10_000 });
+        check((await page.getByText(SUBJECT).count()) === 0, "the team queue shows no tickets to a normal customer");
+      });
+      await admin.context.close();
+      for (const [label, device] of [["desktop", {}], ["phone 390", { viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true }]]) {
+        const anon = await newSession(browser, "", "", { ...device });
+        const cp = await anon.context.newPage();
+        await anon.context.clearCookies();
+        await step(`public Contact page (${label}): form is there, nothing sticks out`, cp, anon.problems, async () => {
+          await cp.goto(url("/auth/contact"), { waitUntil: "domcontentloaded" });
+          await cp.locator("#c-name").waitFor({ timeout: 20_000 });
+          await cp.locator("#c-email").waitFor();
+          await cp.locator("#c-message").waitFor();
+          check(await cp.getByRole("button", { name: /^invia$/i }).isDisabled(), "send stays disabled until the form is valid");
+          const out = await cp.evaluate(sticksOut);
+          check(out.length === 0, `contact page: nothing sticks out of the screen (${out.join("; ")})`);
+        });
+        await anon.context.close();
+      }
+    }
   } finally {
     await browser.close();
     backend.stop();

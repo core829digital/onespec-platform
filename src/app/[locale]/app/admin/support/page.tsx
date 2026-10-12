@@ -5,6 +5,7 @@ import { usePaginatedQuery } from "convex/react";
 import { useQuery } from "@/lib/convex-query";
 import { useLocale, useTranslations } from "next-intl";
 import { api } from "@/convex/_generated/api";
+import { useIsPlatformAdmin } from "@/hooks/useIsPlatformAdmin";
 import { Link } from "@/i18n/navigation";
 import { PriorityLabel, StatusBadge } from "@/components/support/ticket-badges";
 import { SUPPORT_CATEGORIES, type SupportCategory, type SupportStatus } from "@/shared/support";
@@ -50,11 +51,12 @@ export default function AdminSupportPage() {
   const [category, setCategory] = useState<SupportCategory | "">("");
   const [text, setText] = useState("");
   const [debounced, setDebounced] = useState("");
-  const stats = useQuery(api.supportAdmin.stats);
-  const contactsNew = useQuery(api.supportContact.newCount);
-  const list = usePaginatedQuery(api.supportAdmin.queue, { status, mine, category: category || undefined }, { initialNumItems: 20 });
+  const isAdmin = useIsPlatformAdmin() === true;
+  const stats = useQuery(api.supportAdmin.stats, isAdmin ? {} : "skip");
+  const contactsNew = useQuery(api.supportContact.newCount, isAdmin ? {} : "skip");
+  const list = usePaginatedQuery(api.supportAdmin.queue, isAdmin ? { status, mine, category: category || undefined } : "skip", { initialNumItems: 20 });
   const searching = debounced.trim().length >= 1;
-  const found = useQuery(api.supportAdmin.search, searching ? { text: debounced } : "skip");
+  const found = useQuery(api.supportAdmin.search, isAdmin && searching ? { text: debounced } : "skip");
 
   useEffect(() => {
     const id = setTimeout(() => setDebounced(text), 300);

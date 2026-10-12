@@ -7,6 +7,7 @@ import { consumeToken } from "./lib/ratelimit";
 import { assertLongText } from "./lib/inputs";
 import { checkEmail, cleanText } from "../src/shared/validation";
 import { CONTACT_LIMITS } from "../src/shared/support";
+import { cleanBody } from "./lib/support";
 
 const LOCALES = ["it", "en", "fr", "de", "nl", "ro"];
 const topicV = v.union(v.literal("login"), v.literal("billing"), v.literal("info"), v.literal("other"));
@@ -111,5 +112,30 @@ export const purgeOld = internalMutation({
       await ctx.db.delete(r._id);
     }
     return seen.size;
+  },
+});
+
+/**
+ * A platform admin answers a Contact-page message by e-mail, from the platform. The text is the admin's own; the visitor can answer
+ * the message (Reply-To). At most 5 replies per message and 60 an hour per admin; the message is marked handled.
+ */
+export const reply = mutation({
+  args: { id: v.id("supportContacts"), text: v.string() },
+  handler: async (ctx, args) => {
+    const adminId = await requirePlatformAdmin(ctx);
+    const row = await ctx.db.get(args.id);
+    if (!row) throw new ConvexError("CONTACT_NOT_FOUND");
+    const text = cleanBody(args.text);
+    if ((row.replyCount ?? 0) >= 5) throw new ConvexError("TOO_MANY_REPLIES");
+    if (!(await consumeToken(ctx, `contact:reply:${adminId}`, { tokens: 60, refillMs: 60 * 60 * 1000 }))) throw new ConvexError("RATE_LIMITED");
+    const now = Date.now();
+    await ctx.db.patch(row._id, { status: "handled", handledAt: now, handledBy: adminId, repliedAt: now, replyCount: (row.replyCount ?? 0) + 1 });
+    await ctx.db.insert("auditLog", { actorUserId: adminId, actorKind: "admin", action: "support.contact.reply", targetTable: "supportContacts", targetId: row._id, createdAt: now });
+    await ctx.scheduler.runAfter(0, internal.email.send, {
+      template: "support", to: row.email, locale: row.locale,
+      data: { supportKind: "contact_reply", message: text },
+      replyTo: process.env.SUPPORT_REPLY_TO ?? "hello@onespec.eu",
+      relatedEntityId: row._id,
+    });
   },
 });
