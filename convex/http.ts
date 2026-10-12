@@ -9,6 +9,7 @@ import { verifyStripeSignature } from "./billing";
 import { hashIp } from "./lib/ipHash";
 import { clientIp } from "./lib/clientIp";
 import { resendWebhook } from "./http/resend_webhook";
+import { supportFileDownload } from "./http/support_file";
 import { createPostHogClient } from "./lib/posthog";
 import { checkWebhookSource } from "./lib/webhookIp";
 
@@ -52,6 +53,9 @@ async function verifyTurnstile(token: string, ip: string): Promise<boolean> {
     return true;
   }
 }
+
+// Signed, short-lived download of a ticket attachment (see convex/http/support_file.ts).
+http.route({ path: "/api/support/file", method: "GET", handler: supportFileDownload });
 
 http.route({
   path: "/api/support/contact",

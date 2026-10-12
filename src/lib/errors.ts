@@ -25,6 +25,8 @@ export type ErrorKey =
   | "planSelectionRequired"
   | "planUpgradeRequired"
   | "rateLimited"
+  | "malwareDetected"
+  | "attachmentUnavailable"
   | "invalidInput"
   | "nameRequired"
   | "alreadySigned"
@@ -188,6 +190,8 @@ const EXACT: Record<string, ErrorKey> = {
   PLAN_SELECTION_REQUIRED: "planSelectionRequired",
   PLAN_UPGRADE_REQUIRED: "planUpgradeRequired",
   RATE_LIMITED: "rateLimited",
+  MALWARE_DETECTED: "malwareDetected",
+  SIGNING_NOT_CONFIGURED: "attachmentUnavailable",
   EXPORT_RATE_LIMITED: "rateLimited",
   CUSTOMER_NAME_REQUIRED: "nameRequired",
   INVALID_NAME: "nameRequired",

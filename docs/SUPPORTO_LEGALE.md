@@ -80,9 +80,11 @@ Non richiesta: nessun trattamento su larga scala di categorie particolari, nessu
 4. **Trasferimenti USA:** controllare che i fornitori siano certificati EU-US Data Privacy Framework o che le CCS siano effettivamente in vigore, e documentare il *transfer impact assessment*.
 5. **Note interne e accesso (art. 15.4):** conferma dell'approccio «su richiesta».
 6. **Consumatori:** il servizio è B2B; se mai si aprisse a consumatori, rivedere termini di assistenza e informative.
-7. **Allegati:** nessun antivirus dedicato (solo verifica dei byte); decidere se acquistarne uno e aggiornare le misure di sicurezza dichiarate.
+7. **Allegati:** scansione interna + firma HMAC + download firmato introdotti (non è un motore commerciale); vedi `docs/REVISIONE_LEGALE_2026-10.md`.
 8. **Lingue:** i testi legali sono redatti in italiano; per clienti non italiani valutare le traduzioni giurate/di cortesia.
 9. **Nomina e formazione del personale di supporto** (impegno di riservatezza scritto, DPA punto 3.2): predisporre il modulo interno.
+
+> Stato dei punti 1–9: risolti o assegnati in `docs/REVISIONE_LEGALE_2026-10.md`.
 
 ## 10. Cosa è stato modificato nei testi pubblici (12/10/2026)
 Informativa privacy (dati, basi, conservazione, nuova sezione «Assistenza e ticket: chi vede cosa», sub-responsabili, reclamo), Diritti GDPR, Termini di servizio (nuova sezione «Assistenza», con precisazione che i tempi sono obiettivi e non SLA), Cookie (Turnstile). I testi sono sincronizzati con il sito (`npm run check:legal-sync`).

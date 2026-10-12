@@ -122,3 +122,7 @@ jobs:
           cache: "npm"
       - name: Known vulnerabilities in what ships (high and above)
         run: npm audit --omit=dev --audit-level=high
+      - name: Registry signatures and provenance of installed packages (supply chain)
+        run: |
+          npm ci --ignore-scripts
+          npm audit signatures

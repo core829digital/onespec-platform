@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { api, internal } from "../../convex/_generated/api";
-import { newDb, seedTenant } from "./_helpers";
+import { newDb, seedTenant, tinyPng } from "./_helpers";
 
 beforeEach(() => {
   vi.useFakeTimers();
@@ -8,13 +8,7 @@ beforeEach(() => {
 });
 afterEach(() => vi.useRealTimers());
 
-const png = () => {
-  const b = new Uint8Array(32);
-  b.set([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
-  new DataView(b.buffer).setUint32(16, 100);
-  new DataView(b.buffer).setUint32(20, 80);
-  return b;
-};
+const png = () => tinyPng();
 
 async function world() {
   const t = newDb();
@@ -26,7 +20,7 @@ async function world() {
 }
 
 describe("support data and GDPR rights", () => {
-  test("art. 15/20: the export holds my tickets, the team's replies, attachment names and my contact-page messages — never internal notes", async () => {
+  test("art. 15/20: the export holds my tickets, the team's replies, the internal notes about me, attachment names and my contact-page messages", async () => {
     const { t, s, staff, email } = await world();
     const me = t.withIdentity({ subject: s.memberId });
     const storageId = await t.run((ctx) => ctx.storage.store(new Blob([png() as BlobPart], { type: "image/png" })));
@@ -43,7 +37,7 @@ describe("support data and GDPR rights", () => {
     expect(data.supportTickets[0].messages[0].text).toBe("Il mio testo personale");
     expect(data.supportTickets[0].attachments[0].fileName).toBe("errore.png");
     expect(data.contactMessages[0].message).toBe("Messaggio dalla pagina contatti");
-    expect(out.content).not.toMatch(/NOTA-INTERNA-RISERVATA/);
+    expect(data.supportTickets[0].internalNotes[0].text).toBe("NOTA-INTERNA-RISERVATA");
     expect(out.content).not.toMatch(/storageId/);
   });
 

@@ -32,7 +32,7 @@ Versione 1.22.0 · 12 ottobre 2026 (1.17.0: ticket; 1.18.0: email e allegati; 1.
 ## Lacune (onesto) — cosa resta
 | # | Lacuna | Priorità | Nota |
 |---|---|---|---|
-| 1 | **Antivirus dedicato sugli allegati**: oggi i file sono verificati sui byte (tipo reale, PDF senza script, dimensioni) ma non scansionati da un antivirus | Media | Richiede un servizio esterno a pagamento (es. ClamAV gestito) e una decisione tua; vedi `docs/SUPPORTO_LEGALE.md` §9.7 |
+| 1 | **Antivirus**: gli allegati hanno una scansione **interna** (firme, struttura, polyglot) con attestazione firmata e download firmato (`docs/OWASP_TOP10_2025.md`); non è un motore commerciale | Bassa | Un motore esterno (es. ClamAV gestito) resta opzionale. **Al deploy impostare `SUPPORT_SIGNING_SECRET`** (≥32 caratteri), altrimenti gli allegati non si caricano né si scaricano (fail-closed) |
 | 2 | **Revisione legale umana**: i testi privacy/termini/DPA e le scelte di conservazione sono state preparate con cura ma vanno validate da un avvocato (elenco in `docs/SUPPORTO_LEGALE.md` §9) | **Alta** | Prima del lancio commerciale |
 | 3 | Prova di invio dopo il deploy: apri un ticket di prova e rispondi da admin, poi controlla che l'email arrivi. **Nessuna modifica DNS è necessaria** se le altre email della piattaforma già partono: i ticket usano lo stesso mittente (`noreply@onespec.eu`), la stessa chiave e lo stesso interruttore `RESEND_MODE=live` | Media | Per le risposte «Contattaci» l'indirizzo «Rispondi a» è `hello@onespec.eu` (modificabile con `SUPPORT_REPLY_TO`): la casella deve essere raggiungibile |
 | 4 | Il modulo pubblico «Contattaci» è provato in browser solo come pagina (non l'invio reale, che passa dal server Convex vero) | Media | Prova manuale dopo il deploy |

@@ -172,17 +172,19 @@ export const exportMyData = mutation({
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .unique();
 
-    // Support tickets the person opened (their words and the team's replies), without the team's internal notes — those are
-    // handled on request (see the privacy notice).
+    // Support tickets the person opened: their words, the team's replies and the team's internal notes about the case — the notes are
+    // personal data of the requester too (EDPB Guidelines 01/2022 on the right of access), so they are part of the copy.
     const tickets = await ctx.db.query("supportTickets").withIndex("by_user_and_lastMessageAt", (q) => q.eq("userId", userId)).order("desc").take(200);
     const supportTickets = [];
     for (const t of tickets) {
       const messages = await ctx.db.query("supportMessages").withIndex("by_ticketId", (q) => q.eq("ticketId", t._id)).take(200);
+      const notes = await ctx.db.query("supportInternalNotes").withIndex("by_ticketId", (q) => q.eq("ticketId", t._id)).take(300);
       const files = await ctx.db.query("supportAttachments").withIndex("by_ticketId", (q) => q.eq("ticketId", t._id)).take(600);
       supportTickets.push({
         number: t.number, subject: t.subject, category: t.category, status: t.status, rating: t.rating ?? null,
         openedAt: new Date(t.createdAt).toISOString(),
         messages: messages.map((m) => ({ from: m.authorKind === "support" ? "support" : "you", at: new Date(m.createdAt).toISOString(), text: m.body })),
+        internalNotes: notes.map((n) => ({ at: new Date(n.createdAt).toISOString(), text: n.body })),
         attachments: files.map((a) => ({ fileName: a.fileName, type: a.contentType, sizeBytes: a.sizeBytes })),
       });
     }

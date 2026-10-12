@@ -110,7 +110,9 @@ export function AttachmentList({
   const tf = useFriendlyError();
   const openCustomer = useMutation(api.supportFiles.open);
   const openStaff = useMutation(api.supportFiles.openAsStaff);
+  const verify = useAction(api.supportFiles.verifyIntegrity);
   const [error, setError] = useState("");
+  const [checks, setChecks] = useState<Record<string, "busy" | "ok" | "ko">>({});
   if (!items.length) return null;
 
   async function open(id: Id<"supportAttachments">) {
@@ -123,14 +125,35 @@ export function AttachmentList({
     }
   }
 
+  async function check(id: Id<"supportAttachments">) {
+    setError("");
+    setChecks((c) => ({ ...c, [id]: "busy" }));
+    try {
+      const r = await verify({ attachmentId: id });
+      setChecks((c) => ({ ...c, [id]: r.ok ? "ok" : "ko" }));
+    } catch (err) {
+      setChecks((c) => { const n = { ...c }; delete n[id]; return n; });
+      setError(tf(err));
+    }
+  }
+
   return (
     <div className="mt-3 flex flex-wrap gap-2">
       {items.map((a) => (
-        <button key={a._id} type="button" onClick={() => open(a._id)} aria-label={t("attachOpen", { name: a.fileName })} className={`${chip} hover:border-[var(--color-mint)]`}>
+        <span key={a._id} className="inline-flex max-w-full flex-wrap items-center gap-1">
+        <button type="button" onClick={() => open(a._id)} aria-label={t("attachOpen", { name: a.fileName })} className={`${chip} hover:border-[var(--color-mint)]`}>
           <Paperclip className="h-4 w-4 shrink-0" aria-hidden />
           <span className="truncate">{a.fileName}</span>
           <span className="shrink-0 text-xs text-[var(--color-text-secondary)]">{Math.max(1, Math.round(a.sizeBytes / 1024))} KB</span>
         </button>
+        {asStaff && (
+          <button type="button" disabled={checks[a._id] === "busy"} onClick={() => check(a._id)} className="inline-flex min-h-11 items-center rounded-lg border border-[var(--color-border)] px-3 text-xs hover:border-[var(--color-mint)] disabled:opacity-50">
+            {checks[a._id] === "busy" ? t("verifyBusy") : t("verifyIntegrity")}
+          </button>
+        )}
+        {checks[a._id] === "ok" && <span role="status" className="text-xs text-emerald-700">{t("verifyOk")}</span>}
+        {checks[a._id] === "ko" && <span role="alert" className="text-xs text-red-600">{t("verifyKo")}</span>}
+        </span>
       ))}
       {error && <p role="alert" className="w-full text-sm text-red-600">{error}</p>}
     </div>

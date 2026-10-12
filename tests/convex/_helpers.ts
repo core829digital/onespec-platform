@@ -7,6 +7,10 @@ import type { Id } from "../../convex/_generated/dataModel";
 // Vitest. Passing the modules map avoids "module not found" in edge-runtime.
 const modules = import.meta.glob("../../convex/**/!(*.*.*)*.*s");
 
+// Signing is fail-closed (no secret, no signed files, no downloads): tests get a fixed secret and a site URL.
+process.env.SUPPORT_SIGNING_SECRET ??= "test-signing-secret-0123456789abcdef0123456789";
+process.env.CONVEX_SITE_URL ??= "https://test.convex.site";
+
 export function newDb() {
   return convexTest(schema, modules);
 }
@@ -209,3 +213,18 @@ export const WHITE_ON_WHITE_PNG = BLANK_PNG;
 /** A transparent picture (what a pad with an unseen stroke produces). */
 export const TRANSPARENT_PNG = makePng(240, 80, () => [0, 0, 0, 0]);
 export { chunk as pngChunk };
+
+/** A small but structurally valid PNG (correct chunks and checksums) for attachment tests; `extra` adds chunks before IDAT. */
+export function tinyPng(width = 100, height = 80, extra: number[] = []): Uint8Array {
+  const crc32 = (bytes: number[]) => { let c = 0xffffffff; for (const b of bytes) { c ^= b; for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1; } return (c ^ 0xffffffff) >>> 0; };
+  const u32 = (n: number) => [(n >>> 24) & 255, (n >>> 16) & 255, (n >>> 8) & 255, n & 255];
+  const ascii = (t: string) => Array.from(t, (ch) => ch.charCodeAt(0));
+  const chunk = (type: string, data: number[]) => [...u32(data.length), ...ascii(type), ...data, ...u32(crc32([...ascii(type), ...data]))];
+  return new Uint8Array([
+    0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a,
+    ...chunk("IHDR", [...u32(width), ...u32(height), 8, 2, 0, 0, 0]),
+    ...extra,
+    ...chunk("IDAT", [0x78, 0x9c, 0x63, 0x60, 0x60, 0x60, 0x00, 0x00, 0x00, 0x04, 0x00, 0x01]),
+    ...chunk("IEND", []),
+  ]);
+}

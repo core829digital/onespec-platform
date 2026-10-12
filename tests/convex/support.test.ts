@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { api, internal } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
-import { newDb, seedTenant } from "./_helpers";
+import { newDb, seedTenant, tinyPng } from "./_helpers";
 
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => vi.useRealTimers());
@@ -211,13 +211,7 @@ describe("support e-mails", () => {
 });
 
 describe("support attachments", () => {
-  const png = () => {
-    const b = new Uint8Array(32);
-    b.set([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
-    new DataView(b.buffer).setUint32(16, 100);
-    new DataView(b.buffer).setUint32(20, 80);
-    return b;
-  };
+  const png = () => tinyPng();
   const store = (t: Awaited<ReturnType<typeof world>>["t"], bytes: Uint8Array, type = "image/png") =>
     t.run((ctx) => ctx.storage.store(new Blob([bytes as BlobPart], { type })));
 

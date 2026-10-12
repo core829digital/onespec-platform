@@ -886,6 +886,15 @@ export default defineSchema({
     /** Detected from the bytes, never taken from the browser. */
     contentType: v.union(v.literal("image/png"), v.literal("image/jpeg"), v.literal("image/webp"), v.literal("application/pdf")),
     sizeBytes: v.number(),
+    /**
+     * Scan attestation (absent only on files uploaded before it existed; those are scanned and attested the first time they are opened).
+     * `signature` is an HMAC over these fields + the storage id + the uploader, so a changed verdict, type, size or file is detectable.
+     */
+    sha256: v.optional(v.string()),
+    scanVersion: v.optional(v.string()),
+    scanVerdict: v.optional(v.literal("clean")),
+    scannedAt: v.optional(v.number()),
+    signature: v.optional(v.string()),
     createdAt: v.number(),
   })
     .index("by_messageId", ["messageId"])
