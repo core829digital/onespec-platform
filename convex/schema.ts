@@ -837,7 +837,8 @@ export default defineSchema({
     .index("by_user_and_lastMessageAt", ["userId", "lastMessageAt"])
     .index("by_status_and_lastMessageAt", ["status", "lastMessageAt"])
     .index("by_assignedToUserId_and_status", ["assignedToUserId", "status"])
-    .index("by_number", ["number"]),
+    .index("by_number", ["number"])
+    .searchIndex("search_subject", { searchField: "subject" }),
 
   /** Customer-visible conversation. Children of a ticket (never embedded). */
   supportMessages: defineTable({
@@ -846,7 +847,9 @@ export default defineSchema({
     authorKind: v.union(v.literal("customer"), v.literal("support")),
     body: v.string(),
     createdAt: v.number(),
-  }).index("by_ticketId", ["ticketId"]),
+  })
+    .index("by_ticketId", ["ticketId"])
+    .searchIndex("search_body", { searchField: "body" }),
 
   /** Ready-made replies shared by all platform admins. */
   supportCannedReplies: defineTable({

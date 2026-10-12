@@ -1,31 +1,127 @@
-import { internalMutation, mutation, query } from "./_generated/server";
+import { internalMutation, mutation, query, type QueryCtx } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
+import type { Doc, Id } from "./_generated/dataModel";
 import { paginationOptsValidator } from "convex/server";
 import { requirePlatformAdmin } from "./lib/auth";
 import { consumeToken } from "./lib/ratelimit";
 import { SUPPORT_LIMITS, SUPPORT_SLA_HOURS, canTransition } from "../src/shared/support";
-import { notifyPlatformAdmins, attachmentIdsV, attachmentsByMessage, auditSupport, claimAttachments, cleanBody, deleteTicketAttachments, notifyUser, priorityV, statusV } from "./lib/support";
+import { notifyPlatformAdmins, attachmentIdsV, attachmentsByMessage, auditSupport, claimAttachments, cleanBody, deleteTicketAttachments, notifyUser, categoryV, priorityV, statusV } from "./lib/support";
 
-/** Queue of tickets for platform admins, newest activity first. */
+type Ticket = Doc<"supportTickets">;
+type QueueRow = {
+  _id: Id<"supportTickets">; number: number; subject: string; category: Ticket["category"]; priority: Ticket["priority"]; status: Ticket["status"];
+  lastMessageAt: number; lastMessageBy: Ticket["lastMessageBy"]; unread: boolean; assignedToUserId: Id<"users"> | null; createdAt: number;
+  tenantName: string; requester: string; slaHours: number; firstResponseAt: number | null;
+};
+
+async function queueRow(ctx: QueryCtx, t: Doc<"supportTickets">): Promise<QueueRow> {
+  const [tenant, user] = await Promise.all([ctx.db.get(t.tenantId), ctx.db.get(t.userId)]);
+  return {
+    _id: t._id, number: t.number, subject: t.subject, category: t.category, priority: t.priority, status: t.status,
+    lastMessageAt: t.lastMessageAt, lastMessageBy: t.lastMessageBy, unread: t.supportUnread,
+    assignedToUserId: t.assignedToUserId ?? null, createdAt: t.createdAt,
+    tenantName: tenant?.name ?? "—", requester: user?.email ?? user?.name ?? "—",
+    slaHours: SUPPORT_SLA_HOURS[t.priority], firstResponseAt: t.firstResponseAt ?? null,
+  };
+}
+
+/** Queue of tickets for platform admins, newest activity first. Optional category filter. */
 export const queue = query({
-  args: { status: statusV, paginationOpts: paginationOptsValidator, mine: v.optional(v.boolean()) },
+  args: { status: statusV, paginationOpts: paginationOptsValidator, mine: v.optional(v.boolean()), category: v.optional(categoryV) },
   handler: async (ctx, args) => {
     const adminId = await requirePlatformAdmin(ctx);
     const opts = { ...args.paginationOpts, numItems: Math.min(Math.max(args.paginationOpts.numItems, 1), 50) };
-    const page = args.mine
-      ? await ctx.db.query("supportTickets").withIndex("by_assignedToUserId_and_status", (q) => q.eq("assignedToUserId", adminId).eq("status", args.status)).order("desc").paginate(opts)
-      : await ctx.db.query("supportTickets").withIndex("by_status_and_lastMessageAt", (q) => q.eq("status", args.status)).order("desc").paginate(opts);
-    const rows = await Promise.all(page.page.map(async (t) => {
-      const [tenant, user] = await Promise.all([ctx.db.get(t.tenantId), ctx.db.get(t.userId)]);
-      return {
-        _id: t._id, number: t.number, subject: t.subject, category: t.category, priority: t.priority, status: t.status,
-        lastMessageAt: t.lastMessageAt, lastMessageBy: t.lastMessageBy, unread: t.supportUnread,
-        assignedToUserId: t.assignedToUserId ?? null, createdAt: t.createdAt,
-        tenantName: tenant?.name ?? "—", requester: user?.email ?? user?.name ?? "—",
-        slaHours: SUPPORT_SLA_HOURS[t.priority], firstResponseAt: t.firstResponseAt ?? null,
-      };
-    }));
-    return { ...page, page: rows };
+    const base = args.mine
+      ? ctx.db.query("supportTickets").withIndex("by_assignedToUserId_and_status", (q) => q.eq("assignedToUserId", adminId).eq("status", args.status))
+      : ctx.db.query("supportTickets").withIndex("by_status_and_lastMessageAt", (q) => q.eq("status", args.status));
+    const filtered = args.category ? base.filter((q) => q.eq(q.field("category"), args.category)) : base;
+    const page = await filtered.order("desc").paginate(opts);
+    return { ...page, page: await Promise.all(page.page.map((t) => queueRow(ctx, t))) };
+  },
+});
+
+/**
+ * Finds tickets by number ("TKT-0007", "7"), by words in the subject, or by words in any message. At most 25, newest first.
+ * (Company name is not searched: the queue already shows it, and tenants have no search index.)
+ */
+export const search = query({
+  args: { text: v.string() },
+  handler: async (ctx, args) => {
+    await requirePlatformAdmin(ctx);
+    const text = args.text.trim().slice(0, 80);
+    const num = /^(?:tkt-?)?0*(\d{1,7})$/i.exec(text);
+    if (text.length < 2 && !num) return [];
+    const found = new Map<string, Doc<"supportTickets">>();
+    if (num) {
+      const t = await ctx.db.query("supportTickets").withIndex("by_number", (q) => q.eq("number", Number(num[1]))).first();
+      if (t) found.set(t._id, t);
+    }
+    for (const t of await ctx.db.query("supportTickets").withSearchIndex("search_subject", (q) => q.search("subject", text)).take(25)) found.set(t._id, t);
+    for (const m of await ctx.db.query("supportMessages").withSearchIndex("search_body", (q) => q.search("body", text)).take(25)) {
+      if (found.size >= 25) break;
+      if (found.has(m.ticketId)) continue;
+      const t = await ctx.db.get(m.ticketId);
+      if (t) found.set(t._id, t);
+    }
+    const tickets = [...found.values()].sort((a, b) => b.lastMessageAt - a.lastMessageAt).slice(0, 25);
+    return await Promise.all(tickets.map((t) => queueRow(ctx, t)));
+  },
+});
+
+/**
+ * Figures for the last `days` days (7–365) over the tickets CREATED in that window. Bounded to the newest 1000 tickets
+ * (`truncated` says so). Times are in milliseconds; the page formats them.
+ */
+export const metrics = query({
+  args: { days: v.number() },
+  handler: async (ctx, args) => {
+    await requirePlatformAdmin(ctx);
+    const days = Math.min(Math.max(Math.floor(args.days), 7), 365);
+    const since = Date.now() - days * 86_400_000;
+    const rows = await ctx.db.query("supportTickets").withIndex("by_creation_time", (q) => q.gte("_creationTime", since)).order("desc").take(1001);
+    const truncated = rows.length > 1000;
+    const tickets = rows.slice(0, 1000);
+
+    const byCategory: Record<string, number> = {};
+    const byPriority: Record<string, number> = {};
+    const firstResponses: number[] = [];
+    let withinTarget = 0;
+    let answered = 0;
+    let ratingSum = 0;
+    let ratingCount = 0;
+    let solved = 0;
+    const solveTimes: number[] = [];
+    for (const t of tickets) {
+      byCategory[t.category] = (byCategory[t.category] ?? 0) + 1;
+      byPriority[t.priority] = (byPriority[t.priority] ?? 0) + 1;
+      if (t.firstResponseAt !== undefined) {
+        const took = Math.max(0, t.firstResponseAt - t.createdAt);
+        firstResponses.push(took);
+        answered++;
+        if (took <= SUPPORT_SLA_HOURS[t.priority] * 3_600_000) withinTarget++;
+      }
+      if (t.rating !== undefined) { ratingSum += t.rating; ratingCount++; }
+      if (t.status === "resolved" || t.status === "closed") {
+        solved++;
+        const end = t.resolvedAt ?? t.closedAt;
+        if (end !== undefined) solveTimes.push(Math.max(0, end - t.createdAt));
+      }
+    }
+    const median = (xs: number[]) => {
+      if (!xs.length) return null;
+      const s = [...xs].sort((a, b) => a - b);
+      const m = Math.floor(s.length / 2);
+      return s.length % 2 ? s[m] : Math.round((s[m - 1] + s[m]) / 2);
+    };
+    const mean = (xs: number[]) => (xs.length ? Math.round(xs.reduce((a, b) => a + b, 0) / xs.length) : null);
+    return {
+      days, truncated, created: tickets.length, solved, answered,
+      firstResponseMedianMs: median(firstResponses), firstResponseMeanMs: mean(firstResponses),
+      solveMedianMs: median(solveTimes),
+      withinTargetPct: answered ? Math.round((withinTarget / answered) * 100) : null,
+      ratingAvg: ratingCount ? Math.round((ratingSum / ratingCount) * 10) / 10 : null, ratingCount,
+      byCategory, byPriority,
+    };
   },
 });
 

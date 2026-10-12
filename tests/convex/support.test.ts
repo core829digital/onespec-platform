@@ -411,3 +411,56 @@ describe("first-response alert", () => {
     expect(others.some((n) => /in ritardo/i.test(n.title))).toBe(false);
   });
 });
+
+describe("search and statistics", () => {
+  test("search by number, subject words and message words; admin only; short text returns nothing", async () => {
+    const { t, a, staff } = await world();
+    const one = await open(t, a.tenantId as never, a.memberId as never, "Errore nella stampa del PDF");
+    await t.withIdentity({ subject: a.memberId }).mutation(api.support.create, { tenantId: a.tenantId, subject: "Domanda sul listino", body: "Come importo il file excel dei prezzi?", category: "howto" });
+    const s = t.withIdentity({ subject: staff });
+    expect((await s.query(api.supportAdmin.search, { text: `TKT-${String(one.number).padStart(4, "0")}` })).map((r) => r._id)).toEqual([one.id]);
+    expect((await s.query(api.supportAdmin.search, { text: String(one.number) }))[0]._id).toBe(one.id);
+    expect((await s.query(api.supportAdmin.search, { text: "stampa" }))).toHaveLength(1);
+    const byBody = await s.query(api.supportAdmin.search, { text: "excel" });
+    expect(byBody).toHaveLength(1);
+    expect(byBody[0].subject).toBe("Domanda sul listino");
+    expect(await s.query(api.supportAdmin.search, { text: "x" })).toEqual([]);
+    expect(await s.query(api.supportAdmin.search, { text: "inesistentissimo" })).toEqual([]);
+    await expect(t.withIdentity({ subject: a.ownerId }).query(api.supportAdmin.search, { text: "stampa" })).rejects.toThrow(/NOT_PLATFORM_ADMIN/);
+  });
+
+  test("queue category filter", async () => {
+    const { t, a, staff } = await world();
+    await open(t, a.tenantId as never, a.memberId as never); // bug
+    await t.withIdentity({ subject: a.memberId }).mutation(api.support.create, { tenantId: a.tenantId, subject: "Fattura errata", body: "importo sbagliato", category: "billing" });
+    const s = t.withIdentity({ subject: staff });
+    const all = await s.query(api.supportAdmin.queue, { status: "open", paginationOpts: page });
+    const billing = await s.query(api.supportAdmin.queue, { status: "open", paginationOpts: page, category: "billing" });
+    expect(all.page).toHaveLength(2);
+    expect(billing.page.map((r) => r.subject)).toEqual(["Fattura errata"]);
+  });
+
+  test("metrics: counts, first-response times, target compliance, rating; admin only", async () => {
+    const { t, a, staff } = await world();
+    const h = (n: number) => n * 3_600_000;
+    const now = Date.now();
+    const fast = await open(t, a.tenantId as never, a.memberId as never, "Risposto in fretta");
+    const slow = await open(t, a.tenantId as never, a.memberId as never, "Risposto tardi");
+    await open(t, a.tenantId as never, a.memberId as never, "Ancora senza risposta");
+    await t.run(async (ctx) => {
+      await ctx.db.patch(fast.id, { createdAt: now - h(10), firstResponseAt: now - h(9), status: "resolved", resolvedAt: now - h(8), rating: 5 }); // 1 h, within 24 h
+      await ctx.db.patch(slow.id, { createdAt: now - h(60), firstResponseAt: now - h(30), rating: 3 }); // 30 h, over 24 h
+    });
+    const m = await t.withIdentity({ subject: staff }).query(api.supportAdmin.metrics, { days: 30 });
+    expect(m.created).toBe(3);
+    expect(m.answered).toBe(2);
+    expect(m.firstResponseMedianMs).toBe(Math.round((h(1) + h(30)) / 2));
+    expect(m.withinTargetPct).toBe(50);
+    expect(m.ratingAvg).toBe(4);
+    expect(m.ratingCount).toBe(2);
+    expect(m.solved).toBe(1);
+    expect(m.byCategory.bug).toBe(3);
+    expect(m.truncated).toBe(false);
+    await expect(t.withIdentity({ subject: a.ownerId }).query(api.supportAdmin.metrics, { days: 30 })).rejects.toThrow(/NOT_PLATFORM_ADMIN/);
+  });
+});
