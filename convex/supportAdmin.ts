@@ -4,7 +4,7 @@ import { paginationOptsValidator } from "convex/server";
 import { requirePlatformAdmin } from "./lib/auth";
 import { consumeToken } from "./lib/ratelimit";
 import { SUPPORT_LIMITS, SUPPORT_SLA_HOURS, canTransition } from "../src/shared/support";
-import { attachmentIdsV, attachmentsByMessage, auditSupport, claimAttachments, cleanBody, deleteTicketAttachments, notifyUser, priorityV, statusV } from "./lib/support";
+import { notifyPlatformAdmins, attachmentIdsV, attachmentsByMessage, auditSupport, claimAttachments, cleanBody, deleteTicketAttachments, notifyUser, priorityV, statusV } from "./lib/support";
 
 /** Queue of tickets for platform admins, newest activity first. */
 export const queue = query({
@@ -183,5 +183,27 @@ export const purgeOldAndOrphans = internalMutation({
       await ctx.db.delete(t._id);
     }
     return old.length + orphans.length;
+  },
+});
+
+/**
+ * Cron (every 30 minutes): an open ticket that has had no first reply within its target gets ONE alert (in-app + e-mail to the
+ * assigned agent, or to every platform admin). `slaAlertedAt` makes it once-only; bounded batch, oldest first.
+ */
+export const slaSweep = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const now = Date.now();
+    const open = await ctx.db.query("supportTickets").withIndex("by_status_and_lastMessageAt", (q) => q.eq("status", "open")).order("asc").take(200);
+    let alerted = 0;
+    for (const t of open) {
+      if (t.firstResponseAt !== undefined || t.slaAlertedAt !== undefined) continue;
+      if (now - t.createdAt < SUPPORT_SLA_HOURS[t.priority] * 3_600_000) continue;
+      await ctx.db.patch(t._id, { slaAlertedAt: now });
+      await notifyPlatformAdmins(ctx, { ...t, slaAlertedAt: now }, `Ticket in ritardo: TKT-${t.number}`.slice(0, 160), "support.sla", "sla");
+      await ctx.db.insert("auditLog", { tenantId: t.tenantId, actorKind: "system", action: "support.ticket.sla_alert", targetTable: "supportTickets", targetId: t._id, meta: { priority: t.priority }, createdAt: now });
+      alerted++;
+    }
+    return alerted;
   },
 });

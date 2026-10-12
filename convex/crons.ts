@@ -66,6 +66,7 @@ crons.interval("referral-reward", { hours: 6 }, internal.referralPayouts.rewardS
 crons.interval("referral-clawback", { hours: 12 }, internal.referralPayouts.clawbackSweep, {});
 
 // Support: close resolved tickets nobody answered; retention + orphan cleanup.
+crons.interval("support-sla-sweep", { minutes: 30 }, internal.supportAdmin.slaSweep, {});
 crons.daily("support-auto-close", { hourUTC: 5, minuteUTC: 10 }, internal.supportAdmin.autoCloseResolved, {});
 crons.daily("support-purge", { hourUTC: 5, minuteUTC: 30 }, internal.supportAdmin.purgeOldAndOrphans, {});
 crons.daily("support-purge-pending-files", { hourUTC: 5, minuteUTC: 45 }, internal.supportFiles.purgePending, {});

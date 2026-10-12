@@ -34,6 +34,9 @@ export const SUPPORT_LIMITS = {
   replyPerHour: 30,
   /** Resolved tickets with no customer reply are closed after this many days. */
   autoCloseDays: 7,
+  maxCannedReplies: 100,
+  cannedTitleMin: 2,
+  cannedTitleMax: 60,
   /** Closed tickets are deleted after this many days (retention). */
   retentionDays: 730,
 } as const;

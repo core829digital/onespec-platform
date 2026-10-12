@@ -157,6 +157,7 @@ export type ErrorKey =
   | "importTooManyRows"
   | "importRateLimited"
   | "ticketClosed"
+  | "tooManyReplies"
   | "tooManyAttachments"
   | "ticketFull"
   | "ticketNotResolved"
@@ -339,6 +340,8 @@ const EXACT: Record<string, ErrorKey> = {
   IMPORT_TOO_MANY_ROWS: "importTooManyRows",
   IMPORT_RATE_LIMITED: "importRateLimited",
   TICKET_CLOSED: "ticketClosed",
+  TOO_MANY_REPLIES: "tooManyReplies",
+  REPLY_NOT_FOUND: "notFound",
   TOO_MANY_ATTACHMENTS: "tooManyAttachments",
   ATTACHMENT_NOT_FOUND: "notFound",
   TICKET_FULL: "ticketFull",

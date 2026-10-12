@@ -82,7 +82,7 @@ export interface EmailStrings {
     paid: { subject: (amount: string) => string; title: string; body: (amount: string) => string; cta: string };
   };
   /** Support tickets: one mail shape, four situations. */
-  support: { reply: SupportMail; resolved: SupportMail; staffNew: SupportMail; staffReply: SupportMail; staffContact: SupportMail };
+  support: { reply: SupportMail; resolved: SupportMail; staffNew: SupportMail; staffReply: SupportMail; staffContact: SupportMail; staffSla: SupportMail };
   notification: string;
 }
 
@@ -245,6 +245,12 @@ const it: EmailStrings = {
       body: () => "Qualcuno ha scritto dalla pagina «Contattaci» (senza account). Apri la casella per leggerla e rispondere.",
       cta: "Apri le richieste",
     },
+    staffSla: {
+      subject: (n) => `Obiettivo di prima risposta superato: ticket ${n} — onespec`,
+      title: "Ticket in ritardo",
+      body: (s) => `Il ticket «${s}» non ha ancora ricevuto una prima risposta entro l'obiettivo previsto. Aprilo per rispondere.`,
+      cta: "Apri il ticket",
+    },
   },
   notification: "Notifica",
 };
@@ -400,6 +406,12 @@ const en: EmailStrings = {
       title: "New contact request",
       body: () => "Someone wrote from the “Contact us” page (no account). Open the inbox to read and reply.",
       cta: "Open the inbox",
+    },
+    staffSla: {
+      subject: (n) => `First-response target missed: ticket ${n} — onespec`,
+      title: "Ticket overdue",
+      body: (s) => `The ticket “${s}” has not had a first reply within its target. Open it to respond.`,
+      cta: "Open the ticket",
     },
   },
   notification: "Notification",
@@ -557,6 +569,12 @@ const fr: EmailStrings = {
       body: () => "Quelqu'un a écrit depuis la page « Contact » (sans compte). Ouvrez la boîte pour lire et répondre.",
       cta: "Ouvrir la boîte",
     },
+    staffSla: {
+      subject: (n) => `Objectif de première réponse dépassé : ticket ${n} — onespec`,
+      title: "Ticket en retard",
+      body: (s) => `Le ticket « ${s} » n'a pas reçu de première réponse dans l'objectif prévu. Ouvrez-le pour répondre.`,
+      cta: "Ouvrir le ticket",
+    },
   },
   notification: "Notification",
 };
@@ -712,6 +730,12 @@ const de: EmailStrings = {
       title: "Neue Kontaktanfrage",
       body: () => "Jemand hat über die Seite „Kontakt“ geschrieben (ohne Konto). Öffnen Sie den Posteingang, um zu lesen und zu antworten.",
       cta: "Posteingang öffnen",
+    },
+    staffSla: {
+      subject: (n) => `Ziel für die erste Antwort überschritten: Ticket ${n} — onespec`,
+      title: "Ticket überfällig",
+      body: (s) => `Das Ticket „${s}“ hat innerhalb des Ziels noch keine erste Antwort erhalten. Öffnen Sie es, um zu antworten.`,
+      cta: "Ticket öffnen",
     },
   },
   notification: "Benachrichtigung",
@@ -869,6 +893,12 @@ const nl: EmailStrings = {
       body: () => "Iemand schreef via de pagina “Contact” (zonder account). Open de inbox om te lezen en te antwoorden.",
       cta: "Inbox openen",
     },
+    staffSla: {
+      subject: (n) => `Doel voor eerste reactie overschreden: ticket ${n} — onespec`,
+      title: "Ticket te laat",
+      body: (s) => `Het ticket “${s}” heeft binnen het doel nog geen eerste reactie gekregen. Open het om te antwoorden.`,
+      cta: "Ticket openen",
+    },
   },
   notification: "Melding",
 };
@@ -1024,6 +1054,12 @@ const ro: EmailStrings = {
       title: "Cerere nouă de contact",
       body: () => "Cineva a scris de pe pagina „Contact” (fără cont). Deschide căsuța pentru a citi și a răspunde.",
       cta: "Deschide căsuța",
+    },
+    staffSla: {
+      subject: (n) => `Ținta pentru primul răspuns depășită: tichetul ${n} — onespec`,
+      title: "Tichet întârziat",
+      body: (s) => `Tichetul „${s}” nu a primit un prim răspuns în ținta prevăzută. Deschide-l pentru a răspunde.`,
+      cta: "Deschide tichetul",
     },
   },
   notification: "Notificare",

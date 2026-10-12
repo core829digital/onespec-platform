@@ -826,6 +826,8 @@ export default defineSchema({
     customerUnread: v.boolean(),
     supportUnread: v.boolean(),
     firstResponseAt: v.optional(v.number()),
+    /** Set once when the first-response target was missed and the team was alerted. */
+    slaAlertedAt: v.optional(v.number()),
     resolvedAt: v.optional(v.number()),
     closedAt: v.optional(v.number()),
     rating: v.optional(v.number()),
@@ -845,6 +847,16 @@ export default defineSchema({
     body: v.string(),
     createdAt: v.number(),
   }).index("by_ticketId", ["ticketId"]),
+
+  /** Ready-made replies shared by all platform admins. */
+  supportCannedReplies: defineTable({
+    title: v.string(),
+    body: v.string(),
+    createdBy: v.id("users"),
+    updatedBy: v.id("users"),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_title", ["title"]),
 
   /** Staff-only notes. A separate table so a customer query can never leak them. */
   supportInternalNotes: defineTable({

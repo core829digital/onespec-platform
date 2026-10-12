@@ -102,6 +102,7 @@ import type * as support from "../support.js";
 import type * as supportAdmin from "../supportAdmin.js";
 import type * as supportContact from "../supportContact.js";
 import type * as supportFiles from "../supportFiles.js";
+import type * as supportReplies from "../supportReplies.js";
 import type * as surveys from "../surveys.js";
 import type * as teamAccess from "../teamAccess.js";
 import type * as teams from "../teams.js";
@@ -216,6 +217,7 @@ declare const fullApi: ApiFromModules<{
   supportAdmin: typeof supportAdmin;
   supportContact: typeof supportContact;
   supportFiles: typeof supportFiles;
+  supportReplies: typeof supportReplies;
   surveys: typeof surveys;
   teamAccess: typeof teamAccess;
   teams: typeof teams;

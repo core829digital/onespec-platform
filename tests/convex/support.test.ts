@@ -349,3 +349,65 @@ describe("public contact form", () => {
     expect(await t.run((ctx) => ctx.db.get(id))).toBeNull();
   });
 });
+
+describe("quick replies", () => {
+  test("only platform admins; create, edit, list alphabetical, delete; validation and cap", async () => {
+    const { t, a, staff } = await world();
+    const s = t.withIdentity({ subject: staff });
+    await expect(t.withIdentity({ subject: a.ownerId }).query(api.supportReplies.list, {})).rejects.toThrow(/NOT_PLATFORM_ADMIN/);
+    await expect(t.withIdentity({ subject: a.ownerId }).mutation(api.supportReplies.save, { title: "Ciao", body: "Buongiorno a tutti" })).rejects.toThrow(/NOT_PLATFORM_ADMIN/);
+    const id = await s.mutation(api.supportReplies.save, { title: "Saluto", body: "Buongiorno, grazie per averci scritto." });
+    await s.mutation(api.supportReplies.save, { title: "Chiusura", body: "Restiamo a disposizione." });
+    expect((await s.query(api.supportReplies.list, {})).map((r) => r.title)).toEqual(["Chiusura", "Saluto"]);
+    await s.mutation(api.supportReplies.save, { id, title: "Saluto 2", body: "Testo aggiornato qui" });
+    expect((await s.query(api.supportReplies.list, {})).find((r) => r._id === id)!.body).toBe("Testo aggiornato qui");
+    await expect(s.mutation(api.supportReplies.save, { title: "x", body: "Buongiorno" })).rejects.toThrow(/INVALID_SUBJECT/);
+    await expect(s.mutation(api.supportReplies.save, { title: "Valido", body: " " })).rejects.toThrow(/INVALID_MESSAGE/);
+    await s.mutation(api.supportReplies.remove, { id });
+    expect(await s.query(api.supportReplies.list, {})).toHaveLength(1);
+    await t.run(async (ctx) => {
+      for (let i = 0; i < 99; i++) await ctx.db.insert("supportCannedReplies", { title: `T${i}`, body: "corpo", createdBy: staff, updatedBy: staff, createdAt: 1, updatedAt: 1 });
+    });
+    await expect(s.mutation(api.supportReplies.save, { title: "Una in più", body: "corpo valido" })).rejects.toThrow(/TOO_MANY_REPLIES/);
+  });
+});
+
+describe("first-response alert", () => {
+  const hours = (n: number) => n * 3_600_000;
+
+  test("alerts once when the target is missed (in-app + e-mail), not before, not if answered", async () => {
+    const { t, a, staff } = await world();
+    const { id } = await open(t, a.tenantId as never, a.memberId as never); // normal priority → 24 h
+    expect(await t.mutation(internal.supportAdmin.slaSweep, {})).toBe(0);
+    await t.run((ctx) => ctx.db.patch(id, { createdAt: Date.now() - hours(25) }));
+    expect(await t.mutation(internal.supportAdmin.slaSweep, {})).toBe(1);
+    expect(await t.mutation(internal.supportAdmin.slaSweep, {})).toBe(0); // once only
+    await t.finishAllScheduledFunctions(vi.runAllTimers);
+    const notifs = await t.withIdentity({ subject: staff }).query(api.notifications.listMine, {});
+    expect(notifs.some((n) => /in ritardo/i.test(n.title))).toBe(true);
+    const sent = await t.run((ctx) => ctx.db.query("emailLog").filter((q) => q.eq(q.field("template"), "support")).collect());
+    expect(sent.some((m) => /TKT-/.test(m.subject))).toBe(true);
+
+    // answered ticket never alerts
+    const second = await open(t, a.tenantId as never, a.memberId as never, "Altro problema");
+    await t.withIdentity({ subject: staff }).mutation(api.supportAdmin.reply, { ticketId: second.id, body: "Presi in carico" });
+    await t.run((ctx) => ctx.db.patch(second.id, { createdAt: Date.now() - hours(100), status: "open" }));
+    expect(await t.mutation(internal.supportAdmin.slaSweep, {})).toBe(0);
+  });
+
+  test("the target follows the priority (urgent = 4 h) and an assigned agent is the only one alerted", async () => {
+    const { t, a, staff } = await world();
+    const other = a.ownerId;
+    await t.run((ctx) => ctx.db.patch(other, { isPlatformAdmin: true }));
+    const { id } = await open(t, a.tenantId as never, a.memberId as never);
+    const s = t.withIdentity({ subject: staff });
+    await s.mutation(api.supportAdmin.setPriority, { ticketId: id, priority: "urgent" });
+    await s.mutation(api.supportAdmin.assign, { ticketId: id, assigneeId: staff });
+    await t.run((ctx) => ctx.db.patch(id, { createdAt: Date.now() - hours(5) }));
+    expect(await t.mutation(internal.supportAdmin.slaSweep, {})).toBe(1);
+    const mine = await s.query(api.notifications.listMine, {});
+    const others = await t.withIdentity({ subject: other }).query(api.notifications.listMine, {});
+    expect(mine.some((n) => /in ritardo/i.test(n.title))).toBe(true);
+    expect(others.some((n) => /in ritardo/i.test(n.title))).toBe(false);
+  });
+});

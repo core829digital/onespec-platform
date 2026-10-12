@@ -28,6 +28,7 @@ export default function AdminTicketPage() {
   const ticketId = params.id as Id<"supportTickets">;
   const me = useQuery(api.users.viewer);
   const data = useQuery(api.supportAdmin.get, { ticketId });
+  const quick = useQuery(api.supportReplies.list);
   const reply = useMutation(api.supportAdmin.reply);
   const addNote = useMutation(api.supportAdmin.addNote);
   const setStatus = useMutation(api.supportAdmin.setStatus);
@@ -114,6 +115,22 @@ export default function AdminTicketPage() {
             <span className="text-sm font-medium text-[var(--color-text)]">{t("replyToCustomer")}</span>
             <textarea value={body} onChange={(e) => setBody(e.target.value)} maxLength={SUPPORT_LIMITS.bodyMax} rows={5} className={field} />
           </label>
+          {quick && quick.length > 0 && (
+            <label className="flex flex-wrap items-center gap-2 text-sm">
+              <span className="text-[var(--color-text-secondary)]">{t("quickReply")}</span>
+              <select
+                value=""
+                onChange={(e) => {
+                  const r = quick.find((x) => x._id === e.target.value);
+                  if (r) setBody((cur) => (cur.trim() ? `${cur.replace(/\s+$/, "")}\n\n${r.body}` : r.body).slice(0, SUPPORT_LIMITS.bodyMax));
+                }}
+                className="min-h-11 max-w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1.5 text-base text-[var(--color-text)]"
+              >
+                <option value="">{t("quickReplyPick")}</option>
+                {quick.map((r) => <option key={r._id} value={r._id}>{r.title}</option>)}
+              </select>
+            </label>
+          )}
           <AttachmentPicker value={files} onChange={setFiles} disabled={busy} />
           <div className="flex flex-wrap gap-2">
             <button type="submit" disabled={busy || body.trim().length < SUPPORT_LIMITS.bodyMin} className={primary}>{t("send")}</button>

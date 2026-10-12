@@ -65,7 +65,7 @@ describe("automatic e-mails: every template, every language", () => {
 });
 
 describe("support e-mails: every situation, every language", () => {
-  for (const kind of ["reply", "resolved", "new", "customer_reply", "contact"]) {
+  for (const kind of ["reply", "resolved", "new", "customer_reply", "contact", "sla"]) {
     for (const locale of LOCALES) {
       test(`${kind} / ${locale}`, () => {
         const r = renderAuthEmail("support", locale, { supportKind: kind, ticketNumber: 12, ticketSubject: "Oggetto <b>x</b>", ticketPath: "/app/support/abc" });

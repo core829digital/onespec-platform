@@ -378,7 +378,7 @@ export function renderAuthEmail(template: string, locale: string, data: AuthEmai
 
     case "support": {
       const S = L.support;
-      const M = data.supportKind === "resolved" ? S.resolved : data.supportKind === "new" ? S.staffNew : data.supportKind === "customer_reply" ? S.staffReply : data.supportKind === "contact" ? S.staffContact : S.reply;
+      const M = data.supportKind === "resolved" ? S.resolved : data.supportKind === "new" ? S.staffNew : data.supportKind === "customer_reply" ? S.staffReply : data.supportKind === "contact" ? S.staffContact : data.supportKind === "sla" ? S.staffSla : S.reply;
       const num = `TKT-${String(Math.max(0, Math.floor(Number(data.ticketNumber ?? 0)))).padStart(4, "0")}`;
       // Only same-app paths are linked; anything else falls back to the support page.
       const path = typeof data.ticketPath === "string" && /^\/app\/[A-Za-z0-9/_-]{1,120}$/.test(data.ticketPath) ? data.ticketPath : "/app/support";

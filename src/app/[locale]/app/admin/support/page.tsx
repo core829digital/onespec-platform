@@ -29,9 +29,14 @@ export default function AdminSupportPage() {
     <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-2xl font-bold text-[var(--color-text)] sm:text-3xl">{t("title")}</h1>
+        <div className="flex flex-wrap gap-2">
+        <Link href="/app/admin/support/replies" className="rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm font-medium text-[var(--color-text)] hover:border-[var(--color-mint)]">
+          {t("repliesLink")}
+        </Link>
         <Link href="/app/admin/support/contacts" className="rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm font-medium text-[var(--color-text)] hover:border-[var(--color-mint)]">
           {t("contactsLink")}{contactsNew ? ` (${contactsNew})` : ""}
         </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-3 gap-3">
