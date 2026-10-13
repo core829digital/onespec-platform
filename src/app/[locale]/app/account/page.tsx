@@ -12,6 +12,7 @@ import { Section, Field, TextInput, SelectInput, Toggle } from "@/components/con
 import type { Id } from "@/convex/_generated/dataModel";
 import { CompanyProfileSection } from "@/components/account/company-profile";
 import { MfaSettings } from "@/components/account/mfa-settings";
+import { SectionBoundary } from "@/components/section-boundary";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 
 const LOCALES = [
@@ -163,7 +164,9 @@ export default function AccountPage() {
         </Section>
       ) : null}
 
-      <MfaSettings />
+      <SectionBoundary>
+        <MfaSettings />
+      </SectionBoundary>
 
       <Section title={t("sessionsTitle")} description={t("sessionsDesc")}>
         <ul className="space-y-2">

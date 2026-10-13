@@ -652,17 +652,18 @@ async function main() {
     await step("phone: small controls get a 44 px touch area (a tap just outside the drawing still hits the control)", mobile, phone.problems, async () => {
       await mobile.goto(url("/app/requests"), { waitUntil: "domcontentloaded" });
       await mobile.waitForSelector('button[data-hit]', { timeout: 8000 });
+      await mobile.waitForTimeout(1500); // the touch areas are measured after the page settles (cascade animation, data arriving)
       const res = await mobile.evaluate(() => {
         const out = { checked: 0, bad: [] };
         for (const el of document.querySelectorAll("button[data-hit]")) {
           const r = el.getBoundingClientRect();
           const gy = parseFloat(getComputedStyle(el).getPropertyValue("--hit-y")) || 0;
-          if (gy < 3) { out.checked++; if (r.height < 36) out.bad.push((el.textContent || "").trim().slice(0, 20) + " (" + Math.round(r.height) + "px)"); continue; }
+          if (gy < 6) { out.checked++; if (r.height < 36) out.bad.push((el.textContent || "").trim().slice(0, 20) + " (" + Math.round(r.height) + "px)"); continue; }
           if (r.top < 0 || r.bottom > innerHeight) continue;
-          const x = r.left + r.width / 2, y = r.bottom + gy - 1;
+          const x = r.left + r.width / 2, y = r.bottom + gy - 3; // gy counts the border too (<= 2 px)
           const hit = document.elementFromPoint(x, y);
           out.checked++;
-          if (hit !== el && !el.contains(hit)) out.bad.push((el.textContent || "").trim().slice(0, 20));
+          if (hit !== el && !el.contains(hit)) out.bad.push((el.textContent || "").trim().slice(0, 20) + " [gy=" + gy + " h=" + Math.round(r.height) + " pos=" + getComputedStyle(el).position + " hit=" + (hit ? hit.tagName + "." + String(hit.className).slice(0, 40) : "null") + " af=" + (() => { const a = getComputedStyle(el, "::after"); return [a.content, a.position, a.top, a.bottom, a.height, a.width, a.display].join("|"); })() + " y=" + Math.round(y) + " bottom=" + Math.round(r.bottom) + "]");
         }
         return out;
       });

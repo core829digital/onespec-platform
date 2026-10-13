@@ -20,12 +20,15 @@ export function TouchTargets() {
       timer = 0;
       const todo: Array<[HTMLElement, number, number, boolean, boolean]> = [];
       for (const el of document.querySelectorAll<HTMLElement>(CONTROLS)) {
-        if (el.dataset.hit || el.closest(".sr-only")) continue;
+        if (el.closest(".sr-only")) continue;
         const r = el.getBoundingClientRect();
-        if (r.width === 0 || r.height === 0 || (r.height >= TARGET && r.width >= TARGET)) continue;
+        if (r.width === 0 || r.height === 0 || (r.height >= TARGET && r.width >= TARGET)) {
+          if (el.dataset.hit) { delete el.dataset.hit; el.style.removeProperty("--hit-x"); el.style.removeProperty("--hit-y"); }
+          continue;
+        }
         const cs = getComputedStyle(el);
         if (cs.visibility === "hidden" || cs.display === "inline") continue;
-        if (getComputedStyle(el, "::after").content !== "none") continue; // the control already uses its ::after
+        if (!el.dataset.hit && getComputedStyle(el, "::after").content !== "none") continue; // the control already uses its ::after
         let gx = Math.min(MAX_GROW, Math.max(0, Math.ceil((TARGET - r.width) / 2)));
         let gy = Math.min(MAX_GROW, Math.max(0, Math.ceil((TARGET - r.height) / 2)));
         // A scrolling or clipping ancestor cuts the hit area off at its edge: never reach further than the room it leaves.
@@ -37,14 +40,16 @@ export function TouchTargets() {
           gy = Math.max(0, Math.min(gy, r.top - ar.top, ar.bottom - r.bottom));
         }
         // No room above and below (a chip row that scrolls): the chip itself grows to a comfortable height instead.
-        const grow = gy < 3 && r.height < 36;
-        todo.push([el, Math.floor(gx), Math.floor(gy), cs.position === "static", grow]);
+        const grow = gy < 4 && r.height < 36;
+        // `inset` counts from the padding edge, inside the border: add the border so the area reaches the full distance past the visible edge.
+        todo.push([el, Math.floor(gx) + Math.ceil(parseFloat(cs.borderLeftWidth) || 0), Math.floor(gy) + Math.ceil(parseFloat(cs.borderTopWidth) || 0), cs.position === "static", grow]);
       }
       for (const [el, gx, gy, isStatic, grow] of todo) {
         if (grow) el.style.minHeight = "40px";
-        el.style.setProperty("--hit-x", `${gx}px`);
-        el.style.setProperty("--hit-y", `${gy}px`);
-        el.dataset.hit = isStatic ? "1" : "2"; // "1" also needs position: relative to anchor the area
+        const hit = isStatic || el.dataset.hit === "1" ? "1" : "2"; // "1" also needs position: relative to anchor the area
+        if (el.dataset.hit !== hit) el.dataset.hit = hit;
+        if (el.style.getPropertyValue("--hit-x") !== `${gx}px`) el.style.setProperty("--hit-x", `${gx}px`);
+        if (el.style.getPropertyValue("--hit-y") !== `${gy}px`) el.style.setProperty("--hit-y", `${gy}px`);
       }
     };
     const schedule = () => {
