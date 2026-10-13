@@ -823,7 +823,7 @@ export default defineSchema({
     .index("by_status", ["status"])
     .index("by_user", ["userId"]),
 
-  /** Support tickets (customer <-> CORE829 platform admins). */
+  /** Support tickets (customer <-> OneSpec platform admins). */
   supportTickets: defineTable({
     tenantId: v.id("tenants"),
     /** Requester. */

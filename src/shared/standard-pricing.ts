@@ -1,5 +1,5 @@
 // Standard price list for PVC windows in Italy, by zone (Nord / Centro / Sud). Public market prices 2024-2026,
-// transcribed from the comparative table supplied by CORE829 (12 PVC profiles).
+// transcribed from the comparative table supplied by the OneSpec team (12 PVC profiles).
 //
 // "Complete" = frame + glass (4-16-4 low-e double) + standard hardware + basic installation, in EUR per m².
 // "Frame only" = the bare window, about 60% of the complete price. The price list in the catalogue uses the MIDDLE of each

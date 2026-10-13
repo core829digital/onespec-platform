@@ -21,7 +21,7 @@ export interface DpaController {
 
 /** The operator's identity, as written in the agreement. */
 export const DPA_PROCESSOR = {
-  name: "CORE829 / ONESPEC",
+  name: "CORE829 SRL — titolare del prodotto digitale OneSpec",
   vatId: "CUI/CIF RO54616345 — Reg. com. J2026029428009",
   address: "Str. Mihai Eminescu, 10, Roman, România",
   representative: "Vasile Vasea Serban",

@@ -2783,7 +2783,7 @@
     "marginBody": "Die Marge ist ein Prozentsatz, der auf den Listenpreis aufgeschlagen wird: Dezimalstellen sind erlaubt (z. B. 12,5 %). Die Plattform wendet sie auf den Preis jedes Fensters an, auf den Cent gerundet. Aufschlag (auf die Kosten) und Marge auf den Verkaufspreis sind zwei Arten, denselben Gewinn zu lesen: Sie sehen beide.",
     "marginExample": "Beispiel: Listenpreis {base} + Aufschlag {margin} % = {final}. Gewinn {gain}, das sind {onPrice} % des Verkaufspreises.",
     "methodTitle": "Methode",
-    "methodBody": "Preise des italienischen Marktes 2024–2026 aus der Vergleichstabelle der PVC-Profile, von CORE829 validiert. Für jedes Profil und jede Region gibt es eine Spanne; der Katalog nutzt den Mittelwert.",
+    "methodBody": "Preise des italienischen Marktes 2024–2026 aus der Vergleichstabelle der PVC-Profile, von OneSpec validiert. Für jedes Profil und jede Region gibt es eine Spanne; der Katalog nutzt den Mittelwert.",
     "disclaimerTitle": "Hinweis",
     "disclaimerBody": "Die Preise sind Richtwerte und kein Angebot. Prüfen Sie die realen Kosten immer bei Ihrem Lieferanten: Sie können jeden Katalogpreis ändern, nichts ist gesperrt.",
     "class": {
@@ -3427,7 +3427,7 @@
   },
   "support": {
     "title": "Support",
-    "subtitle": "Schreiben Sie uns: Das CORE829-Team antwortet hier und in Ihren Benachrichtigungen.",
+    "subtitle": "Schreiben Sie uns: Das OneSpec-Team antwortet hier und in Ihren Benachrichtigungen.",
     "loading": "Wird geladen…",
     "newTicket": "Neues Ticket",
     "category": "Kategorie",
@@ -3444,7 +3444,7 @@
     "back": "Alle Tickets",
     "reply": "Antworten",
     "replyPlaceholder": "Schreiben Sie Ihre Antwort…",
-    "team": "CORE829-Team",
+    "team": "OneSpec-Team",
     "you": "Sie",
     "closeTicket": "Ticket schließen",
     "closeConfirm": "Ticket schließen? Sie können danach nicht mehr antworten.",

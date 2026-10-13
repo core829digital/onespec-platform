@@ -27,7 +27,7 @@ export interface LegalDoc {
 const IDENTITY_INTRO: LegalSection = {
   h: "Titolare del trattamento",
   p: [
-    "Il servizio OneSpec è gestito da [[ragione sociale]], con sede legale in [[indirizzo completo]], [[P.IVA / codice fiscale]], telefono [[telefono]], PEC [[indirizzo PEC]].",
+    "OneSpec è un prodotto digitale di [[ragione sociale]], che lo gestisce con sede legale in [[indirizzo completo]], [[P.IVA / codice fiscale]], telefono [[telefono]], PEC [[indirizzo PEC]].",
     "Per qualsiasi richiesta relativa ai dati personali è possibile scrivere a [[email di contatto privacy]]. Un Responsabile della protezione dei dati (DPO) [[è / non è]] stato nominato; recapiti del DPO: [[recapiti DPO oppure «non applicabile»]].",
   ],
 };
@@ -136,7 +136,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
         h: "Oggetto",
         p: [
           "I presenti Termini regolano l'uso della piattaforma OneSpec da parte dell'organizzazione cliente («Cliente») e delle persone da essa autorizzate.",
-          "Il fornitore del servizio è [[ragione sociale]] («OneSpec»).",
+          "OneSpec è un prodotto digitale di [[ragione sociale]], che ne è il fornitore e il titolare dei contratti, della fatturazione e dei pagamenti (gestiti tramite Stripe). Nei presenti Termini «OneSpec» indica il servizio e il suo team.",
         ],
       },
       {

@@ -2783,7 +2783,7 @@
     "marginBody": "La marge est un pourcentage ajouté au prix de la liste : les décimales sont acceptées (ex. 12,5 %). La plateforme l'applique au prix de chaque fenêtre, arrondi au centime. Le coefficient de majoration (sur le coût) et la marge sur le prix de vente sont deux façons de lire le même gain : vous voyez les deux.",
     "marginExample": "Exemple : prix de liste {base} + majoration {margin} % = {final}. Gain {gain}, soit {onPrice} % du prix de vente.",
     "methodTitle": "Méthode",
-    "methodBody": "Prix du marché italien 2024–2026 réunis dans le tableau comparatif des profilés PVC, validés par CORE829. Chaque profilé et zone a une fourchette ; le catalogue utilise la valeur centrale.",
+    "methodBody": "Prix du marché italien 2024–2026 réunis dans le tableau comparatif des profilés PVC, validés par OneSpec. Chaque profilé et zone a une fourchette ; le catalogue utilise la valeur centrale.",
     "disclaimerTitle": "Avertissement",
     "disclaimerBody": "Les prix sont indicatifs et ne constituent pas une offre. Vérifiez toujours le coût réel auprès de votre fournisseur : vous pouvez modifier chaque prix du catalogue, rien n'est verrouillé.",
     "class": {
@@ -3427,7 +3427,7 @@
   },
   "support": {
     "title": "Support",
-    "subtitle": "Écrivez-nous : l'équipe CORE829 vous répond ici et dans vos notifications.",
+    "subtitle": "Écrivez-nous : l'équipe OneSpec vous répond ici et dans vos notifications.",
     "loading": "Chargement…",
     "newTicket": "Nouveau ticket",
     "category": "Catégorie",
@@ -3444,7 +3444,7 @@
     "back": "Tous les tickets",
     "reply": "Répondre",
     "replyPlaceholder": "Écrivez votre réponse…",
-    "team": "Équipe CORE829",
+    "team": "Équipe OneSpec",
     "you": "Vous",
     "closeTicket": "Fermer le ticket",
     "closeConfirm": "Fermer le ticket ? Vous ne pourrez plus répondre.",

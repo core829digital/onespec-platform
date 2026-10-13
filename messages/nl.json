@@ -2783,7 +2783,7 @@
     "marginBody": "De marge is een percentage dat bovenop de lijstprijs komt: decimalen zijn toegestaan (bijv. 12,5%). Het platform past het toe op de prijs van elk raam, afgerond op de cent. Opslag (op de kostprijs) en marge op de verkoopprijs zijn twee manieren om dezelfde winst te lezen: u ziet beide.",
     "marginExample": "Voorbeeld: lijstprijs {base} + opslag {margin}% = {final}. Winst {gain}, dat is {onPrice}% van de verkoopprijs.",
     "methodTitle": "Methode",
-    "methodBody": "Prijzen van de Italiaanse markt 2024–2026 uit de vergelijkingstabel van PVC-profielen, gevalideerd door CORE829. Per profiel en regio is er een range; de catalogus gebruikt het midden.",
+    "methodBody": "Prijzen van de Italiaanse markt 2024–2026 uit de vergelijkingstabel van PVC-profielen, gevalideerd door OneSpec. Per profiel en regio is er een range; de catalogus gebruikt het midden.",
     "disclaimerTitle": "Let op",
     "disclaimerBody": "De prijzen zijn indicatief en vormen geen aanbod. Controleer de werkelijke kosten altijd bij uw leverancier: u kunt elke catalogusprijs aanpassen, niets is vergrendeld.",
     "class": {
@@ -3427,7 +3427,7 @@
   },
   "support": {
     "title": "Support",
-    "subtitle": "Schrijf ons: het CORE829-team antwoordt hier en in uw meldingen.",
+    "subtitle": "Schrijf ons: het OneSpec-team antwoordt hier en in uw meldingen.",
     "loading": "Laden…",
     "newTicket": "Nieuw ticket",
     "category": "Categorie",
@@ -3444,7 +3444,7 @@
     "back": "Alle tickets",
     "reply": "Antwoorden",
     "replyPlaceholder": "Schrijf uw antwoord…",
-    "team": "CORE829-team",
+    "team": "OneSpec-team",
     "you": "U",
     "closeTicket": "Ticket sluiten",
     "closeConfirm": "Ticket sluiten? U kunt daarna niet meer antwoorden.",

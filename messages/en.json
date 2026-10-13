@@ -2783,7 +2783,7 @@
     "marginBody": "The margin is a percentage added to the price-list price: decimals are allowed (e.g. 12.5%). The platform applies it to the price of each window, rounded to the cent. Markup (on cost) and margin on the selling price are two ways of reading the same profit: you see both.",
     "marginExample": "Example: list price {base} + markup {margin}% = {final}. Profit {gain}, i.e. {onPrice}% of the selling price.",
     "methodTitle": "Method",
-    "methodBody": "Italian market prices 2024–2026 collected in the comparison table of PVC profiles, validated by CORE829. Each profile and area has a range; the catalogue uses the middle value.",
+    "methodBody": "Italian market prices 2024–2026 collected in the comparison table of PVC profiles, validated by OneSpec. Each profile and area has a range; the catalogue uses the middle value.",
     "disclaimerTitle": "Disclaimer",
     "disclaimerBody": "Prices are indicative and are not an offer. Always check the real cost with your supplier: you can edit any catalogue price, nothing is locked.",
     "class": {
@@ -3427,7 +3427,7 @@
   },
   "support": {
     "title": "Support",
-    "subtitle": "Write to us: the CORE829 team replies here and in your notifications.",
+    "subtitle": "Write to us: the OneSpec team replies here and in your notifications.",
     "loading": "Loading…",
     "newTicket": "New ticket",
     "category": "Category",
@@ -3444,7 +3444,7 @@
     "back": "All tickets",
     "reply": "Reply",
     "replyPlaceholder": "Write your reply…",
-    "team": "CORE829 team",
+    "team": "OneSpec team",
     "you": "You",
     "closeTicket": "Close ticket",
     "closeConfirm": "Close the ticket? You will not be able to reply any more.",

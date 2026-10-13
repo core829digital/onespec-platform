@@ -218,7 +218,7 @@ const it: EmailStrings = {
     reply: {
       subject: (n) => `Risposta al tuo ticket ${n} — onespec`,
       title: "Il team ha risposto al tuo ticket",
-      body: (s) => `Il team CORE829 ha risposto al ticket «${s}». Apri la conversazione per leggere la risposta.`,
+      body: (s) => `Il team OneSpec ha risposto al ticket «${s}». Apri la conversazione per leggere la risposta.`,
       cta: "Leggi la risposta",
     },
     resolved: {
@@ -386,7 +386,7 @@ const en: EmailStrings = {
     reply: {
       subject: (n) => `Reply to your ticket ${n} — onespec`,
       title: "The team replied to your ticket",
-      body: (s) => `The CORE829 team replied to the ticket “${s}”. Open the conversation to read the reply.`,
+      body: (s) => `The OneSpec team replied to the ticket “${s}”. Open the conversation to read the reply.`,
       cta: "Read the reply",
     },
     resolved: {
@@ -554,7 +554,7 @@ const fr: EmailStrings = {
     reply: {
       subject: (n) => `Réponse à votre ticket ${n} — onespec`,
       title: "L'équipe a répondu à votre ticket",
-      body: (s) => `L'équipe CORE829 a répondu au ticket « ${s} ». Ouvrez la conversation pour lire la réponse.`,
+      body: (s) => `L'équipe OneSpec a répondu au ticket « ${s} ». Ouvrez la conversation pour lire la réponse.`,
       cta: "Lire la réponse",
     },
     resolved: {
@@ -722,7 +722,7 @@ const de: EmailStrings = {
     reply: {
       subject: (n) => `Antwort auf Ihr Ticket ${n} — onespec`,
       title: "Das Team hat auf Ihr Ticket geantwortet",
-      body: (s) => `Das CORE829-Team hat auf das Ticket „${s}“ geantwortet. Öffnen Sie die Unterhaltung, um die Antwort zu lesen.`,
+      body: (s) => `Das OneSpec-Team hat auf das Ticket „${s}“ geantwortet. Öffnen Sie die Unterhaltung, um die Antwort zu lesen.`,
       cta: "Antwort lesen",
     },
     resolved: {
@@ -890,7 +890,7 @@ const nl: EmailStrings = {
     reply: {
       subject: (n) => `Antwoord op uw ticket ${n} — onespec`,
       title: "Het team heeft op uw ticket gereageerd",
-      body: (s) => `Het CORE829-team heeft gereageerd op het ticket “${s}”. Open het gesprek om het antwoord te lezen.`,
+      body: (s) => `Het OneSpec-team heeft gereageerd op het ticket “${s}”. Open het gesprek om het antwoord te lezen.`,
       cta: "Antwoord lezen",
     },
     resolved: {
@@ -1058,7 +1058,7 @@ const ro: EmailStrings = {
     reply: {
       subject: (n) => `Răspuns la tichetul tău ${n} — onespec`,
       title: "Echipa a răspuns la tichetul tău",
-      body: (s) => `Echipa CORE829 a răspuns la tichetul „${s}”. Deschide conversația pentru a citi răspunsul.`,
+      body: (s) => `Echipa OneSpec a răspuns la tichetul „${s}”. Deschide conversația pentru a citi răspunsul.`,
       cta: "Citește răspunsul",
     },
     resolved: {

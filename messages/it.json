@@ -2783,7 +2783,7 @@
     "marginBody": "Il margine è una percentuale che si aggiunge al prezzo del listino: puoi usare anche decimali (es. 12,5%). La piattaforma lo applica al prezzo di ogni finestra, con arrotondamento al centesimo. Il ricarico (sul costo) e il margine sul prezzo di vendita sono due modi diversi di leggere lo stesso guadagno: li vedi entrambi.",
     "marginExample": "Esempio: listino {base} + ricarico {margin}% = {final}. Guadagno {gain}, pari al {onPrice}% del prezzo di vendita.",
     "methodTitle": "Metodo",
-    "methodBody": "Prezzi di mercato italiano 2024–2026 raccolti nella tabella comparativa dei profili PVC, validati da CORE829. Per ogni profilo e zona è indicato un intervallo; il catalogo usa il valore centrale.",
+    "methodBody": "Prezzi di mercato italiano 2024–2026 raccolti nella tabella comparativa dei profili PVC, validati da OneSpec. Per ogni profilo e zona è indicato un intervallo; il catalogo usa il valore centrale.",
     "disclaimerTitle": "Avvertenza",
     "disclaimerBody": "I prezzi sono indicativi e non costituiscono un'offerta. Verifica sempre il costo reale con il tuo fornitore: puoi modificare ogni prezzo del catalogo, nulla è bloccato.",
     "class": {
@@ -3427,7 +3427,7 @@
   },
   "support": {
     "title": "Supporto",
-    "subtitle": "Scrivici: ti risponde il team CORE829. Le risposte compaiono qui e nelle notifiche.",
+    "subtitle": "Scrivici: ti risponde il team OneSpec. Le risposte compaiono qui e nelle notifiche.",
     "loading": "Caricamento…",
     "newTicket": "Nuovo ticket",
     "category": "Categoria",
@@ -3444,7 +3444,7 @@
     "back": "Tutti i ticket",
     "reply": "Rispondi",
     "replyPlaceholder": "Scrivi la tua risposta…",
-    "team": "Team CORE829",
+    "team": "Team OneSpec",
     "you": "Tu",
     "closeTicket": "Chiudi ticket",
     "closeConfirm": "Chiudere il ticket? Non potrai più rispondere.",

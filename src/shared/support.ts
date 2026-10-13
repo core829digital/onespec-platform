@@ -11,7 +11,7 @@ export const SUPPORT_PRIORITIES = ["low", "normal", "high", "urgent"] as const;
 export type SupportPriority = (typeof SUPPORT_PRIORITIES)[number];
 
 /**
- * open      = waiting for CORE829 support
+ * open      = waiting for OneSpec support
  * waiting   = waiting for the customer
  * resolved  = support considers it solved (customer can reopen; auto-closes)
  * closed    = final, no more replies
