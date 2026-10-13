@@ -320,12 +320,13 @@ async function main() {
         { name: "desktop-dark-ro", viewport: { width: 1440, height: 900 }, theme: "dark", locale: "ro" },
       ];
       const report = [];
-      for (const v of variants) {
+      const only = (process.env.AUDIT_VARIANTS ?? "").split(",").filter(Boolean);
+      for (const v of variants.filter((x) => only.length === 0 || only.includes(x.name))) {
         const sess = await newSession(browser, seed.owner.token, seed.owner.refresh, { viewport: v.viewport, ...(v.mobile ? { hasTouch: true, isMobile: true } : {}) });
         await sess.context.addCookies([{ name: "onespec-locale", value: v.locale, domain: new URL(APP).hostname, path: "/" }]);
-        await sess.context.addInitScript((t) => { try { localStorage.setItem("onespec-theme", t); localStorage.setItem("theme", t); } catch { /* ignore */ } document.documentElement.setAttribute("data-theme", t); }, v.theme);
+        await sess.context.addInitScript((t) => { try { localStorage.setItem("onespec-theme", t); localStorage.setItem("theme", t); } catch { /* ignore */ } if (document.documentElement) document.documentElement.setAttribute("data-theme", t); }, v.theme);
         const pg = await sess.context.newPage();
-        for (const path of PAGES) {
+        for (const path of PAGES.filter((x) => !process.env.AUDIT_PATHS || process.env.AUDIT_PATHS.split(",").some((q) => x.includes(q)))) {
           const entry = { variant: v.name, path: path.replace(seed.clientId, ":id").replace(seed.configuratorId, ":id"), problems: [], axe: [], i18n: [], smallTargets: 0, brokenImages: 0, h1: null, title: "" };
           const before = sess.problems.length;
           try {
@@ -337,7 +338,7 @@ async function main() {
               await pg.addScriptTag({ path: AXE });
               const res = await pg.evaluate(async () => {
                 const r = await window.axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "best-practice"] }, resultTypes: ["violations"] });
-                return r.violations.filter((x) => x.impact === "serious" || x.impact === "critical" || x.impact === "moderate").map((x) => ({ id: x.id, impact: x.impact, n: x.nodes.length, sample: x.nodes[0]?.target?.join(" ").slice(0, 120), help: x.help }));
+                return r.violations.filter((x) => x.impact === "serious" || x.impact === "critical" || x.impact === "moderate").map((x) => ({ id: x.id, impact: x.impact, n: x.nodes.length, sample: x.nodes[0]?.target?.join(" ").slice(0, 120), help: x.help, details: x.nodes.slice(0, 4).map((nd) => ({ t: nd.target.join(" ").slice(0, 100), d: nd.any?.[0]?.data ? { fg: nd.any[0].data.fgColor, bg: nd.any[0].data.bgColor, ratio: nd.any[0].data.contrastRatio, need: nd.any[0].data.expectedContrastRatio, size: nd.any[0].data.fontSize } : undefined, html: nd.html.slice(0, 140) })) }));
               });
               entry.axe = res;
             }
@@ -347,9 +348,10 @@ async function main() {
               const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
               while (w.nextNode()) { const t = (w.currentNode.textContent ?? "").trim(); if (t.length > 4 && t.length < 80 && keyLike.test(t) && !/\.(com|eu|it|net|org|ro)$/i.test(t) && !/^v?\d/.test(t)) texts.push(t); }
               const targets = [...document.querySelectorAll("a, button, [role=button], input, select")].filter((el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== "hidden" && (r.height < 32 || r.width < 32) && !el.closest(".sr-only") && el.type !== "hidden"; }).length;
-              return { i18n: [...new Set(texts)].slice(0, 6), targets, imgs: [...document.images].filter((i) => i.complete && i.naturalWidth === 0 && i.src && !i.src.startsWith("data:")).length, h1: document.querySelectorAll("h1").length, title: document.title };
+              const small = [...document.querySelectorAll("a, button, [role=button], input, select")].filter((el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== "hidden" && (r.height < 32 || r.width < 32) && !el.closest(".sr-only") && el.type !== "hidden"; }).slice(0, 8).map((el) => { const r = el.getBoundingClientRect(); return `${el.tagName.toLowerCase()} ${Math.round(r.width)}x${Math.round(r.height)} "${(el.getAttribute("aria-label") || el.textContent || "").trim().slice(0, 30)}"`; });
+              return { small, i18n: [...new Set(texts)].slice(0, 6), targets, imgs: [...document.images].filter((i) => i.complete && i.naturalWidth === 0 && i.src && !i.src.startsWith("data:")).length, h1: document.querySelectorAll("h1").length, title: document.title };
             });
-            entry.i18n = info.i18n; entry.smallTargets = info.targets; entry.brokenImages = info.imgs; entry.h1 = info.h1; entry.title = info.title;
+            entry.i18n = info.i18n; entry.smallTargets = info.targets; entry.smallSamples = info.small; entry.brokenImages = info.imgs; entry.h1 = info.h1; entry.title = info.title;
             const overflow = await pg.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
             if (overflow > 1) entry.problems.push(`horizontal overflow ${overflow}px`);
           } catch (e) {

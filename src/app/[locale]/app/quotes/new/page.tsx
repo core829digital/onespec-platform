@@ -760,7 +760,7 @@ export default function NewFieldQuotePage() {
             >
               <span className="text-base">{cfg.flag}</span>
               <span>{cfg.name}</span>
-              <span className="text-[10px] opacity-75 font-normal">({cfg.sub.split("&")[0].trim()})</span>
+              <span className="text-[10px] font-normal">({cfg.sub.split("&")[0].trim()})</span>
             </button>
           );
         })}
@@ -786,7 +786,7 @@ export default function NewFieldQuotePage() {
             {t("configuratorLabel")}
           </label>
           <div className="flex flex-wrap items-center gap-3">
-            <select
+            <select aria-label={t("configuratorLabel")}
               value={selectedConfigId || publishedConfigs[0]?._id || ""}
               onChange={(e) => setSelectedConfigId(e.target.value)}
               className="flex-1 min-w-[220px] rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
@@ -849,7 +849,7 @@ export default function NewFieldQuotePage() {
                 <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                   {t("fullNameLabel")}
                 </label>
-                <input
+                <input aria-label={t("fullNameLabel")}
                   name="fullName"
                   required
                   value={leadName}
@@ -862,7 +862,7 @@ export default function NewFieldQuotePage() {
                 <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                   {t("emailLabel")}
                 </label>
-                <input
+                <input aria-label={t("emailLabel")}
                   name="email"
                   required
                   type="email"
@@ -876,7 +876,7 @@ export default function NewFieldQuotePage() {
                 <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                   {t("phoneLabel")}
                 </label>
-                <input
+                <input aria-label={t("phoneLabel")}
                   name="phone"
                   value={leadPhone}
                   onChange={(e) => setLeadPhone(e.target.value)}
@@ -888,7 +888,7 @@ export default function NewFieldQuotePage() {
                 <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                   {t("addressLabel")}
                 </label>
-                <input
+                <input aria-label={t("addressLabel")}
                   name="address"
                   value={customerAddress}
                   onChange={(e) => setCustomerAddress(e.target.value)}
@@ -900,7 +900,7 @@ export default function NewFieldQuotePage() {
                 <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                   {t("cityLabel")}
                 </label>
-                <input
+                <input aria-label={t("cityLabel")}
                   name="city"
                   value={customerCity}
                   onChange={(e) => setCustomerCity(e.target.value)}
@@ -912,7 +912,7 @@ export default function NewFieldQuotePage() {
                 <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                   {t("postalCodeLabel")}
                 </label>
-                <input
+                <input aria-label={t("postalCodeLabel")}
                   name="postalCode"
                   value={customerPostalCode}
                   onChange={(e) => setCustomerPostalCode(e.target.value)}
@@ -998,7 +998,7 @@ export default function NewFieldQuotePage() {
                     <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                       Norma di Posa in Opera (Italia)
                     </label>
-                    <select
+                    <select aria-label={"Norma di Posa in Opera (Italia)"}
                       value={installationType}
                       onChange={(e) => setInstallationType(e.target.value)}
                       className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
@@ -1012,7 +1012,7 @@ export default function NewFieldQuotePage() {
                     <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                       Detrazione fiscale (%)
                     </label>
-                    <select
+                    <select aria-label={"Detrazione fiscale (%)"}
                       value={ecobonusPercent}
                       onChange={(e) => setEcobonusPercent(Number(e.target.value))}
                       className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-2 text-xs text-[var(--color-text)] font-mono"
@@ -1031,7 +1031,7 @@ export default function NewFieldQuotePage() {
                     <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                       Type de Pose (DTU 36.5 France)
                     </label>
-                    <select
+                    <select aria-label={"Type de Pose (DTU 36.5 France)"}
                       value={poseType}
                       onChange={(e) => setPoseType(e.target.value)}
                       className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)]"
@@ -1047,7 +1047,7 @@ export default function NewFieldQuotePage() {
                       <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                         Certificat RGE
                       </label>
-                      <input
+                      <input aria-label={"Certificat RGE"}
                         value={rgeCertificate}
                         onChange={(e) => setRgeCertificate(e.target.value)}
                         placeholder="RGE-2026-8849"
@@ -1058,7 +1058,7 @@ export default function NewFieldQuotePage() {
                       <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                         MaPrimeRénov&apos; (%)
                       </label>
-                      <select
+                      <select aria-label={"MaPrimeRénov' (%)"}
                         value={maPrimeRenovPercent}
                         onChange={(e) => setMaPrimeRenovPercent(Number(e.target.value))}
                         className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-2 text-xs text-[var(--color-text)] font-mono"
@@ -1073,7 +1073,7 @@ export default function NewFieldQuotePage() {
                     <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                       Assurance Décennale (mention obligatoire sur le devis)
                     </label>
-                    <input
+                    <input aria-label={"Assurance Décennale (mention obligatoire sur le devis)"}
                       value={decennaleInsurance}
                       onChange={(e) => setDecennaleInsurance(e.target.value)}
                       placeholder="Assurance Décennale AXA N° …"
@@ -1090,7 +1090,7 @@ export default function NewFieldQuotePage() {
                       <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                         Grilles Renson (mm)
                       </label>
-                      <input
+                      <input aria-label={"Grilles Renson (mm)"}
                         type="number"
                         step={100}
                         value={rensonGrilleWidthMm}
@@ -1103,7 +1103,7 @@ export default function NewFieldQuotePage() {
                       <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                         Volet Monobloc (mm)
                       </label>
-                      <input
+                      <input aria-label={"Volet Monobloc (mm)"}
                         type="number"
                         step={50}
                         value={voletMonoblocHeightMm}
@@ -1123,7 +1123,7 @@ export default function NewFieldQuotePage() {
                       <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                         HVL Giunzioni 90° (pz)
                       </label>
-                      <input
+                      <input aria-label={"HVL Giunzioni 90° (pz)"}
                         type="number"
                         min={0}
                         max={16}
@@ -1136,7 +1136,7 @@ export default function NewFieldQuotePage() {
                       <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                         Inmeetservice (€)
                       </label>
-                      <input
+                      <input aria-label={"Inmeetservice (€)"}
                         type="number"
                         min={0}
                         value={inmeetServiceCost}
@@ -1164,7 +1164,7 @@ export default function NewFieldQuotePage() {
                       <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                         Sicherheitsstufe
                       </label>
-                      <select
+                      <select aria-label={"Sicherheitsstufe"}
                         value={rcSecurityLevel}
                         onChange={(e) => setRcSecurityLevel(e.target.value)}
                         className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-2 text-xs text-[var(--color-text)]"
@@ -1266,7 +1266,7 @@ export default function NewFieldQuotePage() {
                   <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                     Costo Posa / Pose (€)
                   </label>
-                  <input
+                  <input aria-label={"Costo Posa / Pose (€)"}
                     type="number"
                     min={0}
                     step={10}
@@ -1280,7 +1280,7 @@ export default function NewFieldQuotePage() {
                   <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                     Smaltimento / Dépose (€)
                   </label>
-                  <input
+                  <input aria-label={"Smaltimento / Dépose (€)"}
                     type="number"
                     min={0}
                     step={10}
@@ -1308,7 +1308,7 @@ export default function NewFieldQuotePage() {
                   <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                     Sconto / Remise (%)
                   </label>
-                  <input
+                  <input aria-label={"Sconto / Remise (%)"}
                     type="number"
                     min={0}
                     max={100}
@@ -1321,7 +1321,7 @@ export default function NewFieldQuotePage() {
                   <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                     Margine di profitto (%) — solo interno
                   </label>
-                  <input
+                  <input aria-label={"Margine di profitto (%) — solo interno"}
                     type="number"
                     min={0}
                     max={90}

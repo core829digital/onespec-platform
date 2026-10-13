@@ -1376,6 +1376,7 @@
     "statusLost": "Perdues",
     "statusSpam": "Spam",
     "searchPlaceholder": "Rechercher par nom, email ou entreprise...",
+    "sortBy": "Trier par",
     "sortDate": "Plus récentes",
     "sortValue": "Valeur la plus élevée",
     "sortName": "Nom (A-Z)",

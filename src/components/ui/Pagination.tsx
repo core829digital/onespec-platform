@@ -81,6 +81,7 @@ export function Pagination({
         </div>
         {showItemsPerPage && (
           <select
+            aria-label={tp("itemsPerPage")}
             value={itemsPerPage}
             onChange={(e) => {
               const next = parseInt(e.target.value, 10);

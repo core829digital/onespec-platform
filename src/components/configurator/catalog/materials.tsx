@@ -94,7 +94,7 @@ export function MaterialsSection({ materials }: { materials: Row[] }) {
                       setDraft(id, "enabled", v);
                       autoSaveNow(id, () => save({ enabled: v }));
                     }}
-                    label=""
+                    label="" ariaLabel={t("active")}
                   />
                 </td>
                 <td className={tdCls}>
@@ -251,7 +251,7 @@ export function ProfileSystemsSection({
                               setDraft(id, "enabled", v);
                               autoSaveNow(id, () => save({ enabled: v }));
                             }}
-                            label=""
+                            label="" ariaLabel={t("active")}
                           />
                         </td>
                         <td className={tdCls}>
@@ -373,7 +373,7 @@ export function QualitySection({ materials, qualityTiers }: { materials: Row[]; 
                             setDraft(id, "enabled", v);
                             autoSaveNow(id, () => save({ enabled: v }));
                           }}
-                          label=""
+                          label="" ariaLabel={t("active")}
                         />
                       </td>
                       <td className={tdCls}>

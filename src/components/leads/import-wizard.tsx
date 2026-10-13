@@ -49,7 +49,7 @@ export function LeadImportWizard({ tenantId, country, onClose, onDone }: { tenan
   const [outcome, setOutcome] = useState<Outcome | null>(null);
   const running = useRef(false);
 
-  const rows = parsed?.sheets[sheetIdx]?.rows ?? [];
+  const rows = useMemo(() => parsed?.sheets[sheetIdx]?.rows ?? [], [parsed, sheetIdx]);
 
   function fileError(e: unknown): string {
     if (e instanceof ImportError) return t(`err.${e.code}` as `err.${ImportErrorCode}`);

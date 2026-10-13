@@ -61,6 +61,8 @@ export function MobileNav({
     <div
       className={cn("lg:hidden fixed inset-0 z-50 transition-opacity", open ? "opacity-100" : "pointer-events-none opacity-0")}
       aria-hidden={!open}
+      // Closed: nothing inside may take focus (Tab used to walk into the invisible menu).
+      inert={!open}
     >
       <button
         className="absolute inset-0 bg-black/50"
@@ -75,11 +77,11 @@ export function MobileNav({
           "absolute left-0 top-0 h-full w-72 max-w-[85vw] bg-[var(--color-bg-alt)] border-r border-[var(--color-border)] p-4 transition-transform duration-200 ease-out flex flex-col",
           open ? "translate-x-0" : "-translate-x-full",
         )}
-        aria-label="Menu"
+        aria-label={t("menu")}
       >
         <div className="flex items-center justify-between pb-4 border-b border-[var(--color-border)]">
           <span className="font-bold text-lg text-[var(--color-text)]">onespec</span>
-          <button type="button" onClick={onClose} aria-label={t("menu")} className="p-1.5 rounded-lg hover:bg-[var(--color-bg)]">
+          <button type="button" onClick={onClose} aria-label={t("menu")} className="grid size-11 place-items-center rounded-lg hover:bg-[var(--color-bg)]">
             <X size={18} />
           </button>
         </div>

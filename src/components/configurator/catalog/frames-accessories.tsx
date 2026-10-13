@@ -171,7 +171,7 @@ export function FrameTypesSection({ frameTypes }: { frameTypes: Row[] }) {
                       setDraft(id, "enabled", v);
                       autoSaveNow(id, () => save({ enabled: v }));
                     }}
-                    label=""
+                    label="" ariaLabel={t("active")}
                   />
                 </td>
                 <td className={tdCls}>
@@ -298,7 +298,7 @@ export function AccessoriesSection({ accessories }: { accessories: Row[] }) {
                             setDraft(id, "enabled", v);
                             autoSaveNow(id, () => save({ enabled: v }));
                           }}
-                          label=""
+                          label="" ariaLabel={t("active")}
                         />
                       </td>
                       <td className={tdCls}>

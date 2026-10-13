@@ -135,7 +135,7 @@ export default function ConfiguratorEditorPage({
           {tab === "versions" && <VersionsTab configuratorId={configuratorId} />}
         </div>
 
-        <aside className="hidden xl:block sticky top-4">
+        <aside aria-label={t("previewDraft")} className="hidden xl:block sticky top-4">
           <div className="rounded-xl border border-[var(--color-border)] overflow-hidden bg-[var(--color-bg-alt)]">
             <div className="flex items-center justify-between px-3 py-2 border-b border-[var(--color-border)]">
               <span className="text-xs font-medium text-[var(--color-text-secondary)]">

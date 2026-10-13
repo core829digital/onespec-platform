@@ -13,7 +13,7 @@ export function Section({
 }) {
   return (
     <section className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl p-5">
-      <h3 className="font-semibold text-[var(--color-text)]">{title}</h3>
+      <h2 className="font-semibold text-[var(--color-text)]">{title}</h2>
       {description ? (
         <p className="text-sm text-[var(--color-text-secondary)] mt-1">{description}</p>
       ) : null}
@@ -43,8 +43,13 @@ export function Field({
 export const inputClass =
   "w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-mint)]/40";
 
+/*
+ * With no `label` prop these render the bare control: inside <Field> the Field's own <label> already names it, and a second <label>
+ * around the control (label > label > input) is invalid HTML that leaves the control unnamed for assistive technology.
+ */
 export function TextInput(props: React.InputHTMLAttributes<HTMLInputElement> & { label?: string; id?: string }) {
   const { label, id, ...rest } = props;
+  if (!label) return <input {...rest} id={id} className={cn(inputClass, rest.className)} />;
   return (
     <label className="block">
       {label && <span className="block text-sm font-medium text-[var(--color-text)] mb-1.5">{label}</span>}
@@ -55,6 +60,7 @@ export function TextInput(props: React.InputHTMLAttributes<HTMLInputElement> & {
 
 export function NumberInput(props: React.InputHTMLAttributes<HTMLInputElement> & { label?: string; id?: string }) {
   const { label, id, ...rest } = props;
+  if (!label) return <input type="number" inputMode="decimal" {...rest} id={id} className={cn(inputClass, "font-mono tabular-nums", rest.className)} />;
   return (
     <label className="block">
       {label && <span className="block text-sm font-medium text-[var(--color-text)] mb-1.5">{label}</span>}
@@ -71,6 +77,7 @@ export function NumberInput(props: React.InputHTMLAttributes<HTMLInputElement> &
 
 export function SelectInput(props: React.SelectHTMLAttributes<HTMLSelectElement> & { label?: string; id?: string }) {
   const { label, id, ...rest } = props;
+  if (!label) return <select {...rest} id={id} className={cn(inputClass, rest.className)} />;
   return (
     <label className="block">
       {label && <span className="block text-sm font-medium text-[var(--color-text)] mb-1.5">{label}</span>}
@@ -84,17 +91,21 @@ export function Toggle({
   onChange,
   label,
   disabled,
+  ariaLabel,
 }: {
   checked: boolean;
   onChange: (v: boolean) => void;
   label: string;
   disabled?: boolean;
+  /** Accessible name when there is no visible `label` (a switch in a table row, say). */
+  ariaLabel?: string;
 }) {
   return (
     <button
       type="button"
       role="switch"
       aria-checked={checked}
+      aria-label={label ? undefined : ariaLabel}
       disabled={disabled}
       onClick={() => onChange(!checked)}
       className="group/toggle inline-flex items-center gap-3 text-sm text-[var(--color-text)] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 select-none text-left"

@@ -100,7 +100,7 @@ function KanbanColumn({
       <div className="flex items-center justify-between mb-4">
 <div className="flex items-center gap-2">
             {config?.icon && <config.icon className="w-5 h-5" />}
-            <h3 className="font-semibold text-[var(--color-text)]">{config ? t(config.key) : status}</h3>
+            <h2 className="font-semibold text-[var(--color-text)]">{config ? t(config.key) : status}</h2>
           <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-[var(--color-bg)] text-[var(--color-text-secondary)]">
             {cantieri.length}
           </span>

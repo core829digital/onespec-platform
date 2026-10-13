@@ -83,7 +83,7 @@ export function StructurePanel({
       {/* horizontal bars, per leaf */}
       <section aria-labelledby="transoms-title">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h4 id="transoms-title" className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">{t("transomsTitle")}</h4>
+          <h3 id="transoms-title" className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">{t("transomsTitle")}</h3>
           <button type="button" data-testid="add-transom" disabled={!canAdd} onClick={() => update(addLeafTransom(active, leaf))} className="min-h-11 sm:min-h-9 rounded-lg border border-[var(--color-mint)] px-3 py-1 text-xs font-semibold text-[var(--color-mint-text)] hover:bg-[var(--color-mint)]/10 disabled:cursor-not-allowed disabled:opacity-40">
             + {t("addTransom")}
           </button>
@@ -160,7 +160,7 @@ export function StructurePanel({
 
       {/* joined pieces */}
       <section aria-labelledby="join-title">
-        <h4 id="join-title" className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">{t("joinTitle")}</h4>
+        <h3 id="join-title" className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">{t("joinTitle")}</h3>
         <p className="mt-1 text-[11px] text-[var(--color-text-secondary)]">{t("joinHint")}</p>
         <div className="mt-2 grid grid-cols-3 gap-2">
           <label className="text-xs text-[var(--color-text-secondary)]">

@@ -341,6 +341,7 @@ function ClientModal({
                 {t("type")}
               </label>
               <select
+                aria-label={t("type")}
                 value={formData.type}
                 onChange={(e) => setFormData({ ...formData, type: e.target.value })}
                 className="w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
@@ -357,6 +358,7 @@ function ClientModal({
                 {t("status")}
               </label>
               <select
+                aria-label={t("status")}
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                 className="w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
@@ -815,6 +817,7 @@ const [editingClient, setEditingClient] = useState<
         <div className="relative">
           <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--color-text-secondary)]" />
           <select
+            aria-label={t("status")}
             value={statusFilter}
             onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
             className="w-full pl-10 pr-10 py-2 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] text-[var(--color-text)] appearance-none"

@@ -66,6 +66,7 @@ export function CantiereCardView({
         <div className="flex items-center gap-2">
           <span
             className="p-1 rounded hover:bg-[var(--color-bg-alt)] cursor-grab active:cursor-grabbing text-[var(--color-text-secondary)]"
+            role="img"
             aria-label={t("dragHandle")}
             title={t("dragHandle")}
           >

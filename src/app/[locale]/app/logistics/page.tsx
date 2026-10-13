@@ -225,7 +225,7 @@ function CalendarTab({ tenantId, onError }: { tenantId: Id<"tenants">; onError: 
                 onClick={() => setSelectedDay(d)}
                 className={`flex min-h-[64px] flex-col items-start rounded-lg border p-1.5 text-left text-xs transition-colors ${
                   isSelected ? "border-[var(--color-mint)] bg-[var(--color-mint)]/10" : "border-transparent hover:bg-[var(--color-bg)]"
-                } ${inMonth ? "text-[var(--color-text)]" : "text-[var(--color-text-secondary)] opacity-50"}`}
+                } ${inMonth ? "text-[var(--color-text)]" : "text-[var(--color-text-secondary)]"}`}
               >
                 <span className={`font-medium ${isToday ? "rounded-full bg-[var(--color-mint)] px-1.5 text-[var(--color-mint-dark)]" : ""}`}>
                   {d.getDate()}

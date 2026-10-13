@@ -157,6 +157,7 @@ export default function NotificationsPage() {
                     checked={inApp}
                     onChange={(v) => run(setPreference({ type, channel: "inApp", enabled: v }))}
                     label=""
+                    ariaLabel={`${t(`typeNames.${type}`)} · ${t("channelInApp")}`}
                   />
                   <span className="sm:hidden text-xs text-[var(--color-text-secondary)]">
                     {t("channelInApp")}
@@ -167,6 +168,7 @@ export default function NotificationsPage() {
                     checked={email}
                     onChange={(v) => run(setPreference({ type, channel: "email", enabled: v }))}
                     label=""
+                    ariaLabel={`${t(`typeNames.${type}`)} · ${t("channelEmail")}`}
                   />
                   <span className="sm:hidden text-xs text-[var(--color-text-secondary)]">
                     {t("channelEmail")}

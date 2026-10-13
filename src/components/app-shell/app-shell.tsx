@@ -9,6 +9,7 @@ import { BottomIsland } from "./bottom-island";
 import { MobileMoreSheet } from "./mobile-more-sheet";
 import { OPEN_SIDE_MENU_EVENT, SwipeGestures } from "./swipe-gestures";
 import { SkipToMainContent } from "./skip-link";
+import { ScrollFocus } from "@/components/a11y/scroll-focus";
 import { PlanGate } from "./plan-gate";
 import { ProfileGapsBanner } from "./profile-gaps-banner";
 import { DemoBanner } from "@/demo/demo-banner";
@@ -32,6 +33,7 @@ export function AppShell({
     <div className="relative flex h-dvh overflow-clip bg-[var(--color-bg)]">
       <SkipToMainContent />
       <SwipeGestures />
+      <ScrollFocus />
       {/* Soft glow behind the floating glass sidebar so its translucency reads. */}
       <div
         aria-hidden="true"

@@ -121,6 +121,7 @@ export function Sidebar({ tenant }: { tenant: Doc<"tenants"> }) {
 
   return (
     <aside
+      aria-label={t("menu")}
       className={cn(
         "hidden h-screen shrink-0 p-3 pr-0 transition-[width] duration-300 ease-out lg:flex",
         collapsed ? "w-[76px]" : "w-72",
