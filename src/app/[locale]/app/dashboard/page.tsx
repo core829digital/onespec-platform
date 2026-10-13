@@ -212,35 +212,53 @@ export default function DashboardPage() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
+      <div className="os-still grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3 sm:gap-4">
         <StatCard
           icon={Eye}
           label={t("widgetViews")}
           value={overview ? `${overview.widgetViewsApprox ? "~" : ""}${overview.widgetViews}` : undefined}
+          count={overview ? { value: overview.widgetViews, format: (n) => `${overview.widgetViewsApprox ? "~" : ""}${n}` } : undefined}
+          index={0}
+          idle
         />
         <StatCard
           icon={FileText}
           label={t("totalRequests")}
           value={overview ? String(overview.totalRequests) : undefined}
+          count={overview ? { value: overview.totalRequests, format: (n) => String(n) } : undefined}
           delta={overview ? rel(overview.totalRequests, overview.previous.totalRequests) : undefined}
+          index={1}
+          idle
         />
         <StatCard
           icon={Percent}
           label={t("visitorConversion")}
           value={overview ? pct(overview.visitorConversionRate) : undefined}
+          count={overview ? { value: overview.visitorConversionRate, format: pct, decimals: 4 } : undefined}
           accent
+          index={2}
+          idle
         />
         <StatCard
           icon={Trophy}
           label={t("wonValue")}
           value={overview ? money(overview.wonValueCents) : undefined}
+          count={overview ? { value: overview.wonValueCents, format: money } : undefined}
           delta={overview ? rel(overview.wonValueCents, overview.previous.wonValueCents) : undefined}
+          index={3}
+          idle
         />
-        <StatCard icon={Calculator} label={t("avgValue")} value={overview ? money(overview.avgDealCents) : undefined} />
+        <StatCard
+          icon={Calculator}
+          label={t("avgValue")}
+          value={overview ? money(overview.avgDealCents) : undefined}
+          count={overview ? { value: overview.avgDealCents, format: money } : undefined}
+          index={4}
+        />
       </div>
 
       {(planUsage !== undefined || logisticsSummary !== undefined || categoryData.length > 0) && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div style={{ "--layer": 1 } as React.CSSProperties} className="os-layer grid grid-cols-1 lg:grid-cols-2 gap-4">
           {planUsage && (
             <section className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl p-5">
               <div className="flex items-center justify-between mb-4">
@@ -305,8 +323,8 @@ export default function DashboardPage() {
               </h2>
               <Suspense
                 fallback={
-                  <div className="h-48 flex items-center justify-center">
-                    <div className="h-8 w-8 animate-spin rounded-full border-4 border-[var(--color-mint)] border-t-transparent" />
+                  <div className="flex h-[200px] items-center justify-center">
+                    <div className="os-skel h-[200px] w-[200px] rounded-full bg-[var(--color-bg)]" />
                   </div>
                 }
               >
@@ -320,7 +338,7 @@ export default function DashboardPage() {
       {/* Team & cantieri — real data straight from tenants.listMembers and
           cantieri.listCantieri (the same queries the Team and Cantieri
           pages themselves use), not a separate/invented data source. */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div style={{ "--layer": 2 } as React.CSSProperties} className="os-layer grid grid-cols-1 lg:grid-cols-2 gap-4">
         <section className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="font-semibold text-[var(--color-text)] flex items-center gap-2">
@@ -334,7 +352,7 @@ export default function DashboardPage() {
           {members === undefined ? (
             <div className="space-y-2">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-10 animate-pulse rounded-lg bg-[var(--color-bg)]" />
+                <div key={i} className="h-10 os-skel rounded-lg bg-[var(--color-bg)]" />
               ))}
             </div>
           ) : members.filter((m) => m.status === "active").length === 0 ? (
@@ -384,7 +402,7 @@ export default function DashboardPage() {
           {cantieri === undefined ? (
             <div className="space-y-2">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="h-10 animate-pulse rounded-lg bg-[var(--color-bg)]" />
+                <div key={i} className="h-10 os-skel rounded-lg bg-[var(--color-bg)]" />
               ))}
             </div>
           ) : cantieri.length === 0 ? (
@@ -415,7 +433,7 @@ export default function DashboardPage() {
         ) : null}
       </div>
 
-      <section className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl">
+      <section style={{ "--layer": 3 } as React.CSSProperties} className="os-layer bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl">
         <div className="px-5 py-4 border-b border-[var(--color-border)] flex items-center justify-between">
           <h2 className="font-semibold text-[var(--color-text)]">{t("recentRequests")}</h2>
           <Link href="/app/requests" className="text-sm text-[var(--color-mint-text)] hover:underline">
@@ -425,7 +443,7 @@ export default function DashboardPage() {
         {requests === undefined ? (
           <div className="divide-y divide-[var(--color-border)]">
             {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="px-5 py-4 animate-pulse">
+              <div key={i} className="px-5 py-4 os-skel">
                 <div className="h-4 w-40 rounded bg-[var(--color-border)]" />
                 <div className="h-3 w-24 rounded bg-[var(--color-border)] mt-2" />
               </div>

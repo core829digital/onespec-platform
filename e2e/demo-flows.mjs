@@ -47,6 +47,18 @@ try {
       const label = (await page.getByTestId("app-version").first().innerText().catch(() => "")).trim();
       check(/^v\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(label), `${name}: version number next to the plan in the side menu (${label || "missing"})`);
     }
+    if (name === "desktop") {
+      // The guided cursor: opt-in button on the demo banner; it opens the pipeline, carries a card to the next column with the real
+      // drag-and-drop (a lifted copy exists while it travels) and ends on the dashboard.
+      await page.goto(`${DEMO}/it/app/dashboard`, { waitUntil: "load" });
+      await page.getByRole("button", { name: /Mostrami come si fa/ }).waitFor({ timeout: 30000 });
+      await page.getByRole("button", { name: /Mostrami come si fa/ }).click();
+      const lifted = await page.waitForSelector(".os-dragging", { timeout: 25000 }).then(() => true, () => false);
+      check(lifted, `${name}: the guided cursor lifts a card on the pipeline`);
+      await page.waitForURL(/\/app\/dashboard/, { timeout: 25000 }).catch(() => undefined);
+      await page.getByRole("button", { name: /Mostrami come si fa/ }).waitFor({ timeout: 15000 });
+      check(/\/app\/dashboard/.test(page.url()), `${name}: the tour ends on the dashboard`);
+    }
     check(await page.getByRole("note").first().isVisible().catch(() => false), `${name}: demo banner visible`);
     check(errors.length === 0, `${name}: no console errors${errors.length ? ` — ${[...new Set(errors)].slice(0, 3).join(" | ")}` : ""}`);
     await context.close();

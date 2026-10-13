@@ -1427,7 +1427,11 @@
     "empty": "Vuota",
     "prevPhase": "Fase precedente",
     "nextPhase": "Fase successiva",
-    "phaseOf": "Fase di {name}"
+    "phaseOf": "Fase di {name}",
+    "dndHint": "Trascina una scheda tra le colonne, oppure usa le frecce sinistra e destra con la scheda selezionata.",
+    "dndPickedUp": "Hai preso {name}",
+    "dndMovedTo": "{name} spostato in {column}",
+    "dndCancelled": "Spostamento di {name} annullato"
   },
   "quotePrint": {
     "back": "← Elenco Preventivi",
@@ -3388,7 +3392,9 @@
     "failedBody": "Ricarica la pagina. Se il problema continua, prova con un altro browser aggiornato.",
     "badge": "DEMO",
     "banner": "Dati di esempio: provi tutto liberamente, non viene inviato nulla. Le modifiche si azzerano quando ricarichi la pagina.",
-    "restart": "Ricomincia la demo"
+    "restart": "Ricomincia la demo",
+    "tourStart": "Mostrami come si fa",
+    "tourStop": "Interrompi"
   },
   "appVersion": {
     "label": "Versione",

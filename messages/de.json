@@ -1427,7 +1427,11 @@
     "empty": "Leer",
     "prevPhase": "Vorherige Phase",
     "nextPhase": "Nächste Phase",
-    "phaseOf": "Phase von {name}"
+    "phaseOf": "Phase von {name}",
+    "dndHint": "Ziehe eine Karte zwischen die Spalten oder nutze bei ausgewählter Karte die Pfeiltasten links und rechts.",
+    "dndPickedUp": "{name} aufgenommen",
+    "dndMovedTo": "{name} nach {column} verschoben",
+    "dndCancelled": "Verschieben von {name} abgebrochen"
   },
   "quotePrint": {
     "back": "← Angebotsliste",
@@ -3388,7 +3392,9 @@
     "failedBody": "Laden Sie die Seite neu. Besteht das Problem weiter, versuchen Sie einen anderen aktuellen Browser.",
     "badge": "DEMO",
     "banner": "Beispieldaten: alles frei ausprobieren, es wird nichts versendet. Änderungen werden beim Neuladen der Seite zurückgesetzt.",
-    "restart": "Demo neu starten"
+    "restart": "Demo neu starten",
+    "tourStart": "Zeig mir, wie es geht",
+    "tourStop": "Beenden"
   },
   "appVersion": {
     "label": "Version",

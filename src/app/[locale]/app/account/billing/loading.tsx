@@ -5,7 +5,7 @@ export default function AccountBillingLoading() {
     <SkeletonContainer>
       <SkeletonHeader />
       <div className="space-y-6">
-        <div className="rounded-xl border border-[var(--color-border)] p-4 animate-pulse">
+        <div className="rounded-xl border border-[var(--color-border)] p-4 os-skel">
           <div className="h-3 w-32 rounded bg-[var(--color-bg-alt)] mb-2" />
           <div className="h-6 w-40 rounded bg-[var(--color-bg-alt)]" />
         </div>

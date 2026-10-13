@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useSortable } from "@dnd-kit/sortable";
+import { useDraggable } from "@dnd-kit/core";
+import { guardedListeners, type DragListeners } from "@/components/dnd/kit";
 import { Key } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { OpenLink } from "@/components/ui/open-button";
@@ -24,34 +25,42 @@ export interface SortableCantiereCardProps {
   t: (key: string) => string;
 }
 
-export function SortableCantiereCard({
+export function SortableCantiereCard(props: SortableCantiereCardProps) {
+  const { setNodeRef, listeners, isDragging, attributes } = useDraggable({ id: props.cantiere._id });
+  // Keep the keyboard hints but not role="button": the card holds real buttons and links of its own.
+  const a11y = { tabIndex: 0, "aria-roledescription": attributes["aria-roledescription"], "aria-describedby": attributes["aria-describedby"] };
+  return <CantiereCardView {...props} innerRef={setNodeRef} dragProps={{ ...a11y, ...guardedListeners(listeners as DragListeners) }} isDragging={isDragging} />;
+}
+
+/** The card itself: used in its column and, lifted, as the drag overlay. */
+export function CantiereCardView({
   cantiere,
   onEdit,
   onDelete,
   onGeneratePin,
   onRevokePin,
   t,
-}: SortableCantiereCardProps) {
+  innerRef,
+  dragProps,
+  isDragging,
+  overlay,
+}: SortableCantiereCardProps & {
+  innerRef?: (el: HTMLElement | null) => void;
+  dragProps?: Record<string, unknown>;
+  isDragging?: boolean;
+  overlay?: boolean;
+}) {
   // Lazy initializer: read "now" once at mount, not on every render (Date.now()
   // directly in the render body is an impure-render violation).
   const [now] = useState(() => Date.now());
   const isOverdue = cantiere.estimatedEndAt && cantiere.estimatedEndAt < now && cantiere.status !== "chiuso";
   const locale = useLocale();
 
-  const { setNodeRef, transform, transition, isDragging, listeners } = useSortable({ id: cantiere._id });
-
-  const style = {
-    transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : 'none',
-    transition,
-    opacity: isDragging ? 0.5 : 1,
-  };
-
   return (
     <div
-      ref={setNodeRef}
-      {...listeners}
-      style={style}
-      className={`bg-[var(--color-bg)] border border-[var(--color-border)] rounded-lg p-3 hover:shadow-md transition-shadow ${isDragging ? "shadow-lg ring-2 ring-[var(--color-mint)]" : ""}`}
+      ref={innerRef}
+      {...dragProps}
+      className={`os-draggable os-float bg-[var(--color-bg)] border border-[var(--color-border)] rounded-lg p-3 ${isDragging ? "os-drag-source" : ""} ${overlay ? "os-dragging" : ""}`}
     >
       <div className="flex items-start justify-between gap-2 mb-2">
         <div className="flex items-center gap-2">

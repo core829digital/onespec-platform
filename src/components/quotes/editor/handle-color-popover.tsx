@@ -43,7 +43,7 @@ export function HandleColorPopover({ anchor, locale, options, current, onPick, o
   return (
     <div
       ref={ref}
-      role="dialog"
+      role="dialog" data-no-morph
       aria-label={words.colorTitle}
       className="fixed z-50 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-elevated)] p-3 shadow-xl"
       style={{ left, top, width }}

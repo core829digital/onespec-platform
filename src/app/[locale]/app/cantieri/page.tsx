@@ -26,19 +26,16 @@ import {
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import {
   DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
+  DragOverlay,
+  pointerWithin,
+  rectIntersection,
+  useDroppable,
+  type CollisionDetection,
+  type DragEndEvent,
+  type DragStartEvent,
 } from "@dnd-kit/core";
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { SortableCantiereCard } from "@/components/cantieri/SortableCantiereCard";
+import { useBoardSensors, useDropAnimation } from "@/components/dnd/kit";
+import { CantiereCardView, SortableCantiereCard } from "@/components/cantieri/SortableCantiereCard";
 
 // Module-level constant for current time (updated on each render via useMemo in parent)
 export const NOW = Date.now();
@@ -95,9 +92,11 @@ function KanbanColumn({
   t: (key: string) => string;
 }) {
   const config = STATUS_CONFIG.find((s) => s.key === status);
+  // The whole column is a drop target, so a card can land in an empty one too.
+  const { setNodeRef, isOver } = useDroppable({ id: status });
 
   return (
-    <div className="flex-shrink-0 w-80 bg-[var(--color-bg-alt)] rounded-xl p-3 min-h-[500px]">
+    <div ref={setNodeRef} className={`os-droppable flex-shrink-0 w-80 bg-[var(--color-bg-alt)] rounded-xl p-3 min-h-[500px] ${isOver ? "os-drop-over" : ""}`}>
       <div className="flex items-center justify-between mb-4">
 <div className="flex items-center gap-2">
             {config?.icon && <config.icon className="w-5 h-5" />}
@@ -107,30 +106,25 @@ function KanbanColumn({
           </span>
         </div>
       </div>
-      <SortableContext
-        items={cantieri.map((c) => c._id)}
-        strategy={verticalListSortingStrategy}
-      >
-        <div className="space-y-3 min-h-[300px]">
-          {cantieri.length === 0 ? (
-            <div className="text-center text-[var(--color-text-secondary)] py-8 text-sm">
-              {t("noItemsInColumn")}
-            </div>
-          ) : (
-            cantieri.map((cantiere) => (
-              <SortableCantiereCard
-                key={cantiere._id}
-                cantiere={cantiere}
-                onEdit={() => onEdit(cantiere)}
-                onDelete={() => onDelete(cantiere._id)}
-                onGeneratePin={() => onGeneratePin(cantiere)}
-                onRevokePin={() => onRevokePin(cantiere)}
-                t={t}
-              />
-            ))
-          )}
-        </div>
-      </SortableContext>
+      <div className="space-y-3 min-h-[300px]">
+        {cantieri.length === 0 ? (
+          <div className="text-center text-[var(--color-text-secondary)] py-8 text-sm">
+            {t("noItemsInColumn")}
+          </div>
+        ) : (
+          cantieri.map((cantiere) => (
+            <SortableCantiereCard
+              key={cantiere._id}
+              cantiere={cantiere}
+              onEdit={() => onEdit(cantiere)}
+              onDelete={() => onDelete(cantiere._id)}
+              onGeneratePin={() => onGeneratePin(cantiere)}
+              onRevokePin={() => onRevokePin(cantiere)}
+              t={t}
+            />
+          ))
+        )}
+      </div>
     </div>
   );
 }
@@ -547,13 +541,23 @@ export default function CantieriPage() {
   const generateGuestPin = useMutation(api.cantieri.generateGuestPin);
   const revokeGuestPin = useMutation(api.cantieri.revokeGuestPin);
 
+  // A card dropped on a column moves there at once; the server confirms (or the move is undone and the error shown).
+  const [pendingStatus, setPendingStatus] = useState<Record<string, string>>({});
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const sensors = useBoardSensors({ keyboard: true });
+  const dropAnimation = useDropAnimation();
+  const collision: CollisionDetection = (args) => {
+    const hits = pointerWithin(args);
+    return hits.length ? hits : rectIntersection(args);
+  };
+
   const groupedCantieri = useCallback(() => {
     if (!cantieri) return {};
     return STATUS_CONFIG.reduce((acc, s) => {
-      acc[s.key] = cantieri.filter((c) => c.status === s.key);
+      acc[s.key] = cantieri.filter((c) => (pendingStatus[c._id] ?? c.status) === s.key);
       return acc;
     }, {} as Record<string, Cantiere[]>);
-  }, [cantieri]);
+  }, [cantieri, pendingStatus]);
 
   const handleCreate = async (data: {
     name: string;
@@ -659,6 +663,7 @@ const handleUpdate = async (data: {
 
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
+    setActiveId(null);
     if (!over) return;
 
     const cantiereId = active.id as string;
@@ -677,6 +682,7 @@ const handleUpdate = async (data: {
     const cantiere = cantieri?.find((c) => c._id === cantiereId);
     if (!cantiere || cantiere.status === newStatus) return;
 
+    setPendingStatus((p) => ({ ...p, [cantiereId]: newStatus }));
     try {
       await updateCantiere({ cantiereId: cantiereId as Id<"cantieri">, status: newStatus });
       posthog.capture("cantiere_status_changed", {
@@ -686,6 +692,13 @@ const handleUpdate = async (data: {
       });
     } catch (e) {
       showError(e);
+    } finally {
+      // Either the server now holds the new status (the live list shows it) or the move failed: in both cases drop the local guess.
+      setPendingStatus((p) => {
+        const n = { ...p };
+        delete n[cantiereId];
+        return n;
+      });
     }
   };
 
@@ -743,12 +756,11 @@ const handleUpdate = async (data: {
 
       <div className="overflow-x-auto pb-4">
         <DndContext
-          sensors={useSensors(
-            useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-            useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
-          )}
-          collisionDetection={closestCenter}
+          sensors={sensors}
+          collisionDetection={collision}
+          onDragStart={(e: DragStartEvent) => setActiveId(String(e.active.id))}
           onDragEnd={handleDragEnd}
+          onDragCancel={() => setActiveId(null)}
         >
           <div className="flex gap-3 min-w-max">
             {columns.map((col) => (
@@ -764,6 +776,19 @@ const handleUpdate = async (data: {
             />
           ))}
         </div>
+        <DragOverlay dropAnimation={dropAnimation}>
+          {activeId && cantieri?.find((c) => c._id === activeId) ? (
+            <CantiereCardView
+              cantiere={cantieri.find((c) => c._id === activeId)!}
+              onEdit={() => undefined}
+              onDelete={() => undefined}
+              onGeneratePin={() => undefined}
+              onRevokePin={() => undefined}
+              t={t}
+              overlay
+            />
+          ) : null}
+        </DragOverlay>
       </DndContext>
     </div>
 

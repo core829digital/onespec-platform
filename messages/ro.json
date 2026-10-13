@@ -1427,7 +1427,11 @@
     "empty": "Gol",
     "prevPhase": "Etapa anterioară",
     "nextPhase": "Etapa următoare",
-    "phaseOf": "Etapa lui {name}"
+    "phaseOf": "Etapa lui {name}",
+    "dndHint": "Trage un card între coloane sau folosește săgețile stânga și dreapta cu cardul selectat.",
+    "dndPickedUp": "Ai ridicat {name}",
+    "dndMovedTo": "{name} mutat în {column}",
+    "dndCancelled": "Mutarea lui {name} a fost anulată"
   },
   "quotePrint": {
     "back": "← Lista ofertelor",
@@ -3388,7 +3392,9 @@
     "failedBody": "Reîncărcați pagina. Dacă problema persistă, încercați alt browser actualizat.",
     "badge": "DEMO",
     "banner": "Date de exemplu: încercați liber orice, nu se trimite nimic. Modificările se șterg când reîncărcați pagina.",
-    "restart": "Repornește demonstrația"
+    "restart": "Repornește demonstrația",
+    "tourStart": "Arată-mi cum se face",
+    "tourStop": "Oprește"
   },
   "appVersion": {
     "label": "Versiune",

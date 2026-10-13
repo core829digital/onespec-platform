@@ -69,7 +69,7 @@ function GuideDialog({ guide, onClose }: { guide: InstallGuide; onClose: () => v
       <div
         ref={panelRef}
         data-swipe-close="down"
-        role="dialog"
+        role="dialog" data-no-morph
         aria-modal="true"
         aria-labelledby="install-title"
         data-testid="install-dialog"

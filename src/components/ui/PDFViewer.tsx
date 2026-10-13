@@ -11,7 +11,7 @@ import type { PDFViewerProps } from "@/components/ui/pdf-frame";
 // The inline viewer pulls in the whole PDF engine: it is loaded only where it is used (desktop), never for phones.
 const PdfFrame = dynamic(() => import("@/components/ui/pdf-frame"), {
   ssr: false,
-  loading: () => <div aria-hidden="true" className="h-[80vh] animate-pulse rounded-xl bg-[var(--color-bg-alt)]" />,
+  loading: () => <div aria-hidden="true" className="h-[80vh] os-skel rounded-xl bg-[var(--color-bg-alt)]" />,
 });
 
 /**
@@ -38,7 +38,7 @@ export function PDFViewerComponent({
     const id = setTimeout(() => setPhone(isPhone()), 0);
     return () => clearTimeout(id);
   }, []);
-  if (phone === null) return <div aria-hidden="true" className={`animate-pulse rounded-xl bg-[var(--color-bg-alt)] ${className}`} style={{ height }} />;
+  if (phone === null) return <div aria-hidden="true" className={`os-skel rounded-xl bg-[var(--color-bg-alt)] ${className}`} style={{ height }} />;
   // The sizing classes of the page (a tall box for the inline viewer) do not apply to the phone card.
   if (phone) return <PhonePdf document={document} filename={filename} docKey={docKey} />;
   return (

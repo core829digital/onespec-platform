@@ -77,6 +77,13 @@ test("app backend (runs until stopped)", async () => {
       type: "company", tags: [], status: "active", createdAt: Date.now(), updatedAt: Date.now(),
     }),
   );
+  // One work site in the first column of the board, for the drag-and-drop flow.
+  await t.run((ctx) =>
+    ctx.db.insert("cantieri", {
+      tenantId: s.tenantId, name: "Cantiere Prova", address: "Via Verdi 2", city: "Prato", postalCode: "59100", status: "preventivo",
+      priority: "medium", assignedUserIds: [], createdAt: Date.now(), updatedAt: Date.now(),
+    }),
+  );
   writeFileSync(
     SEED_FILE,
     JSON.stringify({ tenantId: s.tenantId, configuratorId, clientId, owner: { id: s.ownerId, token: makeToken(s.ownerId), refresh: refreshFor(s.ownerId), email: OWNER_EMAIL, password: OWNER_PASSWORD }, member: { id: s.memberId, token: makeToken(s.memberId), refresh: refreshFor(s.memberId) }, admin: { id: s.adminId, token: makeToken(s.adminId), refresh: refreshFor(s.adminId) } }),

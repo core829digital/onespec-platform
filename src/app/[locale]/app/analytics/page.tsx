@@ -90,14 +90,14 @@ interface PeakHourData {
 }
 
 const ChartSkeleton = () => (
-  <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5 animate-pulse">
+  <div className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5 os-skel">
     <div className="h-6 w-40 rounded bg-[var(--color-border)] mb-4" />
     <div className="h-64 bg-[var(--color-border)] rounded" />
   </div>
 );
 
 const StatsSkeleton = () => (
-  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 animate-pulse">
+  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 os-skel">
     {Array.from({ length: 6 }).map((_, i) => (
       <div key={i} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-4">
         <div className="h-5 w-24 rounded bg-[var(--color-border)] mb-2" />
@@ -232,7 +232,7 @@ export default function AnalyticsPage() {
       {overview === undefined ? (
         <div className="space-y-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5 animate-pulse">
+            <div key={i} className="rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5 os-skel">
               <div className="h-6 w-40 rounded bg-[var(--color-border)] mb-4" />
               <div className="grid grid-cols-2 gap-4">
                 <div className="h-32 bg-[var(--color-border)] rounded" />

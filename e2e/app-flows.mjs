@@ -105,6 +105,7 @@ async function newSession(browser, token, refresh, device = {}) {
   return { context, problems };
 }
 
+let failShots = 0;
 async function step(name, page, problems, fn) {
   const before = problems.length;
   try {
@@ -115,6 +116,7 @@ async function step(name, page, problems, fn) {
     const fresh = problems.slice(before);
     check(false, `${name} — ${String(e.message).split("\n")[0]}${fresh.length ? ` [browser: ${fresh.join(" | ").slice(0, 600)}]` : ""}`);
     try { await page.screenshot({ path: process.env.E2E_SHOT ?? "e2e-failure.png", fullPage: true }); } catch { /* ignore */ }
+    try { await page.screenshot({ path: `/tmp/e2e-fail-${++failShots}.png`, fullPage: true }); } catch { /* ignore */ }
   }
 }
 
@@ -205,6 +207,60 @@ async function main() {
       await page.getByText("Acme Serramenti").first().waitFor({ timeout: 20_000 });
     });
 
+    await step("motion: the dashboard lands without layout shift, counters reach the real value, reduced-motion switches it all off", page, problems, async () => {
+      await page.addInitScript(() => {
+        window.__cls = 0;
+        window.__shifts = [];
+        const name = (n) => (n ? `${n.nodeName.toLowerCase()}${n.className && typeof n.className === "string" ? "." + n.className.trim().split(/\s+/).slice(0, 3).join(".") : ""}` : "?");
+        try {
+          new PerformanceObserver((list) => {
+            for (const e of list.getEntries()) {
+              if (e.hadRecentInput) continue;
+              window.__cls += e.value;
+              window.__shifts.push(`${e.value.toFixed(3)} @${Math.round(e.startTime)}ms ${(e.sources ?? []).slice(0, 2).map((s) => name(s.node)).join(" | ")}`);
+            }
+          }).observe({ type: "layout-shift", buffered: true });
+        } catch { /* not supported */ }
+      });
+      if (process.env.E2E_THROTTLE) await (await page.context().newCDPSession(page)).send("Emulation.setCPUThrottlingRate", { rate: Number(process.env.E2E_THROTTLE) });
+      await page.goto(url("/app/dashboard"), { waitUntil: "domcontentloaded" });
+      await page.getByText("Acme Serramenti").first().waitFor({ timeout: 20_000 });
+      await page.waitForTimeout(1800);
+      const cls = await page.evaluate(() => window.__cls);
+      console.log(`  info  dashboard layout shift (CLS): ${cls.toFixed(4)}`);
+      for (const line of await page.evaluate(() => window.__shifts)) console.log(`        shift ${line}`);
+      check(cls < 0.1, `dashboard CLS ${cls.toFixed(4)} is under 0.1 ("good")`);
+      const kpi = await page.locator(".os-float").first().innerText();
+      check(!/^\s*$/.test(kpi) && !/NaN|undefined/.test(kpi), "the first KPI card shows a real value after counting");
+      await page.screenshot({ path: "/tmp/motion-dashboard.png", fullPage: true });
+      await page.emulateMedia({ reducedMotion: "reduce" });
+      await page.reload({ waitUntil: "domcontentloaded" });
+      await page.getByText("Acme Serramenti").first().waitFor({ timeout: 20_000 });
+      await page.waitForTimeout(400);
+      const running = await page.evaluate(() => document.getAnimations().filter((a) => a.playState === "running" && Number(a.effect?.getTiming().duration) > 5 && Number.isFinite(Number(a.effect?.getTiming().iterations)) ).length);
+      check(running === 0, `reduced-motion: no timed animation is running (${running})`);
+      await page.emulateMedia({ reducedMotion: "no-preference" });
+    });
+    if (process.env.E2E_ONLY === "motion") { console.log("E2E_ONLY=motion: stopping here"); throw new Error("stop"); }
+
+    await step("work-site board: a card is carried by hand to another column and stays there (drag and drop)", page, problems, async () => {
+      await page.goto(url("/app/cantieri"), { waitUntil: "domcontentloaded" });
+      const card = page.getByText("Cantiere Prova").first();
+      await card.waitFor({ timeout: 20_000 });
+      const cols = page.locator(".os-droppable");
+      check((await cols.nth(0).getByText("Cantiere Prova").count()) === 1, "the card starts in the first column");
+      const from = await card.boundingBox();
+      const to = await cols.nth(1).boundingBox();
+      check(!!from && !!to, "card and target column are on screen");
+      await page.mouse.move(from.x + 20, from.y + 20);
+      await page.mouse.down();
+      for (let i = 1; i <= 12; i++) await page.mouse.move(from.x + 20 + ((to.x + to.width / 2 - from.x - 20) * i) / 12, from.y + 20 + ((to.y + 120 - from.y - 20) * i) / 12);
+      check((await page.locator(".os-dragging").count()) === 1, "a lifted copy of the card follows the pointer");
+      await page.mouse.up();
+      await page.waitForFunction(() => document.querySelectorAll(".os-droppable")[1]?.textContent?.includes("Cantiere Prova"), null, { timeout: 10_000 });
+      check((await cols.nth(0).getByText("Cantiere Prova").count()) === 0, "the card left the first column");
+    });
+
     await step("customers list shows the seeded customer (live query over the real backend)", page, problems, async () => {
       await page.goto(url("/app/clients"), { waitUntil: "domcontentloaded" });
       await page.getByText("Bianchi Srl").first().waitFor({ timeout: 20_000 });
@@ -243,13 +299,70 @@ async function main() {
         // wait for live data to settle: no skeleton left and some text on the page
         await page.waitForFunction(() => {
           const m = document.querySelector("main#main-content");
-          return !!m && (m.textContent ?? "").trim().length > 20 && !m.querySelector('[aria-busy="true"], .animate-pulse');
+          return !!m && (m.textContent ?? "").trim().length > 20 && !m.querySelector('[aria-busy="true"], .animate-pulse, .os-skel');
         }, null, { timeout: 25_000 });
         const text = (await page.locator("main#main-content").innerText()).slice(0, 4000);
         if (/Qualcosa è andato storto|Something went wrong|Application error|404/.test(text)) throw new Error("the page shows an error screen");
         const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
         if (overflow > 1) throw new Error(`horizontal overflow of ${overflow}px`);
       });
+    }
+
+    // ── full-stack audit sweep (E2E_AUDIT=1): every page x device x theme x language, with axe-core, i18n, targets, images ───────────
+    if (process.env.E2E_AUDIT) {
+      const AXE = process.env.AXE_PATH;
+      const variants = [
+        { name: "desktop-dark-it", viewport: { width: 1440, height: 900 }, theme: "dark", locale: "it" },
+        { name: "desktop-light-it", viewport: { width: 1440, height: 900 }, theme: "light", locale: "it" },
+        { name: "tablet-light-it", viewport: { width: 820, height: 1180 }, theme: "light", locale: "it" },
+        { name: "phone-dark-it", viewport: { width: 390, height: 844 }, theme: "dark", locale: "it", mobile: true },
+        { name: "desktop-dark-en", viewport: { width: 1440, height: 900 }, theme: "dark", locale: "en" },
+        { name: "desktop-dark-ro", viewport: { width: 1440, height: 900 }, theme: "dark", locale: "ro" },
+      ];
+      const report = [];
+      for (const v of variants) {
+        const sess = await newSession(browser, seed.owner.token, seed.owner.refresh, { viewport: v.viewport, ...(v.mobile ? { hasTouch: true, isMobile: true } : {}) });
+        await sess.context.addCookies([{ name: "onespec-locale", value: v.locale, domain: new URL(APP).hostname, path: "/" }]);
+        await sess.context.addInitScript((t) => { try { localStorage.setItem("onespec-theme", t); localStorage.setItem("theme", t); } catch { /* ignore */ } document.documentElement.setAttribute("data-theme", t); }, v.theme);
+        const pg = await sess.context.newPage();
+        for (const path of PAGES) {
+          const entry = { variant: v.name, path: path.replace(seed.clientId, ":id").replace(seed.configuratorId, ":id"), problems: [], axe: [], i18n: [], smallTargets: 0, brokenImages: 0, h1: null, title: "" };
+          const before = sess.problems.length;
+          try {
+            await pg.goto(`${APP}/${v.locale}${path}`, { waitUntil: "domcontentloaded" });
+            await pg.locator("main#main-content").waitFor({ timeout: 20_000 });
+            await pg.waitForFunction(() => { const m = document.querySelector("main#main-content"); return !!m && (m.textContent ?? "").trim().length > 20 && !m.querySelector('[aria-busy="true"], .os-skel'); }, null, { timeout: 25_000 }).catch(() => entry.problems.push("still loading after 25 s"));
+            await pg.waitForTimeout(1200);
+            if (AXE) {
+              await pg.addScriptTag({ path: AXE });
+              const res = await pg.evaluate(async () => {
+                const r = await window.axe.run(document, { runOnly: { type: "tag", values: ["wcag2a", "wcag2aa", "best-practice"] }, resultTypes: ["violations"] });
+                return r.violations.filter((x) => x.impact === "serious" || x.impact === "critical" || x.impact === "moderate").map((x) => ({ id: x.id, impact: x.impact, n: x.nodes.length, sample: x.nodes[0]?.target?.join(" ").slice(0, 120), help: x.help }));
+              });
+              entry.axe = res;
+            }
+            const info = await pg.evaluate(() => {
+              const keyLike = /^[a-z][A-Za-z0-9]*(\.[A-Za-z0-9_]+)+$/;
+              const texts = [];
+              const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+              while (w.nextNode()) { const t = (w.currentNode.textContent ?? "").trim(); if (t.length > 4 && t.length < 80 && keyLike.test(t) && !/\.(com|eu|it|net|org|ro)$/i.test(t) && !/^v?\d/.test(t)) texts.push(t); }
+              const targets = [...document.querySelectorAll("a, button, [role=button], input, select")].filter((el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== "hidden" && (r.height < 32 || r.width < 32) && !el.closest(".sr-only") && el.type !== "hidden"; }).length;
+              return { i18n: [...new Set(texts)].slice(0, 6), targets, imgs: [...document.images].filter((i) => i.complete && i.naturalWidth === 0 && i.src && !i.src.startsWith("data:")).length, h1: document.querySelectorAll("h1").length, title: document.title };
+            });
+            entry.i18n = info.i18n; entry.smallTargets = info.targets; entry.brokenImages = info.imgs; entry.h1 = info.h1; entry.title = info.title;
+            const overflow = await pg.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+            if (overflow > 1) entry.problems.push(`horizontal overflow ${overflow}px`);
+          } catch (e) {
+            entry.problems.push(String(e.message).split("\n")[0]);
+          }
+          entry.problems.push(...sess.problems.slice(before));
+          report.push(entry);
+        }
+        await sess.context.close();
+      }
+      (await import("node:fs")).writeFileSync(process.env.AUDIT_OUT ?? "/tmp/audit.json", JSON.stringify(report, null, 1));
+      console.log(`audit sweep done: ${report.length} page loads`);
+      throw new Error("stop");
     }
 
     // ── quote draft: create → saved → listed under "Bozze" → reopened for editing ──────────────────────────────────────────────────

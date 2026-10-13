@@ -574,7 +574,7 @@ function ContactDirectory<T>({
   const [values, setValues] = useState<Record<string, string>>({});
 
   if (items === undefined) {
-    return <div className="h-24 animate-pulse rounded-xl bg-[var(--color-bg-alt)]" />;
+    return <div className="h-24 os-skel rounded-xl bg-[var(--color-bg-alt)]" />;
   }
 
   return (
@@ -702,7 +702,7 @@ function InventoryTab({ tenantId }: { tenantId: Id<"tenants"> }) {
           only ever queries the in_stock index). */}
 
       {items === undefined ? (
-        <div className="h-24 animate-pulse rounded-xl bg-[var(--color-bg-alt)]" />
+        <div className="h-24 os-skel rounded-xl bg-[var(--color-bg-alt)]" />
       ) : items.length === 0 ? (
         <EmptyState title={t("empty")} />
       ) : (

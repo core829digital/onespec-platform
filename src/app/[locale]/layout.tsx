@@ -13,6 +13,7 @@ import { MotionConfig } from "framer-motion";
 import { LocaleHtmlLang } from "@/components/locale-html-lang";
 import { RageClickDetector } from "@/hooks/useRageClick";
 import { CookieConsentBanner } from "@/components/cookie-consent-banner";
+import { PointerOrigin } from "@/components/motion/pointer-origin";
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -47,6 +48,7 @@ export default async function LocaleLayout({
         <PostHogIdentity />
         <RageClickDetector config={{ threshold: 7, windowMs: 2000 }}>
           <MotionConfig reducedMotion="user">
+            <PointerOrigin />
             {children}
             <ThemeToggleGate />
             <Toaster />

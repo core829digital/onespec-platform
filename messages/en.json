@@ -1427,7 +1427,11 @@
     "empty": "Empty",
     "prevPhase": "Previous stage",
     "nextPhase": "Next stage",
-    "phaseOf": "Stage of {name}"
+    "phaseOf": "Stage of {name}",
+    "dndHint": "Drag a card between columns, or use the left and right arrow keys with the card selected.",
+    "dndPickedUp": "Picked up {name}",
+    "dndMovedTo": "{name} moved to {column}",
+    "dndCancelled": "Move of {name} cancelled"
   },
   "quotePrint": {
     "back": "← Quote list",
@@ -3388,7 +3392,9 @@
     "failedBody": "Reload the page. If it keeps happening, try another up-to-date browser.",
     "badge": "DEMO",
     "banner": "Sample data: try everything freely, nothing is sent anywhere. Changes reset when you reload the page.",
-    "restart": "Restart the demo"
+    "restart": "Restart the demo",
+    "tourStart": "Show me how",
+    "tourStop": "Stop"
   },
   "appVersion": {
     "label": "Version",

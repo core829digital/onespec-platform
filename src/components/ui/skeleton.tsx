@@ -11,7 +11,7 @@ interface SkeletonProps {
 export function SkeletonContainer({ className = "", children }: SkeletonProps) {
   const t = useTranslations("common");
   return (
-    <div className={`w-full space-y-6 animate-pulse ${className}`} aria-busy="true" aria-label={t("loadingAria")}>
+    <div className={`w-full space-y-6 os-skel ${className}`} aria-busy="true" aria-label={t("loadingAria")}>
       {children}
     </div>
   );
@@ -110,7 +110,7 @@ export function SkeletonChart({ height = 200 }: { height?: number }) {
 
 export function SkeletonEmptyState() {
   return (
-    <div className="flex flex-col items-center justify-center py-12 px-4 animate-pulse">
+    <div className="flex flex-col items-center justify-center py-12 px-4 os-skel">
       <div className="h-12 w-12 rounded-full bg-[var(--color-bg-alt)] mb-4" />
       <div className="h-4 w-32 rounded bg-[var(--color-bg-alt)] mb-2" />
       <div className="h-3 w-24 rounded bg-[var(--color-bg-alt)]" />

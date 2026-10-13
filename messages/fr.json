@@ -1427,7 +1427,11 @@
     "empty": "Vide",
     "prevPhase": "Étape précédente",
     "nextPhase": "Étape suivante",
-    "phaseOf": "Étape de {name}"
+    "phaseOf": "Étape de {name}",
+    "dndHint": "Faites glisser une fiche entre les colonnes, ou utilisez les flèches gauche et droite avec la fiche sélectionnée.",
+    "dndPickedUp": "{name} saisi",
+    "dndMovedTo": "{name} déplacé vers {column}",
+    "dndCancelled": "Déplacement de {name} annulé"
   },
   "quotePrint": {
     "back": "← Liste des devis",
@@ -3388,7 +3392,9 @@
     "failedBody": "Rechargez la page. Si le problème persiste, essayez un autre navigateur à jour.",
     "badge": "DÉMO",
     "banner": "Données d'exemple : essayez tout librement, rien n'est envoyé. Les modifications sont effacées au rechargement de la page.",
-    "restart": "Recommencer la démo"
+    "restart": "Recommencer la démo",
+    "tourStart": "Montrez-moi comment faire",
+    "tourStop": "Arrêter"
   },
   "appVersion": {
     "label": "Version",

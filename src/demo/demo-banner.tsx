@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useDemo } from "./demo-context";
+import { DemoTourButton } from "./demo-tour";
 
 /** A calm strip at the top of every page of the demo: it is a demo, nothing is sent anywhere, here is how to start over. */
 export function DemoBanner() {
@@ -13,6 +14,7 @@ export function DemoBanner() {
       <p className="min-w-0 flex-1 basis-60">
         <strong className="font-semibold">{t("badge")}</strong> · {t("banner")}
       </p>
+      <DemoTourButton />
       <button
         type="button"
         onClick={demo.reset}

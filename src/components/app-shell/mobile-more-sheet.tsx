@@ -75,7 +75,7 @@ export function MobileMoreSheet({ open, onClose }: { open: boolean; onClose: () 
       <div
         ref={panelRef}
         data-swipe-close="down"
-        role="dialog"
+        role="dialog" data-no-morph
         aria-modal="true"
         aria-label={t("moreTitle")}
         data-testid="more-sheet"

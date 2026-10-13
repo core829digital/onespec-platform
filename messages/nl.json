@@ -1427,7 +1427,11 @@
     "empty": "Leeg",
     "prevPhase": "Vorige fase",
     "nextPhase": "Volgende fase",
-    "phaseOf": "Fase van {name}"
+    "phaseOf": "Fase van {name}",
+    "dndHint": "Sleep een kaart tussen de kolommen, of gebruik de pijltjes links en rechts met de kaart geselecteerd.",
+    "dndPickedUp": "{name} opgepakt",
+    "dndMovedTo": "{name} verplaatst naar {column}",
+    "dndCancelled": "Verplaatsen van {name} geannuleerd"
   },
   "quotePrint": {
     "back": "← Offertelijst",
@@ -3388,7 +3392,9 @@
     "failedBody": "Laad de pagina opnieuw. Blijft het probleem, probeer dan een andere, bijgewerkte browser.",
     "badge": "DEMO",
     "banner": "Voorbeeldgegevens: probeer alles vrij, er wordt niets verstuurd. Wijzigingen worden gewist als je de pagina herlaadt.",
-    "restart": "Demo opnieuw starten"
+    "restart": "Demo opnieuw starten",
+    "tourStart": "Laat zien hoe het werkt",
+    "tourStop": "Stoppen"
   },
   "appVersion": {
     "label": "Versie",

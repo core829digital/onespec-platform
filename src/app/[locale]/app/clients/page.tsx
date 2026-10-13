@@ -834,7 +834,7 @@ const [editingClient, setEditingClient] = useState<
         {clients === undefined ? (
           <div className="divide-y divide-[var(--color-border)]">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="px-4 py-4 animate-pulse">
+              <div key={i} className="px-4 py-4 os-skel">
                 <div className="h-5 w-48 rounded bg-[var(--color-border)]" />
                 <div className="h-4 w-32 rounded bg-[var(--color-border)] mt-2" />
               </div>

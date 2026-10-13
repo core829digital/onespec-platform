@@ -676,11 +676,34 @@ select:focus-visible { box-shadow: 0 0 0 3px color-mix(in oklab, var(--color-min
 }
 
 /* ---- Dialogs, sheets and popovers ---- */
-[role="dialog"], [role="alertdialog"] { animation: os-dialog-in 200ms var(--ease-out-apple) backwards; }
+/* Morphing: a dialog grows out of the spot that was pressed (offset set by PointerOrigin) and settles with a spring. */
+@keyframes os-morph-in {
+  from { opacity: 0; translate: var(--os-dx, 0px) var(--os-dy, 12px); scale: 0.4; }
+  35% { opacity: 1; }
+  to { opacity: 1; translate: 0 0; scale: 1; }
+}
+[role="dialog"]:not([data-no-morph]), [role="alertdialog"]:not([data-no-morph]) { animation: os-morph-in 380ms var(--os-spring) backwards; }
 .fixed.inset-0[class*="bg-black"], .fixed.inset-0[class*="backdrop"] { animation: os-backdrop-in 180ms ease backwards; }
 
 /* ---- Pages, lists, controls ---- */
-.os-page { animation: os-page-in 240ms var(--ease-out-apple) backwards; }
+.os-page { animation: os-fade 200ms ease-out backwards; }
+/*
+ * Cascade for every page: the blocks directly under the page root (header, filters, cards, tables…) rise one after the other, 40 ms apart,
+ * the first nine only (so a long page is never slow). `backwards` fill = nothing is left on the element once it has landed (no lasting
+ * transform, so fixed-position children and sticky headers behave normally). Loading skeletons (aria-busy) are excluded: they appear at
+ * once, and the real content then rises into their place.
+ */
+.os-page > :not([aria-busy="true"]) > :nth-child(-n + 9):not(.os-layer):not(.os-rise):not(.os-still):not([role="dialog"]):not([role="alert"]):not(.fixed) {
+  animation: os-rise 420ms var(--ease-out-apple) backwards;
+}
+.os-page > :not([aria-busy="true"]) > :nth-child(2) { animation-delay: 40ms; }
+.os-page > :not([aria-busy="true"]) > :nth-child(3) { animation-delay: 80ms; }
+.os-page > :not([aria-busy="true"]) > :nth-child(4) { animation-delay: 120ms; }
+.os-page > :not([aria-busy="true"]) > :nth-child(5) { animation-delay: 160ms; }
+.os-page > :not([aria-busy="true"]) > :nth-child(6) { animation-delay: 200ms; }
+.os-page > :not([aria-busy="true"]) > :nth-child(7) { animation-delay: 240ms; }
+.os-page > :not([aria-busy="true"]) > :nth-child(8) { animation-delay: 280ms; }
+.os-page > :not([aria-busy="true"]) > :nth-child(9) { animation-delay: 320ms; }
 tbody > tr { animation: os-row-in 240ms var(--ease-out-apple) backwards; transition: background-color 120ms ease; }
 tbody > tr:nth-child(2) { animation-delay: 25ms; }
 tbody > tr:nth-child(3) { animation-delay: 50ms; }
@@ -694,8 +717,8 @@ button, [role="button"], a { transition: background-color 150ms ease, border-col
  * press and release, and the click lands on the <svg> instead — which is what made the dimensions in the drawing impossible to edit.
  * Elements positioned by script (drag handles carry an inline transform) are skipped as well.
  */
-:where(button, [role="button"]):not(svg *):not([style*="transform"]) { transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease, opacity 150ms ease, transform 120ms var(--ease-out-apple); }
-:where(button:not(:disabled), [role="button"]:not([aria-disabled="true"])):not(svg *):active { transform: scale(0.97); }
+:where(button, [role="button"]):not(svg *):not([style*="transform"]) { transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, box-shadow 150ms ease, opacity 150ms ease, transform 380ms var(--os-spring); }
+:where(button:not(:disabled), [role="button"]:not([aria-disabled="true"])):not(svg *):active { transform: scale(0.97); transition-duration: 90ms; }
 @media (hover: hover) {
   .os-lift { transition: transform 180ms var(--ease-out-apple), box-shadow 180ms ease, border-color 180ms ease; }
   .os-lift:hover { transform: translateY(-2px); box-shadow: 0 10px 24px -12px rgb(0 0 0 / 0.45); border-color: color-mix(in oklab, var(--color-mint) 45%, var(--color-border)); }
@@ -706,3 +729,103 @@ button, [role="button"], a { transition: background-color 150ms ease, border-col
   from { opacity: 0; transform: translateY(24px); }
   to { opacity: 1; transform: none; }
 }
+
+/* ======================================================================================================================
+   OneSpec motion foundation (docs/ANIMAZIONI.md)
+   Rules: only transform/opacity (compositor, no layout), content never waits for an animation (max stagger 8 x 40 ms, max
+   duration 480 ms), no layout shift, everything off under prefers-reduced-motion (global rule above). Hover lift uses the
+   independent `translate` property so it never fights an entrance or idle animation that owns `transform`.
+   ====================================================================================================================== */
+:root {
+  --os-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --os-shine: rgb(255 255 255 / 0.07);
+}
+:root[data-theme="light"] { --os-shine: rgb(255 255 255 / 0.7); }
+/* A real spring (overshoot and settle) where the browser can draw one; the bezier above is the fallback. */
+@supports (transition-timing-function: linear(0, 1)) {
+  :root {
+    --os-spring: linear(0, 0.009, 0.035 2.1%, 0.141, 0.281 6.7%, 0.723 12.9%, 0.938 16.7%, 1.017, 1.077, 1.121, 1.149 24.3%, 1.159, 1.163 27.2%, 1.161, 1.154 29.9%, 1.129 32.8%, 1.051 39.6%, 1.017 43.1%, 0.991, 0.977 51%, 0.974 53.8%, 0.975 57.1%, 0.997 69.8%, 1.003 77.2%, 1.004 83.5%, 1);
+  }
+}
+
+@keyframes os-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes os-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes os-reveal { from { opacity: 0; transform: scale(0.985); } to { opacity: 1; transform: none; } }
+@keyframes os-spring-in { from { opacity: 0; transform: scale(0.82); } to { opacity: 1; transform: none; } }
+@keyframes os-layer-in {
+  from { opacity: 0; transform: perspective(900px) translate3d(0, calc(var(--layer, 1) * 22px), calc(var(--layer, 1) * -60px)) rotateX(6deg) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes os-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+@keyframes os-stroke { to { stroke-dashoffset: 0; } }
+@keyframes os-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+@keyframes os-shimmer { from { transform: translateX(-100%); } to { transform: translateX(100%); } }
+
+/* Cascade from the bottom: set --i (0, 1, 2…) on each item. Items past the 8th arrive together, so a long list is never slow. */
+.os-rise { animation: os-rise 420ms var(--ease-out-apple) both; animation-delay: calc(min(var(--i, 0), 8) * 40ms); }
+/* Real content replacing a skeleton: soft fade + settle. */
+.os-reveal { animation: os-reveal 300ms var(--ease-out-apple) both; }
+/* Small things appearing (badges, toasts, popovers): elastic. */
+.os-pop { animation: os-spring-in 360ms var(--os-spring) both; }
+
+/* Exploded view: each layer (--layer: 1…3) arrives from further back and settles into place. The depth lives inside the keyframe
+   (perspective() in the transform), so nothing keeps a containing block for fixed-position children once it has landed. */
+.os-layer { animation: os-layer-in 480ms var(--os-spring) both; animation-delay: calc(var(--layer, 1) * 70ms); transform-origin: 50% 100%; }
+
+/* Floating cards: layered shadow at rest, lifts on hover (pointer devices only). */
+.os-float {
+  box-shadow: inset 0 1px 0 color-mix(in oklab, var(--color-text) 6%, transparent), 0 2px 4px -2px rgb(0 0 0 / 0.22), 0 12px 28px -16px rgb(0 0 0 / 0.42);
+  transition: translate 260ms var(--os-spring), box-shadow 220ms ease, border-color 180ms ease;
+}
+:root[data-theme="light"] .os-float { box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.8), 0 2px 4px -2px rgb(20 30 40 / 0.1), 0 12px 28px -16px rgb(20 30 40 / 0.22); }
+@media (hover: hover) {
+  .os-float:hover {
+    translate: 0 -4px;
+    border-color: color-mix(in oklab, var(--color-mint) 40%, var(--color-border));
+    box-shadow: inset 0 1px 0 color-mix(in oklab, var(--color-text) 8%, transparent), 0 4px 8px -4px rgb(0 0 0 / 0.25), 0 22px 38px -18px rgb(0 0 0 / 0.5);
+  }
+}
+/* Only for the four KPI cards: a barely-there hover in the air, each out of step with the others. */
+.os-float-idle { animation: os-bob 7s ease-in-out infinite; animation-delay: calc(var(--i, 0) * -1.7s); }
+.os-float-idle:hover { animation-play-state: paused; }
+
+/* Charts: `pathLength="1"` on the SVG path, then the line draws itself; bars grow from the baseline (--i staggers them). */
+.os-draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: os-stroke 900ms var(--ease-out-apple) 120ms forwards; }
+.os-grow { transform-origin: bottom; transform-box: fill-box; animation: os-grow 560ms var(--ease-out-apple) both; animation-delay: calc(min(var(--i, 0), 12) * 30ms); }
+
+/*
+ * Skeleton: a band of light sweeps across every bone (compositor-only: a translated pseudo-element, no repaint per frame).
+ * Put `os-skel` on the loading container; a bone is any childless block with a OneSpec background colour. A bone can also carry
+ * `os-skel` itself.
+ */
+.os-skel:not(:has(*)),
+.os-skel :where(div, span, p):not(:has(*))[class*="bg-[var(--color-"] {
+  position: relative;
+  overflow: hidden;
+}
+.os-skel:not(:has(*))::after,
+.os-skel :where(div, span, p):not(:has(*))[class*="bg-[var(--color-"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 20%, var(--os-shine) 50%, transparent 80%);
+  transform: translateX(-100%);
+  animation: os-shimmer 1.5s ease-in-out infinite;
+}
+
+/* ---- Drag and drop (src/components/dnd/kit.tsx) ---- */
+@keyframes os-lift { from { scale: 1; rotate: 0deg; } to { scale: 1.035; rotate: 1.2deg; } }
+/* The card left behind while its lifted copy travels. */
+.os-drag-source { opacity: 0.35; outline: 2px dashed color-mix(in oklab, var(--color-mint) 55%, transparent); outline-offset: -2px; }
+/* The lifted copy: bigger, tilted, deep shadow; settles with a spring when released (see useDropAnimation). */
+.os-dragging {
+  cursor: grabbing;
+  scale: 1.035;
+  rotate: 1.2deg;
+  box-shadow: 0 28px 48px -18px rgb(0 0 0 / 0.65), 0 0 0 1px color-mix(in oklab, var(--color-mint) 55%, transparent);
+  animation: os-lift 240ms var(--os-spring) both;
+}
+/* A column that can take the card, and the one it is over. */
+.os-droppable { transition: box-shadow 160ms ease, background-color 160ms ease; }
+.os-drop-over { box-shadow: inset 0 0 0 2px color-mix(in oklab, var(--color-mint) 70%, transparent); background-color: color-mix(in oklab, var(--color-mint) 7%, var(--color-bg-alt)) !important; }
+.os-draggable { touch-action: manipulation; }

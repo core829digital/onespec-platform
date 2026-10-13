@@ -107,7 +107,8 @@ export function Toggle({
       >
         <span
           className={cn(
-            "pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow-md ring-0 transition duration-200 ease-in-out",
+            // Elastic knob: the slide overshoots and settles (--os-spring); pressing stretches it a little, like a physical switch.
+            "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-md ring-0 transition-[translate,scale] duration-[420ms] [transition-timing-function:var(--os-spring)] origin-center group-active/toggle:scale-x-125",
             checked ? "translate-x-5" : "translate-x-0",
           )}
         />

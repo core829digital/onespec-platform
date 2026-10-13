@@ -295,7 +295,7 @@ export default function LeadsPage() {
 
       <div className="overflow-hidden rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)]">
         {loading ? (
-          <div className="divide-y divide-[var(--color-border)]">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="animate-pulse px-4 py-4"><div className="h-5 w-48 rounded bg-[var(--color-border)]" /><div className="mt-2 h-4 w-32 rounded bg-[var(--color-border)]" /></div>)}</div>
+          <div className="divide-y divide-[var(--color-border)]">{Array.from({ length: 4 }).map((_, i) => <div key={i} className="os-skel px-4 py-4"><div className="h-5 w-48 rounded bg-[var(--color-border)]" /><div className="mt-2 h-4 w-32 rounded bg-[var(--color-border)]" /></div>)}</div>
         ) : results.length === 0 ? (
           term || status !== "all" ? <EmptyState title={t("noResults")} /> : <EmptyState title={t("emptyTitle")} hint={t("emptyHint")} action={<button type="button" onClick={() => setWizard(true)} className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[var(--color-mint)] px-4 text-sm font-bold text-[var(--color-mint-dark)]"><FileUp size={16} aria-hidden="true" />{t("import")}</button>} />
         ) : (
