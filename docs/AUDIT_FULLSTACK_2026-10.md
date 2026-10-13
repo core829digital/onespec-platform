@@ -13,7 +13,7 @@ Ambito: piattaforma OneSpec (Next.js 16 + Convex) e sito. Metodo: scansione auto
 | Test | 196 file / 1679 test verdi; tsc 0 errori; eslint 0 errori |
 | E2E browser | tutti i controlli verdi; CLS ≈ 0,007; reduced-motion: 0 animazioni attive |
 | i18n | nessuna chiave grezza visibile, nessuna immagine rotta, 1 solo `h1` per pagina, titoli presenti |
-| Accessibilità | 11 classi di violazioni trovate; nuova scansione axe su 3 varianti × 27 pagine: 0 violazioni rimaste |
+| Accessibilità | 11 classi di violazioni trovate; nuova scansione axe (3 varianti × 27 pagine) ha lasciato 2 residui, corretti subito dopo (selettore righe della paginazione, etichetta dei riquadri laterali) ma non rimisurati con una terza scansione |
 
 ## Trovato e corretto
 
