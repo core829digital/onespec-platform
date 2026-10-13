@@ -88,41 +88,56 @@ export const finalizeUpload = action({
       await ctx.runMutation(internal.supportFiles.discardUnattached, { storageId: args.storageId });
       throw new ConvexError(code);
     };
-    let auth: { userId: Id<"users">; size: number };
+    // Anything unexpected (a runtime limit, a library failure) must not reach the browser as a bare "Server Error": the file is discarded,
+    // the failing step is written to the function log (Convex dashboard → Logs) and the person gets a clear, retryable message.
+    let stage = "authorize";
     try {
-      auth = await ctx.runQuery(internal.supportFiles.authorizeUpload, { tenantId: args.tenantId, storageId: args.storageId });
+      let auth: { userId: Id<"users">; size: number };
+      try {
+        auth = await ctx.runQuery(internal.supportFiles.authorizeUpload, { tenantId: args.tenantId, storageId: args.storageId });
+      } catch (e) {
+        await ctx.runMutation(internal.supportFiles.discardUnattached, { storageId: args.storageId });
+        throw e;
+      }
+      if (auth.size > SUPPORT_LIMITS.attachmentMaxBytes) return await refuse("FILE_TOO_LARGE");
+      stage = "read";
+      const blob = await ctx.storage.get(args.storageId);
+      if (!blob) throw new ConvexError("ATTACHMENT_NOT_FOUND");
+      const bytes = new Uint8Array(await blob.arrayBuffer());
+      if (bytes.length > SUPPORT_LIMITS.attachmentMaxBytes) return await refuse("FILE_TOO_LARGE");
+      stage = "sniff";
+      const problem = sniffProblem(bytes, "document");
+      if (problem) return await refuse(problem);
+      const format = imageFormat(bytes);
+      // HEIC passes the generic check but browsers cannot show it: not accepted here.
+      const contentType = format === null ? "application/pdf" : format === "heic" ? null : MIME[format];
+      if (!contentType) return await refuse("UNSUPPORTED_FILE_TYPE");
+      // Antimalware screening of the real bytes (fails closed). A hit deletes the file, is logged and alerts the team.
+      const kind: ScanKind = contentType === "application/pdf" ? "pdf" : (format as "png" | "jpeg" | "webp");
+      stage = "scan";
+      const scan = scanAttachment(bytes, kind);
+      if (scan.verdict !== "clean") {
+        await ctx.runMutation(internal.supportFiles.reportBlocked, { userId: auth.userId, tenantId: args.tenantId, findings: scan.findings, verdict: scan.verdict });
+        return await refuse("MALWARE_DETECTED");
+      }
+      stage = "sign";
+      const fileName = safeDocName(args.fileName, 100, contentType === "application/pdf" ? "documento.pdf" : "immagine");
+      const sha256 = await sha256Hex(bytes);
+      const scannedAt = Date.now();
+      const attest: Attestable = { storageId: args.storageId, sha256, contentType, sizeBytes: bytes.length, scanVersion: SCAN_VERSION, scanVerdict: "clean", scannedAt, uploaderUserId: auth.userId };
+      const signature = await signAttestation(attest);
+      stage = "register";
+      const attachmentId: Id<"supportAttachments"> = await ctx.runMutation(internal.supportFiles.registerPending, {
+        tenantId: args.tenantId, userId: auth.userId, storageId: args.storageId, fileName, contentType, sizeBytes: bytes.length,
+        sha256, scanVersion: SCAN_VERSION, scanVerdict: "clean", scannedAt, signature,
+      });
+      return { attachmentId, fileName, contentType, sizeBytes: bytes.length };
     } catch (e) {
-      await ctx.runMutation(internal.supportFiles.discardUnattached, { storageId: args.storageId });
-      throw e;
+      if (e instanceof ConvexError) throw e;
+      console.error(`[finalizeUpload] stage=${stage} ${e instanceof Error ? `${e.name}: ${e.message}` : String(e)}`);
+      await ctx.runMutation(internal.supportFiles.discardUnattached, { storageId: args.storageId }).catch(() => undefined);
+      throw new ConvexError({ code: "UPLOAD_FAILED", stage });
     }
-    if (auth.size > SUPPORT_LIMITS.attachmentMaxBytes) return await refuse("FILE_TOO_LARGE");
-    const blob = await ctx.storage.get(args.storageId);
-    if (!blob) throw new ConvexError("ATTACHMENT_NOT_FOUND");
-    const bytes = new Uint8Array(await blob.arrayBuffer());
-    if (bytes.length > SUPPORT_LIMITS.attachmentMaxBytes) return await refuse("FILE_TOO_LARGE");
-    const problem = sniffProblem(bytes, "document");
-    if (problem) return await refuse(problem);
-    const format = imageFormat(bytes);
-    // HEIC passes the generic check but browsers cannot show it: not accepted here.
-    const contentType = format === null ? "application/pdf" : format === "heic" ? null : MIME[format];
-    if (!contentType) return await refuse("UNSUPPORTED_FILE_TYPE");
-    // Antimalware screening of the real bytes (fails closed). A hit deletes the file, is logged and alerts the team.
-    const kind: ScanKind = contentType === "application/pdf" ? "pdf" : (format as "png" | "jpeg" | "webp");
-    const scan = scanAttachment(bytes, kind);
-    if (scan.verdict !== "clean") {
-      await ctx.runMutation(internal.supportFiles.reportBlocked, { userId: auth.userId, tenantId: args.tenantId, findings: scan.findings, verdict: scan.verdict });
-      return await refuse("MALWARE_DETECTED");
-    }
-    const fileName = safeDocName(args.fileName, 100, contentType === "application/pdf" ? "documento.pdf" : "immagine");
-    const sha256 = await sha256Hex(bytes);
-    const scannedAt = Date.now();
-    const attest: Attestable = { storageId: args.storageId, sha256, contentType, sizeBytes: bytes.length, scanVersion: SCAN_VERSION, scanVerdict: "clean", scannedAt, uploaderUserId: auth.userId };
-    const signature = await signAttestation(attest);
-    const attachmentId: Id<"supportAttachments"> = await ctx.runMutation(internal.supportFiles.registerPending, {
-      tenantId: args.tenantId, userId: auth.userId, storageId: args.storageId, fileName, contentType, sizeBytes: bytes.length,
-      sha256, scanVersion: SCAN_VERSION, scanVerdict: "clean", scannedAt, signature,
-    });
-    return { attachmentId, fileName, contentType, sizeBytes: bytes.length };
   },
 });
 

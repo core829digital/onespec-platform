@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 import { api } from "../../convex/_generated/api";
 import { newDb, seedTenant, tinyPng } from "./_helpers";
+import { scanAttachment } from "../../convex/lib/malwareScan";
 
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => vi.useRealTimers());
@@ -143,5 +144,50 @@ describe("signed HTTPS download", () => {
     const { t, f } = await sent();
     const other = await seedTenant(t);
     await expect(t.withIdentity({ subject: other.memberId }).mutation(api.supportFiles.open, { attachmentId: f.attachmentId })).rejects.toThrow(/TICKET_NOT_FOUND/);
+  });
+});
+
+
+describe("robustness in a restricted runtime (regression: bare \"Server Error\" on upload)", () => {
+  test("scanning never depends on TextDecoder('latin1') and works on big files", () => {
+    const real = globalThis.TextDecoder;
+    // The production runtime does not promise every encoding label: any label other than utf-8 throws here.
+    globalThis.TextDecoder = class {
+      private inner = new real("utf-8");
+      constructor(label = "utf-8") {
+        if (!/^utf-?8$/i.test(label)) throw new RangeError(`unsupported label ${label}`);
+      }
+      decode(b?: BufferSource) { return this.inner.decode(b); }
+    } as unknown as typeof TextDecoder;
+    try {
+      const big = png(Array.from({ length: 3 }, () => 0).flatMap(() => chunk("tEXt", Array.from({ length: 600_000 }, (_, i) => 65 + (i % 26)))));
+      expect(big.length).toBeGreaterThan(1_500_000);
+      expect(scanAttachment(big, "png")).toEqual({ verdict: "clean", findings: [] });
+    } finally {
+      globalThis.TextDecoder = real;
+    }
+  });
+
+  test("a signature straddling two scan windows is still found", () => {
+    // EICAR placed so that it crosses the 256 KB window edge.
+    const filler = Array.from({ length: 256 * 1024 - 20 }, () => 65);
+    const bytes = png(chunk("tEXt", [...filler, ...EICAR]));
+    expect(scanAttachment(bytes, "png").findings).toContain("EICAR_TEST");
+  });
+
+  test("an unexpected failure inside the action is a clear, retryable error — and the file is not left behind", async () => {
+    const { t, upload } = await world();
+    const spy = vi.spyOn(crypto.subtle, "digest").mockRejectedValueOnce(new Error("boom"));
+    const log = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    try {
+      const { res } = await upload(png());
+      await expect(res).rejects.toThrow(/UPLOAD_FAILED/);
+      expect(log).toHaveBeenCalledWith(expect.stringContaining("stage=sign"));
+      expect(await t.run((ctx) => ctx.db.query("supportAttachments").collect())).toHaveLength(0);
+      expect(await t.run(async (ctx) => (await ctx.db.system.query("_storage").collect()).length)).toBe(0);
+    } finally {
+      spy.mockRestore();
+      log.mockRestore();
+    }
   });
 });
