@@ -10,6 +10,7 @@ import { MobileMoreSheet } from "./mobile-more-sheet";
 import { OPEN_SIDE_MENU_EVENT, SwipeGestures } from "./swipe-gestures";
 import { SkipToMainContent } from "./skip-link";
 import { ScrollFocus } from "@/components/a11y/scroll-focus";
+import { TouchTargets } from "@/components/a11y/touch-targets";
 import { PlanGate } from "./plan-gate";
 import { ProfileGapsBanner } from "./profile-gaps-banner";
 import { DemoBanner } from "@/demo/demo-banner";
@@ -34,6 +35,7 @@ export function AppShell({
       <SkipToMainContent />
       <SwipeGestures />
       <ScrollFocus />
+      <TouchTargets />
       {/* Soft glow behind the floating glass sidebar so its translucency reads. */}
       <div
         aria-hidden="true"

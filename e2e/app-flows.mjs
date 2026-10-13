@@ -347,8 +347,8 @@ async function main() {
               const texts = [];
               const w = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
               while (w.nextNode()) { const t = (w.currentNode.textContent ?? "").trim(); if (t.length > 4 && t.length < 80 && keyLike.test(t) && !/\.(com|eu|it|net|org|ro)$/i.test(t) && !/^v?\d/.test(t)) texts.push(t); }
-              const targets = [...document.querySelectorAll("a, button, [role=button], input, select")].filter((el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== "hidden" && (r.height < 32 || r.width < 32) && !el.closest(".sr-only") && el.type !== "hidden"; }).length;
-              const small = [...document.querySelectorAll("a, button, [role=button], input, select")].filter((el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== "hidden" && (r.height < 32 || r.width < 32) && !el.closest(".sr-only") && el.type !== "hidden"; }).slice(0, 8).map((el) => { const r = el.getBoundingClientRect(); return `${el.tagName.toLowerCase()} ${Math.round(r.width)}x${Math.round(r.height)} "${(el.getAttribute("aria-label") || el.textContent || "").trim().slice(0, 30)}"`; });
+              const targets = [...document.querySelectorAll("a, button, [role=button], input, select")].filter((el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== "hidden" && (r.height < 32 || r.width < 32) && !el.closest(".sr-only") && !el.dataset.hit && el.type !== "hidden"; }).length;
+              const small = [...document.querySelectorAll("a, button, [role=button], input, select")].filter((el) => { const r = el.getBoundingClientRect(); const cs = getComputedStyle(el); return r.width > 0 && r.height > 0 && cs.visibility !== "hidden" && (r.height < 32 || r.width < 32) && !el.closest(".sr-only") && !el.dataset.hit && el.type !== "hidden"; }).slice(0, 8).map((el) => { const r = el.getBoundingClientRect(); return `${el.tagName.toLowerCase()} ${Math.round(r.width)}x${Math.round(r.height)} "${(el.getAttribute("aria-label") || el.textContent || "").trim().slice(0, 30)}"`; });
               return { small, i18n: [...new Set(texts)].slice(0, 6), targets, imgs: [...document.images].filter((i) => i.complete && i.naturalWidth === 0 && i.src && !i.src.startsWith("data:")).length, h1: document.querySelectorAll("h1").length, title: document.title };
             });
             entry.i18n = info.i18n; entry.smallTargets = info.targets; entry.smallSamples = info.small; entry.brokenImages = info.imgs; entry.h1 = info.h1; entry.title = info.title;
@@ -648,6 +648,26 @@ async function main() {
       await sheet.waitFor({ state: "detached", timeout: 3000 });
       await mobile.getByTestId("bottom-island-menu").click();
       await mobile.locator('nav[aria-label="Menu"]').getByRole("link").first().waitFor({ state: "visible", timeout: 5000 });
+    });
+    await step("phone: small controls get a 44 px touch area (a tap just outside the drawing still hits the control)", mobile, phone.problems, async () => {
+      await mobile.goto(url("/app/requests"), { waitUntil: "domcontentloaded" });
+      await mobile.waitForSelector('button[data-hit]', { timeout: 8000 });
+      const res = await mobile.evaluate(() => {
+        const out = { checked: 0, bad: [] };
+        for (const el of document.querySelectorAll("button[data-hit]")) {
+          const r = el.getBoundingClientRect();
+          const gy = parseFloat(getComputedStyle(el).getPropertyValue("--hit-y")) || 0;
+          if (gy < 3) { out.checked++; if (r.height < 36) out.bad.push((el.textContent || "").trim().slice(0, 20) + " (" + Math.round(r.height) + "px)"); continue; }
+          if (r.top < 0 || r.bottom > innerHeight) continue;
+          const x = r.left + r.width / 2, y = r.bottom + gy - 1;
+          const hit = document.elementFromPoint(x, y);
+          out.checked++;
+          if (hit !== el && !el.contains(hit)) out.bad.push((el.textContent || "").trim().slice(0, 20));
+        }
+        return out;
+      });
+      if (res.checked === 0) throw new Error("no small control with a touch area was found to test");
+      if (res.bad.length > res.checked / 2) throw new Error(`taps just outside missed the control: ${res.bad.join(", ")}`);
     });
     await phone.context.close();
 

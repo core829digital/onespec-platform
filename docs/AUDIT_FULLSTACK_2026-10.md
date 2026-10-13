@@ -31,7 +31,7 @@ Ambito: piattaforma OneSpec (Next.js 16 + Convex) e sito. Metodo: scansione auto
 9. Pulsante di chiusura del menu mobile 30×30 px → 44×44 px.
 
 ## Residui (onesti, non bloccanti)
-- **Bersagli tocco piccoli su telefono**: restano link testuali e chip di filtro tra 16 e 28 px di altezza (es. "Vedi tutte", filtri richieste). Non sono errori di leggibilità ma sotto la raccomandazione di 44 px; richiedono un intervento di design pagina per pagina.
+- **Bersagli tocco su telefono (risolto in 1.25.2)**: componente `TouchTargets` (area di tocco invisibile fino a 44 px, senza spostare il layout; i filtri a scorrimento crescono a 40 px). Elementi sotto 32 px: da 45 a 13. Restano checkbox dentro etichette cliccabili, maniglie del disegno tecnico e link in mezzo a frasi (esenti per WCAG 2.5.8). Seconda scansione axe: 0 violazioni (telefono e desktop chiaro).
 - **Causa radice dell'errore allegati supporto non confermata** senza i log di produzione di Convex: lo scanner è stato reso robusto (nessuna dipendenza da `TextDecoder("latin1")`, finestre da 256 KB) e ogni errore ora produce un codice chiaro e un log `[finalizeUpload] stage=…`. Se si ripresenta, leggere quel log.
 - Morph "scheda → pagina" tra rotte non implementato di proposito (da misurare prima).
 - 2FA opzionale, non obbligatoria. Azioni GitHub non fissate per SHA. CSP in modalità report-only. Testi legali da validare con un avvocato; DPA dei fornitori da verificare; soglia NIS2 da verificare sul numero di dipendenti.
