@@ -9,6 +9,7 @@ const modules = import.meta.glob("../../convex/**/!(*.*.*)*.*s");
 
 // Signing is fail-closed (no secret, no signed files, no downloads): tests get a fixed secret and a site URL.
 process.env.SUPPORT_SIGNING_SECRET ??= "test-signing-secret-0123456789abcdef0123456789";
+process.env.MFA_ENCRYPTION_KEY ??= "test-mfa-encryption-key-0123456789abcdef0123456789";
 process.env.CONVEX_SITE_URL ??= "https://test.convex.site";
 
 export function newDb() {

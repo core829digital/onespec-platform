@@ -11,6 +11,7 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { Section, Field, TextInput, SelectInput, Toggle } from "@/components/configurator/editor-primitives";
 import type { Id } from "@/convex/_generated/dataModel";
 import { CompanyProfileSection } from "@/components/account/company-profile";
+import { MfaSettings } from "@/components/account/mfa-settings";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 
 const LOCALES = [
@@ -161,6 +162,8 @@ export default function AccountPage() {
           </button>
         </Section>
       ) : null}
+
+      <MfaSettings />
 
       <Section title={t("sessionsTitle")} description={t("sessionsDesc")}>
         <ul className="space-y-2">

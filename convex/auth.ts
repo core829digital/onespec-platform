@@ -5,7 +5,7 @@ import { ConvexError } from "convex/values";
 import { internal } from "./_generated/api";
 import { ResendOTP } from "./ResendOTP";
 import { ResendPasswordReset } from "./ResendPasswordReset";
-import { withInputGuards, withTurnstileGuard, type Authorize } from "./lib/authGuard";
+import { withInputGuards, withMfaGuard, withTurnstileGuard, type Authorize, type MfaVerdict } from "./lib/authGuard";
 import { isEmailLocale } from "./emails/strings";
 import { checkPassword, checkSignup } from "../src/shared/signup";
 import { must } from "./lib/validate";
@@ -58,7 +58,16 @@ if (typeof options?.authorize !== "function") {
   // the front door unprotected.
   throw new Error("Password provider shape changed; Turnstile guard cannot be attached.");
 }
-options.authorize = withInputGuards(withTurnstileGuard(options.authorize));
+// Second factor sits innermost: bot check and input cleaning have already run, and the library has already accepted the password.
+type MutationRunner = { runMutation: (fn: never, args: never) => Promise<unknown> };
+const run = (ctx: unknown) => ctx as MutationRunner;
+const mfaChecks = {
+  forUser: async (ctx: unknown, userId: string, code: string, commit: boolean) =>
+    (await run(ctx).runMutation(internal.mfa.verifyLogin as never, { userId, code, commit } as never)) as MfaVerdict,
+  forEmail: async (ctx: unknown, email: string, code: string, commit: boolean) =>
+    (await run(ctx).runMutation(internal.mfa.verifyByEmail as never, { email, code, commit } as never)) as MfaVerdict,
+};
+options.authorize = withInputGuards(withTurnstileGuard(withMfaGuard(options.authorize, mfaChecks)));
 
 // Auth token lifecycle hardening (2026-09-28): a stolen long-lived token is a
 // long-lived attacker window. Convex Auth already does refresh-token rotation

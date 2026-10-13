@@ -162,7 +162,13 @@
       "registerLink": "Registreren",
       "forgotPassword": "Wachtwoord vergeten?",
       "error": "Ongeldige inloggegevens",
-      "footer": "© 2026 onespec. Alle rechten voorbehouden."
+      "footer": "© 2026 onespec. Alle rechten voorbehouden.",
+      "mfaTitle": "Verificatie in twee stappen",
+      "mfaHelp": "Voer de 6-cijferige code van je authenticator-app in, of een herstelcode.",
+      "mfaLabel": "Code",
+      "mfaPlaceholder": "123456",
+      "mfaSubmit": "Verifiëren",
+      "mfaBack": "Ander account"
     },
     "register": {
       "title": "Registreren",
@@ -244,7 +250,9 @@
       "error": "Ongeldige of verlopen code",
       "resendLink": "Geen code? Opnieuw sturen",
       "resendSending": "Verzenden...",
-      "resent": "Nieuwe code verzonden, controleer je e-mail"
+      "resent": "Nieuwe code verzonden, controleer je e-mail",
+      "mfaLabel": "Code voor verificatie in twee stappen (alleen indien ingeschakeld)",
+      "mfaPlaceholder": "123456"
     },
     "onboarding": {
       "title": "Bedrijf aanmaken",
@@ -381,6 +389,12 @@
     "rateLimited": "Te veel verzoeken in korte tijd. Wacht even en probeer opnieuw.",
     "malwareDetected": "Bestand geblokkeerd: de beveiligingscontrole vond mogelijk schadelijke inhoud.",
     "attachmentUnavailable": "Bijlage tijdelijk niet beschikbaar. Probeer het later opnieuw of neem contact op met support.",
+    "mfaRequired": "Voer de code van je authenticator-app in (of een herstelcode).",
+    "mfaInvalid": "Ongeldige code. Probeer het opnieuw met de huidige code.",
+    "mfaLocked": "Te veel foute pogingen. Probeer het over 15 minuten opnieuw.",
+    "mfaUnavailable": "Verificatie in twee stappen is nu niet beschikbaar. Neem contact op met support.",
+    "mfaAlreadyEnabled": "Verificatie in twee stappen staat al aan.",
+    "mfaNotEnabled": "Verificatie in twee stappen staat niet aan.",
     "invalidInput": "Sommige gegevens zijn ongeldig. Controleer de velden.",
     "nameRequired": "Naam is verplicht.",
     "alreadySigned": "Dit document is al ondertekend.",
@@ -3379,6 +3393,37 @@
   "appVersion": {
     "label": "Versie",
     "title": "Versie {version}: bekijk wat er nieuw is"
+  },
+  "mfa": {
+    "title": "Verificatie in twee stappen",
+    "desc": "Voeg een tweede beveiligingslaag toe: naast je wachtwoord heb je een code uit je authenticator-app nodig.",
+    "unavailable": "Niet beschikbaar in deze omgeving: neem contact op met support.",
+    "on": "Aan",
+    "off": "Uit",
+    "recoveryLeft": "Resterende herstelcodes: {count}",
+    "lowRecovery": "Nog weinig codes: maak nieuwe aan.",
+    "enable": "Verificatie in twee stappen inschakelen",
+    "scan": "1. Scan de QR-code met je app (Google Authenticator, Microsoft Authenticator, 1Password, Authy…)",
+    "qrAlt": "QR-code voor de authenticator-app",
+    "manual": "Of voer deze sleutel handmatig in",
+    "codeLabel": "2. Voer de 6-cijferige code uit de app in",
+    "codePlaceholder": "123456",
+    "confirm": "Bevestigen en inschakelen",
+    "cancel": "Annuleren",
+    "working": "Even geduld…",
+    "recoveryTitle": "Herstelcodes",
+    "recoveryDesc": "Bewaar ze op een veilige plek. Elke code werkt één keer en wordt niet opnieuw getoond: je hebt ze nodig als je je telefoon kwijtraakt.",
+    "copy": "Kopiëren",
+    "copied": "Gekopieerd",
+    "download": "Downloaden",
+    "saved": "Ik heb de codes bewaard",
+    "disable": "Uitschakelen",
+    "regenerate": "Nieuwe codes maken",
+    "askCode": "Voer een actuele code uit de app (of een herstelcode) in om door te gaan.",
+    "codeOrRecovery": "Code of herstelcode",
+    "doneOn": "Verificatie in twee stappen staat aan.",
+    "doneOff": "Verificatie in twee stappen staat uit.",
+    "doneRegen": "Nieuwe herstelcodes gemaakt: de oude werken niet meer."
   },
   "support": {
     "title": "Support",

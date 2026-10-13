@@ -162,7 +162,13 @@
       "registerLink": "Înregistrare",
       "forgotPassword": "Ai uitat parola?",
       "error": "Date invalide",
-      "footer": "© 2026 onespec. Toate drepturile rezervate."
+      "footer": "© 2026 onespec. Toate drepturile rezervate.",
+      "mfaTitle": "Verificare în doi pași",
+      "mfaHelp": "Introdu codul de 6 cifre din aplicația de autentificare sau un cod de recuperare.",
+      "mfaLabel": "Cod",
+      "mfaPlaceholder": "123456",
+      "mfaSubmit": "Verifică",
+      "mfaBack": "Alt cont"
     },
     "register": {
       "title": "Înregistrare",
@@ -244,7 +250,9 @@
       "error": "Cod invalid sau expirat",
       "resendLink": "Niciun cod? Retrimite",
       "resendSending": "Trimitere...",
-      "resent": "Cod nou trimis, verifică emailul"
+      "resent": "Cod nou trimis, verifică emailul",
+      "mfaLabel": "Cod de verificare în doi pași (doar dacă este activă)",
+      "mfaPlaceholder": "123456"
     },
     "onboarding": {
       "title": "Creează-ți firma",
@@ -381,6 +389,12 @@
     "rateLimited": "Prea multe cereri într-un timp scurt. Așteaptă puțin și reîncearcă.",
     "malwareDetected": "Fișier blocat: verificarea de securitate a detectat conținut potențial periculos.",
     "attachmentUnavailable": "Atașament indisponibil temporar. Reîncearcă mai târziu sau contactează suportul.",
+    "mfaRequired": "Introdu codul din aplicația de autentificare (sau un cod de recuperare).",
+    "mfaInvalid": "Cod invalid. Încearcă din nou cu codul curent.",
+    "mfaLocked": "Prea multe încercări greșite. Reîncearcă în 15 minute.",
+    "mfaUnavailable": "Verificarea în doi pași nu este disponibilă momentan. Contactează suportul.",
+    "mfaAlreadyEnabled": "Verificarea în doi pași este deja activă.",
+    "mfaNotEnabled": "Verificarea în doi pași nu este activă.",
     "invalidInput": "Unele date nu sunt valide. Verifică câmpurile.",
     "nameRequired": "Numele este obligatoriu.",
     "alreadySigned": "Acest document a fost deja semnat.",
@@ -3379,6 +3393,37 @@
   "appVersion": {
     "label": "Versiune",
     "title": "Versiunea {version}: vezi noutățile"
+  },
+  "mfa": {
+    "title": "Verificare în doi pași",
+    "desc": "Adaugă un al doilea nivel de protecție: pe lângă parolă ai nevoie de un cod generat de aplicația ta de autentificare.",
+    "unavailable": "Indisponibil în acest mediu: contactează suportul.",
+    "on": "Activă",
+    "off": "Inactivă",
+    "recoveryLeft": "Coduri de recuperare rămase: {count}",
+    "lowRecovery": "Puține coduri rămase: generează altele noi.",
+    "enable": "Activează verificarea în doi pași",
+    "scan": "1. Scanează codul QR cu aplicația ta (Google Authenticator, Microsoft Authenticator, 1Password, Authy…)",
+    "qrAlt": "Cod QR pentru aplicația de autentificare",
+    "manual": "Sau introdu această cheie manual",
+    "codeLabel": "2. Introdu codul de 6 cifre afișat de aplicație",
+    "codePlaceholder": "123456",
+    "confirm": "Confirmă și activează",
+    "cancel": "Anulează",
+    "working": "Așteaptă…",
+    "recoveryTitle": "Coduri de recuperare",
+    "recoveryDesc": "Păstrează-le într-un loc sigur. Fiecare funcționează o singură dată și nu va mai fi afișat: îți trebuie dacă pierzi telefonul.",
+    "copy": "Copiază",
+    "copied": "Copiate",
+    "download": "Descarcă",
+    "saved": "Am salvat codurile",
+    "disable": "Dezactivează",
+    "regenerate": "Generează coduri noi",
+    "askCode": "Introdu un cod curent din aplicație (sau un cod de recuperare) pentru a continua.",
+    "codeOrRecovery": "Cod sau cod de recuperare",
+    "doneOn": "Verificarea în doi pași este activă.",
+    "doneOff": "Verificarea în doi pași este dezactivată.",
+    "doneRegen": "Coduri noi de recuperare generate: cele vechi nu mai funcționează."
   },
   "support": {
     "title": "Suport",

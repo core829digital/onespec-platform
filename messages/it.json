@@ -163,7 +163,13 @@
       "registerLink": "Registrati",
       "forgotPassword": "Hai dimenticato la password?",
       "error": "Credenziali non valide",
-      "footer": "© 2026 onespec. Tutti i diritti riservati."
+      "footer": "© 2026 onespec. Tutti i diritti riservati.",
+      "mfaTitle": "Verifica in due passaggi",
+      "mfaHelp": "Inserisci il codice a 6 cifre della tua app di autenticazione, oppure un codice di recupero.",
+      "mfaLabel": "Codice",
+      "mfaPlaceholder": "123456",
+      "mfaSubmit": "Verifica",
+      "mfaBack": "Cambia account"
     },
     "register": {
       "title": "Registrati",
@@ -245,7 +251,9 @@
       "error": "Codice non valido o scaduto",
       "resendLink": "Non hai ricevuto il codice? Reinvia",
       "resendSending": "Invio in corso...",
-      "resent": "Nuovo codice inviato, controlla la email"
+      "resent": "Nuovo codice inviato, controlla la email",
+      "mfaLabel": "Codice di verifica in due passaggi (solo se attivo)",
+      "mfaPlaceholder": "123456"
     },
     "onboarding": {
       "title": "Crea la tua azienda",
@@ -381,6 +389,12 @@
     "rateLimited": "Troppe richieste in poco tempo. Attendi qualche istante e riprova.",
     "malwareDetected": "File bloccato: il controllo di sicurezza ha rilevato contenuto potenzialmente dannoso.",
     "attachmentUnavailable": "Allegato temporaneamente non disponibile. Riprova più tardi o contatta il supporto.",
+    "mfaRequired": "Inserisci il codice dell’app di autenticazione (o un codice di recupero).",
+    "mfaInvalid": "Codice non valido. Riprova con il codice attuale.",
+    "mfaLocked": "Troppi tentativi errati. Riprova tra 15 minuti.",
+    "mfaUnavailable": "La verifica in due passaggi non è disponibile al momento. Contatta il supporto.",
+    "mfaAlreadyEnabled": "La verifica in due passaggi è già attiva.",
+    "mfaNotEnabled": "La verifica in due passaggi non è attiva.",
     "invalidInput": "Alcuni dati non sono validi. Controlla i campi e riprova.",
     "nameRequired": "Il nome è obbligatorio.",
     "alreadySigned": "Questo documento è già stato firmato.",
@@ -3379,6 +3393,37 @@
   "appVersion": {
     "label": "Versione",
     "title": "Versione {version}: scopri le novità"
+  },
+  "mfa": {
+    "title": "Verifica in due passaggi",
+    "desc": "Aggiungi un secondo livello di protezione: oltre alla password serve un codice generato dalla tua app di autenticazione.",
+    "unavailable": "Non disponibile su questo ambiente: contatta il supporto.",
+    "on": "Attiva",
+    "off": "Non attiva",
+    "recoveryLeft": "Codici di recupero rimasti: {count}",
+    "lowRecovery": "Pochi codici rimasti: generane di nuovi.",
+    "enable": "Attiva la verifica in due passaggi",
+    "scan": "1. Scansiona il codice QR con la tua app (Google Authenticator, Microsoft Authenticator, 1Password, Authy…)",
+    "qrAlt": "Codice QR per l’app di autenticazione",
+    "manual": "Oppure inserisci questa chiave a mano",
+    "codeLabel": "2. Inserisci il codice a 6 cifre mostrato dall’app",
+    "codePlaceholder": "123456",
+    "confirm": "Conferma e attiva",
+    "cancel": "Annulla",
+    "working": "Attendi…",
+    "recoveryTitle": "Codici di recupero",
+    "recoveryDesc": "Salvali in un luogo sicuro. Ognuno funziona una sola volta e non verranno mostrati di nuovo: servono se perdi il telefono.",
+    "copy": "Copia",
+    "copied": "Copiati",
+    "download": "Scarica",
+    "saved": "Ho salvato i codici",
+    "disable": "Disattiva",
+    "regenerate": "Genera nuovi codici",
+    "askCode": "Inserisci un codice attuale dell’app (o un codice di recupero) per continuare.",
+    "codeOrRecovery": "Codice o codice di recupero",
+    "doneOn": "Verifica in due passaggi attivata.",
+    "doneOff": "Verifica in due passaggi disattivata.",
+    "doneRegen": "Nuovi codici di recupero generati: i precedenti non funzionano più."
   },
   "support": {
     "title": "Supporto",

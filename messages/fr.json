@@ -162,7 +162,13 @@
       "registerLink": "S'inscrire",
       "forgotPassword": "Mot de passe oublié?",
       "error": "Identifiants invalides",
-      "footer": "© 2026 onespec. Tous droits réservés."
+      "footer": "© 2026 onespec. Tous droits réservés.",
+      "mfaTitle": "Vérification en deux étapes",
+      "mfaHelp": "Saisissez le code à 6 chiffres de votre application d’authentification, ou un code de secours.",
+      "mfaLabel": "Code",
+      "mfaPlaceholder": "123456",
+      "mfaSubmit": "Vérifier",
+      "mfaBack": "Changer de compte"
     },
     "register": {
       "title": "Inscription",
@@ -244,7 +250,9 @@
       "error": "Code invalide ou expiré",
       "resendLink": "Pas de code ? Renvoyer",
       "resendSending": "Envoi...",
-      "resent": "Nouveau code envoyé, vérifiez votre email"
+      "resent": "Nouveau code envoyé, vérifiez votre email",
+      "mfaLabel": "Code de vérification en deux étapes (uniquement si activée)",
+      "mfaPlaceholder": "123456"
     },
     "onboarding": {
       "title": "Créez votre entreprise",
@@ -381,6 +389,12 @@
     "rateLimited": "Trop de requêtes en peu de temps. Patientez un instant.",
     "malwareDetected": "Fichier bloqué : le contrôle de sécurité a détecté un contenu potentiellement dangereux.",
     "attachmentUnavailable": "Pièce jointe temporairement indisponible. Réessayez plus tard ou contactez le support.",
+    "mfaRequired": "Saisissez le code de votre application d’authentification (ou un code de secours).",
+    "mfaInvalid": "Code invalide. Réessayez avec le code actuel.",
+    "mfaLocked": "Trop de tentatives erronées. Réessayez dans 15 minutes.",
+    "mfaUnavailable": "La vérification en deux étapes est indisponible pour le moment. Contactez le support.",
+    "mfaAlreadyEnabled": "La vérification en deux étapes est déjà activée.",
+    "mfaNotEnabled": "La vérification en deux étapes n’est pas activée.",
     "invalidInput": "Certaines données sont invalides. Vérifiez les champs.",
     "nameRequired": "Le nom est obligatoire.",
     "alreadySigned": "Ce document a déjà été signé.",
@@ -3379,6 +3393,37 @@
   "appVersion": {
     "label": "Version",
     "title": "Version {version} : voir les nouveautés"
+  },
+  "mfa": {
+    "title": "Vérification en deux étapes",
+    "desc": "Ajoutez une seconde couche de protection : en plus du mot de passe, il faut un code généré par votre application d’authentification.",
+    "unavailable": "Indisponible dans cet environnement : contactez le support.",
+    "on": "Activée",
+    "off": "Désactivée",
+    "recoveryLeft": "Codes de secours restants : {count}",
+    "lowRecovery": "Peu de codes restants : générez-en de nouveaux.",
+    "enable": "Activer la vérification en deux étapes",
+    "scan": "1. Scannez le QR code avec votre application (Google Authenticator, Microsoft Authenticator, 1Password, Authy…)",
+    "qrAlt": "QR code pour l’application d’authentification",
+    "manual": "Ou saisissez cette clé à la main",
+    "codeLabel": "2. Saisissez le code à 6 chiffres affiché par l’application",
+    "codePlaceholder": "123456",
+    "confirm": "Confirmer et activer",
+    "cancel": "Annuler",
+    "working": "Patientez…",
+    "recoveryTitle": "Codes de secours",
+    "recoveryDesc": "Conservez-les en lieu sûr. Chacun ne fonctionne qu’une fois et ne sera plus affiché : ils servent si vous perdez votre téléphone.",
+    "copy": "Copier",
+    "copied": "Copiés",
+    "download": "Télécharger",
+    "saved": "J’ai enregistré les codes",
+    "disable": "Désactiver",
+    "regenerate": "Générer de nouveaux codes",
+    "askCode": "Saisissez un code actuel de l’application (ou un code de secours) pour continuer.",
+    "codeOrRecovery": "Code ou code de secours",
+    "doneOn": "Vérification en deux étapes activée.",
+    "doneOff": "Vérification en deux étapes désactivée.",
+    "doneRegen": "Nouveaux codes de secours générés : les anciens ne fonctionnent plus."
   },
   "support": {
     "title": "Support",

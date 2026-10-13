@@ -162,6 +162,8 @@ export const purgeUserAuth = internalMutation({
       for (const c of codes) await ctx.db.delete(c._id);
       await ctx.db.delete(a._id);
     }
+    const mfaRows = await ctx.db.query("userMfa").withIndex("by_user", (q) => q.eq("userId", args.userId)).take(5);
+    for (const r of mfaRows) await ctx.db.delete(r._id);
     await ctx.db.delete(args.userId);
   },
 });

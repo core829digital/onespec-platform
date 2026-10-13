@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { useAuthErrorMessage } from "@/lib/use-friendly-error";
 import { useTurnstile } from "@/lib/use-turnstile";
 import { getSafeRedirect } from "@/lib/redirect-validator";
+import { errorCode } from "@/lib/errors";
 
 export default function LoginPage() {
   return (
@@ -36,16 +37,24 @@ function LoginForm() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  // Second step: the password was right and this account has two-step verification on.
+  const [needsCode, setNeedsCode] = useState(false);
+  const [mfaCode, setMfaCode] = useState("");
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
-      await signIn("password", { email, password, flow: "signIn", turnstileToken: ts.token });
+      await signIn("password", { email, password, flow: "signIn", turnstileToken: ts.token, ...(needsCode ? { mfaCode: mfaCode.trim() } : {}) });
       posthog.capture("user_logged_in", { auth_method: "password" });
       router.push(redirect);
     } catch (err) {
+      if (!needsCode && errorCode(err) === "MFA_REQUIRED") {
+        // Not an error: the account asks for its second step.
+        setNeedsCode(true);
+        return;
+      }
       posthog.captureException(err);
       setError(authMsg(err, t("error")));
     } finally {
@@ -67,6 +76,28 @@ function LoginForm() {
         </div>
       )}
 
+      {needsCode ? (
+        <div className="space-y-4">
+          <div>
+            <h2 className="text-lg font-semibold text-[var(--color-text)]">{t("mfaTitle")}</h2>
+            <p className="mt-1 text-sm text-[var(--color-text-secondary)]">{t("mfaHelp")}</p>
+          </div>
+          <div>
+            <Label htmlFor="mfaCode" className="text-sm font-medium text-[var(--color-text)]">{t("mfaLabel")}</Label>
+            <Input
+              id="mfaCode"
+              value={mfaCode}
+              onChange={e => setMfaCode(e.target.value.slice(0, 16))}
+              placeholder={t("mfaPlaceholder")}
+              className="mt-1 text-center font-mono text-xl tracking-widest"
+              autoComplete="one-time-code"
+              autoFocus
+              required
+              disabled={loading}
+            />
+          </div>
+        </div>
+      ) : (
       <div className="space-y-4">
         <div>
           <Label htmlFor="email" className="text-sm font-medium text-[var(--color-text)]">
@@ -99,11 +130,18 @@ function LoginForm() {
           />
         </div>
       </div>
+      )}
 
       {ts.box}
       <Button type="submit" className="w-full" disabled={loading || !ts.ready}>
-        {loading ? t("loading") : t("submit")}
+        {loading ? t("loading") : needsCode ? t("mfaSubmit") : t("submit")}
       </Button>
+
+      {needsCode ? (
+        <button type="button" onClick={() => { setNeedsCode(false); setMfaCode(""); setError(""); }} className="block w-full text-center text-sm text-[var(--color-mint-text)] underline underline-offset-2">
+          {t("mfaBack")}
+        </button>
+      ) : null}
 
       <p className="text-center text-sm text-[var(--color-text-secondary)]">
         {t("noAccount")}{" "}

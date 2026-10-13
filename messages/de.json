@@ -162,7 +162,13 @@
       "registerLink": "Registrieren",
       "forgotPassword": "Passwort vergessen?",
       "error": "Ungültige Anmeldedaten",
-      "footer": "© 2026 onespec. Alle Rechte vorbehalten."
+      "footer": "© 2026 onespec. Alle Rechte vorbehalten.",
+      "mfaTitle": "Bestätigung in zwei Schritten",
+      "mfaHelp": "Gib den 6-stelligen Code deiner Authenticator-App oder einen Wiederherstellungscode ein.",
+      "mfaLabel": "Code",
+      "mfaPlaceholder": "123456",
+      "mfaSubmit": "Bestätigen",
+      "mfaBack": "Anderes Konto"
     },
     "register": {
       "title": "Registrieren",
@@ -244,7 +250,9 @@
       "error": "Ungültiger oder abgelaufener Code",
       "resendLink": "Kein Code? Erneut senden",
       "resendSending": "Senden...",
-      "resent": "Neuer Code gesendet, prüfen Sie Ihre E-Mails"
+      "resent": "Neuer Code gesendet, prüfen Sie Ihre E-Mails",
+      "mfaLabel": "Code der Bestätigung in zwei Schritten (nur wenn aktiv)",
+      "mfaPlaceholder": "123456"
     },
     "onboarding": {
       "title": "Unternehmen erstellen",
@@ -381,6 +389,12 @@
     "rateLimited": "Zu viele Anfragen in kurzer Zeit. Kurz warten und erneut versuchen.",
     "malwareDetected": "Datei blockiert: Die Sicherheitsprüfung hat potenziell schädliche Inhalte erkannt.",
     "attachmentUnavailable": "Anhang vorübergehend nicht verfügbar. Später erneut versuchen oder den Support kontaktieren.",
+    "mfaRequired": "Gib den Code deiner Authenticator-App ein (oder einen Wiederherstellungscode).",
+    "mfaInvalid": "Ungültiger Code. Versuche es mit dem aktuellen Code erneut.",
+    "mfaLocked": "Zu viele Fehlversuche. Versuche es in 15 Minuten erneut.",
+    "mfaUnavailable": "Die Bestätigung in zwei Schritten ist derzeit nicht verfügbar. Kontaktiere den Support.",
+    "mfaAlreadyEnabled": "Die Bestätigung in zwei Schritten ist bereits aktiv.",
+    "mfaNotEnabled": "Die Bestätigung in zwei Schritten ist nicht aktiv.",
     "invalidInput": "Einige Angaben sind ungültig. Felder prüfen und erneut versuchen.",
     "nameRequired": "Name ist erforderlich.",
     "alreadySigned": "Dieses Dokument wurde bereits unterschrieben.",
@@ -3379,6 +3393,37 @@
   "appVersion": {
     "label": "Version",
     "title": "Version {version}: Neuigkeiten ansehen"
+  },
+  "mfa": {
+    "title": "Bestätigung in zwei Schritten",
+    "desc": "Füge eine zweite Schutzebene hinzu: Zusätzlich zum Passwort brauchst du einen Code aus deiner Authenticator-App.",
+    "unavailable": "In dieser Umgebung nicht verfügbar: Kontaktiere den Support.",
+    "on": "Aktiv",
+    "off": "Nicht aktiv",
+    "recoveryLeft": "Verbleibende Wiederherstellungscodes: {count}",
+    "lowRecovery": "Nur noch wenige Codes: Erzeuge neue.",
+    "enable": "Bestätigung in zwei Schritten aktivieren",
+    "scan": "1. Scanne den QR-Code mit deiner App (Google Authenticator, Microsoft Authenticator, 1Password, Authy…)",
+    "qrAlt": "QR-Code für die Authenticator-App",
+    "manual": "Oder gib diesen Schlüssel von Hand ein",
+    "codeLabel": "2. Gib den 6-stelligen Code aus der App ein",
+    "codePlaceholder": "123456",
+    "confirm": "Bestätigen und aktivieren",
+    "cancel": "Abbrechen",
+    "working": "Bitte warten…",
+    "recoveryTitle": "Wiederherstellungscodes",
+    "recoveryDesc": "Bewahre sie sicher auf. Jeder funktioniert nur einmal und wird nicht erneut angezeigt: Du brauchst sie, wenn du dein Telefon verlierst.",
+    "copy": "Kopieren",
+    "copied": "Kopiert",
+    "download": "Herunterladen",
+    "saved": "Ich habe die Codes gespeichert",
+    "disable": "Deaktivieren",
+    "regenerate": "Neue Codes erzeugen",
+    "askCode": "Gib zum Fortfahren einen aktuellen Code aus der App (oder einen Wiederherstellungscode) ein.",
+    "codeOrRecovery": "Code oder Wiederherstellungscode",
+    "doneOn": "Bestätigung in zwei Schritten ist aktiv.",
+    "doneOff": "Bestätigung in zwei Schritten ist deaktiviert.",
+    "doneRegen": "Neue Wiederherstellungscodes erzeugt: Die alten funktionieren nicht mehr."
   },
   "support": {
     "title": "Support",

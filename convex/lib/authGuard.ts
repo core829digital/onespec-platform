@@ -54,3 +54,45 @@ export function withInputGuards(inner: Authorize): Authorize {
     return inner(next, ctx);
   };
 }
+
+/** What the second-factor check answers (convex/mfa.ts `verifyLogin` / `verifyByEmail`). */
+export type MfaVerdict = { enabled: false } | { enabled: true; ok: true } | { enabled: true; ok: false; error: string };
+
+export interface MfaChecks {
+  /** The password was accepted for this user: is a code needed, and is the typed one right? */
+  forUser(ctx: unknown, userId: string, code: string, commit: boolean): Promise<MfaVerdict>;
+  /** Password reset: the account is known only by e-mail. */
+  forEmail(ctx: unknown, email: string, code: string, commit: boolean): Promise<MfaVerdict>;
+}
+
+/**
+ * Second factor (authenticator app) on every way a password account can get a session:
+ *  - signIn: after the library accepted the password, a user who turned the factor on must also send `mfaCode`;
+ *  - reset-verification: the e-mailed reset code alone must not be enough to take over such an account, so the code is checked BEFORE the
+ *    password is changed (without using it up) and consumed only once the reset really went through.
+ * Fails closed: if the check cannot run, nobody with the factor on gets in. The error names are the codes the login page understands.
+ */
+export function withMfaGuard(inner: Authorize, checks: MfaChecks): Authorize {
+  const code = (p: Record<string, unknown>) => (typeof p.mfaCode === "string" ? p.mfaCode : "");
+  return async (params, ctx) => {
+    const flow = String(params.flow ?? "");
+    if (flow === "reset-verification") {
+      const email = String(params.email ?? "");
+      const pre = await checks.forEmail(ctx, email, code(params), false);
+      if (pre.enabled && !pre.ok) throw new ConvexError(pre.error);
+      const result = await inner(params, ctx);
+      if (pre.enabled) {
+        const done = await checks.forEmail(ctx, email, code(params), true);
+        if (done.enabled && !done.ok) throw new ConvexError(done.error);
+      }
+      return result;
+    }
+    const result = await inner(params, ctx);
+    if (flow !== "signIn") return result;
+    const userId = result && typeof result === "object" && "userId" in result ? String((result as { userId: unknown }).userId) : null;
+    if (!userId) return result;
+    const verdict = await checks.forUser(ctx, userId, code(params), true);
+    if (verdict.enabled && !verdict.ok) throw new ConvexError(verdict.error);
+    return result;
+  };
+}

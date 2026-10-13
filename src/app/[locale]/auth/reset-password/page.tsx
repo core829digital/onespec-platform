@@ -24,6 +24,7 @@ function ResetPasswordContent() {
   const [code, setCode] = useState(searchParams.get("code") || "");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [mfaCode, setMfaCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
@@ -55,7 +56,7 @@ function ResetPasswordContent() {
     setError("");
     setLoading(true);
     try {
-      await signIn("password", { email, code, newPassword: password, flow: "reset-verification" });
+      await signIn("password", { email, code, newPassword: password, flow: "reset-verification", ...(mfaCode.trim() ? { mfaCode: mfaCode.trim() } : {}) });
       router.push(redirect);
     } catch (err) {
       setError(authMsg(err, t("error")));
@@ -125,6 +126,22 @@ function ResetPasswordContent() {
             disabled={loading}
           />
         </div>
+      </div>
+
+      <div>
+        <Label htmlFor="mfaCode" className="text-sm font-medium text-[var(--color-text)]">
+          {t("mfaLabel")}
+        </Label>
+        <Input
+          id="mfaCode"
+          type="text"
+          value={mfaCode}
+          onChange={e => setMfaCode(e.target.value.slice(0, 16))}
+          placeholder={t("mfaPlaceholder")}
+          className="mt-1 font-mono"
+          autoComplete="one-time-code"
+          disabled={loading}
+        />
       </div>
 
       <Button type="submit" className="w-full" disabled={loading}>

@@ -27,6 +27,12 @@ export type ErrorKey =
   | "rateLimited"
   | "malwareDetected"
   | "attachmentUnavailable"
+  | "mfaRequired"
+  | "mfaInvalid"
+  | "mfaLocked"
+  | "mfaUnavailable"
+  | "mfaAlreadyEnabled"
+  | "mfaNotEnabled"
   | "invalidInput"
   | "nameRequired"
   | "alreadySigned"
@@ -192,6 +198,14 @@ const EXACT: Record<string, ErrorKey> = {
   RATE_LIMITED: "rateLimited",
   MALWARE_DETECTED: "malwareDetected",
   SIGNING_NOT_CONFIGURED: "attachmentUnavailable",
+  MFA_REQUIRED: "mfaRequired",
+  MFA_INVALID: "mfaInvalid",
+  MFA_LOCKED: "mfaLocked",
+  MFA_UNAVAILABLE: "mfaUnavailable",
+  MFA_NOT_CONFIGURED: "mfaUnavailable",
+  MFA_ALREADY_ENABLED: "mfaAlreadyEnabled",
+  MFA_NOT_ENABLED: "mfaNotEnabled",
+  MFA_SETUP_NOT_FOUND: "mfaNotEnabled",
   EXPORT_RATE_LIMITED: "rateLimited",
   CUSTOMER_NAME_REQUIRED: "nameRequired",
   INVALID_NAME: "nameRequired",

@@ -37,6 +37,23 @@ export default defineSchema({
     // scanning every user (10k+ at launch scale).
     .index("by_isPlatformAdmin", ["isPlatformAdmin"]),
 
+  /**
+   * Second factor (authenticator app, TOTP) of one user. `secretEnc` is AES-GCM ciphertext (convex/lib/mfaCrypto.ts), never the secret;
+   * `enabled: false` is a setup still waiting for its first valid code. `lastStep` makes every code single-use; five wrong codes in a
+   * row lock checking for 15 minutes. Recovery codes are kept only as HMACs.
+   */
+  userMfa: defineTable({
+    userId: v.id("users"),
+    secretEnc: v.string(),
+    enabled: v.boolean(),
+    createdAt: v.number(),
+    enabledAt: v.optional(v.number()),
+    lastStep: v.optional(v.number()),
+    failedCount: v.number(),
+    lockedUntil: v.optional(v.number()),
+    recovery: v.array(v.object({ hash: v.string(), usedAt: v.optional(v.number()) })),
+  }).index("by_user", ["userId"]),
+
   tenants: defineTable({
     name: v.string(),
     slug: v.string(),

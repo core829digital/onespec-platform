@@ -76,6 +76,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
         h: "Dati trattati",
         p: [
           "Account: nome, indirizzo email, lingua preferita, data di registrazione, stato di verifica dell'email.",
+          "Verifica in due passaggi (facoltativa): se la attivi conserviamo il segreto dell'app di autenticazione in forma cifrata, l'impronta (hash) dei codici di recupero e il numero di tentativi errati; non conserviamo i codici monouso generati dalla tua app.",
           "Organizzazione: ragione sociale, P.IVA, indirizzo, telefono ed email inseriti dall'utente nelle impostazioni di branding.",
           "Richieste di preventivo generate dal widget: nome, email, telefono, azienda e messaggio del potenziale cliente, insieme alla configurazione tecnica scelta e al prezzo indicativo calcolato.",
           "Dati tecnici del widget: hash dell'indirizzo IP (l'IP in chiaro non viene conservato), user agent, esito della verifica anti-bot, punteggio anti-spam.",
@@ -185,7 +186,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
       {
         h: "Uso accettabile",
         p: [
-          "Il Cliente si impegna a non utilizzare il servizio per attività illecite, a non tentare di aggirare i limiti tecnici, di sicurezza o i limiti di utilizzo del proprio piano e a non caricare contenuti di cui non detiene i diritti.",
+          "Il Cliente si impegna a non utilizzare il servizio per attività illecite, a non tentare di aggirare i limiti tecnici, di sicurezza o i limiti di utilizzo del proprio piano e a non caricare contenuti di cui non detiene i diritti. Il Cliente custodisce le proprie credenziali e i codici di recupero della verifica in due passaggi, che consigliamo di attivare per tutte le persone con accesso alla piattaforma.",
           "Il Cliente è responsabile dei contenuti, dei listini e dei dati che inserisce e della loro conformità alle normative applicabili.",
         ],
       },

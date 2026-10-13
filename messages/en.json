@@ -163,7 +163,13 @@
       "registerLink": "Register",
       "forgotPassword": "Forgot password?",
       "error": "Invalid credentials",
-      "footer": "© 2026 onespec. All rights reserved."
+      "footer": "© 2026 onespec. All rights reserved.",
+      "mfaTitle": "Two-step verification",
+      "mfaHelp": "Enter the 6-digit code from your authenticator app, or a recovery code.",
+      "mfaLabel": "Code",
+      "mfaPlaceholder": "123456",
+      "mfaSubmit": "Verify",
+      "mfaBack": "Use another account"
     },
     "register": {
       "title": "Register",
@@ -245,7 +251,9 @@
       "error": "Invalid or expired code",
       "resendLink": "No code? Resend",
       "resendSending": "Sending...",
-      "resent": "New code sent, check your email"
+      "resent": "New code sent, check your email",
+      "mfaLabel": "Two-step verification code (only if turned on)",
+      "mfaPlaceholder": "123456"
     },
     "onboarding": {
       "title": "Create your company",
@@ -381,6 +389,12 @@
     "rateLimited": "Too many requests in a short time. Wait a moment and try again.",
     "malwareDetected": "File blocked: the security check detected potentially harmful content.",
     "attachmentUnavailable": "Attachment temporarily unavailable. Try again later or contact support.",
+    "mfaRequired": "Enter the code from your authenticator app (or a recovery code).",
+    "mfaInvalid": "Invalid code. Try again with the current code.",
+    "mfaLocked": "Too many wrong attempts. Try again in 15 minutes.",
+    "mfaUnavailable": "Two-step verification is unavailable right now. Contact support.",
+    "mfaAlreadyEnabled": "Two-step verification is already on.",
+    "mfaNotEnabled": "Two-step verification is not on.",
     "invalidInput": "Some data isn't valid. Check the fields and try again.",
     "nameRequired": "Name is required.",
     "alreadySigned": "This document has already been signed.",
@@ -3379,6 +3393,37 @@
   "appVersion": {
     "label": "Version",
     "title": "Version {version}: see what's new"
+  },
+  "mfa": {
+    "title": "Two-step verification",
+    "desc": "Add a second layer of protection: besides your password you need a code from your authenticator app.",
+    "unavailable": "Not available in this environment: contact support.",
+    "on": "On",
+    "off": "Off",
+    "recoveryLeft": "Recovery codes left: {count}",
+    "lowRecovery": "Few codes left: generate new ones.",
+    "enable": "Turn on two-step verification",
+    "scan": "1. Scan the QR code with your app (Google Authenticator, Microsoft Authenticator, 1Password, Authy…)",
+    "qrAlt": "QR code for the authenticator app",
+    "manual": "Or enter this key by hand",
+    "codeLabel": "2. Enter the 6-digit code shown by the app",
+    "codePlaceholder": "123456",
+    "confirm": "Confirm and turn on",
+    "cancel": "Cancel",
+    "working": "Please wait…",
+    "recoveryTitle": "Recovery codes",
+    "recoveryDesc": "Keep them somewhere safe. Each works once and will not be shown again: you need them if you lose your phone.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "download": "Download",
+    "saved": "I have saved the codes",
+    "disable": "Turn off",
+    "regenerate": "Generate new codes",
+    "askCode": "Enter a current code from the app (or a recovery code) to continue.",
+    "codeOrRecovery": "Code or recovery code",
+    "doneOn": "Two-step verification is on.",
+    "doneOff": "Two-step verification is off.",
+    "doneRegen": "New recovery codes generated: the old ones no longer work."
   },
   "support": {
     "title": "Support",

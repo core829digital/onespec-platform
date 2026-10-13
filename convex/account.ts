@@ -383,6 +383,10 @@ async function anonymiseUser(ctx: import("./_generated/server").MutationCtx, use
     await ctx.db.delete(a._id);
   }
 
+  // Second factor: secret and recovery codes go with the account.
+  const mfaRows = await ctx.db.query("userMfa").withIndex("by_user", (q) => q.eq("userId", userId)).take(5);
+  for (const r of mfaRows) await ctx.db.delete(r._id);
+
   const erasing = await ctx.db.get(userId);
   await eraseUserSupportData(ctx, userId, erasing?.email ?? undefined);
 
