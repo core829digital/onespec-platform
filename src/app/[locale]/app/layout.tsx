@@ -58,12 +58,12 @@ export default async function AppLayout({
     );
   }
 
-  // The start screen (cube + 8 s bar) shows once per browser session: the session cookie is set by the screen itself.
-  const splashSeen = (await cookies()).get("os_splash")?.value === "1";
+  // The start screen (cube + 8 s bar) shows on every opening of the platform. Only automated browser tests switch it off (cookie os_splash=off).
+  const skipSplash = (await cookies()).get("os_splash")?.value === "off";
 
   return (
     <AppShell tenant={tenant}>
-      <AppSplash initiallyVisible={!splashSeen} />
+      {skipSplash ? null : <AppSplash />}
       {children}
       <ActionToaster />
       <ConfirmDialog />

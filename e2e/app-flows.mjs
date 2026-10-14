@@ -74,8 +74,8 @@ async function newSession(browser, token, refresh, device = {}) {
     { name: "__convexAuthJWT", value: token, domain: host, path: "/" },
     { name: "__convexAuthRefreshToken", value: refresh, domain: host, path: "/" },
     { name: "onespec-locale", value: LOCALE, domain: host, path: "/" },
-    // The start screen (cube + 8 s bar) shows once per session; the paths below are measured without it, one step checks it on its own.
-    ...(splash ? [] : [{ name: "os_splash", value: "1", domain: host, path: "/" }]),
+    // The start screen (cube + 8 s bar) shows on every opening; the paths below are measured without it, one step checks it on its own.
+    ...(splash ? [] : [{ name: "os_splash", value: "off", domain: host, path: "/" }]),
   ]);
   // The cookie banner reads its choice from localStorage; "denied" keeps analytics and replay off and the banner out of the way.
   await context.addInitScript(() => { try { localStorage.setItem("onespec-cookie-consent", "denied"); } catch { /* storage blocked */ } });
@@ -250,7 +250,7 @@ async function main() {
     {
       const sp = await newSession(browser, seed.owner.token, seed.owner.refresh, { splash: true });
       const spPage = await sp.context.newPage();
-      await step("start screen: cube + 8 s bar + changing messages, then gone, and not again in the same session", spPage, sp.problems, async () => {
+      await step("start screen: cube + 8 s bar + changing messages, then gone, and it is there again on the next opening", spPage, sp.problems, async () => {
         const t0 = Date.now();
         await spPage.goto(url("/app/dashboard"), { waitUntil: "domcontentloaded" });
         const bar = spPage.getByTestId("app-splash");
@@ -265,11 +265,9 @@ async function main() {
         await bar.waitFor({ state: "detached", timeout: 12_000 });
         const total = Date.now() - t0;
         check(total >= 7800 && total <= 12_500, `the start screen lasts about 8 s (${total} ms)`);
-        const cookies = await sp.context.cookies();
-        check(cookies.some((c) => c.name === "os_splash"), "the session cookie is set");
         await spPage.reload({ waitUntil: "domcontentloaded" });
-        await spPage.waitForTimeout(800);
-        check((await spPage.getByTestId("app-splash").count()) === 0, "a second visit in the same session goes straight to the page");
+        await spPage.getByTestId("app-splash").waitFor({ timeout: 10_000 });
+        check(true, "opening the platform again shows the start screen again");
       });
       await sp.context.close();
     }

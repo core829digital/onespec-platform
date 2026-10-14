@@ -6,28 +6,20 @@ import { BrandCube } from "@/components/brand/brand-cube";
 
 const DURATION_MS = 8000;
 const FADE_MS = 400;
-const COOKIE = "os_splash";
 
 /**
  * Start screen of the platform: the OneSpec cube (the one in the onespec.eu footer), a loading bar that fills in exactly 8 seconds and a
- * message that changes as it goes ("Configurando la tua piattaforma"…). Shown once per browser session: the server reads the session
- * cookie and decides the first paint, so there is no flash for people who have already seen it and no mismatch on hydration. The bar is
- * a transform (compositor only), set together with the percentage ten times a second, so it is exact even when the system asks for reduced motion.
+ * message that changes as it goes ("Configurando la tua piattaforma"…). Shown on every opening of the platform (every full page load,
+ * not on in-app navigation): it is part of the first server render, so there is no flash of the page underneath. The bar is a transform (compositor only), set together with the percentage ten times a second, so it is exact even when the system asks for reduced motion.
  */
-export function AppSplash({ initiallyVisible }: { initiallyVisible: boolean }) {
+export function AppSplash() {
   const t = useTranslations("splash");
   const messages = t.raw("messages") as string[];
-  const [mounted, setMounted] = useState(initiallyVisible);
+  const [mounted, setMounted] = useState(true);
   const [leaving, setLeaving] = useState(false);
   const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
-    if (!initiallyVisible) return;
-    try {
-      document.cookie = `${COOKIE}=1; path=/; SameSite=Lax${location.protocol === "https:" ? "; Secure" : ""}`;
-    } catch {
-      /* without the cookie the splash simply shows again next time */
-    }
     const started = performance.now();
     const tick = window.setInterval(() => setElapsed(Math.min(DURATION_MS, performance.now() - started)), 100);
     const leave = window.setTimeout(() => setLeaving(true), DURATION_MS);
@@ -37,7 +29,7 @@ export function AppSplash({ initiallyVisible }: { initiallyVisible: boolean }) {
       window.clearTimeout(leave);
       window.clearTimeout(done);
     };
-  }, [initiallyVisible]);
+  }, []);
 
   useEffect(() => {
     if (!mounted) return;
