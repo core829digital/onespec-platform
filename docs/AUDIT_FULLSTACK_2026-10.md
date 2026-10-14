@@ -34,7 +34,7 @@ Ambito: piattaforma OneSpec (Next.js 16 + Convex) e sito. Metodo: scansione auto
 - **Bersagli tocco su telefono (risolto in 1.25.2)**: componente `TouchTargets` (area di tocco invisibile fino a 44 px, senza spostare il layout; i filtri a scorrimento crescono a 40 px). Elementi sotto 32 px: da 45 a 13. Restano checkbox dentro etichette cliccabili, maniglie del disegno tecnico e link in mezzo a frasi (esenti per WCAG 2.5.8). Seconda scansione axe: 0 violazioni (telefono e desktop chiaro).
 - **Causa radice dell'errore allegati supporto non confermata** senza i log di produzione di Convex: lo scanner è stato reso robusto (nessuna dipendenza da `TextDecoder("latin1")`, finestre da 256 KB) e ogni errore ora produce un codice chiaro e un log `[finalizeUpload] stage=…`. Se si ripresenta, leggere quel log.
 - Morph "scheda → pagina" tra rotte non implementato di proposito (da misurare prima).
-- 2FA opzionale, non obbligatoria. Azioni GitHub non fissate per SHA. CSP in modalità report-only. Testi legali da validare con un avvocato; DPA dei fornitori da verificare; soglia NIS2 da verificare sul numero di dipendenti.
+- 2FA opzionale, non obbligatoria. CSP in modalità report-only. Testi legali da validare con un avvocato; DPA dei fornitori da verificare; soglia NIS2 da verificare sul numero di dipendenti.
 
 ## Da fare al rilascio
 Impostare su Convex `SUPPORT_SIGNING_SECRET`, `MFA_ENCRYPTION_KEY` (≥32 caratteri, **non cambiarla dopo**), `DAILY_IP_SALT`; poi deploy Convex, piattaforma e sito.
