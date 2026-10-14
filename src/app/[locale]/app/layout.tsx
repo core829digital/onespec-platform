@@ -1,5 +1,5 @@
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { isDemoHost } from "@/demo/is-demo";
 import { DemoAppRoot } from "@/demo/demo-app-root";
 import { fetchQuery } from "convex/nextjs";
@@ -12,6 +12,7 @@ import { ConfirmDialog } from "@/components/app-shell/confirm-dialog";
 import { DpaGate } from "@/components/app-shell/dpa-gate";
 import { SetupGuideWidget } from "@/components/app-shell/setup-guide-widget";
 import { LocaleSync } from "@/components/app-shell/locale-sync";
+import { AppSplash } from "@/components/app-shell/app-splash";
 
 export default async function AppLayout({
   children,
@@ -57,8 +58,12 @@ export default async function AppLayout({
     );
   }
 
+  // The start screen (cube + 8 s bar) shows once per browser session: the session cookie is set by the screen itself.
+  const splashSeen = (await cookies()).get("os_splash")?.value === "1";
+
   return (
     <AppShell tenant={tenant}>
+      <AppSplash initiallyVisible={!splashSeen} />
       {children}
       <ActionToaster />
       <ConfirmDialog />

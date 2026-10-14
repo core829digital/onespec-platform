@@ -3611,5 +3611,16 @@
     "privacy": "We use your name, email and message only to reply, and delete them after a short time.",
     "privacyLink": "Privacy policy",
     "backToLogin": "Back to sign in"
+  },
+  "splash": {
+    "aria": "Loading OneSpec",
+    "messages": [
+      "Setting up your platform",
+      "Loading clients and job sites",
+      "Preparing quotes and configurators",
+      "Syncing your data securely",
+      "Aligning price lists and technical drawings",
+      "Final touches: almost ready"
+    ]
   }
 }

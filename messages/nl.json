@@ -3611,5 +3611,16 @@
     "privacy": "We gebruiken uw naam, e-mail en bericht alleen om te antwoorden en verwijderen ze na korte tijd.",
     "privacyLink": "Privacybeleid",
     "backToLogin": "Terug naar inloggen"
+  },
+  "splash": {
+    "aria": "OneSpec wordt geladen",
+    "messages": [
+      "Uw platform wordt ingesteld",
+      "Klanten en bouwplaatsen worden geladen",
+      "Offertes en configurators worden voorbereid",
+      "Uw gegevens worden veilig gesynchroniseerd",
+      "Prijslijsten en technische tekeningen worden afgestemd",
+      "Laatste afwerking: bijna klaar"
+    ]
   }
 }
