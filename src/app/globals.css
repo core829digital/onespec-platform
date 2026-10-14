@@ -851,6 +851,8 @@ button, [role="button"], a { transition: background-color 150ms ease, border-col
 }
 .os-splash-out { opacity: 0; pointer-events: none; }
 .os-splash-inner { display: flex; flex-direction: column; align-items: center; gap: 28px; padding: 24px; width: min(86vw, 360px); }
+/* The turning cube reaches past its own box (corners): leave room so it never touches the message. */
+.os-splash-cube { padding: 36px 0 30px; }
 .os-splash-msg {
   min-height: 1.5em;
   margin: 0;

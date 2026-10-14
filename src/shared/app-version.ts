@@ -3,7 +3,7 @@
  * of truth: publishing a new entry there changes the number here without redeploying the platform. BUNDLED_VERSION is only the
  * fallback while the site cannot be reached; tests/app-version.test.ts fails if it falls behind the site's last known release.
  */
-export const BUNDLED_VERSION = "1.26.1";
+export const BUNDLED_VERSION = "1.26.2";
 
 /** How often an open session re-reads the version (and on returning to the tab). */
 export const VERSION_REFRESH_MS = 10 * 60 * 1000;

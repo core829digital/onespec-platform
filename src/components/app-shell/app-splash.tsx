@@ -58,7 +58,9 @@ export function AppSplash() {
       data-testid="app-splash"
     >
       <div className="os-splash-inner">
-        <BrandCube size={120} />
+        <div className="os-splash-cube">
+          <BrandCube size={120} />
+        </div>
         <p className="os-splash-msg" key={index}>
           {message}
         </p>

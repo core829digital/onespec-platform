@@ -258,6 +258,7 @@ async function main() {
         check((await bar.locator("img").count()) >= 6, "the cube has its six faces");
         const first = await bar.getAttribute("aria-valuetext");
         await spPage.waitForTimeout(3000);
+        if (process.env.E2E_SPLASH_SHOT) await spPage.screenshot({ path: process.env.E2E_SPLASH_SHOT });
         const mid = Number(await bar.getAttribute("aria-valuenow"));
         const second = await bar.getAttribute("aria-valuetext");
         check(mid >= 25 && mid <= 55, `after ~3 s the bar is about a third full (${mid}%)`);
