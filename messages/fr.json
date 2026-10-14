@@ -3430,7 +3430,12 @@
     "codeOrRecovery": "Code ou code de secours",
     "doneOn": "Vérification en deux étapes activée.",
     "doneOff": "Vérification en deux étapes désactivée.",
-    "doneRegen": "Nouveaux codes de secours générés : les anciens ne fonctionnent plus."
+    "doneRegen": "Nouveaux codes de secours générés : les anciens ne fonctionnent plus.",
+    "adminNudge": {
+      "title": "Protégez votre accès administrateur",
+      "body": "En tant qu'administrateur, vous pouvez voir tous les comptes : activez la vérification en deux étapes pour protéger votre accès.",
+      "cta": "Activer maintenant"
+    }
   },
   "support": {
     "title": "Support",

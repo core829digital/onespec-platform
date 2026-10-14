@@ -3430,7 +3430,12 @@
     "codeOrRecovery": "Code of herstelcode",
     "doneOn": "Verificatie in twee stappen staat aan.",
     "doneOff": "Verificatie in twee stappen staat uit.",
-    "doneRegen": "Nieuwe herstelcodes gemaakt: de oude werken niet meer."
+    "doneRegen": "Nieuwe herstelcodes gemaakt: de oude werken niet meer.",
+    "adminNudge": {
+      "title": "Beveilig uw beheerderstoegang",
+      "body": "Als beheerder ziet u alle accounts: schakel verificatie in twee stappen in om uw toegang te beveiligen.",
+      "cta": "Nu inschakelen"
+    }
   },
   "support": {
     "title": "Support",

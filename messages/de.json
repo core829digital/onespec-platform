@@ -3430,7 +3430,12 @@
     "codeOrRecovery": "Code oder Wiederherstellungscode",
     "doneOn": "Bestätigung in zwei Schritten ist aktiv.",
     "doneOff": "Bestätigung in zwei Schritten ist deaktiviert.",
-    "doneRegen": "Neue Wiederherstellungscodes erzeugt: Die alten funktionieren nicht mehr."
+    "doneRegen": "Neue Wiederherstellungscodes erzeugt: Die alten funktionieren nicht mehr.",
+    "adminNudge": {
+      "title": "Schützen Sie Ihren Administrator-Zugang",
+      "body": "Als Administrator sehen Sie alle Konten: Aktivieren Sie die Bestätigung in zwei Schritten, um Ihren Zugang zu schützen.",
+      "cta": "Jetzt aktivieren"
+    }
   },
   "support": {
     "title": "Support",

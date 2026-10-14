@@ -3430,7 +3430,12 @@
     "codeOrRecovery": "Cod sau cod de recuperare",
     "doneOn": "Verificarea în doi pași este activă.",
     "doneOff": "Verificarea în doi pași este dezactivată.",
-    "doneRegen": "Coduri noi de recuperare generate: cele vechi nu mai funcționează."
+    "doneRegen": "Coduri noi de recuperare generate: cele vechi nu mai funcționează.",
+    "adminNudge": {
+      "title": "Protejează accesul de administrator",
+      "body": "Ca administrator poți vedea toate conturile: activează verificarea în doi pași pentru a-ți proteja accesul.",
+      "cta": "Activează acum"
+    }
   },
   "support": {
     "title": "Suport",

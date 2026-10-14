@@ -3430,7 +3430,12 @@
     "codeOrRecovery": "Codice o codice di recupero",
     "doneOn": "Verifica in due passaggi attivata.",
     "doneOff": "Verifica in due passaggi disattivata.",
-    "doneRegen": "Nuovi codici di recupero generati: i precedenti non funzionano più."
+    "doneRegen": "Nuovi codici di recupero generati: i precedenti non funzionano più.",
+    "adminNudge": {
+      "title": "Proteggi l'accesso da amministratore",
+      "body": "Da amministratore puoi vedere tutti gli account: attiva la verifica in due passaggi per proteggere il tuo accesso.",
+      "cta": "Attiva ora"
+    }
   },
   "support": {
     "title": "Supporto",

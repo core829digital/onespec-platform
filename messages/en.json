@@ -3430,7 +3430,12 @@
     "codeOrRecovery": "Code or recovery code",
     "doneOn": "Two-step verification is on.",
     "doneOff": "Two-step verification is off.",
-    "doneRegen": "New recovery codes generated: the old ones no longer work."
+    "doneRegen": "New recovery codes generated: the old ones no longer work.",
+    "adminNudge": {
+      "title": "Protect your administrator login",
+      "body": "As an administrator you can see every account: turn on two-step verification to protect your login.",
+      "cta": "Turn on now"
+    }
   },
   "support": {
     "title": "Support",
