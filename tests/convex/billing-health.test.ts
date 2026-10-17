@@ -10,7 +10,7 @@ import { newDb, seedTenant } from "./_helpers";
  */
 const TOKEN = "tok_abcdefghijklmnopqrstuvwxyz012345";
 const SECRETS = {
-  STRIPE_SECRET_KEY: "sk_live_SUPERSECRETVALUE",
+  STRIPE_SECRET_KEY: "sk_live_fake",
   STRIPE_WEBHOOK_SECRET: "whsec_SUPERSECRETVALUE",
   STRIPE_WEBHOOK_PATH_TOKEN: TOKEN,
   SUPPORT_SIGNING_SECRET: "s".repeat(64),

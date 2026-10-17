@@ -106,6 +106,9 @@ function watch(page, label, sink) {
 
 const widgetFrame = (page) => page.frames().find((f) => f.url().includes(`/w/${ID}`));
 
+/** The widget's own error message. Next.js also mounts an empty role="alert" (next-route-announcer) in every document, so match on text. */
+const widgetAlert = (frame) => frame.locator('[role="alert"]').filter({ hasText: /\S/ });
+
 async function fillAndSend(frame) {
   const finish = frame.getByRole("button", { name: /Finish/ });
   if ((await finish.count()) > 0) await finish.first().click();
@@ -218,7 +221,8 @@ async function main() {
       const frame = widgetFrame(page);
       await frame.locator("#widget-width").waitFor();
       await fillAndSend(frame);
-      const alert = frame.locator('[role="alert"]');
+      // Only an alert with text: Next.js mounts an always-empty role="alert" (its route announcer) in every document.
+      const alert = widgetAlert(frame);
       await alert.first().waitFor({ timeout: 8_000 });
       const text = (await alert.first().innerText()).trim();
       check(text.length > 5 && !/RATE_LIMITED|INTERNAL|BAD_RESPONSE|VALIDATION|undefined|\[object/.test(text), `friendly message, no raw code ("${text.slice(0, 80)}")`);
@@ -238,7 +242,7 @@ async function main() {
       const frame = widgetFrame(page);
       await frame.locator("#widget-width").waitFor();
       await fillAndSend(frame);
-      const recovered = await frame.locator('[role="alert"]').first().waitFor({ timeout: 35_000 }).then(() => true).catch(() => false);
+      const recovered = await widgetAlert(frame).first().waitFor({ timeout: 35_000 }).then(() => true).catch(() => false);
       check(recovered, "after a bounded wait the visitor sees an error and can retry (no infinite spinner)");
       await ctx.close();
       state.quote = "ok";
