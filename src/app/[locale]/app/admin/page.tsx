@@ -341,6 +341,16 @@ export default function AdminPage() {
                   <option value="closed">{t("statusClosed")}</option>
                 </select>
               </div>
+              {f.rating || f.reviewConsentAt ? (
+                <p className="mt-1 flex flex-wrap items-center gap-2 text-xs">
+                  {f.rating ? <span className="text-[#e0a800]" aria-label={`${f.rating}/5`}>{"★".repeat(f.rating)}{"☆".repeat(5 - f.rating)}</span> : null}
+                  {f.reviewConsentAt ? (
+                    <span className="rounded-full bg-[var(--color-mint-light)] px-2 py-0.5 font-medium text-[var(--color-mint-text)]">
+                      {t("reviewConsentBadge", { date: new Date(f.reviewConsentAt).toLocaleDateString(locale) })}
+                    </span>
+                  ) : null}
+                </p>
+              ) : null}
               <p className="text-[var(--color-text)] mt-1 whitespace-pre-wrap">{f.message}</p>
             </div>
           ))

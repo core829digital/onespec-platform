@@ -1783,7 +1783,8 @@
     "revokeFullAccess": "Revocă accesul total",
     "referralsLink": "Invitații (referral)",
     "billingHealthLink": "Verificare plăți",
-    "supportLink": "Tichete de suport"
+    "supportLink": "Tichete de suport",
+    "reviewConsentBadge": "Poate fi publicat ca recenzie (acord din {date})"
   },
   "planGate": {
     "title": "Această secțiune nu este inclusă în planul tău",
@@ -2475,18 +2476,28 @@
     }
   },
   "feedback": {
-    "open": "Trimite feedback sau raportează o problemă",
+    "open": "Lasă un feedback despre OneSpec",
     "button": "Feedback",
-    "dialog": "Trimite feedback",
-    "title": "Feedback",
-    "thanks": "Mulțumim! Primit.",
-    "catBug": "Problemă",
+    "dialog": "Feedback despre OneSpec",
+    "title": "Cum este experiența ta cu OneSpec?",
+    "thanks": "Mulțumim! Am primit feedbackul tău.",
+    "catBug": "Ceva nu merge",
     "catFeature": "Sugestie",
-    "catGeneral": "Altceva",
-    "placeholder": "Ce s-a întâmplat sau ce ți-ai dori…",
+    "catGeneral": "Părere",
+    "placeholder": "Spune-ne cum te ajută OneSpec în munca ta…",
     "cancel": "Anulează",
     "sending": "Se trimite…",
-    "send": "Trimite"
+    "send": "Trimite",
+    "intro": "Feedbackul este părerea ta despre produs: ce îți place, ce ai îmbunătăți, ce lipsește. Citim tot.",
+    "supportHint": "Ai o problemă de rezolvat sau ai nevoie de un răspuns? Acest formular nu deschide o cerere de asistență: deschide un tichet de suport și îți răspunde o persoană din echipa OneSpec.",
+    "supportCta": "Deschide un tichet de suport",
+    "ratingLabel": "Nota ta (opțional)",
+    "ratingValue": "{n} din 5",
+    "categoryLabel": "Tipul de feedback",
+    "bugHint": "Dacă problema te blochează sau ai nevoie de ajutor, un tichet de suport este cea mai rapidă cale de rezolvare.",
+    "messageLabel": "Feedbackul tău",
+    "reviewConsent": "Puteți publica acest feedback ca recenzie pe onespec.eu, cu numele meu, firma mea și nota. Pot cere eliminarea oricând.",
+    "thanksReview": "Mulțumim! Am primit feedbackul tău și permisiunea de a-l folosi ca recenzie."
   },
   "fieldCommon": {
     "offline": "Offline — salvare locală",

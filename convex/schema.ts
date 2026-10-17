@@ -817,6 +817,11 @@ export default defineSchema({
     message: v.string(),
     pagePath: v.optional(v.string()),
     userAgent: v.optional(v.string()),
+    /** Optional 1–5 star rating given with the feedback. */
+    rating: v.optional(v.number()),
+    /** Set only when the user ticked "you may publish this as a review"; withdrawn by deleting the account (purge). */
+    reviewConsentAt: v.optional(v.number()),
+    reviewConsentVersion: v.optional(v.string()),
     status: v.union(v.literal("new"), v.literal("triaged"), v.literal("closed")),
     createdAt: v.number(),
   })

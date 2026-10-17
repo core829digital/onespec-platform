@@ -1783,7 +1783,8 @@
     "revokeFullAccess": "Vollzugriff entziehen",
     "referralsLink": "Einladungen (Referral)",
     "billingHealthLink": "Zahlungsprüfung",
-    "supportLink": "Support-Tickets"
+    "supportLink": "Support-Tickets",
+    "reviewConsentBadge": "Darf als Bewertung veröffentlicht werden (Zustimmung vom {date})"
   },
   "planGate": {
     "title": "Dieser Bereich ist in Ihrem Plan nicht enthalten",
@@ -2475,18 +2476,28 @@
     }
   },
   "feedback": {
-    "open": "Feedback senden oder Problem melden",
+    "open": "Feedback zu OneSpec geben",
     "button": "Feedback",
-    "dialog": "Feedback senden",
-    "title": "Feedback",
-    "thanks": "Danke! Erhalten.",
-    "catBug": "Fehler",
+    "dialog": "Feedback zu OneSpec",
+    "title": "Wie ist Ihre Erfahrung mit OneSpec?",
+    "thanks": "Danke! Wir haben Ihr Feedback erhalten.",
+    "catBug": "Etwas stimmt nicht",
     "catFeature": "Vorschlag",
-    "catGeneral": "Sonstiges",
-    "placeholder": "Was ist passiert oder was wünschen Sie sich…",
+    "catGeneral": "Meinung",
+    "placeholder": "Erzählen Sie uns, wie OneSpec Ihnen bei der Arbeit hilft…",
     "cancel": "Abbrechen",
     "sending": "Wird gesendet…",
-    "send": "Senden"
+    "send": "Senden",
+    "intro": "Feedback ist Ihre Meinung zum Produkt: was Ihnen gefällt, was Sie verbessern würden, was fehlt. Wir lesen alles.",
+    "supportHint": "Haben Sie ein Problem oder brauchen Sie eine Antwort? Dieses Formular eröffnet keine Supportanfrage: Eröffnen Sie ein Support-Ticket, dann antwortet Ihnen eine Person aus dem OneSpec-Team.",
+    "supportCta": "Support-Ticket eröffnen",
+    "ratingLabel": "Ihre Bewertung (optional)",
+    "ratingValue": "{n} von 5",
+    "categoryLabel": "Art des Feedbacks",
+    "bugHint": "Wenn das Problem Sie blockiert oder Sie Hilfe brauchen, ist ein Support-Ticket der schnellste Weg zur Lösung.",
+    "messageLabel": "Ihr Feedback",
+    "reviewConsent": "Sie dürfen dieses Feedback als Bewertung auf onespec.eu veröffentlichen, mit meinem Namen, meinem Unternehmen und der Bewertung. Ich kann jederzeit die Entfernung verlangen.",
+    "thanksReview": "Danke! Wir haben Ihr Feedback und Ihre Erlaubnis erhalten, es als Bewertung zu verwenden."
   },
   "fieldCommon": {
     "offline": "Offline — lokale Speicherung",

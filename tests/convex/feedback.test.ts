@@ -49,4 +49,29 @@ describe("alpha feedback", () => {
       as.mutation(api.feedback.submitFeedback, { category: "general", message: "extra" }),
     ).rejects.toThrow(/RATE_LIMITED/);
   });
+
+  test("optional stars and review consent are stored; consent is recorded only when given", async () => {
+    const t = newDb();
+    const { ownerId, memberId } = await seedTenant(t);
+    await t.run((ctx) => ctx.db.patch(ownerId, { isPlatformAdmin: true }));
+    const as = t.withIdentity({ subject: memberId });
+    await as.mutation(api.feedback.submitFeedback, { category: "general", message: "Mi fa risparmiare ore", rating: 4, reviewConsent: true });
+    await as.mutation(api.feedback.submitFeedback, { category: "feature", message: "Vorrei l'export Excel", rating: 3, reviewConsent: false });
+    const list = await t.withIdentity({ subject: ownerId }).query(api.feedback.listFeedback, {});
+    const withConsent = list.find((f) => f.message === "Mi fa risparmiare ore");
+    const without = list.find((f) => f.message === "Vorrei l'export Excel");
+    expect(withConsent).toMatchObject({ rating: 4, reviewConsentVersion: "review-1" });
+    expect(typeof withConsent?.reviewConsentAt).toBe("number");
+    expect(without?.rating).toBe(3);
+    expect(without?.reviewConsentAt).toBeUndefined();
+  });
+
+  test("a rating outside 1-5 or not a whole number is refused", async () => {
+    const t = newDb();
+    const { memberId } = await seedTenant(t);
+    const as = t.withIdentity({ subject: memberId });
+    for (const rating of [0, 6, 4.5]) {
+      await expect(as.mutation(api.feedback.submitFeedback, { category: "general", message: "ok ok ok", rating })).rejects.toThrow(/INVALID_MESSAGE/);
+    }
+  });
 });

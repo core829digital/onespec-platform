@@ -1783,7 +1783,8 @@
     "revokeFullAccess": "Revoke full access",
     "referralsLink": "Invitations (referral)",
     "billingHealthLink": "Payments check",
-    "supportLink": "Support tickets"
+    "supportLink": "Support tickets",
+    "reviewConsentBadge": "May be published as a review (consent given {date})"
   },
   "planGate": {
     "title": "This section isn't included in your plan",
@@ -2475,18 +2476,28 @@
     }
   },
   "feedback": {
-    "open": "Send feedback or report a problem",
+    "open": "Leave feedback about OneSpec",
     "button": "Feedback",
-    "dialog": "Send feedback",
-    "title": "Feedback",
-    "thanks": "Thank you! Received.",
-    "catBug": "Bug",
+    "dialog": "Feedback about OneSpec",
+    "title": "How is your experience with OneSpec?",
+    "thanks": "Thank you! We have received your feedback.",
+    "catBug": "Something is wrong",
     "catFeature": "Suggestion",
-    "catGeneral": "Other",
-    "placeholder": "What happened, or what would you like…",
+    "catGeneral": "Opinion",
+    "placeholder": "Tell us what using OneSpec in your work is like…",
     "cancel": "Cancel",
     "sending": "Sending…",
-    "send": "Send"
+    "send": "Send",
+    "intro": "Feedback is your opinion of the product: what you like, what you would improve, what is missing. We read all of it.",
+    "supportHint": "Do you have a problem to solve or need an answer? This form does not open a support request: open a support ticket and a person from the OneSpec team will reply.",
+    "supportCta": "Open a support ticket",
+    "ratingLabel": "Your rating (optional)",
+    "ratingValue": "{n} out of 5",
+    "categoryLabel": "Type of feedback",
+    "bugHint": "If the problem blocks you or you need help, opening a support ticket is the fastest way to solve it.",
+    "messageLabel": "Your feedback",
+    "reviewConsent": "You may publish this feedback as a review on onespec.eu, with my name, my company and the rating. I can ask for it to be removed at any time.",
+    "thanksReview": "Thank you! We have received your feedback and your permission to use it as a review."
   },
   "fieldCommon": {
     "offline": "Offline — saving locally",

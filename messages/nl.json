@@ -1783,7 +1783,8 @@
     "revokeFullAccess": "Volledige toegang intrekken",
     "referralsLink": "Uitnodigingen (referral)",
     "billingHealthLink": "Betalingscontrole",
-    "supportLink": "Supporttickets"
+    "supportLink": "Supporttickets",
+    "reviewConsentBadge": "Mag als review worden gepubliceerd (toestemming van {date})"
   },
   "planGate": {
     "title": "Dit onderdeel zit niet in je abonnement",
@@ -2475,18 +2476,28 @@
     }
   },
   "feedback": {
-    "open": "Feedback sturen of een probleem melden",
+    "open": "Feedback geven over OneSpec",
     "button": "Feedback",
-    "dialog": "Feedback sturen",
-    "title": "Feedback",
-    "thanks": "Bedankt! Ontvangen.",
-    "catBug": "Probleem",
+    "dialog": "Feedback over OneSpec",
+    "title": "Hoe is uw ervaring met OneSpec?",
+    "thanks": "Bedankt! We hebben uw feedback ontvangen.",
+    "catBug": "Er klopt iets niet",
     "catFeature": "Suggestie",
-    "catGeneral": "Overig",
-    "placeholder": "Wat is er gebeurd of wat zou je willen…",
+    "catGeneral": "Mening",
+    "placeholder": "Vertel ons hoe OneSpec u helpt in uw werk…",
     "cancel": "Annuleren",
     "sending": "Versturen…",
-    "send": "Versturen"
+    "send": "Versturen",
+    "intro": "Feedback is uw mening over het product: wat u goed vindt, wat u zou verbeteren, wat er ontbreekt. We lezen alles.",
+    "supportHint": "Heeft u een probleem of heeft u een antwoord nodig? Dit formulier opent geen supportverzoek: open een supportticket en iemand van het OneSpec-team antwoordt u.",
+    "supportCta": "Supportticket openen",
+    "ratingLabel": "Uw beoordeling (optioneel)",
+    "ratingValue": "{n} van 5",
+    "categoryLabel": "Soort feedback",
+    "bugHint": "Als het probleem u blokkeert of u hulp nodig heeft, is een supportticket de snelste manier om het op te lossen.",
+    "messageLabel": "Uw feedback",
+    "reviewConsent": "U mag deze feedback als review op onespec.eu publiceren, met mijn naam, mijn bedrijf en de beoordeling. Ik kan op elk moment vragen om verwijdering.",
+    "thanksReview": "Bedankt! We hebben uw feedback ontvangen en uw toestemming om het als review te gebruiken."
   },
   "fieldCommon": {
     "offline": "Offline — lokaal opslaan",

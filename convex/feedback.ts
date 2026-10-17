@@ -4,17 +4,25 @@ import { ConvexError } from "convex/values";
 import { requireUser, requirePlatformAdmin } from "./lib/auth";
 import { consumeToken } from "./lib/ratelimit";
 
+/** Wording of the "you may publish this as a review" box the user agreed to (feedback.reviewConsent in messages/*.json). */
+const REVIEW_CONSENT_VERSION = "review-1";
+
 export const submitFeedback = mutation({
   args: {
     category: v.union(v.literal("bug"), v.literal("feature"), v.literal("general")),
     message: v.string(),
     pagePath: v.optional(v.string()),
     userAgent: v.optional(v.string()),
+    rating: v.optional(v.number()),
+    reviewConsent: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const userId = await requireUser(ctx);
     const message = args.message.trim();
     if (message.length < 3 || message.length > 4000) throw new ConvexError("INVALID_MESSAGE");
+    if (args.rating !== undefined && !(Number.isInteger(args.rating) && args.rating >= 1 && args.rating <= 5)) {
+      throw new ConvexError("INVALID_MESSAGE");
+    }
 
     const ok = await consumeToken(ctx, `feedback:${userId}`, {
       tokens: 8,
@@ -34,6 +42,8 @@ export const submitFeedback = mutation({
       message,
       pagePath: args.pagePath?.slice(0, 200),
       userAgent: args.userAgent?.slice(0, 300),
+      rating: args.rating,
+      ...(args.reviewConsent === true ? { reviewConsentAt: Date.now(), reviewConsentVersion: REVIEW_CONSENT_VERSION } : {}),
       status: "new",
       createdAt: Date.now(),
     });
@@ -45,7 +55,7 @@ export const submitFeedback = mutation({
       action: "feedback.submit",
       targetTable: "alphaFeedback",
       targetId: id,
-      meta: { category: args.category },
+      meta: { category: args.category, rating: args.rating ?? null, reviewConsent: args.reviewConsent === true },
       createdAt: Date.now(),
     });
 

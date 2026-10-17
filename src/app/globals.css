@@ -877,3 +877,17 @@ button, [role="button"], a { transition: background-color 150ms ease, border-col
   .os-splash-msg { animation: none; }
   .os-splash { transition: none; }
 }
+
+/* ---- Feedback dialog (app-shell/feedback-modal.tsx): blurred backdrop and panel fade/scale in and out ---- */
+@keyframes os-dialog-out {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: translateY(6px) scale(0.98); }
+}
+@keyframes os-backdrop-out { from { opacity: 1; } to { opacity: 0; } }
+.os-feedback-backdrop { animation: os-backdrop-in 220ms ease-out both; }
+.os-feedback-backdrop.is-closing { animation: os-backdrop-out 180ms ease-in forwards; }
+.os-feedback-panel { animation: os-dialog-in 240ms var(--ease-out-apple) both; }
+.os-feedback-panel.is-closing { animation: os-dialog-out 180ms ease-in forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .os-feedback-backdrop, .os-feedback-panel { animation-duration: 1ms !important; }
+}

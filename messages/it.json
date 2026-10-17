@@ -1783,7 +1783,8 @@
     "revokeFullAccess": "Togli accesso totale",
     "referralsLink": "Inviti (referral)",
     "billingHealthLink": "Controllo pagamenti",
-    "supportLink": "Ticket di supporto"
+    "supportLink": "Ticket di supporto",
+    "reviewConsentBadge": "Può essere pubblicato come recensione (consenso del {date})"
   },
   "planGate": {
     "title": "Sezione non inclusa nel tuo piano",
@@ -2475,18 +2476,28 @@
     }
   },
   "feedback": {
-    "open": "Invia un feedback o segnala un problema",
+    "open": "Lascia un feedback su OneSpec",
     "button": "Feedback",
-    "dialog": "Invia feedback",
-    "title": "Feedback",
-    "thanks": "Grazie! Ricevuto.",
-    "catBug": "Problema",
+    "dialog": "Feedback su OneSpec",
+    "title": "Com'è la tua esperienza con OneSpec?",
+    "thanks": "Grazie! Abbiamo ricevuto il tuo feedback.",
+    "catBug": "Qualcosa non va",
     "catFeature": "Suggerimento",
-    "catGeneral": "Altro",
-    "placeholder": "Cosa è successo o cosa vorresti…",
+    "catGeneral": "Opinione",
+    "placeholder": "Raccontaci com'è usare OneSpec nel tuo lavoro…",
     "cancel": "Annulla",
     "sending": "Invio…",
-    "send": "Invia"
+    "send": "Invia",
+    "intro": "Il feedback è la tua opinione sul prodotto: cosa ti piace, cosa miglioreresti, cosa ti manca. Lo leggiamo tutto.",
+    "supportHint": "Hai un problema da risolvere o ti serve una risposta? Questo modulo non apre una richiesta di assistenza: apri un ticket di supporto e ti risponde una persona del team OneSpec.",
+    "supportCta": "Apri un ticket di supporto",
+    "ratingLabel": "Il tuo voto (facoltativo)",
+    "ratingValue": "{n} su 5",
+    "categoryLabel": "Tipo di feedback",
+    "bugHint": "Se il problema ti blocca o ti serve aiuto, aprire un ticket di supporto è il modo più rapido per risolverlo.",
+    "messageLabel": "Il tuo feedback",
+    "reviewConsent": "Potete pubblicare questo feedback come recensione su onespec.eu, con il mio nome, la mia azienda e il voto. Posso chiedere di toglierla in qualsiasi momento.",
+    "thanksReview": "Grazie! Abbiamo ricevuto il tuo feedback e il permesso di usarlo come recensione."
   },
   "fieldCommon": {
     "offline": "Offline — salvataggio locale",

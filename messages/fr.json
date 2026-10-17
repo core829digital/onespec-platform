@@ -1783,7 +1783,8 @@
     "revokeFullAccess": "Retirer accès total",
     "referralsLink": "Invitations (parrainage)",
     "billingHealthLink": "Contrôle des paiements",
-    "supportLink": "Tickets de support"
+    "supportLink": "Tickets de support",
+    "reviewConsentBadge": "Peut être publié comme témoignage (accord du {date})"
   },
   "planGate": {
     "title": "Cette section n'est pas incluse dans votre plan",
@@ -2475,18 +2476,28 @@
     }
   },
   "feedback": {
-    "open": "Envoyer un avis ou signaler un problème",
+    "open": "Donner votre avis sur OneSpec",
     "button": "Avis",
-    "dialog": "Envoyer un avis",
-    "title": "Votre avis",
-    "thanks": "Merci ! Bien reçu.",
-    "catBug": "Problème",
+    "dialog": "Avis sur OneSpec",
+    "title": "Comment se passe votre expérience avec OneSpec ?",
+    "thanks": "Merci ! Nous avons bien reçu votre avis.",
+    "catBug": "Quelque chose ne va pas",
     "catFeature": "Suggestion",
-    "catGeneral": "Autre",
-    "placeholder": "Que s'est-il passé ou que souhaiteriez-vous…",
+    "catGeneral": "Avis",
+    "placeholder": "Racontez-nous comment OneSpec vous aide dans votre travail…",
     "cancel": "Annuler",
     "sending": "Envoi…",
-    "send": "Envoyer"
+    "send": "Envoyer",
+    "intro": "Votre avis porte sur le produit : ce que vous aimez, ce que vous amélioreriez, ce qui manque. Nous lisons tout.",
+    "supportHint": "Vous avez un problème à résoudre ou besoin d'une réponse ? Ce formulaire n'ouvre pas de demande d'assistance : ouvrez un ticket de support et une personne de l'équipe OneSpec vous répondra.",
+    "supportCta": "Ouvrir un ticket de support",
+    "ratingLabel": "Votre note (facultative)",
+    "ratingValue": "{n} sur 5",
+    "categoryLabel": "Type d'avis",
+    "bugHint": "Si le problème vous bloque ou si vous avez besoin d'aide, ouvrir un ticket de support est le moyen le plus rapide de le résoudre.",
+    "messageLabel": "Votre avis",
+    "reviewConsent": "Vous pouvez publier cet avis comme témoignage sur onespec.eu, avec mon nom, mon entreprise et la note. Je peux demander son retrait à tout moment.",
+    "thanksReview": "Merci ! Nous avons bien reçu votre avis et l'autorisation de le publier comme témoignage."
   },
   "fieldCommon": {
     "offline": "Hors ligne — enregistrement local",
