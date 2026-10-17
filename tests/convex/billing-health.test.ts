@@ -22,8 +22,7 @@ const ENV: Record<string, string> = {
   ...SECRETS,
   SITE_URL: "https://app.onespec.eu",
   CONVEX_SITE_URL: "https://happy-otter-1.convex.site",
-  RESEND_FROM: "OneSpec <noreply@onespec.eu>",
-  RESEND_FROM_PURCHASES: "OneSpec <billing@onespec.eu>",
+  RESEND_MODE: "live",
   TURNSTILE_SECRET: "0x4AAA",
   OPS_ALERT_EMAIL: "ops@onespec.eu",
 };
@@ -38,6 +37,7 @@ for (const { plan, cycle } of sellablePlanCycles()) {
 const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status });
 let paths: Array<{ method: string; path: string }> = [];
 let override: (path: string) => Response | undefined = () => undefined;
+let resendDomains: () => Response = () => json(200, { data: [{ name: "onespec.eu", status: "verified" }] });
 
 function stripeDefault(path: string): Response {
   if (path === "/account")
@@ -69,9 +69,14 @@ beforeEach(() => {
   for (const [k, val] of Object.entries(ENV)) vi.stubEnv(k, val);
   paths = [];
   override = () => undefined;
+  resendDomains = () => json(200, { data: [{ name: "onespec.eu", status: "verified" }] });
   vi.stubGlobal(
     "fetch",
     vi.fn(async (url: string, init?: { method?: string }) => {
+      if (url.startsWith("https://api.resend.com")) {
+        paths.push({ method: init?.method ?? "GET", path: url });
+        return url === "https://api.resend.com/domains" ? resendDomains() : json(404, {});
+      }
       const path = url.replace("https://api.stripe.com/v1", "");
       paths.push({ method: init?.method ?? "GET", path });
       return override(path) ?? stripeDefault(path);
@@ -122,7 +127,7 @@ describe("Controllo pagamenti", () => {
     expect(r.mode).toBe("missing");
     expect(r.overall).toBe("error");
     expect(items(r, "keys").find((i) => i.check === "secretKeyMissing")?.status).toBe("error");
-    expect(paths).toHaveLength(0);
+    expect(paths.filter((p) => !p.path.startsWith("https://api.resend.com"))).toHaveLength(0);
   });
 
   test("a test-mode key is amber and test Prices are flagged against a live key", async () => {
@@ -195,7 +200,7 @@ describe("Controllo pagamenti", () => {
     }));
     const r = await (await world()).action(api.billingHealth.check, {});
     expect(items(r, "account")[0]).toMatchObject({ check: "stripeUnreachable", status: "error" });
-    expect(r.sections.map((sec) => sec.key)).toEqual(["keys", "account", "secrets"]);
+    expect(r.sections.map((sec) => sec.key)).toEqual(["keys", "account", "email", "secrets"]);
   });
 
   test("a key Stripe rejects is reported once, without a red row for every price", async () => {
@@ -203,6 +208,44 @@ describe("Controllo pagamenti", () => {
     const r = await (await world()).action(api.billingHealth.check, {});
     expect(items(r, "account")).toEqual([expect.objectContaining({ check: "stripeKeyRejected", status: "error" })]);
     expect(r.sections.some((sec) => sec.key === "prices")).toBe(false);
+  });
+
+  test("email: with key and RESEND_MODE=live and a verified domain it is green, with the real sender shown", async () => {
+    const r = await (await world()).action(api.billingHealth.check, {});
+    const email = items(r, "email");
+    expect(email.find((i) => i.check === "emailOk")).toMatchObject({ status: "ok", params: { address: "noreply@onespec.eu" } });
+    expect(email.find((i) => i.check === "purchaseEmailDefault")?.params.address).toBe("purchases@onespec.eu");
+    expect(email.find((i) => i.check === "resendDomainVerified")?.params.domain).toBe("onespec.eu");
+  });
+
+  test("email: RESEND_MODE not live is red (codes would only reach the logs); legacy RESEND_FROM is not required", async () => {
+    vi.stubEnv("RESEND_MODE", "");
+    const r = await (await world()).action(api.billingHealth.check, {});
+    const email = items(r, "email");
+    expect(email.find((i) => i.check === "emailModeNotLive")?.status).toBe("error");
+    expect(email.some((i) => i.check === "emailOk")).toBe(false);
+    expect(JSON.stringify(r)).not.toContain("RESEND_FROM\"");
+  });
+
+  test("email: missing key is red and Resend is not called", async () => {
+    vi.stubEnv("AUTH_RESEND_KEY", "");
+    const r = await (await world()).action(api.billingHealth.check, {});
+    expect(items(r, "email").find((i) => i.check === "emailKeyMissing")?.status).toBe("error");
+    expect(paths.some((p) => p.path.startsWith("https://api.resend.com"))).toBe(false);
+  });
+
+  test("email: unverified or missing domain is red; a sending-only key is just informational", async () => {
+    resendDomains = () => json(200, { data: [{ name: "onespec.eu", status: "pending" }] });
+    let r = await (await world()).action(api.billingHealth.check, {});
+    expect(items(r, "email").find((i) => i.check === "resendDomainNotVerified")).toMatchObject({ status: "error", params: { status: "pending" } });
+
+    resendDomains = () => json(200, { data: [{ name: "other.com", status: "verified" }] });
+    r = await (await world()).action(api.billingHealth.check, {});
+    expect(items(r, "email").find((i) => i.check === "resendDomainMissing")?.status).toBe("error");
+
+    resendDomains = () => json(401, { name: "restricted_api_key", message: "This API key is restricted to only send emails" });
+    r = await (await world()).action(api.billingHealth.check, {});
+    expect(items(r, "email").find((i) => i.check === "resendDomainUncheckable")?.status).toBe("info");
   });
 
   test("short or missing platform secrets are reported", async () => {
@@ -219,7 +262,7 @@ describe("Controllo pagamenti — texts", () => {
   test("every text is valid ICU in all six languages (no stray braces or <tags>)", async () => {
     const { IntlMessageFormat } = await import("intl-messageformat");
     const values = Object.fromEntries(
-      ["ok", "warn", "error", "time", "regions", "host", "name", "country", "count", "plan", "cycle", "envName", "currency", "charged", "shown", "amount", "events", "expected", "countries"].map((k) => [k, "x"]),
+      ["ok", "warn", "error", "time", "regions", "host", "name", "country", "count", "plan", "cycle", "envName", "currency", "charged", "shown", "amount", "events", "expected", "countries", "address", "domain", "status"].map((k) => [k, "x"]),
     );
     for (const locale of ["it", "en", "fr", "de", "nl", "ro"]) {
       const messages = (await import(`../../messages/${locale}.json`)).default.billingHealth as Record<string, unknown>;

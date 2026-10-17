@@ -3700,6 +3700,10 @@
         "title": "Portale cliente Stripe",
         "hint": "La pagina Stripe dove il cliente aggiorna carta e scarica le fatture."
       },
+      "email": {
+        "title": "Email",
+        "hint": "Codici di registrazione, ricevute, avvisi ai clienti e avvisi di errore partono da qui (servizio Resend)."
+      },
       "secrets": {
         "title": "Altre chiavi della piattaforma",
         "hint": "Chiavi necessarie per email, sicurezza e allegati del supporto."
@@ -3899,20 +3903,6 @@
         "text": "Manca DAILY_IP_SALT: gli indirizzi IP vengono resi anonimi con una chiave pubblica.",
         "fix": "Su Convex aggiungi DAILY_IP_SALT (openssl rand -hex 16)."
       },
-      "emailOk": {
-        "text": "Invio email configurato."
-      },
-      "emailMissing": {
-        "text": "Invio email non configurato: i clienti non ricevono codici, ricevute e avvisi.",
-        "fix": "Su Convex imposta AUTH_RESEND_KEY e RESEND_FROM (dalla dashboard di Resend)."
-      },
-      "purchaseEmailOk": {
-        "text": "Mittente delle email di acquisto configurato."
-      },
-      "purchaseEmailMissing": {
-        "text": "Manca il mittente dedicato alle email di acquisto (RESEND_FROM_PURCHASES).",
-        "fix": "Su Convex imposta RESEND_FROM_PURCHASES (es. billing@onespec.eu)."
-      },
       "turnstileOk": {
         "text": "Protezione anti-bot configurata."
       },
@@ -3926,6 +3916,45 @@
       "alertsMissing": {
         "text": "Nessuna email per gli avvisi di errore (OPS_ALERT_EMAIL).",
         "fix": "Su Convex imposta OPS_ALERT_EMAIL con l'indirizzo che deve ricevere gli avvisi (es. un pagamento non applicato)."
+      },
+      "emailKeyMissing": {
+        "text": "Manca la chiave di Resend (AUTH_RESEND_KEY): nessuna email può partire.",
+        "fix": "In Resend → API Keys crea una chiave con permesso «Sending access» (o «Full access»), copiala e salvala su Convex (Production) come AUTH_RESEND_KEY."
+      },
+      "emailModeNotLive": {
+        "text": "Invio email spento (RESEND_MODE non è «live»): codici di registrazione, ricevute e avvisi vengono solo scritti nei log, ai clienti non arriva nulla.",
+        "fix": "Su Convex (Production) aggiungi la variabile RESEND_MODE con valore esattamente live (minuscolo)."
+      },
+      "emailOk": {
+        "text": "Invio email attivo. Mittente delle email di servizio: {address}."
+      },
+      "purchaseEmailOk": {
+        "text": "Mittente delle email di acquisto: {address}."
+      },
+      "purchaseEmailDefault": {
+        "text": "Mittente delle email di acquisto: {address} (valore predefinito, va bene così)."
+      },
+      "resendDomainVerified": {
+        "text": "Dominio {domain} verificato su Resend: le email partono da un indirizzo affidabile."
+      },
+      "resendDomainNotVerified": {
+        "text": "Il dominio {domain} è su Resend ma non è verificato (stato: {status}): le email possono essere rifiutate.",
+        "fix": "In Resend → Domains apri {domain}, copia i record DNS (SPF, DKIM, MX) nel pannello del tuo provider di dominio, poi premi «Verify» su Resend."
+      },
+      "resendDomainMissing": {
+        "text": "Il dominio {domain} non è stato aggiunto su Resend: le email da quell'indirizzo non possono partire.",
+        "fix": "In Resend → Domains → Add Domain inserisci {domain}, copia i record DNS nel pannello del tuo provider di dominio e premi «Verify»."
+      },
+      "resendDomainUncheckable": {
+        "text": "La chiave Resend può solo inviare (scelta corretta per la sicurezza), quindi da qui non si può leggere lo stato del dominio {domain}: controlla in Resend → Domains che risulti «Verified»."
+      },
+      "resendKeyRejected": {
+        "text": "Resend rifiuta la chiave AUTH_RESEND_KEY.",
+        "fix": "La chiave è sbagliata o revocata: creane una nuova in Resend → API Keys e aggiornala su Convex."
+      },
+      "resendUnreachable": {
+        "text": "Resend non ha risposto a questo controllo.",
+        "fix": "Può essere momentaneo: premi «Ricontrolla»."
       }
     },
     "finalTest": {

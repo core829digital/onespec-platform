@@ -3700,6 +3700,10 @@
         "title": "Portail client Stripe",
         "hint": "La page Stripe où le client met à jour sa carte et télécharge ses factures."
       },
+      "email": {
+        "title": "E-mails",
+        "hint": "Codes d'inscription, reçus, avis aux clients et alertes d'erreur partent d'ici (service Resend)."
+      },
       "secrets": {
         "title": "Autres clés de la plateforme",
         "hint": "Clés nécessaires pour les e-mails, la sécurité et les pièces jointes du support."
@@ -3899,20 +3903,6 @@
         "text": "DAILY_IP_SALT est absent : les adresses IP sont anonymisées avec une clé publique.",
         "fix": "Sur Convex, ajoutez DAILY_IP_SALT (openssl rand -hex 16)."
       },
-      "emailOk": {
-        "text": "Envoi d'e-mails configuré."
-      },
-      "emailMissing": {
-        "text": "L'envoi d'e-mails n'est pas configuré : les clients ne reçoivent ni codes, ni reçus, ni avis.",
-        "fix": "Sur Convex, définissez AUTH_RESEND_KEY et RESEND_FROM (depuis le tableau de bord Resend)."
-      },
-      "purchaseEmailOk": {
-        "text": "Expéditeur des e-mails d'achat configuré."
-      },
-      "purchaseEmailMissing": {
-        "text": "L'expéditeur dédié aux e-mails d'achat (RESEND_FROM_PURCHASES) est absent.",
-        "fix": "Sur Convex, définissez RESEND_FROM_PURCHASES (ex. billing@onespec.eu)."
-      },
       "turnstileOk": {
         "text": "Protection anti-robots configurée."
       },
@@ -3926,6 +3916,45 @@
       "alertsMissing": {
         "text": "Aucune adresse pour les alertes d'erreur (OPS_ALERT_EMAIL).",
         "fix": "Sur Convex, définissez OPS_ALERT_EMAIL avec l'adresse qui doit recevoir les alertes (ex. un paiement non appliqué)."
+      },
+      "emailKeyMissing": {
+        "text": "La clé Resend (AUTH_RESEND_KEY) est absente : aucun e-mail ne peut partir.",
+        "fix": "Dans Resend → API Keys, créez une clé avec « Sending access » (ou « Full access »), copiez-la et enregistrez-la sur Convex (Production) sous AUTH_RESEND_KEY."
+      },
+      "emailModeNotLive": {
+        "text": "L'envoi d'e-mails est désactivé (RESEND_MODE n'est pas « live ») : codes d'inscription, reçus et avis sont seulement écrits dans les journaux, les clients ne reçoivent rien.",
+        "fix": "Sur Convex (Production), ajoutez la variable RESEND_MODE avec exactement la valeur live (en minuscules)."
+      },
+      "emailOk": {
+        "text": "Envoi d'e-mails actif. Expéditeur des e-mails de service : {address}."
+      },
+      "purchaseEmailOk": {
+        "text": "Expéditeur des e-mails d'achat : {address}."
+      },
+      "purchaseEmailDefault": {
+        "text": "Expéditeur des e-mails d'achat : {address} (valeur par défaut, c'est correct)."
+      },
+      "resendDomainVerified": {
+        "text": "Domaine {domain} vérifié sur Resend : les e-mails partent d'une adresse fiable."
+      },
+      "resendDomainNotVerified": {
+        "text": "Le domaine {domain} est sur Resend mais n'est pas vérifié (état : {status}) : les e-mails peuvent être refusés.",
+        "fix": "Dans Resend → Domains, ouvrez {domain}, copiez les enregistrements DNS (SPF, DKIM, MX) dans le panneau de votre fournisseur de domaine, puis appuyez sur « Verify » dans Resend."
+      },
+      "resendDomainMissing": {
+        "text": "Le domaine {domain} n'a pas été ajouté sur Resend : les e-mails depuis cette adresse ne peuvent pas partir.",
+        "fix": "Dans Resend → Domains → Add Domain, saisissez {domain}, copiez les enregistrements DNS chez votre fournisseur de domaine et appuyez sur « Verify »."
+      },
+      "resendDomainUncheckable": {
+        "text": "La clé Resend peut seulement envoyer (bon choix pour la sécurité) : l'état du domaine {domain} ne peut donc pas être lu d'ici. Vérifiez dans Resend → Domains qu'il apparaît « Verified »."
+      },
+      "resendKeyRejected": {
+        "text": "Resend refuse la clé AUTH_RESEND_KEY.",
+        "fix": "La clé est erronée ou révoquée : créez-en une nouvelle dans Resend → API Keys et mettez-la à jour sur Convex."
+      },
+      "resendUnreachable": {
+        "text": "Resend n'a pas répondu à ce contrôle.",
+        "fix": "C'est peut-être temporaire : appuyez sur « Vérifier à nouveau »."
       }
     },
     "finalTest": {

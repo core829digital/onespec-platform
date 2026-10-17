@@ -31,7 +31,7 @@ Convex → Settings → Environment Variables → Add. Per generare un valore: n
 ## 2 · Altre variabili da controllare su Convex (Production)
 Devono già esserci. Controlla solo che non manchi nulla:
 - [ ] Stripe: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_BASE`, `STRIPE_PRICE_PRO`, `STRIPE_WEBHOOK_PATH_TOKEN`
-- [ ] Email (Resend): `AUTH_RESEND_KEY`, `RESEND_FROM`, `RESEND_FROM_NOREPLY`, `RESEND_FROM_PURCHASES`, `RESEND_WEBHOOK_SECRET`
+- [ ] Email (Resend): `AUTH_RESEND_KEY` e `RESEND_MODE=live` (senza questi due nessuna email parte, nemmeno i codici di registrazione). Facoltativi: `RESEND_FROM_NOREPLY` (predefinito noreply@onespec.eu), `RESEND_FROM_PURCHASES` (predefinito purchases@onespec.eu), `RESEND_WEBHOOK_SECRET`. Il dominio onespec.eu deve risultare «Verified» su Resend
 - [ ] Anti-bot (Turnstile): `TURNSTILE_SECRET`, `TURNSTILE_HOSTNAMES`
 - [ ] Indirizzi: `SITE_URL`, `CONVEX_SITE_URL`, `ALLOWED_APP_ORIGINS`
 - [ ] Supporto e avvisi: `OPS_ALERT_EMAIL`, `SUPPORT_REPLY_TO`

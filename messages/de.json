@@ -3700,6 +3700,10 @@
         "title": "Stripe-Kundenportal",
         "hint": "Die Stripe-Seite, auf der Kunden ihre Karte aktualisieren und Rechnungen herunterladen."
       },
+      "email": {
+        "title": "E-Mail",
+        "hint": "Registrierungscodes, Belege, Kundenhinweise und Fehlerwarnungen werden von hier versendet (Dienst Resend)."
+      },
       "secrets": {
         "title": "Weitere Plattform-Schlüssel",
         "hint": "Schlüssel für E-Mails, Sicherheit und Anhänge im Support."
@@ -3899,20 +3903,6 @@
         "text": "DAILY_IP_SALT fehlt: IP-Adressen werden mit einem öffentlichen Schlüssel anonymisiert.",
         "fix": "Auf Convex DAILY_IP_SALT hinzufügen (openssl rand -hex 16)."
       },
-      "emailOk": {
-        "text": "E-Mail-Versand konfiguriert."
-      },
-      "emailMissing": {
-        "text": "E-Mail-Versand nicht konfiguriert: Kunden erhalten keine Codes, Belege oder Hinweise.",
-        "fix": "Auf Convex AUTH_RESEND_KEY und RESEND_FROM setzen (aus dem Resend-Dashboard)."
-      },
-      "purchaseEmailOk": {
-        "text": "Absender für Kauf-E-Mails konfiguriert."
-      },
-      "purchaseEmailMissing": {
-        "text": "Der eigene Absender für Kauf-E-Mails (RESEND_FROM_PURCHASES) fehlt.",
-        "fix": "Auf Convex RESEND_FROM_PURCHASES setzen (z. B. billing@onespec.eu)."
-      },
       "turnstileOk": {
         "text": "Bot-Schutz konfiguriert."
       },
@@ -3926,6 +3916,45 @@
       "alertsMissing": {
         "text": "Keine E-Mail für Fehlerwarnungen (OPS_ALERT_EMAIL).",
         "fix": "Auf Convex OPS_ALERT_EMAIL auf die Adresse setzen, die Warnungen erhalten soll (z. B. eine nicht verbuchte Zahlung)."
+      },
+      "emailKeyMissing": {
+        "text": "Der Resend-Schlüssel (AUTH_RESEND_KEY) fehlt: Es kann keine E-Mail versendet werden.",
+        "fix": "In Resend → API Keys einen Schlüssel mit „Sending access“ (oder „Full access“) erstellen, kopieren und auf Convex (Production) als AUTH_RESEND_KEY speichern."
+      },
+      "emailModeNotLive": {
+        "text": "E-Mail-Versand ist aus (RESEND_MODE ist nicht „live“): Registrierungscodes, Belege und Hinweise werden nur in die Logs geschrieben, Kunden erhalten nichts.",
+        "fix": "Auf Convex (Production) die Variable RESEND_MODE mit genau dem Wert live (klein geschrieben) hinzufügen."
+      },
+      "emailOk": {
+        "text": "E-Mail-Versand aktiv. Absender der Service-E-Mails: {address}."
+      },
+      "purchaseEmailOk": {
+        "text": "Absender der Kauf-E-Mails: {address}."
+      },
+      "purchaseEmailDefault": {
+        "text": "Absender der Kauf-E-Mails: {address} (Standardwert, so in Ordnung)."
+      },
+      "resendDomainVerified": {
+        "text": "Domain {domain} bei Resend verifiziert: E-Mails gehen von einer vertrauenswürdigen Adresse aus."
+      },
+      "resendDomainNotVerified": {
+        "text": "Die Domain {domain} ist bei Resend, aber nicht verifiziert (Status: {status}): E-Mails können abgelehnt werden.",
+        "fix": "In Resend → Domains {domain} öffnen, die DNS-Einträge (SPF, DKIM, MX) im Panel Ihres Domain-Anbieters eintragen und dann bei Resend „Verify“ drücken."
+      },
+      "resendDomainMissing": {
+        "text": "Die Domain {domain} wurde bei Resend nicht hinzugefügt: E-Mails von dieser Adresse können nicht versendet werden.",
+        "fix": "In Resend → Domains → Add Domain {domain} eingeben, die DNS-Einträge beim Domain-Anbieter eintragen und „Verify“ drücken."
+      },
+      "resendDomainUncheckable": {
+        "text": "Der Resend-Schlüssel darf nur senden (aus Sicherheitsgründen richtig), daher lässt sich der Status der Domain {domain} hier nicht lesen: In Resend → Domains prüfen, dass sie „Verified“ anzeigt."
+      },
+      "resendKeyRejected": {
+        "text": "Resend lehnt den Schlüssel AUTH_RESEND_KEY ab.",
+        "fix": "Der Schlüssel ist falsch oder widerrufen: In Resend → API Keys einen neuen erstellen und auf Convex aktualisieren."
+      },
+      "resendUnreachable": {
+        "text": "Resend hat auf diese Prüfung nicht geantwortet.",
+        "fix": "Das kann vorübergehend sein: „Erneut prüfen“ drücken."
       }
     },
     "finalTest": {

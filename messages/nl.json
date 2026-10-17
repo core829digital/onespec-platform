@@ -3700,6 +3700,10 @@
         "title": "Stripe-klantenportaal",
         "hint": "De Stripe-pagina waar klanten hun kaart bijwerken en facturen downloaden."
       },
+      "email": {
+        "title": "E-mail",
+        "hint": "Registratiecodes, bonnen, klantmeldingen en foutmeldingen worden hiervandaan verstuurd (dienst Resend)."
+      },
       "secrets": {
         "title": "Overige platformsleutels",
         "hint": "Sleutels voor e-mail, beveiliging en bijlagen in de support."
@@ -3899,20 +3903,6 @@
         "text": "DAILY_IP_SALT ontbreekt: IP-adressen worden geanonimiseerd met een openbare sleutel.",
         "fix": "Voeg op Convex DAILY_IP_SALT toe (openssl rand -hex 16)."
       },
-      "emailOk": {
-        "text": "E-mailverzending ingesteld."
-      },
-      "emailMissing": {
-        "text": "E-mailverzending niet ingesteld: klanten ontvangen geen codes, bonnen of meldingen.",
-        "fix": "Stel op Convex AUTH_RESEND_KEY en RESEND_FROM in (vanuit het Resend-dashboard)."
-      },
-      "purchaseEmailOk": {
-        "text": "Afzender voor aankoopmails ingesteld."
-      },
-      "purchaseEmailMissing": {
-        "text": "De aparte afzender voor aankoopmails (RESEND_FROM_PURCHASES) ontbreekt.",
-        "fix": "Stel op Convex RESEND_FROM_PURCHASES in (bv. billing@onespec.eu)."
-      },
       "turnstileOk": {
         "text": "Anti-botbeveiliging ingesteld."
       },
@@ -3926,6 +3916,45 @@
       "alertsMissing": {
         "text": "Geen e-mailadres voor foutmeldingen (OPS_ALERT_EMAIL).",
         "fix": "Stel op Convex OPS_ALERT_EMAIL in op het adres dat meldingen moet ontvangen (bv. een betaling die niet is verwerkt)."
+      },
+      "emailKeyMissing": {
+        "text": "De Resend-sleutel (AUTH_RESEND_KEY) ontbreekt: er kan geen e-mail worden verstuurd.",
+        "fix": "Maak in Resend → API Keys een sleutel met ‘Sending access’ (of ‘Full access’), kopieer hem en sla hem op Convex (Production) op als AUTH_RESEND_KEY."
+      },
+      "emailModeNotLive": {
+        "text": "E-mailverzending staat uit (RESEND_MODE is niet ‘live’): registratiecodes, bonnen en meldingen worden alleen in de logs geschreven, klanten ontvangen niets.",
+        "fix": "Voeg op Convex (Production) de variabele RESEND_MODE toe met precies de waarde live (kleine letters)."
+      },
+      "emailOk": {
+        "text": "E-mailverzending actief. Afzender van service-e-mails: {address}."
+      },
+      "purchaseEmailOk": {
+        "text": "Afzender van aankoopmails: {address}."
+      },
+      "purchaseEmailDefault": {
+        "text": "Afzender van aankoopmails: {address} (standaardwaarde, zo is het goed)."
+      },
+      "resendDomainVerified": {
+        "text": "Domein {domain} geverifieerd bij Resend: e-mails gaan uit van een betrouwbaar adres."
+      },
+      "resendDomainNotVerified": {
+        "text": "Het domein {domain} staat bij Resend maar is niet geverifieerd (status: {status}): e-mails kunnen worden geweigerd.",
+        "fix": "Open in Resend → Domains {domain}, kopieer de DNS-records (SPF, DKIM, MX) naar het paneel van uw domeinprovider en druk daarna op ‘Verify’ bij Resend."
+      },
+      "resendDomainMissing": {
+        "text": "Het domein {domain} is niet toegevoegd bij Resend: e-mails vanaf dat adres kunnen niet worden verstuurd.",
+        "fix": "Voer in Resend → Domains → Add Domain {domain} in, kopieer de DNS-records bij uw domeinprovider en druk op ‘Verify’."
+      },
+      "resendDomainUncheckable": {
+        "text": "De Resend-sleutel mag alleen versturen (goede keuze voor de veiligheid), dus de status van het domein {domain} is hier niet te lezen: controleer in Resend → Domains dat het ‘Verified’ toont."
+      },
+      "resendKeyRejected": {
+        "text": "Resend weigert de sleutel AUTH_RESEND_KEY.",
+        "fix": "De sleutel is fout of ingetrokken: maak een nieuwe in Resend → API Keys en werk hem bij op Convex."
+      },
+      "resendUnreachable": {
+        "text": "Resend heeft niet geantwoord op deze controle.",
+        "fix": "Dat kan tijdelijk zijn: druk op ‘Opnieuw controleren’."
       }
     },
     "finalTest": {

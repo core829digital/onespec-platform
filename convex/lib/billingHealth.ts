@@ -6,6 +6,7 @@
  * its mode (live/test) or its length. The UI translates each `check` code; `params` carry only non-secret details
  * (plan names, amounts, countries, host names).
  */
+import { noreplyFromAddress, purchasesFromAddress } from "./emailFrom";
 import { BILLING_PLANS, SELF_SERVE_PLANS, listPriceCents, resolveStripePriceId, type BillablePlan, type BillingCycle } from "./billingPlans";
 import { entitlementsFor } from "./entitlements";
 
@@ -17,7 +18,7 @@ export interface HealthItem {
   params: Record<string, string>;
 }
 export interface HealthSection {
-  key: "keys" | "account" | "prices" | "webhook" | "tax" | "portal" | "secrets";
+  key: "keys" | "account" | "prices" | "webhook" | "tax" | "portal" | "email" | "secrets";
   items: HealthItem[];
 }
 export interface HealthReport {
@@ -109,10 +110,6 @@ function secretsSection(env: Env): HealthSection {
       : item("supportSigning", "supportSigningMissing", "error"),
     long("MFA_ENCRYPTION_KEY") ? item("mfaKey", "mfaKeyOk", "ok") : item("mfaKey", "mfaKeyMissing", "error"),
     set("DAILY_IP_SALT") ? item("ipSalt", "ipSaltOk", "ok") : item("ipSalt", "ipSaltMissing", "warn"),
-    set("AUTH_RESEND_KEY") && set("RESEND_FROM")
-      ? item("email", "emailOk", "ok")
-      : item("email", "emailMissing", "error"),
-    set("RESEND_FROM_PURCHASES") ? item("purchaseEmail", "purchaseEmailOk", "ok") : item("purchaseEmail", "purchaseEmailMissing", "warn"),
     set("TURNSTILE_SECRET") ? item("turnstile", "turnstileOk", "ok") : item("turnstile", "turnstileMissing", "warn"),
     set("OPS_ALERT_EMAIL") ? item("alerts", "alertsOk", "ok") : item("alerts", "alertsMissing", "warn"),
   ];
@@ -274,7 +271,56 @@ async function portalSection(get: StripeGet): Promise<HealthSection> {
   };
 }
 
-export async function runBillingHealth(env: Env, get: StripeGet, now: number): Promise<HealthReport> {
+/**
+ * Email, as the senders really work (convex/email.ts, ResendOTP, ops.ts): mail goes out only with AUTH_RESEND_KEY and
+ * RESEND_MODE=live; otherwise sign-up codes, receipts and alerts are only written to the logs. Sender addresses fall back to
+ * noreply@ / purchases@onespec.eu, so they are informational; their domain must be verified in Resend.
+ */
+async function emailSection(env: Env, resendGet: StripeGet): Promise<HealthSection> {
+  const items: HealthItem[] = [];
+  const key = (env.AUTH_RESEND_KEY ?? "").trim();
+  const live = env.RESEND_MODE === "live";
+  if (!key) items.push(item("resendKey", "emailKeyMissing", "error"));
+  if (!live) items.push(item("resendMode", "emailModeNotLive", "error"));
+  const noreply = noreplyFromAddress();
+  const purchases = purchasesFromAddress();
+  if (key && live) items.push(item("resendSending", "emailOk", "ok", { address: noreply }));
+  items.push(
+    env.RESEND_FROM_PURCHASES
+      ? item("purchaseFrom", "purchaseEmailOk", "ok", { address: purchases })
+      : item("purchaseFrom", "purchaseEmailDefault", "info", { address: purchases }),
+  );
+  if (key) {
+    const domains = [...new Set([noreply, purchases].map((a) => a.split("@")[1]?.replace(/>.*$/, "").trim().toLowerCase()).filter(Boolean))] as string[];
+    const r = await resendGet("/domains");
+    if (r.ok) {
+      const list = (Array.isArray(r.json.data) ? r.json.data : []) as Array<{ name?: string; status?: string }>;
+      for (const domain of domains) {
+        const d = list.find((x) => (x.name ?? "").toLowerCase() === domain);
+        items.push(
+          !d
+            ? item(`domain_${domain}`, "resendDomainMissing", "error", { domain })
+            : d.status === "verified"
+              ? item(`domain_${domain}`, "resendDomainVerified", "ok", { domain })
+              : item(`domain_${domain}`, "resendDomainNotVerified", "error", { domain, status: d.status ?? "—" }),
+        );
+      }
+    } else if (r.status === 401 || r.status === 403) {
+      // A sending-only key cannot list domains (Resend: restricted_api_key): fine for production, just not checkable here.
+      const restricted = String((r.json as { name?: unknown }).name ?? "").includes("restricted");
+      items.push(
+        restricted
+          ? item("domain", "resendDomainUncheckable", "info", { domain: domains.join(", ") })
+          : item("domain", "resendKeyRejected", "error"),
+      );
+    } else {
+      items.push(item("domain", "resendUnreachable", "warn"));
+    }
+  }
+  return { key: "email", items };
+}
+
+export async function runBillingHealth(env: Env, get: StripeGet, now: number, resendGet: StripeGet): Promise<HealthReport> {
   const mode = keyMode(env.STRIPE_SECRET_KEY);
   const sections: HealthSection[] = [keysSection(env, mode)];
   if (mode !== "missing") {
@@ -289,6 +335,7 @@ export async function runBillingHealth(env: Env, get: StripeGet, now: number): P
       sections.push(await portalSection(get));
     }
   }
+  sections.push(await emailSection(env, resendGet));
   sections.push(secretsSection(env));
   const all = sections.flatMap((s) => s.items);
   const overall = all.some((i) => i.status === "error") ? "error" : all.some((i) => i.status === "warn") ? "warn" : "ok";

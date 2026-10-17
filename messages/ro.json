@@ -3700,6 +3700,10 @@
         "title": "Portalul clienților Stripe",
         "hint": "Pagina Stripe unde clientul își actualizează cardul și descarcă facturile."
       },
+      "email": {
+        "title": "E-mail",
+        "hint": "Codurile de înregistrare, chitanțele, notificările către clienți și alertele de eroare pleacă de aici (serviciul Resend)."
+      },
       "secrets": {
         "title": "Alte chei ale platformei",
         "hint": "Chei necesare pentru e-mailuri, securitate și atașamentele de la suport."
@@ -3899,20 +3903,6 @@
         "text": "Lipsește DAILY_IP_SALT: adresele IP sunt anonimizate cu o cheie publică.",
         "fix": "Pe Convex adaugă DAILY_IP_SALT (openssl rand -hex 16)."
       },
-      "emailOk": {
-        "text": "Trimiterea e-mailurilor este configurată."
-      },
-      "emailMissing": {
-        "text": "Trimiterea e-mailurilor nu este configurată: clienții nu primesc coduri, chitanțe și notificări.",
-        "fix": "Pe Convex setează AUTH_RESEND_KEY și RESEND_FROM (din panoul Resend)."
-      },
-      "purchaseEmailOk": {
-        "text": "Expeditorul e-mailurilor de achiziție este configurat."
-      },
-      "purchaseEmailMissing": {
-        "text": "Lipsește expeditorul dedicat e-mailurilor de achiziție (RESEND_FROM_PURCHASES).",
-        "fix": "Pe Convex setează RESEND_FROM_PURCHASES (de ex. billing@onespec.eu)."
-      },
       "turnstileOk": {
         "text": "Protecția anti-bot este configurată."
       },
@@ -3926,6 +3916,45 @@
       "alertsMissing": {
         "text": "Nicio adresă pentru alertele de eroare (OPS_ALERT_EMAIL).",
         "fix": "Pe Convex setează OPS_ALERT_EMAIL cu adresa care trebuie să primească alertele (de ex. o plată neaplicată)."
+      },
+      "emailKeyMissing": {
+        "text": "Lipsește cheia Resend (AUTH_RESEND_KEY): nu poate pleca niciun e-mail.",
+        "fix": "În Resend → API Keys creează o cheie cu „Sending access” (sau „Full access”), copiaz-o și salveaz-o pe Convex (Production) ca AUTH_RESEND_KEY."
+      },
+      "emailModeNotLive": {
+        "text": "Trimiterea e-mailurilor este oprită (RESEND_MODE nu este „live”): codurile de înregistrare, chitanțele și notificările sunt doar scrise în jurnale, clienții nu primesc nimic.",
+        "fix": "Pe Convex (Production) adaugă variabila RESEND_MODE cu valoarea exact live (cu litere mici)."
+      },
+      "emailOk": {
+        "text": "Trimiterea e-mailurilor este activă. Expeditorul e-mailurilor de serviciu: {address}."
+      },
+      "purchaseEmailOk": {
+        "text": "Expeditorul e-mailurilor de achiziție: {address}."
+      },
+      "purchaseEmailDefault": {
+        "text": "Expeditorul e-mailurilor de achiziție: {address} (valoare implicită, e în regulă)."
+      },
+      "resendDomainVerified": {
+        "text": "Domeniul {domain} este verificat pe Resend: e-mailurile pleacă de la o adresă de încredere."
+      },
+      "resendDomainNotVerified": {
+        "text": "Domeniul {domain} este pe Resend, dar nu este verificat (stare: {status}): e-mailurile pot fi respinse.",
+        "fix": "În Resend → Domains deschide {domain}, copiază înregistrările DNS (SPF, DKIM, MX) în panoul furnizorului de domeniu, apoi apasă „Verify” pe Resend."
+      },
+      "resendDomainMissing": {
+        "text": "Domeniul {domain} nu a fost adăugat pe Resend: e-mailurile de la acea adresă nu pot pleca.",
+        "fix": "În Resend → Domains → Add Domain introdu {domain}, copiază înregistrările DNS la furnizorul de domeniu și apasă „Verify”."
+      },
+      "resendDomainUncheckable": {
+        "text": "Cheia Resend poate doar să trimită (alegere corectă pentru securitate), așa că starea domeniului {domain} nu se poate citi de aici: verifică în Resend → Domains că apare „Verified”."
+      },
+      "resendKeyRejected": {
+        "text": "Resend refuză cheia AUTH_RESEND_KEY.",
+        "fix": "Cheia este greșită sau revocată: creează una nouă în Resend → API Keys și actualizeaz-o pe Convex."
+      },
+      "resendUnreachable": {
+        "text": "Resend nu a răspuns la această verificare.",
+        "fix": "Poate fi temporar: apasă „Verifică din nou”."
       }
     },
     "finalTest": {

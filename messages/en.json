@@ -3700,6 +3700,10 @@
         "title": "Stripe customer portal",
         "hint": "The Stripe page where customers update their card and download invoices."
       },
+      "email": {
+        "title": "Email",
+        "hint": "Sign-up codes, receipts, customer notices and error alerts are sent from here (Resend service)."
+      },
       "secrets": {
         "title": "Other platform keys",
         "hint": "Keys needed for email, security and support attachments."
@@ -3899,20 +3903,6 @@
         "text": "DAILY_IP_SALT is missing: IP addresses are anonymised with a public key.",
         "fix": "On Convex add DAILY_IP_SALT (openssl rand -hex 16)."
       },
-      "emailOk": {
-        "text": "Email sending configured."
-      },
-      "emailMissing": {
-        "text": "Email sending is not configured: customers receive no codes, receipts or notices.",
-        "fix": "On Convex set AUTH_RESEND_KEY and RESEND_FROM (from the Resend dashboard)."
-      },
-      "purchaseEmailOk": {
-        "text": "Sender for purchase emails configured."
-      },
-      "purchaseEmailMissing": {
-        "text": "The dedicated sender for purchase emails (RESEND_FROM_PURCHASES) is missing.",
-        "fix": "On Convex set RESEND_FROM_PURCHASES (e.g. billing@onespec.eu)."
-      },
       "turnstileOk": {
         "text": "Anti-bot protection configured."
       },
@@ -3926,6 +3916,45 @@
       "alertsMissing": {
         "text": "No email for error alerts (OPS_ALERT_EMAIL).",
         "fix": "On Convex set OPS_ALERT_EMAIL to the address that should receive alerts (e.g. a payment that was not applied)."
+      },
+      "emailKeyMissing": {
+        "text": "The Resend key (AUTH_RESEND_KEY) is missing: no email can be sent.",
+        "fix": "In Resend → API Keys create a key with “Sending access” (or “Full access”), copy it and save it on Convex (Production) as AUTH_RESEND_KEY."
+      },
+      "emailModeNotLive": {
+        "text": "Email sending is off (RESEND_MODE is not “live”): sign-up codes, receipts and notices are only written to the logs, customers receive nothing.",
+        "fix": "On Convex (Production) add the variable RESEND_MODE with the value exactly live (lower case)."
+      },
+      "emailOk": {
+        "text": "Email sending active. Sender of service emails: {address}."
+      },
+      "purchaseEmailOk": {
+        "text": "Sender of purchase emails: {address}."
+      },
+      "purchaseEmailDefault": {
+        "text": "Sender of purchase emails: {address} (default value, fine as it is)."
+      },
+      "resendDomainVerified": {
+        "text": "Domain {domain} verified on Resend: emails go out from a trusted address."
+      },
+      "resendDomainNotVerified": {
+        "text": "The domain {domain} is on Resend but not verified (status: {status}): emails may be rejected.",
+        "fix": "In Resend → Domains open {domain}, copy the DNS records (SPF, DKIM, MX) into your domain provider's panel, then press “Verify” on Resend."
+      },
+      "resendDomainMissing": {
+        "text": "The domain {domain} has not been added on Resend: emails from that address cannot be sent.",
+        "fix": "In Resend → Domains → Add Domain enter {domain}, copy the DNS records into your domain provider's panel and press “Verify”."
+      },
+      "resendDomainUncheckable": {
+        "text": "The Resend key can only send (the right choice for security), so the status of the domain {domain} cannot be read from here: check in Resend → Domains that it shows “Verified”."
+      },
+      "resendKeyRejected": {
+        "text": "Resend rejects the AUTH_RESEND_KEY key.",
+        "fix": "The key is wrong or revoked: create a new one in Resend → API Keys and update it on Convex."
+      },
+      "resendUnreachable": {
+        "text": "Resend did not answer this check.",
+        "fix": "It may be temporary: press “Check again”."
       }
     },
     "finalTest": {
