@@ -429,6 +429,8 @@
     "registrationClosed": "Sign-ups are temporarily closed.",
     "soleOwner": "You're the only owner: transfer ownership before continuing.",
     "billingNotConfigured": "Billing isn't active yet. Try again later.",
+    "billingUnavailable": "We couldn't open the payment page. Try again in a few minutes; if it keeps happening, contact us from Support.",
+    "noSubscription": "You don't have an active subscription: choose a plan below to activate it.",
     "signatureInvalid": "Signature invalid or too large. Please sign again.",
     "imageType": "Unsupported image format. Use JPG, PNG or WebP.",
     "offline": "You're offline. Try again when the connection is back.",

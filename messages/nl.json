@@ -429,6 +429,8 @@
     "registrationClosed": "Registraties zijn tijdelijk gesloten.",
     "soleOwner": "Je bent de enige eigenaar: draag het eigenaarschap eerst over.",
     "billingNotConfigured": "Facturatie is nog niet actief. Probeer het later opnieuw.",
+    "billingUnavailable": "De betaalpagina kon niet worden geopend. Probeer het over een paar minuten opnieuw; blijft het gebeuren, neem dan contact op via Support.",
+    "noSubscription": "Je hebt geen actief abonnement: kies hieronder een pakket om het te activeren.",
     "signatureInvalid": "Handtekening ongeldig of te groot. Teken opnieuw.",
     "imageType": "Afbeeldingsformaat niet ondersteund. Gebruik JPG, PNG of WebP.",
     "offline": "Je bent offline. Probeer opnieuw zodra de verbinding terug is.",

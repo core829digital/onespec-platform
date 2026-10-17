@@ -429,6 +429,8 @@
     "registrationClosed": "Înscrierile sunt temporar închise.",
     "soleOwner": "Ești singurul titular: transferă titularitatea înainte de a continua.",
     "billingNotConfigured": "Facturarea nu este încă activă. Reîncearcă mai târziu.",
+    "billingUnavailable": "Pagina de plată nu a putut fi deschisă. Reîncearcă în câteva minute; dacă problema persistă, scrie-ne din Suport.",
+    "noSubscription": "Nu ai un abonament activ: alege un plan mai jos pentru a-l activa.",
     "signatureInvalid": "Semnătură invalidă sau prea mare. Semnează din nou.",
     "imageType": "Format de imagine neacceptat. Folosește JPG, PNG sau WebP.",
     "offline": "Ești offline. Reîncearcă la revenirea conexiunii.",

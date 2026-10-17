@@ -429,6 +429,8 @@
     "registrationClosed": "Le registrazioni sono temporaneamente chiuse.",
     "soleOwner": "Sei l'unico titolare: trasferisci la titolarità prima di procedere.",
     "billingNotConfigured": "La fatturazione non è ancora attiva. Riprova più tardi.",
+    "billingUnavailable": "Non è stato possibile aprire il pagamento. Riprova tra qualche minuto; se il problema continua, scrivici dal Supporto.",
+    "noSubscription": "Non hai un abbonamento attivo: scegli un piano qui sotto per attivarlo.",
     "signatureInvalid": "Firma non valida o troppo grande. Firma di nuovo.",
     "imageType": "Formato immagine non supportato. Usa JPG, PNG o WebP.",
     "offline": "Sei offline. Riprova quando torna la connessione.",

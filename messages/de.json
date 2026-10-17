@@ -429,6 +429,8 @@
     "registrationClosed": "Registrierungen sind vorübergehend geschlossen.",
     "soleOwner": "Du bist der einzige Inhaber: Inhaberschaft vorher übertragen.",
     "billingNotConfigured": "Die Abrechnung ist noch nicht aktiv. Später erneut versuchen.",
+    "billingUnavailable": "Die Zahlungsseite konnte nicht geöffnet werden. Versuche es in ein paar Minuten erneut; wenn es weiter passiert, schreib uns über den Support.",
+    "noSubscription": "Du hast kein aktives Abonnement: Wähle unten einen Tarif, um es zu aktivieren.",
     "signatureInvalid": "Unterschrift ungültig oder zu groß. Bitte neu unterschreiben.",
     "imageType": "Bildformat nicht unterstützt. JPG, PNG oder WebP verwenden.",
     "offline": "Du bist offline. Versuche es erneut, sobald die Verbindung zurück ist.",

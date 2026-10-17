@@ -65,50 +65,85 @@ function form(data: Record<string, string | undefined>): string {
   return p.toString();
 }
 
-async function stripe(path: string, body: Record<string, string | undefined>) {
-  const res = await fetch(`${STRIPE_API}${path}`, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${stripeKey()}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: form(body),
-  });
-  const json = (await res.json()) as Record<string, unknown>;
-  if (!res.ok) {
-    const msg = (json.error as { message?: string } | undefined)?.message ?? "STRIPE_ERROR";
-    throw new ConvexError(`STRIPE: ${msg}`);
+type StripeResult = { ok: boolean; status: number; json: Record<string, unknown> };
+type StripeErrorBody = { message?: string; code?: string; param?: string; type?: string };
+
+/**
+ * One Stripe call that never throws on an HTTP error: callers that need to
+ * react to a specific Stripe answer (a customer that no longer exists, a
+ * parameter Stripe refuses) read `status`/`json` themselves. Only a network
+ * failure throws, as a coded error the UI can explain.
+ */
+async function stripeRaw(
+  method: "GET" | "POST" | "DELETE",
+  path: string,
+  body: Record<string, string | undefined> = {},
+): Promise<StripeResult> {
+  let res: Response;
+  try {
+    res = await fetch(`${STRIPE_API}${path}`, {
+      method,
+      headers: {
+        Authorization: `Bearer ${stripeKey()}`,
+        ...(method === "GET" ? {} : { "Content-Type": "application/x-www-form-urlencoded" }),
+      },
+      ...(method === "GET" ? {} : { body: form(body) }),
+    });
+  } catch (e) {
+    console.error(`[stripe] network failure ${method} ${path.split("?")[0]}:`, e instanceof Error ? e.message : String(e));
+    throw new ConvexError("BILLING_PROVIDER_UNAVAILABLE");
   }
-  return json;
+  let json: Record<string, unknown> = {};
+  try {
+    json = (await res.json()) as Record<string, unknown>;
+  } catch {
+    /* non-JSON body (proxy/HTML error page): keep the status, empty body */
+  }
+  return { ok: res.ok, status: res.status, json };
+}
+
+function stripeError(r: StripeResult): StripeErrorBody {
+  return ((r.json.error ?? {}) as StripeErrorBody) || {};
+}
+
+/** Log the exact Stripe answer (visible in the Convex logs) and throw the matching coded error. */
+function failStripe(where: string, r: StripeResult): never {
+  const e = stripeError(r);
+  console.error(
+    `[stripe] ${where} refused: status=${r.status} type=${e.type ?? "-"} code=${e.code ?? "-"} param=${e.param ?? "-"} message=${e.message ?? "-"}`,
+  );
+  if (r.status === 429 || r.status >= 500) throw new ConvexError("BILLING_PROVIDER_UNAVAILABLE");
+  throw new ConvexError(`STRIPE: ${e.message ?? "STRIPE_ERROR"}`);
+}
+
+async function stripe(path: string, body: Record<string, string | undefined>) {
+  const r = await stripeRaw("POST", path, body);
+  if (!r.ok) failStripe(`POST ${path}`, r);
+  return r.json;
 }
 
 async function stripeDelete(path: string, body: Record<string, string | undefined> = {}) {
-  const res = await fetch(`${STRIPE_API}${path}`, {
-    method: "DELETE",
-    headers: {
-      Authorization: `Bearer ${stripeKey()}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: form(body),
-  });
-  const json = (await res.json()) as Record<string, unknown>;
-  if (!res.ok) {
-    const msg = (json.error as { message?: string } | undefined)?.message ?? "STRIPE_ERROR";
-    throw new ConvexError(`STRIPE: ${msg}`);
-  }
-  return json;
+  const r = await stripeRaw("DELETE", path, body);
+  if (!r.ok) failStripe(`DELETE ${path}`, r);
+  return r.json;
 }
 
 async function stripeGet(path: string) {
-  const res = await fetch(`${STRIPE_API}${path}`, {
-    headers: { Authorization: `Bearer ${stripeKey()}` },
-  });
-  const json = (await res.json()) as Record<string, unknown>;
-  if (!res.ok) {
-    const msg = (json.error as { message?: string } | undefined)?.message ?? "STRIPE_ERROR";
-    throw new ConvexError(`STRIPE: ${msg}`);
-  }
-  return json;
+  const r = await stripeRaw("GET", path);
+  if (!r.ok) failStripe(`GET ${path.split("?")[0]}`, r);
+  return r.json;
+}
+
+/** Subscription states in which the customer still has (or is about to have) a paid plan. */
+const LIVE_SUB_STATUSES = ["active", "trialing", "past_due", "unpaid"];
+const LIVE_PLAN_STATUSES = ["active", "trialing", "past_due"];
+
+/** Stripe's "this id belongs to the other mode" hint (test ids kept after going live, or the reverse). */
+function otherModeHint(r: StripeResult): "test" | "live" | null {
+  const m = stripeError(r).message ?? "";
+  if (/similar object exists in test mode/i.test(m)) return "test";
+  if (/similar object exists in live mode/i.test(m)) return "live";
+  return null;
 }
 
 /**
@@ -265,6 +300,74 @@ function assertSeatsFit(plan: BillablePlan, activeMembers: number): void {
 // Checkout / portal (dormant until STRIPE_SECRET_KEY is set)
 // ---------------------------------------------------------------------------
 
+/**
+ * Checkout options that improve the page (names, tax id, phone, terms box,
+ * saved card) but are not needed to take the payment. If Stripe refuses one of
+ * them for a given customer, the session is retried without them rather than
+ * losing the sale. Price, customer, metadata, address and automatic tax always stay.
+ */
+const OPTIONAL_CHECKOUT_PARAMS = [
+  "ui_mode",
+  "phone_number_collection[enabled]",
+  "submit_type",
+  "tax_id_collection[enabled]",
+  "tax_id_collection[required]",
+  "consent_collection[terms_of_service]",
+  "name_collection[individual][enabled]",
+  "name_collection[individual][optional]",
+  "name_collection[business][enabled]",
+  "name_collection[business][optional]",
+  "saved_payment_method_options[payment_method_save]",
+  "integration_identifier",
+  "origin_context",
+  "customer_update[name]",
+];
+
+export function minimalCheckoutParams(params: Record<string, string | undefined>): Record<string, string | undefined> {
+  const out = { ...params };
+  for (const k of OPTIONAL_CHECKOUT_PARAMS) delete out[k];
+  return out;
+}
+
+async function createSessionWithFallback(
+  ctx: ActionCtx,
+  tenantId: string,
+  params: Record<string, string | undefined>,
+  email: string | undefined,
+): Promise<Record<string, unknown>> {
+  let attempt = params;
+  let r = await stripeRaw("POST", "/checkout/sessions", attempt);
+  if (!r.ok && r.status >= 400 && r.status < 500 && r.status !== 429) {
+    const e = stripeError(r);
+    console.error(`[checkout] session refused (attempt 1): code=${e.code ?? "-"} param=${e.param ?? "-"} message=${e.message ?? "-"}`);
+    if (e.code === "resource_missing" && e.param === "customer" && attempt.customer) {
+      // The customer vanished between the check and the session: fresh customer.
+      await ctx.runMutation(internal.billing.detachStripeRefs, { tenantId: tenantId as never, customerId: attempt.customer });
+      attempt = { ...attempt, customer: undefined, customer_email: email, "customer_update[name]": undefined, "customer_update[address]": undefined };
+    } else {
+      attempt = minimalCheckoutParams(attempt);
+    }
+    r = await stripeRaw("POST", "/checkout/sessions", attempt);
+    if (r.ok) console.warn("[checkout] session created on the fallback attempt");
+  }
+  if (!r.ok) {
+    const e = stripeError(r);
+    console.error(`[checkout] session refused (final): status=${r.status} code=${e.code ?? "-"} param=${e.param ?? "-"} message=${e.message ?? "-"}`);
+    try {
+      await ctx.scheduler.runAfter(0, internal.ops.alert, {
+        source: "stripe-checkout",
+        message: `Checkout non creato per il tenant ${tenantId}: ${r.status} ${e.code ?? ""} ${e.param ?? ""} ${e.message ?? ""}`.trim(),
+      });
+    } catch {
+      /* alerting must never mask the real error */
+    }
+    if (r.status === 429 || r.status >= 500) throw new ConvexError("BILLING_PROVIDER_UNAVAILABLE");
+    throw new ConvexError("BILLING_CHECKOUT_FAILED");
+  }
+  if (typeof r.json.url !== "string") throw new ConvexError("BILLING_CHECKOUT_FAILED");
+  return r.json;
+}
+
 export const createCheckoutSession = action({
   args: {
     tenantId: v.id("tenants"),
@@ -281,11 +384,55 @@ export const createCheckoutSession = action({
     const owner = await ctx.runQuery(internal.billing.assertOwner, { tenantId: args.tenantId });
     await limitBilling(ctx, args.tenantId, "checkout");
     // A second Checkout would open a SECOND subscription (double billing):
-    // a tenant with a live subscription switches plan via changePlan.
-    if (owner.stripeSubscriptionId && ["active", "trialing", "past_due"].includes(owner.planStatus)) {
-      throw new ConvexError("ALREADY_SUBSCRIBED");
+    // a tenant with a live subscription switches plan via changePlan. The
+    // local status can lag behind Stripe (a lost or late webhook), so before
+    // refusing, ask Stripe: an ended subscription must never lock a returning
+    // customer out of paying again.
+    if (owner.stripeSubscriptionId && LIVE_PLAN_STATUSES.includes(owner.planStatus)) {
+      let r: StripeResult;
+      try {
+        r = await stripeRaw("GET", `/subscriptions/${owner.stripeSubscriptionId}`);
+      } catch {
+        // Stripe unreachable: cannot tell, stay on the safe side (no double billing).
+        throw new ConvexError("ALREADY_SUBSCRIBED");
+      }
+      if (r.ok && LIVE_SUB_STATUSES.includes(String(r.json.status))) throw new ConvexError("ALREADY_SUBSCRIBED");
+      if (!r.ok && !(r.status === 404 && otherModeHint(r) === "test")) {
+        // Cannot tell: stay on the safe side (no double billing).
+        const e = stripeError(r);
+        console.warn(`[checkout] could not verify the stored subscription: status=${r.status} code=${e.code ?? "-"}`);
+        throw new ConvexError("ALREADY_SUBSCRIBED");
+      }
+      // Ended on Stripe (or a leftover test-mode id): bring the tenant in line, then continue.
+      try {
+        if (r.ok) {
+          await ctx.runMutation(internal.billing.applySubscriptionSync, { tenantId: args.tenantId, subscription: r.json });
+        } else {
+          await ctx.runMutation(internal.billing.detachStripeRefs, { tenantId: args.tenantId, subscriptionId: owner.stripeSubscriptionId });
+        }
+      } catch (e) {
+        console.warn("[checkout] stale subscription not synced", e instanceof Error ? e.message : String(e));
+      }
     }
     assertSeatsFit(planKey, owner.activeMembers);
+
+    // A returning customer is re-used, so Stripe keeps one customer, one
+    // invoice history and one saved card. If that customer no longer exists on
+    // Stripe (deleted in the Dashboard, or a test-mode id kept after going
+    // live), Checkout would refuse the session outright: start a fresh
+    // customer instead, and unlink the dead one so the webhook can link the new one.
+    let customerId: string | undefined = owner.stripeCustomerId;
+    if (customerId) {
+      const r = await stripeRaw("GET", `/customers/${customerId}`);
+      const gone = (r.ok && r.json.deleted === true) || r.status === 404;
+      if (gone) {
+        console.warn(`[checkout] stored Stripe customer is ${r.ok ? "deleted" : "missing"} (${otherModeHint(r) ?? "same mode"}): starting a fresh one`);
+        await ctx.runMutation(internal.billing.detachStripeRefs, { tenantId: args.tenantId, customerId });
+        customerId = undefined;
+      } else if (!r.ok) {
+        failStripe("GET customer (checkout)", r);
+      }
+    }
     const region = regionForCountry(owner.country).code;
     const priceId = resolveStripePriceId(planKey, cycle, region);
     if (!priceId) throw new ConvexError("BILLING_PRICE_NOT_CONFIGURED");
@@ -294,8 +441,8 @@ export const createCheckoutSession = action({
       mode: "subscription",
       "line_items[0][price]": priceId,
       "line_items[0][quantity]": "1",
-      customer: owner.stripeCustomerId,
-      customer_email: owner.stripeCustomerId ? undefined : owner.email,
+      customer: customerId,
+      customer_email: customerId ? undefined : owner.email,
       client_reference_id: args.tenantId,
       // Session-level metadata too: checkout.session.completed only carries
       // the session's own metadata, not subscription_data's.
@@ -329,7 +476,7 @@ export const createCheckoutSession = action({
     // Stripe refuses tax-ID / name / address collection on an EXISTING customer
     // unless it may update those fields ("Tax ID collection requires updating
     // business name on the customer"). Every re-subscription hits this path.
-    if (owner.stripeCustomerId) {
+    if (customerId) {
       params["customer_update[name]"] = "auto";
       params["customer_update[address]"] = "auto";
     }
@@ -360,21 +507,26 @@ export const createCheckoutSession = action({
       console.warn("[referral] discount skipped", e instanceof Error ? e.message : String(e));
     }
 
-    const session = await stripe("/checkout/sessions", params);
-    const posthog = createPostHogClient();
-    if (posthog) {
-      posthog.capture({
-        distinctId: String(owner.userId),
-        event: "checkout_started",
-        properties: {
-          tenant_id: String(args.tenantId),
-          plan: planKey,
-          billing_cycle: cycle,
-          region,
-          includes_trial: planKey === "pro" && !owner.trialStartedAt,
-        },
-      });
-      await posthog.shutdown();
+    const session = await createSessionWithFallback(ctx, args.tenantId, params, owner.email);
+    // Analytics must never cost a sale: a PostHog outage is logged, not thrown.
+    try {
+      const posthog = createPostHogClient();
+      if (posthog) {
+        posthog.capture({
+          distinctId: String(owner.userId),
+          event: "checkout_started",
+          properties: {
+            tenant_id: String(args.tenantId),
+            plan: planKey,
+            billing_cycle: cycle,
+            region,
+            includes_trial: planKey === "pro" && !owner.trialStartedAt,
+          },
+        });
+        await posthog.shutdown();
+      }
+    } catch (e) {
+      console.warn("[checkout] analytics skipped", e instanceof Error ? e.message : String(e));
     }
     return { url: String(session.url) };
   },
@@ -388,11 +540,20 @@ export const createPortalSession = action({
     await limitBilling(ctx, args.tenantId, "portal");
     if (!owner.stripeCustomerId) throw new ConvexError("NO_SUBSCRIPTION");
 
-    const session = await stripe("/billing_portal/sessions", {
+    const r = await stripeRaw("POST", "/billing_portal/sessions", {
       customer: owner.stripeCustomerId,
       return_url: `${appOrigin(args.origin)}/app/account/billing`,
     });
-    return { url: String(session.url) };
+    if (!r.ok) {
+      const e = stripeError(r);
+      if (e.code === "resource_missing" && e.param === "customer") {
+        // The stored customer no longer exists: unlink it so the next checkout starts clean.
+        await ctx.runMutation(internal.billing.detachStripeRefs, { tenantId: args.tenantId, customerId: owner.stripeCustomerId });
+        throw new ConvexError("NO_SUBSCRIPTION");
+      }
+      failStripe("POST /billing_portal/sessions", r);
+    }
+    return { url: String(r.json.url) };
   },
 });
 
@@ -623,18 +784,32 @@ export const syncSubscription = action({
     await limitBilling(ctx, args.tenantId, "sync");
 
     let sub: Record<string, unknown> | null = null;
+    let storedMissing = false;
     if (owner.stripeSubscriptionId) {
-      sub = await stripeGet(`/subscriptions/${owner.stripeSubscriptionId}`);
-    } else {
-      // Webhook hasn't linked the subscription yet: find it by the tenant id we
-      // stamped in its metadata at checkout.
-      const query = encodeURIComponent(`metadata['tenantId']:'${args.tenantId}'`);
-      const found = await stripeGet(`/subscriptions/search?query=${query}&limit=5`);
-      const list = ((found.data as Array<Record<string, unknown>> | undefined) ?? []);
-      const live = ["trialing", "active", "past_due"];
-      sub = list.find((x) => live.includes(String(x.status))) ?? list[0] ?? null;
+      const r = await stripeRaw("GET", `/subscriptions/${owner.stripeSubscriptionId}`);
+      if (r.ok) sub = r.json;
+      else if (r.status === 404 && otherModeHint(r) !== "live") storedMissing = true;
+      else failStripe("GET subscription (sync)", r);
     }
-    if (!sub) return { found: false };
+    // No stored subscription, or the stored one has ended (a returning
+    // customer who just paid again: the webhook may not have linked the NEW
+    // subscription yet): look for a live one stamped with this tenant's id.
+    const ended = !sub || !LIVE_SUB_STATUSES.includes(String(sub.status));
+    if (ended) {
+      const query = encodeURIComponent(`metadata['tenantId']:'${args.tenantId}'`);
+      const found = await stripeGet(`/subscriptions/search?query=${query}&limit=10`);
+      const list = (found.data as Array<Record<string, unknown>> | undefined) ?? [];
+      const newestFirst = [...list].sort((a, b) => Number(b.created ?? 0) - Number(a.created ?? 0));
+      const live = newestFirst.find((x) => LIVE_SUB_STATUSES.includes(String(x.status)));
+      if (live) sub = live;
+      else if (!sub) sub = newestFirst[0] ?? null;
+    }
+    if (!sub) {
+      if (storedMissing && owner.stripeSubscriptionId) {
+        await ctx.runMutation(internal.billing.detachStripeRefs, { tenantId: args.tenantId, subscriptionId: owner.stripeSubscriptionId });
+      }
+      return { found: false };
+    }
 
     // Balance sync piggybacks on this same safety-net sweep — same
     // reasoning as the subscription fields above: the `customer.updated`
@@ -661,6 +836,50 @@ export const syncSubscription = action({
   },
 });
 
+/**
+ * Unlink Stripe ids that no longer exist on Stripe, so checkout / webhook /
+ * sync work from a clean state. Each id is cleared only if it is still the
+ * stored one (a concurrent new link is never undone).
+ */
+export const detachStripeRefs = internalMutation({
+  args: {
+    tenantId: v.id("tenants"),
+    customerId: v.optional(v.string()),
+    subscriptionId: v.optional(v.string()),
+    suspend: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    const tenant = await ctx.db.get(args.tenantId);
+    if (!tenant) return { changed: false };
+    const patch: Record<string, unknown> = {};
+    if (args.customerId && tenant.stripeCustomerId === args.customerId) {
+      patch.stripeCustomerId = undefined;
+      patch.stripeBalanceCents = undefined;
+      // The subscription lived on that customer: it cannot be live without it.
+      if (tenant.stripeSubscriptionId && !LIVE_PLAN_STATUSES.includes(tenant.planStatus)) patch.stripeSubscriptionId = undefined;
+    }
+    if (args.subscriptionId && tenant.stripeSubscriptionId === args.subscriptionId) {
+      patch.stripeSubscriptionId = undefined;
+      patch.subscriptionCancelAtPeriodEnd = undefined;
+      if (args.suspend && tenant.unlimitedAccess !== true && LIVE_PLAN_STATUSES.includes(tenant.planStatus)) {
+        patch.planStatus = "suspended";
+      }
+    }
+    if (Object.keys(patch).length === 0) return { changed: false };
+    patch.updatedAt = Date.now();
+    await ctx.db.patch(tenant._id, patch as never);
+    await ctx.db.insert("auditLog", {
+      tenantId: tenant._id,
+      actorKind: "system",
+      action: "billing.detach_stale_stripe_ids",
+      targetTable: "tenants",
+      targetId: tenant._id,
+      createdAt: Date.now(),
+    });
+    return { changed: true };
+  },
+});
+
 export const applySubscriptionSync = internalMutation({
   args: { tenantId: v.id("tenants"), subscription: v.any(), balanceCents: v.optional(v.number()) },
   handler: async (ctx, args): Promise<{ plan: string; planStatus: string }> => {
@@ -672,8 +891,20 @@ export const applySubscriptionSync = internalMutation({
     const ownedById = !!tenant.stripeSubscriptionId && tenant.stripeSubscriptionId === sub.id;
     const ownedByMeta = meta.tenantId === String(tenant._id);
     if (!ownedById && !ownedByMeta) throw new ConvexError("SUBSCRIPTION_MISMATCH");
-    if (tenant.stripeCustomerId && customer && tenant.stripeCustomerId !== customer) {
+    const relink =
+      ownedByMeta && LIVE_SUB_STATUSES.includes(String(sub.status)) && !LIVE_PLAN_STATUSES.includes(tenant.planStatus);
+    if (tenant.stripeCustomerId && customer && tenant.stripeCustomerId !== customer && !relink) {
       throw new ConvexError("SUBSCRIPTION_MISMATCH");
+    }
+    // An ended subscription that is not the tenant's current one (a returning
+    // customer's old plan) must never overwrite the new, live one.
+    if (
+      tenant.stripeSubscriptionId &&
+      sub.id !== tenant.stripeSubscriptionId &&
+      !LIVE_SUB_STATUSES.includes(String(sub.status)) &&
+      LIVE_PLAN_STATUSES.includes(tenant.planStatus)
+    ) {
+      return { plan: String(tenant.plan), planStatus: String(tenant.planStatus) };
     }
     const patch = subscriptionPatch(sub, tenant, sub.status === "canceled");
     if (customer) patch.stripeCustomerId = customer;
@@ -857,7 +1088,18 @@ export const applyWebhookEvent = internalMutation({
       if (claimed) {
         const t = await ctx.db.get(claimed);
         // First subscription for this tenant: no customer id stored yet.
-        if (t && (!t.stripeCustomerId || t.stripeCustomerId === customerId)) tenantId = t._id;
+        // A returning tenant whose old customer was replaced (deleted on
+        // Stripe, or a test-mode id after going live) is re-linked only by its
+        // own checkout / a live subscription we stamped with its id, and only
+        // while it has no live plan, so a stray event cannot hijack a paying tenant.
+        const relinkable =
+          !!t &&
+          !LIVE_PLAN_STATUSES.includes(t.planStatus) &&
+          (args.type === "checkout.session.completed" ||
+            (args.type.startsWith("customer.subscription") &&
+              args.type !== "customer.subscription.deleted" &&
+              LIVE_SUB_STATUSES.includes(String(obj.status))));
+        if (t && (!t.stripeCustomerId || t.stripeCustomerId === customerId || relinkable)) tenantId = t._id;
       }
     }
 
@@ -907,7 +1149,15 @@ export const applyWebhookEvent = internalMutation({
             patch.billingCycle = meta.cycle;
           }
         }
-        if (args.type.startsWith("customer.subscription") && !stale) {
+        // A returning customer's OLD subscription can still emit events (its
+        // final "deleted", a late "updated") after the NEW one is live: an
+        // ended subscription that is not the current one is history, never state.
+        const foreignEnded =
+          args.type.startsWith("customer.subscription") &&
+          !!tenantDoc?.stripeSubscriptionId &&
+          obj.id !== tenantDoc.stripeSubscriptionId &&
+          (args.type === "customer.subscription.deleted" || !LIVE_SUB_STATUSES.includes(String(obj.status)));
+        if (args.type.startsWith("customer.subscription") && !stale && !foreignEnded) {
           Object.assign(patch, subscriptionPatch(obj, tenantDoc, args.type === "customer.subscription.deleted"));
         }
         if (args.type === "customer.updated" && typeof obj.balance === "number") {
@@ -1051,7 +1301,15 @@ export const reconcile = internalAction({
     let lastError = "";
     for (const t of page.tenants) {
       try {
-        const sub = await stripeGet(`/subscriptions/${t.subscriptionId}`);
+        const r = await stripeRaw("GET", `/subscriptions/${t.subscriptionId}`);
+        if (!r.ok && r.status === 404 && otherModeHint(r) === "test") {
+          // A test-mode subscription kept after going live: it pays nothing, so it grants nothing.
+          await ctx.runMutation(internal.billing.detachStripeRefs, { tenantId: t.id, subscriptionId: t.subscriptionId, suspend: true });
+          fixed++;
+          continue;
+        }
+        if (!r.ok) failStripe("GET subscription (reconcile)", r);
+        const sub = r.json;
         const mapped = sub.status === "active" || sub.status === "trialing" ? sub.status : null;
         if (mapped === status) continue; // already consistent
         await ctx.runMutation(internal.billing.applySubscriptionSync, { tenantId: t.id, subscription: sub });

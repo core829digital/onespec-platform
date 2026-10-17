@@ -108,6 +108,8 @@ export type ErrorKey =
   | "registrationClosed"
   | "soleOwner"
   | "billingNotConfigured"
+  | "billingUnavailable"
+  | "noSubscription"
   | "signatureInvalid"
   | "imageType"
   | "imageTooLarge"
@@ -285,7 +287,9 @@ const EXACT: Record<string, ErrorKey> = {
   SOLE_OWNER_MUST_TRANSFER_FIRST: "soleOwner",
   BILLING_NOT_CONFIGURED: "billingNotConfigured",
   BILLING_PRICE_NOT_CONFIGURED: "billingNotConfigured",
-  NO_SUBSCRIPTION: "billingNotConfigured",
+  NO_SUBSCRIPTION: "noSubscription",
+  BILLING_PROVIDER_UNAVAILABLE: "billingUnavailable",
+  BILLING_CHECKOUT_FAILED: "billingUnavailable",
   INVALID_SIGNATURE: "signatureInvalid",
   SIGNATURE_EMPTY: "signatureEmpty",
   SIGNATURE_TOO_LARGE: "signatureInvalid",

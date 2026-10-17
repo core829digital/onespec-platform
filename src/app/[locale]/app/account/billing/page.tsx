@@ -77,7 +77,9 @@ export default function BillingPage() {
       for (let i = 0; i < 4 && !unmountedRef.current; i++) {
         try {
           const r = await syncSubscription({ tenantId: tenant._id });
-          if (r.found && r.plan) {
+          // Only a LIVE plan counts as "activated": a returning customer's old,
+          // ended subscription must not trigger the success popup.
+          if (r.found && r.plan && (r.planStatus === "active" || r.planStatus === "trialing")) {
             if (!justPaid) return;
             if (!unmountedRef.current) {
               setNotice({ kind: "activated", plan: r.plan });
