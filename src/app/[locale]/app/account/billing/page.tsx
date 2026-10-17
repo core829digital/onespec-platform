@@ -458,7 +458,7 @@ export default function BillingPage() {
                           <span className="text-xs text-[var(--color-mint-text)] block">{t("currentPlan")}</span>
                         ) : !selfServe ? (
                           <a
-                            href="mailto:sales@onespec.eu"
+                            href="mailto:hello@onespec.eu"
                             className="text-xs text-[var(--color-mint-text)] hover:underline block text-center"
                           >
                             {t("contactSales")}

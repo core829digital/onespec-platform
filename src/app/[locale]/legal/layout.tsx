@@ -2,8 +2,18 @@ import { Link } from "@/i18n/navigation";
 import { useTranslations } from "next-intl";
 import { SkipToMainContent } from "@/components/app-shell/skip-link";
 import { LEGAL_DOCS } from "@/content/legal";
+import { legalValue } from "@/content/legal-values";
 import { ChevronDown } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+
+// Operating company shown under every legal page, read from the same verified
+// values as the legal documents. Only office@ and sales@ are public CORE829
+// addresses; product support and Enterprise requests stay on hello@onespec.eu.
+const LEGAL_EMAILS = [
+  { key: "support", value: "email di assistenza" },
+  { key: "office", value: "email di contatto legale" },
+  { key: "sales", value: "email commerciale" },
+] as const;
 
 export default function LegalLayout({
   children,
@@ -49,7 +59,26 @@ export default function LegalLayout({
       </header>
       <main id="main-content" className="mx-auto max-w-4xl px-4 py-8">{children}</main>
       <footer className="border-t border-[var(--color-border)] bg-[var(--color-bg)]">
-        <div className="mx-auto max-w-4xl px-4 py-4 text-center text-sm text-[var(--color-text-secondary)]">
+        <div className="mx-auto max-w-4xl space-y-1.5 px-4 py-4 text-center text-sm text-[var(--color-text-secondary)]">
+          <p className="font-medium text-[var(--color-text)]">{t("productOf")}</p>
+          <p className="text-xs">
+            {[legalValue("ragione sociale"), legalValue("indirizzo completo"), legalValue("P.IVA / codice fiscale")]
+              .filter(Boolean)
+              .join(" · ")}
+          </p>
+          <p className="flex flex-wrap justify-center gap-x-4 gap-y-1 text-xs">
+            {LEGAL_EMAILS.map((e) => {
+              const address = legalValue(e.value);
+              return address ? (
+                <span key={e.key}>
+                  {t(e.key)}:{" "}
+                  <a href={`mailto:${address}`} className="hover:text-[var(--color-mint-text)] hover:underline">
+                    {address}
+                  </a>
+                </span>
+              ) : null;
+            })}
+          </p>
           <p>&copy; {new Date().getFullYear()} OneSpec. {t("allRightsReserved")}</p>
         </div>
       </footer>

@@ -8,6 +8,8 @@ export const LEGAL_VALUES: Record<string, string> = {
   "email di contatto privacy": "hello@onespec.eu",
   "email di contatto sicurezza": "hello@onespec.eu",
   "email di contatto legale": "office@core829.net",
+  "email commerciale": "sales@core829.net",
+  "email di assistenza": "hello@onespec.eu",
 
   // Operating company identity — verified from the company registration.
   "ragione sociale": "CORE829 SRL",

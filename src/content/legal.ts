@@ -51,6 +51,7 @@ const LEGAL_CONTACT: LegalSection = {
   h: "Contatti per questioni legali e contrattuali",
   p: [
     "Per questioni contrattuali, contestazioni o comunicazioni legali relative al presente documento: [[email di contatto legale]].",
+    "Per richieste commerciali: [[email commerciale]]. Per assistenza sul servizio e richieste di piani Enterprise personalizzati: [[email di assistenza]].",
   ],
 };
 

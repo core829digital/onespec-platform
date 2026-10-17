@@ -261,7 +261,7 @@ export default function OnboardingWizard() {
           ))}
           <p className="text-xs text-[var(--color-text-secondary)]">{t("billing.vatExcluded")}</p>
           <p className="text-xs text-[var(--color-text-secondary)]">
-            <a href="mailto:sales@onespec.eu" className="text-[var(--color-mint-text)] hover:underline">
+            <a href="mailto:hello@onespec.eu" className="text-[var(--color-mint-text)] hover:underline">
               {t("billing.enterpriseCta")}
             </a>
             {" · "}

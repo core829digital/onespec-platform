@@ -1351,7 +1351,11 @@
   "legal": {
     "lastUpdated": "Ultima actualizare",
     "allRightsReserved": "Toate drepturile rezervate.",
-    "allDocuments": "Toate documentele"
+    "allDocuments": "Toate documentele",
+    "productOf": "OneSpec este un produs digital al CORE829 SRL",
+    "office": "Birou",
+    "sales": "Vânzări",
+    "support": "Asistență"
   },
   "cookieConsent": {
     "title": "Consimțământ cookie-uri",

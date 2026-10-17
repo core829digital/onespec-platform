@@ -1351,7 +1351,11 @@
   "legal": {
     "lastUpdated": "Ultimo aggiornamento",
     "allRightsReserved": "Tutti i diritti riservati.",
-    "allDocuments": "Tutti i documenti"
+    "allDocuments": "Tutti i documenti",
+    "productOf": "OneSpec è un prodotto digitale di CORE829 SRL",
+    "office": "Uffici",
+    "sales": "Commerciale",
+    "support": "Assistenza"
   },
   "cookieConsent": {
     "title": "Consenso cookie",
