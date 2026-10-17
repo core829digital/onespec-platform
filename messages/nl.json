@@ -1782,6 +1782,7 @@
     "grantFullAccess": "Volledige toegang geven",
     "revokeFullAccess": "Volledige toegang intrekken",
     "referralsLink": "Uitnodigingen (referral)",
+    "billingHealthLink": "Betalingscontrole",
     "supportLink": "Supporttickets"
   },
   "planGate": {
@@ -3633,5 +3634,303 @@
       "Prijslijsten en technische tekeningen worden afgestemd",
       "Laatste afwerking: bijna klaar"
     ]
+  },
+  "billingHealth": {
+    "title": "Betalingscontrole",
+    "back": "Terug naar beheer",
+    "loading": "Laden…",
+    "forbidden": "Deze pagina is alleen voor platformbeheerders.",
+    "intro": "Controleert live of het platform betalingen kan ontvangen: Stripe-sleutels, account, de prijs van elk abonnement, webhook, belastingen en beveiligingssleutels. Alleen lezen: er wordt niets gewijzigd en de waarde van geheime sleutels wordt nooit getoond.",
+    "recheck": "Opnieuw controleren",
+    "checking": "Bezig met controleren…",
+    "checkedAt": "Gecontroleerd om {time}",
+    "counts": "{ok} ok · {warn} op te lossen · {error} blokkerend",
+    "regions": "markten: {regions}",
+    "status": {
+      "ok": "Alles in orde",
+      "warn": "Op te lossen",
+      "error": "Blokkerend",
+      "info": "Informatie"
+    },
+    "mode": {
+      "live": "Modus: LIVE (echte betalingen)",
+      "test": "Modus: TEST (geen echte inkomsten)",
+      "missing": "Modus: Stripe niet gekoppeld"
+    },
+    "cycles": {
+      "monthly": "maandelijks",
+      "annual": "jaarlijks"
+    },
+    "overall": {
+      "ok": {
+        "title": "Klaar om betalingen te ontvangen",
+        "text": "Alle controles zijn groen. Doe voor de definitieve bevestiging één echte testbetaling en betaal die terug."
+      },
+      "warn": {
+        "title": "Betalingen mogelijk, maar enkele punten moeten worden opgelost",
+        "text": "Niets blokkeert de betalingen, maar de oranje punten kunnen problemen geven voor u of uw klanten. Los ze zo snel mogelijk op."
+      },
+      "error": {
+        "title": "Niet klaar: betalingen kunnen mislukken",
+        "text": "De rode punten verhinderen betalingen of maken ze riskant. Los ze op en druk daarna op ‘Opnieuw controleren’."
+      }
+    },
+    "sections": {
+      "keys": {
+        "title": "Stripe-sleutels",
+        "hint": "De sleutels die het platform verbinden met het Stripe-account van CORE829 SRL (Convex → Settings → Environment Variables)."
+      },
+      "account": {
+        "title": "Stripe-account",
+        "hint": "Of het account betalingen kan ontvangen en het geld naar de bank kan uitbetalen."
+      },
+      "prices": {
+        "title": "Abonnementsprijzen",
+        "hint": "Elk koopbaar abonnement heeft een actieve Stripe-prijs nodig, in euro, gelijk aan de prijs die klanten zien."
+      },
+      "webhook": {
+        "title": "Webhook (betalingsmeldingen)",
+        "hint": "Het kanaal waarmee Stripe het platform laat weten dat een klant heeft betaald, van abonnement is gewisseld of heeft opgezegd."
+      },
+      "tax": {
+        "title": "Belastingen (Stripe Tax)",
+        "hint": "De checkout laat Stripe de btw berekenen: Stripe Tax moet actief zijn."
+      },
+      "portal": {
+        "title": "Stripe-klantenportaal",
+        "hint": "De Stripe-pagina waar klanten hun kaart bijwerken en facturen downloaden."
+      },
+      "secrets": {
+        "title": "Overige platformsleutels",
+        "hint": "Sleutels voor e-mail, beveiliging en bijlagen in de support."
+      }
+    },
+    "checks": {
+      "secretKeyLive": {
+        "text": "Geheime Stripe-sleutel aanwezig, in LIVE-modus."
+      },
+      "secretKeyTest": {
+        "text": "De geheime Stripe-sleutel is een TEST-sleutel: er worden geen echte betalingen geïnd.",
+        "fix": "Vervang op Convex (Production) STRIPE_SECRET_KEY door de live-sleutel (begint met sk_live_) uit Stripe → Ontwikkelaars → API-sleutels."
+      },
+      "secretKeyMissing": {
+        "text": "De geheime Stripe-sleutel ontbreekt.",
+        "fix": "Voeg op Convex (Production) STRIPE_SECRET_KEY toe met de live-sleutel uit Stripe → Ontwikkelaars → API-sleutels."
+      },
+      "webhookSecretOk": {
+        "text": "Ondertekeningsgeheim van de webhook aanwezig."
+      },
+      "webhookSecretMissing": {
+        "text": "Het ondertekeningsgeheim van de webhook ontbreekt: het platform kan betalingen niet bevestigen.",
+        "fix": "Open in Stripe → Ontwikkelaars → Webhooks het eindpunt van het platform, kopieer het ‘ondertekeningsgeheim’ (whsec_…) en sla het op Convex op als STRIPE_WEBHOOK_SECRET."
+      },
+      "webhookSecretMalformed": {
+        "text": "Het ondertekeningsgeheim van de webhook heeft niet het verwachte formaat (whsec_…).",
+        "fix": "Kopieer het ondertekeningsgeheim van het eindpunt (begint met whsec_) opnieuw uit Stripe naar STRIPE_WEBHOOK_SECRET."
+      },
+      "webhookPathOk": {
+        "text": "Geheim webhookadres ingesteld."
+      },
+      "webhookPathMissing": {
+        "text": "Het geheime webhookadres ontbreekt: Stripe weet niet waar de meldingen heen moeten.",
+        "fix": "Stel op Convex STRIPE_WEBHOOK_PATH_TOKEN in (een willekeurige tekenreeks van minstens 24 tekens, bv. openssl rand -hex 24) en publiceer de backend opnieuw."
+      },
+      "siteUrlOk": {
+        "text": "Adres van het platform: {host}."
+      },
+      "siteUrlMissing": {
+        "text": "Het adres van het platform ontbreekt: na de betaling weet de klant niet waarheen terug.",
+        "fix": "Stel op Convex SITE_URL in op het openbare adres van het platform (bv. https://app.onespec.eu)."
+      },
+      "stripeKeyRejected": {
+        "text": "Stripe weigert de geheime sleutel.",
+        "fix": "De sleutel is fout, ingetrokken of van een ander account. Maak een nieuwe aan in Stripe → Ontwikkelaars → API-sleutels en werk hem bij op Convex."
+      },
+      "stripeUnreachable": {
+        "text": "Stripe heeft niet geantwoord op deze controle.",
+        "fix": "Dat kan tijdelijk zijn: druk op ‘Opnieuw controleren’. Blijft het rood, bekijk dan de Stripe-status en de Convex-logs."
+      },
+      "accountName": {
+        "text": "Stripe-account: {name} ({country}).",
+        "fix": "Het account heeft geen bedrijfsnaam: vul in Stripe → Instellingen → Bedrijfsgegevens CORE829 SRL in, zodat die op facturen en afschriften van klanten staat."
+      },
+      "chargesEnabled": {
+        "text": "Het account kan betalingen ontvangen."
+      },
+      "chargesDisabled": {
+        "text": "Het Stripe-account kan nog GEEN betalingen ontvangen.",
+        "fix": "Open Stripe: bovenaan staan de ontbrekende gegevens (documenten, bankrekening, wettelijk vertegenwoordiger). Vul ze aan en wacht op de verificatie."
+      },
+      "payoutsEnabled": {
+        "text": "Uitbetalingen naar de bankrekening zijn actief."
+      },
+      "payoutsDisabled": {
+        "text": "Uitbetalingen naar de bank zijn gepauzeerd: u ontvangt betalingen, maar het geld blijft bij Stripe.",
+        "fix": "Voeg in Stripe → Instellingen → Uitbetalingen de bankrekening van CORE829 SRL toe of verifieer die."
+      },
+      "requirementsNone": {
+        "text": "Stripe vraagt geen verdere documenten."
+      },
+      "requirementsDue": {
+        "text": "Stripe vraagt om {count} gegevens of documenten.",
+        "fix": "Open het Stripe-dashboard en vul de verzoeken vóór de deadline aan, anders kunnen betalingen en uitbetalingen worden geblokkeerd."
+      },
+      "priceOk": {
+        "text": "{plan} {cycle}: € {amount} — correct."
+      },
+      "priceMissing": {
+        "text": "{plan} {cycle}: geen Stripe-prijs gekoppeld. Wie dit abonnement kiest, kan niet betalen.",
+        "fix": "Maak (of open) in Stripe de prijs van het abonnement, kopieer de ID (price_…) en sla die op Convex op als {envName}."
+      },
+      "priceMissingRegions": {
+        "text": "{plan} {cycle}: de prijs ontbreekt voor sommige markten.",
+        "fix": "Voeg de algemene prijsvariabele ({plan}, {cycle}) toe of die voor de genoemde markten."
+      },
+      "priceNotFound": {
+        "text": "{plan} {cycle}: de opgeslagen prijs-ID bestaat niet in dit Stripe-account.",
+        "fix": "Waarschijnlijk een test-ID of van een ander account. Kopieer de juiste live prijs-ID uit Stripe en werk hem bij op Convex."
+      },
+      "priceInactive": {
+        "text": "{plan} {cycle}: de prijs is gearchiveerd in Stripe.",
+        "fix": "Activeer de prijs opnieuw in Stripe of maak een nieuwe en werk de ID bij op Convex."
+      },
+      "priceWrongMode": {
+        "text": "{plan} {cycle}: de prijs hoort bij een andere modus (test/live) dan de sleutel.",
+        "fix": "Gebruik prijzen en sleutel uit dezelfde modus: in productie allebei LIVE."
+      },
+      "priceWrongCurrency": {
+        "text": "{plan} {cycle}: de prijs is in {currency}, niet in euro.",
+        "fix": "Maak in Stripe een prijs in EUR en werk de ID bij op Convex."
+      },
+      "priceWrongInterval": {
+        "text": "{plan} {cycle}: het factuurinterval klopt niet (moet terugkerend zijn, maandelijks of jaarlijks).",
+        "fix": "Maak in Stripe een terugkerende prijs met het juiste interval en werk de ID bij op Convex."
+      },
+      "priceAmountMismatch": {
+        "text": "{plan} {cycle}: Stripe rekent € {charged}, maar klanten zien € {shown}.",
+        "fix": "Het berekende bedrag moet het gepubliceerde zijn. Maak in Stripe een prijs met het juiste bedrag en werk de ID bij op Convex (bij jaarlijks is een bewust verschil toegestaan)."
+      },
+      "priceTaxBehavior": {
+        "text": "{plan} {cycle}: de prijs staat niet op ‘exclusief btw’.",
+        "fix": "Onze prijzen zijn exclusief btw: zet in Stripe het belastinggedrag van de prijs op ‘Exclusief’ (of maak een nieuwe prijs met die instelling)."
+      },
+      "webhookRegistered": {
+        "text": "Webhook geregistreerd naar {host}."
+      },
+      "webhookNotRegistered": {
+        "text": "Er is in Stripe geen webhook die naar het platform wijst ({count} eindpunten gevonden).",
+        "fix": "Voeg in Stripe → Ontwikkelaars → Webhooks een eindpunt toe met het adres van de Convex-backend (…convex.site/ev/ gevolgd door het geheime token) en de vereiste gebeurtenissen; sla daarna het ondertekeningsgeheim op Convex op."
+      },
+      "webhookWrongHost": {
+        "text": "De webhook wijst naar {host}, maar de productie-backend is {expected}.",
+        "fix": "Wijzig in Stripe het adres van het eindpunt naar de productie-backend."
+      },
+      "webhookEnabled": {
+        "text": "Webhook actief."
+      },
+      "webhookDisabled": {
+        "text": "De webhook is uitgeschakeld in Stripe: betalingen activeren geen abonnementen.",
+        "fix": "Schakel in Stripe → Ontwikkelaars → Webhooks het eindpunt van het platform weer in."
+      },
+      "webhookEventsOk": {
+        "text": "De webhook verstuurt alle vereiste gebeurtenissen."
+      },
+      "webhookMissingEvents": {
+        "text": "De webhook verstuurt deze gebeurtenissen niet: {events}.",
+        "fix": "Open in Stripe het eindpunt → ‘Gebeurtenissen selecteren’ en voeg de genoemde toe."
+      },
+      "webhookSecretUnverifiable": {
+        "text": "Stripe staat niet toe het ondertekeningsgeheim te lezen: zijn de leveringen rood in het Webhooks-gedeelte van Stripe, dan klopt het geheim op Convex niet."
+      },
+      "taxActive": {
+        "text": "Stripe Tax is actief (hoofdkantoor: {country})."
+      },
+      "taxPending": {
+        "text": "Stripe Tax is niet actief: de checkout kan mislukken omdat die Stripe de btw laat berekenen.",
+        "fix": "Voltooi in Stripe → Belastingen de instelling (hoofdkantoor van CORE829 SRL, productcode ‘Software as a Service’) en activeer die."
+      },
+      "taxNotSetUp": {
+        "text": "Stripe Tax is niet ingesteld.",
+        "fix": "Start in Stripe → Belastingen de instelling met het hoofdkantoor van CORE829 SRL in Roemenië."
+      },
+      "taxRegistrations": {
+        "text": "Actieve btw-registraties in Stripe: {countries}."
+      },
+      "taxNoRegistrations": {
+        "text": "Geen btw-registratie ingevoerd in Stripe Tax.",
+        "fix": "Voeg in Stripe → Belastingen → Registraties minstens Roemenië toe, en andere landen alleen als uw boekhouder dat bevestigt (bv. OSS voor particulieren)."
+      },
+      "portalPlanSwitchOff": {
+        "text": "Wisselen van abonnement in het Stripe-portaal is uitgeschakeld (gebeurt zoals bedoeld in het platform)."
+      },
+      "portalPlanSwitchOn": {
+        "text": "Het Stripe-portaal staat wisselen van abonnement toe: zo wordt de logica van het platform omzeild.",
+        "fix": "Schakel in Stripe → Instellingen → Klantenportaal ‘Abonnementen bijwerken’ uit."
+      },
+      "portalInvoicesOn": {
+        "text": "Klanten kunnen hun facturen downloaden in het portaal."
+      },
+      "portalInvoicesOff": {
+        "text": "De factuurgeschiedenis in het portaal is uitgeschakeld.",
+        "fix": "Schakel in Stripe → Instellingen → Klantenportaal ‘Factuurgeschiedenis’ in."
+      },
+      "portalNotConfigured": {
+        "text": "Het Stripe-klantenportaal is nog niet ingesteld.",
+        "fix": "Sla in Stripe → Instellingen → Klantenportaal een configuratie op (kaart bijwerken en facturen aan, abonnement wisselen uit)."
+      },
+      "supportSigningOk": {
+        "text": "Ondertekeningssleutel voor supportbijlagen aanwezig."
+      },
+      "supportSigningMissing": {
+        "text": "De ondertekeningssleutel voor bijlagen (SUPPORT_SIGNING_SECRET) ontbreekt: supportbijlagen werken niet.",
+        "fix": "Voeg op Convex SUPPORT_SIGNING_SECRET toe met een willekeurige waarde van minstens 32 tekens (openssl rand -hex 32)."
+      },
+      "mfaKeyOk": {
+        "text": "Sleutel voor verificatie in twee stappen aanwezig."
+      },
+      "mfaKeyMissing": {
+        "text": "De sleutel voor verificatie in twee stappen (MFA_ENCRYPTION_KEY) ontbreekt of is te kort.",
+        "fix": "Voeg op Convex MFA_ENCRYPTION_KEY toe (openssl rand -hex 32) en bewaar hem goed: hij mag nooit meer veranderen."
+      },
+      "ipSaltOk": {
+        "text": "Sleutel voor anonimisering van IP-adressen aanwezig."
+      },
+      "ipSaltMissing": {
+        "text": "DAILY_IP_SALT ontbreekt: IP-adressen worden geanonimiseerd met een openbare sleutel.",
+        "fix": "Voeg op Convex DAILY_IP_SALT toe (openssl rand -hex 16)."
+      },
+      "emailOk": {
+        "text": "E-mailverzending ingesteld."
+      },
+      "emailMissing": {
+        "text": "E-mailverzending niet ingesteld: klanten ontvangen geen codes, bonnen of meldingen.",
+        "fix": "Stel op Convex AUTH_RESEND_KEY en RESEND_FROM in (vanuit het Resend-dashboard)."
+      },
+      "purchaseEmailOk": {
+        "text": "Afzender voor aankoopmails ingesteld."
+      },
+      "purchaseEmailMissing": {
+        "text": "De aparte afzender voor aankoopmails (RESEND_FROM_PURCHASES) ontbreekt.",
+        "fix": "Stel op Convex RESEND_FROM_PURCHASES in (bv. billing@onespec.eu)."
+      },
+      "turnstileOk": {
+        "text": "Anti-botbeveiliging ingesteld."
+      },
+      "turnstileMissing": {
+        "text": "Anti-botbeveiliging (Turnstile) is niet ingesteld.",
+        "fix": "Stel op Convex TURNSTILE_SECRET in vanuit het Cloudflare Turnstile-dashboard."
+      },
+      "alertsOk": {
+        "text": "Foutmeldingen per e-mail ingesteld."
+      },
+      "alertsMissing": {
+        "text": "Geen e-mailadres voor foutmeldingen (OPS_ALERT_EMAIL).",
+        "fix": "Stel op Convex OPS_ALERT_EMAIL in op het adres dat meldingen moet ontvangen (bv. een betaling die niet is verwerkt)."
+      }
+    },
+    "finalTest": {
+      "title": "De definitieve test",
+      "text": "Ook als alles groen is: doe een echte aankoop met een testaccount en betaal die meteen terug in Stripe. Controleer dat het abonnement wordt geactiveerd, dat de factuur van CORE829 SRL komt en dat de levering groen is in Stripe → Webhooks."
+    }
   }
 }

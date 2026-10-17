@@ -1782,6 +1782,7 @@
     "grantFullAccess": "Dă acces total",
     "revokeFullAccess": "Revocă accesul total",
     "referralsLink": "Invitații (referral)",
+    "billingHealthLink": "Verificare plăți",
     "supportLink": "Tichete de suport"
   },
   "planGate": {
@@ -3633,5 +3634,303 @@
       "Se aliniază listele de prețuri și desenele tehnice",
       "Ultimele retușuri: aproape gata"
     ]
+  },
+  "billingHealth": {
+    "title": "Verificare plăți",
+    "back": "Înapoi la administrare",
+    "loading": "Se încarcă…",
+    "forbidden": "Această pagină este rezervată administratorilor platformei.",
+    "intro": "Verifică în timp real dacă platforma poate încasa: cheile Stripe, contul, prețul fiecărui plan, webhook-ul, taxele și cheile de securitate. Doar citește: nu modifică nimic și nu afișează niciodată valoarea cheilor secrete.",
+    "recheck": "Verifică din nou",
+    "checking": "Verificare în curs…",
+    "checkedAt": "Verificat la {time}",
+    "counts": "{ok} ok · {warn} de rezolvat · {error} blocante",
+    "regions": "piețe: {regions}",
+    "status": {
+      "ok": "Totul în regulă",
+      "warn": "De rezolvat",
+      "error": "Blocant",
+      "info": "Informație"
+    },
+    "mode": {
+      "live": "Mod: LIVE (plăți reale)",
+      "test": "Mod: TEST (fără încasări reale)",
+      "missing": "Mod: Stripe neconectat"
+    },
+    "cycles": {
+      "monthly": "lunar",
+      "annual": "anual"
+    },
+    "overall": {
+      "ok": {
+        "title": "Pregătită să încaseze",
+        "text": "Toate verificările sunt verzi. Pentru confirmarea finală, fă o plată reală de test și ramburseaz-o."
+      },
+      "warn": {
+        "title": "Poate încasa, dar sunt puncte de rezolvat",
+        "text": "Nimic nu blochează plățile, dar punctele galbene pot crea probleme ție sau clienților. Rezolvă-le cât mai curând."
+      },
+      "error": {
+        "title": "Nepregătită: plățile pot eșua",
+        "text": "Punctele roșii împiedică încasarea sau o fac riscantă. Corectează-le, apoi apasă „Verifică din nou”."
+      }
+    },
+    "sections": {
+      "keys": {
+        "title": "Chei Stripe",
+        "hint": "Cheile care leagă platforma de contul Stripe al CORE829 SRL (Convex → Settings → Environment Variables)."
+      },
+      "account": {
+        "title": "Cont Stripe",
+        "hint": "Dacă contul poate primi plăți și poate vira banii în bancă."
+      },
+      "prices": {
+        "title": "Prețurile planurilor",
+        "hint": "Fiecare plan care se poate cumpăra trebuie să aibă un preț Stripe activ, în euro, egal cu cel afișat clienților."
+      },
+      "webhook": {
+        "title": "Webhook (notificări de plată)",
+        "hint": "Canalul prin care Stripe anunță platforma că un client a plătit, a schimbat planul sau a anulat."
+      },
+      "tax": {
+        "title": "Taxe (Stripe Tax)",
+        "hint": "Checkout-ul îi cere lui Stripe să calculeze TVA: Stripe Tax trebuie să fie activ."
+      },
+      "portal": {
+        "title": "Portalul clienților Stripe",
+        "hint": "Pagina Stripe unde clientul își actualizează cardul și descarcă facturile."
+      },
+      "secrets": {
+        "title": "Alte chei ale platformei",
+        "hint": "Chei necesare pentru e-mailuri, securitate și atașamentele de la suport."
+      }
+    },
+    "checks": {
+      "secretKeyLive": {
+        "text": "Cheia secretă Stripe este prezentă, în modul LIVE."
+      },
+      "secretKeyTest": {
+        "text": "Cheia secretă Stripe este de TEST: nu se va încasa nicio plată reală.",
+        "fix": "Pe Convex (Production) înlocuiește STRIPE_SECRET_KEY cu cheia live (începe cu sk_live_) din Stripe → Dezvoltatori → Chei API."
+      },
+      "secretKeyMissing": {
+        "text": "Lipsește cheia secretă Stripe.",
+        "fix": "Pe Convex (Production) adaugă STRIPE_SECRET_KEY cu cheia live din Stripe → Dezvoltatori → Chei API."
+      },
+      "webhookSecretOk": {
+        "text": "Secretul de semnare al webhook-ului este prezent."
+      },
+      "webhookSecretMissing": {
+        "text": "Lipsește secretul de semnare al webhook-ului: platforma nu poate confirma plățile.",
+        "fix": "În Stripe → Dezvoltatori → Webhooks deschide endpoint-ul platformei, copiază „secretul de semnare” (whsec_…) și salvează-l pe Convex ca STRIPE_WEBHOOK_SECRET."
+      },
+      "webhookSecretMalformed": {
+        "text": "Secretul de semnare al webhook-ului nu are formatul așteptat (whsec_…).",
+        "fix": "Copiază din nou din Stripe secretul de semnare al endpoint-ului (începe cu whsec_) în STRIPE_WEBHOOK_SECRET."
+      },
+      "webhookPathOk": {
+        "text": "Adresa secretă a webhook-ului este configurată."
+      },
+      "webhookPathMissing": {
+        "text": "Lipsește adresa secretă a webhook-ului: Stripe nu are unde trimite notificările.",
+        "fix": "Pe Convex setează STRIPE_WEBHOOK_PATH_TOKEN (un șir aleatoriu de cel puțin 24 de caractere, de ex. openssl rand -hex 24), apoi republică backend-ul."
+      },
+      "siteUrlOk": {
+        "text": "Adresa platformei: {host}."
+      },
+      "siteUrlMissing": {
+        "text": "Lipsește adresa platformei: după plată clientul nu știe unde să revină.",
+        "fix": "Pe Convex setează SITE_URL cu adresa publică a platformei (de ex. https://app.onespec.eu)."
+      },
+      "stripeKeyRejected": {
+        "text": "Stripe refuză cheia secretă.",
+        "fix": "Cheia este greșită, revocată sau a altui cont. Generează una nouă în Stripe → Dezvoltatori → Chei API și actualizeaz-o pe Convex."
+      },
+      "stripeUnreachable": {
+        "text": "Stripe nu a răspuns la această verificare.",
+        "fix": "Poate fi o problemă temporară: apasă „Verifică din nou”. Dacă rămâne roșu, verifică starea Stripe și jurnalele Convex."
+      },
+      "accountName": {
+        "text": "Cont Stripe: {name} ({country}).",
+        "fix": "Contul nu are o denumire de firmă: în Stripe → Setări → Date firmă introdu CORE829 SRL, ca să apară pe facturile și extrasele clienților."
+      },
+      "chargesEnabled": {
+        "text": "Contul poate primi plăți."
+      },
+      "chargesDisabled": {
+        "text": "Contul Stripe NU poate primi încă plăți.",
+        "fix": "Deschide Stripe: sus este lista datelor lipsă (documente, cont bancar, reprezentant legal). Completează-le și așteaptă verificarea."
+      },
+      "payoutsEnabled": {
+        "text": "Transferurile către contul bancar sunt active."
+      },
+      "payoutsDisabled": {
+        "text": "Transferurile către bancă sunt suspendate: încasezi, dar banii rămân în Stripe.",
+        "fix": "În Stripe → Setări → Plăți (payouts) adaugă sau verifică contul bancar al CORE829 SRL."
+      },
+      "requirementsNone": {
+        "text": "Stripe nu mai cere alte documente."
+      },
+      "requirementsDue": {
+        "text": "Stripe cere {count} informații sau documente.",
+        "fix": "Deschide panoul Stripe și completează cererile înainte de termen, altfel încasările și transferurile pot fi blocate."
+      },
+      "priceOk": {
+        "text": "{plan} {cycle}: {amount} € — corect."
+      },
+      "priceMissing": {
+        "text": "{plan} {cycle}: niciun preț Stripe asociat. Cine alege acest plan nu poate plăti.",
+        "fix": "În Stripe creează (sau deschide) prețul planului, copiază ID-ul (price_…) și salvează-l pe Convex ca {envName}."
+      },
+      "priceMissingRegions": {
+        "text": "{plan} {cycle}: lipsește prețul pentru unele piețe.",
+        "fix": "Adaugă variabila de preț generală ({plan}, {cycle}) sau cea specifică piețelor indicate."
+      },
+      "priceNotFound": {
+        "text": "{plan} {cycle}: ID-ul de preț salvat nu există în acest cont Stripe.",
+        "fix": "Probabil este un ID de test sau al altui cont. Copiază din Stripe ID-ul corect al prețului live și actualizează-l pe Convex."
+      },
+      "priceInactive": {
+        "text": "{plan} {cycle}: prețul este arhivat în Stripe.",
+        "fix": "Reactivează prețul în Stripe sau creează unul nou și actualizează ID-ul pe Convex."
+      },
+      "priceWrongMode": {
+        "text": "{plan} {cycle}: prețul aparține altui mod (test/live) decât cheia.",
+        "fix": "Folosește prețuri și cheie din același mod: în producție, ambele LIVE."
+      },
+      "priceWrongCurrency": {
+        "text": "{plan} {cycle}: prețul este în {currency}, nu în euro.",
+        "fix": "Creează în Stripe un preț în EUR și actualizează ID-ul pe Convex."
+      },
+      "priceWrongInterval": {
+        "text": "{plan} {cycle}: intervalul de facturare nu corespunde (trebuie să fie recurent, lunar sau anual).",
+        "fix": "Creează în Stripe un preț recurent cu intervalul corect și actualizează ID-ul pe Convex."
+      },
+      "priceAmountMismatch": {
+        "text": "{plan} {cycle}: Stripe încasează {charged} €, dar clienților le afișăm {shown} €.",
+        "fix": "Suma încasată trebuie să fie cea publicată. Creează în Stripe un preț cu suma corectă și actualizează ID-ul pe Convex (la anual, o diferență voită este permisă)."
+      },
+      "priceTaxBehavior": {
+        "text": "{plan} {cycle}: prețul nu este setat „fără TVA”.",
+        "fix": "Prețurile noastre sunt fără TVA: în Stripe setează comportamentul fiscal al prețului pe „Exclusiv” (sau creează un preț nou setat așa)."
+      },
+      "webhookRegistered": {
+        "text": "Webhook înregistrat către {host}."
+      },
+      "webhookNotRegistered": {
+        "text": "În Stripe nu există niciun webhook care să trimită către platformă ({count} endpoint-uri găsite).",
+        "fix": "În Stripe → Dezvoltatori → Webhooks adaugă un endpoint cu adresa backend-ului Convex (…convex.site/ev/ urmat de tokenul secret) și evenimentele necesare; apoi salvează secretul său de semnare pe Convex."
+      },
+      "webhookWrongHost": {
+        "text": "Webhook-ul trimite către {host}, dar backend-ul de producție este {expected}.",
+        "fix": "Actualizează în Stripe adresa endpoint-ului către backend-ul de producție."
+      },
+      "webhookEnabled": {
+        "text": "Webhook activ."
+      },
+      "webhookDisabled": {
+        "text": "Webhook-ul este dezactivat în Stripe: plățile nu activează planurile.",
+        "fix": "În Stripe → Dezvoltatori → Webhooks reactivează endpoint-ul platformei."
+      },
+      "webhookEventsOk": {
+        "text": "Webhook-ul trimite toate evenimentele necesare."
+      },
+      "webhookMissingEvents": {
+        "text": "Webhook-ul nu trimite aceste evenimente: {events}.",
+        "fix": "În Stripe deschide endpoint-ul → „Selectează evenimente” și adaugă-le pe cele enumerate."
+      },
+      "webhookSecretUnverifiable": {
+        "text": "Stripe nu permite citirea secretului de semnare: dacă livrările apar cu roșu în secțiunea Webhooks din Stripe, secretul de pe Convex nu corespunde."
+      },
+      "taxActive": {
+        "text": "Stripe Tax este activ (sediu: {country})."
+      },
+      "taxPending": {
+        "text": "Stripe Tax nu este activ: checkout-ul poate eșua deoarece îi cere lui Stripe să calculeze TVA.",
+        "fix": "În Stripe → Taxe finalizează configurarea (sediul CORE829 SRL, codul de produs „Software as a Service”) și activeaz-o."
+      },
+      "taxNotSetUp": {
+        "text": "Stripe Tax nu este configurat.",
+        "fix": "În Stripe → Taxe pornește configurarea cu sediul CORE829 SRL în România."
+      },
+      "taxRegistrations": {
+        "text": "Înregistrări TVA active în Stripe: {countries}."
+      },
+      "taxNoRegistrations": {
+        "text": "Nicio înregistrare TVA introdusă în Stripe Tax.",
+        "fix": "În Stripe → Taxe → Înregistrări adaugă cel puțin România, iar alte țări doar dacă îți confirmă contabilul (de ex. OSS pentru persoane fizice)."
+      },
+      "portalPlanSwitchOff": {
+        "text": "Schimbarea planului din portalul Stripe este dezactivată (se face din platformă, cum e prevăzut)."
+      },
+      "portalPlanSwitchOn": {
+        "text": "Portalul Stripe permite schimbarea planului: astfel se ocolește logica platformei.",
+        "fix": "În Stripe → Setări → Portalul clienților dezactivează „Actualizare abonamente”."
+      },
+      "portalInvoicesOn": {
+        "text": "Clientul își poate descărca facturile din portal."
+      },
+      "portalInvoicesOff": {
+        "text": "Istoricul facturilor din portal este dezactivat.",
+        "fix": "În Stripe → Setări → Portalul clienților activează „Istoricul facturilor”."
+      },
+      "portalNotConfigured": {
+        "text": "Portalul clienților Stripe nu este încă configurat.",
+        "fix": "În Stripe → Setări → Portalul clienților salvează o configurație (actualizare card și facturi active, schimbare plan dezactivată)."
+      },
+      "supportSigningOk": {
+        "text": "Cheia de semnare a atașamentelor de la suport este prezentă."
+      },
+      "supportSigningMissing": {
+        "text": "Lipsește cheia de semnare a atașamentelor (SUPPORT_SIGNING_SECRET): atașamentele de la suport nu funcționează.",
+        "fix": "Pe Convex adaugă SUPPORT_SIGNING_SECRET cu o valoare aleatorie de cel puțin 32 de caractere (openssl rand -hex 32)."
+      },
+      "mfaKeyOk": {
+        "text": "Cheia verificării în doi pași este prezentă."
+      },
+      "mfaKeyMissing": {
+        "text": "Cheia verificării în doi pași (MFA_ENCRYPTION_KEY) lipsește sau este prea scurtă.",
+        "fix": "Pe Convex adaugă MFA_ENCRYPTION_KEY (openssl rand -hex 32) și păstreaz-o: nu trebuie schimbată niciodată."
+      },
+      "ipSaltOk": {
+        "text": "Cheia de anonimizare a adreselor IP este prezentă."
+      },
+      "ipSaltMissing": {
+        "text": "Lipsește DAILY_IP_SALT: adresele IP sunt anonimizate cu o cheie publică.",
+        "fix": "Pe Convex adaugă DAILY_IP_SALT (openssl rand -hex 16)."
+      },
+      "emailOk": {
+        "text": "Trimiterea e-mailurilor este configurată."
+      },
+      "emailMissing": {
+        "text": "Trimiterea e-mailurilor nu este configurată: clienții nu primesc coduri, chitanțe și notificări.",
+        "fix": "Pe Convex setează AUTH_RESEND_KEY și RESEND_FROM (din panoul Resend)."
+      },
+      "purchaseEmailOk": {
+        "text": "Expeditorul e-mailurilor de achiziție este configurat."
+      },
+      "purchaseEmailMissing": {
+        "text": "Lipsește expeditorul dedicat e-mailurilor de achiziție (RESEND_FROM_PURCHASES).",
+        "fix": "Pe Convex setează RESEND_FROM_PURCHASES (de ex. billing@onespec.eu)."
+      },
+      "turnstileOk": {
+        "text": "Protecția anti-bot este configurată."
+      },
+      "turnstileMissing": {
+        "text": "Protecția anti-bot (Turnstile) nu este configurată.",
+        "fix": "Pe Convex setează TURNSTILE_SECRET din panoul Cloudflare Turnstile."
+      },
+      "alertsOk": {
+        "text": "Alertele de eroare prin e-mail sunt configurate."
+      },
+      "alertsMissing": {
+        "text": "Nicio adresă pentru alertele de eroare (OPS_ALERT_EMAIL).",
+        "fix": "Pe Convex setează OPS_ALERT_EMAIL cu adresa care trebuie să primească alertele (de ex. o plată neaplicată)."
+      }
+    },
+    "finalTest": {
+      "title": "Testul final",
+      "text": "Chiar dacă totul e verde, fă o achiziție reală cu un cont de test și ramburseaz-o imediat din Stripe. Verifică faptul că planul se activează, că factura este emisă de CORE829 SRL și că livrarea apare verde în Stripe → Webhooks."
+    }
   }
 }

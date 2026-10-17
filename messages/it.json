@@ -1782,6 +1782,7 @@
     "grantFullAccess": "Dai accesso totale",
     "revokeFullAccess": "Togli accesso totale",
     "referralsLink": "Inviti (referral)",
+    "billingHealthLink": "Controllo pagamenti",
     "supportLink": "Ticket di supporto"
   },
   "planGate": {
@@ -3633,5 +3634,303 @@
       "Allineando listini e disegni tecnici",
       "Ultimi ritocchi: quasi pronto"
     ]
+  },
+  "billingHealth": {
+    "title": "Controllo pagamenti",
+    "back": "Torna all'amministrazione",
+    "loading": "Caricamento…",
+    "forbidden": "Questa pagina è riservata agli amministratori della piattaforma.",
+    "intro": "Verifica in tempo reale se la piattaforma può incassare: chiavi Stripe, conto, prezzi di ogni piano, webhook, imposte e chiavi di sicurezza. Legge soltanto, non modifica nulla e non mostra mai il valore delle chiavi segrete.",
+    "recheck": "Ricontrolla",
+    "checking": "Controllo in corso…",
+    "checkedAt": "Controllato alle {time}",
+    "counts": "{ok} ok · {warn} da sistemare · {error} bloccanti",
+    "regions": "mercati: {regions}",
+    "status": {
+      "ok": "Tutto a posto",
+      "warn": "Da sistemare",
+      "error": "Bloccante",
+      "info": "Informazione"
+    },
+    "mode": {
+      "live": "Modalità: LIVE (pagamenti reali)",
+      "test": "Modalità: PROVA (nessun incasso reale)",
+      "missing": "Modalità: Stripe non collegato"
+    },
+    "cycles": {
+      "monthly": "mensile",
+      "annual": "annuale"
+    },
+    "overall": {
+      "ok": {
+        "title": "Pronta a incassare",
+        "text": "Tutti i controlli sono verdi. Per la conferma definitiva fai un pagamento reale di prova e rimborsalo."
+      },
+      "warn": {
+        "title": "Può incassare, ma ci sono punti da sistemare",
+        "text": "Nulla blocca i pagamenti, ma le voci in giallo possono creare problemi a te o ai clienti. Sistemale appena puoi."
+      },
+      "error": {
+        "title": "Non pronta: i pagamenti possono fallire",
+        "text": "Le voci in rosso impediscono o rendono rischioso l'incasso. Correggile, poi premi «Ricontrolla»."
+      }
+    },
+    "sections": {
+      "keys": {
+        "title": "Chiavi Stripe",
+        "hint": "Le chiavi che collegano la piattaforma al conto Stripe di CORE829 SRL (Convex → Settings → Environment Variables)."
+      },
+      "account": {
+        "title": "Conto Stripe",
+        "hint": "Se il conto può ricevere pagamenti e trasferire i soldi in banca."
+      },
+      "prices": {
+        "title": "Prezzi dei piani",
+        "hint": "Ogni piano che si può acquistare deve avere un prezzo Stripe attivo, in euro, uguale a quello mostrato ai clienti."
+      },
+      "webhook": {
+        "title": "Webhook (avvisi di pagamento)",
+        "hint": "È il canale con cui Stripe avvisa la piattaforma che un cliente ha pagato, cambiato piano o disdetto."
+      },
+      "tax": {
+        "title": "Imposte (Stripe Tax)",
+        "hint": "Il checkout chiede a Stripe di calcolare l'IVA: Stripe Tax deve essere attivo."
+      },
+      "portal": {
+        "title": "Portale cliente Stripe",
+        "hint": "La pagina Stripe dove il cliente aggiorna carta e scarica le fatture."
+      },
+      "secrets": {
+        "title": "Altre chiavi della piattaforma",
+        "hint": "Chiavi necessarie per email, sicurezza e allegati del supporto."
+      }
+    },
+    "checks": {
+      "secretKeyLive": {
+        "text": "Chiave segreta Stripe presente, in modalità LIVE."
+      },
+      "secretKeyTest": {
+        "text": "La chiave segreta Stripe è di PROVA: nessun pagamento reale verrà incassato.",
+        "fix": "Su Convex (Production) sostituisci STRIPE_SECRET_KEY con la chiave live (inizia con sk_live_) presa da Stripe → Sviluppatori → Chiavi API."
+      },
+      "secretKeyMissing": {
+        "text": "Manca la chiave segreta Stripe.",
+        "fix": "Su Convex (Production) aggiungi STRIPE_SECRET_KEY con la chiave live presa da Stripe → Sviluppatori → Chiavi API."
+      },
+      "webhookSecretOk": {
+        "text": "Segreto di firma del webhook presente."
+      },
+      "webhookSecretMissing": {
+        "text": "Manca il segreto di firma del webhook: la piattaforma non può confermare i pagamenti.",
+        "fix": "In Stripe → Sviluppatori → Webhook apri l'endpoint della piattaforma, copia il «segreto di firma» (whsec_…) e salvalo su Convex come STRIPE_WEBHOOK_SECRET."
+      },
+      "webhookSecretMalformed": {
+        "text": "Il segreto di firma del webhook non ha il formato atteso (whsec_…).",
+        "fix": "Ricopia da Stripe il segreto di firma dell'endpoint (inizia con whsec_) in STRIPE_WEBHOOK_SECRET."
+      },
+      "webhookPathOk": {
+        "text": "Indirizzo segreto del webhook configurato."
+      },
+      "webhookPathMissing": {
+        "text": "Manca l'indirizzo segreto del webhook: Stripe non ha dove inviare gli avvisi.",
+        "fix": "Su Convex imposta STRIPE_WEBHOOK_PATH_TOKEN (una stringa casuale di almeno 24 caratteri, es. openssl rand -hex 24), poi ripubblica il backend."
+      },
+      "siteUrlOk": {
+        "text": "Indirizzo della piattaforma: {host}."
+      },
+      "siteUrlMissing": {
+        "text": "Manca l'indirizzo della piattaforma: dopo il pagamento il cliente non sa dove tornare.",
+        "fix": "Su Convex imposta SITE_URL con l'indirizzo pubblico della piattaforma (es. https://app.onespec.eu)."
+      },
+      "stripeKeyRejected": {
+        "text": "Stripe rifiuta la chiave segreta.",
+        "fix": "La chiave è sbagliata, revocata o di un altro conto. Generane una nuova in Stripe → Sviluppatori → Chiavi API e aggiornala su Convex."
+      },
+      "stripeUnreachable": {
+        "text": "Stripe non ha risposto a questo controllo.",
+        "fix": "Può essere un problema momentaneo: premi «Ricontrolla». Se resta rosso, controlla lo stato di Stripe e i log di Convex."
+      },
+      "accountName": {
+        "text": "Conto Stripe: {name} ({country}).",
+        "fix": "Il conto non ha un nome aziendale: in Stripe → Impostazioni → Dati aziendali inserisci CORE829 SRL, così compare su fatture ed estratti conto dei clienti."
+      },
+      "chargesEnabled": {
+        "text": "Il conto può ricevere pagamenti."
+      },
+      "chargesDisabled": {
+        "text": "Il conto Stripe NON può ancora ricevere pagamenti.",
+        "fix": "Apri Stripe: in alto c'è l'elenco dei dati mancanti (documenti, conto bancario, rappresentante legale). Completali e attendi la verifica."
+      },
+      "payoutsEnabled": {
+        "text": "I bonifici verso il conto bancario sono attivi."
+      },
+      "payoutsDisabled": {
+        "text": "I bonifici verso la banca sono sospesi: incassi, ma i soldi restano in Stripe.",
+        "fix": "In Stripe → Impostazioni → Bonifici aggiungi o verifica il conto bancario di CORE829 SRL."
+      },
+      "requirementsNone": {
+        "text": "Stripe non chiede altri documenti."
+      },
+      "requirementsDue": {
+        "text": "Stripe chiede {count} informazioni o documenti.",
+        "fix": "Apri la dashboard Stripe e completa le richieste prima della scadenza, altrimenti incassi e bonifici possono essere bloccati."
+      },
+      "priceOk": {
+        "text": "{plan} {cycle}: {amount} € — corretto."
+      },
+      "priceMissing": {
+        "text": "{plan} {cycle}: nessun prezzo Stripe collegato. Chi sceglie questo piano non può pagare.",
+        "fix": "In Stripe crea (o apri) il prezzo del piano, copia il suo ID (price_…) e salvalo su Convex come {envName}."
+      },
+      "priceMissingRegions": {
+        "text": "{plan} {cycle}: manca il prezzo per alcuni mercati.",
+        "fix": "Aggiungi la variabile del prezzo generale ({plan}, {cycle}) o quella specifica per i mercati indicati."
+      },
+      "priceNotFound": {
+        "text": "{plan} {cycle}: l'ID prezzo salvato non esiste in questo conto Stripe.",
+        "fix": "Probabilmente è un ID di prova o di un altro conto. Copia da Stripe l'ID corretto del prezzo live e aggiornalo su Convex."
+      },
+      "priceInactive": {
+        "text": "{plan} {cycle}: il prezzo è archiviato in Stripe.",
+        "fix": "In Stripe riattiva il prezzo oppure creane uno nuovo e aggiorna l'ID su Convex."
+      },
+      "priceWrongMode": {
+        "text": "{plan} {cycle}: il prezzo è di un'altra modalità (prova/live) rispetto alla chiave.",
+        "fix": "Usa prezzi e chiave della stessa modalità: in produzione entrambi LIVE."
+      },
+      "priceWrongCurrency": {
+        "text": "{plan} {cycle}: il prezzo è in {currency}, non in euro.",
+        "fix": "Crea in Stripe un prezzo in EUR e aggiorna l'ID su Convex."
+      },
+      "priceWrongInterval": {
+        "text": "{plan} {cycle}: la cadenza del prezzo non corrisponde (deve essere ricorrente, ogni mese o ogni anno).",
+        "fix": "Crea in Stripe un prezzo ricorrente con la cadenza giusta e aggiorna l'ID su Convex."
+      },
+      "priceAmountMismatch": {
+        "text": "{plan} {cycle}: Stripe addebita {charged} €, ma ai clienti mostriamo {shown} €.",
+        "fix": "Il prezzo addebitato deve essere quello pubblicato. Crea in Stripe un prezzo con l'importo giusto e aggiorna l'ID su Convex (per l'annuale una differenza voluta è ammessa)."
+      },
+      "priceTaxBehavior": {
+        "text": "{plan} {cycle}: il prezzo non è impostato «IVA esclusa».",
+        "fix": "I nostri prezzi sono IVA esclusa: in Stripe imposta il comportamento fiscale del prezzo su «Esclusivo» (o crea un nuovo prezzo così impostato)."
+      },
+      "webhookRegistered": {
+        "text": "Webhook registrato verso {host}."
+      },
+      "webhookNotRegistered": {
+        "text": "In Stripe non c'è un webhook che punta alla piattaforma ({count} endpoint trovati).",
+        "fix": "In Stripe → Sviluppatori → Webhook aggiungi un endpoint con l'indirizzo del backend Convex (…convex.site/ev/ seguito dal token segreto) e gli eventi richiesti; poi salva il suo segreto di firma su Convex."
+      },
+      "webhookWrongHost": {
+        "text": "Il webhook punta a {host}, ma il backend di produzione è {expected}.",
+        "fix": "Aggiorna in Stripe l'indirizzo dell'endpoint verso il backend di produzione."
+      },
+      "webhookEnabled": {
+        "text": "Webhook attivo."
+      },
+      "webhookDisabled": {
+        "text": "Il webhook è disattivato in Stripe: i pagamenti non attivano i piani.",
+        "fix": "In Stripe → Sviluppatori → Webhook riattiva l'endpoint della piattaforma."
+      },
+      "webhookEventsOk": {
+        "text": "Il webhook invia tutti gli eventi necessari."
+      },
+      "webhookMissingEvents": {
+        "text": "Il webhook non invia questi eventi: {events}.",
+        "fix": "In Stripe apri l'endpoint → «Seleziona eventi» e aggiungi quelli elencati."
+      },
+      "webhookSecretUnverifiable": {
+        "text": "Stripe non permette di leggere il segreto di firma: se nella sezione Webhook di Stripe le consegne risultano in rosso, il segreto su Convex non corrisponde."
+      },
+      "taxActive": {
+        "text": "Stripe Tax è attivo (sede: {country})."
+      },
+      "taxPending": {
+        "text": "Stripe Tax non è attivo: il checkout può fallire perché chiede a Stripe di calcolare l'IVA.",
+        "fix": "In Stripe → Imposte completa la configurazione (sede di CORE829 SRL, codice prodotto «Software as a Service») e attivala."
+      },
+      "taxNotSetUp": {
+        "text": "Stripe Tax non è configurato.",
+        "fix": "In Stripe → Imposte avvia la configurazione con la sede di CORE829 SRL in Romania."
+      },
+      "taxRegistrations": {
+        "text": "Registrazioni IVA attive in Stripe: {countries}."
+      },
+      "taxNoRegistrations": {
+        "text": "Nessuna registrazione IVA inserita in Stripe Tax.",
+        "fix": "Aggiungi in Stripe → Imposte → Registrazioni almeno la Romania, e gli altri paesi solo se il commercialista lo conferma (es. OSS per clienti privati)."
+      },
+      "portalPlanSwitchOff": {
+        "text": "Il cambio piano dal portale Stripe è disattivato (si fa dalla piattaforma, come previsto)."
+      },
+      "portalPlanSwitchOn": {
+        "text": "Il portale Stripe permette di cambiare piano: così si salta la logica della piattaforma.",
+        "fix": "In Stripe → Impostazioni → Portale clienti disattiva «Aggiorna abbonamenti»."
+      },
+      "portalInvoicesOn": {
+        "text": "Il cliente può scaricare le sue fatture dal portale."
+      },
+      "portalInvoicesOff": {
+        "text": "Lo storico fatture nel portale è disattivato.",
+        "fix": "In Stripe → Impostazioni → Portale clienti attiva «Cronologia fatture»."
+      },
+      "portalNotConfigured": {
+        "text": "Il portale clienti Stripe non è ancora configurato.",
+        "fix": "In Stripe → Impostazioni → Portale clienti salva una configurazione (aggiorna carta e fatture attive, cambio piano disattivato)."
+      },
+      "supportSigningOk": {
+        "text": "Chiave di firma degli allegati del supporto presente."
+      },
+      "supportSigningMissing": {
+        "text": "Manca la chiave di firma degli allegati (SUPPORT_SIGNING_SECRET): gli allegati del supporto non funzionano.",
+        "fix": "Su Convex aggiungi SUPPORT_SIGNING_SECRET con un valore casuale di almeno 32 caratteri (openssl rand -hex 32)."
+      },
+      "mfaKeyOk": {
+        "text": "Chiave della verifica in due passaggi presente."
+      },
+      "mfaKeyMissing": {
+        "text": "Manca o è troppo corta la chiave della verifica in due passaggi (MFA_ENCRYPTION_KEY).",
+        "fix": "Su Convex aggiungi MFA_ENCRYPTION_KEY (openssl rand -hex 32) e conservala: non va mai più cambiata."
+      },
+      "ipSaltOk": {
+        "text": "Chiave di anonimizzazione degli indirizzi IP presente."
+      },
+      "ipSaltMissing": {
+        "text": "Manca DAILY_IP_SALT: gli indirizzi IP vengono resi anonimi con una chiave pubblica.",
+        "fix": "Su Convex aggiungi DAILY_IP_SALT (openssl rand -hex 16)."
+      },
+      "emailOk": {
+        "text": "Invio email configurato."
+      },
+      "emailMissing": {
+        "text": "Invio email non configurato: i clienti non ricevono codici, ricevute e avvisi.",
+        "fix": "Su Convex imposta AUTH_RESEND_KEY e RESEND_FROM (dalla dashboard di Resend)."
+      },
+      "purchaseEmailOk": {
+        "text": "Mittente delle email di acquisto configurato."
+      },
+      "purchaseEmailMissing": {
+        "text": "Manca il mittente dedicato alle email di acquisto (RESEND_FROM_PURCHASES).",
+        "fix": "Su Convex imposta RESEND_FROM_PURCHASES (es. billing@onespec.eu)."
+      },
+      "turnstileOk": {
+        "text": "Protezione anti-bot configurata."
+      },
+      "turnstileMissing": {
+        "text": "Protezione anti-bot (Turnstile) non configurata.",
+        "fix": "Su Convex imposta TURNSTILE_SECRET dalla dashboard Cloudflare Turnstile."
+      },
+      "alertsOk": {
+        "text": "Avvisi di errore via email configurati."
+      },
+      "alertsMissing": {
+        "text": "Nessuna email per gli avvisi di errore (OPS_ALERT_EMAIL).",
+        "fix": "Su Convex imposta OPS_ALERT_EMAIL con l'indirizzo che deve ricevere gli avvisi (es. un pagamento non applicato)."
+      }
+    },
+    "finalTest": {
+      "title": "La prova definitiva",
+      "text": "Anche con tutto verde, fai un acquisto reale con un account di prova e rimborsalo subito da Stripe. Controlla che il piano si attivi, che la fattura sia intestata a CORE829 SRL e che in Stripe → Webhook la consegna sia verde."
+    }
   }
 }

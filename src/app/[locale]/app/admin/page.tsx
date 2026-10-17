@@ -136,6 +136,9 @@ export default function AdminPage() {
           <Link href="/app/admin/referrals" className="rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm font-medium text-[var(--color-text)] hover:border-[var(--color-mint)]">
             {t("referralsLink")}
           </Link>
+          <Link href="/app/admin/billing-health" className="rounded-lg border border-[var(--color-border)] px-3 py-2 text-sm font-medium text-[var(--color-text)] hover:border-[var(--color-mint)]">
+            {t("billingHealthLink")}
+          </Link>
         </div>
       </div>
 

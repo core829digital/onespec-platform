@@ -1782,6 +1782,7 @@
     "grantFullAccess": "Vollzugriff geben",
     "revokeFullAccess": "Vollzugriff entziehen",
     "referralsLink": "Einladungen (Referral)",
+    "billingHealthLink": "Zahlungsprüfung",
     "supportLink": "Support-Tickets"
   },
   "planGate": {
@@ -3633,5 +3634,303 @@
       "Preislisten und technische Zeichnungen werden abgeglichen",
       "Letzte Feinarbeiten: fast fertig"
     ]
+  },
+  "billingHealth": {
+    "title": "Zahlungsprüfung",
+    "back": "Zurück zur Verwaltung",
+    "loading": "Wird geladen…",
+    "forbidden": "Diese Seite ist nur für Plattform-Administratoren.",
+    "intro": "Prüft live, ob die Plattform Zahlungen annehmen kann: Stripe-Schlüssel, Konto, der Preis jedes Tarifs, Webhook, Steuern und Sicherheitsschlüssel. Nur lesend: Es wird nichts geändert und der Wert geheimer Schlüssel wird nie angezeigt.",
+    "recheck": "Erneut prüfen",
+    "checking": "Prüfung läuft…",
+    "checkedAt": "Geprüft um {time}",
+    "counts": "{ok} ok · {warn} zu beheben · {error} blockierend",
+    "regions": "Märkte: {regions}",
+    "status": {
+      "ok": "Alles in Ordnung",
+      "warn": "Zu beheben",
+      "error": "Blockierend",
+      "info": "Information"
+    },
+    "mode": {
+      "live": "Modus: LIVE (echte Zahlungen)",
+      "test": "Modus: TEST (keine echten Einnahmen)",
+      "missing": "Modus: Stripe nicht verbunden"
+    },
+    "cycles": {
+      "monthly": "monatlich",
+      "annual": "jährlich"
+    },
+    "overall": {
+      "ok": {
+        "title": "Bereit für Zahlungen",
+        "text": "Alle Prüfungen sind grün. Zur endgültigen Bestätigung eine echte Testzahlung durchführen und erstatten."
+      },
+      "warn": {
+        "title": "Zahlungen möglich, aber einige Punkte sind zu beheben",
+        "text": "Nichts blockiert die Zahlungen, aber die gelben Punkte können Ihnen oder Ihren Kunden Probleme bereiten. Beheben Sie sie so bald wie möglich."
+      },
+      "error": {
+        "title": "Nicht bereit: Zahlungen können fehlschlagen",
+        "text": "Die roten Punkte verhindern Zahlungen oder machen sie riskant. Beheben Sie sie und drücken Sie dann „Erneut prüfen“."
+      }
+    },
+    "sections": {
+      "keys": {
+        "title": "Stripe-Schlüssel",
+        "hint": "Die Schlüssel, die die Plattform mit dem Stripe-Konto der CORE829 SRL verbinden (Convex → Settings → Environment Variables)."
+      },
+      "account": {
+        "title": "Stripe-Konto",
+        "hint": "Ob das Konto Zahlungen empfangen und das Geld auf die Bank überweisen kann."
+      },
+      "prices": {
+        "title": "Tarifpreise",
+        "hint": "Jeder kaufbare Tarif braucht einen aktiven Stripe-Preis in Euro, identisch mit dem Preis, der den Kunden angezeigt wird."
+      },
+      "webhook": {
+        "title": "Webhook (Zahlungsmeldungen)",
+        "hint": "Der Kanal, über den Stripe der Plattform meldet, dass ein Kunde bezahlt, den Tarif gewechselt oder gekündigt hat."
+      },
+      "tax": {
+        "title": "Steuern (Stripe Tax)",
+        "hint": "Der Checkout lässt Stripe die MwSt. berechnen: Stripe Tax muss aktiv sein."
+      },
+      "portal": {
+        "title": "Stripe-Kundenportal",
+        "hint": "Die Stripe-Seite, auf der Kunden ihre Karte aktualisieren und Rechnungen herunterladen."
+      },
+      "secrets": {
+        "title": "Weitere Plattform-Schlüssel",
+        "hint": "Schlüssel für E-Mails, Sicherheit und Anhänge im Support."
+      }
+    },
+    "checks": {
+      "secretKeyLive": {
+        "text": "Stripe-Geheimschlüssel vorhanden, im LIVE-Modus."
+      },
+      "secretKeyTest": {
+        "text": "Der Stripe-Geheimschlüssel ist ein TEST-Schlüssel: Es werden keine echten Zahlungen eingezogen.",
+        "fix": "Auf Convex (Production) STRIPE_SECRET_KEY durch den Live-Schlüssel (beginnt mit sk_live_) aus Stripe → Entwickler → API-Schlüssel ersetzen."
+      },
+      "secretKeyMissing": {
+        "text": "Der Stripe-Geheimschlüssel fehlt.",
+        "fix": "Auf Convex (Production) STRIPE_SECRET_KEY mit dem Live-Schlüssel aus Stripe → Entwickler → API-Schlüssel hinzufügen."
+      },
+      "webhookSecretOk": {
+        "text": "Webhook-Signaturgeheimnis vorhanden."
+      },
+      "webhookSecretMissing": {
+        "text": "Das Webhook-Signaturgeheimnis fehlt: Die Plattform kann Zahlungen nicht bestätigen.",
+        "fix": "In Stripe → Entwickler → Webhooks den Endpunkt der Plattform öffnen, das „Signaturgeheimnis“ (whsec_…) kopieren und auf Convex als STRIPE_WEBHOOK_SECRET speichern."
+      },
+      "webhookSecretMalformed": {
+        "text": "Das Webhook-Signaturgeheimnis hat nicht das erwartete Format (whsec_…).",
+        "fix": "Das Signaturgeheimnis des Endpunkts (beginnt mit whsec_) erneut aus Stripe in STRIPE_WEBHOOK_SECRET kopieren."
+      },
+      "webhookPathOk": {
+        "text": "Geheime Webhook-Adresse konfiguriert."
+      },
+      "webhookPathMissing": {
+        "text": "Die geheime Webhook-Adresse fehlt: Stripe weiß nicht, wohin die Meldungen gehen sollen.",
+        "fix": "Auf Convex STRIPE_WEBHOOK_PATH_TOKEN setzen (zufällige Zeichenfolge mit mindestens 24 Zeichen, z. B. openssl rand -hex 24) und das Backend neu veröffentlichen."
+      },
+      "siteUrlOk": {
+        "text": "Adresse der Plattform: {host}."
+      },
+      "siteUrlMissing": {
+        "text": "Die Adresse der Plattform fehlt: Nach der Zahlung weiß der Kunde nicht, wohin er zurückkehren soll.",
+        "fix": "Auf Convex SITE_URL auf die öffentliche Adresse der Plattform setzen (z. B. https://app.onespec.eu)."
+      },
+      "stripeKeyRejected": {
+        "text": "Stripe lehnt den Geheimschlüssel ab.",
+        "fix": "Der Schlüssel ist falsch, widerrufen oder gehört zu einem anderen Konto. Erstellen Sie in Stripe → Entwickler → API-Schlüssel einen neuen und aktualisieren Sie ihn auf Convex."
+      },
+      "stripeUnreachable": {
+        "text": "Stripe hat auf diese Prüfung nicht geantwortet.",
+        "fix": "Das kann vorübergehend sein: „Erneut prüfen“ drücken. Bleibt es rot, den Stripe-Status und die Convex-Logs prüfen."
+      },
+      "accountName": {
+        "text": "Stripe-Konto: {name} ({country}).",
+        "fix": "Das Konto hat keinen Firmennamen: In Stripe → Einstellungen → Unternehmensdaten CORE829 SRL eintragen, damit er auf Rechnungen und Kontoauszügen der Kunden erscheint."
+      },
+      "chargesEnabled": {
+        "text": "Das Konto kann Zahlungen empfangen."
+      },
+      "chargesDisabled": {
+        "text": "Das Stripe-Konto kann noch KEINE Zahlungen empfangen.",
+        "fix": "Stripe öffnen: Oben sind die fehlenden Angaben aufgelistet (Dokumente, Bankkonto, gesetzlicher Vertreter). Vervollständigen und die Prüfung abwarten."
+      },
+      "payoutsEnabled": {
+        "text": "Auszahlungen auf das Bankkonto sind aktiv."
+      },
+      "payoutsDisabled": {
+        "text": "Auszahlungen an die Bank sind pausiert: Sie nehmen Zahlungen an, aber das Geld bleibt bei Stripe.",
+        "fix": "In Stripe → Einstellungen → Auszahlungen das Bankkonto der CORE829 SRL hinzufügen oder bestätigen."
+      },
+      "requirementsNone": {
+        "text": "Stripe verlangt keine weiteren Unterlagen."
+      },
+      "requirementsDue": {
+        "text": "Stripe verlangt {count} Angaben oder Unterlagen.",
+        "fix": "Das Stripe-Dashboard öffnen und die Anforderungen vor Fristablauf erfüllen, sonst können Zahlungen und Auszahlungen gesperrt werden."
+      },
+      "priceOk": {
+        "text": "{plan} {cycle}: {amount} € — korrekt."
+      },
+      "priceMissing": {
+        "text": "{plan} {cycle}: kein Stripe-Preis verknüpft. Wer diesen Tarif wählt, kann nicht bezahlen.",
+        "fix": "In Stripe den Preis des Tarifs anlegen (oder öffnen), seine ID (price_…) kopieren und auf Convex als {envName} speichern."
+      },
+      "priceMissingRegions": {
+        "text": "{plan} {cycle}: Für einige Märkte fehlt der Preis.",
+        "fix": "Die allgemeine Preisvariable ({plan}, {cycle}) oder die spezifische für die genannten Märkte hinzufügen."
+      },
+      "priceNotFound": {
+        "text": "{plan} {cycle}: Die gespeicherte Preis-ID existiert in diesem Stripe-Konto nicht.",
+        "fix": "Vermutlich eine Test-ID oder aus einem anderen Konto. Die richtige Live-Preis-ID aus Stripe kopieren und auf Convex aktualisieren."
+      },
+      "priceInactive": {
+        "text": "{plan} {cycle}: Der Preis ist in Stripe archiviert.",
+        "fix": "Den Preis in Stripe reaktivieren oder einen neuen anlegen und die ID auf Convex aktualisieren."
+      },
+      "priceWrongMode": {
+        "text": "{plan} {cycle}: Der Preis gehört zu einem anderen Modus (Test/Live) als der Schlüssel.",
+        "fix": "Preise und Schlüssel aus demselben Modus verwenden: in Produktion beide LIVE."
+      },
+      "priceWrongCurrency": {
+        "text": "{plan} {cycle}: Der Preis ist in {currency}, nicht in Euro.",
+        "fix": "In Stripe einen Preis in EUR anlegen und die ID auf Convex aktualisieren."
+      },
+      "priceWrongInterval": {
+        "text": "{plan} {cycle}: Das Abrechnungsintervall stimmt nicht (muss wiederkehrend sein, monatlich oder jährlich).",
+        "fix": "In Stripe einen wiederkehrenden Preis mit dem richtigen Intervall anlegen und die ID auf Convex aktualisieren."
+      },
+      "priceAmountMismatch": {
+        "text": "{plan} {cycle}: Stripe berechnet {charged} €, den Kunden zeigen wir aber {shown} €.",
+        "fix": "Der berechnete Betrag muss dem veröffentlichten entsprechen. In Stripe einen Preis mit dem richtigen Betrag anlegen und die ID auf Convex aktualisieren (beim Jahrespreis ist eine gewollte Abweichung zulässig)."
+      },
+      "priceTaxBehavior": {
+        "text": "{plan} {cycle}: Der Preis ist nicht auf „zzgl. MwSt.“ eingestellt.",
+        "fix": "Unsere Preise verstehen sich zzgl. MwSt.: In Stripe das Steuerverhalten des Preises auf „Exklusiv“ stellen (oder einen so eingestellten neuen Preis anlegen)."
+      },
+      "webhookRegistered": {
+        "text": "Webhook registriert auf {host}."
+      },
+      "webhookNotRegistered": {
+        "text": "In Stripe zeigt kein Webhook auf die Plattform ({count} Endpunkte gefunden).",
+        "fix": "In Stripe → Entwickler → Webhooks einen Endpunkt mit der Adresse des Convex-Backends (…convex.site/ev/ gefolgt vom geheimen Token) und den benötigten Ereignissen anlegen; dann sein Signaturgeheimnis auf Convex speichern."
+      },
+      "webhookWrongHost": {
+        "text": "Der Webhook zeigt auf {host}, das Produktions-Backend ist aber {expected}.",
+        "fix": "In Stripe die Adresse des Endpunkts auf das Produktions-Backend ändern."
+      },
+      "webhookEnabled": {
+        "text": "Webhook aktiv."
+      },
+      "webhookDisabled": {
+        "text": "Der Webhook ist in Stripe deaktiviert: Zahlungen aktivieren keine Tarife.",
+        "fix": "In Stripe → Entwickler → Webhooks den Endpunkt der Plattform wieder aktivieren."
+      },
+      "webhookEventsOk": {
+        "text": "Der Webhook sendet alle benötigten Ereignisse."
+      },
+      "webhookMissingEvents": {
+        "text": "Der Webhook sendet diese Ereignisse nicht: {events}.",
+        "fix": "In Stripe den Endpunkt öffnen → „Ereignisse auswählen“ und die genannten hinzufügen."
+      },
+      "webhookSecretUnverifiable": {
+        "text": "Stripe erlaubt kein Auslesen des Signaturgeheimnisses: Sind die Zustellungen im Webhook-Bereich von Stripe rot, stimmt das Geheimnis auf Convex nicht."
+      },
+      "taxActive": {
+        "text": "Stripe Tax ist aktiv (Sitz: {country})."
+      },
+      "taxPending": {
+        "text": "Stripe Tax ist nicht aktiv: Der Checkout kann fehlschlagen, weil er Stripe die MwSt. berechnen lässt.",
+        "fix": "In Stripe → Steuern die Einrichtung abschließen (Sitz der CORE829 SRL, Produktcode „Software as a Service“) und aktivieren."
+      },
+      "taxNotSetUp": {
+        "text": "Stripe Tax ist nicht eingerichtet.",
+        "fix": "In Stripe → Steuern die Einrichtung mit dem Sitz der CORE829 SRL in Rumänien starten."
+      },
+      "taxRegistrations": {
+        "text": "Aktive USt-Registrierungen in Stripe: {countries}."
+      },
+      "taxNoRegistrations": {
+        "text": "Keine USt-Registrierung in Stripe Tax eingetragen.",
+        "fix": "In Stripe → Steuern → Registrierungen mindestens Rumänien eintragen, weitere Länder nur nach Bestätigung durch die Steuerberatung (z. B. OSS für Privatkunden)."
+      },
+      "portalPlanSwitchOff": {
+        "text": "Tarifwechsel im Stripe-Portal ist deaktiviert (erfolgt wie vorgesehen in der Plattform)."
+      },
+      "portalPlanSwitchOn": {
+        "text": "Das Stripe-Portal erlaubt Tarifwechsel: Das umgeht die Logik der Plattform.",
+        "fix": "In Stripe → Einstellungen → Kundenportal „Abonnements aktualisieren“ ausschalten."
+      },
+      "portalInvoicesOn": {
+        "text": "Kunden können ihre Rechnungen im Portal herunterladen."
+      },
+      "portalInvoicesOff": {
+        "text": "Der Rechnungsverlauf im Portal ist deaktiviert.",
+        "fix": "In Stripe → Einstellungen → Kundenportal „Rechnungsverlauf“ einschalten."
+      },
+      "portalNotConfigured": {
+        "text": "Das Stripe-Kundenportal ist noch nicht konfiguriert.",
+        "fix": "In Stripe → Einstellungen → Kundenportal eine Konfiguration speichern (Kartenaktualisierung und Rechnungen an, Tarifwechsel aus)."
+      },
+      "supportSigningOk": {
+        "text": "Signaturschlüssel für Support-Anhänge vorhanden."
+      },
+      "supportSigningMissing": {
+        "text": "Der Signaturschlüssel für Anhänge (SUPPORT_SIGNING_SECRET) fehlt: Support-Anhänge funktionieren nicht.",
+        "fix": "Auf Convex SUPPORT_SIGNING_SECRET mit einem Zufallswert von mindestens 32 Zeichen hinzufügen (openssl rand -hex 32)."
+      },
+      "mfaKeyOk": {
+        "text": "Schlüssel für die Zwei-Schritt-Verifizierung vorhanden."
+      },
+      "mfaKeyMissing": {
+        "text": "Der Schlüssel für die Zwei-Schritt-Verifizierung (MFA_ENCRYPTION_KEY) fehlt oder ist zu kurz.",
+        "fix": "Auf Convex MFA_ENCRYPTION_KEY hinzufügen (openssl rand -hex 32) und sicher aufbewahren: Er darf nie geändert werden."
+      },
+      "ipSaltOk": {
+        "text": "Schlüssel zur Anonymisierung von IP-Adressen vorhanden."
+      },
+      "ipSaltMissing": {
+        "text": "DAILY_IP_SALT fehlt: IP-Adressen werden mit einem öffentlichen Schlüssel anonymisiert.",
+        "fix": "Auf Convex DAILY_IP_SALT hinzufügen (openssl rand -hex 16)."
+      },
+      "emailOk": {
+        "text": "E-Mail-Versand konfiguriert."
+      },
+      "emailMissing": {
+        "text": "E-Mail-Versand nicht konfiguriert: Kunden erhalten keine Codes, Belege oder Hinweise.",
+        "fix": "Auf Convex AUTH_RESEND_KEY und RESEND_FROM setzen (aus dem Resend-Dashboard)."
+      },
+      "purchaseEmailOk": {
+        "text": "Absender für Kauf-E-Mails konfiguriert."
+      },
+      "purchaseEmailMissing": {
+        "text": "Der eigene Absender für Kauf-E-Mails (RESEND_FROM_PURCHASES) fehlt.",
+        "fix": "Auf Convex RESEND_FROM_PURCHASES setzen (z. B. billing@onespec.eu)."
+      },
+      "turnstileOk": {
+        "text": "Bot-Schutz konfiguriert."
+      },
+      "turnstileMissing": {
+        "text": "Der Bot-Schutz (Turnstile) ist nicht konfiguriert.",
+        "fix": "Auf Convex TURNSTILE_SECRET aus dem Cloudflare-Turnstile-Dashboard setzen."
+      },
+      "alertsOk": {
+        "text": "Fehlerwarnungen per E-Mail konfiguriert."
+      },
+      "alertsMissing": {
+        "text": "Keine E-Mail für Fehlerwarnungen (OPS_ALERT_EMAIL).",
+        "fix": "Auf Convex OPS_ALERT_EMAIL auf die Adresse setzen, die Warnungen erhalten soll (z. B. eine nicht verbuchte Zahlung)."
+      }
+    },
+    "finalTest": {
+      "title": "Der endgültige Test",
+      "text": "Auch wenn alles grün ist: einen echten Kauf mit einem Testkonto durchführen und sofort in Stripe erstatten. Prüfen, dass der Tarif aktiviert wird, die Rechnung von CORE829 SRL stammt und die Zustellung in Stripe → Webhooks grün ist."
+    }
   }
 }

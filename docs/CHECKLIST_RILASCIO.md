@@ -36,6 +36,7 @@ Devono già esserci. Controlla solo che non manchi nulla:
 - [ ] Indirizzi: `SITE_URL`, `CONVEX_SITE_URL`, `ALLOWED_APP_ORIGINS`
 - [ ] Supporto e avvisi: `OPS_ALERT_EMAIL`, `SUPPORT_REPLY_TO`
 - [ ] Le chiavi Stripe sono quelle **live** (non di prova) e intestate a CORE829 SRL.
+- [ ] **Scorciatoia:** dopo aver pubblicato il backend, apri nella piattaforma *Amministrazione → Controllo pagamenti*. Controlla in un clic chiavi, conto Stripe, prezzo di ogni piano, webhook, Stripe Tax, portale clienti e le altre chiavi: ogni voce rossa o gialla dice cosa fare. Non mostra mai il valore delle chiavi.
 
 ## 3 · Pubblicare il backend (Convex)
 Scegli **una** strada:
