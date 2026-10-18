@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import { useSwipeDismiss } from "@/hooks/useSwipeDismiss";
 import { useLocale, useTranslations } from "next-intl";
 import { AppVersion } from "./app-version";
+import { FeedbackButton } from "./feedback-modal";
 import { Activity, Bell, ChevronRight, Gem, LifeBuoy, Scale, Settings, X } from "lucide-react";
 import { useQuery } from "@/lib/convex-query";
 import { api } from "@/convex/_generated/api";
@@ -60,7 +61,8 @@ export function MobileMoreSheet({ open, onClose }: { open: boolean; onClose: () 
     if (!open) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    // Escape belongs to the feedback dialog while it is open (it is opened from this sheet and must not take the sheet down with it).
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && !document.querySelector("[data-feedback-dialog]") && onClose();
     window.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = prev;
@@ -117,6 +119,7 @@ export function MobileMoreSheet({ open, onClose }: { open: boolean; onClose: () 
         <nav className="mt-4 space-y-0.5" aria-label={t("moreTitle")}>
           <Row href="/app/notifications" icon={<Bell size={20} aria-hidden="true" />}>{t("notifications")}</Row>
           <Row href="/app/support" badge={supportUnread} icon={<LifeBuoy size={20} aria-hidden="true" />}>{t("support")}</Row>
+          <FeedbackButton variant="row" />
           <Row href="/app/account" icon={<Settings size={20} aria-hidden="true" />}>{t("account")}</Row>
           <Row href="/app/account/billing?tab=plan" icon={<Gem size={20} aria-hidden="true" />}>{t("plan")}</Row>
           <Row href="https://cloud.onespec.eu" external icon={<Activity size={20} aria-hidden="true" />}>{t("status")}</Row>

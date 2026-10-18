@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { analytics as posthog } from "@/lib/monitoring";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { LifeBuoy, MessageSquarePlus, Star, X } from "lucide-react";
+import { ChevronRight, LifeBuoy, MessageSquarePlus, Star, X } from "lucide-react";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/navigation";
@@ -28,7 +28,7 @@ const EXIT_MS = 180;
  * Rendered in a portal on <body>: the topbar is a backdrop-filter surface, which becomes the containing block of
  * `position: fixed` children — inside it the dialog was trapped in the header instead of covering the screen.
  */
-export function FeedbackButton() {
+export function FeedbackButton({ variant = "topbar" }: { variant?: "topbar" | "row" }) {
   const t = useTranslations("feedback");
   const tf = useFriendlyError();
   const [phase, setPhase] = useState<"closed" | "open" | "closing">("closed");
@@ -131,6 +131,7 @@ export function FeedbackButton() {
         <div
           role="dialog"
           aria-modal="true"
+          data-feedback-dialog
           aria-labelledby="feedback-title"
           className={`os-feedback-panel w-full max-w-lg max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5 shadow-[0_24px_60px_-12px_rgb(0_0_0/0.55)] sm:p-6 ${closing ? "is-closing" : ""}`}
           onClick={(e) => e.stopPropagation()}
@@ -253,17 +254,32 @@ export function FeedbackButton() {
 
   return (
     <>
-      <button
-        ref={triggerRef}
-        type="button"
-        onClick={open}
-        className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] px-2.5 py-1.5 text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
-        aria-label={t("open")}
-        aria-haspopup="dialog"
-      >
-        <MessageSquarePlus size={14} aria-hidden="true" />
-        {t("button")}
-      </button>
+      {variant === "row" ? (
+        // The phone "More" sheet: same look as its other lines (the top bar button is hidden on small screens).
+        <button
+          ref={triggerRef}
+          type="button"
+          onClick={open}
+          aria-haspopup="dialog"
+          className="flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-sm font-medium text-[var(--color-text)] hover:bg-[var(--color-bg)]"
+        >
+          <span className="text-[var(--color-text-secondary)]"><MessageSquarePlus size={20} aria-hidden="true" /></span>
+          <span className="min-w-0 flex-1 truncate text-left">{t("button")}</span>
+          <ChevronRight size={16} aria-hidden="true" className="shrink-0 text-[var(--color-text-secondary)]" />
+        </button>
+      ) : (
+        <button
+          ref={triggerRef}
+          type="button"
+          onClick={open}
+          className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-[var(--color-border)] px-2.5 py-1.5 text-xs text-[var(--color-text-secondary)] hover:text-[var(--color-text)]"
+          aria-label={t("open")}
+          aria-haspopup="dialog"
+        >
+          <MessageSquarePlus size={14} aria-hidden="true" />
+          {t("button")}
+        </button>
+      )}
       {dialog ? createPortal(dialog, document.body) : null}
     </>
   );
