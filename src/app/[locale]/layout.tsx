@@ -52,7 +52,9 @@ export default async function LocaleLayout({
             {children}
             <ThemeToggleGate />
             <Toaster />
-            <CookieConsentBanner />
+            {/* The demo host never turns the optional tools on (they start off on every load), so there is nothing to ask: no banner,
+                and inside the site's demo frame the visitor sees only the site's own banner. */}
+            {demo ? null : <CookieConsentBanner />}
           </MotionConfig>
         </RageClickDetector>
       </ConvexClientProvider>

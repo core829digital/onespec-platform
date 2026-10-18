@@ -1379,7 +1379,7 @@
   },
   "cookieConsent": {
     "title": "Consimțământ cookie-uri",
-    "body": "Folosim instrumente opționale de analiză și redare a sesiunii (PostHog, Sentry Replay) pentru a înțelege și remedia erorile platformei. Rămân dezactivate până accepți.",
+    "body": "Folosim instrumente opționale de analiză și redare a sesiunii (PostHog, Sentry Replay) pentru a înțelege și remedia erorile platformei, precum și statistici de vizită fără cookie-uri (Vercel Web Analytics). Rămân dezactivate până accepți.",
     "learnMore": "Află mai multe",
     "accept": "Accept",
     "reject": "Refuz"

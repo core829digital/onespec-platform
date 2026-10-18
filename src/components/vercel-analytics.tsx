@@ -1,7 +1,9 @@
 "use client";
 
+import { useSyncExternalStore } from "react";
 import { Analytics, type BeforeSendEvent } from "@vercel/analytics/next";
 import { isDemoHost } from "@/demo/is-demo";
+import { getConsent, onConsentChange } from "@/lib/consent";
 
 // Pages that run inside other people's sites (the widget and the hosted configurator page) or only show the product: counting them
 // would mix a dealer's visitors and demo traffic into the platform's own numbers.
@@ -26,6 +28,8 @@ export function filterAnalyticsEvent(event: BeforeSendEvent): BeforeSendEvent | 
   return { ...event, url: `${url.origin}${path}` };
 }
 
+/** Page-view statistics start only after the visitor accepts the optional tools in the cookie banner (same switch as PostHog). */
 export function VercelAnalytics() {
-  return <Analytics beforeSend={filterAnalyticsEvent} />;
+  const consent = useSyncExternalStore(onConsentChange, getConsent, () => null);
+  return consent === "granted" ? <Analytics beforeSend={filterAnalyticsEvent} /> : null;
 }

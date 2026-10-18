@@ -86,7 +86,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             Vercel's stale auto-injected web-vitals script (the source of the
             "Cannot read properties of undefined (reading 'startTime')" crash). */}
         <SpeedInsights />
-        {/* Vercel Web Analytics: page views only, no cookies; demo, embedded widget and secret links are filtered out. */}
+        {/* Vercel Web Analytics: page views only, no cookies, after consent; demo, embedded widget and secret links are filtered out. */}
         <VercelAnalytics />
         <PwaRegister />
       </body>

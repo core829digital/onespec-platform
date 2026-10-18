@@ -87,8 +87,7 @@ try {
     await page.goto(`${DEMO}/it/app/dashboard`, { waitUntil: "load" });
     await page.waitForFunction(() => document.body.innerText.length > 600, null, { timeout: 40000 }).catch(() => undefined);
     await page.waitForTimeout(7000); // the first page seeds the database
-    await audit(page, width, "dashboard with the cookie banner");
-    await page.getByRole("button", { name: "Rifiuta" }).click({ timeout: 2000 }).catch(() => undefined);
+    await audit(page, width, "dashboard");
     for (const slug of LIST) {
       await page.goto(`${DEMO}/it/app/${slug}`, { waitUntil: "load" });
       await page.waitForTimeout(1500);

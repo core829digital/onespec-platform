@@ -40,7 +40,7 @@ const SUBPROCESSORS: LegalSection = {
     "• Stripe (Stripe Payments Europe, Ltd.) — gestione degli abbonamenti e dei pagamenti; i dati della carta sono trattati direttamente da Stripe e non transitano né sono conservati da OneSpec.",
     "• Resend (Resend, Inc.) — invio delle email transazionali (codici di verifica, notifiche di preventivo, avvisi sui ticket di assistenza; queste ultime non riportano il testo dei messaggi).",
     "• Cloudflare Turnstile (Cloudflare, Inc.) — verifica anti-bot sull'invio dei preventivi dal widget e sui moduli di accesso, registrazione, recupero password e «Contattaci».",
-    "• Vercel (Vercel, Inc.) — hosting dell'applicazione web e misurazione delle prestazioni (Speed Insights, senza cookie).",
+    "• Vercel (Vercel, Inc.) — hosting dell'applicazione web e del sito, misurazione delle prestazioni (Speed Insights, senza cookie) e statistiche di visita aggregate (Web Analytics, senza cookie, solo previo consenso).",
     "• PostHog (PostHog Inc.) — analisi di prodotto e registrazione della sessione (click, scroll, navigazione) per individuare e correggere malfunzionamenti; i valori digitati nei campi dei moduli restano oscurati. Attivo solo dopo il consenso esplicito tramite il banner cookie.",
     "• Sentry (Functional Software, Inc.) — rilevamento errori tecnici; la registrazione visiva della sessione (Session Replay) è attiva solo dopo lo stesso consenso, la sola segnalazione degli errori resta sempre attiva per garantire la sicurezza e la stabilità del servizio.",
     "Eventuali trasferimenti verso paesi terzi avvengono sulla base delle Clausole Contrattuali Standard della Commissione Europea. L'elenco aggiornato dei sub-responsabili con i relativi dettagli è disponibile su richiesta a [[email di contatto privacy]].",
@@ -262,13 +262,14 @@ export const LEGAL_DOCS: LegalDoc[] = [
   {
     slug: "cookie",
     title: "Cookie e tecnologie simili",
-    updated: "2026-10-12",
-    summary: "Quali cookie e archiviazioni locali utilizza l'applicazione.",
+    updated: "2026-10-18",
+    summary: "Quali cookie e archiviazioni locali utilizzano il sito onespec.eu e la piattaforma.",
     sections: [
       {
         h: "Cookie tecnici essenziali",
         p: [
           "L'autenticazione utilizza un cookie di sessione necessario al funzionamento dell'area riservata. Senza questo cookie non è possibile effettuare l'accesso. Non richiede consenso.",
+          "Sia il sito onespec.eu sia la piattaforma salvano la lingua scelta in un cookie tecnico («NEXT_LOCALE»), per mostrarti le pagine nella tua lingua alla visita successiva. Non contiene dati personali e non richiede consenso.",
         ],
       },
       {
@@ -293,6 +294,19 @@ export const LEGAL_DOCS: LegalDoc[] = [
         h: "Misurazione delle prestazioni",
         p: [
           "Le prestazioni delle pagine sono misurate tramite Vercel Speed Insights, che non utilizza cookie e non traccia i singoli utenti.",
+        ],
+      },
+      {
+        h: "Statistiche di visita (previo consenso)",
+        p: [
+          "Sul sito onespec.eu e sulla piattaforma usiamo Vercel Web Analytics per contare in forma aggregata le pagine visitate (pagina, paese, tipo di dispositivo e di browser). Non usa cookie, non crea profili e non permette di riconoscerti da un giorno all'altro; dagli indirizzi delle pagine togliamo i parametri e i codici dei link riservati prima dell'invio.",
+          "Si attiva solo se accetti gli strumenti facoltativi nel banner cookie; finché non accetti, o se rifiuti, non viene inviato nulla. Puoi cambiare idea in qualsiasi momento: sul sito dal link «Preferenze cookie» in fondo alla pagina.",
+        ],
+      },
+      {
+        h: "Registrazione della scelta sui cookie",
+        p: [
+          "La tua scelta nel banner (accetto / rifiuto) è salvata nel browser tramite localStorage, con la chiave «onespec-cookie-consent» sulla piattaforma e «onespec-site-consent» sul sito, per non chiedertela a ogni visita. È un dato tecnico che non lascia il dispositivo.",
         ],
       },
       {

@@ -1379,7 +1379,7 @@
   },
   "cookieConsent": {
     "title": "Cookie consent",
-    "body": "We use optional analytics and session-replay tools (PostHog, Sentry Replay) to understand and fix platform bugs. They stay off until you accept.",
+    "body": "We use optional analytics and session-replay tools (PostHog, Sentry Replay) to understand and fix platform bugs, and cookie-free visit statistics (Vercel Web Analytics). They stay off until you accept.",
     "learnMore": "Learn more",
     "accept": "Accept",
     "reject": "Reject"

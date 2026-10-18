@@ -1379,7 +1379,7 @@
   },
   "cookieConsent": {
     "title": "Cookie-Einwilligung",
-    "body": "Wir verwenden optionale Analyse- und Session-Replay-Tools (PostHog, Sentry Replay), um Plattformfehler zu verstehen und zu beheben. Sie bleiben deaktiviert, bis Sie zustimmen.",
+    "body": "Wir verwenden optionale Analyse- und Session-Replay-Tools (PostHog, Sentry Replay), um Plattformfehler zu verstehen und zu beheben, sowie cookielose Besuchsstatistiken (Vercel Web Analytics). Sie bleiben deaktiviert, bis Sie zustimmen.",
     "learnMore": "Mehr erfahren",
     "accept": "Akzeptieren",
     "reject": "Ablehnen"
