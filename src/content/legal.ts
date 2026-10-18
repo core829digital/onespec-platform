@@ -69,14 +69,14 @@ export const LEGAL_DOCS: LegalDoc[] = [
   {
     slug: "privacy",
     title: "Informativa sulla privacy",
-    updated: "2026-10-12",
+    updated: "2026-10-18",
     summary: "Quali dati personali trattiamo, perché e per quanto tempo.",
     sections: [
       IDENTITY_INTRO,
       {
         h: "Dati trattati",
         p: [
-          "Account: nome, indirizzo email, lingua preferita, data di registrazione, stato di verifica dell'email.",
+          "Account: nome, indirizzo email, lingua preferita, paese (ricavato alla registrazione dalla rete o dalla lingua del browser), data di nascita (chiesta alla registrazione solo per verificare la maggiore età), data di registrazione, stato di verifica dell'email.",
           "Verifica in due passaggi (facoltativa): se la attivi conserviamo il segreto dell'app di autenticazione in forma cifrata, l'impronta (hash) dei codici di recupero e il numero di tentativi errati; non conserviamo i codici monouso generati dalla tua app.",
           "Organizzazione: ragione sociale, P.IVA, indirizzo, telefono ed email inseriti dall'utente nelle impostazioni di branding.",
           "Richieste di preventivo generate dal widget: nome, email, telefono, azienda e messaggio del potenziale cliente, insieme alla configurazione tecnica scelta e al prezzo indicativo calcolato.",
