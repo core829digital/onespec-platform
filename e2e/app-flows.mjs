@@ -177,7 +177,9 @@ async function main() {
       await anon.context.clearCookies();
       await step(`register page (${label}): password toggle, minors refused before anything is sent, no overflow`, rp, anon.problems, async () => {
         await rp.goto(url("/auth/register"), { waitUntil: "domcontentloaded" });
-        await rp.locator("#name").waitFor({ timeout: 20_000 });
+        // On a slow runner the streamed page can briefly hold the form twice (the hidden streamed copy and the placed one): wait
+        // until it has settled on one form before typing.
+        await rp.waitForFunction(() => document.querySelectorAll("#name").length === 1, null, { timeout: 20_000 });
         await rp.locator("#name").fill("Mario Rossi");
         await rp.locator("#email").fill("mario@example.com");
         await rp.locator("#password").fill("abcdef12");
