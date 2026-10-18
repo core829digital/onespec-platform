@@ -1,7 +1,7 @@
 import { test, expect } from "vitest";
 import { api } from "../../convex/_generated/api";
 import { newDb, seedTenant, seedPublishedConfigurator } from "./_helpers";
-import { resolveWidgetLang, resolveWidgetTheme } from "../../src/lib/widget-params";
+import { resolveWidgetLang, resolveWidgetMode, resolveWidgetTheme } from "../../src/lib/widget-params";
 
 test("public widget: gating follows the OWNER's plan and exposes the configurator's language/theme defaults", async () => {
   const t = newDb();
@@ -32,4 +32,9 @@ test("widget params: URL override wins, then the configurator default, then a pl
   expect(resolveWidgetLang("de", "fr")).toBe("de");
   expect(resolveWidgetLang(undefined, "nl")).toBe("nl");
   expect(resolveWidgetLang("xx", undefined)).toBe("it");
+  // Embedded widgets open on the whole form unless the host asks for the guided path.
+  expect(resolveWidgetMode("guided")).toBe("guided");
+  expect(resolveWidgetMode("full")).toBe("full");
+  expect(resolveWidgetMode(undefined)).toBe("full");
+  expect(resolveWidgetMode(["guided"])).toBe("full");
 });

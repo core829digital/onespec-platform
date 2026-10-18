@@ -80,6 +80,8 @@ interface WidgetProps {
   fontOverride?: string;
   /** Public demo on onespec.eu: fully interactive, but nothing is ever sent. */
   demo?: boolean;
+  /** Mode shown first (`?mode=` on the embed URL; the demo opens guided). The visitor can switch from the header toggle. */
+  initialMode?: "guided" | "full";
 }
 
 interface HostTheme {
@@ -113,6 +115,7 @@ export function Widget({
   accentOverride,
   fontOverride,
   demo = false,
+  initialMode = demo ? "guided" : "full",
 }: WidgetProps) {
   const dict = getDict(lang);
   const cfg = LOCALE_CFG[lang] ?? LOCALE_CFG.en;
@@ -197,10 +200,10 @@ export function Widget({
   const [discountPct, setDiscountPct] = useState(0);
 
   const [step, setStep] = useState<"config" | "lead" | "success">("config");
-  // Public demo only: a short guided path (3 steps, drawing and price always in view) next to the full form.
-  const [mode, setMode] = useState<"guided" | "full">(demo ? "guided" : "full");
+  // A short guided path (3 steps, drawing and price always in view) next to the full form; the header toggle switches between them.
+  const [mode, setMode] = useState<"guided" | "full">(initialMode);
   const [gStep, setGStep] = useState(0);
-  const guided = demo && mode === "guided";
+  const guided = mode === "guided";
   const gShow = (blk: 0 | 1 | 2) => !guided || gStep === blk;
   const [demoNotice, setDemoNotice] = useState(false);
   const [lead, setLead] = useState({ name: "", email: "", phone: "", company: "", message: "" });
@@ -671,21 +674,19 @@ export function Widget({
             </p>
           </div>
         </div>
-        {demo ? (
-          <div role="group" aria-label={dict.guide.modeLabel} style={{ display: "inline-flex", padding: 3, borderRadius: 999, border: "1.5px solid var(--color-border)", background: "var(--color-bg-alt)" }}>
-            {(["guided", "full"] as const).map((m) => (
-              <button
-                key={m}
-                type="button"
-                aria-pressed={mode === m}
-                onClick={() => setMode(m)}
-                style={{ minHeight: 36, padding: "6px 14px", borderRadius: 999, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "inherit", background: mode === m ? accent : "transparent", color: mode === m ? accentInk : "var(--color-text)" }}
-              >
-                {m === "guided" ? dict.guide.guided : dict.guide.full}
-              </button>
-            ))}
-          </div>
-        ) : null}
+        <div role="group" aria-label={dict.guide.modeLabel} style={{ display: "inline-flex", padding: 3, borderRadius: 999, border: "1.5px solid var(--color-border)", background: "var(--color-bg-alt)" }}>
+          {(["guided", "full"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              aria-pressed={mode === m}
+              onClick={() => setMode(m)}
+              style={{ minHeight: 36, padding: "6px 14px", borderRadius: 999, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "inherit", background: mode === m ? accent : "transparent", color: mode === m ? accentInk : "var(--color-text)" }}
+            >
+              {m === "guided" ? dict.guide.guided : dict.guide.full}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* material tabs */}

@@ -20,3 +20,13 @@ export function resolveWidgetLang(param: unknown, configDefault: unknown): strin
   if (typeof configDefault === "string" && LANGS.includes(configDefault)) return configDefault;
   return "it";
 }
+
+/**
+ * Starting mode of the full widget: `?mode=guided` opens the 3-step guided path, anything else the whole form. The visitor can switch
+ * either way from the header toggle, so this only picks what the host site shows first.
+ */
+export type WidgetMode = "guided" | "full";
+
+export function resolveWidgetMode(param: unknown): WidgetMode {
+  return param === "guided" ? "guided" : "full";
+}

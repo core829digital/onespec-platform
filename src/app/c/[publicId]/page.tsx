@@ -3,7 +3,7 @@ import { fetchQuery } from "convex/nextjs";
 import { api } from "@/convex/_generated/api";
 import { Widget } from "@/components/widget/widget";
 import { SimpleWizardWidget } from "@/components/widget/simple-wizard-widget";
-import { resolveWidgetLang, resolveWidgetTheme } from "@/lib/widget-params";
+import { resolveWidgetLang, resolveWidgetMode, resolveWidgetTheme } from "@/lib/widget-params";
 import { notFound } from "next/navigation";
 import { headers } from "next/headers";
 import { WidgetLocked } from "@/components/widget/widget-locked";
@@ -94,6 +94,7 @@ export default async function HostedConfiguratorPage({
       preview={false}
       accentOverride={accentParam}
       fontOverride={fontParam}
+      initialMode={resolveWidgetMode(sp.mode)}
     />
   );
 }

@@ -10,7 +10,7 @@
  *
  * Optional attributes: data-lang (it|en|fr|de|nl|ro), data-theme (light|dark|auto), data-accent (#RRGGBB), data-font,
  * data-target (CSS selector of the element to fill instead of "right after the script"), data-min-height (300-2000, default 640),
- * data-title (accessible name of the frame).
+ * data-title (accessible name of the frame), data-mode (guided|full: the 3-step guided path or the whole form first).
  *
  * Plain ES5, no dependencies, no eval, no innerHTML. The page that embeds the widget must be listed under "Authorised sites"
  * of the configurator (the widget refuses to be framed anywhere else).
@@ -46,6 +46,8 @@
     if (/^#[0-9a-fA-F]{6}$/.test(accent)) params.push("accent=" + encodeURIComponent(accent));
     var font = script.getAttribute("data-font") || "";
     if (font && font.length <= 60 && /^[A-Za-z0-9 ,'-]+$/.test(font)) params.push("font=" + encodeURIComponent(font));
+    var mode = (script.getAttribute("data-mode") || "").toLowerCase();
+    if (mode === "guided" || mode === "full") params.push("mode=" + mode);
     return { origin: origin, href: origin + "/w/" + id + (params.length ? "?" + params.join("&") : "") };
   }
 

@@ -2326,7 +2326,7 @@
       "sitesEdit": "Modifică site-urile autorizate",
       "loaderTitle": "O singură linie de cod (recomandat)",
       "loaderDesc": "Lipește această linie unde vrei configuratorul: creează singură cadrul, îi adaptează înălțimea la conținut și anunță site-ul tău când sosește o cerere.",
-      "loaderOptions": "Opțiuni (facultative, ca atribute ale etichetei): data-lang=\"ro\", data-theme=\"light|dark|auto\", data-accent=\"#16d19d\", data-target=\"#id-container\", data-min-height=\"640\". Când un client trimite cererea, site-ul tău primește evenimentul \"onespec:submitted\" (util pentru Google Analytics).",
+      "loaderOptions": "Opțiuni (facultative, ca atribute ale etichetei): data-lang=\"ro\", data-theme=\"light|dark|auto\", data-accent=\"#16d19d\", data-target=\"#id-container\", data-min-height=\"640\". Când un client trimite cererea, site-ul tău primește evenimentul \"onespec:submitted\" (util pentru Google Analytics). data-mode=\"guided\" deschide parcursul ghidat în 3 pași (vizitatorul poate trece oricând la formularul complet).",
       "manualTitle": "Cod iframe manual (avansat)",
       "manualDesc": "Alternativă la linia de cod: lipește acest iframe dacă site-ul tău nu permite adăugarea de scripturi."
     },

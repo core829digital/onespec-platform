@@ -2326,7 +2326,7 @@
       "sitesEdit": "Geautoriseerde sites wijzigen",
       "loaderTitle": "Eén regel code (aanbevolen)",
       "loaderDesc": "Plak deze regel waar u de configurator wilt: hij maakt zelf het kader, past de hoogte aan de inhoud aan en meldt uw site wanneer er een aanvraag binnenkomt.",
-      "loaderOptions": "Opties (optioneel, als attributen van de tag): data-lang=\"nl\", data-theme=\"light|dark|auto\", data-accent=\"#16d19d\", data-target=\"#container-id\", data-min-height=\"640\". Als een klant de aanvraag verstuurt, ontvangt uw site de gebeurtenis \"onespec:submitted\" (handig voor Google Analytics).",
+      "loaderOptions": "Opties (optioneel, als attributen van de tag): data-lang=\"nl\", data-theme=\"light|dark|auto\", data-accent=\"#16d19d\", data-target=\"#container-id\", data-min-height=\"640\". Als een klant de aanvraag verstuurt, ontvangt uw site de gebeurtenis \"onespec:submitted\" (handig voor Google Analytics). data-mode=\"guided\" opent het begeleide traject in 3 stappen (bezoekers kunnen altijd naar het volledige formulier).",
       "manualTitle": "Handmatige iframe-code (geavanceerd)",
       "manualDesc": "Alternatief voor de regel code: plak deze iframe als uw site geen scripts toestaat."
     },

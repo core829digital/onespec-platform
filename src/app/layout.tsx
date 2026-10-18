@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono, Space_Grotesk, Fraunces } from "next/font/google";
-import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { VercelAnalytics } from "@/components/vercel-analytics";
 import { THEME_INIT } from "@/lib/theme-init";
 import { PwaRegister } from "@/components/pwa/pwa-register";
 import "./globals.css";
@@ -86,8 +86,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             Vercel's stale auto-injected web-vitals script (the source of the
             "Cannot read properties of undefined (reading 'startTime')" crash). */}
         <SpeedInsights />
-        {/* Vercel Web Analytics: page views only, no cookies. */}
-        <Analytics />
+        {/* Vercel Web Analytics: page views only, no cookies; demo, embedded widget and secret links are filtered out. */}
+        <VercelAnalytics />
         <PwaRegister />
       </body>
     </html>

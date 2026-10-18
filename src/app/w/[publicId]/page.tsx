@@ -5,7 +5,7 @@ import { api } from "@/convex/_generated/api";
 import { Widget } from "@/components/widget/widget";
 import { SimpleWizardWidget } from "@/components/widget/simple-wizard-widget";
 import { notFound } from "next/navigation";
-import { resolveWidgetLang, resolveWidgetTheme } from "@/lib/widget-params";
+import { resolveWidgetLang, resolveWidgetMode, resolveWidgetTheme } from "@/lib/widget-params";
 import { WidgetLocked } from "@/components/widget/widget-locked";
 
 // No `revalidate`: these pages render per request (they read searchParams) because the CSP nonce must be fresh each time.
@@ -95,6 +95,7 @@ export default async function WidgetPage({
       preview={ownerPreview}
       accentOverride={accentParam}
       fontOverride={fontParam}
+      initialMode={resolveWidgetMode(sp.mode)}
     />
   );
 }
