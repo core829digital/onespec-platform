@@ -5,7 +5,7 @@ Riferimento: reel indicato da Stefan (descrizione fornita da lui, 13/10/2026). I
 ## Cosa chiede il riferimento → come lo realizziamo
 | Elemento del video | Realizzazione nella piattaforma |
 |---|---|
-| Schede fluttuanti a strati (3D leggero) | `.os-float`: ombre a più livelli, sollevamento al passaggio, leggera oscillazione ferma solo sulle schede KPI (`.os-float-idle`) |
+| Schede fluttuanti a strati (3D leggero) | `.os-float`: ombre a più livelli, sollevamento al passaggio, nessuna oscillazione continua (le schede KPI `.os-float-idle` stanno ferme: muoverle di frazioni di pixel faceva tremolare il testo) |
 | Grafici che si disegnano, numeri che crescono | `.os-draw` (stroke-dashoffset, CSS) e `useCountUp` (valore finale già nel markup, nessun salto) |
 | Cursore elegante che clicca e trascina | **Nell'app**: trascinamento con molla (sollevamento, rilascio elastico, riordino fluido). **Cursore guidato**: solo nella demo del sito (ANI11), non nell'app reale |
 | Skeleton con onda di luce, poi dissolvenza/scale-in | `.os-skel` (shimmer sul compositore) + `.os-reveal` quando arriva il contenuto |

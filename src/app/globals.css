@@ -785,9 +785,9 @@ button, [role="button"], a { transition: background-color 150ms ease, border-col
     box-shadow: inset 0 1px 0 color-mix(in oklab, var(--color-text) 8%, transparent), 0 4px 8px -4px rgb(0 0 0 / 0.25), 0 22px 38px -18px rgb(0 0 0 / 0.5);
   }
 }
-/* Only for the four KPI cards: a barely-there hover in the air, each out of step with the others. */
-.os-float-idle { animation: os-bob 7s ease-in-out infinite; animation-delay: calc(var(--i, 0) * -1.7s); }
-.os-float-idle:hover { animation-play-state: paused; }
+/* KPI cards used to bob up and down forever (os-bob): moving a card by a fraction of a pixel re-rasterises its text on every frame, which
+   looks like a constant flicker (worst inside the demo frame). They now rest like the other cards and only lift on hover. */
+.os-float-idle { animation: none; }
 
 /* Charts: `pathLength="1"` on the SVG path, then the line draws itself; bars grow from the baseline (--i staggers them). */
 .os-draw { stroke-dasharray: 1; stroke-dashoffset: 1; animation: os-stroke 900ms var(--ease-out-apple) 120ms forwards; }
