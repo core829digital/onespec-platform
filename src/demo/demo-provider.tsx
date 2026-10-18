@@ -6,7 +6,11 @@ import { useTranslations } from "next-intl";
 import type { DemoBackend } from "./demo-backend";
 import { DemoContext } from "./demo-context";
 
-const useDemoAuth = () => ({ isLoading: false, isAuthenticated: true, fetchAccessToken: async () => "demo" });
+// One object for the whole session. ConvexProviderWithAuth signs in again whenever `fetchAccessToken` changes identity, and every
+// sign-in briefly reports "not authenticated": a fresh function on each render made the dashboard drop and restore its data forever
+// (the flicker on the demo, worst on phones).
+const DEMO_AUTH = { isLoading: false, isAuthenticated: true, fetchAccessToken: async () => "demo" };
+const useDemoAuth = () => DEMO_AUTH;
 
 /**
  * Replaces the Convex client on the demo host. The engine (convex-test + every Convex function) is a separate chunk, downloaded only

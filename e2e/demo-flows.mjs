@@ -43,6 +43,17 @@ try {
       check(text.length > 600 && !/404|Page not found/i.test(text.slice(0, 120)), `${name} /${slug}: content present`);
       check(overflow <= 1, `${name} /${slug}: no horizontal overflow (${overflow}px)`);
     }
+    // Settled means still: once loaded, the dashboard must stop changing on its own. A sign-in loop once made it drop and restore its
+    // panels many times a second (the demo "flicker", worst on phones).
+    await page.goto(`${DEMO}/it/app/dashboard`, { waitUntil: "load" });
+    await page.waitForTimeout(8000);
+    const churn = await page.evaluate(() => new Promise((done) => {
+      let n = 0;
+      const mo = new MutationObserver((ms) => { for (const m of ms) n += m.addedNodes.length + m.removedNodes.length; });
+      mo.observe(document.body, { subtree: true, childList: true });
+      setTimeout(() => { mo.disconnect(); done(n); }, 3000);
+    }));
+    check(churn < 10, `${name}: the dashboard is still once loaded (${churn} nodes added/removed in 3 s)`);
     if (name === "desktop") {
       const label = (await page.getByTestId("app-version").first().innerText().catch(() => "")).trim();
       check(/^v\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(label), `${name}: version number next to the plan in the side menu (${label || "missing"})`);
