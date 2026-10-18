@@ -1504,7 +1504,7 @@
     "receivedMin": "Ricevuta {count} min fa",
     "receivedHours": "Ricevuta {h}h {m}m fa",
     "dateAt": "({date} alle {time})",
-    "slaOptimal": "⚡ SLA Ottimale: rispondi in <5 min per aumentare del +390% i sopralluoghi fissati!",
+    "slaOptimal": "⚡ Rispondi entro pochi minuti: chi viene richiamato subito fissa più facilmente il sopralluogo.",
     "slaFast": "⏱️ Risposta rapida: ricontattare entro 30 min garantisce 3x di chiusure rispetto a >24h.",
     "slaLate": "📅 Contatta il cliente il prima possibile per non perdere l'interesse all'acquisto.",
     "eveningBadge": "🌙 Lead Serale (20:30-23:00)",
@@ -3992,5 +3992,20 @@
       "title": "La prova definitiva",
       "text": "Anche con tutto verde, fai un acquisto reale con un account di prova e rimborsalo subito da Stripe. Controlla che il piano si attivi, che la fattura sia intestata a CORE829 SRL e che in Stripe → Webhook la consegna sia verde."
     }
+  },
+  "analyticsRange": {
+    "label": "Periodo",
+    "24h": "24 ore",
+    "3d": "3 giorni",
+    "5d": "5 giorni",
+    "7d": "7 giorni",
+    "14d": "2 settimane",
+    "1m": "1 mese",
+    "3m": "3 mesi",
+    "6m": "6 mesi",
+    "1y": "1 anno",
+    "3y": "3 anni",
+    "5y": "5 anni",
+    "10y": "10 anni"
   }
 }

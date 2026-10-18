@@ -5,7 +5,7 @@ import { useQuery } from "@/lib/convex-query";
 import { useTranslations, useLocale } from "next-intl";
 import { api } from "@/convex/_generated/api";
 import { Link } from "@/i18n/navigation";
-import { RangeSwitcher, RANGE_LABEL, type AnalyticsRange } from "@/components/analytics/range-switcher";
+import { RangeSwitcher, useRangeLabel, type AnalyticsRange } from "@/components/analytics/range-switcher";
 import {
   Eye,
   FileText,
@@ -115,6 +115,7 @@ export default function AnalyticsPage() {
   const locale = useLocale();
   const eur = makeEur(locale);
   const [range, setRange] = useState<AnalyticsRange>("1m");
+  const rangeLabel = useRangeLabel();
   // The server runs in UTC; send the viewer's offset so hours/days/labels are local.
   const [tzOffsetMinutes] = useState(() => new Date().getTimezoneOffset());
   const overview = useQuery(
@@ -219,7 +220,7 @@ export default function AnalyticsPage() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-text)]">{t("title")}</h1>
           <p className="text-[var(--color-text-secondary)] mt-1">
-            {t("subtitle")} · {RANGE_LABEL[range]}
+            {t("subtitle")} · {rangeLabel(range)}
           </p>
         </div>
         <RangeSwitcher value={range} onChange={setRange} />

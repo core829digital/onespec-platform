@@ -8,7 +8,7 @@ import { Link } from "@/i18n/navigation";
 import { usePlanAccess } from "@/lib/plan-gates";
 import { StatCard } from "@/components/app-shell/stat-card";
 import { EmptyState } from "@/components/app-shell/empty-state";
-import { RangeSwitcher, RANGE_LABEL, type AnalyticsRange } from "@/components/analytics/range-switcher";
+import { RangeSwitcher, useRangeLabel, type AnalyticsRange } from "@/components/analytics/range-switcher";
 import {
   Eye,
   FileText,
@@ -86,6 +86,7 @@ export default function DashboardPage() {
   const format = useFormatter();
   const tenant = useQuery(api.tenants.getMyTenant);
   const [range, setRange] = useState<AnalyticsRange>("1m");
+  const rangeLabel = useRangeLabel();
 
   const overview = useQuery(
     api.analytics.getOverview,
@@ -167,7 +168,7 @@ export default function DashboardPage() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-text)]">{t("title")}</h1>
           <p className="text-[var(--color-text-secondary)] mt-1">
-            {t("subtitle")} · {RANGE_LABEL[range]}
+            {t("subtitle")} · {rangeLabel(range)}
           </p>
         </div>
         <RangeSwitcher value={range} onChange={setRange} />

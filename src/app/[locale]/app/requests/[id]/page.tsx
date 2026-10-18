@@ -15,18 +15,9 @@ import { useFriendlyError } from "@/lib/use-friendly-error";
 import { usePlanAccess } from "@/lib/plan-gates";
 import { vatNote } from "@/shared/tax";
 import { fittingNote } from "@/shared/fitting";
+import { labelOf } from "@/components/quotes/editor/catalog-labels";
 
 const STATUSES = ["new", "contacted", "quoted", "won", "lost", "spam"] as const;
-const STATUS_KEY: Record<string, string> = {
-  draft: "statusDraft",
-  new: "statusNew",
-  contacted: "statusContacted",
-  quoted: "statusQuoted",
-  won: "statusWon",
-  lost: "statusLost",
-  spam: "statusSpam",
-};
-
 interface SashLike {
   type?: string;
   active?: boolean;
@@ -48,12 +39,21 @@ interface ItemLike {
 
 export default function RequestDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const t = useTranslations("requestDetail");
-  const tStatus = useTranslations("requests");
   const locale = useLocale();
   const tf = useFriendlyError();
   const { id } = use(params);
   const quoteId = id as Id<"quoteRequests">;
   const quote = useQuery(api.quotes.getRequest, { quoteId });
+  const tState = useTranslations("notifications.status");
+  // The configurator's published catalogue names the material, glass and finish keys stored on each piece.
+  const catalog = useQuery(api.configurators.getPublishedCatalog, quote?.configuratorId ? { configuratorId: quote.configuratorId } : "skip");
+  type Labelled = { key: string; labels?: Record<string, string> };
+  const catalogLabel = (group: "materials" | "glazing" | "finish", key: string | undefined) => {
+    if (!key) return "";
+    const rows = (catalog?.payload as Record<string, Labelled[] | undefined> | undefined)?.[group];
+    const row = rows?.find((r) => r.key === key);
+    return row ? labelOf(row, locale) : key;
+  };
   const tenant = useQuery(api.tenants.getMyTenant);
   const members = useQuery(
     api.tenants.listMembers,
@@ -223,7 +223,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
             ←
           </Link>
           <h1 className="text-2xl sm:text-3xl font-bold text-[var(--color-text)]">{quote.leadName}</h1>
-          <StatusBadge status={quote.status} label={tStatus(STATUS_KEY[quote.status] ?? quote.status)} />
+          <StatusBadge status={quote.status} />
           {quote.channel === "field_b2b" && (
             <span className="rounded-md bg-[var(--color-mint)]/20 px-2 py-0.5 text-xs font-bold text-[var(--color-mint-text)]">
               {t("b2bBadge")}
@@ -402,9 +402,11 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
                   </p>
                   <p className="text-[var(--color-text-secondary)] mt-1 text-xs">
                     {[
-                      it.material?.toUpperCase(),
-                      it.glazing,
-                      it.colorInside && it.colorInside !== it.color ? `${it.color} / ${it.colorInside}` : it.color,
+                      catalogLabel("materials", it.material) || it.material?.toUpperCase(),
+                      catalogLabel("glazing", it.glazing),
+                      it.colorInside && it.colorInside !== it.color
+                        ? `${catalogLabel("finish", it.color)} / ${catalogLabel("finish", it.colorInside)}`
+                        : catalogLabel("finish", it.color),
                       it.insectScreen ? t("itemScreen") : null,
                       it.sashes?.length ? t("itemLeaves", { count: it.sashes.length }) : null,
                     ]
@@ -481,7 +483,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
                       : "rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-2.5 py-1 text-xs font-medium text-[var(--color-text-secondary)] hover:text-[var(--color-text)] hover:border-[var(--color-text-secondary)] transition-colors"
                   }
                 >
-                  {tStatus(STATUS_KEY[s])}
+                  {tState(s)}
                 </button>
               ))}
             </div>

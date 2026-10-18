@@ -1504,7 +1504,7 @@
     "receivedMin": "Received {count} min ago",
     "receivedHours": "Received {h}h {m}m ago",
     "dateAt": "({date} at {time})",
-    "slaOptimal": "⚡ Optimal SLA: reply within <5 min to boost booked site visits by +390%!",
+    "slaOptimal": "⚡ Reply within minutes: customers called back right away book the survey more easily.",
     "slaFast": "⏱️ Fast response: following up within 30 min closes 3x more than after >24h.",
     "slaLate": "📅 Contact the customer as soon as possible so you don't lose their buying interest.",
     "eveningBadge": "🌙 Evening Lead (20:30-23:00)",
@@ -3992,5 +3992,20 @@
       "title": "The final test",
       "text": "Even with everything green, make a real purchase with a test account and refund it straight away in Stripe. Check that the plan activates, that the invoice is addressed from CORE829 SRL and that the delivery shows green in Stripe → Webhooks."
     }
+  },
+  "analyticsRange": {
+    "label": "Period",
+    "24h": "24 hours",
+    "3d": "3 days",
+    "5d": "5 days",
+    "7d": "7 days",
+    "14d": "2 weeks",
+    "1m": "1 month",
+    "3m": "3 months",
+    "6m": "6 months",
+    "1y": "1 year",
+    "3y": "3 years",
+    "5y": "5 years",
+    "10y": "10 years"
   }
 }

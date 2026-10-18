@@ -1504,7 +1504,7 @@
     "receivedMin": "{count} min geleden ontvangen",
     "receivedHours": "{h}u {m}m geleden ontvangen",
     "dateAt": "({date} om {time})",
-    "slaOptimal": "⚡ Optimale SLA: reageer binnen <5 min voor +390% meer ingeplande opnames!",
+    "slaOptimal": "⚡ Reageer binnen enkele minuten: wie meteen wordt teruggebeld, plant makkelijker een inmeting.",
     "slaFast": "⏱️ Snelle reactie: binnen 30 min opvolgen sluit 3x vaker dan na >24u.",
     "slaLate": "📅 Neem zo snel mogelijk contact op met de klant om de koopinteresse niet te verliezen.",
     "eveningBadge": "🌙 Avondlead (20:30–23:00)",
@@ -3992,5 +3992,20 @@
       "title": "De definitieve test",
       "text": "Ook als alles groen is: doe een echte aankoop met een testaccount en betaal die meteen terug in Stripe. Controleer dat het abonnement wordt geactiveerd, dat de factuur van CORE829 SRL komt en dat de levering groen is in Stripe → Webhooks."
     }
+  },
+  "analyticsRange": {
+    "label": "Periode",
+    "24h": "24 uur",
+    "3d": "3 dagen",
+    "5d": "5 dagen",
+    "7d": "7 dagen",
+    "14d": "2 weken",
+    "1m": "1 maand",
+    "3m": "3 maanden",
+    "6m": "6 maanden",
+    "1y": "1 jaar",
+    "3y": "3 jaar",
+    "5y": "5 jaar",
+    "10y": "10 jaar"
   }
 }

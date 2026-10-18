@@ -54,6 +54,13 @@ try {
       setTimeout(() => { mo.disconnect(); done(n); }, 3000);
     }));
     check(churn < 10, `${name}: the dashboard is still once loaded (${churn} nodes added/removed in 3 s)`);
+    // Detail pages read the id from the address: in the demo it is encoded ("12108%3BquoteRequests") and must still open.
+    await page.goto(`${DEMO}/it/app/requests`, { waitUntil: "load" });
+    await page.locator('[data-testid="request-open"]').first().click({ timeout: 20000 });
+    await page.waitForURL(/\/app\/requests\/[^/]+$/, { timeout: 20000 }).catch(() => undefined);
+    await page.waitForTimeout(2500);
+    const detail = await page.innerText("body");
+    check(!/Impossibile caricare/.test(detail) && /€/.test(detail), `${name}: a request opens in the demo`);
     if (name === "desktop") {
       const label = (await page.getByTestId("app-version").first().innerText().catch(() => "")).trim();
       check(/^v\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(label), `${name}: version number next to the plan in the side menu (${label || "missing"})`);

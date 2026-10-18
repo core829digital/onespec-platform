@@ -1504,7 +1504,7 @@
     "receivedMin": "Primită acum {count} min",
     "receivedHours": "Primită acum {h}h {m}m",
     "dateAt": "({date} la {time})",
-    "slaOptimal": "⚡ SLA optim: răspundeți în <5 min pentru +390% mai multe vizite tehnice programate!",
+    "slaOptimal": "⚡ Răspunde în câteva minute: clienții sunați imediat acceptă mai ușor vizita la fața locului.",
     "slaFast": "⏱️ Răspuns rapid: revenirea în 30 min închide de 3x mai multe vânzări decât după >24h.",
     "slaLate": "📅 Contactați clientul cât mai curând pentru a nu pierde interesul de cumpărare.",
     "eveningBadge": "🌙 Lead de seară (20:30–23:00)",
@@ -3992,5 +3992,20 @@
       "title": "Testul final",
       "text": "Chiar dacă totul e verde, fă o achiziție reală cu un cont de test și ramburseaz-o imediat din Stripe. Verifică faptul că planul se activează, că factura este emisă de CORE829 SRL și că livrarea apare verde în Stripe → Webhooks."
     }
+  },
+  "analyticsRange": {
+    "label": "Perioadă",
+    "24h": "24 de ore",
+    "3d": "3 zile",
+    "5d": "5 zile",
+    "7d": "7 zile",
+    "14d": "2 săptămâni",
+    "1m": "1 lună",
+    "3m": "3 luni",
+    "6m": "6 luni",
+    "1y": "1 an",
+    "3y": "3 ani",
+    "5y": "5 ani",
+    "10y": "10 ani"
   }
 }

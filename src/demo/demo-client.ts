@@ -36,6 +36,18 @@ function normaliseError(e: unknown): unknown {
 /** Actions that would reach a real service (Stripe, VIES, Stripe Connect). The demo answers them with a friendly refusal instead of trying the network. */
 const EXTERNAL_ACTIONS = /^(billing|referralPayoutAccount|vies):/;
 
+/**
+ * In-browser document ids look like "12108;clients". In a URL the ";" becomes "%3B", and detail pages pass their route param on as the
+ * id: decode it here so every page that reads an id from the address works in the demo (real Convex ids never contain ";").
+ */
+const ENCODED_ID = /^(\d+)%3B([A-Za-z_]+)$/;
+function decodeIds<T>(value: T): T {
+  if (typeof value === "string") return (ENCODED_ID.test(value) ? value.replace(ENCODED_ID, "$1;$2") : value) as T;
+  if (Array.isArray(value)) return value.map(decodeIds) as T;
+  if (value && typeof value === "object") return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, decodeIds(v)])) as T;
+  return value;
+}
+
 export class DemoConvexClient {
   private entries = new Map<string, Entry>();
   private refreshing = false;
@@ -54,7 +66,8 @@ export class DemoConvexClient {
   }
 
   // ── queries ─────────────────────────────────────────────────────────────────────────────────
-  watchQuery(query: FunctionReference<"query">, args: Record<string, unknown> = {}) {
+  watchQuery(query: FunctionReference<"query">, rawArgs: Record<string, unknown> = {}) {
+    const args = decodeIds(rawArgs);
     const name = getFunctionName(query);
     const key = `${name}|${stable(args)}`;
     return {
@@ -125,7 +138,7 @@ export class DemoConvexClient {
   // ── writes ──────────────────────────────────────────────────────────────────────────────────
   async mutation(mutation: FunctionReference<"mutation">, args: Record<string, unknown> = {}) {
     try {
-      const result = await this.runner.mutation(makeFunctionReference<"mutation">(getFunctionName(mutation)), args);
+      const result = await this.runner.mutation(makeFunctionReference<"mutation">(getFunctionName(mutation)), decodeIds(args));
       this.onWrite?.();
       void this.refreshAll();
       return result;
@@ -137,7 +150,7 @@ export class DemoConvexClient {
   async action(action: FunctionReference<"action">, args: Record<string, unknown> = {}) {
     if (EXTERNAL_ACTIONS.test(getFunctionName(action))) throw new ConvexError("DEMO_DISABLED");
     try {
-      const result = await this.runner.action(makeFunctionReference<"action">(getFunctionName(action)), args);
+      const result = await this.runner.action(makeFunctionReference<"action">(getFunctionName(action)), decodeIds(args));
       this.onWrite?.();
       void this.refreshAll();
       return result;
@@ -148,7 +161,7 @@ export class DemoConvexClient {
 
   async query(query: FunctionReference<"query">, args: Record<string, unknown> = {}) {
     try {
-      return await this.runner.query(makeFunctionReference<"query">(getFunctionName(query)), args);
+      return await this.runner.query(makeFunctionReference<"query">(getFunctionName(query)), decodeIds(args));
     } catch (e) {
       throw normaliseError(e);
     }

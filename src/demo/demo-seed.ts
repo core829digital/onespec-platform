@@ -481,6 +481,27 @@ export async function seedDemo(t: T): Promise<DemoSeedInfo> {
     }
   });
 
+  // ── widget opens: the counter the dashboard's "widget opens" and visitor conversion read (the seed sends requests, not visits) ──────
+  await t.run(async (ctx) => {
+    const requests = await ctx.db.query("quoteRequests").withIndex("by_tenant_status", (q) => q.eq("tenantId", tenantId)).collect();
+    const perMonth = new Map<string, number>();
+    for (const q of requests) {
+      const period = new Date(q._creationTime).toISOString().slice(0, 7);
+      perMonth.set(period, (perMonth.get(period) ?? 0) + 1);
+    }
+    for (let m = 0; m < 12; m++) {
+      const d = new Date(now);
+      d.setUTCDate(1);
+      d.setUTCMonth(d.getUTCMonth() - m);
+      const period = d.toISOString().slice(0, 7);
+      // Roughly 3-6% of visitors leave a request: about 17-30 opens per request, never below a quiet month's floor.
+      const widgetViewsCount = Math.max(90, (perMonth.get(period) ?? 0) * r.int(17, 30));
+      const row = await ctx.db.query("usageCounters").withIndex("by_tenant_period", (q) => q.eq("tenantId", tenantId).eq("period", period)).unique();
+      if (row) await ctx.db.patch(row._id, { widgetViewsCount });
+      else await ctx.db.insert("usageCounters", { tenantId, period, quoteRequestsCount: perMonth.get(period) ?? 0, activeConfiguratorsCount: 3, widgetViewsCount });
+    }
+  });
+
   // ── the customer's folder: final quotes (PDF) ───────────────────────────────────────────────────────────────────────────────────
   await t.run(async (ctx) => {
     const wonQuotes = (await ctx.db.query("quoteRequests").withIndex("by_tenant_status", (q) => q.eq("tenantId", tenantId).eq("status", "won")).collect()).filter((q) => q.clientId).slice(0, 6);

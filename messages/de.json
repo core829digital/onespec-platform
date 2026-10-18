@@ -1504,7 +1504,7 @@
     "receivedMin": "Vor {count} Min. erhalten",
     "receivedHours": "Vor {h} Std. {m} Min. erhalten",
     "dateAt": "({date} um {time})",
-    "slaOptimal": "⚡ Optimale SLA: Antworten Sie in <5 Min., um +390 % mehr Besichtigungstermine zu erhalten!",
+    "slaOptimal": "⚡ Antworten Sie innerhalb weniger Minuten: Wer sofort zurückgerufen wird, vereinbart leichter einen Aufmaßtermin.",
     "slaFast": "⏱️ Schnelle Reaktion: Nachfassen innerhalb von 30 Min. schließt 3x häufiger ab als nach >24h.",
     "slaLate": "📅 Kontaktieren Sie den Kunden so bald wie möglich, um das Kaufinteresse nicht zu verlieren.",
     "eveningBadge": "🌙 Abend-Lead (20:30–23:00 Uhr)",
@@ -3992,5 +3992,20 @@
       "title": "Der endgültige Test",
       "text": "Auch wenn alles grün ist: einen echten Kauf mit einem Testkonto durchführen und sofort in Stripe erstatten. Prüfen, dass der Tarif aktiviert wird, die Rechnung von CORE829 SRL stammt und die Zustellung in Stripe → Webhooks grün ist."
     }
+  },
+  "analyticsRange": {
+    "label": "Zeitraum",
+    "24h": "24 Stunden",
+    "3d": "3 Tage",
+    "5d": "5 Tage",
+    "7d": "7 Tage",
+    "14d": "2 Wochen",
+    "1m": "1 Monat",
+    "3m": "3 Monate",
+    "6m": "6 Monate",
+    "1y": "1 Jahr",
+    "3y": "3 Jahre",
+    "5y": "5 Jahre",
+    "10y": "10 Jahre"
   }
 }

@@ -1504,7 +1504,7 @@
     "receivedMin": "Reçue il y a {count} min",
     "receivedHours": "Reçue il y a {h}h {m}m",
     "dateAt": "({date} à {time})",
-    "slaOptimal": "⚡ SLA optimal : répondez en <5 min pour augmenter de +390 % les visites techniques !",
+    "slaOptimal": "⚡ Répondez en quelques minutes : un client rappelé tout de suite accepte plus facilement la visite technique.",
     "slaFast": "⏱️ Réponse rapide : recontacter sous 30 min triple les ventes par rapport à >24h.",
     "slaLate": "📅 Contactez le client dès que possible pour ne pas perdre son intérêt d'achat.",
     "eveningBadge": "🌙 Lead du soir (20h30-23h00)",
@@ -3992,5 +3992,20 @@
       "title": "Le test définitif",
       "text": "Même si tout est vert, faites un vrai achat avec un compte de test et remboursez-le aussitôt dans Stripe. Vérifiez que le forfait s'active, que la facture est émise par CORE829 SRL et que l'envoi est vert dans Stripe → Webhooks."
     }
+  },
+  "analyticsRange": {
+    "label": "Période",
+    "24h": "24 heures",
+    "3d": "3 jours",
+    "5d": "5 jours",
+    "7d": "7 jours",
+    "14d": "2 semaines",
+    "1m": "1 mois",
+    "3m": "3 mois",
+    "6m": "6 mois",
+    "1y": "1 an",
+    "3y": "3 ans",
+    "5y": "5 ans",
+    "10y": "10 ans"
   }
 }
