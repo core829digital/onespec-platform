@@ -7,6 +7,7 @@ import { defaultItem } from "@/shared/item-defaults";
 import { duplicateItem, blockingIssues, pieceIssues } from "@/shared/piece-ops";
 import { PiecesEditor } from "@/components/quotes/editor/pieces-editor";
 import { FiscalEngine, type FiscalCalc } from "@/components/showroom/FiscalEngine";
+import { DemoQuoteSheet } from "@/components/demo/demo-quote-sheet";
 import { computeCalculationPreview } from "@/convex/lib/calcPreview";
 import { postToHost } from "@/components/widget/host-bridge";
 import { demoCopy, demoRegisterUrl } from "@/lib/demo/demo-copy";
@@ -108,6 +109,7 @@ export function DemoShowroom({ lang, theme }: { lang: string; theme: "light" | "
       </div>
 
       {calc ? (
+        <>
         <FiscalEngine
           calc={calc as unknown as FiscalCalc}
           regionCode={region}
@@ -118,6 +120,8 @@ export function DemoShowroom({ lang, theme }: { lang: string; theme: "light" | "
             setActive(i + 1);
           }}
         />
+        <DemoQuoteSheet payload={payload} items={items} calc={calc as unknown as FiscalCalc} locale={locale} onSend={() => setNotice(true)} />
+        </>
       ) : (
         <div className="rounded-xl border border-[var(--color-border)] p-5 text-sm text-[var(--color-muted-fg)]">
           {blocked ? t("fixPieces") : t("configureToSee")}

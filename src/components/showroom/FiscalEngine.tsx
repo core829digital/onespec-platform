@@ -71,7 +71,7 @@ export function FiscalEngine({
         {calc.vatBreakdown.map((v, i) => (
           <div key={i} className="flex justify-between text-[var(--color-muted-fg)]">
             <span>
-              {v.label} ({v.rate}%)
+              {v.label} ({Math.round((v.rate <= 1 ? v.rate * 100 : v.rate) * 100) / 100}%)
             </span>
             <span className="font-mono">{eur(v.vatCents)}</span>
           </div>

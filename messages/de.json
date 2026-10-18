@@ -1346,7 +1346,27 @@
     "configuratorManage": "Konfiguratoren verwalten",
     "configuratorHelp": "Preise und Optionen stammen aus dem gewählten Konfigurator (zuletzt veröffentlichte Version). Beim Wechsel starten die Positionen mit dessen Preisliste neu.",
     "configuratorNonePublished": "Keiner Ihrer Konfiguratoren ist veröffentlicht. Öffnen Sie „Konfiguratoren verwalten“, vervollständigen Sie den Katalog und klicken Sie auf Veröffentlichen: erst dann kann der Showroom die Daten anzeigen.",
-    "configuratorArchived": "archiviert"
+    "configuratorArchived": "archiviert",
+    "quote": {
+      "heading": "Showroom-Angebot",
+      "sample": "Beispieldaten: ändern Sie sie und sehen Sie, wie sich das Angebot aktualisiert.",
+      "number": "Angebot Nr. {n}",
+      "date": "Datum {date}",
+      "discount": "Showroom-Rabatt (%)",
+      "deposit": "Anzahlung bei Auftragsbestätigung (%)",
+      "valid": "Gültigkeit (Tage)",
+      "delivery": "Voraussichtliche Lieferung (Wochen)",
+      "subtotal": "Summe der Positionen (netto)",
+      "discountLine": "Showroom-Rabatt ({pct} %)",
+      "vatLine": "MwSt. {rates}",
+      "total": "Gesamtbetrag inkl. MwSt.",
+      "depositLine": "Anzahlung bei Auftragsbestätigung ({pct} %)",
+      "balance": "Restbetrag bei Lieferung",
+      "instalment": "Richtwert Monatsrate über 24 Monate",
+      "terms": "Angebot {days} Tage gültig. Voraussichtliche Lieferung {weeks} Wochen nach Bestätigung. Die endgültigen Maße werden nach dem Aufmaß bestätigt.",
+      "send": "An den Kunden senden",
+      "pdf": "PDF herunterladen"
+    }
   },
   "legal": {
     "lastUpdated": "Zuletzt aktualisiert",

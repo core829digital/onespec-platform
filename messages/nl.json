@@ -1346,7 +1346,27 @@
     "configuratorManage": "Configurators beheren",
     "configuratorHelp": "Prijzen en opties komen van de gekozen configurator (laatst gepubliceerde versie). Bij wisselen starten de stukken opnieuw met zijn prijslijst.",
     "configuratorNonePublished": "Geen van uw configurators is gepubliceerd. Open \"Configurators beheren\", vul de catalogus aan en kies Publiceren: pas dan kan de Showroom de gegevens tonen.",
-    "configuratorArchived": "gearchiveerd"
+    "configuratorArchived": "gearchiveerd",
+    "quote": {
+      "heading": "Showroomofferte",
+      "sample": "Voorbeeldgegevens: pas ze aan en zie de offerte meebewegen.",
+      "number": "Offerte nr. {n}",
+      "date": "Datum {date}",
+      "discount": "Showroomkorting (%)",
+      "deposit": "Aanbetaling bij bevestiging (%)",
+      "valid": "Geldigheid (dagen)",
+      "delivery": "Verwachte levering (weken)",
+      "subtotal": "Totaal stuks (excl. btw)",
+      "discountLine": "Showroomkorting ({pct}%)",
+      "vatLine": "Btw {rates}",
+      "total": "Totaal incl. btw",
+      "depositLine": "Aanbetaling bij bevestiging ({pct}%)",
+      "balance": "Restant bij levering",
+      "instalment": "Indicatief termijnbedrag over 24 maanden",
+      "terms": "Offerte {days} dagen geldig. Verwachte levering {weeks} weken na bevestiging. De definitieve maten worden na de opname bevestigd.",
+      "send": "Naar de klant sturen",
+      "pdf": "PDF downloaden"
+    }
   },
   "legal": {
     "lastUpdated": "Laatst bijgewerkt",

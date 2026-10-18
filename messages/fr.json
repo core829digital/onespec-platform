@@ -1346,7 +1346,27 @@
     "configuratorManage": "Gérer les configurateurs",
     "configuratorHelp": "Les prix et options sont ceux du configurateur choisi (dernière version publiée). En le changeant, les pièces repartent de ses tarifs.",
     "configuratorNonePublished": "Aucun de vos configurateurs n'est publié. Ouvrez « Gérer les configurateurs », complétez le catalogue et cliquez sur Publier : alors seulement le Showroom pourra afficher les données.",
-    "configuratorArchived": "archivé"
+    "configuratorArchived": "archivé",
+    "quote": {
+      "heading": "Devis showroom",
+      "sample": "Données d'exemple : modifiez-les et voyez le devis se mettre à jour.",
+      "number": "Devis n° {n}",
+      "date": "Date {date}",
+      "discount": "Remise showroom (%)",
+      "deposit": "Acompte à la confirmation (%)",
+      "valid": "Validité (jours)",
+      "delivery": "Livraison estimée (semaines)",
+      "subtotal": "Total des pièces (HT)",
+      "discountLine": "Remise showroom ({pct} %)",
+      "vatLine": "TVA {rates}",
+      "total": "Total TTC",
+      "depositLine": "Acompte à la confirmation ({pct} %)",
+      "balance": "Solde à la livraison",
+      "instalment": "Mensualité indicative sur 24 mois",
+      "terms": "Devis valable {days} jours. Livraison estimée {weeks} semaines après la confirmation. Les mesures définitives sont confirmées après la visite technique.",
+      "send": "Envoyer au client",
+      "pdf": "Télécharger le PDF"
+    }
   },
   "legal": {
     "lastUpdated": "Dernière mise à jour",

@@ -197,6 +197,11 @@ export function Widget({
   const [discountPct, setDiscountPct] = useState(0);
 
   const [step, setStep] = useState<"config" | "lead" | "success">("config");
+  // Public demo only: a short guided path (3 steps, drawing and price always in view) next to the full form.
+  const [mode, setMode] = useState<"guided" | "full">(demo ? "guided" : "full");
+  const [gStep, setGStep] = useState(0);
+  const guided = demo && mode === "guided";
+  const gShow = (blk: 0 | 1 | 2) => !guided || gStep === blk;
   const [demoNotice, setDemoNotice] = useState(false);
   const [lead, setLead] = useState({ name: "", email: "", phone: "", company: "", message: "" });
   const [submitting, setSubmitting] = useState(false);
@@ -666,6 +671,21 @@ export function Widget({
             </p>
           </div>
         </div>
+        {demo ? (
+          <div role="group" aria-label={dict.guide.modeLabel} style={{ display: "inline-flex", padding: 3, borderRadius: 999, border: "1.5px solid var(--color-border)", background: "var(--color-bg-alt)" }}>
+            {(["guided", "full"] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                aria-pressed={mode === m}
+                onClick={() => setMode(m)}
+                style={{ minHeight: 36, padding: "6px 14px", borderRadius: 999, border: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, fontFamily: "inherit", background: mode === m ? accent : "transparent", color: mode === m ? accentInk : "var(--color-text)" }}
+              >
+                {m === "guided" ? dict.guide.guided : dict.guide.full}
+              </button>
+            ))}
+          </div>
+        ) : null}
       </div>
 
       {/* material tabs */}
@@ -688,11 +708,32 @@ export function Widget({
         })}
       </div>
 
-      <div style={s.grid} data-tw-grid>
+      <div
+        style={guided ? { ...s.grid, gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr) minmax(0, 0.95fr)" } : s.grid}
+        data-tw-grid
+        data-tw-guided={guided ? "" : undefined}
+      >
         {/* LEFT: form */}
         <div style={s.panel}>
           <h2 style={s.h2}>{dict.configTitle}</h2>
+          {guided ? (
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ display: "flex", gap: 6, marginBottom: 8 }} aria-hidden="true">
+                {[0, 1, 2].map((i) => (
+                  <span key={i} style={{ flex: 1, height: 4, borderRadius: 2, background: i <= gStep ? accent : "var(--color-border)" }} />
+                ))}
+              </div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "var(--color-text)" }} aria-live="polite">
+                {dict.guide.stepOf.replace("{n}", String(gStep + 1)).replace("{total}", "3")} · {dict.guide.steps[gStep]}
+              </div>
+              <div role="note" style={{ marginTop: 8, padding: "9px 11px", borderRadius: 8, background: "var(--color-mint-light)", borderLeft: `3px solid ${accent}`, fontSize: 12, lineHeight: 1.5, color: "var(--color-text)" }}>
+                {dict.guide.tips[gStep].replace("{w}", String(SINGLE_SASH_MAX_WIDTH)).replace("{h}", String(SINGLE_SASH_MAX_HEIGHT))}
+              </div>
+            </div>
+          ) : null}
 
+          {gShow(0) && (
+          <>
           <Field label={dict.productTypeLabel}>
             <div style={{ display: "flex", gap: 8 }}>
               {(["window", "balconyDoor"] as const).map((pt) => (
@@ -714,7 +755,11 @@ export function Widget({
               <div style={{ marginTop: 8, fontSize: 11.5, color: accentText, fontWeight: 600 }}>{dict.thresholdNote}</div>
             )}
           </Field>
+          </>
+          )}
 
+          {gShow(2) && (
+          <>
           <Field label={dict.qualityLabel} id="widget-quality">
             <select id="widget-quality" style={s.select} value={state.quality[state.material]} onChange={(e) => set({ quality: { ...state.quality, [state.material]: e.target.value } })}>
               {options.quality[state.material].map(([k, v]) => (
@@ -743,7 +788,11 @@ export function Widget({
               {profileInfo ? <div style={{ marginTop: 4, fontSize: 11.5, color: "var(--color-text-secondary)" }}>{profileInfo}</div> : null}
             </Field>
           )}
+          </>
+          )}
 
+          {gShow(0) && (
+          <>
           <div style={s.row}>
             <Field label={dict.widthLabel} id="widget-width">
               <input
@@ -817,7 +866,11 @@ export function Widget({
           {state.sashes.length === 1 && (
             <div style={{ ...s.hint, color: accentText, fontWeight: 600 }}>{dict.singleSashCapHint}</div>
           )}
+          </>
+          )}
 
+          {gShow(1) && (
+          <>
           {/* sash cards */}
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 12 }}>
             {state.sashes.map((sash, i) => {
@@ -838,7 +891,11 @@ export function Widget({
               );
             })}
           </div>
+          </>
+          )}
 
+          {gShow(1) && (
+          <>
           {(() => {
             const parsed = parseGlazingKey(state.glazing);
             const rows = glazingOptions.map(([k, v]) => ({ key: k, label: v, p: parseGlazingKey(k) }));
@@ -892,7 +949,11 @@ export function Widget({
               </>
             );
           })()}
+          </>
+          )}
 
+          {gShow(2) && (
+          <>
           <Field label={isBicolor ? dict.colorOutsideLabel : dict.colorLabel} id="widget-color">
             <WidgetFinishPicker id="widget-color" lang={lang} value={state.color} pairs={options.color} meta={options.colorMeta} text={dict.finishPicker} onChange={(key) => set({ color: key, ...(state.colorInside === key ? { colorInside: "" } : {}) })} styles={s} />
           </Field>
@@ -971,10 +1032,32 @@ export function Widget({
               </div>
             )}
           </Field>
+          </>
+          )}
+
+          {guided ? (
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginTop: 4 }}>
+              <button
+                type="button"
+                onClick={() => setGStep((n) => Math.max(0, n - 1))}
+                disabled={gStep === 0}
+                style={{ ...s.btnSecondary, width: "auto", padding: "10px 18px", opacity: gStep === 0 ? 0.4 : 1, cursor: gStep === 0 ? "default" : "pointer" }}
+              >
+                {dict.guide.back}
+              </button>
+              {gStep < 2 ? (
+                <button type="button" data-tw-primary onClick={() => setGStep((n) => Math.min(2, n + 1))} style={{ ...s.btnPrimary, background: accent, color: accentInk, flex: 1 }}>
+                  {dict.guide.next} →
+                </button>
+              ) : (
+                <span style={{ flex: 1, fontSize: 12, fontWeight: 600, color: accentText }}>{dict.guide.lastHint}</span>
+              )}
+            </div>
+          ) : null}
         </div>
 
         {/* RIGHT: diagram + summary */}
-        <div>
+        <div style={guided ? { display: "contents" } : undefined}>
           <div style={s.panel}>
             <h2 style={s.h2}>{dict.diagramTitle}</h2>
             <div style={{ fontSize: 11, color: "var(--color-text-secondary)", textAlign: "center", marginBottom: 6 }}>{dict.diagramViewLabel}</div>
@@ -1076,7 +1159,7 @@ export function Widget({
             )}
           </div>
 
-          <div style={{ ...s.panel, marginTop: 16 }}>
+          <div style={{ ...s.panel, marginTop: guided ? 0 : 16 }}>
             <h2 style={s.h2}>{dict.summaryTitle}</h2>
 
             {items.length > 0 && (

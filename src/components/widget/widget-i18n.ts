@@ -83,6 +83,8 @@ export interface WidgetDict {
   leafEdit: string;
   leafInvalid: string;
   leafHint: string;
+  /** Guided (step by step) mode of the public demo. "{n}", "{total}", "{w}", "{h}" are replaced. */
+  guide: { modeLabel: string; guided: string; full: string; stepOf: string; steps: [string, string, string]; next: string; back: string; tips: [string, string, string]; lastHint: string };
   fittingTitle: string;
   fittingWith: string;
   fittingWithout: string;
@@ -215,6 +217,7 @@ const en: WidgetDict = {
   leafEdit: "Edit the width of leaf {n}",
   leafInvalid: "Value between {min} and {max} mm",
   leafHint: "Tap a leaf's measurement under the drawing to change it: the others adjust.",
+  guide: { modeLabel: "Mode", guided: "Guided", full: "Full", stepOf: "Step {n} of {total}", steps: ["Type and size", "Openings and glass", "Profile and finish"], next: "Next", back: "Back", tips: ["Enter the size in mm. A single sash goes up to {w}×{h} mm: beyond that, add a sash.", "Tap a sash in the drawing to change its opening and side. The glass must fit the profile depth: advice appears below.", "Pick profile and colour: the price updates instantly. For a different inside colour turn on “two-colour”."], lastHint: "The price is right here: when you are ready, request the quote." },
   fittingTitle: "Fitting",
   fittingWith: "With fitting",
   fittingWithout: "Supply only",
@@ -349,6 +352,7 @@ const it: WidgetDict = {
   leafEdit: "Modifica la larghezza dell'anta {n}",
   leafInvalid: "Valore tra {min} e {max} mm",
   leafHint: "Tocca la misura di un'anta sotto il disegno per modificarla: le altre si adattano.",
+  guide: { modeLabel: "Modalità", guided: "Guidata", full: "Completa", stepOf: "Passo {n} di {total}", steps: ["Tipo e misure", "Aperture e vetro", "Profilo e finiture"], next: "Avanti", back: "Indietro", tips: ["Inserisci le misure in mm. Un'anta sola arriva a {w}×{h} mm: oltre, aggiungi un'anta.", "Tocca un'anta nel disegno per cambiarne apertura e lato. Il vetro deve stare nella profondità del profilo: i consigli compaiono qui sotto.", "Scegli profilo e colore: il prezzo si aggiorna subito. Per un colore interno diverso dall'esterno attiva «bicolore»."], lastHint: "Il prezzo è qui a fianco: quando sei pronto, richiedi il preventivo." },
   fittingTitle: "Posa",
   fittingWith: "Con posa inclusa",
   fittingWithout: "Solo fornitura",
@@ -481,6 +485,7 @@ const fr: WidgetDict = {
   leafEdit: "Modifier la largeur du vantail {n}",
   leafInvalid: "Valeur entre {min} et {max} mm",
   leafHint: "Touchez la cote d'un vantail sous le dessin pour la modifier : les autres s'adaptent.",
+  guide: { modeLabel: "Mode", guided: "Guidé", full: "Complet", stepOf: "Étape {n} sur {total}", steps: ["Type et dimensions", "Ouvertures et vitrage", "Profilé et finitions"], next: "Suivant", back: "Retour", tips: ["Saisissez les dimensions en mm. Un seul vantail va jusqu'à {w}×{h} mm : au-delà, ajoutez un vantail.", "Touchez un vantail sur le dessin pour changer son ouverture et son côté. Le vitrage doit tenir dans la profondeur du profilé : les conseils s'affichent dessous.", "Choisissez profilé et couleur : le prix se met à jour tout de suite. Pour une couleur intérieure différente, activez « bicolore »."], lastHint: "Le prix est juste à côté : quand vous êtes prêt, demandez le devis." },
   fittingTitle: "Pose",
   fittingWith: "Avec pose",
   fittingWithout: "Fourniture seule",
@@ -613,6 +618,7 @@ const de: WidgetDict = {
   leafEdit: "Breite von Flügel {n} ändern",
   leafInvalid: "Wert zwischen {min} und {max} mm",
   leafHint: "Tippen Sie unter der Zeichnung auf das Maß eines Flügels, um es zu ändern: die anderen passen sich an.",
+  guide: { modeLabel: "Modus", guided: "Geführt", full: "Vollständig", stepOf: "Schritt {n} von {total}", steps: ["Typ und Maße", "Öffnungen und Glas", "Profil und Oberfläche"], next: "Weiter", back: "Zurück", tips: ["Maße in mm eingeben. Ein einzelner Flügel geht bis {w}×{h} mm: darüber einen Flügel hinzufügen.", "Tippen Sie in der Zeichnung auf einen Flügel, um Öffnung und Seite zu ändern. Das Glas muss in die Profiltiefe passen: Hinweise erscheinen darunter.", "Profil und Farbe wählen: der Preis aktualisiert sich sofort. Für eine andere Innenfarbe „zweifarbig“ aktivieren."], lastHint: "Der Preis steht direkt daneben: wenn Sie bereit sind, fordern Sie das Angebot an." },
   fittingTitle: "Montage",
   fittingWith: "Mit Montage",
   fittingWithout: "Nur Lieferung",
@@ -746,6 +752,7 @@ const nl: WidgetDict = {
   leafEdit: "Breedte van vleugel {n} wijzigen",
   leafInvalid: "Waarde tussen {min} en {max} mm",
   leafHint: "Tik onder de tekening op de maat van een vleugel om die te wijzigen: de andere passen zich aan.",
+  guide: { modeLabel: "Modus", guided: "Begeleid", full: "Volledig", stepOf: "Stap {n} van {total}", steps: ["Type en maten", "Openingen en glas", "Profiel en afwerking"], next: "Volgende", back: "Terug", tips: ["Voer de maten in mm in. Eén vleugel gaat tot {w}×{h} mm: daarboven voegt u een vleugel toe.", "Tik in de tekening op een vleugel om opening en kant te wijzigen. Het glas moet in de profieldiepte passen: adviezen staan eronder.", "Kies profiel en kleur: de prijs wordt direct bijgewerkt. Voor een andere binnenkleur zet u „tweekleurig” aan."], lastHint: "De prijs staat er direct naast: vraag de offerte aan wanneer u klaar bent." },
   fittingTitle: "Montage",
   fittingWith: "Met montage",
   fittingWithout: "Alleen levering",

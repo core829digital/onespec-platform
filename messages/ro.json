@@ -1346,7 +1346,27 @@
     "configuratorManage": "Gestionează configuratorii",
     "configuratorHelp": "Prețurile și opțiunile sunt cele ale configuratorului ales (ultima versiune publicată). La schimbare, piesele pornesc de la lista lui de prețuri.",
     "configuratorNonePublished": "Niciunul dintre configuratorii tăi nu este publicat. Deschide „Gestionează configuratorii”, completează catalogul și apasă Publică: abia atunci Showroom poate afișa datele.",
-    "configuratorArchived": "arhivat"
+    "configuratorArchived": "arhivat",
+    "quote": {
+      "heading": "Ofertă showroom",
+      "sample": "Date de exemplu: modifică-le și vezi cum se actualizează oferta.",
+      "number": "Oferta nr. {n}",
+      "date": "Data {date}",
+      "discount": "Reducere showroom (%)",
+      "deposit": "Avans la confirmare (%)",
+      "valid": "Valabilitate (zile)",
+      "delivery": "Livrare estimată (săptămâni)",
+      "subtotal": "Total piese (fără TVA)",
+      "discountLine": "Reducere showroom ({pct}%)",
+      "vatLine": "TVA {rates}",
+      "total": "Total cu TVA",
+      "depositLine": "Avans la confirmare ({pct}%)",
+      "balance": "Rest la livrare",
+      "instalment": "Rată orientativă pe 24 de luni",
+      "terms": "Ofertă valabilă {days} zile. Livrare estimată la {weeks} săptămâni de la confirmare. Măsurătorile finale se confirmă după vizita tehnică.",
+      "send": "Trimite clientului",
+      "pdf": "Descarcă PDF"
+    }
   },
   "legal": {
     "lastUpdated": "Ultima actualizare",

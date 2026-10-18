@@ -28,6 +28,16 @@
   }
 }
 
+/* Guided demo: three columns (steps, drawing, price); two below 1020px, the price panel spanning both. */
+@media (max-width: 1020px) and (min-width: 861px) {
+  .tw-widget-root [data-tw-grid][data-tw-guided] {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  }
+  .tw-widget-root [data-tw-grid][data-tw-guided] > :nth-child(3) {
+    grid-column: 1 / -1;
+  }
+}
+
 /* Phones: brand block centred, material tabs one even row (icon over label) instead of a 2 + 1 wrap. */
 @media (max-width: 600px) {
   .tw-widget-root [data-tw-header] {

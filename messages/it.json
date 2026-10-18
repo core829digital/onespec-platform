@@ -1346,7 +1346,27 @@
     "configuratorManage": "Gestisci configuratori",
     "configuratorHelp": "I prezzi e le opzioni sono quelli del configuratore scelto (ultima versione pubblicata). Cambiandolo, i pezzi ripartono dal suo listino.",
     "configuratorNonePublished": "Nessuno dei tuoi configuratori è pubblicato. Apri \"Gestisci configuratori\", completa il catalogo e premi Pubblica: solo allora lo Showroom può mostrare i dati.",
-    "configuratorArchived": "archiviato"
+    "configuratorArchived": "archiviato",
+    "quote": {
+      "heading": "Preventivo showroom",
+      "sample": "Dati di esempio: modificali e guarda il preventivo aggiornarsi.",
+      "number": "Preventivo n° {n}",
+      "date": "Data {date}",
+      "discount": "Sconto showroom (%)",
+      "deposit": "Acconto alla conferma (%)",
+      "valid": "Validità (giorni)",
+      "delivery": "Consegna stimata (settimane)",
+      "subtotal": "Totale pezzi (IVA esclusa)",
+      "discountLine": "Sconto showroom ({pct}%)",
+      "vatLine": "IVA {rates}",
+      "total": "Totale IVA inclusa",
+      "depositLine": "Acconto alla conferma ({pct}%)",
+      "balance": "Saldo alla consegna",
+      "instalment": "Rata indicativa in 24 mesi",
+      "terms": "Preventivo valido {days} giorni. Consegna stimata in {weeks} settimane dalla conferma. Le misure definitive vengono confermate dopo il sopralluogo.",
+      "send": "Invia al cliente",
+      "pdf": "Scarica PDF"
+    }
   },
   "legal": {
     "lastUpdated": "Ultimo aggiornamento",

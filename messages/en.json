@@ -1346,7 +1346,27 @@
     "configuratorManage": "Manage configurators",
     "configuratorHelp": "Prices and options are those of the chosen configurator (latest published version). Changing it restarts the pieces from its price list.",
     "configuratorNonePublished": "None of your configurators is published. Open \"Manage configurators\", complete the catalogue and press Publish: only then can the Showroom show the data.",
-    "configuratorArchived": "archived"
+    "configuratorArchived": "archived",
+    "quote": {
+      "heading": "Showroom quote",
+      "sample": "Sample data: change it and watch the quote update.",
+      "number": "Quote no. {n}",
+      "date": "Date {date}",
+      "discount": "Showroom discount (%)",
+      "deposit": "Deposit on confirmation (%)",
+      "valid": "Validity (days)",
+      "delivery": "Estimated delivery (weeks)",
+      "subtotal": "Pieces total (excl. VAT)",
+      "discountLine": "Showroom discount ({pct}%)",
+      "vatLine": "VAT {rates}",
+      "total": "Total incl. VAT",
+      "depositLine": "Deposit on confirmation ({pct}%)",
+      "balance": "Balance on delivery",
+      "instalment": "Indicative instalment over 24 months",
+      "terms": "Quote valid for {days} days. Estimated delivery {weeks} weeks after confirmation. Final measurements are confirmed after the site survey.",
+      "send": "Send to customer",
+      "pdf": "Download PDF"
+    }
   },
   "legal": {
     "lastUpdated": "Last updated",
