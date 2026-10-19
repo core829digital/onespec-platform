@@ -2326,7 +2326,7 @@
       "sitesEdit": "Modifier les sites autorisés",
       "loaderTitle": "Une ligne de code (recommandé)",
       "loaderDesc": "Collez cette ligne là où vous voulez le configurateur : elle crée le cadre, adapte sa hauteur au contenu et prévient votre site quand une demande arrive.",
-      "loaderOptions": "Options (facultatives, en attributs de la balise) : data-lang=\"fr\", data-theme=\"light|dark|auto\", data-accent=\"#16d19d\", data-target=\"#id-du-conteneur\", data-min-height=\"640\". Quand un client envoie la demande, votre site reçoit l'événement \"onespec:submitted\" (utile pour Google Analytics). data-mode=\"guided\" ouvre le parcours guidé en 3 étapes (le visiteur peut toujours passer au formulaire complet).",
+      "loaderOptions": "Options (facultatives, en attributs de la balise) : data-lang=\"fr\", data-theme=\"light|dark|auto\", data-accent=\"#16d19d\", data-target=\"#id-du-conteneur\", data-min-height=\"640\". Quand un client envoie la demande, votre site reçoit l'événement \"onespec:submitted\" (utile pour Google Analytics). data-mode=\"guided\" ouvre le parcours guidé en 3 étapes (le visiteur peut toujours passer au formulaire complet). À la souris, un voile transparent laisse défiler la page au-dessus du configurateur : le premier clic le retire et il revient quand le pointeur quitte le cadre (data-scroll-shield=\"off\" pour le désactiver).",
       "manualTitle": "Code iframe manuel (avancé)",
       "manualDesc": "Alternative à la ligne de code : collez cet iframe si votre site ne permet pas d'ajouter des scripts."
     },

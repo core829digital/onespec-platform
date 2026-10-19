@@ -262,6 +262,8 @@ export function Widget({
 
   // ---- iframe resize + host-theme protocol ----
   useEffect(() => {
+    const framed = window.parent !== window;
+    if (framed) document.documentElement.setAttribute("data-tw-framed", "");
     function post() {
       postToHost({
         type: "onespec:resize",
@@ -282,6 +284,7 @@ export function Widget({
     return () => {
       ro.disconnect();
       window.removeEventListener("message", onMessage);
+      if (framed) document.documentElement.removeAttribute("data-tw-framed");
     };
   }, [configurator.publicId]);
 

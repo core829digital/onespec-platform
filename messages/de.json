@@ -2326,7 +2326,7 @@
       "sitesEdit": "Autorisierte Websites bearbeiten",
       "loaderTitle": "Eine Codezeile (empfohlen)",
       "loaderDesc": "Fügen Sie diese Zeile dort ein, wo der Konfigurator erscheinen soll: Sie erstellt den Rahmen selbst, passt die Höhe an den Inhalt an und meldet Ihrer Website, wenn eine Anfrage eingeht.",
-      "loaderOptions": "Optionen (optional, als Attribute des Tags): data-lang=\"de\", data-theme=\"light|dark|auto\", data-accent=\"#16d19d\", data-target=\"#container-id\", data-min-height=\"640\". Sendet ein Kunde die Anfrage, erhält Ihre Website das Ereignis \"onespec:submitted\" (nützlich für Google Analytics). data-mode=\"guided\" öffnet den geführten Weg in 3 Schritten (Besucher können jederzeit zum vollständigen Formular wechseln).",
+      "loaderOptions": "Optionen (optional, als Attribute des Tags): data-lang=\"de\", data-theme=\"light|dark|auto\", data-accent=\"#16d19d\", data-target=\"#container-id\", data-min-height=\"640\". Sendet ein Kunde die Anfrage, erhält Ihre Website das Ereignis \"onespec:submitted\" (nützlich für Google Analytics). data-mode=\"guided\" öffnet den geführten Weg in 3 Schritten (Besucher können jederzeit zum vollständigen Formular wechseln). Mit der Maus lässt eine transparente Ebene die Seite über dem Konfigurator scrollen: Der erste Klick entfernt sie, sie kehrt zurück, wenn der Zeiger den Rahmen verlässt (data-scroll-shield=\"off\" zum Abschalten).",
       "manualTitle": "Manueller iframe-Code (fortgeschritten)",
       "manualDesc": "Alternative zur Codezeile: Fügen Sie diesen iframe ein, wenn Ihre Website keine Skripte erlaubt."
     },

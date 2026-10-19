@@ -9,6 +9,17 @@
   font-family: var(--tw-font);
 }
 
+/* Inside a website's frame: the widget is as tall as its content (it can shrink again when a step gets shorter), and a scroll that
+   reaches its top or bottom carries on in the website instead of stopping (the platform blocks that chaining on its own pages). */
+html[data-tw-framed],
+html[data-tw-framed] body {
+  overscroll-behavior-y: auto;
+}
+
+html[data-tw-framed] .tw-widget-root {
+  min-height: 0;
+}
+
 .tw-widget-root *,
 .tw-widget-root *::before,
 .tw-widget-root *::after {

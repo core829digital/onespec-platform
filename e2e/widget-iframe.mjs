@@ -47,6 +47,12 @@ const hostPage = (id, query = "") => `<!doctype html><html lang="it"><head><meta
 
 const hostServer = createServer((req, res) => {
   const url = new URL(req.url, "http://x");
+  if (url.pathname === "/nested") {
+    // A site builder that puts custom code in its own fixed-size frame (Wix, Google Sites…).
+    res.writeHead(200, { "Content-Type": "text/html" });
+    return res.end(`<!doctype html><html><head><meta charset="utf-8"><title>Builder</title></head><body style="margin:0"><h1>Sito</h1>
+<iframe id="box" src="/embed-loader?id=${url.searchParams.get("id") ?? ID}" style="width:100%;height:600px;border:0" scrolling="no"></iframe><div style="height:1200px"></div></body></html>`);
+  }
   if (url.pathname === "/embed-loader") {
     res.writeHead(200, { "Content-Type": "text/html" });
     return res.end(`<!doctype html><html><head><meta charset="utf-8"><title>Loader</title></head><body><h1>Sito</h1>
@@ -305,11 +311,43 @@ async function main() {
       check(h > 700, `the loader keeps the iframe as tall as the widget (${Math.round(h)} px)`);
       const title = await page.evaluate(() => document.querySelector("#cfg iframe").title);
       check(title.length > 3, "the iframe has an accessible title");
+      check((await page.evaluate(() => document.querySelector("#cfg iframe").getAttribute("scrolling"))) === null, "the loader never switches off scrolling inside the frame");
+      const inner = await frame.evaluate(() => ({ framed: document.documentElement.hasAttribute("data-tw-framed"), overscroll: getComputedStyle(document.documentElement).overscrollBehaviorY, spare: document.documentElement.scrollHeight - innerHeight }));
+      check(inner.framed && inner.overscroll === "auto", `a scroll at the widget's edge carries on in the site (overscroll ${inner.overscroll})`);
+      check(inner.spare <= 2, `the frame is exactly as tall as the content: nothing hidden, nothing to scroll inside (${inner.spare} px)`);
+      // The page scrolls with the wheel over the widget.
+      await page.mouse.move(500, 500);
+      await page.mouse.wheel(0, 500);
+      await page.waitForTimeout(600);
+      check((await page.evaluate(() => scrollY)) > 100, "the wheel over the widget scrolls the website");
+      // Scroll shield: on by default with a mouse, off after a click, back when the pointer leaves the widget.
+      const shieldShown = () => page.evaluate(() => { const el = document.querySelector("#cfg [data-onespec-shield]"); return !!el && getComputedStyle(el).display !== "none"; });
+      check(await shieldShown(), "the scroll shield covers the widget for mouse users");
+      await page.mouse.click(500, 300);
+      check(!(await shieldShown()), "one click removes the shield so the visitor can configure");
+      await page.mouse.move(5, 5);
+      await page.evaluate(() => scrollTo(0, 0));
+      await page.mouse.move(500, 5, { steps: 3 });
+      const leftBox = await page.evaluate(() => document.querySelector("#cfg iframe").getBoundingClientRect().top > 5);
+      check(!leftBox || (await shieldShown()), "the shield comes back when the pointer leaves the widget");
+      await page.mouse.click(500, 400); // ready to configure
       await page.evaluate(() => { window.__submitted = 0; window.addEventListener("onespec:submitted", () => (window.__submitted += 1)); });
       await fillAndSend(frame);
       await frame.locator("text=✓").first().waitFor({ timeout: 10_000 });
       check((await page.evaluate(() => window.__submitted)) === 1, "the host page gets a DOM event on submission (conversion tracking)");
       check(problems.length === 0, `no errors with the loader${problems.length ? ": " + problems.join(" | ") : ""}`);
+      // A builder's fixed-size frame around the loader: the widget fits the box and scrolls inside it instead of being cut off.
+      await page.goto(`${ALLOWED}/nested?id=${ID}`, { waitUntil: "networkidle" });
+      const nested = page.frames().find((f) => f.url().includes(`/w/${ID}`));
+      check(!!nested, "the loader works inside a builder's frame");
+      await nested.locator("#widget-width").waitFor();
+      await page.waitForTimeout(800);
+      const box = await page.frames().find((f) => f.url().includes("/embed-loader")).evaluate(() => document.querySelector("#cfg iframe").getBoundingClientRect().height);
+      check(box <= 600, `inside a 600 px builder frame the widget is at most 600 px tall (${Math.round(box)} px)`);
+      await page.mouse.click(500, 400); // removes the scroll shield
+      await page.mouse.wheel(0, 400);
+      await page.waitForTimeout(600);
+      check((await nested.evaluate(() => scrollY)) > 100, "the visitor can scroll the widget inside the builder's frame");
       // Hostile attributes must not become markup or a foreign URL.
       await page.goto(`${ALLOWED}/embed-loader?id=${encodeURIComponent('x" onload="alert(1)')}`, { waitUntil: "load" });
       check((await page.locator("#cfg iframe").count()) === 0, "an invalid id creates no iframe");

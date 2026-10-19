@@ -2326,7 +2326,7 @@
       "sitesEdit": "Modifica i siti autorizzati",
       "loaderTitle": "Una riga di codice (consigliato)",
       "loaderDesc": "Incolla questa riga dove vuoi il configuratore: crea da solo il riquadro, ne adatta l'altezza al contenuto e avvisa il tuo sito quando arriva una richiesta.",
-      "loaderOptions": "Opzioni (facoltative, come attributi del tag): data-lang=\"it\", data-theme=\"light|dark|auto\", data-accent=\"#16d19d\", data-target=\"#id-del-contenitore\", data-min-height=\"640\". Quando un cliente invia la richiesta il tuo sito riceve l'evento \"onespec:submitted\" (utile per Google Analytics). data-mode=\"guided\" apre il percorso guidato in 3 passi (il visitatore può sempre passare al modulo completo).",
+      "loaderOptions": "Opzioni (facoltative, come attributi del tag): data-lang=\"it\", data-theme=\"light|dark|auto\", data-accent=\"#16d19d\", data-target=\"#id-del-contenitore\", data-min-height=\"640\". Quando un cliente invia la richiesta il tuo sito riceve l'evento \"onespec:submitted\" (utile per Google Analytics). data-mode=\"guided\" apre il percorso guidato in 3 passi (il visitatore può sempre passare al modulo completo). Con il mouse, una pellicola trasparente lascia scorrere la pagina sopra il configuratore: il primo clic la toglie e torna quando il puntatore esce dal riquadro (data-scroll-shield=\"off\" per disattivarla).",
       "manualTitle": "Codice manuale con iframe (avanzato)",
       "manualDesc": "Alternativa alla riga di codice: incolla questo iframe, se il tuo sito non permette di aggiungere script."
     },

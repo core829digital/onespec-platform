@@ -26,7 +26,8 @@ describe("public/embed.js", () => {
     expect(src).toMatch(/Math\.min\(20000, Math\.max\(200/);
   });
   it("is small (a loader, not a framework)", () => {
-    expect(src.length).toBeLessThan(6000);
+    // Raised from 6000 for the scroll shield (overlay + hint in 6 languages); still about 3 KB once compressed.
+    expect(src.length).toBeLessThan(11000);
   });
   it("runs twice without creating a second frame", () => {
     // Minimal DOM stand-in: one script tag, an insertion point; the second run must find it already marked as done.
@@ -39,13 +40,17 @@ describe("public/embed.js", () => {
       parentNode: { insertBefore: (el: unknown) => made.push(el) },
       nextSibling: null,
     };
-    const el = () => ({ style: {} as Record<string, string>, setAttribute() {}, contentWindow: {}, dispatchEvent() {} });
+    const el = () => {
+      const node = { style: {} as Record<string, string>, children: [] as unknown[], setAttribute() {}, contentWindow: {}, dispatchEvent() {}, appendChild: (c: unknown) => node.children.push(c) };
+      return node;
+    };
     const window: Record<string, unknown> = { addEventListener() {} };
     const document = { baseURI: "https://dealer.example/", querySelectorAll: () => [script], createElement: el };
     const ctx = vm.createContext({ window, document, URL, CustomEvent: class {}, isFinite, parseInt, Math });
     vm.runInContext(src, ctx);
     vm.runInContext(src, ctx);
     expect(made.length).toBe(1);
-    expect((made[0] as { src: string }).src).toBe("https://platform.example/w/ABCDEF1234");
+    // What lands on the page is the box holding the frame (and, with a mouse, the scroll shield).
+    expect((made[0] as { children: Array<{ src: string }> }).children[0].src).toBe("https://platform.example/w/ABCDEF1234");
   });
 });
