@@ -9,6 +9,7 @@ import { postToHost, readHostTheme } from "./host-bridge";
 import { demoCopy, demoRegisterUrl } from "@/lib/demo/demo-copy";
 import { submitErrorMessage, wizardCopy } from "./simple-wizard-model";
 import { getTurnstileToken } from "@/lib/turnstile-client";
+import { widgetSourcePage } from "@/lib/widget-source-page";
 import { postQuote } from "./post-quote";
 import { brandChoices, catalogOptions, catalogPricing, glazingChoices, pricingPayload, reconcileState, type WidgetCatalog, type WidgetOptions } from "./widget-catalog";
 import { withLeafWidth } from "./leaf-edit";
@@ -533,6 +534,7 @@ export function Widget({
         consent: true as const,
         consentVersion: "widget-1",
         turnstileToken: turnstileToken ?? undefined,
+        sourcePage: widgetSourcePage(),
       };
       const data = await postQuote(`${CONVEX_SITE}/api/widget/quote`, body);
       if (data.ok) {

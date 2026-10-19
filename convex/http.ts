@@ -12,6 +12,7 @@ import { resendWebhook } from "./http/resend_webhook";
 import { supportFileDownload } from "./http/support_file";
 import { createPostHogClient } from "./lib/posthog";
 import { checkWebhookSource } from "./lib/webhookIp";
+import { cleanSourcePage } from "../src/shared/source-page";
 
 const http = httpRouter();
 
@@ -230,6 +231,7 @@ http.route({
       consentVersion: body.consentVersion,
       sourceIpHash: ipHash,
       sourceOrigin: origin,
+      sourcePage: cleanSourcePage(body.sourcePage),
       userAgent,
       turnstileVerified: !!body.turnstileToken,
       flagged,

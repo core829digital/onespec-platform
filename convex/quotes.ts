@@ -60,6 +60,19 @@ async function withSignature<T extends { _id: Id<"quoteRequests">; signedAt?: nu
   return row ? { ...quote, signatureDataUrl: row.signatureDataUrl } : quote;
 }
 
+/** Each row with the name of the configurator it came from (one read per distinct configurator, a handful per company). */
+async function withConfiguratorNames<T extends { tenantId: Id<"tenants">; configuratorId: Id<"configurators"> }>(
+  ctx: QueryCtx,
+  rows: T[],
+): Promise<Array<T & { configuratorName: string | null }>> {
+  const names = new Map<string, string | null>();
+  for (const id of new Set(rows.map((r) => r.configuratorId))) {
+    const c = await ctx.db.get(id);
+    names.set(id, c && rows.some((r) => r.configuratorId === id && r.tenantId === c.tenantId) ? c.name : null);
+  }
+  return rows.map((r) => ({ ...r, configuratorName: names.get(r.configuratorId) ?? null }));
+}
+
 export const listRequests = query({
   args: {
     tenantId: v.id("tenants"),
@@ -80,14 +93,14 @@ export const listRequests = query({
         )
         .order("desc")
         .take(limit)
-        .then((rows) => rows.map((r) => listRow(redactQuoteRequest(r))));
+        .then((rows) => withConfiguratorNames(ctx, rows.map((r) => listRow(redactQuoteRequest(r)))));
     }
     return await ctx.db
       .query("quoteRequests")
       .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
       .order("desc")
       .take(limit)
-      .then((rows) => rows.map((r) => listRow(redactQuoteRequest(r))));
+      .then((rows) => withConfiguratorNames(ctx, rows.map((r) => listRow(redactQuoteRequest(r)))));
   },
 });
 
@@ -114,7 +127,8 @@ export const getRequest = query({
     if (!quote) return null;
     // Same right as the list: a grade outside sales, or another company, never reads a quote by its id.
     await requirePermission(ctx, quote.tenantId, "quotes.use", { allowSuspendedRead: true });
-    return redactQuoteRequest(await withSignature(ctx, quote));
+    const [row] = await withConfiguratorNames(ctx, [redactQuoteRequest(await withSignature(ctx, quote))]);
+    return row;
   },
 });
 

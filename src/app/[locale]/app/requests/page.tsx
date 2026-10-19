@@ -11,6 +11,7 @@ import { Pagination } from "@/components/ui/Pagination";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import { OpenLink } from "@/components/ui/open-button";
 import { DeleteAction } from "@/components/ui/delete-action";
+import { sourceHost } from "@/shared/source-page";
 
 const STATUSES = ["new", "contacted", "quoted", "won", "lost", "spam"] as const;
 type Status = (typeof STATUSES)[number];
@@ -59,7 +60,9 @@ export default function RequestsPage() {
           (r) =>
             r.leadName.toLowerCase().includes(needle) ||
             r.leadEmail.toLowerCase().includes(needle) ||
-            (r.leadCompany ?? "").toLowerCase().includes(needle),
+            (r.leadCompany ?? "").toLowerCase().includes(needle) ||
+            (r.configuratorName ?? "").toLowerCase().includes(needle) ||
+            (r.sourcePage ?? "").toLowerCase().includes(needle),
         )
       : [...incoming];
     filtered.sort((a, b) => {
@@ -157,13 +160,14 @@ export default function RequestsPage() {
       {msg ? <p className="text-sm text-[var(--color-text-secondary)]">{msg}</p> : null}
 
       <div className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl overflow-x-auto">
-        <table className="w-full text-sm min-w-[720px]" aria-label={t("title")}>
+        <table className="w-full text-sm min-w-[860px]" aria-label={t("title")}>
 <thead className="bg-[var(--color-bg)] text-[var(--color-text-secondary)]">
               <tr>
                 <th className={th}>{t("colClient")}</th>
                 <th className={th}>{t("colEmail")}</th>
                 <th className={th}>{t("colPhone")}</th>
                 <th className={th}>{t("colCompany")}</th>
+                <th className={th}>{t("colSource")}</th>
                 <th className={`${th} text-right`}>{t("colValue")}</th>
                 <th className={th}>{t("colStatus")}</th>
                 <th className={`${th} text-right`}>{t("colDate")}</th>
@@ -173,13 +177,13 @@ export default function RequestsPage() {
           <tbody className="divide-y divide-[var(--color-border)]">
             {rows === undefined ? (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-[var(--color-text-secondary)]">
+                <td colSpan={9} className="px-4 py-8 text-center text-[var(--color-text-secondary)]">
                   {t("loading")}
                 </td>
               </tr>
             ) : rows.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-[var(--color-text-secondary)]">
+                <td colSpan={9} className="px-4 py-8 text-center text-[var(--color-text-secondary)]">
                   {t("empty")}
                 </td>
               </tr>
@@ -197,6 +201,12 @@ export default function RequestsPage() {
                   <td className="px-4 py-3 text-[var(--color-text-secondary)]">{r.leadEmail}</td>
                   <td className="px-4 py-3 text-[var(--color-text-secondary)]">{r.leadPhone ?? "—"}</td>
                   <td className="px-4 py-3 text-[var(--color-text-secondary)]">{r.leadCompany ?? "—"}</td>
+                  <td className="px-4 py-3 max-w-[220px]">
+                    <span className="block truncate text-[var(--color-text)]">{r.configuratorName ?? "—"}</span>
+                    {sourceHost(r.sourcePage) ? (
+                      <span className="block truncate text-xs text-[var(--color-text-secondary)]" title={r.sourcePage}>{sourceHost(r.sourcePage)}</span>
+                    ) : null}
+                  </td>
                   <td className="px-4 py-3 text-right text-[var(--color-text)] tabular-nums">
                     {(r.priceCents / 100).toLocaleString(locale, { style: "currency", currency: "EUR" })}
                   </td>

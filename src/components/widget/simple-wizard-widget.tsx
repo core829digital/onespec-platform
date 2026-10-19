@@ -5,6 +5,7 @@ import { getDict } from "./widget-i18n";
 import { readableInk, isSafeColor, resolveFontStack } from "./widget-theme";
 import { postToHost, readHostTheme } from "./host-bridge";
 import { getTurnstileToken } from "@/lib/turnstile-client";
+import { widgetSourcePage } from "@/lib/widget-source-page";
 import { postQuote } from "./post-quote";
 import {
   buildWizardItem,
@@ -232,6 +233,7 @@ export function SimpleWizardWidget({
         consent: true as const,
         consentVersion: "wizard-1",
         turnstileToken: turnstileToken ?? undefined,
+        sourcePage: widgetSourcePage(),
       };
       const data = await postQuote(`${CONVEX_SITE}/api/widget/quote`, body);
       if (data.ok) {

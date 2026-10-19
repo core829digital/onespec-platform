@@ -8,6 +8,7 @@ import type { Doc } from "./_generated/dataModel";
 import { assertCoherentItems } from "./lib/quoteItems";
 import { calculatePrice, installationIncluded, type ProjectItem, type CatalogPayload } from "../src/shared/pricing";
 import { ProjectItemSchema } from "../src/shared/widget-types";
+import { cleanSourcePage } from "../src/shared/source-page";
 import { requireMembership } from "./lib/auth";
 import { resolveTenantEntitlements, currentPeriod, isWidgetPlan } from "./lib/entitlements";
 import { LOCKED_LEAD_NAME } from "./lib/quotaLock";
@@ -457,6 +458,7 @@ export const insertQuote = internalMutation({
     clientVatPercent: v.optional(v.number()),
     sourceIpHash: v.optional(v.string()),
     sourceOrigin: v.optional(v.string()),
+    sourcePage: v.optional(v.string()),
     userAgent: v.optional(v.string()),
     turnstileVerified: v.optional(v.boolean()),
     flagged: v.optional(v.boolean()),
@@ -556,6 +558,7 @@ export const insertQuote = internalMutation({
           : "new",
       sourceIpHash: args.sourceIpHash,
       sourceOrigin: args.sourceOrigin,
+      sourcePage: cleanSourcePage(args.sourcePage),
       userAgent: args.userAgent,
       turnstileVerified: args.turnstileVerified,
       spamScore: args.flagged ? 80 : priceMismatch ? 30 : 0,

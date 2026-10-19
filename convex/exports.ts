@@ -73,6 +73,12 @@ export const exportRequestsCsv = mutation({
       names.set(uid, u?.name ?? u?.email ?? "");
     }
 
+    const configuratorNames = new Map<string, string>();
+    for (const cid of new Set(records.map((r) => r.configuratorId))) {
+      const c = await ctx.db.get(cid);
+      if (c && c.tenantId === args.tenantId) configuratorNames.set(cid, c.name);
+    }
+
     const header = [
       "Data",
       "Cliente",
@@ -87,7 +93,8 @@ export const exportRequestsCsv = mutation({
       "Versione catalogo",
       "N. elementi",
       "Assegnata a",
-      "Origine",
+      "Configuratore",
+      "Pagina di provenienza",
       "Oltre quota",
     ];
 
@@ -105,7 +112,8 @@ export const exportRequestsCsv = mutation({
       r.catalogVersion,
       Array.isArray(r.items) ? r.items.length : 0,
       r.assignedToUserId ? names.get(r.assignedToUserId) ?? "" : "",
-      r.sourceOrigin ?? "",
+      configuratorNames.get(r.configuratorId) ?? "",
+      r.sourcePage ?? "",
       r.overQuota ? "sì" : "",
     ]);
 

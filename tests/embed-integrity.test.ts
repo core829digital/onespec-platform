@@ -6,7 +6,7 @@ import { describe, expect, it } from "vitest";
 // public/embed.js runs on every dealer's own website, so a change to it is a change to code on other people's pages.
 // This pin makes any edit a conscious one: if you changed the loader on purpose, review the diff line by line
 // (no eval, no innerHTML, origin + source + id checks on every message), then update the hash below.
-const EMBED_JS_SHA256 = "3e094271eb2617deac7590065b4ff5ca8e6a236eb1b732c4923c5118f00d5b7f";
+const EMBED_JS_SHA256 = "7e34b590b771b0ebb2153732536b6791c3a7464d8d84131ec8f7a2d65833a98b";
 
 describe("public/embed.js", () => {
   const src = readFileSync("public/embed.js", "utf8");

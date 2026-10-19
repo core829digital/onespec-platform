@@ -46,11 +46,12 @@ describe("public/embed.js", () => {
     };
     const window: Record<string, unknown> = { addEventListener() {} };
     const document = { baseURI: "https://dealer.example/", querySelectorAll: () => [script], createElement: el };
-    const ctx = vm.createContext({ window, document, URL, CustomEvent: class {}, isFinite, parseInt, Math });
+    const location = { origin: "https://dealer.example", pathname: "/preventivo" };
+    const ctx = vm.createContext({ window, document, location, URL, CustomEvent: class {}, isFinite, parseInt, Math });
     vm.runInContext(src, ctx);
     vm.runInContext(src, ctx);
     expect(made.length).toBe(1);
     // What lands on the page is the box holding the frame (and, with a mouse, the scroll shield).
-    expect((made[0] as { children: Array<{ src: string }> }).children[0].src).toBe("https://platform.example/w/ABCDEF1234");
+    expect((made[0] as { children: Array<{ src: string }> }).children[0].src).toBe("https://platform.example/w/ABCDEF1234?from=https%3A%2F%2Fdealer.example%2Fpreventivo");
   });
 });

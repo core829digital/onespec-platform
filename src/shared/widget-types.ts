@@ -126,6 +126,8 @@ export const QuoteSubmissionSchema = z.object({
   consent: z.literal(true),
   consentVersion: z.string().max(20).optional(),
   clientReportedPriceCents: z.number().int().positive().max(100_000_000).optional(),
+  /** Page of the dealer's site the widget is shown on (see src/shared/source-page.ts); cleaned again on the server. */
+  sourcePage: z.string().max(2048).optional(),
 });
 
 export type ProjectItem = z.infer<typeof ProjectItemSchema> & Record<string, unknown>;

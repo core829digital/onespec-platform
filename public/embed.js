@@ -62,6 +62,8 @@
     if (font && font.length <= 60 && /^[A-Za-z0-9 ,'-]+$/.test(font)) params.push("font=" + encodeURIComponent(font));
     var mode = (script.getAttribute("data-mode") || "").toLowerCase();
     if (mode === "guided" || mode === "full") params.push("mode=" + mode);
+    // The page the widget is on (no query or fragment): shown to the dealer next to each request.
+    try { params.push("from=" + encodeURIComponent((location.origin + location.pathname).slice(0, 300))); } catch (e) { /* no location */ }
     return { origin: origin, href: origin + "/w/" + id + (params.length ? "?" + params.join("&") : "") };
   }
 

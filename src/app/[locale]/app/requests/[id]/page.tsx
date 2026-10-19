@@ -336,6 +336,21 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
               ) : null}
               {quote.leadCompany ? <Row label={t("labelCompany")} value={quote.leadCompany} /> : null}
               <Row label={t("labelLanguage")} value={quote.leadLocale.toUpperCase()} />
+              {quote.configuratorName ? <Row label={t("labelConfigurator")} value={quote.configuratorName} /> : null}
+              {quote.channel !== "field_b2b" && quote.channel !== "manual" ? (
+                <Row
+                  label={t("labelSourcePage")}
+                  value={
+                    quote.sourcePage ? (
+                      <a href={quote.sourcePage} target="_blank" rel="noopener noreferrer nofollow" className="break-all text-[var(--color-mint-text)] hover:underline">
+                        {quote.sourcePage.replace(/^https?:\/\//, "")}
+                      </a>
+                    ) : (
+                      <span className="font-normal text-[var(--color-text-secondary)]">{t("sourceUnknown")}</span>
+                    )
+                  }
+                />
+              ) : null}
               {quote.signedByName && (
                 <Row
                   label={t("labelSignature")}

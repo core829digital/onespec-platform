@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
-import { internal } from "../../convex/_generated/api";
+import { api, internal } from "../../convex/_generated/api";
 import { newDb, seedTenant, seedPublishedConfigurator, sampleItem } from "./_helpers";
 
 beforeEach(() => vi.useFakeTimers());
@@ -58,5 +58,30 @@ describe("widget.insertQuote — server-authoritative recompute", () => {
         leadLocale: "it",
       }),
     ).rejects.toThrow(/INVALID_ITEM/);
+  });
+
+  test("the dealer sees which configurator and which page of their site a request came from", async () => {
+    const t = newDb();
+    const { tenantId, ownerId } = await seedTenant(t);
+    const configuratorId = await seedPublishedConfigurator(t, tenantId);
+    const base = { publicId: "PUBID12345", configuratorId, catalogVersion: 1, items: [sampleItem], leadEmail: "a@example.com", leadLocale: "it" };
+    const withPage = await t.mutation(internal.widget.insertQuote, {
+      ...base,
+      leadName: "Dal sito",
+      sourcePage: "https://www.serramenti-rossi.it/preventivo?email=a@example.com#top",
+    });
+    const hostile = await t.mutation(internal.widget.insertQuote, { ...base, leadName: "Ostile", sourcePage: "javascript:alert(1)" });
+    await t.finishAllScheduledFunctions(vi.runAllTimers);
+
+    expect((await t.run((ctx) => ctx.db.get(withPage)))?.sourcePage).toBe("https://www.serramenti-rossi.it/preventivo");
+    expect((await t.run((ctx) => ctx.db.get(hostile)))?.sourcePage).toBeUndefined();
+
+    const name = (await t.run((ctx) => ctx.db.get(configuratorId)))!.name;
+    const asOwner = t.withIdentity({ subject: ownerId });
+    const rows = await asOwner.query(api.quotes.listRequests, { tenantId });
+    expect(rows.map((r) => r.configuratorName)).toEqual([name, name]);
+    const detail = await asOwner.query(api.quotes.getRequest, { quoteId: withPage });
+    expect(detail?.configuratorName).toBe(name);
+    expect(detail?.sourcePage).toBe("https://www.serramenti-rossi.it/preventivo");
   });
 });

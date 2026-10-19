@@ -719,6 +719,8 @@ export default defineSchema({
     assignedToUserId: v.optional(v.id("users")),
     internalNotes: v.optional(v.string()),
     sourceOrigin: v.optional(v.string()),
+    /** Widget requests: the page of the dealer's website the widget was on (origin + path, as reported by the widget). */
+    sourcePage: v.optional(v.string()),
     sourceIpHash: v.optional(v.string()),
     userAgent: v.optional(v.string()),
     turnstileVerified: v.optional(v.boolean()),
