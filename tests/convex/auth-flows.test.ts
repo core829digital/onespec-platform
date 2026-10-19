@@ -123,10 +123,26 @@ describe("accounts created before e-mails were lower-cased", () => {
 
     await signIn(t, { flow: "reset", email: "sara.gialli@ditta.it" });
     const code = lastCode("reset", "sara.gialli@ditta.it");
-    // The e-mailed code alone is not enough (before the fix the user was not found by address and the check was skipped).
-    await expect(signIn(t, { flow: "reset-verification", email: "sara.gialli@ditta.it", code, newPassword: "NuovaPassword2026!" })).rejects.toThrow();
+    // The e-mailed code alone is not enough (before the fix the user was not found by address and the check was skipped): no session,
+    // the password is unchanged.
+    expect((await signIn(t, { flow: "reset-verification", email: "sara.gialli@ditta.it", code, newPassword: "NuovaPassword2026!" })).tokens).toBeNull();
+    expect((await signIn(t, { flow: "signIn", email: "sara.gialli@ditta.it", password: PASSWORD })).tokens).toBeNull(); // old password still right, code asked
     const res = await signIn(t, { flow: "reset-verification", email: "sara.gialli@ditta.it", code, newPassword: "NuovaPassword2026!", mfaCode: await totpAt(begin.secret, Date.now() + 30_000) }); // next step: the setup code cannot be replayed
     expect(res.tokens).toBeTruthy();
+  });
+
+  test("sign-in with two-step verification: password alone gives no session, password + app code signs in, a wrong code is refused", async () => {
+    const t = newDb();
+    const { userId } = await seedLegacyAccount(t, "Marco@Ditta.it");
+    const me = t.withIdentity({ subject: userId });
+    const begin = await me.mutation(api.mfa.beginSetup, {});
+    if (!begin.ok) throw new Error("setup refused");
+    await me.mutation(api.mfa.confirmSetup, { code: await totpAt(begin.secret, Date.now()) });
+    const creds = { flow: "signIn", email: "marco@ditta.it", password: PASSWORD };
+    expect((await signIn(t, creds)).tokens).toBeNull();
+    await expect(signIn(t, { ...creds, mfaCode: "000000" })).rejects.toThrow(/MFA_INVALID/);
+    expect((await signIn(t, { ...creds, mfaCode: await totpAt(begin.secret, Date.now() + 30_000) })).tokens).toBeTruthy();
+    await expect(signIn(t, { ...creds, password: "Sbagliata2026!" })).rejects.toThrow();
   });
 
   test("signing up again with the same address does not create a second user", async () => {

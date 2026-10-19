@@ -89,7 +89,7 @@ export function withMfaGuard(inner: Authorize, checks: MfaChecks): Authorize {
     if (flow === "reset-verification") {
       const email = String(params.email ?? "");
       const pre = await checks.forEmail(ctx, email, code(params), false);
-      if (pre.enabled && !pre.ok) throw new ConvexError(pre.error);
+      if (pre.enabled && !pre.ok) return askForCode(pre.error);
       const result = await inner(params, ctx);
       if (pre.enabled) {
         const done = await checks.forEmail(ctx, email, code(params), true);
@@ -102,9 +102,19 @@ export function withMfaGuard(inner: Authorize, checks: MfaChecks): Authorize {
     const userId = result && typeof result === "object" && "userId" in result ? String((result as { userId: unknown }).userId) : null;
     if (!userId) return result;
     const verdict = await checks.forUser(ctx, userId, code(params), true);
-    if (verdict.enabled && !verdict.ok) throw new ConvexError(verdict.error);
+    if (verdict.enabled && !verdict.ok) return askForCode(verdict.error);
     return result;
   };
+}
+
+/**
+ * "Code needed" is answered with no session (the client's `signIn` resolves `{ signingIn: false }`) instead of an error: in production
+ * Convex hides an error's text from the Next.js auth proxy, so a thrown MFA_REQUIRED reached the page as a bare "Server Error" and the
+ * login never asked for the code. A wrong or locked code still throws: the page is already on the code step then.
+ */
+function askForCode(error: string): null {
+  if (error === "MFA_REQUIRED") return null;
+  throw new ConvexError(error);
 }
 
 /**

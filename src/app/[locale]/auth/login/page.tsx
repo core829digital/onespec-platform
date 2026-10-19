@@ -46,7 +46,13 @@ function LoginForm() {
     setError("");
     setLoading(true);
     try {
-      await signIn("password", { email, password, flow: "signIn", turnstileToken: ts.token, ...(needsCode ? { mfaCode: mfaCode.trim() } : {}) });
+      const res = await signIn("password", { email, password, flow: "signIn", turnstileToken: ts.token, ...(needsCode ? { mfaCode: mfaCode.trim() } : {}) });
+      if (!res.signingIn) {
+        // Password accepted, no session yet: this account has two-step verification on (convex/lib/authGuard.ts askForCode).
+        if (needsCode) setError(authMsg(new Error("MFA_REQUIRED"), t("error")));
+        else setNeedsCode(true);
+        return;
+      }
       posthog.capture("user_logged_in", { auth_method: "password" });
       router.push(redirect);
     } catch (err) {
@@ -56,7 +62,8 @@ function LoginForm() {
         return;
       }
       posthog.captureException(err);
-      setError(authMsg(err, t("error")));
+      // On the code step a failure is about the code, never "invalid credentials".
+      setError(authMsg(err, needsCode ? authMsg(new Error("MFA_INVALID"), t("error")) : t("error")));
     } finally {
       ts.reset();
       setLoading(false);

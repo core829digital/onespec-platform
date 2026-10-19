@@ -57,7 +57,12 @@ function ResetPasswordContent() {
     setError("");
     setLoading(true);
     try {
-      await signIn("password", { email, code, newPassword: password, flow: "reset-verification", ...(mfaCode.trim() ? { mfaCode: mfaCode.trim() } : {}) });
+      const res = await signIn("password", { email, code, newPassword: password, flow: "reset-verification", ...(mfaCode.trim() ? { mfaCode: mfaCode.trim() } : {}) });
+      if (!res.signingIn) {
+        // Two-step verification is on and no app code was typed: nothing changed yet, the e-mailed code is still valid.
+        setError(authMsg(new Error("MFA_REQUIRED"), t("error")));
+        return;
+      }
       router.push(redirect);
     } catch (err) {
       setError(authMsg(err, t("error")));

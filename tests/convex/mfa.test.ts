@@ -216,10 +216,16 @@ describe("sign-in guard", () => {
     return { calls, checks };
   };
 
-  test("signIn: a user with the factor but no code is refused with MFA_REQUIRED", async () => {
+  test("signIn: a user with the factor but no code gets no session (no error: production hides error texts from the auth proxy)", async () => {
     const { checks } = verdicts({ enabled: true, ok: false, error: "MFA_REQUIRED" });
     const guarded = withMfaGuard(async () => ({ userId: "u1" }), checks);
-    await expect(guarded({ flow: "signIn", email: "a@b.c" }, {})).rejects.toThrow(/MFA_REQUIRED/);
+    expect(await guarded({ flow: "signIn", email: "a@b.c" }, {})).toBeNull();
+  });
+
+  test("signIn: a wrong code is still an error", async () => {
+    const { checks } = verdicts({ enabled: true, ok: false, error: "MFA_INVALID" });
+    const guarded = withMfaGuard(async () => ({ userId: "u1" }), checks);
+    await expect(guarded({ flow: "signIn", email: "a@b.c", mfaCode: "000000" }, {})).rejects.toThrow(/MFA_INVALID/);
   });
 
   test("signIn: correct code passes the library result through", async () => {
