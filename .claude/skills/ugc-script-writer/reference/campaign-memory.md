@@ -117,3 +117,59 @@ evening mental tax of rebuilding quotes).
 - Stefan does not want the "Contenuto generato con IA" text burned into the video (the platform's own AI label is applied at publishing).
 - Technique that works: chroma-key placeholders (flat magenta phone screen and chest patch) in the generated clip, then a per-frame OpenCV tracker warps the real screen/logo onto them (HSV mask, minAreaRect, EMA smoothing). Seedance's own voice mispronounces Italian ("sotto" -> "bosso"): always replace it with clean TTS and re-check with Whisper.
 - Open: remaining 10 credits; scenarios 2-5 need more credits and (for 2 and 4) the real product facts first.
+
+## Strategia Nord (Meta AI, 2026-10-19): strategia da implementare
+Testo originale integrale (rumeno + italiano): `strategia-nord-meta-ai.md`. Qui le decisioni; in caso di conflitto vale questa sezione.
+
+### Sintesi dell'analisi
+- OneSpec vende TEMPO e precisione, non "un configuratore bello". Il Nord (Lombardia, Veneto, Piemonte, Friuli) compra precisione: parlare di "zero errori", "RAL 7016", "triplo vetro", "detrazione", mai di "piu economico".
+- Due prodotti da mostrare: widget sul sito del serramentista (cliente finale) e Configuratore Showroom su tablet (sopralluogo: prezzo, Bonus Casa, rateizzazione indicativa, PDF con il logo del serramentista).
+- CTA sempre verso il configuratore (link in bio), non verso una telefonata: il cliente del Nord vuole provare da solo.
+- Debolezze segnalate: prodotto giovane (changelog da settembre 2026), nessuna prova sociale reale ancora, 7 piani confusi, l'import del listino CSV e l'ostacolo principale per i piccoli.
+
+### Serie TikTok/Reels "Il metodo Milano" (3 video collegati + 1 corto)
+| # | Titolo | Pubblicazione | Messaggio | Voce |
+|---|---|---|---|---|
+| V1 | L'errore da 2.300 € | lunedi 20:30 | bicolore 7016 fuori / bianco dentro sbagliato in Excel; OneSpec lo porta in disegno, prezzo e PDF | narratore maschile |
+| V2 | Quanto costa il silenzio? | mercoledi 19:30 | rumore della citta, triplo vetro, "il prezzo lo configuri tu" | narratore maschile |
+| V3 | Chiuso in cucina | venerdi 20:00 | Showroom su tablet: prezzo, costo dopo Bonus Casa, rata indicativa, PDF subito | cliente (femminile) + serramentista (maschile) |
+| V1-15 | L'errore da 2.300 € (15 s) | Reels/Stories | versione corta del V1 | narratore maschile |
+
+- Link: mai nella descrizione; in BIO (pagina link del configuratore) e nel primo commento fissato: "👇 Configura la tua finestra in 60 secondi: link in bio".
+- Tra i video: duetti/stitch su contenuti infissi del Nord.
+- Copertine: V1 "ERRORE 2.300 €", V2 "IL SILENZIO HA UN PREZZO", V3 "9.200 € IN CUCINA". Testo leggibile in 0,5 s.
+- Didascalie V1: come da testo Meta, ma senza "un posatore di Verona" (vedi tabella) e con "Esempio".
+- Hashtag V1: #infissimilano #serramentibergamo #bicolore #ral7016 #preventivoinfissi #infissialuminio #serramentista #milano #torino #verona
+
+### Verifica dei claim (fatta sul codice il 2026-10-19)
+| Claim Meta | Stato | Uso nei video |
+|---|---|---|
+| Bicolore fuori/dentro con sovrapprezzo, nel disegno e nel PDF | VERIFICATO (pricing `bicolorPerM2Cents`, disegno, export/PDF, widget, showroom, editor B2B) | si |
+| Finitura Antracite RAL 7016 | VERIFICATO (catalogo `anthracite`, preset `ral7016`) | si |
+| Triplo vetro nel configuratore | VERIFICATO | si |
+| Una riga di codice / iframe, funziona su WordPress, Wix, ecc. | VERIFICATO (embed.js) | si |
+| Showroom: prezzo chiavi in mano, "Costo effettivo dopo Bonus Casa" 50 %, "Esempio di rateizzazione ... in 24 rate (indicativo)", PDF con logo | VERIFICATO | si, con l'etichetta "Esempio" |
+| "Rata 96 €/mese" su 9.200 € | ERRATO: la piattaforma mostra 9.200 / 24 = 383,33 €/mese (indicativo) | corretto in 383,33 € |
+| Bonus Casa 2026: 50 % prima casa / 36 % altre, niente sconto in fattura ne cessione | coerente con il PDF della piattaforma ("50 % prima casa / 36 % seconda casa in 10 quote") | si, con "prima casa" |
+| "Il collega di Verona", "appartamento in viale Monza", "cliente di Bologna" | FINTO (testimonianza/evento inventato) | rimosso: scenario dichiarato come esempio |
+| 75 dB -> 32 dB, PVC Salamander BluEvolution, CasaClima, "posa certificata" | NON VERIFICABILE / marchi terzi | rimosso |
+| "Il cliente non vede mai OneSpec" | vero solo da Level 2 in su (Level 1 ha il badge) | non usato nei video |
+| "Filtra i non clienti" / "chi ti scrive ha gia deciso" | promessa di marketing, non misurata | non usato |
+| Stime "20k-50k views, 15-20 richieste, successo 90 %" | stime Meta, non dati | non usate, solo obiettivi interni |
+
+### Raccomandazioni di business (stato)
+- Pagina "Chi siamo" con entita legale e persona reale: FATTO sul sito.
+- Semplificare i 7 piani (Level 3 a 79,90 € offre piu di Base a 97 €; "Piu scelto" su due piani): APERTO, decisione di Stefan.
+- Servizio "ti importo io il listino" (gratis nel pilota o una tantum): APERTO.
+- Referral 10 % (5 € a Level 1) giudicato troppo basso: APERTO (proposta: un mese gratis a entrambi).
+- Pilota in Toscana/Emilia (5-10 clienti, 3-5 casi studio), poi digitale nel Nord (Bergamo, Brescia, Veneto, Friuli), Sud dopo: APERTO.
+- Canali: associazioni (ANFIT, PVC Forum, UNICMI, FederlegnoArredo, CNA), distributori di profili/ferramenta, fiere (Made Expo, Klimahouse, SAIE, Key Energy), SEO su Bonus Casa 2026. Prospezione via e-mail/telefono solo nel rispetto di GDPR/ePrivacy e Registro delle Opposizioni.
+- Consiglio mio (da decidere): lo Showroom usa sempre il 50 %; aggiungere la scelta prima casa 50 % / altre 36 %.
+
+### Decisioni di produzione (motion design, 2026-10-19)
+- Formato 9:16 1080x1920 60 fps (Reels/TikTok). Stefan ha scritto "16:9" ma i Reels sono verticali (stesso errore gia confermato il 2026-10-10); versione 16:9 su richiesta.
+- Motion design 100 % grafico (nessun attore generato, nessun credito speso): pipeline HTML + Playwright + ffmpeg dell'EP1.
+- Voce gratuita Kokoro (locale): `im_nicola` narratore/serramentista, `if_sara` cliente; velocita 1,1; pronuncia "OneSpec" -> "Uàn Spèk". Controllo con Whisper su ogni video.
+- Sottotitoli karaoke bruciati, testi a schermo con i tempi di Meta, chip "Esempio" su ogni cifra o scenario.
+- Schermate: repliche fedeli del widget e dello Showroom (solo funzioni verificate sopra).
+- Nessuna scritta "generato con IA" nel video (Stefan usa l'etichetta della piattaforma se serve); mai dire che i video sono fatti dall'IA.
