@@ -1,0 +1,12 @@
+@font-face { font-family: SG; src: url(assets/spacegrotesk.woff2) format("woff2"); font-weight: 300 700; }
+@font-face { font-family: IN; src: url(assets/inter.woff2) format("woff2"); font-weight: 100 900; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1080px; height: 1920px; overflow: hidden; background: #070809; color: #f3f7f5; font-family: IN; }
+.abs { position: absolute; } .sg { font-family: SG; }
+.bg { position:absolute; inset:0; background: radial-gradient(90% 55% at 50% 30%, rgba(255,90,100,.30), transparent 70%), radial-gradient(80% 50% at 50% 100%, rgba(22,209,157,.18), transparent 70%), #070809; }
+.grid { position:absolute; left:-200px; right:-200px; bottom:-200px; height:900px; transform:perspective(700px) rotateX(62deg); transform-origin:50% 100%;
+  background-image:linear-gradient(rgba(22,209,157,.22) 2px, transparent 2px),linear-gradient(90deg, rgba(22,209,157,.22) 2px, transparent 2px); background-size:120px 120px;
+  -webkit-mask-image:linear-gradient(to top, #000 10%, transparent 80%); }
+.chip { display:inline-block; padding:12px 26px; border-radius:999px; font:700 30px IN; letter-spacing:.14em; text-transform:uppercase; }
+.logo { position:absolute; left:0; right:0; bottom:120px; text-align:center; }
+.logo img { height:70px; }

@@ -1,0 +1,219 @@
+/* ===================== Strategia Nord · V1 · L'errore da 2.300 € ===================== */
+const SPK = { M: { name: "", hex: "#16d19d" } };
+const C1 = LN[1].start - 0.15, C2 = LN[2].start - 0.1, C3 = LN[4].start - 0.12, C4 = LN[5].start - 0.12;
+const DUR = lineEnd(5) + 1.5;
+const CUTS = [C1, C2, C3, C4];
+
+/* ---------- S0 · hook: 2.300 € buttati per un colore sbagliato ---------- */
+function s0(t) {
+  let h = "";
+  const slam = at(0, "2.300");
+  const [sx, sy] = shake(t, slam, 22, 0.5);
+  h += `<div class="abs" style="inset:0;transform:translate(${sx}px,${sy}px)">`;
+  h += kText("L'ERRORE DA", t, { in: 0.12, out: C1 - 0.35, y: 440, size: 88, mode: "flip", stagger: 0.025, ls: 0.02 });
+  const cnt = Math.round(2300 * E.outExpo(prog(t, 0.28, slam + 0.45)));
+  const sp = E.outBack(prog(t, slam - 0.18, slam + 0.12), 1.8), out = E.inCubic(prog(t, C1 - 0.35, C1));
+  const pulse = 1 + 0.035 * Math.max(0, Math.sin((t - slam) * 9)) * (t > slam + 0.3 ? 1 : 0);
+  if (t > 0.25) h += `<div class="abs sg" style="left:0;right:0;top:560px;text-align:center;font-size:250px;font-weight:700;letter-spacing:-.05em;line-height:1;color:#ff5a64;text-shadow:0 0 80px rgba(255,90,100,.55);font-variant-numeric:tabular-nums;transform:scale(${(lerp(1.6, 1, sp) * pulse * (1 - out * 0.3)).toFixed(3)});opacity:${(Math.min(1, prog(t, 0.25, 0.4)) * (1 - out)).toFixed(3)}">${cnt.toLocaleString("it-IT")}&nbsp;€</div>`;
+  h += esempio(t, slam + 0.35, C1 - 0.3, 0, 870, true);
+  // banknotes thrown away on "buttati"
+  const bt = at(0, "buttati") - 0.1;
+  for (let i = 0; i < 12; i++) {
+    const p = prog(t, bt + i * 0.03, bt + i * 0.03 + 1.5);
+    if (p <= 0 || p >= 1) continue;
+    const vx = (rnd(i + 3) - 0.5) * 900, vy = -500 - rnd(i + 9) * 500;
+    const x = 540 + vx * p, y = 700 + vy * p + 2200 * p * p, r = (rnd(i) - 0.5) * 720 * p;
+    h += `<div class="abs" style="left:${x - 85}px;top:${y - 45}px;width:170px;height:90px;border-radius:10px;background:linear-gradient(135deg,#7fd1a4,#3f9a6c);border:3px solid #2f7a54;transform:rotate(${r}deg);opacity:${(1 - p).toFixed(3)};display:grid;place-items:center;font:700 40px SG;color:#1d5a3c">€</div>`;
+  }
+  // the wrong colour: 7016 swatch becomes white
+  const ca = at(0, "colore") - 0.15;
+  const k1 = E.outBack(prog(t, ca, ca + 0.4), 1.6), k2 = E.outBack(prog(t, ca + 0.35, ca + 0.75), 1.6);
+  const tile = (x, bg, label, k, col) => k <= 0 ? "" : `<div class="abs" style="left:${x}px;top:1010px;width:260px;transform:scale(${k});opacity:${(1 - out).toFixed(3)}">
+    <div style="height:200px;border-radius:26px;background:${bg};border:3px solid rgba(255,255,255,.18);box-shadow:0 30px 60px rgba(0,0,0,.45)"></div>
+    <div class="sg" style="margin-top:16px;text-align:center;font-size:40px;font-weight:700;color:${col}">${label}</div></div>`;
+  h += tile(170, "linear-gradient(145deg,#4b5257,#2f3438)", "RAL 7016", k1, "#f3f7f5");
+  const ar = E.outCubic(prog(t, ca + 0.2, ca + 0.55));
+  if (ar > 0) h += `<div class="abs sg" style="left:470px;top:1060px;width:140px;text-align:center;font-size:90px;color:#ff5a64;opacity:${(ar * (1 - out)).toFixed(3)};transform:translateX(${(1 - ar) * -40}px)">→</div>`;
+  h += tile(650, "linear-gradient(145deg,#ffffff,#e4e8e7)", "BIANCO", k2, "#ff5a64");
+  h += stamp(t, at(0, "sbagliato") + 0.05, "✕", 780, 1110, { size: 120, pad: "0 30px", bw: 0, rot: 0, out: C1 - 0.35 });
+  h += `</div>`;
+  return h;
+}
+
+/* ---------- S1 · story: bicolore 7016 fuori / bianco dentro, ordinato tutto bianco ---------- */
+function s1(t) {
+  let h = "";
+  const out = E.inCubic(prog(t, C2 - 0.3, C2));
+  h += kText("BICOLORE SBAGLIATO", t, { in: at(1, "bicolore") - 0.12, out: C2 - 0.35, y: 170, size: 82, mode: "rise", stagger: 0.018, hl: ["SBAGLIATO"], hlColor: "var(--red)", hlGlow: "rgba(255,90,100,.6)" });
+  const wrong = E.inOutCubic(prog(t, at(1, "tutti") - 0.05, at(1, "tutti") + 0.5));
+  const card = (x, a, title, fin, label, sub, xk) => {
+    const k = E.outBack(prog(t, a, a + 0.55), 1.4);
+    if (k <= 0) return "";
+    return `<div class="abs glass" style="left:${x}px;top:340px;width:440px;height:660px;border-radius:40px;transform:translateY(${(1 - k) * 160 - out * 60}px) scale(${lerp(0.85, 1, k)});opacity:${(Math.min(1, k * 1.3) * (1 - out)).toFixed(3)}">
+      <div class="tag" style="position:absolute;left:34px;top:30px;color:#8f979c">${title}</div>
+      <div style="position:absolute;left:60px;top:96px">${winSvg({ id: "c" + x, w: 320, h: 400, fin, frameW: 26, sashW: 20 })}</div>
+      <div class="sg" style="position:absolute;left:0;right:0;top:530px;text-align:center;font-size:46px;font-weight:700">${label}</div>
+      <div style="position:absolute;left:0;right:0;top:590px;text-align:center;font:600 24px IN;color:#8f979c">${sub}</div>
+      ${xk > 0 ? `<div class="abs" style="inset:0;border-radius:40px;border:5px solid rgba(255,90,100,${xk});box-shadow:0 0 60px rgba(255,90,100,${0.4 * xk})"></div>` : ""}
+    </div>`;
+  };
+  h += card(70, at(1, "RAL") - 0.25, "FUORI · ESTERNO", wrong > 0 ? mixFin("anthracite", "white", wrong) : "anthracite", wrong > 0.5 ? `<span style="color:#ff5a64">Bianco</span>` : "RAL 7016", wrong > 0.5 ? "doveva essere antracite" : "Antracite", wrong);
+  h += card(570, at(1, "bianco") - 0.2, "DENTRO · INTERNO", "white", "Bianco", "Bianco standard", 0);
+  // order spreadsheet typed out
+  const oa = at(1, "Ma") - 0.15, ok = E.outCubic(prog(t, oa, oa + 0.45));
+  if (ok > 0) {
+    const txt = "Finestra 2 ante 1200×1400 · Colore: BIANCO";
+    const n = Math.floor(txt.length * prog(t, oa + 0.2, at(1, "tutti") + 0.1));
+    const caret = Math.floor(t * 3) % 2 ? "|" : "&nbsp;";
+    h += `<div class="abs" style="left:70px;right:70px;top:1050px;border-radius:24px;overflow:hidden;background:#f4f6f7;box-shadow:0 30px 80px rgba(0,0,0,.5);transform:translateY(${(1 - ok) * 120}px);opacity:${(ok * (1 - out)).toFixed(3)}">
+      <div style="height:62px;background:#1f7a4d;display:flex;align-items:center;gap:14px;padding:0 24px;font:700 24px IN;color:#fff">▦ ordine-fornitore.xlsx</div>
+      <div style="display:flex;font:700 20px IN;color:#7c878b;background:#e9eef0;border-bottom:2px solid #c9d1d4"><div style="width:60px;text-align:center;padding:8px 0">A</div><div style="flex:1;padding:8px 14px;border-left:1px solid #c9d1d4">Descrizione</div></div>
+      <div style="display:flex;font:600 30px IN;color:#1f2a2e;min-height:76px;align-items:center"><div style="width:60px;text-align:center;color:#7c878b;font-size:22px">2</div>
+        <div style="flex:1;padding:0 14px;border-left:1px solid #d7dee1;white-space:nowrap;overflow:hidden">${txt.slice(0, n).replace("BIANCO", `<b style="color:#d6333f">BIANCO</b>`)}${n < txt.length ? caret : ""}</div></div></div>`;
+  }
+  h += stamp(t, at(1, "bianchi") - 0.05, "ORDINATO: TUTTO BIANCO", 540, 690, { size: 62, out: C2 - 0.35 });
+  return h;
+}
+
+/* ---------- S2 · pain: risultato? danno 2.300 €, lo paghi tu ---------- */
+function s2(t) {
+  let h = "";
+  const out = E.inCubic(prog(t, C3 - 0.3, C3));
+  h += kText("Risultato?", t, { in: at(2, "Risultato") - 0.08, out: at(3, "danno") - 0.3, y: 640, size: 150, mode: "slam", stagger: 0.03 });
+  const da = at(3, "danno") - 0.1;
+  h += kText("DANNO", t, { in: da, out: C3 - 0.35, y: 210, size: 70, mode: "rise", ls: 0.12, color: "#ff8a92" });
+  const nk = E.outBack(prog(t, at(3, "2.300") - 0.1, at(3, "2.300") + 0.2), 1.8);
+  const pul = t > at(3, "2.300") + 0.25 ? 1 + 0.04 * Math.max(0, Math.sin((t - at(3, "2.300")) * 10)) : 1;
+  const [sx, sy] = shake(t, at(3, "2.300") + 0.05, 16, 0.4);
+  if (nk > 0) h += `<div class="abs sg" style="left:0;right:0;top:300px;text-align:center;font-size:200px;font-weight:700;letter-spacing:-.05em;color:#ff5a64;text-shadow:0 0 80px rgba(255,90,100,.6);transform:translate(${sx}px,${sy}px) scale(${(lerp(2, 1, nk) * pul).toFixed(3)});opacity:${(Math.min(1, nk * 2) * (1 - out)).toFixed(3)}">2.300&nbsp;€</div>`;
+  h += esempio(t, at(3, "2.300") + 0.3, C3 - 0.3, 0, 540, true);
+  // the bill
+  const ia = at(3, "euro") - 0.2, ik = E.outBack(prog(t, ia, ia + 0.6), 1.2);
+  if (ik > 0) {
+    const rows = [["Profili esterni RAL 7016 (riordino)", 1540], ["Smontaggio e nuova posa", 520], ["Trasporto", 240]];
+    h += `<div class="abs" style="left:150px;width:780px;top:640px;border-radius:26px;background:#fbfcfc;color:#1f2a2e;padding:38px 44px;box-shadow:0 40px 100px rgba(0,0,0,.6);transform:translateY(${(1 - ik) * 300}px) rotate(${(1 - ik) * 6 - 1.5}deg);opacity:${(Math.min(1, ik * 1.5) * (1 - out)).toFixed(3)}">
+      <div style="display:flex;justify-content:space-between;align-items:center"><div class="sg" style="font-size:36px;font-weight:700">Rifacimento ante</div><div style="font:700 20px IN;color:#d6333f;letter-spacing:.12em">COLORE ERRATO</div></div>
+      <div style="height:2px;background:#e3e8ea;margin:22px 0"></div>
+      ${rows.map(([l, v], i) => { const rk = prog(t, ia + 0.4 + i * 0.12, ia + 0.6 + i * 0.12); return `<div style="display:flex;justify-content:space-between;font:600 28px IN;padding:10px 0;opacity:${rk}"><span>${l}</span><span style="font-variant-numeric:tabular-nums">${eur(v)}</span></div>`; }).join("")}
+      <div style="height:2px;background:#1f2a2e;margin:18px 0"></div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font:700 28px IN">Totale</span><span class="sg" style="font-size:52px;font-weight:700;color:#d6333f">${eur(2300)}</span></div>
+    </div>`;
+  }
+  h += stamp(t, at(3, "paghi") - 0.05, "A CARICO TUO", 700, 1130, { size: 58, rot: -10, out: C3 - 0.35 });
+  return h;
+}
+
+/* ---------- S3 · solution: the widget carries 7016 outside / white inside into drawing, price and PDF ---------- */
+const PH = { x: 540, y: 880, s: 0.8 };
+const P2S = (px, py) => [PH.x + (18 + px - 350) * PH.s, PH.y + (18 + py - 620) * PH.s];
+function tap(t, ta, px, py) {
+  const [x, y] = P2S(px, py);
+  let h = "";
+  const p = prog(t, ta, ta + 0.5);
+  if (p > 0 && p < 1) h += `<div class="abs" style="left:${x - 90 * p}px;top:${y - 90 * p}px;width:${180 * p}px;height:${180 * p}px;border-radius:50%;border:5px solid rgba(255,255,255,${1 - p})"></div>`;
+  const m = prog(t, ta - 0.45, ta), lv = prog(t, ta + 0.15, ta + 0.5);
+  if (m > 0 && lv < 1) {
+    const e = E.inOutCubic(m);
+    h += `<div class="abs" style="left:${x - 10 + (1 - e) * 120}px;top:${y - 6 + (1 - e) * 160}px;font-size:84px;opacity:${(Math.min(1, m * 3) * (1 - lv)).toFixed(3)};transform:scale(${t > ta && t < ta + 0.12 ? 0.86 : 1});filter:drop-shadow(0 8px 14px rgba(0,0,0,.6))">👆</div>`;
+  }
+  return h;
+}
+function s3(t) {
+  let h = "";
+  const out = E.inCubic(prog(t, C4 - 0.3, C4));
+  h += kText("SOLUZIONE?", t, { in: C3 + 0.08, out: at(4, "scegli") - 0.1, y: 150, size: 96, mode: "slam", stagger: 0.025, color: "#16d19d" });
+  h += kText("OneSpec calcola tutto", t, { in: at(4, "scegli") + 0.05, out: C4 - 0.35, y: 130, size: 76, mode: "rise", stagger: 0.016, hl: ["OneSpec"] });
+  const sub = E.outBack(prog(t, at(4, "bianco") + 0.1, at(4, "bianco") + 0.5), 1.6) * (1 - out);
+  if (sub > 0) h += `<div class="abs" style="left:0;right:0;top:232px;text-align:center;opacity:${Math.min(1, sub * 1.5)};transform:scale(${lerp(0.8, 1, sub)})"><span style="display:inline-block;padding:14px 28px;border-radius:999px;background:rgba(22,209,157,.12);border:2px solid rgba(22,209,157,.55);font:700 32px IN;color:#dff8ef">Fuori <b style="color:#16d19d">7016</b> · Dentro <b style="color:#fff">bianco</b> = automatico</span></div>`;
+  // widget state on the voice
+  const tRal = at(4, "RAL"), tTog = at(4, "e", 0), tWhite = at(4, "bianco"), tDraw = at(4, "disegno"), tPrice = at(4, "prezzo"), tPdf = at(4, "PDF");
+  const outK = E.outCubic(prog(t, tRal + 0.05, tRal + 0.45));
+  const bic = prog(t, tTog + 0.05, tTog + 0.4);
+  const innSel = t >= tWhite + 0.05 ? 0 : 1;
+  const face = E.inOutCubic(prog(t, tDraw - 0.35, tDraw + 0.05)) * (1 - E.inOutCubic(prog(t, tPdf + 0.6, tPdf + 1.0)));
+  let price = 1180;
+  price = lerp(price, 1265, E.outCubic(prog(t, tRal + 0.1, tRal + 0.7)));
+  price = lerp(price, 1298, E.outCubic(prog(t, tWhite + 0.1, tWhite + 0.7)));
+  const st = {
+    out: outK > 0 ? 1 : 0, outFrom: 0, outK: outK > 0 ? outK : 1, bic, inn: innSel, innK: innSel === 0 ? E.outCubic(prog(t, tWhite + 0.05, tWhite + 0.4)) : 1,
+    compact: true, face, price, hlDraw: Math.sin(Math.PI * prog(t, tDraw - 0.1, tDraw + 0.7)), hlPrice: Math.sin(Math.PI * prog(t, tPrice - 0.1, tPrice + 0.7)),
+  };
+  if (outK <= 0) { st.out = 0; delete st.outFrom; }
+  const pk = E.outBack(prog(t, C3 + 0.05, C3 + 0.75), 1.15);
+  if (pk > 0) h += phone(PH.x, PH.y + (1 - pk) * 900 - out * 80, PH.s, (1 - pk) * 8, widgetScreen(t, st), 1 - out);
+  // taps: outside swatch 7016, bicolour toggle, inside swatch white
+  h += tap(t, tRal, 28 + 208 + 96, 608 + 40 + 36);
+  h += tap(t, tTog, 28 + 38, 788 + 22);
+  h += tap(t, tWhite, 28 + 96, 852 + 40 + 36);
+  h += esempio(t, C3 + 0.8, C4 - 0.3, 790, 1395);
+  // PDF sheet slides out
+  const pa = tPdf - 0.15, pdk = E.outBack(prog(t, pa, pa + 0.6), 1.2);
+  if (pdk > 0) {
+    const x = lerp(560, 560, pdk), y = lerp(900, 540, pdk);
+    h += `<div class="abs" style="left:${x}px;top:${y}px;width:470px;border-radius:14px;background:#fff;color:#1f2a2e;padding:26px 28px;box-shadow:0 40px 100px rgba(0,0,0,.65);transform:rotate(${lerp(-12, 4, pdk)}deg) scale(${lerp(0.4, 1, pdk)});transform-origin:0 100%;opacity:${(Math.min(1, pdk * 2) * (1 - out)).toFixed(3)}">
+      <div style="display:flex;justify-content:space-between;align-items:center"><div style="display:flex;align-items:center;gap:10px"><div style="width:36px;height:36px;border-radius:10px;background:#2a6df4;display:grid;place-items:center;font:700 16px SG;color:#fff">SR</div><div style="font:700 20px SG">Serramenti Rossi</div></div><div style="font:700 15px IN;color:#d6333f;border:2px solid #d6333f;border-radius:6px;padding:2px 8px">PDF</div></div>
+      <div style="font:700 26px SG;margin-top:16px">Preventivo</div>
+      <div style="display:flex;gap:18px;margin-top:14px;align-items:center">
+        <div style="flex:none">${winSvg({ id: "pdfw", w: 120, h: 140, fin: "anthracite", frameW: 10, sashW: 8, handles: false })}</div>
+        <div style="font:600 17px IN;line-height:1.45;color:#3b4649">Finestra 2 ante<br>1200 × 1400 mm<br>Doppio vetro</div></div>
+      <div style="margin-top:14px;padding:10px 12px;border-radius:10px;background:rgba(22,209,157,${0.12 + 0.2 * Math.sin(Math.PI * prog(t, pa + 0.5, pa + 1.3))});border-left:5px solid #16d19d;font:600 17px IN;line-height:1.4"><b>Colore:</b> Antracite RAL 7016 (esterno) / Bianco standard (interno)</div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:14px;border-top:2px solid #1f2a2e;padding-top:10px"><span style="font:700 18px IN">Totale stimato IVA incl.</span><span class="sg" style="font-size:30px;font-weight:700">${eur(1298)}</span></div>
+    </div>`;
+  }
+  h += stamp(t, at(4, "automatico") + 0.05, "✓ AUTOMATICO", 330, 1200, { size: 54, rot: -4, color: "#16d19d", out: C4 - 0.35 });
+  return h;
+}
+
+/* ---------- S4 · CTA: basta Excel, provalo adesso, link in bio ---------- */
+function s4(t) {
+  let h = "";
+  h += kText("BASTA EXCEL", t, { in: at(5, "Basta") - 0.06, y: 210, size: 128, mode: "slam", stagger: 0.025, hl: ["EXCEL"], hlColor: "var(--red)", hlGlow: "rgba(255,90,100,.6)" });
+  // generic spreadsheet icon, struck through
+  const ik = E.outBack(prog(t, at(5, "Excel") - 0.1, at(5, "Excel") + 0.3), 1.6), strike = E.inOutCubic(prog(t, at(5, "Excel") + 0.25, at(5, "Excel") + 0.55));
+  if (ik > 0) h += `<div class="abs" style="left:440px;top:380px;width:200px;height:200px;transform:scale(${ik})">
+    <div style="position:absolute;inset:0;border-radius:30px;background:#e9eef0;border:4px solid #c9d1d4;overflow:hidden;opacity:.9">${Array.from({ length: 5 }, (_, r) => `<div style="position:absolute;left:0;right:0;top:${r * 40}px;height:2px;background:#c9d1d4"></div>`).join("")}${[66, 132].map((x) => `<div style="position:absolute;top:0;bottom:0;left:${x}px;width:2px;background:#c9d1d4"></div>`).join("")}
+      <div style="position:absolute;left:0;right:0;top:0;height:40px;background:#1f7a4d"></div></div>
+    <div style="position:absolute;left:-30px;top:96px;width:${260 * strike}px;height:16px;border-radius:8px;background:#ff5a64;transform:rotate(-35deg);transform-origin:0 50%;box-shadow:0 0 30px rgba(255,90,100,.7)"></div></div>`;
+  h += endCard(t, at(5, "Provalo") - 0.35, { cy: 800 });
+  h += kText("Provalo adesso", t, { in: at(5, "Provalo") - 0.05, y: 1000, size: 96, mode: "rise", stagger: 0.02 });
+  const lb = E.outBack(prog(t, at(5, "link") - 0.1, at(5, "link") + 0.3), 1.7);
+  if (lb > 0) h += `<div class="abs" style="left:240px;top:1130px;width:600px;height:118px;border-radius:999px;background:linear-gradient(135deg,#16d19d,#0fbf8f);display:grid;place-items:center;font:700 52px SG;color:#04241b;transform:scale(${lb * (1 + 0.025 * Math.sin(t * 6))});box-shadow:0 0 ${60 + Math.sin(t * 4) * 20}px var(--mintGlow)">Link in bio 👇</div>`;
+  const url = E.outCubic(prog(t, at(5, "bio") + 0.2, at(5, "bio") + 0.6));
+  if (url > 0) h += `<div class="abs sg" style="left:0;right:0;top:1290px;text-align:center;font-size:50px;font-weight:700;opacity:${url}">onespec<span style="color:var(--mint)">.eu</span></div>`;
+  return h;
+}
+
+/* ===================== compose ===================== */
+function frame(t) {
+  const red = t < C1 || (t >= C2 && t < C3);
+  let h = background(t, red ? "red" : "mint");
+  const bt = (t % 0.5) / 0.5, beat = t > C3 ? 1 + 0.006 * Math.exp(-bt * 9) : 1;
+  h += `<div class="abs" style="inset:0;transform:scale(${beat.toFixed(4)})">`;
+  if (t < C1 + 0.15) h += s0(t);
+  if (t >= C1 - 0.1 && t < C2 + 0.15) h += s1(t);
+  if (t >= C2 - 0.1 && t < C3 + 0.15) h += s2(t);
+  if (t >= C3 - 0.1 && t < C4 + 0.15) h += s3(t);
+  if (t >= C4 - 0.1) h += s4(t);
+  h += `</div>`;
+  CAP_Y = t >= C4 ? 1500 : 1450;
+  h += captions(t);
+  for (const c of CUTS) {
+    const p = prog(t, c - 0.12, c + 0.16);
+    if (p > 0 && p < 1) {
+      const k = Math.sin(p * Math.PI);
+      h += `<div class="abs" style="inset:0;background:linear-gradient(180deg, transparent, rgba(22,209,157,${0.2 * k}), transparent);transform:translateY(${(p - 0.5) * 900}px)"></div>`;
+    }
+  }
+  h += flash(t, at(0, "2.300"), 0.22) + flash(t, at(1, "bianchi"), 0.12) + flash(t, at(3, "2.300"), 0.14) + flash(t, at(5, "Basta"), 0.16);
+  const fo = prog(t, DUR - 0.5, DUR);
+  if (fo > 0) h += `<div class="abs" style="inset:0;background:#000;opacity:${fo}"></div>`;
+  h += `<div class="abs" style="left:0;top:0;height:8px;width:${(t / DUR) * 100}%;background:linear-gradient(90deg,var(--mint),var(--cyan))"></div>`;
+  h += `<div class="abs" style="inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(0,0,0,.55))"></div>`;
+  return h;
+}
+window.DUR = DUR;
+window.renderAt = (t) => { document.getElementById("stage").innerHTML = frame(t); };
+renderAt(0);
+</script>
+</body>
+</html>

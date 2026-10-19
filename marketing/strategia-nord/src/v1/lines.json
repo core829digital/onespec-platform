@@ -1,0 +1,42 @@
+{
+ "speed": 1.08,
+ "lead": 0.35,
+ "lines": [
+  {
+   "who": "M",
+   "say": "Duemilatrecento euro, buttati. Per un colore sbagliato.",
+   "show": "2.300 euro, buttati. Per un colore sbagliato.",
+   "gap": 0.35
+  },
+  {
+   "who": "M",
+   "say": "Infissi bicolore: RAL settemilasedici fuori, bianco dentro. Ma li hanno ordinati tutti bianchi.",
+   "show": "Infissi bicolore: RAL 7016 fuori, bianco dentro. Ma li hanno ordinati tutti bianchi.",
+   "gap": 0.3
+  },
+  {
+   "who": "M",
+   "say": "Risultato?",
+   "show": "Risultato?",
+   "gap": 0.5
+  },
+  {
+   "who": "M",
+   "say": "Un danno da duemilatrecento euro. E lo paghi tu.",
+   "show": "Un danno da 2.300 euro. E lo paghi tu.",
+   "gap": 0.55
+  },
+  {
+   "who": "M",
+   "say": "Con Uàn Spèk scegli fuori RAL settemilasedici, e dentro bianco: disegno, prezzo e pi di effe lo riportano in automatico.",
+   "show": "Con OneSpec scegli fuori RAL 7016, e dentro bianco: disegno, prezzo e PDF lo riportano in automatico.",
+   "gap": 0.4
+  },
+  {
+   "who": "M",
+   "say": "Basta Excel. Provalo adesso: link in bio.",
+   "show": "Basta Excel. Provalo adesso: link in bio.",
+   "gap": 0.0
+  }
+ ]
+}

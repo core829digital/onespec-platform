@@ -1,0 +1,9 @@
+*.wav
+src/*/vo/
+src/*/prev/
+src/*/qa/
+src/*/s?.mp4
+src/*/s?.log
+src/*/ep.html
+src/*/assets
+src/*/timing.js

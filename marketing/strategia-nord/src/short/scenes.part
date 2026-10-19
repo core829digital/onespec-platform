@@ -1,0 +1,106 @@
+/* ===================== Strategia Nord · V1 corto (15 s, Reels/Stories) ===================== */
+const SPK = { M: { name: "", hex: "#16d19d" } };
+const C1 = LN[1].start - 0.12, C2 = LN[2].start - 0.1;
+const DUR = lineEnd(2) + 1.2;
+const CUTS = [C1, C2];
+function s0(t) {
+  let h = "";
+  const slam = at(0, "2.300"), out = E.inCubic(prog(t, C1 - 0.3, C1));
+  const [sx, sy] = shake(t, slam, 22, 0.5);
+  h += `<div class="abs" style="inset:0;transform:translate(${sx}px,${sy}px);opacity:${1 - out}">`;
+  h += kText("L'ERRORE DA", t, { in: 0.05, y: 360, size: 84, mode: "flip", stagger: 0.022, ls: 0.02 });
+  const cnt = Math.round(2300 * E.outExpo(prog(t, 0.15, slam + 0.4)));
+  const sp = E.outBack(prog(t, slam - 0.15, slam + 0.12), 1.8);
+  h += `<div class="abs sg" style="left:0;right:0;top:470px;text-align:center;font-size:250px;font-weight:700;letter-spacing:-.05em;line-height:1;color:#ff5a64;text-shadow:0 0 80px rgba(255,90,100,.55);font-variant-numeric:tabular-nums;transform:scale(${lerp(1.6, 1, sp).toFixed(3)});opacity:${Math.min(1, prog(t, 0.15, 0.3))}">${cnt.toLocaleString("it-IT")}&nbsp;€</div>`;
+  h += esempio(t, slam + 0.3, 99, 0, 770, true);
+  const ca = at(0, "bicolore") - 0.15;
+  const k1 = E.outBack(prog(t, ca, ca + 0.4), 1.6), k2 = E.outBack(prog(t, ca + 0.3, ca + 0.7), 1.6);
+  const tile = (x, bg, label, k, col) => k <= 0 ? "" : `<div class="abs" style="left:${x}px;top:900px;width:260px;transform:scale(${k})">
+    <div style="height:200px;border-radius:26px;background:${bg};border:3px solid rgba(255,255,255,.18);box-shadow:0 30px 60px rgba(0,0,0,.45)"></div>
+    <div class="sg" style="margin-top:16px;text-align:center;font-size:40px;font-weight:700;color:${col}">${label}</div></div>`;
+  h += tile(170, "linear-gradient(145deg,#4b5257,#2f3438)", "RAL 7016", k1, "#f3f7f5");
+  const ar = E.outCubic(prog(t, ca + 0.2, ca + 0.55));
+  if (ar > 0) h += `<div class="abs sg" style="left:470px;top:950px;width:140px;text-align:center;font-size:90px;color:#ff5a64;opacity:${ar}">→</div>`;
+  h += tile(650, "linear-gradient(145deg,#ffffff,#e4e8e7)", "BIANCO", k2, "#ff5a64");
+  h += stamp(t, at(0, "tutto") - 0.05, "ORDINATO: TUTTO BIANCO", 540, 1250, { size: 58 });
+  h += `</div>`;
+  return h;
+}
+const PH = { x: 540, y: 880, s: 0.8 };
+const P2S = (px, py) => [PH.x + (18 + px - 350) * PH.s, PH.y + (18 + py - 620) * PH.s];
+function tap(t, ta, px, py) {
+  const [x, y] = P2S(px, py);
+  let h = "";
+  const p = prog(t, ta, ta + 0.5);
+  if (p > 0 && p < 1) h += `<div class="abs" style="left:${x - 90 * p}px;top:${y - 90 * p}px;width:${180 * p}px;height:${180 * p}px;border-radius:50%;border:5px solid rgba(255,255,255,${1 - p})"></div>`;
+  const m = prog(t, ta - 0.45, ta), lv = prog(t, ta + 0.15, ta + 0.5);
+  if (m > 0 && lv < 1) {
+    const e = E.inOutCubic(m);
+    h += `<div class="abs" style="left:${x - 10 + (1 - e) * 120}px;top:${y - 6 + (1 - e) * 160}px;font-size:84px;opacity:${(Math.min(1, m * 3) * (1 - lv)).toFixed(3)};transform:scale(${t > ta && t < ta + 0.12 ? 0.86 : 1});filter:drop-shadow(0 8px 14px rgba(0,0,0,.6))">👆</div>`;
+  }
+  return h;
+}
+function s1(t) {
+  let h = "";
+  const out = E.inCubic(prog(t, C2 - 0.3, C2));
+  h += kText("OneSpec calcola tutto", t, { in: at(1, "Con") - 0.05, out: C2 - 0.35, y: 130, size: 76, mode: "rise", stagger: 0.016, hl: ["OneSpec"] });
+  const tRal = at(1, "RAL"), tTog = at(1, "dentro") - 0.3, tWhite = at(1, "bianco"), tPrice = at(1, "prezzo"), tPdf = at(1, "PDF");
+  const outK = E.outCubic(prog(t, tRal + 0.05, tRal + 0.45));
+  const bic = prog(t, tTog + 0.05, tTog + 0.35);
+  const innSel = t >= tWhite + 0.05 ? 0 : 1;
+  const face = E.inOutCubic(prog(t, tWhite + 0.35, tWhite + 0.7)) * (1 - E.inOutCubic(prog(t, tPdf + 0.4, tPdf + 0.8)));
+  let price = 1180;
+  price = lerp(price, 1265, E.outCubic(prog(t, tRal + 0.1, tRal + 0.6)));
+  price = lerp(price, 1298, E.outCubic(prog(t, tWhite + 0.1, tWhite + 0.6)));
+  const st = { compact: true, out: outK > 0 ? 1 : 0, outFrom: 0, outK: outK > 0 ? outK : 1, bic, inn: innSel, innK: innSel === 0 ? E.outCubic(prog(t, tWhite + 0.05, tWhite + 0.4)) : 1,
+    face, price, hlPrice: Math.sin(Math.PI * prog(t, tPrice - 0.1, tPrice + 0.6)) };
+  if (outK <= 0) { st.out = 0; delete st.outFrom; }
+  const pk = E.outBack(prog(t, C1 + 0.02, C1 + 0.6), 1.15);
+  if (pk > 0) h += phone(PH.x, PH.y + (1 - pk) * 900 - out * 80, PH.s, (1 - pk) * 8, widgetScreen(t, st), 1 - out);
+  h += tap(t, tRal, 28 + 208 + 96, 608 + 40 + 36);
+  h += tap(t, tTog, 28 + 38, 788 + 22);
+  h += tap(t, tWhite, 28 + 96, 852 + 40 + 36);
+  h += esempio(t, C1 + 0.6, C2 - 0.3, 790, 1395);
+  const pa = tPdf - 0.15, pdk = E.outBack(prog(t, pa, pa + 0.5), 1.2);
+  if (pdk > 0) h += `<div class="abs" style="left:560px;top:${lerp(900, 560, pdk)}px;width:440px;border-radius:14px;background:#fff;color:#1f2a2e;padding:22px 26px;box-shadow:0 40px 100px rgba(0,0,0,.65);transform:rotate(${lerp(-12, 4, pdk)}deg) scale(${lerp(0.4, 1, pdk)});transform-origin:0 100%;opacity:${Math.min(1, pdk * 2) * (1 - out)}">
+      <div style="display:flex;justify-content:space-between"><div style="font:700 20px SG">Serramenti Rossi</div><div style="font:700 15px IN;color:#d6333f;border:2px solid #d6333f;border-radius:6px;padding:2px 8px">PDF</div></div>
+      <div style="font:700 24px SG;margin-top:12px">Preventivo</div>
+      <div style="margin-top:12px;padding:10px 12px;border-radius:10px;background:rgba(22,209,157,.18);border-left:5px solid #16d19d;font:600 17px IN;line-height:1.4"><b>Colore:</b> Antracite RAL 7016 (esterno) / Bianco standard (interno)</div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:12px;border-top:2px solid #1f2a2e;padding-top:8px"><span style="font:700 17px IN">Totale stimato IVA incl.</span><span class="sg" style="font-size:28px;font-weight:700">${eur(1298)}</span></div></div>`;
+  h += stamp(t, at(1, "automatico") + 0.05, "✓ AUTOMATICO", 330, 1200, { size: 54, rot: -4, color: "#16d19d", out: C2 - 0.35 });
+  return h;
+}
+function s2(t) {
+  let h = "";
+  h += kText("BASTA EXCEL", t, { in: at(2, "Basta") - 0.06, y: 260, size: 128, mode: "slam", stagger: 0.025, hl: ["EXCEL"], hlColor: "var(--red)", hlGlow: "rgba(255,90,100,.6)" });
+  h += endCard(t, at(2, "Basta") + 0.1, { cy: 700 });
+  const lb = E.outBack(prog(t, at(2, "Link") - 0.1, at(2, "Link") + 0.3), 1.7);
+  if (lb > 0) h += `<div class="abs" style="left:240px;top:1000px;width:600px;height:118px;border-radius:999px;background:linear-gradient(135deg,#16d19d,#0fbf8f);display:grid;place-items:center;font:700 52px SG;color:#04241b;transform:scale(${lb * (1 + 0.025 * Math.sin(t * 6))});box-shadow:0 0 ${60 + Math.sin(t * 4) * 20}px var(--mintGlow)">Link in bio 👇</div>`;
+  const url = E.outCubic(prog(t, at(2, "bio") + 0.15, at(2, "bio") + 0.5));
+  if (url > 0) h += `<div class="abs sg" style="left:0;right:0;top:1160px;text-align:center;font-size:50px;font-weight:700;opacity:${url}">onespec<span style="color:var(--mint)">.eu</span></div>`;
+  return h;
+}
+function frame(t) {
+  let h = background(t, t < C1 ? "red" : "mint");
+  if (t < C1 + 0.15) h += s0(t);
+  if (t >= C1 - 0.1 && t < C2 + 0.15) h += s1(t);
+  if (t >= C2 - 0.1) h += s2(t);
+  CAP_Y = t >= C2 ? 1460 : 1450;
+  h += captions(t);
+  for (const c of CUTS) {
+    const p = prog(t, c - 0.12, c + 0.16);
+    if (p > 0 && p < 1) { const k = Math.sin(p * Math.PI); h += `<div class="abs" style="inset:0;background:linear-gradient(180deg, transparent, rgba(22,209,157,${0.2 * k}), transparent);transform:translateY(${(p - 0.5) * 900}px)"></div>`; }
+  }
+  h += flash(t, at(0, "2.300"), 0.22) + flash(t, at(2, "Basta"), 0.16);
+  const fo = prog(t, DUR - 0.4, DUR);
+  if (fo > 0) h += `<div class="abs" style="inset:0;background:#000;opacity:${fo}"></div>`;
+  h += `<div class="abs" style="left:0;top:0;height:8px;width:${(t / DUR) * 100}%;background:linear-gradient(90deg,var(--mint),var(--cyan))"></div>`;
+  h += `<div class="abs" style="inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(0,0,0,.55))"></div>`;
+  return h;
+}
+window.DUR = DUR;
+window.renderAt = (t) => { document.getElementById("stage").innerHTML = frame(t); };
+renderAt(0);
+</script>
+</body>
+</html>

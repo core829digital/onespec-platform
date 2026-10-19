@@ -1,0 +1,36 @@
+{
+ "speed": 1.08,
+ "lead": 0.35,
+ "lines": [
+  {
+   "who": "M",
+   "say": "Quanto costa il silenzio, in città?",
+   "show": "Quanto costa il silenzio, in città?",
+   "gap": 0.4
+  },
+  {
+   "who": "M",
+   "say": "Traffico, clacson, il tram sotto casa. Con le finestre vecchie, il rumore entra.",
+   "show": "Traffico, clacson, il tram sotto casa. Con le finestre vecchie, il rumore entra.",
+   "gap": 0.35
+  },
+  {
+   "who": "M",
+   "say": "Con finestre nuove, la differenza si sente.",
+   "show": "Con finestre nuove, la differenza si sente.",
+   "gap": 0.45
+  },
+  {
+   "who": "M",
+   "say": "Quanto costa? Non te lo dico io: lo configuri tu. Misure, vetro, colore, e il prezzo appare subito.",
+   "show": "Quanto costa? Non te lo dico io: lo configuri tu. Misure, vetro, colore, e il prezzo appare subito.",
+   "gap": 0.4
+  },
+  {
+   "who": "M",
+   "say": "In un minuto, dal telefono. Link in bio.",
+   "show": "In un minuto, dal telefono. Link in bio.",
+   "gap": 0.0
+  }
+ ]
+}

@@ -1,0 +1,202 @@
+/* ===================== Strategia Nord · V2 · Quanto costa il silenzio? ===================== */
+const SPK = { M: { name: "", hex: "#16d19d" } };
+const C1 = LN[1].start - 0.15, C2 = LN[2].start - 0.12, C3 = LN[3].start - 0.12, C4 = LN[4].start - 0.12;
+const DUR = lineEnd(4) + 1.5;
+const CUTS = [C1, C2, C3, C4];
+const AMB = "#ffc93c";
+
+/** Noise waveform across the screen; level 0..1 (loud = tall jagged amber/red, quiet = flat mint). */
+function noiseWave(t, y, level, w = 1080) {
+  const pts = [];
+  for (let i = 0; i <= 120; i++) {
+    const x = (i / 120) * w;
+    const n = Math.sin(i * 0.9 + t * 23) * 0.5 + Math.sin(i * 2.3 - t * 31) * 0.3 + (rnd(i + Math.floor(t * 30) * 7) - 0.5) * 0.9;
+    pts.push(`${x.toFixed(1)},${(y + n * 150 * level + Math.sin(i * 0.2 + t * 3) * 6).toFixed(1)}`);
+  }
+  const col = level > 0.35 ? (level > 0.7 ? "#ff5a64" : AMB) : "#16d19d";
+  return `<svg class="abs" style="left:0;top:0" width="1080" height="1920"><polyline points="${pts.join(" ")}" fill="none" stroke="${col}" stroke-width="7" stroke-linejoin="round" style="filter:drop-shadow(0 0 18px ${col})"/></svg>`;
+}
+/** Level meter (no numbers: we never claim a measurement). */
+function meter(t, x, y, level, op = 1) {
+  const bars = 12;
+  let h = `<div class="abs" style="left:${x}px;top:${y}px;opacity:${op};display:flex;gap:10px;align-items:flex-end;height:260px">`;
+  for (let i = 0; i < bars; i++) {
+    const on = i / bars < level + Math.sin(t * 17 + i) * 0.04;
+    const col = i < 4 ? "#16d19d" : i < 8 ? AMB : "#ff5a64";
+    h += `<div style="width:30px;height:${60 + i * 16}px;border-radius:8px;background:${on ? col : "rgba(255,255,255,.08)"};box-shadow:${on ? `0 0 18px ${col}88` : "none"}"></div>`;
+  }
+  return h + `</div>`;
+}
+
+/* ---------- S0 · hook ---------- */
+function s0(t) {
+  let h = "";
+  const out = E.inCubic(prog(t, C1 - 0.3, C1));
+  h += `<div class="abs" style="inset:0;opacity:${(1 - out) * Math.min(1, t * 3)}">${noiseWave(t, 1180, 0.95)}</div>`;
+  const [sx, sy] = shake(t, at(0, "silenzio"), 14, 0.6);
+  const jit = t < C1 ? [Math.sin(t * 61) * 3, Math.cos(t * 53) * 3] : [0, 0];
+  h += `<div class="abs" style="inset:0;transform:translate(${sx + jit[0]}px,${sy + jit[1]}px)">`;
+  h += kText("QUANTO COSTA", t, { in: at(0, "Quanto") - 0.1, out: C1 - 0.35, y: 470, size: 112, mode: "slam", stagger: 0.025 });
+  h += kText("IL SILENZIO?", t, { in: at(0, "silenzio") - 0.1, out: C1 - 0.35, y: 600, size: 132, mode: "slam", stagger: 0.03, color: AMB, extra: `text-shadow:0 0 60px rgba(255,201,60,.55)` });
+  h += kText("in città", t, { in: at(0, "città") - 0.05, out: C1 - 0.35, y: 770, size: 64, mode: "rise", color: "#c9d1d4", weight: 500 });
+  h += `</div>`;
+  return h;
+}
+
+/* ---------- S1 · the city gets in through old windows ---------- */
+function skyline(t, op) {
+  let h = `<div class="abs" style="left:0;right:0;bottom:0;height:520px;opacity:${op}">`;
+  for (let i = 0; i < 14; i++) {
+    const w = 60 + rnd(i) * 90, hh = 160 + rnd(i + 5) * 300, x = (i / 14) * 1080 - 20;
+    h += `<div class="abs" style="left:${x}px;bottom:0;width:${w}px;height:${hh}px;background:linear-gradient(180deg,#141b1e,#0b0f10);border-top:2px solid rgba(255,255,255,.06)">${Array.from({ length: 6 }, (_, k) => `<div style="position:absolute;left:${12 + (k % 2) * (w / 2 - 6)}px;top:${20 + Math.floor(k / 2) * 46}px;width:14px;height:20px;background:${rnd(i * 7 + k) > 0.5 ? "rgba(255,201,60,.35)" : "rgba(255,255,255,.05)"}"></div>`).join("")}</div>`;
+  }
+  return h + `</div>`;
+}
+function rings(t, x0, y0, from, to, count, color, stopX = 9999, reflect = false) {
+  let h = "";
+  for (let i = 0; i < count; i++) {
+    const p = ((t * 0.9 + i / count) % 1);
+    const r = lerp(from, to, p);
+    let x = x0;
+    let op = (1 - p) * 0.8;
+    if (x0 + r > stopX && reflect) op *= 0.15;
+    h += `<div class="abs" style="left:${x - r}px;top:${y0 - r}px;width:${r * 2}px;height:${r * 2}px;border-radius:50%;border:6px solid ${color};opacity:${op.toFixed(3)};clip-path:inset(0 0 0 50%)"></div>`;
+  }
+  return h;
+}
+function s1(t) {
+  let h = "";
+  const k = E.outCubic(prog(t, C1, C1 + 0.6)), out = E.inCubic(prog(t, C2 - 0.3, C2));
+  h += skyline(t, k * (1 - out) * 0.9);
+  const lvl = lerp(0.55, 0.92, prog(t, at(1, "rumore") - 0.2, at(1, "entra") + 0.3));
+  // waves from the street toward the window
+  if (k > 0) h += `<div class="abs" style="inset:0;opacity:${k * (1 - out)}">${rings(t, 120, 900, 60, 520, 5, AMB)}</div>`;
+  // old window
+  const wk = E.outBack(prog(t, C1 + 0.15, C1 + 0.75), 1.3);
+  if (wk > 0) h += `<div class="abs" style="left:560px;top:620px;transform:scale(${wk}) rotate(${Math.sin(t * 24) * 0.6 * lvl}deg);opacity:${1 - out}">${winSvg({ id: "old", w: 340, h: 420, fin: "wood", sashes: 2, frameW: 20, sashW: 14, glass: "#a9c7d6" })}
+    <div class="tag" style="text-align:center;margin-top:18px;color:#c9a27a">Finestre vecchie</div></div>`;
+  // noise sources
+  const chip = (txt, a, x, y) => { const c = E.outBack(prog(t, a - 0.1, a + 0.25), 2); return c <= 0 ? "" : `<div class="abs" style="left:${x}px;top:${y}px;transform:scale(${c}) rotate(${Math.sin(t * 9 + x) * 3}deg);opacity:${1 - out}"><span style="display:inline-block;padding:16px 28px;border-radius:999px;background:rgba(255,201,60,.14);border:3px solid rgba(255,201,60,.7);font:700 40px IN;color:${AMB}">${txt}</span></div>`; };
+  h += chip("🚗 Traffico", at(1, "Traffico"), 60, 260);
+  h += chip("📢 Clacson", at(1, "clacson"), 420, 360);
+  h += chip("🚋 Tram", at(1, "tram"), 110, 470);
+  // inside: the noise gets in
+  const ik = prog(t, at(1, "rumore") - 0.3, at(1, "rumore"));
+  if (ik > 0) h += `<div class="abs" style="left:0;top:0;opacity:${ik * (1 - out)}">${noiseWave(t, 1240, lvl * ik)}</div>`;
+  h += kText("IL RUMORE ENTRA", t, { in: at(1, "rumore") - 0.05, out: C2 - 0.35, y: 140, size: 86, mode: "slam", stagger: 0.02, color: "#ff8a92" });
+  return h;
+}
+
+/* ---------- S2 · new windows: the difference you can hear ---------- */
+function s2(t) {
+  let h = "";
+  const out = E.inCubic(prog(t, C3 - 0.3, C3));
+  h += skyline(t, 0.9 * (1 - out));
+  const nk = E.inOutCubic(prog(t, at(2, "nuove") - 0.35, at(2, "nuove") + 0.35));
+  const lvl = lerp(0.92, 0.12, E.inOutCubic(prog(t, at(2, "nuove"), at(2, "differenza") + 0.4)));
+  h += `<div class="abs" style="inset:0;opacity:${1 - out}">${rings(t, 120, 900, 60, 440, 5, `rgba(255,201,60,${lerp(1, 0.35, nk)})`)}</div>`;
+  // old window slides away, new one slides in
+  h += `<div class="abs" style="left:${560 + nk * 600}px;top:620px;opacity:${(1 - nk) * (1 - out)}">${winSvg({ id: "old2", w: 340, h: 420, fin: "wood", frameW: 20, sashW: 14, glass: "#a9c7d6" })}</div>`;
+  if (nk > 0) h += `<div class="abs" style="left:${560 - (1 - nk) * 600}px;top:620px;opacity:${Math.min(1, nk * 1.5) * (1 - out)}">${winSvg({ id: "new2", w: 340, h: 420, fin: "anthracite", frameW: 30, sashW: 22, glass: "#7fc8ff" })}
+    <div class="tag" style="text-align:center;margin-top:18px;color:#16d19d">Finestre nuove</div></div>`;
+  // shield line where the waves stop
+  if (nk > 0.5) h += `<div class="abs" style="left:540px;top:600px;width:8px;height:470px;border-radius:4px;background:#16d19d;box-shadow:0 0 40px #16d19d;opacity:${(nk - 0.5) * 2 * (1 - out) * (0.7 + 0.3 * Math.sin(t * 8))}"></div>`;
+  h += `<div class="abs" style="left:0;top:0;opacity:${1 - out}">${noiseWave(t, 1240, lvl)}</div>`;
+  h += kText("La differenza", t, { in: at(2, "differenza") - 0.1, out: C3 - 0.35, y: 150, size: 100, mode: "rise", stagger: 0.02 });
+  h += kText("si sente", t, { in: at(2, "si") - 0.05, out: C3 - 0.35, y: 262, size: 100, mode: "rise", stagger: 0.02, color: "#16d19d", extra: "text-shadow:0 0 50px var(--mintGlow)" });
+  h += meter(t, 1080 - 40 - 12 * 40, 1660 - 260 - 300, lvl, 0);
+  return h;
+}
+
+/* ---------- S3 · configure it yourself: measures, glazing, colour, price ---------- */
+const PH = { x: 540, y: 900, s: 0.8 };
+const P2S = (px, py) => [PH.x + (18 + px - 350) * PH.s, PH.y + (18 + py - 620) * PH.s];
+function tap(t, ta, px, py) {
+  const [x, y] = P2S(px, py);
+  let h = "";
+  const p = prog(t, ta, ta + 0.5);
+  if (p > 0 && p < 1) h += `<div class="abs" style="left:${x - 90 * p}px;top:${y - 90 * p}px;width:${180 * p}px;height:${180 * p}px;border-radius:50%;border:5px solid rgba(255,255,255,${1 - p})"></div>`;
+  const m = prog(t, ta - 0.45, ta), lv = prog(t, ta + 0.15, ta + 0.5);
+  if (m > 0 && lv < 1) {
+    const e = E.inOutCubic(m);
+    h += `<div class="abs" style="left:${x - 10 + (1 - e) * 120}px;top:${y - 6 + (1 - e) * 160}px;font-size:84px;opacity:${(Math.min(1, m * 3) * (1 - lv)).toFixed(3)};filter:drop-shadow(0 8px 14px rgba(0,0,0,.6))">👆</div>`;
+  }
+  return h;
+}
+function s3(t) {
+  let h = "";
+  const out = E.inCubic(prog(t, C4 - 0.3, C4));
+  h += kText("QUANTO COSTA?", t, { in: at(3, "Quanto") - 0.08, out: at(3, "configuri") - 0.15, y: 150, size: 100, mode: "slam", stagger: 0.025, color: AMB });
+  h += kText("Configuralo tu", t, { in: at(3, "configuri") - 0.05, out: C4 - 0.35, y: 140, size: 96, mode: "rise", stagger: 0.02, hl: ["tu"] });
+  const tM = at(3, "Misure"), tV = at(3, "vetro"), tC = at(3, "colore"), tP = at(3, "prezzo");
+  const dimsOn = t >= tM + 0.1;
+  let price = 1180;
+  price = lerp(price, 1390, E.outCubic(prog(t, tM + 0.1, tM + 0.6)));
+  price = lerp(price, 1520, E.outCubic(prog(t, tV + 0.1, tV + 0.6)));
+  price = lerp(price, 1610, E.outCubic(prog(t, tC + 0.1, tC + 0.6)));
+  const ck = E.outCubic(prog(t, tC + 0.05, tC + 0.45));
+  const st = {
+    compact: true, dims: dimsOn ? ["1400", "1500"] : ["1200", "1400"], glazing: { sel: t >= tV + 0.05 ? 1 : 0, k: t >= tV + 0.05 ? E.outCubic(prog(t, tV + 0.05, tV + 0.4)) : 1 },
+    out: ck > 0 ? 1 : 0, outFrom: ck > 0 ? 0 : undefined, outK: ck > 0 ? ck : 1, price,
+    hlDraw: Math.sin(Math.PI * prog(t, tM - 0.05, tM + 0.7)), hlPrice: Math.sin(Math.PI * prog(t, tP - 0.1, tP + 0.8)),
+    note: "Totale stimato · IVA inclusa · stima orientativa",
+  };
+  if (ck <= 0) delete st.outFrom;
+  const pk = E.outBack(prog(t, C3 + 0.05, C3 + 0.75), 1.15);
+  if (pk > 0) h += phone(PH.x, PH.y + (1 - pk) * 900 - out * 80, PH.s, (1 - pk) * 8, widgetScreen(t, st), 1 - out);
+  h += tap(t, tM, 332, 560);
+  h += tap(t, tV, 488, 698);
+  h += tap(t, tC, 332, 880);
+  h += esempio(t, C3 + 0.8, C4 - 0.3, 790, 1415);
+  const sub = E.outBack(prog(t, tP + 0.1, tP + 0.5), 1.6) * (1 - out);
+  if (sub > 0) h += `<div class="abs" style="left:0;right:0;top:250px;text-align:center;opacity:${Math.min(1, sub * 1.5)};transform:scale(${lerp(0.8, 1, sub)})"><span style="display:inline-block;padding:14px 28px;border-radius:999px;background:rgba(22,209,157,.12);border:2px solid rgba(22,209,157,.55);font:700 32px IN;color:#dff8ef">Prezzo subito · <b style="color:#16d19d">IVA inclusa</b></span></div>`;
+  return h;
+}
+
+/* ---------- S4 · CTA ---------- */
+function s4(t) {
+  let h = "";
+  h += kText("In 1 minuto", t, { in: at(4, "In") - 0.08, y: 200, size: 120, mode: "slam", stagger: 0.025, hl: ["1"] });
+  h += kText("dal telefono", t, { in: at(4, "dal") - 0.05, y: 340, size: 84, mode: "rise", stagger: 0.02, color: "#c9d1d4", weight: 500 });
+  h += endCard(t, at(4, "dal") - 0.2, { cy: 760 });
+  const lb = E.outBack(prog(t, at(4, "Link") - 0.1, at(4, "Link") + 0.3), 1.7);
+  if (lb > 0) h += `<div class="abs" style="left:240px;top:1070px;width:600px;height:118px;border-radius:999px;background:linear-gradient(135deg,#16d19d,#0fbf8f);display:grid;place-items:center;font:700 52px SG;color:#04241b;transform:scale(${lb * (1 + 0.025 * Math.sin(t * 6))});box-shadow:0 0 ${60 + Math.sin(t * 4) * 20}px var(--mintGlow)">Link in bio 👇</div>`;
+  const url = E.outCubic(prog(t, at(4, "bio") + 0.2, at(4, "bio") + 0.6));
+  if (url > 0) h += `<div class="abs sg" style="left:0;right:0;top:1230px;text-align:center;font-size:50px;font-weight:700;opacity:${url}">onespec<span style="color:var(--mint)">.eu</span></div>`;
+  return h;
+}
+
+/* ===================== compose ===================== */
+function frame(t) {
+  const red = t < C2;
+  let h = background(t, red ? "red" : "mint");
+  const bt = (t % 0.5) / 0.5, beat = t > C3 ? 1 + 0.006 * Math.exp(-bt * 9) : 1;
+  h += `<div class="abs" style="inset:0;transform:scale(${beat.toFixed(4)})">`;
+  if (t < C1 + 0.15) h += s0(t);
+  if (t >= C1 - 0.1 && t < C2 + 0.15) h += s1(t);
+  if (t >= C2 - 0.1 && t < C3 + 0.15) h += s2(t);
+  if (t >= C3 - 0.1 && t < C4 + 0.15) h += s3(t);
+  if (t >= C4 - 0.1) h += s4(t);
+  h += `</div>`;
+  CAP_Y = t >= C3 && t < C4 ? 1470 : 1500;
+  h += captions(t);
+  for (const c of CUTS) {
+    const p = prog(t, c - 0.12, c + 0.16);
+    if (p > 0 && p < 1) {
+      const k = Math.sin(p * Math.PI);
+      h += `<div class="abs" style="inset:0;background:linear-gradient(180deg, transparent, rgba(22,209,157,${0.2 * k}), transparent);transform:translateY(${(p - 0.5) * 900}px)"></div>`;
+    }
+  }
+  h += flash(t, at(0, "silenzio"), 0.16) + flash(t, at(2, "nuove"), 0.12);
+  const fo = prog(t, DUR - 0.5, DUR);
+  if (fo > 0) h += `<div class="abs" style="inset:0;background:#000;opacity:${fo}"></div>`;
+  h += `<div class="abs" style="left:0;top:0;height:8px;width:${(t / DUR) * 100}%;background:linear-gradient(90deg,var(--mint),var(--cyan))"></div>`;
+  h += `<div class="abs" style="inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(0,0,0,.55))"></div>`;
+  return h;
+}
+window.DUR = DUR;
+window.renderAt = (t) => { document.getElementById("stage").innerHTML = frame(t); };
+renderAt(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+/* ===================== Strategia Nord · shared engine (captions, chips, window drawing, widget replica, end card) ===================== */
+{ const ob = E.outBack; E.outBack = (x, k) => (x <= 0 ? 0 : x >= 1 ? 1 : ob(x, k)); }
+const LN = TIMING.lines;
+/** Start time of the first word of line `li` that begins with `w` (exact voice timing). */
+function at(li, w, nth = 0) {
+  const hits = LN[li].words.filter((x) => x[0].toLowerCase().replace(/[^\wà-ú.,%]/g, "").startsWith(w.toLowerCase()));
+  if (!hits[nth]) throw new Error(`at(${li}, ${w})`);
+  return hits[nth][1];
+}
+function endOf(li, w, nth = 0) {
+  const hits = LN[li].words.filter((x) => x[0].toLowerCase().replace(/[^\wà-ú.,%]/g, "").startsWith(w.toLowerCase()));
+  return hits[nth][2];
+}
+const lineEnd = (li) => LN[li].start + LN[li].dur;
+
+/* ---------- captions: exact word timing, paged by sentence, speaker pill ---------- */
+const PAGES = [];
+LN.forEach((l, li) => {
+  let cur = [];
+  const flush = () => { if (cur.length) PAGES.push({ li, words: cur }); cur = []; };
+  l.words.forEach((w, k) => {
+    cur.push(w);
+    const end = /[.?!:]$/.test(w[0]);
+    const comma = /,$/.test(w[0]) && cur.length >= 4 && l.words.length - k > 3;
+    if (end || comma || cur.length >= 7) flush();
+  });
+  flush();
+});
+PAGES.forEach((pg, i) => {
+  const l = LN[pg.li], nx = PAGES[i + 1];
+  pg.a = pg.words[0][1] - (i > 0 && PAGES[i - 1].li === pg.li ? 0.05 : 0.12);
+  pg.b = nx && nx.li === pg.li ? nx.words[0][1] - 0.13 : Math.min(l.start + l.dur + 0.2, nx ? nx.words[0][1] - 0.15 : 99);
+});
+let CAP_Y = 1440;
+function captions(t) {
+  let h = "";
+  for (const pg of PAGES) {
+    if (t < pg.a - 0.01 || t > pg.b + 0.1) continue;
+    const s = SPK[LN[pg.li].who];
+    const p = prog(t, pg.a, pg.a + 0.14), q = prog(t, pg.b, pg.b + 0.08);
+    if (q >= 1) continue;
+    const html = pg.words.map(([w, a, b]) => {
+      const now = t >= a && t < b + 0.04, on = t >= a;
+      const k = E.outBack(prog(t, a - 0.02, a + 0.16), 2.2);
+      const col = now ? s.hex : on ? "#f3f7f5" : "rgba(243,247,245,.34)";
+      return `<span class="word" style="margin:0 .07em;color:${col};transform:translateY(${(1 - Math.min(1, k)) * 10}px) scale(${now ? 1.04 : 1});${now ? `text-shadow:0 0 28px ${s.hex}88` : ""}">${w}</span>`;
+    }).join(" ");
+    const y = CAP_Y + (1 - E.outCubic(p)) * 26 - q * 18;
+    h += `<div class="abs" style="left:56px;right:56px;top:${y}px;text-align:center;opacity:${(p * (1 - q)).toFixed(3)}">
+      <div style="display:inline-block;position:relative;background:rgba(7,8,9,.84);border:1.5px solid rgba(255,255,255,.10);border-radius:30px;padding:24px 36px 26px;font-size:52px;line-height:1.22;font-weight:800;letter-spacing:-.012em;box-shadow:0 22px 60px rgba(0,0,0,.55)">
+        ${s.name ? `<div style="position:absolute;left:36px;top:-20px;padding:6px 16px;border-radius:999px;background:${s.hex};color:#07120f;font-family:SG;font-weight:700;font-size:22px;letter-spacing:.08em;text-transform:uppercase">${s.name}</div>` : ""}${html}</div></div>`;
+  }
+  return h;
+}
+
+/* ---------- small pieces ---------- */
+const eur = (n, dec = 0) => "€ " + n.toLocaleString("it-IT", { minimumFractionDigits: dec, maximumFractionDigits: dec });
+function pill(text, x, y, k, o = {}) {
+  if (k <= 0) return "";
+  const bg = o.bg ?? "rgba(255,255,255,.08)", col = o.color ?? "#c9d1d4", br = o.border ?? "rgba(255,255,255,.18)";
+  const anchor = o.center ? `left:0;right:0;text-align:center` : `left:${x}px`;
+  return `<div class="abs" style="${anchor};top:${y}px;opacity:${Math.min(1, k * 1.4).toFixed(3)};transform:scale(${lerp(0.7, 1, E.outBack(k, 2))})">
+    <span style="display:inline-block;padding:${o.pad ?? "10px 22px"};border-radius:999px;background:${bg};border:2px solid ${br};font:700 ${o.size ?? 24}px IN;letter-spacing:.14em;color:${col};text-transform:uppercase">${text}</span></div>`;
+}
+/** "ESEMPIO" chip: every figure and scenario in these videos is an example. */
+function esempio(t, a, b, x, y, center) {
+  const k = prog(t, a, a + 0.35) * (1 - prog(t, b, b + 0.25));
+  return pill("Esempio", x, y, k, { bg: "rgba(255,181,71,.14)", color: "#ffb547", border: "rgba(255,181,71,.55)", size: 22, pad: "8px 18px", center });
+}
+function shake(t, t0, amp = 18, dur = 0.45) {
+  const p = prog(t, t0, t0 + dur);
+  if (p <= 0 || p >= 1) return [0, 0];
+  const d = (1 - p) * (1 - p) * amp;
+  return [Math.sin(t * 93) * d, Math.cos(t * 71) * d * 0.7];
+}
+function flash(t, ft, a = 0.18, w = 0.12) {
+  const fl = Math.max(0, 1 - Math.abs(t - ft) / w) * a;
+  return fl > 0 ? `<div class="abs" style="inset:0;background:#fff;opacity:${fl.toFixed(3)}"></div>` : "";
+}
+/** Rubber stamp that slams in (scale 2.4 -> 1, slight rotation). */
+function stamp(t, a, text, x, y, o = {}) {
+  const p = prog(t, a, a + 0.28);
+  if (p <= 0) return "";
+  const s = lerp(2.6, 1, E.outCubic(p)), op = Math.min(1, p * 2.5) * (1 - prog(t, o.out ?? 999, (o.out ?? 999) + 0.3));
+  const col = o.color ?? "#ff5a64";
+  return `<div class="abs" style="left:${x}px;top:${y}px;transform:translate(-50%,-50%) rotate(${o.rot ?? -8}deg) scale(${s});opacity:${op.toFixed(3)}">
+    <div class="sg" style="padding:${o.pad ?? "18px 34px"};border:${o.bw ?? 8}px solid ${col};border-radius:18px;color:${col};font-size:${o.size ?? 64}px;font-weight:700;letter-spacing:.02em;white-space:nowrap;text-shadow:0 0 30px ${col}66;box-shadow:0 0 40px ${col}33, inset 0 0 30px ${col}22;background:rgba(7,8,9,.55)">${text}</div></div>`;
+}
+
+/* ---------- window drawing with solid profile colours (exterior / interior faces) ---------- */
+const FIN = {
+  anthracite: { frame: "#383E42", hi: "#4b5257", edge: "#1c2023", name: "Antracite RAL 7016" },
+  white: { frame: "#eef1f0", hi: "#ffffff", edge: "#b9c2c5", name: "Bianco standard" },
+  wood: { frame: "#8a5a35", hi: "#a26d43", edge: "#5a3820", name: "Pellicola effetto legno" },
+  black: { frame: "#1d2023", hi: "#2c3135", edge: "#0b0c0d", name: "Nero" },
+};
+/** Two-sash window (or `sashes` sashes). fin = FIN key or {frame,hi,edge}. glass: tint. */
+function winSvg(o) {
+  const w = o.w ?? 440, h = o.h ?? 520, fin = typeof o.fin === "string" ? FIN[o.fin] : o.fin, n = o.sashes ?? 2;
+  const id = o.id ?? "w" + Math.round(Math.random() * 1e9);
+  const F = o.frameW ?? 30, S = o.sashW ?? 24, g = o.glass ?? "#7fc8ff";
+  const sw = (w - 2 * F) / n;
+  let s = `<svg width="${w}" height="${h}" viewBox="-4 -4 ${w + 8} ${h + 8}" style="overflow:visible;display:block">
+    <defs><linearGradient id="${id}g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${g}" stop-opacity=".62"/><stop offset=".55" stop-color="${g}" stop-opacity=".28"/><stop offset="1" stop-color="${g}" stop-opacity=".46"/></linearGradient>
+    <linearGradient id="${id}f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${fin.hi}"/><stop offset="1" stop-color="${fin.frame}"/></linearGradient></defs>
+    <path d="M0 0H${w}V${h}H0Z M${F} ${F}V${h - F}H${w - F}V${F}Z" fill-rule="evenodd" fill="url(#${id}f)" stroke="${fin.edge}" stroke-width="2.5"/>`;
+  for (let i = 0; i < n; i++) {
+    const x0 = F + i * sw;
+    s += `<path d="M${x0} ${F}H${x0 + sw}V${h - F}H${x0}Z M${x0 + S} ${F + S}V${h - F - S}H${x0 + sw - S}V${F + S}Z" fill-rule="evenodd" fill="url(#${id}f)" stroke="${fin.edge}" stroke-width="2"/>`;
+    s += `<rect x="${x0 + S}" y="${F + S}" width="${sw - 2 * S}" height="${h - 2 * F - 2 * S}" fill="url(#${id}g)"/>`;
+    s += `<path d="M${x0 + S + 14} ${F + S + 50} L${x0 + S + 60} ${F + S + 14} M${x0 + S + 14} ${F + S + 110} L${x0 + S + 120} ${F + S + 18}" stroke="#fff" stroke-opacity=".38" stroke-width="5" stroke-linecap="round"/>`;
+    if (o.handles !== false) {
+      const hx = i % 2 === 0 ? x0 + sw - S / 2 - 4 : x0 + S / 2 - 4;
+      s += `<rect x="${hx}" y="${h / 2 - 34}" width="8" height="58" rx="4" fill="${o.handle ?? "#d9dde0"}" stroke="rgba(0,0,0,.35)" stroke-width="1"/>`;
+    }
+  }
+  if (o.dims) {
+    s += `<g font-family="SG" font-weight="700" font-size="${o.dimSize ?? 26}" fill="#16d19d">
+      <line x1="0" y1="${h + 30}" x2="${w}" y2="${h + 30}" stroke="#16d19d" stroke-width="3"/><line x1="0" y1="${h + 18}" x2="0" y2="${h + 42}" stroke="#16d19d" stroke-width="3"/><line x1="${w}" y1="${h + 18}" x2="${w}" y2="${h + 42}" stroke="#16d19d" stroke-width="3"/>
+      <text x="${w / 2}" y="${h + 22}" text-anchor="middle">${o.dims[0]}</text>
+      <line x1="${w + 30}" y1="0" x2="${w + 30}" y2="${h}" stroke="#16d19d" stroke-width="3"/><line x1="${w + 18}" y1="0" x2="${w + 42}" y2="0" stroke="#16d19d" stroke-width="3"/><line x1="${w + 18}" y1="${h}" x2="${w + 42}" y2="${h}" stroke="#16d19d" stroke-width="3"/>
+      <text transform="translate(${w + 22} ${h / 2}) rotate(-90)" text-anchor="middle">${o.dims[1]}</text></g>`;
+  }
+  return s + `</svg>`;
+}
+/** Interpolate between two finishes (k 0..1) for colour morphs. */
+function mixFin(a, b, k) {
+  const m = (c1, c2) => { const p = (c) => [1, 3, 5].map((i) => parseInt(c.slice(i, i + 2), 16)); const x = p(c1), y = p(c2); return "#" + x.map((v, i) => Math.round(lerp(v, y[i], k)).toString(16).padStart(2, "0")).join(""); };
+  const A = FIN[a], B = FIN[b];
+  return { frame: m(A.frame, B.frame), hi: m(A.hi, B.hi), edge: m(A.edge, B.edge) };
+}
+
+/* ---------- phone screen: the real widget layout (labels from widget-i18n.ts, it) ---------- */
+function swatchRow(items, sel, selK, y, t) {
+  return `<div style="display:flex;gap:16px;margin-top:14px">${items.map((it, i) => {
+    const on = sel === i ? selK : 0;
+    return `<div style="flex:1;border-radius:20px;padding:12px;background:${on > 0.5 ? "rgba(22,209,157,.12)" : "#141a1d"};border:3px solid ${on > 0 ? `rgba(22,209,157,${0.3 + on * 0.7})` : "rgba(255,255,255,.08)"};transform:scale(${1 + Math.sin(on * Math.PI) * 0.06})">
+      <div style="height:48px;border-radius:12px;background:${it.bg};border:2px solid rgba(255,255,255,.12)"></div>
+      <div style="margin-top:8px;font:600 19px IN;line-height:1.2;color:${on > 0.5 ? "#f3f7f5" : "#9aa3a7"}">${it.label}</div></div>`;
+  }).join("")}</div>`;
+}
+const SW = [
+  { bg: "linear-gradient(145deg,#ffffff,#e4e8e7)", label: "Bianco standard" },
+  { bg: "linear-gradient(145deg,#4b5257,#2f3438)", label: "Antracite RAL 7016" },
+  { bg: "repeating-linear-gradient(100deg,#9a6438 0 9px,#83532d 9px 15px,#a46c3e 15px 26px)", label: "Effetto legno" },
+];
+/** Widget screen inside the phone (664×1204). st: {face 0=esterna 1=interna, out, outK, bic 0..1, inn, innK, price, extra:[label,value][], hlDraw, hlPrice, glazing:{sel,k}, dims} */
+function widgetScreen(t, st) {
+  const fin = (k) => FIN[["white", "anthracite", "wood"][k]];
+  const outF = st.outFrom != null ? mixFin(["white", "anthracite", "wood"][st.outFrom], ["white", "anthracite", "wood"][st.out], st.outK) : fin(st.out);
+  const innF = st.bic > 0.5 ? fin(st.inn) : outF;
+  const faceK = st.face ?? 0;
+  // flip the drawing between faces: scaleX through 0 at the midpoint
+  const flipS = Math.abs(Math.cos(faceK * Math.PI));
+  const shown = faceK < 0.5 ? outF : innF;
+  let h = `<div class="abs" style="inset:0;background:#0b0f10;font-family:IN;color:#f3f7f5">`;
+  // dealer header (the widget carries the dealer's brand)
+  h += `<div class="abs" style="left:0;right:0;top:0;height:170px;background:linear-gradient(180deg,#10161a,#0b0f10);border-bottom:1.5px solid rgba(255,255,255,.07)"></div>
+    <div class="abs" style="left:34px;top:92px;display:flex;align-items:center;gap:16px">
+      <div style="width:58px;height:58px;border-radius:16px;background:linear-gradient(145deg,#2a6df4,#1b4fc4);display:grid;place-items:center;font:700 26px SG;color:#fff">SR</div>
+      <div><div style="font:700 28px SG">Serramenti Rossi</div><div style="font:600 19px IN;color:#8f979c;letter-spacing:.06em">CONFIGURATORE · PREVENTIVO</div></div></div>`;
+  // drawing card
+  const dk = st.hlDraw ?? 0;
+  h += `<div class="abs" style="left:24px;right:24px;top:192px;height:${st.compact ? 400 : 500}px;border-radius:28px;background:#11171a;border:2px solid ${dk > 0 ? `rgba(22,209,157,${0.25 + dk * 0.75})` : "rgba(255,255,255,.07)"};box-shadow:${dk > 0 ? `0 0 ${50 * dk}px rgba(22,209,157,.35)` : "none"}">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 24px 0">
+      <div style="font:700 23px IN;color:#c9d1d4">Disegno tecnico</div>
+      <div style="display:flex;background:#0b0f10;border-radius:999px;padding:5px;border:1.5px solid rgba(255,255,255,.08);position:relative">
+        <div style="position:absolute;top:5px;bottom:5px;left:${5 + faceK * 158}px;width:158px;border-radius:999px;background:#16d19d"></div>
+        <div style="position:relative;width:158px;text-align:center;font:700 19px IN;padding:9px 0;color:${faceK < 0.5 ? "#04241b" : "#9aa3a7"}">Faccia esterna</div>
+        <div style="position:relative;width:158px;text-align:center;font:700 19px IN;padding:9px 0;color:${faceK >= 0.5 ? "#04241b" : "#9aa3a7"}">Faccia interna</div>
+      </div></div>
+    <div style="display:flex;justify-content:center;margin-top:${st.compact ? 22 : 34}px;transform:scaleX(${Math.max(0.02, flipS).toFixed(3)})">${winSvg({ id: "wd", w: 300, h: st.compact ? 250 : 340, fin: shown, glass: st.glassTint ?? "#7fc8ff", dims: st.dims ?? ["1200", "1400"], dimSize: 22, frameW: 22, sashW: 17 })}</div>
+  </div>`;
+  // options
+  let y = st.compact ? 608 : 712;
+  const sec = (title, body) => `<div class="abs" style="left:28px;right:28px;top:${y}px"><div style="font:700 22px IN;color:#c9d1d4">${title}</div>${body}</div>`;
+  if (st.glazing) {
+    const G = [["Doppio vetro", "2 lastre"], ["Triplo vetro", "3 lastre"]];
+    h += sec("Vetro", `<div style="display:flex;gap:16px;margin-top:14px">${G.map(([l, s], i) => {
+      const on = st.glazing.sel === i ? st.glazing.k : 0;
+      return `<div style="flex:1;border-radius:20px;padding:16px 18px;background:${on > 0.5 ? "rgba(22,209,157,.12)" : "#141a1d"};border:3px solid ${on > 0 ? `rgba(22,209,157,${0.3 + on * 0.7})` : "rgba(255,255,255,.08)"};transform:scale(${1 + Math.sin(on * Math.PI) * 0.06})">
+        <div style="display:flex;gap:6px;height:44px;align-items:center">${Array.from({ length: i + 2 }, () => `<span style="width:10px;height:44px;border-radius:3px;background:linear-gradient(180deg,#9ad7ff,#4aa8e8);opacity:.85"></span>`).join("")}</div>
+        <div style="margin-top:8px;font:700 23px IN;color:${on > 0.5 ? "#f3f7f5" : "#9aa3a7"}">${l}</div><div style="font:500 18px IN;color:#7c868a">${s}</div></div>`;
+    }).join("")}</div>`);
+    y += 196;
+  }
+  h += sec(st.bic > 0.5 ? "Colore / finitura esterno" : "Colore / finitura", swatchRow(SW, st.out, st.outK ?? 1, 0, t));
+  y += 180;
+  if (st.bic != null) {
+    const b = st.bic;
+    h += `<div class="abs" style="left:28px;right:28px;top:${y}px;display:flex;align-items:center;gap:18px">
+      <div style="width:76px;height:44px;border-radius:999px;flex:none;background:${b > 0.5 ? "#16d19d" : "#2a3236"};position:relative;transition:none">
+        <div style="position:absolute;top:5px;left:${5 + E.outBack(b, 2.2) * 32}px;width:34px;height:34px;border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.4)"></div></div>
+      <div style="font:600 21px IN;line-height:1.25;color:#dfe5e7">Colore interno diverso da quello esterno (bicolore)</div></div>`;
+    y += 64;
+    if (b > 0) {
+      const k = E.outCubic(prog(b, 0, 1));
+      h += `<div class="abs" style="left:28px;right:28px;top:${y}px;opacity:${k};transform:translateY(${(1 - k) * 20}px)"><div style="font:700 22px IN;color:#c9d1d4">Colore / finitura interno</div>${swatchRow(SW, st.inn, st.innK ?? 1, 0, t)}</div>`;
+    }
+  }
+  // price bar
+  const pk = st.hlPrice ?? 0;
+  h += `<div class="abs" style="left:0;right:0;bottom:0;height:150px;background:#10161a;border-top:2px solid ${pk > 0 ? `rgba(22,209,157,${0.3 + pk * 0.7})` : "rgba(255,255,255,.08)"};padding:20px 30px">
+    <div style="display:flex;justify-content:space-between;align-items:flex-end">
+      <div><div style="font:600 19px IN;color:#8f979c">Totale stimato IVA inclusa</div>
+        <div class="sg" style="font-size:52px;font-weight:700;color:${pk > 0 ? "#16d19d" : "#f3f7f5"};font-variant-numeric:tabular-nums;transform:scale(${1 + pk * 0.05});transform-origin:left bottom">${eur(Math.round(st.price))}</div></div>
+      <div style="padding:16px 24px;border-radius:18px;background:#16d19d;color:#04241b;font:700 22px IN">Richiedi preventivo</div></div>
+    <div style="margin-top:6px;font:500 16px IN;color:#6f797d">${st.note ?? "Stima orientativa · non è un preventivo contrattuale."}</div></div>`;
+  return h + `</div>`;
+}
+
+/** End card: logo cube, CTA line, "Link in bio", onespec.eu. a = start time. */
+function endCard(t, a, o = {}) {
+  let h = "";
+  const cin = E.outBack(prog(t, a, a + 0.9), 1.25);
+  const rot = (t - a) * 40 + (1 - cin) * -200;
+  const rays = E.outCubic(prog(t, a + 0.1, a + 0.9));
+  h += `<div class="abs" style="left:540px;top:${o.cy ?? 640}px;width:0;height:0">${Array.from({ length: 14 }, (_, i) => `<div class="abs" style="left:-4px;top:0;width:8px;height:${520 * rays}px;transform-origin:4px 0;transform:rotate(${i * (360 / 14) + t * 8}deg);background:linear-gradient(180deg,rgba(22,209,157,.32),transparent);opacity:${0.6 * rays}"></div>`).join("")}</div>`;
+  h += cube(t, 260 * cin + 1, 540, o.cy ?? 640, Math.min(1, cin * 1.5), rot);
+  return h;
+}

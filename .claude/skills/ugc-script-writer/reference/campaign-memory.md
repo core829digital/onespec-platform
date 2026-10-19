@@ -173,3 +173,10 @@ Testo originale integrale (rumeno + italiano): `strategia-nord-meta-ai.md`. Qui 
 - Sottotitoli karaoke bruciati, testi a schermo con i tempi di Meta, chip "Esempio" su ogni cifra o scenario.
 - Schermate: repliche fedeli del widget e dello Showroom (solo funzioni verificate sopra).
 - Nessuna scritta "generato con IA" nel video (Stefan usa l'etichetta della piattaforma se serve); mai dire che i video sono fatti dall'IA.
+
+### Produzione consegnata (2026-10-19)
+- File e sorgenti: `marketing/strategia-nord/` (README con didascalie, hashtag, orari, primo commento e comandi per rigenerare).
+- V1 30 s, V2 24 s, V3 39 s, V1 corto 15 s; copertine JPG per V1-V3. Tutti 1080×1920 60 fps, sottotitoli karaoke impressi, voce controllata con Whisper sul mix finale.
+- Scelte di onestà applicate: V1 senza "collega di Verona" (cifre "Esempio"); V2 senza dB, viale Monza, Salamander, CasaClima; V3 "Scena di esempio", rata 383,33 € (non 96 €), Bonus Casa "prima casa", scorrevole antracite RAL 7016 (il nero non è un preset del catalogo).
+- Pronuncia: "RAL 7016" detto "settemilasedici" ("settanta sedici" veniva capito "76"); "IVA" mal pronunciata da Kokoro, quindi solo a schermo; "PDF" detto "pi di effe".
+- Prossimi passi proposti: versione 16:9 su richiesta; dopo 7 giorni leggere completamento e click su link in bio per video (framework §14).

@@ -1,0 +1,165 @@
+/* ===================== Strategia Nord · V3 · Chiuso in cucina (scena di esempio) ===================== */
+const SPK = { S: { name: "Cliente", hex: "#ffb547" }, M: { name: "Serramentista", hex: "#16d19d" } };
+const C1 = LN[1].start - 0.15, C6 = LN[6].start - 0.12;
+const DUR = lineEnd(6) + 1.5;
+const CUTS = [C1, C6];
+const eurC = (n) => n.toLocaleString("it-IT", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " €";
+
+function kitchen(t) {
+  const tiles = `background-image:linear-gradient(rgba(255,255,255,.035) 2px, transparent 2px),linear-gradient(90deg, rgba(255,255,255,.035) 2px, transparent 2px);background-size:90px 90px`;
+  return `<div class="abs" style="inset:0;background:radial-gradient(90% 60% at 50% 25%, #2a2016 0%, #120e0a 60%, #070809 100%)"></div>
+    <div class="abs" style="left:0;right:0;top:0;height:1180px;${tiles};-webkit-mask-image:linear-gradient(180deg,#000,transparent)"></div>
+    <div class="abs" style="left:700px;top:90px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(255,196,120,.32),transparent 65%);filter:blur(10px);opacity:${0.85 + 0.15 * Math.sin(t * 1.3)}"></div>
+    <div class="abs" style="left:-100px;right:-100px;top:1120px;height:900px;transform:perspective(900px) rotateX(48deg);transform-origin:50% 0;
+      background:repeating-linear-gradient(90deg,#5a3b22 0 120px,#64432a 120px 124px,#553720 124px 250px);box-shadow:inset 0 80px 120px rgba(0,0,0,.6)"></div>
+    <div class="abs" style="left:0;right:0;top:1100px;height:40px;background:linear-gradient(180deg,rgba(0,0,0,.0),rgba(0,0,0,.45))"></div>`;
+}
+
+/* ---------- tablet with the real Showroom layout ---------- */
+const TB = { x: 40, y: 360, w: 1000, h: 700 };
+function slidingSvg(w, h) {
+  const fin = FIN.anthracite, F = 18;
+  return `<svg width="${w}" height="${h}" viewBox="-4 -4 ${w + 8} ${h + 8}" style="overflow:visible">
+    <defs><linearGradient id="sg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7fc8ff" stop-opacity=".6"/><stop offset="1" stop-color="#7fc8ff" stop-opacity=".25"/></linearGradient></defs>
+    <rect x="0" y="0" width="${w}" height="${h}" fill="${fin.frame}" stroke="${fin.edge}" stroke-width="2.5"/>
+    <rect x="${F}" y="${F}" width="${w / 2 + 6 - F}" height="${h - 2 * F}" fill="${fin.hi}" stroke="${fin.edge}" stroke-width="2"/>
+    <rect x="${w / 2 - 6}" y="${F + 4}" width="${w / 2 + 6 - F}" height="${h - 2 * F - 8}" fill="${fin.hi}" stroke="${fin.edge}" stroke-width="2"/>
+    <rect x="${F + 12}" y="${F + 12}" width="${w / 2 - F - 18}" height="${h - 2 * F - 24}" fill="url(#sg1)"/>
+    <rect x="${w / 2 + 6}" y="${F + 16}" width="${w / 2 - F - 18}" height="${h - 2 * F - 32}" fill="url(#sg1)"/>
+    <path d="M${w * 0.3} ${h / 2} h${w * 0.14} m-14 -12 l14 12 l-14 12" stroke="#16d19d" stroke-width="5" fill="none" stroke-linecap="round"/>
+    <g font-family="SG" font-weight="700" font-size="22" fill="#16d19d">
+      <line x1="0" y1="${h + 26}" x2="${w}" y2="${h + 26}" stroke="#16d19d" stroke-width="3"/><text x="${w / 2}" y="${h + 18}" text-anchor="middle">2400</text>
+      <line x1="${w + 26}" y1="0" x2="${w + 26}" y2="${h}" stroke="#16d19d" stroke-width="3"/><text transform="translate(${w + 18} ${h / 2}) rotate(-90)" text-anchor="middle">2100</text></g></svg>`;
+}
+function tablet(t, st) {
+  const { x, y, w, h } = TB;
+  let s = `<div class="abs" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px;transform:translateY(${st.dy ?? 0}px) scale(${st.s ?? 1});opacity:${st.op ?? 1}">
+    <div class="abs" style="inset:0;border-radius:46px;background:#0d1113;border:4px solid rgba(255,255,255,.14);box-shadow:0 60px 120px rgba(0,0,0,.7)"></div>
+    <div class="abs" style="left:22px;top:22px;right:22px;bottom:22px;border-radius:28px;overflow:hidden;background:#0b0f10;font-family:IN;color:#f3f7f5">
+      <div style="height:76px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;border-bottom:1.5px solid rgba(255,255,255,.07);background:#10161a">
+        <div style="display:flex;align-items:center;gap:14px"><div style="width:44px;height:44px;border-radius:12px;background:linear-gradient(145deg,#2a6df4,#1b4fc4);display:grid;place-items:center;font:700 20px SG;color:#fff">SR</div>
+          <div style="font:700 24px SG">Showroom · Preventivo in 60 secondi</div></div>
+        <div style="font:600 17px IN;color:#8f979c">Serramenti Rossi</div></div>`;
+  // left: piece being configured
+  const dk = st.hlDraw ?? 0;
+  s += `<div class="abs" style="left:24px;top:100px;width:420px;bottom:24px;border-radius:22px;background:#11171a;border:2px solid ${dk > 0 ? `rgba(22,209,157,${0.25 + 0.75 * dk})` : "rgba(255,255,255,.07)"};padding:20px">
+      <div style="font:700 19px IN;color:#c9d1d4">Pezzo 1 · Scorrevole</div>
+      <div style="margin:22px 0 0 26px;opacity:${st.draw ?? 1};transform:scale(${lerp(0.9, 1, st.draw ?? 1)})">${slidingSvg(320, 270)}</div><div style="height:34px"></div>
+      ${["Tipo|Scorrevole", "Misure|2400 × 2100 mm", "Colore|Antracite RAL 7016"].map((r, i) => { const [a, b] = r.split("|"); const k = st.rows?.[i] ?? 1; return `<div style="display:flex;justify-content:space-between;font:600 18px IN;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.06);opacity:${k};transform:translateX(${(1 - k) * 20}px)"><span style="color:#8f979c">${a}</span><span>${b}</span></div>`; }).join("")}
+    </div>`;
+  // right: fiscal engine (labels from FiscalEngine.tsx / messages it.showroom.fiscal)
+  const fk = st.fiscal ?? 0;
+  if (fk > 0) {
+    const pk = st.priceK ?? 1, fin = st.finHl ?? 0, bk = st.bonus ?? 0;
+    s += `<div class="abs" style="left:464px;top:100px;right:24px;bottom:24px;opacity:${Math.min(1, fk * 1.4)};transform:translateX(${(1 - fk) * 40}px)">
+      <div style="border-radius:22px;background:#11171a;border:2px solid rgba(255,255,255,.07);padding:22px 26px">
+        <div style="font:700 15px IN;letter-spacing:.16em;color:#8f979c">PREZZO CHIAVI IN MANO</div>
+        <div class="sg" style="font-size:58px;font-weight:700;margin-top:4px;font-variant-numeric:tabular-nums">${eurC(Math.round(9200 * pk))}</div>
+        <div style="font:600 17px IN;margin-top:6px;padding:6px 10px;border-radius:10px;color:${fin > 0 ? "#f3f7f5" : "#8f979c"};background:rgba(22,209,157,${0.22 * fin});transform-origin:left;transform:scale(${1 + 0.04 * fin})">Esempio di rateizzazione: ${eurC(383.33)} / mese in 24 rate (indicativo)</div>
+      </div>
+      <div style="margin-top:16px;border-radius:22px;padding:18px;text-align:center;background:#16d19d;color:#04241b;opacity:${bk};transform:scale(${lerp(0.85, 1, E.outBack(bk, 1.6))})">
+        <div style="font:700 15px IN;letter-spacing:.14em">COSTO EFFETTIVO DOPO BONUS CASA</div>
+        <div class="sg" style="font-size:50px;font-weight:700">${eurC(Math.round(4600 * Math.min(1, bk * 1.2)))}</div>
+        <div style="font:600 15px IN">recupero fiscale in 10 anni</div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:16px;opacity:${st.btn ?? 0}">
+        <div style="border-radius:12px;background:#25D366;color:#04231a;font:700 16px IN;text-align:center;padding:14px 4px">Invia su WhatsApp</div>
+        <div style="border-radius:12px;background:#18181b;border:1.5px solid rgba(255,255,255,.15);font:700 16px IN;text-align:center;padding:14px 4px">Richiedi sopralluogo</div>
+        <div style="border-radius:12px;border:1.5px solid rgba(255,255,255,.2);font:700 16px IN;text-align:center;padding:14px 4px">+ Aggiungi al preventivo</div></div>
+    </div>`;
+  }
+  return s + `</div></div>`;
+}
+
+/** Chat bubble (customer). */
+function bubble(t, a, b, text, x, y) {
+  const k = E.outBack(prog(t, a, a + 0.4), 1.6), q = E.inCubic(prog(t, b, b + 0.3));
+  if (k <= 0 || q >= 1) return "";
+  return `<div class="abs" style="left:${x}px;top:${y}px;max-width:760px;transform-origin:0 100%;transform:scale(${k * (1 - q * 0.2)});opacity:${1 - q}">
+    <div style="background:#fff;color:#111;border-radius:34px 34px 34px 8px;padding:26px 34px;font:700 46px IN;line-height:1.2;box-shadow:0 30px 60px rgba(0,0,0,.5)">${text}</div>
+    <div style="margin-top:12px;font:700 22px IN;letter-spacing:.14em;color:#ffb547">CLIENTE</div></div>`;
+}
+
+function body(t) {
+  let h = "";
+  // hook: title + question bubble
+  const ho = E.inCubic(prog(t, C1 + 0.3, C1 + 0.7));
+  h += kText("CHIUSO IN CUCINA", t, { in: 0.1, out: C6 - 0.4, y: 120, size: 92, mode: "slam", stagger: 0.02, hl: ["CUCINA"] });
+  h += pill("Scena di esempio", 0, 238, prog(t, 0.6, 1.0) * (1 - prog(t, C6 - 0.4, C6)), { center: true, bg: "rgba(255,181,71,.14)", color: "#ffb547", border: "rgba(255,181,71,.55)", size: 22, pad: "8px 18px" });
+  h += bubble(t, at(0, "Ma") - 0.15, C1 + 0.3, "Ma alla fine, con la detrazione, quanto pago? 🤔", 70, 560);
+  // tablet slides onto the table
+  const tk = E.outBack(prog(t, C1 + 0.2, C1 + 0.9), 1.1), tq = E.inCubic(prog(t, C6 - 0.35, C6));
+  const tS = at(1, "Scorrevole"), t240 = at(1, "240"), tAnt = at(1, "antracite");
+  const tPrice = at(2, "9.200"), tBonus = at(2, "costo"), t46 = at(2, "4.600"), tRate = at(4, "24"), tPdf = at(4, "PDF");
+  if (tk > 0) {
+    const st = {
+      dy: (1 - tk) * 900 - tq * 120, op: 1 - tq,
+      draw: E.outCubic(prog(t, tS - 0.1, tS + 0.4)), rows: [prog(t, tS, tS + 0.3), prog(t, t240, t240 + 0.3), prog(t, tAnt, tAnt + 0.3)],
+      hlDraw: Math.sin(Math.PI * prog(t, t240 - 0.1, t240 + 1.2)),
+      fiscal: E.outCubic(prog(t, at(2, "Prezzo") - 0.2, at(2, "Prezzo") + 0.3)), priceK: E.outExpo(prog(t, tPrice - 0.2, tPrice + 0.6)),
+      bonus: E.outCubic(prog(t, tBonus - 0.1, t46 + 0.2)), finHl: Math.sin(Math.PI * prog(t, tRate - 0.3, tRate + 2.0)), btn: prog(t, tPdf - 0.6, tPdf - 0.2),
+    };
+    h += tablet(t, st);
+  }
+  h += pill("Prima casa · 50 %", 600, 1080, prog(t, at(2, "prima"), at(2, "prima") + 0.3) * (1 - tq), { bg: "rgba(22,209,157,.14)", color: "#16d19d", border: "rgba(22,209,157,.6)", size: 22 });
+  h += esempio(t, tPrice + 0.3, C6 - 0.35, 110, 1088);
+  // PDF sheet
+  const pk = E.outBack(prog(t, tPdf - 0.15, tPdf + 0.5), 1.2), pq = E.inCubic(prog(t, LN[5].start + 1.4, LN[5].start + 1.8));
+  if (pk > 0 && pq < 1) {
+    h += `<div class="abs" style="left:560px;top:${lerp(1100, 470, pk)}px;width:440px;border-radius:14px;background:#fff;color:#1f2a2e;padding:24px 26px;box-shadow:0 40px 100px rgba(0,0,0,.65);transform:rotate(${lerp(-10, 3, pk)}deg) scale(${lerp(0.5, 1, pk)});opacity:${Math.min(1, pk * 2) * (1 - pq)}">
+      <div style="display:flex;justify-content:space-between;align-items:center"><div style="display:flex;align-items:center;gap:10px"><div style="width:40px;height:40px;border-radius:10px;background:#2a6df4;display:grid;place-items:center;font:700 17px SG;color:#fff">SR</div><div style="font:700 20px SG">Serramenti Rossi</div></div><div style="font:700 15px IN;color:#d6333f;border:2px solid #d6333f;border-radius:6px;padding:2px 8px">PDF</div></div>
+      <div style="font:700 24px SG;margin-top:14px">Preventivo showroom</div>
+      <div style="font:600 16px IN;color:#5b6669;margin-top:2px">Scorrevole 2400 × 2100 mm · Antracite RAL 7016</div>
+      <div style="display:flex;justify-content:space-between;font:700 18px IN;margin-top:14px;border-top:2px solid #1f2a2e;padding-top:10px"><span>Totale IVA inclusa</span><span>${eurC(9200)}</span></div>
+      <div style="display:flex;justify-content:space-between;font:600 16px IN;margin-top:6px;color:#3b4649"><span>Rata indicativa in 24 mesi</span><span>${eurC(383.33)}</span></div>
+      <div style="margin-top:12px;font:500 13px IN;color:#6f797d;line-height:1.35">Detrazione IRPEF 50% prima casa / 36% seconda casa in 10 quote</div></div>`;
+  }
+  // "Perfetto" reaction
+  const ck = E.outBack(prog(t, at(5, "Perfetto") - 0.05, at(5, "Perfetto") + 0.35), 2), cq = E.inCubic(prog(t, C6 - 0.3, C6));
+  if (ck > 0 && cq < 1) h += `<div class="abs" style="left:0;right:0;top:1150px;text-align:center;opacity:${1 - cq};transform:scale(${ck})"><span style="display:inline-flex;align-items:center;gap:16px;padding:18px 34px;border-radius:999px;background:rgba(22,209,157,.16);border:3px solid #16d19d;font:700 40px IN;color:#dff8ef">✅ Chiaro, subito</span></div>`;
+  return h;
+}
+
+/* ---------- final: no more "le mando domani" ---------- */
+function outro(t) {
+  let h = "";
+  const a = LN[6].start;
+  h += kText("NIENTE PIÙ", t, { in: a - 0.05, y: 180, size: 80, mode: "rise", stagger: 0.02, color: "#c9d1d4" });
+  const mk = E.outBack(prog(t, at(6, "mando") - 0.25, at(6, "mando") + 0.15), 1.5), strike = E.inOutCubic(prog(t, at(6, "domani") + 0.3, at(6, "domani") + 0.65));
+  if (mk > 0) h += `<div class="abs" style="left:0;right:0;top:310px;text-align:center;transform:scale(${mk})"><span class="sg" style="position:relative;display:inline-block;white-space:nowrap;font-size:58px;font-weight:700;color:${strike > 0.5 ? "#8f979c" : "#f3f7f5"}">«Le mando il preventivo domani»
+    <span style="position:absolute;left:-10px;top:50%;height:12px;width:${strike * 102}%;background:#ff5a64;border-radius:6px;transform:rotate(-3deg);box-shadow:0 0 30px rgba(255,90,100,.7)"></span></span></div>`;
+  h += kText("Si chiude in cucina", t, { in: at(6, "Si") - 0.06, y: 470, size: 100, mode: "slam", stagger: 0.02, hl: ["cucina"] });
+  h += endCard(t, at(6, "Si") + 0.1, { cy: 820 });
+  const lb = E.outBack(prog(t, at(6, "Link") - 0.1, at(6, "Link") + 0.3), 1.7);
+  if (lb > 0) h += `<div class="abs" style="left:240px;top:1080px;width:600px;height:118px;border-radius:999px;background:linear-gradient(135deg,#16d19d,#0fbf8f);display:grid;place-items:center;font:700 52px SG;color:#04241b;transform:scale(${lb * (1 + 0.025 * Math.sin(t * 6))});box-shadow:0 0 ${60 + Math.sin(t * 4) * 20}px var(--mintGlow)">Link in bio 👇</div>`;
+  const url = E.outCubic(prog(t, at(6, "bio") + 0.2, at(6, "bio") + 0.6));
+  if (url > 0) h += `<div class="abs sg" style="left:0;right:0;top:1240px;text-align:center;font-size:50px;font-weight:700;opacity:${url}">onespec<span style="color:var(--mint)">.eu</span></div>`;
+  return h;
+}
+
+/* ===================== compose ===================== */
+function frame(t) {
+  let h = t < C6 ? kitchen(t) : background(t, "mint");
+  if (t < C6 + 0.15) h += body(t);
+  if (t >= C6 - 0.1) h += outro(t);
+  CAP_Y = 1500;
+  h += captions(t);
+  for (const c of CUTS) {
+    const p = prog(t, c - 0.12, c + 0.16);
+    if (p > 0 && p < 1) {
+      const k = Math.sin(p * Math.PI);
+      h += `<div class="abs" style="inset:0;background:linear-gradient(180deg, transparent, rgba(22,209,157,${0.2 * k}), transparent);transform:translateY(${(p - 0.5) * 900}px)"></div>`;
+    }
+  }
+  h += flash(t, at(2, "9.200"), 0.1) + flash(t, at(6, "Si"), 0.14);
+  const fo = prog(t, DUR - 0.5, DUR);
+  if (fo > 0) h += `<div class="abs" style="inset:0;background:#000;opacity:${fo}"></div>`;
+  h += `<div class="abs" style="left:0;top:0;height:8px;width:${(t / DUR) * 100}%;background:linear-gradient(90deg,var(--mint),var(--cyan))"></div>`;
+  h += `<div class="abs" style="inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(0,0,0,.55))"></div>`;
+  return h;
+}
+window.DUR = DUR;
+window.renderAt = (t) => { document.getElementById("stage").innerHTML = frame(t); };
+renderAt(0);
+</script>
+</body>
+</html>
