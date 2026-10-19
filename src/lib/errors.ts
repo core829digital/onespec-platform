@@ -410,6 +410,15 @@ export function errorCode(e: unknown): string | null {
       return (d as { code: string }).code;
     }
   }
+  // Sign-in, sign-up and reset go through the Next.js auth proxy (/api/auth), which answers 400 with only the error's message:
+  // the browser gets a plain Error("MFA_REQUIRED") (or the backend's "Uncaught ConvexError: MFA_REQUIRED ..." text), never the
+  // ConvexError. Without this the login never asked for the authenticator code and said "invalid credentials" instead.
+  if (e instanceof Error) {
+    const m = e.message.trim();
+    if (/^[A-Z][A-Z0-9_]{2,}$/.test(m)) return m;
+    const hit = m.match(/ConvexError: ([A-Z][A-Z0-9_]{2,})\b/);
+    if (hit) return hit[1];
+  }
   return null;
 }
 
