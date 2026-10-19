@@ -18,7 +18,8 @@ function ResetPasswordContent() {
   const authMsg = useAuthErrorMessage();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = getSafeRedirect(searchParams.get("redirect"), "/auth/login");
+  // After a successful reset the person is signed in: straight into the app, not back to the login form.
+  const redirect = getSafeRedirect(searchParams.get("redirect"), "/app/dashboard");
   const { signIn } = useAuthActions();
   const email = searchParams.get("email") || "";
   const [code, setCode] = useState(searchParams.get("code") || "");

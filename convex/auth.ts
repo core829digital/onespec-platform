@@ -5,7 +5,7 @@ import { ConvexError } from "convex/values";
 import { internal } from "./_generated/api";
 import { ResendOTP } from "./ResendOTP";
 import { ResendPasswordReset } from "./ResendPasswordReset";
-import { withInputGuards, withMfaGuard, withTurnstileGuard, type Authorize, type MfaVerdict } from "./lib/authGuard";
+import { withInputGuards, withMfaGuard, withQuietReset, withTurnstileGuard, type Authorize, type MfaVerdict } from "./lib/authGuard";
 import { isEmailLocale } from "./emails/strings";
 import { checkPassword, checkSignup } from "../src/shared/signup";
 import { must } from "./lib/validate";
@@ -67,7 +67,11 @@ const mfaChecks = {
   forEmail: async (ctx: unknown, email: string, code: string, commit: boolean) =>
     (await run(ctx).runMutation(internal.mfa.verifyByEmail as never, { email, code, commit } as never)) as MfaVerdict,
 };
-options.authorize = withInputGuards(withTurnstileGuard(withMfaGuard(options.authorize, mfaChecks)));
+const repairEmail = async (ctx: unknown, email: string) => run(ctx).runMutation(internal.authEmails.repairLegacyEmail as never, { email } as never);
+type QueryRunner = { runQuery: (fn: never, args: never) => Promise<unknown> };
+const accountExists = async (ctx: unknown, email: string) =>
+  (await (ctx as QueryRunner).runQuery(internal.authEmails.hasPasswordAccount as never, { email } as never)) === true;
+options.authorize = withInputGuards(withTurnstileGuard(withQuietReset(withMfaGuard(options.authorize, mfaChecks), accountExists)), repairEmail);
 
 // Auth token lifecycle hardening (2026-09-28): a stolen long-lived token is a
 // long-lived attacker window. Convex Auth already does refresh-token rotation

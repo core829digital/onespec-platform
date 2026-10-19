@@ -72,4 +72,7 @@ crons.daily("support-purge", { hourUTC: 5, minuteUTC: 30 }, internal.supportAdmi
 crons.daily("support-purge-pending-files", { hourUTC: 5, minuteUTC: 45 }, internal.supportFiles.purgePending, {});
 crons.daily("support-purge-contacts", { hourUTC: 5, minuteUTC: 55 }, internal.supportContact.purgeOld, {});
 
+// Password accounts created before e-mails were lower-cased: bring every stored address to the canonical form (convex/authEmails.ts).
+crons.cron("auth-normalize-emails", "40 2 * * *", internal.authEmails.normalizeAllEmails, {});
+
 export default crons;

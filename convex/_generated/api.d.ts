@@ -17,6 +17,7 @@ import type * as adminPurge from "../adminPurge.js";
 import type * as analytics from "../analytics.js";
 import type * as audit from "../audit.js";
 import type * as auth from "../auth.js";
+import type * as authEmails from "../authEmails.js";
 import type * as billing from "../billing.js";
 import type * as billingHealth from "../billingHealth.js";
 import type * as branding from "../branding.js";
@@ -141,6 +142,7 @@ declare const fullApi: ApiFromModules<{
   analytics: typeof analytics;
   audit: typeof audit;
   auth: typeof auth;
+  authEmails: typeof authEmails;
   billing: typeof billing;
   billingHealth: typeof billingHealth;
   branding: typeof branding;

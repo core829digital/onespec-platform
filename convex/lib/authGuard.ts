@@ -35,13 +35,23 @@ export function withTurnstileGuard(inner: Authorize): Authorize {
  * Input validation + sanitisation on every auth flow, before the library (or the bot check) sees it: the e-mail is cleaned and
  * lower-cased once, so "A@x.com " and "a@x.com" are the same account; passwords are bounded; a sign-up must carry a valid date of
  * birth (18+) and accepted terms. `signIn` does NOT apply the strength rules to the password, so accounts created earlier still log in.
+ * `repairEmail` (optional) rewrites a legacy mixed-case address of the same account to the cleaned one before the library looks it up.
  */
-export function withInputGuards(inner: Authorize): Authorize {
+export function withInputGuards(inner: Authorize, repairEmail?: (ctx: unknown, email: string) => Promise<unknown>): Authorize {
   return async (params, ctx) => {
     const flow = String(params.flow ?? "");
     const next: Record<string, unknown> = { ...params };
     if (flow === "signIn" || flow === "signUp" || flow === "reset" || flow === "reset-verification" || flow === "email-verification") {
       next.email = must(checkEmail(params.email));
+      // Accounts created before the e-mail was lower-cased keep the address as typed; bring it to the canonical form first so the
+      // library finds it (convex/authEmails.ts). Never blocks the flow: on failure the library answers as it would have anyway.
+      if (repairEmail) {
+        try {
+          await repairEmail(ctx, next.email as string);
+        } catch (e) {
+          console.warn("[auth-email] repair skipped", e instanceof Error ? e.message : String(e));
+        }
+      }
     }
     if (flow === "signIn") {
       if (typeof params.password !== "string" || params.password === "" || params.password.length > 128) throw new ConvexError("INVALID_INPUT");
@@ -94,5 +104,17 @@ export function withMfaGuard(inner: Authorize, checks: MfaChecks): Authorize {
     const verdict = await checks.forUser(ctx, userId, code(params), true);
     if (verdict.enabled && !verdict.ok) throw new ConvexError(verdict.error);
     return result;
+  };
+}
+
+/**
+ * Password reset for an address with no password account: the library would throw ("InvalidAccountId"), telling anyone who asks
+ * which addresses have an account, and showing a real user who mistyped a bare error. Answer as if the code was sent instead (no
+ * e-mail goes out). Sits after the bot check so the two cases cannot be told apart by it either.
+ */
+export function withQuietReset(inner: Authorize, accountExists: (ctx: unknown, email: string) => Promise<boolean>): Authorize {
+  return async (params, ctx) => {
+    if (String(params.flow ?? "") === "reset" && !(await accountExists(ctx, String(params.email ?? "")))) return null;
+    return inner(params, ctx);
   };
 }
