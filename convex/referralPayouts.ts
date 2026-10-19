@@ -60,11 +60,27 @@ export function sharesAny(a: string[], b: string[]): boolean {
   return b.some((x) => set.has(x));
 }
 
-/** Earliest paid invoice with a real amount, or null. */
+type StripeDiscount = string | { promotion_code?: unknown } | null | undefined;
+
+/**
+ * True when the invoice was reduced by a promotion code the customer typed (a sales
+ * campaign). The invited account's own discount is a plain coupon with no promotion code,
+ * so it does not count. Needs `expand[]=data.discounts`; `discount` is the older field.
+ */
+export function usedPromotionCode(invoice: { discounts?: StripeDiscount[]; discount?: StripeDiscount }): boolean {
+  const all = [...(Array.isArray(invoice.discounts) ? invoice.discounts : []), invoice.discount];
+  return all.some((d) => typeof d === "object" && d !== null && Boolean(d.promotion_code));
+}
+
+/**
+ * Earliest paid invoice with a real amount, or null. An invoice reduced by a promotion
+ * code is skipped (rules, "Codici promozionali"): the reward is 10% of the list price, so
+ * it waits for the first payment made without one.
+ */
 export function firstRealPayment(invoices: unknown): { id: string; paidCents: number; paidAtMs: number } | null {
   if (!Array.isArray(invoices)) return null;
-  const paid = (invoices as Array<{ id?: string; amount_paid?: number; created?: number; status_transitions?: { paid_at?: number | null } }>)
-    .filter((i) => typeof i.id === "string" && (i.amount_paid ?? 0) > 0)
+  const paid = (invoices as Array<{ id?: string; amount_paid?: number; created?: number; status_transitions?: { paid_at?: number | null }; discounts?: StripeDiscount[]; discount?: StripeDiscount }>)
+    .filter((i) => typeof i.id === "string" && (i.amount_paid ?? 0) > 0 && !usedPromotionCode(i))
     .map((i) => ({
       id: i.id as string,
       paidCents: i.amount_paid as number,
@@ -310,7 +326,7 @@ export const qualifySweep = internalAction({
           if (await ctx.runMutation(internal.referralPayouts.rejectReferral, { referralId: p.referralId, reason: "SAME_CUSTOMER" })) rejected++;
           continue;
         }
-        const inv = await stripeRest("GET", `/invoices?customer=${encodeURIComponent(p.referredCustomerId)}&status=paid&limit=10`);
+        const inv = await stripeRest("GET", `/invoices?customer=${encodeURIComponent(p.referredCustomerId)}&status=paid&limit=10&expand[]=data.discounts`);
         if (!inv.ok) throw new Error(stripeErrorMessage(inv));
         const first = firstRealPayment(inv.json.data);
         if (!first) continue; // still in trial or not paid yet

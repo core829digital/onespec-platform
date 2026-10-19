@@ -113,4 +113,14 @@ describe("checkout for an invited account", () => {
     expect(checkoutCall().body.get("allow_promotion_codes")).toBe("true");
     expect(posts.filter((p) => p.url.endsWith("/coupons"))).toHaveLength(0);
   });
+
+  test("yearly billing never shows the promotion-code box", async () => {
+    vi.stubEnv("STRIPE_PRICE_BASE_ANNUAL", "price_base_y");
+    const t = newDb();
+    const s = await seedTenant(t, { plan: "base" });
+    await t.run((ctx) => ctx.db.patch(s.tenantId, { planStatus: "pending_plan", country: "IT" }));
+    await t.withIdentity({ subject: s.ownerId }).action(api.billing.createCheckoutSession, { tenantId: s.tenantId, plan: "base", cycle: "annual" });
+    expect(checkoutCall().body.get("line_items[0][price]")).toBe("price_base_y");
+    expect(checkoutCall().body.has("allow_promotion_codes")).toBe(false);
+  });
 });

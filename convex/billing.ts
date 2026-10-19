@@ -455,7 +455,9 @@ export const createCheckoutSession = action({
       "subscription_data[metadata][ownerUserId]": owner.userId,
       success_url: `${appOrigin(args.origin)}/app/account/billing?status=success`,
       cancel_url: `${appOrigin(args.origin)}/app/account/billing?status=cancelled`,
-      allow_promotion_codes: "true",
+      // Promotion codes only on monthly billing: a first-invoice discount on a yearly plan
+      // would discount the whole year (terms, "Codici promozionali").
+      allow_promotion_codes: cycle === "annual" ? undefined : "true",
       ui_mode: "hosted_page",
       billing_address_collection: "required",
       "phone_number_collection[enabled]": "true",

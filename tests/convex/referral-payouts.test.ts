@@ -3,7 +3,7 @@ import { internal } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import type { MutationCtx } from "../../convex/_generated/server";
 import { newDb, seedTenant } from "./_helpers";
-import { cardFingerprints, firstRealPayment, hasRefundOrDispute, sharesAny } from "../../convex/referralPayouts";
+import { cardFingerprints, firstRealPayment, hasRefundOrDispute, sharesAny, usedPromotionCode } from "../../convex/referralPayouts";
 import { ensureReferralCoupon } from "../../convex/lib/referralCoupon";
 import { DAY_MS, referrerCreditCents } from "../../convex/lib/referralRewards";
 
@@ -135,6 +135,21 @@ describe("pure helpers", () => {
     expect(firstRealPayment([{ id: "z", amount_paid: 0 }])).toBeNull();
     expect(firstRealPayment(null)).toBeNull();
   });
+  test("an invoice reduced by a promotion code is not the first real payment", () => {
+    const promo = { ...paidInvoice("promo", 97, 1000_000), discounts: [{ id: "di_1", promotion_code: "promo_1" }] };
+    expect(firstRealPayment([promo])).toBeNull();
+    expect(firstRealPayment([promo, paidInvoice("full", 9700, 2000_000)])).toMatchObject({ id: "full", paidCents: 9700 });
+    // The invited account's own discount is a plain coupon: it still counts.
+    const invitee = { ...paidInvoice("invitee", 8730, 1000_000), discounts: [{ id: "di_2", promotion_code: null }] };
+    expect(firstRealPayment([invitee])).toMatchObject({ id: "invitee" });
+  });
+  test("usedPromotionCode reads expanded discounts and the older single field", () => {
+    expect(usedPromotionCode({ discounts: [{ promotion_code: "promo_1" }] })).toBe(true);
+    expect(usedPromotionCode({ discount: { promotion_code: "promo_1" } })).toBe(true);
+    expect(usedPromotionCode({ discounts: ["di_unexpanded"] })).toBe(false);
+    expect(usedPromotionCode({ discounts: [{ promotion_code: null }], discount: null })).toBe(false);
+    expect(usedPromotionCode({})).toBe(false);
+  });
 });
 
 describe("checkout discount", () => {
@@ -209,6 +224,16 @@ describe("qualification", () => {
     stripe.invoices["cus_new"] = [{ id: "in_trial", amount_paid: 0, created: 1 }];
     await s.t.action(internal.referralPayouts.qualifySweep, {});
     expect((await referral(s))?.status).toBe("pending");
+  });
+
+  test("a first month paid with a promotion code waits for the first full payment", async () => {
+    const s = await scenario();
+    stripe.invoices["cus_new"] = [{ ...paidInvoice("in_promo", 97, T0 - 40 * DAY_MS), discounts: [{ promotion_code: "promo_1" }] }];
+    await s.t.action(internal.referralPayouts.qualifySweep, {});
+    expect((await referral(s))?.status).toBe("pending");
+    stripe.invoices["cus_new"].push(paidInvoice("in_full", 9700, T0 - 10 * DAY_MS));
+    await s.t.action(internal.referralPayouts.qualifySweep, {});
+    expect(await referral(s)).toMatchObject({ status: "qualified", firstInvoiceId: "in_full", firstInvoicePaidCents: 9700, rewardCents: 970 });
   });
 
   test("the same physical card on both accounts is rejected", async () => {

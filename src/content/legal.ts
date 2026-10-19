@@ -132,7 +132,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
   {
     slug: "termini-di-servizio",
     title: "Termini di servizio",
-    updated: "2026-10-12",
+    updated: "2026-10-19",
     summary: "Le condizioni contrattuali tra OneSpec e l'organizzazione cliente.",
     sections: [
       {
@@ -184,6 +184,14 @@ export const LEGAL_DOCS: LegalDoc[] = [
           "In caso di passaggio a un piano di livello inferiore (downgrade), l'eventuale differenza a credito maturata sul periodo già pagato non viene rimborsata in denaro, ma resta disponibile come credito sulla piattaforma, applicato automaticamente al successivo rinnovo o addebito — consultabile in ogni momento nella sezione «Piano e fatturazione» dell'account.",
           "La disdetta dell'abbonamento (cancellazione del rinnovo) non dà diritto ad alcun rimborso della quota già corrisposta per il periodo in corso: l'accesso resta comunque attivo fino al termine di tale periodo, come indicato al momento della disdetta.",
           "Restano fermi gli eventuali diritti inderogabili previsti dalla legge applicabile per i casi di mancata erogazione del servizio imputabile a OneSpec.",
+        ],
+      },
+      {
+        h: "Codici promozionali",
+        p: [
+          "OneSpec può offrire, per periodi e in quantità limitati, codici promozionali da inserire nella pagina di pagamento. Le condizioni di ciascun codice (sconto, piani interessati, numero massimo di utilizzi ed eventuale scadenza) sono quelle comunicate insieme al codice e applicate dal sistema di pagamento al momento dell'acquisto; esauriti gli utilizzi disponibili o superata la scadenza, il codice non è più valido.",
+          "Salvo diversa indicazione, un codice promozionale: vale solo per il primo acquisto di un nuovo abbonamento e una sola volta per Cliente; si applica alla sola prima fattura dei piani a fatturazione mensile, mentre dalla fattura successiva si applica il prezzo di listino in vigore; non vale per il piano Enterprise né per la fatturazione annuale; non si somma allo sconto del programma inviti; non ha valore in denaro, non è cedibile e non dà diritto a rimborsi o crediti.",
+          "L'IVA, ove dovuta, è calcolata sull'importo scontato. OneSpec può non applicare o revocare uno sconto ottenuto in violazione di queste condizioni, ad esempio aprendo più account per la stessa organizzazione.",
         ],
       },
       {
@@ -421,7 +429,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
       {
         h: "Vantaggi",
         p: [
-          "L'invitato ottiene uno sconto del 10% sulla prima fattura dell'abbonamento a pagamento, calcolato sul prezzo di listino del piano e del ciclo scelti.",
+          "L'invitato ottiene uno sconto del 10% sulla prima fattura dell'abbonamento a pagamento, calcolato sul prezzo di listino del piano e del ciclo scelti. Lo sconto non si somma ai codici promozionali.",
           "L'invitante ottiene un premio pari al 10% del prezzo di listino, IVA esclusa, del piano e del ciclo di fatturazione effettivamente acquistati dall'invitato (l'annuale è calcolato come dieci mensilità). Il premio spetta una sola volta per ciascun account invitato.",
           "Il piano Enterprise, gestito commercialmente, è escluso dal programma automatico.",
         ],
@@ -430,6 +438,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
         h: "Quando matura il premio",
         p: [
           "Il premio matura solo dopo il primo pagamento reale dell'invitato e trascorsi 30 giorni, a condizione che nel frattempo il pagamento non sia stato rimborsato o contestato e che l'abbonamento dell'invitato risulti regolare.",
+          "Un pagamento ridotto da un codice promozionale non conta come primo pagamento reale: il premio matura a partire dal primo pagamento successivo effettuato senza codice promozionale (v. «Codici promozionali» nei Termini di servizio).",
           "Ogni invitante può ricevere al massimo 10 premi in 12 mesi consecutivi. Se l'invitante non è idoneo entro 90 giorni dal termine del periodo di attesa, l'invito scade senza premio.",
         ],
       },
