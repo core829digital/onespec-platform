@@ -45,6 +45,10 @@ export const LEGAL_VALUES: Record<string, string> = {
   "da definire per il piano Enterprise":
     "salvo diverso accordo scritto, OneSpec si impegna a una disponibilità mensile obiettivo del 99,5% (esclusa la manutenzione programmata comunicata in anticipo), senza crediti automatici; livelli di servizio e tempi di risposta dedicati possono essere concordati per iscritto con il Cliente Enterprise",
 
+  // Referral programme rules: approved by the company's director (Stefan Serban) for this version.
+  "versione del regolamento":
+    "in vigore dal 19 ottobre 2026, approvata dall'amministratore di CORE829 SRL; le modifiche successive sono pubblicate su questa pagina con la nuova data e non si applicano ai premi già maturati",
+
   // Security & compliance statements — limited to what the infrastructure providers publicly document.
   "da completare con la documentazione del fornitore":
     "i dati a riposo sono cifrati con algoritmi standard di settore (AES-256) dai fornitori di infrastruttura e le chiavi sono gestite da questi ultimi; OneSpec non ha accesso alle chiavi e non ne conserva copia",

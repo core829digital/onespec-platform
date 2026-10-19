@@ -119,6 +119,7 @@ export const getMyReferral = query({
         createdAt: r.createdAt,
         holdUntil: r.status === "qualified" ? (r.holdUntil ?? null) : null,
         rewardCents: r.status === "rewarded" || r.status === "qualified" ? (r.rewardCents ?? null) : null,
+        docsPending: r.status === "qualified" && !!r.payoutDocsRequestedAt && !r.payoutDocsApprovedAt,
       })),
     );
     const sum = (status: Doc<"referrals">["status"]) => rows.filter((r) => r.status === status).reduce((n, r) => n + (r.rewardCents ?? 0), 0);
@@ -176,7 +177,7 @@ export async function notifyOwner(
   ctx: MutationCtx,
   tenantId: Id<"tenants">,
   template: "referral_invited" | "referral_registered" | "referral_rewarded",
-  data: { amountCents?: number; percent?: number; payout?: "credit" | "stripe" },
+  data: { amountCents?: number; percent?: number; payout?: "credit" | "stripe" | "docs" },
 ): Promise<void> {
   try {
     const tenant = await ctx.db.get(tenantId);
@@ -307,6 +308,8 @@ export const adminListReferrals = query({
         rewardCents: r.rewardCents ?? null,
         rewardedAt: r.rewardedAt ?? null,
         payoutMethod: r.payoutMethod ?? null,
+        payoutDocsRequestedAt: r.payoutDocsRequestedAt ?? null,
+        payoutDocsApprovedAt: r.payoutDocsApprovedAt ?? null,
         clawbackNote: r.clawbackNote ?? null,
         referrer: await who(r.referrerTenantId),
         referred: await who(r.referredTenantId),
@@ -356,6 +359,22 @@ export const adminReopen = mutation({
     await ctx.db.patch(r._id, { status: "pending", rejectionReason: undefined });
     await ctx.db.patch(r.referredTenantId, { referredBy: r._id });
     await adminAudit(ctx, adminId, "referral.admin_reopened", r, { previous: r.status, reason: r.rejectionReason ?? null });
+  },
+});
+
+/**
+ * Records that the documents for a money reward arrived and are in order (the inviter's invoice to
+ * CORE829 SRL and, outside Romania, a valid certificate of tax residence). The next reward run pays it.
+ */
+export const adminApprovePayoutDocs = mutation({
+  args: { referralId: v.id("referrals") },
+  handler: async (ctx, args): Promise<void> => {
+    const adminId = await requirePlatformAdmin(ctx);
+    const r = await ctx.db.get(args.referralId);
+    if (!r) throw new ConvexError("NOT_FOUND");
+    if (r.status !== "qualified" || r.payoutDocsApprovedAt) throw new ConvexError("INVALID_STATE");
+    await ctx.db.patch(r._id, { payoutDocsApprovedAt: Date.now() });
+    await adminAudit(ctx, adminId, "referral.payout_docs_approved", r);
   },
 });
 

@@ -364,7 +364,7 @@ export function renderAuthEmail(template: string, locale: string, data: AuthEmai
     case "referral_rewarded": {
       const href = `${base}/app/account/referral`;
       const amount = String(data.amount ?? "");
-      const T = data.payout === "stripe" ? L.referral.paid : L.referral.rewarded;
+      const T = data.payout === "stripe" ? L.referral.paid : data.payout === "docs" ? L.referral.docs : L.referral.rewarded;
       return {
         subject: line(T.subject(amount)),
         html: wrap(

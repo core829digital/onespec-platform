@@ -2702,7 +2702,7 @@
       },
       "stripe": {
         "title": "Money to your account (Stripe)",
-        "body": "The reward is transferred to your Stripe account and then to your bank account. You need to connect a Stripe account."
+        "body": "The reward is transferred to your Stripe account and then to your bank account. You need to connect a Stripe account and send us an invoice for each reward."
       },
       "ownerOnly": "Only the account owner can change the method and connect the account.",
       "statusReady": "Account connected",
@@ -2713,8 +2713,10 @@
       "connect": "Connect Stripe account",
       "continue": "Complete the setup",
       "check": "Check status",
-      "taxNote": "A cash reward is a fee for your referral: tax treatment (invoice or receipt, depending on your legal form) is your responsibility. OneSpec may ask you for the necessary tax details."
-    }
+      "taxNote": "A money reward is the payment for a referral service. For each matured reward we ask you by email for an invoice made out to CORE829 SRL (Str. Mihai Eminescu 10, Roman, România, CUI RO54616345) and, if your company is not based in Romania, its certificate of tax residence for the current year. Between companies in different EU countries the invoice carries no VAT, under the reverse charge. The transfer leaves once the documents are checked. All the details are in the programme rules."
+    },
+    "docsPending": "Documents to send",
+    "docsPendingHint": "Send the invoice and, outside Romania, the certificate of tax residence to office@core829.net."
   },
   "adminReferrals": {
     "loading": "Loading…",
@@ -2747,7 +2749,11 @@
     "method": {
       "credit": "credit",
       "stripe": "Stripe money"
-    }
+    },
+    "docsWaiting": "Transfer documents requested on {date}: waiting for the invoice and, outside Romania, the certificate of tax residence",
+    "docsApproved": "Documents checked on {date}: the transfer leaves on the next run",
+    "approveDocs": "Documents checked",
+    "confirmDocs": "Do you confirm you received the invoice made out to CORE829 SRL and, if the inviter is not based in Romania, a valid certificate of tax residence? The transfer will leave automatically."
   },
   "pagination": {
     "page": "Page",

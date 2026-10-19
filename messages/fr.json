@@ -2702,7 +2702,7 @@
       },
       "stripe": {
         "title": "Argent sur votre compte (Stripe)",
-        "body": "La récompense est transférée sur votre compte Stripe puis sur votre compte bancaire. Il faut connecter un compte Stripe."
+        "body": "La récompense est transférée sur votre compte Stripe puis sur votre compte bancaire. Il faut relier un compte Stripe et nous envoyer une facture pour chaque récompense."
       },
       "ownerOnly": "Seul le propriétaire du compte peut changer le mode et connecter le compte.",
       "statusReady": "Compte connecté",
@@ -2713,8 +2713,10 @@
       "connect": "Connecter le compte Stripe",
       "continue": "Terminer la configuration",
       "check": "Vérifier l'état",
-      "taxNote": "Une récompense en argent est une rémunération de votre recommandation : le traitement fiscal (facture ou reçu, selon votre forme juridique) est à votre charge. OneSpec peut vous demander les informations fiscales nécessaires."
-    }
+      "taxNote": "Une récompense en argent est la rémunération d'un service d'apport d'affaires. Pour chaque récompense acquise, nous vous demandons par e-mail une facture au nom de CORE829 SRL (Str. Mihai Eminescu 10, Roman, România, CUI RO54616345) et, si votre société n'est pas établie en Roumanie, son certificat de résidence fiscale de l'année en cours. Entre sociétés de pays de l'UE différents, la facture est sans TVA, en autoliquidation. Le virement part après vérification des documents. Tous les détails figurent dans le règlement du programme."
+    },
+    "docsPending": "Documents à envoyer",
+    "docsPendingHint": "Envoyez la facture et, hors de Roumanie, le certificat de résidence fiscale à office@core829.net."
   },
   "adminReferrals": {
     "loading": "Chargement…",
@@ -2747,7 +2749,11 @@
     "method": {
       "credit": "crédit",
       "stripe": "argent Stripe"
-    }
+    },
+    "docsWaiting": "Documents pour le virement demandés le {date} : en attente de la facture et, hors de Roumanie, du certificat de résidence fiscale",
+    "docsApproved": "Documents vérifiés le {date} : le virement part au prochain passage",
+    "approveDocs": "Documents vérifiés",
+    "confirmDocs": "Confirmez-vous avoir reçu la facture au nom de CORE829 SRL et, si le parrain n'est pas établi en Roumanie, un certificat de résidence fiscale valide ? Le virement partira automatiquement."
   },
   "pagination": {
     "page": "Page",

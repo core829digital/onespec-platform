@@ -183,7 +183,7 @@ interface Scn {
   ownerId: Id<"users">;
 }
 
-async function payoutScenario(opts: { method?: "credit" | "stripe"; accountReady?: boolean; account?: boolean } = {}): Promise<Scn> {
+async function payoutScenario(opts: { method?: "credit" | "stripe"; accountReady?: boolean; account?: boolean; docsApproved?: boolean } = {}): Promise<Scn> {
   const t = newDb();
   const ref = await seedTenant(t, { plan: "pro" });
   await t.run((ctx) => ctx.db.patch(ref.tenantId, { stripeCustomerId: "cus_ref", stripeSubscriptionId: "sub_ref", country: "IT" }));
@@ -201,6 +201,8 @@ async function payoutScenario(opts: { method?: "credit" | "stripe"; accountReady
       firstInvoiceId: "in_1",
       firstInvoicePaidCents: 9700,
       rewardCents: 970,
+      // Money rewards need the tax documents checked; most scenarios start with them in order.
+      ...(opts.docsApproved === false ? {} : { payoutDocsRequestedAt: T0 - DAY_MS, payoutDocsApprovedAt: T0 - DAY_MS }),
     }),
   );
   if (opts.method) {
@@ -221,6 +223,77 @@ const get = (s: Scn) => s.t.run((ctx) => ctx.db.get(s.referralId));
 const sweep = (s: Scn) => s.t.action(internal.referralPayouts.rewardSweep, {});
 const transfersPosted = () => st.posts.filter((p) => p.path === "/transfers");
 const creditsPosted = () => st.posts.filter((p) => /balance_transactions$/.test(p.path));
+
+describe("tax documents before a money transfer", () => {
+  const docsMails = async (s: Scn) => {
+    await s.t.finishAllScheduledFunctions(vi.runAllTimers);
+    return (await s.t.run((ctx) => ctx.db.query("emailLog").collect())).filter((m) => m.template === "referral_rewarded");
+  };
+
+  test("without checked documents nothing is sent: the inviter is asked once, by email", async () => {
+    const s = await payoutScenario({ method: "stripe", docsApproved: false });
+    await sweep(s);
+    expect(transfersPosted()).toHaveLength(0);
+    expect(creditsPosted()).toHaveLength(0);
+    const r = await get(s);
+    expect(r).toMatchObject({ status: "qualified" });
+    expect(r?.payoutDocsRequestedAt).toBe(T0);
+    expect(r?.rewardClaimedAt).toBeUndefined();
+    vi.setSystemTime(T0 + 2 * DAY_MS);
+    await sweep(s);
+    const mails = await docsMails(s);
+    expect(mails).toHaveLength(1);
+    expect(mails[0].subject).toContain("pronto");
+    expect(mails[0].subject).toContain("9,70");
+    const audit = await s.t.run((ctx) => ctx.db.query("auditLog").withIndex("by_action", (q) => q.eq("action", "referral.payout_docs_requested")).collect());
+    expect(audit).toHaveLength(1);
+  });
+
+  test("the page shows the reward as waiting for documents", async () => {
+    const s = await payoutScenario({ method: "stripe", docsApproved: false });
+    await sweep(s);
+    const info = await s.t.withIdentity({ subject: s.ownerId }).query(api.referrals.getMyReferral, { tenantId: s.referrerId });
+    expect(info.history[0]).toMatchObject({ docsPending: true });
+  });
+
+  test("once an administrator checks them, the next run pays", async () => {
+    const s = await payoutScenario({ method: "stripe", docsApproved: false });
+    await sweep(s);
+    const admin = await seedTenant(s.t, { plan: "pro" });
+    await s.t.run((ctx) => ctx.db.patch(admin.ownerId, { isPlatformAdmin: true }));
+    await s.t.withIdentity({ subject: admin.ownerId }).mutation(api.referrals.adminApprovePayoutDocs, { referralId: s.referralId });
+    await expect(s.t.withIdentity({ subject: admin.ownerId }).mutation(api.referrals.adminApprovePayoutDocs, { referralId: s.referralId })).rejects.toThrow();
+    await sweep(s);
+    expect(transfersPosted()).toHaveLength(1);
+    expect(await get(s)).toMatchObject({ status: "rewarded", payoutMethod: "stripe" });
+  });
+
+  test("only a platform administrator can mark the documents as checked", async () => {
+    const s = await payoutScenario({ method: "stripe", docsApproved: false });
+    await sweep(s);
+    await expect(s.t.withIdentity({ subject: s.ownerId }).mutation(api.referrals.adminApprovePayoutDocs, { referralId: s.referralId })).rejects.toThrow();
+    expect((await get(s))?.payoutDocsApprovedAt).toBeUndefined();
+  });
+
+  test("switching to credit pays the credit without documents", async () => {
+    const s = await payoutScenario({ method: "stripe", docsApproved: false });
+    await sweep(s);
+    await s.t.withIdentity({ subject: s.ownerId }).mutation(api.referralPayoutAccount.setPayoutMethod, { tenantId: s.referrerId, method: "credit" });
+    await sweep(s);
+    expect(transfersPosted()).toHaveLength(0);
+    expect(creditsPosted()).toHaveLength(1);
+    expect(await get(s)).toMatchObject({ status: "rewarded", payoutMethod: "credit" });
+  });
+
+  test("documents that never arrive: the reward expires 90 days after the hold", async () => {
+    const s = await payoutScenario({ method: "stripe", docsApproved: false });
+    await sweep(s);
+    vi.setSystemTime(T0 + 91 * DAY_MS);
+    await sweep(s);
+    expect(transfersPosted()).toHaveLength(0);
+    expect(await get(s)).toMatchObject({ status: "expired", rejectionReason: "PAYOUT_DOCS_PENDING" });
+  });
+});
 
 describe("paying the reward as money", () => {
   test("a ready Connect account receives the transfer, once, with an idempotency key", async () => {

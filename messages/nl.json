@@ -2702,7 +2702,7 @@
       },
       "stripe": {
         "title": "Geld op je rekening (Stripe)",
-        "body": "De beloning wordt overgemaakt naar je Stripe-account en daarna naar je bankrekening. Je moet een Stripe-account koppelen."
+        "body": "De beloning wordt naar uw Stripe-rekening en daarna naar uw bankrekening overgemaakt. U moet een Stripe-rekening koppelen en ons voor elke beloning een factuur sturen."
       },
       "ownerOnly": "Alleen de eigenaar van het account kan de methode wijzigen en het account koppelen.",
       "statusReady": "Account gekoppeld",
@@ -2713,8 +2713,10 @@
       "connect": "Stripe-account koppelen",
       "continue": "Instelling afronden",
       "check": "Status controleren",
-      "taxNote": "Een beloning in geld is een vergoeding voor je aanbeveling: de fiscale behandeling (factuur of kwitantie, afhankelijk van je rechtsvorm) is voor jouw rekening. OneSpec kan je om de nodige fiscale gegevens vragen."
-    }
+      "taxNote": "Een beloning in geld is de vergoeding voor een aanbrengdienst. Voor elke verdiende beloning vragen we u per e-mail een factuur op naam van CORE829 SRL (Str. Mihai Eminescu 10, Roman, România, CUI RO54616345) en, als uw bedrijf niet in Roemenië gevestigd is, het fiscaal woonplaatsattest van het lopende jaar. Tussen bedrijven in verschillende EU-landen is de factuur zonder btw, met verlegging (reverse charge). De overschrijving vertrekt na controle van de documenten. Alle details staan in het reglement van het programma."
+    },
+    "docsPending": "Documenten te sturen",
+    "docsPendingHint": "Stuur de factuur en, buiten Roemenië, het fiscaal woonplaatsattest naar office@core829.net."
   },
   "adminReferrals": {
     "loading": "Laden…",
@@ -2747,7 +2749,11 @@
     "method": {
       "credit": "tegoed",
       "stripe": "Stripe-geld"
-    }
+    },
+    "docsWaiting": "Documenten voor de overschrijving gevraagd op {date}: wachten op de factuur en, buiten Roemenië, het fiscaal woonplaatsattest",
+    "docsApproved": "Documenten gecontroleerd op {date}: de overschrijving vertrekt bij de volgende ronde",
+    "approveDocs": "Documenten gecontroleerd",
+    "confirmDocs": "Bevestigt u dat u de factuur op naam van CORE829 SRL en, als de uitnodiger niet in Roemenië gevestigd is, een geldig fiscaal woonplaatsattest hebt ontvangen? De overschrijving vertrekt automatisch."
   },
   "pagination": {
     "page": "Pagina",

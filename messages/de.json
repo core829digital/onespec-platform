@@ -2702,7 +2702,7 @@
       },
       "stripe": {
         "title": "Geld auf Ihr Konto (Stripe)",
-        "body": "Die Prämie wird auf Ihr Stripe-Konto und von dort auf Ihr Bankkonto überwiesen. Dafür muss ein Stripe-Konto verbunden werden."
+        "body": "Die Prämie wird auf Ihr Stripe-Konto und dann auf Ihr Bankkonto überwiesen. Sie müssen ein Stripe-Konto verknüpfen und uns für jede Prämie eine Rechnung senden."
       },
       "ownerOnly": "Nur der Kontoinhaber kann die Methode ändern und das Konto verbinden.",
       "statusReady": "Konto verbunden",
@@ -2713,8 +2713,10 @@
       "connect": "Stripe-Konto verbinden",
       "continue": "Einrichtung abschließen",
       "check": "Status prüfen",
-      "taxNote": "Eine Geldprämie ist eine Vergütung für Ihre Empfehlung: die steuerliche Behandlung (Rechnung oder Beleg, je nach Rechtsform) liegt bei Ihnen. OneSpec kann die nötigen Steuerdaten bei Ihnen anfordern."
-    }
+      "taxNote": "Eine Geldprämie ist die Vergütung für eine Vermittlungsleistung. Für jede fällige Prämie bitten wir Sie per E-Mail um eine Rechnung an CORE829 SRL (Str. Mihai Eminescu 10, Roman, România, CUI RO54616345) und, falls Ihr Unternehmen nicht in Rumänien ansässig ist, um die Ansässigkeitsbescheinigung des laufenden Jahres. Zwischen Unternehmen in verschiedenen EU-Ländern wird ohne MwSt. abgerechnet (Steuerschuldnerschaft des Leistungsempfängers, Reverse Charge). Die Überweisung erfolgt nach Prüfung der Unterlagen. Alle Details stehen in den Programmbedingungen."
+    },
+    "docsPending": "Unterlagen senden",
+    "docsPendingHint": "Senden Sie die Rechnung und, außerhalb Rumäniens, die Ansässigkeitsbescheinigung an office@core829.net."
   },
   "adminReferrals": {
     "loading": "Wird geladen…",
@@ -2747,7 +2749,11 @@
     "method": {
       "credit": "Guthaben",
       "stripe": "Stripe-Geld"
-    }
+    },
+    "docsWaiting": "Unterlagen für die Überweisung am {date} angefordert: Rechnung und, außerhalb Rumäniens, Ansässigkeitsbescheinigung ausstehend",
+    "docsApproved": "Unterlagen am {date} geprüft: Die Überweisung erfolgt beim nächsten Lauf",
+    "approveDocs": "Unterlagen geprüft",
+    "confirmDocs": "Bestätigen Sie, dass die Rechnung an CORE829 SRL und, falls der Werber nicht in Rumänien ansässig ist, eine gültige Ansässigkeitsbescheinigung vorliegen? Die Überweisung erfolgt automatisch."
   },
   "pagination": {
     "page": "Seite",

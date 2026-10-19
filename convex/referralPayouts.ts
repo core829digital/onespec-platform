@@ -23,7 +23,9 @@ import { stripeConfigured, stripeErrorMessage, stripeRest } from "./lib/stripeRe
  *   qualified --(30 days, still paying, no refund/dispute, under the cap)--> rewarded
  *   rewarded --(refund/dispute inside 60 days)--> clawback (+ alert, unused credit reversed)
  *
- * The reward is ALWAYS a credit on the inviter's Stripe customer balance, never cash.
+ * The reward is a credit on the inviter's Stripe customer balance or, if the owner chose it and an
+ * administrator checked the tax documents (invoice, certificate of tax residence), a transfer to their
+ * Stripe Connect account.
  * Every Stripe write is idempotent (idempotency key + a lookup by referral id), and a
  * reward is claimed atomically in the database first, so an overlapping run cannot pay twice.
  */
@@ -200,6 +202,18 @@ export const claimReward = internalMutation({
       .withIndex("by_referrer_and_status", (q) => q.eq("referrerTenantId", r.referrerTenantId).eq("status", "rewarded"))
       .take(200);
     if (rewarded.filter((x) => (x.rewardedAt ?? 0) >= yearAgo).length >= MAX_REWARDS_PER_12_MONTHS) return waitOrEnd("CAP_REACHED");
+
+    // A money reward is the consideration for a referral service: it needs the inviter's invoice and, outside
+    // Romania, the certificate of tax residence (otherwise Romanian withholding tax applies). An administrator
+    // checks them; until then the reward waits (and can still be taken as credit instead).
+    if (method === "stripe" && !r.payoutDocsApprovedAt) {
+      if (!r.payoutDocsRequestedAt) {
+        await ctx.db.patch(r._id, { payoutDocsRequestedAt: now });
+        await audit(ctx, r.referrerTenantId, "referral.payout_docs_requested", r._id, { rewardCents: r.rewardCents });
+        await notifyOwner(ctx, r.referrerTenantId, "referral_rewarded", { amountCents: r.rewardCents, payout: "docs" });
+      }
+      return waitOrEnd("PAYOUT_DOCS_PENDING");
+    }
 
     await ctx.db.patch(r._id, { rewardClaimedAt: now });
     if (method === "stripe") return { kind: "go", method: "stripe", amountCents: r.rewardCents, accountId: payout!.stripeAccountId as string };

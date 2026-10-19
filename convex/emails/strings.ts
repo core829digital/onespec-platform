@@ -80,6 +80,8 @@ export interface EmailStrings {
     rewarded: { subject: (amount: string) => string; title: string; body: (amount: string) => string; cta: string };
     /** Reward paid as money to the inviter's Stripe account. */
     paid: { subject: (amount: string) => string; title: string; body: (amount: string) => string; cta: string };
+    /** A money reward is due: the documents the law requires must reach us before the transfer. */
+    docs: { subject: (amount: string) => string; title: string; body: (amount: string) => string; cta: string };
   };
   /** Support tickets: one mail shape, four situations. */
   support: { reply: SupportMail; resolved: SupportMail; staffNew: SupportMail; staffReply: SupportMail; staffContact: SupportMail; staffSla: SupportMail; contactReply: SupportMail };
@@ -212,6 +214,12 @@ const it: EmailStrings = {
       title: "Premio invito pagato",
       body: (a) => `Abbiamo trasferito ${a} sul tuo conto Stripe collegato: lo vedrai tra i tuoi pagamenti Stripe nei prossimi giorni. Grazie per aver portato un nuovo cliente.`,
       cta: "Vedi i tuoi inviti",
+    },
+    docs: {
+      subject: (a) => `Il tuo premio di ${a} è pronto — onespec`,
+      title: "Premio invito: servono i documenti fiscali",
+      body: (a) => `Il tuo premio di ${a} è maturato. Per pagartelo con bonifico, come prevede la legge, inviaci a <strong>office@core829.net</strong> la fattura per il premio intestata a CORE829 SRL e, se la tua azienda non ha sede in Romania, il certificato di residenza fiscale. Trovi tutti i dettagli nella pagina Invita e risparmia. Se preferisci, puoi passare al credito sull'abbonamento: non servono documenti.`,
+      cta: "Vedi cosa inviare",
     },
   },
   support: {
@@ -381,6 +389,12 @@ const en: EmailStrings = {
       body: (a) => `We transferred ${a} to your connected Stripe account: you will see it among your Stripe payouts in the next few days. Thank you for bringing in a new customer.`,
       cta: "See your invitations",
     },
+    docs: {
+      subject: (a) => `Your ${a} reward is ready — onespec`,
+      title: "Invite reward: tax documents needed",
+      body: (a) => `Your ${a} reward has matured. To pay it by bank transfer, as the law requires, send us at <strong>office@core829.net</strong> the invoice for the reward made out to CORE829 SRL and, if your company is not based in Romania, its certificate of tax residence. All the details are on the Invite &amp; save page. If you prefer, you can switch to credit on your subscription: no documents needed.`,
+      cta: "See what to send",
+    },
   },
   support: {
     reply: {
@@ -548,6 +562,12 @@ const fr: EmailStrings = {
       title: "Récompense d'invitation versée",
       body: (a) => `Nous avons transféré ${a} sur votre compte Stripe connecté : vous le verrez parmi vos versements Stripe dans les prochains jours. Merci d'avoir amené un nouveau client.`,
       cta: "Voir mes invitations",
+    },
+    docs: {
+      subject: (a) => `Votre récompense de ${a} est prête — onespec`,
+      title: "Récompense de parrainage : documents fiscaux nécessaires",
+      body: (a) => `Votre récompense de ${a} est acquise. Pour vous la verser par virement, comme le prévoit la loi, envoyez-nous à <strong>office@core829.net</strong> la facture de la récompense au nom de CORE829 SRL et, si votre société n'est pas établie en Roumanie, son certificat de résidence fiscale. Tous les détails figurent sur la page Inviter et économiser. Si vous préférez, vous pouvez passer au crédit sur votre abonnement : aucun document n'est nécessaire.`,
+      cta: "Voir quoi envoyer",
     },
   },
   support: {
@@ -717,6 +737,12 @@ const de: EmailStrings = {
       body: (a) => `Wir haben ${a} auf Ihr verbundenes Stripe-Konto überwiesen: Sie sehen den Betrag in den nächsten Tagen unter Ihren Stripe-Auszahlungen. Danke, dass Sie einen neuen Kunden gewonnen haben.`,
       cta: "Meine Einladungen ansehen",
     },
+    docs: {
+      subject: (a) => `Ihre Prämie von ${a} ist bereit — onespec`,
+      title: "Empfehlungsprämie: Steuerunterlagen nötig",
+      body: (a) => `Ihre Prämie von ${a} ist fällig. Damit wir sie, wie gesetzlich vorgeschrieben, per Überweisung auszahlen können, senden Sie uns an <strong>office@core829.net</strong> die Rechnung über die Prämie an CORE829 SRL und, falls Ihr Unternehmen nicht in Rumänien ansässig ist, die Ansässigkeitsbescheinigung. Alle Details finden Sie auf der Seite Einladen &amp; sparen. Wenn Sie möchten, können Sie zum Guthaben auf Ihr Abonnement wechseln: dann sind keine Unterlagen nötig.`,
+      cta: "Ansehen, was zu senden ist",
+    },
   },
   support: {
     reply: {
@@ -885,6 +911,12 @@ const nl: EmailStrings = {
       body: (a) => `We hebben ${a} overgemaakt naar je gekoppelde Stripe-account: je ziet het de komende dagen tussen je Stripe-uitbetalingen. Bedankt voor het aanbrengen van een nieuwe klant.`,
       cta: "Bekijk je uitnodigingen",
     },
+    docs: {
+      subject: (a) => `Uw beloning van ${a} staat klaar — onespec`,
+      title: "Uitnodigingsbeloning: fiscale documenten nodig",
+      body: (a) => `Uw beloning van ${a} is verdiend. Om ze, zoals de wet voorschrijft, per overschrijving te betalen, stuurt u ons via <strong>office@core829.net</strong> de factuur voor de beloning op naam van CORE829 SRL en, als uw bedrijf niet in Roemenië gevestigd is, het fiscaal woonplaatsattest. Alle details staan op de pagina Nodig uit en bespaar. Liever geen documenten? Kies dan tegoed op uw abonnement.`,
+      cta: "Bekijk wat u moet sturen",
+    },
   },
   support: {
     reply: {
@@ -1052,6 +1084,12 @@ const ro: EmailStrings = {
       title: "Recompensă de invitație plătită",
       body: (a) => `Am transferat ${a} în contul tău Stripe conectat: îl vei vedea printre plățile tale Stripe în următoarele zile. Mulțumim că ai adus un client nou.`,
       cta: "Vezi invitațiile tale",
+    },
+    docs: {
+      subject: (a) => `Recompensa de ${a} este gata — onespec`,
+      title: "Recompensă pentru invitație: sunt necesare documentele fiscale",
+      body: (a) => `Recompensa de ${a} a fost câștigată. Pentru a v-o plăti prin transfer, așa cum prevede legea, trimiteți-ne la <strong>office@core829.net</strong> factura pentru recompensă emisă către CORE829 SRL și, dacă firma dumneavoastră nu are sediul în România, certificatul de rezidență fiscală. Toate detaliile sunt pe pagina Invită și economisește. Dacă preferați, puteți trece la credit pe abonament: nu sunt necesare documente.`,
+      cta: "Vedeți ce trebuie trimis",
     },
   },
   support: {

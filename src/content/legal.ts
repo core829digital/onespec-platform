@@ -69,7 +69,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
   {
     slug: "privacy",
     title: "Informativa sulla privacy",
-    updated: "2026-10-18",
+    updated: "2026-10-19",
     summary: "Quali dati personali trattiamo, perché e per quanto tempo.",
     sections: [
       IDENTITY_INTRO,
@@ -84,6 +84,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
           "Assistenza: oggetto, testo e allegati (immagini o PDF) dei ticket che apri dalla piattaforma, categoria, stato, eventuale valutazione da 1 a 5, le risposte del nostro team e le note interne di lavorazione (non visibili a te).",
           "Pagina «Contattaci» (per chi non riesce ad accedere): nome, indirizzo email e messaggio che inserisci, argomento scelto, lingua e hash dell'indirizzo IP (l'IP in chiaro non viene conservato) usato per limitare gli abusi.",
           "Registro attività (audit log) delle azioni amministrative e delle operazioni sensibili, comprese le azioni sui ticket (identificativi e tipo di azione, senza il testo dei messaggi).",
+          "Programma inviti: codice invito, account collegati, stato dell'invito e importo del premio; per i premi in denaro, l'identificativo del conto Stripe Connect e i documenti fiscali inviati (fattura e certificato di residenza fiscale).",
         ],
       },
       {
@@ -95,6 +96,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
           "Le email sui ticket (nuova risposta, ticket risolto) sono comunicazioni di servizio legate alla tua richiesta, non comunicazioni commerciali; puoi disattivarle dalle preferenze di notifica.",
           "Invio di comunicazioni sul prodotto e commerciali — consenso (art. 6.1.a), revocabile dalla pagina Account.",
           "Adempimenti fiscali e contabili relativi agli abbonamenti a pagamento — obbligo legale (art. 6.1.c).",
+          "Programma inviti — esecuzione del regolamento accettato (art. 6.1.b); verifica e conservazione dei documenti fiscali dei premi in denaro — obbligo legale (art. 6.1.c); controlli contro gli abusi — legittimo interesse (art. 6.1.f).",
         ],
       },
       {
@@ -406,14 +408,14 @@ export const LEGAL_DOCS: LegalDoc[] = [
   {
     slug: "regolamento-inviti",
     title: "Regolamento del programma inviti",
-    updated: "2026-10-02",
+    updated: "2026-10-19",
     summary: "Come funzionano premi, sconti, pagamenti e controlli del programma «Invita e risparmia».",
     sections: [
       {
         h: "Cos'è il programma",
         p: [
           "Il programma «Invita e risparmia» permette a un'organizzazione cliente di OneSpec (l'«invitante») di invitare un'altra azienda (l'«invitato») tramite il proprio codice o link personale. Il programma è un'iniziativa commerciale di OneSpec, può essere attivato, modificato o sospeso in qualsiasi momento e riguarda esclusivamente clienti professionali (B2B).",
-          "Bozza in attesa di revisione legale: [[revisione legale del regolamento]].",
+          "Versione del regolamento: [[versione del regolamento]].",
         ],
       },
       {
@@ -435,13 +437,18 @@ export const LEGAL_DOCS: LegalDoc[] = [
         h: "Come viene pagato il premio",
         p: [
           "Il titolare dell'organizzazione sceglie tra due modalità: credito sul saldo Stripe, che riduce le prossime fatture di OneSpec, oppure bonifico in denaro tramite Stripe Connect sul conto collegato dall'invitante. Il pagamento in denaro richiede il completamento della verifica di identità richiesta da Stripe.",
-          "Il credito non è convertibile in denaro. Gli eventuali profili fiscali del premio in denaro (fatturazione, ritenute, IVA) sono a carico dell'invitante, salvo diversa disposizione di legge: [[trattamento fiscale del premio, da definire con il commercialista]].",
+          "Il credito non è convertibile in denaro: è uno sconto sugli abbonamenti OneSpec dell'invitante, scalato dalle fatture successive emesse da CORE829 SRL, e non richiede documenti.",
+          "Il premio in denaro è il corrispettivo di un servizio di segnalazione commerciale reso dall'invitante a CORE829 SRL. Quando matura, OneSpec chiede all'invitante via email: (a) la fattura del premio intestata a CORE829 SRL, Str. Mihai Eminescu 10, Roman, România, CUI/CIF RO54616345; (b) se l'invitante non ha sede in Romania, il certificato di residenza fiscale rilasciato dall'autorità fiscale del suo paese e valido per l'anno del pagamento. I documenti si inviano a [[email di contatto legale]]; il bonifico parte solo dopo la loro verifica.",
+          "IVA: se l'invitante ha sede in un altro Stato membro dell'UE, la prestazione si considera resa in Romania e la fattura è emessa senza IVA, con l'indicazione dell'inversione contabile («reverse charge», artt. 44 e 196 della Direttiva 2006/112/CE); l'imposta è assolta da CORE829 SRL. Se l'invitante ha sede in Romania ed è registrato ai fini IVA, la fattura riporta l'IVA romena; se non è registrato, è emessa senza IVA. Se l'invitante ha sede fuori dall'UE, la fattura segue le regole del suo paese. In ogni caso l'importo del premio, calcolato come indicato sopra, è il totale pagato da CORE829 SRL, comprensivo dell'eventuale IVA che l'invitante deve addebitare.",
+          "Ritenute alla fonte: per i compensi di segnalazione pagati a società non residenti la legge romena prevede una ritenuta alla fonte (art. 223 del Codice fiscale romeno, attualmente il 16%), che non si applica o si riduce in base alla convenzione contro le doppie imposizioni tra la Romania e il paese dell'invitante, se questi presenta il certificato di residenza fiscale. Senza un certificato valido OneSpec non effettua il bonifico; l'invitante può sempre scegliere il credito.",
+          "Imposte sul reddito: il premio è un ricavo dell'attività dell'invitante e va dichiarato secondo le norme del suo paese. OneSpec non fornisce consulenza fiscale: per la propria situazione l'invitante si rivolge al proprio consulente.",
+          "Tempi: il bonifico avviene entro 30 giorni dalla verifica dei documenti. Se i documenti completi non arrivano entro 90 giorni dalla fine del periodo di attesa, il premio in denaro scade; fino a quella data l'invitante può passare al credito, che viene accreditato senza documenti.",
         ],
       },
       {
         h: "Revoca del premio",
         p: [
-          "Se entro 60 giorni dal pagamento qualificante l'invitato ottiene un rimborso o apre una contestazione, il premio già riconosciuto viene revocato: il credito viene stornato dal saldo Stripe oppure il bonifico viene annullato tramite storno del trasferimento.",
+          "Se entro 60 giorni dal pagamento qualificante l'invitato ottiene un rimborso o apre una contestazione, il premio già riconosciuto viene revocato: il credito viene stornato dal saldo Stripe oppure il bonifico viene annullato tramite storno del trasferimento. Se il premio in denaro era già stato fatturato, l'invitante emette la relativa nota di credito.",
         ],
       },
       {

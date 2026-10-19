@@ -39,6 +39,7 @@ export default function AdminReferralsPage() {
   const reject = useMutation(api.referrals.adminReject);
   const reopen = useMutation(api.referrals.adminReopen);
   const setCodeDisabled = useMutation(api.referrals.adminSetCodeDisabled);
+  const approveDocs = useMutation(api.referrals.adminApprovePayoutDocs);
 
   const eur = (c: number) => new Intl.NumberFormat(locale, { style: "currency", currency: "EUR" }).format(c / 100);
   const day = (ms: number) => new Date(ms).toLocaleDateString(locale);
@@ -112,10 +113,22 @@ export default function AdminReferralsPage() {
                   {r.clawbackNote ? ` · ${r.clawbackNote}` : ""}
                 </p>
               ) : null}
+              {r.payoutDocsRequestedAt && r.status === "qualified" ? (
+                <p className={`mt-1 text-xs ${r.payoutDocsApprovedAt ? "text-[var(--color-text-secondary)]" : "text-amber-500"}`}>
+                  {r.payoutDocsApprovedAt
+                    ? t("docsApproved", { date: day(r.payoutDocsApprovedAt) })
+                    : t("docsWaiting", { date: day(r.payoutDocsRequestedAt) })}
+                </p>
+              ) : null}
               <div className="mt-3 flex flex-wrap gap-2">
                 {r.status === "pending" || r.status === "qualified" ? (
                   <Button size="sm" variant="ghost" onClick={() => { if (window.confirm(t("confirmReject"))) void run(reject({ referralId: r.id as Id<"referrals"> })); }}>
                     {t("reject")}
+                  </Button>
+                ) : null}
+                {r.status === "qualified" && r.payoutDocsRequestedAt && !r.payoutDocsApprovedAt ? (
+                  <Button size="sm" onClick={() => { if (window.confirm(t("confirmDocs"))) void run(approveDocs({ referralId: r.id as Id<"referrals"> })); }}>
+                    {t("approveDocs")}
                   </Button>
                 ) : null}
                 {r.status === "rejected" || r.status === "expired" ? (

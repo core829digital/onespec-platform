@@ -214,6 +214,13 @@ export default defineSchema({
     /** How the reward was paid: credit on the Stripe balance, or a transfer to a Connect account. */
     payoutMethod: v.optional(v.union(v.literal("credit"), v.literal("stripe"))),
     stripeTransferId: v.optional(v.string()),
+    /**
+     * Money rewards only: when the inviter was asked for the documents the law requires before the
+     * transfer (invoice to CORE829 SRL; certificate of tax residence outside Romania), and when an
+     * administrator checked them. No transfer leaves without the check.
+     */
+    payoutDocsRequestedAt: v.optional(v.number()),
+    payoutDocsApprovedAt: v.optional(v.number()),
     clawbackAt: v.optional(v.number()),
     clawbackNote: v.optional(v.string()),
   })

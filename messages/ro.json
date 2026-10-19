@@ -2702,7 +2702,7 @@
       },
       "stripe": {
         "title": "Bani în contul tău (Stripe)",
-        "body": "Recompensa este transferată în contul tău Stripe și apoi în contul tău bancar. Trebuie să conectezi un cont Stripe."
+        "body": "Recompensa este transferată în contul Stripe și apoi în contul bancar. Trebuie să conectați un cont Stripe și să ne trimiteți o factură pentru fiecare recompensă."
       },
       "ownerOnly": "Doar proprietarul contului poate schimba metoda și conecta contul.",
       "statusReady": "Cont conectat",
@@ -2713,8 +2713,10 @@
       "connect": "Conectează contul Stripe",
       "continue": "Finalizează configurarea",
       "check": "Verifică starea",
-      "taxNote": "O recompensă în bani este o remunerație pentru recomandarea ta: tratamentul fiscal (factură sau chitanță, în funcție de forma ta juridică) îți aparține. OneSpec îți poate cere datele fiscale necesare."
-    }
+      "taxNote": "Recompensa în bani este plata unui serviciu de recomandare. Pentru fiecare recompensă câștigată vă cerem prin e-mail o factură emisă către CORE829 SRL (Str. Mihai Eminescu 10, Roman, România, CUI RO54616345) și, dacă firma dumneavoastră nu are sediul în România, certificatul de rezidență fiscală pentru anul în curs. Între firme din țări UE diferite factura se emite fără TVA, cu taxare inversă. Pentru firmele din România se aplică TVA dacă sunteți înregistrat în scopuri de TVA. Transferul pleacă după verificarea documentelor. Toate detaliile sunt în regulamentul programului."
+    },
+    "docsPending": "Documente de trimis",
+    "docsPendingHint": "Trimiteți factura și, în afara României, certificatul de rezidență fiscală la office@core829.net."
   },
   "adminReferrals": {
     "loading": "Se încarcă…",
@@ -2747,7 +2749,11 @@
     "method": {
       "credit": "credit",
       "stripe": "bani Stripe"
-    }
+    },
+    "docsWaiting": "Documente pentru transfer cerute pe {date}: se așteaptă factura și, în afara României, certificatul de rezidență fiscală",
+    "docsApproved": "Documente verificate pe {date}: transferul pleacă la următoarea rulare",
+    "approveDocs": "Documente verificate",
+    "confirmDocs": "Confirmați că ați primit factura emisă către CORE829 SRL și, dacă invitatorul nu are sediul în România, un certificat de rezidență fiscală valabil? Transferul va pleca automat."
   },
   "pagination": {
     "page": "Pagina",

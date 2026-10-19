@@ -48,11 +48,11 @@ Perché serve: l'esenzione dell'art. 30.5 (meno di 250 dipendenti) non si applic
 | Voce | Contenuto |
 |---|---|
 | Finalità | Gestione degli inviti, dello sconto per l'invitato e del premio per chi invita (credito o pagamento via Stripe Connect), controlli anti-abuso |
-| Base giuridica | Esecuzione del contratto / regolamento del programma (art. 6.1.b); legittimo interesse alla prevenzione delle frodi (art. 6.1.f) |
+| Base giuridica | Esecuzione del regolamento del programma (art. 6.1.b); obbligo legale per la verifica e la conservazione dei documenti fiscali dei premi in denaro (art. 6.1.c); legittimo interesse alla prevenzione delle frodi (art. 6.1.f) |
 | Interessati | Utenti che invitano e aziende invitate |
-| Categorie di dati | Codice invito, account collegati, stato della qualifica, importi, identificativi Stripe; nella pagina vengono mostrati solo dati mascherati |
+| Categorie di dati | Codice invito, account collegati, stato della qualifica, importi, identificativi Stripe; per i premi in denaro, fattura dell'invitante e certificato di residenza fiscale (ricevuti a office@core829.net) e data della verifica; nella pagina vengono mostrati solo dati mascherati |
 | Destinatari | Stripe (credito, Connect) |
-| Conservazione | Per la durata del programma e del rapporto, oltre agli obblighi fiscali sui pagamenti |
+| Conservazione | Per la durata del programma e del rapporto; fatture e certificati per il periodo previsto dalla normativa fiscale e contabile romena |
 
 ### A4. Assistenza: ticket e pagina «Contattaci»
 

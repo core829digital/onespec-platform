@@ -288,10 +288,13 @@ export default function ReferralPage() {
                     {date(h.createdAt)}
                     {h.holdUntil ? ` · ${t("waitingUntil", { date: date(h.holdUntil) })}` : ""}
                   </p>
+                  {h.docsPending ? <p className="mt-0.5 text-xs text-amber-500">{t("docsPendingHint")}</p> : null}
                 </div>
                 <div className="flex items-center gap-3">
                   {h.rewardCents ? <span className="font-mono text-sm tabular-nums text-[var(--color-text)]">{eur(h.rewardCents)}</span> : null}
-                  <span className="rounded-full bg-[var(--color-bg)] px-2.5 py-1 text-xs font-semibold text-[var(--color-text-secondary)]">{t(`status.${h.status}`)}</span>
+                  <span className={`rounded-full px-2.5 py-1 text-xs font-semibold ${h.docsPending ? "bg-amber-500/15 text-amber-500" : "bg-[var(--color-bg)] text-[var(--color-text-secondary)]"}`}>
+                    {h.docsPending ? t("docsPending") : t(`status.${h.status}`)}
+                  </span>
                 </div>
               </li>
             ))}

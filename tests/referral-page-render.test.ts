@@ -151,7 +151,7 @@ describe("referral page", () => {
     const html = render("it");
     expect(html).toContain("Collega il conto Stripe");
     expect(html).toContain("Nessun conto collegato");
-    expect(html).toContain("gestione fiscale");
+    expect(html).toContain("servizio di segnalazione");
   });
 
   test("account started but not ready, and ready", () => {

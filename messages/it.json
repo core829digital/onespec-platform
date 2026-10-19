@@ -2702,7 +2702,7 @@
       },
       "stripe": {
         "title": "Denaro sul tuo conto (Stripe)",
-        "body": "Il premio viene trasferito sul tuo conto Stripe e poi sul tuo conto bancario. Serve collegare un conto Stripe."
+        "body": "Il premio viene trasferito sul tuo conto Stripe e poi sul tuo conto bancario. Serve collegare un conto Stripe e, per ogni premio, inviarci la fattura."
       },
       "ownerOnly": "Solo il titolare dell'account può cambiare il metodo e collegare il conto.",
       "statusReady": "Conto collegato",
@@ -2713,8 +2713,10 @@
       "connect": "Collega il conto Stripe",
       "continue": "Completa la configurazione",
       "check": "Verifica lo stato",
-      "taxNote": "Un premio in denaro è un compenso per la tua segnalazione: la gestione fiscale (fattura o ricevuta, secondo la tua forma giuridica) è a tuo carico. OneSpec può chiederti i dati fiscali necessari."
-    }
+      "taxNote": "Il premio in denaro è il compenso per un servizio di segnalazione. Per ogni premio maturato ti chiediamo via email la fattura intestata a CORE829 SRL (Str. Mihai Eminescu 10, Roman, România, CUI RO54616345) e, se la tua azienda non ha sede in Romania, il certificato di residenza fiscale dell'anno in corso. Tra aziende di paesi UE diversi la fattura è senza IVA, con inversione contabile («reverse charge»). Il bonifico parte dopo la verifica dei documenti. Tutti i dettagli sono nel regolamento del programma."
+    },
+    "docsPending": "Documenti da inviare",
+    "docsPendingHint": "Invia a office@core829.net la fattura e, fuori dalla Romania, il certificato di residenza fiscale."
   },
   "adminReferrals": {
     "loading": "Caricamento…",
@@ -2747,7 +2749,11 @@
     "method": {
       "credit": "credito",
       "stripe": "denaro Stripe"
-    }
+    },
+    "docsWaiting": "Documenti per il bonifico richiesti il {date}: attesa fattura e, fuori dalla Romania, certificato di residenza fiscale",
+    "docsApproved": "Documenti verificati il {date}: il bonifico parte al prossimo giro",
+    "approveDocs": "Documenti verificati",
+    "confirmDocs": "Confermi di aver ricevuto la fattura intestata a CORE829 SRL e, se l'invitante non ha sede in Romania, un certificato di residenza fiscale valido? Il bonifico partirà automaticamente."
   },
   "pagination": {
     "page": "Pagina",
