@@ -91,3 +91,27 @@ describe("support e-mails: every situation, every language", () => {
     expect(r.html).toContain("/app/support");
   });
 });
+
+describe("new request e-mail: where it came from", () => {
+  test("configurator in subject, body and text; the source page as a link, cleaned", () => {
+    for (const l of LOCALES) {
+      const r = renderAuthEmail("new_quote_request", l, {
+        leadName: "Mario", leadEmail: "m@example.com", priceCents: 100000, quoteId: "q1",
+        configuratorName: "Finestre PVC", sourcePage: "https://www.serramenti-rossi.it/preventivo?email=x@y.z#a",
+      });
+      expect(r.subject).toContain("Finestre PVC");
+      expect(r.html).toContain("Finestre PVC");
+      expect(r.html).toContain('href="https://www.serramenti-rossi.it/preventivo"');
+      expect(r.html).not.toContain("email=x@y.z");
+      expect(r.text).toContain("Finestre PVC");
+      expect(r.text).toContain("https://www.serramenti-rossi.it/preventivo");
+    }
+  });
+  test("no page row when the page is missing or not a web address", () => {
+    for (const sourcePage of [undefined, "javascript:alert(1)"]) {
+      const r = renderAuthEmail("new_quote_request", "it", { leadName: "M", leadEmail: "m@example.com", priceCents: 1, quoteId: "q", configuratorName: "C", sourcePage });
+      expect(r.html).not.toContain("Pagina di provenienza");
+      expect(r.html).not.toContain("javascript:");
+    }
+  });
+});

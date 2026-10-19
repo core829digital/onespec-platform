@@ -23,6 +23,7 @@ export interface EmailStrings {
     lockedQuota: string;
     lockedSuspended: string;
     configurator: string;
+    sourcePage: string;
     value: string;
     cta: string;
     textLocked: string;
@@ -124,6 +125,7 @@ const it: EmailStrings = {
     lockedQuota: "limite mensile raggiunto — i contatti si sbloccano passando a un piano superiore o dal primo del mese",
     lockedSuspended: "abbonamento sospeso — i contatti si sbloccano riattivando l'abbonamento",
     configurator: "Configuratore",
+    sourcePage: "Pagina di provenienza",
     value: "Valore",
     cta: "Apri in dashboard",
     textLocked: "Nuova richiesta preventivo (contatti bloccati)",
@@ -298,6 +300,7 @@ const en: EmailStrings = {
     lockedQuota: "monthly limit reached — contact details unlock when you upgrade or on the 1st of next month",
     lockedSuspended: "subscription suspended — contact details unlock when you reactivate your subscription",
     configurator: "Configurator",
+    sourcePage: "Source page",
     value: "Value",
     cta: "Open in dashboard",
     textLocked: "New quote request (contact details locked)",
@@ -472,6 +475,7 @@ const fr: EmailStrings = {
     lockedQuota: "limite mensuelle atteinte — les coordonnées se débloquent en passant à une offre supérieure ou au 1er du mois",
     lockedSuspended: "abonnement suspendu — les coordonnées se débloquent en réactivant l'abonnement",
     configurator: "Configurateur",
+    sourcePage: "Page de provenance",
     value: "Montant",
     cta: "Ouvrir dans le tableau de bord",
     textLocked: "Nouvelle demande de devis (coordonnées masquées)",
@@ -646,6 +650,7 @@ const de: EmailStrings = {
     lockedQuota: "Monatslimit erreicht — die Kontaktdaten werden nach einem Upgrade oder ab dem 1. des Folgemonats freigegeben",
     lockedSuspended: "Abonnement pausiert — die Kontaktdaten werden nach Reaktivierung des Abonnements freigegeben",
     configurator: "Konfigurator",
+    sourcePage: "Herkunftsseite",
     value: "Wert",
     cta: "Im Dashboard öffnen",
     textLocked: "Neue Angebotsanfrage (Kontaktdaten gesperrt)",
@@ -820,6 +825,7 @@ const nl: EmailStrings = {
     lockedQuota: "maandlimiet bereikt — de contactgegevens worden zichtbaar na een upgrade of vanaf de 1e van de volgende maand",
     lockedSuspended: "abonnement opgeschort — de contactgegevens worden zichtbaar zodra je het abonnement heractiveert",
     configurator: "Configurator",
+    sourcePage: "Pagina van herkomst",
     value: "Waarde",
     cta: "Openen in dashboard",
     textLocked: "Nieuwe offerteaanvraag (contactgegevens afgeschermd)",
@@ -994,6 +1000,7 @@ const ro: EmailStrings = {
     lockedQuota: "limita lunară a fost atinsă — datele de contact se deblochează la trecerea pe un plan superior sau de la 1 ale lunii",
     lockedSuspended: "abonament suspendat — datele de contact se deblochează la reactivarea abonamentului",
     configurator: "Configurator",
+    sourcePage: "Pagina de proveniență",
     value: "Valoare",
     cta: "Deschide în panou",
     textLocked: "Cerere nouă de ofertă (date de contact blocate)",

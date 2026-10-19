@@ -468,6 +468,7 @@ export const insertQuote = internalMutation({
   handler: async (ctx, args) => {
     const configurator = await ctx.db.get(args.configuratorId);
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
+    const sourcePage = cleanSourcePage(args.sourcePage);
 
     const version = await ctx.db
       .query("catalogVersions")
@@ -558,7 +559,7 @@ export const insertQuote = internalMutation({
           : "new",
       sourceIpHash: args.sourceIpHash,
       sourceOrigin: args.sourceOrigin,
-      sourcePage: cleanSourcePage(args.sourcePage),
+      sourcePage,
       userAgent: args.userAgent,
       turnstileVerified: args.turnstileVerified,
       spamScore: args.flagged ? 80 : priceMismatch ? 30 : 0,
@@ -625,6 +626,7 @@ export const insertQuote = internalMutation({
               lockReason: suspendedLocked ? "suspended" : "quota",
               priceCents: price.priceCents,
               configuratorName: configurator.name,
+              sourcePage,
             }
           : {
               quoteId,
@@ -632,6 +634,7 @@ export const insertQuote = internalMutation({
               leadEmail: args.leadEmail,
               priceCents: price.priceCents,
               configuratorName: configurator.name,
+              sourcePage,
             },
         href: `/app/requests/${quoteId}`,
         emailTemplate: "new_quote_request",

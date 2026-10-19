@@ -23,11 +23,11 @@ export function notificationText(t: Translate, n: NotifRow): string {
 
   try {
     switch (n.type) {
-      case "quote_request_new":
-        return t("types.quote_request_new", {
-          leadName: str(d.leadName) || "—",
-          price: eur(d.priceCents) || "—",
-        });
+      case "quote_request_new": {
+        // Which configurator it came from (absent on notifications sent before it was recorded).
+        const from = str(d.configuratorName);
+        return t("types.quote_request_new", { leadName: str(d.leadName) || "—", price: eur(d.priceCents) || "—" }) + (from ? ` · ${from}` : "");
+      }
       case "quote_status_changed": {
         const s = str(d.newStatus);
         const label = s ? t(`status.${s}`) : s;

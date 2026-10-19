@@ -14,6 +14,7 @@
  */
 import { emailStrings, type QuoteStatus } from "./strings";
 import { gradeLabel } from "../../src/shared/grade-labels";
+import { cleanSourcePage } from "../../src/shared/source-page";
 
 type Rendered = { subject: string; html: string; text: string };
 
@@ -30,6 +31,8 @@ export interface AuthEmailData {
   lockReason?: "quota" | "suspended";
   priceCents?: number;
   configuratorName?: string;
+  /** Widget requests: page of the dealer's site the request came from (already cleaned, see src/shared/source-page.ts). */
+  sourcePage?: string;
   quoteId?: string;
   newStatus?: string;
   userName?: string;
@@ -199,13 +202,18 @@ export function renderAuthEmail(template: string, locale: string, data: AuthEmai
 
     case "new_quote_request": {
       const lockedText = data.lockReason === "suspended" ? L.newQuote.lockedSuspended : L.newQuote.lockedQuota;
+      const page = cleanSourcePage(data.sourcePage);
+      const pageRow = page
+        ? `<p style="margin:0 0 6px"><strong>${L.newQuote.sourcePage}:</strong> <a href="${escUrl(page)}" style="color:#16d19d;word-break:break-all">${esc(page.replace(/^https?:\/\//, ""))}</a></p>`
+        : "";
       return {
-        subject: line(L.newQuote.subject(data.leadName ?? "")),
+        subject: line(L.newQuote.subject(data.leadName ?? "") + (data.configuratorName ? ` · ${data.configuratorName}` : "")),
         html: wrap(
           `${H1}${L.newQuote.title}</h1>
            <div style="background:#141618;padding:16px;border-radius:9px;border:1px solid #34383c;margin-bottom:12px">
              <p style="margin:0 0 6px"><strong>${L.newQuote.lead}:</strong> ${data.locked ? lockedText : `${leadName} (${leadEmail})`}</p>
              <p style="margin:0 0 6px"><strong>${L.newQuote.configurator}:</strong> ${configuratorName}</p>
+             ${pageRow}
              <p style="margin:0"><strong>${L.newQuote.value}:</strong> €${price}</p>
            </div>
            ${cta(`${base}/app/requests/${quoteId}`, L.newQuote.cta)}`,
@@ -215,7 +223,10 @@ export function renderAuthEmail(template: string, locale: string, data: AuthEmai
             data.locked
               ? `${L.newQuote.textLocked}: ${lockedText} — €${price}`
               : `${L.newQuote.title}: ${data.leadName ?? ""} (${data.leadEmail ?? ""}) — €${price}`,
-          ) + `\n${base}/app/requests/${quoteId}`,
+          ) +
+          `\n${L.newQuote.configurator}: ${line(data.configuratorName ?? "—")}` +
+          (page ? `\n${L.newQuote.sourcePage}: ${page}` : "") +
+          `\n${base}/app/requests/${quoteId}`,
       };
     }
 
