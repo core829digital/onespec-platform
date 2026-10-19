@@ -11,6 +11,7 @@ describe("error codes that came through the auth proxy", () => {
   });
   test("the backend's long message carries the code too", () => {
     expect(errorCode(new Error("[Request ID: 1a2b] Server Error\nUncaught ConvexError: MFA_INVALID\n    at withMfaGuard"))).toBe("MFA_INVALID");
+    expect(errorCode(new Error('Uncaught ConvexError: "MFA_REQUIRED"'))).toBe("MFA_REQUIRED");
   });
   test("the ConvexError itself still works", () => {
     expect(errorCode(new ConvexError("TURNSTILE_FAILED"))).toBe("TURNSTILE_FAILED");

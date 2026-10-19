@@ -86,6 +86,8 @@ function ResetPasswordContent() {
         <Input
           id="code"
           type="text"
+          autoComplete="one-time-code"
+          inputMode="numeric"
           value={code}
           onChange={e => setCode(e.target.value)}
           placeholder={t("codePlaceholder")}
@@ -103,6 +105,7 @@ function ResetPasswordContent() {
           </Label>
           <PasswordInput
             id="password"
+            autoComplete="new-password"
             value={password}
             onChange={e => setPassword(e.target.value)}
             placeholder={t("passwordPlaceholder")}
@@ -119,6 +122,7 @@ function ResetPasswordContent() {
           </Label>
           <PasswordInput
             id="confirmPassword"
+            autoComplete="new-password"
             value={confirmPassword}
             onChange={e => setConfirmPassword(e.target.value)}
             placeholder={t("confirmPasswordPlaceholder")}

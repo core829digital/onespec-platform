@@ -106,6 +106,8 @@ function LoginForm() {
           <Input
             id="email"
             type="email"
+            autoComplete="username"
+            inputMode="email"
             value={email}
             onChange={e => setEmail(e.target.value)}
             placeholder={t("emailPlaceholder")}
@@ -121,6 +123,7 @@ function LoginForm() {
           </Label>
           <PasswordInput
             id="password"
+            autoComplete="current-password"
             value={password}
             onChange={e => setPassword(e.target.value)}
             placeholder={t("passwordPlaceholder")}

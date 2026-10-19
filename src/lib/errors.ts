@@ -416,7 +416,7 @@ export function errorCode(e: unknown): string | null {
   if (e instanceof Error) {
     const m = e.message.trim();
     if (/^[A-Z][A-Z0-9_]{2,}$/.test(m)) return m;
-    const hit = m.match(/ConvexError: ([A-Z][A-Z0-9_]{2,})\b/);
+    const hit = m.match(/ConvexError: "?([A-Z][A-Z0-9_]{2,})\b/);
     if (hit) return hit[1];
   }
   return null;
