@@ -3,6 +3,7 @@
 import { createContext, useContext, useMemo, useRef, useState } from "react";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useFriendlyError } from "@/lib/use-friendly-error";
+import { parseEuroAmountToCents } from "@/shared/money-input";
 
 /** Debounce for text/number auto-save — long enough to not fire mid-keystroke. */
 const AUTOSAVE_DEBOUNCE_MS = 900;
@@ -13,8 +14,8 @@ export type LabelSet = { it?: string; en?: string; fr?: string; de?: string; nl?
 export const WIDGET_LABEL_LANGS = ["it", "en", "fr", "de", "nl"] as const;
 export type LabelLang = (typeof WIDGET_LABEL_LANGS)[number];
 
-export const toCents = (s: string | number) =>
-  Math.round(parseFloat(String(s).replace(",", ".")) * 100) || 0;
+/** Euros typed in a price cell -> cents ("1.234" is €1,234, not €1.23); an unreadable cell saves as 0. */
+export const toCents = (s: string | number) => parseEuroAmountToCents(s) ?? 0;
 
 type Draft = Record<string, string | number | boolean>;
 

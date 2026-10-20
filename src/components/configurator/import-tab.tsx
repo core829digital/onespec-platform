@@ -22,8 +22,6 @@ const FIELDS: Record<Target, Array<{ k: string; price?: boolean }>> = {
   hardware: [{ k: "key" }, { k: "label" }, { k: "priceCents", price: true }, { k: "kind" }],
 };
 
-const toCents = (s: string) => Math.round(parseFloat(String(s).replace(",", ".")) * 100);
-
 export function ImportTab({ configuratorId }: { configuratorId: Id<"configurators"> }) {
   const t = useTranslations("editor.import");
   const locale = useLocale();
@@ -88,7 +86,8 @@ export function ImportTab({ configuratorId }: { configuratorId: Id<"configurator
         const obj: Record<string, string | number> = {};
         for (const f of fields) {
           const raw = (r[map[f.k]] ?? "").trim();
-          obj[f.k] = f.price ? toCents(raw) : raw;
+          // Price cells go to the server as typed: it parses euros (grouping-aware) and rejects a bad cell per row.
+          obj[f.k] = raw;
         }
         return obj as { key: string; label: string };
       });

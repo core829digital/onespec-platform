@@ -3,6 +3,7 @@ import { v } from "convex/values";
 import { ConvexError } from "convex/values";
 import { requireMembership } from "./lib/auth";
 import { requirePermission } from "./lib/rbac";
+import { parseEuroAmountToCents } from "../src/shared/money-input";
 
 const TARGET = v.union(
   v.literal("materials"),
@@ -38,9 +39,10 @@ function validateRow(target: Target, raw: ImportRow, index: number): { ok: true;
   const label = (raw.label ?? "").trim();
   if (label.length < 1 || label.length > 80) return { ok: false, reason: "etichetta mancante o troppo lunga", index };
 
+  // Numbers are cents (API callers); strings are euros as typed in the price list ("1.234,50", "12,5").
   const num = (n: unknown) => {
-    const v = typeof n === "number" ? n : parseFloat(String(n ?? "").replace(",", "."));
-    return Number.isFinite(v) && v >= 0 ? Math.round(v) : null;
+    if (typeof n === "number") return Number.isFinite(n) && n >= 0 ? Math.round(n) : null;
+    return parseEuroAmountToCents(typeof n === "string" ? n : null);
   };
 
   if (target === "materials") {

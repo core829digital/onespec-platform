@@ -80,4 +80,34 @@ describe("catalogImport.importRows", () => {
       }),
     ).rejects.toThrow();
   });
+
+  test("price cells typed as euros: grouping is read right, a blank cell rejects only its row (issue #30)", async () => {
+    const t = newDb();
+    const { tenantId, ownerId } = await seedTenant(t);
+    const configuratorId = await seedPublishedConfigurator(t, tenantId);
+    const as = t.withIdentity({ subject: ownerId });
+    const res = await as.mutation(api.catalogImport.importRows, {
+      configuratorId,
+      target: "glazing",
+      rows: [
+        { key: "triplo", label: "Triplo vetro", priceCents: "1.234" }, // it-IT grouping: €1,234
+        { key: "doppio", label: "Doppio vetro", priceCents: "45,50" },
+        { key: "acustico", label: "Acustico", priceCents: "" }, // upcharge not decided yet
+        { key: "satinato", label: "Satinato", priceCents: "1.234,5" },
+      ],
+    });
+    expect(res.summary).toEqual({ created: 3, updated: 0, rejected: 1 });
+    expect(res.rejected[0].row).toBe(3);
+    const rows = await t.run((ctx) =>
+      ctx.db
+        .query("catalogGlazingOptions")
+        .withIndex("by_configurator", (q) => q.eq("configuratorId", configuratorId))
+        .collect(),
+    );
+    const price = (k: string) => rows.find((r) => r.key === k)?.priceCents;
+    expect(price("triplo")).toBe(123400);
+    expect(price("doppio")).toBe(4550);
+    expect(price("satinato")).toBe(123450);
+    expect(price("acustico")).toBeUndefined();
+  });
 });
