@@ -1,4 +1,5 @@
-import { Text, View } from "@react-pdf/renderer";
+import { View } from "@react-pdf/renderer";
+import { Text } from "./Text";
 
 /**
  * An empty signature field with a date line, for documents that are signed by hand when they are not signed on screen.

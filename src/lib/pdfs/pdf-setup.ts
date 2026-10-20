@@ -8,7 +8,8 @@ import { Font } from "@react-pdf/renderer";
  * Long words wrap at spaces instead.
  *
  * The built-in Helvetica only covers Windows-1252: characters outside it
- * (emoji flags, ✓ ✗ ☑ ☐ ⚠, Greek letters) print as garbage. Keep PDF strings to
- * that range — see `tests/pdf-charset.test.ts`.
+ * (emoji flags, ✓ ✗ ☑ ☐ ⚠, Greek letters) print as garbage. Keep PDF source
+ * strings to that range — see `tests/pdf-charset.test.ts` — and render text with
+ * `./Text`, which maps runtime strings (customer data, translations) into it.
  */
 Font.registerHyphenationCallback((word) => [word]);

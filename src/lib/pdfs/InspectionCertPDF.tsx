@@ -1,6 +1,7 @@
 import "./pdf-setup";
 import { fieldPdfCopy } from "./field-pdf-i18n";
-import { Document, Image, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { Document, Image, Page, View, StyleSheet } from "@react-pdf/renderer";
+import { Text } from "./Text";
 import { CompanyLogo } from "./CompanyLogo";
 import { SignatureLine } from "./SignatureLine";
 

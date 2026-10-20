@@ -1,6 +1,7 @@
 import "./pdf-setup";
 import { fieldPdfCopy } from "./field-pdf-i18n";
-import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { Document, Page, View, StyleSheet } from "@react-pdf/renderer";
+import { Text } from "./Text";
 import { CompanyLogo } from "./CompanyLogo";
 import type { Scene } from "@/lib/drawing";
 import { ScenePdf } from "@/lib/drawing/pdf";

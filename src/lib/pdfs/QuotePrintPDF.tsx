@@ -1,5 +1,6 @@
 import "./pdf-setup";
-import { Document, Image, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { Document, Image, Page, View, StyleSheet } from "@react-pdf/renderer";
+import { Text } from "./Text";
 import type { ProjectItem } from "@/shared/pricing";
 import { buildAssemblyScene, buildHardwareScene, buildPlanScene, buildSectionScene, DRAWING_TABS, finishFillFor, insideFinishFor, buildLegendScene, DRAWING_TITLES, drawingLocale } from "@/lib/drawing";
 import { ScenePdf, WindowDrawingPdf } from "@/lib/drawing/pdf";

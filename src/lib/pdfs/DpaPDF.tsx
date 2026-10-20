@@ -1,5 +1,6 @@
 import "./pdf-setup";
-import { Document, Page, Text, View, StyleSheet } from "@react-pdf/renderer";
+import { Document, Page, View, StyleSheet } from "@react-pdf/renderer";
+import { Text } from "./Text";
 import { CompanyLogo } from "./CompanyLogo";
 import { DPA_PROCESSOR, type DpaDocument } from "@/shared/dpa";
 

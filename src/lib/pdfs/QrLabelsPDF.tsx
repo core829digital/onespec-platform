@@ -1,5 +1,6 @@
 import "./pdf-setup";
-import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
+import { Document, Image, Page, StyleSheet, View } from "@react-pdf/renderer";
+import { Text } from "./Text";
 
 export interface QrLabelItem {
   token: string;
