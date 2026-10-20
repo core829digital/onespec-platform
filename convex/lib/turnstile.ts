@@ -19,6 +19,7 @@ export async function verifyTurnstileToken(token: string): Promise<boolean> {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({ secret, response: token }).toString(),
+      signal: AbortSignal.timeout(8_000), // a hung siteverify must not freeze sign-in
     });
     if (!res.ok) return false;
     result = (await res.json()) as { success?: boolean; hostname?: string };

@@ -115,6 +115,7 @@ export const send = internalAction({
           text,
           ...(args.replyTo && /^[^\s@,;<>"()\\]{1,64}@[^\s@,;<>"()\\]{1,255}$/.test(args.replyTo) ? { reply_to: args.replyTo } : {}),
         }),
+        signal: AbortSignal.timeout(15_000), // a stalled provider fails this attempt; the retry schedule takes over
       });
       const body = await res.json().catch(() => ({}));
       ok = res.ok;

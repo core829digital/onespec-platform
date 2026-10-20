@@ -51,6 +51,7 @@ export const alert = internalAction({
         subject: `[OneSpec] Errore in produzione: ${source}`,
         text: `${source}\n\n${message}\n\nControlla i log su dashboard.convex.dev (deployment di produzione) e su Sentry.\nAvvisi ripetuti per la stessa causa vengono raggruppati: al massimo una email ogni 30 minuti.`,
       }),
+      signal: AbortSignal.timeout(10_000),
     }).catch(() => null);
     return { sent: !!res && res.ok };
   },

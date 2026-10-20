@@ -40,7 +40,7 @@ export const assertAdmin = internalQuery({
 /** Read-only GET to a provider API: never throws, a network failure reads as status 0. */
 const providerGet = (base: string, key: () => string): StripeGet => async (path) => {
   try {
-    const res = await fetch(`${base}${path}`, { headers: { Authorization: `Bearer ${key()}` } });
+    const res = await fetch(`${base}${path}`, { headers: { Authorization: `Bearer ${key()}` }, signal: AbortSignal.timeout(10_000) });
     const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
     return { ok: res.ok, status: res.status, json };
   } catch (e) {

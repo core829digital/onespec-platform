@@ -266,3 +266,65 @@ describe("after the returning customer pays", () => {
     expect((await tenantOf(t, s.tenantId)).stripeCustomerId).toBeUndefined();
   });
 });
+
+describe("two checkouts from two tabs or devices (issue #36)", () => {
+  test("a new checkout expires the session opened before, so only one can ever be paid", async () => {
+    const { t, s, as } = await returning();
+    let n = 0;
+    route = (c) => {
+      if (c.method === "POST" && c.path === "/checkout/sessions") return json(200, { id: `cs_${++n}`, url: "https://checkout.stripe.test/s" });
+      if (c.method === "GET" && c.path === "/checkout/sessions/cs_1") return json(200, { id: "cs_1", status: "open" });
+      return undefined;
+    };
+    await as.action(api.billing.createCheckoutSession, { tenantId: s.tenantId, plan: "base" });
+    expect((await tenantOf(t, s.tenantId)).stripeCheckoutSessionId).toBe("cs_1");
+    await as.action(api.billing.createCheckoutSession, { tenantId: s.tenantId, plan: "base" });
+    expect(calls.some((c) => c.method === "POST" && c.path === "/checkout/sessions/cs_1/expire")).toBe(true);
+    const tenant = await tenantOf(t, s.tenantId);
+    expect(tenant.stripeCheckoutSessionId).toBe("cs_2");
+    expect(tenant.stripeCheckoutClaimedAt).toBeUndefined();
+  });
+
+  test("the earlier session was already paid and its subscription is live: no second checkout", async () => {
+    const { t, s, as } = await returning();
+    await t.run((ctx) => ctx.db.patch(s.tenantId, { stripeCheckoutSessionId: "cs_paid" } as never));
+    route = (c) => {
+      if (c.path === "/checkout/sessions/cs_paid") return json(200, { id: "cs_paid", status: "complete", subscription: "sub_a" });
+      if (c.path === "/subscriptions/sub_a") return json(200, { id: "sub_a", status: "active" });
+      return undefined;
+    };
+    await expect(as.action(api.billing.createCheckoutSession, { tenantId: s.tenantId, plan: "base" })).rejects.toThrow(/ALREADY_SUBSCRIBED/);
+    expect(sessionCalls()).toHaveLength(0);
+    expect((await tenantOf(t, s.tenantId)).stripeCheckoutClaimedAt).toBeUndefined(); // the refusal frees the claim
+  });
+
+  test("an old paid session whose subscription has since ended does not lock a returning customer out", async () => {
+    const { t, s, as } = await returning();
+    await t.run((ctx) => ctx.db.patch(s.tenantId, { stripeCheckoutSessionId: "cs_old" } as never));
+    route = (c) => (c.path === "/checkout/sessions/cs_old" ? json(200, { id: "cs_old", status: "complete", subscription: "sub_old" }) : undefined);
+    const { url } = await as.action(api.billing.createCheckoutSession, { tenantId: s.tenantId, plan: "base" });
+    expect(url).toContain("checkout.stripe.test");
+  });
+
+  test("a checkout already being opened elsewhere refuses the second request instead of opening two", async () => {
+    const { t, s, as } = await returning();
+    await t.run((ctx) => ctx.db.patch(s.tenantId, { stripeCheckoutClaimedAt: Date.now() } as never));
+    await expect(as.action(api.billing.createCheckoutSession, { tenantId: s.tenantId, plan: "base" })).rejects.toThrow(/CHECKOUT_IN_PROGRESS/);
+    expect(sessionCalls()).toHaveLength(0);
+    vi.advanceTimersByTime(61_000); // a claim left by a crashed request expires on its own
+    await expect(as.action(api.billing.createCheckoutSession, { tenantId: s.tenantId, plan: "base" })).resolves.toBeDefined();
+  });
+
+  test("a second paid checkout while another subscription is live alerts an operator instead of silently replacing it", async () => {
+    const { t, s } = await returning({ planStatus: "active", stripeSubscriptionId: "sub_a" });
+    await t.mutation(internal.billing.applyWebhookEvent, {
+      eventId: "evt_b",
+      type: "checkout.session.completed",
+      created: 2000,
+      data: { object: { id: "cs_b", customer: "cus_old", subscription: "sub_b", client_reference_id: String(s.tenantId), metadata: {} } },
+    });
+    const scheduled = await t.run((ctx) => ctx.db.system.query("_scheduled_functions").collect());
+    expect(scheduled.some((f) => f.name.includes("ops") && JSON.stringify(f.args).includes("sub_a"))).toBe(true);
+    expect((await tenantOf(t, s.tenantId)).stripeSubscriptionId).toBe("sub_b");
+  });
+});

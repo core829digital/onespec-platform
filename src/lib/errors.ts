@@ -137,6 +137,7 @@ export type ErrorKey =
   | "invalidAssembly"
   | "quoteHasSupply"
   | "alreadySubscribed"
+  | "checkoutInProgress"
   | "annualNotAvailable"
   | "teamExceedsTargetPlan"
   | "useMarkReceived"
@@ -325,6 +326,7 @@ const EXACT: Record<string, ErrorKey> = {
   INVALID_ASSEMBLY: "invalidAssembly",
   QUOTE_HAS_SUPPLY: "quoteHasSupply",
   ALREADY_SUBSCRIBED: "alreadySubscribed",
+  CHECKOUT_IN_PROGRESS: "checkoutInProgress",
   ANNUAL_NOT_AVAILABLE: "annualNotAvailable",
   TEAM_EXCEEDS_TARGET_PLAN: "teamExceedsTargetPlan",
   MEMBER_LIMIT_REACHED: "quotaExceeded",

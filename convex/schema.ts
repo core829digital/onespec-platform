@@ -93,6 +93,10 @@ export default defineSchema({
     // Billing — populated only once Stripe is configured and a subscription exists.
     stripeCustomerId: v.optional(v.string()),
     stripeSubscriptionId: v.optional(v.string()),
+    /** The latest Checkout Session opened for this tenant: a new one expires it first, so two can never both be paid (issue #36). */
+    stripeCheckoutSessionId: v.optional(v.string()),
+    /** Set while a Checkout Session is being created; a second request in that window is refused. */
+    stripeCheckoutClaimedAt: v.optional(v.number()),
     subscriptionCurrentPeriodEnd: v.optional(v.number()),
     subscriptionCancelAtPeriodEnd: v.optional(v.boolean()),
     // Stripe Customer.balance mirror (cents, Stripe's own sign convention:

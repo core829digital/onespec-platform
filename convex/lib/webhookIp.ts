@@ -76,7 +76,7 @@ async function loadEntries(source: WebhookSource): Promise<string[] | null> {
   const hit = cache.get(source);
   if (hit && Date.now() - hit.fetchedAt < TTL_MS) return hit.entries;
   try {
-    const res = await fetch(SOURCES[source]);
+    const res = await fetch(SOURCES[source], { signal: AbortSignal.timeout(5_000) }); // runs inside the webhook request
     if (!res.ok) throw new Error(String(res.status));
     const entries = extractEntries(await res.json());
     if (entries.length === 0) throw new Error("empty list");

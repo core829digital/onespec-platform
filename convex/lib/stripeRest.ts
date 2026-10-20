@@ -29,7 +29,12 @@ export async function stripeRest(
   const headers: Record<string, string> = { Authorization: `Bearer ${process.env.STRIPE_SECRET_KEY ?? ""}` };
   if (method === "POST") headers["Content-Type"] = "application/x-www-form-urlencoded";
   if (idempotencyKey) headers["Idempotency-Key"] = idempotencyKey;
-  const res = await fetch(`${STRIPE_API}${path}`, { method, headers, body: method === "POST" ? form(body) : undefined });
+  const res = await fetch(`${STRIPE_API}${path}`, {
+    method,
+    headers,
+    body: method === "POST" ? form(body) : undefined,
+    signal: AbortSignal.timeout(15_000),
+  });
   const json = (await res.json().catch(() => ({}))) as Record<string, unknown>;
   return { ok: res.ok, status: res.status, json };
 }

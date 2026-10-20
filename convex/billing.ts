@@ -88,6 +88,7 @@ async function stripeRaw(
         ...(method === "GET" ? {} : { "Content-Type": "application/x-www-form-urlencoded" }),
       },
       ...(method === "GET" ? {} : { body: form(body) }),
+      signal: AbortSignal.timeout(15_000),
     });
   } catch (e) {
     console.error(`[stripe] network failure ${method} ${path.split("?")[0]}:`, e instanceof Error ? e.message : String(e));
@@ -286,6 +287,71 @@ export const assertOwner = internalQuery({
   },
 });
 
+/** How long a Checkout request holds the tenant's claim; covers the Stripe calls that create the session. */
+const CHECKOUT_CLAIM_MS = 60_000;
+
+/**
+ * Two Checkout Sessions opened from two tabs or devices would both pass the
+ * "no live subscription" guard, and paying both opens two subscriptions
+ * (issue #36). One request at a time may open a session: this claim is taken
+ * atomically, and it hands back the session opened last so it can be retired.
+ */
+export const claimCheckout = internalMutation({
+  args: { tenantId: v.id("tenants") },
+  handler: async (ctx, args) => {
+    const tenant = await ctx.db.get(args.tenantId);
+    if (!tenant) throw new ConvexError("TENANT_NOT_FOUND");
+    const now = Date.now();
+    if (tenant.stripeCheckoutClaimedAt !== undefined && now - tenant.stripeCheckoutClaimedAt < CHECKOUT_CLAIM_MS) {
+      throw new ConvexError("CHECKOUT_IN_PROGRESS");
+    }
+    await ctx.db.patch(args.tenantId, { stripeCheckoutClaimedAt: now });
+    return { previousSessionId: tenant.stripeCheckoutSessionId ?? null };
+  },
+});
+
+/** Ends the claim; with `sessionId`, records the session just opened. */
+export const releaseCheckout = internalMutation({
+  args: { tenantId: v.id("tenants"), sessionId: v.optional(v.string()) },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.tenantId, {
+      stripeCheckoutClaimedAt: undefined,
+      ...(args.sessionId ? { stripeCheckoutSessionId: args.sessionId } : {}),
+    });
+  },
+});
+
+/**
+ * Makes sure the previously opened Checkout Session can no longer be paid:
+ * an open one is expired on Stripe; a completed one whose subscription is
+ * still live means the customer already paid (the webhook may lag).
+ */
+async function retirePreviousCheckout(sessionId: string): Promise<void> {
+  const read = async () => {
+    const r = await stripeRaw("GET", `/checkout/sessions/${sessionId}`);
+    if (r.status === 404) return null; // gone, or a test-mode id after going live
+    if (!r.ok) failStripe("GET checkout session", r);
+    return r.json;
+  };
+  const assertNotPaid = async (session: Record<string, unknown>) => {
+    if (typeof session.subscription !== "string") return;
+    const sub = await stripeRaw("GET", `/subscriptions/${session.subscription}`);
+    if (!sub.ok && sub.status !== 404) throw new ConvexError("ALREADY_SUBSCRIBED"); // cannot tell: no double billing
+    if (sub.ok && LIVE_SUB_STATUSES.includes(String(sub.json.status))) throw new ConvexError("ALREADY_SUBSCRIBED");
+  };
+  const session = await read();
+  if (!session) return;
+  if (session.status === "complete") return assertNotPaid(session);
+  if (session.status !== "open") return;
+  const expired = await stripeRaw("POST", `/checkout/sessions/${sessionId}/expire`);
+  if (expired.ok) return;
+  // Refused: most likely completed a moment ago. Look again before deciding.
+  const again = await read();
+  if (!again || again.status === "expired") return;
+  if (again.status === "complete") return assertNotPaid(again);
+  failStripe("expire checkout session", expired);
+}
+
 /**
  * Moving INTO a widget-first plan with more active members than its seats
  * would leave the tenant over its limit: refuse and ask to remove members
@@ -416,100 +482,114 @@ export const createCheckoutSession = action({
     }
     assertSeatsFit(planKey, owner.activeMembers);
 
-    // A returning customer is re-used, so Stripe keeps one customer, one
-    // invoice history and one saved card. If that customer no longer exists on
-    // Stripe (deleted in the Dashboard, or a test-mode id kept after going
-    // live), Checkout would refuse the session outright: start a fresh
-    // customer instead, and unlink the dead one so the webhook can link the new one.
-    let customerId: string | undefined = owner.stripeCustomerId;
-    if (customerId) {
-      const r = await stripeRaw("GET", `/customers/${customerId}`);
-      const gone = (r.ok && r.json.deleted === true) || r.status === 404;
-      if (gone) {
-        console.warn(`[checkout] stored Stripe customer is ${r.ok ? "deleted" : "missing"} (${otherModeHint(r) ?? "same mode"}): starting a fresh one`);
-        await ctx.runMutation(internal.billing.detachStripeRefs, { tenantId: args.tenantId, customerId });
-        customerId = undefined;
-      } else if (!r.ok) {
-        failStripe("GET customer (checkout)", r);
-      }
-    }
     const region = regionForCountry(owner.country).code;
     const priceId = resolveStripePriceId(planKey, cycle, region);
     if (!priceId) throw new ConvexError("BILLING_PRICE_NOT_CONFIGURED");
 
-    const params: Record<string, string | undefined> = {
-      mode: "subscription",
-      "line_items[0][price]": priceId,
-      "line_items[0][quantity]": "1",
-      customer: customerId,
-      customer_email: customerId ? undefined : owner.email,
-      client_reference_id: args.tenantId,
-      // Session-level metadata too: checkout.session.completed only carries
-      // the session's own metadata, not subscription_data's.
-      "metadata[tenantId]": args.tenantId,
-      "metadata[plan]": planKey,
-      "metadata[cycle]": cycle,
-      "subscription_data[metadata][tenantId]": args.tenantId,
-      "subscription_data[metadata][plan]": planKey,
-      "subscription_data[metadata][cycle]": cycle,
-      "subscription_data[metadata][ownerUserId]": owner.userId,
-      success_url: `${appOrigin(args.origin)}/app/account/billing?status=success`,
-      cancel_url: `${appOrigin(args.origin)}/app/account/billing?status=cancelled`,
-      // Promotion codes only on monthly billing: a first-invoice discount on a yearly plan
-      // would discount the whole year (terms, "Codici promozionali").
-      allow_promotion_codes: cycle === "annual" ? undefined : "true",
-      ui_mode: "hosted_page",
-      billing_address_collection: "required",
-      "phone_number_collection[enabled]": "true",
-      "automatic_tax[enabled]": "true",
-      payment_method_collection: "always",
-      submit_type: "auto",
-      "tax_id_collection[enabled]": "true",
-      "tax_id_collection[required]": "never",
-      "consent_collection[terms_of_service]": "required",      "name_collection[individual][enabled]": "true",
-      "name_collection[individual][optional]": "true",
-      "name_collection[business][enabled]": "true",
-      "name_collection[business][optional]": "true",
-      "saved_payment_method_options[payment_method_save]": "enabled",
-      integration_identifier: "hosted_web_0002",
-      origin_context: "web",
-    };
-
-    // Stripe refuses tax-ID / name / address collection on an EXISTING customer
-    // unless it may update those fields ("Tax ID collection requires updating
-    // business name on the customer"). Every re-subscription hits this path.
-    if (customerId) {
-      params["customer_update[name]"] = "auto";
-      params["customer_update[address]"] = "auto";
-    }
-
-    // Pro-only 14-day trial: the card is captured up front and Stripe
-    // auto-converts at trial end (no trial = immediate charge).
-    if (planKey === "pro" && !owner.trialStartedAt) {
-      params["subscription_data[trial_period_days]"] = "14";
-      params["payment_method_collection"] = "always";
-      params["subscription_data[metadata][trialPlan]"] = "pro";
-      params["metadata[trialPlan]"] = "pro";
-    }
-
-    // Referral: an invited account that has not paid yet gets a one-off discount
-    // (convex/referrals.ts). Stripe does not allow a ready-made discount together with the
-    // promotion-code box, so the box is hidden for that checkout. Any problem here means a
-    // normal checkout, never a failed one.
+    const { previousSessionId } = await ctx.runMutation(internal.billing.claimCheckout, { tenantId: args.tenantId });
+    let session: Record<string, unknown>;
     try {
-      const referralDiscount = await ctx.runQuery(internal.referrals.checkoutDiscount, { tenantId: args.tenantId, plan: planKey });
-      if (referralDiscount) {
-        const couponId = await ensureReferralCoupon(referralDiscount.percentOff);
-        if (couponId) {
-          params["discounts[0][coupon]"] = couponId;
-          params["allow_promotion_codes"] = undefined;
+      if (previousSessionId) await retirePreviousCheckout(previousSessionId);
+
+      // A returning customer is re-used, so Stripe keeps one customer, one
+      // invoice history and one saved card. If that customer no longer exists on
+      // Stripe (deleted in the Dashboard, or a test-mode id kept after going
+      // live), Checkout would refuse the session outright: start a fresh
+      // customer instead, and unlink the dead one so the webhook can link the new one.
+      let customerId: string | undefined = owner.stripeCustomerId;
+      if (customerId) {
+        const r = await stripeRaw("GET", `/customers/${customerId}`);
+        const gone = (r.ok && r.json.deleted === true) || r.status === 404;
+        if (gone) {
+          console.warn(`[checkout] stored Stripe customer is ${r.ok ? "deleted" : "missing"} (${otherModeHint(r) ?? "same mode"}): starting a fresh one`);
+          await ctx.runMutation(internal.billing.detachStripeRefs, { tenantId: args.tenantId, customerId });
+          customerId = undefined;
+        } else if (!r.ok) {
+          failStripe("GET customer (checkout)", r);
         }
       }
-    } catch (e) {
-      console.warn("[referral] discount skipped", e instanceof Error ? e.message : String(e));
-    }
 
-    const session = await createSessionWithFallback(ctx, args.tenantId, params, owner.email);
+      const params: Record<string, string | undefined> = {
+        mode: "subscription",
+        "line_items[0][price]": priceId,
+        "line_items[0][quantity]": "1",
+        customer: customerId,
+        customer_email: customerId ? undefined : owner.email,
+        client_reference_id: args.tenantId,
+        // Session-level metadata too: checkout.session.completed only carries
+        // the session's own metadata, not subscription_data's.
+        "metadata[tenantId]": args.tenantId,
+        "metadata[plan]": planKey,
+        "metadata[cycle]": cycle,
+        "subscription_data[metadata][tenantId]": args.tenantId,
+        "subscription_data[metadata][plan]": planKey,
+        "subscription_data[metadata][cycle]": cycle,
+        "subscription_data[metadata][ownerUserId]": owner.userId,
+        success_url: `${appOrigin(args.origin)}/app/account/billing?status=success`,
+        cancel_url: `${appOrigin(args.origin)}/app/account/billing?status=cancelled`,
+        // Promotion codes only on monthly billing: a first-invoice discount on a yearly plan
+        // would discount the whole year (terms, "Codici promozionali").
+        allow_promotion_codes: cycle === "annual" ? undefined : "true",
+        ui_mode: "hosted_page",
+        billing_address_collection: "required",
+        "phone_number_collection[enabled]": "true",
+        "automatic_tax[enabled]": "true",
+        payment_method_collection: "always",
+        submit_type: "auto",
+        "tax_id_collection[enabled]": "true",
+        "tax_id_collection[required]": "never",
+        "consent_collection[terms_of_service]": "required",      "name_collection[individual][enabled]": "true",
+        "name_collection[individual][optional]": "true",
+        "name_collection[business][enabled]": "true",
+        "name_collection[business][optional]": "true",
+        "saved_payment_method_options[payment_method_save]": "enabled",
+        integration_identifier: "hosted_web_0002",
+        origin_context: "web",
+      };
+
+      // Stripe refuses tax-ID / name / address collection on an EXISTING customer
+      // unless it may update those fields ("Tax ID collection requires updating
+      // business name on the customer"). Every re-subscription hits this path.
+      if (customerId) {
+        params["customer_update[name]"] = "auto";
+        params["customer_update[address]"] = "auto";
+      }
+
+      // Pro-only 14-day trial: the card is captured up front and Stripe
+      // auto-converts at trial end (no trial = immediate charge).
+      if (planKey === "pro" && !owner.trialStartedAt) {
+        params["subscription_data[trial_period_days]"] = "14";
+        params["payment_method_collection"] = "always";
+        params["subscription_data[metadata][trialPlan]"] = "pro";
+        params["metadata[trialPlan]"] = "pro";
+      }
+
+      // Referral: an invited account that has not paid yet gets a one-off discount
+      // (convex/referrals.ts). Stripe does not allow a ready-made discount together with the
+      // promotion-code box, so the box is hidden for that checkout. Any problem here means a
+      // normal checkout, never a failed one.
+      try {
+        const referralDiscount = await ctx.runQuery(internal.referrals.checkoutDiscount, { tenantId: args.tenantId, plan: planKey });
+        if (referralDiscount) {
+          const couponId = await ensureReferralCoupon(referralDiscount.percentOff);
+          if (couponId) {
+            params["discounts[0][coupon]"] = couponId;
+            params["allow_promotion_codes"] = undefined;
+          }
+        }
+      } catch (e) {
+        console.warn("[referral] discount skipped", e instanceof Error ? e.message : String(e));
+      }
+
+      session = await createSessionWithFallback(ctx, args.tenantId, params, owner.email);
+    } catch (e) {
+      await ctx.runMutation(internal.billing.releaseCheckout, { tenantId: args.tenantId });
+      throw e;
+    }
+    await ctx.runMutation(internal.billing.releaseCheckout, {
+      tenantId: args.tenantId,
+      sessionId: typeof session.id === "string" ? session.id : undefined,
+    });
     // Analytics must never cost a sale: a PostHog outage is logged, not thrown.
     try {
       const posthog = createPostHogClient();
@@ -1127,6 +1207,16 @@ export const applyWebhookEvent = internalMutation({
         if (planEvent && typeof args.created === "number" && !stale) patch.stripeLastEventCreated = args.created;
 
         if (args.type === "checkout.session.completed" && !stale) {
+          const previousSub = tenantDoc?.stripeSubscriptionId;
+          if (previousSub && previousSub !== obj.subscription && LIVE_PLAN_STATUSES.includes(tenantDoc.planStatus)) {
+            // A second paid checkout while another subscription is live: the customer may now be billed
+            // twice. The newer one is kept; an operator checks the older one on Stripe (issue #36).
+            await ctx.scheduler.runAfter(0, internal.ops.alert, {
+              source: "stripe-double-subscription",
+              message: `Tenant ${tenantDoc._id}: checkout ${String(obj.id)} completato con l'abbonamento ${String(obj.subscription)} mentre ${previousSub} risultava attivo. Verificare su Stripe ed eventualmente annullare quello superato.`,
+            });
+          }
+          if (tenantDoc?.stripeCheckoutSessionId === obj.id) patch.stripeCheckoutSessionId = undefined;
           patch.stripeSubscriptionId = obj.subscription as string;
           if (tenantDoc?.planStatus !== "trialing" && tenantDoc?.planStatus !== "active") {
             patch.planStatus = "active";
