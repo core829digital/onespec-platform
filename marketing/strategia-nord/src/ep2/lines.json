@@ -1,0 +1,42 @@
+{
+ "voices": {
+  "M": "it-IT-DiegoNeural"
+ },
+ "lines": [
+  {
+   "who": "M",
+   "rate": "-2%",
+   "gap": 0.25,
+   "say": "Hai un sito? E i clienti ti chiamano ancora per sapere il prezzo?",
+   "show": "Hai un sito? E i clienti ti chiamano ancora per sapere il prezzo?"
+  },
+  {
+   "who": "M",
+   "rate": "+0%",
+   "gap": 0.25,
+   "say": "Il problema non è il sito. È che sul sito, il prezzo non c'è.",
+   "show": "Il problema non è il sito. È che sul sito, il prezzo non c'è."
+  },
+  {
+   "who": "M",
+   "rate": "+4%",
+   "gap": 0.25,
+   "say": "Con il configuratore basta una riga di codice. La copi, la incolli nel tuo sito, ed è online.",
+   "show": "Con il configuratore basta una riga di codice. La copi, la incolli nel tuo sito, ed è online."
+  },
+  {
+   "who": "M",
+   "rate": "+4%",
+   "gap": 0.25,
+   "say": "Il cliente sceglie misure, colore e vetro, e vede subito il prezzo. A te arriva la richiesta con tutti i dati.",
+   "show": "Il cliente sceglie misure, colore e vetro, e vede subito il prezzo. A te arriva la richiesta con tutti i dati."
+  },
+  {
+   "who": "M",
+   "rate": "+2%",
+   "gap": 0.25,
+   "say": "Con i tuoi colori e il tuo logo. Provalo gratis per quattordici giorni: trovi il link nella bio.",
+   "show": "Con i tuoi colori e il tuo logo. Provalo gratis per 14 giorni: trovi il link nella bio."
+  }
+ ]
+}

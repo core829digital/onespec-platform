@@ -9,8 +9,9 @@ Testo originale di Meta AI: `.claude/skills/ugc-script-writer/reference/strategi
 | `onespec-nord-v1-errore-2300.mp4` | 29 s | pubblicato lun 19 ott 21:30 (voce registrata da Stefan) | `onespec-nord-v1-copertina.jpg` |
 | `onespec-ep1-preventivi-a-vuoto.mp4` | 43 s | mar 20 ott 20:30 (Serie 1, voci Microsoft Diego + Isabella) | — |
 | `onespec-pillola-preventivo-a-vuoto.mp4` | 20 s | mar 20 ott ~14:00 (voce Microsoft Diego) | — |
-| `onespec-nord-v2-silenzio.mp4` | 24 s | mercoledì 19:30 · **voce vecchia (Kokoro): da rifare con tts_edge.py** | `onespec-nord-v2-copertina.jpg` |
-| `onespec-nord-v3-chiuso-in-cucina.mp4` | 39 s | venerdì 20:00 · **voce vecchia (Kokoro): da rifare con tts_edge.py** | `onespec-nord-v3-copertina.jpg` |
+| `onespec-nord-v2-silenzio.mp4` | 28 s | mer 21 ott 19:30 (voce Diego) | `onespec-nord-v2-copertina.jpg` |
+| `onespec-ep2-una-riga-di-codice.mp4` | 31 s | gio 22 ott 12:45 (Serie 1, voce Diego) | — |
+| `onespec-nord-v3-chiuso-in-cucina.mp4` | 40 s | ven 23 ott 20:00 (Isabella = cliente, Diego = serramentista) | `onespec-nord-v3-copertina.jpg` |
 | `onespec-nord-v1-corto-15s.mp4` | 15 s | **voce vecchia (Kokoro): non usare** | quella del V1 |
 
 Sottotitoli già impressi nel video: non attivare i sottotitoli automatici della piattaforma (si sovrapporrebbero).

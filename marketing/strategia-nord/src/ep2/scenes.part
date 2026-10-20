@@ -1,0 +1,200 @@
+/* ===================== Serie 1 · EP. 2 · Una riga di codice (configuratore sul sito del serramentista) ===================== */
+const SPK = { M: { name: "", hex: "#16d19d" } };
+const C1 = LN[1].start - 0.15, C3 = LN[3].start - 0.12, C4 = LN[4].start - 0.12;
+const DUR = lineEnd(4) + 1.6;
+const CUTS = [C1, C3, C4];
+
+/* ---------- series tag ---------- */
+function epTag(t) {
+  const k = E.outBack(prog(t, 0.05, 0.5), 1.6) * (1 - prog(t, DUR - 1.2, DUR - 0.8));
+  return pill("EP. 2 · Una riga di codice", 0, 70, k, { center: true, bg: "rgba(22,209,157,.12)", color: "#16d19d", border: "rgba(22,209,157,.5)", size: 24, pad: "10px 24px" });
+}
+
+/* ---------- S0 · hook: you have a site, and they still call for the price ---------- */
+function s0(t) {
+  let h = "";
+  const out = E.inCubic(prog(t, C1 - 0.3, C1));
+  h += `<div class="abs" style="inset:0;opacity:${1 - out}">`;
+  h += kText("HAI UN SITO?", t, { in: at(0, "Hai") - 0.1, y: 270, size: 128, mode: "slam", stagger: 0.025, hl: ["SITO"] });
+  const ring = at(0, "chiamano") - 0.2;
+  const [sx, sy] = shake(t, ring, 14, 1.2);
+  const pk = E.outBack(prog(t, at(0, "clienti") - 0.3, at(0, "clienti") + 0.2), 1.3);
+  if (pk > 0) h += `<div class="abs" style="left:${300 + sx}px;top:${560 + (1 - pk) * 500 + sy}px;width:480px;height:860px;border-radius:64px;background:linear-gradient(170deg,#141a1c,#0a0c0e);border:3px solid rgba(255,255,255,.14);box-shadow:0 40px 120px rgba(0,0,0,.6);opacity:${Math.min(1, pk * 1.5)}">
+    <div class="abs" style="left:190px;top:22px;width:100px;height:30px;border-radius:16px;background:#000"></div>
+    <div class="abs sg" style="left:0;right:0;top:120px;text-align:center;font-size:84px;font-weight:700">14:32</div></div>`;
+  const B = [["📞", "Chiamata persa · Sig. Bianchi", "#ff5a64"], ["💬", "Quanto costa una finestra 120×140?", "#5cc8ff"], ["💬", "Mi fa sapere il prezzo?", "#5cc8ff"], ["📞", "Chiamata persa · 3", "#ff5a64"]];
+  B.forEach(([ic, txt, col], i) => {
+    const a = ring + i * 0.28, k = E.outBack(prog(t, a, a + 0.35), 1.8);
+    if (k <= 0) return;
+    h += `<div class="abs" style="left:${170 + (i % 2) * 40}px;top:${820 + i * 128}px;width:740px;padding:22px 28px;border-radius:26px;background:rgba(20,26,29,.96);border:2px solid ${col}66;box-shadow:0 20px 50px rgba(0,0,0,.5);display:flex;align-items:center;gap:18px;transform:scale(${k}) translateX(${(1 - k) * 60}px);transform-origin:0 50%">
+      <span style="font-size:40px">${ic}</span><span style="font:700 32px IN;color:#f3f7f5">${txt}</span></div>`;
+  });
+  h += `</div>`;
+  return h;
+}
+
+/* ---------- the dealer's site (S1 + S2, one continuous shot) ---------- */
+const SNIP = `<script async src="https://platform.onespec.eu/embed.js" data-onespec="serramenti-rossi"><\/script>`;
+const SNIP_TOK = [["<script", "#ff7b8a"], [" ", ""], ["async", "#5cc8ff"], [" ", ""], ["src", "#5cc8ff"], ["=", ""], ['"https://platform.onespec.eu/embed.js"', "#16d19d"], [" ", ""],
+  ["data-onespec", "#5cc8ff"], ["=", ""], ['"serramenti-rossi"', "#16d19d"], [">", "#ff7b8a"], ["<\/script>", "#ff7b8a"]];
+const SNIP_LEN = SNIP_TOK.reduce((a, x) => a + x[0].length, 0);
+function snippetHtml(n) {
+  let left = n, out = "";
+  for (const [txt, col] of SNIP_TOK) {
+    if (left <= 0) break;
+    const part = txt.slice(0, left); left -= part.length;
+    const esc = part.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    out += col ? `<span style="color:${col}">${esc}</span>` : esc;
+  }
+  return out;
+}
+/** The configurator as it appears inside the dealer's site, in the dealer's accent colour and logo. */
+function miniCfg(t, a, accent, logo) {
+  const part = (i) => E.outBack(prog(t, a + i * 0.08, a + i * 0.08 + 0.45), 1.5);
+  const sw = ["#f3f7f5", "#3a4044", "#8a5a3c"];
+  return `<div class="abs" style="inset:0;border-radius:26px;background:linear-gradient(170deg,#11171a,#0b0f10);border:2px solid ${accent}99;overflow:hidden;box-shadow:0 0 70px ${accent}33">
+    <div class="abs" style="left:28px;top:22px;display:flex;align-items:center;gap:12px;transform:scale(${part(0)})"><div style="width:40px;height:40px;border-radius:10px;background:${accent};display:grid;place-items:center;font:700 24px SG;color:#0b0f10">${logo}</div>
+      <div class="sg" style="font-size:28px;font-weight:700">Calcola il tuo prezzo</div></div>
+    <div class="abs" style="left:24px;top:80px;transform:scale(${0.62 * part(1)});transform-origin:0 0">${windowSvg(t, a + 0.1, "#e9eef0", "#5cc8ff", "1200 mm", "1400 mm")}</div>
+    <div class="abs" style="left:420px;top:100px;width:330px">
+      <div style="font:700 20px IN;letter-spacing:.12em;color:#8f979c;transform:scale(${part(2)})">COLORE</div>
+      <div style="display:flex;gap:14px;margin-top:10px;transform:scale(${part(2)})">${sw.map((c, i) => `<div style="width:60px;height:60px;border-radius:16px;background:${c};border:3px solid ${i === 0 ? accent : "rgba(255,255,255,.15)"}"></div>`).join("")}</div>
+      <div style="font:700 20px IN;letter-spacing:.12em;color:#8f979c;margin-top:26px;transform:scale(${part(3)})">VETRO</div>
+      <div style="display:flex;gap:12px;margin-top:10px;transform:scale(${part(3)})"><div style="padding:12px 20px;border-radius:14px;background:${accent};color:#0b0f10;font:700 24px IN">Doppio</div><div style="padding:12px 20px;border-radius:14px;border:2px solid rgba(255,255,255,.2);font:700 24px IN">Triplo</div></div>
+      <div style="margin-top:30px;padding:20px 22px;border-radius:20px;background:${accent}1f;border:2px solid ${accent}99;transform:scale(${part(4)})">
+        <div style="font:600 20px IN;color:#c9d1d4">Prezzo d'esempio</div><div class="sg" style="font-size:52px;font-weight:700;color:${accent}">€ 1.180</div></div>
+    </div></div>`;
+}
+function browser(slot, accent, logo) {
+  return `<div class="abs" style="inset:0;border-radius:34px;background:#0f1416;border:2px solid rgba(255,255,255,.14);box-shadow:0 60px 140px rgba(0,0,0,.6);overflow:hidden">
+    <div class="abs" style="left:0;right:0;top:0;height:78px;background:#171d20;display:flex;align-items:center;gap:12px;padding:0 26px">
+      <span style="width:18px;height:18px;border-radius:50%;background:#ff5f57"></span><span style="width:18px;height:18px;border-radius:50%;background:#febc2e"></span><span style="width:18px;height:18px;border-radius:50%;background:#28c840"></span>
+      <div style="margin-left:22px;flex:1;height:46px;border-radius:23px;background:#0b0f10;display:flex;align-items:center;gap:12px;padding:0 22px;font:600 26px IN;color:#c9d1d4"><span style="color:var(--mint)">🔒</span>serramentirossi.it</div></div>
+    <div class="abs" style="left:40px;right:40px;top:110px;display:flex;align-items:center;justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:14px"><div style="width:52px;height:52px;border-radius:14px;background:${accent};display:grid;place-items:center;font:700 30px SG;color:#0b0f10">${logo}</div><div class="sg" style="font-size:36px;font-weight:700">Serramenti Rossi</div></div>
+      <div style="display:flex;gap:26px;font:600 24px IN;color:#8f979c"><span>Prodotti</span><span>Chi siamo</span><span>Contatti</span></div></div>
+    <div class="abs sg" style="left:40px;top:205px;font-size:56px;font-weight:700;line-height:1.05">Finestre su misura,<br><span style="color:${accent}">posate a regola d'arte.</span></div>
+    <div class="abs" style="left:40px;right:40px;top:390px;height:470px">${slot}</div></div>`;
+}
+function s12(t) {
+  let h = "";
+  const inn = E.outExpo(prog(t, C1, C1 + 0.85)), out = E.inCubic(prog(t, C3 - 0.4, C3));
+  const pasteA = at(2, "incolli") + 0.25;
+  const noPrice = E.outCubic(prog(t, at(1, "prezzo") - 0.2, at(1, "prezzo") + 0.2)) * (1 - prog(t, at(2, "configuratore") - 0.2, at(2, "configuratore") + 0.1));
+  let slot;
+  if (t >= pasteA) slot = miniCfg(t, pasteA, "#ffb547", "R");
+  else {
+    const hi = E.outCubic(prog(t, at(2, "configuratore") - 0.1, at(2, "configuratore") + 0.3)), glow = 0.5 + 0.5 * Math.sin(t * 5);
+    slot = `<div class="abs" style="inset:0;border-radius:26px;border:4px dashed ${hi > 0 ? `rgba(22,209,157,${0.35 + hi * 0.45 * glow})` : "rgba(255,255,255,.18)"};display:grid;place-items:center">
+      <div style="text-align:center">${hi > 0.3 ? `<div style="font-size:64px;color:var(--mint)">＋</div><div class="sg" style="font-size:36px;font-weight:700;color:var(--mint)">Il configuratore qui</div>`
+        : `<div class="sg" style="font-size:150px;font-weight:700;color:rgba(255,255,255,${0.12 + 0.3 * noPrice})">€ ?</div><div style="font:600 28px IN;color:#8f979c">Per un preventivo chiamaci</div>`}</div></div>`;
+  }
+  h += `<div class="abs" style="left:70px;top:300px;width:940px;height:900px;perspective:2000px;opacity:${inn * (1 - out)}">
+    <div style="position:absolute;inset:0;transform:rotateY(${lerp(38, 0, inn) - out * 20}deg) rotateX(${lerp(14, 0, inn)}deg) scale(${lerp(0.7, 1, inn) * (1 - out * 0.25)});transform-origin:50% 50%">${browser(slot, "#ffb547", "R")}</div></div>`;
+  h += stamp(t, at(1, "prezzo"), "IL PREZZO NON C'È", 540, 1260, { size: 62, out: at(2, "Con") - 0.2 });
+  // code card: types while he says "una riga di codice", copy click, flies into the slot on "incolli"
+  const ca = at(2, "basta") - 0.2, flyA = at(2, "incolli") - 0.15;
+  const cin = E.outBack(prog(t, ca, ca + 0.4), 1.3), fly = E.inOutCubic(prog(t, flyA, pasteA));
+  if (cin > 0 && t < pasteA + 0.05) {
+    const typed = Math.floor(clamp(prog(t, ca + 0.15, at(2, "copi") - 0.15)) * SNIP_LEN);
+    const cp = t >= at(2, "copi") + 0.05, tap = Math.max(0, 1 - Math.abs(t - at(2, "copi")) / 0.12);
+    const cx = lerp(70, 110, fly), cy = lerp(1230, 760, fly), sc = lerp(1, 0.25, fly);
+    h += `<div class="abs" style="left:${cx}px;top:${cy + (1 - cin) * 240}px;width:940px;transform:scale(${sc});transform-origin:50% 0;opacity:${1 - prog(t, pasteA - 0.1, pasteA + 0.05)}">
+      <div style="border-radius:28px;background:#0b0f10;border:2px solid rgba(22,209,157,.45);box-shadow:0 40px 100px rgba(0,0,0,.6),0 0 60px rgba(22,209,157,.15);padding:24px 28px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div style="font:700 22px IN;letter-spacing:.14em;color:#8f979c">1 RIGA DA INCOLLARE</div>
+          <div style="padding:10px 22px;border-radius:14px;font:700 24px IN;background:${cp ? "var(--mint)" : "rgba(255,255,255,.08)"};color:${cp ? "#04241b" : "#f3f7f5"};transform:scale(${1 - tap * 0.12})">${cp ? "Copiato ✓" : "Copia"}</div></div>
+        <div style="font-family:ui-monospace,Menlo,monospace;font-size:27px;line-height:1.45;color:#c9d1d4;word-break:break-all;min-height:118px">${snippetHtml(typed)}<span style="opacity:${Math.sin(t * 12) > 0 ? 1 : 0};color:var(--mint)">▍</span></div>
+      </div></div>`;
+    const cur = E.inOutCubic(prog(t, at(2, "copi") - 0.45, at(2, "copi")));
+    if (cur > 0 && fly <= 0) h += `<div class="abs" style="left:${lerp(620, 885, cur)}px;top:${lerp(1470, 1262, cur)}px;font-size:58px;transform:scale(${1 - tap * 0.2});filter:drop-shadow(0 6px 10px rgba(0,0,0,.6))">👆</div>`;
+  }
+  const pf = Math.max(0, 1 - Math.abs(t - pasteA) / 0.2);
+  if (pf > 0) h += `<div class="abs" style="left:110px;top:690px;width:860px;height:470px;border-radius:26px;background:radial-gradient(circle, rgba(22,209,157,${0.5 * pf}), transparent 70%)"></div>`;
+  const ob = E.outBack(prog(t, at(2, "online") - 0.05, at(2, "online") + 0.3), 2);
+  if (ob > 0) h += `<div class="abs" style="left:640px;top:322px;padding:16px 30px;border-radius:999px;background:var(--mint);color:#04241b;font:700 38px SG;transform:scale(${ob * (1 - out)}) rotate(${(1 - ob) * 20}deg);box-shadow:0 0 60px var(--mintGlow)">● Online ✓</div>`;
+  return h;
+}
+
+/* ---------- S3 · the customer configures, sees the price; the request arrives complete ---------- */
+const PH = { x: 540, y: 820, s: 0.76 };
+function s3(t) {
+  let h = "";
+  const out = E.inCubic(prog(t, C4 - 0.3, C4));
+  const tCol = at(3, "colore"), tVet = at(3, "vetro"), tPr = at(3, "prezzo"), tReq = at(3, "richiesta");
+  const outK = E.outCubic(prog(t, tCol, tCol + 0.4));
+  let price = 1180;
+  price = lerp(price, 1265, E.outCubic(prog(t, tCol, tCol + 0.5)));
+  price = lerp(price, 1390, E.outCubic(prog(t, tVet, tVet + 0.5)));
+  const st = { compact: true, out: outK > 0 ? 1 : 0, outFrom: 0, outK: outK > 0 ? outK : 1, glazing: { sel: t >= tVet ? 1 : 0, k: t >= tVet ? E.outCubic(prog(t, tVet, tVet + 0.35)) : 1 },
+    price, hlPrice: Math.sin(Math.PI * prog(t, tPr - 0.1, tPr + 0.7)), hlDraw: Math.sin(Math.PI * prog(t, at(3, "misure") - 0.1, at(3, "misure") + 0.6)) };
+  if (outK <= 0) { st.out = 0; delete st.outFrom; }
+  const pk = E.outBack(prog(t, C3 + 0.02, C3 + 0.6), 1.15), shift = E.inOutCubic(prog(t, tReq - 0.3, tReq + 0.3));
+  if (pk > 0) h += phone(PH.x - shift * 150, PH.y + (1 - pk) * 900, PH.s * (1 - shift * 0.12), (1 - pk) * 8 - shift * 4, widgetScreen(t, st), 1 - out);
+  h += esempio(t, C3 + 0.6, C4 - 0.3, 760, 1290);
+  // the request card lands on the dealer's side
+  const rk = E.outBack(prog(t, tReq, tReq + 0.5), 1.3);
+  if (rk > 0) {
+    const ok = (i) => E.outBack(prog(t, at(3, "dati") - 0.3 + i * 0.12, at(3, "dati") + i * 0.12), 2);
+    const rows = [["Misure", "1200 × 1400 mm"], ["Colore", "Antracite RAL 7016"], ["Vetro", "Triplo vetro"], ["Contatti", "Anna T. · Bergamo"]];
+    h += `<div class="abs" style="left:${560 + (1 - rk) * 400}px;top:520px;width:460px;border-radius:26px;background:rgba(15,20,22,.97);border:2px solid rgba(22,209,157,.6);box-shadow:0 30px 90px rgba(0,0,0,.6),0 0 50px rgba(22,209,157,.2);padding:24px 26px;opacity:${Math.min(1, rk * 1.4) * (1 - out)}">
+      <div style="display:flex;align-items:center;gap:10px;font:700 20px IN;letter-spacing:.12em;color:var(--mint)"><span style="width:12px;height:12px;border-radius:50%;background:var(--mint);box-shadow:0 0 14px var(--mint)"></span>NUOVA RICHIESTA</div>
+      <div class="sg" style="font-size:44px;font-weight:700;margin:10px 0 8px">€ 1.390</div>
+      ${rows.map(([k, v], i) => `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid rgba(255,255,255,.08)"><span style="font:600 22px IN;color:#8f979c">${k}</span><span style="display:flex;align-items:center;gap:10px;font:700 22px IN">${v}<span style="color:var(--mint);transform:scale(${ok(i)});display:inline-block">✓</span></span></div>`).join("")}
+    </div>`;
+  }
+  return h;
+}
+
+/* ---------- S4 · your colours and logo, then the call to action ---------- */
+function s4(t) {
+  let h = "";
+  const tc = at(4, "colori"), tl = at(4, "logo"), tp = at(4, "Provalo");
+  const AC = ["#ffb547", "#5cc8ff", "#16d19d", "#ff7b8a"];
+  const ci = t < tc ? 0 : Math.min(3, Math.floor((t - tc) / 0.22) + 1);
+  const logo = t < tl ? "R" : "B";
+  const brand = t < tl ? "Serramenti Rossi" : "Bianchi Infissi";
+  const out = E.inCubic(prog(t, tp - 0.3, tp + 0.1)), inn = E.outCubic(prog(t, C4, C4 + 0.5));
+  if (out < 1) {
+    h += `<div class="abs" style="left:70px;top:330px;width:940px;height:900px;opacity:${inn * (1 - out)};transform:scale(${lerp(0.92, 1, inn) * (1 - out * 0.2)})">${browser(miniCfg(t, C4 - 5, AC[ci], logo), AC[ci], logo)}</div>`;
+    h += `<div class="abs sg" style="left:0;right:0;top:1250px;text-align:center;font-size:44px;font-weight:700;opacity:${E.outCubic(prog(t, tl, tl + 0.3)) * (1 - out)};color:${AC[ci]}">${brand}</div>`;
+    h += kText("I tuoi colori. Il tuo logo.", t, { in: tc - 0.1, out: tp - 0.35, y: 190, size: 70, mode: "rise", stagger: 0.012, hl: ["colori.", "logo."] });
+  }
+  h += kText("Provalo gratis", t, { in: tp - 0.05, y: 230, size: 104, mode: "rise", stagger: 0.02 });
+  h += kText("per 14 giorni", t, { in: at(4, "per") - 0.05, y: 345, size: 104, mode: "rise", stagger: 0.02, hl: ["14"] });
+  h += endCard(t, at(4, "giorni"), { cy: 760 });
+  const lb = E.outBack(prog(t, at(4, "link") - 0.1, at(4, "link") + 0.3), 1.7);
+  if (lb > 0) h += `<div class="abs" style="left:240px;top:1060px;width:600px;height:118px;border-radius:999px;background:linear-gradient(135deg,#16d19d,#0fbf8f);display:grid;place-items:center;font:700 52px SG;color:#04241b;transform:scale(${lb * (1 + 0.025 * Math.sin(t * 6))});box-shadow:0 0 ${60 + Math.sin(t * 4) * 20}px var(--mintGlow)">Link in bio 👇</div>`;
+  const url = E.outCubic(prog(t, at(4, "bio") + 0.15, at(4, "bio") + 0.5));
+  if (url > 0) h += `<div class="abs sg" style="left:0;right:0;top:1215px;text-align:center;font-size:50px;font-weight:700;opacity:${url}">onespec<span style="color:var(--mint)">.eu</span></div>`;
+  return h;
+}
+
+function frame(t) {
+  let h = background(t, t < C3 && t < LN[2].start - 0.1 ? "red" : "mint");
+  const bt = (t % 0.5) / 0.5, beat = t > C3 ? 1 + 0.006 * Math.exp(-bt * 9) : 1;
+  h += `<div class="abs" style="inset:0;transform:scale(${beat.toFixed(4)})">`;
+  if (t < C1 + 0.15) h += s0(t);
+  if (t >= C1 - 0.1 && t < C3 + 0.15) h += s12(t);
+  if (t >= C3 - 0.1 && t < C4 + 0.15) h += s3(t);
+  if (t >= C4 - 0.1) h += s4(t);
+  h += `</div>`;
+  h += epTag(t);
+  CAP_Y = t >= at(4, "Provalo") ? 1440 : 1490;
+  h += captions(t);
+  for (const c of CUTS) {
+    const p = prog(t, c - 0.12, c + 0.16);
+    if (p > 0 && p < 1) { const k = Math.sin(p * Math.PI); h += `<div class="abs" style="inset:0;background:linear-gradient(180deg, transparent, rgba(22,209,157,${0.2 * k}), transparent);transform:translateY(${(p - 0.5) * 900}px)"></div>`; }
+  }
+  h += flash(t, at(0, "Hai"), 0.15) + flash(t, at(2, "incolli") + 0.25, 0.14);
+  const fo = prog(t, DUR - 0.5, DUR);
+  if (fo > 0) h += `<div class="abs" style="inset:0;background:#000;opacity:${fo}"></div>`;
+  h += `<div class="abs" style="left:0;top:0;height:8px;width:${(t / DUR) * 100}%;background:linear-gradient(90deg,var(--mint),var(--cyan))"></div>`;
+  h += `<div class="abs" style="inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(0,0,0,.55))"></div>`;
+  return h;
+}
+window.DUR = DUR;
+window.renderAt = (t) => { document.getElementById("stage").innerHTML = frame(t); };
+renderAt(0);
+</script>
+</body>
+</html>

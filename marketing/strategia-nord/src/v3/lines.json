@@ -1,9 +1,59 @@
-{"speed": 1.1, "lead": 0.35, "lines": [
- {"who": "S", "say": "Ma alla fine, con la detrazione, quanto pago?", "show": "Ma alla fine, con la detrazione, quanto pago?", "gap": 0.35},
- {"who": "M", "say": "Lo vediamo insieme, adesso. Scorrevole duecentoquaranta per duecentodieci, antracite.", "show": "Lo vediamo insieme, adesso. Scorrevole 240 × 210, antracite.", "gap": 0.3},
- {"who": "M", "say": "Prezzo chiavi in mano: novemiladuecento euro. Con il Bonus Casa, prima casa, il costo effettivo è quattromilaseicento euro, recuperati in dieci anni.", "show": "Prezzo chiavi in mano: 9.200 euro. Con il Bonus Casa, prima casa, il costo effettivo è 4.600 euro, recuperati in 10 anni.", "gap": 0.35},
- {"who": "S", "say": "E se volessi pagare a rate?", "show": "E se volessi pagare a rate?", "gap": 0.3},
- {"who": "M", "say": "Esempio indicativo: ventiquattro rate da trecentottantatré euro. E il pi di effe col mio logo è già pronto.", "show": "Esempio indicativo: 24 rate da 383 euro. E il PDF col mio logo è già pronto.", "gap": 0.35},
- {"who": "S", "say": "Perfetto, così è chiaro.", "show": "Perfetto, così è chiaro.", "gap": 0.45},
- {"who": "M", "say": "Niente più: le mando il preventivo domani. Si chiude in cucina. Link in bio.", "show": "Niente più: «le mando il preventivo domani». Si chiude in cucina. Link in bio.", "gap": 0.0}
-]}
+{
+ "speed": 1.1,
+ "lead": 0.35,
+ "lines": [
+  {
+   "who": "S",
+   "say": "Ma alla fine, con la detrazione, quanto pago?",
+   "show": "Ma alla fine, con la detrazione, quanto pago?",
+   "gap": 0.22,
+   "rate": "+0%"
+  },
+  {
+   "who": "M",
+   "say": "Lo vediamo insieme, adesso. Scorrevole duecentoquaranta per duecentodieci, antracite.",
+   "show": "Lo vediamo insieme, adesso. Scorrevole 240 × 210, antracite.",
+   "gap": 0.22,
+   "rate": "+4%"
+  },
+  {
+   "who": "M",
+   "say": "Prezzo chiavi in mano: novemiladuecento euro. Con il Bonus Casa, prima casa, il costo effettivo è quattromilaseicento euro, recuperati in dieci anni.",
+   "show": "Prezzo chiavi in mano: 9.200 euro. Con il Bonus Casa, prima casa, il costo effettivo è 4.600 euro, recuperati in 10 anni.",
+   "gap": 0.22,
+   "rate": "+4%"
+  },
+  {
+   "who": "S",
+   "say": "E se volessi pagare a rate?",
+   "show": "E se volessi pagare a rate?",
+   "gap": 0.22,
+   "rate": "+0%"
+  },
+  {
+   "who": "M",
+   "say": "Esempio indicativo: ventiquattro rate mensili da trecentottantatré euro. E il pi di effe col mio logo è già pronto.",
+   "show": "Esempio indicativo: 24 rate mensili da 383 euro. E il PDF col mio logo è già pronto.",
+   "gap": 0.22,
+   "rate": "+4%"
+  },
+  {
+   "who": "S",
+   "say": "Perfetto, così è chiaro.",
+   "show": "Perfetto, così è chiaro.",
+   "gap": 0.22,
+   "rate": "+0%"
+  },
+  {
+   "who": "M",
+   "say": "Niente più: le mando il preventivo domani. Si chiude in cucina. Trovi il link nella bio.",
+   "show": "Niente più: «le mando il preventivo domani». Si chiude in cucina. Trovi il link nella bio.",
+   "gap": 0.22,
+   "rate": "+2%"
+  }
+ ],
+ "voices": {
+  "M": "it-IT-DiegoNeural",
+  "S": "it-IT-IsabellaNeural"
+ }
+}
