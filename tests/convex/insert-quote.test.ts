@@ -84,4 +84,33 @@ describe("widget.insertQuote — server-authoritative recompute", () => {
     expect(detail?.configuratorName).toBe(name);
     expect(detail?.sourcePage).toBe("https://www.serramenti-rossi.it/preventivo");
   });
+
+  test("honest leads at a reduced VAT rate or with ecobonus/discount are not flagged as tampering (issue #27)", async () => {
+    const t = newDb();
+    const { tenantId } = await seedTenant(t);
+    const configuratorId = await seedPublishedConfigurator(t, tenantId);
+    const submit = (extra: Record<string, number>) =>
+      t.mutation(internal.widget.insertQuote, {
+        publicId: "PUBID12345",
+        configuratorId,
+        catalogVersion: 1,
+        items: [sampleItem],
+        leadName: "Mario Rossi",
+        leadEmail: "mario@example.com",
+        leadLocale: "it",
+        ...extra,
+      });
+    // What the server computes for sampleItem, ex VAT.
+    const probe = await submit({});
+    const ex = (await t.run((ctx) => ctx.db.get(probe)))!.priceExVatCents;
+    const gross = (vat: number) => ex + Math.round((ex * vat) / 100);
+
+    const reduced = await submit({ clientReportedPriceCents: gross(10), clientVatPercent: 10 });
+    const ecobonus = await submit({ clientReportedPriceCents: Math.round(gross(22) * 0.45), clientVatPercent: 22, clientDeductionPercent: 55 });
+    const tampered = await submit({ clientReportedPriceCents: Math.round(gross(22) * 0.5), clientVatPercent: 22 });
+    const docs = await t.run(async (ctx) => Promise.all([reduced, ecobonus, tampered].map((id) => ctx.db.get(id))));
+    expect(docs[0]?.spamScore ?? 0).toBe(0);
+    expect(docs[1]?.spamScore ?? 0).toBe(0);
+    expect(docs[2]?.spamScore ?? 0).toBeGreaterThan(0); // half price with no deduction declared is still caught
+  });
 });

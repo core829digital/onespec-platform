@@ -531,6 +531,7 @@ export function Widget({
         honeypot: honeypot || undefined,
         clientReportedPriceCents: Math.round(finalGrand * 100),
         clientVatPercent: vatPct,
+        clientDeductionPercent: Math.min(100, ecobonusPct + discountPct),
         consent: true as const,
         consentVersion: "widget-1",
         turnstileToken: turnstileToken ?? undefined,

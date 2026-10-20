@@ -456,6 +456,8 @@ export const insertQuote = internalMutation({
     clientReportedPriceCents: v.optional(v.number()),
     /** VAT rate the visitor had selected when the price was shown (the widget lets them tweak it). */
     clientVatPercent: v.optional(v.number()),
+    /** Ecobonus + discount the visitor applied to the gross before the price was shown (percent of the gross). */
+    clientDeductionPercent: v.optional(v.number()),
     sourceIpHash: v.optional(v.string()),
     sourceOrigin: v.optional(v.string()),
     sourcePage: v.optional(v.string()),
@@ -524,13 +526,17 @@ export const insertQuote = internalMutation({
 
     const price = calculatePrice(version.payload, items);
 
-    // The widget shows the gross at the rate the visitor picked: compare like with like.
-    const comparedVat = typeof args.clientVatPercent === "number" && args.clientVatPercent >= 0 && args.clientVatPercent <= 100 ? args.clientVatPercent : price.vatRatePercent;
+    // The widget shows the gross at the rate the visitor picked, minus the ecobonus and discount they applied:
+    // compare like with like, or every honest lead that uses those knobs looks like tampering.
+    const pct = (n: number | undefined) => (typeof n === "number" && Number.isFinite(n) && n >= 0 && n <= 100 ? n : null);
+    const comparedVat = pct(args.clientVatPercent) ?? price.vatRatePercent;
+    const deduction = pct(args.clientDeductionPercent) ?? 0;
     const expectedGross = price.priceExVatCents + Math.round((price.priceExVatCents * comparedVat) / 100);
+    const expectedShown = Math.round((expectedGross * (100 - deduction)) / 100);
     const priceMismatch =
       args.clientReportedPriceCents != null &&
-      expectedGross > 0 &&
-      Math.abs(expectedGross - args.clientReportedPriceCents) / expectedGross > 0.01;
+      expectedShown > 0 &&
+      Math.abs(expectedShown - args.clientReportedPriceCents) / expectedShown > 0.01;
 
     const quoteId = await ctx.db.insert("quoteRequests", {
       tenantId: configurator.tenantId,

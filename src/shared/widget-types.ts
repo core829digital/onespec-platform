@@ -126,6 +126,10 @@ export const QuoteSubmissionSchema = z.object({
   consent: z.literal(true),
   consentVersion: z.string().max(20).optional(),
   clientReportedPriceCents: z.number().int().positive().max(100_000_000).optional(),
+  /** VAT rate the visitor had selected when that price was shown (the widget lets them pick a reduced rate). */
+  clientVatPercent: z.number().min(0).max(100).optional(),
+  /** Ecobonus + discount percentages the visitor applied to the gross before the price was shown. */
+  clientDeductionPercent: z.number().min(0).max(100).optional(),
   /** Page of the dealer's site the widget is shown on (see src/shared/source-page.ts); cleaned again on the server. */
   sourcePage: z.string().max(2048).optional(),
 });

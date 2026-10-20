@@ -227,6 +227,8 @@ http.route({
       leadLocale: body.leadLocale,
       requestKind: body.requestKind,
       clientReportedPriceCents: body.clientReportedPriceCents,
+      clientVatPercent: body.clientVatPercent,
+      clientDeductionPercent: body.clientDeductionPercent,
       consentAt: Date.now(),
       consentVersion: body.consentVersion,
       sourceIpHash: ipHash,
