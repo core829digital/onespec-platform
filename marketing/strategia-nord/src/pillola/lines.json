@@ -1,0 +1,35 @@
+{
+ "lines": [
+  {
+   "who": "M",
+   "say": "Quanto ti costa un preventivo a vuoto?",
+   "show": "Quanto ti costa un preventivo a vuoto?",
+   "rate": "-2%",
+   "gap": 0.4
+  },
+  {
+   "who": "M",
+   "say": "Due ore di sopralluogo. Un'ora di preventivo, la sera. Sono tre ore.",
+   "show": "Due ore di sopralluogo. Un'ora di preventivo, la sera. Sono tre ore.",
+   "rate": "+3%",
+   "gap": 0.4
+  },
+  {
+   "who": "M",
+   "say": "Per dieci clienti spariti al mese, fanno trenta ore. Quasi quattro giornate di lavoro.",
+   "show": "Per dieci clienti spariti al mese, fanno trenta ore. Quasi quattro giornate di lavoro.",
+   "rate": "+3%",
+   "gap": 0.4
+  },
+  {
+   "who": "M",
+   "say": "E tu, quanti ne fai? Scrivilo nei commenti.",
+   "show": "E tu, quanti ne fai? Scrivilo nei commenti.",
+   "rate": "+0%",
+   "gap": 0.4
+  }
+ ],
+ "voices": {
+  "M": "it-IT-DiegoNeural"
+ }
+}

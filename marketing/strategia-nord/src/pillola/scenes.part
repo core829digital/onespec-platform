@@ -1,0 +1,99 @@
+/* ===================== Pillola · "Quanto ti costa un preventivo a vuoto?" (15 s, senza voce, testo + musica) ===================== */
+const SPK = { M: { name: "", hex: "#16d19d" } };
+const C1 = LN[1].start - 0.15, C2 = LN[2].start - 0.15, C3 = LN[3].start - 0.15;
+const DUR = lineEnd(3) + 2.2;
+const CUTS = [C1, C2, C3];
+function s0(t) {
+  let h = "";
+  const slam = at(0, "a"), out = E.inCubic(prog(t, C1 - 0.3, C1));
+  const [sx, sy] = shake(t, slam, 22, 0.5);
+  h += `<div class="abs" style="inset:0;transform:translate(${sx}px,${sy}px);opacity:${1 - out}">`;
+  h += kText("QUANTO TI COSTA", t, { in: at(0, "Quanto") - 0.1, y: 520, size: 100, mode: "flip", stagger: 0.02, ls: 0.0 });
+  h += kText("UN PREVENTIVO", t, { in: at(0, "un") - 0.1, y: 650, size: 100, mode: "flip", stagger: 0.02, ls: 0.0 });
+  h += kText("A VUOTO?", t, { in: slam - 0.1, y: 800, size: 190, mode: "slam", stagger: 0.03, hl: ["VUOTO"], hlColor: "var(--red)", hlGlow: "rgba(255,90,100,.6)" });
+  h += `</div>`;
+  return h;
+}
+function row(t, a, y, label, val, col) {
+  const k = E.outBack(prog(t, a, a + 0.45), 1.4);
+  if (k <= 0) return "";
+  return `<div class="abs glass" style="left:110px;right:110px;top:${y}px;height:150px;border-radius:32px;display:flex;align-items:center;justify-content:space-between;padding:0 44px;
+    transform:translateX(${(1 - k) * -160}px) scale(${lerp(0.85, 1, k)});opacity:${Math.min(1, k * 1.5)}">
+    <div class="sg" style="font-size:46px;font-weight:700">${label}</div><div class="sg" style="font-size:72px;font-weight:700;color:${col}">${val}</div></div>`;
+}
+function s1(t) {
+  let h = "";
+  const out = E.inCubic(prog(t, C2 - 0.3, C2));
+  h += `<div class="abs" style="inset:0;opacity:${1 - out}">`;
+  h += kText("Per ogni cliente che sparisce", t, { in: C1 + 0.05, y: 330, size: 70, mode: "rise", stagger: 0.012, weight: 700 });
+  h += row(t, at(1, "Due") - 0.1, 560, "Sopralluogo", "2 h", "#f3f7f5");
+  h += row(t, at(1, "unora") - 0.1, 740, "Preventivo la sera", "1 h", "#f3f7f5");
+  const lk = E.outCubic(prog(t, at(1, "Sono") - 0.3, at(1, "Sono")));
+  if (lk > 0) h += `<div class="abs" style="left:110px;right:110px;top:930px;height:4px;border-radius:2px;background:rgba(255,255,255,.35);transform:scaleX(${lk})"></div>`;
+  h += stamp(t, at(1, "tre"), "= 3 ORE", 540, 1080, { size: 96, rot: -4, color: "#ff5a64" });
+  h += esempio(t, at(1, "tre") + 0.35, C2 - 0.3, 0, 1230, true);
+  h += `</div>`;
+  return h;
+}
+function s2(t) {
+  let h = "";
+  const out = E.inCubic(prog(t, C3 - 0.3, C3));
+  h += `<div class="abs" style="inset:0;opacity:${1 - out}">`;
+  h += kText("× 10 clienti spariti al mese", t, { in: C2 + 0.05, y: 330, size: 72, mode: "rise", stagger: 0.012, hl: ["10"], hlColor: "var(--amber)", hlGlow: "rgba(255,181,71,.55)" });
+  const slam = at(2, "trenta");
+  const cnt = Math.round(30 * E.outExpo(prog(t, at(2, "mese") , slam + 0.2)));
+  const sp = E.outBack(prog(t, slam - 0.15, slam + 0.12), 1.8);
+  const [sx, sy] = shake(t, slam, 18, 0.45);
+  if (t > at(2, "mese")) h += `<div class="abs sg" style="left:0;right:0;top:500px;text-align:center;font-size:300px;font-weight:700;letter-spacing:-.05em;line-height:1;color:#ff5a64;text-shadow:0 0 80px rgba(255,90,100,.55);font-variant-numeric:tabular-nums;transform:translate(${sx}px,${sy}px) scale(${lerp(1.5, 1, sp).toFixed(3)})">${cnt} ORE</div>`;
+  h += kText("quasi 4 giornate di lavoro", t, { in: at(2, "Quasi") - 0.1, y: 860, size: 66, mode: "rise", stagger: 0.012, weight: 700, color: "#c9d1d4" });
+  for (let i = 0; i < 4; i++) {
+    const a = at(2, "giornate") + i * 0.12, k = E.outBack(prog(t, a, a + 0.4), 1.6);
+    if (k <= 0) continue;
+    const x = 160 + i * 200, cross = E.outCubic(prog(t, at(2, "lavoro") + 0.1 + i * 0.08, at(2, "lavoro") + 0.3 + i * 0.08));
+    h += `<div class="abs" style="left:${x}px;top:1010px;width:160px;height:180px;border-radius:24px;background:#f3f7f5;overflow:hidden;transform:scale(${k}) rotate(${(i - 1.5) * 3}deg);box-shadow:0 20px 50px rgba(0,0,0,.5)">
+      <div style="height:46px;background:#ff5a64"></div><div class="sg" style="text-align:center;font-size:${i === 3 ? 48 : 70}px;font-weight:700;color:#14201b;margin-top:${i === 3 ? 30 : 16}px">${i === 3 ? "6 h" : "8 h"}</div>
+      <svg class="abs" style="left:0;top:0" width="160" height="180"><line x1="20" y1="30" x2="${20 + 120 * cross}" y2="${30 + 130 * cross}" stroke="#ff5a64" stroke-width="12" stroke-linecap="round"/><line x1="140" y1="30" x2="${140 - 120 * cross}" y2="${30 + 130 * cross}" stroke="#ff5a64" stroke-width="12" stroke-linecap="round"/></svg></div>`;
+  }
+  h += esempio(t, slam + 0.3, C3 - 0.3, 0, 1260, true);
+  h += `</div>`;
+  return h;
+}
+function s3(t) {
+  let h = "";
+  h += kText("Quanti ne fai tu?", t, { in: at(3, "quanti") - 0.1, y: 300, size: 110, mode: "slam", stagger: 0.02, hl: ["tu?"] });
+  const lb = E.outBack(prog(t, at(3, "Scrivilo") - 0.1, at(3, "Scrivilo") + 0.3), 1.7);
+  if (lb > 0) h += `<div class="abs" style="left:150px;top:600px;width:780px;height:124px;border-radius:999px;background:linear-gradient(135deg,#16d19d,#0fbf8f);display:grid;place-items:center;font:700 50px SG;color:#04241b;transform:scale(${lb * (1 + 0.025 * Math.sin(t * 6))});box-shadow:0 0 ${60 + Math.sin(t * 4) * 20}px var(--mintGlow)">Scrivilo nei commenti ↓</div>`;
+  h += endCard(t, at(3, "commenti") + 0.2, { cy: 1040 });
+  const url = E.outCubic(prog(t, at(3, "commenti") + 0.6, at(3, "commenti") + 1.0));
+  if (url > 0) h += `<div class="abs sg" style="left:0;right:0;top:1300px;text-align:center;font-size:50px;font-weight:700;opacity:${url}">onespec<span style="color:var(--mint)">.eu</span></div>
+    <div class="abs" style="left:0;right:0;top:1380px;text-align:center;font:600 32px IN;color:#8f979c;opacity:${url}">Prova gratis 14 giorni · link in bio</div>`;
+  return h;
+}
+function frame(t) {
+  let h = background(t, t < C3 ? "red" : "mint");
+  const bt = (t % 0.5) / 0.5, beat = 1 + 0.006 * Math.exp(-bt * 9);
+  h += `<div class="abs" style="inset:0;transform:translateY(110px) scale(${beat.toFixed(4)})">`;
+  if (t < C1 + 0.15) h += s0(t);
+  if (t >= C1 - 0.1 && t < C2 + 0.15) h += s1(t);
+  if (t >= C2 - 0.1 && t < C3 + 0.15) h += s2(t);
+  if (t >= C3 - 0.1) h += s3(t);
+  h += `</div>`;
+  for (const c of CUTS) {
+    const p = prog(t, c - 0.12, c + 0.16);
+    if (p > 0 && p < 1) { const k = Math.sin(p * Math.PI); h += `<div class="abs" style="inset:0;background:linear-gradient(180deg, transparent, rgba(22,209,157,${0.2 * k}), transparent);transform:translateY(${(p - 0.5) * 900}px)"></div>`; }
+  }
+  h += flash(t, at(0, "a"), 0.2) + flash(t, at(2, "trenta"), 0.16);
+  CAP_Y = 1500;
+  h += captions(t);
+  const fo = prog(t, DUR - 0.4, DUR);
+  if (fo > 0) h += `<div class="abs" style="inset:0;background:#000;opacity:${fo}"></div>`;
+  h += `<div class="abs" style="left:0;top:0;height:8px;width:${(t / DUR) * 100}%;background:linear-gradient(90deg,var(--mint),var(--cyan))"></div>`;
+  h += `<div class="abs" style="inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(0,0,0,.55))"></div>`;
+  return h;
+}
+window.DUR = DUR;
+window.renderAt = (t) => { document.getElementById("stage").innerHTML = frame(t); };
+renderAt(0);
+</script>
+</body>
+</html>

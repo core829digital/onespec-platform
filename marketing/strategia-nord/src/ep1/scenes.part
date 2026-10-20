@@ -1,0 +1,470 @@
+
+/* ===================== OneSpec · Serie "Cambia il modo di lavorare" · Ep. 1 · Preventivi a vuoto (40 s) ===================== */
+const DUR = 40;
+{ const ob = E.outBack; E.outBack = (x, k) => (x <= 0 ? 0 : x >= 1 ? 1 : ob(x, k)); }
+const LN = TIMING.lines;
+const CUTS = [5.95, 12.7, 20.25, 28.6, 31.35];
+const SPK = { M: { name: "Marco", role: "Serramentista", color: "var(--amber)", hex: "#ffb547", init: "M" },
+              S: { name: "Sara", role: "Team OneSpec", color: "var(--mint)", hex: "#16d19d", init: "S" } };
+/** Start time of the first word of line `li` that begins with `w` (exact voice timing). */
+function at(li, w, nth = 0) {
+  const hits = LN[li].words.filter((x) => x[0].toLowerCase().replace(/[^\wà-ú.]/g, "").startsWith(w.toLowerCase()));
+  return hits[nth][1];
+}
+function endOf(li, w) { return LN[li].words.find((x) => x[0].toLowerCase().startsWith(w.toLowerCase()))[2]; }
+
+/* ---------- dialogue bar: both people on the call, the speaker lights up with a live waveform ---------- */
+function speakingLine(t) {
+  for (let i = 0; i < LN.length; i++) { const l = LN[i]; if (t >= l.start - 0.05 && t <= l.start + l.dur) return i; }
+  return -1;
+}
+function envAt(li, t) { const l = LN[li]; const k = Math.floor((t - l.start) * 60); return k >= 0 && k < l.env.length ? l.env[k] : 0; }
+function callBar(t) {
+  const p = E.outBack(prog(t, 0.05, 0.55), 1.3), q = E.inCubic(prog(t, 35.9, 36.4));
+  if (p <= 0 || q >= 1) return "";
+  const li = speakingLine(t);
+  const person = (key, side) => {
+    const s = SPK[key];
+    // how "on" this person is: eased in/out around their lines
+    let on = 0;
+    LN.forEach((l) => { if (l.who === key) on = Math.max(on, Math.min(prog(t, l.start - 0.25, l.start), 1 - prog(t, l.start + l.dur - 0.05, l.start + l.dur + 0.25))); });
+    on = E.inOutCubic(on);
+    const lvl = li >= 0 && LN[li].who === key ? envAt(li, t) : 0;
+    const bars = Array.from({ length: 9 }, (_, i) => {
+      const ph = Math.sin(t * 19 + i * 1.7) * 0.5 + 0.5;
+      const hh = 8 + on * (10 + lvl * 46 * (0.45 + 0.55 * ph) * (1 - Math.abs(i - 4) / 6));
+      return `<span style="display:inline-block;width:7px;height:${hh.toFixed(1)}px;border-radius:4px;background:${s.color};margin:0 3px;opacity:${0.35 + on * 0.65}"></span>`;
+    }).join("");
+    const av = 92 + on * 10;
+    const ring = `0 0 0 ${3 + on * 5}px rgba(${key === "M" ? "255,181,71" : "22,209,157"},${0.15 + on * 0.45}), 0 0 ${on * 60}px ${s.hex}66`;
+    const avatar = `<div style="width:${av}px;height:${av}px;border-radius:50%;flex:none;display:grid;place-items:center;font-family:SG;font-weight:700;font-size:${av * 0.44}px;color:#07120f;background:linear-gradient(145deg,${s.hex},${key === "M" ? "#ff8a3d" : "#5cc8ff"});box-shadow:${ring};transform:scale(${1 + lvl * 0.06})">${s.init}</div>`;
+    const txt = `<div style="text-align:${side === "L" ? "left" : "right"}"><div class="sg" style="font-size:38px;font-weight:700;color:${on > 0.5 ? "#f3f7f5" : "rgba(243,247,245,.55)"}">${s.name}</div>
+      <div style="font-size:24px;font-weight:600;letter-spacing:.04em;color:${s.color};opacity:${0.55 + on * 0.45}">${s.role}</div>
+      <div style="height:62px;display:flex;align-items:center;justify-content:${side === "L" ? "flex-start" : "flex-end"};margin-top:2px">${bars}</div></div>`;
+    return `<div style="display:flex;align-items:center;gap:22px;flex-direction:${side === "L" ? "row" : "row-reverse"};opacity:${0.55 + on * 0.45}">${avatar}${txt}</div>`;
+  };
+  const y = 70 - (1 - p) * 140 - q * 140;
+  return `<div class="abs" style="left:44px;right:44px;top:${y}px;height:190px;border-radius:40px;padding:0 34px;display:flex;align-items:center;justify-content:space-between;
+      background:linear-gradient(160deg,rgba(255,255,255,.09),rgba(255,255,255,.025));border:1.5px solid rgba(255,255,255,.12);box-shadow:0 30px 80px rgba(0,0,0,.45);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)">
+      ${person("M", "L")}
+      <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+        <div style="font-family:SG;font-weight:700;font-size:22px;letter-spacing:.18em;color:rgba(243,247,245,.55)">IN CHIAMATA</div>
+        <div style="font-family:SG;font-weight:700;font-size:30px;color:#f3f7f5;font-variant-numeric:tabular-nums">00:${String(Math.floor(t)).padStart(2, "0")}</div>
+        <div style="width:12px;height:12px;border-radius:50%;background:var(--red);box-shadow:0 0 14px var(--red);opacity:${0.5 + 0.5 * Math.sin(t * 6)}"></div>
+      </div>
+      ${person("S", "R")}
+    </div>`;
+}
+
+/* ---------- captions: exact word timing from the voice, paged by sentence ---------- */
+const PAGES = [];
+LN.forEach((l, li) => {
+  let cur = [];
+  const flush = () => { if (cur.length) PAGES.push({ li, words: cur }); cur = []; };
+  l.words.forEach((w, k) => {
+    cur.push(w);
+    const end = /[.?!:]$/.test(w[0]);
+    const comma = /,$/.test(w[0]) && cur.length >= 5 && l.words.length - k > 3;
+    if (end || comma || cur.length >= 8) flush();
+  });
+  flush();
+});
+PAGES.forEach((pg, i) => {
+  const l = LN[pg.li], nx = PAGES[i + 1];
+  pg.a = pg.words[0][1] - (i > 0 && PAGES[i - 1].li === pg.li ? 0.05 : 0.12);
+  pg.b = nx && nx.li === pg.li ? nx.words[0][1] - 0.13 : Math.min(l.start + l.dur + 0.18, nx ? nx.words[0][1] - 0.15 : 99);
+});
+function captions(t) {
+  let h = "";
+  for (const pg of PAGES) {
+    if (t < pg.a - 0.01 || t > pg.b + 0.1) continue;
+    const s = SPK[LN[pg.li].who];
+    const p = prog(t, pg.a, pg.a + 0.14), q = prog(t, pg.b, pg.b + 0.08);
+    if (q >= 1) continue;
+    const html = pg.words.map(([w, a, b]) => {
+      const now = t >= a && t < b + 0.04, on = t >= a;
+      const k = E.outBack(prog(t, a - 0.02, a + 0.16), 2.2);
+      const col = now ? s.color : on ? "#f3f7f5" : "rgba(243,247,245,.34)";
+      return `<span class="word" style="margin:0 .07em;color:${col};transform:translateY(${(1 - Math.min(1, k)) * 10}px) scale(${now ? 1.04 : 1});${now ? `text-shadow:0 0 28px ${s.hex}88` : ""}">${w}</span>`;
+    }).join(" ");
+    const y = 1400 + (1 - E.outCubic(p)) * 26 - q * 18;
+    h += `<div class="abs" style="left:56px;right:56px;top:${y}px;text-align:center;opacity:${(p * (1 - q)).toFixed(3)}">
+      <div style="display:inline-block;position:relative;background:rgba(7,8,9,.82);border:1.5px solid rgba(255,255,255,.10);border-radius:30px;padding:24px 36px 26px;font-size:50px;line-height:1.24;font-weight:800;letter-spacing:-.012em;box-shadow:0 22px 60px rgba(0,0,0,.55)">
+        <div style="position:absolute;left:36px;top:-20px;padding:6px 16px;border-radius:999px;background:${s.color};color:#07120f;font-family:SG;font-weight:700;font-size:22px;letter-spacing:.08em;text-transform:uppercase">${s.name}</div>${html}</div></div>`;
+  }
+  return h;
+}
+
+/* ===================== S0 · the pain: an evening on a spreadsheet, a quote for nothing ===================== */
+const CELLS = Array.from({ length: 40 }, (_, i) => {
+  const r = Math.floor(i / 4), c = i % 4;
+  const vals = [["Finestra 2 ante", "1200×1400", "2", "€ 486,00"], ["Porta-finestra", "900×2200", "1", "€ 612,50"], ["Vasistas", "600×600", "3", "€ 198,40"], ["Scorrevole", "2400×2200", "1", "€ 1.940,00"],
+    ["Posa in opera", "", "7", "€ 840,00"], ["Smaltimento", "", "7", "€ 210,00"], ["Controtelaio", "", "7", "€ 315,00"], ["Davanzale", "", "4", "€ 176,00"], ["Trasporto", "", "1", "€ 120,00"], ["IVA 10%", "", "", "€ ???"]];
+  return { r, c, v: vals[r][c] };
+});
+function sheet(t, k) {
+  // k: 0..1 how many cells are typed
+  const cw = [330, 190, 90, 210], x0 = 70, rowH = 62;
+  let h = `<div class="abs" style="left:0;top:0;width:900px;height:60px;background:#e9eef0;border-bottom:2px solid #c9d1d4;display:flex;align-items:center;gap:16px;padding:0 18px;font:600 24px IN;color:#4b5559">
+    <span style="padding:4px 12px;border:2px solid #b9c3c7;border-radius:8px;background:#fff">fx</span><span style="font-family:monospace;font-size:26px;color:#1f2a2e">=SOMMA(D2:D10)*1,10</span></div>`;
+  h += `<div class="abs" style="left:0;top:60px;width:900px;height:46px;background:#f2f5f6;border-bottom:2px solid #c9d1d4"></div>`;
+  let cx = x0; ["A", "B", "C", "D"].forEach((L, i) => { h += `<div class="abs" style="left:${cx}px;top:66px;width:${cw[i]}px;text-align:center;font:700 24px IN;color:#7c878b">${L}</div>`; cx += cw[i]; });
+  for (let r = 0; r < 10; r++) {
+    const y = 106 + r * rowH;
+    h += `<div class="abs" style="left:0;top:${y}px;width:${x0}px;height:${rowH}px;background:#f2f5f6;border-bottom:1px solid #d7dee1;text-align:center;line-height:${rowH}px;font:700 22px IN;color:#7c878b">${r + 2}</div>`;
+    h += `<div class="abs" style="left:${x0}px;top:${y + rowH - 1}px;width:${900 - x0}px;height:1px;background:#d7dee1"></div>`;
+  }
+  cx = x0; cw.forEach((w) => { cx += w; h += `<div class="abs" style="left:${cx}px;top:60px;width:1px;height:${46 + 10 * rowH}px;background:#d7dee1"></div>`; });
+  const n = Math.floor(k * CELLS.length);
+  CELLS.forEach((c, i) => {
+    if (i > n || !c.v) return;
+    const typing = i === n;
+    const txt = typing ? c.v.slice(0, Math.max(1, Math.floor(((k * CELLS.length) % 1) * c.v.length))) : c.v;
+    const xx = x0 + cw.slice(0, c.c).reduce((a, b) => a + b, 0), yy = 106 + c.r * rowH;
+    const red = c.v.includes("???");
+    h += `<div class="abs" style="left:${xx + 12}px;top:${yy}px;width:${cw[c.c] - 24}px;height:${rowH}px;line-height:${rowH}px;font:${c.c === 3 ? 700 : 500} 25px IN;color:${red ? "#d9363e" : "#1f2a2e"};text-align:${c.c >= 2 ? "right" : "left"};white-space:nowrap;overflow:hidden">${txt}</div>`;
+    if (typing) h += `<div class="abs" style="left:${xx}px;top:${yy}px;width:${cw[c.c]}px;height:${rowH}px;border:3px solid #1d8f5f;box-shadow:0 0 0 2px rgba(29,143,95,.25)"></div>`;
+  });
+  return `<div class="abs" style="left:0;top:0;width:900px;height:${106 + 10 * rowH}px;background:#fff;border-radius:18px;overflow:hidden;box-shadow:0 50px 120px rgba(0,0,0,.6)">${h}</div>`;
+}
+function s0(t) {
+  let h = "";
+  // hook title in the very first frames
+  h += kText("Preventivi a vuoto?", t, { in: 0.06, out: 5.55, y: 262, size: 98, mode: "slam", stagger: 0.02, dIn: 0.32, hl: ["vuoto?"], hlColor: "var(--red)", hlGlow: "rgba(255,90,100,.6)" });
+  // the spreadsheet, tilted in 3D, typing all evening
+  const inn = E.outExpo(prog(t, 0.15, 1.1)), out = E.inCubic(prog(t, 5.5, 6.0));
+  const k = clamp(prog(t, 0.35, 4.6) * 0.98 + (t > 4.6 ? 0.02 : 0));
+  const shake = t > 2.08 && t < 2.5 ? Math.sin(t * 90) * 10 * (1 - prog(t, 2.08, 2.5)) : 0;
+  h += `<div class="abs" style="left:90px;top:470px;width:900px;height:730px;perspective:1800px;opacity:${inn * (1 - out)}">
+    <div style="position:absolute;inset:0;transform:translate(${shake}px,${(1 - inn) * 260 - out * 120}px) rotateX(${lerp(38, 16, inn)}deg) rotateZ(${lerp(-12, -4, inn) + Math.sin(t * 0.8) * 0.6}deg) scale(${lerp(0.75, 1, inn) * (1 - out * 0.15)});transform-origin:50% 60%">${sheet(t, k)}</div></div>`;
+  // clock: three hours spent
+  const ck = E.outBack(prog(t, 2.95, 3.35), 1.6), hrs = clamp(prog(t, 0.4, 3.5)) * 3;
+  if (ck > 0) {
+    const ang = hrs * 360;
+    h += `<div class="abs" style="left:770px;top:420px;width:250px;height:250px;transform:scale(${ck * (1 - out)}) rotate(${(1 - ck) * -40}deg)">
+      <svg width="250" height="250" viewBox="0 0 250 250"><circle cx="125" cy="125" r="112" fill="#0d1013" stroke="#ff5a64" stroke-width="10"/>
+      <circle cx="125" cy="125" r="112" fill="none" stroke="#ffb547" stroke-width="10" stroke-dasharray="704" stroke-dashoffset="${704 * (1 - clamp(hrs / 3))}" transform="rotate(-90 125 125)"/>
+      <line x1="125" y1="125" x2="${125 + Math.sin((ang * Math.PI) / 180) * 70}" y2="${125 - Math.cos((ang * Math.PI) / 180) * 70}" stroke="#f3f7f5" stroke-width="9" stroke-linecap="round"/>
+      <circle cx="125" cy="125" r="10" fill="#ffb547"/></svg>
+      <div class="abs sg" style="left:35px;right:35px;top:252px;text-align:center;font-size:48px;font-weight:700;color:#ffb547;background:#0d1013;border:2px solid rgba(255,181,71,.5);border-radius:999px;padding:4px 0">${Math.floor(hrs)}:${String(Math.floor((hrs % 1) * 60)).padStart(2, "0")} h</div></div>`;
+  }
+  // the quote document and the stamp "A VUOTO"
+  const dq = E.outBack(prog(t, 1.38, 1.85), 1.2);
+  if (dq > 0) {
+    const st = prog(t, 2.06, 2.24), sk = st > 0 ? lerp(2.6, 1, E.outCubic(st)) : 0;
+    h += `<div class="abs" style="left:120px;top:${560 + (1 - dq) * 500}px;width:440px;height:560px;transform:rotate(${lerp(-25, -7, dq)}deg) scale(${dq * (1 - out)});opacity:${1 - out}">
+      <div class="abs" style="inset:0;background:#f7f9f8;border-radius:22px;box-shadow:0 50px 100px rgba(0,0,0,.6);padding:36px;color:#1f2a2e">
+        <div class="sg" style="font-size:40px;font-weight:700">Preventivo</div><div style="font-size:22px;color:#7c878b;margin-top:4px">N. 2026-0147 · Sig. Bianchi</div>
+        ${[0, 1, 2, 3, 4, 5].map((i) => `<div style="height:16px;border-radius:8px;background:#e1e7e9;margin-top:${i ? 22 : 40}px;width:${[92, 78, 85, 60, 88, 70][i]}%"></div>`).join("")}
+        <div style="position:absolute;left:36px;right:36px;bottom:40px;display:flex;justify-content:space-between;font:700 30px SG"><span>Totale</span><span>€ 4.897,90</span></div></div>
+      ${st > 0 ? `<div class="abs sg" style="left:30px;top:220px;padding:14px 30px;border:10px solid #ff5a64;border-radius:20px;color:#ff5a64;font-size:84px;font-weight:700;letter-spacing:.04em;transform:rotate(-14deg) scale(${sk});opacity:${Math.min(1, st * 3)};background:rgba(255,90,100,.08);box-shadow:0 0 60px rgba(255,90,100,.35)">A VUOTO</div>` : ""}
+    </div>`;
+  }
+  // the client card that vanishes
+  const cl = E.outBack(prog(t, 4.22, 4.6), 1.4), gone = prog(t, 4.82, 5.6);
+  if (cl > 0) {
+    const card = `<div style="display:flex;align-items:center;gap:22px"><div style="width:96px;height:96px;border-radius:50%;background:linear-gradient(145deg,#8f979c,#5d666a);display:grid;place-items:center;font:700 44px SG;color:#0d1013">B</div>
+      <div><div class="sg" style="font-size:38px;font-weight:700">Sig. Bianchi</div><div style="font-size:26px;color:#8f979c">Ultimo contatto: 12 giorni fa</div></div></div>`;
+    if (gone <= 0) h += `<div class="abs glass" style="left:520px;top:${1050 + (1 - cl) * 120}px;width:500px;padding:28px 30px;border-radius:30px;transform:scale(${cl})">${card}</div>`;
+    else {
+      // disintegration: the card breaks into squares that drift away
+      const pieces = Array.from({ length: 70 }, (_, i) => {
+        const px = (i % 10) * 50, py = Math.floor(i / 10) * 22;
+        const d = clamp((gone - rnd(i) * 0.45) / 0.55), e = E.inCubic(d);
+        return `<div class="abs" style="left:${520 + px + e * (120 + rnd(i + 3) * 240)}px;top:${1052 + py - e * (60 + rnd(i + 9) * 160)}px;width:46px;height:20px;border-radius:4px;background:${i % 3 ? "rgba(143,151,156,.55)" : "rgba(255,90,100,.6)"};opacity:${1 - d};transform:rotate(${e * (rnd(i) - 0.5) * 180}deg)"></div>`;
+      }).join("");
+      h += pieces;
+      h += `<div class="abs sg" style="left:520px;top:1090px;width:500px;text-align:center;font-size:46px;font-weight:700;color:var(--red);opacity:${E.outCubic(prog(t, 5.0, 5.3)) * (1 - out)}">Sparito.</div>`;
+    }
+  }
+  return h;
+}
+
+/* ===================== S1 · Sara: one line of code on your site, and it is online ===================== */
+const SNIP = `<script async src="https://platform.onespec.eu/embed.js" data-onespec="serramenti-rossi"><\/script>`;
+const SNIP_TOK = [["<script", "#ff7b8a"], [" ", ""], ["async", "#5cc8ff"], [" ", ""], ["src", "#5cc8ff"], ["=", ""], ['"https://platform.onespec.eu/embed.js"', "#16d19d"], [" ", ""],
+  ["data-onespec", "#5cc8ff"], ["=", ""], ['"serramenti-rossi"', "#16d19d"], [">", "#ff7b8a"], ["<\/script>", "#ff7b8a"]];
+function snippetHtml(n) {
+  let left = n, out = "";
+  for (const [txt, col] of SNIP_TOK) {
+    if (left <= 0) break;
+    const part = txt.slice(0, left); left -= part.length;
+    const esc = part.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    out += col ? `<span style="color:${col}">${esc}</span>` : esc;
+  }
+  return out;
+}
+function miniConfigurator(t, a) {
+  // the configurator assembling inside the site (dealer accent colour, dealer logo)
+  const part = (i) => E.outBack(prog(t, a + i * 0.08, a + i * 0.08 + 0.45), 1.5);
+  const sw = ["#f3f7f5", "#3a4044", "#8a5a3c"];
+  return `<div class="abs" style="inset:0;border-radius:26px;background:linear-gradient(170deg,#11171a,#0b0f10);border:2px solid rgba(255,181,71,.55);overflow:hidden;box-shadow:0 0 70px rgba(255,181,71,.18)">
+    <div class="abs" style="left:28px;top:22px;display:flex;align-items:center;gap:12px;transform:scale(${part(0)})"><div style="width:34px;height:34px;border-radius:10px;background:var(--amber)"></div>
+      <div class="sg" style="font-size:28px;font-weight:700">Calcola il tuo prezzo</div></div>
+    <div class="abs" style="left:24px;top:80px;transform:scale(${0.62 * part(1)});transform-origin:0 0">${windowSvg(t, a + 0.1, "#e9eef0", "#5cc8ff", "1200 mm", "1400 mm")}</div>
+    <div class="abs" style="left:420px;top:100px;width:330px">
+      <div style="font:700 20px IN;letter-spacing:.12em;color:#8f979c;transform:scale(${part(2)})">COLORE</div>
+      <div style="display:flex;gap:14px;margin-top:10px;transform:scale(${part(2)})">${sw.map((c, i) => `<div style="width:60px;height:60px;border-radius:16px;background:${c};border:3px solid ${i === 0 ? "var(--amber)" : "rgba(255,255,255,.15)"}"></div>`).join("")}</div>
+      <div style="font:700 20px IN;letter-spacing:.12em;color:#8f979c;margin-top:26px;transform:scale(${part(3)})">VETRO</div>
+      <div style="display:flex;gap:12px;margin-top:10px;transform:scale(${part(3)})"><div style="padding:12px 20px;border-radius:14px;background:var(--amber);color:#1d1406;font:700 24px IN">Doppio</div><div style="padding:12px 20px;border-radius:14px;border:2px solid rgba(255,255,255,.2);font:700 24px IN">Triplo</div></div>
+      <div style="margin-top:30px;padding:20px 22px;border-radius:20px;background:rgba(255,181,71,.12);border:2px solid rgba(255,181,71,.6);transform:scale(${part(4)})">
+        <div style="font:600 20px IN;color:#ffcf8a">Prezzo d'esempio</div><div class="sg" style="font-size:52px;font-weight:700;color:#ffb547">€ 1.180</div></div>
+    </div></div>`;
+}
+function s1(t) {
+  let h = "";
+  const a = 5.95;
+  const inn = E.outExpo(prog(t, a, a + 0.85)), out = E.inCubic(prog(t, 12.5, 12.95));
+  const pasted = prog(t, at(1, "codice") + 0.05, at(1, "codice") + 0.5);
+  const cfgA = at(1, "codice") + 0.42;
+  // browser window with the dealer's site
+  const slot = (() => {
+    const glow = 0.5 + 0.5 * Math.sin(t * 5);
+    const hi = E.outCubic(prog(t, at(1, "configuratore") - 0.1, at(1, "configuratore") + 0.3));
+    if (t >= cfgA) return miniConfigurator(t, cfgA);
+    return `<div class="abs" style="inset:0;border-radius:26px;border:4px dashed rgba(22,209,157,${0.35 + hi * 0.45 * glow});background:rgba(22,209,157,${0.03 + hi * 0.06});display:grid;place-items:center">
+      <div style="text-align:center;transform:scale(${1 + hi * 0.06})"><div style="font-size:64px">＋</div><div class="sg" style="font-size:36px;font-weight:700;color:${hi > 0.5 ? "var(--mint)" : "rgba(243,247,245,.55)"}">Il tuo configuratore qui</div></div></div>`;
+  })();
+  h += `<div class="abs" style="left:70px;top:300px;width:940px;height:900px;perspective:2000px;opacity:${inn * (1 - out)}">
+    <div style="position:absolute;inset:0;transform:rotateY(${lerp(38, 0, inn) - out * 20}deg) rotateX(${lerp(14, 0, inn)}deg) scale(${lerp(0.7, 1, inn) * (1 - out * 0.25)}) translateX(${-out * 300}px);transform-origin:50% 50%">
+      <div class="abs" style="inset:0;border-radius:34px;background:#0f1416;border:2px solid rgba(255,255,255,.14);box-shadow:0 60px 140px rgba(0,0,0,.6);overflow:hidden">
+        <div class="abs" style="left:0;right:0;top:0;height:78px;background:#171d20;display:flex;align-items:center;gap:12px;padding:0 26px">
+          <span style="width:18px;height:18px;border-radius:50%;background:#ff5f57"></span><span style="width:18px;height:18px;border-radius:50%;background:#febc2e"></span><span style="width:18px;height:18px;border-radius:50%;background:#28c840"></span>
+          <div style="margin-left:22px;flex:1;height:46px;border-radius:23px;background:#0b0f10;display:flex;align-items:center;gap:12px;padding:0 22px;font:600 26px IN;color:#c9d1d4"><span style="color:var(--mint)">🔒</span>serramentirossi.it</div></div>
+        <div class="abs" style="left:40px;right:40px;top:110px;display:flex;align-items:center;justify-content:space-between">
+          <div style="display:flex;align-items:center;gap:14px"><div style="width:52px;height:52px;border-radius:14px;background:var(--amber);display:grid;place-items:center;font:700 30px SG;color:#1d1406">R</div><div class="sg" style="font-size:36px;font-weight:700">Serramenti Rossi</div></div>
+          <div style="display:flex;gap:26px;font:600 24px IN;color:#8f979c"><span>Prodotti</span><span>Chi siamo</span><span>Contatti</span></div></div>
+        <div class="abs sg" style="left:40px;top:205px;font-size:56px;font-weight:700;line-height:1.05">Finestre su misura,<br><span style="color:var(--amber)">posate a regola d'arte.</span></div>
+        <div class="abs" style="left:40px;right:40px;top:390px;height:470px">${slot}</div>
+      </div></div></div>`;
+  // the code card: types, copies, flies into the slot
+  const ca = at(1, "nel") - 0.25;
+  const cin = E.outBack(prog(t, ca, ca + 0.4), 1.3);
+  if (cin > 0 && pasted < 1) {
+    const typed = Math.floor(clamp(prog(t, ca + 0.15, at(1, "copi") - 0.1)) * SNIP_TOK.reduce((a, x) => a + x[0].length, 0));
+    const cp = t >= at(1, "copi") + 0.12;
+    const fly = E.inOutCubic(pasted);
+    const cx = lerp(70, 110, fly), cy = lerp(1080, 760, fly), sc = lerp(1, 0.25, fly);
+    const tap = Math.max(0, 1 - Math.abs(t - (at(1, "copi") + 0.08)) / 0.12);
+    h += `<div class="abs" style="left:${cx}px;top:${cy + (1 - cin) * 240}px;width:940px;transform:scale(${sc});transform-origin:50% 0;opacity:${1 - prog(t, at(1, "codice") + 0.35, at(1, "codice") + 0.5)}">
+      <div style="border-radius:28px;background:#0b0f10;border:2px solid rgba(22,209,157,.45);box-shadow:0 40px 100px rgba(0,0,0,.6),0 0 60px rgba(22,209,157,.15);padding:24px 28px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px"><div style="font:700 22px IN;letter-spacing:.14em;color:#8f979c">CODICE DA INCOLLARE</div>
+          <div style="padding:10px 22px;border-radius:14px;font:700 24px IN;background:${cp ? "var(--mint)" : "rgba(255,255,255,.08)"};color:${cp ? "#04241b" : "#f3f7f5"};transform:scale(${1 - tap * 0.12})">${cp ? "Copiato ✓" : "Copia"}</div></div>
+        <div style="font-family:ui-monospace,Menlo,monospace;font-size:27px;line-height:1.45;color:#c9d1d4;word-break:break-all;min-height:118px">${snippetHtml(typed)}<span style="opacity:${Math.sin(t * 12) > 0 ? 1 : 0};color:var(--mint)">▍</span></div>
+      </div></div>`;
+    // cursor clicking "Copia"
+    const cur = E.inOutCubic(prog(t, at(1, "copi") - 0.45, at(1, "copi") + 0.02));
+    if (cur > 0 && fly <= 0) h += `<div class="abs" style="left:${lerp(620, 885, cur)}px;top:${lerp(1320, 1112, cur)}px;font-size:58px;transform:scale(${1 - tap * 0.2});filter:drop-shadow(0 6px 10px rgba(0,0,0,.6))">👆</div>`;
+  }
+  // paste flash in the slot + "Online" badge
+  const pf = Math.max(0, 1 - Math.abs(t - cfgA) / 0.2);
+  if (pf > 0) h += `<div class="abs" style="left:110px;top:690px;width:860px;height:470px;border-radius:26px;background:radial-gradient(circle, rgba(22,209,157,${0.5 * pf}), transparent 70%)"></div>`;
+  const ob = E.outBack(prog(t, at(1, "online") - 0.05, at(1, "online") + 0.3), 2);
+  if (ob > 0) h += `<div class="abs" style="left:640px;top:322px;padding:16px 30px;border-radius:999px;background:var(--mint);color:#04241b;font:700 38px SG;transform:scale(${ob * (1 - out)}) rotate(${(1 - ob) * 20}deg);box-shadow:0 0 60px var(--mintGlow)">● Online ✓</div>`;
+  return h;
+}
+
+/* ===================== S2 · the customer chooses and sees the price; whoever writes already knows it ===================== */
+function custPhone(t) {
+  const m = E.inOutCubic(prog(t, at(3, "misure") - 0.05, at(3, "misure") + 0.7));
+  const wmm = Math.round(lerp(1000, 1400, m) / 10) * 10;
+  const col = t >= at(3, "colori") + 0.1 ? 1 : 0, colK = E.outBack(prog(t, at(3, "colori") + 0.05, at(3, "colori") + 0.35), 2);
+  const gl = t >= at(3, "vetri") + 0.1 ? 1 : 0, glK = E.outBack(prog(t, at(3, "vetri") + 0.05, at(3, "vetri") + 0.35), 2);
+  const pr = E.outExpo(prog(t, at(3, "prezzo") - 0.3, at(3, "prezzo") + 0.45));
+  const price = Math.round(pr * 1180);
+  const send = Math.max(0, 1 - Math.abs(t - (at(3, "Chi") + 0.12)) / 0.14);
+  const sent = t > at(3, "Chi") + 0.2;
+  const frame = col ? "#3a4044" : "#e9eef0";
+  const sw = [["#f3f7f5", "Bianco"], ["#3a4044", "Antracite"], ["#8a5a3c", "Noce"]];
+  return `
+    <div class="abs" style="left:40px;top:110px;right:40px;display:flex;align-items:center;gap:14px"><div style="width:44px;height:44px;border-radius:12px;background:var(--amber);display:grid;place-items:center;font:700 26px SG;color:#1d1406">R</div>
+      <div><div class="sg" style="font-size:30px;font-weight:700">Serramenti Rossi</div><div style="font:600 20px IN;letter-spacing:.12em;color:#8f979c">CALCOLA IL TUO PREZZO</div></div></div>
+    <div class="abs" style="left:60px;top:200px;transform:scale(.86);transform-origin:0 0">${windowSvg(t, 12.75, frame, gl ? "#7fd9ff" : "#5cc8ff", wmm + " mm", "1400 mm")}</div>
+    <div class="abs" style="left:44px;right:44px;top:745px">
+      <div style="display:flex;justify-content:space-between;font:700 22px IN;letter-spacing:.1em;color:#8f979c"><span>LARGHEZZA</span><span style="color:var(--amber)">${wmm} mm</span></div>
+      <div style="position:relative;height:12px;border-radius:6px;background:rgba(255,255,255,.1);margin-top:14px"><div style="position:absolute;left:0;top:0;bottom:0;width:${lerp(30, 70, m)}%;border-radius:6px;background:var(--amber)"></div>
+        <div style="position:absolute;left:calc(${lerp(30, 70, m)}% - 18px);top:-12px;width:36px;height:36px;border-radius:50%;background:#fff;box-shadow:0 0 0 ${m > 0 && m < 1 ? 10 : 0}px rgba(255,181,71,.3)"></div></div>
+      <div style="display:flex;gap:16px;margin-top:30px">${sw.map(([c, n], i) => { const sel = (i === 1 && col) || (i === 0 && !col); return `<div style="flex:1;text-align:center"><div style="height:62px;border-radius:16px;background:${c};border:4px solid ${sel ? "var(--amber)" : "rgba(255,255,255,.12)"};transform:scale(${sel && col ? lerp(0.8, 1, colK) : 1})"></div><div style="font:600 20px IN;color:${sel ? "#f3f7f5" : "#8f979c"};margin-top:6px">${n}</div></div>`; }).join("")}</div>
+      <div style="display:flex;gap:14px;margin-top:22px">${["Doppio vetro", "Triplo vetro"].map((n, i) => { const sel = (i === 1 && gl) || (i === 0 && !gl); return `<div style="flex:1;padding:16px 0;text-align:center;border-radius:16px;font:700 24px IN;background:${sel ? "var(--amber)" : "transparent"};color:${sel ? "#1d1406" : "#c9d1d4"};border:2px solid ${sel ? "var(--amber)" : "rgba(255,255,255,.16)"};transform:scale(${sel && gl ? lerp(0.85, 1, glK) : 1})">${n}</div>`; }).join("")}</div>
+    </div>
+    <div class="abs" style="left:44px;right:44px;bottom:44px;padding:22px 26px;border-radius:26px;background:${pr > 0 ? "linear-gradient(135deg,#ffb547,#ff8a3d)" : "rgba(255,255,255,.06)"};color:#1d1406;display:flex;justify-content:space-between;align-items:center;transform:scale(${1 - send * 0.05});box-shadow:${pr > 0.5 ? "0 0 60px rgba(255,181,71,.45)" : "none"}">
+      <div><div style="font:700 20px IN;opacity:.75">${pr > 0 ? "Prezzo d'esempio" : "Prezzo"}</div><div class="sg" style="font-size:58px;font-weight:700">€ ${price > 0 ? price.toLocaleString("it-IT") : "—"}</div></div>
+      <div style="padding:16px 22px;border-radius:18px;background:#1d1406;color:#ffb547;font:700 24px IN">${sent ? "Inviata ✓" : "Invia richiesta"}</div></div>`;
+}
+function s2(t) {
+  let h = "";
+  const a = 12.7, inn = E.outBack(prog(t, a, a + 0.75), 1.15), out = E.inCubic(prog(t, 20.1, 20.5));
+  const shift = E.inOutCubic(prog(t, at(3, "Chi") - 0.2, at(3, "Chi") + 0.45));
+  const px = lerp(540, 400, shift), py = 835 + (1 - inn) * 1100;
+  h += phone(px, py, 0.76 * (1 - out * 0.2), lerp(8, 0, inn) - shift * 3, custPhone(t), 1 - out);
+  // "your customer" tag
+  const tg = E.outBack(prog(t, at(2, "cliente") - 0.05, at(2, "cliente") + 0.3), 1.8);
+  if (tg > 0) h += `<div class="abs" style="left:${px - 130}px;top:282px;width:260px;text-align:center;padding:10px 0;border-radius:999px;background:#1a1408;border:2px solid var(--amber);color:var(--amber);font:700 28px SG;transform:scale(${tg * (1 - out)});z-index:3">Il tuo cliente</div>`;
+  // the request leaves the phone and lands as a card
+  const fl = E.inOutCubic(prog(t, at(3, "Chi") + 0.15, at(3, "Chi") + 0.75));
+  if (fl > 0) {
+    const x = lerp(px - 80, 610, fl), y = lerp(1180, 520, fl) - Math.sin(fl * Math.PI) * 140, sc = lerp(0.3, 1, fl);
+    const tagK = E.outBack(prog(t, at(3, "conosce") - 0.05, at(3, "conosce") + 0.35), 2);
+    h += `<div class="abs glass" style="left:${x}px;top:${y}px;width:430px;padding:28px;border-radius:30px;transform:scale(${sc * (1 - out)}) rotate(${(1 - fl) * -20 + 4}deg);border-color:rgba(22,209,157,.5)">
+      <div style="display:flex;align-items:center;gap:14px"><div style="width:56px;height:56px;border-radius:16px;background:var(--mint);display:grid;place-items:center;font-size:30px">✉</div>
+        <div><div style="font:700 20px IN;letter-spacing:.12em;color:var(--mint)">NUOVA RICHIESTA</div><div class="sg" style="font-size:32px;font-weight:700">Giulia R.</div></div></div>
+      <div style="margin-top:18px;font:600 26px IN;color:#c9d1d4;line-height:1.5">1400 × 1400 mm · Antracite<br>Triplo vetro</div>
+      <div style="margin-top:18px;padding:16px 20px;border-radius:18px;background:rgba(22,209,157,.14);border:2px solid var(--mint);display:flex;justify-content:space-between;align-items:center;transform:scale(${tagK > 0 ? lerp(0.6, 1, Math.min(1, tagK)) : 1});opacity:${tagK > 0 ? 1 : 0.0}">
+        <span style="font:700 24px IN;color:var(--mint)">Prezzo già visto ✓</span><span class="sg" style="font-size:32px;font-weight:700">€ 1.180</span></div>
+    </div>`;
+  }
+  return h;
+}
+
+/* ===================== S3 · requests: complete, spam filtered, sorted by value, you choose ===================== */
+const REQ = [
+  { n: "Giulia R.", d: "4 finestre · Antracite", v: 2360 },
+  { n: "promo@offerte-web…", d: "“Offerta SEO garantita!!!”", v: 0, spam: true },
+  { n: "Luca F.", d: "2 porte-finestre · Bianco", v: 1940 },
+  { n: "Anna T.", d: "8 finestre · Triplo vetro", v: 5120 },
+  { n: "Paolo S.", d: "1 finestra · Noce", v: 640 },
+];
+function s3(t) {
+  let h = "";
+  const a = 20.25, inn = E.outExpo(prog(t, a, a + 0.6)), out = E.inCubic(prog(t, 28.45, 28.85));
+  const spamA = at(5, "false"), filt = at(5, "filtrate"), ord = at(5, "ordini"), sc = at(5, "Decidi");
+  const rm = E.inOutCubic(prog(t, filt + 0.05, filt + 0.5));
+  const so = E.inOutCubic(prog(t, ord + 0.05, ord + 0.75));
+  const spamCount = rm > 0.6 ? 1 : 0;
+  const sorted = so > 0.5;
+  h += `<div class="abs" style="left:60px;top:300px;width:960px;height:1062px;transform:translateY(${(1 - inn) * 200}px) scale(${1 - out * 0.1});opacity:${inn * (1 - out)}">
+    <div class="abs glass" style="inset:0;border-radius:40px"></div>
+    <div class="abs" style="left:40px;top:34px;right:40px;display:flex;justify-content:space-between;align-items:center">
+      <div class="sg" style="font-size:52px;font-weight:700">Richieste</div>
+      <div style="padding:12px 20px;border-radius:16px;border:2px solid ${so > 0 ? "var(--mint)" : "rgba(255,255,255,.16)"};font:700 24px IN;color:${so > 0 ? "var(--mint)" : "#c9d1d4"};transform:scale(${1 + Math.sin(prog(t, ord, ord + 0.35) * Math.PI) * 0.08})">⇅ ${sorted ? "Valore più alto" : "Più recenti"}</div></div>
+    <div class="abs" style="left:40px;top:120px;display:flex;gap:14px;font:700 24px IN">
+      <span style="padding:10px 20px;border-radius:999px;background:var(--mint);color:#04241b">Tutte ${5 - spamCount}</span>
+      <span style="padding:10px 20px;border-radius:999px;border:2px solid rgba(255,255,255,.16);color:#c9d1d4">Nuove</span>
+      <span style="padding:10px 20px;border-radius:999px;border:2px solid ${spamCount ? "var(--red)" : "rgba(255,255,255,.16)"};color:${spamCount ? "var(--red)" : "#c9d1d4"};transform:scale(${1 + Math.sin(prog(t, filt + 0.3, filt + 0.65) * Math.PI) * 0.25})">Spam ${spamCount}</span></div>
+  </div>`;
+  const slotH = 174, top0 = 490;
+  const postRm = { 0: 0, 2: 1, 3: 2, 4: 3 }, sortedSlot = { 3: 0, 0: 1, 2: 2, 4: 3 };
+  REQ.forEach((r, i) => {
+    const ap = E.outBack(prog(t, a + 0.25 + i * 0.16, a + 0.7 + i * 0.16), 1.3);
+    if (ap <= 0) return;
+    let slot, x = 100, extra = "", op = ap * (1 - out), rot = 0;
+    if (r.spam) {
+      slot = 1;
+      const shake = t > spamA && t < filt ? Math.sin(t * 70) * 10 : 0;
+      x += shake + rm * 1100; rot = rm * 12; op *= 1 - rm;
+    } else {
+      const s1v = lerp(i, postRm[i], rm);
+      slot = lerp(s1v, sortedSlot[i], so);
+      const moving = Math.abs(postRm[i] - sortedSlot[i]) > 0;
+      if (moving) x += Math.sin(so * Math.PI) * (sortedSlot[i] < postRm[i] ? -40 : 60);
+    }
+    const y = top0 + slot * slotH + (1 - ap) * 120;
+    const red = r.spam ? E.outCubic(prog(t, spamA - 0.05, spamA + 0.2)) : 0;
+    const chosen = !r.spam && i === 3 ? E.outBack(prog(t, sc + 0.25, sc + 0.6), 1.6) : 0;
+    const comp = !r.spam ? E.outBack(prog(t, at(5, "tutti") - 0.1 + i * 0.07, at(5, "tutti") + 0.25 + i * 0.07), 1.8) : 0;
+    const val = r.v ? `€ ${r.v.toLocaleString("it-IT")}` : "—";
+    h += `<div class="abs" style="left:${x}px;top:${y}px;width:880px;height:${slotH - 16}px;transform:scale(${ap * (1 + chosen * 0.03)}) rotate(${rot}deg);opacity:${op};z-index:${chosen > 0 ? 5 : 1}">
+      <div class="abs" style="inset:0;border-radius:28px;background:${red > 0 ? `rgba(255,90,100,${0.1 + red * 0.12})` : "rgba(13,16,19,.92)"};border:2px solid ${chosen > 0 ? "var(--mint)" : red > 0 ? "rgba(255,90,100,.7)" : "rgba(255,255,255,.1)"};box-shadow:${chosen > 0 ? `0 0 ${60 * chosen}px var(--mintGlow)` : "0 20px 50px rgba(0,0,0,.35)"}"></div>
+      <div class="abs" style="left:30px;top:26px;display:flex;align-items:center;gap:20px">
+        <div style="width:66px;height:66px;border-radius:50%;display:grid;place-items:center;font:700 30px SG;color:#07120f;background:${r.spam ? "#ff5a64" : "linear-gradient(145deg,#16d19d,#5cc8ff)"}">${r.spam ? "!" : r.n[0]}</div>
+        <div><div class="sg" style="font-size:34px;font-weight:700;color:${r.spam ? "#ff9aa2" : "#f3f7f5"}">${r.n}</div><div style="font:600 25px IN;color:#8f979c;margin-top:2px">${r.d}</div></div></div>
+      <div class="abs sg" style="right:30px;top:30px;font-size:40px;font-weight:700;color:${r.spam ? "#ff9aa2" : "var(--mint)"}">${val}</div>
+      ${comp > 0 ? `<div class="abs" style="left:116px;top:112px;display:flex;gap:12px;transform:scale(${Math.min(1, comp)});transform-origin:0 50%">${["Misure", "Scelte", "Contatti"].map((c) => `<span style="padding:6px 14px;border-radius:999px;background:rgba(22,209,157,.12);border:1.5px solid rgba(22,209,157,.5);color:var(--mint);font:700 20px IN">${c} ✓</span>`).join("")}</div>` : ""}
+      ${chosen > 0 ? `<div class="abs" style="right:26px;top:104px;display:flex;gap:12px;transform:scale(${Math.min(1, chosen)})"><span style="padding:10px 18px;border-radius:14px;background:var(--mint);color:#04241b;font:700 22px IN">📞 Chiama</span><span style="padding:10px 18px;border-radius:14px;background:#25d366;color:#05210f;font:700 22px IN">WhatsApp</span></div>` : ""}
+    </div>`;
+  });
+  // the cursor that picks the best request
+  const cu = E.inOutCubic(prog(t, sc - 0.15, sc + 0.3)), tap = Math.max(0, 1 - Math.abs(t - (sc + 0.32)) / 0.12);
+  if (cu > 0 && out < 1) h += `<div class="abs" style="left:${lerp(760, 520, cu)}px;top:${lerp(1360, top0 + 70, cu)}px;font-size:64px;transform:scale(${1 - tap * 0.2});filter:drop-shadow(0 6px 12px rgba(0,0,0,.6));opacity:${1 - out}">👆</div>`;
+  if (tap > 0) h += `<div class="abs" style="left:${520 - 60 * (1 - tap) + 20}px;top:${top0 + 70 - 60 * (1 - tap) + 10}px;width:${120 * (1 - tap) + 10}px;height:${120 * (1 - tap) + 10}px;border-radius:50%;border:4px solid var(--mint);opacity:${tap}"></div>`;
+  return h;
+}
+
+/* ===================== S4 · "Basta, con i preventivi a vuoto." ===================== */
+function s4(t) {
+  let h = "";
+  const b = at(6, "Basta"), v = at(6, "a", 0), out = E.inCubic(prog(t, 31.2, 31.5));
+  const sh = t > b && t < b + 0.3 ? Math.sin(t * 80) * 14 * (1 - prog(t, b, b + 0.3)) : 0;
+  h += `<div class="abs" style="inset:0;transform:translateX(${sh}px);opacity:${1 - out}">`;
+  h += kText("BASTA,", t, { in: b - 0.04, out: 31.2, y: 480, size: 210, mode: "slam", stagger: 0.03, dIn: 0.28, color: "var(--white)" });
+  h += kText("con i preventivi", t, { in: at(6, "con") - 0.04, out: 31.2, y: 740, size: 88, mode: "rise", stagger: 0.015 });
+  h += kText("A VUOTO.", t, { in: v - 0.04, out: 31.2, y: 860, size: 170, mode: "slam", stagger: 0.03, dIn: 0.26, color: "var(--red)" });
+  // the strike that cancels "A VUOTO"
+  const st = E.inOutCubic(prog(t, v + 0.45, v + 0.85));
+  if (st > 0) h += `<div class="abs" style="left:150px;top:955px;height:18px;width:${780 * st}px;border-radius:9px;background:var(--mint);box-shadow:0 0 40px var(--mintGlow);transform:rotate(-4deg);transform-origin:0 50%"></div>`;
+  h += `</div>`;
+  // spreadsheet shards blown away on "BASTA"
+  const ex = prog(t, b, b + 1.6);
+  if (ex > 0 && ex < 1) {
+    h += Array.from({ length: 46 }, (_, i) => {
+      const ang = rnd(i) * Math.PI * 2, d = E.outExpo(ex) * (300 + rnd(i + 4) * 700);
+      return `<div class="abs" style="left:${540 + Math.cos(ang) * d - 50}px;top:${700 + Math.sin(ang) * d - 18}px;width:${80 + rnd(i + 2) * 60}px;height:36px;border-radius:6px;background:#f7f9f8;color:#1f2a2e;font:600 18px IN;line-height:36px;padding:0 8px;overflow:hidden;opacity:${(1 - ex) * 0.85};transform:rotate(${(rnd(i + 7) - 0.5) * 360 * ex}deg)">${["€ 486", "1200×1400", "€ 612", "=SOMMA", "IVA", "€ ???", "Posa", "€ 210"][i % 8]}</div>`;
+    }).join("");
+  }
+  return h;
+}
+
+/* ===================== S5 · cube + call to action ===================== */
+function s5(t) {
+  let h = "";
+  const a = 31.35;
+  const cin = E.outBack(prog(t, a, a + 1.0), 1.25);
+  const rot = (t - a) * 40 + (1 - cin) * -200;
+  // light rays behind the cube
+  const rays = E.outCubic(prog(t, a + 0.1, a + 0.9));
+  h += `<div class="abs" style="left:540px;top:620px;width:0;height:0">${Array.from({ length: 14 }, (_, i) => `<div class="abs" style="left:-4px;top:0;width:8px;height:${560 * rays}px;transform-origin:4px 0;transform:rotate(${i * (360 / 14) + t * 8}deg);background:linear-gradient(180deg,rgba(22,209,157,.35),transparent);opacity:${0.6 * rays}"></div>`).join("")}</div>`;
+  h += `<div class="abs" style="left:290px;top:370px;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(22,209,157,.35),transparent 65%);opacity:${rays}"></div>`;
+  h += cube(t, 300 * cin + 1, 540, 620, Math.min(1, cin * 1.5), rot);
+  h += kText("Provalo gratis", t, { in: at(7, "Provalo") - 0.08, y: 880, size: 104, mode: "rise", stagger: 0.02 });
+  h += kText("per 14 giorni", t, { in: at(7, "per") - 0.05, y: 995, size: 104, mode: "rise", stagger: 0.02, hl: ["14"] });
+  const bt = E.outBack(prog(t, at(7, "giorni") + 0.1, at(7, "giorni") + 0.5), 1.6), tap = Math.max(0, 1 - Math.abs(t - 37.2) / 0.14);
+  if (bt > 0) h += `<div class="abs" style="left:190px;top:1150px;width:700px;height:120px;border-radius:999px;background:linear-gradient(135deg,#16d19d,#0fbf8f);display:grid;place-items:center;font:700 46px SG;color:#04241b;transform:scale(${bt * (1 - tap * 0.06)});box-shadow:0 0 ${60 + Math.sin(t * 4) * 20}px var(--mintGlow)">Crea il tuo account</div>`;
+  if (tap > 0) h += `<div class="abs" style="left:${600 - 80 * (1 - tap)}px;top:${1210 - 80 * (1 - tap)}px;width:${160 * (1 - tap)}px;height:${160 * (1 - tap)}px;border-radius:50%;border:5px solid #fff;opacity:${tap}"></div>`;
+  const cu = E.inOutCubic(prog(t, 36.6, 37.15));
+  if (cu > 0) h += `<div class="abs" style="left:${lerp(820, 600, cu)}px;top:${lerp(1500, 1215, cu)}px;font-size:66px;transform:scale(${1 - tap * 0.2});filter:drop-shadow(0 6px 12px rgba(0,0,0,.6))">👆</div>`;
+  const url = E.outBack(prog(t, at(7, "link") - 0.05, at(7, "link") + 0.35), 1.6);
+  if (url > 0) h += `<div class="abs sg" style="left:0;right:0;top:1300px;text-align:center;font-size:58px;font-weight:700;transform:scale(${url})">onespec<span style="color:var(--mint)">.eu</span></div>`;
+  const lb = E.outCubic(prog(t, 35.9, 36.4));
+  if (lb > 0) h += `<div class="abs" style="left:0;right:0;top:1420px;text-align:center;font:600 34px IN;color:#c9d1d4;opacity:${lb}">Link in bio · <span style="color:var(--mint)">prova senza impegno</span></div>`;
+  const ep = E.outCubic(prog(t, 36.2, 36.8));
+  if (ep > 0) h += `<div class="abs" style="left:0;right:0;top:120px;text-align:center;opacity:${ep}"><span style="padding:12px 26px;border-radius:999px;border:2px solid rgba(255,255,255,.18);font:700 26px IN;letter-spacing:.14em;color:#c9d1d4">EP. 1 · PREVENTIVI A VUOTO</span></div>`;
+  return h;
+}
+
+/* ===================== compose ===================== */
+function frame(t) {
+  let h = background(t, (t > 0 && t < 5.95) || (t > 28.6 && t < 31.35) ? "red" : "mint");
+  const bt = (t % 0.5) / 0.5, beat = t > 5.95 && t < 39.5 ? 1 + 0.007 * Math.exp(-bt * 9) : 1;
+  h += `<div class="abs" style="inset:0;transform:scale(${beat.toFixed(4)})">`;
+  if (t < 6.1) h += s0(t);
+  if (t >= 5.85 && t < 13.0) h += s1(t);
+  if (t >= 12.6 && t < 20.6) h += s2(t);
+  if (t >= 20.15 && t < 28.9) h += s3(t);
+  if (t >= 28.5 && t < 31.55) h += s4(t);
+  if (t >= 31.25) h += s5(t);
+  h += `</div>`;
+  h += callBar(t);
+  h += captions(t);
+  for (const c of CUTS) {
+    const p = prog(t, c - 0.12, c + 0.16);
+    if (p > 0 && p < 1) {
+      const k = Math.sin(p * Math.PI);
+      h += `<div class="abs" style="inset:0;background:linear-gradient(180deg, transparent, rgba(22,209,157,${0.22 * k}), transparent);transform:translateY(${(p - 0.5) * 900}px)"></div>`;
+      h += `<div class="abs" style="inset:0;backdrop-filter:blur(${k * 5}px);-webkit-backdrop-filter:blur(${k * 5}px)"></div>`;
+    }
+  }
+  // flash on the stamp and on "BASTA"
+  for (const [ft, a] of [[at(0, "a") + 0.06, 0.16], [at(6, "Basta"), 0.18]]) {
+    const fl = Math.max(0, 1 - Math.abs(t - ft) / 0.12) * a;
+    if (fl > 0) h += `<div class="abs" style="inset:0;background:#fff;opacity:${fl}"></div>`;
+  }
+  h += `<div class="abs" style="left:0;top:0;height:8px;width:${(t / DUR) * 100}%;background:linear-gradient(90deg,var(--mint),var(--cyan))"></div>`;
+  h += `<div class="abs" style="inset:0;pointer-events:none;background:radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(0,0,0,.55))"></div>`;
+  return h;
+}
+window.DUR = DUR;
+window.renderAt = (t) => { document.getElementById("stage").innerHTML = frame(t); };
+renderAt(0);
+</script>
+</body>
+</html>

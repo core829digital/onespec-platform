@@ -6,10 +6,12 @@ Testo originale di Meta AI: `.claude/skills/ugc-script-writer/reference/strategi
 ## Video pronti (`video/`, 1080×1920, 60 fps, H.264 + AAC)
 | File | Durata | Quando | Copertina |
 |---|---|---|---|
-| `onespec-nord-v1-errore-2300.mp4` | 30 s | lunedì 20:30 | `onespec-nord-v1-copertina.jpg` |
-| `onespec-nord-v2-silenzio.mp4` | 24 s | mercoledì 19:30 | `onespec-nord-v2-copertina.jpg` |
-| `onespec-nord-v3-chiuso-in-cucina.mp4` | 39 s | venerdì 20:00 | `onespec-nord-v3-copertina.jpg` |
-| `onespec-nord-v1-corto-15s.mp4` | 15 s | Reels / Stories (anche come annuncio) | quella del V1 |
+| `onespec-nord-v1-errore-2300.mp4` | 29 s | pubblicato lun 19 ott 21:30 (voce registrata da Stefan) | `onespec-nord-v1-copertina.jpg` |
+| `onespec-ep1-preventivi-a-vuoto.mp4` | 43 s | mar 20 ott 20:30 (Serie 1, voci Microsoft Diego + Isabella) | — |
+| `onespec-pillola-preventivo-a-vuoto.mp4` | 20 s | mar 20 ott ~14:00 (voce Microsoft Diego) | — |
+| `onespec-nord-v2-silenzio.mp4` | 24 s | mercoledì 19:30 · **voce vecchia (Kokoro): da rifare con tts_edge.py** | `onespec-nord-v2-copertina.jpg` |
+| `onespec-nord-v3-chiuso-in-cucina.mp4` | 39 s | venerdì 20:00 · **voce vecchia (Kokoro): da rifare con tts_edge.py** | `onespec-nord-v3-copertina.jpg` |
+| `onespec-nord-v1-corto-15s.mp4` | 15 s | **voce vecchia (Kokoro): non usare** | quella del V1 |
 
 Sottotitoli già impressi nel video: non attivare i sottotitoli automatici della piattaforma (si sovrapporrebbero).
 
@@ -28,7 +30,21 @@ Sottotitoli già impressi nel video: non attivare i sottotitoli automatici della
 **V3** · «Le mando il preventivo domani»? No: prezzo chiavi in mano, costo dopo Bonus Casa e rata indicativa, sul tablet, davanti al cliente. Scena di esempio. Link in bio 👇
 #serramentista #bonuscasa #detrazione #preventivo #showroom #infissi #serramenti #bologna #milano
 
-## Rigenerare (sorgenti in `src/`)
+## Voce (regola fissa, approvata da Stefan il 2026-10-20)
+Voci neurali Microsoft gratuite via `edge-tts` (`src/tts_edge.py`): **it-IT-DiegoNeural** per l'uomo (serramentista, narratore),
+**it-IT-IsabellaNeural** per la donna. Non usare Kokoro, Piper o Coqui (rifiutate: accento, stuttering, poca chiarezza).
+Regia: una frase alla volta (le domande salgono, le affermazioni scendono), pause dirette (dopo "?" più lunga che dopo "."),
+velocità per battuta in `lines.json` (`rate`), tono da consulente, mai da televendita. La voce non pronuncia "OneSpec" (lo legge male):
+il marchio sta a schermo. Serve il dominio `speech.platform.bing.com` tra gli Allowed domains dell'ambiente.
+```
+cd src/pillola && python3 ../tts_edge.py   # vo/lNN.wav + timing.json esatti (word boundary del motore)
+cd .. && ./build.sh pillola && cd pillola && python3 audio.py <durata> && ../render.sh pillola <frame> out.mp4
+python3 ../asr.py vo                        # controllo Whisper, frase per frase
+```
+Ridoppiare un video già animato con tempi fissi (EP1): `src/ep1/warp.py` mappa la nuova voce sui tempi vecchi parola per parola
+(`timing_old.json` → `timing_new.json`), poi `cat head.part cube.part timing.js scenes.part tail.part > ep.html`.
+
+## Rigenerare (sorgenti in `src/`, pipeline storica)
 Requisiti: Chromium (`/opt/pw-browsers/chromium`), ffmpeg, Python con `kokoro-onnx` (voci `im_nicola`, `if_sara`) e `sherpa-onnx` (controllo Whisper).
 ```
 cd src/v1 && python3 ../tts.py        # voce + tempi parola per parola (timing.json)

@@ -1,0 +1,10 @@
+function cube(t, size, x, y, op, rot) {
+  const half = size / 2;
+  const faces = [
+    `translateZ(${half}px)`, `rotateY(180deg) translateZ(${half}px)`, `rotateY(90deg) translateZ(${half}px)`,
+    `rotateY(-90deg) translateZ(${half}px)`, `rotateX(90deg) translateZ(${half}px)`, `rotateX(-90deg) translateZ(${half}px)`,
+  ].map((tf) => `<div class="abs" style="width:${size}px;height:${size}px;transform:${tf};background:rgba(11,12,14,.94);border:3px solid var(--mint);box-shadow:inset 0 0 40px rgba(22,209,157,.25);display:grid;place-items:center;backface-visibility:hidden;-webkit-backface-visibility:hidden"><img src="assets/onespec-logo.png" style="width:${size * 0.78}px"></div>`).join("");
+  return `<div class="abs" style="left:${x - half}px;top:${y - half}px;width:${size}px;height:${size}px;perspective:${size * 6}px;opacity:${op}">
+    <div style="position:relative;width:100%;height:100%;transform-style:preserve-3d;transform:rotateX(${rot * 0.8 - 20}deg) rotateY(${rot}deg) rotateZ(${rot * 0.2}deg)">${faces}</div></div>`;
+}
+

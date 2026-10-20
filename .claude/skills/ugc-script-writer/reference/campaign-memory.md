@@ -180,3 +180,29 @@ Testo originale integrale (rumeno + italiano): `strategia-nord-meta-ai.md`. Qui 
 - Scelte di onestà applicate: V1 senza "collega di Verona" (cifre "Esempio"); V2 senza dB, viale Monza, Salamander, CasaClima; V3 "Scena di esempio", rata 383,33 € (non 96 €), Bonus Casa "prima casa", scorrevole antracite RAL 7016 (il nero non è un preset del catalogo).
 - Pronuncia: "RAL 7016" detto "settemilasedici" ("settanta sedici" veniva capito "76"); "IVA" mal pronunciata da Kokoro, quindi solo a schermo; "PDF" detto "pi di effe".
 - Prossimi passi proposti: versione 16:9 su richiesta; dopo 7 giorni leggere completamento e click su link in bio per video (framework §14).
+
+## Voce dei video: regola fissa (Stefan, 2026-10-20)
+- **Usare sempre le voci neurali Microsoft gratuite** (edge-tts, `marketing/strategia-nord/src/tts_edge.py`):
+  **it-IT-DiegoNeural** (uomo: serramentista, narratore) e **it-IT-IsabellaNeural** (donna). Stefan: "mantieni questa voce perché ci sta".
+- Rifiutate e da non riproporre: Kokoro (accento inglese, intonazione "tradotta"), Piper paola/riccardo (stuttering, poca chiarezza,
+  anche con sintesi a frase intera), Coqui M-AILABS (incomprensibile). Higgsfield/ElevenLabs resta l'unica alternativa a pagamento
+  (circa 0,75 crediti ogni 240 caratteri; solo con approvazione esplicita e con i domini cloudfront/higgsfield sbloccati).
+- Regia che Stefan considera "il vero layer": domande con intonazione che sale, affermazioni che scendono; pause curate
+  (più lunghe dopo una domanda che dopo un punto, stacco tra battute); ritmo per battuta (più calmo sul problema, più deciso sulla
+  soluzione); tono da venditore che consiglia senza che si noti.
+- Tecnica: una frase per chiamata, pause inserite da noi, coda di 0,15 s mantenuta (altrimenti si taglia la vocale finale, es.
+  "complete" → "complit"); tempi parola esatti dagli eventi WordBoundary; controllo Whisper (`asr.py`) prima di consegnare.
+- Pronuncia: la voce non dice "OneSpec" (lo storpia): marchio solo a schermo. Evitare parole che la voce legge male:
+  "spam" (letto all'inglese) → "richieste false"; "complete" a fine frase → riformulare.
+- Ambiente: serve `speech.platform.bing.com` negli Allowed domains (sbloccato da Stefan il 2026-10-20).
+
+## Produzione 2026-10-20 (martedì)
+- **Pillola** "Quanto ti costa un preventivo a vuoto?" (20 s, Diego): pubblicata verso le 14:00 (ordine invertito su richiesta di
+  Stefan: pillola di giorno, episodio la sera). Testo: 2 h sopralluogo + 1 h preventivo = 3 h; × 10 clienti spariti = 30 h, quasi
+  4 giornate (cifre marcate "Esempio"); CTA "Scrivilo nei commenti".
+- **Serie 1 · EP1 "Preventivi a vuoto"** (43 s, Diego = Marco serramentista, Isabella = Sara del team): da pubblicare alle 20:30.
+  Testo cambiato rispetto alla versione Kokoro: "nel tuo sito", "E ti arrivano con tutti i dati. Le richieste false vengono
+  filtrate", "Decidi tu chi richiamare", CTA "Provalo gratis per 14 giorni. Il link è nella bio." (niente marchio parlato).
+- Lunedì mancati: storia con sondaggio, commento fissato, DM (recuperati martedì).
+- Piano social con checklist: https://claude.ai/artifact/3h644HWVJnPJ9uBXAiYif4 (Serie 2 lun/mer/ven, Serie 1 mar/gio; DM 18:30).
+- Da rifare con la voce Microsoft: V2 (mercoledì 19:30), V3 (venerdì 20:00); il corto 15 s Kokoro non va usato.

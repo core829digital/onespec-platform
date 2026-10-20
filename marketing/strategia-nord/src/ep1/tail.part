@@ -1,0 +1,8 @@
+<script>
+/* re-voiced: the animation runs on the old timeline; map new (voice) time -> old time through the word anchors */
+function warpT(t) {
+  for (let i = 1; i < WARP.length; i++) { const [a0, b0] = WARP[i - 1], [a1, b1] = WARP[i]; if (t <= a1) return b0 + (t - a0) * (b1 - b0) / (a1 - a0); }
+  const [a, b] = WARP[WARP.length - 1]; return b + (t - a);
+}
+{ const r = window.renderAt; window.renderAt = (t) => r(warpT(t)); }
+</script>

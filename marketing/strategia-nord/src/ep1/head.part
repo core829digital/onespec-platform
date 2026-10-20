@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<style>
+@font-face { font-family: SG; src: url(assets/spacegrotesk.woff2) format("woff2"); font-weight: 300 700; }
+@font-face { font-family: IN; src: url(assets/inter.woff2) format("woff2"); font-weight: 100 900; }
+:root {
+  --mint: #16d19d; --mint2: #0fbf8f; --mintDark: #04241b; --mintGlow: rgba(22,209,157,.55);
+  --cyan: #5cc8ff; --amber: #ffb547; --red: #ff5a64; --ink: #070809; --ink2: #0d1013;
+  --white: #f3f7f5; --gray: #8f979c; --line: rgba(255,255,255,.09);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--ink); }
+#stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; font-family: IN, sans-serif; color: var(--white); }
+.abs { position: absolute; }
+.sg { font-family: SG, IN, sans-serif; }
+.word { display: inline-block; white-space: nowrap; }
+.ch { display: inline-block; will-change: transform; }
+.center { left: 0; right: 0; text-align: center; }
+.bubble { position: absolute; max-width: 600px; padding: 26px 32px; border-radius: 34px; font-size: 38px; line-height: 1.28; font-weight: 500; }
+.tag { font-family: SG; font-weight: 700; font-size: 24px; letter-spacing: .14em; text-transform: uppercase; }
+.glass { background: linear-gradient(160deg, rgba(255,255,255,.08), rgba(255,255,255,.02)); border: 1.5px solid rgba(255,255,255,.12); box-shadow: 0 40px 120px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.08); }
+</style>
+</head>
+<body>
+<div id="stage"></div>
+<script>
+/* ===================== timing & easing ===================== */
+const W = 1080, H = 1920;
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const lerp = (a, b, k) => a + (b - a) * k;
+const prog = (t, a, b) => clamp((t - a) / (b - a));
+const E = {
+  outExpo: (x) => (x >= 1 ? 1 : 1 - Math.pow(2, -10 * x)),
+  inExpo: (x) => (x <= 0 ? 0 : Math.pow(2, 10 * x - 10)),
+  outCubic: (x) => 1 - Math.pow(1 - x, 3),
+  inCubic: (x) => x * x * x,
+  inOutCubic: (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2),
+  outBack: (x, s = 1.7) => 1 + (s + 1) * Math.pow(x - 1, 3) + s * Math.pow(x - 1, 2),
+  spring: (x) => (x >= 1 ? 1 : 1 - Math.exp(-6.5 * x) * Math.cos(13 * x)),
+  inOutQuint: (x) => (x < 0.5 ? 16 * x ** 5 : 1 - Math.pow(-2 * x + 2, 5) / 2),
+};
+// seeded random (deterministic frames)
+function rnd(i) { const s = Math.sin(i * 127.1 + 311.7) * 43758.5453; return s - Math.floor(s); }
+
+/* ===================== building blocks ===================== */
+/** Kinetic text: letters enter (blur + rise + scale) with a stagger and leave the other way; returns HTML. */
+function kText(text, t, o) {
+  const a = o.in, b = o.out ?? 999, st = o.stagger ?? 0.022, dIn = o.dIn ?? 0.5, dOut = o.dOut ?? 0.35;
+  const mode = o.mode ?? "rise";
+  let i = 0;
+  const words = text.split(" ").map((w) => {
+    const hl = o.hl && o.hl.includes(w.replace(/[^\wÀ-ú]/g, ""));
+    const letters = [...w].map((c) => {
+      const k = i++;
+      const pin = E.outExpo(prog(t, a + k * st, a + k * st + dIn));
+      const pout = E.inCubic(prog(t, b + k * st * 0.6, b + k * st * 0.6 + dOut));
+      if (pin <= 0 || pout >= 1) return `<span class="ch" style="opacity:0">${c}</span>`;
+      let tr, blur, op;
+      if (mode === "slam") {
+        const s = lerp(2.4, 1, pin);
+        tr = `scale(${s}) translateY(${(1 - pin) * -40}px)`; blur = (1 - pin) * 18;
+      } else if (mode === "flip") {
+        tr = `perspective(600px) rotateX(${(1 - pin) * -95}deg) translateY(${(1 - pin) * 30}px)`; blur = (1 - pin) * 8;
+      } else {
+        tr = `translateY(${(1 - pin) * 70}px) scale(${lerp(0.7, 1, pin)}) rotate(${(1 - pin) * 8}deg)`; blur = (1 - pin) * 14;
+      }
+      tr += ` translateY(${-pout * 90}px) scale(${1 - pout * 0.3})`; blur += pout * 16; op = pin * (1 - pout);
+      return `<span class="ch" style="transform:${tr};filter:blur(${blur.toFixed(1)}px);opacity:${op.toFixed(3)}">${c === " " ? "&nbsp;" : c}</span>`;
+    }).join("");
+    i++;
+    const color = hl ? `color:${o.hlColor ?? "var(--mint)"};text-shadow:0 0 40px ${o.hlGlow ?? "var(--mintGlow)"}` : "";
+    return `<span class="word" style="${color}">${letters}</span>`;
+  }).join(" ");
+  const size = o.size ?? 110;
+  return `<div class="abs center sg" style="top:${o.y}px;font-size:${size}px;font-weight:${o.weight ?? 700};letter-spacing:${o.ls ?? -0.03}em;line-height:${o.lh ?? 1.02};color:${o.color ?? "var(--white)"};padding:0 70px;${o.extra ?? ""}">${words}</div>`;
+}
+
+/** Karaoke subtitle with speaker tag (words light up as they are "said"). */
+function subtitle(t, s) {
+  const p = prog(t, s.a, s.a + 0.35), q = prog(t, s.b - 0.25, s.b);
+  if (p <= 0 || q >= 1) return "";
+  const words = s.text.split(" ");
+  const speak = (s.b - s.a) * 0.72;
+  const html = words.map((w, i) => {
+    const wa = s.a + 0.1 + (i / words.length) * speak;
+    const k = E.outCubic(prog(t, wa, wa + 0.22));
+    const now = t >= wa && t < wa + speak / words.length + 0.05;
+    const col = now ? s.color : k > 0 ? "var(--white)" : "rgba(243,247,245,.28)";
+    return `<span class="word" style="color:${col};transform:translateY(${(1 - k) * 14}px);transition:none">${w}</span>`;
+  }).join(" ");
+  const enter = E.outBack(p, 1.4), leave = E.inCubic(q);
+  const y = 1330 + (1 - enter) * 40 - leave * 20;
+  return `<div class="abs" style="left:70px;right:70px;top:${y}px;opacity:${(Math.min(1, p * 2) * (1 - leave)).toFixed(3)};text-align:center">
+    <div class="tag" style="display:inline-flex;align-items:center;gap:12px;color:${s.color};margin-bottom:16px">
+      <span style="width:16px;height:16px;border-radius:50%;background:${s.color};box-shadow:0 0 20px ${s.color}"></span>${s.who}</div>
+    <div style="display:inline-block;background:rgba(7,8,9,.78);border:1.5px solid rgba(255,255,255,.1);border-radius:28px;padding:22px 34px;font-size:44px;line-height:1.3;font-weight:700;font-family:IN;letter-spacing:-.01em;box-shadow:0 20px 60px rgba(0,0,0,.5)">${html}</div>
+  </div>`;
+}
+
+/** Animated background: drifting gradient orbs, perspective grid, particles, light sweep. */
+function background(t, tint) {
+  const orb = (x, y, r, c, ph) => `<div class="abs" style="left:${x + Math.sin(t * 0.6 + ph) * 60 - r}px;top:${y + Math.cos(t * 0.5 + ph) * 80 - r}px;width:${r * 2}px;height:${r * 2}px;border-radius:50%;background:radial-gradient(circle, ${c} 0%, transparent 65%);filter:blur(20px)"></div>`;
+  const parts = Array.from({ length: 34 }, (_, i) => {
+    const sp = 20 + rnd(i) * 50, x = rnd(i + 99) * W, y = (rnd(i + 7) * H - t * sp * 3) % H;
+    const yy = y < 0 ? y + H : y, s = 2 + rnd(i + 3) * 4;
+    return `<div class="abs" style="left:${x}px;top:${yy}px;width:${s}px;height:${s}px;border-radius:50%;background:${i % 5 === 0 ? "var(--cyan)" : "var(--mint)"};opacity:${0.15 + rnd(i + 5) * 0.35}"></div>`;
+  }).join("");
+  const gridY = (t * 60) % 120;
+  return `
+    <div class="abs" style="inset:0;background:radial-gradient(120% 70% at 50% 0%, #0f1a17 0%, var(--ink) 55%)"></div>
+    ${orb(220, 380, 520, tint === "red" ? "rgba(255,90,100,.22)" : "rgba(22,209,157,.20)", 0)}
+    ${orb(880, 1300, 600, "rgba(92,200,255,.13)", 2)}
+    ${orb(540, 1750, 520, "rgba(22,209,157,.12)", 4)}
+    <div class="abs" style="left:-200px;right:-200px;bottom:-200px;height:900px;transform:perspective(700px) rotateX(62deg);transform-origin:50% 100%;
+      background-image:linear-gradient(rgba(22,209,157,.24) 2px, transparent 2px),linear-gradient(90deg, rgba(22,209,157,.24) 2px, transparent 2px);
+      background-size:120px 120px;background-position:0 ${gridY}px;mask-image:linear-gradient(to top, #000 10%, transparent 80%);-webkit-mask-image:linear-gradient(to top, #000 10%, transparent 80%)"></div>
+    ${parts}`;
+}
+
+/** Phone mock frame; inner html given. */
+function phone(x, y, scale, rot, inner, op = 1, w = 700, h = 1240) {
+  return `<div class="abs" style="left:${x - w / 2}px;top:${y - h / 2}px;width:${w}px;height:${h}px;transform:scale(${scale}) rotate(${rot}deg);opacity:${op}">
+    <div class="abs glass" style="inset:0;border-radius:84px;background:linear-gradient(170deg,#141a1c,#0a0c0e);border:3px solid rgba(255,255,255,.14)"></div>
+    <div class="abs" style="left:18px;top:18px;right:18px;bottom:18px;border-radius:68px;overflow:hidden;background:#0b0f10">${inner}</div>
+    <div class="abs" style="left:${w / 2 - 90}px;top:34px;width:180px;height:44px;border-radius:24px;background:#000"></div>
+  </div>`;
+}
+
+/** Window drawing (SVG) used in the product scene: frame, sashes, glass, dimension lines. */
+function windowSvg(t, a, frameColor, glassTint, wLabel, hLabel, priceP) {
+  const d = E.inOutCubic(prog(t, a, a + 1.1));
+  const len = 2200;
+  return `<svg width="520" height="600" viewBox="0 0 520 600" style="overflow:visible">
+    <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${glassTint}" stop-opacity=".55"/><stop offset="1" stop-color="${glassTint}" stop-opacity=".18"/></linearGradient></defs>
+    <rect x="40" y="40" width="440" height="500" rx="10" fill="none" stroke="${frameColor}" stroke-width="22" stroke-dasharray="${len}" stroke-dashoffset="${len * (1 - d)}"/>
+    <line x1="260" y1="40" x2="260" y2="540" stroke="${frameColor}" stroke-width="16" stroke-dasharray="600" stroke-dashoffset="${600 * (1 - d)}"/>
+    <rect x="58" y="58" width="190" height="464" fill="url(#g)" opacity="${d}"/>
+    <rect x="272" y="58" width="190" height="464" fill="url(#g)" opacity="${d}"/>
+    <path d="M70 90 L130 60 M70 160 L200 70" stroke="#fff" stroke-opacity="${0.35 * d}" stroke-width="6" stroke-linecap="round"/>
+    <rect x="232" y="270" width="10" height="56" rx="5" fill="#d9dde0" opacity="${d}"/>
+    <rect x="278" y="270" width="10" height="56" rx="5" fill="#d9dde0" opacity="${d}"/>
+    <g opacity="${d}" font-family="SG" font-weight="700" font-size="30" fill="#16d19d">
+      <line x1="40" y1="585" x2="480" y2="585" stroke="#16d19d" stroke-width="3"/><line x1="40" y1="572" x2="40" y2="598" stroke="#16d19d" stroke-width="3"/><line x1="480" y1="572" x2="480" y2="598" stroke="#16d19d" stroke-width="3"/>
+      <text x="260" y="575" text-anchor="middle">${wLabel}</text>
+      <line x1="505" y1="40" x2="505" y2="540" stroke="#16d19d" stroke-width="3"/>
+      <text x="0" y="0" transform="translate(540 290) rotate(90)" text-anchor="middle">${hLabel}</text>
+    </g>
+  </svg>`;
+}
+

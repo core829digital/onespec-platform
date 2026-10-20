@@ -11,6 +11,11 @@ captions → test plan. The PDF's full text lives in `reference/framework.md`; r
 Talk to Stefan in **Italian**, professional, honest, minimal jargon, suggest next steps. The voiceover language is the target market's
 (default Italian). Everything is for CORE829 SRL: quality over speed, nothing invented.
 
+## Voice rule (Stefan, 2026-10-20, do not change without asking)
+Voiceover = free Microsoft neural voices via `marketing/strategia-nord/src/tts_edge.py`: **it-IT-DiegoNeural** (male) and
+**it-IT-IsabellaNeural** (female). Never Kokoro, Piper or Coqui (rejected). Direct the delivery: questions rise, statements fall, pauses
+by punctuation, pace per line, consultative sales tone. Details and pronunciation notes: `reference/campaign-memory.md`, "Voce dei video".
+
 ## Files
 - `reference/framework.md`: the whole framework (15 sections). **Always read first.**
 - `reference/software-adaptation.md`: how the physical-product blocks become software blocks, truthfulness and AI-disclosure rules,

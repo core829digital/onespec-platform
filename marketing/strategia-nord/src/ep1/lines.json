@@ -1,0 +1,65 @@
+{
+ "voices": {
+  "M": "it-IT-DiegoNeural",
+  "S": "it-IT-IsabellaNeural"
+ },
+ "lines": [
+  {
+   "who": "M",
+   "say": "Ieri sera, l'ennesimo preventivo a vuoto. Tre ore su Excel, e il cliente è sparito.",
+   "show": "Ieri sera, l'ennesimo preventivo a vuoto. Tre ore su Excel, e il cliente è sparito.",
+   "gap": 0.18,
+   "rate": "+2%"
+  },
+  {
+   "who": "S",
+   "say": "Ciao Marco, sono Sara. Metti il nostro configuratore nel tuo sito: copi una riga di codice, ed è online.",
+   "show": "Ciao Marco, sono Sara. Metti il nostro configuratore nel tuo sito: copi una riga di codice, ed è online.",
+   "rate": "+8%",
+   "gap": 0.18
+  },
+  {
+   "who": "M",
+   "say": "E il cliente, cosa fa?",
+   "show": "E il cliente, cosa fa?",
+   "rate": "+4%",
+   "gap": 0.18
+  },
+  {
+   "who": "S",
+   "say": "Sceglie misure, colori e vetri, e vede subito il prezzo. Chi ti scrive, conosce già il prezzo.",
+   "show": "Sceglie misure, colori e vetri, e vede subito il prezzo. Chi ti scrive, conosce già il prezzo.",
+   "rate": "+8%",
+   "gap": 0.18
+  },
+  {
+   "who": "M",
+   "say": "Quindi, richieste più serie.",
+   "show": "Quindi, richieste più serie.",
+   "rate": "+4%",
+   "gap": 0.18
+  },
+  {
+   "who": "S",
+   "say": "E ti arrivano con tutti i dati. Le richieste false vengono filtrate, e le ordini per valore. Decidi tu chi richiamare per primo.",
+   "show": "E ti arrivano con tutti i dati. Le richieste false vengono filtrate, e le ordini per valore. Decidi tu chi richiamare per primo.",
+   "rate": "+6%",
+   "gap": 0.18
+  },
+  {
+   "who": "M",
+   "say": "Basta, con i preventivi a vuoto.",
+   "show": "Basta, con i preventivi a vuoto.",
+   "rate": "+0%",
+   "gap": 0.18
+  },
+  {
+   "who": "S",
+   "say": "Provalo gratis per 14 giorni. Il link è nella bio.",
+   "show": "Provalo gratis per 14 giorni. Il link è nella bio.",
+   "rate": "+6%",
+   "gap": 0.18
+  }
+ ],
+ "tries": 10
+}
