@@ -69,6 +69,29 @@ describe("field quote integrity", () => {
     const r = await as.mutation(api.quotes.createFieldQuoteFromSurvey, { tenantId: s.tenantId, configuratorId, surveyId });
     expect(r.priceCents).toBeGreaterThan(0);
   });
+
+  test("survey openings are bounded, and an out-of-range one never becomes a priced quote line (issue #31)", async () => {
+    const t = newDb();
+    const s = await seedTenant(t, { plan: "pro" });
+    const configuratorId = await seedPublishedConfigurator(t, s.tenantId, "INTEG_S002");
+    const as = t.withIdentity({ subject: s.ownerId });
+    const base = { tenantId: s.tenantId, customerName: "Cliente", diagnostics: {} };
+    await expect(as.mutation(api.surveys.create, { ...base, openings: [{ label: "B", widthMm: -600, heightMm: 1200 }] })).rejects.toThrow(/INVALID_INPUT/);
+    await expect(as.mutation(api.surveys.create, { ...base, openings: [{ label: "B", widthMm: 9_999_999, heightMm: 1200 }] })).rejects.toThrow(/INVALID_INPUT/);
+    // 9 m is a real opening a survey may record, but beyond what the catalogue prices: the quote is refused, not mispriced.
+    const surveyId = await as.mutation(api.surveys.create, {
+      ...base,
+      openings: [
+        { label: "A", widthMm: 1400.4, heightMm: 1500 },
+        { label: "B", widthMm: 9000, heightMm: 1200 },
+        { label: "C", widthMm: 0, heightMm: 0 },
+      ],
+    });
+    const stored = await t.run((ctx) => ctx.db.get(surveyId));
+    expect(stored?.openings[0].widthMm).toBe(1400); // whole millimetres
+    await as.mutation(api.surveys.completeSurvey, { surveyId });
+    await expect(as.mutation(api.quotes.createFieldQuoteFromSurvey, { tenantId: s.tenantId, configuratorId, surveyId })).rejects.toThrow(/INVALID_ITEM/);
+  });
 });
 
 describe("default pieces from a catalogue", () => {

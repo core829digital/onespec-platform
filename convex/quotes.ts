@@ -702,9 +702,13 @@ export const createFieldQuoteFromSurvey = mutation({
     const payload = versionDoc.payload as CatalogPayload;
 
     // Each opening becomes a piece built from the tenant's own catalogue keys, so it prices for real.
-    const items: ProjectItem[] = survey.openings.map((opening) =>
-      defaultItem(payload, "finestra1", { width: opening.widthMm, height: opening.heightMm }),
+    // Openings still unmeasured (0) are skipped; every other one goes through the same checks as any quote piece
+    // (whole mm within the catalogue limits, coherent choices), so a bad survey value can never become a priced line.
+    const measured = survey.openings.filter((o) => o.widthMm > 0 && o.heightMm > 0);
+    const items: ProjectItem[] = parseQuoteItems(
+      measured.map((opening) => defaultItem(payload, "finestra1", { width: opening.widthMm, height: opening.heightMm })),
     );
+    assertCoherentItems(payload, items);
 
     // Use survey data for quote
     const tenant = await ctx.db.get(args.tenantId);

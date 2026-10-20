@@ -50,6 +50,20 @@ function assertSurveyArrays(a: { openings?: unknown[]; photos?: Array<{ annotati
   }
 }
 
+/** Largest opening a survey can record (20 m); 0 means "not measured yet". The quote engine applies its own 200–6000 mm. */
+const MAX_OPENING_MM = 20_000;
+
+/** Convex validators only check types: the bounds of each measured opening live here. Measures are stored in whole mm. */
+function cleanOpenings<T extends { widthMm: number; heightMm: number }>(openings: T[] | undefined): T[] | undefined {
+  if (openings === undefined) return undefined;
+  return openings.map((o) => {
+    for (const mm of [o.widthMm, o.heightMm]) {
+      if (!Number.isFinite(mm) || mm < 0 || mm > MAX_OPENING_MM) throw new ConvexError("INVALID_INPUT");
+    }
+    return { ...o, widthMm: Math.round(o.widthMm), heightMm: Math.round(o.heightMm) };
+  });
+}
+
 const laserMeasurementValidator = v.object({
   L: v.number(),
   H: v.number(),
@@ -212,7 +226,7 @@ export const create = mutation({
       customerAddress: args.customerAddress?.trim() || links.client?.siteAddress,
       customerCity: args.customerCity?.trim() || links.client?.siteCity,
       customerPostalCode: args.customerPostalCode?.trim() || links.client?.sitePostalCode,
-      openings: args.openings,
+      openings: cleanOpenings(args.openings)!,
       diagnostics: args.diagnostics,
       laserMeasurements: args.laserMeasurements ?? [],
       photos: args.photos ?? [],
@@ -258,7 +272,7 @@ export const update = mutation({
     if (args.customerPostalCode !== undefined) patch.customerPostalCode = args.customerPostalCode.trim();
     assertSurveyArrays(args);
     for (const p of args.photos ?? []) await assertStoredFile(ctx, p.storageId, { kind: "image" });
-    if (args.openings !== undefined) patch.openings = args.openings;
+    if (args.openings !== undefined) patch.openings = cleanOpenings(args.openings);
     if (args.diagnostics !== undefined) patch.diagnostics = args.diagnostics;
     if (args.laserMeasurements !== undefined) patch.laserMeasurements = args.laserMeasurements;
     if (args.photos !== undefined) patch.photos = args.photos;
