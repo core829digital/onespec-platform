@@ -1160,12 +1160,15 @@ export default defineSchema({
     status: v.union(v.literal("draft"), v.literal("completed"), v.literal("synced")),
     completedAt: v.optional(v.number()),
     createdAt: v.number(),
+    /** Id the device gave this record when it was queued offline: a re-sent queue item returns the same record. */
+    clientRequestId: v.optional(v.string()),
     updatedAt: v.number(),
   })
     .index("by_tenant", ["tenantId"])
     .index("by_quote", ["quoteId"])
     .index("by_client", ["clientId"])
-    .index("by_cantiere", ["cantiereId"]),
+    .index("by_cantiere", ["cantiereId"])
+    .index("by_tenant_clientRequest", ["tenantId", "clientRequestId"]),
 
   /** Posa UNI 11673 wizard output — installation node design + bill of materials. */
   installationDossiers: defineTable({
@@ -1191,12 +1194,15 @@ export default defineSchema({
     normRef: v.string(),
     notes: v.optional(v.string()),
     createdAt: v.number(),
+    /** Id the device gave this record when it was queued offline: a re-sent queue item returns the same record. */
+    clientRequestId: v.optional(v.string()),
     updatedAt: v.number(),
   })
     .index("by_tenant", ["tenantId"])
     .index("by_quote", ["quoteId"])
     .index("by_client", ["clientId"])
-    .index("by_cantiere", ["cantiereId"]),
+    .index("by_cantiere", ["cantiereId"])
+    .index("by_tenant_clientRequest", ["tenantId", "clientRequestId"]),
 
   /** Verbale di Collaudo — signed inspection record with mandatory photo checklist. */
   inspectionReports: defineTable({
@@ -1231,13 +1237,16 @@ export default defineSchema({
     signedAt: v.optional(v.number()),
     status: v.union(v.literal("draft"), v.literal("signed")),
     createdAt: v.number(),
+    /** Id the device gave this record when it was queued offline: a re-sent queue item returns the same record. */
+    clientRequestId: v.optional(v.string()),
     updatedAt: v.number(),
   })
     .index("by_tenant", ["tenantId"])
     .index("by_quote", ["quoteId"])
     .index("by_installer_token", ["installerToken"])
     .index("by_client", ["clientId"])
-    .index("by_cantiere", ["cantiereId"]),
+    .index("by_cantiere", ["cantiereId"])
+    .index("by_tenant_clientRequest", ["tenantId", "clientRequestId"]),
 
   /** Fascicolo del Serramento — the digital dossier a QR label resolves to. */
   serramentoPassports: defineTable({

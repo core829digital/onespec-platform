@@ -15,41 +15,16 @@ import { ClientCantierePicker, type PickedLinks } from "@/components/app-shell/c
 import {
   enqueue,
   flushQueue,
+  newQueueId,
+  shouldQueueAfterError,
   subscribeSyncState,
   type SyncState,
 } from "@/lib/offline-sync";
+import { SyncBadge } from "@/components/field/sync-badge";
 import { useRunAction } from "@/hooks/useRunAction";
 import { OpenButton } from "@/components/ui/open-button";
 
 type ReportId = Id<"inspectionReports">;
-
-function SyncBadge({ state, onSync }: { state: SyncState; onSync: () => void }) {
-  const t = useTranslations("inspections");
-  const color = !state.isOnline
-    ? "bg-amber-100 text-amber-800"
-    : state.pendingCount > 0
-    ? "bg-blue-100 text-blue-800"
-    : "bg-emerald-100 text-emerald-700";
-  const label = !state.isOnline
-    ? t("offline")
-    : state.pendingCount > 0
-    ? `${state.pendingCount} ${t("pendingSync")}`
-    : t("synced");
-  return (
-    <div className="flex items-center gap-2">
-      <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${color}`}>
-        <span className="h-1.5 w-1.5 rounded-full bg-current" />
-        {label}
-      </span>
-      {state.isOnline && state.pendingCount > 0 && (
-        <button onClick={onSync} className="rounded border border-[var(--color-border)] px-2 py-1 text-xs">
-          {t("syncNow")}
-        </button>
-      )}
-      {state.error && <span className="text-xs text-red-600">{state.error}</span>}
-    </div>
-  );
-}
 
 function ReportEditor({ reportId, tenantId }: { reportId: ReportId; tenantId: Id<"tenants"> }) {
   const run = useRunAction();
@@ -283,16 +258,16 @@ export default function InspectionsPage() {
   const [sync, setSync] = useState<SyncState>({
     isOnline: true,
     pendingCount: 0,
+    failedCount: 0,
     lastSync: null,
-    error: null,
   });
 
   const createReport = useMutation(api.inspections.create);
 
   const runSync = useCallback(() => {
     void flushQueue({
-      "inspection.create": (payload) =>
-        createReport(payload as Parameters<typeof createReport>[0]),
+      "inspection.create": (payload, clientRequestId) =>
+        createReport({ ...(payload as Parameters<typeof createReport>[0]), clientRequestId }),
     });
   }, [createReport]);
 
@@ -312,30 +287,40 @@ export default function InspectionsPage() {
       return;
     }
     setErr("");
-    try {
-      if (!navigator.onLine) {
-        await enqueue("inspection.create", {
-          tenantId: tenant._id,
-          clientId,
-          cantiereId,
-          customerName: name.trim(),
-          siteAddress: address.trim() || undefined,
-        });
-      } else {
-        await create({
-          tenantId: tenant._id,
-          clientId,
-          cantiereId,
-          customerName: name.trim(),
-          siteAddress: address.trim() || undefined,
-        });
-      }
+    const payload = {
+      tenantId: tenant._id,
+      clientId,
+      cantiereId,
+      customerName: name.trim(),
+      siteAddress: address.trim() || undefined,
+    };
+    const clearForm = () => {
       setName("");
       setAddress("");
       setClientId(undefined);
       setCantiereId(undefined);
+    };
+    // One id for this save, online or queued: a retry of the same report is never created twice.
+    const clientRequestId = newQueueId("inspection.create");
+    try {
+      if (!navigator.onLine) {
+        await enqueue("inspection.create", payload, clientRequestId);
+      } else {
+        await create({ ...payload, clientRequestId });
+      }
+      clearForm();
     } catch (e) {
-      setErr(tf(e));
+      // The reply may have been lost on a flaky network: queue it (same id). A refusal from the server is shown instead.
+      if (!shouldQueueAfterError(e)) {
+        setErr(tf(e));
+        return;
+      }
+      try {
+        await enqueue("inspection.create", payload, clientRequestId);
+        clearForm();
+      } catch {
+        setErr(tf(e));
+      }
     }
   }
 

@@ -51,3 +51,25 @@ export function assertSignature(dataUrl: string): void {
   }
   if (ink.inkPixels < MIN_INK_PIXELS || Math.max(ink.inkWidth, ink.inkHeight) < MIN_INK_EXTENT) throw new ConvexError("SIGNATURE_EMPTY");
 }
+
+type OfflineCreatedTable = "siteSurveys" | "installationDossiers" | "inspectionReports";
+
+/**
+ * The record a re-sent offline queue item already created, if any. A device can send the same queued record
+ * twice (two flushes at once, or a lost reply to a save that did commit); the id it gave the record makes the
+ * second send return the first record instead of inserting a copy (issue #28).
+ */
+export async function findByClientRequest<T extends OfflineCreatedTable>(
+  ctx: ReadCtx,
+  table: T,
+  tenantId: Id<"tenants">,
+  clientRequestId: string | undefined,
+): Promise<Id<T> | null> {
+  if (clientRequestId === undefined) return null;
+  if (!/^[A-Za-z0-9._-]{8,100}$/.test(clientRequestId)) throw new ConvexError("INVALID_INPUT");
+  const hit = await ctx.db
+    .query(table as OfflineCreatedTable)
+    .withIndex("by_tenant_clientRequest", (q) => q.eq("tenantId", tenantId).eq("clientRequestId", clientRequestId))
+    .first();
+  return (hit?._id as Id<T> | undefined) ?? null;
+}

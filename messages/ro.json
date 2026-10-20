@@ -2529,6 +2529,10 @@
     "pending": "{count} de sincronizat",
     "synced": "Sincronizat",
     "syncNow": "Sincronizează acum",
+    "failed": "{count, plural, one {# element nesincronizat} other {# elemente nesincronizate}}",
+    "retry": "Reîncearcă",
+    "discard": "Renunță",
+    "discardConfirm": "Renunți la {count, plural, one {elementul nesincronizat} other {cele # elemente nesincronizate}}? Datele salvate doar pe acest dispozitiv se vor pierde.",
     "openMaps": "Deschide în Google Maps",
     "openWaze": "Deschide în Waze"
   },

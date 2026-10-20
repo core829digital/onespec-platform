@@ -3,7 +3,7 @@
 import { query, mutation } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
 import { requirePermission } from "./lib/rbac";
-import { requireTenantRegion } from "./lib/fieldModules";
+import { findByClientRequest, requireTenantRegion } from "./lib/fieldModules";
 import { enforceForFieldSurvey } from "./lib/enforcement";
 import { resolveLinks, logClientActivity, assertOwnedRefs } from "./lib/links";
 import { linkRecordToCrm } from "./lib/crmLink";
@@ -183,10 +183,13 @@ export const create = mutation({
     diagnostics: diagnosticsValidator,
     laserMeasurements: v.optional(v.array(laserMeasurementValidator)),
     photos: v.optional(v.array(photoValidator)),
+    clientRequestId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     await enforceForFieldSurvey(ctx, args.tenantId);
     await requirePermission(ctx, args.tenantId, "surveys.use");
+    const already = await findByClientRequest(ctx, "siteSurveys", args.tenantId, args.clientRequestId);
+    if (already) return already;
     assertSurveyArrays(args);
     for (const p of args.photos ?? []) await assertStoredFile(ctx, p.storageId, { kind: "image" });
     const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
@@ -231,6 +234,7 @@ export const create = mutation({
       laserMeasurements: args.laserMeasurements ?? [],
       photos: args.photos ?? [],
       status: "draft",
+      clientRequestId: args.clientRequestId,
       createdAt: now,
       updatedAt: now,
     });

@@ -23,9 +23,12 @@ import { PhotoCoteCanvas, type Annotation } from "@/components/surveys/PhotoCote
 import {
   enqueue,
   flushQueue,
+  newQueueId,
+  shouldQueueAfterError,
   subscribeSyncState,
   type SyncState,
 } from "@/lib/offline-sync";
+import { SyncBadge } from "@/components/field/sync-badge";
 
 type LaserOpening = {
   label: string;
@@ -60,35 +63,6 @@ function perimeterMm(openings: LaserOpening[]) {
   return openings.reduce((s, o) => s + 2 * (o.widthMm + o.heightMm), 0);
 }
 
-function SyncBadge({ state, onSync }: { state: SyncState; onSync: () => void }) {
-  const tc = useTranslations("fieldCommon");
-  const { isOnline, pendingCount, error } = state;
-  const color = !isOnline
-    ? "bg-amber-100 text-amber-800"
-    : pendingCount > 0
-      ? "bg-blue-100 text-blue-800"
-      : "bg-emerald-100 text-emerald-700";
-  const label = !isOnline
-    ? tc("offline")
-    : pendingCount > 0
-      ? tc("pending", { count: pendingCount })
-      : tc("synced");
-  return (
-    <div className="flex items-center gap-2">
-      <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${color}`}>
-        <span className="h-1.5 w-1.5 rounded-full bg-current" />
-        {label}
-      </span>
-      {isOnline && pendingCount > 0 && (
-        <button onClick={onSync} className="rounded border border-[var(--color-border)] px-2 py-1 text-xs">
-          {tc("syncNow")}
-        </button>
-      )}
-      {error && <span className="text-xs text-red-600">{error}</span>}
-    </div>
-  );
-}
-
 export default function SurveysPage() {
   const tf = useFriendlyError();
   const router = useRouter();
@@ -118,8 +92,8 @@ export default function SurveysPage() {
   const [sync, setSync] = useState<SyncState>({
     isOnline: true,
     pendingCount: 0,
+    failedCount: 0,
     lastSync: null,
-    error: null,
   });
 
   const [customerName, setCustomerName] = useState("");
@@ -200,8 +174,8 @@ export default function SurveysPage() {
 
   const runSync = useCallback(() => {
     void flushQueue({
-      "survey.create": (payload) =>
-        createSurvey(payload as Parameters<typeof createSurvey>[0]),
+      "survey.create": (payload, clientRequestId) =>
+        createSurvey({ ...(payload as Parameters<typeof createSurvey>[0]), clientRequestId }),
     });
   }, [createSurvey]);
 
@@ -301,18 +275,24 @@ export default function SurveysPage() {
     if (!payload) return;
     setSaving(true);
     setErr("");
+    // One id for this save, online or queued: a retry of the same survey is never created twice.
+    const clientRequestId = newQueueId("survey.create");
     try {
       if (!navigator.onLine) {
-        await enqueue("survey.create", payload);
+        await enqueue("survey.create", payload, clientRequestId);
       } else {
-        await createSurvey(payload as Parameters<typeof createSurvey>[0]);
+        await createSurvey({ ...(payload as Parameters<typeof createSurvey>[0]), clientRequestId });
       }
       reset();
       setOpen(false);
     } catch (e) {
-      // Network hiccup while "online": fall back to the local queue.
+      // The reply may have been lost on a flaky network: queue it (same id). A refusal from the server is shown instead.
+      if (!shouldQueueAfterError(e)) {
+        setErr(tf(e));
+        return;
+      }
       try {
-        await enqueue("survey.create", payload);
+        await enqueue("survey.create", payload, clientRequestId);
         reset();
         setOpen(false);
       } catch {

@@ -5,7 +5,7 @@ import type { QueryCtx, MutationCtx } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
 import type { Id } from "./_generated/dataModel";
 import { requirePermission } from "./lib/rbac";
-import { requireTenantRegion, assertSignature } from "./lib/fieldModules";
+import { findByClientRequest, requireTenantRegion, assertSignature } from "./lib/fieldModules";
 import { complianceForRegion } from "./lib/compliance";
 import { regionForCountry } from "./lib/regions";
 import { nanoid } from "./lib/ids";
@@ -114,11 +114,14 @@ export const create = mutation({
     siteAddress: v.optional(v.string()),
     installerTeam: v.optional(v.string()),
     scheduledFor: v.optional(v.number()),
+    clientRequestId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     await enforceForFieldSurvey(ctx, args.tenantId);
     await enforceActivePlan(ctx, args.tenantId);
     await requirePermission(ctx, args.tenantId, "inspections.use");
+    const already = await findByClientRequest(ctx, "inspectionReports", args.tenantId, args.clientRequestId);
+    if (already) return already;
     assertShortText(args.customerName, 200);
     assertShortText(args.siteAddress, 300);
     assertShortText(args.installerTeam, 120);
@@ -169,6 +172,7 @@ export const create = mutation({
       photos: tpl.photoChecklist.map((p) => ({ key: p.key, label: p.label })),
       checks: tpl.functionalChecks.map((c) => ({ key: c.key, label: c.label, passed: false })),
       status: "draft",
+      clientRequestId: args.clientRequestId,
       createdAt: now,
       updatedAt: now,
     });

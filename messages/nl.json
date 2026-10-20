@@ -2529,6 +2529,10 @@
     "pending": "{count} te synchroniseren",
     "synced": "Gesynchroniseerd",
     "syncNow": "Nu synchroniseren",
+    "failed": "{count, plural, one {# item niet gesynchroniseerd} other {# items niet gesynchroniseerd}}",
+    "retry": "Opnieuw proberen",
+    "discard": "Verwijderen",
+    "discardConfirm": "{count, plural, one {Het niet-gesynchroniseerde item} other {De # niet-gesynchroniseerde items}} verwijderen? Gegevens die alleen op dit apparaat zijn opgeslagen, gaan verloren.",
     "openMaps": "Openen in Google Maps",
     "openWaze": "Openen in Waze"
   },

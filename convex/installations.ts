@@ -3,7 +3,7 @@
 import { query, mutation } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
 import { requirePermission } from "./lib/rbac";
-import { requireTenantRegion } from "./lib/fieldModules";
+import { findByClientRequest, requireTenantRegion } from "./lib/fieldModules";
 import { enforceForFullFieldModules } from "./lib/enforcement";
 import { complianceForRegion, computePosaMaterials } from "./lib/compliance";
 import { regionForCountry } from "./lib/regions";
@@ -109,10 +109,13 @@ export const create = mutation({
     nodeType: v.string(),
     perimeterMm: v.number(),
     notes: v.optional(v.string()),
+    clientRequestId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     await enforceForFullFieldModules(ctx, args.tenantId);
     await requirePermission(ctx, args.tenantId, "installations.use");
+    const already = await findByClientRequest(ctx, "installationDossiers", args.tenantId, args.clientRequestId);
+    if (already) return already;
     assertLongText(args.notes, 5000);
     const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
     const std = complianceForRegion(regionCode).installation;
@@ -151,6 +154,7 @@ export const create = mutation({
       materials,
       normRef: std.norm,
       notes: args.notes?.trim(),
+      clientRequestId: args.clientRequestId,
       createdAt: now,
       updatedAt: now,
     });

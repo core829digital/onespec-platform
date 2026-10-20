@@ -2529,6 +2529,10 @@
     "pending": "{count} da sincronizzare",
     "synced": "Sincronizzato",
     "syncNow": "Sincronizza ora",
+    "failed": "{count, plural, one {# elemento non sincronizzato} other {# elementi non sincronizzati}}",
+    "retry": "Riprova",
+    "discard": "Scarta",
+    "discardConfirm": "Scartare {count, plural, one {l'elemento non sincronizzato} other {i # elementi non sincronizzati}}? I dati salvati solo su questo dispositivo andranno persi.",
     "openMaps": "Apri in Google Maps",
     "openWaze": "Apri in Waze"
   },

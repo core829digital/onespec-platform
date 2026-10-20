@@ -16,40 +16,15 @@ import { useLocale, useTranslations } from "next-intl";
 import {
   enqueue,
   flushQueue,
+  newQueueId,
+  shouldQueueAfterError,
   subscribeSyncState,
   type SyncState,
 } from "@/lib/offline-sync";
+import { SyncBadge } from "@/components/field/sync-badge";
 import { AlertTriangle, Globe, Settings } from "lucide-react";
 import { DeleteAction } from "@/components/ui/delete-action";
 import { OpenButton } from "@/components/ui/open-button";
-
-function SyncBadge({ state, onSync }: { state: SyncState; onSync: () => void }) {
-  const tc = useTranslations("fieldCommon");
-  const color = !state.isOnline
-    ? "bg-amber-100 text-amber-800"
-    : state.pendingCount > 0
-    ? "bg-blue-100 text-blue-800"
-    : "bg-emerald-100 text-emerald-700";
-  const label = !state.isOnline
-    ? tc("offline")
-    : state.pendingCount > 0
-    ? tc("pending", { count: state.pendingCount })
-    : tc("synced");
-  return (
-    <div className="flex items-center gap-2">
-      <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${color}`}>
-        <span className="h-1.5 w-1.5 rounded-full bg-current" />
-        {label}
-      </span>
-      {state.isOnline && state.pendingCount > 0 && (
-        <button onClick={onSync} className="rounded border border-[var(--color-border)] px-2 py-1 text-xs">
-          {tc("syncNow")}
-        </button>
-      )}
-      {state.error && <span className="text-xs text-red-600">{state.error}</span>}
-    </div>
-  );
-}
 
 export default function InstallationsPage() {
   const tf = useFriendlyError();
@@ -94,8 +69,8 @@ export default function InstallationsPage() {
   const [sync, setSync] = useState<SyncState>({
     isOnline: true,
     pendingCount: 0,
+    failedCount: 0,
     lastSync: null,
-    error: null,
   });
 
   // Live material preview mirrors the server formula (compliance.computePosaMaterials).
@@ -110,8 +85,8 @@ export default function InstallationsPage() {
 
   const runSync = useCallback(() => {
     void flushQueue({
-      "installation.create": (payload) =>
-        createDossier(payload as Parameters<typeof createDossier>[0]),
+      "installation.create": (payload, clientRequestId) =>
+        createDossier({ ...(payload as Parameters<typeof createDossier>[0]), clientRequestId }),
     });
   }, [createDossier]);
 
@@ -142,14 +117,7 @@ export default function InstallationsPage() {
       cantiereId,
       notes: notes.trim() || undefined,
     };
-    try {
-      // runSync above only drains the queue; without this, going offline
-      // mid-wizard just threw instead of queuing like surveys/page.tsx does.
-      if (!navigator.onLine) {
-        await enqueue("installation.create", payload);
-      } else {
-        await createDossier(payload);
-      }
+    const clearForm = () => {
       setClientId(undefined);
       setCantiereId(undefined);
       setOpen(false);
@@ -159,19 +127,27 @@ export default function InstallationsPage() {
       setPerimeterM(0);
       setSurveyId("");
       setNotes("");
+    };
+    // One id for this save, online or queued: a retry of the same dossier is never created twice.
+    const clientRequestId = newQueueId("installation.create");
+    try {
+      // runSync above only drains the queue; without this, going offline
+      // mid-wizard just threw instead of queuing like surveys/page.tsx does.
+      if (!navigator.onLine) {
+        await enqueue("installation.create", payload, clientRequestId);
+      } else {
+        await createDossier({ ...payload, clientRequestId });
+      }
+      clearForm();
     } catch (e) {
-      // Network hiccup while "online": fall back to the local queue.
+      // The reply may have been lost on a flaky network: queue it (same id). A refusal from the server is shown instead.
+      if (!shouldQueueAfterError(e)) {
+        setErr(tf(e));
+        return;
+      }
       try {
-        await enqueue("installation.create", payload);
-        setClientId(undefined);
-        setCantiereId(undefined);
-        setOpen(false);
-        setStep(1);
-        setJobType("");
-        setNodeType("");
-        setPerimeterM(0);
-        setSurveyId("");
-        setNotes("");
+        await enqueue("installation.create", payload, clientRequestId);
+        clearForm();
       } catch {
         setErr(tf(e));
       }

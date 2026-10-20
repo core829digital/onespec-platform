@@ -234,3 +234,38 @@ test("funding: generateFundingDoc from a linked field quote (IT tenant)", async 
   });
   expect(again.created).toBe(0);
 });
+
+test("a queued field record sent twice (same device id) is created once (issue #28)", async () => {
+  const t = newDb();
+  const seeded = await seedTenant(t, { plan: "pro" });
+  const as = t.withIdentity({ subject: seeded.ownerId });
+  const survey = {
+    tenantId: seeded.tenantId,
+    customerName: "Rossi Marco",
+    openings: [{ label: "Foro 1", widthMm: 1200, heightMm: 1400 }],
+    diagnostics: { wallType: "Laterizio", mould: false },
+    clientRequestId: "survey.create_1700000000000_abcd1234",
+  };
+  const a = await as.mutation(api.surveys.create, survey);
+  const b = await as.mutation(api.surveys.create, survey);
+  expect(b).toBe(a);
+  expect(await as.query(api.surveys.list, { tenantId: seeded.tenantId })).toHaveLength(1);
+  // A different id is a different record.
+  const c = await as.mutation(api.surveys.create, { ...survey, clientRequestId: "survey.create_1700000000001_efgh5678" });
+  expect(c).not.toBe(a);
+
+  const report = { tenantId: seeded.tenantId, customerName: "Rossi Marco", clientRequestId: "inspection.create_1_aaaa1111" };
+  expect(await as.mutation(api.inspections.create, report)).toBe(await as.mutation(api.inspections.create, report));
+
+  const std = await as.query(api.installations.getStandard, { tenantId: seeded.tenantId });
+  const dossier = {
+    tenantId: seeded.tenantId,
+    jobType: std.jobTypes[0].key,
+    nodeType: std.nodeTypes[0].key,
+    perimeterMm: 5000,
+    clientRequestId: "installation.create_1_bbbb2222",
+  };
+  expect(await as.mutation(api.installations.create, dossier)).toBe(await as.mutation(api.installations.create, dossier));
+
+  await expect(as.mutation(api.surveys.create, { ...survey, clientRequestId: "bad id!" })).rejects.toThrow(/INVALID_INPUT/);
+});
