@@ -258,9 +258,16 @@ export const advance = mutation({
       if (quote && quote.status !== "won") {
         await ctx.db.patch(quote._id, { status: "won" });
         // Closing the deal makes the customer an active client and confirms the site (found or created if missing).
-        // Shared transition (#54): no events and no quote audit today — the drift that bug #42 will fix, as flags here.
+        // Shared transition (#54): the same events and audit the other two paths emit (#42) — the
+        // supply itself is already at "Ordine", so no ensureOrdered.
         const { userId } = await requirePermission(ctx, s.tenantId, "supply.use");
-        const crm = await markQuoteWon(ctx, { quote, userId, events: false, ensureSupplyOrder: false });
+        const crm = await markQuoteWon(ctx, {
+          quote,
+          userId,
+          events: true,
+          ensureSupplyOrder: false,
+          audit: { action: "quote.status_change", meta: { oldStatus: quote.status, newStatus: "won" } },
+        });
         if (crm.clientId !== s.clientId || crm.cantiereId !== s.cantiereId) {
           patch.clientId = crm.clientId;
           patch.cantiereId = crm.cantiereId;

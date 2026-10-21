@@ -194,4 +194,18 @@ describe("export for the accountant", () => {
     const other = await seedTenant(t, { plan: "pro" });
     await expect(t.withIdentity({ subject: other.ownerId }).query(api.supplies.exportRows, { tenantId, from: now - 1000, to: now })).rejects.toThrow();
   });
+
+  test("closing a deal through the supply flow emits the same events and audit as updateStatus (#42)", async () => {
+    const { t, asOwner, quoteId } = await setup();
+    const id = await asOwner.mutation(api.supplies.createFromQuote, { quoteId });
+    await asOwner.mutation(api.supplies.advance, { supplyId: id });
+    await t.finishAllScheduledFunctions(vi.runAllTimers);
+
+    // The team notification quote.status_changed fans out...
+    const notes = await t.run((ctx) => ctx.db.query("notifications").collect());
+    expect(notes.some((n) => n.type === "quote_status_changed")).toBe(true);
+    // ...and the transition writes the same audit row updateStatus writes.
+    const audits = await t.run((ctx) => ctx.db.query("auditLog").collect());
+    expect(audits.some((a) => a.action === "quote.status_change" && a.targetId === quoteId)).toBe(true);
+  });
 });
