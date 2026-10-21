@@ -7,6 +7,7 @@
  * can be exercised against the server schema in tests.
  */
 import type { PieceCategory } from "@/shared/configurator-model";
+import type { ProjectItem } from "@/shared/pricing";
 import { SINGLE_SASH_MAX_HEIGHT, SINGLE_SASH_MAX_WIDTH, DIM_ABS_MAX } from "@/shared/widget-types";
 
 export type WizardLang = "it" | "en" | "fr" | "de" | "nl";
@@ -15,6 +16,21 @@ export type WizardRegion = import("@/convex/lib/regions").RegionCode;
 export type WorkKey = "renovation" | "new";
 export type ProductKey = "finestra1" | "finestra2" | "porta1" | "scorrevole" | "pannello";
 export type ColourKey = "white" | "woodgrain" | "custom";
+
+/**
+ * The submit seam between the two colour domains (#70): `ColourKey` is the
+ * wizard's display domain; the item's finish fields carry tenant catalog
+ * keys. Today the keys coincide (identity map) — when a display choice needs
+ * a different catalog key (the #50 woodgrain question), this mapping is the
+ * one place that changes.
+ */
+const WIZARD_COLOUR_TO_CATALOG: Record<ColourKey, string> = {
+  white: "white",
+  woodgrain: "woodgrain",
+  custom: "custom",
+};
+export const wizardColourToCatalogKey = (c: ColourKey): string => WIZARD_COLOUR_TO_CATALOG[c];
+
 export type GlazingKey = "double" | "triple";
 export type FrameKey = "straight" | "reno40" | "reno65";
 export type IncentiveKey =
@@ -676,7 +692,7 @@ function clamp(v: number, min: number, max: number): number {
  * sash per leaf, so a real 2-leaf width (e.g. 180 cm) is sent as-is instead
  * of being squeezed under the single-sash 1200 mm structural limit.
  */
-export function buildWizardItem(sel: WizardSelection, notes: string) {
+export function buildWizardItem(sel: WizardSelection, notes: string): ProjectItem {
   const shape = PRODUCT_SHAPE[sel.product];
   const maxW = shape.sashes === 1 ? SINGLE_SASH_MAX_WIDTH : DIM_ABS_MAX;
   const maxH = shape.sashes === 1 ? SINGLE_SASH_MAX_HEIGHT : DIM_ABS_MAX;
@@ -694,6 +710,9 @@ export function buildWizardItem(sel: WizardSelection, notes: string) {
     hardwareColor: "white",
     widthRatio: 1 / shape.sashes,
   }));
+  // The two colour domains meet here, at the submit seam (#70): `colour` is
+  // the wizard's display domain, `color` carries it into the item whose
+  // finish fields are tenant catalog keys.
   return {
     productType: shape.productType,
     category: sel.product as PieceCategory,
@@ -704,8 +723,10 @@ export function buildWizardItem(sel: WizardSelection, notes: string) {
     quantity: 1,
     sashes,
     glazing: sel.glazing,
-    color: sel.colour,
-    ...(sel.colourInside && sel.colourInside !== sel.colour ? { colorInside: sel.colourInside } : {}),
+    color: wizardColourToCatalogKey(sel.colour),
+    ...(sel.colourInside && sel.colourInside !== sel.colour
+      ? { colorInside: wizardColourToCatalogKey(sel.colourInside) }
+      : {}),
     insectScreen: false,
     notes: notes.slice(0, 500),
   };
