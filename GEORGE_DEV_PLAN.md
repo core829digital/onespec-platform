@@ -38,7 +38,7 @@ Ordine ajustată după dependențe (#37 înainte de refactorul #53; #34 amânat 
 ### Etapa 2 — P4: refactor-uri HIGH (6), în ordinea tracker-ului
 - [x] 10. #64 — `normalizedRatios` structural, șterge 5 double-casts (warm-up) ✓ 2026-10-21
 - [x] 11. #63 — un singur tip canonic `ProjectItem` ✓ 2026-10-21
-- [ ] 12. #65 — înlocuiește `v.any()` pe items/payload/labels (step A: types-only)
+- [x] 12. #65 — înlocuiește `v.any()` pe items/payload/labels (step A: types-only) ✓ 2026-10-21
 - [ ] 13. #53 — registru fiscal unic (4 copii → 1; necesită #37 ✓)
 - [ ] 14. #55 — fabrică de pașapoarte (3 căi → 1)
 - [ ] 15. #54 — helper comun quote→won (3 căi drift-uite)

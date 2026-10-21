@@ -1,4 +1,4 @@
-import { ConvexError } from "convex/values";
+import { ConvexError, v } from "convex/values";
 
 /**
  * Shared input guards for tenant-authored catalogue data. Convex validators
@@ -33,11 +33,23 @@ export function assertLongText(value: string | undefined, max = 5000): void {
   if (value.length > max || CONTROL_EXCEPT_LINEBREAK.test(value)) invalid();
 }
 
+/** Localised label map: one ≤200-char string per supported language. */
+export type Labels = Record<string, string>;
+
+/**
+ * The validator that will replace `v.any()` on every `labels` field in
+ * schema/args (#65 Step B — a separate, behaviour-changing landing). Exported
+ * now so the agreed shape has one name.
+ */
+export const labelsValidator = v.record(v.string(), v.string());
+
 /**
  * Multilingual label object: a plain object with at most one entry per
- * supported language, each a non-control string of ≤ 200 chars.
+ * supported language, each a non-control string of ≤ 200 chars. The assertion
+ * signature narrows the checked `any` from `v.any()` args to `Labels` (#65
+ * Step A: types only — the runtime gate is unchanged).
  */
-export function assertLabels(labels: unknown): void {
+export function assertLabels(labels: unknown): asserts labels is Labels {
   if (labels === null || typeof labels !== "object" || Array.isArray(labels)) invalid();
   const entries = Object.entries(labels as Record<string, unknown>);
   if (entries.length > LABEL_LANGS.length) invalid();
