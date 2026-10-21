@@ -3,7 +3,7 @@ import type { Doc, Id } from "./_generated/dataModel";
 import { v } from "convex/values";
 import { requireMembership } from "./lib/auth";
 import { requirePermission } from "./lib/rbac";
-import { enforceAnalyticsForQuery } from "./lib/enforcement";
+import { enforceAnalyticsForQuery, countLiveConfigurators } from "./lib/enforcement";
 import { resolveTenantEntitlements, currentPeriod } from "./lib/entitlements";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -337,14 +337,10 @@ export const getPlanUsage = query({
       .first();
     const quotesUsed = counter?.quoteRequestsCount ?? 0;
 
-    // Active (non-archived) configurators.
-    const configurators = await ctx.db
-      .query("configurators")
-      .withIndex("by_tenant_status", (q) =>
-        q.eq("tenantId", args.tenantId).eq("status", "published"),
-      )
-      .collect();
-    const configuratorsUsed = configurators.length;
+    // Live (draft + published) configurators — the same count the quota gate
+    // enforces (#38): the meter used to show published only, so users saw
+    // spare quota that did not exist and hit an unexplained refusal.
+    const configuratorsUsed = await countLiveConfigurators(ctx, args.tenantId, ent.maxConfigurators);
 
     // Active members.
     const memberships = await ctx.db

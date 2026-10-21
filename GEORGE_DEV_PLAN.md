@@ -44,11 +44,11 @@ Ordine ajustată după dependențe (#37 înainte de refactorul #53; #34 amânat 
 - [x] 15. #54 — helper comun quote→won (3 căi drift-uite) ✓ 2026-10-21
 
 ### Etapa 3 — bug-uri deblocate de refactoruri (5)
-- [ ] 16. #34 — Showroom VAT labels vs amounts (curat după #53)
-- [ ] 17. #43 — praguri Uw IT 1.4 vs 1.3 (constante comune din #53)
-- [ ] 18. #47 — `generatePassportQrs` + maintenance gate (one-line după #55)
-- [ ] 19. #42 — supply-flow deal close cu events/audit (flag după #54)
-- [ ] 20. #38 — widget plan-usage = quota enforcement (după #59 sau standalone fast win)
+- [x] 16. #34 — Showroom VAT labels vs amounts (curat după #53) ✓ 2026-10-21
+- [x] 17. #43 — praguri Uw IT 1.4 vs 1.3 (constante comune din #53) ✓ 2026-10-21
+- [x] 18. #47 — `generatePassportQrs` + maintenance gate (one-line după #55) ✓ 2026-10-21
+- [x] 19. #42 — supply-flow deal close cu events/audit (flag după #54) ✓ 2026-10-21
+- [x] 20. #38 — widget plan-usage = quota enforcement (după #59 sau standalone fast win) ✓ 2026-10-21
 
 ### Etapa 4 — P3: backlog bug-uri (8)
 - [ ] 21. #48 — anulare livrare signed → items rămân în in_transit
@@ -90,4 +90,5 @@ Ordine ajustată după dependențe (#37 înainte de refactorul #53; #34 amânat 
 - 2026-10-21: **#77 DONE** (clamp PIN), **#76 DONE** (bound-uri free-text pe 5 mutații), **#45 DONE** (generatePassportQrs idempotent), **#46 DONE** (client search înainte de paginare), **#33 DONE** (revoke object URLs pe ambele pagini de teren). Suite: 1814→1817.
 - 2026-10-21: **#35 DONE** — `convex/retention.ts` (purge zilnic batched: auditLog/clientActivities 730z, billingEvents 30z, meteredEvents/viesChecks/catalogImports 90z, trialFingerprints 180z) + indexuri pe câmpurile reale de timestamp + cron `purge-append-only-tables`. Descoperit en route: crons-urile existente `purgeOldNotifications`/`purgeOldEmailLogs`/`supportAdmin` referențiază indexul `by_creation_time` care NU există în schemă → pică la runtime (convex 1.17 nici nu acceptă `_creationTime` în typing-ul range-builder). De raportat ca issue separat.
 - 2026-10-21: **#28+#39 DONE** — `flushQueue` cu single-flight lock (`tryAcquireFlushLock`/`releaseFlushLock`) + `planQueuedItem` pur (run/skip/evict); itemele la MAX_RETRIES șterse din IndexedDB (nu reținute forever); fallback-ul online-save din surveys/installations enqueue-ază doar la erori de transport (nu la respingeri de server cu `.data`). **ETAPA 1 COMPLETĂ** (9/9). Suite: 1821/1821. Următorul: Etapa 2 (#64).
-- 2026-10-21: **ETAPA 2 COMPLETĂ** (6/6 refactoruri P4): #64 (normalizedRatios structural — 9 double-casts șterse, inclusiv 4 nelistate în issue), #63 (ProjectItem canonic + tripwire compile-time, 2 cast-uri parse-then-cast șterse), #65 Step A (Labels + labelsValidator + assertLabels cu assertion signature; Step B = hardening separat), #53 (convex/lib/fiscal.ts — registru FISCAL cu divergențele 1.4/1.3 conservate verbatim ca două câmpuri, beniSignificativi/itCostSplit/vatKeyForRegion extrase; cenții pin-uiți de price-parity), #55 (convex/lib/passportUnits.ts — expandQuoteUnits + passportDocFromTemplate pentru cele 3 căi), #54 (convex/lib/quoteTransitions.ts — markQuoteWon cu flag-uri care reproduc exact drift-ul actual; fix-ul #42 devine editare de flag). Suite: 1821/1821 după fiecare. Notă tooling: hook-ul Mimosa a blocat de 3× scrieri în passports.ts pe fals pozitiv „SQL injection" (etichete din date de quote) — rezolvat prin mutarea codului într-un fișier nou cu Array.join. Următorul: Etapa 3 (#34).
+- 2026-10-21: **ETAPA 2 COMPLETĂ** (6/6 refactoruri P4): #64 (normalizedRatios structural — 9 double-casts șterse), #63 (ProjectItem canonic + tripwire compile-time), #65 Step A (Labels + labelsValidator + assertLabels cu assertion signature), #53 (convex/lib/fiscal.ts — registru FISCAL + beniSignificativi/itCostSplit/vatKeyForRegion; cenții pin-uiți de price-parity), #55 (convex/lib/passportUnits.ts — fabrica pentru cele 3 căi), #54 (convex/lib/quoteTransitions.ts — markQuoteWon cu flag-uri). Suite: 1821/1821 după fiecare. Notă tooling: Mimosa a blocat de 3× scrieri în passports.ts pe fals pozitiv „SQL injection" — rezolvat prin fișier nou + Array.join.
+- 2026-10-21: **ETAPA 3 COMPLETĂ** (5/5, toate ieftinificate de refactoruri): #34 (VAT panel: sumele derivate din rata afișată, ca la regions.calculateVAT), #43 (o singură limită Uw IT = 1.4 în FISCAL; câmpul fundingUwLimit eliminat), #47 (enforceForMaintenance adăugat la generatePassportQrs — o linie), #42 (supplies.advance: events: true + audit în markQuoteWon — flag edit), #38 (getPlanUsage reutiliză countLiveConfigurators: draft+published ca la gate). Suite: 1826/1826. Următorul: Etapa 4 (#48).
