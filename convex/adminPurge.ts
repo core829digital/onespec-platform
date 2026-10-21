@@ -62,19 +62,30 @@ export const TENANT_TABLES = [
   "serramentoPassports",
   "passportInterventions",
   "clients",
+  "leads",
+  "leadImports",
+  "clientDocuments",
   "clientActivities",
   "cantieri",
   "cantiereTasks",
   "logisticsSuppliers",
+  "supplyPartners",
+  "supplies",
   "carriers",
   "deliveries",
   "inventoryItems",
   "siteDeliveries",
+  "viesChecks",
+  "supportTickets",
   "referralCodes",
   "referralPayoutAccounts",
 ] as const;
 
-/** Tables keyed by `userId` — wiped for every user being deleted. */
+/**
+ * Tables keyed by `userId` — wiped for every user being deleted. The three
+ * entries also present in TENANT_TABLES are an intentional double sweep: a
+ * doomed user's rows inside a KEPT tenant are only reached through this list.
+ */
 export const USER_TABLES = ["deletionRequests", "userConsents", "notificationPrefs", "notifications", "meteredEvents", "alphaFeedback"] as const;
 
 type Plan = {
@@ -123,11 +134,11 @@ export const planPurge = internalQuery({
   },
 });
 
-/** Deletes the rows of one page of `table` that belong to the given tenants/users. */
+/** Deletes the rows of one page of `table` that belong to the given tenants/users/tickets. */
 export const purgeTablePage = internalMutation({
   args: {
     table: v.string(),
-    field: v.union(v.literal("tenantId"), v.literal("userId")),
+    field: v.union(v.literal("tenantId"), v.literal("userId"), v.literal("ticketId"), v.literal("referrerTenantId"), v.literal("referredTenantId")),
     ids: v.array(v.string()),
     cursor: v.union(v.string(), v.null()),
   },
@@ -175,6 +186,19 @@ export const deleteTenant = internalMutation({
   },
 });
 
+/** Ids of the doomed tenants' support tickets — their messages/notes/attachments are ticket-keyed (#51). */
+export const doomedSupportTickets = internalQuery({
+  args: { tenantIds: v.array(v.id("tenants")) },
+  handler: async (ctx, args): Promise<string[]> => {
+    const doomed = new Set<string>(args.tenantIds);
+    const out: string[] = [];
+    for (const tk of await ctx.db.query("supportTickets").collect()) {
+      if (tk.tenantId && doomed.has(tk.tenantId)) out.push(tk._id);
+    }
+    return out;
+  },
+});
+
 /** Memberships/invitations of kept tenants that point at a deleted user. */
 export const dropKeptTenantLinks = internalMutation({
   args: { userIds: v.array(v.id("users")) },
@@ -195,10 +219,12 @@ export const dropKeptTenantLinks = internalMutation({
   },
 });
 
+type SweepField = "tenantId" | "userId" | "ticketId" | "referrerTenantId" | "referredTenantId";
+
 async function sweep(
-  ctx: { runMutation: (fn: typeof internal.adminPurge.purgeTablePage, a: { table: string; field: "tenantId" | "userId"; ids: string[]; cursor: string | null }) => Promise<{ deleted: number; next: string | null }> },
+  ctx: { runMutation: (fn: typeof internal.adminPurge.purgeTablePage, a: { table: string; field: SweepField; ids: string[]; cursor: string | null }) => Promise<{ deleted: number; next: string | null }> },
   table: string,
-  field: "tenantId" | "userId",
+  field: SweepField,
   ids: string[],
 ): Promise<number> {
   if (ids.length === 0) return 0;
@@ -251,10 +277,23 @@ export const purgeAccountsExcept = internalAction({
     const tenantIds = plan.doomedTenants.map((t) => t.id as string);
     const userIds = plan.doomedUsers.map((u) => u.id as string);
     const deleted: Record<string, number> = {};
+    // Collect the doomed tenants' support-ticket ids FIRST (#51): the tenant
+    // sweep below deletes the tickets themselves, and these ids are the only
+    // key their messages/notes/attachments hang off.
+    const ticketIds = await ctx.runQuery(internal.adminPurge.doomedSupportTickets, {
+      tenantIds: plan.doomedTenants.map((t) => t.id),
+    });
     for (const table of TENANT_TABLES) deleted[table] = await sweep(ctx as never, table, "tenantId", tenantIds);
     for (const table of USER_TABLES) {
       deleted[`${table}(by user)`] = await sweep(ctx as never, table, "userId", userIds);
     }
+    // Referrals carry two tenant keys — a doomed tenant can be either side (#51).
+    deleted.referrals = (await sweep(ctx as never, "referrals", "referrerTenantId", tenantIds))
+      + (await sweep(ctx as never, "referrals", "referredTenantId", tenantIds));
+    deleted.supportMessages = await sweep(ctx as never, "supportMessages", "ticketId", ticketIds);
+    deleted.supportInternalNotes = await sweep(ctx as never, "supportInternalNotes", "ticketId", ticketIds);
+    deleted.supportAttachments = (await sweep(ctx as never, "supportAttachments", "ticketId", ticketIds))
+      + (await sweep(ctx as never, "supportAttachments", "tenantId", tenantIds));
     deleted.keptTenantLinks = await ctx.runMutation(internal.adminPurge.dropKeptTenantLinks, {
       userIds: plan.doomedUsers.map((u) => u.id),
     });
