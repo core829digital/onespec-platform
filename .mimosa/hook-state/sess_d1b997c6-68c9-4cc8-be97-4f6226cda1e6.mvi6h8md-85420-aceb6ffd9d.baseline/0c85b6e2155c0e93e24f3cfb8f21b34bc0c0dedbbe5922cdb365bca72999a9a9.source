@@ -1,0 +1,335 @@
+import "./pdf-setup";
+import { fieldPdfCopy } from "./field-pdf-i18n";
+import { Document, Page, View, StyleSheet } from "@react-pdf/renderer";
+import { Text } from "./Text";
+import { CompanyLogo } from "./CompanyLogo";
+import type { Scene } from "@/lib/drawing";
+import { ScenePdf } from "@/lib/drawing/pdf";
+import { SignatureLine } from "./SignatureLine";
+
+const colors = {
+  black: "#111827",
+  gray: {
+    50: "#f9fafb",
+    100: "#f3f4f6",
+    200: "#e5e7eb",
+    300: "#d1d5db",
+    400: "#9ca3af",
+    500: "#6b7280",
+    600: "#4b5563",
+    700: "#374151",
+    800: "#1f2937",
+    900: "#111827",
+  },
+  emerald: {
+    50: "#ecfdf5",
+    100: "#d1fae5",
+    500: "#10b981",
+    700: "#047857",
+  },
+  amber: {
+    50: "#fffbeb",
+    100: "#fef3c7",
+    600: "#d97706",
+    700: "#b45309",
+  },
+};
+
+const styles = StyleSheet.create({
+  page: {
+    padding: 40,
+    fontFamily: "Helvetica",
+    fontSize: 10,
+    color: colors.black,
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 20,
+    paddingBottom: 15,
+    borderBottomWidth: 2,
+    borderBottomColor: colors.gray[900],
+  },
+  company: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: colors.black,
+  },
+  subtitle: {
+    fontSize: 9,
+    color: colors.gray[500],
+    marginTop: 2,
+  },
+  section: {
+    marginTop: 16,
+  },
+  sectionTitle: {
+    fontSize: 10,
+    fontWeight: "bold",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+    marginBottom: 6,
+    color: colors.gray[700],
+  },
+  label: {
+    fontWeight: "bold",
+    color: colors.gray[700],
+    fontSize: 9,
+  },
+  value: {
+    color: colors.black,
+    fontSize: 9,
+  },
+  tableHeader: {
+    flexDirection: "row",
+    backgroundColor: colors.gray[100],
+    borderBottomWidth: 2,
+    borderBottomColor: colors.gray[300],
+  },
+  tableHeaderCell: {
+    flex: 1,
+    padding: 5,
+    fontWeight: "bold",
+    fontSize: 8,
+    color: colors.gray[700],
+    borderRightWidth: 1,
+    borderRightColor: colors.gray[300],
+  },
+  tableRow: {
+    flexDirection: "row",
+    borderBottomWidth: 1,
+    borderBottomColor: colors.gray[200],
+  },
+  tableCell: {
+    flex: 1,
+    padding: 4,
+    fontSize: 8,
+    color: colors.black,
+    borderRightWidth: 1,
+    borderRightColor: colors.gray[200],
+  },
+  footer: {
+    marginTop: 30,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: colors.gray[200],
+    fontSize: 7,
+    color: colors.gray[500],
+    textAlign: "center",
+  },
+  badge: {
+    paddingHorizontal: 5,
+    paddingVertical: 1.5,
+    borderRadius: 3,
+    fontSize: 7,
+    fontWeight: "bold",
+  },
+  badgeGreen: {
+    backgroundColor: colors.emerald[100],
+    color: colors.emerald[700],
+  },
+  row: {
+    flexDirection: "row",
+    marginBottom: 4,
+  },
+  gridRow: {
+    flexDirection: "row",
+    marginBottom: 8,
+  },
+  gridCell: {
+    flex: 1,
+    marginRight: 16,
+  },
+  borderedBox: {
+    borderWidth: 1,
+    borderColor: colors.gray[200],
+    borderRadius: 3,
+    padding: 8,
+    backgroundColor: colors.gray[50],
+  },
+  noteItem: {
+    marginBottom: 3,
+    fontSize: 8,
+  },
+});
+
+interface InstallationCertPDFProps {
+  tenant: {
+    name: string;
+    address?: string;
+    vatId?: string;
+    phone?: string;
+    email?: string;
+    logoUrl?: string;
+  };
+  dossier: {
+    normRef: string;
+    createdAt: number;
+    perimeterMm: number;
+    materials: Array<{ key: string; label: string; quantity: number; unit: string }>;
+    notes?: string;
+  };
+  jobLabel: string;
+  nodeLabel: string;
+  notes: string[];
+  quote?: {
+    leadName: string;
+    customerAddress?: string;
+    customerCity?: string;
+  };
+  survey?: {
+    customerName: string;
+    openings: Array<{ widthMm: number; heightMm: number }>;
+  };
+  locale?: string;
+  /** Installation-node drawing (jamb or sill section) printed after the materials. */
+  nodeDrawing?: Scene;
+  /** Footer "generated on" timestamp — pass Date.now() from the caller via
+   * a lazy useState initializer so it's computed once, not on every
+   * render (keeps this component a pure function of its props). */
+  generatedAt: number;
+}
+
+const fmtDate = (ts: number, locale = "it-IT") =>
+  new Date(ts).toLocaleDateString(locale, { day: "2-digit", month: "long", year: "numeric" });
+
+export function InstallationCertPDF({
+  tenant,
+  dossier,
+  jobLabel,
+  nodeLabel,
+  notes,
+  quote,
+  survey,
+  locale = "it-IT",
+  nodeDrawing,
+  generatedAt,
+}: InstallationCertPDFProps) {
+  // The market's own norm is shown via dossier.normRef (UNI 11673, DTU 36.5, RAL…).
+  const T = fieldPdfCopy(locale);
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        <View style={styles.header}>
+          <View>
+            <CompanyLogo url={tenant.logoUrl} />
+            <Text style={styles.company}>{tenant.name}</Text>
+            <Text style={styles.subtitle}>{T.dossierSubtitle}</Text>
+            {tenant.address && <Text style={styles.subtitle}>{tenant.address}</Text>}
+            {tenant.vatId && <Text style={styles.subtitle}>{T.vatId}: {tenant.vatId}</Text>}
+            {(tenant.phone || tenant.email) && <Text style={styles.subtitle}>{[tenant.phone, tenant.email].filter(Boolean).join(" · ")}</Text>}
+          </View>
+          <View style={{ textAlign: "right" }}>
+            <View style={[styles.badge, styles.badgeGreen]}>
+              <Text>{dossier.normRef}</Text>
+            </View>
+            <Text style={{ marginTop: 6, fontSize: 9, color: colors.gray[600] }}>
+              {fmtDate(dossier.createdAt, locale)}
+            </Text>
+          </View>
+        </View>
+
+        {(survey || quote) && (
+          <View style={styles.borderedBox}>
+            <Text style={styles.sectionTitle}>{T.projectRefs}</Text>
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 16 }}>
+              {quote && (
+                <View>
+                  <Text style={styles.label}>{T.client}:</Text>
+                  <Text style={styles.value}>{quote.leadName}</Text>
+                  {quote.customerAddress && (
+                    <Text style={styles.value}>
+                       — {quote.customerAddress}{quote.customerCity ? `, ${quote.customerCity}` : ""}
+                    </Text>
+                  )}
+                </View>
+              )}
+              {survey && (
+                <View>
+                  <Text style={styles.label}>{T.linkedSurvey}:</Text>
+                  <Text style={styles.value}>
+                    {survey.customerName} · {survey.openings.length} fori ·
+                    perimetro {(survey.openings.reduce((s, o) => s + 2 * (o.widthMm + o.heightMm), 0) / 1000).toFixed(2)} m
+                  </Text>
+                </View>
+              )}
+            </View>
+          </View>
+        )}
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>{T.jobDetail}</Text>
+          <View style={styles.gridRow}>
+            <View style={styles.gridCell}>
+              <Text style={styles.label}>{T.jobType}</Text>
+              <Text style={styles.value}>{jobLabel}</Text>
+            </View>
+            <View style={styles.gridCell}>
+              <Text style={styles.label}>{T.node}</Text>
+              <Text style={styles.value}>{nodeLabel}</Text>
+            </View>
+            <View style={styles.gridCell}>
+              <Text style={styles.label}>{T.perimeter}</Text>
+              <Text style={styles.value}>{(dossier.perimeterMm / 1000).toFixed(2)} m</Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>{T.materialsTitle}</Text>
+          <View style={styles.tableHeader}>
+            <View style={styles.tableHeaderCell}><Text>{T.material}</Text></View>
+            <View style={{ ...styles.tableHeaderCell, textAlign: "right", width: "30%" }}><Text>{T.quantity}</Text></View>
+          </View>
+          {dossier.materials.map((m) => (
+            <View key={m.key} style={styles.tableRow}>
+              <View style={styles.tableCell}><Text>{m.label}</Text></View>
+              <View style={{ ...styles.tableCell, textAlign: "right" }}>
+                <Text style={{ fontWeight: "bold" }}>{m.quantity} {m.unit}</Text>
+              </View>
+            </View>
+          ))}
+        </View>
+
+        {nodeDrawing ? (
+          <View style={styles.section} wrap={false}>
+            <ScenePdf scene={nodeDrawing} width={330} />
+          </View>
+        ) : null}
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Istruzioni di Posa — {dossier.normRef}</Text>
+          <View style={{ marginLeft: 12 }}>
+            {notes.map((n, i) => (
+              <View key={i} style={styles.noteItem}>
+                <Text>• {n}</Text>
+              </View>
+            ))}
+          </View>
+          {dossier.notes && (
+            <View style={{ marginTop: 8 }}>
+              <Text style={styles.label}>{T.teamNotes}:</Text>
+              <Text style={styles.value}>{dossier.notes}</Text>
+            </View>
+          )}
+        </View>
+
+        <View style={{ marginTop: 16, flexDirection: "row", flexWrap: "wrap", gap: 6 }}>
+          <View style={[styles.badge, styles.badgeGreen]}>
+            <Text>{dossier.normRef}</Text>
+          </View>
+          <View style={[styles.badge, { backgroundColor: colors.gray[100], color: colors.gray[700] }]}>
+            <Text>{T.ceMarking}</Text>
+          </View>
+        </View>
+
+        <SignatureLine label={T.installerSignature} dateLabel={T.dateLabel} />
+
+        <View style={styles.footer}>
+          <Text>{T.generatedBy} · {T.compliantInstall(dossier.normRef)} · {T.ceMarking}</Text>
+          <Text>{fmtDate(generatedAt, locale)}</Text>
+        </View>
+      </Page>
+    </Document>
+  );
+}

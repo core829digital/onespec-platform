@@ -25,7 +25,7 @@ P1 (#27, #29, #30, #31, #32, #36) este deja rezolvat upstream — nu face parte 
 
 ### Etapa 1 — P2: bug-uri (9)
 Ordine ajustată după dependențe (#37 înainte de refactorul #53; #34 amânat după #53).
-- [ ] 1. #37 — șterge modulul mort `convex/lib/pricing.ts` (fast win, deblochează #53)
+- [x] 1. #37 — șterge modulul mort `convex/lib/pricing.ts` (fast win, deblochează #53) ✓ 2026-10-21
 - [ ] 2. #77 — `generateGuestPin`: clamp `expiresInDays` pe [1, 365] (fast win)
 - [ ] 3. #76 — field-module update/sign: aplică bound-urile free-text ca la create/HTTP
 - [ ] 4. #45 — `generatePassportQrs`: idempotent (nu mai duplică pașapoarte)
@@ -86,3 +86,4 @@ Ordine ajustată după dependențe (#37 înainte de refactorul #53; #34 amânat 
 
 ## Jurnal
 - 2026-10-21: baseline verde (1802/1802, typecheck OK), branch `george_dev` creat și publicat. Următorul: #37.
+- 2026-10-21: **#37 DONE** — `convex/lib/pricing.ts` șters, `api.d.ts` curățat (codegen offline indisponibil), harta demo regenerată (a prins și `authEmails.ts` rămas ne-regenerat); generatorul reparat pentru căi cu spații (`fileURLToPath`); test de pază `tests/pricing-dead-module.test.ts`. Suite: 1804/1804. Următorul: #77.

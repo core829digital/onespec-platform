@@ -1,0 +1,354 @@
+// Client-side pricing mirror of the ONESPEC prototype's defaultPricing() +
+// calculate(). This drives the LIVE PREVIEW only. The authoritative price is
+// always recomputed on the server (convex/http.ts -> convex/widget.insertQuote)
+// from the raw item inputs; a client-reported total is never trusted.
+
+import { REGION_FLAT_OPTION_KINDS } from "@/shared/pricing";
+import { glazingPackageRows } from "@/shared/glazing-packages";
+import { applyMarginCents } from "@/shared/standard-pricing";
+
+/** Glazing packages (depth + composition) priced in euros and with their Ug, for widgets without a catalogue. */
+const PACKAGE_ROWS = glazingPackageRows();
+const PACKAGE_PRICES: Record<string, number> = Object.fromEntries(PACKAGE_ROWS.map((r) => [r.key, r.priceCents / 100]));
+const PACKAGE_UG: Record<string, number> = Object.fromEntries(PACKAGE_ROWS.map((r) => [r.key, r.uGlass]));
+
+export type ProductType = "window" | "balconyDoor";
+export type Material = "pvc" | "wood" | "aluminum";
+export type SashType = "fix" | "classic" | "tiltturn" | "sliding";
+export type Direction = "left" | "right";
+
+export interface Sash {
+  type: SashType;
+  direction: Direction;
+  active: boolean;
+  hardware: string;
+  hardwareColor: string;
+  /** Fraction of the total frame width for this leaf (ONESPEC-V2 drag-resize). Sum ≈ 1. Absent = equal split. */
+  widthRatio?: number;
+  /** Handle centre height in mm from the sill; absent = frame height / 2. */
+  handleHeightMm?: number;
+}
+
+export interface ConfigState {
+  productType: ProductType;
+  material: Material;
+  quality: Record<Material, string>;
+  brand: { pvc: string; aluminum: string };
+  width: number;
+  height: number;
+  quantity: number;
+  sashes: Sash[];
+  glazing: string;
+  color: string;
+  /** Finish of the inside face for a bicolour piece; "" = the same finish on both faces. */
+  colorInside: string;
+  installation: string;
+  /** Fitting (posa) at the installer's price per m²: true = included, false = supply only; absent = the catalogue's default. */
+  withInstallation?: boolean;
+  /** FR pose (frame-fitting) method; "" = not offered / not chosen. */
+  poseType: string;
+  /** BE ventilation grille; "" = not offered / not chosen. */
+  ventilationGrille: string;
+  /** BE volet roulant monobloc; "" = not offered / not chosen. */
+  voletRoulant: string;
+  /** BE warm-edge spacer; "" = not offered / not chosen. */
+  warmEdge: string;
+  /** NL block-profile depth; "" = not offered / not chosen. */
+  profileDepth: string;
+  /** NL HVL 90° corner joint; "" = not offered / not chosen. */
+  cornerJoint: string;
+  /** NL glazing Ug tier; "" = not offered / not chosen. */
+  ugTier: string;
+  /** NL Renolit colour preset; "" = not offered / not chosen. */
+  colorPreset: string;
+  /** NL paid measurement service; "" = not offered / not chosen. */
+  inmeetservice: string;
+  /** DE/LU external sun protection (Rollladen / Raffstore); "" = not offered / not chosen. */
+  sunProtection: string;
+  /** DE/LU burglary-resistance class (RC2 / RC3); "" = not offered / not chosen. */
+  securityClass: string;
+  /** DE/LU installation system (RAL-Montage); "" = not offered / not chosen. */
+  montageSystem: string;
+  insectScreen: boolean;
+  insectScreenType: string;
+  insectScreenColor: string;
+}
+
+export interface Pricing {
+  materials: Record<
+    Material,
+    { basePerM2: number; profilePerMl: number; qualities: Record<string, number> }
+  >;
+  sashType: Record<SashType, number>;
+  hardware: Record<string, number>;
+  hardwareColor: Record<string, number>;
+  glazing: Record<string, number>;
+  color: Record<string, number>;
+  insectScreenType: Record<string, number>;
+  insectScreenColor: Record<string, number>;
+  installation: Record<string, number>;
+  poseType: Record<string, number>;
+  ventilationGrille: Record<string, number>;
+  voletRoulant: Record<string, number>;
+  warmEdge: Record<string, number>;
+  profileDepth: Record<string, number>;
+  cornerJoint: Record<string, number>;
+  ugTier: Record<string, number>;
+  colorPreset: Record<string, number>;
+  inmeetservice: Record<string, number>;
+  sunProtection: Record<string, number>;
+  securityClass: Record<string, number>;
+  montageSystem: Record<string, number>;
+  balconyDoorThreshold: number;
+  vatRate: number;
+  ecobonusPercent: number;
+  discountPercent: number;
+  brandMultiplier: { pvc: Record<string, number>; aluminum: Record<string, number> };
+  /**
+   * Standard price list: when set, a PVC profile found here is priced at its complete price per m² (EUR, frame + glass +
+   * standard hardware + basic installation) instead of the material / profile prices. Mirrors shared/pricing.ts.
+   */
+  standard?: { completePerM2: Record<string, number> };
+  /** Extra EUR per m² by glazing key (triple glazing). */
+  glazingPerM2: Record<string, number>;
+  /** Finish and glazing multipliers on the material cost (colour surcharge...). */
+  colorMult: Record<string, number>;
+  glazingMult: Record<string, number>;
+  /** The installer's profit margin over the prices, percent with decimals. */
+  marginPercent: number;
+  /** The installer's own transporter / fitter, euros per m² (0 = the factory's transport is in the price). */
+  ownServicePerM2: number;
+  /** Bicolour surcharge per m² (EUR) and whether bicolour is offered at all. */
+  bicolorPerM2: number;
+  bicolorEnabled: boolean;
+  /** The installer's fitting (posa) price, euros per m² (0 = not offered), and whether quotes include it by default. */
+  installationPerM2: number;
+  installationDefault: boolean;
+  [key: string]: unknown;
+}
+
+export const DIM_MAX = 4000;
+export const SINGLE_SASH_MAX_WIDTH = 1200;
+export const SINGLE_SASH_MAX_HEIGHT = 2800;
+export const QTY_MIN = 1;
+export const QTY_MAX = 50;
+export const SASH_MIN = 1;
+export const SASH_MAX = 4;
+
+export function defaultPricing(): Pricing {
+  return {
+    materials: {
+      pvc: { basePerM2: 180, profilePerMl: 28, qualities: { chamber5: 1.0, chamber7: 1.15 } },
+      wood: { basePerM2: 320, profilePerMl: 45, qualities: { pine: 1.0, oak: 1.35 } },
+      aluminum: { basePerM2: 260, profilePerMl: 38, qualities: { standard: 1.0, thermalbreak: 1.25 } },
+    },
+    sashType: { fix: 0, classic: 35, tiltturn: 65, sliding: 85 },
+    hardware: { maco: 0, roto: 15, siegenia: 25 },
+    hardwareColor: { white: 0, silver: 10, bronze: 20 },
+    glazing: { double: 0, triple: 60, tripleLowE: 95, ...PACKAGE_PRICES },
+    color: { white: 0, ral: 55, woodeffect: 85 },
+    insectScreenType: { cerniera: 45, molla: 65, plissettata: 85, carrarmato: 120 },
+    insectScreenColor: { white: 0, brown: 10, woodeffect: 20, other: 15 },
+    installation: { classico: 80, posaClima: 150 },
+    poseType: { renovation: 90, feuillure: 60, applique: 75 },
+    ventilationGrille: { none: 0, renson_standard: 120, renson_acoustic: 180 },
+    voletRoulant: { none: 0, monobloc_pvc: 220, monobloc_alu: 290 },
+    warmEdge: { standard: 0, warm_edge: 35 },
+    profileDepth: { d115: 0, d120: 45 },
+    cornerJoint: { standard: 0, hvl_90: 60 },
+    ugTier: { hr_plus_plus: 0, hr_plus_plus_plus: 140 },
+    colorPreset: { ral9016: 0, ral7016: 25, ral6009: 25, ral9001: 25 },
+    inmeetservice: { none: 0, paid: 95 },
+    sunProtection: { none: 0, aufsatzrollladen: 240, vorbaurollladen: 280, raffstore: 390 },
+    securityClass: { standard: 0, rc2: 65, rc3: 120 },
+    montageSystem: { standard: 0, ral: 45 },
+    balconyDoorThreshold: 65,
+    vatRate: 22,
+    ecobonusPercent: 50,
+    discountPercent: 0,
+    glazingPerM2: {},
+    colorMult: {},
+    glazingMult: {},
+    marginPercent: 0,
+    ownServicePerM2: 0,
+    bicolorPerM2: 0,
+    bicolorEnabled: true,
+    installationPerM2: 0,
+    installationDefault: true,
+    brandMultiplier: {
+      pvc: { aluplast: 1, rehau: 1, kommerling: 1, deceuninck: 1, salamander: 1, schuco: 1, gealan: 1 },
+      aluminum: { aluprof: 1, alumil: 1, aliplast: 1, schuco: 1, reynaers: 1, cortizo: 1, exlabesa: 1, alulegno: 1 },
+    },
+  };
+}
+
+export function defaultSashPreset(): Sash[] {
+  return [
+    { type: "classic", direction: "left", active: true, hardware: "maco", hardwareColor: "white" },
+    { type: "tiltturn", direction: "right", active: true, hardware: "maco", hardwareColor: "white" },
+  ];
+}
+
+export function defaultConfig(): ConfigState {
+  return {
+    productType: "window",
+    material: "pvc",
+    quality: { pvc: "chamber5", wood: "pine", aluminum: "standard" },
+    brand: { pvc: "aluplast", aluminum: "aluprof" },
+    width: 1000,
+    height: 1300,
+    quantity: 1,
+    sashes: defaultSashPreset(),
+    glazing: "double",
+    color: "white",
+    colorInside: "",
+    installation: "classico",
+    poseType: "",
+    ventilationGrille: "",
+    voletRoulant: "",
+    warmEdge: "",
+    profileDepth: "",
+    cornerJoint: "",
+    ugTier: "",
+    colorPreset: "",
+    inmeetservice: "",
+    sunProtection: "",
+    securityClass: "",
+    montageSystem: "",
+    insectScreen: false,
+    insectScreenType: "cerniera",
+    insectScreenColor: "white",
+  };
+}
+
+export function defaultDimsForType(pt: ProductType) {
+  return pt === "balconyDoor" ? { width: 1300, height: 2100 } : { width: 1000, height: 1300 };
+}
+
+export function dimMin(state: ConfigState, dim: "width" | "height") {
+  if (state.productType === "balconyDoor") return dim === "width" ? 450 : 1700;
+  return dim === "width" ? 450 : 300;
+}
+
+export function dimMax(state: ConfigState, dim: "width" | "height") {
+  if (state.sashes.length === 1) {
+    return dim === "width" ? SINGLE_SASH_MAX_WIDTH : SINGLE_SASH_MAX_HEIGHT;
+  }
+  return DIM_MAX;
+}
+
+export function clamp(n: number, min: number, max: number) {
+  if (!Number.isFinite(n)) return min;
+  return Math.min(max, Math.max(min, n));
+}
+
+export interface CalcResult {
+  areaM2: number;
+  perimeterM: number;
+  materialCost: number;
+  profileCost: number;
+  optionsCost: number;
+  /** Fitting per unit (already inside unitPrice), 0 when supply only. */
+  fittingCost: number;
+  unitPrice: number;
+  totalPrice: number;
+}
+
+/** Whether a piece includes the fitting: only when the installer prices it; the piece's own choice wins over the default. */
+export function includesFitting(s: Pick<ConfigState, "withInstallation">, pricing: Pick<Pricing, "installationPerM2" | "installationDefault">): boolean {
+  return pricing.installationPerM2 > 0 && (s.withInstallation ?? pricing.installationDefault);
+}
+
+export function calculate(state: ConfigState, pricing: Pricing, src?: ConfigState): CalcResult {
+  const s = src ?? state;
+  const widthM = s.width / 1000;
+  const heightM = s.height / 1000;
+  const areaM2 = widthM * heightM;
+  const perimeterM = 2 * (widthM + heightM);
+
+  const matCfg = pricing.materials[s.material];
+  const qualityMult = matCfg.qualities[s.quality[s.material]] ?? 1;
+
+  const brandTable =
+    s.material === "pvc" || s.material === "aluminum" ? pricing.brandMultiplier[s.material] : undefined;
+  const brandKey = s.material === "pvc" || s.material === "aluminum" ? s.brand[s.material] : undefined;
+  const brandMult = brandTable && brandKey && brandTable[brandKey] !== undefined ? brandTable[brandKey] : 1;
+
+  // Bicolour: the two faces average their multiplier and flat price (same face twice = the one-colour price), plus the surcharge per m².
+  const bicolor = pricing.bicolorEnabled && !!s.colorInside && s.colorInside !== s.color;
+  const colorMult = bicolor ? ((pricing.colorMult[s.color] ?? 1) + (pricing.colorMult[s.colorInside] ?? 1)) / 2 : (pricing.colorMult[s.color] ?? 1);
+  const colorFlat = bicolor ? Math.round((((pricing.color[s.color] ?? 0) + (pricing.color[s.colorInside] ?? 0)) / 2) * 100) / 100 : (pricing.color[s.color] ?? 0);
+  const glazingMult = pricing.glazingMult[s.glazing] ?? 1;
+  // Standard price list (PVC only): complete price per m² of the chosen profile, colour surcharge on top.
+  const standardPerM2 =
+    s.material === "pvc" && brandKey ? pricing.standard?.completePerM2[brandKey] : undefined;
+  const materialCost =
+    standardPerM2 !== undefined
+      ? standardPerM2 * colorMult * areaM2
+      : matCfg.basePerM2 * qualityMult * brandMult * colorMult * glazingMult * areaM2;
+  const profileCost = standardPerM2 !== undefined ? 0 : matCfg.profilePerMl * perimeterM;
+
+  let sashCost = 0;
+  let hardwareCost = 0;
+  for (const sash of s.sashes) {
+    if (!sash.active) continue;
+    sashCost += pricing.sashType[sash.type] ?? 0;
+    if (sash.type !== "fix") {
+      hardwareCost += pricing.hardware[sash.hardware] ?? 0;
+      hardwareCost += pricing.hardwareColor[sash.hardwareColor] ?? 0;
+    }
+  }
+
+  const thresholdCost = s.productType === "balconyDoor" ? pricing.balconyDoorThreshold : 0;
+  const installationCost = pricing.installation[s.installation] ?? 0;
+
+  // Region-specific flat option kinds — mirrors src/shared/pricing.ts. The state
+  // field and the Pricing table share the kind name.
+  let regionOptionsCost = 0;
+  for (const kind of REGION_FLAT_OPTION_KINDS) {
+    const chosen = s[kind];
+    if (chosen) regionOptionsCost += (pricing[kind] as Record<string, number>)[chosen] ?? 0;
+  }
+
+  const screenCost = s.insectScreen
+    ? (pricing.insectScreenType[s.insectScreenType] ?? 0) + (pricing.insectScreenColor[s.insectScreenColor] ?? 0)
+    : 0;
+
+  const optionsCost =
+    sashCost +
+    hardwareCost +
+    thresholdCost +
+    installationCost +
+    regionOptionsCost +
+    screenCost +
+    (pricing.glazing[s.glazing] ?? 0) +
+    (pricing.glazingPerM2[s.glazing] ?? 0) * areaM2 +
+    colorFlat +
+    (bicolor ? Math.round(Math.max(0, pricing.bicolorPerM2) * 100 * areaM2) / 100 : 0);
+
+  // The margin is applied to the unit price in whole cents (basis points), exactly as the server does.
+  const serviceCost = Math.round(Math.max(0, pricing.ownServicePerM2) * 100 * areaM2) / 100;
+  const baseCents = Math.round((materialCost + profileCost + optionsCost + serviceCost) * 100);
+  // The installer's fitting price is charged as entered, after the margin (same whole-cent rounding as the server).
+  const fittingCents = includesFitting(s, pricing) ? Math.round(Math.round(pricing.installationPerM2 * 100) * areaM2) : 0;
+  const unitPrice = (applyMarginCents(baseCents, pricing.marginPercent) + fittingCents) / 100;
+  const totalPrice = unitPrice * s.quantity;
+
+  return { areaM2, perimeterM, materialCost, profileCost, optionsCost, fittingCost: fittingCents / 100, unitPrice, totalPrice };
+}
+
+// Indicative, clearly-labelled Uw estimate (NOT a certified EN ISO 10077 calc).
+const U_FRAME_BASE: Record<Material, number> = { pvc: 1.3, wood: 1.2, aluminum: 1.6 };
+const U_FRAME_QUALITY: Record<Material, Record<string, number>> = {
+  pvc: { chamber5: 0, chamber6: -0.075, chamber7: -0.15 },
+  wood: { pine: 0, oak: -0.05 },
+  aluminum: { standard: 0, thermalbreak: -0.5 },
+};
+const U_GLASS: Record<string, number> = { double: 1.1, triple: 0.6, tripleLowE: 0.5, ...PACKAGE_UG };
+const GLASS_TO_FRAME_RATIO = 0.7;
+
+export function computeUw(s: ConfigState): number {
+  const frameU = U_FRAME_BASE[s.material] + (U_FRAME_QUALITY[s.material][s.quality[s.material]] ?? 0);
+  const glassU = U_GLASS[s.glazing] ?? 1.1;
+  return GLASS_TO_FRAME_RATIO * glassU + (1 - GLASS_TO_FRAME_RATIO) * frameU;
+}

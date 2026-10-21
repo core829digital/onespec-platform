@@ -1,0 +1,32 @@
+name: Deploy backend (Convex)
+
+# Manual on purpose: a production deploy is a decision, not a side effect of a merge.
+# Needs the secret CONVEX_DEPLOY_KEY in the "production" environment (Settings > Environments), ideally with required reviewers.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: "npm"
+      - run: npm ci
+      - name: Typecheck and test before touching production
+        run: |
+          npm run typecheck
+          npm test
+      - name: Deploy
+        run: npx convex deploy --yes
+        env:
+          CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}

@@ -1,0 +1,85 @@
+import { mutation, query } from "./_generated/server";
+import { v, ConvexError } from "convex/values";
+import { requireMembership } from "./lib/auth";
+import { requirePermission } from "./lib/rbac";
+import { resolveTenantEntitlements } from "./lib/entitlements";
+import { enforceForMultiSupplier } from "./lib/enforcement";
+import { ensurePartnerForCatalog } from "./lib/partnerLinks";
+
+/** The tenant's supplier directory, plus whether its plan allows multi-supplier quotes. */
+export const listSuppliers = query({
+  args: { tenantId: v.id("tenants") },
+  handler: async (ctx, args) => {
+    await requireMembership(ctx, args.tenantId);
+    const tenant = await ctx.db.get(args.tenantId);
+    if (!tenant) throw new ConvexError("TENANT_NOT_FOUND");
+    const allowed = resolveTenantEntitlements(tenant).multiSupplierAggregator === true;
+    const suppliers = allowed
+      ? await ctx.db
+          .query("catalogSuppliers")
+          .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+          .take(500)
+      : [];
+    return {
+      allowed,
+      suppliers: suppliers
+        .filter((s) => s.isActive)
+        .map((s) => ({ _id: s._id, name: s.name, leadTimeDays: s.leadTimeDays ?? 7 })),
+    };
+  },
+});
+
+export const createSupplier = mutation({
+  args: {
+    tenantId: v.id("tenants"),
+    name: v.string(),
+    email: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    leadTimeDays: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    await requirePermission(ctx, args.tenantId, "suppliers.manage");
+    await enforceForMultiSupplier(ctx, args.tenantId);
+    const name = args.name.trim();
+    if (name.length < 2 || name.length > 80) throw new ConvexError("INVALID_NAME");
+    const lead = args.leadTimeDays ?? 7;
+    if (!Number.isFinite(lead) || lead < 0 || lead > 365) throw new ConvexError("INVALID_INPUT");
+
+    const existing = await ctx.db
+      .query("catalogSuppliers")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .take(500);
+    const dup = existing.find((s) => s.name.toLowerCase() === name.toLowerCase());
+    const now = Date.now();
+    if (dup) {
+      await ctx.db.patch(dup._id, { isActive: true, updatedAt: now });
+      // Linked to the Fornitura / Logistica directories if it was not yet.
+      if (!dup.partnerId) await ensurePartnerForCatalog(ctx, dup);
+      return dup._id;
+    }
+    const id = await ctx.db.insert("catalogSuppliers", {
+      tenantId: args.tenantId,
+      name,
+      email: args.email?.trim() || undefined,
+      phone: args.phone?.trim() || undefined,
+      leadTimeDays: lead,
+      isActive: true,
+      createdAt: now,
+      updatedAt: now,
+    });
+    // The price source is also a supplier of the Fornitura page and a shipper in Logistica: one company, three views.
+    const created = await ctx.db.get(id);
+    if (created) await ensurePartnerForCatalog(ctx, created);
+    return id;
+  },
+});
+
+export const setSupplierActive = mutation({
+  args: { supplierId: v.id("catalogSuppliers"), isActive: v.boolean() },
+  handler: async (ctx, args) => {
+    const supplier = await ctx.db.get(args.supplierId);
+    if (!supplier) throw new ConvexError("NOT_FOUND");
+    await requirePermission(ctx, supplier.tenantId, "suppliers.manage");
+    await ctx.db.patch(args.supplierId, { isActive: args.isActive, updatedAt: Date.now() });
+  },
+});

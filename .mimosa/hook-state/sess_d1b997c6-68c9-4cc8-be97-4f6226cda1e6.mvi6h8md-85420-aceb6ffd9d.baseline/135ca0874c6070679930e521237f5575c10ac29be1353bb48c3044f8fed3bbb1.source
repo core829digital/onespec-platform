@@ -1,0 +1,700 @@
+"use client";
+
+import { requestConfirm } from "@/lib/confirm-dialog";
+
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMutation } from "convex/react";
+import { useQuery } from "@/lib/convex-query";
+import { api } from "@/convex/_generated/api";
+import { Link, useRouter } from "@/i18n/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import type { Id } from "@/convex/_generated/dataModel";
+import { LaserMeasure } from "@/components/surveys/LaserMeasure";
+import { useFriendlyError } from "@/lib/use-friendly-error";
+import { OpenLink } from "@/components/ui/open-button";
+import { DeleteAction } from "@/components/ui/delete-action";
+import { ClientCantierePicker, type PickedLinks } from "@/components/app-shell/client-cantiere-picker";
+import {
+  DiagnosticChecklist,
+  computeRecommendation,
+  type DiagnosticData,
+} from "@/components/surveys/DiagnosticChecklist";
+import { PhotoCoteCanvas, type Annotation } from "@/components/surveys/PhotoCoteCanvas";
+import {
+  enqueue,
+  flushQueue,
+  subscribeSyncState,
+  type SyncState,
+} from "@/lib/offline-sync";
+
+type LaserOpening = {
+  label: string;
+  widthMm: number;
+  heightMm: number;
+  room: string;
+  floor: string;
+  notes: string;
+};
+
+type SurveyPhoto = { storageId: Id<"_storage">; uploadedAt: number; url?: string; label?: string };
+
+const EMPTY_OPENING: LaserOpening = {
+  label: "",
+  widthMm: 0,
+  heightMm: 0,
+  room: "",
+  floor: "",
+  notes: "",
+};
+
+const EMPTY_DIAG: DiagnosticData = {
+  wallType: "Laterizio Porotherm 30 cm",
+  counterFrame: "Controtelaio metallico esistente",
+  mould: false,
+  floorAccess: "Piano terra — accesso diretto",
+  existingShutter: false,
+  notes: "",
+};
+
+function perimeterMm(openings: LaserOpening[]) {
+  return openings.reduce((s, o) => s + 2 * (o.widthMm + o.heightMm), 0);
+}
+
+function SyncBadge({ state, onSync }: { state: SyncState; onSync: () => void }) {
+  const tc = useTranslations("fieldCommon");
+  const { isOnline, pendingCount, error } = state;
+  const color = !isOnline
+    ? "bg-amber-100 text-amber-800"
+    : pendingCount > 0
+      ? "bg-blue-100 text-blue-800"
+      : "bg-emerald-100 text-emerald-700";
+  const label = !isOnline
+    ? tc("offline")
+    : pendingCount > 0
+      ? tc("pending", { count: pendingCount })
+      : tc("synced");
+  return (
+    <div className="flex items-center gap-2">
+      <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${color}`}>
+        <span className="h-1.5 w-1.5 rounded-full bg-current" />
+        {label}
+      </span>
+      {isOnline && pendingCount > 0 && (
+        <button onClick={onSync} className="rounded border border-[var(--color-border)] px-2 py-1 text-xs">
+          {tc("syncNow")}
+        </button>
+      )}
+      {error && <span className="text-xs text-red-600">{error}</span>}
+    </div>
+  );
+}
+
+export default function SurveysPage() {
+  const tf = useFriendlyError();
+  const router = useRouter();
+  const td = useTranslations("surveyDoc");
+  const tc = useTranslations("fieldCommon");
+  const locale = useLocale();
+  const tenant = useQuery(api.tenants.getMyTenant);
+  const surveys = useQuery(api.surveys.list, tenant ? { tenantId: tenant._id } : "skip");
+  const createSurvey = useMutation(api.surveys.create);
+  const generateUploadUrl = useMutation(api.surveys.generateUploadUrl);
+  const createQuoteFromSurvey = useMutation(api.quotes.createFieldQuoteFromSurvey);
+  const completeSurvey = useMutation(api.surveys.completeSurvey);
+  const removeSurvey = useMutation(api.surveys.remove);
+  const toMessage = useFriendlyError();
+  const configurators = useQuery(
+    api.configurators.listConfigurators,
+    tenant ? { tenantId: tenant._id } : "skip",
+  );
+  const publishedConfig = useMemo(
+    () => (configurators ?? []).find((c) => c.status === "published"),
+    [configurators],
+  );
+
+  const [open, setOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState("");
+  const [sync, setSync] = useState<SyncState>({
+    isOnline: true,
+    pendingCount: 0,
+    lastSync: null,
+    error: null,
+  });
+
+  const [customerName, setCustomerName] = useState("");
+  const [customerAddress, setCustomerAddress] = useState("");
+  const [customerCity, setCustomerCity] = useState("");
+  const [customerPostalCode, setCustomerPostalCode] = useState("");
+  // Client / cantiere link — pick once, name and address prefill.
+  const [clientId, setClientId] = useState<Id<"clients"> | undefined>(undefined);
+  const [cantiereId, setCantiereId] = useState<Id<"cantieri"> | undefined>(undefined);
+  const handleLinks = useCallback((next: PickedLinks) => {
+    setClientId(next.clientId);
+    setCantiereId(next.cantiereId);
+    const c = next.client;
+    if (c) {
+      setCustomerName(c.name);
+      if (c.siteAddress) setCustomerAddress(c.siteAddress);
+      if (c.siteCity) setCustomerCity(c.siteCity);
+      if (c.sitePostalCode) setCustomerPostalCode(c.sitePostalCode);
+    }
+  }, []);
+  const [openings, setOpenings] = useState<LaserOpening[]>([{ ...EMPTY_OPENING }]);
+  const [activeIdx, setActiveIdx] = useState(0);
+  const [dimension, setDimension] = useState<"L" | "H">("L");
+  const [diag, setDiag] = useState<DiagnosticData>({ ...EMPTY_DIAG });
+  const [photos, setPhotos] = useState<SurveyPhoto[]>([]);
+  const [photoAnnotations, setPhotoAnnotations] = useState<Record<number, Annotation[]>>({});
+  const [activePhotoIdx, setActivePhotoIdx] = useState<number | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const totalPerimeter = useMemo(() => perimeterMm(openings), [openings]);
+  const tdg = useTranslations("diagnostic");
+  const recommendation = useMemo(() => computeRecommendation(diag, (k) => tdg(k)), [diag, tdg]);
+
+  const buildPayload = useCallback(() => {
+    if (!tenant) return null;
+    return {
+      tenantId: tenant._id,
+      clientId,
+      cantiereId,
+      customerName: customerName.trim(),
+      customerAddress: customerAddress.trim() || undefined,
+      customerCity: customerCity.trim() || undefined,
+      customerPostalCode: customerPostalCode.trim() || undefined,
+      openings: openings.map((o) => ({
+        label: o.label.trim() || `${td("colLabel")} ${openings.indexOf(o) + 1}`,
+        widthMm: Math.round(o.widthMm),
+        heightMm: Math.round(o.heightMm),
+        room: o.room.trim() || undefined,
+        floor: o.floor.trim() || undefined,
+        notes: o.notes.trim() || undefined,
+      })),
+      diagnostics: {
+        wallType: diag.wallType,
+        counterFrame: diag.counterFrame,
+        mould: diag.mould,
+        floorAccess: diag.floorAccess,
+        craneRequired: diag.floorAccess.includes("autogrù"),
+        existingShutter: diag.existingShutter,
+        notes: diag.notes.trim() || undefined,
+        recommendation,
+      },
+      photos: photos.map((p) => ({ storageId: p.storageId, uploadedAt: p.uploadedAt })),
+    };
+  }, [
+    tenant,
+    clientId,
+    cantiereId,
+    customerName,
+    customerAddress,
+    customerCity,
+    customerPostalCode,
+    openings,
+    diag,
+    recommendation,
+    photos,
+    td,
+  ]);
+
+  const runSync = useCallback(() => {
+    void flushQueue({
+      "survey.create": (payload) =>
+        createSurvey(payload as Parameters<typeof createSurvey>[0]),
+    });
+  }, [createSurvey]);
+
+  useEffect(() => {
+    const unsub = subscribeSyncState(setSync);
+    runSync();
+    return unsub;
+  }, [runSync]);
+
+  useEffect(() => {
+    if (sync.isOnline && sync.pendingCount > 0) runSync();
+  }, [sync.isOnline, sync.pendingCount, runSync]);
+
+  function reset() {
+    setClientId(undefined);
+    setCantiereId(undefined);
+    setCustomerName("");
+    setCustomerAddress("");
+    setCustomerCity("");
+    setCustomerPostalCode("");
+    setOpenings([{ ...EMPTY_OPENING }]);
+    setActiveIdx(0);
+    setDiag({ ...EMPTY_DIAG });
+    setPhotos([]);
+    setErr("");
+  }
+
+  async function generateQuoteFromSurvey(surveyId: Id<"siteSurveys">) {
+    if (!publishedConfig) {
+      setErr(td("noConfigurator"));
+      return;
+    }
+    setErr("");
+    try {
+      const result = await createQuoteFromSurvey({ surveyId, configuratorId: publishedConfig._id, tenantId: tenant!._id });
+      // /app/quotes/[id] (bare) doesn't exist as a route — only .../print and
+      // .../sign do. This 404'd every time a field quote was generated from
+      // a completed survey, breaking the Rilievo -> Preventivo handoff.
+      router.push(`/app/quotes/${result.quoteId}/print`);
+    } catch (e) {
+      setErr(tf(e));
+    }
+  }
+
+  function patchOpening(i: number, patch: Partial<LaserOpening>) {
+    setOpenings((prev) => prev.map((o, idx) => (idx === i ? { ...o, ...patch } : o)));
+  }
+
+  const onLaserMeasure = useCallback(
+    (dim: "L" | "H", mm: number) => {
+      if (mm <= 0) {
+        setDimension(dim);
+        return;
+      }
+      setOpenings((prev) =>
+        prev.map((o, idx) =>
+          idx === activeIdx ? { ...o, [dim === "L" ? "widthMm" : "heightMm"]: mm } : o,
+        ),
+      );
+      setDimension(dim === "L" ? "H" : "L");
+    },
+    [activeIdx],
+  );
+
+  async function handlePhotoUpload(files: FileList | null) {
+    if (!files || !tenant) return;
+    setUploading(true);
+    setErr("");
+    try {
+      for (const file of Array.from(files)) {
+        const url = await generateUploadUrl({ tenantId: tenant._id });
+        const res = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": file.type },
+          body: file,
+        });
+        const { storageId } = (await res.json()) as { storageId: Id<"_storage"> };
+        setPhotos((prev) => [
+          ...prev,
+          { storageId, uploadedAt: Date.now(), url: URL.createObjectURL(file) },
+        ]);
+      }
+    } catch (e) {
+      setErr(tf(e));
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  async function save() {
+    if (!tenant) return;
+    if (!customerName.trim()) {
+      setErr(td("clientRequired"));
+      return;
+    }
+    const payload = buildPayload();
+    if (!payload) return;
+    setSaving(true);
+    setErr("");
+    try {
+      if (!navigator.onLine) {
+        await enqueue("survey.create", payload);
+      } else {
+        await createSurvey(payload as Parameters<typeof createSurvey>[0]);
+      }
+      reset();
+      setOpen(false);
+    } catch (e) {
+      // Network hiccup while "online": fall back to the local queue.
+      try {
+        await enqueue("survey.create", payload);
+        reset();
+        setOpen(false);
+      } catch {
+        setErr(tf(e));
+      }
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="w-full space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--color-border)] pb-4">
+        <div>
+          <h1 className="text-xl font-semibold">{td("pageTitle")}</h1>
+          <p className="text-sm text-[var(--color-muted-fg)]">
+            {td("subtitle")}
+          </p>
+        </div>
+        <div className="flex items-center gap-3">
+          <SyncBadge state={sync} onSync={runSync} />
+          <button
+            onClick={() => setOpen((v) => !v)}
+            className="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-[var(--color-accent-ink)]"
+          >
+            {open ? td("close") : td("newSurvey")}
+          </button>
+        </div>
+      </div>
+
+      {open && (
+        <div className="grid gap-5 lg:grid-cols-[360px_1fr]">
+          <div className="space-y-4 rounded-xl border border-[var(--color-border)] p-5">
+            <LaserMeasure
+              onMeasure={onLaserMeasure}
+              whichDimension={dimension}
+              currentL={openings[activeIdx]?.widthMm ?? 0}
+              currentH={openings[activeIdx]?.heightMm ?? 0}
+            />
+            <div className="rounded-lg bg-[var(--color-muted)] p-3 text-xs text-[var(--color-muted-fg)]">
+              {td("activeOpening", { label: openings[activeIdx]?.label || `${td("colLabel")} ${activeIdx + 1}` })}
+            </div>
+          </div>
+
+          <div className="space-y-5 rounded-xl border border-[var(--color-border)] p-5">
+            <ClientCantierePicker
+              tenantId={tenant?._id}
+              clientId={clientId}
+              cantiereId={cantiereId}
+              onChange={handleLinks}
+            />
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              <label className="text-sm">
+                <span className="text-[var(--color-muted-fg)]">{td("customer")} *</span>
+                <input
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
+                />
+              </label>
+              <label className="text-sm">
+                <span className="text-[var(--color-muted-fg)]">{td("address")}</span>
+                <input
+                  value={customerAddress}
+                  onChange={(e) => setCustomerAddress(e.target.value)}
+                  className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
+                />
+              </label>
+              <label className="text-sm">
+                <span className="text-[var(--color-muted-fg)]">{td("city")}</span>
+                <input
+                  value={customerCity}
+                  onChange={(e) => setCustomerCity(e.target.value)}
+                  className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
+                />
+              </label>
+              <label className="text-sm">
+                <span className="text-[var(--color-muted-fg)]">CAP</span>
+                <input
+                  value={customerPostalCode}
+                  onChange={(e) => setCustomerPostalCode(e.target.value)}
+                  className="mt-1 w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
+                />
+              </label>
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-semibold">Fori / aperture</h2>
+                <span className="text-xs text-[var(--color-muted-fg)]">
+                  Perimetro totale: {(totalPerimeter / 1000).toFixed(2)} m
+                </span>
+              </div>
+              {openings.map((o, i) => (
+                <div
+                  key={i}
+                  onClick={() => setActiveIdx(i)}
+                  className={`grid cursor-pointer gap-2 rounded-lg border p-3 sm:grid-cols-[1fr_90px_90px_1fr_1fr_auto] ${
+                    activeIdx === i
+                      ? "border-[var(--color-accent)]"
+                      : "border-[var(--color-border)]"
+                  }`}
+                >
+                  <input
+                    value={o.label}
+                    onChange={(e) => patchOpening(i, { label: e.target.value })}
+                    placeholder={td("labelPh")}
+                    className="rounded border border-[var(--color-border)] bg-transparent px-2 py-1.5 text-sm"
+                  />
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    value={o.widthMm || ""}
+                    onChange={(e) => patchOpening(i, { widthMm: Number(e.target.value) || 0 })}
+                    placeholder="L mm"
+                    className="rounded border-2 border-[var(--color-border)] bg-transparent px-2 py-1.5 text-sm font-semibold"
+                  />
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    value={o.heightMm || ""}
+                    onChange={(e) => patchOpening(i, { heightMm: Number(e.target.value) || 0 })}
+                    placeholder="H mm"
+                    className="rounded border-2 border-[var(--color-border)] bg-transparent px-2 py-1.5 text-sm font-semibold"
+                  />
+                  <input
+                    value={o.room}
+                    onChange={(e) => patchOpening(i, { room: e.target.value })}
+                    placeholder={td("colRoom")}
+                    className="rounded border border-[var(--color-border)] bg-transparent px-2 py-1.5 text-sm"
+                  />
+                  <input
+                    value={o.notes}
+                    onChange={(e) => patchOpening(i, { notes: e.target.value })}
+                    placeholder={td("notesPh")}
+                    className="rounded border border-[var(--color-border)] bg-transparent px-2 py-1.5 text-sm"
+                  />
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpenings((prev) => prev.filter((_, idx) => idx !== i));
+                      setActiveIdx(0);
+                    }}
+                    disabled={openings.length === 1}
+                    className="rounded border border-[var(--color-border)] px-2 text-sm disabled:opacity-40"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+              <button
+                onClick={() =>
+                  setOpenings((prev) => [
+                    ...prev,
+                    { ...EMPTY_OPENING },
+                  ])
+                }
+                className="rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-sm"
+              >
+                {td("addOpening")}
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <h2 className="text-sm font-semibold">Foto-cote</h2>
+              <div className="flex gap-2 border-b border-[var(--color-border)] pb-2">
+                <button
+                  onClick={() => setActivePhotoIdx(null)}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    activePhotoIdx === null
+                      ? "bg-zinc-900 text-white"
+                      : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
+                  }`}
+                >
+                  Galleria
+                </button>
+                <button
+                  onClick={() => setActivePhotoIdx(photos.length > 0 ? 0 : null)}
+                  disabled={photos.length === 0}
+                  className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                    activePhotoIdx !== null
+                      ? "bg-zinc-900 text-white"
+                      : "bg-zinc-100 text-zinc-700 hover:bg-zinc-200"
+                  } disabled:opacity-50`}
+                >
+                  Annota
+                </button>
+              </div>
+
+              {activePhotoIdx === null ? (
+                <div className="flex flex-wrap gap-2">
+                  {photos.map((p, i) => (
+                    <div key={i} className="relative h-20 w-20 overflow-hidden rounded border border-[var(--color-border)]">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={p.url} alt={`foto ${i + 1}`} className="h-full w-full object-cover" />
+                      <button
+                        onClick={() => setPhotos((prev) => prev.filter((_, idx) => idx !== i))}
+                        className="absolute right-0 top-0 bg-black/60 px-1 text-xs text-white"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                  <label className="flex h-20 w-20 cursor-pointer items-center justify-center rounded border border-dashed border-[var(--color-border)] text-2xl">
+                    {uploading ? "…" : "＋"}
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      multiple
+                      className="hidden"
+                      onChange={(e) => handlePhotoUpload(e.target.files)}
+                    />
+                  </label>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold">
+                      Annotazione: {photos[activePhotoIdx]?.label || `Foto ${activePhotoIdx + 1}`}
+                    </h3>
+                    <button
+                      onClick={() => setActivePhotoIdx(null)}
+                      className="text-sm text-[var(--color-muted-fg)] hover:underline"
+                    >
+                      {td("backToGallery")}
+                    </button>
+                  </div>
+                  <PhotoCoteCanvas
+                    imageUrl={photos[activePhotoIdx]?.url || ""}
+                    annotations={photoAnnotations[activePhotoIdx] || []}
+                    onAnnotationsChange={(annotations) =>
+                      setPhotoAnnotations((prev) => ({ ...prev, [activePhotoIdx]: annotations }))
+                    }
+                    tool="dimension"
+                    onToolChange={() => {}}
+                    readOnly={false}
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => {
+                        const prevIdx = activePhotoIdx - 1;
+                        setActivePhotoIdx(prevIdx >= 0 ? prevIdx : photos.length - 1);
+                      }}
+                      disabled={activePhotoIdx === 0}
+                      className="rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-sm"
+                    >
+                      ← Precedente
+                    </button>
+                    <button
+                      onClick={() => {
+                        const nextIdx = activePhotoIdx + 1;
+                        setActivePhotoIdx(nextIdx < photos.length ? nextIdx : 0);
+                      }}
+                      disabled={activePhotoIdx === photos.length - 1}
+                      className="rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-sm"
+                    >
+                      Successivo →
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <DiagnosticChecklist data={diag} onChange={setDiag} />
+
+            {err && <p className="text-sm text-red-600">{err}</p>}
+            <div className="flex gap-2">
+              <button
+                onClick={save}
+                disabled={saving || uploading}
+                className="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-[var(--color-accent-ink)] disabled:opacity-50"
+              >
+                {saving ? td("saving") : navigator.onLine ? td("saveSurvey") : td("saveOffline")}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="w-full overflow-x-auto rounded-xl border border-[var(--color-border)]">
+        <table className="w-full min-w-[680px] text-sm" aria-label={td("listAria")}>
+          <thead className="bg-[var(--color-muted)] text-xs text-[var(--color-muted-fg)]">
+            <tr>
+              <th className="px-4 py-2 text-left">{td("customer")}</th>
+              <th className="px-4 py-2 text-left">{td("city")}</th>
+              <th className="px-4 py-2 text-center">{td("openingsShort")}</th>
+              <th className="px-4 py-2 text-center">{td("photos")}</th>
+              <th className="px-4 py-2 text-center">{td("status")}</th>
+              <th className="px-4 py-2 text-right">{td("date")}</th>
+              <th className="px-4 py-2 text-center">{td("maps")}</th>
+              <th className="px-4 py-2 text-center">{td("actions")}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {surveys?.map((s) => (
+              <tr key={s._id} className="border-t border-[var(--color-border)]">
+                <td className="px-4 py-3 font-medium">
+                  <Link href={`/app/surveys/${s._id}`} className="hover:text-[var(--color-mint-text)] hover:underline">
+                    {s.customerName}
+                  </Link>
+                </td>
+                <td className="px-4 py-3">{s.customerCity ?? "—"}</td>
+                <td className="px-4 py-3 text-center">{s.openings.length}</td>
+                <td className="px-4 py-3 text-center">{s.photos?.length ?? 0}</td>
+                <td className="px-4 py-3 text-center">
+                  <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${s.status === "completed" ? "bg-emerald-100 text-emerald-700" : "bg-amber-100 text-amber-700"}`}>
+                    {s.status === "completed" ? td("statusCompleted") : td("statusDraft")}
+                  </span>
+                </td>
+                <td className="px-4 py-3 text-right text-[var(--color-muted-fg)]">
+                  {new Date(s.createdAt).toLocaleDateString(locale)}
+                </td>
+                <td className="px-4 py-3 text-center">
+                  {(s.customerAddress || s.customerCity || s.customerPostalCode) && (
+                    <div className="flex justify-center gap-1">
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${s.customerAddress || ""}, ${s.customerPostalCode || ""} ${s.customerCity || ""}`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-lg bg-blue-600 px-2 py-1 text-[10px] font-medium text-white hover:opacity-80 transition-opacity"
+                        title={tc("openMaps")}
+                        aria-label={tc("openMaps")}
+                      >
+                        Maps
+                      </a>
+                      <a
+                        href={`https://waze.com/ul?navigate=yes&address=${encodeURIComponent(`${s.customerAddress || ""}, ${s.customerPostalCode || ""} ${s.customerCity || ""}`)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="rounded-lg bg-[#4BB543] px-2 py-1 text-[10px] font-medium text-white hover:opacity-80 transition-opacity"
+                        title={tc("openWaze")}
+                        aria-label={tc("openWaze")}
+                      >
+                        Waze
+                      </a>
+                    </div>
+                  )}
+                </td>
+                <td className="px-4 py-3 text-center">
+                  <div className="flex flex-wrap items-center justify-center gap-1.5">
+                  <OpenLink href={`/app/surveys/${s._id}`} data-testid="survey-open">
+                    {td("open")}
+                  </OpenLink>
+                  {s.status !== "completed" && (
+                    <button
+                      onClick={async () => {
+                        if (!(await requestConfirm(td("completeConfirm")))) return;
+                        try {
+                          await completeSurvey({ surveyId: s._id });
+                        } catch (e) {
+                          setErr(toMessage(e));
+                        }
+                      }}
+                      className="rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-xs font-medium hover:bg-[var(--color-bg-alt)]"
+                    >
+                      {td("complete")}
+                    </button>
+                  )}
+                  {s.status === "completed" && !s.quoteId && tenant && publishedConfig && (
+                    <button
+                      onClick={() => generateQuoteFromSurvey(s._id)}
+                      className="rounded-lg border border-[var(--color-mint)] bg-[var(--color-mint)] px-3 py-1.5 text-xs font-semibold text-[var(--color-mint-dark)] hover:bg-[var(--color-mint)]/80"
+                    >
+                      {td("generateQuote")}
+                    </button>
+                  )}
+                  <DeleteAction iconOnly testId="survey-delete" label={td("delete")} message={td("deleteConfirm")} onDelete={() => removeSurvey({ surveyId: s._id })} />
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {surveys && surveys.length === 0 && (
+              <tr>
+                <td colSpan={7} className="px-4 py-8 text-center text-[var(--color-muted-fg)]">
+                  {td("empty")}
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

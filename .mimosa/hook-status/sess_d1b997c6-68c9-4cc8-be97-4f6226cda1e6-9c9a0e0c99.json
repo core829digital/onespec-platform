@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "mimosa-hook-status/v1",
+  "recordedAt": "2026-10-21T14:05:52.319Z",
+  "sessionId": "sess_d1b997c6-68c9-4cc8-be97-4f6226cda1e6",
+  "event": "PostToolUse",
+  "toolName": "Edit",
+  "file": "GEORGE_DEV_PLAN.md",
+  "outcome": "clear",
+  "coverage": "complete",
+  "findingCount": 0,
+  "durationMs": 3,
+  "hostState": "hook_complete",
+  "reportHint": ".mimosa/reports/"
+}

@@ -1,0 +1,130 @@
+"use client";
+
+import { cn } from "@/lib/utils";
+
+export function Section({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="bg-[var(--color-bg-alt)] border border-[var(--color-border)] rounded-xl p-5">
+      <h2 className="font-semibold text-[var(--color-text)]">{title}</h2>
+      {description ? (
+        <p className="text-sm text-[var(--color-text-secondary)] mt-1">{description}</p>
+      ) : null}
+      <div className="mt-4 space-y-4">{children}</div>
+    </section>
+  );
+}
+
+export function Field({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <label className="block">
+      <span className="block text-sm font-medium text-[var(--color-text)] mb-1.5">{label}</span>
+      {children}
+      {hint ? <span className="block text-xs text-[var(--color-text-secondary)] mt-1">{hint}</span> : null}
+    </label>
+  );
+}
+
+export const inputClass =
+  "w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-mint)]/40";
+
+/*
+ * With no `label` prop these render the bare control: inside <Field> the Field's own <label> already names it, and a second <label>
+ * around the control (label > label > input) is invalid HTML that leaves the control unnamed for assistive technology.
+ */
+export function TextInput(props: React.InputHTMLAttributes<HTMLInputElement> & { label?: string; id?: string }) {
+  const { label, id, ...rest } = props;
+  if (!label) return <input {...rest} id={id} className={cn(inputClass, rest.className)} />;
+  return (
+    <label className="block">
+      {label && <span className="block text-sm font-medium text-[var(--color-text)] mb-1.5">{label}</span>}
+      <input {...rest} id={id} className={cn(inputClass, rest.className)} />
+    </label>
+  );
+}
+
+export function NumberInput(props: React.InputHTMLAttributes<HTMLInputElement> & { label?: string; id?: string }) {
+  const { label, id, ...rest } = props;
+  if (!label) return <input type="number" inputMode="decimal" {...rest} id={id} className={cn(inputClass, "font-mono tabular-nums", rest.className)} />;
+  return (
+    <label className="block">
+      {label && <span className="block text-sm font-medium text-[var(--color-text)] mb-1.5">{label}</span>}
+      <input
+        type="number"
+        inputMode="decimal"
+        {...rest}
+        id={id}
+        className={cn(inputClass, "font-mono tabular-nums", rest.className)}
+      />
+    </label>
+  );
+}
+
+export function SelectInput(props: React.SelectHTMLAttributes<HTMLSelectElement> & { label?: string; id?: string }) {
+  const { label, id, ...rest } = props;
+  if (!label) return <select {...rest} id={id} className={cn(inputClass, rest.className)} />;
+  return (
+    <label className="block">
+      {label && <span className="block text-sm font-medium text-[var(--color-text)] mb-1.5">{label}</span>}
+      <select {...rest} id={id} className={cn(inputClass, rest.className)} />
+    </label>
+  );
+}
+
+export function Toggle({
+  checked,
+  onChange,
+  label,
+  disabled,
+  ariaLabel,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  label: string;
+  disabled?: boolean;
+  /** Accessible name when there is no visible `label` (a switch in a table row, say). */
+  ariaLabel?: string;
+}) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      aria-label={label ? undefined : ariaLabel}
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+      className="group/toggle inline-flex items-center gap-3 text-sm text-[var(--color-text)] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50 select-none text-left"
+    >
+      <span
+        className={cn(
+          "relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none group-hover/toggle:brightness-110",
+          checked ? "bg-[var(--color-mint)]" : "bg-[var(--color-border)]",
+        )}
+      >
+        <span
+          className={cn(
+            // Elastic knob: the slide overshoots and settles (--os-spring); pressing stretches it a little, like a physical switch.
+            "pointer-events-none inline-block h-5 w-5 rounded-full bg-white shadow-md ring-0 transition-[translate,scale] duration-[420ms] [transition-timing-function:var(--os-spring)] origin-center group-active/toggle:scale-x-125",
+            checked ? "translate-x-5" : "translate-x-0",
+          )}
+        />
+      </span>
+      {label ? <span>{label}</span> : null}
+    </button>
+  );
+}

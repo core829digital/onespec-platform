@@ -1,0 +1,1708 @@
+import { defineSchema, defineTable } from "convex/server";
+import { v } from "convex/values";
+import { authTables } from "@convex-dev/auth/server";
+
+export default defineSchema({
+  ...authTables,
+
+  users: defineTable({
+    name: v.optional(v.string()),
+    email: v.optional(v.string()),
+    emailVerificationTime: v.optional(v.number()),
+    image: v.optional(v.string()),
+    isPlatformAdmin: v.optional(v.boolean()),
+    locale: v.optional(v.string()),
+    /** Best-effort ISO-3166-1 alpha-2, captured at sign-up (geo header / Accept-Language). */
+    country: v.optional(v.string()),
+    lastSeenAt: v.optional(v.number()),
+    /** ISO date (YYYY-MM-DD) given at sign-up; validated server-side to be 18+ (src/shared/signup.ts). */
+    birthDate: v.optional(v.string()),
+    /** Company data and agreement acceptance entered on the register page, applied when the company is created after e-mail verification. */
+    signupIntake: v.optional(
+      v.object({
+        companyName: v.string(),
+        country: v.string(),
+        vatId: v.optional(v.string()),
+        street: v.optional(v.string()),
+        postalCode: v.optional(v.string()),
+        city: v.optional(v.string()),
+        dpaVersion: v.optional(v.string()),
+        dpaAcceptedAt: v.optional(v.number()),
+        dpaSignerName: v.optional(v.string()),
+      }),
+    ),
+  })
+    .index("email", ["email"])
+    // Platform admins are a handful of rows: lets feedback notify them without
+    // scanning every user (10k+ at launch scale).
+    .index("by_isPlatformAdmin", ["isPlatformAdmin"]),
+
+  /**
+   * Second factor (authenticator app, TOTP) of one user. `secretEnc` is AES-GCM ciphertext (convex/lib/mfaCrypto.ts), never the secret;
+   * `enabled: false` is a setup still waiting for its first valid code. `lastStep` makes every code single-use; five wrong codes in a
+   * row lock checking for 15 minutes. Recovery codes are kept only as HMACs.
+   */
+  userMfa: defineTable({
+    userId: v.id("users"),
+    secretEnc: v.string(),
+    enabled: v.boolean(),
+    createdAt: v.number(),
+    enabledAt: v.optional(v.number()),
+    lastStep: v.optional(v.number()),
+    failedCount: v.number(),
+    lockedUntil: v.optional(v.number()),
+    recovery: v.array(v.object({ hash: v.string(), usedAt: v.optional(v.number()) })),
+  }).index("by_user", ["userId"]),
+
+  tenants: defineTable({
+    name: v.string(),
+    slug: v.string(),
+    ownerUserId: v.id("users"),
+    country: v.optional(v.string()),
+    /** Italian installers: where they work (nord / centro / sud), picks the standard price list. */
+    priceZone: v.optional(v.union(v.literal("nord"), v.literal("centro"), v.literal("sud"))),
+    // v2 plan ladder (2026-09-22, per signed SaaS contracts): base/pro/agency/enterprise.
+    // "starter"/"showroom" kept as transitional literals until migrations.renamePlansToV2
+    // has run on every deployment, then removed.
+    // Widget-first ladder (2026-09-29): essentials / essentials_plus / max — sold
+    // before the full platform, see convex/lib/entitlements.ts.
+    plan: v.union(v.literal("base"), v.literal("pro"), v.literal("agency"), v.literal("enterprise"),
+                  v.literal("essentials"), v.literal("essentials_plus"), v.literal("max"),
+                  v.literal("starter"), v.literal("showroom")),
+    // "pending_plan": tenant exists (account created) but hasn't gone through
+    // the plan-recommendation wizard + checkout yet — every new signup starts
+    // here now, never straight into "trialing" (that only starts once a real
+    // Stripe trial/subscription exists, see enforceActivePlan).
+    planStatus: v.union(v.literal("active"), v.literal("trialing"),
+                        v.literal("past_due"), v.literal("suspended"), v.literal("pending_plan")),
+    suspendedAt: v.optional(v.number()),
+    suspendedReason: v.optional(v.string()),
+    createdVia: v.union(v.literal("open_signup"), v.literal("admin_created")),
+    createdAt: v.optional(v.number()),
+    updatedAt: v.optional(v.number()),
+    updatedByUserId: v.optional(v.id("users")),
+    /** Guided-onboarding progress. `onboardingCompletedAt` set when the user finishes the wizard. */
+    onboardingStep: v.optional(v.string()),
+    onboardingCompletedAt: v.optional(v.number()),
+    /** Grandfathering: existing Starter tenants keep 50 quotes/month instead of 20. */
+    quotaOverrideQuotesPerMonth: v.optional(v.number()),
+    /** Founding/full-access tenants: every limit Infinity, every feature on,
+     * never blocked by planStatus. Set by migration + registration auto-flag,
+     * toggleable by platform admins. */
+    unlimitedAccess: v.optional(v.boolean()),
+    // Billing — populated only once Stripe is configured and a subscription exists.
+    stripeCustomerId: v.optional(v.string()),
+    stripeSubscriptionId: v.optional(v.string()),
+    /** The latest Checkout Session opened for this tenant: a new one expires it first, so two can never both be paid (issue #36). */
+    stripeCheckoutSessionId: v.optional(v.string()),
+    /** Set while a Checkout Session is being created; a second request in that window is refused. */
+    stripeCheckoutClaimedAt: v.optional(v.number()),
+    subscriptionCurrentPeriodEnd: v.optional(v.number()),
+    subscriptionCancelAtPeriodEnd: v.optional(v.boolean()),
+    // Stripe Customer.balance mirror (cents, Stripe's own sign convention:
+    // negative = credit owed TO the customer e.g. from a downgrade's unused-
+    // time proration, positive = customer owes more, e.g. a failed-invoice
+    // carryover). Synced from the `customer.updated` webhook and from
+    // syncSubscription's safety-net sweep — never written optimistically by
+    // client-facing code, Stripe is the single source of truth for this.
+    stripeBalanceCents: v.optional(v.number()),
+    /** Set when this account signed up through a referral code (see convex/referrals.ts). */
+    referredBy: v.optional(v.id("referrals")),
+    /** `created` (unix s) of the newest subscription/checkout event applied — older, late events are ignored. */
+    stripeLastEventCreated: v.optional(v.number()),
+    // Pro-only 14-day trial (card captured up front, auto-converts via webhook).
+    trialPlan: v.optional(v.literal("pro")),
+    trialStartedAt: v.optional(v.number()),
+    trialEndsAt: v.optional(v.number()),
+    // Billing cycle chosen at checkout (display + annual price selection).
+    billingCycle: v.optional(v.union(v.literal("monthly"), v.literal("annual"))),
+    // Sales-led deals: setup fee invoiced outside Stripe.
+    setupFeePaidAt: v.optional(v.number()),
+    /** Per-year offer counter for "Q-YYYY-NNNN" quote numbers. */
+    quoteSeq: v.optional(v.object({ year: v.number(), n: v.number() })),
+    // Company profile printed in every generated PDF header.
+    vatId: v.optional(v.string()),
+    address: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    companyEmail: v.optional(v.string()),
+    logoStorageId: v.optional(v.id("_storage")),
+    /** Privacy notice URL shown on the public widget's consent checkbox (Annex D of the DPA). */
+    privacyUrl: v.optional(v.string()),
+    // Structured company address (validated per country in onboarding); `address` keeps the printed one-line form.
+    addressStreet: v.optional(v.string()),
+    addressCity: v.optional(v.string()),
+    addressPostalCode: v.optional(v.string()),
+    website: v.optional(v.string()),
+    /** Onboarding: national VAT rate new configurators start with, and when the installer confirmed they understood VIES / 0% VAT. */
+    defaultVatPercent: v.optional(v.number()),
+    viesAckAt: v.optional(v.number()),
+    /** Onboarding: pricing defaults every new configurator starts with (margin, who delivers and fits). */
+    defaultMarginPercent: v.optional(v.number()),
+    defaultDeliveryMode: v.optional(v.union(v.literal("factory"), v.literal("own"))),
+    defaultOwnServicePerM2Cents: v.optional(v.number()),
+    pricingSavedAt: v.optional(v.number()),
+  })
+    .index("by_slug", ["slug"])
+    .index("by_owner", ["ownerUserId"])
+    .searchIndex("search_name", { searchField: "name" })
+    .index("by_stripeCustomer", ["stripeCustomerId"])
+    .index("by_planStatus", ["planStatus"])
+    .index("by_plan", ["plan"]),
+
+  /** Stripe webhook events — idempotency guard + billing audit trail. */
+  billingEvents: defineTable({
+    stripeEventId: v.string(),
+    type: v.string(),
+    tenantId: v.optional(v.id("tenants")),
+    payloadSummary: v.optional(v.any()),
+    receivedAt: v.number(),
+  }).index("by_event", ["stripeEventId"]),
+
+  /** One personal referral code per paying account (docs/PIANO_REFERRAL.md). */
+  referralCodes: defineTable({
+    tenantId: v.id("tenants"),
+    code: v.string(),
+    createdAt: v.number(),
+    disabledAt: v.optional(v.number()),
+  })
+    .index("by_code", ["code"])
+    .index("by_tenant", ["tenantId"]),
+
+  /**
+   * How an inviter wants to be rewarded: "credit" on the subscription (default, no row needed)
+   * or "stripe" = money transferred to their own Stripe Connect (Express) account.
+   * `transfersActive` mirrors Stripe's `transfers` capability, re-checked right before paying.
+   */
+  referralPayoutAccounts: defineTable({
+    tenantId: v.id("tenants"),
+    method: v.union(v.literal("credit"), v.literal("stripe")),
+    stripeAccountId: v.optional(v.string()),
+    transfersActive: v.optional(v.boolean()),
+    checkedAt: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_account", ["stripeAccountId"]),
+
+  /**
+   * One row per invited account (`referredTenantId` appears at most once). A row also
+   * records attempts refused by the anti-fraud rules (status "rejected" + reason),
+   * so platform admins can review them. Later phases move accepted rows through
+   * qualified -> rewarded (or clawback) when the invited account pays.
+   */
+  referrals: defineTable({
+    referrerTenantId: v.id("tenants"),
+    referredTenantId: v.id("tenants"),
+    code: v.string(),
+    status: v.union(
+      v.literal("pending"),
+      v.literal("qualified"),
+      v.literal("rewarded"),
+      v.literal("rejected"),
+      v.literal("expired"),
+      v.literal("clawback"),
+    ),
+    rejectionReason: v.optional(v.string()),
+    createdAt: v.number(),
+    /** First real payment (> 0) of the invited account; the 30-day hold starts here. */
+    qualifiedAt: v.optional(v.number()),
+    holdUntil: v.optional(v.number()),
+    firstInvoiceId: v.optional(v.string()),
+    firstInvoicePaidCents: v.optional(v.number()),
+    /** Credit for the inviter, fixed when the referral qualifies (cents). */
+    rewardCents: v.optional(v.number()),
+    /** Set atomically before the Stripe credit is attempted (prevents two runs paying twice). */
+    rewardClaimedAt: v.optional(v.number()),
+    rewardedAt: v.optional(v.number()),
+    stripeBalanceTxnId: v.optional(v.string()),
+    /** How the reward was paid: credit on the Stripe balance, or a transfer to a Connect account. */
+    payoutMethod: v.optional(v.union(v.literal("credit"), v.literal("stripe"))),
+    stripeTransferId: v.optional(v.string()),
+    /**
+     * Money rewards only: when the inviter was asked for the documents the law requires before the
+     * transfer (invoice to CORE829 SRL; certificate of tax residence outside Romania), and when an
+     * administrator checked them. No transfer leaves without the check.
+     */
+    payoutDocsRequestedAt: v.optional(v.number()),
+    payoutDocsApprovedAt: v.optional(v.number()),
+    clawbackAt: v.optional(v.number()),
+    clawbackNote: v.optional(v.string()),
+  })
+    .index("by_referred", ["referredTenantId"])
+    .index("by_referrer", ["referrerTenantId"])
+    .index("by_referrer_and_status", ["referrerTenantId", "status"])
+    .index("by_status", ["status"]),
+
+  /**
+   * Anti-abuse: the card fingerprints that already started the one-time Pro
+   * trial. A second trial on the same physical card (another account) is ended
+   * immediately. Fingerprints are Stripe's opaque per-card hash, not card data.
+   */
+  trialFingerprints: defineTable({
+    fingerprint: v.string(),
+    tenantId: v.id("tenants"),
+    createdAt: v.number(),
+  }).index("by_fingerprint", ["fingerprint"]),
+
+  memberships: defineTable({
+    tenantId: v.id("tenants"),
+    userId: v.id("users"),
+    role: v.union(v.literal("owner"), v.literal("admin"), v.literal("member")),
+    invitedByUserId: v.optional(v.id("users")),
+    acceptedAt: v.optional(v.number()),
+    status: v.union(v.literal("active"), v.literal("invited"), v.literal("removed")),
+    /** Professional grade (src/shared/grades.ts): which areas of the platform this member works in. Absent = no narrowing (older members). */
+    grade: v.optional(v.string()),
+    /** The team (sala) the member joined through. */
+    teamId: v.optional(v.id("teams")),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_team", ["teamId"])
+    .index("by_user", ["userId"])
+    .index("by_tenant_user", ["tenantId", "userId"]),
+
+  /**
+   * A team (sala): the group an admin creates to bring colleagues into the company. It has an alphanumeric password that the admin gives
+   * to the people in person (never by e-mail). Joining needs the invite link + the code e-mailed to that person + this password.
+   */
+  teams: defineTable({
+    tenantId: v.id("tenants"),
+    name: v.string(),
+    /** PBKDF2 hash of the password and its salt (base64); the password itself is shown once, when created or regenerated. */
+    passwordHash: v.string(),
+    passwordSalt: v.string(),
+    createdByUserId: v.id("users"),
+    passwordChangedAt: v.number(),
+    archivedAt: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"]),
+
+  /**
+   * One entry ticket into a team: the link (token) and the 6-digit code that travel together in the e-mail. Single use, short-lived,
+   * locked after 5 wrong codes. kind "invite" = an admin invited this e-mail with a grade; "login" = a member who is already in
+   * asked for a new way in (the session expired).
+   */
+  teamTickets: defineTable({
+    tenantId: v.id("tenants"),
+    teamId: v.id("teams"),
+    kind: v.union(v.literal("invite"), v.literal("login")),
+    email: v.string(),
+    grade: v.optional(v.string()),
+    /** Name the admin gave the invitee (shown in the e-mail and prefilled in the join form). */
+    inviteeName: v.optional(v.string()),
+    locale: v.string(),
+    token: v.string(),
+    codeHash: v.string(),
+    codeSalt: v.string(),
+    wrongAttempts: v.number(),
+    invitedByUserId: v.optional(v.id("users")),
+    expiresAt: v.number(),
+    usedAt: v.optional(v.number()),
+    lockedAt: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_token", ["token"])
+    .index("by_tenant", ["tenantId"])
+    .index("by_team", ["teamId"])
+    .index("by_email", ["email"]),
+
+  /** @deprecated Replaced by `teams` + `teamTickets` (convex/teams.ts). Kept only so the rows already stored stay valid; nothing reads or writes it. */
+  invitations: defineTable({
+    tenantId: v.id("tenants"),
+    email: v.string(),
+    role: v.union(v.literal("admin"), v.literal("member")),
+    token: v.string(),
+    invitedByUserId: v.id("users"),
+    expiresAt: v.number(),
+    acceptedAt: v.optional(v.number()),
+  })
+    .index("by_token", ["token"])
+    .index("by_tenant", ["tenantId"])
+    .index("by_email", ["email"]),
+
+  /** Tenant acceptance of a specific version of the Art. 28 GDPR agreement (src/shared/dpa.ts). */
+  dpaAcceptances: defineTable({
+    tenantId: v.id("tenants"),
+    version: v.string(),
+    acceptedByUserId: v.id("users"),
+    signerName: v.string(),
+    signerRole: v.string(),
+    signerEmail: v.optional(v.string()),
+    /** Snapshot of the controller's identity at signing time (the tenant profile can change later). */
+    controller: v.object({
+      name: v.string(),
+      vatId: v.optional(v.string()),
+      address: v.optional(v.string()),
+      email: v.optional(v.string()),
+    }),
+    acceptedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_version", ["tenantId", "version"]),
+
+  appSettings: defineTable({
+    key: v.literal("global"),
+    registrationOpen: v.boolean(),
+    /** When true, owners/admins must accept the Art. 28 GDPR agreement before using the app. */
+    dpaRequired: v.optional(v.boolean()),
+    maintenanceBanner: v.optional(v.string()),
+    resendMode: v.union(v.literal("live"), v.literal("noop")),
+    updatedByUserId: v.optional(v.id("users")),
+    updatedAt: v.number(),
+  }).index("by_key", ["key"]),
+
+  configurators: defineTable({
+    tenantId: v.id("tenants"),
+    publicId: v.string(),
+    name: v.string(),
+    status: v.union(v.literal("draft"), v.literal("published"), v.literal("archived")),
+    allowedOrigins: v.array(v.string()),
+    defaultLocale: v.string(),
+    defaultTheme: v.union(v.literal("light"), v.literal("dark"), v.literal("auto")),
+    vatRatePercent: v.number(),
+    priceRoundingStep: v.number(),
+    showPricesToEndUser: v.boolean(),
+    currency: v.literal("EUR"),
+    /** Incentive policy shown in the widget — dealer-controlled, not end-user. */
+    ecobonusEnabled: v.optional(v.boolean()),
+    ecobonusMaxPercent: v.optional(v.number()),
+    discountEnabled: v.optional(v.boolean()),
+    discountMaxPercent: v.optional(v.number()),
+    /** "standard" (full pricing widget, default) or "wizard" (5-step qualitative lead-capture, no live price). */
+    widgetStyle: v.optional(v.union(v.literal("standard"), v.literal("wizard"))),
+    publishedAt: v.optional(v.number()),
+    publishedCatalogVersion: v.optional(v.number()),
+    createdAt: v.optional(v.number()),
+    updatedAt: v.optional(v.number()),
+    updatedByUserId: v.optional(v.id("users")),
+    /** Set when the owner deleted it: hidden everywhere while its data is purged in the background. */
+    deletingAt: v.optional(v.number()),
+    /** "standard" = priced from the standard price list of the owner's zone; absent / "custom" = the catalogue's own prices. */
+    pricingMode: v.optional(v.union(v.literal("standard"), v.literal("custom"))),
+    /** Profit margin the installer adds on top of the prices, percent with decimals (0 - 300). */
+    marginPercent: v.optional(v.number()),
+    /** Who delivers / fits: "factory" (the factory's transport is in the price, default) or "own" (the installer's own transporter / fitter, charged per m²). */
+    deliveryMode: v.optional(v.union(v.literal("factory"), v.literal("own"))),
+    /** In "own" mode: what the installer's transporter / fitter charges per m² of window, in cents (VAT excluded). */
+    ownServicePerM2Cents: v.optional(v.number()),
+    /** The installer's price for fitting (posa) per m², cents, VAT excluded, charged to the customer when the fitting is included. 0 / absent = not offered. */
+    installationPerM2Cents: v.optional(v.number()),
+    /** Whether quotes include the fitting by default ("with", default) or are supply only ("without"). */
+    installationDefault: v.optional(v.union(v.literal("with"), v.literal("without"))),
+    /** Bicolour (a different finish inside and outside): offered unless false. */
+    bicolorEnabled: v.optional(v.boolean()),
+    /** What the installer adds for a bicolour piece, per m², cents, VAT excluded (before margin). */
+    bicolorPerM2Cents: v.optional(v.number()),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_publicId", ["publicId"])
+    .index("by_tenant_status", ["tenantId", "status"]),
+
+  branding: defineTable({
+    tenantId: v.id("tenants"),
+    configuratorId: v.id("configurators"),
+    whiteLabel: v.boolean(),
+    logoStorageId: v.optional(v.id("_storage")),
+    logoLightStorageId: v.optional(v.id("_storage")),
+    colorAccent: v.string(),
+    colorAccentInk: v.string(),
+    colorBg: v.optional(v.string()),
+    colorBgDark: v.optional(v.string()),
+    fontFamily: v.union(v.literal("space-grotesk"), v.literal("inter"),
+                        v.literal("geist"), v.literal("system")),
+    copy: v.any(),
+    companyInfo: v.object({
+      name: v.string(),
+      vatId: v.optional(v.string()),
+      address: v.optional(v.string()),
+      phone: v.optional(v.string()),
+      email: v.optional(v.string()),
+    }),
+  })
+    .index("by_configurator", ["configuratorId"])
+    .index("by_tenant", ["tenantId"]),
+
+  catalogMaterials: defineTable({
+    tenantId: v.id("tenants"),
+    configuratorId: v.id("configurators"),
+    key: v.string(),
+    labels: v.any(),
+    basePerM2Cents: v.number(),
+    profilePerMlCents: v.number(),
+    uFrameBase: v.optional(v.number()),
+    sortOrder: v.number(),
+    enabled: v.boolean(),
+  })
+    .index("by_configurator", ["configuratorId"])
+    .index("by_configurator_key", ["configuratorId", "key"]),
+
+  catalogQualityTiers: defineTable({
+    tenantId: v.id("tenants"),
+    configuratorId: v.id("configurators"),
+    materialKey: v.string(),
+    key: v.string(),
+    labels: v.any(),
+    multiplier: v.number(),
+    uAdjust: v.optional(v.number()),
+    sortOrder: v.number(),
+    enabled: v.boolean(),
+  })
+    .index("by_configurator", ["configuratorId"])
+    .index("by_configurator_material", ["configuratorId", "materialKey"]),
+
+  /** Profile systems / brands per material (Aluplast, Rehau, …) with a price multiplier. */
+  catalogProfileSystems: defineTable({
+    tenantId: v.id("tenants"),
+    configuratorId: v.id("configurators"),
+    materialKey: v.string(),
+    key: v.string(),
+    labels: v.any(),
+    multiplier: v.number(),
+    /** Frame U-value of this series, W/m²K. */
+    uFrame: v.optional(v.number()),
+    /** UI grouping ("tab1" value / "tab2" premium). */
+    group: v.optional(v.string()),
+    /** Key of the standard price list entry this profile is priced from (shared/standard-pricing). */
+    standardKey: v.optional(v.string()),
+    /** Quality tier (key of catalogQualityTiers, e.g. "chamber6") the profile belongs to; absent = not classified. */
+    qualityKey: v.optional(v.string()),
+    sortOrder: v.number(),
+    enabled: v.boolean(),
+  })
+    .index("by_configurator", ["configuratorId"])
+    .index("by_configurator_material", ["configuratorId", "materialKey"]),
+
+  catalogSizeConstraints: defineTable({
+    tenantId: v.id("tenants"),
+    configuratorId: v.id("configurators"),
+    productType: v.union(v.literal("window"), v.literal("balconyDoor")),
+    sashCount: v.number(),
+    minWidthMm: v.number(),
+    maxWidthMm: v.number(),
+    minHeightMm: v.number(),
+    maxHeightMm: v.number(),
+  })
+    .index("by_configurator", ["configuratorId"])
+    .index("by_configurator_type", ["configuratorId", "productType"]),
+
+  catalogGlazingOptions: defineTable({
+    tenantId: v.id("tenants"),
+    configuratorId: v.id("configurators"),
+    key: v.string(),
+    labels: v.any(),
+    priceCents: v.number(),
+    uGlass: v.optional(v.number()),
+    /** Linear transmittance of the spacer, W/mK. */
+    psi: v.optional(v.number()),
+    /** Multiplier on the material cost, on top of the flat price. */
+    multiplier: v.optional(v.number()),
+    /** Extra price per m² of window, in cents (triple glazing: about +60 EUR per m²). */
+    pricePerM2Cents: v.optional(v.number()),
+    sortOrder: v.number(),
+    enabled: v.boolean(),
+  }).index("by_configurator", ["configuratorId"]),
+
+  catalogFinishOptions: defineTable({
+    tenantId: v.id("tenants"),
+    configuratorId: v.id("configurators"),
+    key: v.string(),
+    labels: v.any(),
+    swatchHex: v.optional(v.string()),
+    priceCents: v.number(),
+    /** Multiplier on the material cost, on top of the flat price. */
+    multiplier: v.optional(v.number()),
+    sortOrder: v.number(),
+    enabled: v.boolean(),
+    /** Finish library: "skin" (foil decors), "nuance" (painted RAL), "rock" (stone effect). Absent on the base finishes. */
+    range: v.optional(v.union(v.literal("skin"), v.literal("nuance"), v.literal("rock"))),
+    /** Sub-group inside the range (plain / metallic / wood, colour families...). */
+    group: v.optional(v.string()),
+    /** Realistic texture image (public path) and its size in px, for decors and stone. */
+    texture: v.optional(v.string()),
+    textureW: v.optional(v.number()),
+    textureH: v.optional(v.number()),
+    /** Production reference of the decor, for the factory (not shown to customers). */
+    ref: v.optional(v.string()),
+    /** Colour durability warranty, years. */
+    warrantyYears: v.optional(v.number()),
+  }).index("by_configurator", ["configuratorId"]),
+
+  /** Telaio / controtelaio types: cost multiplier + installation labour by leaf count. */
+  catalogFrameTypes: defineTable({
+    tenantId: v.id("tenants"),
+    configuratorId: v.id("configurators"),
+    key: v.string(),
+    labels: v.any(),
+    descriptions: v.optional(v.any()),
+    multiplier: v.number(),
+    /** Labour per piece, cents, for 1 / 2 / 3+ leaves. */
+    installByLeavesCents: v.array(v.number()),
+    disposalPerPieceCents: v.number(),
+    scaffoldPerPieceCents: v.number(),
+    sortOrder: v.number(),
+    enabled: v.boolean(),
+  }).index("by_configurator", ["configuratorId"]),
+
+  /** Zanzariere / cassonetti / avvolgibili / persiane — priced by the tenant (flat, per m² or per ml). */
+  catalogAccessories: defineTable({
+    tenantId: v.id("tenants"),
+    configuratorId: v.id("configurators"),
+    category: v.union(v.literal("zanz"), v.literal("cass"), v.literal("avv"), v.literal("pers")),
+    key: v.string(),
+    labels: v.any(),
+    priceModel: v.union(v.literal("flat"), v.literal("perM2"), v.literal("perMl")),
+    priceCents: v.number(),
+    sortOrder: v.number(),
+    enabled: v.boolean(),
+  })
+    .index("by_configurator", ["configuratorId"])
+    .index("by_configurator_category", ["configuratorId", "category"]),
+
+  /** Optional fixed base price per piece category, added on top of the m² price. */
+  catalogProductBase: defineTable({
+    tenantId: v.id("tenants"),
+    configuratorId: v.id("configurators"),
+    category: v.string(),
+    basePriceCents: v.number(),
+    enabled: v.boolean(),
+  }).index("by_configurator", ["configuratorId"]),
+
+  catalogHardwareOptions: defineTable({
+    tenantId: v.id("tenants"),
+    configuratorId: v.id("configurators"),
+    kind: v.union(v.literal("hardware"), v.literal("hardwareColor"),
+                  v.literal("sashType"), v.literal("screen"), v.literal("screenColor"),
+                  v.literal("installation"), v.literal("poseType"),
+                  v.literal("ventilationGrille"), v.literal("voletRoulant"), v.literal("warmEdge"),
+                  v.literal("profileDepth"), v.literal("cornerJoint"), v.literal("ugTier"),
+                  v.literal("colorPreset"), v.literal("inmeetservice"),
+                  v.literal("sunProtection"), v.literal("securityClass"), v.literal("montageSystem"),
+                  v.literal("threshold"), v.literal("misc")),
+    key: v.string(),
+    labels: v.any(),
+    priceCents: v.number(),
+    appliesToOperableOnly: v.boolean(),
+    sortOrder: v.number(),
+    enabled: v.boolean(),
+  })
+    .index("by_configurator", ["configuratorId"])
+    .index("by_configurator_kind", ["configuratorId", "kind"]),
+
+  catalogVersions: defineTable({
+    tenantId: v.id("tenants"),
+    configuratorId: v.id("configurators"),
+    version: v.number(),
+    publishedByUserId: v.id("users"),
+    publishedAt: v.number(),
+    payload: v.any(),
+    changeNote: v.optional(v.string()),
+  })
+    .index("by_configurator", ["configuratorId"])
+    .index("by_configurator_version", ["configuratorId", "version"]),
+
+  /** Supplier directory for multi-supplier quotes (FASE 2.4). */
+  catalogSuppliers: defineTable({
+    tenantId: v.id("tenants"),
+    name: v.string(),
+    /** Supplier contact email for order forwarding. */
+    email: v.optional(v.string()),
+    /** Supplier contact phone. */
+    phone: v.optional(v.string()),
+    /** Supplier address. */
+    address: v.optional(v.string()),
+    /** Supplier VAT number. */
+    vatNumber: v.optional(v.string()),
+    /** Default lead time in days. */
+    leadTimeDays: v.optional(v.number()),
+    /** Whether this supplier is active/available for quotes. */
+    isActive: v.boolean(),
+    /** The same company in the Fornitura directory (producer / deliverer): one real-world supplier, three views. */
+    partnerId: v.optional(v.id("supplyPartners")),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_active", ["tenantId", "isActive"])
+    .index("by_partner", ["partnerId"]),
+
+  /** VIES (EU VAT Information Exchange System) checks of customers' VAT numbers: the proof needed before a 0% intra-Community supply. */
+  viesChecks: defineTable({
+    tenantId: v.id("tenants"),
+    userId: v.id("users"),
+    /** VIES prefix used for the query (EL for Greece). */
+    country: v.string(),
+    /** The customer's VAT number as stored, prefix included ("DE136695976"). */
+    vatNumber: v.string(),
+    valid: v.boolean(),
+    name: v.optional(v.string()),
+    address: v.optional(v.string()),
+    /** Consultation number returned by VIES, when the caller supplies its own VAT number. */
+    requestIdentifier: v.optional(v.string()),
+    checkedAt: v.number(),
+  }).index("by_tenant_vat", ["tenantId", "vatNumber", "checkedAt"]),
+
+  /**
+   * The signature picture of a signed quote, apart from the quote itself: a base64 image of tens of KB would otherwise travel with
+   * every read of the quote (lists, statistics scans, every open screen). Older quotes still carry it inline; readers handle both.
+   */
+  quoteSignatures: defineTable({
+    tenantId: v.id("tenants"),
+    quoteId: v.id("quoteRequests"),
+    signatureDataUrl: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_quote", ["quoteId"])
+    .index("by_tenant", ["tenantId"]),
+
+  quoteRequests: defineTable({
+    tenantId: v.id("tenants"),
+    configuratorId: v.id("configurators"),
+    catalogVersion: v.number(),
+    publicId: v.string(),
+    /** Per-tenant offer number ("Q-2026-0007"); absent on quotes created before it existed. */
+    offerNumber: v.optional(v.string()),
+    leadName: v.string(),
+    leadEmail: v.string(),
+    leadPhone: v.optional(v.string()),
+    leadCompany: v.optional(v.string()),
+    leadMessage: v.optional(v.string()),
+    leadLocale: v.string(),
+    customerAddress: v.optional(v.string()),
+    customerCity: v.optional(v.string()),
+    customerPostalCode: v.optional(v.string()),
+    /** Fiscal data of the customer: country (ISO or "OTHER"), business or private, VAT number, and the VIES proof. */
+    buyerCountry: v.optional(v.string()),
+    buyerIsBusiness: v.optional(v.boolean()),
+    buyerVatId: v.optional(v.string()),
+    viesCheckId: v.optional(v.id("viesChecks")),
+    /** Why the quote carries the VAT it carries (domestic / intraEu / export / manualZero) and, for manualZero, the stated reason. */
+    vatReason: v.optional(v.union(v.literal("domestic"), v.literal("intraEu"), v.literal("export"), v.literal("manualZero"))),
+    vatManualReason: v.optional(v.string()),
+    channel: v.optional(v.union(v.literal("widget"), v.literal("field_b2b"), v.literal("manual"), v.literal("api"))),
+    installationType: v.optional(v.string()),
+    installationPriceCents: v.optional(v.number()),
+    /** The quote includes the fitting (true) or is supply only, the customer fits the windows (false); absent = the installer does not price fitting by m². */
+    installationIncluded: v.optional(v.boolean()),
+    demolitionPriceCents: v.optional(v.number()),
+    discountPercent: v.optional(v.number()),
+    ecobonusPercent: v.optional(v.number()),
+    ecobonusDeductionCents: v.optional(v.number()),
+    regionalSurchargeCents: v.optional(v.number()),
+    profitMarginPercent: v.optional(v.number()),
+    depositTerms: v.optional(v.string()),
+    signatureDataUrl: v.optional(v.string()),
+    signedAt: v.optional(v.number()),
+    signedByName: v.optional(v.string()),
+    // NL transparent widget mode — which action the visitor asked for.
+    requestKind: v.optional(
+      v.union(v.literal("quote"), v.literal("firm_order"), v.literal("measurement")),
+    ),
+    // Regional Country Phase fields (FR, BE, NL, DE, LU)
+    regionCode: v.optional(v.string()),
+    poseType: v.optional(v.string()), // FR DTU 36.5 (renovation, feuillure, applique, tunnel)
+    rgeCertificate: v.optional(v.string()), // FR RGE Cert
+    maPrimeRenovPercent: v.optional(v.number()), // FR Subsidies
+    maPrimeRenovDeductionCents: v.optional(v.number()),
+    decennaleInsurance: v.optional(v.string()), // FR Assurance Decennale
+    rensonGrilleWidthMm: v.optional(v.number()), // BE Renson Invisivent ventilation grilles
+    voletMonoblocHeightMm: v.optional(v.number()), // BE/DE Rolling shutter box
+    hvlJointCount: v.optional(v.number()), // NL HVL 90 deg corner joints
+    isostoneSill: v.optional(v.boolean()), // NL Synthetic stone sill
+    ralMontage: v.optional(v.boolean()), // DE/LU RAL montage system
+    rcSecurityLevel: v.optional(v.string()), // DE/LU RC2 / RC3 security grade
+    klimabonusEligible: v.optional(v.boolean()), // LU Klimabonus
+    items: v.any(),
+    priceCents: v.number(),
+    priceExVatCents: v.number(),
+    vatRatePercent: v.number(),
+    currency: v.literal("EUR"),
+    clientReportedPriceCents: v.optional(v.number()),
+    status: v.union(v.literal("draft"), v.literal("new"), v.literal("contacted"), v.literal("quoted"),
+                    v.literal("won"), v.literal("lost"), v.literal("spam")),
+    assignedToUserId: v.optional(v.id("users")),
+    internalNotes: v.optional(v.string()),
+    sourceOrigin: v.optional(v.string()),
+    /** Widget requests: the page of the dealer's website the widget was on (origin + path, as reported by the widget). */
+    sourcePage: v.optional(v.string()),
+    sourceIpHash: v.optional(v.string()),
+    userAgent: v.optional(v.string()),
+    turnstileVerified: v.optional(v.boolean()),
+    spamScore: v.optional(v.number()),
+    /** Accepted while the tenant was over its monthly quota (lead never lost). */
+    overQuota: v.optional(v.boolean()),
+    /**
+     * Widget-first plans: accepted over the monthly cap, so the lead's contact
+     * details stay hidden (server-side) until the tenant upgrades or the next
+     * month starts. Cleared by `usage.unlockQuotaLockedRequests`, never re-set.
+     */
+    quotaLocked: v.optional(v.boolean()),
+    /**
+     * Arrived while the tenant's subscription was suspended: contact details
+     * stay hidden until the subscription is reactivated (NOT at month end).
+     * Cleared by `usage.unlockSuspendedRequests`.
+     */
+    suspendedLocked: v.optional(v.boolean()),
+    /** Consent timestamp for the public-widget lead (GDPR Art. 13 checkbox); absent for non-widget channels. */
+    consentAt: v.optional(v.number()),
+    consentVersion: v.optional(v.string()),
+    /** Multi-supplier breakdown: each line assigns an item to a supplier with price and lead time. */
+    supplierLines: v.optional(v.array(v.object({
+      supplierId: v.id("catalogSuppliers"),
+      itemIndex: v.number(),
+      supplierPriceCents: v.number(),
+      leadTimeDays: v.number(),
+    }))),
+    /** Optional link to the client this quote belongs to. */
+    clientId: v.optional(v.id("clients")),
+    /** Optional link to the cantiere this quote belongs to. */
+    cantiereId: v.optional(v.id("cantieri")),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_configurator", ["configuratorId"])
+    .index("by_ipHash", ["sourceIpHash"])
+    .index("by_client", ["clientId"])
+    .index("by_cantiere", ["cantiereId"])
+    .index("by_tenantId_and_quotaLocked", ["tenantId", "quotaLocked"])
+    .index("by_quotaLocked", ["quotaLocked"])
+    .index("by_tenantId_and_suspendedLocked", ["tenantId", "suspendedLocked"]),
+
+  notifications: defineTable({
+    tenantId: v.id("tenants"),
+    userId: v.id("users"),
+    type: v.union(v.literal("quote_request_new"), v.literal("quote_status_changed"),
+                  v.literal("member_joined"), v.literal("configurator_published"),
+                  v.literal("plan_limit"), v.literal("system")),
+    /** Pre-rendered Italian title — fallback for rows written before i18n. */
+    title: v.string(),
+    body: v.optional(v.string()),
+    /** Structured payload so the client can render a localized title. */
+    data: v.optional(v.any()),
+    href: v.optional(v.string()),
+    entityTable: v.optional(v.string()),
+    entityId: v.optional(v.string()),
+    readAt: v.optional(v.number()),
+    seenAt: v.optional(v.number()),
+  })
+    .index("by_user", ["userId"])
+    .index("by_user_unread", ["userId", "readAt"])
+    .index("by_tenant", ["tenantId"]),
+
+  /** Catalog CSV imports — keeps a pre-import snapshot so an import can be undone. */
+  catalogImports: defineTable({
+    tenantId: v.id("tenants"),
+    configuratorId: v.id("configurators"),
+    target: v.union(
+      v.literal("materials"),
+      v.literal("glazing"),
+      v.literal("finish"),
+      v.literal("hardware"),
+    ),
+    importedByUserId: v.id("users"),
+    importedAt: v.number(),
+    summary: v.object({ created: v.number(), updated: v.number(), rejected: v.number() }),
+    /** Full rows of the target table as they were immediately before the import. */
+    snapshot: v.any(),
+    undone: v.boolean(),
+    undoneAt: v.optional(v.number()),
+  })
+    .index("by_configurator", ["configuratorId"]),
+
+  /** GDPR — pending account-deletion requests (soft, with a grace window). */
+  deletionRequests: defineTable({
+    userId: v.id("users"),
+    email: v.string(),
+    reason: v.optional(v.string()),
+    status: v.union(v.literal("pending"), v.literal("cancelled"), v.literal("completed")),
+    requestedAt: v.number(),
+    scheduledFor: v.number(),
+    resolvedAt: v.optional(v.number()),
+  })
+    .index("by_user", ["userId"])
+    .index("by_status", ["status"]),
+
+  /** Alpha-phase feedback + bug reports. */
+  alphaFeedback: defineTable({
+    tenantId: v.optional(v.id("tenants")),
+    userId: v.id("users"),
+    category: v.union(v.literal("bug"), v.literal("feature"), v.literal("general")),
+    message: v.string(),
+    pagePath: v.optional(v.string()),
+    userAgent: v.optional(v.string()),
+    /** Optional 1–5 star rating given with the feedback. */
+    rating: v.optional(v.number()),
+    /** Set only when the user ticked "you may publish this as a review"; withdrawn by deleting the account (purge). */
+    reviewConsentAt: v.optional(v.number()),
+    reviewConsentVersion: v.optional(v.string()),
+    status: v.union(v.literal("new"), v.literal("triaged"), v.literal("closed")),
+    createdAt: v.number(),
+  })
+    .index("by_status", ["status"])
+    .index("by_user", ["userId"]),
+
+  /** Support tickets (customer <-> OneSpec platform admins). */
+  supportTickets: defineTable({
+    tenantId: v.id("tenants"),
+    /** Requester. */
+    userId: v.id("users"),
+    /** Human-friendly sequential number (TKT-0001). */
+    number: v.number(),
+    subject: v.string(),
+    category: v.union(v.literal("bug"), v.literal("billing"), v.literal("account"),
+                      v.literal("howto"), v.literal("feature"), v.literal("other")),
+    priority: v.union(v.literal("low"), v.literal("normal"), v.literal("high"), v.literal("urgent")),
+    status: v.union(v.literal("open"), v.literal("waiting"), v.literal("resolved"), v.literal("closed")),
+    assignedToUserId: v.optional(v.id("users")),
+    pagePath: v.optional(v.string()),
+    messageCount: v.number(),
+    lastMessageAt: v.number(),
+    lastMessageBy: v.union(v.literal("customer"), v.literal("support")),
+    /** Unread flags drive the badges on each side. */
+    customerUnread: v.boolean(),
+    supportUnread: v.boolean(),
+    firstResponseAt: v.optional(v.number()),
+    /** Set once when the first-response target was missed and the team was alerted. */
+    slaAlertedAt: v.optional(v.number()),
+    resolvedAt: v.optional(v.number()),
+    closedAt: v.optional(v.number()),
+    rating: v.optional(v.number()),
+    createdAt: v.number(),
+  })
+    .index("by_tenant_and_lastMessageAt", ["tenantId", "lastMessageAt"])
+    .index("by_user_and_lastMessageAt", ["userId", "lastMessageAt"])
+    .index("by_status_and_lastMessageAt", ["status", "lastMessageAt"])
+    .index("by_assignedToUserId_and_status", ["assignedToUserId", "status"])
+    .index("by_number", ["number"])
+    .searchIndex("search_subject", { searchField: "subject" }),
+
+  /** Customer-visible conversation. Children of a ticket (never embedded). */
+  supportMessages: defineTable({
+    ticketId: v.id("supportTickets"),
+    authorUserId: v.id("users"),
+    authorKind: v.union(v.literal("customer"), v.literal("support")),
+    body: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_ticketId", ["ticketId"])
+    .searchIndex("search_body", { searchField: "body" }),
+
+  /** Ready-made replies shared by all platform admins. */
+  supportCannedReplies: defineTable({
+    title: v.string(),
+    body: v.string(),
+    createdBy: v.id("users"),
+    updatedBy: v.id("users"),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_title", ["title"]),
+
+  /** Staff-only notes. A separate table so a customer query can never leak them. */
+  supportInternalNotes: defineTable({
+    ticketId: v.id("supportTickets"),
+    authorUserId: v.id("users"),
+    body: v.string(),
+    createdAt: v.number(),
+  }).index("by_ticketId", ["ticketId"]),
+
+  /**
+   * Files attached to support messages. A file is "pending" (uploaded and
+   * byte-verified, not yet sent) until a message claims it; unclaimed files are
+   * deleted by a cron after 24 h.
+   */
+  supportAttachments: defineTable({
+    tenantId: v.optional(v.id("tenants")),
+    uploaderUserId: v.id("users"),
+    pending: v.boolean(),
+    ticketId: v.optional(v.id("supportTickets")),
+    messageId: v.optional(v.id("supportMessages")),
+    storageId: v.id("_storage"),
+    fileName: v.string(),
+    /** Detected from the bytes, never taken from the browser. */
+    contentType: v.union(v.literal("image/png"), v.literal("image/jpeg"), v.literal("image/webp"), v.literal("application/pdf")),
+    sizeBytes: v.number(),
+    /**
+     * Scan attestation (absent only on files uploaded before it existed; those are scanned and attested the first time they are opened).
+     * `signature` is an HMAC over these fields + the storage id + the uploader, so a changed verdict, type, size or file is detectable.
+     */
+    sha256: v.optional(v.string()),
+    scanVersion: v.optional(v.string()),
+    scanVerdict: v.optional(v.literal("clean")),
+    scannedAt: v.optional(v.number()),
+    signature: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_messageId", ["messageId"])
+    .index("by_ticketId", ["ticketId"])
+    .index("by_storageId", ["storageId"])
+    .index("by_uploaderUserId_and_pending", ["uploaderUserId", "pending"])
+    .index("by_pending_and_createdAt", ["pending", "createdAt"]),
+
+  /**
+   * Messages from the public "Contact us" page (people who cannot sign in, so
+   * there is no account or tenant). Kept short-term: purged by a cron.
+   */
+  supportContacts: defineTable({
+    name: v.string(),
+    email: v.string(),
+    topic: v.union(v.literal("login"), v.literal("billing"), v.literal("info"), v.literal("other")),
+    message: v.string(),
+    locale: v.string(),
+    ipHash: v.string(),
+    status: v.union(v.literal("new"), v.literal("handled")),
+    createdAt: v.number(),
+    handledAt: v.optional(v.number()),
+    handledBy: v.optional(v.id("users")),
+    /** Replies sent from the platform (max 5 per message). */
+    repliedAt: v.optional(v.number()),
+    replyCount: v.optional(v.number()),
+  })
+    .index("by_status_and_createdAt", ["status", "createdAt"])
+    .index("by_createdAt", ["createdAt"])
+    .index("by_email", ["email"]),
+
+  /** Monotonic counters (ticket numbers). */
+  supportCounters: defineTable({
+    key: v.string(),
+    value: v.number(),
+  }).index("by_key", ["key"]),
+
+  /** GDPR — explicit, revocable consents, kept separate from auth + prefs. */
+  userConsents: defineTable({
+    userId: v.id("users"),
+    productUpdates: v.boolean(),
+    marketing: v.boolean(),
+    updatedAt: v.number(),
+  }).index("by_user", ["userId"]),
+
+  /** Per-user notification channel preferences. Absent row = everything on. */
+  notificationPrefs: defineTable({
+    userId: v.id("users"),
+    /** notification `type` values the user has switched OFF for the in-app inbox. */
+    mutedInApp: v.array(v.string()),
+    /** notification `type` values the user has switched OFF for email. */
+    mutedEmail: v.array(v.string()),
+    timezone: v.optional(v.string()),
+    updatedAt: v.number(),
+  }).index("by_user", ["userId"]),
+
+  emailLog: defineTable({
+    tenantId: v.optional(v.id("tenants")),
+    to: v.string(),
+    template: v.union(v.literal("verify"), v.literal("reset"),
+                      v.literal("welcome_alpha"), v.literal("welcome"),
+                      v.literal("new_quote_request"), v.literal("quote_status_changed"),
+                      v.literal("member_joined"), v.literal("configurator_published"),
+                      v.literal("plan_limit"), v.literal("system"),
+                      v.literal("invitation"), v.literal("team_access"),
+                      v.literal("admin_resend"), v.literal("purchase_receipt"),
+                      v.literal("subscription_confirmation"),
+                      v.literal("referral_invited"), v.literal("referral_registered"),
+                      v.literal("referral_rewarded"), v.literal("support")),
+    subject: v.string(),
+    status: v.union(v.literal("queued"), v.literal("sent"),
+                    v.literal("noop"), v.literal("failed")),
+    resendId: v.optional(v.string()),
+    error: v.optional(v.string()),
+    bodyPreview: v.optional(v.string()),
+    relatedEntityId: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_to", ["to"])
+    .index("by_resend_id", ["resendId"]),
+
+  emailDeliveryLog: defineTable({
+    tenantId: v.optional(v.id("tenants")),
+    emailLogId: v.id("emailLog"),
+    event: v.union(
+      v.literal("delivered"),
+      v.literal("bounced"),
+      v.literal("complained"),
+      v.literal("opened"),
+      v.literal("clicked"),
+    ),
+    timestamp: v.number(),
+    detail: v.optional(v.any()),
+    recipient: v.string(),
+    /** Svix delivery id: the same webhook delivery is applied once (replay / retry safe). */
+    svixId: v.optional(v.string()),
+  })
+    .index("by_svix", ["svixId"])
+    .index("by_emailLog", ["emailLogId"])
+    .index("by_tenant", ["tenantId"])
+    .index("by_event", ["event"]),
+
+  auditLog: defineTable({
+    tenantId: v.optional(v.id("tenants")),
+    actorUserId: v.optional(v.id("users")),
+    actorKind: v.union(v.literal("user"), v.literal("admin"),
+                       v.literal("system"), v.literal("widget")),
+    action: v.string(),
+    targetTable: v.optional(v.string()),
+    targetId: v.optional(v.string()),
+    meta: v.optional(v.any()),
+    ip: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_action", ["action"])
+    .index("by_target", ["targetTable", "targetId"]),
+
+  usageCounters: defineTable({
+    tenantId: v.id("tenants"),
+    period: v.string(),
+    quoteRequestsCount: v.number(),
+    activeConfiguratorsCount: v.number(),
+    /** De-duplicated widget opens for the period (per visitor session). */
+    widgetViewsCount: v.optional(v.number()),
+    /** Timestamp the tenant was last warned it crossed its monthly quota. */
+    overQuotaNotifiedAt: v.optional(v.number()),
+    /** Widget-first metering (one count per quote, see `meteredEvents`). */
+    pdfExportsCount: v.optional(v.number()),
+    whatsappSendsCount: v.optional(v.number()),
+    showroomQuotesCount: v.optional(v.number()),
+    showroomPdfCount: v.optional(v.number()),
+    showroomWhatsappCount: v.optional(v.number()),
+  }).index("by_tenant_period", ["tenantId", "period"]),
+
+  /**
+   * One row per metered action per subject (a widget request id or a showroom
+   * draft key): makes PDF / WhatsApp / showroom metering idempotent, so
+   * re-downloading the same quote's PDF never costs a second unit.
+   */
+  meteredEvents: defineTable({
+    tenantId: v.id("tenants"),
+    kind: v.union(
+      v.literal("widget_pdf"),
+      v.literal("widget_whatsapp"),
+      v.literal("showroom_quote"),
+      v.literal("showroom_pdf"),
+      v.literal("showroom_whatsapp"),
+    ),
+    subjectKey: v.string(),
+    period: v.string(),
+    userId: v.id("users"),
+    createdAt: v.number(),
+  }).index("by_tenantId_and_kind_and_subjectKey", ["tenantId", "kind", "subjectKey"]),
+
+  rateLimits: defineTable({
+    bucketKey: v.string(),
+    tokens: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_key", ["bucketKey"])
+    // Daily cleanup of idle buckets (see lib/ratelimit.purgeIdleBuckets).
+    .index("by_updatedAt", ["updatedAt"]),
+
+  /* ---------------------------------------------------------------------- */
+  /*  Phase C — B2B field modules (Rilievo, Posa, Collaudo, Fascicolo)       */
+  /*  Each row is tenant-scoped; `regionCode` pins the market's ruleset.     */
+  /* ---------------------------------------------------------------------- */
+
+  /** Rilievo Cantiere — on-site survey: laser measures, photos, diagnostics. */
+  siteSurveys: defineTable({
+    tenantId: v.id("tenants"),
+    regionCode: v.string(),
+    /** Optional link to the quote this survey belongs to. */
+    quoteId: v.optional(v.id("quoteRequests")),
+    createdByUserId: v.id("users"),
+    customerName: v.string(),
+    customerAddress: v.optional(v.string()),
+    customerCity: v.optional(v.string()),
+    customerPostalCode: v.optional(v.string()),
+    /** Optional link to the client this survey belongs to. */
+    clientId: v.optional(v.id("clients")),
+    /** Optional link to the cantiere this survey belongs to. */
+    cantiereId: v.optional(v.id("cantieri")),
+    /** Per-opening measures + notes. */
+    openings: v.array(
+      v.object({
+        label: v.string(),
+        widthMm: v.number(),
+        heightMm: v.number(),
+        room: v.optional(v.string()),
+        floor: v.optional(v.string()),
+        laserSource: v.optional(v.string()),
+        notes: v.optional(v.string()),
+        photoStorageIds: v.optional(v.array(v.id("_storage"))),
+      }),
+    ),
+    /** Laser measurements from Bluetooth DISTO/GLM. */
+    laserMeasurements: v.optional(v.array(
+      v.object({
+        L: v.number(),
+        H: v.number(),
+        timestamp: v.number(),
+        deviceId: v.optional(v.string()),
+      })
+    )),
+    /** Photos with annotations (foto-cote). */
+    photos: v.optional(v.array(
+      v.object({
+        storageId: v.id("_storage"),
+        annotations: v.optional(v.array(v.any())),
+        type: v.optional(v.union(v.literal("foro"), v.literal("controtelaio"), v.literal("davanzale"), v.literal("rulou"))),
+        uploadedAt: v.number(),
+      })
+    )),
+    /** Site diagnostic checklist (wall type, mould, access, counterframe…). */
+    diagnostics: v.object({
+      wallType: v.optional(v.string()),
+      counterFrame: v.optional(v.string()),
+      mould: v.optional(v.boolean()),
+      floorAccess: v.optional(v.string()),
+      craneRequired: v.optional(v.boolean()),
+      existingShutter: v.optional(v.boolean()),
+      notes: v.optional(v.string()),
+      recommendation: v.optional(v.string()),
+    }),
+    status: v.union(v.literal("draft"), v.literal("completed"), v.literal("synced")),
+    completedAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_quote", ["quoteId"])
+    .index("by_client", ["clientId"])
+    .index("by_cantiere", ["cantiereId"]),
+
+  /** Posa UNI 11673 wizard output — installation node design + bill of materials. */
+  installationDossiers: defineTable({
+    tenantId: v.id("tenants"),
+    regionCode: v.string(),
+    quoteId: v.optional(v.id("quoteRequests")),
+    surveyId: v.optional(v.id("siteSurveys")),
+    clientId: v.optional(v.id("clients")),
+    cantiereId: v.optional(v.id("cantieri")),
+    createdByUserId: v.id("users"),
+    jobType: v.string(),
+    nodeType: v.string(),
+    /** Total perimeter of the openings, mm — drives material quantities. */
+    perimeterMm: v.number(),
+    materials: v.array(
+      v.object({
+        key: v.string(),
+        label: v.string(),
+        unit: v.string(),
+        quantity: v.number(),
+      }),
+    ),
+    normRef: v.string(),
+    notes: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_quote", ["quoteId"])
+    .index("by_client", ["clientId"])
+    .index("by_cantiere", ["cantiereId"]),
+
+  /** Verbale di Collaudo — signed inspection record with mandatory photo checklist. */
+  inspectionReports: defineTable({
+    tenantId: v.id("tenants"),
+    regionCode: v.string(),
+    quoteId: v.optional(v.id("quoteRequests")),
+    createdByUserId: v.id("users"),
+    customerName: v.string(),
+    siteAddress: v.optional(v.string()),
+    /** Optional link to the client this inspection belongs to. */
+    clientId: v.optional(v.id("clients")),
+    /** Optional link to the cantiere this inspection belongs to. */
+    cantiereId: v.optional(v.id("cantieri")),
+    /** Opaque token for the field installer's mobile view (/i/[token]) — no login. */
+    installerToken: v.optional(v.string()),
+    installerTeam: v.optional(v.string()),
+    scheduledFor: v.optional(v.number()),
+    /** One entry per mandatory photo slot for the market. */
+    photos: v.array(
+      v.object({
+        key: v.string(),
+        label: v.string(),
+        storageId: v.optional(v.id("_storage")),
+      }),
+    ),
+    /** Functional checks — each ticked by the installer. */
+    checks: v.array(v.object({ key: v.string(), label: v.string(), passed: v.boolean() })),
+    installerNotes: v.optional(v.string()),
+    clientRemarks: v.optional(v.string()),
+    signatureDataUrl: v.optional(v.string()),
+    signedByName: v.optional(v.string()),
+    signedAt: v.optional(v.number()),
+    status: v.union(v.literal("draft"), v.literal("signed")),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_quote", ["quoteId"])
+    .index("by_installer_token", ["installerToken"])
+    .index("by_client", ["clientId"])
+    .index("by_cantiere", ["cantiereId"]),
+
+  /** Fascicolo del Serramento — the digital dossier a QR label resolves to. */
+  serramentoPassports: defineTable({
+    tenantId: v.id("tenants"),
+    regionCode: v.string(),
+    quoteId: v.optional(v.id("quoteRequests")),
+    inspectionId: v.optional(v.id("inspectionReports")),
+    createdByUserId: v.id("users"),
+    /** Opaque public token used in the QR URL — unguessable. */
+    publicToken: v.string(),
+    label: v.string(),
+    customerName: v.string(),
+    siteAddress: v.optional(v.string()),
+    productSummary: v.optional(v.string()),
+    installedAt: v.optional(v.number()),
+    /** Documents attached to the dossier. */
+    documents: v.array(
+      v.object({
+        key: v.string(),
+        label: v.string(),
+        required: v.boolean(),
+        storageId: v.optional(v.id("_storage")),
+        url: v.optional(v.string()),
+      }),
+    ),
+    performanceDeclaration: v.optional(v.string()),
+    /** ENEA Allegato F (IT only) — computed data + XML for the fiscal-deduction portal. */
+    eneaData: v.optional(v.any()),
+    eneaXml: v.optional(v.string()),
+    maintenanceLabel: v.optional(v.string()),
+    maintenancePriceCents: v.optional(v.number()),
+    maintenanceActive: v.optional(v.boolean()),
+    scanCount: v.number(),
+    lastScannedAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_token", ["publicToken"])
+    .index("by_quote", ["quoteId"]),
+
+  /** Post-sale service requests opened by an end client from a QR scan. */
+  passportInterventions: defineTable({
+    tenantId: v.id("tenants"),
+    passportId: v.id("serramentoPassports"),
+    kind: v.union(v.literal("adjustment"), v.literal("warranty"), v.literal("maintenance"), v.literal("other")),
+    message: v.string(),
+    contactName: v.optional(v.string()),
+    contactPhone: v.optional(v.string()),
+    contactEmail: v.optional(v.string()),
+    status: v.union(v.literal("new"), v.literal("scheduled"), v.literal("closed")),
+    sourceIpHash: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_passport", ["passportId"])
+    .index("by_tenant_status", ["tenantId", "status"]),
+
+  /** Client Intelligence Hub — CRM-style client records with history, tags, notes. */
+  clients: defineTable({
+    tenantId: v.id("tenants"),
+    name: v.string(),
+    contactName: v.optional(v.string()),
+    email: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    billingAddress: v.optional(v.string()),
+    billingCity: v.optional(v.string()),
+    billingPostalCode: v.optional(v.string()),
+    billingCountry: v.optional(v.string()),
+    siteAddress: v.optional(v.string()),
+    siteCity: v.optional(v.string()),
+    sitePostalCode: v.optional(v.string()),
+    siteCountry: v.optional(v.string()),
+    vatNumber: v.optional(v.string()),
+    fiscalCode: v.optional(v.string()),
+    type: v.union(v.literal("private"), v.literal("company"), v.literal("developer"), v.literal("architect"), v.literal("contractor")),
+    tags: v.array(v.string()),
+    source: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    assignedToUserId: v.optional(v.id("users")),
+    status: v.union(v.literal("lead"), v.literal("prospect"), v.literal("active"), v.literal("inactive"), v.literal("lost")),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_tenant_email", ["tenantId", "email"])
+    .index("by_assigned", ["assignedToUserId"]),
+
+  /**
+   * Leads: contacts a workspace owns but has not (yet) turned into customers — usually imported from a spreadsheet. A lead becomes a
+   * customer (`clients`) with one action, and can be tied to a building site (`cantieri`). Everything in here has passed the shared
+   * normaliser (src/shared/leads.ts) on the server, whatever the browser claimed.
+   */
+  leads: defineTable({
+    tenantId: v.id("tenants"),
+    /** What the list shows: company, else person, else e-mail / phone. */
+    name: v.string(),
+    contactName: v.optional(v.string()),
+    company: v.optional(v.string()),
+    email: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    phone2: v.optional(v.string()),
+    vatNumber: v.optional(v.string()),
+    fiscalCode: v.optional(v.string()),
+    address: v.optional(v.string()),
+    city: v.optional(v.string()),
+    postalCode: v.optional(v.string()),
+    province: v.optional(v.string()),
+    country: v.optional(v.string()),
+    website: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    tags: v.array(v.string()),
+    source: v.optional(v.string()),
+    /** Columns of the file that matched no field: label → value (at most 20). */
+    extra: v.optional(v.record(v.string(), v.string())),
+    status: v.union(v.literal("new"), v.literal("contacted"), v.literal("qualified"), v.literal("converted"), v.literal("discarded")),
+    importId: v.optional(v.id("leadImports")),
+    rowNumber: v.optional(v.number()),
+    clientId: v.optional(v.id("clients")),
+    cantiereId: v.optional(v.id("cantieri")),
+    /** Lower-case text the search box matches. */
+    searchText: v.string(),
+    createdBy: v.id("users"),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_tenant_email", ["tenantId", "email"])
+    .index("by_tenant_phone", ["tenantId", "phone"])
+    .index("by_import", ["importId"])
+    .index("by_client", ["clientId"])
+    .searchIndex("search_text", { searchField: "searchText", filterFields: ["tenantId", "status"] }),
+
+  /**
+   * Documents a workspace attaches to a customer's folder — above all the FINAL offer (PDF) the customer received, kept next to the
+   * internal quote OneSpec produced. Every file here was verified by an action that read its bytes (see convex/clientDocuments.ts).
+   */
+  clientDocuments: defineTable({
+    tenantId: v.id("tenants"),
+    clientId: v.id("clients"),
+    cantiereId: v.optional(v.id("cantieri")),
+    /** The internal quote (made in the platform) this final offer corresponds to. */
+    quoteId: v.optional(v.id("quoteRequests")),
+    kind: v.union(v.literal("final_quote"), v.literal("other")),
+    title: v.string(),
+    fileName: v.string(),
+    storageId: v.id("_storage"),
+    sizeBytes: v.number(),
+    contentSha256: v.string(),
+    /** What the customer decided about the final offer. */
+    outcome: v.union(v.literal("pending"), v.literal("accepted"), v.literal("rejected")),
+    amountCents: v.optional(v.number()),
+    uploadedBy: v.id("users"),
+    createdAt: v.number(),
+  })
+    .index("by_client", ["clientId"])
+    .index("by_cantiere", ["cantiereId"])
+    .index("by_quote", ["quoteId"])
+    .index("by_storage", ["storageId"])
+    .index("by_tenant", ["tenantId"]),
+
+  /** One run of the lead importer: what file, how many rows came in, how many were refused or already there. */
+  leadImports: defineTable({
+    tenantId: v.id("tenants"),
+    fileName: v.string(),
+    fileKind: v.union(v.literal("xlsx"), v.literal("csv"), v.literal("docx"), v.literal("manual")),
+    totalRows: v.number(),
+    inserted: v.number(),
+    duplicates: v.number(),
+    invalid: v.number(),
+    warnings: v.number(),
+    status: v.union(v.literal("running"), v.literal("done"), v.literal("cancelled")),
+    createdBy: v.id("users"),
+    createdAt: v.number(),
+    finishedAt: v.optional(v.number()),
+  }).index("by_tenant", ["tenantId"]),
+
+  /** Client activities/interactions timeline. */
+  clientActivities: defineTable({
+    tenantId: v.id("tenants"),
+    clientId: v.id("clients"),
+    userId: v.id("users"),
+    type: v.union(
+      v.literal("note"),
+      v.literal("call"),
+      v.literal("email"),
+      v.literal("meeting"),
+      v.literal("survey"),
+      v.literal("quote"),
+      v.literal("order"),
+      v.literal("installation"),
+      v.literal("inspection"),
+      v.literal("handover"),
+      v.literal("intervention"),
+      v.literal("task"),
+    ),
+    title: v.string(),
+    description: v.optional(v.string()),
+    relatedTable: v.optional(v.string()),
+    relatedId: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index("by_client", ["clientId"])
+    .index("by_tenant", ["tenantId"]),
+
+  /** Cantieri (construction sites) — Kanban board for project tracking. */
+  cantieri: defineTable({
+    tenantId: v.id("tenants"),
+    name: v.string(),
+    address: v.string(),
+    city: v.string(),
+    postalCode: v.string(),
+    country: v.optional(v.string()),
+    clientId: v.optional(v.id("clients")),
+    quoteId: v.optional(v.id("quoteRequests")),
+    status: v.union(
+      v.literal("preventivo"),
+      v.literal("confermato"),
+      v.literal("in_produzione"),
+      v.literal("pronto_consegna"),
+      v.literal("in_posa"),
+      v.literal("collaudo"),
+      v.literal("chiuso"),
+    ),
+    priority: v.union(v.literal("low"), v.literal("medium"), v.literal("high"), v.literal("urgent")),
+    assignedUserIds: v.array(v.id("users")),
+    estimatedStartAt: v.optional(v.number()),
+    estimatedEndAt: v.optional(v.number()),
+    actualStartAt: v.optional(v.number()),
+    actualEndAt: v.optional(v.number()),
+    valueCents: v.optional(v.number()),
+    notes: v.optional(v.string()),
+    guestPin: v.optional(v.string()),
+    guestPinExpiresAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_client", ["clientId"])
+    .index("by_guest_pin", ["guestPin"]),
+
+  /** Cantiere tasks/activities for Kanban cards. */
+  cantiereTasks: defineTable({
+    tenantId: v.id("tenants"),
+    cantiereId: v.id("cantieri"),
+    userId: v.id("users"),
+    title: v.string(),
+    description: v.optional(v.string()),
+    status: v.union(v.literal("todo"), v.literal("in_progress"), v.literal("review"), v.literal("done")),
+    priority: v.union(v.literal("low"), v.literal("medium"), v.literal("high")),
+    dueAt: v.optional(v.number()),
+    completedAt: v.optional(v.number()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_cantiere", ["cantiereId"])
+    .index("by_tenant", ["tenantId"])
+    .index("by_assignee", ["userId"]),
+
+  /* ---------------------------------------------------------------------- */
+  /*  Logistics + inventory — physical goods delivery, not to be confused    */
+  /*  with `catalogSuppliers` (pricing sources for quote line items).        */
+  /* ---------------------------------------------------------------------- */
+
+  /** Delivery suppliers: who ships physical goods to the installer's site. */
+  logisticsSuppliers: defineTable({
+    tenantId: v.id("tenants"),
+    name: v.string(),
+    contactName: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    email: v.optional(v.string()),
+    address: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    /** The same company in the Fornitura directory: the supplier who makes the windows is the one who ships them. */
+    partnerId: v.optional(v.id("supplyPartners")),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_partner", ["partnerId"]),
+
+  /**
+   * A factory / deliverer the installer works with. One partner can play both roles:
+   * "producer" makes the windows, "deliverer" brings them to the installer. Not the same as `catalogSuppliers` (price sources).
+   */
+  supplyPartners: defineTable({
+    tenantId: v.id("tenants"),
+    name: v.string(),
+    roles: v.array(v.union(v.literal("producer"), v.literal("deliverer"))),
+    contactName: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    email: v.optional(v.string()),
+    address: v.optional(v.string()),
+    vatId: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    archived: v.optional(v.boolean()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_tenant", ["tenantId"]),
+
+  /**
+   * One supply per quote: quote -> order -> production -> delivery -> delivered. Amounts are cents WITHOUT VAT.
+   * Revenue is a snapshot of the quote's net price taken when the supply is created; the costs are entered by the installer
+   * as the process moves on. Net profit = revenue - costs (no VAT, no income taxes).
+   */
+  supplies: defineTable({
+    tenantId: v.id("tenants"),
+    quoteId: v.id("quoteRequests"),
+    /** Where the windows go and for whom: copied from the quote, kept in step with it. */
+    clientId: v.optional(v.id("clients")),
+    cantiereId: v.optional(v.id("cantieri")),
+    /** Snapshots, so the list stays readable even if the quote changes. */
+    reference: v.string(),
+    customerName: v.string(),
+    status: v.union(v.literal("quote"), v.literal("order"), v.literal("production"), v.literal("delivery"), v.literal("delivered")),
+    revenueExVatCents: v.number(),
+    producerId: v.optional(v.id("supplyPartners")),
+    delivererId: v.optional(v.id("supplyPartners")),
+    /** What the installer pays the factory (set when the order goes to production). */
+    factoryCostCents: v.optional(v.number()),
+    factoryPaidAt: v.optional(v.number()),
+    /** What the deliverer charges (set when the delivery starts). */
+    transportCostCents: v.optional(v.number()),
+    /** Fitting, extras, anything else the installer spent on this supply. */
+    otherCostsCents: v.optional(v.number()),
+    quotedAt: v.number(),
+    orderedAt: v.optional(v.number()),
+    productionAt: v.optional(v.number()),
+    deliveryAt: v.optional(v.number()),
+    deliveredAt: v.optional(v.number()),
+    notes: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId", "createdAt"])
+    .index("by_quote", ["quoteId"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_tenant_delivered", ["tenantId", "deliveredAt"])
+    .index("by_cantiere", ["cantiereId"])
+    .index("by_client", ["clientId"]),
+
+  carriers: defineTable({
+    tenantId: v.id("tenants"),
+    name: v.string(),
+    contactName: v.optional(v.string()),
+    phone: v.optional(v.string()),
+    email: v.optional(v.string()),
+    notes: v.optional(v.string()),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  }).index("by_tenant", ["tenantId"]),
+
+  /** One scheduled/tracked shipment. The calendar reads this by scheduledDate. */
+  deliveries: defineTable({
+    tenantId: v.id("tenants"),
+    supplierId: v.id("logisticsSuppliers"),
+    carrierId: v.optional(v.id("carriers")),
+    /** The factory/supplier's dedicated driver for this delivery — not a platform user. */
+    driverName: v.optional(v.string()),
+    driverPhone: v.optional(v.string()),
+    scheduledDate: v.number(),
+    status: v.union(
+      v.literal("scheduled"),
+      v.literal("in_transit"),
+      v.literal("received"),
+      v.literal("cancelled"),
+    ),
+    cantiereId: v.optional(v.id("cantieri")),
+    quoteId: v.optional(v.id("quoteRequests")),
+    /** The supply (Fornitura) this shipment belongs to: receiving it closes the supply, and the supply opens it. */
+    supplyId: v.optional(v.id("supplies")),
+    notes: v.optional(v.string()),
+    /** Free-text list of what's expected — becomes the default inventory item labels on receipt. */
+    expectedItems: v.optional(v.array(v.string())),
+    receivedAt: v.optional(v.number()),
+    receivedByUserId: v.optional(v.id("users")),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_tenant_date", ["tenantId", "scheduledDate"])
+    .index("by_supplier", ["supplierId"])
+    .index("by_cantiere", ["cantiereId"])
+    .index("by_supply", ["supplyId"])
+    .index("by_quote", ["quoteId"]),
+
+  /** Warehouse stock. Created piece-by-piece when a delivery is marked "received". */
+  inventoryItems: defineTable({
+    tenantId: v.id("tenants"),
+    deliveryId: v.optional(v.id("deliveries")),
+    label: v.string(),
+    category: v.optional(v.string()),
+    quantity: v.number(),
+    unit: v.string(),
+    cantiereId: v.optional(v.id("cantieri")),
+    // "in_stock" (warehouse) -> "assigned" (earmarked for a cantiere, still
+    // physically in the warehouse) -> "in_transit" (loaded on a siteDeliveries
+    // shipment heading to the cantiere — no longer warehouse stock) ->
+    // "delivered" (physically at the cantiere) -> "installed" (fitted by the
+    // crew — a separate, later, manual step). Added in_transit/delivered
+    // 2026-09-29 for the warehouse<->cantiere shipment leg (siteDeliveries).
+    status: v.union(
+      v.literal("in_stock"),
+      v.literal("assigned"),
+      v.literal("in_transit"),
+      v.literal("delivered"),
+      v.literal("installed"),
+    ),
+    receivedAt: v.number(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_tenant_status", ["tenantId", "status"])
+    .index("by_delivery", ["deliveryId"])
+    .index("by_cantiere", ["cantiereId"]),
+
+  /**
+   * One shipment FROM the warehouse TO a cantiere — the outbound leg,
+   * distinct from `deliveries` (the inbound supplier->warehouse leg).
+   * Captures a loading checklist (what was/wasn't loaded and why),
+   * packaging-quality photos/video, and a digital signature — the signature
+   * is what actually moves the shipment to "in_transit" and flips its
+   * linked inventoryItems out of warehouse stock, mirroring the same
+   * base64 data-URL signature pattern as quotes.signQuote.
+   */
+  siteDeliveries: defineTable({
+    tenantId: v.id("tenants"),
+    cantiereId: v.id("cantieri"),
+    status: v.union(
+      v.literal("preparing"),
+      v.literal("in_transit"),
+      v.literal("delivered"),
+      v.literal("cancelled"),
+    ),
+    scheduledDate: v.optional(v.number()),
+    driverName: v.optional(v.string()),
+    driverPhone: v.optional(v.string()),
+    items: v.array(
+      v.object({
+        inventoryItemId: v.optional(v.id("inventoryItems")),
+        label: v.string(),
+        quantity: v.number(),
+        unit: v.string(),
+        loaded: v.boolean(),
+        notLoadedReason: v.optional(v.string()),
+      }),
+    ),
+    /** Packaging-quality documentation — up to 4, images or short video. */
+    packagingMediaIds: v.array(v.id("_storage")),
+    signedByName: v.optional(v.string()),
+    signatureDataUrl: v.optional(v.string()),
+    signedAt: v.optional(v.number()),
+    departedAt: v.optional(v.number()),
+    deliveredAt: v.optional(v.number()),
+    notes: v.optional(v.string()),
+    createdByUserId: v.id("users"),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index("by_tenant", ["tenantId"])
+    .index("by_cantiere", ["cantiereId"])
+    .index("by_tenant_status", ["tenantId", "status"]),
+});

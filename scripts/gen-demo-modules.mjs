@@ -2,8 +2,9 @@
 // (the public demo of the platform). Re-run after adding a Convex module:  node scripts/gen-demo-modules.mjs
 import { readdirSync, statSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const root = new URL("../convex/", import.meta.url).pathname;
+const root = fileURLToPath(new URL("../convex/", import.meta.url));
 // Not needed by the demo: sign-in (the demo user is always signed in), HTTP routes, crons, e-mail providers, seed/migration tools.
 const EXCLUDE = new Set(["auth.ts", "auth.config.ts", "http.ts", "crons.ts", "ResendOTP.ts", "ResendPasswordReset.ts", "seed.ts", "migrations.ts"]);
 
@@ -32,5 +33,5 @@ const lines = [
   "};",
   "",
 ];
-writeFileSync(new URL("../src/demo/convex-modules.generated.ts", import.meta.url), lines.join("\n"));
+writeFileSync(fileURLToPath(new URL("../src/demo/convex-modules.generated.ts", import.meta.url)), lines.join("\n"));
 console.log(`demo module map: ${files.length} modules`);

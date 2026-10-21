@@ -1,0 +1,1039 @@
+﻿import { ensureOrdered } from "./lib/supply";
+import { query, mutation, type MutationCtx, type QueryCtx } from "./_generated/server";
+import type { Id } from "./_generated/dataModel";
+import { v, type ObjectType } from "convex/values";
+import { ConvexError } from "convex/values";
+import { requirePermission, requirePermissionOrNull } from "./lib/rbac";
+import { lockedSafeLeadName, redactQuoteRequest } from "./lib/quotaLock";
+import { hasMeteredEvent } from "./lib/metering";
+import { emit } from "./lib/triggers";
+import { enforceForCreateQuote, enforceForESignature, enforceForMultiSupplier } from "./lib/enforcement";
+import { calculatePrice, installationIncluded, type ProjectItem, type CatalogPayload } from "../src/shared/pricing";
+import { currentPeriod, resolveTenantEntitlements } from "./lib/entitlements";
+import { regionForCountry } from "./lib/regions";
+import { resolveLinks, logClientActivity } from "./lib/links";
+import { linkQuoteToCrm, recomputeCantiereValue } from "./lib/crmLink";
+import { assertSignature } from "./lib/fieldModules";
+import { resolveQuoteVat } from "./lib/vat";
+import { assertCoherentItems, parseQuoteItems, nextOfferNumber } from "./lib/quoteItems";
+import { defaultItem } from "../src/shared/item-defaults";
+import { quoteTotals } from "../src/shared/quote-totals";
+
+const QUOTE_STATUS = v.union(
+  v.literal("draft"),
+  v.literal("new"),
+  v.literal("contacted"),
+  v.literal("quoted"),
+  v.literal("won"),
+  v.literal("lost"),
+  v.literal("spam"),
+);
+
+const NOTE_MAX = 5_000;
+const NOTES_TOTAL_MAX = 100_000;
+const TEXT_MAX = 2_000;
+const MONEY_MAX = 100_000_000; // €1M in cents
+
+/** Bound a free-text arg (lengths also protect the 1 MB document limit). */
+function boundedText(value: string | undefined, max = TEXT_MAX): string | undefined {
+  if (value === undefined) return undefined;
+  if (value.length > max) throw new ConvexError("INVALID_INPUT");
+  return value;
+}
+
+/**
+ * A list row: the quote without its signature picture and its pieces. The picture is a base64 image of tens of KB per signed quote; a list of 200-500
+ * quotes carried it all, was re-sent to every open screen whenever any quote changed, and came close to the per-function read limit.
+ * Detail and print pages still read the full document.
+ */
+function listRow<T extends { signatureDataUrl?: string; items?: unknown }>(row: T): Omit<T, "signatureDataUrl" | "items"> & { pieceCount: number } {
+  const { signatureDataUrl: _signature, items, ...rest } = row;
+  void _signature;
+  // The pieces themselves (sashes, options, notes) are a few KB per quote: lists only need how many there are.
+  return { ...rest, pieceCount: Array.isArray(items) ? items.length : 0 };
+}
+
+/** The quote with its signature picture put back (from the side table, or inline for quotes signed before it existed). */
+async function withSignature<T extends { _id: Id<"quoteRequests">; signedAt?: number; signatureDataUrl?: string }>(ctx: QueryCtx, quote: T): Promise<T> {
+  if (!quote.signedAt || quote.signatureDataUrl) return quote;
+  const row = await ctx.db.query("quoteSignatures").withIndex("by_quote", (q) => q.eq("quoteId", quote._id)).first();
+  return row ? { ...quote, signatureDataUrl: row.signatureDataUrl } : quote;
+}
+
+/** Each row with the name of the configurator it came from (one read per distinct configurator, a handful per company). */
+async function withConfiguratorNames<T extends { tenantId: Id<"tenants">; configuratorId: Id<"configurators"> }>(
+  ctx: QueryCtx,
+  rows: T[],
+): Promise<Array<T & { configuratorName: string | null }>> {
+  const names = new Map<string, string | null>();
+  for (const id of new Set(rows.map((r) => r.configuratorId))) {
+    const c = await ctx.db.get(id);
+    names.set(id, c && rows.some((r) => r.configuratorId === id && r.tenantId === c.tenantId) ? c.name : null);
+  }
+  return rows.map((r) => ({ ...r, configuratorName: names.get(r.configuratorId) ?? null }));
+}
+
+export const listRequests = query({
+  args: {
+    tenantId: v.id("tenants"),
+    status: v.optional(QUOTE_STATUS),
+    limit: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    // Redacted lead list stays readable while suspended (founder decision A).
+    const allowed = await requirePermissionOrNull(ctx, args.tenantId, "quotes.use", { allowSuspendedRead: true });
+    if (!allowed) return []; // a grade outside sales sees an empty list, not an error
+    const limit = Math.min(Math.max(args.limit ?? 50, 1), 200);
+    if (args.status) {
+      const status = args.status;
+      return await ctx.db
+        .query("quoteRequests")
+        .withIndex("by_tenant_status", (q) =>
+          q.eq("tenantId", args.tenantId).eq("status", status),
+        )
+        .order("desc")
+        .take(limit)
+        .then((rows) => withConfiguratorNames(ctx, rows.map((r) => listRow(redactQuoteRequest(r)))));
+    }
+    return await ctx.db
+      .query("quoteRequests")
+      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
+      .order("desc")
+      .take(limit)
+      .then((rows) => withConfiguratorNames(ctx, rows.map((r) => listRow(redactQuoteRequest(r)))));
+  },
+});
+
+/** The customer card and the site of a quote (names only), for the links on the quote page; either may be absent. */
+export const linksForQuote = query({
+  args: { quoteId: v.id("quoteRequests") },
+  handler: async (ctx, args) => {
+    const quote = await ctx.db.get(args.quoteId);
+    if (!quote) return null;
+    await requirePermission(ctx, quote.tenantId, "quotes.use", { allowSuspendedRead: true });
+    const client = quote.clientId ? await ctx.db.get(quote.clientId) : null;
+    const cantiere = quote.cantiereId ? await ctx.db.get(quote.cantiereId) : null;
+    return {
+      client: client && client.tenantId === quote.tenantId ? { _id: client._id, name: client.name, status: client.status } : null,
+      cantiere: cantiere && cantiere.tenantId === quote.tenantId ? { _id: cantiere._id, name: cantiere.name, status: cantiere.status } : null,
+    };
+  },
+});
+
+export const getRequest = query({
+  args: { quoteId: v.id("quoteRequests") },
+  handler: async (ctx, args) => {
+    const quote = await ctx.db.get(args.quoteId);
+    if (!quote) return null;
+    // Same right as the list: a grade outside sales, or another company, never reads a quote by its id.
+    await requirePermission(ctx, quote.tenantId, "quotes.use", { allowSuspendedRead: true });
+    const [row] = await withConfiguratorNames(ctx, [redactQuoteRequest(await withSignature(ctx, quote))]);
+    return row;
+  },
+});
+
+export const updateStatus = mutation({
+  args: { quoteId: v.id("quoteRequests"), status: v.union(v.literal("new"), v.literal("contacted"), v.literal("quoted"), v.literal("won"), v.literal("lost"), v.literal("spam")) },
+  handler: async (ctx, args) => {
+    const quote = await ctx.db.get(args.quoteId);
+    if (!quote) throw new ConvexError("QUOTE_NOT_FOUND");
+    const { userId } = await requirePermission(ctx, quote.tenantId, "quotes.manage");
+    // A draft is finished by editing it (updateFieldQuote), never by moving it through the pipeline.
+    if (quote.status === "draft") throw new ConvexError("QUOTE_IS_DRAFT");
+
+    const oldStatus = quote.status;
+    await ctx.db.patch(args.quoteId, { status: args.status });
+    // The customer card and the site follow the quote: contacted/quoted -> prospect, won -> active client and confirmed site;
+    // lost / reopened quotes change the site's value (it adds up its live quotes).
+    if (args.status === "contacted" || args.status === "quoted" || args.status === "won") {
+      await linkQuoteToCrm(ctx, { quoteId: args.quoteId, userId, stage: args.status === "won" ? "won" : "quoted" });
+    } else {
+      await recomputeCantiereValue(ctx, quote.cantiereId);
+    }
+
+    await emit(ctx, {
+      type: "quote.status_changed",
+      tenantId: quote.tenantId,
+      quoteId: args.quoteId,
+      from: oldStatus,
+      to: args.status,
+      leadName: lockedSafeLeadName(quote),
+    });
+    if (args.status === "won") {
+      await emit(ctx, { type: "quote.won", tenantId: quote.tenantId, quoteId: args.quoteId });
+      // The deal is closed: the quote's supply moves to "Ordine" (created if it did not exist).
+      await ensureOrdered(ctx, (await ctx.db.get(args.quoteId)) ?? quote);
+    }
+
+    await ctx.db.insert("auditLog", {
+      tenantId: quote.tenantId,
+      actorKind: "user",
+      action: "quote.status_change",
+      targetTable: "quoteRequests",
+      targetId: args.quoteId,
+      meta: { oldStatus, newStatus: args.status },
+      createdAt: Date.now(),
+    });
+  },
+});
+
+export const assignRequest = mutation({
+  args: { quoteId: v.id("quoteRequests"), userId: v.id("users") },
+  handler: async (ctx, args) => {
+    const quote = await ctx.db.get(args.quoteId);
+    if (!quote) throw new ConvexError("QUOTE_NOT_FOUND");
+    await requirePermission(ctx, quote.tenantId, "quotes.manage");
+
+    // .first() rather than .unique() — see convex/lib/auth.ts:requireMembership
+    // for why a duplicate membership row must not crash the whole mutation.
+    const assigneeMembership = await ctx.db
+      .query("memberships")
+      .withIndex("by_tenant_user", (q) =>
+        q.eq("tenantId", quote.tenantId).eq("userId", args.userId),
+      )
+      .first();
+    if (!assigneeMembership || assigneeMembership.status !== "active") {
+      throw new ConvexError("ASSIGNEE_NOT_A_MEMBER");
+    }
+
+    await ctx.db.patch(args.quoteId, { assignedToUserId: args.userId });
+  },
+});
+
+export const addNote = mutation({
+  args: { quoteId: v.id("quoteRequests"), note: v.string() },
+  handler: async (ctx, args) => {
+    const quote = await ctx.db.get(args.quoteId);
+    if (!quote) throw new ConvexError("QUOTE_NOT_FOUND");
+    await requirePermission(ctx, quote.tenantId, "quotes.manage");
+
+    const note = args.note.trim();
+    if (!note) throw new ConvexError("INVALID_INPUT");
+    if (note.length > NOTE_MAX) throw new ConvexError("INVALID_INPUT");
+    // The notes live in one string field of the quote document: keep the most
+    // recent NOTES_TOTAL_MAX characters so the document can never approach
+    // Convex's 1 MB limit (which would make EVERY write to this quote fail).
+    const combined = ((quote.internalNotes || "") + "\n" + note).slice(-NOTES_TOTAL_MAX);
+    await ctx.db.patch(args.quoteId, { internalNotes: combined });
+  },
+});
+
+const FIELD_QUOTE_ARGS = {
+    tenantId: v.id("tenants"),
+    configuratorId: v.id("configurators"),
+    leadName: v.string(),
+    leadEmail: v.string(),
+    leadPhone: v.optional(v.string()),
+    customerAddress: v.optional(v.string()),
+    customerCity: v.optional(v.string()),
+    customerPostalCode: v.optional(v.string()),
+    leadLocale: v.optional(v.string()),
+    leadMessage: v.optional(v.string()),
+    items: v.any(),
+    installationType: v.optional(v.string()),
+    installationPriceCents: v.optional(v.number()),
+    demolitionPriceCents: v.optional(v.number()),
+    discountPercent: v.optional(v.number()),
+    ecobonusPercent: v.optional(v.number()),
+    /** Country-specific line items (Renson grilles, HVL joints, RC2/RC3, RAL kit…) priced client-side and re-clamped here. */
+    regionalSurchargeCents: v.optional(v.number()),
+    profitMarginPercent: v.optional(v.number()),
+    vatRatePercent: v.optional(v.number()),
+    /** Fiscal data of the customer: drives the VAT rule (domestic / intra-EU with VIES / export / manual 0%). */
+    buyerCountry: v.optional(v.string()),
+    buyerIsBusiness: v.optional(v.boolean()),
+    buyerVatId: v.optional(v.string()),
+    vatManualZero: v.optional(v.boolean()),
+    vatManualReason: v.optional(v.string()),
+    depositTerms: v.optional(v.string()),
+    regionCode: v.optional(v.string()),
+    poseType: v.optional(v.string()),
+    rgeCertificate: v.optional(v.string()),
+    maPrimeRenovPercent: v.optional(v.number()),
+    decennaleInsurance: v.optional(v.string()),
+    rensonGrilleWidthMm: v.optional(v.number()),
+    voletMonoblocHeightMm: v.optional(v.number()),
+    hvlJointCount: v.optional(v.number()),
+    isostoneSill: v.optional(v.boolean()),
+    ralMontage: v.optional(v.boolean()),
+    rcSecurityLevel: v.optional(v.string()),
+    klimabonusEligible: v.optional(v.boolean()),
+    /** Optional link to the client this quote belongs to. */
+    clientId: v.optional(v.id("clients")),
+    /** Optional link to the cantiere this quote belongs to. */
+    cantiereId: v.optional(v.id("cantieri")),
+    /** Default true: the customer card and the cantiere are found or created from the quote's data. */
+    autoLink: v.optional(v.boolean()),
+    /** Save as a draft: stays out of the pipeline, analytics, customer card and supply flow until finished. */
+    asDraft: v.optional(v.boolean()),
+  };
+type FieldQuoteArgs = ObjectType<typeof FIELD_QUOTE_ARGS>;
+
+/**
+ * Everything a B2B (field) quote is made of, computed by the server from the published catalogue: items validated, prices
+ * recalculated, VAT resolved, links checked. Shared by create / update so a quote edited later can never carry a figure the server
+ * did not compute itself.
+ */
+async function buildFieldQuote(ctx: MutationCtx, args: FieldQuoteArgs) {
+    const configurator = await ctx.db.get(args.configuratorId);
+    if (!configurator || configurator.tenantId !== args.tenantId) {
+      throw new ConvexError("CONFIGURATOR_NOT_FOUND");
+    }
+
+    const targetVersion = configurator.publishedCatalogVersion ?? 1;
+    const versionDoc = await ctx.db
+      .query("catalogVersions")
+      .withIndex("by_configurator_version", (q) =>
+        q.eq("configuratorId", args.configuratorId).eq("version", targetVersion),
+      )
+      .unique();
+
+    if (!versionDoc) throw new ConvexError("NO_PUBLISHED_VERSION");
+
+    const payload = versionDoc.payload as CatalogPayload;
+    const items = parseQuoteItems(args.items);
+    assertCoherentItems(payload, items);
+
+    // Authoritative calculation ÔÇö server is the source of truth for price.
+    const baseCalc = calculatePrice(payload, items);
+
+    const installCost = Math.min(Math.max(Math.round(args.installationPriceCents ?? 0), 0), MONEY_MAX);
+    const demolitionCost = Math.min(Math.max(Math.round(args.demolitionPriceCents ?? 0), 0), MONEY_MAX);
+    for (const text of [args.leadName, args.leadEmail, args.leadPhone, args.customerAddress, args.customerCity,
+      args.customerPostalCode, args.installationType, args.depositTerms, args.poseType, args.rgeCertificate,
+      args.decennaleInsurance, args.rcSecurityLevel]) boundedText(text, 500);
+    boundedText(args.leadMessage);
+    const regionalSurcharge = Math.min(Math.max(Math.round(args.regionalSurchargeCents ?? 0), 0), 100_000_000);
+    const discountPct = Math.min(Math.max(args.discountPercent ?? 0, 0), 100);
+    const ecobonusPct = Math.min(Math.max(args.ecobonusPercent ?? 0, 0), 100);
+    const maPrimePct = Math.min(Math.max(args.maPrimeRenovPercent ?? 0, 0), 100);
+
+    // The same arithmetic the quote editor shows on screen (shared/quote-totals).
+    const afterDiscount = quoteTotals({ supplyExVatCents: baseCalc.priceExVatCents, installCents: installCost, demolitionCents: demolitionCost, regionalCents: regionalSurcharge, discountPercent: discountPct, vatPercent: 0 });
+    const discountedExVat = afterDiscount.discountedExVatCents;
+
+    const tenantDoc = await ctx.db.get(args.tenantId);
+    if (!tenantDoc) throw new ConvexError("TENANT_NOT_FOUND");
+    const vat = await resolveQuoteVat(ctx, tenantDoc, {
+      requestedPercent: args.vatRatePercent !== undefined ? args.vatRatePercent : configurator.vatRatePercent,
+      buyerCountry: args.buyerCountry,
+      buyerIsBusiness: args.buyerIsBusiness,
+      buyerVatId: args.buyerVatId,
+      manualZero: args.vatManualZero,
+      manualReason: args.vatManualReason,
+    });
+    const effectiveVat = vat.ratePercent;
+    const finalPriceCents = quoteTotals({ supplyExVatCents: discountedExVat, installCents: 0, demolitionCents: 0, regionalCents: 0, discountPercent: 0, vatPercent: effectiveVat }).grossCents;
+    const ecobonusDeductionCents = ecobonusPct > 0 ? Math.round(finalPriceCents * (ecobonusPct / 100)) : undefined;
+    const maPrimeRenovDeductionCents = maPrimePct > 0 ? Math.round(finalPriceCents * (maPrimePct / 100)) : undefined;
+
+    // Reject another tenant's client/cantiere; a cantiere implies its client.
+    const links = await resolveLinks(ctx, args.tenantId, {
+      clientId: args.clientId,
+      cantiereId: args.cantiereId,
+    });
+
+    return {
+      configurator,
+      targetVersion,
+      payload,
+      items,
+      links,
+      finalPriceCents,
+      fields: {
+      tenantId: args.tenantId,
+      configuratorId: args.configuratorId,
+      catalogVersion: targetVersion,
+      publicId: configurator.publicId,
+      leadName: args.leadName.trim() || links.client?.name || "",
+      leadEmail: args.leadEmail.trim() || links.client?.email || "",
+      leadPhone: args.leadPhone?.trim() || links.client?.phone,
+      customerAddress: args.customerAddress?.trim() || links.client?.siteAddress,
+      customerCity: args.customerCity?.trim() || links.client?.siteCity,
+      customerPostalCode: args.customerPostalCode?.trim() || links.client?.sitePostalCode,
+      leadLocale: args.leadLocale ?? configurator.defaultLocale ?? "it",
+      leadMessage: args.leadMessage,
+      channel: "field_b2b" as const,
+      installationType: args.installationType,
+      installationIncluded: installationIncluded(payload, items),
+      installationPriceCents: installCost,
+      demolitionPriceCents: demolitionCost,
+      discountPercent: discountPct,
+      ecobonusPercent: ecobonusPct > 0 ? ecobonusPct : undefined,
+      ecobonusDeductionCents,
+      regionalSurchargeCents: regionalSurcharge > 0 ? regionalSurcharge : undefined,
+      profitMarginPercent: args.profitMarginPercent,
+      depositTerms: args.depositTerms ?? (args.regionCode === "FR" ? "Acompte 30% à la commande · 70% à la livraison" : "30% ordine · 60% merce pronta · 10% posa"),
+      regionCode: args.regionCode,
+      poseType: args.poseType,
+      rgeCertificate: args.rgeCertificate,
+      maPrimeRenovPercent: maPrimePct > 0 ? maPrimePct : undefined,
+      maPrimeRenovDeductionCents,
+      decennaleInsurance: args.decennaleInsurance,
+      rensonGrilleWidthMm: args.rensonGrilleWidthMm,
+      voletMonoblocHeightMm: args.voletMonoblocHeightMm,
+      hvlJointCount: args.hvlJointCount,
+      isostoneSill: args.isostoneSill,
+      ralMontage: args.ralMontage,
+      rcSecurityLevel: args.rcSecurityLevel,
+      klimabonusEligible: args.klimabonusEligible,
+      items,
+      priceCents: finalPriceCents,
+      priceExVatCents: discountedExVat,
+      buyerCountry: vat.buyerCountry,
+      buyerIsBusiness: vat.buyerIsBusiness,
+      buyerVatId: vat.buyerVatId,
+      viesCheckId: vat.viesCheckId,
+      vatReason: vat.reason,
+      vatManualReason: vat.manualReason,
+      vatRatePercent: effectiveVat,
+      currency: "EUR" as const,
+      clientId: links.clientId,
+      cantiereId: links.cantiereId,
+      },
+    };
+}
+
+/** What happens when a field quote becomes a real, sent quote: customer card + site card (found or created), activity, audit. */
+async function afterQuoteGoesLive(
+  ctx: MutationCtx,
+  p: { quoteId: Id<"quoteRequests">; userId: Id<"users">; args: FieldQuoteArgs; priceCents: number },
+) {
+  const { quoteId, userId, args } = p;
+  const links = await ctx.db.get(quoteId);
+    // The quote leaves a customer card and a site card behind (found or created), unless the installer opted out.
+    const crm = args.autoLink === false
+      ? { clientId: links?.clientId, cantiereId: links?.cantiereId }
+      : await linkQuoteToCrm(ctx, { quoteId, userId, stage: "quoted" });
+    await logClientActivity(ctx, {
+      tenantId: args.tenantId,
+      clientId: crm.clientId,
+      userId,
+      type: "quote",
+      title: "Preventivo creato",
+      relatedTable: "quoteRequests",
+      relatedId: quoteId,
+    });
+
+    await ctx.db.insert("auditLog", {
+      tenantId: args.tenantId,
+      actorUserId: userId,
+      actorKind: "user",
+      action: "quote.field_create",
+      targetTable: "quoteRequests",
+      targetId: quoteId,
+      meta: { priceCents: p.priceCents, leadName: args.leadName },
+      createdAt: Date.now(),
+    });
+
+}
+
+export const createFieldQuote = mutation({
+  args: FIELD_QUOTE_ARGS,
+  handler: async (ctx, args) => {
+    await enforceForCreateQuote(ctx, args.tenantId);
+    const { userId } = await requirePermission(ctx, args.tenantId, "quotes.field");
+    const built = await buildFieldQuote(ctx, args);
+    const { finalPriceCents } = built;
+    const isDraft = args.asDraft === true;
+
+    const quoteId = await ctx.db.insert("quoteRequests", {
+      offerNumber: await nextOfferNumber(ctx, args.tenantId),
+      ...built.fields,
+      // A draft is a work in progress: not yet in the pipeline, the analytics, the customer card or the supply flow.
+      status: isDraft ? "draft" : "quoted",
+      assignedToUserId: userId,
+    });
+    if (!isDraft) await afterQuoteGoesLive(ctx, { quoteId, userId, args, priceCents: finalPriceCents });
+    else {
+      await ctx.db.insert("auditLog", {
+        tenantId: args.tenantId,
+        actorUserId: userId,
+        actorKind: "user",
+        action: "quote.field_draft",
+        targetTable: "quoteRequests",
+        targetId: quoteId,
+        meta: { priceCents: finalPriceCents },
+        createdAt: Date.now(),
+      });
+    }
+
+    // Increment quote count for quota tracking
+    const period = currentPeriod();
+    const counter = await ctx.db
+      .query("usageCounters")
+      .withIndex("by_tenant_period", (q) => q.eq("tenantId", args.tenantId).eq("period", period))
+      .first();
+    if (counter) {
+      await ctx.db.patch(counter._id, {
+        quoteRequestsCount: counter.quoteRequestsCount + 1,
+      });
+    } else {
+      await ctx.db.insert("usageCounters", {
+        tenantId: args.tenantId,
+        period,
+        quoteRequestsCount: 1,
+        activeConfiguratorsCount: 0,
+      });
+    }
+
+    return { quoteId, priceCents: finalPriceCents };
+  },
+});
+
+/**
+ * Edit a B2B quote that is not yet signed or won (a draft, or one already sent). Everything is recomputed by the server.
+ * A draft saved with `asDraft: false` goes live: only then it reaches the customer card, the pipeline and the analytics.
+ */
+export const updateFieldQuote = mutation({
+  args: { quoteId: v.id("quoteRequests"), ...FIELD_QUOTE_ARGS },
+  handler: async (ctx, args) => {
+    const { quoteId, ...rest } = args;
+    const quote = await ctx.db.get(quoteId);
+    if (!quote || quote.tenantId !== rest.tenantId) throw new ConvexError("QUOTE_NOT_FOUND");
+    if (quote.channel !== "field_b2b") throw new ConvexError("QUOTE_NOT_EDITABLE");
+    const { userId } = await requirePermission(ctx, quote.tenantId, "quotes.field");
+    if (quote.signedAt || quote.status === "won") throw new ConvexError("QUOTE_LOCKED");
+    const built = await buildFieldQuote(ctx, rest);
+    const wasDraft = quote.status === "draft";
+    const goesLive = wasDraft && rest.asDraft !== true;
+    await ctx.db.patch(quoteId, {
+      ...built.fields,
+      // A quote that was already sent never goes back to draft; a draft stays one until the user finishes it.
+      status: wasDraft ? (goesLive ? "quoted" : "draft") : quote.status,
+    });
+    if (goesLive) {
+      await afterQuoteGoesLive(ctx, { quoteId, userId, args: rest, priceCents: built.finalPriceCents });
+    } else {
+      if (!wasDraft && rest.autoLink !== false) await linkQuoteToCrm(ctx, { quoteId, userId, stage: "quoted" });
+      await ctx.db.insert("auditLog", {
+        tenantId: quote.tenantId,
+        actorUserId: userId,
+        actorKind: "user",
+        action: wasDraft ? "quote.field_draft_update" : "quote.field_update",
+        targetTable: "quoteRequests",
+        targetId: quoteId,
+        meta: { priceCents: built.finalPriceCents },
+        createdAt: Date.now(),
+      });
+    }
+    return { quoteId, priceCents: built.finalPriceCents };
+  },
+});
+
+/**
+ * Delete a quote or a request. Never a signed one (a signed offer is a document the company must keep) and never one the supply
+ * flow already works on. The survey / dossier / inspection / passport / site / delivery that pointed at it keep living, just detached.
+ * The customer and the site card the quote created stay: they are the installer's contacts, not part of the quote.
+ */
+export const deleteQuote = mutation({
+  args: { quoteId: v.id("quoteRequests") },
+  handler: async (ctx, args) => {
+    const quote = await ctx.db.get(args.quoteId);
+    if (!quote) throw new ConvexError("QUOTE_NOT_FOUND");
+    const { userId, membership } = await requirePermission(ctx, quote.tenantId, "quotes.use");
+    // Members can discard their own drafts; anything else that was sent or received needs an admin.
+    const ownDraft = quote.status === "draft" && quote.assignedToUserId === userId;
+    if (!ownDraft && membership.role === "member") throw new ConvexError("INSUFFICIENT_ROLE");
+    if (quote.signedAt) throw new ConvexError("QUOTE_SIGNED");
+    const supply = await ctx.db.query("supplies").withIndex("by_quote", (q) => q.eq("quoteId", args.quoteId)).first();
+    if (supply) throw new ConvexError("QUOTE_HAS_SUPPLY");
+
+    const detachFrom = async (table: "siteSurveys" | "installationDossiers" | "inspectionReports" | "serramentoPassports" | "deliveries") => {
+      const rows = await ctx.db.query(table).withIndex("by_quote", (q) => q.eq("quoteId", args.quoteId)).take(200);
+      for (const row of rows) await ctx.db.patch(row._id, { quoteId: undefined } as never);
+    };
+    for (const table of ["siteSurveys", "installationDossiers", "inspectionReports", "serramentoPassports", "deliveries"] as const) {
+      await detachFrom(table);
+    }
+    const cantiere = quote.cantiereId ? await ctx.db.get(quote.cantiereId) : null;
+    if (cantiere && cantiere.quoteId === args.quoteId) await ctx.db.patch(cantiere._id, { quoteId: undefined });
+
+    await ctx.db.delete(args.quoteId);
+    await ctx.db.insert("auditLog", {
+      tenantId: quote.tenantId,
+      actorUserId: userId,
+      actorKind: "user",
+      action: "quote.delete",
+      targetTable: "quoteRequests",
+      targetId: args.quoteId,
+      meta: { status: quote.status, offerNumber: quote.offerNumber, channel: quote.channel },
+      createdAt: Date.now(),
+    });
+    if (quote.cantiereId) await recomputeCantiereValue(ctx, quote.cantiereId);
+    return { ok: true as const };
+  },
+});
+
+export const signQuote = mutation({
+  args: {
+    quoteId: v.id("quoteRequests"),
+    signatureDataUrl: v.string(),
+    signedByName: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const quote = await ctx.db.get(args.quoteId);
+    if (!quote) throw new ConvexError("QUOTE_NOT_FOUND");
+    // Signing needs the same right as working on quotes (a grade outside sales cannot sign), and a quote is signed once:
+    // a second signature would silently replace the first.
+    const { userId } = await requirePermission(ctx, quote.tenantId, "quotes.use");
+    if (quote.status === "draft") throw new ConvexError("QUOTE_IS_DRAFT");
+    if (quote.signedAt) throw new ConvexError("QUOTE_ALREADY_SIGNED");
+    await enforceForESignature(ctx, quote.tenantId);
+
+    // Refuses a blank / transparent / unreadable picture: a quote is "signed" only when there is a signature to see.
+    assertSignature(args.signatureDataUrl);
+    const signedByName = args.signedByName.trim();
+    if (!signedByName) throw new ConvexError("SIGNER_NAME_REQUIRED");
+
+    const now = Date.now();
+    // The picture goes to its own table (see schema.quoteSignatures); the quote keeps only who signed and when.
+    await ctx.db.insert("quoteSignatures", { tenantId: quote.tenantId, quoteId: args.quoteId, signatureDataUrl: args.signatureDataUrl, createdAt: now });
+    await ctx.db.patch(args.quoteId, {
+      signedByName,
+      signedAt: now,
+      status: "won",
+    });
+
+    await ctx.db.insert("auditLog", {
+      tenantId: quote.tenantId,
+      actorKind: "user",
+      action: "quote.signed",
+      targetTable: "quoteRequests",
+      targetId: args.quoteId,
+      meta: { signedByName: args.signedByName, signedAt: now },
+      createdAt: now,
+    });
+    // A signature closes the deal like "won" does: client active, site confirmed, supply at Ordine, team notified.
+    if (quote.status !== "won") {
+      await emit(ctx, { type: "quote.status_changed", tenantId: quote.tenantId, quoteId: args.quoteId, from: quote.status, to: "won", leadName: lockedSafeLeadName(quote) });
+      await emit(ctx, { type: "quote.won", tenantId: quote.tenantId, quoteId: args.quoteId });
+    }
+    await linkQuoteToCrm(ctx, { quoteId: args.quoteId, userId, stage: "won" });
+    await ensureOrdered(ctx, (await ctx.db.get(args.quoteId)) ?? quote);
+
+    return { ok: true, signedAt: now };
+  },
+});
+
+export const getQuoteForPrint = query({
+  args: { quoteId: v.id("quoteRequests") },
+  handler: async (ctx, args) => {
+    const quote = await ctx.db.get(args.quoteId);
+    if (!quote) return null;
+    await requirePermission(ctx, quote.tenantId, "quotes.use", { allowSuspendedRead: true });
+
+    const tenant = await ctx.db.get(quote.tenantId);
+    // Widget-first plans: the printable document (and its exports) is served
+    // only for requests whose PDF allowance was taken via usage.requestPdfExport.
+    if (tenant) {
+      const ent = resolveTenantEntitlements(tenant);
+      if (quote.quotaLocked === true || quote.suspendedLocked === true) {
+        return { gate: "quote_locked" as const };
+      }
+      if (Number.isFinite(ent.maxPdfExportsPerMonth) && !(await hasMeteredEvent(ctx, quote.tenantId, "widget_pdf", quote._id))) {
+        const counter = await ctx.db
+          .query("usageCounters")
+          .withIndex("by_tenant_period", (q) => q.eq("tenantId", quote.tenantId).eq("period", currentPeriod()))
+          .first();
+        return { gate: "pdf_allowance" as const, used: counter?.pdfExportsCount ?? 0, limit: ent.maxPdfExportsPerMonth };
+      }
+    }
+    // Resilient to duplicate branding rows: take the most recent instead of
+    // crashing with ".unique() found more than one document".
+    const branding = await ctx.db
+      .query("branding")
+      .withIndex("by_configurator", (q) => q.eq("configuratorId", quote.configuratorId))
+      .order("desc")
+      .first();
+
+    const configurator = await ctx.db.get(quote.configuratorId);
+    // The catalogue version the quote was priced on — labels, Uf/Ug/Ψ and telaio names for the PDF/exports.
+    const versionDoc = await ctx.db
+      .query("catalogVersions")
+      .withIndex("by_configurator_version", (q) =>
+        q.eq("configuratorId", quote.configuratorId).eq("version", quote.catalogVersion),
+      )
+      .unique();
+
+    return {
+      gate: null,
+      quote: redactQuoteRequest(await withSignature(ctx, quote)),
+      tenant,
+      branding,
+      configurator,
+      catalog: versionDoc?.payload ?? null,
+    };
+  },
+});
+/** Create a field quote from a completed survey — links survey to quote and pre-fills quote with survey data. */
+export const createFieldQuoteFromSurvey = mutation({
+  args: {
+    tenantId: v.id('tenants'),
+    surveyId: v.id('siteSurveys'),
+    configuratorId: v.id('configurators'),
+  },
+  handler: async (ctx, args) => {
+    await enforceForCreateQuote(ctx, args.tenantId);
+    const { userId } = await requirePermission(ctx, args.tenantId, "quotes.field");
+
+    // Get the survey
+    const survey = await ctx.db.get(args.surveyId);
+    if (!survey) throw new ConvexError('SURVEY_NOT_FOUND');
+    if (survey.tenantId !== args.tenantId) throw new ConvexError('TENANT_MISMATCH');
+    if (survey.status !== 'completed') throw new ConvexError('SURVEY_NOT_COMPLETED');
+    if (survey.quoteId) throw new ConvexError('SURVEY_ALREADY_LINKED');
+
+    const configurator = await ctx.db.get(args.configuratorId);
+    if (!configurator || configurator.tenantId !== args.tenantId) {
+      throw new ConvexError('CONFIGURATOR_NOT_FOUND');
+    }
+
+    const targetVersion = configurator.publishedCatalogVersion ?? 1;
+    const versionDoc = await ctx.db
+      .query('catalogVersions')
+      .withIndex('by_configurator_version', (q) =>
+        q.eq('configuratorId', args.configuratorId).eq('version', targetVersion),
+      )
+      .unique();
+
+    if (!versionDoc) throw new ConvexError('NO_PUBLISHED_VERSION');
+
+    const payload = versionDoc.payload as CatalogPayload;
+
+    // Each opening becomes a piece built from the tenant's own catalogue keys, so it prices for real.
+    // Openings still unmeasured (0) are skipped; every other one goes through the same checks as any quote piece
+    // (whole mm within the catalogue limits, coherent choices), so a bad survey value can never become a priced line.
+    const measured = survey.openings.filter((o) => o.widthMm > 0 && o.heightMm > 0);
+    const items: ProjectItem[] = parseQuoteItems(
+      measured.map((opening) => defaultItem(payload, "finestra1", { width: opening.widthMm, height: opening.heightMm })),
+    );
+    assertCoherentItems(payload, items);
+
+    // Use survey data for quote
+    const tenant = await ctx.db.get(args.tenantId);
+    const region = tenant?.country ? regionForCountry(tenant.country).code : 'IT';
+
+    const baseCalc = calculatePrice(payload, items);
+
+    const subtotalExVat = baseCalc.priceExVatCents;
+    const discountedExVat = Math.round(subtotalExVat * (1 - 0 / 100));
+
+    const effectiveVat = configurator.vatRatePercent;
+    const finalPriceCents = Math.round(discountedExVat * (1 + effectiveVat / 100));
+
+    const quoteId = await ctx.db.insert('quoteRequests', {
+      offerNumber: await nextOfferNumber(ctx, args.tenantId),
+      tenantId: args.tenantId,
+      configuratorId: args.configuratorId,
+      catalogVersion: targetVersion,
+      publicId: configurator.publicId,
+      leadName: survey.customerName,
+      leadEmail: '',
+      leadPhone: undefined,
+      customerAddress: survey.customerAddress,
+      customerCity: survey.customerCity,
+      customerPostalCode: survey.customerPostalCode,
+      leadLocale: configurator.defaultLocale ?? 'it',
+      leadMessage: `Generato da rilievo: ${survey.customerName}`,
+      channel: 'field_b2b',
+      installationType: 'standard',
+      installationPriceCents: 0,
+      demolitionPriceCents: 0,
+      discountPercent: 0,
+regionalSurchargeCents: 0,
+      profitMarginPercent: 30,
+      vatRatePercent: effectiveVat,
+      depositTerms: region === 'FR' ? 'Acompte 30% à la commande · 70% à la livraison' : '30% ordine · 60% merce pronta · 10% posa',
+      regionCode: region,
+      items,
+      priceCents: finalPriceCents,
+      priceExVatCents: baseCalc.priceExVatCents,
+      currency: 'EUR',
+      status: 'quoted',
+      assignedToUserId: userId,
+      // The survey's client/cantiere carries over — the link is never lost
+      // along survey -> quote.
+      clientId: survey.clientId,
+      cantiereId: survey.cantiereId,
+    });
+
+    // Link survey to quote
+    await ctx.db.patch(args.surveyId, { quoteId, updatedAt: Date.now() });
+    const crm = await linkQuoteToCrm(ctx, { quoteId, userId, stage: 'quoted' });
+    // The cantiere found/created for the quote is also the survey's: survey, quote and site stay one folder.
+    if (crm.clientId !== survey.clientId || crm.cantiereId !== survey.cantiereId) {
+      await ctx.db.patch(args.surveyId, { clientId: crm.clientId ?? survey.clientId, cantiereId: crm.cantiereId ?? survey.cantiereId });
+    }
+    await logClientActivity(ctx, {
+      tenantId: args.tenantId,
+      clientId: crm.clientId,
+      userId,
+      type: 'quote',
+      title: 'Preventivo generato da rilievo',
+      relatedTable: 'quoteRequests',
+      relatedId: quoteId,
+    });
+
+    await ctx.db.insert('auditLog', {
+      tenantId: args.tenantId,
+      actorUserId: userId,
+      actorKind: 'user',
+      action: 'quote.field_create_from_survey',
+      targetTable: 'quoteRequests',
+      targetId: quoteId,
+      meta: { priceCents: finalPriceCents, leadName: survey.customerName, surveyId: args.surveyId },
+      createdAt: Date.now(),
+    });
+
+    // Increment quote count for quota tracking
+    const period = currentPeriod();
+    const counter = await ctx.db
+      .query('usageCounters')
+      .withIndex('by_tenant_period', (q) => q.eq('tenantId', args.tenantId).eq('period', period))
+      .first();
+    if (counter) {
+      await ctx.db.patch(counter._id, {
+        quoteRequestsCount: counter.quoteRequestsCount + 1,
+      });
+    } else {
+      await ctx.db.insert('usageCounters', {
+        tenantId: args.tenantId,
+        period,
+        quoteRequestsCount: 1,
+        activeConfiguratorsCount: 0,
+      });
+    }
+
+    return { quoteId, priceCents: finalPriceCents };
+  },
+});
+
+/** Create a quote with supplier lines for multi-supplier breakdown (Enterprise/Showroom only). */
+export const createQuoteWithSuppliers = mutation({
+  args: {
+    tenantId: v.id('tenants'),
+    configuratorId: v.id('configurators'),
+    items: v.array(v.any()),
+    supplierLines: v.array(v.object({
+      supplierId: v.id('catalogSuppliers'),
+      itemIndex: v.number(),
+      supplierPriceCents: v.number(),
+      leadTimeDays: v.number(),
+    })),
+    regionCode: v.union(v.literal('IT'), v.literal('FR'), v.literal('BE'), v.literal('NL'), v.literal('DE'), v.literal('LU')),
+    leadName: v.string(),
+    leadEmail: v.string(),
+    leadPhone: v.optional(v.string()),
+    customerAddress: v.optional(v.string()),
+    customerCity: v.optional(v.string()),
+    customerPostalCode: v.optional(v.string()),
+    leadLocale: v.optional(v.string()),
+    leadMessage: v.optional(v.string()),
+    installationType: v.optional(v.string()),
+    installationPriceCents: v.optional(v.number()),
+    demolitionPriceCents: v.optional(v.number()),
+    discountPercent: v.optional(v.number()),
+    ecobonusPercent: v.optional(v.number()),
+    regionalSurchargeCents: v.optional(v.number()),
+    profitMarginPercent: v.optional(v.number()),
+    vatRatePercent: v.optional(v.number()),
+    /** Fiscal data of the customer: drives the VAT rule (domestic / intra-EU with VIES / export / manual 0%). */
+    buyerCountry: v.optional(v.string()),
+    buyerIsBusiness: v.optional(v.boolean()),
+    buyerVatId: v.optional(v.string()),
+    vatManualZero: v.optional(v.boolean()),
+    vatManualReason: v.optional(v.string()),
+    depositTerms: v.optional(v.string()),
+    poseType: v.optional(v.string()),
+    rgeCertificate: v.optional(v.string()),
+    maPrimeRenovPercent: v.optional(v.number()),
+    decennaleInsurance: v.optional(v.string()),
+    rensonGrilleWidthMm: v.optional(v.number()),
+    voletMonoblocHeightMm: v.optional(v.number()),
+    hvlJointCount: v.optional(v.number()),
+    isostoneSill: v.optional(v.boolean()),
+    ralMontage: v.optional(v.boolean()),
+    rcSecurityLevel: v.optional(v.string()),
+    klimabonusEligible: v.optional(v.boolean()),
+    clientId: v.optional(v.id('clients')),
+    cantiereId: v.optional(v.id('cantieri')),
+    autoLink: v.optional(v.boolean()),
+  },
+  handler: async (ctx, args) => {
+    await enforceForCreateQuote(ctx, args.tenantId);
+    await enforceForMultiSupplier(ctx, args.tenantId);
+    const { userId } = await requirePermission(ctx, args.tenantId, "quotes.field");
+
+    const configurator = await ctx.db.get(args.configuratorId);
+    if (!configurator || configurator.tenantId !== args.tenantId) {
+      throw new ConvexError('CONFIGURATOR_NOT_FOUND');
+    }
+
+    const targetVersion = configurator.publishedCatalogVersion ?? 1;
+    const versionDoc = await ctx.db
+      .query('catalogVersions')
+      .withIndex('by_configurator_version', (q) =>
+        q.eq('configuratorId', args.configuratorId).eq('version', targetVersion),
+      )
+      .unique();
+
+    if (!versionDoc) throw new ConvexError('NO_PUBLISHED_VERSION');
+
+    const payload = versionDoc.payload as CatalogPayload;
+    const items = parseQuoteItems(args.items);
+    assertCoherentItems(payload, items);
+
+    // Validate supplier lines (bounded: at most a few per piece).
+    if (args.supplierLines && args.supplierLines.length > items.length * 5) throw new ConvexError("INVALID_INPUT");
+    if (args.supplierLines && args.supplierLines.length > 0) {
+      for (const line of args.supplierLines) {
+        const supplier = await ctx.db.get(line.supplierId);
+        if (!supplier || supplier.tenantId !== args.tenantId || !supplier.isActive) {
+          throw new ConvexError('INVALID_SUPPLIER');
+        }
+        if (line.itemIndex < 0 || line.itemIndex >= items.length) {
+          throw new ConvexError('INVALID_ITEM_INDEX');
+        }
+      }
+    }
+
+    // Authoritative calculation â€” server is the source of truth for price.
+    const baseCalc = calculatePrice(payload, items);
+
+    const installCost = Math.min(Math.max(Math.round(args.installationPriceCents ?? 0), 0), MONEY_MAX);
+    const demolitionCost = Math.min(Math.max(Math.round(args.demolitionPriceCents ?? 0), 0), MONEY_MAX);
+    for (const text of [args.leadName, args.leadEmail, args.leadPhone, args.customerAddress, args.customerCity,
+      args.customerPostalCode, args.installationType, args.depositTerms, args.poseType, args.rgeCertificate,
+      args.decennaleInsurance, args.rcSecurityLevel]) boundedText(text, 500);
+    boundedText(args.leadMessage);
+    const regionalSurcharge = Math.min(Math.max(Math.round(args.regionalSurchargeCents ?? 0), 0), 100_000_000);
+    const discountPct = Math.min(Math.max(args.discountPercent ?? 0, 0), 100);
+    const ecobonusPct = Math.min(Math.max(args.ecobonusPercent ?? 0, 0), 100);
+    const maPrimePct = Math.min(Math.max(args.maPrimeRenovPercent ?? 0, 0), 100);
+
+    const subtotalExVat = baseCalc.priceExVatCents + installCost + demolitionCost + regionalSurcharge;
+    const discountedExVat = Math.round(subtotalExVat * (1 - discountPct / 100));
+
+    const tenantDoc = await ctx.db.get(args.tenantId);
+    if (!tenantDoc) throw new ConvexError("TENANT_NOT_FOUND");
+    const vat = await resolveQuoteVat(ctx, tenantDoc, {
+      requestedPercent: args.vatRatePercent !== undefined ? args.vatRatePercent : configurator.vatRatePercent,
+      buyerCountry: args.buyerCountry,
+      buyerIsBusiness: args.buyerIsBusiness,
+      buyerVatId: args.buyerVatId,
+      manualZero: args.vatManualZero,
+      manualReason: args.vatManualReason,
+    });
+    const effectiveVat = vat.ratePercent;
+    const finalPriceCents = Math.round(discountedExVat * (1 + effectiveVat / 100));
+    const ecobonusDeductionCents = ecobonusPct > 0 ? Math.round(finalPriceCents * (ecobonusPct / 100)) : undefined;
+    const maPrimeRenovDeductionCents = maPrimePct > 0 ? Math.round(finalPriceCents * (maPrimePct / 100)) : undefined;
+
+    const links = await resolveLinks(ctx, args.tenantId, {
+      clientId: args.clientId,
+      cantiereId: args.cantiereId,
+    });
+
+    const quoteId = await ctx.db.insert('quoteRequests', {
+      offerNumber: await nextOfferNumber(ctx, args.tenantId),
+      tenantId: args.tenantId,
+      configuratorId: args.configuratorId,
+      catalogVersion: targetVersion,
+      publicId: configurator.publicId,
+      leadName: args.leadName.trim() || links.client?.name || '',
+      leadEmail: args.leadEmail.trim() || links.client?.email || '',
+      leadPhone: args.leadPhone?.trim() || links.client?.phone,
+      customerAddress: args.customerAddress?.trim() || links.client?.siteAddress,
+      customerCity: args.customerCity?.trim() || links.client?.siteCity,
+      customerPostalCode: args.customerPostalCode?.trim() || links.client?.sitePostalCode,
+      leadLocale: args.leadLocale ?? configurator.defaultLocale ?? 'it',
+      leadMessage: args.leadMessage,
+      channel: 'field_b2b',
+      installationType: args.installationType,
+      installationIncluded: installationIncluded(payload, items),
+      installationPriceCents: installCost,
+      demolitionPriceCents: demolitionCost,
+      discountPercent: discountPct,
+      ecobonusPercent: ecobonusPct > 0 ? ecobonusPct : undefined,
+      ecobonusDeductionCents,
+      regionalSurchargeCents: regionalSurcharge > 0 ? regionalSurcharge : undefined,
+      profitMarginPercent: args.profitMarginPercent,
+      depositTerms: args.depositTerms ?? (args.regionCode === 'FR' ? 'Acompte 30% à la commande · 70% à la livraison' : '30% ordine · 60% merce pronta · 10% posa'),
+      regionCode: args.regionCode,
+      poseType: args.poseType,
+      rgeCertificate: args.rgeCertificate,
+      maPrimeRenovPercent: maPrimePct > 0 ? maPrimePct : undefined,
+      maPrimeRenovDeductionCents,
+      decennaleInsurance: args.decennaleInsurance,
+      rensonGrilleWidthMm: args.rensonGrilleWidthMm,
+      voletMonoblocHeightMm: args.voletMonoblocHeightMm,
+      hvlJointCount: args.hvlJointCount,
+      isostoneSill: args.isostoneSill,
+      ralMontage: args.ralMontage,
+      rcSecurityLevel: args.rcSecurityLevel,
+      klimabonusEligible: args.klimabonusEligible,
+      items,
+      priceCents: finalPriceCents,
+      priceExVatCents: discountedExVat,
+      buyerCountry: vat.buyerCountry,
+      buyerIsBusiness: vat.buyerIsBusiness,
+      buyerVatId: vat.buyerVatId,
+      viesCheckId: vat.viesCheckId,
+      vatReason: vat.reason,
+      vatManualReason: vat.manualReason,
+      vatRatePercent: effectiveVat,
+      currency: 'EUR',
+      status: 'quoted',
+      assignedToUserId: userId,
+      supplierLines: args.supplierLines,
+      clientId: links.clientId,
+      cantiereId: links.cantiereId,
+    });
+    const crm = args.autoLink === false
+      ? { clientId: links.clientId, cantiereId: links.cantiereId }
+      : await linkQuoteToCrm(ctx, { quoteId, userId, stage: 'quoted' });
+    await logClientActivity(ctx, {
+      tenantId: args.tenantId,
+      clientId: crm.clientId,
+      userId,
+      type: 'quote',
+      title: 'Preventivo multi-fornitore creato',
+      relatedTable: 'quoteRequests',
+      relatedId: quoteId,
+    });
+
+    await ctx.db.insert('auditLog', {
+      tenantId: args.tenantId,
+      actorUserId: userId,
+      actorKind: 'user',
+      action: 'quote.field_create_with_suppliers',
+      targetTable: 'quoteRequests',
+      targetId: quoteId,
+      meta: { priceCents: finalPriceCents, leadName: args.leadName, supplierCount: args.supplierLines?.length ?? 0 },
+      createdAt: Date.now(),
+    });
+
+    // Increment quote count for quota tracking
+    const period = currentPeriod();
+    const counter = await ctx.db
+      .query('usageCounters')
+      .withIndex('by_tenant_period', (q) => q.eq('tenantId', args.tenantId).eq('period', period))
+      .first();
+    if (counter) {
+      await ctx.db.patch(counter._id, {
+        quoteRequestsCount: counter.quoteRequestsCount + 1,
+      });
+    } else {
+      await ctx.db.insert('usageCounters', {
+        tenantId: args.tenantId,
+        period,
+        quoteRequestsCount: 1,
+        activeConfiguratorsCount: 0,
+      });
+    }
+
+    return { quoteId, priceCents: finalPriceCents };
+  },
+});
+
