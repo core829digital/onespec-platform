@@ -121,22 +121,19 @@ http.route({
   path: "/api/widget/view",
   method: "POST",
   handler: httpAction(async (ctx, req) => {
-    let body: { publicId?: string; viewToken?: string };
-    try {
-      body = await req.json();
-    } catch {
-      return json({ ok: false }, 400);
-    }
-    if (!body.publicId) return json({ ok: false }, 400);
+    const body = await readJson(req);
+    const publicId = field(body, "publicId", 40);
+    if (!publicId) return json({ ok: false }, 400);
+    const rawViewToken = field(body, "viewToken", 64, true);
 
     const ip = clientIp(req.headers);
     const token =
-      body.viewToken && /^[A-Za-z0-9_-]{8,64}$/.test(body.viewToken)
-        ? body.viewToken
+      rawViewToken && /^[A-Za-z0-9_-]{8,64}$/.test(rawViewToken)
+        ? rawViewToken
         : await hashIp(ip);
 
     const res = await ctx.runMutation(internal.widget.recordWidgetView, {
-      publicId: body.publicId,
+      publicId,
       viewToken: token,
     });
     return json({ ok: true, counted: res.counted });
@@ -271,25 +268,21 @@ http.route({
   path: "/api/passport/scan",
   method: "POST",
   handler: httpAction(async (ctx, req) => {
-    let body: { token?: string };
-    try {
-      body = await req.json();
-    } catch {
-      return json({ ok: false }, 400);
-    }
-    if (!body.token || !/^[A-Za-z0-9]{8,32}$/.test(body.token)) return json({ ok: false }, 400);
+    const body = await readJson(req);
+    const token = field(body, "token", 32);
+    if (!token || !TOKEN_RE.test(token)) return json({ ok: false }, 400);
     // Scan throttle: counted:false past the limit, never an error (page must not break).
     try {
       const ip0 = clientIp(req.headers);
       await ctx.runMutation(internal.lib.ratelimit.checkBucket, {
-        bucketKey: `scan:${body.token}:${await hashIp(ip0)}`,
+        bucketKey: `scan:${token}:${await hashIp(ip0)}`,
         tokens: 10,
         refillMs: 60 * 60 * 1000,
       });
     } catch {
       return json({ ok: true, counted: false });
     }
-    await ctx.runMutation(internal.passports.recordScan, { token: body.token });
+    await ctx.runMutation(internal.passports.recordScan, { token });
     return json({ ok: true });
   }),
 });
@@ -298,46 +291,42 @@ http.route({
   path: "/api/passport/intervention",
   method: "POST",
   handler: httpAction(async (ctx, req) => {
-    let body: {
-      token?: string;
-      kind?: "adjustment" | "warranty" | "maintenance" | "other";
-      message?: string;
-      contactName?: string;
-      contactPhone?: string;
-      contactEmail?: string;
-    };
-    try {
-      body = await req.json();
-    } catch {
-      return json({ ok: false, error: "BAD_JSON" }, 400);
-    }
-    if (!body.token || !/^[A-Za-z0-9]{8,32}$/.test(body.token)) {
+    const body = await readJson(req);
+    const token = field(body, "token", 32);
+    if (!token || !TOKEN_RE.test(token)) {
       return json({ ok: false, error: "BAD_TOKEN" }, 400);
     }
-    const kind = body.kind ?? "other";
-    if (!["adjustment", "warranty", "maintenance", "other"].includes(kind)) {
+    const KINDS = ["adjustment", "warranty", "maintenance", "other"] as const;
+    const rawKind = field(body, "kind", 20, true);
+    if (rawKind !== undefined && !(KINDS as readonly string[]).includes(rawKind)) {
       return json({ ok: false, error: "BAD_KIND" }, 400);
     }
-    // Contact fields are runtime-checked, not just cast (#44): a mistyped value
-    // used to reach the mutation's args validator and surface as a 500.
-    if (
-      (body.contactName !== undefined && !isStr(body.contactName, 80, true)) ||
-      (body.contactPhone !== undefined && !isStr(body.contactPhone, 40, true)) ||
-      (body.contactEmail !== undefined && !isStr(body.contactEmail, 120, true))
-    ) {
+    const kind = rawKind === undefined ? "other" : (rawKind as (typeof KINDS)[number]);
+    // Every field narrows off the parsed body (#67, #44): present-but-mistyped
+    // is a clean 400 here, never a mutation-validator 500 downstream.
+    const optContact = (key: string, max: number): string | undefined | false => {
+      const v = body[key];
+      if (v === undefined) return undefined;
+      return typeof v === "string" && v.length <= max ? v : false;
+    };
+    const contactName = optContact("contactName", 80);
+    const contactPhone = optContact("contactPhone", 40);
+    const contactEmail = optContact("contactEmail", 120);
+    if (contactName === false || contactPhone === false || contactEmail === false) {
       return json({ ok: false, error: "BAD_CONTACT" }, 400);
     }
+    const message = typeof body.message === "string" ? body.message.slice(0, 2000) : "";
     const ip = clientIp(req.headers);
     const ipHash = await hashIp(ip);
     // Intervention throttle: per-IP bucket + global per-passport bucket (spam fan-out guard).
     try {
       await ctx.runMutation(internal.lib.ratelimit.checkBucket, {
-        bucketKey: `passport:${body.token}:${ipHash}`,
+        bucketKey: `passport:${token}:${ipHash}`,
         tokens: 5,
         refillMs: 10 * 60 * 1000,
       });
       await ctx.runMutation(internal.lib.ratelimit.checkBucket, {
-        bucketKey: `passport:${body.token}:global`,
+        bucketKey: `passport:${token}:global`,
         tokens: 20,
         refillMs: 60 * 60 * 1000,
       });
@@ -349,12 +338,12 @@ http.route({
     }
     try {
       await ctx.runMutation(internal.passports.recordInterventionFromHttp, {
-        token: body.token,
+        token,
         kind,
-        message: String(body.message ?? ""),
-        contactName: body.contactName,
-        contactPhone: body.contactPhone,
-        contactEmail: body.contactEmail,
+        message,
+        contactName,
+        contactPhone,
+        contactEmail,
         sourceIpHash: ipHash,
       });
     } catch (e) {
@@ -385,6 +374,30 @@ for (const path of INSPECTION_PATHS) {
 
 const TOKEN_RE = /^[A-Za-z0-9]{8,32}$/;
 
+/**
+ * Parse, don't cast (#67): the request body is unknown until narrowed. Every
+ * route reads it through here and validates each field with `str`/`isStr` —
+ * a `let body: {...} = await req.json()` annotation checked nothing at
+ * runtime and forwarded mistyped values straight into the mutation validators
+ * (the 500-vs-400 delta that bug #44 fixed on one route).
+ */
+async function readJson(req: Request): Promise<Record<string, unknown>> {
+  try {
+    const parsed: unknown = await req.json();
+    return parsed !== null && typeof parsed === "object" && !Array.isArray(parsed)
+      ? (parsed as Record<string, unknown>)
+      : {};
+  } catch {
+    return {};
+  }
+}
+
+/** String field off a parsed body: a real string, non-empty unless allowed. */
+function field(body: Record<string, unknown>, key: string, max: number, allowEmpty = false): string | undefined {
+  const v = body[key];
+  return typeof v === "string" && v.length <= max && (allowEmpty || v.length > 0) ? v : undefined;
+}
+
 /** Shared throttle for the 4 public inspection-write endpoints. Returns a 429 Response when exhausted, else null. */
 async function checkInspectionLimit(
   runBucket: (bucketKey: string, tokens: number, refillMs: number) => Promise<unknown>,
@@ -414,18 +427,19 @@ http.route({
   path: "/api/inspection/upload-url",
   method: "POST",
   handler: httpAction(async (ctx, req) => {
-    const body = (await req.json().catch(() => ({}))) as { token?: string };
-    if (!body.token || !TOKEN_RE.test(body.token)) return json({ ok: false }, 400);
+    const body = await readJson(req);
+    const token = field(body, "token", 32);
+    if (!token || !TOKEN_RE.test(token)) return json({ ok: false }, 400);
     const limited = await checkInspectionLimit(
       (bucketKey, tokens, refillMs) =>
         ctx.runMutation(internal.lib.ratelimit.checkBucket, { bucketKey, tokens, refillMs }),
       req,
-      body.token,
+      token,
     );
     if (limited) return limited;
     try {
       const url = await ctx.runMutation(internal.inspections.installerUploadUrlFromHttp, {
-        token: body.token,
+        token,
       });
       return json({ ok: true, url });
     } catch {
@@ -438,27 +452,25 @@ http.route({
   path: "/api/inspection/photo",
   method: "POST",
   handler: httpAction(async (ctx, req) => {
-    const body = (await req.json().catch(() => ({}))) as {
-      token?: string;
-      photoKey?: string;
-      storageId?: string;
-    };
-    if (!body.token || !TOKEN_RE.test(body.token) || !body.photoKey || !body.storageId) {
+    const body = await readJson(req);
+    const token = field(body, "token", 32);
+    const photoKey = field(body, "photoKey", 64);
+    const storageId = field(body, "storageId", 64);
+    if (!token || !TOKEN_RE.test(token) || !photoKey || !storageId) {
       return json({ ok: false }, 400);
     }
-    if (!isStr(body.photoKey, 64) || !isStr(body.storageId, 64)) return json({ ok: false, error: "BAD_REQUEST" }, 400);
     const limitedPhoto = await checkInspectionLimit(
       (bucketKey, tokens, refillMs) =>
         ctx.runMutation(internal.lib.ratelimit.checkBucket, { bucketKey, tokens, refillMs }),
       req,
-      body.token,
+      token,
     );
     if (limitedPhoto) return limitedPhoto;
     try {
       await ctx.runMutation(internal.inspections.setInstallerPhotoFromHttp, {
-        token: body.token,
-        photoKey: body.photoKey,
-        storageId: body.storageId as Id<"_storage">,
+        token,
+        photoKey,
+        storageId: storageId as Id<"_storage">,
       });
       return json({ ok: true });
     } catch (e) {
@@ -472,33 +484,31 @@ http.route({
   path: "/api/inspection/checks",
   method: "POST",
   handler: httpAction(async (ctx, req) => {
-    const body = (await req.json().catch(() => ({}))) as {
-      token?: string;
-      checks?: { key: string; passed: boolean }[];
-      installerNotes?: string;
-    };
-    if (!body.token || !TOKEN_RE.test(body.token) || !Array.isArray(body.checks)) {
+    const body = await readJson(req);
+    const token = field(body, "token", 32);
+    const rawChecks = body.checks;
+    // checks entries narrow here: only {key: string, passed: boolean-ish} survive.
+    const checks = Array.isArray(rawChecks)
+      ? rawChecks
+          .filter((c): c is { key: string } => !!c && typeof c === "object" && typeof (c as { key?: unknown }).key === "string")
+          .map((c) => ({ key: c.key.slice(0, 64), passed: !!(c as { passed?: unknown }).passed }))
+      : null;
+    const installerNotes = field(body, "installerNotes", 5000, true);
+    if (!token || !TOKEN_RE.test(token) || checks === null || checks.length > 100) {
       return json({ ok: false }, 400);
-    }
-    if (
-      body.checks.length > 100 ||
-      !body.checks.every((c) => c && typeof c === "object" && isStr(c.key, 64)) ||
-      (body.installerNotes !== undefined && !isStr(body.installerNotes, 5000, true))
-    ) {
-      return json({ ok: false, error: "BAD_REQUEST" }, 400);
     }
     const limitedChecks = await checkInspectionLimit(
       (bucketKey, tokens, refillMs) =>
         ctx.runMutation(internal.lib.ratelimit.checkBucket, { bucketKey, tokens, refillMs }),
       req,
-      body.token,
+      token,
     );
     if (limitedChecks) return limitedChecks;
     try {
       await ctx.runMutation(internal.inspections.updateInstallerChecksFromHttp, {
-        token: body.token,
-        checks: body.checks.map((c) => ({ key: String(c.key), passed: !!c.passed })),
-        installerNotes: body.installerNotes,
+        token,
+        checks,
+        installerNotes,
       });
       return json({ ok: true });
     } catch {
@@ -511,25 +521,17 @@ http.route({
   path: "/api/inspection/sign",
   method: "POST",
   handler: httpAction(async (ctx, req) => {
-    const body = (await req.json().catch(() => ({}))) as {
-      token?: string;
-      signatureDataUrl?: string;
-      signedByName?: string;
-      clientRemarks?: string;
-    };
+    const body = await readJson(req);
+    const token = field(body, "token", 32);
+    const signatureDataUrl = field(body, "signatureDataUrl", 500_000);
+    const signedByName = field(body, "signedByName", 200);
+    const clientRemarks = field(body, "clientRemarks", 5000, true);
     if (
-      !body.token ||
-      !TOKEN_RE.test(body.token) ||
-      !body.signatureDataUrl ||
-      !body.signedByName
-    ) {
-      return json({ ok: false, error: "BAD_REQUEST" }, 400);
-    }
-    if (
-      !isStr(body.signatureDataUrl, 500_000) ||
-      !/^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(body.signatureDataUrl) ||
-      !isStr(body.signedByName, 200) ||
-      (body.clientRemarks !== undefined && !isStr(body.clientRemarks, 5000, true))
+      !token ||
+      !TOKEN_RE.test(token) ||
+      !signatureDataUrl ||
+      !signedByName ||
+      !/^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(signatureDataUrl)
     ) {
       return json({ ok: false, error: "BAD_REQUEST" }, 400);
     }
@@ -537,15 +539,15 @@ http.route({
       (bucketKey, tokens, refillMs) =>
         ctx.runMutation(internal.lib.ratelimit.checkBucket, { bucketKey, tokens, refillMs }),
       req,
-      body.token,
+      token,
     );
     if (limitedSign) return limitedSign;
     try {
       await ctx.runMutation(internal.inspections.signByInstallerFromHttp, {
-        token: body.token,
-        signatureDataUrl: body.signatureDataUrl,
-        signedByName: body.signedByName,
-        clientRemarks: body.clientRemarks,
+        token,
+        signatureDataUrl,
+        signedByName,
+        clientRemarks,
       });
       return json({ ok: true });
     } catch (e) {
@@ -633,11 +635,16 @@ if (/^[A-Za-z0-9_-]{24,128}$/.test(STRIPE_WEBHOOK_TOKEN)) http.route({
       }
 
       if (event.type === "checkout.session.completed" && !result.duplicate) {
-        const object = (event.data as { object?: Record<string, unknown> } | undefined)?.object;
-        const metadata = object?.metadata as Record<string, string> | undefined;
-        const tenantId =
-          (object?.client_reference_id as string | undefined) ?? metadata?.tenantId;
-        const ownerUserId = metadata?.ownerUserId;
+        // Narrow step by step instead of the old double cast (#67): the SDK
+        // types event.data loosely, so one object-check per hop.
+        const data = typeof event.data === "object" && event.data !== null ? (event.data as { object?: unknown }) : undefined;
+        const object = typeof data?.object === "object" && data.object !== null ? (data.object as Record<string, unknown>) : undefined;
+        const rawMetadata = object?.metadata;
+        const metadata = typeof rawMetadata === "object" && rawMetadata !== null ? (rawMetadata as Record<string, unknown>) : undefined;
+        const readMeta = (k: string) => (typeof metadata?.[k] === "string" ? (metadata[k] as string) : undefined);
+        const clientRef = typeof object?.client_reference_id === "string" ? object.client_reference_id : undefined;
+        const tenantId = clientRef ?? readMeta("tenantId");
+        const ownerUserId = readMeta("ownerUserId");
         try {
         const posthog = createPostHogClient();
         if (posthog && tenantId && ownerUserId) {
