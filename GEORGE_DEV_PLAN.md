@@ -40,7 +40,7 @@ Ordine ajustată după dependențe (#37 înainte de refactorul #53; #34 amânat 
 - [x] 11. #63 — un singur tip canonic `ProjectItem` ✓ 2026-10-21
 - [x] 12. #65 — înlocuiește `v.any()` pe items/payload/labels (step A: types-only) ✓ 2026-10-21
 - [x] 13. #53 — registru fiscal unic (4 copii → 1; necesită #37 ✓) ✓ 2026-10-21
-- [ ] 14. #55 — fabrică de pașapoarte (3 căi → 1)
+- [x] 14. #55 — fabrică de pașapoarte (3 căi → 1) ✓ 2026-10-21
 - [ ] 15. #54 — helper comun quote→won (3 căi drift-uite)
 
 ### Etapa 3 — bug-uri deblocate de refactoruri (5)

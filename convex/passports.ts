@@ -10,10 +10,10 @@ import { complianceForRegion } from "./lib/compliance";
 import { regionForCountry } from "./lib/regions";
 import { guessZoneFromCap, buildAllegatoF, allegatoFToXml, type ClimateZone } from "./lib/enea";
 import { computeOverallUw, type CatalogPayload, type ProjectItem } from "../src/shared/pricing";
-import { nanoid } from "./lib/ids";
 import { internal } from "./_generated/api";
 import { assertOwnedRefs } from "./lib/links";
 import { assertStoredFile, consumeUploadSlot } from "./lib/uploads";
+import { expandQuoteUnits, passportDocFromTemplate, templateFromRegion } from "./lib/passportUnits";
 
 /* ----------------------------- dealer side ------------------------------ */
 
@@ -90,29 +90,21 @@ export const create = mutation({
     if (!label) throw new ConvexError("LABEL_REQUIRED");
     if (!customerName) throw new ConvexError("CUSTOMER_NAME_REQUIRED");
 
-    const req = complianceForRegion(regionCode).dossier;
+    const req = templateFromRegion(regionCode);
     const now = Date.now();
-    return await ctx.db.insert("serramentoPassports", {
+    return await ctx.db.insert("serramentoPassports", passportDocFromTemplate(req, {
       tenantId: args.tenantId,
       regionCode,
+      createdByUserId: userId,
       quoteId: args.quoteId,
       inspectionId: args.inspectionId,
-      createdByUserId: userId,
-      publicToken: nanoid(16),
       label,
       customerName,
       siteAddress: args.siteAddress?.trim(),
       productSummary: args.productSummary?.trim(),
       installedAt: args.installedAt,
-      documents: req.documents.map((d) => ({ key: d.key, label: d.label, required: d.required })),
-      performanceDeclaration: req.performanceDeclaration,
-      maintenanceLabel: req.maintenance.label,
-      maintenancePriceCents: req.maintenance.defaultPriceCents,
-      maintenanceActive: false,
-      scanCount: 0,
-      createdAt: now,
-      updatedAt: now,
-    });
+      now,
+    }));
   },
 });
 
@@ -137,41 +129,24 @@ export const createBatchFromQuote = mutation({
       .withIndex("by_quote", (q) => q.eq("quoteId", args.quoteId))
       .collect();
 
-    const req = complianceForRegion(regionCode).dossier;
-    const rawItems = Array.isArray(quote.items) ? (quote.items as Record<string, unknown>[]) : [];
-    const units: string[] = [];
-    rawItems.forEach((it, i) => {
-      const qty = Math.max(1, Math.round(Number(it.quantity ?? 1)));
-      const base =
-        `${it.productType === "balconyDoor" ? "Porta-finestra" : "Finestra"} ${it.width ?? "?"}×${
-          it.height ?? "?"
-        }`.trim() || `Serramento ${i + 1}`;
-      for (let k = 0; k < qty; k++) units.push(qty > 1 ? `${base} (${k + 1}/${qty})` : base);
-    });
+    const req = templateFromRegion(regionCode);
+    const units = expandQuoteUnits(quote);
 
     const now = Date.now();
     const created: string[] = [];
     for (let idx = existing.length; idx < units.length; idx++) {
-      const id = await ctx.db.insert("serramentoPassports", {
+      const id = await ctx.db.insert("serramentoPassports", passportDocFromTemplate(req, {
         tenantId: args.tenantId,
         regionCode,
-        quoteId: args.quoteId,
         createdByUserId: userId,
-        publicToken: nanoid(16),
+        quoteId: args.quoteId,
         label: `FIN-${String(idx + 1).padStart(2, "0")} · ${units[idx]}`,
         customerName: quote.leadName,
         siteAddress: [quote.customerAddress, quote.customerCity].filter(Boolean).join(", ") || undefined,
         productSummary: units[idx],
         installedAt: now,
-        documents: req.documents.map((d) => ({ key: d.key, label: d.label, required: d.required })),
-        performanceDeclaration: req.performanceDeclaration,
-        maintenanceLabel: req.maintenance.label,
-        maintenancePriceCents: req.maintenance.defaultPriceCents,
-        maintenanceActive: false,
-        scanCount: 0,
-        createdAt: now,
-        updatedAt: now,
-      });
+        now,
+      }));
       created.push(id);
     }
     return { created: created.length, skipped: existing.length, total: units.length };
@@ -196,16 +171,7 @@ export const generatePassportQrs = mutation({
     const quote = await ctx.db.get(p.quoteId);
     if (!quote) throw new ConvexError("QUOTE_NOT_FOUND");
 
-    const rawItems = Array.isArray(quote.items) ? (quote.items as Record<string, unknown>[]) : [];
-    const units: string[] = [];
-    rawItems.forEach((it, i) => {
-      const qty = Math.max(1, Math.round(Number(it.quantity ?? 1)));
-      const base =
-        `${it.productType === "balconyDoor" ? "Porta-finestra" : "Finestra"} ${it.width ?? "?"}×${
-          it.height ?? "?"
-        }`.trim() || `Serramento ${i + 1}`;
-      for (let k = 0; k < qty; k++) units.push(qty > 1 ? `${base} (${k + 1}/${qty})` : base);
-    });
+    const units = expandQuoteUnits(quote);
 
     const results: { token: string; label: string }[] = [];
 
@@ -218,31 +184,32 @@ export const generatePassportQrs = mutation({
       .withIndex("by_quote", (q) => q.eq("quoteId", p.quoteId))
       .collect();
 
+    // The QR labels clone the dossier template of the passport they belong to.
+    const template = {
+      documents: p.documents.map((d) => ({ key: d.key, label: d.label, required: d.required })),
+      performanceDeclaration: p.performanceDeclaration,
+      maintenanceLabel: p.maintenanceLabel,
+      maintenancePriceCents: p.maintenancePriceCents,
+    };
+
     for (let idx = 0; idx < units.length; idx++) {
       if (idx < existing.length) {
         results.push({ token: existing[idx].publicToken, label: units[idx] });
         continue;
       }
-      const id = await ctx.db.insert("serramentoPassports", {
+      const now = Date.now();
+      const id = await ctx.db.insert("serramentoPassports", passportDocFromTemplate(template, {
         tenantId: p.tenantId,
         regionCode: p.regionCode,
-        quoteId: p.quoteId,
         createdByUserId: p.createdByUserId,
-        publicToken: nanoid(16),
+        quoteId: p.quoteId,
         label: `FIN-${String(idx + 1).padStart(2, "0")} · ${units[idx]}`,
         customerName: p.customerName,
         siteAddress: p.siteAddress,
         productSummary: units[idx],
         installedAt: p.installedAt,
-        documents: p.documents.map((d) => ({ key: d.key, label: d.label, required: d.required })),
-        performanceDeclaration: p.performanceDeclaration,
-        maintenanceLabel: p.maintenanceLabel,
-        maintenancePriceCents: p.maintenancePriceCents,
-        maintenanceActive: false,
-        scanCount: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      });
+        now,
+      }));
       results.push({ token: (await ctx.db.get(id))!.publicToken, label: units[idx] });
     }
 

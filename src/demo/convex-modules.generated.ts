@@ -63,6 +63,7 @@ export const DEMO_CONVEX_MODULES: Record<string, Loader> = {
   "../convex/lib/metering.ts": () => import("../../convex/lib/metering"),
   "../convex/lib/mfaCrypto.ts": () => import("../../convex/lib/mfaCrypto"),
   "../convex/lib/partnerLinks.ts": () => import("../../convex/lib/partnerLinks"),
+  "../convex/lib/passportUnits.ts": () => import("../../convex/lib/passportUnits"),
   "../convex/lib/payload.ts": () => import("../../convex/lib/payload"),
   "../convex/lib/pdfSniff.ts": () => import("../../convex/lib/pdfSniff"),
   "../convex/lib/plan.ts": () => import("../../convex/lib/plan"),
