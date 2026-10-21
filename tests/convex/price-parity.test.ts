@@ -62,6 +62,26 @@ describe("same pieces, same price in widget, Showroom and B2B quote", () => {
     expect(priceCents).toBe(engine.priceCents);
   });
 
+  test("Showroom VAT panel pairs the region rate with its own amounts, not the configurator's (#34)", async () => {
+    const { payload } = await setup();
+    // A French configurator at its default 10% — the region policy selects 5.5%
+    // (energy renovation) and 21% (BE, young building) while the configurator
+    // prices at 10%: the displayed row must derive its cents from the SAME
+    // rate as its label.
+    const fr = { ...payload, configurator: { ...payload.configurator, vatRatePercent: 10 } };
+    const net = calculatePrice(fr, [sampleItem]).priceExVatCents;
+
+    const frEnergy = computeCalculationPreview(fr, 1, [sampleItem], { regionCode: "FR", buildingAge: 20, isEnergyRenovation: true, deductionPercent: 0 });
+    expect(frEnergy.vatBreakdown[0]!.rate).toBe(0.055);
+    expect(frEnergy.vatBreakdown[0]!.vatCents).toBe(Math.round(net * 0.055));
+    expect(frEnergy.vatBreakdown[0]!.totalCents).toBe(net + Math.round(net * 0.055));
+
+    const be = computeCalculationPreview(fr, 1, [sampleItem], { regionCode: "BE", buildingAge: 5, isEnergyRenovation: false, deductionPercent: 0 });
+    expect(be.vatBreakdown[0]!.rate).toBe(0.21);
+    expect(be.vatBreakdown[0]!.vatCents).toBe(Math.round(net * 0.21));
+    expect(be.vatBreakdown[0]!.totalCents).toBe(net + Math.round(net * 0.21));
+  });
+
   test("B2B extras: the editor's arithmetic and the server's are one function", async () => {
     const { payload, asOwner, seeded, configuratorId, t } = await setup();
     const engine = calculatePrice(payload, pieces);

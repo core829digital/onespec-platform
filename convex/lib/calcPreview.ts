@@ -79,16 +79,19 @@ function calculateVatBreakdown(
     return breakdown;
   }
 
-  // Single-rate regions share the key selection; the amounts come from the
-  // priced calculation (priceCents minus its ex-VAT part).
+  // Single-rate regions share the key selection; the amounts are derived from
+  // the SELECTED rate (#34), never from the configurator's vatRatePercent the
+  // headline price was rounded at — a legally-defined rate must not sit next
+  // to another rate's cents. Same arithmetic as regions.calculateVAT.
   const { key, fallback } = vatKeyForRegion(region.code, isEnergyRenovation, buildingAge);
   const vatRate = region.vatRates.find((v) => v.key === (key ?? region.defaultVatKey)) || region.vatRates[fallback];
+  const vatCents = Math.round(baseCalc.priceExVatCents * vatRate.percent / 100);
   breakdown.push({
     rate: vatRate.percent / 100,
     label: vatRate.label,
     baseCents: baseCalc.priceExVatCents,
-    vatCents: baseCalc.priceCents - baseCalc.priceExVatCents,
-    totalCents: baseCalc.priceCents,
+    vatCents,
+    totalCents: baseCalc.priceExVatCents + vatCents,
   });
   return breakdown;
 }
