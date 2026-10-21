@@ -318,6 +318,15 @@ http.route({
     if (!["adjustment", "warranty", "maintenance", "other"].includes(kind)) {
       return json({ ok: false, error: "BAD_KIND" }, 400);
     }
+    // Contact fields are runtime-checked, not just cast (#44): a mistyped value
+    // used to reach the mutation's args validator and surface as a 500.
+    if (
+      (body.contactName !== undefined && !isStr(body.contactName, 80, true)) ||
+      (body.contactPhone !== undefined && !isStr(body.contactPhone, 40, true)) ||
+      (body.contactEmail !== undefined && !isStr(body.contactEmail, 120, true))
+    ) {
+      return json({ ok: false, error: "BAD_CONTACT" }, 400);
+    }
     const ip = clientIp(req.headers);
     const ipHash = await hashIp(ip);
     // Intervention throttle: per-IP bucket + global per-passport bucket (spam fan-out guard).
