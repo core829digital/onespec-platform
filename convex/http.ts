@@ -376,7 +376,7 @@ const TOKEN_RE = /^[A-Za-z0-9]{8,32}$/;
 
 /**
  * Parse, don't cast (#67): the request body is unknown until narrowed. Every
- * route reads it through here and validates each field with `str`/`isStr` —
+ * route reads it through here and validates each field with `field`/`str` —
  * a `let body: {...} = await req.json()` annotation checked nothing at
  * runtime and forwarded mistyped values straight into the mutation validators
  * (the 500-vs-400 delta that bug #44 fixed on one route).
@@ -416,11 +416,6 @@ async function checkInspectionLimit(
     throw e;
   }
   return null;
-}
-
-/** Runtime type + length guard for JSON bodies (TypeScript casts don't validate). */
-function isStr(v: unknown, max: number, allowEmpty = false): v is string {
-  return typeof v === "string" && v.length <= max && (allowEmpty || v.length > 0);
 }
 
 http.route({
