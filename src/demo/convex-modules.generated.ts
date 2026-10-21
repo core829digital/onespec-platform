@@ -52,6 +52,7 @@ export const DEMO_CONVEX_MODULES: Record<string, Loader> = {
   "../convex/lib/enums.ts": () => import("../../convex/lib/enums"),
   "../convex/lib/fieldModules.ts": () => import("../../convex/lib/fieldModules"),
   "../convex/lib/fileSniff.ts": () => import("../../convex/lib/fileSniff"),
+  "../convex/lib/fiscal.ts": () => import("../../convex/lib/fiscal"),
   "../convex/lib/founding.ts": () => import("../../convex/lib/founding"),
   "../convex/lib/ids.ts": () => import("../../convex/lib/ids"),
   "../convex/lib/inputs.ts": () => import("../../convex/lib/inputs"),

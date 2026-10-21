@@ -1,6 +1,15 @@
 import { regionForCountry } from "./regions";
 import { calculatePrice, computeOverallUw, type CatalogPayload, type ProjectItem } from "../../src/shared/pricing";
 import { complianceForRegion } from "./compliance";
+import {
+  FISCAL,
+  beniSignificativi,
+  itCostSplit,
+  vatKeyForRegion,
+  type BeniSignificativiBreakdown,
+} from "./fiscal";
+
+export type { BeniSignificativiBreakdown } from "./fiscal";
 
 /**
  * Pure calculation behind the Showroom preview (price, VAT breakdown, Uw,
@@ -11,25 +20,11 @@ function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }
 
-function getHardwareOption(payload: CatalogPayload, kind: string, key: string) {
-  return payload.hardware.find((h) => h.kind === kind && h.key === key && h.enabled);
-}
-
 export interface VatBreakdown {
   rate: number;
   label: string;
   baseCents: number;
   vatCents: number;
-  totalCents: number;
-}
-
-export interface BeniSignificativiBreakdown {
-  beni10: number;
-  beni22: number;
-  imponibile10: number;
-  iva10: number;
-  imponibile22: number;
-  iva22: number;
   totalCents: number;
 }
 
@@ -52,18 +47,6 @@ export interface FundingDocParams {
   risparmioKwhAnno?: number;
 }
 
-function calculateBeniSignificativi(manoperaCents: number, beniCents: number, altriCents: number): BeniSignificativiBreakdown {
-  const limitaBeniLa10 = manoperaCents + altriCents;
-  const beni10 = Math.min(beniCents, limitaBeniLa10);
-  const beni22 = Math.max(0, beniCents - limitaBeniLa10);
-  const imponibile10 = manoperaCents + altriCents + beni10;
-  const iva10 = Math.round(imponibile10 * 0.1);
-  const imponibile22 = beni22;
-  const iva22 = Math.round(imponibile22 * 0.22);
-  const totalCents = imponibile10 + iva10 + imponibile22 + iva22;
-  return { beni10, beni22, imponibile10, iva10, imponibile22, iva22, totalCents };
-}
-
 function calculateVatBreakdown(
   regionCode: string,
   items: ProjectItem[],
@@ -76,28 +59,8 @@ function calculateVatBreakdown(
   const breakdown: VatBreakdown[] = [];
 
   if (region.code === "IT") {
-    let manoperaCents = 0;
-    let beniCents = 0;
-    let altriCents = 0;
-
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      const ib = baseCalc.items[i];
-      if (!ib) continue;
-
-      const installationCost = item.installation
-        ? (getHardwareOption(payload, "installation", item.installation)?.priceCents || 0)
-        : 0;
-      manoperaCents += installationCost * item.quantity;
-
-      const materialCost = ib.materialCost + ib.profileCost;
-      beniCents += materialCost * item.quantity;
-
-      const optionsCost = ib.optionsCost - installationCost;
-      altriCents += optionsCost * item.quantity;
-    }
-
-    const beniSig = calculateBeniSignificativi(manoperaCents, beniCents, altriCents);
+    const { manoperaCents, beniCents, altriCents } = itCostSplit(payload, items, baseCalc);
+    const beniSig = beniSignificativi(manoperaCents, beniCents, altriCents);
 
     breakdown.push({
       rate: 0.1,
@@ -116,47 +79,10 @@ function calculateVatBreakdown(
     return breakdown;
   }
 
-  if (region.code === "FR") {
-    let vatKey = "renovation";
-    if (isEnergyRenovation) vatKey = "renovation_energetique";
-    const vatRate = region.vatRates.find((v) => v.key === vatKey) || region.vatRates[1];
-    breakdown.push({
-      rate: vatRate.percent / 100,
-      label: vatRate.label,
-      baseCents: baseCalc.priceExVatCents,
-      vatCents: baseCalc.priceCents - baseCalc.priceExVatCents,
-      totalCents: baseCalc.priceCents,
-    });
-    return breakdown;
-  }
-
-  if (region.code === "BE") {
-    const vatKey = buildingAge > 10 ? "renovation" : "standard";
-    const vatRate = region.vatRates.find((v) => v.key === vatKey) || region.vatRates[0];
-    breakdown.push({
-      rate: vatRate.percent / 100,
-      label: vatRate.label,
-      baseCents: baseCalc.priceExVatCents,
-      vatCents: baseCalc.priceCents - baseCalc.priceExVatCents,
-      totalCents: baseCalc.priceCents,
-    });
-    return breakdown;
-  }
-
-  if (region.code === "LU") {
-    const vatKey = isEnergyRenovation && buildingAge > 10 ? "super_reduit" : "standard";
-    const vatRate = region.vatRates.find((v) => v.key === vatKey) || region.vatRates[1];
-    breakdown.push({
-      rate: vatRate.percent / 100,
-      label: vatRate.label,
-      baseCents: baseCalc.priceExVatCents,
-      vatCents: baseCalc.priceCents - baseCalc.priceExVatCents,
-      totalCents: baseCalc.priceCents,
-    });
-    return breakdown;
-  }
-
-  const vatRate = region.vatRates.find((v) => v.key === region.defaultVatKey) || region.vatRates[0];
+  // Single-rate regions share the key selection; the amounts come from the
+  // priced calculation (priceCents minus its ex-VAT part).
+  const { key, fallback } = vatKeyForRegion(region.code, isEnergyRenovation, buildingAge);
+  const vatRate = region.vatRates.find((v) => v.key === (key ?? region.defaultVatKey)) || region.vatRates[fallback];
   breakdown.push({
     rate: vatRate.percent / 100,
     label: vatRate.label,
@@ -185,8 +111,9 @@ function getFundingDocParams(
   const costoCents = baseCalc.priceCents;
 
   if (region.code === "IT") {
-    const zone = "E";
-    const uwLimit = 1.3;
+    const it = FISCAL.IT;
+    const zone = it.climateZone!;
+    const uwLimit = it.fundingUwLimit!;
     return {
       region: region.code,
       title: funding.title,
@@ -202,8 +129,8 @@ function getFundingDocParams(
       conform: uwPost <= uwLimit,
       uwLimit,
       zone,
-      gradiGiorno: 1661,
-      risparmioKwhAnno: Math.round(Math.max((uwAnte ?? 3.2) - uwPost, 0) * superficieM2 * 1661 * 24 / 1000),
+      gradiGiorno: it.gradiGiorno,
+      risparmioKwhAnno: Math.round(Math.max((uwAnte ?? it.uwReference) - uwPost, 0) * superficieM2 * it.gradiGiorno * 24 / 1000),
     };
   }
 
@@ -234,29 +161,15 @@ function calculateNetAfterBonus50(totalCents: number, deductionPercent: number =
 }
 
 function checkUwEligibility(regionCode: string, uw: number): boolean {
-  const limits: Record<string, number> = {
-    IT: 1.4,
-    FR: 1.3,
-    BE: 1.5,
-    NL: 1.5,
-    DE: 0.95,
-    LU: 1.0,
-  };
-  return uw <= (limits[regionCode] || 999);
+  const fiscal = FISCAL[regionCode as keyof typeof FISCAL];
+  return fiscal ? uw <= fiscal.eligibilityUwLimit : uw <= 999;
 }
 
 function estimateEnergySavings(regionCode: string, uw: number, items: ProjectItem[]): number {
-  const zonaGG: Record<string, number> = {
-    IT: 1661,
-    FR: 1800,
-    BE: 1900,
-    NL: 1800,
-    DE: 2200,
-    LU: 2000,
-  };
-  const gg = zonaGG[regionCode] || 1661;
+  const fiscal = FISCAL[regionCode as keyof typeof FISCAL];
+  const gg = fiscal?.gradiGiorno ?? 1661;
   const superficieM2 = items.reduce((s, it) => s + (it.width / 1000) * (it.height / 1000) * it.quantity, 0);
-  const uwReference = { IT: 3.2, FR: 2.8, BE: 2.8, NL: 2.8, DE: 2.8, LU: 2.8 }[regionCode] || 3.2;
+  const uwReference = fiscal?.uwReference ?? 3.2;
   const deltaU = Math.max(uwReference - uw, 0);
   return Math.round(deltaU * superficieM2 * gg * 24 / 1000);
 }
@@ -300,30 +213,10 @@ export function computeCalculationPreview(
   const vatBreakdown = calculateVatBreakdown(regionCode, items, payload, baseCalc, isEnergyRenovation, buildingAge);
   const totalVatCents = vatBreakdown.reduce((sum, v) => sum + v.vatCents, 0);
 
-  let beniSignificativi: BeniSignificativiBreakdown | null = null;
+  let beniSplit: BeniSignificativiBreakdown | null = null;
   if (regionCode === "IT") {
-    let manoperaCents = 0;
-    let beniCents = 0;
-    let altriCents = 0;
-
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      const ib = baseCalc.items[i];
-      if (!ib) continue;
-
-      const installationCost = item.installation
-        ? (getHardwareOption(payload, "installation", item.installation)?.priceCents || 0)
-        : 0;
-      manoperaCents += installationCost * item.quantity;
-
-      const materialCost = ib.materialCost + ib.profileCost;
-      beniCents += materialCost * item.quantity;
-
-      const optionsCost = ib.optionsCost - installationCost;
-      altriCents += optionsCost * item.quantity;
-    }
-
-    beniSignificativi = calculateBeniSignificativi(manoperaCents, beniCents, altriCents);
+    const split = itCostSplit(payload, items, baseCalc);
+    beniSplit = beniSignificativi(split.manoperaCents, split.beniCents, split.altriCents);
   }
 
   const fundingDocParams = getFundingDocParams(
@@ -345,7 +238,7 @@ export function computeCalculationPreview(
     vatRatePercent: baseCalc.vatRatePercent,
     vatBreakdown,
     totalVatCents,
-    beniSignificativi,
+    beniSignificativi: beniSplit,
     uwPerItem,
     uwWeightedAverage: round2(uwWeightedAverage),
     uwEligible,
