@@ -20,16 +20,7 @@ import { resolveQuoteVat } from "./lib/vat";
 import { assertCoherentItems, parseQuoteItems, nextOfferNumber } from "./lib/quoteItems";
 import { defaultItem } from "../src/shared/item-defaults";
 import { quoteTotals } from "../src/shared/quote-totals";
-
-const QUOTE_STATUS = v.union(
-  v.literal("draft"),
-  v.literal("new"),
-  v.literal("contacted"),
-  v.literal("quoted"),
-  v.literal("won"),
-  v.literal("lost"),
-  v.literal("spam"),
-);
+import { quoteStatusValidator } from "./lib/enums";
 
 const NOTE_MAX = 5_000;
 const NOTES_TOTAL_MAX = 100_000;
@@ -78,7 +69,7 @@ async function withConfiguratorNames<T extends { tenantId: Id<"tenants">; config
 export const listRequests = query({
   args: {
     tenantId: v.id("tenants"),
-    status: v.optional(QUOTE_STATUS),
+    status: v.optional(quoteStatusValidator),
     limit: v.optional(v.number()),
   },
   handler: async (ctx, args) => {

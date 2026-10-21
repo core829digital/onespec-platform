@@ -5,16 +5,7 @@ import { requirePermission } from "./lib/rbac";
 import { consumeToken, RATE_LIMITS } from "./lib/ratelimit";
 import { toCsv } from "./lib/csv";
 import { redactQuoteRequest } from "./lib/quotaLock";
-
-const QUOTE_STATUS = v.union(
-  v.literal("draft"),
-  v.literal("new"),
-  v.literal("contacted"),
-  v.literal("quoted"),
-  v.literal("won"),
-  v.literal("lost"),
-  v.literal("spam"),
-);
+import { quoteStatusValidator } from "./lib/enums";
 
 const MAX_ROWS = 5000;
 /** Half of Convex's per-transaction read allowance, as a safety margin. */
@@ -27,7 +18,7 @@ const cents = (c: number) => (c / 100).toFixed(2);
  * only — never demo rows.
  */
 export const exportRequestsCsv = mutation({
-  args: { tenantId: v.id("tenants"), status: v.optional(QUOTE_STATUS) },
+  args: { tenantId: v.id("tenants"), status: v.optional(quoteStatusValidator) },
   handler: async (ctx, args) => {
     const { membership } = await requirePermission(ctx, args.tenantId, "export.tenantData");
 

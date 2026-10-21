@@ -1,3 +1,5 @@
+import { v } from "convex/values";
+
 export const PLAN_TIERS = ["base", "pro", "agency", "enterprise"] as const;
 /** Widget-first ladder, sold before the full-platform tiers above. */
 export const WIDGET_PLAN_TIERS = ["essentials", "essentials_plus", "max"] as const;
@@ -25,6 +27,16 @@ export type ConfiguratorStatus = (typeof CONFIGURATOR_STATUSES)[number];
 
 export const QUOTE_STATUSES = ["draft", "new", "contacted", "quoted", "won", "lost", "spam"] as const;
 export type QuoteStatus = (typeof QUOTE_STATUSES)[number];
+/** The one quote-status validator (#69) — replaces the per-module verbatim unions. */
+export const quoteStatusValidator = v.union(...QUOTE_STATUSES.map((s) => v.literal(s)));
+/** Runtime membership guard — replaces the hand-rolled includes+cast pairs. */
+export function isQuoteStatus(s: unknown): s is QuoteStatus {
+  return (QUOTE_STATUSES as readonly string[]).includes(s as string);
+}
+
+export const INVENTORY_STATUSES = ["in_stock", "assigned", "in_transit", "delivered", "installed"] as const;
+export type InventoryStatus = (typeof INVENTORY_STATUSES)[number];
+export const inventoryStatusValidator = v.union(...INVENTORY_STATUSES.map((s) => v.literal(s)));
 
 export const NOTIFICATION_TYPES = [
   "quote_request_new",
