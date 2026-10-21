@@ -14,10 +14,9 @@ import { useFriendlyError } from "@/lib/use-friendly-error";
 import { ClientCantierePicker, type PickedLinks } from "@/components/app-shell/client-cantiere-picker";
 import {
   enqueue,
-  flushQueue,
-  subscribeSyncState,
-  type SyncState,
 } from "@/lib/offline-sync";
+import { useOfflineSync } from "@/hooks/useOfflineSync";
+import type { SyncState } from "@/lib/offline-sync";
 import { useRunAction } from "@/hooks/useRunAction";
 import { OpenButton } from "@/components/ui/open-button";
 
@@ -280,31 +279,8 @@ export default function InspectionsPage() {
   const [selected, setSelected] = useState<ReportId | null>(null);
   const [err, setErr] = useState("");
 
-  const [sync, setSync] = useState<SyncState>({
-    isOnline: true,
-    pendingCount: 0,
-    lastSync: null,
-    error: null,
-  });
-
   const createReport = useMutation(api.inspections.create);
-
-  const runSync = useCallback(() => {
-    void flushQueue({
-      "inspection.create": (payload) =>
-        createReport(payload as Parameters<typeof createReport>[0]),
-    });
-  }, [createReport]);
-
-  useEffect(() => {
-    const unsub = subscribeSyncState(setSync);
-    runSync();
-    return unsub;
-  }, [runSync]);
-
-  useEffect(() => {
-    if (sync.isOnline && sync.pendingCount > 0) runSync();
-  }, [sync.isOnline, sync.pendingCount, runSync]);
+  const { sync, runSync } = useOfflineSync("inspection.create", createReport);
 
   async function add() {
     if (!tenant || (!name.trim() && !clientId)) {

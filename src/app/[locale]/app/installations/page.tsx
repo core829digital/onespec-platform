@@ -15,10 +15,9 @@ import type { Id } from "@/convex/_generated/dataModel";
 import { useLocale, useTranslations } from "next-intl";
 import {
   enqueue,
-  flushQueue,
-  subscribeSyncState,
-  type SyncState,
 } from "@/lib/offline-sync";
+import { useOfflineSync } from "@/hooks/useOfflineSync";
+import type { SyncState } from "@/lib/offline-sync";
 import { AlertTriangle, Globe, Settings } from "lucide-react";
 import { DeleteAction } from "@/components/ui/delete-action";
 import { OpenButton } from "@/components/ui/open-button";
@@ -91,12 +90,7 @@ export default function InstallationsPage() {
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState("");
 
-  const [sync, setSync] = useState<SyncState>({
-    isOnline: true,
-    pendingCount: 0,
-    lastSync: null,
-    error: null,
-  });
+  const { sync, runSync } = useOfflineSync("installation.create", createDossier);
 
   // Live material preview mirrors the server formula (compliance.computePosaMaterials).
   const preview = useMemo(() => {
@@ -107,23 +101,6 @@ export default function InstallationsPage() {
       return { ...m, quantity: Math.ceil(raw * 10) / 10 };
     });
   }, [standard, perimeterM]);
-
-  const runSync = useCallback(() => {
-    void flushQueue({
-      "installation.create": (payload) =>
-        createDossier(payload as Parameters<typeof createDossier>[0]),
-    });
-  }, [createDossier]);
-
-  useEffect(() => {
-    const unsub = subscribeSyncState(setSync);
-    runSync();
-    return unsub;
-  }, [runSync]);
-
-  useEffect(() => {
-    if (sync.isOnline && sync.pendingCount > 0) runSync();
-  }, [sync.isOnline, sync.pendingCount, runSync]);
 
   async function save() {
     if (!tenant || !jobType || !nodeType) {

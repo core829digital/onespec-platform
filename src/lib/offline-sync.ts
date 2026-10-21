@@ -147,14 +147,49 @@ export async function getPending(kind?: string): Promise<QueuedItem[]> {
  * an item that exhausts MAX_RETRIES is deleted rather than parked forever (#39).
  * Single-flight (#28): while a flush is in progress any further call is a no-op.
  */
-export async function flushQueue(
-  runners: Record<string, (payload: unknown) => Promise<unknown>>,
-): Promise<{ synced: number; failed: number }> {
-  if (!state.isOnline) return { synced: 0, failed: 0 };
-  if (!tryAcquireFlushLock()) return { synced: 0, failed: 0 };
-  state.error = null;
-  notify();
+export type FlushResult = { synced: number; failed: number };
+
+/** The retry/evict policy for ONE queued item, as its own named step (#57). */
+async function drainOne(
+  item: QueuedItem,
+  runner: (payload: unknown) => Promise<unknown>,
+): Promise<"synced" | "failed"> {
   try {
+    await runner(item.payload);
+    await tx("readwrite", (s) => s.delete(item.id));
+    return "synced";
+  } catch {
+    item.retries++;
+    if (item.retries >= MAX_RETRIES) {
+      await tx("readwrite", (s) => s.delete(item.id));
+    } else {
+      await tx("readwrite", (s) => s.put(item));
+    }
+    return "failed";
+  }
+}
+
+/**
+ * The coordination seam (#57): one module-level coordinator holds the
+ * in-flight drain, so overlapping triggers (mount effect + reconnect effect +
+ * badge button) can never run two drains over the same items.
+ */
+class SyncCoordinator {
+  private inFlight: Promise<FlushResult> | null = null;
+
+  drain(runners: Record<string, (payload: unknown) => Promise<unknown>>): Promise<FlushResult> {
+    if (!state.isOnline) return Promise.resolve({ synced: 0, failed: 0 });
+    if (!tryAcquireFlushLock()) return Promise.resolve({ synced: 0, failed: 0 });
+    state.error = null;
+    notify();
+    this.inFlight = this.drainAll(runners).finally(() => {
+      this.inFlight = null;
+      releaseFlushLock();
+    });
+    return this.inFlight;
+  }
+
+  private async drainAll(runners: Record<string, (payload: unknown) => Promise<unknown>>): Promise<FlushResult> {
     const pending = await getPending();
     let synced = 0;
     let failed = 0;
@@ -167,28 +202,25 @@ export async function flushQueue(
         failed++;
         continue;
       }
-      try {
-        await runners[item.kind](item.payload);
-        await tx("readwrite", (s) => s.delete(item.id));
-        synced++;
-      } catch {
-        item.retries++;
-        if (item.retries >= MAX_RETRIES) {
-          await tx("readwrite", (s) => s.delete(item.id));
-        } else {
-          await tx("readwrite", (s) => s.put(item));
-        }
-        failed++;
-      }
+      const outcome = await drainOne(item, runners[item.kind]);
+      if (outcome === "synced") synced++;
+      else failed++;
     }
 
     state.lastSync = synced > 0 ? Date.now() : state.lastSync;
     state.error = failed > 0 ? `${failed} elementi non sincronizzati` : null;
     await refreshPendingCount();
     return { synced, failed };
-  } finally {
-    releaseFlushLock();
   }
+}
+
+export const syncCoordinator = new SyncCoordinator();
+
+/** Drain the queue through the single-flight coordinator. */
+export function flushQueue(
+  runners: Record<string, (payload: unknown) => Promise<unknown>>,
+): Promise<FlushResult> {
+  return syncCoordinator.drain(runners);
 }
 
 if (typeof window !== "undefined") {

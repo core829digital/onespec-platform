@@ -22,10 +22,9 @@ import {
 import { PhotoCoteCanvas, type Annotation } from "@/components/surveys/PhotoCoteCanvas";
 import {
   enqueue,
-  flushQueue,
-  subscribeSyncState,
-  type SyncState,
 } from "@/lib/offline-sync";
+import { useOfflineSync } from "@/hooks/useOfflineSync";
+import type { SyncState } from "@/lib/offline-sync";
 
 type LaserOpening = {
   label: string;
@@ -115,12 +114,8 @@ export default function SurveysPage() {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState("");
-  const [sync, setSync] = useState<SyncState>({
-    isOnline: true,
-    pendingCount: 0,
-    lastSync: null,
-    error: null,
-  });
+
+  const { sync, runSync } = useOfflineSync("survey.create", createSurvey);
 
   const [customerName, setCustomerName] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
@@ -211,23 +206,6 @@ export default function SurveysPage() {
     photos,
     td,
   ]);
-
-  const runSync = useCallback(() => {
-    void flushQueue({
-      "survey.create": (payload) =>
-        createSurvey(payload as Parameters<typeof createSurvey>[0]),
-    });
-  }, [createSurvey]);
-
-  useEffect(() => {
-    const unsub = subscribeSyncState(setSync);
-    runSync();
-    return unsub;
-  }, [runSync]);
-
-  useEffect(() => {
-    if (sync.isOnline && sync.pendingCount > 0) runSync();
-  }, [sync.isOnline, sync.pendingCount, runSync]);
 
   function reset() {
     setClientId(undefined);
