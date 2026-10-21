@@ -14,7 +14,7 @@ import { enforceForESignature, enforceForFieldSurvey, enforceActivePlan } from "
 import { resolveLinks, logClientActivity } from "./lib/links";
 import { linkRecordToCrm } from "./lib/crmLink";
 import { assertStoredFile, consumeUploadSlot } from "./lib/uploads";
-import { assertShortText } from "./lib/inputs";
+import { assertLongText, assertShortText } from "./lib/inputs";
 
 /** Per-market inspection template (title, legal basis, photo + check lists). */
 export const getTemplate = query({
@@ -197,6 +197,8 @@ export const assignInstaller = mutation({
     const report = await ctx.db.get(args.reportId);
     if (!report) throw new ConvexError("REPORT_NOT_FOUND");
     await requirePermission(ctx, report.tenantId, "inspections.use");
+    // Bounded like the create path (#76).
+    assertShortText(args.installerTeam, 120);
     await ctx.db.patch(args.reportId, {
       installerTeam: args.installerTeam?.trim() ?? report.installerTeam,
       scheduledFor: args.scheduledFor ?? report.scheduledFor,
@@ -248,6 +250,9 @@ export const updateChecks = mutation({
     if (!report) throw new ConvexError("REPORT_NOT_FOUND");
     await requirePermission(ctx, report.tenantId, "inspections.use");
     if (report.status === "signed") throw new ConvexError("REPORT_LOCKED");
+    // Bounded like the installer HTTP twin (#76).
+    assertLongText(args.installerNotes, 5000);
+    assertLongText(args.clientRemarks, 5000);
 
     const passedByKey = new Map(args.checks.map((c) => [c.key, c.passed]));
     const checks = report.checks.map((c) => ({
@@ -284,6 +289,8 @@ export const sign = mutation({
     assertSignature(args.signatureDataUrl);
     const signedByName = args.signedByName.trim();
     if (!signedByName) throw new ConvexError("SIGNER_NAME_REQUIRED");
+    // Bounded like the HTTP sign route (#76): the record becomes immutable here.
+    assertShortText(signedByName, 200);
 
     const now = Date.now();
     await ctx.db.patch(args.reportId, {
