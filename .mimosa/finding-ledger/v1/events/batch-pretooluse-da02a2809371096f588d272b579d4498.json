@@ -1,0 +1,96 @@
+{
+  "schemaVersion": "mimosa-finding-ledger-batch/v1",
+  "batchId": "pretooluse-da02a2809371096f588d272b579d4498",
+  "runId": null,
+  "runStatus": "completed",
+  "coverage": {
+    "status": "complete",
+    "reasons": []
+  },
+  "source": {
+    "component": "zcode-hook",
+    "operationId": "PreToolUse"
+  },
+  "revision": null,
+  "diffHash": null,
+  "rulesVersion": null,
+  "sessionHash": "9c9a0e0c99bfa92fa936faa85e88a36f0a6d85c8923df83fad1f88ea52259947",
+  "reportRef": null,
+  "events": [
+    {
+      "eventId": "hook-c82dca4f6428c38ede03e4c1ea514a1e",
+      "findingId": "mimosa-d3bcf2d688a244e734bf673b",
+      "type": "finding_blocked",
+      "at": "2026-10-21T14:23:37.891Z",
+      "identity": {
+        "projectRelativeFile": "tests/convex/passport-qrs-idempotency.test.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "42561d279e1d08fabc0e35fdd3552c99f6528db9429a41cb76bc73599a41abd6",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 34,
+      "endLine": 34,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "42561d279e1d08fabc0e35fdd3552c99f6528db9429a41cb76bc73599a41abd6"
+      },
+      "sequence": 0
+    },
+    {
+      "eventId": "hook-84b49125ae5d226a4b9cf7e285ce7c43",
+      "findingId": "mimosa-d849a255bf665f7073d6c0c9",
+      "type": "finding_blocked",
+      "at": "2026-10-21T14:23:37.891Z",
+      "identity": {
+        "projectRelativeFile": "tests/convex/passport-qrs-idempotency.test.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "8e4013426b0c8e796bc545a4f86b3fd93d76151ac98c2e734a6caef6d4d96d13",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 40,
+      "endLine": 40,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "8e4013426b0c8e796bc545a4f86b3fd93d76151ac98c2e734a6caef6d4d96d13"
+      },
+      "sequence": 1
+    },
+    {
+      "eventId": "hook-4347991ecf83cf3cc8ae99f48201abdf",
+      "findingId": "mimosa-34df3cf1e45795f6f2faa506",
+      "type": "finding_blocked",
+      "at": "2026-10-21T14:23:37.891Z",
+      "identity": {
+        "projectRelativeFile": "tests/convex/passport-qrs-idempotency.test.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "04f45c5ac569e7c6b0159ceab2b199c71eb3249decb9813fd2153a6280f4c320",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 44,
+      "endLine": 44,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "04f45c5ac569e7c6b0159ceab2b199c71eb3249decb9813fd2153a6280f4c320"
+      },
+      "sequence": 2
+    }
+  ],
+  "observedFindingIds": [],
+  "verifiedFiles": [],
+  "recordedAt": "2026-10-21T14:23:38.209Z"
+}

@@ -28,7 +28,7 @@ Ordine ajustată după dependențe (#37 înainte de refactorul #53; #34 amânat 
 - [x] 1. #37 — șterge modulul mort `convex/lib/pricing.ts` (fast win, deblochează #53) ✓ 2026-10-21
 - [x] 2. #77 — `generateGuestPin`: clamp `expiresInDays` pe [1, 365] (fast win) ✓ 2026-10-21
 - [x] 3. #76 — field-module update/sign: aplică bound-urile free-text ca la create/HTTP ✓ 2026-10-21
-- [ ] 4. #45 — `generatePassportQrs`: idempotent (nu mai duplică pașapoarte)
+- [x] 4. #45 — `generatePassportQrs`: idempotent (nu mai duplică pașapoarte) ✓ 2026-10-21
 - [ ] 5. #46 — client search: filtrare înainte de paginare
 - [ ] 6. #33 — revoke pe photo-preview object URLs (surveys/installer)
 - [ ] 7. #35 — retention cron pentru tabelele append-only (auditLog, billingEvents, viesChecks…)

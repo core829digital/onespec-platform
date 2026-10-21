@@ -1,0 +1,144 @@
+{
+  "schemaVersion": "mimosa-finding-ledger-batch/v1",
+  "batchId": "pretooluse-fab44893ed95a0a6c0e854512fac5f7f",
+  "runId": null,
+  "runStatus": "completed",
+  "coverage": {
+    "status": "complete",
+    "reasons": []
+  },
+  "source": {
+    "component": "zcode-hook",
+    "operationId": "PreToolUse"
+  },
+  "revision": null,
+  "diffHash": null,
+  "rulesVersion": null,
+  "sessionHash": "9c9a0e0c99bfa92fa936faa85e88a36f0a6d85c8923df83fad1f88ea52259947",
+  "reportRef": null,
+  "events": [
+    {
+      "eventId": "hook-259afd8e450e9294b82efdc6f3d7ab9f",
+      "findingId": "mimosa-74455dc861eacb6536787230",
+      "type": "finding_blocked",
+      "at": "2026-10-21T14:23:12.846Z",
+      "identity": {
+        "projectRelativeFile": "tests/convex/field-modules.test.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "5ff021177a3fe9c98de6148d997a03705adb3896aacea53e4716007bcf131ffe",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 217,
+      "endLine": 217,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "5ff021177a3fe9c98de6148d997a03705adb3896aacea53e4716007bcf131ffe"
+      },
+      "sequence": 0
+    },
+    {
+      "eventId": "hook-879b6c12d8f2fd9aedcc346f24d32a85",
+      "findingId": "mimosa-a19148b09f6f2122ee82d424",
+      "type": "finding_blocked",
+      "at": "2026-10-21T14:23:12.846Z",
+      "identity": {
+        "projectRelativeFile": "tests/convex/field-modules.test.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "487fe98bf5833fe92998be32a929e50a28abdc605b1556bf0c59d3fd5c82c824",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 228,
+      "endLine": 228,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "487fe98bf5833fe92998be32a929e50a28abdc605b1556bf0c59d3fd5c82c824"
+      },
+      "sequence": 1
+    },
+    {
+      "eventId": "hook-d9462eccd866e528351abf25ea1cfa4e",
+      "findingId": "mimosa-a01c57f62eba3c7a05756562",
+      "type": "finding_blocked",
+      "at": "2026-10-21T14:23:12.846Z",
+      "identity": {
+        "projectRelativeFile": "tests/convex/field-modules.test.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "c331510c57567ac4dc576eea9aeeecabddaad2b8e621346b6c767622610b42a8",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 258,
+      "endLine": 258,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "c331510c57567ac4dc576eea9aeeecabddaad2b8e621346b6c767622610b42a8"
+      },
+      "sequence": 2
+    },
+    {
+      "eventId": "hook-3337c9ad1d488f07beb1bd6ccc8c3a19",
+      "findingId": "mimosa-d4d0a4609633e2ca38f7766a",
+      "type": "finding_blocked",
+      "at": "2026-10-21T14:23:12.846Z",
+      "identity": {
+        "projectRelativeFile": "tests/convex/field-modules.test.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "f940b7e1e026ff5c4305b8e55336c74264be4a40bc32af289d03267e2941a5b6",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 262,
+      "endLine": 262,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "f940b7e1e026ff5c4305b8e55336c74264be4a40bc32af289d03267e2941a5b6"
+      },
+      "sequence": 3
+    },
+    {
+      "eventId": "hook-4d08a7f69e156e0bb1b69b75efe50824",
+      "findingId": "mimosa-56b26b36b40e7fab77d9fb61",
+      "type": "finding_blocked",
+      "at": "2026-10-21T14:23:12.846Z",
+      "identity": {
+        "projectRelativeFile": "tests/convex/field-modules.test.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "0d40b1de2c3670b59a7da14e2ad5e9a53d9ab75043f4ac4abb97dfb5cceaaca7",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 266,
+      "endLine": 266,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "0d40b1de2c3670b59a7da14e2ad5e9a53d9ab75043f4ac4abb97dfb5cceaaca7"
+      },
+      "sequence": 4
+    }
+  ],
+  "observedFindingIds": [],
+  "verifiedFiles": [],
+  "recordedAt": "2026-10-21T14:23:13.110Z"
+}
