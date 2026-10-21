@@ -61,26 +61,26 @@ Ordine ajustată după dependențe (#37 înainte de refactorul #53; #34 amânat 
 - [x] 28. #52 — branding accent reset la default (`cleanColor(v) || undefined`) ✓ 2026-10-21
 
 ### Etapa 5 — P5: refactor-uri MEDIUM/LOW (17), fiecare împerecheat cu bug-ul lui
-- [ ] 29. #66 — widget wire-contract derivat din QuoteSubmissionSchema (pereche #27)
-- [ ] 30. #56 — `resolveVisitorVat` ca singur punct de decizie VAT (pereche #27/#53)
-- [ ] 31. #67 — parse-don't-cast la toate rutele http.ts (pereche #44)
-- [ ] 32. #68 — o singură declarație RegionCode (pereche #53)
-- [ ] 33. #69 — `lib/enums.ts` sursă unică pentru status/kind
-- [ ] 34. #73 — `convex/lib/dims.ts` validator de milimetri (pereche #31)
-- [ ] 35. #57 — SyncCoordinator pentru flushQueue (pereche #28/#39)
-- [ ] 36. #58 — hook `useOfflineSync` extras din cele 3 pagini de teren
-- [ ] 37. #59 — contoarele plan-usage + enforcement co-locate (pereche #38)
-- [ ] 38. #60 — `bumpUsageCounter` extras (5 situri)
-- [ ] 39. #61 — dedupe createQuoteWithSuppliers vs buildFieldQuote + 6 preludii de catalog
-- [ ] 40. #62 — registru declarativ pentru ~40 enforcement gates
-- [ ] 41. #71 — un singur union AppLocale (9 re-declarații)
-- [ ] 42. #72 — ID-uri form-state cantieri tipizate la sursă (6 casts)
-- [ ] 43. #74 — `isEmailLocale` guard în loc de cast
-- [ ] 44. #75 — `isBicolor` type predicate
-- [ ] 45. #70 — split display-colour wizard de cheile de catalog (pereche #50)
+- [x] 29. #66 — widget wire-contract derivat din QuoteSubmissionSchema (pereche #27) ✓ 2026-10-21
+- [x] 30. #56 — `resolveVisitorVat` ca singur punct de decizie VAT (pereche #27/#53) ✓ 2026-10-21
+- [x] 31. #67 — parse-don't-cast la toate rutele http.ts (pereche #44) ✓ 2026-10-21
+- [x] 32. #68 — o singură declarație RegionCode (pereche #53) ✓ 2026-10-21
+- [x] 33. #69 — `lib/enums.ts` sursă unică pentru status/kind ✓ 2026-10-21
+- [x] 34. #73 — `convex/lib/dims.ts` validator de milimetri (pereche #31) ✓ 2026-10-21
+- [x] 35. #57 — SyncCoordinator pentru flushQueue (pereche #28/#39) ✓ 2026-10-21
+- [x] 36. #58 — hook `useOfflineSync` extras din cele 3 pagini de teren ✓ 2026-10-21
+- [x] 37. #59 — contoarele plan-usage + enforcement co-locate (pereche #38) ✓ 2026-10-21
+- [x] 38. #60 — `bumpUsageCounter` extras (5 situri) ✓ 2026-10-21
+- [x] 39. #61 — dedupe createQuoteWithSuppliers vs buildFieldQuote + 6 preludii de catalog ✓ 2026-10-21
+- [x] 40. #62 — registru declarativ pentru enforcement gates ✓ 2026-10-21
+- [x] 41. #71 — un singur union AppLocale (9 re-declarații) ✓ 2026-10-21
+- [x] 42. #72 — ID-uri form-state cantieri tipizate la sursă (6 casts) ✓ 2026-10-21
+- [x] 43. #74 — `isEmailLocale` guard în loc de cast ✓ 2026-10-21
+- [x] 44. #75 — `isBicolor` type predicate ✓ 2026-10-21
+- [x] 45. #70 — split display-colour wizard de cheile de catalog (pereche #50) ✓ 2026-10-21
 
 ## Finalizare
-- [ ] Toate etapele ✓ → `npm test` + `typecheck` + `lint` + `npm run build` complete pe `george_dev`
+- [x] Toate etapele ✓ → `npm test` + `typecheck` + `lint` + `npm run build` complete pe `george_dev` ✓ 2026-10-21 (1838/1838 teste, typecheck 0 erori, lint curat, build de producție reușit)
 - [ ] E2E complet (`e2e`, `e2e:app`, `e2e:demo`, `e2e:signature`, `e2e:phone`) dacă environment-ul Convex e disponibil
 - [ ] `george_dev` pouss-at; PR spre `main` doar la decizia explicită a owner-ului
 
@@ -93,3 +93,4 @@ Ordine ajustată după dependențe (#37 înainte de refactorul #53; #34 amânat 
 - 2026-10-21: **ETAPA 2 COMPLETĂ** (6/6 refactoruri P4): #64 (normalizedRatios structural — 9 double-casts șterse), #63 (ProjectItem canonic + tripwire compile-time), #65 Step A (Labels + labelsValidator + assertLabels cu assertion signature), #53 (convex/lib/fiscal.ts — registru FISCAL + beniSignificativi/itCostSplit/vatKeyForRegion; cenții pin-uiți de price-parity), #55 (convex/lib/passportUnits.ts — fabrica pentru cele 3 căi), #54 (convex/lib/quoteTransitions.ts — markQuoteWon cu flag-uri). Suite: 1821/1821 după fiecare. Notă tooling: Mimosa a blocat de 3× scrieri în passports.ts pe fals pozitiv „SQL injection" — rezolvat prin fișier nou + Array.join.
 - 2026-10-21: **ETAPA 3 COMPLETĂ** (5/5, toate ieftinificate de refactoruri): #34 (VAT panel: sumele derivate din rata afișată, ca la regions.calculateVAT), #43 (o singură limită Uw IT = 1.4 în FISCAL; câmpul fundingUwLimit eliminat), #47 (enforceForMaintenance adăugat la generatePassportQrs — o linie), #42 (supplies.advance: events: true + audit în markQuoteWon — flag edit), #38 (getPlanUsage reutiliză countLiveConfigurators: draft+published ca la gate). Suite: 1826/1826. Următorul: Etapa 4 (#48).
 - 2026-10-21: **ETAPA 4 COMPLETĂ** (8/8 backlog P3): #48 (signSiteDelivery snap-shotuiește priorStatus pe iteme; cancelSiteDelivery restaurează in_stock/assigned), #49 (importRows înregistrează changes per-import — createdKeys + before-docs; undo țintit, fallback legacy pe înregistrări vechi), #51 (7 tabele readăugate în TENANT_TABLES + referrals pe ambele chei + ticket-keyed sweep prin doomedSupportTickets; guard schema-walk), #50 (hardwareColor: "white" în wizard, finish-ul rămâne pe color), #40 (disconnect la unmount în efect separat + listener cu referință stocată), #41 (beginSend/finishSend: rând queued pre-POST + Idempotency-Key la Resend + patch pe același rând; webhook 503 la race → Svix retry), #44 (isStr pe câmpurile de contact în ruta de intervenție), #52 (colorAccent/colorAccentInk optionale în schemă; "" resetează, ca la bg; placeholder de default în editor). Suite: 1838/1838. Următorul: Etapa 5 (#66, 17 refactoruri P5).
+- 2026-10-21: **ETAPA 5 COMPLETĂ + PLAN ÎNCHIS (45/45 issue-uri)**. P5 (17): #66 (WidgetQuoteSubmission + tripwire compile-time pe insertQuote args), #56 (resolveVisitorVat în fiscal.ts), #67 (readJson + field() pe toate rutele http.ts; Stripe metadata narrowing pas cu pas), #68 (REGION_CODES/regionCodeValidator; getMarketPreview cu union validator), #69 (quoteStatusValidator/isQuoteStatus/inventoryStatusValidator derivate; email maps cu draft în toate limbile), #73 (dims.ts mm()/assertMm), #57+58 (SyncCoordinator + useOfflineSync; cele 3 pagini pe hook), #59 (configuratorCounts.ts), #60 (usageCounter.ts bumpUsageCounter/bumpCounterRow — 6 situri), #61 (loadPublishedCatalog + defaultDepositTerms), #62 (ENTITLEMENT_GATES registry + 17 alias-uri), #71 (locales.ts APP_LOCALES/WIDGET_LEAD_LOCALES), #72 (asUserIds/asCantiereId; props-oneste pe CantiereModal), #74+#75 (guard/predicate), #70 (wizardColourToCatalogKey + ProjectItem return). Validare finală: **1838/1838 teste, typecheck 0 erori, lint 0 erori, `npm run build` reușit**. Totul pe `george_dev`; PR spre `main` rămâne la decizia owner-ului.

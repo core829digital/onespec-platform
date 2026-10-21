@@ -2,7 +2,7 @@
 
 import { requestConfirm } from "@/lib/confirm-dialog";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { SignaturePad } from "@/components/signature-pad";
 import { useMutation } from "convex/react";
 import { useQuery } from "@/lib/convex-query";
