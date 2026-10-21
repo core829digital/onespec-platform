@@ -3,7 +3,7 @@ import { v, ConvexError } from "convex/values";
 import { requireMembership, type ReadCtx } from "./lib/auth";
 import { publicPayload } from "./lib/payload";
 import { resolveTenantEntitlements } from "./lib/entitlements";
-import { regionForCountry } from "./lib/regions";
+import { regionForCountry, regionCodeValidator } from "./lib/regions";
 import { calculatePrice, type CatalogPayload, type ProjectItem } from "../src/shared/pricing";
 import { computeCalculationPreview, type BeniSignificativiBreakdown, type FundingDocParams } from "./lib/calcPreview";
 import { internal } from "./_generated/api";
@@ -68,7 +68,7 @@ export const getCalculationPreview = query({
     configuratorId: v.optional(v.id("configurators")),
     items: v.array(v.any()),
     options: v.object({
-      regionCode: v.union(v.literal("IT"), v.literal("FR"), v.literal("BE"), v.literal("NL"), v.literal("DE"), v.literal("LU")),
+      regionCode: regionCodeValidator,
       buildingAge: v.number(),
       isEnergyRenovation: v.boolean(),
       deductionPercent: v.number(),
@@ -115,7 +115,7 @@ export const calculateInternal = internalQuery({
     configuratorId: v.optional(v.id("configurators")),
     items: v.array(v.any()),
     options: v.object({
-      regionCode: v.union(v.literal("IT"), v.literal("FR"), v.literal("BE"), v.literal("NL"), v.literal("DE"), v.literal("LU")),
+      regionCode: regionCodeValidator,
       buildingAge: v.number(),
       isEnergyRenovation: v.boolean(),
       deductionPercent: v.number(),

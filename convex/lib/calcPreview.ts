@@ -178,7 +178,7 @@ function estimateEnergySavings(regionCode: string, uw: number, items: ProjectIte
 }
 
 export interface CalculationOptions {
-  regionCode: "IT" | "FR" | "BE" | "NL" | "DE" | "LU";
+  regionCode: import("./regions").RegionCode;
   buildingAge: number;
   isEnergyRenovation: boolean;
   deductionPercent: number;

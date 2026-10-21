@@ -10,10 +10,11 @@ import { Button } from "@/components/ui/button";
 import { ADMIN_PREVIEW_EMAIL, canPreviewMarkets, previewableRegions } from "@/lib/country-locale";
 import { useRunAction } from "@/hooks/useRunAction";
 import { useLocale, useTranslations } from "next-intl";
+import type { RegionCode } from "@/convex/lib/regions";
 
 function MarketPreview() {
   const t = useTranslations("admin");
-  const [region, setRegion] = useState("IT");
+  const [region, setRegion] = useState<RegionCode>("IT");
   const preview = useQuery(api.admin.getMarketPreview, { regionCode: region });
 
   return (
@@ -24,7 +25,7 @@ function MarketPreview() {
         </span>
         <select
           value={region}
-          onChange={(e) => setRegion(e.target.value)}
+          onChange={(e) => setRegion(e.target.value as RegionCode)}
           aria-label={t("selectMarket")}
           className="rounded border border-[var(--color-border)] bg-[var(--color-bg)] px-2 py-1.5 text-sm text-[var(--color-text)]"
         >

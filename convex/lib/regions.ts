@@ -12,8 +12,13 @@
  */
 
 import { beniSignificativi, vatKeyForRegion } from "./fiscal";
+import { v } from "convex/values";
 
-export type RegionCode = "IT" | "FR" | "BE" | "NL" | "DE" | "LU";
+/** The canonical region list (#68): one const, everything else derives from it. */
+export const REGION_CODES = ["IT", "FR", "BE", "NL", "DE", "LU"] as const;
+export type RegionCode = (typeof REGION_CODES)[number];
+/** Convex validator for a region code — replaces the repeated literal unions (#68). */
+export const regionCodeValidator = v.union(...REGION_CODES.map((c) => v.literal(c)));
 
 /** How the widget presents the price to the end visitor. */
 export type WidgetMode = "lead_gen" | "transparent";

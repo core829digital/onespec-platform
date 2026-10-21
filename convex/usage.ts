@@ -8,6 +8,7 @@ import { enforceActivePlan, enforceShowroomCalculator } from "./lib/enforcement"
 import { requirePermission } from "./lib/rbac";
 import { consumeMetered, showroomFingerprint, type MeterResult } from "./lib/metering";
 import { parseQuoteItems } from "./lib/quoteItems";
+import { regionCodeValidator } from "./lib/regions";
 
 /**
  * "Accetta ma blocca" — lifting the lock. A quota-locked request becomes
@@ -190,7 +191,7 @@ export const requestWhatsappSend = mutation({
 });
 
 const showroomOptions = v.object({
-  regionCode: v.union(v.literal("IT"), v.literal("FR"), v.literal("BE"), v.literal("NL"), v.literal("DE"), v.literal("LU")),
+  regionCode: regionCodeValidator,
   buildingAge: v.number(),
   isEnergyRenovation: v.boolean(),
   deductionPercent: v.number(),

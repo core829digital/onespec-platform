@@ -21,8 +21,9 @@ import { buildBackup, parseBackup } from "@/lib/quote-export/backup";
 import { clearDraft, useDraftRestore, useDraftSave } from "@/lib/use-draft";
 import { usePlanAccess } from "@/lib/plan-gates";
 import { useFriendlyError } from "@/lib/use-friendly-error";
+import type { RegionCode } from "@/convex/lib/regions";
 
-type Region = "IT" | "FR" | "BE" | "NL" | "DE" | "LU";
+type Region = RegionCode;
 
 function download(name: string, mime: string, content: string) {
   const url = URL.createObjectURL(new Blob([content], { type: `${mime};charset=utf-8` }));

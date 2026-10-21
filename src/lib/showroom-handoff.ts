@@ -14,7 +14,7 @@ const MAX_AGE_MS = 6 * 60 * 60 * 1000;
 
 export interface ShowroomHandoff {
   items: ProjectItem[];
-  regionCode: "IT" | "FR" | "BE" | "NL" | "DE" | "LU";
+  regionCode: import("../../convex/lib/regions").RegionCode;
   buildingAge: number;
   isEnergyRenovation: boolean;
   createdAt: number;

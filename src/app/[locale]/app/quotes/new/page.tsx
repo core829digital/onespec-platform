@@ -62,7 +62,7 @@ const EMPTY_PAYLOAD = {
 } as unknown as CatalogPayload;
 
 type ConfiguratorDoc = Doc<"configurators">;
-type RegionCode = "IT" | "FR" | "BE" | "NL" | "DE" | "LU";
+type RegionCode = import("@/convex/lib/regions").RegionCode;
 
 interface RegionMeta {
   code: RegionCode;

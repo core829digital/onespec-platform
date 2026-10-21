@@ -4,7 +4,7 @@ import { ConvexError } from "convex/values";
 import { internal } from "./_generated/api";
 import { requirePlatformAdmin } from "./lib/auth";
 import { complianceForRegion } from "./lib/compliance";
-import { REGIONS, type RegionCode } from "./lib/regions";
+import { REGIONS, regionCodeValidator } from "./lib/regions";
 
 /** Admin lists are bounded: an arbitrary `limit` must never scan a 10k+ table. */
 function capLimit(limit: number | undefined, fallback: number): number {
@@ -77,7 +77,7 @@ export const resendEmail = mutation({
 
 // Registration open/close lives in `convex/registration.ts`.
 
-const REGION_CODES = Object.keys(REGIONS) as RegionCode[];
+const REGION_CODES = Object.keys(REGIONS) as import("./lib/regions").RegionCode[];
 
 /**
  * Founder-only market preview: how the platform behaves in one market —
@@ -86,13 +86,15 @@ const REGION_CODES = Object.keys(REGIONS) as RegionCode[];
  * founder can review all six markets without switching tenants.
  */
 export const getMarketPreview = query({
-  args: { regionCode: v.string() },
+  args: { regionCode: regionCodeValidator },
   handler: async (ctx, args) => {
     await requirePlatformAdmin(ctx);
     if (!(REGION_CODES as string[]).includes(args.regionCode)) {
       throw new ConvexError("UNKNOWN_REGION");
     }
-    const code = args.regionCode as RegionCode;
+    // With the union validator, args.regionCode is already a RegionCode: the
+    // membership test below stays as a belt-and-braces guard.
+    const code = args.regionCode;
     const region = REGIONS[code];
     const compliance = complianceForRegion(code);
     return {
