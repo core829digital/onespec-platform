@@ -32,8 +32,8 @@ Ordine ajustată după dependențe (#37 înainte de refactorul #53; #34 amânat 
 - [x] 5. #46 — client search: filtrare înainte de paginare ✓ 2026-10-21
 - [x] 6. #33 — revoke pe photo-preview object URLs (surveys/installer) ✓ 2026-10-21
 - [x] 7. #35 — retention cron pentru tabelele append-only (auditLog, billingEvents, viesChecks…) ✓ 2026-10-21
-- [ ] 8. #28 — offline queue: flush-uri concurente dublează înregistrările (o trecere cu #39)
-- [ ] 9. #39 — offline queue: elimină itemele eșuate permanent (aceeași trecere cu #28)
+- [x] 8. #28 — offline queue: flush-uri concurente dublează înregistrările (o trecere cu #39) ✓ 2026-10-21
+- [x] 9. #39 — offline queue: elimină itemele eșuate permanent (aceeași trecere cu #28) ✓ 2026-10-21
 
 ### Etapa 2 — P4: refactor-uri HIGH (6), în ordinea tracker-ului
 - [ ] 10. #64 — `normalizedRatios` structural, șterge 5 double-casts (warm-up)
@@ -89,3 +89,4 @@ Ordine ajustată după dependențe (#37 înainte de refactorul #53; #34 amânat 
 - 2026-10-21: **#37 DONE** — `convex/lib/pricing.ts` șters, `api.d.ts` curățat (codegen offline indisponibil), harta demo regenerată (a prins și `authEmails.ts` rămas ne-regenerat); generatorul reparat pentru căi cu spații (`fileURLToPath`); test de pază `tests/pricing-dead-module.test.ts`. Suite: 1804/1804. Următorul: #77.
 - 2026-10-21: **#77 DONE** (clamp PIN), **#76 DONE** (bound-uri free-text pe 5 mutații), **#45 DONE** (generatePassportQrs idempotent), **#46 DONE** (client search înainte de paginare), **#33 DONE** (revoke object URLs pe ambele pagini de teren). Suite: 1814→1817.
 - 2026-10-21: **#35 DONE** — `convex/retention.ts` (purge zilnic batched: auditLog/clientActivities 730z, billingEvents 30z, meteredEvents/viesChecks/catalogImports 90z, trialFingerprints 180z) + indexuri pe câmpurile reale de timestamp + cron `purge-append-only-tables`. Descoperit en route: crons-urile existente `purgeOldNotifications`/`purgeOldEmailLogs`/`supportAdmin` referențiază indexul `by_creation_time` care NU există în schemă → pică la runtime (convex 1.17 nici nu acceptă `_creationTime` în typing-ul range-builder). De raportat ca issue separat.
+- 2026-10-21: **#28+#39 DONE** — `flushQueue` cu single-flight lock (`tryAcquireFlushLock`/`releaseFlushLock`) + `planQueuedItem` pur (run/skip/evict); itemele la MAX_RETRIES șterse din IndexedDB (nu reținute forever); fallback-ul online-save din surveys/installations enqueue-ază doar la erori de transport (nu la respingeri de server cu `.data`). **ETAPA 1 COMPLETĂ** (9/9). Suite: 1821/1821. Următorul: Etapa 2 (#64).

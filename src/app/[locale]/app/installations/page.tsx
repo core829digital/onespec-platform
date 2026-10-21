@@ -160,6 +160,13 @@ export default function InstallationsPage() {
       setSurveyId("");
       setNotes("");
     } catch (e) {
+      // A server rejection carries Convex error data: the payload reached the
+      // backend and was refused — re-queueing it would only re-fail forever
+      // (#28). Only transport failures (no response) go to the offline queue.
+      if (e && typeof e === "object" && "data" in e) {
+        setErr(tf(e));
+        return;
+      }
       // Network hiccup while "online": fall back to the local queue.
       try {
         await enqueue("installation.create", payload);
