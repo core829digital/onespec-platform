@@ -112,3 +112,16 @@ export function vatKeyForRegion(
       return { key: null, fallback: 0 };
   }
 }
+
+/**
+ * The single VAT decision point for a visitor's submission (#56): which rate
+ * the widget's gross was shown at. Today the visitor's pick passes through
+ * when it is a finite 0–100 percentage and the configurator's default is used
+ * otherwise — a pure, named seam shared by the tamper check and any future
+ * validation of the pick against the region's allowed rates.
+ */
+export function resolveVisitorVat(clientVatPercent: number | undefined, defaultRate: number): number {
+  const pct = (n: number | undefined) =>
+    typeof n === "number" && Number.isFinite(n) && n >= 0 && n <= 100 ? n : null;
+  return pct(clientVatPercent) ?? defaultRate;
+}

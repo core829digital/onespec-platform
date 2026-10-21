@@ -9,6 +9,7 @@ import { assertCoherentItems } from "./lib/quoteItems";
 import { calculatePrice, installationIncluded, type ProjectItem, type CatalogPayload } from "../src/shared/pricing";
 import { ProjectItemSchema, type WidgetQuoteSubmission } from "../src/shared/widget-types";
 import { cleanSourcePage } from "../src/shared/source-page";
+import { resolveVisitorVat } from "./lib/fiscal";
 import { requireMembership } from "./lib/auth";
 import { resolveTenantEntitlements, currentPeriod, isWidgetPlan } from "./lib/entitlements";
 import { LOCKED_LEAD_NAME } from "./lib/quotaLock";
@@ -529,7 +530,7 @@ export const insertQuote = internalMutation({
     // The widget shows the gross at the rate the visitor picked, minus the ecobonus and discount they applied:
     // compare like with like, or every honest lead that uses those knobs looks like tampering.
     const pct = (n: number | undefined) => (typeof n === "number" && Number.isFinite(n) && n >= 0 && n <= 100 ? n : null);
-    const comparedVat = pct(args.clientVatPercent) ?? price.vatRatePercent;
+    const comparedVat = resolveVisitorVat(args.clientVatPercent, price.vatRatePercent);
     const deduction = pct(args.clientDeductionPercent) ?? 0;
     const expectedGross = price.priceExVatCents + Math.round((price.priceExVatCents * comparedVat) / 100);
     const expectedShown = Math.round((expectedGross * (100 - deduction)) / 100);
