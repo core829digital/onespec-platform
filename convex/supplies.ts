@@ -10,6 +10,7 @@ import { must } from "./lib/validate";
 import { lockedSafeLeadName } from "./lib/quotaLock";
 import { ensureOrdered } from "./lib/supply";
 import { advanceCantiereStatus, linkQuoteToCrm, type CantiereStatus } from "./lib/crmLink";
+import { markQuoteWon } from "./lib/quoteTransitions";
 import { ensureLogisticsMirror, syncPartnerEdit } from "./lib/partnerLinks";
 import { ensureDeliveryForSupply, receiveDelivery, takeBackDelivery } from "./lib/deliveryCore";
 import { checkEmail, checkPersonName, checkPhone, checkText, checkCompanyName, type CountryCode } from "../src/shared/validation";
@@ -257,8 +258,9 @@ export const advance = mutation({
       if (quote && quote.status !== "won") {
         await ctx.db.patch(quote._id, { status: "won" });
         // Closing the deal makes the customer an active client and confirms the site (found or created if missing).
+        // Shared transition (#54): no events and no quote audit today — the drift that bug #42 will fix, as flags here.
         const { userId } = await requirePermission(ctx, s.tenantId, "supply.use");
-        const crm = await linkQuoteToCrm(ctx, { quoteId: quote._id, userId, stage: "won" });
+        const crm = await markQuoteWon(ctx, { quote, userId, events: false, ensureSupplyOrder: false });
         if (crm.clientId !== s.clientId || crm.cantiereId !== s.cantiereId) {
           patch.clientId = crm.clientId;
           patch.cantiereId = crm.cantiereId;

@@ -1,4 +1,4 @@
-﻿import { ensureOrdered } from "./lib/supply";
+﻿import { markQuoteWon } from "./lib/quoteTransitions";
 import { query, mutation, type MutationCtx, type QueryCtx } from "./_generated/server";
 import type { Id } from "./_generated/dataModel";
 import { v, type ObjectType } from "convex/values";
@@ -146,24 +146,25 @@ export const updateStatus = mutation({
     await ctx.db.patch(args.quoteId, { status: args.status });
     // The customer card and the site follow the quote: contacted/quoted -> prospect, won -> active client and confirmed site;
     // lost / reopened quotes change the site's value (it adds up its live quotes).
-    if (args.status === "contacted" || args.status === "quoted" || args.status === "won") {
-      await linkQuoteToCrm(ctx, { quoteId: args.quoteId, userId, stage: args.status === "won" ? "won" : "quoted" });
+    if (args.status === "won") {
+      // The deal is closed (shared transition, #54): client active, site confirmed, "quote.won" event,
+      // and the quote's supply moves to "Ordine" (created if it did not exist).
+      await markQuoteWon(ctx, { quote, userId, events: true, ensureSupplyOrder: true });
+    } else if (args.status === "contacted" || args.status === "quoted") {
+      await linkQuoteToCrm(ctx, { quoteId: args.quoteId, userId, stage: "quoted" });
     } else {
       await recomputeCantiereValue(ctx, quote.cantiereId);
     }
 
-    await emit(ctx, {
-      type: "quote.status_changed",
-      tenantId: quote.tenantId,
-      quoteId: args.quoteId,
-      from: oldStatus,
-      to: args.status,
-      leadName: lockedSafeLeadName(quote),
-    });
-    if (args.status === "won") {
-      await emit(ctx, { type: "quote.won", tenantId: quote.tenantId, quoteId: args.quoteId });
-      // The deal is closed: the quote's supply moves to "Ordine" (created if it did not exist).
-      await ensureOrdered(ctx, (await ctx.db.get(args.quoteId)) ?? quote);
+    if (args.status !== "won") {
+      await emit(ctx, {
+        type: "quote.status_changed",
+        tenantId: quote.tenantId,
+        quoteId: args.quoteId,
+        from: oldStatus,
+        to: args.status,
+        leadName: lockedSafeLeadName(quote),
+      });
     }
 
     await ctx.db.insert("auditLog", {
@@ -607,13 +608,16 @@ export const signQuote = mutation({
       meta: { signedByName: args.signedByName, signedAt: now },
       createdAt: now,
     });
-    // A signature closes the deal like "won" does: client active, site confirmed, supply at Ordine, team notified.
-    if (quote.status !== "won") {
-      await emit(ctx, { type: "quote.status_changed", tenantId: quote.tenantId, quoteId: args.quoteId, from: quote.status, to: "won", leadName: lockedSafeLeadName(quote) });
-      await emit(ctx, { type: "quote.won", tenantId: quote.tenantId, quoteId: args.quoteId });
-    }
-    await linkQuoteToCrm(ctx, { quoteId: args.quoteId, userId, stage: "won" });
-    await ensureOrdered(ctx, (await ctx.db.get(args.quoteId)) ?? quote);
+    // A signature closes the deal like "won" does (shared transition, #54):
+    // client active, site confirmed, supply at Ordine, team notified. Events
+    // only when the quote was not already won — a re-signature of a won quote
+    // must not re-announce it.
+    await markQuoteWon(ctx, {
+      quote,
+      userId,
+      events: quote.status !== "won",
+      ensureSupplyOrder: true,
+    });
 
     return { ok: true, signedAt: now };
   },
