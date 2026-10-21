@@ -165,6 +165,9 @@ export const generatePassportQrs = mutation({
     const p = await ctx.db.get(args.passportId);
     if (!p) throw new ConvexError("PASSPORT_NOT_FOUND");
     await requirePermission(ctx, p.tenantId, "passports.use");
+    // Same plan gate as the sibling creation paths (#47): after a downgrade
+    // the labels page must not keep inserting passports.
+    await enforceForMaintenance(ctx, p.tenantId);
 
     if (!p.quoteId) throw new ConvexError("PASSPORT_NO_QUOTE");
 

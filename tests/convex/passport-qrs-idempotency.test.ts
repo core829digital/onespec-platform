@@ -54,3 +54,37 @@ test("generatePassportQrs is idempotent — re-running creates nothing new and r
     expect(tokensBefore).toContain(row.token);
   }
 });
+
+/**
+ * #47: after a plan downgrade the sibling creation paths (create,
+ * createBatchFromQuote) refuse passport creation via enforceForMaintenance —
+ * the labels page's Generate button must not keep inserting.
+ */
+test("generatePassportQrs enforces the maintenance entitlement like its siblings (#47)", async () => {
+  const t = newDb();
+  const seeded = await seedTenant(t, { plan: "pro" });
+  const configuratorId = await seedPublishedConfigurator(t, seeded.tenantId, "PPQ_47");
+  const asOwner = t.withIdentity({ subject: seeded.ownerId });
+  const quote = await asOwner.mutation(api.quotes.createFieldQuote, {
+    tenantId: seeded.tenantId,
+    configuratorId,
+    leadName: "Rossi Marco",
+    leadEmail: "rossi@example.com",
+    customerAddress: "Via Pistoiese 412",
+    customerCity: "Prato",
+    customerPostalCode: "59100",
+    items: [sampleItem],
+    vatRatePercent: 22,
+  });
+  const batchArgs = { tenantId: seeded.tenantId, quoteId: quote.quoteId };
+  await asOwner.mutation(api.passports.createBatchFromQuote, batchArgs);
+  const before = (await t.run((ctx) => ctx.db.query("serramentoPassports").collect()))
+    .filter((r) => r.quoteId === quote.quoteId);
+
+  // Downgrade: base has no maintenanceContracts entitlement.
+  await t.run((ctx) => ctx.db.patch(seeded.tenantId, { plan: "base" }));
+
+  await expect(
+    asOwner.mutation(api.passports.generatePassportQrs, { passportId: before[0]._id }),
+  ).rejects.toThrow(/MAINTENANCE_CONTRACTS_NOT_ALLOWED/);
+});
