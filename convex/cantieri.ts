@@ -407,7 +407,10 @@ export const generateGuestPin = mutation({
       }
     }
     if (!pin) throw new ConvexError("GUEST_PIN_COLLISION");
-    const expiresAt = Date.now() + (args.expiresInDays ?? 30) * 24 * 60 * 60 * 1000;
+    // Clamp the caller-supplied TTL (#77): -1/0 would hand the customer an
+    // already-expired PIN, and an absurd value would defeat the expiry policy.
+    const days = Math.min(Math.max(Math.round(args.expiresInDays ?? 30), 1), 365);
+    const expiresAt = Date.now() + days * 24 * 60 * 60 * 1000;
 
     await ctx.db.patch(args.cantiereId, {
       guestPin: pin,
