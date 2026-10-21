@@ -8,7 +8,7 @@ import { enforceForFieldSurvey } from "./lib/enforcement";
 import { resolveLinks, logClientActivity, assertOwnedRefs } from "./lib/links";
 import { linkRecordToCrm } from "./lib/crmLink";
 import { assertStoredFile, consumeUploadSlot } from "./lib/uploads";
-import { assertLongText } from "./lib/inputs";
+import { assertLongText, assertShortText } from "./lib/inputs";
 
 const openingValidator = v.object({
   label: v.string(),
@@ -52,6 +52,31 @@ function assertSurveyArrays(a: { openings?: unknown[]; photos?: Array<{ annotati
 
 /** Largest opening a survey can record (20 m); 0 means "not measured yet". The quote engine applies its own 200–6000 mm. */
 const MAX_OPENING_MM = 20_000;
+
+/**
+ * Free-text fields on the survey and each opening are bounded on every write
+ * path (#76): Convex validators only check types, and an unbounded paste would
+ * push the doc past the 1 MB document cap and fail later patches. Caps match
+ * the module's own twins (inspections.create: name 200 / address 300).
+ */
+function assertSurveyText(a: {
+  customerName?: string;
+  customerAddress?: string;
+  customerCity?: string;
+  customerPostalCode?: string;
+  openings?: Array<{ label: string; room?: string; floor?: string; notes?: string }>;
+}): void {
+  assertShortText(a.customerName, 200);
+  assertShortText(a.customerAddress, 300);
+  assertShortText(a.customerCity, 120);
+  assertShortText(a.customerPostalCode, 20);
+  for (const o of a.openings ?? []) {
+    assertShortText(o.label, 200);
+    assertShortText(o.room, 120);
+    assertShortText(o.floor, 120);
+    assertLongText(o.notes, 2000);
+  }
+}
 
 /** Convex validators only check types: the bounds of each measured opening live here. Measures are stored in whole mm. */
 function cleanOpenings<T extends { widthMm: number; heightMm: number }>(openings: T[] | undefined): T[] | undefined {
@@ -188,6 +213,7 @@ export const create = mutation({
     await enforceForFieldSurvey(ctx, args.tenantId);
     await requirePermission(ctx, args.tenantId, "surveys.use");
     assertSurveyArrays(args);
+    assertSurveyText(args);
     for (const p of args.photos ?? []) await assertStoredFile(ctx, p.storageId, { kind: "image" });
     const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
     await assertOwnedRefs(ctx, args.tenantId, { quoteId: args.quoteId });
@@ -271,6 +297,7 @@ export const update = mutation({
     if (args.customerCity !== undefined) patch.customerCity = args.customerCity.trim();
     if (args.customerPostalCode !== undefined) patch.customerPostalCode = args.customerPostalCode.trim();
     assertSurveyArrays(args);
+    assertSurveyText(args);
     for (const p of args.photos ?? []) await assertStoredFile(ctx, p.storageId, { kind: "image" });
     if (args.openings !== undefined) patch.openings = cleanOpenings(args.openings);
     if (args.diagnostics !== undefined) patch.diagnostics = args.diagnostics;

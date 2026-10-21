@@ -2,7 +2,7 @@
 // with the widget's own minimum widths (the ones its drawing flags in red).
 
 import { leafWidthLimits, leafWidthsMm, setLeafWidth, type LeafWidthLimits } from "@/shared/leaf-widths";
-import { normalizedRatios, type EditorSash } from "@/shared/sash-rules";
+import { normalizedRatios } from "@/shared/sash-rules";
 import type { Sash } from "./widget-pricing";
 
 /** Minimum leaf widths (mm) per opening type — under this the leaf jams. */
@@ -13,7 +13,7 @@ export const MIN_SASH_WIDTH: Record<Sash["type"], number> = {
   sliding: 400,
 };
 
-const ratiosOf = (sashes: Sash[]) => normalizedRatios(sashes as unknown as EditorSash[]);
+const ratiosOf = (sashes: Sash[]) => normalizedRatios(sashes);
 
 export const widgetLeafMins = (sashes: Sash[]): number[] => sashes.map((s) => MIN_SASH_WIDTH[s.type] ?? 300);
 

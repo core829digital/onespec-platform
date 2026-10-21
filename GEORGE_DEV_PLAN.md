@@ -36,7 +36,7 @@ Ordine ajustată după dependențe (#37 înainte de refactorul #53; #34 amânat 
 - [x] 9. #39 — offline queue: elimină itemele eșuate permanent (aceeași trecere cu #28) ✓ 2026-10-21
 
 ### Etapa 2 — P4: refactor-uri HIGH (6), în ordinea tracker-ului
-- [ ] 10. #64 — `normalizedRatios` structural, șterge 5 double-casts (warm-up)
+- [x] 10. #64 — `normalizedRatios` structural, șterge 5 double-casts (warm-up) ✓ 2026-10-21
 - [ ] 11. #63 — un singur tip canonic `ProjectItem`
 - [ ] 12. #65 — înlocuiește `v.any()` pe items/payload/labels (step A: types-only)
 - [ ] 13. #53 — registru fiscal unic (4 copii → 1; necesită #37 ✓)

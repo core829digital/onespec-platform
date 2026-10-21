@@ -11,7 +11,7 @@ import { applyMarginCents } from "./standard-pricing";
 import { assemblyGroups, assemblyJoins } from "./composition";
 import { leafFieldOpenings, leafTransoms, transomLengthForLeavesM, type FieldOpening } from "./transoms";
 import { leafWidthsMm } from "./leaf-widths";
-import { normalizedRatios, type EditorSash } from "./sash-rules";
+import { normalizedRatios } from "./sash-rules";
 import { virtualQualityTier } from "./catalog-rules";
 
 export interface CatalogPayload {
@@ -439,7 +439,7 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
           material.basePerM2Cents * quality.multiplier * profileMult * finishMult * glazingMult * frameMult * areaM2,
         );
     // Extra profile: every horizontal bar runs the width of its leaf; every edge this piece shares with a neighbour needs a coupling profile.
-    const leafMm = leafWidthsMm(item.width, normalizedRatios(item.sashes as unknown as EditorSash[]));
+    const leafMm = leafWidthsMm(item.width, normalizedRatios(item.sashes));
     const extraProfileM = transomLengthForLeavesM(item.height, leafMm, item.sashes, item.transoms) + (couplingMm.get(itemIndex) ?? 0) / 1000;
     const profileCost = standard ? 0 : Math.round(material.profilePerMlCents * (perimeterM + extraProfileM) * frameMult);
 

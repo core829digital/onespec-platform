@@ -42,6 +42,15 @@ crons.daily(
   internal.account.purgeOldNotifications,
 );
 
+// Retention for the append-only tables (auditLog, clientActivities, meteredEvents,
+// billingEvents, viesChecks, catalogImports, trialFingerprints). Windows are
+// documented in one place: convex/retention.ts.
+crons.daily(
+  "purge-append-only-tables",
+  { hourUTC: 4, minuteUTC: 10 },
+  internal.retention.purgeAppendOnly,
+);
+
 // Rate-limit buckets idle for 2+ days are full again: drop them (bounded table).
 crons.daily(
   "purge-idle-rate-limit-buckets",

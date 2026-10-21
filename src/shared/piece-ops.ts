@@ -29,7 +29,7 @@ const asEditor = (s: Sash): EditorSash => s as unknown as EditorSash;
 
 /** Re-normalise the ratios so they sum to exactly 1. */
 export function withNormalizedRatios(sashes: Sash[]): Sash[] {
-  const r = normalizedRatios(sashes.map(asEditor));
+  const r = normalizedRatios(sashes);
   return sashes.map((s, i) => ({ ...s, widthRatio: r[i] }));
 }
 
@@ -105,7 +105,7 @@ export function removeSash(item: ProjectItem, index: number): ProjectItem {
  * their minimum clear width.
  */
 export function resizeDivider(item: ProjectItem, dividerIndex: number, leftRatio: number): ProjectItem {
-  const ratios = normalizedRatios(item.sashes.map(asEditor));
+  const ratios = normalizedRatios(item.sashes);
   if (dividerIndex < 0 || dividerIndex + 1 >= ratios.length) return item;
   const pair = ratios[dividerIndex] + ratios[dividerIndex + 1];
   const minL = Math.max(MIN_LEAF_RATIO, SASH_MIN[item.sashes[dividerIndex].type as SashKind].w / item.width);
@@ -131,7 +131,7 @@ export function leafWidthRanges(item: Pick<ProjectItem, "width" | "sashes">): Le
 
 /** Whole-millimetre width of every leaf; always adds up to the frame width. */
 export function sashWidthsMm(item: Pick<ProjectItem, "width" | "sashes">): number[] {
-  return leafWidthsMm(item.width, normalizedRatios(item.sashes.map(asEditor)));
+  return leafWidthsMm(item.width, normalizedRatios(item.sashes));
 }
 
 /**
@@ -139,7 +139,7 @@ export function sashWidthsMm(item: Pick<ProjectItem, "width" | "sashes">): numbe
  * Refused (with the allowed range) when no arrangement can hold the value.
  */
 export function setSashWidth(item: ProjectItem, index: number, mm: number): { ok: true; item: ProjectItem } | { ok: false; reason: "range" | "index"; min?: number; max?: number } {
-  const r = setLeafWidth(item.width, normalizedRatios(item.sashes.map(asEditor)), sashMinWidths(item), index, mm);
+  const r = setLeafWidth(item.width, normalizedRatios(item.sashes), sashMinWidths(item), index, mm);
   if (!r.ok) return r;
   return { ok: true, item: { ...item, sashes: item.sashes.map((s, i) => ({ ...s, widthRatio: r.ratios[i] })) } };
 }

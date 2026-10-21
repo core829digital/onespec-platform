@@ -185,6 +185,9 @@ export const update = mutation({
     const region = regionForCountry(doc.regionCode).code;
     const std = complianceForRegion(region).installation;
 
+    // Same bound the create path enforces: an unbounded notes paste would push
+    // the dossier toward the 1 MB document cap and break later patches (#76).
+    assertLongText(args.notes, 5000);
     const jobType = args.jobType ?? doc.jobType;
     const nodeType = args.nodeType ?? doc.nodeType;
     if (!std.jobTypes.some((j) => j.key === jobType)) throw new ConvexError("INVALID_JOB_TYPE");

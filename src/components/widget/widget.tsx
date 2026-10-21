@@ -16,7 +16,7 @@ import { withLeafWidth } from "./leaf-edit";
 import { REGION_FLAT_OPTION_KINDS, calculatePrice, type ProjectItem } from "@/shared/pricing";
 import { quoteTotals } from "@/shared/quote-totals";
 import { glazingAdvice, PACKAGE_DEPTHS, packageKey, parseGlazingKey } from "@/shared/glazing-packages";
-import { frameRules, inactiveLeaves, normalizedRatios, type EditorSash, directionFromOpening, hasOpeningDirection, openingSide, retypeSash, typeForAddedSash } from "@/shared/sash-rules";
+import { frameRules, inactiveLeaves, normalizedRatios, directionFromOpening, hasOpeningDirection, openingSide, retypeSash, typeForAddedSash } from "@/shared/sash-rules";
 import {
   defaultConfig,
   defaultSashPreset,
@@ -393,7 +393,7 @@ export function Widget({
         sashes = sashes.slice(0, n);
       }
       // Whatever the leaves were, the shares must add up to the whole frame again (the leaf widths are typed on them).
-      const shares = normalizedRatios(sashes as unknown as EditorSash[]);
+      const shares = normalizedRatios(sashes);
       sashes = sashes.map((sh, k) => ({ ...sh, widthRatio: shares[k] }));
       let width = s.width;
       let height = s.height;

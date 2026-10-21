@@ -1,4 +1,4 @@
-import { inactiveLeaves, normalizedRatios, violationsFor, type EditorSash } from "@/shared/sash-rules";
+import { inactiveLeaves, normalizedRatios, violationsFor } from "@/shared/sash-rules";
 import { accessoryRightExtent, drawAccessories } from "./build-accessories";
 import { drawDimensions } from "./build-dimensions";
 import { drawLeaves, drawMullions, drawTransoms, hitRects, layoutCells } from "./build-sashes";
@@ -64,7 +64,7 @@ export function buildScene(rawInput: DrawingInput, options: DrawingOptions = {})
   const widthMm = positive(input.widthMm, 1000);
   const heightMm = positive(input.heightMm, 1000);
   const sashes: DrawingSash[] = input.sashes.length > 0 ? input.sashes : [{ type: "fix", direction: "left", active: true }];
-  const ratios = normalizedRatios(sashes as unknown as EditorSash[]);
+  const ratios = normalizedRatios(sashes);
 
   const scale = scaleFor(widthMm, heightMm, options);
   const frameW = widthMm * scale;

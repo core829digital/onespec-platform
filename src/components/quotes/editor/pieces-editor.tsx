@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { CATEGORY_DEFS, PIECE_CATEGORIES, type PieceCategory } from "@/shared/configurator-model";
 import { calculatePrice, computeItemThermal, type CatalogPayload, type ProjectItem } from "@/shared/pricing";
-import { frameRules, leafRule, SASH_MIN, type EditorSash } from "@/shared/sash-rules";
+import { frameRules, leafRule, SASH_MIN } from "@/shared/sash-rules";
 import {
   addSash,
   applyFrameToAll,
@@ -358,15 +358,15 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
 
           <StructurePanel payload={payload} items={items} activeIndex={activeIndex} onChange={onChange} />
 
-          {frameRules(active.sashes as unknown as EditorSash[]).map((code) => (
+          {frameRules(active.sashes).map((code) => (
             <p key={code} className="rounded-md bg-[var(--color-bg-alt)] px-2 py-1.5 text-[11px] leading-snug text-[var(--color-text-secondary)]" role="note">{ts(`frame_${code}`)}</p>
           ))}
           {sash && selectedSash !== null ? (
             <SashPanel
-              sash={sash as unknown as EditorSash}
+              sash={sash}
               index={selectedSash}
-              siblingTypes={active.sashes.filter((_, i) => i !== selectedSash).map((s) => s.type as EditorSash["type"])}
-              rule={leafRule(active.sashes as unknown as EditorSash[], selectedSash)}
+              siblingTypes={active.sashes.filter((_, i) => i !== selectedSash).map((s) => s.type)}
+              rule={leafRule(active.sashes, selectedSash)}
               itemHeightMm={active.height}
               hardwareOptions={choices.hardware}
               hardwareColorOptions={choices.hardwareColors}

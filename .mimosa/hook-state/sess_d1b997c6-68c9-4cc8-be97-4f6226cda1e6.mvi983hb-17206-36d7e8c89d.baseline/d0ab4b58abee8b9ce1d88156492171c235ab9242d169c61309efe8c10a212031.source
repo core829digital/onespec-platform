@@ -27,6 +27,39 @@ const DB_VERSION = 1;
 const STORE = "queue";
 const MAX_RETRIES = 5;
 
+let flushing = false;
+
+/**
+ * Single-flight guard (#28): every field page triggers flushes from two
+ * overlapping effects (mount + the pendingCount transition) plus the "Sync
+ * now" button. A second flush started while the first is awaiting a runner
+ * would re-read the same items — a flush deletes an item only after its
+ * mutation resolves — and re-submit it, double-creating the field record.
+ */
+export function tryAcquireFlushLock(): boolean {
+  if (flushing) return false;
+  flushing = true;
+  return true;
+}
+
+export function releaseFlushLock(): void {
+  flushing = false;
+}
+
+export type FlushPlan = { action: "run" } | { action: "evict" } | { action: "skip" };
+
+/**
+ * Pure disposition of one queued item during a flush. An item at MAX_RETRIES
+ * is dead (#39): the server has rejected it five times and will keep doing
+ * so, so it is evicted from the store — otherwise it is re-read on every
+ * flush forever and the "N elementi non sincronizzati" badge never clears.
+ */
+export function planQueuedItem(item: QueuedItem, hasRunner: boolean): FlushPlan {
+  if (item.retries >= MAX_RETRIES) return { action: "evict" };
+  if (!hasRunner) return { action: "skip" };
+  return { action: "run" };
+}
+
 let dbPromise: Promise<IDBDatabase> | null = null;
 const listeners = new Set<(state: SyncState) => void>();
 const state: SyncState = {
@@ -110,41 +143,52 @@ export async function getPending(kind?: string): Promise<QueuedItem[]> {
 
 /**
  * Drain the queue. `runners[kind]` is called for each queued item of that kind;
- * a resolved promise removes the item, a rejection bumps its retry counter.
+ * a resolved promise removes the item, a rejection bumps its retry counter, and
+ * an item that exhausts MAX_RETRIES is deleted rather than parked forever (#39).
+ * Single-flight (#28): while a flush is in progress any further call is a no-op.
  */
 export async function flushQueue(
   runners: Record<string, (payload: unknown) => Promise<unknown>>,
 ): Promise<{ synced: number; failed: number }> {
   if (!state.isOnline) return { synced: 0, failed: 0 };
+  if (!tryAcquireFlushLock()) return { synced: 0, failed: 0 };
   state.error = null;
   notify();
+  try {
+    const pending = await getPending();
+    let synced = 0;
+    let failed = 0;
 
-  const pending = await getPending();
-  let synced = 0;
-  let failed = 0;
+    for (const item of pending) {
+      const plan = planQueuedItem(item, item.kind in runners);
+      if (plan.action === "skip") continue;
+      if (plan.action === "evict") {
+        await tx("readwrite", (s) => s.delete(item.id));
+        failed++;
+        continue;
+      }
+      try {
+        await runners[item.kind](item.payload);
+        await tx("readwrite", (s) => s.delete(item.id));
+        synced++;
+      } catch {
+        item.retries++;
+        if (item.retries >= MAX_RETRIES) {
+          await tx("readwrite", (s) => s.delete(item.id));
+        } else {
+          await tx("readwrite", (s) => s.put(item));
+        }
+        failed++;
+      }
+    }
 
-  for (const item of pending) {
-    const runner = runners[item.kind];
-    if (!runner) continue;
-    if (item.retries >= MAX_RETRIES) {
-      failed++;
-      continue;
-    }
-    try {
-      await runner(item.payload);
-      await tx("readwrite", (s) => s.delete(item.id));
-      synced++;
-    } catch {
-      item.retries++;
-      await tx("readwrite", (s) => s.put(item));
-      failed++;
-    }
+    state.lastSync = synced > 0 ? Date.now() : state.lastSync;
+    state.error = failed > 0 ? `${failed} elementi non sincronizzati` : null;
+    await refreshPendingCount();
+    return { synced, failed };
+  } finally {
+    releaseFlushLock();
   }
-
-  state.lastSync = synced > 0 ? Date.now() : state.lastSync;
-  state.error = failed > 0 ? `${failed} elementi non sincronizzati` : null;
-  await refreshPendingCount();
-  return { synced, failed };
 }
 
 if (typeof window !== "undefined") {

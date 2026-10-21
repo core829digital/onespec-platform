@@ -209,7 +209,20 @@ export const generatePassportQrs = mutation({
 
     const results: { token: string; label: string }[] = [];
 
+    // Idempotent like createBatchFromQuote (#45): every run used to insert one
+    // more passport per unit, each duplicate carrying its own forever-valid QR
+    // token. Units that already have a passport return that passport's token,
+    // so a repeat visit still renders the same labels.
+    const existing = await ctx.db
+      .query("serramentoPassports")
+      .withIndex("by_quote", (q) => q.eq("quoteId", p.quoteId))
+      .collect();
+
     for (let idx = 0; idx < units.length; idx++) {
+      if (idx < existing.length) {
+        results.push({ token: existing[idx].publicToken, label: units[idx] });
+        continue;
+      }
       const id = await ctx.db.insert("serramentoPassports", {
         tenantId: p.tenantId,
         regionCode: p.regionCode,

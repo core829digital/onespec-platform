@@ -1,4 +1,4 @@
-import { normalizedRatios, type EditorSash } from "@/shared/sash-rules";
+import { normalizedRatios } from "@/shared/sash-rules";
 import { drawingLocale, PLAN } from "./drawing-text";
 import { PALETTE } from "./finishes";
 import { arcPoints, boundsOf, hatchSegments, line, place, poly, polyline, rect, text } from "./prims";
@@ -31,7 +31,7 @@ export interface PlanLeaf {
 
 /** The leaf cells of the opening in mm, between the two frame jambs. */
 export function planLeaves(input: DrawingInput): PlanLeaf[] {
-  const ratios = normalizedRatios(input.sashes as unknown as EditorSash[]);
+  const ratios = normalizedRatios(input.sashes);
   const inner = input.widthMm - 2 * FRAME_W;
   const leaves: PlanLeaf[] = [];
   let x = FRAME_W;

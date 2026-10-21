@@ -73,9 +73,11 @@ export function equalRatios(n: number): number[] {
 /**
  * Normalised width ratios for a sash list: any sash without an explicit
  * `widthRatio` gets an equal share of whatever is left, then the whole set is
- * scaled to sum exactly 1.
+ * scaled to sum exactly 1. Structural on purpose (#64): the body reads only
+ * `widthRatio`, so any sash shape (editor `EditorSash`, widget `Sash`, quote
+ * `ProjectItem` sashes) can be passed without casts.
  */
-export function normalizedRatios(sashes: EditorSash[]): number[] {
+export function normalizedRatios(sashes: ReadonlyArray<Pick<EditorSash, "widthRatio">>): number[] {
   const n = sashes.length;
   if (n === 0) return [];
   const explicit = sashes.map((s) =>

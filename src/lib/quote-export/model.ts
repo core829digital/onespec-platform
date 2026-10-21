@@ -1,6 +1,6 @@
 import { CATEGORY_DEFS } from "@/shared/configurator-model";
 import { calculatePrice, computeItemThermal, computeOverallUw, type CatalogPayload, type ProjectItem } from "@/shared/pricing";
-import { normalizedRatios, type EditorSash } from "@/shared/sash-rules";
+import { normalizedRatios } from "@/shared/sash-rules";
 import { buildScene } from "@/lib/drawing/build-scene";
 import { finishFillFor, insideFinishFor } from "@/lib/drawing/finish-fill";
 import { finishText } from "./finish-text";
@@ -92,7 +92,7 @@ export function buildExportModel(input: ExportInput): ExportModel {
   const dict = dictFor(locale);
   const pieces = input.items.map((item, index): ExportPiece => {
     const category = item.category ? CATEGORY_DEFS[item.category] : undefined;
-    const ratios = normalizedRatios(item.sashes as unknown as EditorSash[]);
+    const ratios = normalizedRatios(item.sashes);
     const leaves = item.sashes.map((s, i): ExportLeaf => ({
       n: i + 1,
       opening: openingLabel(dict, s.type, s.direction),

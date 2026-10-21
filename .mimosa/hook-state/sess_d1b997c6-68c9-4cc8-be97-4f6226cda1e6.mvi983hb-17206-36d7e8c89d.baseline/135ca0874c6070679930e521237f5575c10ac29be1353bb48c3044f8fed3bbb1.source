@@ -2,7 +2,7 @@
 
 import { requestConfirm } from "@/lib/confirm-dialog";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation } from "convex/react";
 import { useQuery } from "@/lib/convex-query";
 import { api } from "@/convex/_generated/api";
@@ -149,6 +149,20 @@ export default function SurveysPage() {
   const [activePhotoIdx, setActivePhotoIdx] = useState<number | null>(null);
   const [uploading, setUploading] = useState(false);
 
+  // Blob-preview URLs we created are ours to free (#33): a soft-navigating SPA
+  // keeps the document alive, and an unreferenced object URL pins the full
+  // photo bytes until a hard reload — 120–240 MB over a field session.
+  const createdPreviews = useRef<Set<string>>(new Set());
+  useEffect(
+    () => () => {
+      for (const url of createdPreviews.current) URL.revokeObjectURL(url);
+    },
+    [],
+  );
+  const revokePreview = (url: string | null | undefined) => {
+    if (url && createdPreviews.current.delete(url)) URL.revokeObjectURL(url);
+  };
+
   const totalPerimeter = useMemo(() => perimeterMm(openings), [openings]);
   const tdg = useTranslations("diagnostic");
   const recommendation = useMemo(() => computeRecommendation(diag, (k) => tdg(k)), [diag, tdg]);
@@ -225,6 +239,8 @@ export default function SurveysPage() {
     setOpenings([{ ...EMPTY_OPENING }]);
     setActiveIdx(0);
     setDiag({ ...EMPTY_DIAG });
+    // Free every preview we handed out before dropping the list (#33).
+    for (const p of photos) revokePreview(p.url);
     setPhotos([]);
     setErr("");
   }
@@ -279,9 +295,11 @@ export default function SurveysPage() {
           body: file,
         });
         const { storageId } = (await res.json()) as { storageId: Id<"_storage"> };
+        const preview = URL.createObjectURL(file);
+        createdPreviews.current.add(preview);
         setPhotos((prev) => [
           ...prev,
-          { storageId, uploadedAt: Date.now(), url: URL.createObjectURL(file) },
+          { storageId, uploadedAt: Date.now(), url: preview },
         ]);
       }
     } catch (e) {
@@ -310,6 +328,13 @@ export default function SurveysPage() {
       reset();
       setOpen(false);
     } catch (e) {
+      // A server rejection carries Convex error data: the payload reached the
+      // backend and was refused — re-queueing it would only re-fail forever
+      // (#28). Only transport failures (no response) go to the offline queue.
+      if (e && typeof e === "object" && "data" in e) {
+        setErr(tf(e));
+        return;
+      }
       // Network hiccup while "online": fall back to the local queue.
       try {
         await enqueue("survey.create", payload);
@@ -509,7 +534,10 @@ export default function SurveysPage() {
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={p.url} alt={`foto ${i + 1}`} className="h-full w-full object-cover" />
                       <button
-                        onClick={() => setPhotos((prev) => prev.filter((_, idx) => idx !== i))}
+                        onClick={() => {
+                          revokePreview(photos[i]?.url);
+                          setPhotos((prev) => prev.filter((_, idx) => idx !== i));
+                        }}
                         className="absolute right-0 top-0 bg-black/60 px-1 text-xs text-white"
                       >
                         ✕

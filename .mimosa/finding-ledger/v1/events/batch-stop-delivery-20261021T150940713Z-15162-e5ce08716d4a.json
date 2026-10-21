@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "mimosa-finding-ledger-batch/v1",
+  "batchId": "stop-delivery-20261021T150940713Z-15162-e5ce08716d4a",
+  "runId": "20261021T150940713Z-15162-e5ce08716d4a",
+  "runStatus": "completed",
+  "coverage": {
+    "status": "complete",
+    "reasons": []
+  },
+  "source": {
+    "component": "zcode-hook",
+    "operationId": "StopDelivery"
+  },
+  "revision": "e1199ee5eeb18aed62effa5860fa81d7c81c1692",
+  "diffHash": "2673cae66c6c952f710b9374357cc48ea011329e48cba731820a5e2c9061e2c9",
+  "rulesVersion": "unavailable",
+  "sessionHash": "9c9a0e0c99bfa92fa936faa85e88a36f0a6d85c8923df83fad1f88ea52259947",
+  "reportRef": ".mimosa/reports/task-review-sess_d1b997c6-68c9-4cc8-be97-4f6226cda1e6-20261021T150940713Z-15162-e5ce08716d4a.json",
+  "events": [
+    {
+      "eventId": "hook-671e8a4048cfe035ced48ae4c9f2b951",
+      "findingId": "mimosa-54030fbb47c97d4e1e12465d",
+      "type": "finding_blocked",
+      "at": "2026-10-21T15:09:41.051Z",
+      "identity": {
+        "projectRelativeFile": "tests/convex/client-search.test.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "de70b2ec8e41254a1ea8ab03c54a2da5cc1d2ab09666ff7b04290bceb44c01c6",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 23,
+      "endLine": 23,
+      "reasonCode": "stop_rewake",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "de70b2ec8e41254a1ea8ab03c54a2da5cc1d2ab09666ff7b04290bceb44c01c6"
+      },
+      "sequence": 0
+    }
+  ],
+  "observedFindingIds": [],
+  "verifiedFiles": [],
+  "recordedAt": "2026-10-21T15:09:41.340Z"
+}

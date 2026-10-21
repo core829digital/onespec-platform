@@ -1,0 +1,1037 @@
+{
+  "schema_version": "mimosa-task-review/v2",
+  "run_id": "20261021T150940713Z-15162-e5ce08716d4a",
+  "run_status": "inconclusive",
+  "errors": [
+    {
+      "stage": "candidate-select",
+      "target": "tests/offline-sync-flush.test.ts",
+      "reason": "candidate_limit_exceeded: 4 changed reviewable file(s) were not scanned because the limit is 20"
+    }
+  ],
+  "coverage": {
+    "schema_version": "mimosa-hook-coverage/v1",
+    "status": "partial",
+    "scope": "hook_observed_diff",
+    "baseline": {
+      "complete": true,
+      "captured_files": 1116,
+      "candidate_limit": 5000,
+      "truncated": false,
+      "enumeration_error_count": 0,
+      "snapshot_error_count": 0,
+      "compensated_target_count": 24
+    },
+    "change_tracking": {
+      "touched_observed": 23,
+      "touched_retained": 23,
+      "truncated": false,
+      "bash_mutation": true,
+      "bash_discovered": 24,
+      "bash_discovery_limit": 80,
+      "bash_discovery_truncated": false
+    },
+    "candidates": {
+      "eligible_files": 24,
+      "selected_files": 20,
+      "limit": 20,
+      "truncated": true
+    },
+    "scanning": {
+      "required_files": 20,
+      "scanned_files": 20,
+      "skipped_files": 0,
+      "failed_files": 0,
+      "project_checks_required": 0,
+      "project_checks_completed": 0
+    },
+    "notification": {
+      "eligible_findings": 1,
+      "detailed_findings": 1,
+      "detail_limit": 3,
+      "truncated": false
+    },
+    "reason_counts": {
+      "candidate_limit_exceeded": 1,
+      "project_check_failed": 1
+    },
+    "reasons": [
+      {
+        "code": "candidate_limit_exceeded",
+        "stage": "candidate-select",
+        "target": "tests/offline-sync-flush.test.ts",
+        "detail": "4 changed reviewable file(s) were not scanned because the limit is 20",
+        "affects_completion": true
+      },
+      {
+        "code": "project_check_failed",
+        "stage": "candidate-select",
+        "target": "tests/offline-sync-flush.test.ts",
+        "detail": "candidate_limit_exceeded: 4 changed reviewable file(s) were not scanned because the limit is 20",
+        "affects_completion": true
+      }
+    ],
+    "reasons_truncated": false
+  },
+  "generated_at": "2026-10-21T15:09:40.713Z",
+  "session_id": "sess_d1b997c6-68c9-4cc8-be97-4f6226cda1e6",
+  "target": ".",
+  "revision": "e1199ee5eeb18aed62effa5860fa81d7c81c1692",
+  "rules_version": "unavailable",
+  "diff_hash": "2673cae66c6c952f710b9374357cc48ea011329e48cba731820a5e2c9061e2c9",
+  "diff": {
+    "algorithm": "sha256",
+    "changed_file_count": 20,
+    "changed_files": [
+      {
+        "file": "convex/_generated/api.d.ts",
+        "ranges": [
+          {
+            "start": 104,
+            "end": 104
+          },
+          {
+            "start": 229,
+            "end": 229
+          }
+        ],
+        "before_hash": "a6566efaf34329a0078a2e3229212b720c31013e75402f763b91dfc9e264b856",
+        "after_hash": "6758aa7302472f250d040818d0be64a225da66bf763d33d73db8c7d4914e71ab"
+      },
+      {
+        "file": "convex/cantieri.ts",
+        "ranges": [
+          {
+            "start": 410,
+            "end": 413
+          }
+        ],
+        "before_hash": "9407d76109e1a98161b67af2ab2807f587ac85062bcf5d18be789d3cb15f2680",
+        "after_hash": "04c7329dabdbe6402c6a99edc991168f27cec17b73cabbd04232eda425483081"
+      },
+      {
+        "file": "convex/clients.ts",
+        "ranges": [
+          {
+            "start": 24,
+            "end": 28
+          },
+          {
+            "start": 33,
+            "end": 33
+          },
+          {
+            "start": 47,
+            "end": 47
+          },
+          {
+            "start": 56,
+            "end": 56
+          }
+        ],
+        "before_hash": "0f8f8296867726324f1c293080689fc40c8e8b24d1af409f0457d8ee818a3fb7",
+        "after_hash": "07c4be6f5f594d469841741a6923cb8961439c4b3fe5bf384bfb763f542b46ab"
+      },
+      {
+        "file": "convex/crons.ts",
+        "ranges": [
+          {
+            "start": 45,
+            "end": 53
+          }
+        ],
+        "before_hash": "3313f6ece5dbed23d5a589ea2d79d989b564719fff7198f266a4eb2404688407",
+        "after_hash": "573ad5985da12a3786a7c5623a633842ad41c7a4c7cc83d41e07766c7fdf4fb4"
+      },
+      {
+        "file": "convex/inspections.ts",
+        "ranges": [
+          {
+            "start": 17,
+            "end": 17
+          },
+          {
+            "start": 200,
+            "end": 201
+          },
+          {
+            "start": 253,
+            "end": 255
+          },
+          {
+            "start": 292,
+            "end": 293
+          }
+        ],
+        "before_hash": "481c631db9056f4615707a96cbc64db3f007d75a5c000529cd9b74ce7063f8c7",
+        "after_hash": "9f7095ba00e9918adba5f2b210518ca7db69e28cc549658a134564a9e9a8f3f4"
+      },
+      {
+        "file": "convex/installations.ts",
+        "ranges": [
+          {
+            "start": 188,
+            "end": 190
+          }
+        ],
+        "before_hash": "51e87aaf12a56b417f7950fbc81968ea4f694ba798e51e82bf2562e7cc3f106c",
+        "after_hash": "f9a5fccfccaab0fcb358032024cc9227f8c4adaa0558e6233dd013634b8abab0"
+      },
+      {
+        "file": "convex/passports.ts",
+        "ranges": [
+          {
+            "start": 212,
+            "end": 220
+          },
+          {
+            "start": 222,
+            "end": 225
+          }
+        ],
+        "before_hash": "3be088f67285346ab7e3e81f46860540b51ab93dff2101f423455d706f29fb49",
+        "after_hash": "6655e0429ac0c3a905d7389074117ac87b55316d1fcece53966e694f3a97a6a0"
+      },
+      {
+        "file": "convex/quotes.ts",
+        "ranges": [
+          {
+            "start": 17,
+            "end": 17
+          },
+          {
+            "start": 589,
+            "end": 590
+          }
+        ],
+        "before_hash": "426367607e9cdc08fcc844165a57690d23c4cf40bf5416feb821688ab0109167",
+        "after_hash": "2597a335ae62771ccc12f056d3cc172755d8280c46f01d831f17ab55796ec391"
+      },
+      {
+        "file": "convex/retention.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 51
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "89781f8e1dccb26b3c424bbb5152b9e452f7811f8ccb215d3867d47b1bfc1c0b"
+      },
+      {
+        "file": "convex/schema.ts",
+        "ranges": [
+          {
+            "start": 159,
+            "end": 161
+          },
+          {
+            "start": 247,
+            "end": 249
+          },
+          {
+            "start": 647,
+            "end": 649
+          },
+          {
+            "start": 816,
+            "end": 817
+          },
+          {
+            "start": 1057,
+            "end": 1058
+          },
+          {
+            "start": 1095,
+            "end": 1097
+          },
+          {
+            "start": 1456,
+            "end": 1457
+          }
+        ],
+        "before_hash": "2b5e47612cedd54cc2787684ea088e4cc9c67e692f08e7beb4d3fc16cd9d0955",
+        "after_hash": "da5f92402d7ee1a51e949e66c47c9dfda4b809055890fe8dc14843b8b591a49a"
+      },
+      {
+        "file": "convex/surveys.ts",
+        "ranges": [
+          {
+            "start": 11,
+            "end": 11
+          },
+          {
+            "start": 56,
+            "end": 80
+          },
+          {
+            "start": 216,
+            "end": 216
+          },
+          {
+            "start": 300,
+            "end": 300
+          }
+        ],
+        "before_hash": "4ef7d44956836483c98f5f00cf127767f7a1f1fb5113dbdbf6c0d130f0cf64cf",
+        "after_hash": "1fb6c18125460a399d27fdebe2fa670fd85fd7bac704252aa1da9c7ec6934b12"
+      },
+      {
+        "file": "src/app/[locale]/app/surveys/page.tsx",
+        "ranges": [
+          {
+            "start": 5,
+            "end": 5
+          },
+          {
+            "start": 152,
+            "end": 165
+          },
+          {
+            "start": 242,
+            "end": 243
+          },
+          {
+            "start": 298,
+            "end": 299
+          },
+          {
+            "start": 302,
+            "end": 302
+          },
+          {
+            "start": 331,
+            "end": 337
+          },
+          {
+            "start": 537,
+            "end": 540
+          }
+        ],
+        "before_hash": "89d662c0a48837df7c544fda549b98cb3e6567829de9d7c36669d861b7d25ad9",
+        "after_hash": "3def8422aa79be06aef2322c5af4a0234dccab668fcac6c0e96142482499680b"
+      },
+      {
+        "file": "src/app/i/[token]/client.tsx",
+        "ranges": [
+          {
+            "start": 3,
+            "end": 3
+          },
+          {
+            "start": 57,
+            "end": 70
+          },
+          {
+            "start": 89,
+            "end": 92
+          },
+          {
+            "start": 94,
+            "end": 94
+          }
+        ],
+        "before_hash": "a8bc339574c2171a9f4f88633811fc9e0b31036a8be42869dbd34dcb801910ff",
+        "after_hash": "c8caccd7dda831c391e0ee04ee3476b17b5068430b156e36059e2f532148fdc1"
+      },
+      {
+        "file": "tests/convex/client-search.test.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 26
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "f9b4945f3dfbb79d312b4935834dea1195966f344eda7702c7be015f2ab5bc77"
+      },
+      {
+        "file": "tests/convex/free-text-limits.test.ts",
+        "ranges": [
+          {
+            "start": 3,
+            "end": 3
+          },
+          {
+            "start": 38,
+            "end": 115
+          }
+        ],
+        "before_hash": "007b49beb4e8e5dda194af7e4f0ed874ccf5fe130aa1eb1135642346d79f429d",
+        "after_hash": "9c763805bcdb19e816cc43cfe31be2ec1fd6c056fe1441efe115c90fef66f486"
+      },
+      {
+        "file": "tests/convex/guest-pin.test.ts",
+        "ranges": [
+          {
+            "start": 102,
+            "end": 141
+          }
+        ],
+        "before_hash": "7fee9ecc689effac63e76c38646e10dd98eeb3859f14411efdf6dd63e28fff8e",
+        "after_hash": "e6af8d5b8876cf33b1a1b48f4f6fd35fa2c7dcdc3e8b5d69dc9812271fcb3a5a"
+      },
+      {
+        "file": "tests/convex/passport-qrs-idempotency.test.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 56
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "a9c4b9997261f8ecf1ec6cfdc774436c041a70e9964baa46698bc76c8273941e"
+      },
+      {
+        "file": "tests/convex/retention.test.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 86
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "260b48ee655438646a84ec0a9e84126baf1a7e95da7866c49298881c6909e131"
+      },
+      {
+        "file": "tests/photo-preview-revoke.test.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 34
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "179129f0cdb7c5684d78ec14e29df3ed6134c4c7e72c95dc57d70d1b4f413e61"
+      },
+      {
+        "file": "tests/pricing-dead-module.test.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 37
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "82a2c499b72b27a0eb40346c341d955f8a2f0b114eb55c241d5e00eb0a4ee880"
+      }
+    ]
+  },
+  "timing": {
+    "started_at": "2026-10-21T15:09:39.088Z",
+    "completed_at": "2026-10-21T15:09:40.713Z",
+    "duration_ms": 1625,
+    "measurement": "hook_wall_clock"
+  },
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "total": 0,
+    "model_calls": 0,
+    "measurement": "known-zero"
+  },
+  "telemetry": {
+    "schemaVersion": "mimosa-gate-telemetry/v1",
+    "profile": "gate",
+    "operation": "Stop",
+    "outcome": "partial/INCONCLUSIVE",
+    "latencyMs": 1625,
+    "peakMemoryBytes": 250478592,
+    "memoryMeasurement": "max-observed-process-rss",
+    "scannedFiles": 20,
+    "cache": {
+      "hits": 0,
+      "misses": 0,
+      "measurement": "not-applicable"
+    },
+    "denyCount": 0,
+    "tokens": {
+      "input": 0,
+      "output": 0,
+      "total": 0,
+      "modelCalls": 0,
+      "measurement": "known-zero"
+    }
+  },
+  "finding_count": 1,
+  "rewake_finding_count": 1,
+  "evidence_boundary": {
+    "scan": "candidate",
+    "static_fix_verification": "observed_static_only",
+    "runtime_verification": "not_performed"
+  },
+  "finding_events": [
+    {
+      "finding_id": "mimosa-74455dc861eacb6536787230",
+      "file": "tests/convex/field-modules.test.ts",
+      "line": 217,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-10-21T14:23:12.846Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "5ff021177a3fe9c98de6148d997a03705adb3896aacea53e4716007bcf131ffe",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-a19148b09f6f2122ee82d424",
+      "file": "tests/convex/field-modules.test.ts",
+      "line": 228,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-10-21T14:23:12.846Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "487fe98bf5833fe92998be32a929e50a28abdc605b1556bf0c59d3fd5c82c824",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-a01c57f62eba3c7a05756562",
+      "file": "tests/convex/field-modules.test.ts",
+      "line": 258,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-10-21T14:23:12.846Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "c331510c57567ac4dc576eea9aeeecabddaad2b8e621346b6c767622610b42a8",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-d4d0a4609633e2ca38f7766a",
+      "file": "tests/convex/field-modules.test.ts",
+      "line": 262,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-10-21T14:23:12.846Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "f940b7e1e026ff5c4305b8e55336c74264be4a40bc32af289d03267e2941a5b6",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-56b26b36b40e7fab77d9fb61",
+      "file": "tests/convex/field-modules.test.ts",
+      "line": 266,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-10-21T14:23:12.846Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "0d40b1de2c3670b59a7da14e2ad5e9a53d9ab75043f4ac4abb97dfb5cceaaca7",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-d3bcf2d688a244e734bf673b",
+      "file": "tests/convex/passport-qrs-idempotency.test.ts",
+      "line": 34,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-10-21T14:23:37.891Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "42561d279e1d08fabc0e35fdd3552c99f6528db9429a41cb76bc73599a41abd6",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-d849a255bf665f7073d6c0c9",
+      "file": "tests/convex/passport-qrs-idempotency.test.ts",
+      "line": 40,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-10-21T14:23:37.891Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "8e4013426b0c8e796bc545a4f86b3fd93d76151ac98c2e734a6caef6d4d96d13",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-34df3cf1e45795f6f2faa506",
+      "file": "tests/convex/passport-qrs-idempotency.test.ts",
+      "line": 44,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-10-21T14:23:37.891Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "04f45c5ac569e7c6b0159ceab2b199c71eb3249decb9813fd2153a6280f4c320",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-f7ae3bfbdec795041620a9dd",
+      "file": "tests/convex/passport-qrs-idempotency.test.ts",
+      "line": 36,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-10-21T14:24:21.765Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "91dbd5297332fe1f120e81e8b91a2c66298dabddab48ef4286b77e3049d0afb7",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-0ac16b1dd6236677440307db",
+      "file": "tests/convex/passport-qrs-idempotency.test.ts",
+      "line": 42,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-10-21T14:24:21.765Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "f3819af8c512d3c15f488c375ca85fe2510f21e4460f841e8045408883f9b74d",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-ee0c18a318a8153de0e7c9ce",
+      "file": "tests/convex/passport-qrs-idempotency.test.ts",
+      "line": 46,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-10-21T14:24:21.765Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "2a83c41b5e6557fa089026add260c7d8aeed41c8a444fcb0869477e2658e96df",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-d3bcf2d688a244e734bf673b",
+      "file": "tests/convex/passport-qrs-idempotency.test.ts",
+      "line": 34,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "fixed_candidate",
+      "decision": "repair_observed",
+      "at": "2026-10-21T14:25:04.069Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "42561d279e1d08fabc0e35fdd3552c99f6528db9429a41cb76bc73599a41abd6",
+        "candidate_before_evidence_hash": "42561d279e1d08fabc0e35fdd3552c99f6528db9429a41cb76bc73599a41abd6",
+        "post_change_evidence_hash_at_previous_location": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-d3bcf2d688a244e734bf673b",
+      "file": "tests/convex/passport-qrs-idempotency.test.ts",
+      "line": 34,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "static_verified",
+      "decision": "static_rescan_passed",
+      "at": "2026-10-21T14:25:04.069Z",
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "42561d279e1d08fabc0e35fdd3552c99f6528db9429a41cb76bc73599a41abd6",
+        "candidate_before_evidence_hash": "42561d279e1d08fabc0e35fdd3552c99f6528db9429a41cb76bc73599a41abd6",
+        "post_change_evidence_hash_at_previous_location": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-d849a255bf665f7073d6c0c9",
+      "file": "tests/convex/passport-qrs-idempotency.test.ts",
+      "line": 40,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "fixed_candidate",
+      "decision": "repair_observed",
+      "at": "2026-10-21T14:25:04.069Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "8e4013426b0c8e796bc545a4f86b3fd93d76151ac98c2e734a6caef6d4d96d13",
+        "candidate_before_evidence_hash": "8e4013426b0c8e796bc545a4f86b3fd93d76151ac98c2e734a6caef6d4d96d13",
+        "post_change_evidence_hash_at_previous_location": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-d849a255bf665f7073d6c0c9",
+      "file": "tests/convex/passport-qrs-idempotency.test.ts",
+      "line": 40,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "static_verified",
+      "decision": "static_rescan_passed",
+      "at": "2026-10-21T14:25:04.069Z",
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "8e4013426b0c8e796bc545a4f86b3fd93d76151ac98c2e734a6caef6d4d96d13",
+        "candidate_before_evidence_hash": "8e4013426b0c8e796bc545a4f86b3fd93d76151ac98c2e734a6caef6d4d96d13",
+        "post_change_evidence_hash_at_previous_location": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-34df3cf1e45795f6f2faa506",
+      "file": "tests/convex/passport-qrs-idempotency.test.ts",
+      "line": 44,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "fixed_candidate",
+      "decision": "repair_observed",
+      "at": "2026-10-21T14:25:04.069Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "04f45c5ac569e7c6b0159ceab2b199c71eb3249decb9813fd2153a6280f4c320",
+        "candidate_before_evidence_hash": "04f45c5ac569e7c6b0159ceab2b199c71eb3249decb9813fd2153a6280f4c320",
+        "post_change_evidence_hash_at_previous_location": "74f40081a56c281370af7111683023fc5eb9766c50ee2aa1a5c67c0523cc5e74",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-34df3cf1e45795f6f2faa506",
+      "file": "tests/convex/passport-qrs-idempotency.test.ts",
+      "line": 44,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "static_verified",
+      "decision": "static_rescan_passed",
+      "at": "2026-10-21T14:25:04.069Z",
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "04f45c5ac569e7c6b0159ceab2b199c71eb3249decb9813fd2153a6280f4c320",
+        "candidate_before_evidence_hash": "04f45c5ac569e7c6b0159ceab2b199c71eb3249decb9813fd2153a6280f4c320",
+        "post_change_evidence_hash_at_previous_location": "74f40081a56c281370af7111683023fc5eb9766c50ee2aa1a5c67c0523cc5e74",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-f7ae3bfbdec795041620a9dd",
+      "file": "tests/convex/passport-qrs-idempotency.test.ts",
+      "line": 36,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "fixed_candidate",
+      "decision": "repair_observed",
+      "at": "2026-10-21T14:25:04.069Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "91dbd5297332fe1f120e81e8b91a2c66298dabddab48ef4286b77e3049d0afb7",
+        "candidate_before_evidence_hash": "91dbd5297332fe1f120e81e8b91a2c66298dabddab48ef4286b77e3049d0afb7",
+        "post_change_evidence_hash_at_previous_location": "2d240d610d4d5427ed92a3eaaf7bbcb1e694d56ea26e2e7161188d1de0abe4f0",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-f7ae3bfbdec795041620a9dd",
+      "file": "tests/convex/passport-qrs-idempotency.test.ts",
+      "line": 36,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "static_verified",
+      "decision": "static_rescan_passed",
+      "at": "2026-10-21T14:25:04.069Z",
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "91dbd5297332fe1f120e81e8b91a2c66298dabddab48ef4286b77e3049d0afb7",
+        "candidate_before_evidence_hash": "91dbd5297332fe1f120e81e8b91a2c66298dabddab48ef4286b77e3049d0afb7",
+        "post_change_evidence_hash_at_previous_location": "2d240d610d4d5427ed92a3eaaf7bbcb1e694d56ea26e2e7161188d1de0abe4f0",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-0ac16b1dd6236677440307db",
+      "file": "tests/convex/passport-qrs-idempotency.test.ts",
+      "line": 42,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "fixed_candidate",
+      "decision": "repair_observed",
+      "at": "2026-10-21T14:25:04.069Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "f3819af8c512d3c15f488c375ca85fe2510f21e4460f841e8045408883f9b74d",
+        "candidate_before_evidence_hash": "f3819af8c512d3c15f488c375ca85fe2510f21e4460f841e8045408883f9b74d",
+        "post_change_evidence_hash_at_previous_location": "ac42035817acbba5977e73edb8b9d230b5957fbc4df2e8a312120b2935857849",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-0ac16b1dd6236677440307db",
+      "file": "tests/convex/passport-qrs-idempotency.test.ts",
+      "line": 42,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "static_verified",
+      "decision": "static_rescan_passed",
+      "at": "2026-10-21T14:25:04.069Z",
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "f3819af8c512d3c15f488c375ca85fe2510f21e4460f841e8045408883f9b74d",
+        "candidate_before_evidence_hash": "f3819af8c512d3c15f488c375ca85fe2510f21e4460f841e8045408883f9b74d",
+        "post_change_evidence_hash_at_previous_location": "ac42035817acbba5977e73edb8b9d230b5957fbc4df2e8a312120b2935857849",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-ee0c18a318a8153de0e7c9ce",
+      "file": "tests/convex/passport-qrs-idempotency.test.ts",
+      "line": 46,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "fixed_candidate",
+      "decision": "repair_observed",
+      "at": "2026-10-21T14:25:04.069Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "2a83c41b5e6557fa089026add260c7d8aeed41c8a444fcb0869477e2658e96df",
+        "candidate_before_evidence_hash": "2a83c41b5e6557fa089026add260c7d8aeed41c8a444fcb0869477e2658e96df",
+        "post_change_evidence_hash_at_previous_location": "17c0b25a47d89ae0609f838e13522b265e1ce5f8c591e368edc4fa2def91cef8",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-ee0c18a318a8153de0e7c9ce",
+      "file": "tests/convex/passport-qrs-idempotency.test.ts",
+      "line": 46,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "static_verified",
+      "decision": "static_rescan_passed",
+      "at": "2026-10-21T14:25:04.069Z",
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "2a83c41b5e6557fa089026add260c7d8aeed41c8a444fcb0869477e2658e96df",
+        "candidate_before_evidence_hash": "2a83c41b5e6557fa089026add260c7d8aeed41c8a444fcb0869477e2658e96df",
+        "post_change_evidence_hash_at_previous_location": "17c0b25a47d89ae0609f838e13522b265e1ce5f8c591e368edc4fa2def91cef8",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-54030fbb47c97d4e1e12465d",
+      "file": "tests/convex/client-search.test.ts",
+      "line": 23,
+      "severity": "high",
+      "category": "SQL 注入",
+      "status": "blocked",
+      "decision": "stop_rewake",
+      "at": "2026-10-21T15:09:40.713Z",
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "de70b2ec8e41254a1ea8ab03c54a2da5cc1d2ab09666ff7b04290bceb44c01c6",
+        "runtime_oracle": false
+      }
+    }
+  ],
+  "findings": [
+    {
+      "finding_id": "mimosa-54030fbb47c97d4e1e12465d",
+      "file": "tests/convex/client-search.test.ts",
+      "line": 23,
+      "end_line": 23,
+      "severity": "high",
+      "category": "SQL 注入",
+      "kind": "semgrep",
+      "advisory": false,
+      "status": "blocked",
+      "evidence_boundary": "candidate",
+      "evidence": [
+        {
+          "kind": "static_scan",
+          "boundary": "candidate",
+          "producer": "deterministic",
+          "source": "semgrep",
+          "file": "tests/convex/client-search.test.ts",
+          "line": 23,
+          "evidence_hash": "de70b2ec8e41254a1ea8ab03c54a2da5cc1d2ab09666ff7b04290bceb44c01c6",
+          "runtime_oracle": false
+        }
+      ],
+      "already_reported_to_agent": false,
+      "selected_for_rewake": true
+    }
+  ],
+  "artifacts": {
+    "immutable_report": ".mimosa/reports/task-review-sess_d1b997c6-68c9-4cc8-be97-4f6226cda1e6-20261021T150940713Z-15162-e5ce08716d4a.json",
+    "latest_report": ".mimosa/reports/task-review-sess_d1b997c6-68c9-4cc8-be97-4f6226cda1e6.json",
+    "history_summary": ".mimosa/history/run-20261021T150940713Z-15162-e5ce08716d4a.json"
+  }
+}

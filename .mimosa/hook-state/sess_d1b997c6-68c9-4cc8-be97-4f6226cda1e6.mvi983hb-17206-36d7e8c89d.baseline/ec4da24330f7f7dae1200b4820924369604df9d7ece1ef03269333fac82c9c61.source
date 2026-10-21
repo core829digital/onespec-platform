@@ -99,3 +99,43 @@ describe("getCantiereByGuestPin — guest view payload", () => {
     expect(r.ok && r.locale).toBe("de");
   });
 });
+
+describe("generateGuestPin — expiresInDays clamped to [1, 365] days (#77)", () => {
+  const DAY = 24 * 60 * 60 * 1000;
+
+  async function issue(t: ReturnType<typeof newDb>, expiresInDays?: number) {
+    const s = await seedTenant(t);
+    const cantiereId = await seedCantiere(t, s.tenantId, "");
+    return (await t.withIdentity({ subject: s.ownerId }).mutation(api.cantieri.generateGuestPin,
+      expiresInDays === undefined ? { cantiereId } : { cantiereId, expiresInDays })) as {
+      pin: string;
+      expiresAt: number;
+    };
+  }
+
+  test("negative and zero TTLs no longer issue an already-expired PIN", async () => {
+    const t = newDb();
+    for (const bad of [-1, 0]) {
+      const { pin, expiresAt } = await issue(t, bad);
+      expect(expiresAt).toBeGreaterThan(Date.now());
+      expect(expiresAt).toBeLessThanOrEqual(Date.now() + DAY + 5_000);
+      const view = await t.mutation(api.cantieri.getCantiereByGuestPin, { pin, ip: "5.5.5.5" });
+      expect(view.ok).toBe(true); // the customer can actually open /k/<pin>
+    }
+  });
+
+  test("an absurd TTL cannot defeat the expiry policy — capped at 365 days", async () => {
+    const t = newDb();
+    const { expiresAt } = await issue(t, 1e12);
+    expect(expiresAt).toBeLessThanOrEqual(Date.now() + 365 * DAY + 5_000);
+  });
+
+  test("fractional TTLs round to whole days; the default stays 30", async () => {
+    const t = newDb();
+    const frac = await issue(t, 2.9);
+    expect(frac.expiresAt).toBeGreaterThanOrEqual(Date.now() + 3 * DAY - 5_000);
+    const def = await issue(t);
+    expect(def.expiresAt).toBeGreaterThan(Date.now() + 29 * DAY);
+    expect(def.expiresAt).toBeLessThanOrEqual(Date.now() + 30 * DAY + 5_000);
+  });
+});
