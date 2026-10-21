@@ -102,6 +102,7 @@ export const DEMO_CONVEX_MODULES: Record<string, Loader> = {
   "../convex/referralPayouts.ts": () => import("../../convex/referralPayouts"),
   "../convex/referrals.ts": () => import("../../convex/referrals"),
   "../convex/registration.ts": () => import("../../convex/registration"),
+  "../convex/retention.ts": () => import("../../convex/retention"),
   "../convex/schema.ts": () => import("../../convex/schema"),
   "../convex/setupGuide.ts": () => import("../../convex/setupGuide"),
   "../convex/siteDeliveries.ts": () => import("../../convex/siteDeliveries"),

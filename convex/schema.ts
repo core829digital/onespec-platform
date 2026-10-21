@@ -156,7 +156,9 @@ export default defineSchema({
     tenantId: v.optional(v.id("tenants")),
     payloadSummary: v.optional(v.any()),
     receivedAt: v.number(),
-  }).index("by_event", ["stripeEventId"]),
+  })
+    .index("by_event", ["stripeEventId"])
+    .index("by_received_at", ["receivedAt"]),
 
   /** One personal referral code per paying account (docs/PIANO_REFERRAL.md). */
   referralCodes: defineTable({
@@ -242,7 +244,9 @@ export default defineSchema({
     fingerprint: v.string(),
     tenantId: v.id("tenants"),
     createdAt: v.number(),
-  }).index("by_fingerprint", ["fingerprint"]),
+  })
+    .index("by_fingerprint", ["fingerprint"])
+    .index("by_created_at", ["createdAt"]),
 
   memberships: defineTable({
     tenantId: v.id("tenants"),
@@ -640,7 +644,9 @@ export default defineSchema({
     /** Consultation number returned by VIES, when the caller supplies its own VAT number. */
     requestIdentifier: v.optional(v.string()),
     checkedAt: v.number(),
-  }).index("by_tenant_vat", ["tenantId", "vatNumber", "checkedAt"]),
+  })
+    .index("by_tenant_vat", ["tenantId", "vatNumber", "checkedAt"])
+    .index("by_checked_at", ["checkedAt"]),
 
   /**
    * The signature picture of a signed quote, apart from the quote itself: a base64 image of tens of KB would otherwise travel with
@@ -807,7 +813,8 @@ export default defineSchema({
     undone: v.boolean(),
     undoneAt: v.optional(v.number()),
   })
-    .index("by_configurator", ["configuratorId"]),
+    .index("by_configurator", ["configuratorId"])
+    .index("by_imported_at", ["importedAt"]),
 
   /** GDPR — pending account-deletion requests (soft, with a grace window). */
   deletionRequests: defineTable({
@@ -1047,7 +1054,8 @@ export default defineSchema({
   })
     .index("by_tenant", ["tenantId"])
     .index("by_action", ["action"])
-    .index("by_target", ["targetTable", "targetId"]),
+    .index("by_target", ["targetTable", "targetId"])
+    .index("by_created_at", ["createdAt"]),
 
   usageCounters: defineTable({
     tenantId: v.id("tenants"),
@@ -1084,7 +1092,9 @@ export default defineSchema({
     period: v.string(),
     userId: v.id("users"),
     createdAt: v.number(),
-  }).index("by_tenantId_and_kind_and_subjectKey", ["tenantId", "kind", "subjectKey"]),
+  })
+    .index("by_tenantId_and_kind_and_subjectKey", ["tenantId", "kind", "subjectKey"])
+    .index("by_created_at", ["createdAt"]),
 
   rateLimits: defineTable({
     bucketKey: v.string(),
@@ -1443,7 +1453,8 @@ export default defineSchema({
     createdAt: v.number(),
   })
     .index("by_client", ["clientId"])
-    .index("by_tenant", ["tenantId"]),
+    .index("by_tenant", ["tenantId"])
+    .index("by_created_at", ["createdAt"]),
 
   /** Cantieri (construction sites) — Kanban board for project tracking. */
   cantieri: defineTable({
