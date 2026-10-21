@@ -21,11 +21,16 @@ export const listClients = query({
     const limit = Math.min(Math.max(args.limit ?? 50, 1), 200);
 
     // Fetch all clients for tenant, then filter in memory
+    // Search must see past the newest window (#46): when a term is given the
+    // scan covers the whole tenant (a CRM page, not a firehose), and the term
+    // filter runs BEFORE the slice — otherwise a client older than the newest
+    // `limit` cards is unfindable and gets re-created as a duplicate card.
+    const searching = (args.search ?? "").trim().length > 0;
     const allClients = await ctx.db
       .query("clients")
       .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
       .order("desc")
-      .take(limit * 3);
+      .take(searching ? 10_000 : limit * 3);
 
     let filtered = allClients;
     if (args.status) {
@@ -37,12 +42,9 @@ export const listClients = query({
       filtered = filtered.filter((c) => c.status !== "lost");
     }
 
-    const clients = filtered.slice(0, limit);
-
-    // Filter by search term in memory
     if (args.search) {
       const search = args.search.toLowerCase();
-      return clients.filter(
+      filtered = filtered.filter(
         (c) =>
           c.name.toLowerCase().includes(search) ||
           c.contactName?.toLowerCase().includes(search) ||
@@ -51,7 +53,7 @@ export const listClients = query({
       );
     }
 
-    return clients;
+    return filtered.slice(0, limit);
   },
 });
 
