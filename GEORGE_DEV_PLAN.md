@@ -81,8 +81,8 @@ Ordine ajustată după dependențe (#37 înainte de refactorul #53; #34 amânat 
 
 ## Finalizare
 - [x] Toate etapele ✓ → `npm test` + `typecheck` + `lint` + `npm run build` complete pe `george_dev` ✓ 2026-10-21 (1838/1838 teste, typecheck 0 erori, lint curat, build de producție reușit)
-- [ ] E2E complet (`e2e`, `e2e:app`, `e2e:demo`, `e2e:signature`, `e2e:phone`) dacă environment-ul Convex e disponibil
-- [ ] `george_dev` pouss-at; PR spre `main` doar la decizia explicită a owner-ului
+- [x] E2E complet (`e2e`, `e2e:app`, `e2e:demo`, `e2e:signature`, `e2e:phone`) ✓ 2026-10-22 — toate trec pe build-ul de producție cu backend-ul e2e local (convex-test/mock, fără deployment live). Notă: 2 check-uri sunt flaky de timing pe ORICE commit (inclusiv cel de bază `3a2cb5b`, verificat prin build paralel): „support: customer opens a ticket" (un reload al paginii șterge formularul la mijloc) și „quote signature flow on phone"; trec la re-rulare. Un fals-pozitiv de bisect pe #65A a fost infirmat prin re-rulări (3/5 rulări complete pe `george_dev`).
+- [ ] PR spre `main` doar la decizia explicită a owner-ului
 
 ## Jurnal
 - 2026-10-21: baseline verde (1802/1802, typecheck OK), branch `george_dev` creat și publicat. Următorul: #37.
