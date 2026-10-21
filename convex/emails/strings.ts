@@ -6,7 +6,8 @@
  * themselves, so they must only ever be called from `renderAuthEmail`.
  */
 
-export type EmailLocale = "it" | "en" | "fr" | "de" | "nl" | "ro";
+import type { AppLocale } from "../../src/shared/locales";
+export type EmailLocale = AppLocale;
 export const EMAIL_LOCALES: EmailLocale[] = ["it", "en", "fr", "de", "nl", "ro"];
 
 export type QuoteStatus = "new" | "contacted" | "quoted" | "won" | "lost" | "spam";

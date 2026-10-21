@@ -4,7 +4,8 @@
  */
 import type { GradeFamily, GradeKey } from "./grades";
 
-export type GradeLocale = "it" | "en" | "fr" | "de" | "nl" | "ro";
+import type { AppLocale } from "./locales";
+export type GradeLocale = AppLocale;
 
 export const GRADE_LABELS: Record<GradeLocale, Record<GradeKey, string>> = {
   it: {

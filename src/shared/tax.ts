@@ -106,7 +106,8 @@ export function checkCustomerVat(country: string, raw: unknown): { ok: true; val
   return { ok: true, value: prefix + s, prefix, number: s };
 }
 
-type Lang = "it" | "en" | "fr" | "de" | "nl" | "ro";
+import type { AppLocale } from "./locales";
+type Lang = AppLocale;
 
 /** The sentence printed on quotes and invoices for a VAT-free supply ("" for a normal one). {vat} = the customer's VAT number. */
 export const VAT_NOTES: Record<Exclude<VatReason, "domestic">, Record<Lang, string>> = {

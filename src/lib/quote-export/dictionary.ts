@@ -1,6 +1,7 @@
 import { hasOpeningDirection, openingSide } from "@/shared/sash-rules";
 
-export type ExportLocale = "it" | "en" | "fr" | "de" | "nl" | "ro";
+import type { AppLocale } from "@/shared/locales";
+export type ExportLocale = AppLocale;
 
 export interface ExportDict {
   offer: string;
