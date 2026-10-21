@@ -15,6 +15,7 @@ import { resolveLinks, logClientActivity } from "./lib/links";
 import { linkQuoteToCrm, recomputeCantiereValue } from "./lib/crmLink";
 import { assertSignature } from "./lib/fieldModules";
 import { assertShortText } from "./lib/inputs";
+import { mm } from "./lib/dims";
 import { resolveQuoteVat } from "./lib/vat";
 import { assertCoherentItems, parseQuoteItems, nextOfferNumber } from "./lib/quoteItems";
 import { defaultItem } from "../src/shared/item-defaults";
@@ -253,8 +254,8 @@ const FIELD_QUOTE_ARGS = {
     rgeCertificate: v.optional(v.string()),
     maPrimeRenovPercent: v.optional(v.number()),
     decennaleInsurance: v.optional(v.string()),
-    rensonGrilleWidthMm: v.optional(v.number()),
-    voletMonoblocHeightMm: v.optional(v.number()),
+    rensonGrilleWidthMm: v.optional(mm()),
+    voletMonoblocHeightMm: v.optional(mm()),
     hvlJointCount: v.optional(v.number()),
     isostoneSill: v.optional(v.boolean()),
     ralMontage: v.optional(v.boolean()),
@@ -856,8 +857,8 @@ export const createQuoteWithSuppliers = mutation({
     rgeCertificate: v.optional(v.string()),
     maPrimeRenovPercent: v.optional(v.number()),
     decennaleInsurance: v.optional(v.string()),
-    rensonGrilleWidthMm: v.optional(v.number()),
-    voletMonoblocHeightMm: v.optional(v.number()),
+    rensonGrilleWidthMm: v.optional(mm()),
+    voletMonoblocHeightMm: v.optional(mm()),
     hvlJointCount: v.optional(v.number()),
     isostoneSill: v.optional(v.boolean()),
     ralMontage: v.optional(v.boolean()),

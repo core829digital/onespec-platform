@@ -9,11 +9,12 @@ import { resolveLinks, logClientActivity, assertOwnedRefs } from "./lib/links";
 import { linkRecordToCrm } from "./lib/crmLink";
 import { assertStoredFile, consumeUploadSlot } from "./lib/uploads";
 import { assertLongText, assertShortText } from "./lib/inputs";
+import { mm } from "./lib/dims";
 
 const openingValidator = v.object({
   label: v.string(),
-  widthMm: v.number(),
-  heightMm: v.number(),
+  widthMm: mm(),
+  heightMm: mm(),
   room: v.optional(v.string()),
   floor: v.optional(v.string()),
   laserSource: v.optional(v.string()),
@@ -90,8 +91,8 @@ function cleanOpenings<T extends { widthMm: number; heightMm: number }>(openings
 }
 
 const laserMeasurementValidator = v.object({
-  L: v.number(),
-  H: v.number(),
+  L: mm(),
+  H: mm(),
   timestamp: v.number(),
   deviceId: v.optional(v.string()),
 });
