@@ -1,7 +1,7 @@
 import { ConvexError } from "convex/values";
 import type { MutationCtx, QueryCtx } from "../_generated/server";
 import type { Doc, Id } from "../_generated/dataModel";
-import { resolveTenantEntitlements, assertEntitlement, assertQuota, currentPeriod, isWidgetPlan } from "./entitlements";
+import { resolveTenantEntitlements, assertEntitlement, assertQuota, currentPeriod, isWidgetPlan, type BooleanEntitlementKey } from "./entitlements";
 import { countLiveConfigurators } from "./configuratorCounts";
 
 /**
@@ -28,20 +28,71 @@ export async function getTenantWithEntitlements(
 
 /** --- Boolean entitlement gates --- */
 
-export async function enforceWhiteLabel(ctx: ReadCtx, tenantId: Id<"tenants">): Promise<void> {
-  const { tenant } = await getTenantWithEntitlements(ctx, tenantId);
-  assertEntitlement(tenant, "whiteLabel", "WHITELABEL_NOT_ALLOWED");
+/** Builds the one-line named alias for a registry gate. */
+function makeBooleanGate(gate: keyof typeof ENTITLEMENT_GATES) {
+  return async (ctx: ReadCtx, tenantId: Id<"tenants">): Promise<void> => enforceEntitlement(ctx, tenantId, gate);
 }
 
-export async function enforceAdvancedPricingRules(ctx: ReadCtx, tenantId: Id<"tenants">): Promise<void> {
+/**
+ * The boolean-entitlement gates as one declarative registry (#62): entitlement
+ * key → the coded error thrown when it is off. A new boolean entitlement is a
+ * row here plus its one-line `enforceX` alias below — the three-functions-in-
+ * three-places boilerplate is gone. The graded gates (analytics level, field
+ * modules, fiscal engine) and the quota gates keep their own functions: they
+ * genuinely differ.
+ */
+const ENTITLEMENT_GATES = {
+  whiteLabel: "WHITELABEL_NOT_ALLOWED",
+  advancedPricingRules: "ADVANCED_PRICING_NOT_ALLOWED",
+  multiCatalog: "MULTI_CATALOG_NOT_ALLOWED",
+  csvImport: "CSV_IMPORT_NOT_ALLOWED",
+  bulkImportMultiSite: "BULK_IMPORT_NOT_ALLOWED",
+  customDomain: "CUSTOM_DOMAIN_NOT_ALLOWED",
+  apiAccess: "API_ACCESS_NOT_ALLOWED",
+  prioritySupport: "PRIORITY_SUPPORT_NOT_ALLOWED",
+  transparentWidget: "TRANSPARENT_WIDGET_NOT_ALLOWED",
+  eSignature: "ESIGNATURE_NOT_ALLOWED",
+  advanceInvoices: "ADVANCE_INVOICES_NOT_ALLOWED",
+  maintenanceContracts: "MAINTENANCE_CONTRACTS_NOT_ALLOWED",
+  multiSupplierAggregator: "MULTI_SUPPLIER_NOT_ALLOWED",
+  showroomCalculator: "SHOWROOM_CALCULATOR_NOT_ALLOWED",
+  publicWidget: "PUBLIC_WIDGET_NOT_ALLOWED",
+  gaebExport: "GAEB_EXPORT_NOT_ALLOWED",
+  crmIntegration: "CRM_INTEGRATION_NOT_ALLOWED",
+} as const satisfies Partial<Record<BooleanEntitlementKey, string>>;
+
+/** The one generic boolean gate. */
+export async function enforceEntitlement(
+  ctx: ReadCtx,
+  tenantId: Id<"tenants">,
+  gate: keyof typeof ENTITLEMENT_GATES,
+): Promise<void> {
   const { tenant } = await getTenantWithEntitlements(ctx, tenantId);
-  assertEntitlement(tenant, "advancedPricingRules", "ADVANCED_PRICING_NOT_ALLOWED");
+  assertEntitlement(tenant, gate, ENTITLEMENT_GATES[gate]);
 }
 
-export async function enforceMultiCatalog(ctx: ReadCtx, tenantId: Id<"tenants">): Promise<void> {
-  const { tenant } = await getTenantWithEntitlements(ctx, tenantId);
-  assertEntitlement(tenant, "multiCatalog", "MULTI_CATALOG_NOT_ALLOWED");
-}
+/** --- Named aliases: every existing exported gate, one line each --- */
+
+export const enforceWhiteLabel = makeBooleanGate("whiteLabel");
+export const enforceAdvancedPricingRules = makeBooleanGate("advancedPricingRules");
+export const enforceMultiCatalog = makeBooleanGate("multiCatalog");
+export const enforceCSVImport = makeBooleanGate("csvImport");
+export const enforceBulkImportMultiSite = makeBooleanGate("bulkImportMultiSite");
+export const enforceCustomDomain = makeBooleanGate("customDomain");
+export const enforceApiAccess = makeBooleanGate("apiAccess");
+export const enforcePrioritySupport = makeBooleanGate("prioritySupport");
+export const enforceTransparentWidget = makeBooleanGate("transparentWidget");
+export const enforceESignature = makeBooleanGate("eSignature");
+export const enforceAdvanceInvoices = makeBooleanGate("advanceInvoices");
+export const enforceMaintenanceContracts = makeBooleanGate("maintenanceContracts");
+export const enforceMultiSupplierAggregator = makeBooleanGate("multiSupplierAggregator");
+export const enforceShowroomCalculator = makeBooleanGate("showroomCalculator");
+export const enforcePublicWidget = makeBooleanGate("publicWidget");
+export const enforceGAEBExport = makeBooleanGate("gaebExport");
+export const enforceCRMIntegration = makeBooleanGate("crmIntegration") as (
+  ctx: MutationCtx,
+  tenantId: Id<"tenants">,
+) => Promise<void>;
 
 export async function enforceAnalytics(ctx: ReadCtx, tenantId: Id<"tenants">, minLevel: "basic" | "advanced" = "basic"): Promise<void> {
   const { tenant } = await getTenantWithEntitlements(ctx, tenantId);
@@ -50,36 +101,7 @@ export async function enforceAnalytics(ctx: ReadCtx, tenantId: Id<"tenants">, mi
   if (minLevel === "advanced" && level !== "advanced") throw new ConvexError("ADVANCED_ANALYTICS_NOT_ALLOWED");
 }
 
-export async function enforceCSVImport(ctx: ReadCtx, tenantId: Id<"tenants">): Promise<void> {
-  const { tenant } = await getTenantWithEntitlements(ctx, tenantId);
-  assertEntitlement(tenant, "csvImport", "CSV_IMPORT_NOT_ALLOWED");
-}
-
-export async function enforceBulkImportMultiSite(ctx: ReadCtx, tenantId: Id<"tenants">): Promise<void> {
-  const { tenant } = await getTenantWithEntitlements(ctx, tenantId);
-  assertEntitlement(tenant, "bulkImportMultiSite", "BULK_IMPORT_NOT_ALLOWED");
-}
-
-export async function enforceCustomDomain(ctx: ReadCtx, tenantId: Id<"tenants">): Promise<void> {
-  const { tenant } = await getTenantWithEntitlements(ctx, tenantId);
-  assertEntitlement(tenant, "customDomain", "CUSTOM_DOMAIN_NOT_ALLOWED");
-}
-
-export async function enforceApiAccess(ctx: ReadCtx, tenantId: Id<"tenants">): Promise<void> {
-  const { tenant } = await getTenantWithEntitlements(ctx, tenantId);
-  assertEntitlement(tenant, "apiAccess", "API_ACCESS_NOT_ALLOWED");
-}
-
-export async function enforcePrioritySupport(ctx: ReadCtx, tenantId: Id<"tenants">): Promise<void> {
-  const { tenant } = await getTenantWithEntitlements(ctx, tenantId);
-  assertEntitlement(tenant, "prioritySupport", "PRIORITY_SUPPORT_NOT_ALLOWED");
-}
-
-export async function enforceTransparentWidget(ctx: ReadCtx, tenantId: Id<"tenants">): Promise<void> {
-  const { tenant } = await getTenantWithEntitlements(ctx, tenantId);
-  assertEntitlement(tenant, "transparentWidget", "TRANSPARENT_WIDGET_NOT_ALLOWED");
-}
-
+// The graded gates keep real functions: their level logic genuinely differs.
 export async function enforceFieldModules(ctx: ReadCtx, tenantId: Id<"tenants">, required: "rilievo_only" | "full" = "full"): Promise<void> {
   const { tenant } = await getTenantWithEntitlements(ctx, tenantId);
   const allowed = resolveTenantEntitlements(tenant).fieldModules;
@@ -90,46 +112,6 @@ export async function enforceFiscalEngine(ctx: ReadCtx, tenantId: Id<"tenants">,
   const { tenant } = await getTenantWithEntitlements(ctx, tenantId);
   const allowed = resolveTenantEntitlements(tenant).fiscalEngine;
   if (required === "full" && allowed !== "full") throw new ConvexError("FISCAL_ENGINE_NOT_ALLOWED");
-}
-
-export async function enforceESignature(ctx: ReadCtx, tenantId: Id<"tenants">): Promise<void> {
-  const { tenant } = await getTenantWithEntitlements(ctx, tenantId);
-  assertEntitlement(tenant, "eSignature", "ESIGNATURE_NOT_ALLOWED");
-}
-
-export async function enforceAdvanceInvoices(ctx: ReadCtx, tenantId: Id<"tenants">): Promise<void> {
-  const { tenant } = await getTenantWithEntitlements(ctx, tenantId);
-  assertEntitlement(tenant, "advanceInvoices", "ADVANCE_INVOICES_NOT_ALLOWED");
-}
-
-export async function enforceMaintenanceContracts(ctx: ReadCtx, tenantId: Id<"tenants">): Promise<void> {
-  const { tenant } = await getTenantWithEntitlements(ctx, tenantId);
-  assertEntitlement(tenant, "maintenanceContracts", "MAINTENANCE_CONTRACTS_NOT_ALLOWED");
-}
-
-export async function enforceMultiSupplierAggregator(ctx: ReadCtx, tenantId: Id<"tenants">): Promise<void> {
-  const { tenant } = await getTenantWithEntitlements(ctx, tenantId);
-  assertEntitlement(tenant, "multiSupplierAggregator", "MULTI_SUPPLIER_NOT_ALLOWED");
-}
-
-export async function enforceShowroomCalculator(ctx: ReadCtx, tenantId: Id<"tenants">): Promise<void> {
-  const { tenant } = await getTenantWithEntitlements(ctx, tenantId);
-  assertEntitlement(tenant, "showroomCalculator", "SHOWROOM_CALCULATOR_NOT_ALLOWED");
-}
-
-export async function enforcePublicWidget(ctx: ReadCtx, tenantId: Id<"tenants">): Promise<void> {
-  const { tenant } = await getTenantWithEntitlements(ctx, tenantId);
-  assertEntitlement(tenant, "publicWidget", "PUBLIC_WIDGET_NOT_ALLOWED");
-}
-
-export async function enforceGAEBExport(ctx: ReadCtx, tenantId: Id<"tenants">): Promise<void> {
-  const { tenant } = await getTenantWithEntitlements(ctx, tenantId);
-  assertEntitlement(tenant, "gaebExport", "GAEB_EXPORT_NOT_ALLOWED");
-}
-
-export async function enforceCRMIntegration(ctx: MutationCtx, tenantId: Id<"tenants">): Promise<void> {
-  const { tenant } = await getTenantWithEntitlements(ctx, tenantId);
-  assertEntitlement(tenant, "crmIntegration", "CRM_INTEGRATION_NOT_ALLOWED");
 }
 
 /** --- Quota gates (configurators, quotes, team members) --- */
