@@ -1,6 +1,6 @@
 ﻿import { markQuoteWon } from "./lib/quoteTransitions";
 import { query, mutation, type MutationCtx, type QueryCtx } from "./_generated/server";
-import type { Id } from "./_generated/dataModel";
+import type { Doc, Id } from "./_generated/dataModel";
 import { v, type ObjectType } from "convex/values";
 import { ConvexError } from "convex/values";
 import { requirePermission, requirePermissionOrNull } from "./lib/rbac";
@@ -34,6 +34,41 @@ function boundedText(value: string | undefined, max = TEXT_MAX): string | undefi
   if (value.length > max) throw new ConvexError("INVALID_INPUT");
   return value;
 }
+
+/**
+ * The "fetch configurator + published version or throw" prelude, once (#61).
+ * Used by the three field-quote creation paths; the widget (client-pinned
+ * version, VERSION_NOT_FOUND), passports (.first(), NO_CATALOG_VERSION) and
+ * the preview (null-graceful) keep their own deliberately different shapes.
+ */
+async function loadPublishedCatalog(
+  ctx: MutationCtx,
+  configuratorId: Id<"configurators">,
+  tenantId: Id<"tenants">,
+): Promise<{ configurator: Doc<"configurators">; versionDoc: Doc<"catalogVersions">; targetVersion: number; payload: CatalogPayload }> {
+  const configurator = await ctx.db.get(configuratorId);
+  if (!configurator || configurator.tenantId !== tenantId) {
+    throw new ConvexError("CONFIGURATOR_NOT_FOUND");
+  }
+
+  const targetVersion = configurator.publishedCatalogVersion ?? 1;
+  const versionDoc = await ctx.db
+    .query("catalogVersions")
+    .withIndex("by_configurator_version", (q) =>
+      q.eq("configuratorId", configuratorId).eq("version", targetVersion),
+    )
+    .unique();
+
+  if (!versionDoc) throw new ConvexError("NO_PUBLISHED_VERSION");
+
+  return { configurator, versionDoc, targetVersion, payload: versionDoc.payload as CatalogPayload };
+}
+
+/** The per-market deposit-terms default, when the editor left it blank (#61). */
+const defaultDepositTerms = (regionCode: string | undefined): string =>
+  regionCode === "FR"
+    ? "Acompte 30% à la commande · 70% à la livraison"
+    : "30% ordine · 60% merce pronta · 10% posa";
 
 /**
  * A list row: the quote without its signature picture and its pieces. The picture is a base64 image of tens of KB per signed quote; a list of 200-500
@@ -270,22 +305,8 @@ type FieldQuoteArgs = ObjectType<typeof FIELD_QUOTE_ARGS>;
  * did not compute itself.
  */
 async function buildFieldQuote(ctx: MutationCtx, args: FieldQuoteArgs) {
-    const configurator = await ctx.db.get(args.configuratorId);
-    if (!configurator || configurator.tenantId !== args.tenantId) {
-      throw new ConvexError("CONFIGURATOR_NOT_FOUND");
-    }
+    const { configurator, targetVersion, payload } = await loadPublishedCatalog(ctx, args.configuratorId, args.tenantId);
 
-    const targetVersion = configurator.publishedCatalogVersion ?? 1;
-    const versionDoc = await ctx.db
-      .query("catalogVersions")
-      .withIndex("by_configurator_version", (q) =>
-        q.eq("configuratorId", args.configuratorId).eq("version", targetVersion),
-      )
-      .unique();
-
-    if (!versionDoc) throw new ConvexError("NO_PUBLISHED_VERSION");
-
-    const payload = versionDoc.payload as CatalogPayload;
     const items = parseQuoteItems(args.items);
     assertCoherentItems(payload, items);
 
@@ -358,7 +379,7 @@ async function buildFieldQuote(ctx: MutationCtx, args: FieldQuoteArgs) {
       ecobonusDeductionCents,
       regionalSurchargeCents: regionalSurcharge > 0 ? regionalSurcharge : undefined,
       profitMarginPercent: args.profitMarginPercent,
-      depositTerms: args.depositTerms ?? (args.regionCode === "FR" ? "Acompte 30% à la commande · 70% à la livraison" : "30% ordine · 60% merce pronta · 10% posa"),
+      depositTerms: args.depositTerms ?? defaultDepositTerms(args.regionCode),
       regionCode: args.regionCode,
       poseType: args.poseType,
       rgeCertificate: args.rgeCertificate,
@@ -668,22 +689,7 @@ export const createFieldQuoteFromSurvey = mutation({
     if (survey.status !== 'completed') throw new ConvexError('SURVEY_NOT_COMPLETED');
     if (survey.quoteId) throw new ConvexError('SURVEY_ALREADY_LINKED');
 
-    const configurator = await ctx.db.get(args.configuratorId);
-    if (!configurator || configurator.tenantId !== args.tenantId) {
-      throw new ConvexError('CONFIGURATOR_NOT_FOUND');
-    }
-
-    const targetVersion = configurator.publishedCatalogVersion ?? 1;
-    const versionDoc = await ctx.db
-      .query('catalogVersions')
-      .withIndex('by_configurator_version', (q) =>
-        q.eq('configuratorId', args.configuratorId).eq('version', targetVersion),
-      )
-      .unique();
-
-    if (!versionDoc) throw new ConvexError('NO_PUBLISHED_VERSION');
-
-    const payload = versionDoc.payload as CatalogPayload;
+    const { configurator, targetVersion, payload } = await loadPublishedCatalog(ctx, args.configuratorId, args.tenantId);
 
     // Each opening becomes a piece built from the tenant's own catalogue keys, so it prices for real.
     // Openings still unmeasured (0) are skipped; every other one goes through the same checks as any quote piece
@@ -728,7 +734,7 @@ export const createFieldQuoteFromSurvey = mutation({
 regionalSurchargeCents: 0,
       profitMarginPercent: 30,
       vatRatePercent: effectiveVat,
-      depositTerms: region === 'FR' ? 'Acompte 30% à la commande · 70% à la livraison' : '30% ordine · 60% merce pronta · 10% posa',
+      depositTerms: defaultDepositTerms(region),
       regionCode: region,
       items,
       priceCents: finalPriceCents,
@@ -833,22 +839,7 @@ export const createQuoteWithSuppliers = mutation({
     await enforceForMultiSupplier(ctx, args.tenantId);
     const { userId } = await requirePermission(ctx, args.tenantId, "quotes.field");
 
-    const configurator = await ctx.db.get(args.configuratorId);
-    if (!configurator || configurator.tenantId !== args.tenantId) {
-      throw new ConvexError('CONFIGURATOR_NOT_FOUND');
-    }
-
-    const targetVersion = configurator.publishedCatalogVersion ?? 1;
-    const versionDoc = await ctx.db
-      .query('catalogVersions')
-      .withIndex('by_configurator_version', (q) =>
-        q.eq('configuratorId', args.configuratorId).eq('version', targetVersion),
-      )
-      .unique();
-
-    if (!versionDoc) throw new ConvexError('NO_PUBLISHED_VERSION');
-
-    const payload = versionDoc.payload as CatalogPayload;
+    const { configurator, targetVersion, payload } = await loadPublishedCatalog(ctx, args.configuratorId, args.tenantId);
     const items = parseQuoteItems(args.items);
     assertCoherentItems(payload, items);
 
@@ -927,7 +918,7 @@ export const createQuoteWithSuppliers = mutation({
       ecobonusDeductionCents,
       regionalSurchargeCents: regionalSurcharge > 0 ? regionalSurcharge : undefined,
       profitMarginPercent: args.profitMarginPercent,
-      depositTerms: args.depositTerms ?? (args.regionCode === 'FR' ? 'Acompte 30% à la commande · 70% à la livraison' : '30% ordine · 60% merce pronta · 10% posa'),
+      depositTerms: args.depositTerms ?? defaultDepositTerms(args.regionCode),
       regionCode: args.regionCode,
       poseType: args.poseType,
       rgeCertificate: args.rgeCertificate,
