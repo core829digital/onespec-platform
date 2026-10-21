@@ -3,6 +3,7 @@ import { internal } from "./_generated/api";
 import { v } from "convex/values";
 import { renderAuthEmail } from "./emails/auth";
 import { noreplyFromAddress, purchasesFromAddress } from "./lib/emailFrom";
+import { nanoid } from "./lib/ids";
 
 const TEMPLATE = v.union(
   v.literal("verify"),
@@ -51,6 +52,56 @@ const MAX_ATTEMPTS = 3;
 const RETRY_DELAYS_MS = [60_000, 5 * 60_000];
 /** emailLog / emailDeliveryLog rows older than this are purged daily. */
 const EMAIL_LOG_RETENTION_DAYS = 90;
+/** How long a still-queued row is considered THE row of its logical send (#41). */
+const DEDUP_WINDOW_MS = 10 * 60_000;
+
+/**
+ * The durable record of a logical send, written BEFORE the external effect
+ * (#41). A still-queued row for the same template+recipient+entity inside the
+ * dedup window is reused: a crash-retried action then re-sends with the same
+ * idempotency key (Resend deduplicates) instead of e-mailing twice.
+ */
+export const beginSend = internalMutation({
+  args: {
+    template: TEMPLATE,
+    to: v.string(),
+    tenantId: v.optional(v.id("tenants")),
+    relatedEntityId: v.optional(v.string()),
+    subject: v.string(),
+  },
+  returns: v.object({ logId: v.id("emailLog"), sendKey: v.string(), reused: v.boolean() }),
+  handler: async (ctx, args) => {
+    const recent = await ctx.db
+      .query("emailLog")
+      .withIndex("by_template_recipient", (q) => q.eq("template", args.template).eq("to", args.to))
+      .collect();
+    const mine = recent.find(
+      (r) =>
+        r.status === "queued" &&
+        r.tenantId === args.tenantId &&
+        r.relatedEntityId === args.relatedEntityId &&
+        r.sendKey !== undefined &&
+        Date.now() - r.createdAt < DEDUP_WINDOW_MS,
+    );
+    if (mine && mine.sendKey) return { logId: mine._id, sendKey: mine.sendKey, reused: true };
+    const sendKey = nanoid(24);
+    const logId = await ctx.db.insert("emailLog", { ...args, status: "queued", sendKey, createdAt: Date.now() });
+    return { logId, sendKey, reused: false };
+  },
+});
+
+/** Patches the send's own row to its terminal state (the row exists since beginSend). */
+export const finishSend = internalMutation({
+  args: {
+    logId: v.id("emailLog"),
+    status: v.union(v.literal("queued"), v.literal("sent"), v.literal("noop"), v.literal("failed")),
+    resendId: v.optional(v.string()),
+    error: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.logId, { status: args.status, resendId: args.resendId, error: args.error });
+  },
+});
 
 /**
  * Central transactional email sender. In noop mode (RESEND_MODE !== "live" or
@@ -69,6 +120,9 @@ export const send = internalAction({
     replyTo: v.optional(v.string()),
     /** Delivery attempt (1-based); transient provider errors are retried. */
     attempt: v.optional(v.number()),
+    /** The send's own queued row + idempotency key (#41), carried through the transient retries. */
+    logId: v.optional(v.id("emailLog")),
+    sendKey: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const live = process.env.RESEND_MODE === "live" && !!process.env.AUTH_RESEND_KEY;
@@ -96,6 +150,22 @@ export const send = internalAction({
       return;
     }
 
+    // The durable record exists BEFORE the external effect (#41): a
+    // crash-retried action re-finds its still-queued row and reuses the key.
+    let logId = args.logId;
+    let sendKey = args.sendKey;
+    if (!logId || !sendKey) {
+      const begun = await ctx.runMutation(internal.email.beginSend, {
+        template: args.template,
+        to: args.to,
+        tenantId: args.tenantId,
+        relatedEntityId: args.relatedEntityId,
+        subject,
+      });
+      logId = begun.logId;
+      sendKey = begun.sendKey;
+    }
+
     let ok = false;
     let transient = false;
     let resendId: string | undefined;
@@ -106,6 +176,9 @@ export const send = internalAction({
         headers: {
           Authorization: `Bearer ${process.env.AUTH_RESEND_KEY}`,
           "Content-Type": "application/json",
+          // Same logical send, same key: Resend returns the original e-mail
+          // instead of sending a second copy (#41).
+          "Idempotency-Key": sendKey,
         },
         body: JSON.stringify({
           from,
@@ -131,25 +204,23 @@ export const send = internalAction({
 
     // Transient failure (rate limit, provider 5xx, network): retry with
     // backoff instead of silently losing e.g. a new-request notification.
+    // The row + key travel along, so the retry patches the same row.
     if (!ok && transient && attempt < MAX_ATTEMPTS) {
       const { attempt: _prev, ...rest } = args;
       void _prev;
-      await ctx.scheduler.runAfter(RETRY_DELAYS_MS[attempt - 1], internal.email.send, { ...rest, attempt: attempt + 1 });
+      await ctx.scheduler.runAfter(RETRY_DELAYS_MS[attempt - 1], internal.email.send, {
+        ...rest,
+        attempt: attempt + 1,
+        logId,
+        sendKey,
+      });
     }
 
-    await ctx.runMutation(internal.email.log, {
-      to: args.to,
-      template: args.template,
-      subject,
+    await ctx.runMutation(internal.email.finishSend, {
+      logId,
       status: ok ? "sent" : "failed",
       resendId,
       error,
-      // Live mode never stores the body: it can carry sign-in / reset codes
-      // and invitation links (credentials), and personal data. The noop
-      // (dev) mode above keeps the preview for the admin email viewer.
-      tenantId: args.tenantId,
-      relatedEntityId: args.relatedEntityId,
-      createdAt: Date.now(),
     });
   },
 });

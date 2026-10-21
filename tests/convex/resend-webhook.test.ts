@@ -86,10 +86,12 @@ describe("POST /api/email/webhook", () => {
     expect((await t.run((ctx) => ctx.db.get(logId)))?.status).toBe("sent");
   });
 
-  test("not configured → closed (503); unknown email id and untracked events are acknowledged", async () => {
+  test("not configured → closed (503); racing unknown email id → 503 so Svix retries (#41); untracked events acknowledged", async () => {
     const t = newDb();
     await seedLog(t);
-    expect((await post(t, event("email.delivered", "re_unknown"), { id: "m2" })).status).toBe(200);
+    // A delivered/bounced webhook racing the log write finds no row yet: a 200
+    // would make Svix drop the event forever — 503 makes it retry with backoff.
+    expect((await post(t, event("email.delivered", "re_unknown"), { id: "m2" })).status).toBe(503);
     expect((await post(t, event("email.sent"), { id: "m3" })).status).toBe(200);
     expect(await t.run((ctx) => ctx.db.query("emailDeliveryLog").collect())).toHaveLength(0);
     delete process.env.RESEND_WEBHOOK_SECRET;

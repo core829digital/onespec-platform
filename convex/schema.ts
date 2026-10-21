@@ -1018,12 +1018,15 @@ export default defineSchema({
     status: v.union(v.literal("queued"), v.literal("sent"),
                     v.literal("noop"), v.literal("failed")),
     resendId: v.optional(v.string()),
+    /** Idempotency key of the logical send (#41): a crash-retried action reuses the queued row's key, so Resend never sends twice. */
+    sendKey: v.optional(v.string()),
     error: v.optional(v.string()),
     bodyPreview: v.optional(v.string()),
     relatedEntityId: v.optional(v.string()),
     createdAt: v.number(),
   })
     .index("by_tenant", ["tenantId"])
+    .index("by_template_recipient", ["template", "to"])
     .index("by_to", ["to"])
     .index("by_resend_id", ["resendId"]),
 

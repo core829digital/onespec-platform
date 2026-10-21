@@ -81,8 +81,11 @@ export const resendWebhook = httpAction(async (ctx, request: Request) => {
 
   const emailLogs = await ctx.runQuery(internal.email.getByResendId, { resendId: parsed.resendId });
   if (!emailLogs || emailLogs.length === 0) {
-    console.warn(`[email-webhook] No emailLog found for resendId: ${parsed.resendId}`);
-    return new Response(JSON.stringify({ ok: true }));
+    // Most often a fast delivered/bounced webhook racing the send's own log
+    // write (#41): answering 200 made Svix drop the event forever — 503 has
+    // Svix retry with backoff until the row (or its resendId) has landed.
+    console.warn(`[email-webhook] No emailLog yet for resendId: ${parsed.resendId} — 503, Svix will retry`);
+    return new Response(JSON.stringify({ ok: false, retry: true }), { status: 503 });
   }
 
   const emailLog = emailLogs[0];
