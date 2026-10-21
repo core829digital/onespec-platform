@@ -8,6 +8,7 @@ import { nanoid } from "./lib/ids";
 import { loadExtras } from "./lib/catalogExtras";
 import { resolveTenantEntitlements, currentPeriod } from "./lib/entitlements";
 import { enforceForCreateConfigurator } from "./lib/enforcement";
+import { bumpUsageCounter } from "./lib/usageCounter";
 import { resolveEffectiveConfig, PLATFORM_DEFAULTS, CONFIG_LAYERS } from "./lib/configResolution";
 import { internal } from "./_generated/api";
 import { regionForCountry } from "./lib/regions";
@@ -76,23 +77,7 @@ export const createConfigurator = mutation({
     }
 
     // Increment active configurator count for quota tracking
-    const period = currentPeriod();
-    const counter = await ctx.db
-      .query("usageCounters")
-      .withIndex("by_tenant_period", (q) => q.eq("tenantId", args.tenantId).eq("period", period))
-      .first();
-    if (counter) {
-      await ctx.db.patch(counter._id, {
-        activeConfiguratorsCount: counter.activeConfiguratorsCount + 1,
-      });
-    } else {
-      await ctx.db.insert("usageCounters", {
-        tenantId: args.tenantId,
-        period,
-        quoteRequestsCount: 0,
-        activeConfiguratorsCount: 1,
-      });
-    }
+    await bumpUsageCounter(ctx, args.tenantId, currentPeriod(), { activeConfiguratorsCount: 1 });
 
     return { configuratorId, publicId };
   },

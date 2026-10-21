@@ -16,6 +16,7 @@ import { linkQuoteToCrm, recomputeCantiereValue } from "./lib/crmLink";
 import { assertSignature } from "./lib/fieldModules";
 import { assertShortText } from "./lib/inputs";
 import { mm } from "./lib/dims";
+import { bumpUsageCounter } from "./lib/usageCounter";
 import { resolveQuoteVat } from "./lib/vat";
 import { assertCoherentItems, parseQuoteItems, nextOfferNumber } from "./lib/quoteItems";
 import { defaultItem } from "../src/shared/item-defaults";
@@ -453,23 +454,7 @@ export const createFieldQuote = mutation({
     }
 
     // Increment quote count for quota tracking
-    const period = currentPeriod();
-    const counter = await ctx.db
-      .query("usageCounters")
-      .withIndex("by_tenant_period", (q) => q.eq("tenantId", args.tenantId).eq("period", period))
-      .first();
-    if (counter) {
-      await ctx.db.patch(counter._id, {
-        quoteRequestsCount: counter.quoteRequestsCount + 1,
-      });
-    } else {
-      await ctx.db.insert("usageCounters", {
-        tenantId: args.tenantId,
-        period,
-        quoteRequestsCount: 1,
-        activeConfiguratorsCount: 0,
-      });
-    }
+    await bumpUsageCounter(ctx, args.tenantId, currentPeriod(), { quoteRequestsCount: 1 });
 
     return { quoteId, priceCents: finalPriceCents };
   },
@@ -786,23 +771,7 @@ regionalSurchargeCents: 0,
     });
 
     // Increment quote count for quota tracking
-    const period = currentPeriod();
-    const counter = await ctx.db
-      .query('usageCounters')
-      .withIndex('by_tenant_period', (q) => q.eq('tenantId', args.tenantId).eq('period', period))
-      .first();
-    if (counter) {
-      await ctx.db.patch(counter._id, {
-        quoteRequestsCount: counter.quoteRequestsCount + 1,
-      });
-    } else {
-      await ctx.db.insert('usageCounters', {
-        tenantId: args.tenantId,
-        period,
-        quoteRequestsCount: 1,
-        activeConfiguratorsCount: 0,
-      });
-    }
+    await bumpUsageCounter(ctx, args.tenantId, currentPeriod(), { quoteRequestsCount: 1 });
 
     return { quoteId, priceCents: finalPriceCents };
   },
@@ -1014,23 +983,7 @@ export const createQuoteWithSuppliers = mutation({
     });
 
     // Increment quote count for quota tracking
-    const period = currentPeriod();
-    const counter = await ctx.db
-      .query('usageCounters')
-      .withIndex('by_tenant_period', (q) => q.eq('tenantId', args.tenantId).eq('period', period))
-      .first();
-    if (counter) {
-      await ctx.db.patch(counter._id, {
-        quoteRequestsCount: counter.quoteRequestsCount + 1,
-      });
-    } else {
-      await ctx.db.insert('usageCounters', {
-        tenantId: args.tenantId,
-        period,
-        quoteRequestsCount: 1,
-        activeConfiguratorsCount: 0,
-      });
-    }
+    await bumpUsageCounter(ctx, args.tenantId, currentPeriod(), { quoteRequestsCount: 1 });
 
     return { quoteId, priceCents: finalPriceCents };
   },

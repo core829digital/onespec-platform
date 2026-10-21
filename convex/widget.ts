@@ -10,6 +10,7 @@ import { calculatePrice, installationIncluded, type ProjectItem, type CatalogPay
 import { ProjectItemSchema, type WidgetQuoteSubmission } from "../src/shared/widget-types";
 import { cleanSourcePage } from "../src/shared/source-page";
 import { resolveVisitorVat } from "./lib/fiscal";
+import { bumpCounterRow, bumpUsageCounter } from "./lib/usageCounter";
 import { requireMembership } from "./lib/auth";
 import { resolveTenantEntitlements, currentPeriod, isWidgetPlan } from "./lib/entitlements";
 import { LOCKED_LEAD_NAME } from "./lib/quotaLock";
@@ -161,26 +162,7 @@ export const recordWidgetView = internalMutation({
     });
     if (!underCap) return { counted: false };
 
-    const period = currentPeriod();
-    const counter = await ctx.db
-      .query("usageCounters")
-      .withIndex("by_tenant_period", (q) =>
-        q.eq("tenantId", configurator.tenantId).eq("period", period),
-      )
-      .first();
-    if (counter) {
-      await ctx.db.patch(counter._id, {
-        widgetViewsCount: (counter.widgetViewsCount ?? 0) + 1,
-      });
-    } else {
-      await ctx.db.insert("usageCounters", {
-        tenantId: configurator.tenantId,
-        period,
-        quoteRequestsCount: 0,
-        activeConfiguratorsCount: 0,
-        widgetViewsCount: 1,
-      });
-    }
+    await bumpUsageCounter(ctx, configurator.tenantId, currentPeriod(), { widgetViewsCount: 1 });
     return { counted: true };
   },
 });
@@ -577,21 +559,12 @@ export const insertQuote = internalMutation({
       consentVersion: args.consentVersion,
     });
 
-    // Bump this period's usage counter.
-    if (counter) {
-      await ctx.db.patch(counter._id, {
-        quoteRequestsCount: counter.quoteRequestsCount + 1,
-        overQuotaNotifiedAt:
-          overQuota && !counter.overQuotaNotifiedAt ? Date.now() : counter.overQuotaNotifiedAt,
-      });
-    } else {
-      await ctx.db.insert("usageCounters", {
-        tenantId: configurator.tenantId,
-        period,
-        quoteRequestsCount: 1,
-        activeConfiguratorsCount: 0,
-      });
-    }
+    // Bump this period's usage counter (shared upsert, #60); the notification
+    // stamp only lands when this bump is the one crossing the quota line.
+    await bumpCounterRow(ctx, counter, configurator.tenantId, period, { quoteRequestsCount: 1 }, (current) => ({
+      overQuotaNotifiedAt:
+        overQuota && !current.overQuotaNotifiedAt ? Date.now() : current.overQuotaNotifiedAt,
+    }));
 
     // Warn the tenant the first time it goes over quota in a period.
     if (overQuota && counter && !counter.overQuotaNotifiedAt && entitlements) {
