@@ -120,4 +120,17 @@ describe("simple wizard item", () => {
     expect(item.height).toBe(2800);
     expect(ProjectItemSchema.safeParse(item).success).toBe(true);
   });
+
+  test("the handle colour is a catalog-valid key, never the finish key (#50)", () => {
+    // The finish key (white/woodgrain/custom) belongs on `color`; storing it
+    // on `hardwareColor` left woodgrain/custom unresolvable downstream —
+    // priced 0 and drawn with a fallback handle colour.
+    for (const colour of COLOUR_KEYS) {
+      const item = buildWizardItem(sel({ colour }), "");
+      expect(item.color, `finish key for ${colour}`).toBe(colour);
+      for (const sash of item.sashes) {
+        expect(sash.hardwareColor, `handle colour for finish ${colour}`).toBe("white");
+      }
+    }
+  });
 });

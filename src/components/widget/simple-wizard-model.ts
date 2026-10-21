@@ -688,7 +688,10 @@ export function buildWizardItem(sel: WizardSelection, notes: string) {
     active: true,
     main: i === 0,
     hardware: "standard",
-    hardwareColor: sel.colour,
+    // The finish key (white/woodgrain/custom) is NOT a hardware-colour key —
+    // woodgrain/custom resolve to no catalog row. The handle is always the
+    // white every catalogue carries (#50); the finish travels on `color`.
+    hardwareColor: "white",
     widthRatio: 1 / shape.sashes,
   }));
   return {
