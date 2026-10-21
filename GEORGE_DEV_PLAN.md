@@ -30,7 +30,7 @@ Ordine ajustată după dependențe (#37 înainte de refactorul #53; #34 amânat 
 - [x] 3. #76 — field-module update/sign: aplică bound-urile free-text ca la create/HTTP ✓ 2026-10-21
 - [x] 4. #45 — `generatePassportQrs`: idempotent (nu mai duplică pașapoarte) ✓ 2026-10-21
 - [x] 5. #46 — client search: filtrare înainte de paginare ✓ 2026-10-21
-- [ ] 6. #33 — revoke pe photo-preview object URLs (surveys/installer)
+- [x] 6. #33 — revoke pe photo-preview object URLs (surveys/installer) ✓ 2026-10-21
 - [ ] 7. #35 — retention cron pentru tabelele append-only (auditLog, billingEvents, viesChecks…)
 - [ ] 8. #28 — offline queue: flush-uri concurente dublează înregistrările (o trecere cu #39)
 - [ ] 9. #39 — offline queue: elimină itemele eșuate permanent (aceeași trecere cu #28)

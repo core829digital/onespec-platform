@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SignaturePadBase } from "@/components/signature-pad";
 import { fieldCopy, fieldLang, FIELD_DATE_LOCALE } from "@/lib/field-public-i18n";
 
@@ -54,6 +54,20 @@ export function InstallerJob({ token, initial }: { token: string; initial: Insta
   const [busy, setBusy] = useState<string | null>(null);
   const [err, setErr] = useState("");
 
+  // Blob previews we created are ours to free (#33): this is a soft-navigating
+  // SPA, and an unreferenced object URL pins the full photo bytes until a hard
+  // reload. Server URLs from `initial.photos` are never in this set.
+  const createdPreviews = useRef<Set<string>>(new Set());
+  useEffect(
+    () => () => {
+      for (const url of createdPreviews.current) URL.revokeObjectURL(url);
+    },
+    [],
+  );
+  const revokePreview = (url: string | null | undefined) => {
+    if (url && createdPreviews.current.delete(url)) URL.revokeObjectURL(url);
+  };
+
   const allPhotos = photos.every((p) => p.url);
   const mapsQuery = encodeURIComponent(initial.siteAddress ?? "");
 
@@ -72,7 +86,12 @@ export function InstallerJob({ token, initial }: { token: string; initial: Insta
       const r = await post("/api/inspection/photo", { token, photoKey: key, storageId });
       if (!r.ok) throw new Error(r.error || "photo");
       const preview = URL.createObjectURL(file);
+      createdPreviews.current.add(preview);
+      // The replaced preview (a re-take of the same slot) is dead the moment
+      // the state swaps it out — revoke it instead of pinning its bytes.
+      const replaced = photos.find((p) => p.key === key)?.url;
       setPhotos((prev) => prev.map((p) => (p.key === key ? { ...p, url: preview } : p)));
+      revokePreview(replaced);
     } catch {
       setErr(c.errPhoto);
     } finally {
