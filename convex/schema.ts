@@ -409,8 +409,9 @@ export default defineSchema({
     whiteLabel: v.boolean(),
     logoStorageId: v.optional(v.id("_storage")),
     logoLightStorageId: v.optional(v.id("_storage")),
-    colorAccent: v.string(),
-    colorAccentInk: v.string(),
+    /** Absent = the platform default (#52): the editor's reset clears the field, the widget falls back. */
+    colorAccent: v.optional(v.string()),
+    colorAccentInk: v.optional(v.string()),
     colorBg: v.optional(v.string()),
     colorBgDark: v.optional(v.string()),
     fontFamily: v.union(v.literal("space-grotesk"), v.literal("inter"),

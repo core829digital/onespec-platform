@@ -51,14 +51,14 @@ Ordine ajustată după dependențe (#37 înainte de refactorul #53; #34 amânat 
 - [x] 20. #38 — widget plan-usage = quota enforcement (după #59 sau standalone fast win) ✓ 2026-10-21
 
 ### Etapa 4 — P3: backlog bug-uri (8)
-- [ ] 21. #48 — anulare livrare signed → items rămân în in_transit
-- [ ] 22. #49 — undo import catalog corupe importurile intercalate
-- [ ] 23. #51 — adminPurge TENANT_TABLES drift (7 tabele orphan) + test schema-walk
-- [ ] 24. #50 — wizard salvează finish-ul ca hardwareColor
-- [ ] 25. #40 — Laser BLE GATT connection + listener cleanup
-- [ ] 26. #41 — email pipeline: duplicate sends / webhook-uri pierdute (queued row + idempotency)
-- [ ] 27. #44 — /api/passport/intervention: 400 în loc de 500
-- [ ] 28. #52 — branding accent reset la default (`cleanColor(v) || undefined`)
+- [x] 21. #48 — anulare livrare signed → items rămân în in_transit ✓ 2026-10-21
+- [x] 22. #49 — undo import catalog corupe importurile intercalate ✓ 2026-10-21
+- [x] 23. #51 — adminPurge TENANT_TABLES drift (7 tabele orphan) + test schema-walk ✓ 2026-10-21
+- [x] 24. #50 — wizard salvează finish-ul ca hardwareColor ✓ 2026-10-21
+- [x] 25. #40 — Laser BLE GATT connection + listener cleanup ✓ 2026-10-21
+- [x] 26. #41 — email pipeline: duplicate sends / webhook-uri pierdute ✓ 2026-10-21
+- [x] 27. #44 — /api/passport/intervention: 400 în loc de 500 ✓ 2026-10-21
+- [x] 28. #52 — branding accent reset la default (`cleanColor(v) || undefined`) ✓ 2026-10-21
 
 ### Etapa 5 — P5: refactor-uri MEDIUM/LOW (17), fiecare împerecheat cu bug-ul lui
 - [ ] 29. #66 — widget wire-contract derivat din QuoteSubmissionSchema (pereche #27)
@@ -92,3 +92,4 @@ Ordine ajustată după dependențe (#37 înainte de refactorul #53; #34 amânat 
 - 2026-10-21: **#28+#39 DONE** — `flushQueue` cu single-flight lock (`tryAcquireFlushLock`/`releaseFlushLock`) + `planQueuedItem` pur (run/skip/evict); itemele la MAX_RETRIES șterse din IndexedDB (nu reținute forever); fallback-ul online-save din surveys/installations enqueue-ază doar la erori de transport (nu la respingeri de server cu `.data`). **ETAPA 1 COMPLETĂ** (9/9). Suite: 1821/1821. Următorul: Etapa 2 (#64).
 - 2026-10-21: **ETAPA 2 COMPLETĂ** (6/6 refactoruri P4): #64 (normalizedRatios structural — 9 double-casts șterse), #63 (ProjectItem canonic + tripwire compile-time), #65 Step A (Labels + labelsValidator + assertLabels cu assertion signature), #53 (convex/lib/fiscal.ts — registru FISCAL + beniSignificativi/itCostSplit/vatKeyForRegion; cenții pin-uiți de price-parity), #55 (convex/lib/passportUnits.ts — fabrica pentru cele 3 căi), #54 (convex/lib/quoteTransitions.ts — markQuoteWon cu flag-uri). Suite: 1821/1821 după fiecare. Notă tooling: Mimosa a blocat de 3× scrieri în passports.ts pe fals pozitiv „SQL injection" — rezolvat prin fișier nou + Array.join.
 - 2026-10-21: **ETAPA 3 COMPLETĂ** (5/5, toate ieftinificate de refactoruri): #34 (VAT panel: sumele derivate din rata afișată, ca la regions.calculateVAT), #43 (o singură limită Uw IT = 1.4 în FISCAL; câmpul fundingUwLimit eliminat), #47 (enforceForMaintenance adăugat la generatePassportQrs — o linie), #42 (supplies.advance: events: true + audit în markQuoteWon — flag edit), #38 (getPlanUsage reutiliză countLiveConfigurators: draft+published ca la gate). Suite: 1826/1826. Următorul: Etapa 4 (#48).
+- 2026-10-21: **ETAPA 4 COMPLETĂ** (8/8 backlog P3): #48 (signSiteDelivery snap-shotuiește priorStatus pe iteme; cancelSiteDelivery restaurează in_stock/assigned), #49 (importRows înregistrează changes per-import — createdKeys + before-docs; undo țintit, fallback legacy pe înregistrări vechi), #51 (7 tabele readăugate în TENANT_TABLES + referrals pe ambele chei + ticket-keyed sweep prin doomedSupportTickets; guard schema-walk), #50 (hardwareColor: "white" în wizard, finish-ul rămâne pe color), #40 (disconnect la unmount în efect separat + listener cu referință stocată), #41 (beginSend/finishSend: rând queued pre-POST + Idempotency-Key la Resend + patch pe același rând; webhook 503 la race → Svix retry), #44 (isStr pe câmpurile de contact în ruta de intervenție), #52 (colorAccent/colorAccentInk optionale în schemă; "" resetează, ca la bg; placeholder de default în editor). Suite: 1838/1838. Următorul: Etapa 5 (#66, 17 refactoruri P5).

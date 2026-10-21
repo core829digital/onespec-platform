@@ -51,8 +51,9 @@ export function BrandingTab({ configuratorId }: { configuratorId: Id<"configurat
       await updateBranding({
         configuratorId,
         whiteLabel: Boolean(val("whiteLabel", branding.whiteLabel)),
-        colorAccent: String(val("colorAccent", branding.colorAccent)),
-        colorAccentInk: String(val("colorAccentInk", branding.colorAccentInk)),
+        // "" (the editor's reset) clears the stored colour — the default applies (#52).
+        colorAccent: String(val("colorAccent", branding.colorAccent ?? "")) || undefined,
+        colorAccentInk: String(val("colorAccentInk", branding.colorAccentInk ?? "")) || undefined,
         colorBg: String(val("colorBg", branding.colorBg ?? "")) || undefined,
         colorBgDark: String(val("colorBgDark", branding.colorBgDark ?? "")) || undefined,
         fontFamily: String(val("fontFamily", branding.fontFamily)) as "geist",
@@ -142,10 +143,10 @@ export function BrandingTab({ configuratorId }: { configuratorId: Id<"configurat
         />
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Field label={t("accent")} hint={t("accentHint")}>
-            <ColorInput value={String(val("colorAccent", branding.colorAccent))} onChange={(v) => set("colorAccent", v)} />
+            <ColorInput value={String(val("colorAccent", branding.colorAccent ?? ""))} onChange={(v) => set("colorAccent", v)} emptyPlaceholder={t("defaultPlaceholder")} />
           </Field>
           <Field label={t("accentInk")} hint={t("accentInkHint")}>
-            <ColorInput value={String(val("colorAccentInk", branding.colorAccentInk))} onChange={(v) => set("colorAccentInk", v)} />
+            <ColorInput value={String(val("colorAccentInk", branding.colorAccentInk ?? ""))} onChange={(v) => set("colorAccentInk", v)} emptyPlaceholder={t("defaultPlaceholder")} />
           </Field>
           <Field label={t("bgLight")} hint={t("bgLightHint")}>
             <ColorInput value={String(val("colorBg", branding.colorBg ?? ""))} onChange={(v) => set("colorBg", v)} emptyPlaceholder={t("defaultPlaceholder")} />

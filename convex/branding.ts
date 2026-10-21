@@ -78,10 +78,10 @@ export const updateBranding = mutation({
     // as false rather than refused, so a downgraded tenant can still save the
     // rest of its branding (the public widget also re-checks the plan).
     if (args.whiteLabel !== undefined) update.whiteLabel = args.whiteLabel && whiteLabelAllowed;
-    const accent = cleanColor(args.colorAccent);
-    if (accent) update.colorAccent = accent;
-    const ink = cleanColor(args.colorAccentInk);
-    if (ink) update.colorAccentInk = ink;
+    // "" = "use the default" for every colour (#52): the accents used to be
+    // dropped on a truthiness check, so a custom accent could never be reset.
+    if (args.colorAccent !== undefined) update.colorAccent = cleanColor(args.colorAccent) || undefined;
+    if (args.colorAccentInk !== undefined) update.colorAccentInk = cleanColor(args.colorAccentInk) || undefined;
     if (args.colorBg !== undefined) update.colorBg = cleanColor(args.colorBg) || undefined;
     if (args.colorBgDark !== undefined) update.colorBgDark = cleanColor(args.colorBgDark) || undefined;
     if (args.fontFamily !== undefined) update.fontFamily = args.fontFamily;

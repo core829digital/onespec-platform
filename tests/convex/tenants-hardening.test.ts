@@ -96,6 +96,16 @@ describe("branding hardening (launch audit)", () => {
     expect(b?.colorBgDark).toBeUndefined();
   });
 
+  test("an empty accent resets to the default, like the backgrounds (#52)", async () => {
+    const { t, cfg, as } = await withBranding("pro");
+    await as.mutation(api.branding.updateBranding, { configuratorId: cfg, colorAccent: "#112233", colorAccentInk: "#445566" });
+    // The editor's "reset" sends the documented empty string = default.
+    await as.mutation(api.branding.updateBranding, { configuratorId: cfg, colorAccent: "", colorAccentInk: "" });
+    const b = await t.run((ctx) => ctx.db.query("branding").first());
+    expect(b?.colorAccent).toBeUndefined();
+    expect(b?.colorAccentInk).toBeUndefined();
+  });
+
   test("white-label without the entitlement is stored as false (save still works)", async () => {
     const { t, cfg, as } = await withBranding("base");
     await as.mutation(api.branding.updateBranding, { configuratorId: cfg, whiteLabel: true, colorAccent: "#000000" });
