@@ -82,6 +82,20 @@ describe("same pieces, same price in widget, Showroom and B2B quote", () => {
     expect(be.vatBreakdown[0]!.totalCents).toBe(net + Math.round(net * 0.21));
   });
 
+  test("IT eligibility badge and funding document share one Uw limit (#43)", async () => {
+    const { payload } = await setup();
+    // Push the weighted Uw into the interval where the two old constants
+    // disagreed: (1.3, 1.4]. The badge and the ENEA document must give the
+    // same verdict — one limit (1.4, DM 6 agosto 2020 for serramenti).
+    const glazed = { ...payload, glazing: payload.glazing.map((g) => ({ ...g, uGlass: 1.2 })) };
+    const preview = computeCalculationPreview(glazed, 1, [sampleItem], { regionCode: "IT", buildingAge: 20, isEnergyRenovation: false, deductionPercent: 0 });
+    expect(preview.uwWeightedAverage).toBeGreaterThan(1.3);
+    expect(preview.uwWeightedAverage).toBeLessThanOrEqual(1.4);
+    expect(preview.uwEligible).toBe(true);
+    expect(preview.fundingDocParams!.conform).toBe(preview.uwEligible);
+    expect(preview.fundingDocParams!.uwLimit).toBe(1.4);
+  });
+
   test("B2B extras: the editor's arithmetic and the server's are one function", async () => {
     const { payload, asOwner, seeded, configuratorId, t } = await setup();
     const engine = calculatePrice(payload, pieces);

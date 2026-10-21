@@ -116,7 +116,7 @@ function getFundingDocParams(
   if (region.code === "IT") {
     const it = FISCAL.IT;
     const zone = it.climateZone!;
-    const uwLimit = it.fundingUwLimit!;
+    const uwLimit = it.eligibilityUwLimit;
     return {
       region: region.code,
       title: funding.title,

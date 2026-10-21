@@ -5,19 +5,17 @@
  * inline twin inside computeCalculationPreview, and the dead module removed
  * by #37).
  *
- * The registry deliberately preserves today's values — including the known
- * divergences: the eligibility badge threshold (IT 1.4) and the funding
- * document threshold (IT 1.3) are two differently-named fields on purpose, so
- * aligning them (#43) is a one-field edit, not a hunt.
+ * The registry deliberately preserves today's values — including known
+ * historical divergences, each kept as differently-named fields so aligning
+ * them is a one-field edit (the former IT badge-vs-funding 1.4/1.3 split was
+ * folded into one limit by #43).
  */
 import type { RegionCode } from "./regions";
 import { calculatePrice, type CatalogPayload, type ProjectItem } from "../../src/shared/pricing";
 
 export interface FiscalPolicy {
-  /** Badge threshold used by the showroom eligibility check. IT is 1.4 (see #43 before aligning). */
+  /** The region's Uw limit for window replacement (IT: 1.4, DM 6 agosto 2020). Used by BOTH the eligibility badge and the funding document (#43: they used to disagree at 1.4 vs 1.3). */
   eligibilityUwLimit: number;
-  /** Threshold the IT funding document (Allegato F) conforms against: 1.3 today (see #43). */
-  fundingUwLimit?: number;
   /** Climate zone printed on the IT funding document. */
   climateZone?: string;
   /** Degree-days of the region's reference climate, used by savings estimates and the funding doc. */
@@ -27,7 +25,7 @@ export interface FiscalPolicy {
 }
 
 export const FISCAL: Record<RegionCode, FiscalPolicy> = {
-  IT: { eligibilityUwLimit: 1.4, fundingUwLimit: 1.3, climateZone: "E", gradiGiorno: 1661, uwReference: 3.2 },
+  IT: { eligibilityUwLimit: 1.4, climateZone: "E", gradiGiorno: 1661, uwReference: 3.2 },
   FR: { eligibilityUwLimit: 1.3, gradiGiorno: 1800, uwReference: 2.8 },
   BE: { eligibilityUwLimit: 1.5, gradiGiorno: 1900, uwReference: 2.8 },
   NL: { eligibilityUwLimit: 1.5, gradiGiorno: 1800, uwReference: 2.8 },
