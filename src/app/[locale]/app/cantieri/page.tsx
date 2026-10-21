@@ -50,6 +50,14 @@ const STATUS_CONFIG = [
   { key: "chiuso", label: "Chiuso", color: "bg-emerald-100 text-emerald-700", icon: Lock },
 ] as const;
 
+/**
+ * Boundary helpers (#72): form state and the guest-PIN row handlers carry
+ * plain strings; Convex ids are branded strings. One named cast at the
+ * boundary instead of six `as unknown as` double casts scattered around.
+ */
+const asUserIds = (ids: string[]): Id<"users">[] => ids as Id<"users">[];
+const asCantiereId = (id: string): Id<"cantieri"> => id as Id<"cantieri">;
+
 interface Cantiere {
   _id: string;
   name: string;
@@ -157,9 +165,9 @@ function CantiereModal({
     notes: string;
   }) => void;
   cantiere?: Cantiere;
-  clients: Cantiere[];
+  clients: Array<{ _id: string; name: string }>;
   quotes: Array<{ _id: string; leadName: string; clientId?: string }>;
-  users: Cantiere[];
+  users: Array<{ _id: string; name: string }>;
   saving: boolean;
   t: (key: string) => string;
 }) {
@@ -582,7 +590,7 @@ export default function CantieriPage() {
         ...data,
         clientId: data.clientId ? (data.clientId as Id<"clients">) : undefined,
         quoteId: data.quoteId ? (data.quoteId as Id<"quoteRequests">) : undefined,
-        assignedUserIds: data.assignedUserIds as unknown as Id<"users">[],
+        assignedUserIds: asUserIds(data.assignedUserIds),
       });
       posthog.capture("cantiere_created", {
         initial_status: data.status,
@@ -623,7 +631,7 @@ const handleUpdate = async (data: {
         ...data,
         clientId: data.clientId ? (data.clientId as Id<"clients">) : undefined,
         quoteId: data.quoteId ? (data.quoteId as Id<"quoteRequests">) : undefined,
-        assignedUserIds: data.assignedUserIds as unknown as Id<"users">[],
+        assignedUserIds: asUserIds(data.assignedUserIds),
       });
       setModalOpen(false);
       setEditingCantiere(null);
@@ -637,7 +645,7 @@ const handleUpdate = async (data: {
   const handleDelete = async (cantiereId: string) => {
     if (!(await requestConfirm(t("confirmDelete"), { danger: true }))) return;
     try {
-      await deleteCantiere({ cantiereId: cantiereId as unknown as Id<"cantieri"> });
+      await deleteCantiere({ cantiereId: asCantiereId(cantiereId) });
     } catch (e) {
       showError(e);
     }
@@ -645,7 +653,7 @@ const handleUpdate = async (data: {
 
   const handleGeneratePin = async (cantiere: Cantiere) => {
     try {
-      const result = await generateGuestPin({ cantiereId: cantiere._id as unknown as Id<"cantieri">, expiresInDays: 30 });
+      const result = await generateGuestPin({ cantiereId: asCantiereId(cantiere._id), expiresInDays: 30 });
       setPinModal({ pin: result.pin, expiresAt: result.expiresAt });
     } catch (e) {
       showError(e);
@@ -655,7 +663,7 @@ const handleUpdate = async (data: {
   const handleRevokePin = async (cantiere: Cantiere) => {
     if (!(await requestConfirm(t("confirmRevokePin"), { danger: true }))) return;
     try {
-      await revokeGuestPin({ cantiereId: cantiere._id as unknown as Id<"cantieri"> });
+      await revokeGuestPin({ cantiereId: asCantiereId(cantiere._id) });
     } catch (e) {
       showError(e);
     }
@@ -797,9 +805,9 @@ const handleUpdate = async (data: {
           onClose={() => { setModalOpen(false); setEditingCantiere(null); }}
           onSubmit={editingCantiere ? handleUpdate : handleCreate}
           cantiere={editingCantiere ?? undefined}
-          clients={(clients || []) as unknown as Cantiere[]}
-          quotes={(quotes || []) as unknown as Array<{ _id: string; leadName: string; clientId?: string }>}
-          users={(users || []) as unknown as Cantiere[]}
+          clients={(clients || []) as Array<{ _id: string; name: string }>}
+          quotes={(quotes || []) as Array<{ _id: string; leadName: string; clientId?: string }>}
+          users={(users || []) as Array<{ _id: string; name: string }>}
           saving={saving}
           t={t}
         />
