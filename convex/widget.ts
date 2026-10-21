@@ -484,7 +484,7 @@ export const insertQuote = internalMutation({
     const items: ProjectItem[] = rawItems.map((it: unknown) => {
       const parsed = ProjectItemSchema.safeParse(it);
       if (!parsed.success) throw new ConvexError("INVALID_ITEM");
-      return parsed.data as ProjectItem;
+      return parsed.data;
     });
     if (items.length === 0) throw new ConvexError("NO_ITEMS");
     assertCoherentItems(version.payload as CatalogPayload, items);

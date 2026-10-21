@@ -134,8 +134,17 @@ export const QuoteSubmissionSchema = z.object({
   sourcePage: z.string().max(2048).optional(),
 });
 
-export type ProjectItem = z.infer<typeof ProjectItemSchema> & Record<string, unknown>;
+export type ProjectItem = z.output<typeof ProjectItemSchema>;
 export type QuoteSubmission = z.infer<typeof QuoteSubmissionSchema>;
+
+/**
+ * #63: a schema-parsed item must satisfy pricing.ts's canonical `ProjectItem`
+ * contract. This line is the compile-time tripwire — when the schema and the
+ * contract drift apart, the error lands here and names the drifted field,
+ * instead of being erased by a cast at a call site.
+ */
+const _parsedItemIsCanonical: import("./pricing").ProjectItem = null as unknown as ProjectItem;
+void _parsedItemIsCanonical;
 
 export function validateQuoteSubmission(
   data: unknown,
