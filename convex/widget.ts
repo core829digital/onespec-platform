@@ -7,7 +7,7 @@ import { ConvexError } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
 import { assertCoherentItems } from "./lib/quoteItems";
 import { calculatePrice, installationIncluded, type ProjectItem, type CatalogPayload } from "../src/shared/pricing";
-import { ProjectItemSchema } from "../src/shared/widget-types";
+import { ProjectItemSchema, type WidgetQuoteSubmission } from "../src/shared/widget-types";
 import { cleanSourcePage } from "../src/shared/source-page";
 import { requireMembership } from "./lib/auth";
 import { resolveTenantEntitlements, currentPeriod, isWidgetPlan } from "./lib/entitlements";
@@ -650,3 +650,22 @@ export const insertQuote = internalMutation({
     return quoteId;
   },
 });
+
+/* ---------------- widget wire contract tripwire (#66) ---------------- */
+
+/**
+ * Every wire field of QuoteSubmissionSchema must have a counterpart argument
+ * on insertQuote — minus the fields the HTTP route turns into server-derived
+ * facts (consent → consentAt, turnstileToken → turnstileVerified; the honeypot
+ * never crosses the wire). Before this, the two halves drifted invisibly (the
+ * widget sent clientVatPercent while the schema and the args disagreed).
+ */
+type InsertQuoteArgs = import("convex/server").FunctionArgs<typeof internal.widget.insertQuote>;
+type WireOnly = Exclude<
+  keyof Omit<WidgetQuoteSubmission, "consent" | "turnstileToken" | "honeypot">,
+  keyof InsertQuoteArgs
+>;
+const _wireFieldsHaveArgs: WireOnly extends never
+  ? true
+  : [`insertQuote is missing a wire field: ${WireOnly & string}`] = true;
+void _wireFieldsHaveArgs;

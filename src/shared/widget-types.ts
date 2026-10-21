@@ -135,7 +135,9 @@ export const QuoteSubmissionSchema = z.object({
 });
 
 export type ProjectItem = z.output<typeof ProjectItemSchema>;
+/** What a parsed QuoteSubmission looks like — the widget's wire contract (#66). */
 export type QuoteSubmission = z.infer<typeof QuoteSubmissionSchema>;
+export type WidgetQuoteSubmission = z.output<typeof QuoteSubmissionSchema>;
 
 /**
  * #63: a schema-parsed item must satisfy pricing.ts's canonical `ProjectItem`
