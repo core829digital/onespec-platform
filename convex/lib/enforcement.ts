@@ -2,6 +2,7 @@ import { ConvexError } from "convex/values";
 import type { MutationCtx, QueryCtx } from "../_generated/server";
 import type { Doc, Id } from "../_generated/dataModel";
 import { resolveTenantEntitlements, assertEntitlement, assertQuota, currentPeriod, isWidgetPlan } from "./entitlements";
+import { countLiveConfigurators } from "./configuratorCounts";
 
 /**
  * Entitlement enforcement helpers for mutations/queries.
@@ -143,17 +144,9 @@ export async function enforceConfiguratorQuota(ctx: ReadCtx, tenantId: Id<"tenan
   assertQuota(used, ent.maxConfigurators, "CONFIGURATOR_QUOTA_EXCEEDED");
 }
 
-/** Draft + published configurators, counted up to `cap` (bounded reads). */
-export async function countLiveConfigurators(ctx: ReadCtx, tenantId: Id<"tenants">, cap: number): Promise<number> {
-  const take = Math.max(0, Math.min(cap, 1000));
-  const [drafts, published] = await Promise.all([
-    ctx.db.query("configurators").withIndex("by_tenant_status", (q) => q.eq("tenantId", tenantId).eq("status", "draft")).take(take),
-    ctx.db.query("configurators").withIndex("by_tenant_status", (q) => q.eq("tenantId", tenantId).eq("status", "published")).take(take),
-  ]);
-  return drafts.length + published.length;
-}
-
-/**
+// countLiveConfigurators lives in ./configuratorCounts (#59), re-exported here
+// for the callers that reached it through this module.
+export { countLiveConfigurators } from "./configuratorCounts";/**
  * Whether the plan still serves this configurator publicly:
  * - a suspended tenant (subscription cancelled / ended) serves nothing — on
  *   EVERY plan (founder's decision 2026-09-29: no free leads after cancelling);
