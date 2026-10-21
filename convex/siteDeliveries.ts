@@ -254,16 +254,22 @@ export const signSiteDelivery = mutation({
     if (unresolved) throw new ConvexError("CHECKLIST_INCOMPLETE");
 
     const now = Date.now();
-    for (const item of row.items) {
+    // Flip the loaded items to in_transit, remembering each one's prior
+    // status so a cancelled departure can put it back exactly where it was (#48).
+    const itemsWithPrior = [...row.items];
+    for (let i = 0; i < itemsWithPrior.length; i++) {
+      const item = itemsWithPrior[i];
       if (!item.loaded || !item.inventoryItemId) continue;
       const inv = await ctx.db.get(item.inventoryItemId);
       if (inv && (inv.status === "in_stock" || inv.status === "assigned")) {
+        itemsWithPrior[i] = { ...item, priorStatus: inv.status };
         await ctx.db.patch(inv._id, { status: "in_transit", cantiereId: row.cantiereId, updatedAt: now });
       }
     }
 
     await ctx.db.patch(row._id, {
       status: "in_transit",
+      items: itemsWithPrior,
       signedByName,
       signatureDataUrl: args.signatureDataUrl,
       signedAt: now,
@@ -319,8 +325,27 @@ export const cancelSiteDelivery = mutation({
     const row = await loadOwned(ctx, args.siteDeliveryId);
     await requirePermission(ctx, row.tenantId, "logistics.manage");
     if (row.status === "delivered") throw new ConvexError("ALREADY_DELIVERED");
+    const now = Date.now();
+    // The truck comes back: a signed (in_transit) departure returns its loaded
+    // items to the status they had before signing (#48) — otherwise the piece
+    // is stranded out of warehouse stock with no recovery path.
+    if (row.status === "in_transit") {
+      for (const item of row.items) {
+        if (!item.loaded || !item.inventoryItemId) continue;
+        const inv = await ctx.db.get(item.inventoryItemId);
+        if (inv && inv.status === "in_transit") {
+          const prior = item.priorStatus ?? "in_stock";
+          await ctx.db.patch(inv._id, {
+            status: prior,
+            // Assigned pieces stay bound to their site; stock pieces return to the shelf.
+            ...(prior === "in_stock" ? { cantiereId: undefined } : {}),
+            updatedAt: now,
+          });
+        }
+      }
+    }
     for (const id of row.packagingMediaIds) await ctx.storage.delete(id);
-    await ctx.db.patch(row._id, { status: "cancelled", packagingMediaIds: [], updatedAt: Date.now() });
+    await ctx.db.patch(row._id, { status: "cancelled", packagingMediaIds: [], updatedAt: now });
   },
 });
 

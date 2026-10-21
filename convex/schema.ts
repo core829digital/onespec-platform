@@ -1699,6 +1699,8 @@ export default defineSchema({
         unit: v.string(),
         loaded: v.boolean(),
         notLoadedReason: v.optional(v.string()),
+        /** Inventory status before signing flipped it to in_transit — what a cancelled departure restores it to (#48). */
+        priorStatus: v.optional(v.union(v.literal("in_stock"), v.literal("assigned"))),
       }),
     ),
     /** Packaging-quality documentation — up to 4, images or short video. */
