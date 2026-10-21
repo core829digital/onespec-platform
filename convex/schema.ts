@@ -808,8 +808,16 @@ export default defineSchema({
     importedByUserId: v.id("users"),
     importedAt: v.number(),
     summary: v.object({ created: v.number(), updated: v.number(), rejected: v.number() }),
-    /** Full rows of the target table as they were immediately before the import. */
+    /** Full rows of the target table as they were immediately before the import (display artifact). */
     snapshot: v.any(),
+    /** Rows THIS import touched (#49): undo deletes the created keys and restores each updated row's before-doc, so interleaved imports survive each other's undo. */
+    changes: v.optional(v.object({
+      createdKeys: v.array(v.string()),
+      updatedBefore: v.array(v.object({
+        id: v.union(v.id("catalogMaterials"), v.id("catalogGlazingOptions"), v.id("catalogFinishOptions"), v.id("catalogHardwareOptions")),
+        before: v.any(),
+      })),
+    })),
     undone: v.boolean(),
     undoneAt: v.optional(v.number()),
   })

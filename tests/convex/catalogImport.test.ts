@@ -81,6 +81,54 @@ describe("catalogImport.importRows", () => {
     ).rejects.toThrow();
   });
 
+  test("undoing one of two interleaved imports leaves the other intact (#49)", async () => {
+    const t = newDb();
+    const { tenantId, ownerId } = await seedTenant(t);
+    const configuratorId = await seedPublishedConfigurator(t, tenantId);
+    const as = t.withIdentity({ subject: ownerId });
+
+    await t.run((ctx) =>
+      ctx.db.insert("catalogMaterials", {
+        tenantId, configuratorId, key: "pvc", labels: { it: "PVC" },
+        basePerM2Cents: 18000, profilePerMlCents: 2800, sortOrder: 0, enabled: true,
+      }),
+    );
+
+    // Import A updates pvc and creates "alluminio".
+    await as.mutation(api.catalogImport.importRows, {
+      configuratorId, target: "materials",
+      rows: [{ key: "pvc", label: "PVC Premium", basePerM2Cents: 20000, profilePerMlCents: 3000 },
+             { key: "alluminio", label: "Alluminio", basePerM2Cents: 26000, profilePerMlCents: 3600 }],
+    });
+    // Import B (later) creates "legno" — it must survive A's undo.
+    await as.mutation(api.catalogImport.importRows, {
+      configuratorId, target: "materials",
+      rows: [{ key: "legno", label: "Legno", basePerM2Cents: 32000, profilePerMlCents: 4500 }],
+    });
+
+    const history = await as.query(api.catalogImport.listImports, { configuratorId });
+    const importA = history.find((i) => !i.undone && i.summary.created === 1 && i.summary.updated === 1)!;
+
+    await as.mutation(api.catalogImport.undoImport, { importId: importA._id });
+    const afterUndoA = await t.run((ctx) =>
+      ctx.db.query("catalogMaterials").withIndex("by_configurator", (q) => q.eq("configuratorId", configuratorId)).collect(),
+    );
+    // A reverted: pvc back to its pre-A value, alluminio gone…
+    expect(afterUndoA.find((m) => m.key === "pvc")?.basePerM2Cents).toBe(18000);
+    expect(afterUndoA.some((m) => m.key === "alluminio")).toBe(false);
+    // …but B's row survives — the old whole-table restore deleted it.
+    expect(afterUndoA.some((m) => m.key === "legno")).toBe(true);
+
+    // Undoing B afterwards removes only B's row and does not resurrect A's.
+    const importB = history.find((i) => !i.undone && i !== importA)!;
+    await as.mutation(api.catalogImport.undoImport, { importId: importB._id });
+    const final = await t.run((ctx) =>
+      ctx.db.query("catalogMaterials").withIndex("by_configurator", (q) => q.eq("configuratorId", configuratorId)).collect(),
+    );
+    expect(final.map((m) => m.key).sort()).toEqual(["pvc"]);
+    expect(final[0]?.basePerM2Cents).toBe(18000);
+  });
+
   test("price cells typed as euros: grouping is read right, a blank cell rejects only its row (issue #30)", async () => {
     const t = newDb();
     const { tenantId, ownerId } = await seedTenant(t);

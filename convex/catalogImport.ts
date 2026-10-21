@@ -95,6 +95,19 @@ export const importRows = mutation({
     const rejected: Array<{ row: number; reason: string }> = [];
     let created = 0;
     let updated = 0;
+    // What undo will revert (#49): the map-keys this import creates, and the
+    // exact before-doc of every row it updates.
+    const createdKeys: string[] = [];
+    const updatedBefore: Array<{ id: (typeof existing)[number]["_id"]; before: Record<string, unknown> }> = [];
+    const stripSystem = (r: (typeof existing)[number]) => {
+      const copy: Record<string, unknown> = { ...r };
+      delete copy._id;
+      delete copy._creationTime;
+      return copy;
+    };
+    const trackUpdate = (prev: (typeof existing)[number]) => {
+      updatedBefore.push({ id: prev._id, before: stripSystem(prev) });
+    };
 
     for (let i = 0; i < args.rows.length; i++) {
       const res = validateRow(target, args.rows[i] as ImportRow, i + 1);
@@ -109,18 +122,22 @@ export const importRows = mutation({
       if (target === "materials") {
         const doc = { key: r.key, labels: { it: r.label, en: r.label, fr: r.label }, basePerM2Cents: r.basePerM2Cents!, profilePerMlCents: r.profilePerMlCents! };
         if (prev) {
+          trackUpdate(prev);
           await ctx.db.patch(prev._id, doc);
           updated++;
         } else {
+          createdKeys.push(mapKey);
           await ctx.db.insert("catalogMaterials", { ...doc, tenantId: configurator.tenantId, configuratorId: args.configuratorId, sortOrder: existing.length + created, enabled: true });
           created++;
         }
       } else if (target === "hardware") {
         const doc = { key: r.key, kind: r.kind as "hardware", labels: { it: r.label, en: r.label, fr: r.label }, priceCents: r.priceCents! };
         if (prev) {
+          trackUpdate(prev);
           await ctx.db.patch(prev._id, doc);
           updated++;
         } else {
+          createdKeys.push(mapKey);
           await ctx.db.insert("catalogHardwareOptions", { ...doc, tenantId: configurator.tenantId, configuratorId: args.configuratorId, appliesToOperableOnly: r.kind !== "sashType", sortOrder: existing.length + created, enabled: true });
           created++;
         }
@@ -128,9 +145,11 @@ export const importRows = mutation({
         const doc = { key: r.key, labels: { it: r.label, en: r.label, fr: r.label }, priceCents: r.priceCents! };
         const insertTable = target === "glazing" ? "catalogGlazingOptions" : "catalogFinishOptions";
         if (prev) {
+          trackUpdate(prev);
           await ctx.db.patch(prev._id, doc);
           updated++;
         } else {
+          createdKeys.push(mapKey);
           await ctx.db.insert(insertTable, { ...doc, tenantId: configurator.tenantId, configuratorId: args.configuratorId, sortOrder: existing.length + created, enabled: true });
           created++;
         }
@@ -146,12 +165,8 @@ export const importRows = mutation({
       importedByUserId: (await requireMembership(ctx, configurator.tenantId)).userId,
       importedAt: Date.now(),
       summary,
-      snapshot: existing.map((r) => {
-        const copy: Record<string, unknown> = { ...r };
-        delete copy._id;
-        delete copy._creationTime;
-        return copy;
-      }),
+      snapshot: existing.map((r) => stripSystem(r)),
+      changes: { createdKeys, updatedBefore },
       undone: false,
     });
 
@@ -203,10 +218,27 @@ export const undoImport = mutation({
       .query(table)
       .withIndex("by_configurator", (q) => q.eq("configuratorId", record.configuratorId))
       .collect();
-    for (const row of current) await ctx.db.delete(row._id);
+    if (record.changes) {
+      // Targeted revert (#49): restore only the rows THIS import touched, so
+      // rows a later import (or a manual edit) added stay exactly as they are.
+      for (const u of record.changes.updatedBefore) {
+        // A row a later undo already removed (it was that import's creation)
+        // is simply skipped — interleaved undos stay coherent.
+        if (!(await ctx.db.get(u.id))) continue;
+        await ctx.db.patch(u.id, u.before as never);
+      }
+      const created = new Set(record.changes.createdKeys);
+      for (const row of current) {
+        const key = [(row as { kind?: string }).kind ?? "", row.key].join(":");
+        if (created.has(key)) await ctx.db.delete(row._id);
+      }
+    } else {
+      // Records predating #49 carry only the whole-table snapshot.
+      for (const row of current) await ctx.db.delete(row._id);
 
-    for (const snap of record.snapshot as Array<Record<string, unknown>>) {
-      await ctx.db.insert(table, snap as never);
+      for (const snap of record.snapshot as Array<Record<string, unknown>>) {
+        await ctx.db.insert(table, snap as never);
+      }
     }
 
     await ctx.db.patch(args.importId, { undone: true, undoneAt: Date.now() });
