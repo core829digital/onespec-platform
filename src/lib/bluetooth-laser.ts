@@ -223,7 +223,7 @@ export class LaserManager {
       this.distanceChar = await service.getCharacteristic(this.getDistanceUUID());
       
       await this.distanceChar.startNotifications();
-      this.distanceChar.addEventListener("characteristicvaluechanged", this.handleMeasurement.bind(this));
+      this.distanceChar.addEventListener("characteristicvaluechanged", this.boundMeasurementHandler);
       
       this.emitConnectionChange({ 
         connected: true, 
@@ -242,6 +242,13 @@ export class LaserManager {
   private getDistanceUUID(): string {
     return LEICA_DISTANCE_UUID;
   }
+
+  /**
+   * The one bound reference used for BOTH add and removeEventListener (#40) —
+   * removing a freshly-bound function removes nothing, so every reconnect
+   * cycle used to accumulate a stale notification listener.
+   */
+  private boundMeasurementHandler = this.handleMeasurement.bind(this);
 
   private handleMeasurement(event: Event) {
     const target = event.target as unknown as BluetoothRemoteGATTCharacteristic;
@@ -282,7 +289,7 @@ export class LaserManager {
   private cleanup() {
     if (this.distanceChar) {
       try {
-        this.distanceChar.removeEventListener("characteristicvaluechanged", this.handleMeasurement.bind(this));
+        this.distanceChar.removeEventListener("characteristicvaluechanged", this.boundMeasurementHandler);
         if (this.gattServer?.connected) {
           this.distanceChar.stopNotifications();
         }

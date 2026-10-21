@@ -44,6 +44,17 @@ export function LaserMeasure({ onMeasure, whichDimension, currentL, currentH, di
     };
   }, [whichDimension, onMeasure]);
 
+  // The GATT link outlives neither the component nor the SPA soft navigation
+  // (#40) — but it must survive the callbacks effect above re-running, which
+  // happens after every measured dimension, so the disconnect lives here, in
+  // its own unmount-only effect.
+  useEffect(() => {
+    const manager = managerRef.current;
+    return () => {
+      void manager.disconnect();
+    };
+  }, []);
+
   const handleConnect = async () => {
     if (!isBluetoothSupported()) {
       alert(t("btUnsupportedAlert"));
