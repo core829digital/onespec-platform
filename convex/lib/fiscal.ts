@@ -107,3 +107,17 @@ export function itVatLines(b: BeniSignificativiBreakdown) {
     },
   ];
 }
+
+/** A percentage the visitor's browser sent, or null when it is missing or outside 0-100. */
+export function visitorPercent(n: number | undefined): number | null {
+  return typeof n === "number" && Number.isFinite(n) && n >= 0 && n <= 100 ? n : null;
+}
+
+/**
+ * The VAT rate a widget submission is judged at: the rate the visitor picked in the widget when it is a valid
+ * percentage, else the configurator's rate. The single decision point for the visitor's VAT (issue #56); the
+ * tamper check compares the price the visitor saw at this rate.
+ */
+export function resolveVisitorVat(clientVatPercent: number | undefined, configuratorRatePercent: number): number {
+  return visitorPercent(clientVatPercent) ?? configuratorRatePercent;
+}

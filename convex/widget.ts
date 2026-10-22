@@ -15,6 +15,7 @@ import { LOCKED_LEAD_NAME } from "./lib/quotaLock";
 import { consumeToken } from "./lib/ratelimit";
 import { regionForCountry, type RegionPolicy } from "./lib/regions";
 import { configuratorServedByPlan } from "./lib/enforcement";
+import { resolveVisitorVat, visitorPercent } from "./lib/fiscal";
 
 /** Rows/objects that may carry Convex system + tenant fields. */
 type WithSystemFields = Record<string, unknown> & {
@@ -528,9 +529,8 @@ export const insertQuote = internalMutation({
 
     // The widget shows the gross at the rate the visitor picked, minus the ecobonus and discount they applied:
     // compare like with like, or every honest lead that uses those knobs looks like tampering.
-    const pct = (n: number | undefined) => (typeof n === "number" && Number.isFinite(n) && n >= 0 && n <= 100 ? n : null);
-    const comparedVat = pct(args.clientVatPercent) ?? price.vatRatePercent;
-    const deduction = pct(args.clientDeductionPercent) ?? 0;
+    const comparedVat = resolveVisitorVat(args.clientVatPercent, price.vatRatePercent);
+    const deduction = visitorPercent(args.clientDeductionPercent) ?? 0;
     const expectedGross = price.priceExVatCents + Math.round((price.priceExVatCents * comparedVat) / 100);
     const expectedShown = Math.round((expectedGross * (100 - deduction)) / 100);
     const priceMismatch =
