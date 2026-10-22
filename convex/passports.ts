@@ -116,6 +116,21 @@ export const create = mutation({
   },
 });
 
+/** One label per physical unit of a quote: each item expanded by its quantity, in quote order. */
+function quoteUnits(items: unknown): string[] {
+  const rawItems = Array.isArray(items) ? (items as Record<string, unknown>[]) : [];
+  const units: string[] = [];
+  rawItems.forEach((it, i) => {
+    const qty = Math.max(1, Math.round(Number(it.quantity ?? 1)));
+    const base =
+      `${it.productType === "balconyDoor" ? "Porta-finestra" : "Finestra"} ${it.width ?? "?"}×${
+        it.height ?? "?"
+      }`.trim() || `Serramento ${i + 1}`;
+    for (let k = 0; k < qty; k++) units.push(qty > 1 ? `${base} (${k + 1}/${qty})` : base);
+  });
+  return units;
+}
+
 /**
  * One fascicolo per serramento of a signed field quote (FASE 6.1). Expands each
  * quote item by quantity and skips items that already have a passport.
@@ -138,16 +153,7 @@ export const createBatchFromQuote = mutation({
       .collect();
 
     const req = complianceForRegion(regionCode).dossier;
-    const rawItems = Array.isArray(quote.items) ? (quote.items as Record<string, unknown>[]) : [];
-    const units: string[] = [];
-    rawItems.forEach((it, i) => {
-      const qty = Math.max(1, Math.round(Number(it.quantity ?? 1)));
-      const base =
-        `${it.productType === "balconyDoor" ? "Porta-finestra" : "Finestra"} ${it.width ?? "?"}×${
-          it.height ?? "?"
-        }`.trim() || `Serramento ${i + 1}`;
-      for (let k = 0; k < qty; k++) units.push(qty > 1 ? `${base} (${k + 1}/${qty})` : base);
-    });
+    const units = quoteUnits(quote.items);
 
     const now = Date.now();
     const created: string[] = [];
@@ -179,8 +185,9 @@ export const createBatchFromQuote = mutation({
 });
 
 /**
- * Generate QR codes for each item in a passport (one per window/door unit).
- * Returns array of { token, label } for each unit.
+ * QR labels for every unit of the passport's quote: one fascicolo per unit, the passports that already exist
+ * are reused (their printed labels keep working) and only the missing units get a new one, so pressing
+ * "Generate" again, or from two tabs, never duplicates a fascicolo (issue #45). Returns { token, label } per unit.
  */
 export const generatePassportQrs = mutation({
   args: {
@@ -192,30 +199,34 @@ export const generatePassportQrs = mutation({
     await requirePermission(ctx, p.tenantId, "passports.use");
 
     if (!p.quoteId) throw new ConvexError("PASSPORT_NO_QUOTE");
+    const quoteId = p.quoteId;
 
-    const quote = await ctx.db.get(p.quoteId);
-    if (!quote) throw new ConvexError("QUOTE_NOT_FOUND");
+    const quote = await ctx.db.get(quoteId);
+    if (!quote || quote.tenantId !== p.tenantId) throw new ConvexError("QUOTE_NOT_FOUND");
 
-    const rawItems = Array.isArray(quote.items) ? (quote.items as Record<string, unknown>[]) : [];
-    const units: string[] = [];
-    rawItems.forEach((it, i) => {
-      const qty = Math.max(1, Math.round(Number(it.quantity ?? 1)));
-      const base =
-        `${it.productType === "balconyDoor" ? "Porta-finestra" : "Finestra"} ${it.width ?? "?"}×${
-          it.height ?? "?"
-        }`.trim() || `Serramento ${i + 1}`;
-      for (let k = 0; k < qty; k++) units.push(qty > 1 ? `${base} (${k + 1}/${qty})` : base);
-    });
+    const units = quoteUnits(quote.items);
+    // Oldest first: the passports whose labels were printed first stay the ones handed out.
+    const existing = (
+      await ctx.db
+        .query("serramentoPassports")
+        .withIndex("by_quote", (q) => q.eq("quoteId", quoteId))
+        .collect()
+    ).filter((x) => x.tenantId === p.tenantId);
 
-    const results: { token: string; label: string }[] = [];
+    if (existing.length < units.length) await enforceForMaintenance(ctx, p.tenantId);
+    const results: { token: string; label: string }[] = existing
+      .slice(0, units.length)
+      .map((x) => ({ token: x.publicToken, label: x.productSummary ?? x.label }));
 
-    for (let idx = 0; idx < units.length; idx++) {
-      const id = await ctx.db.insert("serramentoPassports", {
+    const now = Date.now();
+    for (let idx = existing.length; idx < units.length; idx++) {
+      const publicToken = nanoid(16);
+      await ctx.db.insert("serramentoPassports", {
         tenantId: p.tenantId,
         regionCode: p.regionCode,
-        quoteId: p.quoteId,
+        quoteId,
         createdByUserId: p.createdByUserId,
-        publicToken: nanoid(16),
+        publicToken,
         label: `FIN-${String(idx + 1).padStart(2, "0")} · ${units[idx]}`,
         customerName: p.customerName,
         siteAddress: p.siteAddress,
@@ -227,10 +238,10 @@ export const generatePassportQrs = mutation({
         maintenancePriceCents: p.maintenancePriceCents,
         maintenanceActive: false,
         scanCount: 0,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
+        createdAt: now,
+        updatedAt: now,
       });
-      results.push({ token: (await ctx.db.get(id))!.publicToken, label: units[idx] });
+      results.push({ token: publicToken, label: units[idx] });
     }
 
     return results;

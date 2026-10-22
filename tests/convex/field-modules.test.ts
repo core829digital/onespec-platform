@@ -233,6 +233,14 @@ test("funding: generateFundingDoc from a linked field quote (IT tenant)", async 
     quoteId,
   });
   expect(again.created).toBe(0);
+
+  // QR labels reuse the passports that exist: pressing Generate again (or from two tabs) creates nothing (issue #45)
+  const first = await asOwner.mutation(api.passports.generatePassportQrs, { passportId: all[0]._id });
+  const second = await asOwner.mutation(api.passports.generatePassportQrs, { passportId: all[0]._id });
+  expect(first).toHaveLength(2);
+  expect(second.map((r) => r.token)).toEqual(first.map((r) => r.token));
+  expect(first.map((r) => r.token).sort()).toEqual(all.map((x) => x.publicToken).sort());
+  expect(await asOwner.query(api.passports.listByQuote, { quoteId })).toHaveLength(2);
 });
 
 test("a queued field record sent twice (same device id) is created once (issue #28)", async () => {
