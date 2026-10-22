@@ -58,7 +58,7 @@ Un test blocca il build se nel codice viene usata una chiave di traduzione che m
 
 | Tema | Stato | Cosa serve |
 |------|-------|-----------|
-| Deploy Convex | **Da fare** | Aggiungere `CONVEX_DEPLOY_KEY` su Vercel e fare un Redeploy (oppure `git pull` + `npx convex deploy`). Senza questo passo le correzioni del backend non sono online. |
+| Deploy Convex | Fatto | Pubblicazione manuale da GitHub → Actions → «Deploy backend (Convex)» (controlla tipi e test prima di pubblicare). Ultima pubblicazione: 22/10/2026. |
 | Prezzi Stripe | Da fare | Configurare le variabili dei prezzi (Level 1/2/3 e piattaforma) e disattivare il cambio piano dal portale Stripe. |
 | Enterprise | Decisione | Oggi ha un limite di 1000 richieste/mese. Deve essere illimitato? |
 | Testi legali per paese | Da verificare | Note fiscali nel PDF (Bonus Casa 50/36%, MaPrimeRénov', Klimabonus 20%, ISDE, §35c) e percentuali nel preventivatore: da far controllare a un commercialista per ogni mercato, perché cambiano ogni anno. |

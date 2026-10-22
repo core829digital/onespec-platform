@@ -82,7 +82,7 @@ Fai queste prove con un account di prova, **non** con clienti reali.
 - [ ] **Avvocato:** far rivedere i testi legali (privacy, termini, DPA, regolamento inviti).
 - [ ] **Fornitori:** controllare i contratti di trattamento dati (DPA) con Convex, Vercel, Stripe, Resend, PostHog, Sentry.
 - [ ] **NIS2:** verificare se CORE829 supera la soglia di dipendenti/fatturato prevista.
-- [ ] **GitHub Actions:** fissare le versioni (SHA) delle azioni usate nella CI.
+- [x] **GitHub Actions:** versioni (SHA) delle azioni fissate in tutti i workflow (verificato il 22/10/2026).
 - [ ] **Sicurezza contenuti (CSP):** passare dalla modalità «solo segnalazione» a quella che blocca, dopo qualche settimana senza segnalazioni.
 - [ ] **2FA obbligatorio** per amministratori e team (oggi è facoltativo).
 - [ ] **Backup:** fare una prova di ripristino dei dati Convex.
