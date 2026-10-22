@@ -72,9 +72,30 @@ export const TENANT_TABLES = [
   "siteDeliveries",
   "referralCodes",
   "referralPayoutAccounts",
+  "supplyPartners",
+  "supplies",
+  "leads",
+  "leadImports",
+  "clientDocuments",
+  "viesChecks",
+  "supportTickets",
+  "supportAttachments",
 ] as const;
 
-/** Tables keyed by `userId` — wiped for every user being deleted. */
+/**
+ * Tenant-scoped rows that are not keyed by `tenantId`: referrals name two tenants, ticket messages and internal notes
+ * belong to a ticket. `tests/admin-purge-coverage.test.ts` checks every table with a tenantId is covered.
+ */
+export const OTHER_TENANT_LINKS = [
+  { table: "referrals", field: "referrerTenantId" },
+  { table: "referrals", field: "referredTenantId" },
+] as const;
+export const TICKET_CHILD_TABLES = ["supportMessages", "supportInternalNotes"] as const;
+
+/**
+ * Tables keyed by `userId` — wiped for every user being deleted. notifications, meteredEvents and alphaFeedback are
+ * also in TENANT_TABLES on purpose: a deleted user may have rows under a tenant that is kept.
+ */
 export const USER_TABLES = ["deletionRequests", "userConsents", "notificationPrefs", "notifications", "meteredEvents", "alphaFeedback"] as const;
 
 type Plan = {
@@ -127,7 +148,13 @@ export const planPurge = internalQuery({
 export const purgeTablePage = internalMutation({
   args: {
     table: v.string(),
-    field: v.union(v.literal("tenantId"), v.literal("userId")),
+    field: v.union(
+      v.literal("tenantId"),
+      v.literal("userId"),
+      v.literal("referrerTenantId"),
+      v.literal("referredTenantId"),
+      v.literal("ticketId"),
+    ),
     ids: v.array(v.string()),
     cursor: v.union(v.string(), v.null()),
   },
@@ -195,10 +222,29 @@ export const dropKeptTenantLinks = internalMutation({
   },
 });
 
+type SweepField = "tenantId" | "userId" | "referrerTenantId" | "referredTenantId" | "ticketId";
+
+/** Ids of the support tickets of the tenants being deleted (their messages and notes go first). */
+export const ticketIdsForTenants = internalQuery({
+  args: { tenantIds: v.array(v.id("tenants")) },
+  handler: async (ctx, args): Promise<string[]> => {
+    const ids: string[] = [];
+    for (const tenantId of args.tenantIds) {
+      // One-off admin script: every ticket of the tenant.
+      const tickets = await ctx.db
+        .query("supportTickets")
+        .withIndex("by_tenant_and_lastMessageAt", (q) => q.eq("tenantId", tenantId))
+        .collect();
+      ids.push(...tickets.map((t) => t._id));
+    }
+    return ids;
+  },
+});
+
 async function sweep(
-  ctx: { runMutation: (fn: typeof internal.adminPurge.purgeTablePage, a: { table: string; field: "tenantId" | "userId"; ids: string[]; cursor: string | null }) => Promise<{ deleted: number; next: string | null }> },
+  ctx: { runMutation: (fn: typeof internal.adminPurge.purgeTablePage, a: { table: string; field: SweepField; ids: string[]; cursor: string | null }) => Promise<{ deleted: number; next: string | null }> },
   table: string,
-  field: "tenantId" | "userId",
+  field: SweepField,
   ids: string[],
 ): Promise<number> {
   if (ids.length === 0) return 0;
@@ -251,7 +297,12 @@ export const purgeAccountsExcept = internalAction({
     const tenantIds = plan.doomedTenants.map((t) => t.id as string);
     const userIds = plan.doomedUsers.map((u) => u.id as string);
     const deleted: Record<string, number> = {};
+    const ticketIds = await ctx.runQuery(internal.adminPurge.ticketIdsForTenants, { tenantIds: plan.doomedTenants.map((t) => t.id) });
+    for (const table of TICKET_CHILD_TABLES) deleted[table] = await sweep(ctx as never, table, "ticketId", ticketIds);
     for (const table of TENANT_TABLES) deleted[table] = await sweep(ctx as never, table, "tenantId", tenantIds);
+    for (const link of OTHER_TENANT_LINKS) {
+      deleted[`${link.table}(${link.field})`] = await sweep(ctx as never, link.table, link.field, tenantIds);
+    }
     for (const table of USER_TABLES) {
       deleted[`${table}(by user)`] = await sweep(ctx as never, table, "userId", userIds);
     }

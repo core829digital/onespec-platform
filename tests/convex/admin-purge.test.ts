@@ -23,6 +23,8 @@ async function world() {
     await ctx.db.insert("clients", client(junk.tenantId, "C"));
     await ctx.db.insert("clients", client(keep1.tenantId, "Keep"));
     await ctx.db.insert("billingEvents", { stripeEventId: "e1", type: "x", tenantId: junk.tenantId, receivedAt: 1 });
+    // A table the purge used to miss (issue #51).
+    await ctx.db.insert("viesChecks", { tenantId: junk.tenantId, userId: junk.ownerId, country: "DE", vatNumber: "DE136695976", valid: true, checkedAt: 1 });
   });
   return { t, keep1, keep2, junk };
 }
@@ -69,6 +71,7 @@ describe("adminPurge.purgeAccountsExcept", () => {
       const clients = await ctx.db.query("clients").collect();
       expect(clients.map((c) => c.tenantId)).toEqual([keep1.tenantId]);
       expect(await ctx.db.query("billingEvents").collect()).toHaveLength(0);
+      expect(await ctx.db.query("viesChecks").collect()).toHaveLength(0);
       // the kept tenants' own members are kept too (only doomed users are removed)
       const users = await ctx.db.query("users").collect();
       expect(users.some((u) => u.email === "junk@example.com")).toBe(false);
