@@ -70,6 +70,7 @@ export const DEMO_CONVEX_MODULES: Record<string, Loader> = {
   "../convex/lib/posthog.ts": () => import("../../convex/lib/posthog"),
   "../convex/lib/quotaLock.ts": () => import("../../convex/lib/quotaLock"),
   "../convex/lib/quoteItems.ts": () => import("../../convex/lib/quoteItems"),
+  "../convex/lib/quoteTransitions.ts": () => import("../../convex/lib/quoteTransitions"),
   "../convex/lib/ratelimit.ts": () => import("../../convex/lib/ratelimit"),
   "../convex/lib/rbac.ts": () => import("../../convex/lib/rbac"),
   "../convex/lib/referral.ts": () => import("../../convex/lib/referral"),
