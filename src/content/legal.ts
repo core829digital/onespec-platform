@@ -69,7 +69,7 @@ export const LEGAL_DOCS: LegalDoc[] = [
   {
     slug: "privacy",
     title: "Informativa sulla privacy",
-    updated: "2026-10-19",
+    updated: "2026-10-22",
     summary: "Quali dati personali trattiamo, perché e per quanto tempo.",
     sections: [
       IDENTITY_INTRO,
@@ -103,7 +103,8 @@ export const LEGAL_DOCS: LegalDoc[] = [
         h: "Conservazione",
         p: [
           "Dati dell'account: per tutta la durata del rapporto e cancellati entro [[numero]] giorni dalla richiesta di cancellazione.",
-          "Richieste di preventivo, registro attività e log di sicurezza: conservati per tutta la durata di attività dell'organizzazione sulla piattaforma; non esiste al momento una cancellazione automatica programmata di questi dati, che vengono eliminati su richiesta secondo la procedura descritta nella sezione «Diritti dell'interessato».",
+          "Richieste di preventivo e dati dei clienti dell'organizzazione: conservati per tutta la durata di attività dell'organizzazione sulla piattaforma ed eliminati su richiesta secondo la procedura descritta nella sezione «Diritti dell'interessato».",
+          "Registro attività e log di sicurezza: eliminati automaticamente dopo 730 giorni (24 mesi). Verifiche della partita IVA tramite VIES: 400 giorni, salvo quelle su cui si basa un preventivo con IVA 0% intra-UE, conservate con il preventivo. Eventi di pagamento ricevuti da Stripe: 90 giorni. Contatori di utilizzo (PDF, WhatsApp, showroom): 400 giorni. Impronte delle carte che hanno già usato la prova gratuita: 1095 giorni (3 anni).",
           "Ticket di assistenza: i ticket chiusi sono eliminati automaticamente con messaggi, note interne e allegati 730 giorni (24 mesi) dopo l'ultima attività; i ticket risolti senza ulteriori risposte si chiudono da soli dopo 7 giorni; i file caricati ma mai inviati sono eliminati dopo 24 ore. Questo periodo serve a gestire eventuali contestazioni sull'assistenza prestata e a difendere un diritto in giudizio.",
           "Messaggi della pagina «Contattaci»: eliminati 90 giorni dopo essere stati gestiti e in ogni caso entro 365 giorni dalla ricezione.",
           "Notifiche nell'applicazione: 365 giorni. Registro delle email di servizio inviate: 90 giorni.",

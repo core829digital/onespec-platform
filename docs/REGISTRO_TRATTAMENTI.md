@@ -74,7 +74,7 @@ Perché serve: l'esenzione dell'art. 30.5 (meno di 250 dipendenti) non si applic
 | Interessati | Utenti; visitatori del widget e dei moduli pubblici |
 | Categorie di dati | Hash dell'IP (l'IP in chiaro non è conservato), user agent, esito anti-bot, punteggio anti-spam, registro azioni (identificativi e tipo di azione, senza testo), segnalazioni di errore tecnico |
 | Destinatari | Convex, Cloudflare Turnstile, Sentry (solo segnalazione errori; la registrazione visiva della sessione solo con consenso) |
-| Conservazione | Per la durata di attività dell'organizzazione sulla piattaforma; eliminazione su richiesta (nessuna cancellazione automatica programmata al momento) |
+| Conservazione | Registro attività: 730 giorni; eventi di pagamento Stripe: 90 giorni; contatori di utilizzo: 400 giorni; storico importazioni del catalogo: 90 giorni; verifiche VIES non usate da un preventivo: 400 giorni (quelle usate restano con il preventivo); impronte carte della prova gratuita: 1095 giorni. Cancellazione automatica giornaliera (`convex/retention.ts`); il resto su richiesta |
 
 ### A6. Statistiche e analisi di prodotto (solo con consenso)
 

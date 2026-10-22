@@ -101,6 +101,7 @@ import type * as referralPayoutAccount from "../referralPayoutAccount.js";
 import type * as referralPayouts from "../referralPayouts.js";
 import type * as referrals from "../referrals.js";
 import type * as registration from "../registration.js";
+import type * as retention from "../retention.js";
 import type * as seed from "../seed.js";
 import type * as setupGuide from "../setupGuide.js";
 import type * as siteDeliveries from "../siteDeliveries.js";
@@ -225,6 +226,7 @@ declare const fullApi: ApiFromModules<{
   referralPayouts: typeof referralPayouts;
   referrals: typeof referrals;
   registration: typeof registration;
+  retention: typeof retention;
   seed: typeof seed;
   setupGuide: typeof setupGuide;
   siteDeliveries: typeof siteDeliveries;

@@ -766,7 +766,8 @@ export default defineSchema({
     .index("by_cantiere", ["cantiereId"])
     .index("by_tenantId_and_quotaLocked", ["tenantId", "quotaLocked"])
     .index("by_quotaLocked", ["quotaLocked"])
-    .index("by_tenantId_and_suspendedLocked", ["tenantId", "suspendedLocked"]),
+    .index("by_tenantId_and_suspendedLocked", ["tenantId", "suspendedLocked"])
+    .index("by_viesCheck", ["viesCheckId"]),
 
   notifications: defineTable({
     tenantId: v.id("tenants"),

@@ -56,6 +56,9 @@ crons.daily(
   internal.email.purgeOldEmailLogs,
 );
 
+// Append-only logs and records (audit, webhook keys, metering, imports, VIES, trial cards): windows in convex/retention.ts.
+crons.daily("purge-append-only", { hourUTC: 5, minuteUTC: 5 }, internal.retention.purgeAppendOnly, {});
+
 // Team access tickets (link + code): used or long-expired ones carry e-mail addresses, so they are dropped.
 crons.daily("purge-old-team-tickets", { hourUTC: 4, minuteUTC: 55 }, internal.teams.purgeOldTickets);
 
