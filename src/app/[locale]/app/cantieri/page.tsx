@@ -51,7 +51,7 @@ const STATUS_CONFIG = [
 ] as const;
 
 interface Cantiere {
-  _id: string;
+  _id: Id<"cantieri">;
   name: string;
   status: string;
   address: string;
@@ -65,7 +65,7 @@ interface Cantiere {
   estimatedStartAt?: number;
   estimatedEndAt?: number;
   guestPin?: string;
-  assignedUserIds?: string[];
+  assignedUserIds?: Id<"users">[];
   totalTasks?: number;
   taskCounts?: Record<string, number>;
   priority?: string;
@@ -86,7 +86,7 @@ function KanbanColumn({
   status: string;
   cantieri: Cantiere[];
   onEdit: (c: Cantiere) => void;
-  onDelete: (id: string) => void;
+  onDelete: (id: Id<"cantieri">) => void;
   onGeneratePin: (c: Cantiere) => void;
   onRevokePin: (c: Cantiere) => void;
   t: (key: string) => string;
@@ -150,16 +150,16 @@ function CantiereModal({
     quoteId?: string;
     status: "preventivo" | "confermato" | "in_produzione" | "pronto_consegna" | "in_posa" | "collaudo" | "chiuso";
     priority: "low" | "medium" | "high" | "urgent";
-    assignedUserIds: string[];
+    assignedUserIds: Id<"users">[];
     estimatedStartAt?: number;
     estimatedEndAt?: number;
     valueCents?: number;
     notes: string;
   }) => void;
   cantiere?: Cantiere;
-  clients: Cantiere[];
+  clients: Array<{ _id: string; name: string }>;
   quotes: Array<{ _id: string; leadName: string; clientId?: string }>;
-  users: Cantiere[];
+  users: Array<{ _id: string; name?: string | null; email?: string | null }>;
   saving: boolean;
   t: (key: string) => string;
 }) {
@@ -174,7 +174,7 @@ function CantiereModal({
     quoteId: string;
     status: "preventivo" | "confermato" | "in_produzione" | "pronto_consegna" | "in_posa" | "collaudo" | "chiuso";
     priority: "low" | "medium" | "high" | "urgent";
-    assignedUserIds: string[];
+    assignedUserIds: Id<"users">[];
     estimatedStartAt: string;
     estimatedEndAt: string;
     valueCents: string;
@@ -312,7 +312,7 @@ function CantiereModal({
                   className="w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2"
                 >
                   <option value="">{t("selectClient")}</option>
-                  {clients.map((c: { _id: string; name: string }) => (
+                  {clients.map((c) => (
                     <option key={c._id} value={c._id}>{c.name}</option>
                   ))}
                 </select>
@@ -369,11 +369,11 @@ function CantiereModal({
                 </label>
                 <select
                   value={formData.assignedUserIds.join(",")}
-                  onChange={(e) => setFormData({ ...formData, assignedUserIds: e.target.value.split(",").filter(Boolean) })}
+                  onChange={(e) => setFormData({ ...formData, assignedUserIds: e.target.value.split(",").filter(Boolean) as Id<"users">[] })}
                   multiple
                   className="w-full rounded-lg border border-[var(--color-border)] bg-transparent px-3 py-2 min-h-[80px]"
                 >
-                  {users.map((u: { _id: string; name?: string; email?: string }) => (
+                  {users.map((u) => (
                     <option key={u._id} value={u._id}>{u.name || u.email}</option>
                   ))}
                 </select>
@@ -569,7 +569,7 @@ export default function CantieriPage() {
     quoteId?: string;
     status: "preventivo" | "confermato" | "in_produzione" | "pronto_consegna" | "in_posa" | "collaudo" | "chiuso";
     priority: "low" | "medium" | "high" | "urgent";
-    assignedUserIds: string[];
+    assignedUserIds: Id<"users">[];
     estimatedStartAt?: number;
     estimatedEndAt?: number;
     valueCents?: number;
@@ -582,7 +582,7 @@ export default function CantieriPage() {
         ...data,
         clientId: data.clientId ? (data.clientId as Id<"clients">) : undefined,
         quoteId: data.quoteId ? (data.quoteId as Id<"quoteRequests">) : undefined,
-        assignedUserIds: data.assignedUserIds as unknown as Id<"users">[],
+        assignedUserIds: data.assignedUserIds,
       });
       posthog.capture("cantiere_created", {
         initial_status: data.status,
@@ -609,7 +609,7 @@ const handleUpdate = async (data: {
     quoteId?: string;
     status: "preventivo" | "confermato" | "in_produzione" | "pronto_consegna" | "in_posa" | "collaudo" | "chiuso";
     priority: "low" | "medium" | "high" | "urgent";
-    assignedUserIds: string[];
+    assignedUserIds: Id<"users">[];
     estimatedStartAt?: number;
     estimatedEndAt?: number;
     valueCents?: number;
@@ -619,11 +619,11 @@ const handleUpdate = async (data: {
     setSaving(true);
     try {
       await updateCantiere({
-        cantiereId: editingCantiere._id as Id<"cantieri">,
+        cantiereId: editingCantiere._id,
         ...data,
         clientId: data.clientId ? (data.clientId as Id<"clients">) : undefined,
         quoteId: data.quoteId ? (data.quoteId as Id<"quoteRequests">) : undefined,
-        assignedUserIds: data.assignedUserIds as unknown as Id<"users">[],
+        assignedUserIds: data.assignedUserIds,
       });
       setModalOpen(false);
       setEditingCantiere(null);
@@ -634,10 +634,10 @@ const handleUpdate = async (data: {
     }
   };
 
-  const handleDelete = async (cantiereId: string) => {
+  const handleDelete = async (cantiereId: Id<"cantieri">) => {
     if (!(await requestConfirm(t("confirmDelete"), { danger: true }))) return;
     try {
-      await deleteCantiere({ cantiereId: cantiereId as unknown as Id<"cantieri"> });
+      await deleteCantiere({ cantiereId });
     } catch (e) {
       showError(e);
     }
@@ -645,7 +645,7 @@ const handleUpdate = async (data: {
 
   const handleGeneratePin = async (cantiere: Cantiere) => {
     try {
-      const result = await generateGuestPin({ cantiereId: cantiere._id as unknown as Id<"cantieri">, expiresInDays: 30 });
+      const result = await generateGuestPin({ cantiereId: cantiere._id, expiresInDays: 30 });
       setPinModal({ pin: result.pin, expiresAt: result.expiresAt });
     } catch (e) {
       showError(e);
@@ -655,7 +655,7 @@ const handleUpdate = async (data: {
   const handleRevokePin = async (cantiere: Cantiere) => {
     if (!(await requestConfirm(t("confirmRevokePin"), { danger: true }))) return;
     try {
-      await revokeGuestPin({ cantiereId: cantiere._id as unknown as Id<"cantieri"> });
+      await revokeGuestPin({ cantiereId: cantiere._id });
     } catch (e) {
       showError(e);
     }
@@ -797,9 +797,9 @@ const handleUpdate = async (data: {
           onClose={() => { setModalOpen(false); setEditingCantiere(null); }}
           onSubmit={editingCantiere ? handleUpdate : handleCreate}
           cantiere={editingCantiere ?? undefined}
-          clients={(clients || []) as unknown as Cantiere[]}
-          quotes={(quotes || []) as unknown as Array<{ _id: string; leadName: string; clientId?: string }>}
-          users={(users || []) as unknown as Cantiere[]}
+          clients={clients ?? []}
+          quotes={quotes ?? []}
+          users={users ?? []}
           saving={saving}
           t={t}
         />
