@@ -33,5 +33,6 @@ describe("no credentials in the repository", () => {
       for (const [name, re] of PATTERNS) if (re.test(text)) hits.push(`${f}: ${name}`);
     }
     expect(hits).toEqual([]);
-  });
+    // It reads every tracked file: under the full parallel run the default 5 s can run out on a busy machine.
+  }, 30_000);
 });
