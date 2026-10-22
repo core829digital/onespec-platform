@@ -9,6 +9,7 @@ import { computeCalculationPreview, type BeniSignificativiBreakdown, type Fundin
 import { internal } from "./_generated/api";
 import type { Doc, Id } from "./_generated/dataModel";
 import { parseQuoteItems } from "./lib/quoteItems";
+import { findPublishedVersion } from "./lib/catalogLoad";
 
 /**
  * The published catalogue the Showroom prices with. With `configuratorId` it is that configurator's (it must belong
@@ -42,19 +43,13 @@ export async function getTenantCatalog(
   }
   if (!configurator) return null;
 
-  const targetVersion = configurator.publishedCatalogVersion ?? 1;
-  const versionDoc = await ctx.db
-    .query("catalogVersions")
-    .withIndex("by_configurator_version", (q) =>
-      q.eq("configuratorId", configurator._id).eq("version", targetVersion),
-    )
-    .unique();
+  const versionDoc = await findPublishedVersion(ctx, configurator);
 
   if (!versionDoc) return null;
 
   return {
     payload: versionDoc.payload as CatalogPayload,
-    version: targetVersion,
+    version: versionDoc.version,
     configuratorId: configurator._id,
     configuratorName: configurator.name,
   };

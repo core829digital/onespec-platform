@@ -38,6 +38,7 @@ export const DEMO_CONVEX_MODULES: Record<string, Loader> = {
   "../convex/lib/billingPlans.ts": () => import("../../convex/lib/billingPlans"),
   "../convex/lib/calcPreview.ts": () => import("../../convex/lib/calcPreview"),
   "../convex/lib/catalogExtras.ts": () => import("../../convex/lib/catalogExtras"),
+  "../convex/lib/catalogLoad.ts": () => import("../../convex/lib/catalogLoad"),
   "../convex/lib/clientIp.ts": () => import("../../convex/lib/clientIp"),
   "../convex/lib/companyProfile.ts": () => import("../../convex/lib/companyProfile"),
   "../convex/lib/compliance.ts": () => import("../../convex/lib/compliance"),

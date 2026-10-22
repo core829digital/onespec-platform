@@ -8,7 +8,7 @@ import { lockedSafeLeadName, redactQuoteRequest } from "./lib/quotaLock";
 import { hasMeteredEvent } from "./lib/metering";
 import { emit } from "./lib/triggers";
 import { enforceForCreateQuote, enforceForESignature, enforceForMultiSupplier } from "./lib/enforcement";
-import { calculatePrice, installationIncluded, type ProjectItem, type CatalogPayload } from "../src/shared/pricing";
+import { calculatePrice, installationIncluded, type ProjectItem } from "../src/shared/pricing";
 import { currentPeriod, resolveTenantEntitlements } from "./lib/entitlements";
 import { regionCodeValidator, regionForCountry } from "./lib/regions";
 import { resolveLinks, logClientActivity } from "./lib/links";
@@ -23,6 +23,7 @@ import { quoteTotals } from "../src/shared/quote-totals";
 import { quoteStatusValidator } from "./lib/enums";
 import { mm } from "./lib/dims";
 import { bumpUsageCounter } from "./lib/usageCounters";
+import { defaultDepositTerms, loadPublishedCatalog } from "./lib/catalogLoad";
 
 const QUOTE_STATUS = quoteStatusValidator;
 
@@ -273,22 +274,8 @@ type FieldQuoteArgs = ObjectType<typeof FIELD_QUOTE_ARGS>;
  * did not compute itself.
  */
 async function buildFieldQuote(ctx: MutationCtx, args: FieldQuoteArgs) {
-    const configurator = await ctx.db.get(args.configuratorId);
-    if (!configurator || configurator.tenantId !== args.tenantId) {
-      throw new ConvexError("CONFIGURATOR_NOT_FOUND");
-    }
-
-    const targetVersion = configurator.publishedCatalogVersion ?? 1;
-    const versionDoc = await ctx.db
-      .query("catalogVersions")
-      .withIndex("by_configurator_version", (q) =>
-        q.eq("configuratorId", args.configuratorId).eq("version", targetVersion),
-      )
-      .unique();
-
-    if (!versionDoc) throw new ConvexError("NO_PUBLISHED_VERSION");
-
-    const payload = versionDoc.payload as CatalogPayload;
+    const { configurator, versionDoc, payload } = await loadPublishedCatalog(ctx, args.configuratorId, args.tenantId);
+    const targetVersion = versionDoc.version;
     const items = parseQuoteItems(args.items);
     assertCoherentItems(payload, items);
 
@@ -361,7 +348,7 @@ async function buildFieldQuote(ctx: MutationCtx, args: FieldQuoteArgs) {
       ecobonusDeductionCents,
       regionalSurchargeCents: regionalSurcharge > 0 ? regionalSurcharge : undefined,
       profitMarginPercent: args.profitMarginPercent,
-      depositTerms: args.depositTerms ?? (args.regionCode === "FR" ? "Acompte 30% à la commande · 70% à la livraison" : "30% ordine · 60% merce pronta · 10% posa"),
+      depositTerms: args.depositTerms ?? defaultDepositTerms(args.regionCode),
       regionCode: args.regionCode,
       poseType: args.poseType,
       rgeCertificate: args.rgeCertificate,
@@ -664,22 +651,8 @@ export const createFieldQuoteFromSurvey = mutation({
     if (survey.status !== 'completed') throw new ConvexError('SURVEY_NOT_COMPLETED');
     if (survey.quoteId) throw new ConvexError('SURVEY_ALREADY_LINKED');
 
-    const configurator = await ctx.db.get(args.configuratorId);
-    if (!configurator || configurator.tenantId !== args.tenantId) {
-      throw new ConvexError('CONFIGURATOR_NOT_FOUND');
-    }
-
-    const targetVersion = configurator.publishedCatalogVersion ?? 1;
-    const versionDoc = await ctx.db
-      .query('catalogVersions')
-      .withIndex('by_configurator_version', (q) =>
-        q.eq('configuratorId', args.configuratorId).eq('version', targetVersion),
-      )
-      .unique();
-
-    if (!versionDoc) throw new ConvexError('NO_PUBLISHED_VERSION');
-
-    const payload = versionDoc.payload as CatalogPayload;
+    const { configurator, versionDoc, payload } = await loadPublishedCatalog(ctx, args.configuratorId, args.tenantId);
+    const targetVersion = versionDoc.version;
 
     // Each opening becomes a piece built from the tenant's own catalogue keys, so it prices for real.
     // Openings still unmeasured (0) are skipped; every other one goes through the same checks as any quote piece
@@ -724,7 +697,7 @@ export const createFieldQuoteFromSurvey = mutation({
 regionalSurchargeCents: 0,
       profitMarginPercent: 30,
       vatRatePercent: effectiveVat,
-      depositTerms: region === 'FR' ? 'Acompte 30% à la commande · 70% à la livraison' : '30% ordine · 60% merce pronta · 10% posa',
+      depositTerms: defaultDepositTerms(region),
       regionCode: region,
       items,
       priceCents: finalPriceCents,
@@ -829,22 +802,8 @@ export const createQuoteWithSuppliers = mutation({
     await enforceForMultiSupplier(ctx, args.tenantId);
     const { userId } = await requirePermission(ctx, args.tenantId, "quotes.field");
 
-    const configurator = await ctx.db.get(args.configuratorId);
-    if (!configurator || configurator.tenantId !== args.tenantId) {
-      throw new ConvexError('CONFIGURATOR_NOT_FOUND');
-    }
-
-    const targetVersion = configurator.publishedCatalogVersion ?? 1;
-    const versionDoc = await ctx.db
-      .query('catalogVersions')
-      .withIndex('by_configurator_version', (q) =>
-        q.eq('configuratorId', args.configuratorId).eq('version', targetVersion),
-      )
-      .unique();
-
-    if (!versionDoc) throw new ConvexError('NO_PUBLISHED_VERSION');
-
-    const payload = versionDoc.payload as CatalogPayload;
+    const { configurator, versionDoc, payload } = await loadPublishedCatalog(ctx, args.configuratorId, args.tenantId);
+    const targetVersion = versionDoc.version;
     const items = parseQuoteItems(args.items);
     assertCoherentItems(payload, items);
 
@@ -923,7 +882,7 @@ export const createQuoteWithSuppliers = mutation({
       ecobonusDeductionCents,
       regionalSurchargeCents: regionalSurcharge > 0 ? regionalSurcharge : undefined,
       profitMarginPercent: args.profitMarginPercent,
-      depositTerms: args.depositTerms ?? (args.regionCode === 'FR' ? 'Acompte 30% à la commande · 70% à la livraison' : '30% ordine · 60% merce pronta · 10% posa'),
+      depositTerms: args.depositTerms ?? defaultDepositTerms(args.regionCode),
       regionCode: args.regionCode,
       poseType: args.poseType,
       rgeCertificate: args.rgeCertificate,
