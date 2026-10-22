@@ -7,6 +7,9 @@ import { assertActiveMembers } from "./lib/links";
 import { propagateClientEdit } from "./lib/crmLink";
 import { assertShortText, assertLongText } from "./lib/inputs";
 
+/** Cards a client search reads at most (newest first): far above any real installer's client list, inside Convex read limits. */
+const SEARCH_SCAN_CAP = 5000;
+
 /** List clients for a tenant with optional filters. */
 export const listClients = query({
   args: {
@@ -19,39 +22,37 @@ export const listClients = query({
     const allowed = await requirePermissionOrNull(ctx, args.tenantId, "clients.use");
     if (!allowed) return [];
     const limit = Math.min(Math.max(args.limit ?? 50, 1), 200);
+    const status = args.status;
+    // "Delete" is a soft-delete (status:"lost", see deleteClient): hidden from the default/"all" view like an archive.
+    const visible = (c: { status: string }) => (status ? c.status === status : c.status !== "lost");
+    const newest = () =>
+      status
+        ? ctx.db.query("clients").withIndex("by_tenant_status", (q) => q.eq("tenantId", args.tenantId).eq("status", status)).order("desc")
+        : ctx.db.query("clients").withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId)).order("desc");
 
-    // Fetch all clients for tenant, then filter in memory
-    const allClients = await ctx.db
-      .query("clients")
-      .withIndex("by_tenant", (q) => q.eq("tenantId", args.tenantId))
-      .order("desc")
-      .take(limit * 3);
-
-    let filtered = allClients;
-    if (args.status) {
-      filtered = filtered.filter((c) => c.status === args.status);
-    } else {
-      // "Delete" is a soft-delete (status:"lost", see deleteClient) — hide it
-      // from the default/"all" view like an archive, or the delete button
-      // would look broken (row stays, nothing visibly changes).
-      filtered = filtered.filter((c) => c.status !== "lost");
+    const search = (args.search ?? "").normalize("NFC").toLowerCase().trim().slice(0, 80);
+    if (!search) {
+      return (await newest().take(status ? limit : limit * 3)).filter(visible).slice(0, limit);
     }
 
-    const clients = filtered.slice(0, limit);
-
-    // Filter by search term in memory
-    if (args.search) {
-      const search = args.search.toLowerCase();
-      return clients.filter(
-        (c) =>
-          c.name.toLowerCase().includes(search) ||
-          c.contactName?.toLowerCase().includes(search) ||
-          c.email?.toLowerCase().includes(search) ||
-          c.phone?.toLowerCase().includes(search),
-      );
+    // The search runs over the whole card list (newest first, bounded), and only then keeps `limit` matches: filtering
+    // the newest page only made every client outside it unfindable (issue #46). Substring match on name, contact,
+    // e-mail and phone, as before.
+    const matches = (c: { name: string; contactName?: string; email?: string; phone?: string }) =>
+      c.name.toLowerCase().includes(search) ||
+      !!c.contactName?.toLowerCase().includes(search) ||
+      !!c.email?.toLowerCase().includes(search) ||
+      !!c.phone?.toLowerCase().includes(search);
+    const found = [];
+    let scanned = 0;
+    for await (const c of newest()) {
+      if (visible(c) && matches(c)) {
+        found.push(c);
+        if (found.length >= limit) break;
+      }
+      if (++scanned >= SEARCH_SCAN_CAP) break;
     }
-
-    return clients;
+    return found;
   },
 });
 
