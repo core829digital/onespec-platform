@@ -86,14 +86,25 @@ describe("POST /api/email/webhook", () => {
     expect((await t.run((ctx) => ctx.db.get(logId)))?.status).toBe("sent");
   });
 
-  test("not configured → closed (503); unknown email id and untracked events are acknowledged", async () => {
+  test("not configured → closed (503); old unknown email ids and untracked events are acknowledged", async () => {
     const t = newDb();
     await seedLog(t);
-    expect((await post(t, event("email.delivered", "re_unknown"), { id: "m2" })).status).toBe(200);
+    const old = JSON.stringify({ type: "email.delivered", created_at: new Date(Date.now() - 60 * 60 * 1000).toISOString(), data: { email_id: "re_unknown", to: ["dest@example.com"] } });
+    expect((await post(t, old, { id: "m2" })).status).toBe(200);
     expect((await post(t, event("email.sent"), { id: "m3" })).status).toBe(200);
     expect(await t.run((ctx) => ctx.db.query("emailDeliveryLog").collect())).toHaveLength(0);
     delete process.env.RESEND_WEBHOOK_SECRET;
     expect((await post(t, event("email.delivered"))).status).toBe(503);
+  });
+
+  test("a fresh event for an id not stored yet is answered 503 so Svix retries, then applied", async () => {
+    const t = newDb();
+    const res = await post(t, event("email.bounced", "re_late"), { id: "m9" });
+    expect(res.status).toBe(503);
+    // the sender's write lands, Svix retries the same delivery
+    const logId = await t.run((ctx) => ctx.db.insert("emailLog", { to: "dest@example.com", template: "welcome", subject: "s", status: "sent", resendId: "re_late", createdAt: Date.now() }));
+    expect((await post(t, event("email.bounced", "re_late"), { id: "m9" })).status).toBe(200);
+    expect((await t.run((ctx) => ctx.db.get(logId)))?.status).toBe("failed");
   });
 
   test("delivered is logged without touching the email status", async () => {

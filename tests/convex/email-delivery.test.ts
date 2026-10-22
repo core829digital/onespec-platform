@@ -30,8 +30,25 @@ describe("email delivery", () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(2);
     const logs = await t.run((ctx) => ctx.db.query("emailLog").collect());
-    expect(logs.map((l) => l.status)).toEqual(["failed", "sent"]);
+    // one row per logical send, written before the first call and reused by the retry
+    expect(logs).toHaveLength(1);
+    expect(logs[0]).toMatchObject({ status: "sent", resendId: "re_123" });
     expect(JSON.stringify(logs)).not.toContain("987654");
+    // both attempts carry the same idempotency key, so Resend never sends it twice
+    const keys = (fetchMock.mock.calls as unknown as Array<[string, RequestInit]>).map(([, init]) => (init.headers as Record<string, string>)["Idempotency-Key"]);
+    expect(keys[0]).toBe(`onespec-email-${logs[0]._id}`);
+    expect(keys[1]).toBe(keys[0]);
+  });
+
+  test("the queued row exists before the provider is called", async () => {
+    let rowsAtCall = -1;
+    const t = newDb();
+    vi.stubGlobal("fetch", vi.fn(async () => {
+      rowsAtCall = (await t.run((ctx) => ctx.db.query("emailLog").collect())).filter((l) => l.status === "queued").length;
+      return new Response(JSON.stringify({ id: "re_9" }), { status: 200 });
+    }));
+    await t.action(internal.email.send, { template: "welcome", to: "q@example.com", locale: "it", data: {} });
+    expect(rowsAtCall).toBe(1);
   });
 
   test("a permanent 4xx is not retried", async () => {
@@ -50,6 +67,8 @@ describe("email delivery", () => {
     await t.action(internal.email.send, { template: "welcome", to: "x@example.com", locale: "it", data: {} });
     await t.finishAllScheduledFunctions(vi.runAllTimers);
     expect(fetchMock).toHaveBeenCalledTimes(3);
+    const logs = await t.run((ctx) => ctx.db.query("emailLog").collect());
+    expect(logs.map((l) => l.status)).toEqual(["failed"]);
   });
 
   test("retention purges email logs older than 90 days", async () => {

@@ -69,6 +69,8 @@ export const send = internalAction({
     replyTo: v.optional(v.string()),
     /** Delivery attempt (1-based); transient provider errors are retried. */
     attempt: v.optional(v.number()),
+    /** The send's log row, written before the first attempt and carried by the retries. */
+    logId: v.optional(v.id("emailLog")),
   },
   handler: async (ctx, args) => {
     const live = process.env.RESEND_MODE === "live" && !!process.env.AUTH_RESEND_KEY;
@@ -96,6 +98,19 @@ export const send = internalAction({
       return;
     }
 
+    // The log row exists BEFORE the provider is called: the retries reuse it (one row per logical send),
+    // its id is the provider's idempotency key (a retry after a timeout that Resend did accept is not
+    // sent twice), and a delivery webhook always has a row to land on.
+    const logId = args.logId ?? (await ctx.runMutation(internal.email.log, {
+      to: args.to,
+      template: args.template,
+      subject,
+      status: "queued",
+      tenantId: args.tenantId,
+      relatedEntityId: args.relatedEntityId,
+      createdAt: Date.now(),
+    }));
+
     let ok = false;
     let transient = false;
     let resendId: string | undefined;
@@ -106,6 +121,7 @@ export const send = internalAction({
         headers: {
           Authorization: `Bearer ${process.env.AUTH_RESEND_KEY}`,
           "Content-Type": "application/json",
+          "Idempotency-Key": `onespec-email-${logId}`,
         },
         body: JSON.stringify({
           from,
@@ -131,25 +147,38 @@ export const send = internalAction({
 
     // Transient failure (rate limit, provider 5xx, network): retry with
     // backoff instead of silently losing e.g. a new-request notification.
-    if (!ok && transient && attempt < MAX_ATTEMPTS) {
+    const retrying = !ok && transient && attempt < MAX_ATTEMPTS;
+    if (retrying) {
       const { attempt: _prev, ...rest } = args;
       void _prev;
-      await ctx.scheduler.runAfter(RETRY_DELAYS_MS[attempt - 1], internal.email.send, { ...rest, attempt: attempt + 1 });
+      await ctx.scheduler.runAfter(RETRY_DELAYS_MS[attempt - 1], internal.email.send, { ...rest, logId, attempt: attempt + 1 });
     }
 
-    await ctx.runMutation(internal.email.log, {
-      to: args.to,
-      template: args.template,
-      subject,
-      status: ok ? "sent" : "failed",
+    // Live mode never stores the body: it can carry sign-in / reset codes and
+    // invitation links (credentials), and personal data. The noop (dev) mode
+    // above keeps the preview for the admin email viewer.
+    await ctx.runMutation(internal.email.finish, {
+      emailLogId: logId,
+      status: ok ? "sent" : retrying ? "queued" : "failed",
       resendId,
       error,
-      // Live mode never stores the body: it can carry sign-in / reset codes
-      // and invitation links (credentials), and personal data. The noop
-      // (dev) mode above keeps the preview for the admin email viewer.
-      tenantId: args.tenantId,
-      relatedEntityId: args.relatedEntityId,
-      createdAt: Date.now(),
+    });
+  },
+});
+
+export const finish = internalMutation({
+  args: {
+    emailLogId: v.id("emailLog"),
+    status: v.union(v.literal("queued"), v.literal("sent"), v.literal("failed")),
+    resendId: v.optional(v.string()),
+    error: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    if (!(await ctx.db.get(args.emailLogId))) return; // purged meanwhile
+    await ctx.db.patch(args.emailLogId, {
+      status: args.status,
+      ...(args.resendId ? { resendId: args.resendId } : {}),
+      ...(args.error !== undefined || args.status === "sent" ? { error: args.error } : {}),
     });
   },
 });
@@ -172,8 +201,9 @@ export const log = internalMutation({
     relatedEntityId: v.optional(v.string()),
     createdAt: v.number(),
   },
+  returns: v.id("emailLog"),
   handler: async (ctx, args) => {
-    await ctx.db.insert("emailLog", args);
+    return await ctx.db.insert("emailLog", args);
   },
 });
 

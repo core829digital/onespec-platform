@@ -35,6 +35,8 @@ function timingSafeEqual(a: string, b: string): boolean {
 }
 
 const MAX_TIMESTAMP_SKEW_SECONDS = 5 * 60;
+/** How long after the event an unknown email id is answered with a retryable 503. */
+const UNKNOWN_ID_RETRY_WINDOW_MS = 15 * 60 * 1000;
 
 export const resendWebhook = httpAction(async (ctx, request: Request) => {
   const webhookSecret = process.env.RESEND_WEBHOOK_SECRET;
@@ -81,6 +83,12 @@ export const resendWebhook = httpAction(async (ctx, request: Request) => {
 
   const emailLogs = await ctx.runQuery(internal.email.getByResendId, { resendId: parsed.resendId });
   if (!emailLogs || emailLogs.length === 0) {
+    // A fresh event can beat the write that stores Resend's id on the log row (sub-second deliveries):
+    // answer 503 so Svix retries with backoff instead of dropping it. Old events for ids we never sent
+    // (or already purged) are acknowledged, so they do not retry for days.
+    if (Date.now() - parsed.timestamp < UNKNOWN_ID_RETRY_WINDOW_MS) {
+      return new Response(JSON.stringify({ error: "unknown email id, retry" }), { status: 503 });
+    }
     console.warn(`[email-webhook] No emailLog found for resendId: ${parsed.resendId}`);
     return new Response(JSON.stringify({ ok: true }));
   }
