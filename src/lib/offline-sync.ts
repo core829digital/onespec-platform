@@ -162,20 +162,29 @@ async function drain(runners: Record<string, QueueRunner>): Promise<{ synced: nu
   for (const item of pending) {
     const runner = runners[item.kind];
     if (!runner) continue;
-    try {
-      await runner(item.payload, item.id);
-      await tx("readwrite", (s) => s.delete(item.id));
-      synced++;
-    } catch (e) {
-      const retries = item.retries + 1;
-      const giveUp = !shouldQueueAfterError(e) || retries >= MAX_RETRIES;
-      await tx("readwrite", (s) => s.put({ ...item, retries, ...(giveUp ? { failed: true as const } : {}) }));
-      failed++;
-    }
+    if (await drainOne(item, runner)) synced++;
+    else failed++;
   }
   if (synced > 0) state.lastSync = Date.now();
   await refreshCounts();
   return { synced, failed };
+}
+
+/**
+ * The per-item policy: sent → removed from the queue; refused by the server → failed at once; any other error →
+ * one more retry, failed after MAX_RETRIES. A failed item stays until the user retries or discards it.
+ */
+async function drainOne(item: QueuedItem, runner: QueueRunner): Promise<boolean> {
+  try {
+    await runner(item.payload, item.id);
+    await tx("readwrite", (s) => s.delete(item.id));
+    return true;
+  } catch (e) {
+    const retries = item.retries + 1;
+    const giveUp = !shouldQueueAfterError(e) || retries >= MAX_RETRIES;
+    await tx("readwrite", (s) => s.put({ ...item, retries, ...(giveUp ? { failed: true as const } : {}) }));
+    return false;
+  }
 }
 
 /** Puts every failed item back in the queue (the user asked to try again). */
