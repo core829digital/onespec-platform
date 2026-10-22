@@ -67,7 +67,6 @@ import type * as lib_links from "../lib/links.js";
 import type * as lib_payload from "../lib/payload.js";
 import type * as lib_plan from "../lib/plan.js";
 import type * as lib_posthog from "../lib/posthog.js";
-import type * as lib_pricing from "../lib/pricing.js";
 import type * as lib_quoteItems from "../lib/quoteItems.js";
 import type * as lib_ratelimit from "../lib/ratelimit.js";
 import type * as lib_rbac from "../lib/rbac.js";
@@ -192,7 +191,6 @@ declare const fullApi: ApiFromModules<{
   "lib/payload": typeof lib_payload;
   "lib/plan": typeof lib_plan;
   "lib/posthog": typeof lib_posthog;
-  "lib/pricing": typeof lib_pricing;
   "lib/quoteItems": typeof lib_quoteItems;
   "lib/ratelimit": typeof lib_ratelimit;
   "lib/rbac": typeof lib_rbac;
