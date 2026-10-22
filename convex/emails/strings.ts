@@ -1152,7 +1152,7 @@ const STRINGS: Record<EmailLocale, EmailStrings> = { it, en, fr, de, nl, ro };
 
 /** Unknown locales fall back to Italian, the platform's default market. */
 export function emailStrings(locale: string | null | undefined): EmailStrings {
-  return STRINGS[(locale ?? "") as EmailLocale] ?? STRINGS.it;
+  return isEmailLocale(locale) ? STRINGS[locale] : STRINGS.it;
 }
 
 export function isEmailLocale(locale: unknown): locale is EmailLocale {
