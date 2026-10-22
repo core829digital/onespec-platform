@@ -241,6 +241,18 @@ test("funding: generateFundingDoc from a linked field quote (IT tenant)", async 
   expect(second.map((r) => r.token)).toEqual(first.map((r) => r.token));
   expect(first.map((r) => r.token).sort()).toEqual(all.map((x) => x.publicToken).sort());
   expect(await asOwner.query(api.passports.listByQuote, { quoteId })).toHaveLength(2);
+
+  // After a downgrade to a plan without maintenance contracts (issue #47): labels of the existing passports still
+  // print, but no new passport can be created through this path either.
+  await t.run((ctx) => ctx.db.patch(seeded.tenantId, { plan: "base" }));
+  const reprint = await asOwner.mutation(api.passports.generatePassportQrs, { passportId: all[0]._id });
+  expect(reprint.map((r) => r.token)).toEqual(first.map((r) => r.token));
+  await t.run(async (ctx) => {
+    const extra = await ctx.db.get(all[1]._id);
+    await ctx.db.delete(extra!._id); // one unit now has no passport
+  });
+  await expect(asOwner.mutation(api.passports.generatePassportQrs, { passportId: all[0]._id })).rejects.toThrow(/MAINTENANCE_CONTRACTS_NOT_ALLOWED/);
+  expect(await asOwner.query(api.passports.listByQuote, { quoteId })).toHaveLength(1);
 });
 
 test("a queued field record sent twice (same device id) is created once (issue #28)", async () => {
