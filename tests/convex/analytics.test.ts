@@ -158,3 +158,32 @@ describe("analytics timezone", () => {
     }
   });
 });
+
+describe("analytics.getPlanUsage", () => {
+  // The widget used to count only published configurators, while the create
+  // quota counts drafts too: a Base tenant with one draft saw "0 / 1" and then
+  // got CONFIGURATOR_QUOTA_EXCEEDED on create.
+  test("counts drafts like the create quota does", async () => {
+    const t = newDb();
+    const { tenantId, ownerId } = await seedTenant(t, { plan: "base" });
+    await t.run((ctx) =>
+      ctx.db.insert("configurators", {
+        tenantId,
+        publicId: "DRAFT00001",
+        name: "Draft",
+        status: "draft",
+        allowedOrigins: [],
+        defaultLocale: "it",
+        defaultTheme: "auto",
+        vatRatePercent: 22,
+        priceRoundingStep: 1,
+        showPricesToEndUser: true,
+        currency: "EUR",
+      }),
+    );
+    const owner = t.withIdentity({ subject: ownerId });
+    const usage = await owner.query(api.analytics.getPlanUsage, { tenantId });
+    expect(usage?.configurators.used).toBe(1);
+    expect(usage?.configurators.limit).toBe(1);
+  });
+});

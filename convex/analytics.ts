@@ -3,7 +3,7 @@ import type { Doc, Id } from "./_generated/dataModel";
 import { v } from "convex/values";
 import { requireMembership } from "./lib/auth";
 import { requirePermission } from "./lib/rbac";
-import { enforceAnalyticsForQuery } from "./lib/enforcement";
+import { countLiveConfigurators, enforceAnalyticsForQuery } from "./lib/enforcement";
 import { resolveTenantEntitlements, currentPeriod } from "./lib/entitlements";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -337,14 +337,11 @@ export const getPlanUsage = query({
       .first();
     const quotesUsed = counter?.quoteRequestsCount ?? 0;
 
-    // Active (non-archived) configurators.
-    const configurators = await ctx.db
-      .query("configurators")
-      .withIndex("by_tenant_status", (q) =>
-        q.eq("tenantId", args.tenantId).eq("status", "published"),
-      )
-      .collect();
-    const configuratorsUsed = configurators.length;
+    // Draft + published, the same count the create quota enforces, so the
+    // widget never shows a free slot that creating a configurator refuses.
+    // Not capped at the plan limit: an over-quota tenant (after a downgrade)
+    // must see the real number.
+    const configuratorsUsed = await countLiveConfigurators(ctx, args.tenantId, 1000);
 
     // Active members.
     const memberships = await ctx.db
