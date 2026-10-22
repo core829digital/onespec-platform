@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label";
 import { useAuthErrorMessage } from "@/lib/use-friendly-error";
 import { useTurnstile } from "@/lib/use-turnstile";
 import { getSafeRedirect } from "@/lib/redirect-validator";
-import { errorCode } from "@/lib/errors";
+import { errorCode, shouldReportAuthError } from "@/lib/errors";
 
 export default function LoginPage() {
   return (
@@ -61,7 +61,7 @@ function LoginForm() {
         setNeedsCode(true);
         return;
       }
-      posthog.captureException(err);
+      if (shouldReportAuthError(err)) posthog.captureException(err);
       // On the code step a failure is about the code, never "invalid credentials".
       setError(authMsg(err, needsCode ? authMsg(new Error("MFA_INVALID"), t("error")) : t("error")));
     } finally {

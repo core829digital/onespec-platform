@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { useAuthErrorMessage } from "@/lib/use-friendly-error";
+import { shouldReportAuthError } from "@/lib/errors";
 import { useTurnstile } from "@/lib/use-turnstile";
 import { getOptionalRedirect } from "@/lib/redirect-validator";
 import { captureReferralFromUrl } from "@/lib/referral-capture";
@@ -122,7 +123,7 @@ function RegisterForm() {
       if (redirect) q.set("redirect", redirect);
       router.push(`/auth/verify?${q.toString()}`);
     } catch (err) {
-      posthog.captureException(err);
+      if (shouldReportAuthError(err)) posthog.captureException(err);
       setError(authMsg(err, t("error")));
     } finally {
       ts.reset();

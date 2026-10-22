@@ -1,14 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
-import { analytics as posthog } from "@/lib/monitoring";
+import { useBoundaryRetry } from "@/hooks/useBoundaryRetry";
 import { ERROR_COPY, detectClientErrorLocale } from "@/lib/error-copy";
 
 // Root error boundary — replaces the whole document, so it must render <html>.
-export default function GlobalError({ error, reset }: { error: Error; reset: () => void }) {
-  useEffect(() => {
-    posthog.captureException(error);
-  }, [error]);
+export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  const retry = useBoundaryRetry(error, reset);
 
   // Outside every provider: pick the language straight from the URL / cookie / browser.
   const locale = detectClientErrorLocale();
@@ -35,7 +32,7 @@ export default function GlobalError({ error, reset }: { error: Error; reset: () 
           </p>
           <button
             type="button"
-            onClick={reset}
+            onClick={retry}
             style={{
               padding: "10px 20px",
               borderRadius: 8,

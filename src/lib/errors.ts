@@ -451,6 +451,26 @@ export function friendlyError(e: unknown, t: (key: ErrorKey) => string): string 
   return t(key);
 }
 
+const MASKED_SERVER_ERROR = /\[CONVEX|Request ID|Server Error|Uncaught/i;
+
+/**
+ * True for the opaque "[CONVEX ...] [Request ID: …] Server Error" text Convex puts in place of the real message in
+ * production. A wrong email or password arrives as this same text, and its request ID is unique per attempt.
+ */
+export function isMaskedServerError(e: unknown): boolean {
+  const m = e instanceof Error ? e.message : "";
+  return m !== "" && MASKED_SERVER_ERROR.test(m);
+}
+
+/**
+ * Whether a failed sign-in / sign-up is worth an error-tracking report. Coded refusals (bot check, rate limit, ...) and
+ * the masked text above are the expected outcomes of a wrong password or a blocked attempt: reported, each one opened a
+ * new issue (the request ID makes every attempt unique) and buried the real crashes. The server keeps its own logs.
+ */
+export function shouldReportAuthError(e: unknown): boolean {
+  return !errorCode(e) && !isMaskedServerError(e);
+}
+
 /**
  * Auth actions throw plain Errors; in production Convex hides their text behind
  * "[CONVEX A(auth:signIn)] [Request ID: …] Server Error". Show the message only
@@ -464,6 +484,6 @@ export function authErrorMessage(e: unknown, fallback: string, t?: (key: ErrorKe
     if (key !== "generic") return t(key);
   }
   const m = e instanceof Error ? e.message : "";
-  if (!m || /\[CONVEX|Request ID|Server Error|Uncaught/i.test(m)) return fallback;
+  if (!m || isMaskedServerError(e)) return fallback;
   return m;
 }
