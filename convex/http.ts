@@ -123,22 +123,18 @@ http.route({
   path: "/api/widget/view",
   method: "POST",
   handler: httpAction(async (ctx, req) => {
-    let body: { publicId?: string; viewToken?: string };
-    try {
-      body = await req.json();
-    } catch {
-      return json({ ok: false }, 400);
-    }
-    if (!body.publicId) return json({ ok: false }, 400);
+    const body = await readJsonObject(req);
+    if (!body || !isStr(body.publicId, 64)) return json({ ok: false }, 400);
+    const publicId = body.publicId;
 
     const ip = clientIp(req.headers);
     const token =
-      body.viewToken && /^[A-Za-z0-9_-]{8,64}$/.test(body.viewToken)
+      typeof body.viewToken === "string" && /^[A-Za-z0-9_-]{8,64}$/.test(body.viewToken)
         ? body.viewToken
         : await hashIp(ip);
 
     const res = await ctx.runMutation(internal.widget.recordWidgetView, {
-      publicId: body.publicId,
+      publicId,
       viewToken: token,
     });
     return json({ ok: true, counted: res.counted });
@@ -273,25 +269,21 @@ http.route({
   path: "/api/passport/scan",
   method: "POST",
   handler: httpAction(async (ctx, req) => {
-    let body: { token?: string };
-    try {
-      body = await req.json();
-    } catch {
-      return json({ ok: false }, 400);
-    }
-    if (!body.token || !/^[A-Za-z0-9]{8,32}$/.test(body.token)) return json({ ok: false }, 400);
+    const body = await readJsonObject(req);
+    if (!body || typeof body.token !== "string" || !/^[A-Za-z0-9]{8,32}$/.test(body.token)) return json({ ok: false }, 400);
+    const scanToken = body.token;
     // Scan throttle: counted:false past the limit, never an error (page must not break).
     try {
       const ip0 = clientIp(req.headers);
       await ctx.runMutation(internal.lib.ratelimit.checkBucket, {
-        bucketKey: `scan:${body.token}:${await hashIp(ip0)}`,
+        bucketKey: `scan:${scanToken}:${await hashIp(ip0)}`,
         tokens: 10,
         refillMs: 60 * 60 * 1000,
       });
     } catch {
       return json({ ok: true, counted: false });
     }
-    await ctx.runMutation(internal.passports.recordScan, { token: body.token });
+    await ctx.runMutation(internal.passports.recordScan, { token: scanToken });
     return json({ ok: true });
   }),
 });
@@ -300,46 +292,36 @@ http.route({
   path: "/api/passport/intervention",
   method: "POST",
   handler: httpAction(async (ctx, req) => {
-    let body: {
-      token?: string;
-      kind?: "adjustment" | "warranty" | "maintenance" | "other";
-      message?: string;
-      contactName?: string;
-      contactPhone?: string;
-      contactEmail?: string;
-    };
-    try {
-      body = await req.json();
-    } catch {
-      return json({ ok: false, error: "BAD_JSON" }, 400);
-    }
+    const body = await readJsonObject(req);
+    if (!body) return json({ ok: false, error: "BAD_JSON" }, 400);
     if (typeof body.token !== "string" || !/^[A-Za-z0-9]{8,32}$/.test(body.token)) {
       return json({ ok: false, error: "BAD_TOKEN" }, 400);
     }
-    // TypeScript casts don't validate: a number / object in a text field would fail the mutation's
-    // validator and surface as a 500. Bounds here only refuse absurd payloads; the mutation trims.
+    const token = body.token;
+    // Bounds here only refuse absurd payloads; the mutation trims.
     const message = body.message ?? "";
     if (!isStr(message, 5000, true)) return json({ ok: false, error: "BAD_MESSAGE" }, 400);
+    const contact: { contactName?: string; contactPhone?: string; contactEmail?: string } = {};
     for (const field of ["contactName", "contactPhone", "contactEmail"] as const) {
-      if (body[field] !== undefined && body[field] !== null && !isStr(body[field], 500, true)) {
-        return json({ ok: false, error: "BAD_FIELD", field }, 400);
-      }
+      const value = body[field];
+      if (value === undefined || value === null) continue;
+      if (!isStr(value, 500, true)) return json({ ok: false, error: "BAD_FIELD", field }, 400);
+      contact[field] = value;
     }
-    const kind = body.kind ?? "other";
-    if (!["adjustment", "warranty", "maintenance", "other"].includes(kind)) {
-      return json({ ok: false, error: "BAD_KIND" }, 400);
-    }
+    const KINDS = ["adjustment", "warranty", "maintenance", "other"] as const;
+    const kind = KINDS.find((k) => k === (body.kind ?? "other"));
+    if (!kind) return json({ ok: false, error: "BAD_KIND" }, 400);
     const ip = clientIp(req.headers);
     const ipHash = await hashIp(ip);
     // Intervention throttle: per-IP bucket + global per-passport bucket (spam fan-out guard).
     try {
       await ctx.runMutation(internal.lib.ratelimit.checkBucket, {
-        bucketKey: `passport:${body.token}:${ipHash}`,
+        bucketKey: `passport:${token}:${ipHash}`,
         tokens: 5,
         refillMs: 10 * 60 * 1000,
       });
       await ctx.runMutation(internal.lib.ratelimit.checkBucket, {
-        bucketKey: `passport:${body.token}:global`,
+        bucketKey: `passport:${token}:global`,
         tokens: 20,
         refillMs: 60 * 60 * 1000,
       });
@@ -351,12 +333,10 @@ http.route({
     }
     try {
       await ctx.runMutation(internal.passports.recordInterventionFromHttp, {
-        token: body.token,
+        token,
         kind,
         message,
-        contactName: body.contactName ?? undefined,
-        contactPhone: body.contactPhone ?? undefined,
-        contactEmail: body.contactEmail ?? undefined,
+        ...contact,
         sourceIpHash: ipHash,
       });
     } catch (e) {
@@ -420,6 +400,19 @@ export type WireFieldsReachInsertQuote = Assert<
   Exclude<keyof WidgetQuoteSubmission, HttpOnlySubmissionFields> extends keyof InsertQuoteArgs ? true : false
 >;
 
+/**
+ * The request body as a plain JSON object, or null (bad JSON, null, an array or a scalar). Fields stay `unknown`
+ * until a route narrows them: TypeScript annotations on req.json() validate nothing (issue #67).
+ */
+async function readJsonObject(req: Request): Promise<Record<string, unknown> | null> {
+  try {
+    const parsed: unknown = await req.json();
+    return parsed && typeof parsed === "object" && !Array.isArray(parsed) ? (parsed as Record<string, unknown>) : null;
+  } catch {
+    return null;
+  }
+}
+
 /** Runtime type + length guard for JSON bodies (TypeScript casts don't validate). */
 function isStr(v: unknown, max: number, allowEmpty = false): v is string {
   return typeof v === "string" && v.length <= max && (allowEmpty || v.length > 0);
@@ -429,19 +422,18 @@ http.route({
   path: "/api/inspection/upload-url",
   method: "POST",
   handler: httpAction(async (ctx, req) => {
-    const body = (await req.json().catch(() => ({}))) as { token?: string };
-    if (!body.token || !TOKEN_RE.test(body.token)) return json({ ok: false }, 400);
+    const body = await readJsonObject(req);
+    if (!body || typeof body.token !== "string" || !TOKEN_RE.test(body.token)) return json({ ok: false }, 400);
+    const token = body.token;
     const limited = await checkInspectionLimit(
       (bucketKey, tokens, refillMs) =>
         ctx.runMutation(internal.lib.ratelimit.checkBucket, { bucketKey, tokens, refillMs }),
       req,
-      body.token,
+      token,
     );
     if (limited) return limited;
     try {
-      const url = await ctx.runMutation(internal.inspections.installerUploadUrlFromHttp, {
-        token: body.token,
-      });
+      const url = await ctx.runMutation(internal.inspections.installerUploadUrlFromHttp, { token });
       return json({ ok: true, url });
     } catch {
       return json({ ok: false, error: "NOT_FOUND_OR_LOCKED" }, 404);
@@ -453,27 +445,25 @@ http.route({
   path: "/api/inspection/photo",
   method: "POST",
   handler: httpAction(async (ctx, req) => {
-    const body = (await req.json().catch(() => ({}))) as {
-      token?: string;
-      photoKey?: string;
-      storageId?: string;
-    };
-    if (!body.token || !TOKEN_RE.test(body.token) || !body.photoKey || !body.storageId) {
+    const body = await readJsonObject(req);
+    if (!body || typeof body.token !== "string" || !TOKEN_RE.test(body.token) || !body.photoKey || !body.storageId) {
       return json({ ok: false }, 400);
     }
-    if (!isStr(body.photoKey, 64) || !isStr(body.storageId, 64)) return json({ ok: false, error: "BAD_REQUEST" }, 400);
+    const { token, photoKey, storageId } = body;
+    if (!isStr(photoKey, 64) || !isStr(storageId, 64)) return json({ ok: false, error: "BAD_REQUEST" }, 400);
     const limitedPhoto = await checkInspectionLimit(
       (bucketKey, tokens, refillMs) =>
         ctx.runMutation(internal.lib.ratelimit.checkBucket, { bucketKey, tokens, refillMs }),
       req,
-      body.token,
+      token,
     );
     if (limitedPhoto) return limitedPhoto;
     try {
       await ctx.runMutation(internal.inspections.setInstallerPhotoFromHttp, {
-        token: body.token,
-        photoKey: body.photoKey,
-        storageId: body.storageId as Id<"_storage">,
+        token,
+        photoKey,
+        // The mutation looks the file up and refuses an id that is not a stored file.
+        storageId: storageId as Id<"_storage">,
       });
       return json({ ok: true });
     } catch (e) {
@@ -487,33 +477,34 @@ http.route({
   path: "/api/inspection/checks",
   method: "POST",
   handler: httpAction(async (ctx, req) => {
-    const body = (await req.json().catch(() => ({}))) as {
-      token?: string;
-      checks?: { key: string; passed: boolean }[];
-      installerNotes?: string;
-    };
-    if (!body.token || !TOKEN_RE.test(body.token) || !Array.isArray(body.checks)) {
+    const body = await readJsonObject(req);
+    if (!body || typeof body.token !== "string" || !TOKEN_RE.test(body.token) || !Array.isArray(body.checks)) {
       return json({ ok: false }, 400);
     }
-    if (
-      body.checks.length > 100 ||
-      !body.checks.every((c) => c && typeof c === "object" && isStr(c.key, 64)) ||
-      (body.installerNotes !== undefined && !isStr(body.installerNotes, 5000, true))
-    ) {
+    const { token, installerNotes } = body;
+    const rawChecks: unknown[] = body.checks;
+    const checks: { key: string; passed: boolean }[] = [];
+    for (const c of rawChecks) {
+      if (!c || typeof c !== "object") return json({ ok: false, error: "BAD_REQUEST" }, 400);
+      const { key, passed } = c as { key?: unknown; passed?: unknown };
+      if (!isStr(key, 64)) return json({ ok: false, error: "BAD_REQUEST" }, 400);
+      checks.push({ key, passed: !!passed });
+    }
+    if (checks.length > 100 || (installerNotes !== undefined && !isStr(installerNotes, 5000, true))) {
       return json({ ok: false, error: "BAD_REQUEST" }, 400);
     }
     const limitedChecks = await checkInspectionLimit(
       (bucketKey, tokens, refillMs) =>
         ctx.runMutation(internal.lib.ratelimit.checkBucket, { bucketKey, tokens, refillMs }),
       req,
-      body.token,
+      token,
     );
     if (limitedChecks) return limitedChecks;
     try {
       await ctx.runMutation(internal.inspections.updateInstallerChecksFromHttp, {
-        token: body.token,
-        checks: body.checks.map((c) => ({ key: String(c.key), passed: !!c.passed })),
-        installerNotes: body.installerNotes,
+        token,
+        checks,
+        installerNotes,
       });
       return json({ ok: true });
     } catch {
@@ -526,25 +517,16 @@ http.route({
   path: "/api/inspection/sign",
   method: "POST",
   handler: httpAction(async (ctx, req) => {
-    const body = (await req.json().catch(() => ({}))) as {
-      token?: string;
-      signatureDataUrl?: string;
-      signedByName?: string;
-      clientRemarks?: string;
-    };
-    if (
-      !body.token ||
-      !TOKEN_RE.test(body.token) ||
-      !body.signatureDataUrl ||
-      !body.signedByName
-    ) {
+    const body = await readJsonObject(req);
+    if (!body || typeof body.token !== "string" || !TOKEN_RE.test(body.token) || !body.signatureDataUrl || !body.signedByName) {
       return json({ ok: false, error: "BAD_REQUEST" }, 400);
     }
+    const { token, signatureDataUrl, signedByName, clientRemarks } = body;
     if (
-      !isStr(body.signatureDataUrl, 500_000) ||
-      !/^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(body.signatureDataUrl) ||
-      !isStr(body.signedByName, 200) ||
-      (body.clientRemarks !== undefined && !isStr(body.clientRemarks, 5000, true))
+      !isStr(signatureDataUrl, 500_000) ||
+      !/^data:image\/(png|jpeg);base64,[A-Za-z0-9+/=]+$/.test(signatureDataUrl) ||
+      !isStr(signedByName, 200) ||
+      (clientRemarks !== undefined && !isStr(clientRemarks, 5000, true))
     ) {
       return json({ ok: false, error: "BAD_REQUEST" }, 400);
     }
@@ -552,15 +534,15 @@ http.route({
       (bucketKey, tokens, refillMs) =>
         ctx.runMutation(internal.lib.ratelimit.checkBucket, { bucketKey, tokens, refillMs }),
       req,
-      body.token,
+      token,
     );
     if (limitedSign) return limitedSign;
     try {
       await ctx.runMutation(internal.inspections.signByInstallerFromHttp, {
-        token: body.token,
-        signatureDataUrl: body.signatureDataUrl,
-        signedByName: body.signedByName,
-        clientRemarks: body.clientRemarks,
+        token,
+        signatureDataUrl,
+        signedByName,
+        clientRemarks,
       });
       return json({ ok: true });
     } catch (e) {
@@ -648,10 +630,14 @@ if (/^[A-Za-z0-9_-]{24,128}$/.test(STRIPE_WEBHOOK_TOKEN)) http.route({
       }
 
       if (event.type === "checkout.session.completed" && !result.duplicate) {
-        const object = (event.data as { object?: Record<string, unknown> } | undefined)?.object;
-        const metadata = object?.metadata as Record<string, string> | undefined;
-        const tenantId =
-          (object?.client_reference_id as string | undefined) ?? metadata?.tenantId;
+        // Signed by Stripe, but still JSON: read the strings, never assume their shape.
+        const asRecord = (x: unknown): Record<string, unknown> | undefined =>
+          x && typeof x === "object" && !Array.isArray(x) ? (x as Record<string, unknown>) : undefined;
+        const text = (x: unknown) => (typeof x === "string" ? x : undefined);
+        const object = asRecord(asRecord(event.data)?.object);
+        const meta = asRecord(object?.metadata);
+        const metadata = meta && { tenantId: text(meta.tenantId), ownerUserId: text(meta.ownerUserId), plan: text(meta.plan), cycle: text(meta.cycle), trialPlan: text(meta.trialPlan) };
+        const tenantId = text(object?.client_reference_id) ?? metadata?.tenantId;
         const ownerUserId = metadata?.ownerUserId;
         try {
         const posthog = createPostHogClient();

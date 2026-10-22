@@ -24,3 +24,24 @@ describe("/api/passport/intervention input types", () => {
     expect(res.status).toBe(404);
   });
 });
+
+/** Issue #67: every JSON route parses its body; null / arrays / mistyped fields are a 400, never a 500. */
+describe("http routes parse their JSON body", () => {
+  const send = (t: ReturnType<typeof newDb>, path: string, raw: string) =>
+    t.fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: raw });
+
+  test.each([
+    ["/api/widget/view", "null"],
+    ["/api/widget/view", JSON.stringify({ publicId: 1234567890 })],
+    ["/api/passport/scan", "[]"],
+    ["/api/passport/scan", JSON.stringify({ token: 12345678 })],
+    ["/api/passport/intervention", "null"],
+    ["/api/inspection/upload-url", "null"],
+    ["/api/inspection/photo", JSON.stringify({ token: "ABCDEFGH", photoKey: 1, storageId: 2 })],
+    ["/api/inspection/checks", JSON.stringify({ token: "ABCDEFGH", checks: [null] })],
+    ["/api/inspection/sign", JSON.stringify({ token: "ABCDEFGH", signatureDataUrl: 1, signedByName: 2 })],
+  ])("%s %s → 400", async (path, raw) => {
+    const t = newDb();
+    expect((await send(t, path, raw)).status).toBe(400);
+  });
+});
