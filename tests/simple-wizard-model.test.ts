@@ -101,6 +101,14 @@ describe("simple wizard item", () => {
     }
   });
 
+  test("handles get a real catalogue hardware colour, never the frame finish key", () => {
+    for (const colour of COLOUR_KEYS) {
+      const item = buildWizardItem(sel({ product: "finestra2", colour }), "");
+      expect(item.color).toBe(colour);
+      for (const s of item.sashes) expect(s.hardwareColor).toBe("white");
+    }
+  });
+
   test("a 2-leaf 180 cm window keeps its real width (no silent squeeze to 120 cm)", () => {
     const item = buildWizardItem(sel({ product: "finestra2", widthCm: "180" }), "");
     expect(item.width).toBe(1800);

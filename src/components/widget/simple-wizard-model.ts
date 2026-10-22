@@ -676,6 +676,9 @@ function clamp(v: number, min: number, max: number): number {
  * sash per leaf, so a real 2-leaf width (e.g. 180 cm) is sent as-is instead
  * of being squeezed under the single-sash 1200 mm structural limit.
  */
+/** A hardwareColor key every standard catalogue has. */
+export const WIZARD_HARDWARE_COLOR = "white";
+
 export function buildWizardItem(sel: WizardSelection, notes: string) {
   const shape = PRODUCT_SHAPE[sel.product];
   const maxW = shape.sashes === 1 ? SINGLE_SASH_MAX_WIDTH : DIM_ABS_MAX;
@@ -688,7 +691,9 @@ export function buildWizardItem(sel: WizardSelection, notes: string) {
     active: true,
     main: i === 0,
     hardware: "standard",
-    hardwareColor: sel.colour,
+    // The wizard asks for the frame finish, not the handle colour: sel.colour (white / woodgrain / custom)
+    // is no hardwareColor key, so the handles get the catalogue's standard white.
+    hardwareColor: WIZARD_HARDWARE_COLOR,
     widthRatio: 1 / shape.sashes,
   }));
   return {
