@@ -1,12 +1,12 @@
 import { test, expect, vi, beforeEach, afterEach } from "vitest";
 import { internal } from "../../convex/_generated/api";
-import { newDb, seedTenant } from "./_helpers";
+import { newDb, newLegacyDb, seedTenant } from "./_helpers";
 
 beforeEach(() => vi.useFakeTimers());
 afterEach(() => vi.useRealTimers());
 
 test("renameBusinessToPro migrates business rows to pro with audit, idempotent", async () => {
-  const t = newDb();
+  const t = newLegacyDb();
   const a = await seedTenant(t, { plan: "business" });
   const b = await seedTenant(t, { plan: "business" });
   const c = await seedTenant(t, { plan: "starter" });

@@ -177,7 +177,16 @@ describe("robustness in a restricted runtime (regression: bare \"Server Error\" 
 
   test("an unexpected failure inside the action is a clear, retryable error — and the file is not left behind", async () => {
     const { t, upload } = await world();
-    const spy = vi.spyOn(crypto.subtle, "digest").mockRejectedValueOnce(new Error("boom"));
+    // Newer convex-test hashes stored blobs with the same digest (an ArrayBuffer); fail only the action's own hash of the bytes.
+    const digest = crypto.subtle.digest.bind(crypto.subtle);
+    let failed = false;
+    const spy = vi.spyOn(crypto.subtle, "digest").mockImplementation((algorithm, data) => {
+      if (!failed && ArrayBuffer.isView(data)) {
+        failed = true;
+        return Promise.reject(new Error("boom"));
+      }
+      return digest(algorithm, data);
+    });
     const log = vi.spyOn(console, "error").mockImplementation(() => undefined);
     try {
       const { res } = await upload(png());

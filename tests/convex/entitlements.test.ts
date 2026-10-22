@@ -6,7 +6,7 @@ import {
   assertQuota,
   checkQuota,
 } from "../../convex/lib/entitlements";
-import { newDb, seedTenant } from "./_helpers";
+import { newDb, newLegacyDb, seedTenant } from "./_helpers";
 import type { Doc } from "../../convex/_generated/dataModel";
 
 describe("entitlement matrix matches the signed SaaS contracts (v2 ladder)", () => {
@@ -137,7 +137,7 @@ describe("createConfigurator enforces the plan limit", () => {
   });
 
   test("business tenant can create 3", async () => {
-    const t = newDb();
+    const t = newLegacyDb();
     const A = await seedTenant(t, { plan: "business" });
     const asOwner = t.withIdentity({ subject: A.ownerId });
     for (let i = 0; i < 3; i++) {

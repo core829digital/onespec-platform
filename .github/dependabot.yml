@@ -6,6 +6,10 @@ updates:
       interval: weekly
       day: monday
     open-pull-requests-limit: 8
+    ignore:
+      # From 0.0.45 convex-test keeps its state in Node's AsyncLocalStorage, which browsers do not have; the in-browser
+      # demo (src/demo) runs on convex-test, so it stays on 0.0.35 until the demo has another engine.
+      - dependency-name: convex-test
     groups:
       # Minor and patch updates arrive together, one PR a week; majors stay separate so they are reviewed on their own.
       minor-and-patch:

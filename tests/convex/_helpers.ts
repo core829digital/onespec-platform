@@ -1,4 +1,5 @@
 import { convexTest } from "convex-test";
+import { defineSchema } from "convex/server";
 import { zlibSync } from "fflate";
 import schema from "../../convex/schema";
 import type { Id } from "../../convex/_generated/dataModel";
@@ -16,7 +17,16 @@ export function newDb() {
   return convexTest(schema, modules);
 }
 
-type T = ReturnType<typeof newDb>;
+/**
+ * The same database with document validation off, for tests that must seed rows the schema no longer admits
+ * (a legacy value a migration or a compatibility path still has to handle). convex-test validates writes the
+ * way the backend does, so such rows cannot be inserted through newDb().
+ */
+export function newLegacyDb() {
+  return convexTest(defineSchema(schema.tables, { schemaValidation: false }), modules);
+}
+
+type T = ReturnType<typeof newDb> | ReturnType<typeof newLegacyDb>;
 
 export interface SeededTenant {
   tenantId: Id<"tenants">;

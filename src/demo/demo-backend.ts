@@ -1,5 +1,6 @@
 import "./shims/node-globals";
 import { convexTest } from "convex-test";
+import type { FunctionReference } from "convex/server";
 import schema from "../../convex/schema";
 import { DEMO_CONVEX_MODULES } from "./convex-modules.generated";
 import { DemoConvexClient, type DemoRunner } from "./demo-client";
@@ -31,10 +32,11 @@ export async function createDemoBackend(): Promise<DemoBackend> {
   const t = convexTest(schema, DEMO_CONVEX_MODULES as never);
   const info = (await loadSnapshot()) ?? (await seedDemo(t));
   const as = t.withIdentity({ subject: info.ownerId, issuer: "demo", tokenIdentifier: `demo|${info.ownerId}` });
+  // The runner hands each call an untyped args object; naming that shape keeps convex-test's rest-args typing intact.
   const runner: DemoRunner = {
-    query: (ref, args) => as.query(ref as never, args as never),
-    mutation: (ref, args) => as.mutation(ref as never, args as never),
-    action: (ref, args) => as.action(ref as never, args as never),
+    query: (ref, args) => as.query(ref as FunctionReference<"query", "public", Record<string, unknown>>, args),
+    mutation: (ref, args) => as.mutation(ref as FunctionReference<"mutation", "public", Record<string, unknown>>, args),
+    action: (ref, args) => as.action(ref as FunctionReference<"action", "public", Record<string, unknown>>, args),
   };
   const client = new DemoConvexClient(runner);
   return { client, info };

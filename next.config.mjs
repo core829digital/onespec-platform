@@ -38,7 +38,16 @@ const nextConfig = {
   // Exclude the status-page app from the main build
   pageExtensions: ["tsx", "ts", "jsx", "js"],
   // The in-browser demo database (convex-test) wants Node's `crypto`; the browser gets a tiny stand-in (client bundles only).
-  turbopack: { resolveAlias: { crypto: { browser: "./src/demo/shims/crypto.ts" } } },
+  turbopack: {
+    resolveAlias: { crypto: { browser: "./src/demo/shims/crypto.ts" } },
+    // convex-test's import.meta.glob fallback would bundle all of convex/ (see the loader); the demo passes its own modules.
+    rules: {
+      "*.js": {
+        condition: { path: /node_modules\/convex-test\/dist\/index\.js$/ },
+        loaders: ["./scripts/turbopack/convex-test-no-glob.cjs"],
+      },
+    },
+  },
   // (`experimental.turbo` was removed: Next 16 rejects the key and warned on every build / start.)
   webpack: (config, { isServer }) => {
     if (!isServer) config.resolve = { ...config.resolve, alias: { ...config.resolve?.alias, crypto: new URL("./src/demo/shims/crypto.ts", import.meta.url).pathname } };
