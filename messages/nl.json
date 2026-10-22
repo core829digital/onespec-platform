@@ -1332,6 +1332,7 @@
       "financing": "Voorbeeld gespreide betaling: {monthly} / maand in 24 termijnen (indicatief)",
       "taxable": "Bedrag excl. btw",
       "totalVat": "Totaal btw",
+      "suggestedVat": "Voor deze klus schrijven de regels van het land voor: {label}. De prijs gebruikt het tarief van de configurator: pas het zo nodig aan in de instellingen ervan.",
       "uwAvg": "Gemiddelde U<sub>w</sub>",
       "eligible": "Komt in aanmerking voor subsidie",
       "notEligible": "Komt niet in aanmerking",

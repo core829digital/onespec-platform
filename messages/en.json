@@ -1332,6 +1332,7 @@
       "financing": "Instalment example: {monthly} / month over 24 instalments (indicative)",
       "taxable": "Net amount",
       "totalVat": "Total VAT",
+      "suggestedVat": "For this job the country's rules point to: {label}. The price uses the configurator's rate: change it in the configurator settings if needed.",
       "uwAvg": "Average U<sub>w</sub>",
       "eligible": "Eligible for incentives",
       "notEligible": "Not eligible",

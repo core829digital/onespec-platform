@@ -221,3 +221,34 @@ describe("archiving a configurator", () => {
     await expect(as.mutation(api.configurators.archiveConfigurator, { configuratorId: older })).rejects.toThrow(/CONFIGURATOR_NOT_FOUND/);
   });
 });
+
+describe("showroom fiscal panel: the VAT line matches the amount (issue #34)", () => {
+  test("FR energy renovation: the 10% configurator rate is shown with its amount, 5.5% only as a suggestion", async () => {
+    const t = newDb();
+    const s = await seedTenant(t, { plan: "agency" });
+    await t.run((ctx) => ctx.db.patch(s.tenantId, { country: "FR" }));
+    const configuratorId = await seedPublishedConfigurator(t, s.tenantId, "FRCONF0001");
+    // The published catalogue carries the configurator's rate the prices use.
+    await t.run(async (ctx) => {
+      await ctx.db.patch(configuratorId, { vatRatePercent: 10 });
+      const v = await ctx.db.query("catalogVersions").withIndex("by_configurator_version", (q) => q.eq("configuratorId", configuratorId).eq("version", 1)).unique();
+      const payload = v!.payload as { configurator: { vatRatePercent: number } };
+      payload.configurator.vatRatePercent = 10;
+      await ctx.db.patch(v!._id, { payload });
+    });
+    const as = t.withIdentity({ subject: s.ownerId });
+    const frOptions = { regionCode: "FR" as const, buildingAge: 20, isEnergyRenovation: true, deductionPercent: 0 };
+    const calc = await as.query(api.calculations.getCalculationPreview, { tenantId: s.tenantId, configuratorId, items: [sampleItem], options: frOptions });
+    expect(calc.vatBreakdown).toHaveLength(1);
+    const line = calc.vatBreakdown[0];
+    expect(line.rate).toBe(0.1);
+    expect(line.label).toContain("10%");
+    expect(line.vatCents).toBe(calc.priceCents - calc.priceExVatCents);
+    expect(line.vatCents).toBe(Math.round(calc.priceExVatCents * 0.1));
+    expect(line.suggested).toEqual({ rate: 0.055, label: "TVA 5,5% (rénovation énergétique)" });
+
+    // When the configurator already uses the policy rate there is nothing to suggest.
+    const calc2 = await as.query(api.calculations.getCalculationPreview, { tenantId: s.tenantId, configuratorId, items: [sampleItem], options: { ...frOptions, isEnergyRenovation: false } });
+    expect(calc2.vatBreakdown[0].suggested).toBeUndefined();
+  });
+});

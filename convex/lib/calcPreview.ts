@@ -21,6 +21,8 @@ export interface VatBreakdown {
   baseCents: number;
   vatCents: number;
   totalCents: number;
+  /** The rate the country's rules point to for this job, when it differs from the rate applied (the configurator's). */
+  suggested?: { rate: number; label: string };
 }
 
 export interface BeniSignificativiBreakdown {
@@ -63,6 +65,9 @@ function calculateBeniSignificativi(manoperaCents: number, beniCents: number, al
   const totalCents = imponibile10 + iva10 + imponibile22 + iva22;
   return { beni10, beni22, imponibile10, iva10, imponibile22, iva22, totalCents };
 }
+
+/** The tax's own name per market, for a configurator rate the region's list does not name. */
+const VAT_NAME: Record<string, string> = { IT: "IVA", FR: "TVA", BE: "TVA", LU: "TVA", NL: "btw", DE: "MwSt." };
 
 function calculateVatBreakdown(
   regionCode: string,
@@ -116,53 +121,23 @@ function calculateVatBreakdown(
     return breakdown;
   }
 
-  if (region.code === "FR") {
-    let vatKey = "renovation";
-    if (isEnergyRenovation) vatKey = "renovation_energetique";
-    const vatRate = region.vatRates.find((v) => v.key === vatKey) || region.vatRates[1];
-    breakdown.push({
-      rate: vatRate.percent / 100,
-      label: vatRate.label,
-      baseCents: baseCalc.priceExVatCents,
-      vatCents: baseCalc.priceCents - baseCalc.priceExVatCents,
-      totalCents: baseCalc.priceCents,
-    });
-    return breakdown;
-  }
-
-  if (region.code === "BE") {
-    const vatKey = buildingAge > 10 ? "renovation" : "standard";
-    const vatRate = region.vatRates.find((v) => v.key === vatKey) || region.vatRates[0];
-    breakdown.push({
-      rate: vatRate.percent / 100,
-      label: vatRate.label,
-      baseCents: baseCalc.priceExVatCents,
-      vatCents: baseCalc.priceCents - baseCalc.priceExVatCents,
-      totalCents: baseCalc.priceCents,
-    });
-    return breakdown;
-  }
-
-  if (region.code === "LU") {
-    const vatKey = isEnergyRenovation && buildingAge > 10 ? "super_reduit" : "standard";
-    const vatRate = region.vatRates.find((v) => v.key === vatKey) || region.vatRates[1];
-    breakdown.push({
-      rate: vatRate.percent / 100,
-      label: vatRate.label,
-      baseCents: baseCalc.priceExVatCents,
-      vatCents: baseCalc.priceCents - baseCalc.priceExVatCents,
-      totalCents: baseCalc.priceCents,
-    });
-    return breakdown;
-  }
-
-  const vatRate = region.vatRates.find((v) => v.key === region.defaultVatKey) || region.vatRates[0];
+  // FR / BE / LU pick a rate from the job (energy renovation, building age); the amounts, the headline price, the
+  // PDF and the saved quote all use the configurator's rate. The line shows the rate actually applied, and the
+  // policy rate only as a suggestion when it differs, never a policy label next to an amount it did not produce (issue #34).
+  let policyKey = region.defaultVatKey;
+  if (region.code === "FR") policyKey = isEnergyRenovation ? "renovation_energetique" : "renovation";
+  if (region.code === "BE") policyKey = buildingAge > 10 ? "renovation" : "standard";
+  if (region.code === "LU") policyKey = isEnergyRenovation && buildingAge > 10 ? "super_reduit" : "standard";
+  const policy = region.vatRates.find((v) => v.key === policyKey);
+  const appliedPercent = baseCalc.vatRatePercent;
+  const applied = region.vatRates.find((v) => v.percent === appliedPercent);
   breakdown.push({
-    rate: vatRate.percent / 100,
-    label: vatRate.label,
+    rate: appliedPercent / 100,
+    label: applied?.label ?? `${VAT_NAME[region.code]} ${appliedPercent}%`,
     baseCents: baseCalc.priceExVatCents,
     vatCents: baseCalc.priceCents - baseCalc.priceExVatCents,
     totalCents: baseCalc.priceCents,
+    ...(policy && policy.percent !== appliedPercent ? { suggested: { rate: policy.percent / 100, label: policy.label } } : {}),
   });
   return breakdown;
 }

@@ -1332,6 +1332,7 @@
       "financing": "Exemplu de plată în rate: {monthly} / lună în 24 de rate (orientativ)",
       "taxable": "Valoare fără TVA",
       "totalVat": "TVA totală",
+      "suggestedVat": "Pentru această lucrare regulile țării prevăd: {label}. Prețul folosește cota configuratorului: modific-o în setările configuratorului dacă e nevoie.",
       "uwAvg": "U<sub>w</sub> mediu",
       "eligible": "Eligibil pentru stimulente",
       "notEligible": "Neeligibil",

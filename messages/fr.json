@@ -1332,6 +1332,7 @@
       "financing": "Exemple d'échelonnement : {monthly} / mois en 24 mensualités (indicatif)",
       "taxable": "Montant HT",
       "totalVat": "TVA totale",
+      "suggestedVat": "Pour ce chantier, les règles du pays prévoient : {label}. Le prix utilise le taux du configurateur : modifiez-le dans ses paramètres si nécessaire.",
       "uwAvg": "U<sub>w</sub> moyen",
       "eligible": "Éligible aux aides",
       "notEligible": "Non éligible",

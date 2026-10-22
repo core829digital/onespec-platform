@@ -10,6 +10,7 @@ interface Vat {
   baseCents: number;
   vatCents: number;
   totalCents: number;
+  suggested?: { rate: number; label: string };
 }
 interface Beni {
   imponibile10: number;
@@ -76,6 +77,13 @@ export function FiscalEngine({
             <span className="font-mono">{eur(v.vatCents)}</span>
           </div>
         ))}
+        {calc.vatBreakdown.map((v, i) =>
+          v.suggested ? (
+            <p key={`s${i}`} className="text-xs text-amber-700">
+              {t("suggestedVat", { label: v.suggested.label })}
+            </p>
+          ) : null,
+        )}
         <div className="flex justify-between border-t border-[var(--color-border)] pt-1 font-semibold">
           <span>{t("totalVat")}</span>
           <span className="font-mono">{eur(calc.totalVatCents)}</span>

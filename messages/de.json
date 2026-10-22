@@ -1332,6 +1332,7 @@
       "financing": "Ratenbeispiel: {monthly} / Monat in 24 Raten (unverbindlich)",
       "taxable": "Nettobetrag",
       "totalVat": "MwSt. gesamt",
+      "suggestedVat": "Für diesen Auftrag sehen die Regeln des Landes vor: {label}. Der Preis verwendet den Satz des Konfigurators: Ändern Sie ihn bei Bedarf in dessen Einstellungen.",
       "uwAvg": "Mittlerer U<sub>w</sub>",
       "eligible": "Förderfähig",
       "notEligible": "Nicht förderfähig",

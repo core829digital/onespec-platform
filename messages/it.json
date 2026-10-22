@@ -1332,6 +1332,7 @@
       "financing": "Esempio di rateizzazione: {monthly} / mese in 24 rate (indicativo)",
       "taxable": "Imponibile",
       "totalVat": "IVA totale",
+      "suggestedVat": "Per questo lavoro le regole del paese prevedono: {label}. Il prezzo usa l'aliquota del configuratore: cambiala nelle impostazioni del configuratore se serve.",
       "uwAvg": "U<sub>w</sub> medio",
       "eligible": "Idoneo alle agevolazioni",
       "notEligible": "Non idoneo",

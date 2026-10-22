@@ -79,7 +79,7 @@ export const getCalculationPreview = query({
     priceCents: number;
     priceExVatCents: number;
     vatRatePercent: number;
-    vatBreakdown: Array<{ rate: number; label: string; baseCents: number; vatCents: number; totalCents: number }>;
+    vatBreakdown: Array<{ rate: number; label: string; baseCents: number; vatCents: number; totalCents: number; suggested?: { rate: number; label: string } }>;
     totalVatCents: number;
     beniSignificativi: BeniSignificativiBreakdown | null;
     uwPerItem: number[];
