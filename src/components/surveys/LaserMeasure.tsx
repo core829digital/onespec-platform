@@ -44,6 +44,15 @@ export function LaserMeasure({ onMeasure, whichDimension, currentL, currentH, di
     };
   }, [whichDimension, onMeasure]);
 
+  // Closing the panel (or a soft navigation) releases the laser: the GATT link and its notifications
+  // would otherwise stay open for the whole session. Unmount only, not on every dimension switch.
+  useEffect(() => {
+    const manager = managerRef.current;
+    return () => {
+      void manager.disconnect();
+    };
+  }, []);
+
   const handleConnect = async () => {
     if (!isBluetoothSupported()) {
       alert(t("btUnsupportedAlert"));
