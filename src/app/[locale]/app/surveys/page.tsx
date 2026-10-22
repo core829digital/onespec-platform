@@ -2,7 +2,7 @@
 
 import { requestConfirm } from "@/lib/confirm-dialog";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useMutation } from "convex/react";
 import { useQuery } from "@/lib/convex-query";
 import { api } from "@/convex/_generated/api";
@@ -11,6 +11,7 @@ import { useLocale, useTranslations } from "next-intl";
 import type { Id } from "@/convex/_generated/dataModel";
 import { LaserMeasure } from "@/components/surveys/LaserMeasure";
 import { useFriendlyError } from "@/lib/use-friendly-error";
+import { revokePreview } from "@/lib/object-url";
 import { OpenLink } from "@/components/ui/open-button";
 import { DeleteAction } from "@/components/ui/delete-action";
 import { ClientCantierePicker, type PickedLinks } from "@/components/app-shell/client-cantiere-picker";
@@ -119,6 +120,18 @@ export default function SurveysPage() {
   const [dimension, setDimension] = useState<"L" | "H">("L");
   const [diag, setDiag] = useState<DiagnosticData>({ ...EMPTY_DIAG });
   const [photos, setPhotos] = useState<SurveyPhoto[]>([]);
+  // Previews are blob: URLs holding the whole photo in memory until revoked (issue #33): released on removal,
+  // on reset after a save, and when the page goes away.
+  const photosRef = useRef(photos);
+  useEffect(() => {
+    photosRef.current = photos;
+  }, [photos]);
+  useEffect(() => () => photosRef.current.forEach((p) => revokePreview(p.url)), []);
+  const removePhoto = (i: number) =>
+    setPhotos((prev) => {
+      revokePreview(prev[i]?.url);
+      return prev.filter((_, idx) => idx !== i);
+    });
   const [photoAnnotations, setPhotoAnnotations] = useState<Record<number, Annotation[]>>({});
   const [activePhotoIdx, setActivePhotoIdx] = useState<number | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -199,6 +212,7 @@ export default function SurveysPage() {
     setOpenings([{ ...EMPTY_OPENING }]);
     setActiveIdx(0);
     setDiag({ ...EMPTY_DIAG });
+    photos.forEach((p) => revokePreview(p.url));
     setPhotos([]);
     setErr("");
   }
@@ -489,7 +503,7 @@ export default function SurveysPage() {
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={p.url} alt={`foto ${i + 1}`} className="h-full w-full object-cover" />
                       <button
-                        onClick={() => setPhotos((prev) => prev.filter((_, idx) => idx !== i))}
+                        onClick={() => removePhoto(i)}
                         className="absolute right-0 top-0 bg-black/60 px-1 text-xs text-white"
                       >
                         ✕

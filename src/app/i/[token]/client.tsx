@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SignaturePadBase } from "@/components/signature-pad";
+import { revokePreview } from "@/lib/object-url";
 import { fieldCopy, fieldLang, FIELD_DATE_LOCALE } from "@/lib/field-public-i18n";
 
 const CONVEX_SITE =
@@ -45,6 +46,12 @@ export function InstallerJob({ token, initial }: { token: string; initial: Insta
   const c = fieldCopy(initial.regionCode).installer;
   const dateLocale = FIELD_DATE_LOCALE[fieldLang(initial.regionCode)];
   const [photos, setPhotos] = useState<Photo[]>(initial.photos);
+  // Local previews are blob: URLs that keep the photo in memory until revoked (issue #33).
+  const photosRef = useRef(photos);
+  useEffect(() => {
+    photosRef.current = photos;
+  }, [photos]);
+  useEffect(() => () => photosRef.current.forEach((p) => revokePreview(p.url)), []);
   const [checks, setChecks] = useState<Check[]>(initial.checks);
   const [signed, setSigned] = useState(initial.status === "signed");
   const [notes, setNotes] = useState("");
@@ -72,7 +79,13 @@ export function InstallerJob({ token, initial }: { token: string; initial: Insta
       const r = await post("/api/inspection/photo", { token, photoKey: key, storageId });
       if (!r.ok) throw new Error(r.error || "photo");
       const preview = URL.createObjectURL(file);
-      setPhotos((prev) => prev.map((p) => (p.key === key ? { ...p, url: preview } : p)));
+      setPhotos((prev) =>
+        prev.map((p) => {
+          if (p.key !== key) return p;
+          revokePreview(p.url); // the photo it replaces
+          return { ...p, url: preview };
+        }),
+      );
     } catch {
       setErr(c.errPhoto);
     } finally {
