@@ -90,6 +90,7 @@ export const DEMO_CONVEX_MODULES: Record<string, Loader> = {
   "../convex/lib/triggers.ts": () => import("../../convex/lib/triggers"),
   "../convex/lib/turnstile.ts": () => import("../../convex/lib/turnstile"),
   "../convex/lib/uploads.ts": () => import("../../convex/lib/uploads"),
+  "../convex/lib/usageCounters.ts": () => import("../../convex/lib/usageCounters"),
   "../convex/lib/validate.ts": () => import("../../convex/lib/validate"),
   "../convex/lib/vat.ts": () => import("../../convex/lib/vat"),
   "../convex/lib/webhookIp.ts": () => import("../../convex/lib/webhookIp"),

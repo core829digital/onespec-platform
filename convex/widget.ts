@@ -16,6 +16,7 @@ import { consumeToken } from "./lib/ratelimit";
 import { regionForCountry, type RegionPolicy } from "./lib/regions";
 import { configuratorServedByPlan } from "./lib/enforcement";
 import { resolveVisitorVat, visitorPercent } from "./lib/fiscal";
+import { bumpUsageCounter, findUsageCounter } from "./lib/usageCounters";
 
 /** Rows/objects that may carry Convex system + tenant fields. */
 type WithSystemFields = Record<string, unknown> & {
@@ -161,26 +162,7 @@ export const recordWidgetView = internalMutation({
     });
     if (!underCap) return { counted: false };
 
-    const period = currentPeriod();
-    const counter = await ctx.db
-      .query("usageCounters")
-      .withIndex("by_tenant_period", (q) =>
-        q.eq("tenantId", configurator.tenantId).eq("period", period),
-      )
-      .first();
-    if (counter) {
-      await ctx.db.patch(counter._id, {
-        widgetViewsCount: (counter.widgetViewsCount ?? 0) + 1,
-      });
-    } else {
-      await ctx.db.insert("usageCounters", {
-        tenantId: configurator.tenantId,
-        period,
-        quoteRequestsCount: 0,
-        activeConfiguratorsCount: 0,
-        widgetViewsCount: 1,
-      });
-    }
+    await bumpUsageCounter(ctx, configurator.tenantId, "widgetViewsCount");
     return { counted: true };
   },
 });
@@ -496,12 +478,7 @@ export const insertQuote = internalMutation({
     // Monthly quota: over the limit we still accept the lead (never lose a
     // real prospect), flag it, and warn the tenant once per period.
     const period = currentPeriod();
-    const counter = await ctx.db
-      .query("usageCounters")
-      .withIndex("by_tenant_period", (q) =>
-        q.eq("tenantId", configurator.tenantId).eq("period", period),
-      )
-      .first();
+    const counter = await findUsageCounter(ctx, configurator.tenantId, period);
     const usedThisPeriod = counter?.quoteRequestsCount ?? 0;
     const overQuota =
       !!entitlements &&
@@ -577,20 +554,11 @@ export const insertQuote = internalMutation({
     });
 
     // Bump this period's usage counter.
-    if (counter) {
-      await ctx.db.patch(counter._id, {
-        quoteRequestsCount: counter.quoteRequestsCount + 1,
-        overQuotaNotifiedAt:
-          overQuota && !counter.overQuotaNotifiedAt ? Date.now() : counter.overQuotaNotifiedAt,
-      });
-    } else {
-      await ctx.db.insert("usageCounters", {
-        tenantId: configurator.tenantId,
-        period,
-        quoteRequestsCount: 1,
-        activeConfiguratorsCount: 0,
-      });
-    }
+    await bumpUsageCounter(ctx, configurator.tenantId, "quoteRequestsCount", {
+      period,
+      counter,
+      patchExtra: counter && overQuota && !counter.overQuotaNotifiedAt ? { overQuotaNotifiedAt: Date.now() } : undefined,
+    });
 
     // Warn the tenant the first time it goes over quota in a period.
     if (overQuota && counter && !counter.overQuotaNotifiedAt && entitlements) {

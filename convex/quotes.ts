@@ -22,6 +22,7 @@ import { defaultItem } from "../src/shared/item-defaults";
 import { quoteTotals } from "../src/shared/quote-totals";
 import { quoteStatusValidator } from "./lib/enums";
 import { mm } from "./lib/dims";
+import { bumpUsageCounter } from "./lib/usageCounters";
 
 const QUOTE_STATUS = quoteStatusValidator;
 
@@ -456,23 +457,7 @@ export const createFieldQuote = mutation({
     }
 
     // Increment quote count for quota tracking
-    const period = currentPeriod();
-    const counter = await ctx.db
-      .query("usageCounters")
-      .withIndex("by_tenant_period", (q) => q.eq("tenantId", args.tenantId).eq("period", period))
-      .first();
-    if (counter) {
-      await ctx.db.patch(counter._id, {
-        quoteRequestsCount: counter.quoteRequestsCount + 1,
-      });
-    } else {
-      await ctx.db.insert("usageCounters", {
-        tenantId: args.tenantId,
-        period,
-        quoteRequestsCount: 1,
-        activeConfiguratorsCount: 0,
-      });
-    }
+    await bumpUsageCounter(ctx, args.tenantId, "quoteRequestsCount");
 
     return { quoteId, priceCents: finalPriceCents };
   },
@@ -782,23 +767,7 @@ regionalSurchargeCents: 0,
     });
 
     // Increment quote count for quota tracking
-    const period = currentPeriod();
-    const counter = await ctx.db
-      .query('usageCounters')
-      .withIndex('by_tenant_period', (q) => q.eq('tenantId', args.tenantId).eq('period', period))
-      .first();
-    if (counter) {
-      await ctx.db.patch(counter._id, {
-        quoteRequestsCount: counter.quoteRequestsCount + 1,
-      });
-    } else {
-      await ctx.db.insert('usageCounters', {
-        tenantId: args.tenantId,
-        period,
-        quoteRequestsCount: 1,
-        activeConfiguratorsCount: 0,
-      });
-    }
+    await bumpUsageCounter(ctx, args.tenantId, "quoteRequestsCount");
 
     return { quoteId, priceCents: finalPriceCents };
   },
@@ -1010,23 +979,7 @@ export const createQuoteWithSuppliers = mutation({
     });
 
     // Increment quote count for quota tracking
-    const period = currentPeriod();
-    const counter = await ctx.db
-      .query('usageCounters')
-      .withIndex('by_tenant_period', (q) => q.eq('tenantId', args.tenantId).eq('period', period))
-      .first();
-    if (counter) {
-      await ctx.db.patch(counter._id, {
-        quoteRequestsCount: counter.quoteRequestsCount + 1,
-      });
-    } else {
-      await ctx.db.insert('usageCounters', {
-        tenantId: args.tenantId,
-        period,
-        quoteRequestsCount: 1,
-        activeConfiguratorsCount: 0,
-      });
-    }
+    await bumpUsageCounter(ctx, args.tenantId, "quoteRequestsCount");
 
     return { quoteId, priceCents: finalPriceCents };
   },

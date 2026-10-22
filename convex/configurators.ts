@@ -6,7 +6,7 @@ import { requireMembership } from "./lib/auth";
 import { requirePermission } from "./lib/rbac";
 import { nanoid } from "./lib/ids";
 import { loadExtras } from "./lib/catalogExtras";
-import { resolveTenantEntitlements, currentPeriod } from "./lib/entitlements";
+import { resolveTenantEntitlements } from "./lib/entitlements";
 import { enforceForCreateConfigurator } from "./lib/enforcement";
 import { resolveEffectiveConfig, PLATFORM_DEFAULTS, CONFIG_LAYERS } from "./lib/configResolution";
 import { internal } from "./_generated/api";
@@ -15,6 +15,7 @@ import { pricingBlock, withStandardPrices } from "./lib/standardPricing";
 import { applyStandardPricing, ensureProfileClassification } from "./lib/standardCatalog";
 import { isPriceZone } from "../src/shared/standard-pricing";
 import { DEFAULT_ACCENT, DEFAULT_ACCENT_INK } from "./branding";
+import { bumpUsageCounter } from "./lib/usageCounters";
 
 export const createConfigurator = mutation({
   args: { tenantId: v.id("tenants"), name: v.string() },
@@ -77,23 +78,7 @@ export const createConfigurator = mutation({
     }
 
     // Increment active configurator count for quota tracking
-    const period = currentPeriod();
-    const counter = await ctx.db
-      .query("usageCounters")
-      .withIndex("by_tenant_period", (q) => q.eq("tenantId", args.tenantId).eq("period", period))
-      .first();
-    if (counter) {
-      await ctx.db.patch(counter._id, {
-        activeConfiguratorsCount: counter.activeConfiguratorsCount + 1,
-      });
-    } else {
-      await ctx.db.insert("usageCounters", {
-        tenantId: args.tenantId,
-        period,
-        quoteRequestsCount: 0,
-        activeConfiguratorsCount: 1,
-      });
-    }
+    await bumpUsageCounter(ctx, args.tenantId, "activeConfiguratorsCount");
 
     return { configuratorId, publicId };
   },

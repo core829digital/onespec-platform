@@ -2,6 +2,7 @@ import { ConvexError } from "convex/values";
 import type { MutationCtx, QueryCtx } from "../_generated/server";
 import type { Doc, Id } from "../_generated/dataModel";
 import { currentPeriod } from "./entitlements";
+import { bumpUsageCounter, findUsageCounter } from "./usageCounters";
 
 /**
  * Monthly metering for the widget-first plans (PDF, WhatsApp, showroom).
@@ -67,10 +68,7 @@ export async function consumeMetered(
   if (!Number.isFinite(args.limit)) return { charged: false, used: 0, limit: Infinity };
   const { field, code } = METER[args.kind];
   const period = currentPeriod();
-  const counter = await ctx.db
-    .query("usageCounters")
-    .withIndex("by_tenant_period", (q) => q.eq("tenantId", args.tenantId).eq("period", period))
-    .first();
+  const counter = await findUsageCounter(ctx, args.tenantId, period);
   const used = counter?.[field] ?? 0;
 
   if (await hasMeteredEvent(ctx, args.tenantId, args.kind, args.subjectKey)) {
@@ -86,17 +84,7 @@ export async function consumeMetered(
     userId: args.userId,
     createdAt: Date.now(),
   });
-  if (counter) {
-    await ctx.db.patch(counter._id, { [field]: used + 1 });
-  } else {
-    await ctx.db.insert("usageCounters", {
-      tenantId: args.tenantId,
-      period,
-      quoteRequestsCount: 0,
-      activeConfiguratorsCount: 0,
-      [field]: 1,
-    });
-  }
+  await bumpUsageCounter(ctx, args.tenantId, field, { period, counter });
   return { charged: true, used: used + 1, limit: args.limit };
 }
 
