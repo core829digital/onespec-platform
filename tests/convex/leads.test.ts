@@ -15,13 +15,13 @@ async function setup(plan: "pro" | "essentials" = "pro") {
   return { t, s, owner, member };
 }
 
-async function runImport(owner: ReturnType<typeof t0>, tenantId: never, rows: Array<Record<string, string>>) {
+async function runImport(owner: TestOwner, tenantId: never, rows: Array<Record<string, string>>) {
   const importId = await owner.mutation(api.leads.startImport, { tenantId, fileName: "C:\\fake\\leads.xlsx", fileKind: "xlsx", totalRows: rows.length });
   const res = await owner.mutation(api.leads.importLeadBatch, { tenantId, importId, startRow: 2, rows });
   return { importId, res };
 }
 const setupPlan = (plan: "essentials") => setup(plan);
-const t0 = () => newDb().withIdentity({ subject: "x" as never });
+type TestOwner = ReturnType<ReturnType<typeof newDb>["withIdentity"]>;
 
 test("an import inserts clean rows, drops bad fields with a warning, refuses empty or markup rows and skips duplicates", async () => {
   const { s, owner } = await setup();

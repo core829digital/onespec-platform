@@ -15,6 +15,12 @@ const eslintConfig = defineConfig([
     },
   },
   {
+    // A leading underscore marks a parameter that an interface requires but the implementation does not read.
+    rules: {
+      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" }],
+    },
+  },
+  {
     // The embed loader is deliberately ES5 (`catch (e)`): optional catch binding would break old browsers, and the file is
     // hash-pinned (tests/embed-integrity.test.ts), so the rule is relaxed here instead of editing the file.
     files: ["public/embed.js"],
@@ -30,6 +36,8 @@ const eslintConfig = defineConfig([
     "convex/_generated/**",
     // Local no-op shim for @swc/core (see next.config.mjs).
     "vendor/**",
+    // Subtitle timing data written by marketing/strategia-nord/src/synth.py and read as globals by the video pages.
+    "marketing/**/timing.js",
     // Agent tooling scratch directories.
     ".claude/**",
     ".claude-flow/**",

@@ -524,7 +524,11 @@ async function main() {
     });
 
     // ── quote → signature → printable document, on a desktop and then on a phone ─────────────────────────────────────────────────
-    async function signQuoteFlow(p, name, prob) {
+    // Saving the quote and signing are real mutations on the stand-in backend; on a busy CI runner (and with the phone's
+    // touch emulation) the navigation that follows each one can take longer than the 20-25 s used elsewhere, so the two
+    // navigations get a wider margin. What is checked does not change.
+    const SAVE_NAV_TIMEOUT = 60_000;
+    async function signQuoteFlow(p, name) {
       await p.goto(url("/app/quotes/new"), { waitUntil: "domcontentloaded" });
       await p.locator('svg[role="group"][aria-label^="Disegno tecnico"]').first().waitFor({ timeout: 30_000 });
       await p.getByPlaceholder("Es. Mario Rossi").fill(name);
@@ -536,7 +540,7 @@ async function main() {
       const go = p.locator('form button[type="submit"]').last();
       await p.waitForFunction(() => !document.querySelector('form button[type="submit"]:last-of-type')?.hasAttribute("disabled"), null, { timeout: 15_000 });
       await go.click();
-      await p.waitForURL(/\/app\/quotes\/[^/]+\/sign/, { timeout: 25_000 });
+      await p.waitForURL(/\/app\/quotes\/[^/]+\/sign/, { timeout: SAVE_NAV_TIMEOUT });
       const confirm = p.getByRole("button", { name: /Conferma Accettazione/ });
       await confirm.waitFor({ timeout: 20_000 });
       if (!(await confirm.isDisabled())) throw new Error("the confirm button must stay disabled until something is signed");
@@ -551,7 +555,7 @@ async function main() {
       await p.mouse.up();
       await p.waitForFunction(() => !document.evaluate("//button[contains(., 'Conferma Accettazione')]", document, null, 9, null).singleNodeValue?.hasAttribute("disabled"), null, { timeout: 5000 });
       await confirm.click();
-      await p.waitForURL(/\/app\/quotes\/[^/]+\/print/, { timeout: 20_000 });
+      await p.waitForURL(/\/app\/quotes\/[^/]+\/print/, { timeout: SAVE_NAV_TIMEOUT });
       await p.getByText(name).first().waitFor({ timeout: 20_000 });
       const overflow = await p.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
       if (overflow > 1) throw new Error(`the printable quote overflows by ${overflow}px`);

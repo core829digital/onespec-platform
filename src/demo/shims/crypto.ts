@@ -27,4 +27,5 @@ export function createHash(_algorithm: string) {
   return api;
 }
 
-export default { createHash };
+const nodeCrypto = { createHash };
+export default nodeCrypto;
