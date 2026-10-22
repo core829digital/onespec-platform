@@ -184,6 +184,20 @@ describe("supply follows the same folder", () => {
     expect((await cantieri())[0].status).toBe("in_posa");
   });
 
+  test("closing the deal from the supply emits the same events and audit row as the other won paths", async () => {
+    const { t, asOwner, quote } = await setup();
+    const { quoteId } = await quote();
+    const id = await asOwner.mutation(api.supplies.createFromQuote, { quoteId });
+    await asOwner.mutation(api.supplies.advance, { supplyId: id });
+    expect((await t.run((ctx) => ctx.db.get(quoteId)))?.status).toBe("won");
+    const audit = await t.run((ctx) => ctx.db.query("auditLog").collect());
+    expect(audit.find((a) => a.action === "quote.status_change" && a.targetId === quoteId)?.meta).toMatchObject({ newStatus: "won" });
+    const scheduled = await t.run((ctx) => ctx.db.system.query("_scheduled_functions").collect());
+    const names = scheduled.map((f) => f.name);
+    expect(names.some((n) => n.includes("systemAddActivity"))).toBe(true);
+    expect(names.some((n) => n.includes("fanOutToTenant"))).toBe(true);
+  });
+
   test("backfill gives old quotes their client and cantiere and points their supplies at them", async () => {
     const { t, seeded, asOwner, quote, clients, cantieri } = await setup();
     const { quoteId } = await quote({ autoLink: false });

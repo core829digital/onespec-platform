@@ -8,6 +8,7 @@ import type { Doc, Id } from "./_generated/dataModel";
 import { requirePermission, requirePermissionOrNull, roleAtLeast } from "./lib/rbac";
 import { must } from "./lib/validate";
 import { lockedSafeLeadName } from "./lib/quotaLock";
+import { emit } from "./lib/triggers";
 import { ensureOrdered } from "./lib/supply";
 import { advanceCantiereStatus, linkQuoteToCrm, type CantiereStatus } from "./lib/crmLink";
 import { ensureLogisticsMirror, syncPartnerEdit } from "./lib/partnerLinks";
@@ -263,6 +264,18 @@ export const advance = mutation({
           patch.clientId = crm.clientId;
           patch.cantiereId = crm.cantiereId;
         }
+        // Same side effects as every other path that wins a quote (quotes.updateStatus, quotes.signQuote).
+        await emit(ctx, { type: "quote.status_changed", tenantId: quote.tenantId, quoteId: quote._id, from: quote.status, to: "won", leadName: lockedSafeLeadName(quote) });
+        await emit(ctx, { type: "quote.won", tenantId: quote.tenantId, quoteId: quote._id });
+        await ctx.db.insert("auditLog", {
+          tenantId: quote.tenantId,
+          actorKind: "user",
+          action: "quote.status_change",
+          targetTable: "quoteRequests",
+          targetId: quote._id,
+          meta: { oldStatus: quote.status, newStatus: "won" },
+          createdAt: now,
+        });
       }
     } else if (to === "production") {
       patch.factoryCostCents = money(args.factoryCostCents, true);
