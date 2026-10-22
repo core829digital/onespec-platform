@@ -14,7 +14,7 @@ import { enforceForESignature, enforceForFieldSurvey, enforceActivePlan } from "
 import { resolveLinks, logClientActivity } from "./lib/links";
 import { linkRecordToCrm } from "./lib/crmLink";
 import { assertStoredFile, consumeUploadSlot } from "./lib/uploads";
-import { assertShortText } from "./lib/inputs";
+import { assertLongText, assertShortText } from "./lib/inputs";
 
 /** Per-market inspection template (title, legal basis, photo + check lists). */
 export const getTemplate = query({
@@ -201,6 +201,7 @@ export const assignInstaller = mutation({
     const report = await ctx.db.get(args.reportId);
     if (!report) throw new ConvexError("REPORT_NOT_FOUND");
     await requirePermission(ctx, report.tenantId, "inspections.use");
+    assertShortText(args.installerTeam, 120);
     await ctx.db.patch(args.reportId, {
       installerTeam: args.installerTeam?.trim() ?? report.installerTeam,
       scheduledFor: args.scheduledFor ?? report.scheduledFor,
@@ -252,6 +253,10 @@ export const updateChecks = mutation({
     if (!report) throw new ConvexError("REPORT_NOT_FOUND");
     await requirePermission(ctx, report.tenantId, "inspections.use");
     if (report.status === "signed") throw new ConvexError("REPORT_LOCKED");
+    // Same bounds as the installer's HTTP route.
+    assertLongText(args.installerNotes, 2000);
+    assertLongText(args.clientRemarks, 2000);
+    if (args.checks.length > 200) throw new ConvexError("INVALID_INPUT");
 
     const passedByKey = new Map(args.checks.map((c) => [c.key, c.passed]));
     const checks = report.checks.map((c) => ({
@@ -288,6 +293,7 @@ export const sign = mutation({
     assertSignature(args.signatureDataUrl);
     const signedByName = args.signedByName.trim();
     if (!signedByName) throw new ConvexError("SIGNER_NAME_REQUIRED");
+    assertShortText(signedByName, 200);
 
     const now = Date.now();
     await ctx.db.patch(args.reportId, {

@@ -14,6 +14,7 @@ import { regionForCountry } from "./lib/regions";
 import { resolveLinks, logClientActivity } from "./lib/links";
 import { linkQuoteToCrm, recomputeCantiereValue } from "./lib/crmLink";
 import { assertSignature } from "./lib/fieldModules";
+import { assertShortText } from "./lib/inputs";
 import { resolveQuoteVat } from "./lib/vat";
 import { assertCoherentItems, parseQuoteItems, nextOfferNumber } from "./lib/quoteItems";
 import { defaultItem } from "../src/shared/item-defaults";
@@ -585,6 +586,7 @@ export const signQuote = mutation({
     assertSignature(args.signatureDataUrl);
     const signedByName = args.signedByName.trim();
     if (!signedByName) throw new ConvexError("SIGNER_NAME_REQUIRED");
+    assertShortText(signedByName, 200);
 
     const now = Date.now();
     // The picture goes to its own table (see schema.quoteSignatures); the quote keeps only who signed and when.

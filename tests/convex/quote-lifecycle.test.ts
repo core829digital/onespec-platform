@@ -63,6 +63,8 @@ describe("B2B quote: draft, edit, delete", () => {
   test("a signed quote cannot be edited, deleted or signed twice", async () => {
     const { asOwner, base } = await setup();
     const { quoteId } = await asOwner.mutation(api.quotes.createFieldQuote, base);
+    // The signer's name is bounded like on the HTTP sign route (issue #76).
+    await expect(asOwner.mutation(api.quotes.signQuote, { quoteId, signatureDataUrl: SIGNATURE_PNG, signedByName: "y".repeat(201) })).rejects.toThrow(/INVALID_INPUT/);
     await asOwner.mutation(api.quotes.signQuote, { quoteId, signatureDataUrl: SIGNATURE_PNG, signedByName: "Mario Rossi" });
     await expect(asOwner.mutation(api.quotes.updateFieldQuote, { ...base, quoteId })).rejects.toThrow(/QUOTE_LOCKED/);
     await expect(asOwner.mutation(api.quotes.deleteQuote, { quoteId })).rejects.toThrow(/QUOTE_SIGNED/);

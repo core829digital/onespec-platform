@@ -186,6 +186,7 @@ export const update = mutation({
     const doc = await ctx.db.get(args.dossierId);
     if (!doc) throw new ConvexError("DOSSIER_NOT_FOUND");
     await requirePermission(ctx, doc.tenantId, "installations.use");
+    assertLongText(args.notes, 5000);
     const region = regionForCountry(doc.regionCode).code;
     const std = complianceForRegion(region).installation;
 

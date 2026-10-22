@@ -112,7 +112,7 @@ export function EditDossierPanel({
         </label>
         <label className="text-sm sm:col-span-2" htmlFor="edit-notes">
           {t("notes")}
-          <textarea id="edit-notes" className={field} rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
+          <textarea id="edit-notes" className={field} rows={2} maxLength={5000} value={notes} onChange={(e) => setNotes(e.target.value)} />
         </label>
       </div>
       {error && <p className="text-sm text-[var(--color-danger)]" role="alert">{error}</p>}

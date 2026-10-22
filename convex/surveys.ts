@@ -8,7 +8,7 @@ import { enforceForFieldSurvey } from "./lib/enforcement";
 import { resolveLinks, logClientActivity, assertOwnedRefs } from "./lib/links";
 import { linkRecordToCrm } from "./lib/crmLink";
 import { assertStoredFile, consumeUploadSlot } from "./lib/uploads";
-import { assertLongText } from "./lib/inputs";
+import { assertLongText, assertShortText } from "./lib/inputs";
 
 const openingValidator = v.object({
   label: v.string(),
@@ -47,6 +47,38 @@ function assertSurveyArrays(a: { openings?: unknown[]; photos?: Array<{ annotati
   if ((a.openings?.length ?? 0) > MAX_OPENINGS || (a.photos?.length ?? 0) > MAX_PHOTOS ||
       (a.laserMeasurements?.length ?? 0) > MAX_LASER_MEASUREMENTS) {
     throw new ConvexError("INVALID_INPUT");
+  }
+}
+
+type SurveyText = {
+  customerName?: string;
+  customerAddress?: string;
+  customerCity?: string;
+  customerPostalCode?: string;
+  openings?: Array<{ label: string; room?: string; floor?: string; laserSource?: string; notes?: string }>;
+  diagnostics?: { wallType?: string; counterFrame?: string; floorAccess?: string; notes?: string; recommendation?: string };
+};
+
+/** Free text typed on a survey is bounded by the server on create and update alike (issue #76). */
+function assertSurveyText(a: SurveyText): void {
+  assertShortText(a.customerName, 200);
+  assertShortText(a.customerAddress, 300);
+  assertShortText(a.customerCity, 120);
+  assertShortText(a.customerPostalCode, 20);
+  for (const o of a.openings ?? []) {
+    assertShortText(o.label, 120);
+    assertShortText(o.room, 120);
+    assertShortText(o.floor, 60);
+    assertShortText(o.laserSource, 120);
+    assertLongText(o.notes, 2000);
+  }
+  const d = a.diagnostics;
+  if (d) {
+    assertShortText(d.wallType, 200);
+    assertShortText(d.counterFrame, 200);
+    assertShortText(d.floorAccess, 200);
+    assertLongText(d.notes, 5000);
+    assertLongText(d.recommendation, 5000);
   }
 }
 
@@ -191,6 +223,7 @@ export const create = mutation({
     const already = await findByClientRequest(ctx, "siteSurveys", args.tenantId, args.clientRequestId);
     if (already) return already;
     assertSurveyArrays(args);
+    assertSurveyText(args);
     for (const p of args.photos ?? []) await assertStoredFile(ctx, p.storageId, { kind: "image" });
     const { userId, regionCode } = await requireTenantRegion(ctx, args.tenantId);
     await assertOwnedRefs(ctx, args.tenantId, { quoteId: args.quoteId });
@@ -275,6 +308,7 @@ export const update = mutation({
     if (args.customerCity !== undefined) patch.customerCity = args.customerCity.trim();
     if (args.customerPostalCode !== undefined) patch.customerPostalCode = args.customerPostalCode.trim();
     assertSurveyArrays(args);
+    assertSurveyText(args);
     for (const p of args.photos ?? []) await assertStoredFile(ctx, p.storageId, { kind: "image" });
     if (args.openings !== undefined) patch.openings = cleanOpenings(args.openings);
     if (args.diagnostics !== undefined) patch.diagnostics = args.diagnostics;
