@@ -53,8 +53,9 @@ export function BrandingTab({ configuratorId }: { configuratorId: Id<"configurat
         whiteLabel: Boolean(val("whiteLabel", branding.whiteLabel)),
         colorAccent: String(val("colorAccent", branding.colorAccent)),
         colorAccentInk: String(val("colorAccentInk", branding.colorAccentInk)),
-        colorBg: String(val("colorBg", branding.colorBg ?? "")) || undefined,
-        colorBgDark: String(val("colorBgDark", branding.colorBgDark ?? "")) || undefined,
+        // "" is sent as is: the server reads it as "back to the default" (undefined would mean "unchanged").
+        colorBg: String(val("colorBg", branding.colorBg ?? "")),
+        colorBgDark: String(val("colorBgDark", branding.colorBgDark ?? "")),
         fontFamily: String(val("fontFamily", branding.fontFamily)) as "geist",
         copy: currentCopy,
         companyInfo: {

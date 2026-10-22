@@ -14,6 +14,7 @@ import { regionForCountry } from "./lib/regions";
 import { pricingBlock, withStandardPrices } from "./lib/standardPricing";
 import { applyStandardPricing, ensureProfileClassification } from "./lib/standardCatalog";
 import { isPriceZone } from "../src/shared/standard-pricing";
+import { DEFAULT_ACCENT, DEFAULT_ACCENT_INK } from "./branding";
 
 export const createConfigurator = mutation({
   args: { tenantId: v.id("tenants"), name: v.string() },
@@ -60,8 +61,8 @@ export const createConfigurator = mutation({
       tenantId: args.tenantId,
       configuratorId,
       whiteLabel: resolveTenantEntitlements(tenant).whiteLabel,
-      colorAccent: "#16d19d",
-      colorAccentInk: "#04150f",
+      colorAccent: DEFAULT_ACCENT,
+      colorAccentInk: DEFAULT_ACCENT_INK,
       fontFamily: "geist",
       copy: {},
       companyInfo: { name: tenant.name },

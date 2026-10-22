@@ -10,6 +10,9 @@ import { consumeUploadSlot, scheduleSniff } from "./lib/uploads";
 const IMAGE_TYPES = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
 const LOGO_MAX_BYTES = 2 * 1024 * 1024;
 const COPY_MAX_BYTES = 20_000;
+/** OneSpec mint: what a new configurator starts with and what an emptied accent field resets to. */
+export const DEFAULT_ACCENT = "#16d19d";
+export const DEFAULT_ACCENT_INK = "#04150f";
 
 /**
  * Colours end up in the PUBLIC widget's styles: only plain colour values are
@@ -78,10 +81,9 @@ export const updateBranding = mutation({
     // as false rather than refused, so a downgraded tenant can still save the
     // rest of its branding (the public widget also re-checks the plan).
     if (args.whiteLabel !== undefined) update.whiteLabel = args.whiteLabel && whiteLabelAllowed;
-    const accent = cleanColor(args.colorAccent);
-    if (accent) update.colorAccent = accent;
-    const ink = cleanColor(args.colorAccentInk);
-    if (ink) update.colorAccentInk = ink;
+    // The accent pair is required on the row, so "" (reset) stores the default instead of being dropped.
+    if (args.colorAccent !== undefined) update.colorAccent = cleanColor(args.colorAccent) || DEFAULT_ACCENT;
+    if (args.colorAccentInk !== undefined) update.colorAccentInk = cleanColor(args.colorAccentInk) || DEFAULT_ACCENT_INK;
     if (args.colorBg !== undefined) update.colorBg = cleanColor(args.colorBg) || undefined;
     if (args.colorBgDark !== undefined) update.colorBgDark = cleanColor(args.colorBgDark) || undefined;
     if (args.fontFamily !== undefined) update.fontFamily = args.fontFamily;

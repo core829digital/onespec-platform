@@ -96,6 +96,15 @@ describe("branding hardening (launch audit)", () => {
     expect(b?.colorBgDark).toBeUndefined();
   });
 
+  test("an emptied accent resets to the default, and an emptied background clears it", async () => {
+    const { t, cfg, as } = await withBranding("pro");
+    await as.mutation(api.branding.updateBranding, { configuratorId: cfg, colorAccent: "#112233", colorAccentInk: "#ffffff", colorBg: "#eeeeee" });
+    await as.mutation(api.branding.updateBranding, { configuratorId: cfg, colorAccent: "", colorAccentInk: "", colorBg: "" });
+    const b = await t.run((ctx) => ctx.db.query("branding").first());
+    expect(b).toMatchObject({ colorAccent: "#16d19d", colorAccentInk: "#04150f" });
+    expect(b?.colorBg).toBeUndefined();
+  });
+
   test("white-label without the entitlement is stored as false (save still works)", async () => {
     const { t, cfg, as } = await withBranding("base");
     await as.mutation(api.branding.updateBranding, { configuratorId: cfg, whiteLabel: true, colorAccent: "#000000" });
