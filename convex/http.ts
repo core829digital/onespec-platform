@@ -5,6 +5,8 @@ import { api, internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { auth } from "./auth";
 import { QuoteSubmissionSchema } from "../src/shared/widget-types";
+import type { z } from "zod";
+import type { FunctionArgs } from "convex/server";
 import { verifyStripeSignature } from "./billing";
 import { hashIp } from "./lib/ipHash";
 import { clientIp } from "./lib/clientIp";
@@ -404,6 +406,19 @@ async function checkInspectionLimit(
   }
   return null;
 }
+
+/**
+ * The widget wire contract is QuoteSubmissionSchema; insertQuote's args are its server side. Every field the
+ * schema accepts must reach insertQuote (by the same name), except the ones this file consumes itself, so a
+ * field added to one side and forgotten on the other fails the build instead of being dropped silently (#66).
+ */
+type WidgetQuoteSubmission = z.output<typeof QuoteSubmissionSchema>;
+type HttpOnlySubmissionFields = "turnstileToken" | "honeypot" | "consent";
+type InsertQuoteArgs = FunctionArgs<typeof internal.widget.insertQuote>;
+type Assert<T extends true> = T;
+export type WireFieldsReachInsertQuote = Assert<
+  Exclude<keyof WidgetQuoteSubmission, HttpOnlySubmissionFields> extends keyof InsertQuoteArgs ? true : false
+>;
 
 /** Runtime type + length guard for JSON bodies (TypeScript casts don't validate). */
 function isStr(v: unknown, max: number, allowEmpty = false): v is string {
