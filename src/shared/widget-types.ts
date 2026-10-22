@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { PIECE_CATEGORIES } from "./configurator-model";
+import type { ProjectItem as PricingItem } from "./pricing";
 
 /** Structural limits enforced on BOTH client preview and server. */
 export const DIM_ABS_MAX = 6000; // mm — hard ceiling for any single element
@@ -134,7 +135,14 @@ export const QuoteSubmissionSchema = z.object({
   sourcePage: z.string().max(2048).optional(),
 });
 
-export type ProjectItem = z.infer<typeof ProjectItemSchema> & Record<string, unknown>;
+/**
+ * The pricing engine's ProjectItem is the one contract. A parsed piece must
+ * satisfy it: if the schema and the interface drift apart, this line stops
+ * compiling (it used to be hidden by an index-signature intersection and casts).
+ */
+type Assert<T extends true> = T;
+export type ParsedItemIsPricingItem = Assert<z.output<typeof ProjectItemSchema> extends PricingItem ? true : false>;
+export type ProjectItem = PricingItem;
 export type QuoteSubmission = z.infer<typeof QuoteSubmissionSchema>;
 
 export function validateQuoteSubmission(

@@ -19,7 +19,7 @@ export function parseQuoteItems(raw: unknown): ProjectItem[] {
   return raw.map((r) => {
     const parsed = ProjectItemSchema.safeParse(r);
     if (!parsed.success) throw new ConvexError("INVALID_ITEM");
-    const item = parsed.data as unknown as ProjectItem;
+    const item: ProjectItem = parsed.data;
     // The bars the server prices are the valid ones: anything that does not fit the piece is dropped here, never charged.
     const transoms = normalizeTransoms(item.height, item.transoms);
     // Same for the bars of a single leaf and the openings of the fields they leave (fixed glass unless a valid opening was sent).
