@@ -45,6 +45,7 @@ export const DEMO_CONVEX_MODULES: Record<string, Loader> = {
   "../convex/lib/crmLink.ts": () => import("../../convex/lib/crmLink"),
   "../convex/lib/csv.ts": () => import("../../convex/lib/csv"),
   "../convex/lib/deliveryCore.ts": () => import("../../convex/lib/deliveryCore"),
+  "../convex/lib/dims.ts": () => import("../../convex/lib/dims"),
   "../convex/lib/emailFrom.ts": () => import("../../convex/lib/emailFrom"),
   "../convex/lib/enea.ts": () => import("../../convex/lib/enea"),
   "../convex/lib/enforcement.ts": () => import("../../convex/lib/enforcement"),

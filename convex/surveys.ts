@@ -9,11 +9,12 @@ import { resolveLinks, logClientActivity, assertOwnedRefs } from "./lib/links";
 import { linkRecordToCrm } from "./lib/crmLink";
 import { assertStoredFile, consumeUploadSlot } from "./lib/uploads";
 import { assertLongText, assertShortText } from "./lib/inputs";
+import { assertMm, mm } from "./lib/dims";
 
 const openingValidator = v.object({
   label: v.string(),
-  widthMm: v.number(),
-  heightMm: v.number(),
+  widthMm: mm(),
+  heightMm: mm(),
   room: v.optional(v.string()),
   floor: v.optional(v.string()),
   laserSource: v.optional(v.string()),
@@ -88,17 +89,16 @@ const MAX_OPENING_MM = 20_000;
 /** Convex validators only check types: the bounds of each measured opening live here. Measures are stored in whole mm. */
 function cleanOpenings<T extends { widthMm: number; heightMm: number }>(openings: T[] | undefined): T[] | undefined {
   if (openings === undefined) return undefined;
-  return openings.map((o) => {
-    for (const mm of [o.widthMm, o.heightMm]) {
-      if (!Number.isFinite(mm) || mm < 0 || mm > MAX_OPENING_MM) throw new ConvexError("INVALID_INPUT");
-    }
-    return { ...o, widthMm: Math.round(o.widthMm), heightMm: Math.round(o.heightMm) };
-  });
+  return openings.map((o) => ({
+    ...o,
+    widthMm: assertMm(o.widthMm, 0, MAX_OPENING_MM),
+    heightMm: assertMm(o.heightMm, 0, MAX_OPENING_MM),
+  }));
 }
 
 const laserMeasurementValidator = v.object({
-  L: v.number(),
-  H: v.number(),
+  L: mm(),
+  H: mm(),
   timestamp: v.number(),
   deviceId: v.optional(v.string()),
 });

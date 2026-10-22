@@ -21,6 +21,7 @@ import { assertCoherentItems, parseQuoteItems, nextOfferNumber } from "./lib/quo
 import { defaultItem } from "../src/shared/item-defaults";
 import { quoteTotals } from "../src/shared/quote-totals";
 import { quoteStatusValidator } from "./lib/enums";
+import { mm } from "./lib/dims";
 
 const QUOTE_STATUS = quoteStatusValidator;
 
@@ -247,8 +248,8 @@ const FIELD_QUOTE_ARGS = {
     rgeCertificate: v.optional(v.string()),
     maPrimeRenovPercent: v.optional(v.number()),
     decennaleInsurance: v.optional(v.string()),
-    rensonGrilleWidthMm: v.optional(v.number()),
-    voletMonoblocHeightMm: v.optional(v.number()),
+    rensonGrilleWidthMm: v.optional(mm()),
+    voletMonoblocHeightMm: v.optional(mm()),
     hvlJointCount: v.optional(v.number()),
     isostoneSill: v.optional(v.boolean()),
     ralMontage: v.optional(v.boolean()),
@@ -843,8 +844,8 @@ export const createQuoteWithSuppliers = mutation({
     rgeCertificate: v.optional(v.string()),
     maPrimeRenovPercent: v.optional(v.number()),
     decennaleInsurance: v.optional(v.string()),
-    rensonGrilleWidthMm: v.optional(v.number()),
-    voletMonoblocHeightMm: v.optional(v.number()),
+    rensonGrilleWidthMm: v.optional(mm()),
+    voletMonoblocHeightMm: v.optional(mm()),
     hvlJointCount: v.optional(v.number()),
     isostoneSill: v.optional(v.boolean()),
     ralMontage: v.optional(v.boolean()),
