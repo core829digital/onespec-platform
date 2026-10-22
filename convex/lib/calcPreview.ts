@@ -2,12 +2,9 @@ import { regionForCountry } from "./regions";
 import { calculatePrice, computeOverallUw, type CatalogPayload, type ProjectItem } from "../../src/shared/pricing";
 import { complianceForRegion } from "./compliance";
 import { UW_LIMIT_BY_ZONE } from "./enea";
+import { FISCAL, PREVIEW_IT_ZONE, fiscalFor, itBeniSignificativi, itSplitFromItems, itVatLines, type BeniSignificativiBreakdown } from "./fiscal";
 
-/**
- * The preview has no address, so Italy is judged for climate zone E (the most populated one, 1661 GG):
- * the eligibility badge and the ENEA document parameters read the SAME limit (DM 6/8/2020, Allegato E).
- */
-const PREVIEW_IT_ZONE = "E" as const;
+export type { BeniSignificativiBreakdown };
 
 /**
  * Pure calculation behind the Showroom preview (price, VAT breakdown, Uw,
@@ -18,10 +15,6 @@ function round2(n: number): number {
   return Math.round(n * 100) / 100;
 }
 
-function getHardwareOption(payload: CatalogPayload, kind: string, key: string) {
-  return payload.hardware.find((h) => h.kind === kind && h.key === key && h.enabled);
-}
-
 export interface VatBreakdown {
   rate: number;
   label: string;
@@ -30,16 +23,6 @@ export interface VatBreakdown {
   totalCents: number;
   /** The rate the country's rules point to for this job, when it differs from the rate applied (the configurator's). */
   suggested?: { rate: number; label: string };
-}
-
-export interface BeniSignificativiBreakdown {
-  beni10: number;
-  beni22: number;
-  imponibile10: number;
-  iva10: number;
-  imponibile22: number;
-  iva22: number;
-  totalCents: number;
 }
 
 export interface FundingDocParams {
@@ -61,18 +44,6 @@ export interface FundingDocParams {
   risparmioKwhAnno?: number;
 }
 
-function calculateBeniSignificativi(manoperaCents: number, beniCents: number, altriCents: number): BeniSignificativiBreakdown {
-  const limitaBeniLa10 = manoperaCents + altriCents;
-  const beni10 = Math.min(beniCents, limitaBeniLa10);
-  const beni22 = Math.max(0, beniCents - limitaBeniLa10);
-  const imponibile10 = manoperaCents + altriCents + beni10;
-  const iva10 = Math.round(imponibile10 * 0.1);
-  const imponibile22 = beni22;
-  const iva22 = Math.round(imponibile22 * 0.22);
-  const totalCents = imponibile10 + iva10 + imponibile22 + iva22;
-  return { beni10, beni22, imponibile10, iva10, imponibile22, iva22, totalCents };
-}
-
 /** The tax's own name per market, for a configurator rate the region's list does not name. */
 const VAT_NAME: Record<string, string> = { IT: "IVA", FR: "TVA", BE: "TVA", LU: "TVA", NL: "btw", DE: "MwSt." };
 
@@ -88,43 +59,7 @@ function calculateVatBreakdown(
   const breakdown: VatBreakdown[] = [];
 
   if (region.code === "IT") {
-    let manoperaCents = 0;
-    let beniCents = 0;
-    let altriCents = 0;
-
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      const ib = baseCalc.items[i];
-      if (!ib) continue;
-
-      const installationCost = item.installation
-        ? (getHardwareOption(payload, "installation", item.installation)?.priceCents || 0)
-        : 0;
-      manoperaCents += installationCost * item.quantity;
-
-      const materialCost = ib.materialCost + ib.profileCost;
-      beniCents += materialCost * item.quantity;
-
-      const optionsCost = ib.optionsCost - installationCost;
-      altriCents += optionsCost * item.quantity;
-    }
-
-    const beniSig = calculateBeniSignificativi(manoperaCents, beniCents, altriCents);
-
-    breakdown.push({
-      rate: 0.1,
-      label: "IVA 10% (manopera + beni fino a concorrenza manopera)",
-      baseCents: beniSig.imponibile10,
-      vatCents: beniSig.iva10,
-      totalCents: beniSig.imponibile10 + beniSig.iva10,
-    });
-    breakdown.push({
-      rate: 0.22,
-      label: "IVA 22% (beni eccedenti)",
-      baseCents: beniSig.imponibile22,
-      vatCents: beniSig.iva22,
-      totalCents: beniSig.imponibile22 + beniSig.iva22,
-    });
+    breakdown.push(...itVatLines(itBeniSignificativi(itSplitFromItems(payload, items, baseCalc))));
     return breakdown;
   }
 
@@ -184,8 +119,8 @@ function getFundingDocParams(
       conform: uwPost <= uwLimit,
       uwLimit,
       zone,
-      gradiGiorno: 1661,
-      risparmioKwhAnno: Math.round(Math.max((uwAnte ?? 3.2) - uwPost, 0) * superficieM2 * 1661 * 24 / 1000),
+      gradiGiorno: FISCAL.IT.gradiGiorno,
+      risparmioKwhAnno: Math.round(Math.max((uwAnte ?? FISCAL.IT.uwReference) - uwPost, 0) * superficieM2 * FISCAL.IT.gradiGiorno * 24 / 1000),
     };
   }
 
@@ -216,31 +151,14 @@ function calculateNetAfterBonus50(totalCents: number, deductionPercent: number =
 }
 
 export function checkUwEligibility(regionCode: string, uw: number): boolean {
-  const limits: Record<string, number> = {
-    IT: UW_LIMIT_BY_ZONE[PREVIEW_IT_ZONE],
-    FR: 1.3,
-    BE: 1.5,
-    NL: 1.5,
-    DE: 0.95,
-    LU: 1.0,
-  };
-  return uw <= (limits[regionCode] || 999);
+  return uw <= (fiscalFor(regionCode)?.eligibilityUwLimit || 999);
 }
 
 function estimateEnergySavings(regionCode: string, uw: number, items: ProjectItem[]): number {
-  const zonaGG: Record<string, number> = {
-    IT: 1661,
-    FR: 1800,
-    BE: 1900,
-    NL: 1800,
-    DE: 2200,
-    LU: 2000,
-  };
-  const gg = zonaGG[regionCode] || 1661;
+  const fiscal = fiscalFor(regionCode) ?? FISCAL.IT;
   const superficieM2 = items.reduce((s, it) => s + (it.width / 1000) * (it.height / 1000) * it.quantity, 0);
-  const uwReference = { IT: 3.2, FR: 2.8, BE: 2.8, NL: 2.8, DE: 2.8, LU: 2.8 }[regionCode] || 3.2;
-  const deltaU = Math.max(uwReference - uw, 0);
-  return Math.round(deltaU * superficieM2 * gg * 24 / 1000);
+  const deltaU = Math.max(fiscal.uwReference - uw, 0);
+  return Math.round(deltaU * superficieM2 * fiscal.gradiGiorno * 24 / 1000);
 }
 
 export interface CalculationOptions {
@@ -284,28 +202,7 @@ export function computeCalculationPreview(
 
   let beniSignificativi: BeniSignificativiBreakdown | null = null;
   if (regionCode === "IT") {
-    let manoperaCents = 0;
-    let beniCents = 0;
-    let altriCents = 0;
-
-    for (let i = 0; i < items.length; i++) {
-      const item = items[i];
-      const ib = baseCalc.items[i];
-      if (!ib) continue;
-
-      const installationCost = item.installation
-        ? (getHardwareOption(payload, "installation", item.installation)?.priceCents || 0)
-        : 0;
-      manoperaCents += installationCost * item.quantity;
-
-      const materialCost = ib.materialCost + ib.profileCost;
-      beniCents += materialCost * item.quantity;
-
-      const optionsCost = ib.optionsCost - installationCost;
-      altriCents += optionsCost * item.quantity;
-    }
-
-    beniSignificativi = calculateBeniSignificativi(manoperaCents, beniCents, altriCents);
+    beniSignificativi = itBeniSignificativi(itSplitFromItems(payload, items, baseCalc));
   }
 
   const fundingDocParams = getFundingDocParams(

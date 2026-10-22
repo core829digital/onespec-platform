@@ -11,6 +11,8 @@
  * this file is the mechanism they all plug into.
  */
 
+import { itBeniSignificativi, itVatLines } from "./fiscal";
+
 export type RegionCode = "IT" | "FR" | "BE" | "NL" | "DE" | "LU";
 
 /** How the widget presents the price to the end visitor. */
@@ -161,29 +163,7 @@ export function calculateVAT(input: VatCalculationInput): VatBreakdownItem[] {
 
   if (input.regionCode === "IT") {
     const split = input.itSplit ?? { manoperaCents: 0, beniCents: input.subtotalExVatCents, altriCents: 0 };
-    const limitaBeniLa10 = split.manoperaCents + split.altriCents;
-    const beni10 = Math.min(split.beniCents, limitaBeniLa10);
-    const beni22 = Math.max(0, split.beniCents - limitaBeniLa10);
-
-    const imponibile10 = split.manoperaCents + split.altriCents + beni10;
-    const iva10 = Math.round(imponibile10 * 0.1);
-    const imponibile22 = beni22;
-    const iva22 = Math.round(imponibile22 * 0.22);
-
-    breakdown.push({
-      rate: 0.1,
-      label: "IVA 10% (manopera + beni fino a concorrenza manopera)",
-      baseCents: imponibile10,
-      vatCents: iva10,
-      totalCents: imponibile10 + iva10,
-    });
-    breakdown.push({
-      rate: 0.22,
-      label: "IVA 22% (beni eccedenti)",
-      baseCents: imponibile22,
-      vatCents: iva22,
-      totalCents: imponibile22 + iva22,
-    });
+    breakdown.push(...itVatLines(itBeniSignificativi(split)));
     return breakdown;
   }
 
