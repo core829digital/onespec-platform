@@ -21,14 +21,7 @@ import {
   type DiagnosticData,
 } from "@/components/surveys/DiagnosticChecklist";
 import { PhotoCoteCanvas, type Annotation } from "@/components/surveys/PhotoCoteCanvas";
-import {
-  enqueue,
-  flushQueue,
-  newQueueId,
-  shouldQueueAfterError,
-  subscribeSyncState,
-  type SyncState,
-} from "@/lib/offline-sync";
+import { useOfflineSync, saveWithOfflineFallback } from "@/lib/use-offline-sync";
 import { SyncBadge } from "@/components/field/sync-badge";
 
 type LaserOpening = {
@@ -90,12 +83,6 @@ export default function SurveysPage() {
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState("");
-  const [sync, setSync] = useState<SyncState>({
-    isOnline: true,
-    pendingCount: 0,
-    failedCount: 0,
-    lastSync: null,
-  });
 
   const [customerName, setCustomerName] = useState("");
   const [customerAddress, setCustomerAddress] = useState("");
@@ -185,22 +172,9 @@ export default function SurveysPage() {
     td,
   ]);
 
-  const runSync = useCallback(() => {
-    void flushQueue({
-      "survey.create": (payload, clientRequestId) =>
-        createSurvey({ ...(payload as Parameters<typeof createSurvey>[0]), clientRequestId }),
-    });
-  }, [createSurvey]);
-
-  useEffect(() => {
-    const unsub = subscribeSyncState(setSync);
-    runSync();
-    return unsub;
-  }, [runSync]);
-
-  useEffect(() => {
-    if (sync.isOnline && sync.pendingCount > 0) runSync();
-  }, [sync.isOnline, sync.pendingCount, runSync]);
+  const { sync, runSync } = useOfflineSync("survey.create", (payload, clientRequestId) =>
+    createSurvey({ ...(payload as Parameters<typeof createSurvey>[0]), clientRequestId }),
+  );
 
   function reset() {
     setClientId(undefined);
@@ -289,29 +263,15 @@ export default function SurveysPage() {
     if (!payload) return;
     setSaving(true);
     setErr("");
-    // One id for this save, online or queued: a retry of the same survey is never created twice.
-    const clientRequestId = newQueueId("survey.create");
     try {
-      if (!navigator.onLine) {
-        await enqueue("survey.create", payload, clientRequestId);
-      } else {
-        await createSurvey({ ...(payload as Parameters<typeof createSurvey>[0]), clientRequestId });
-      }
+      // Offline, or the reply lost on a flaky network: queued with one id, never created twice.
+      await saveWithOfflineFallback("survey.create", payload, (args) =>
+        createSurvey(args as Parameters<typeof createSurvey>[0]),
+      );
       reset();
       setOpen(false);
     } catch (e) {
-      // The reply may have been lost on a flaky network: queue it (same id). A refusal from the server is shown instead.
-      if (!shouldQueueAfterError(e)) {
-        setErr(tf(e));
-        return;
-      }
-      try {
-        await enqueue("survey.create", payload, clientRequestId);
-        reset();
-        setOpen(false);
-      } catch {
-        setErr(tf(e));
-      }
+      setErr(tf(e));
     } finally {
       setSaving(false);
     }

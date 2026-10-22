@@ -1,7 +1,7 @@
 "use client";
 
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useMutation } from "convex/react";
 import { useQuery } from "@/lib/convex-query";
 import { api } from "@/convex/_generated/api";
@@ -13,14 +13,7 @@ import { buildPosaNodeScene, SceneSvg } from "@/lib/drawing";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useLocale, useTranslations } from "next-intl";
-import {
-  enqueue,
-  flushQueue,
-  newQueueId,
-  shouldQueueAfterError,
-  subscribeSyncState,
-  type SyncState,
-} from "@/lib/offline-sync";
+import { useOfflineSync, saveWithOfflineFallback } from "@/lib/use-offline-sync";
 import { SyncBadge } from "@/components/field/sync-badge";
 import { AlertTriangle, Globe, Settings } from "lucide-react";
 import { DeleteAction } from "@/components/ui/delete-action";
@@ -66,12 +59,6 @@ export default function InstallationsPage() {
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState("");
 
-  const [sync, setSync] = useState<SyncState>({
-    isOnline: true,
-    pendingCount: 0,
-    failedCount: 0,
-    lastSync: null,
-  });
 
   // Live material preview mirrors the server formula (compliance.computePosaMaterials).
   const preview = useMemo(() => {
@@ -83,22 +70,9 @@ export default function InstallationsPage() {
     });
   }, [standard, perimeterM]);
 
-  const runSync = useCallback(() => {
-    void flushQueue({
-      "installation.create": (payload, clientRequestId) =>
-        createDossier({ ...(payload as Parameters<typeof createDossier>[0]), clientRequestId }),
-    });
-  }, [createDossier]);
-
-  useEffect(() => {
-    const unsub = subscribeSyncState(setSync);
-    runSync();
-    return unsub;
-  }, [runSync]);
-
-  useEffect(() => {
-    if (sync.isOnline && sync.pendingCount > 0) runSync();
-  }, [sync.isOnline, sync.pendingCount, runSync]);
+  const { sync, runSync } = useOfflineSync("installation.create", (payload, clientRequestId) =>
+    createDossier({ ...(payload as Parameters<typeof createDossier>[0]), clientRequestId }),
+  );
 
   async function save() {
     if (!tenant || !jobType || !nodeType) {
@@ -128,29 +102,12 @@ export default function InstallationsPage() {
       setSurveyId("");
       setNotes("");
     };
-    // One id for this save, online or queued: a retry of the same dossier is never created twice.
-    const clientRequestId = newQueueId("installation.create");
     try {
-      // runSync above only drains the queue; without this, going offline
-      // mid-wizard just threw instead of queuing like surveys/page.tsx does.
-      if (!navigator.onLine) {
-        await enqueue("installation.create", payload, clientRequestId);
-      } else {
-        await createDossier({ ...payload, clientRequestId });
-      }
+      // Offline, or the reply lost on a flaky network: queued with one id, never created twice.
+      await saveWithOfflineFallback("installation.create", payload, createDossier);
       clearForm();
     } catch (e) {
-      // The reply may have been lost on a flaky network: queue it (same id). A refusal from the server is shown instead.
-      if (!shouldQueueAfterError(e)) {
-        setErr(tf(e));
-        return;
-      }
-      try {
-        await enqueue("installation.create", payload, clientRequestId);
-        clearForm();
-      } catch {
-        setErr(tf(e));
-      }
+      setErr(tf(e));
     } finally {
       setSaving(false);
     }

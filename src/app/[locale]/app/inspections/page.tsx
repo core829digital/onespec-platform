@@ -2,7 +2,7 @@
 
 import { requestConfirm } from "@/lib/confirm-dialog";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { SignaturePad } from "@/components/signature-pad";
 import { useMutation } from "convex/react";
 import { useQuery } from "@/lib/convex-query";
@@ -12,14 +12,7 @@ import { useTranslations } from "next-intl";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import { ClientCantierePicker, type PickedLinks } from "@/components/app-shell/client-cantiere-picker";
-import {
-  enqueue,
-  flushQueue,
-  newQueueId,
-  shouldQueueAfterError,
-  subscribeSyncState,
-  type SyncState,
-} from "@/lib/offline-sync";
+import { useOfflineSync, saveWithOfflineFallback } from "@/lib/use-offline-sync";
 import { SyncBadge } from "@/components/field/sync-badge";
 import { useRunAction } from "@/hooks/useRunAction";
 import { OpenButton } from "@/components/ui/open-button";
@@ -255,31 +248,12 @@ export default function InspectionsPage() {
   const [selected, setSelected] = useState<ReportId | null>(null);
   const [err, setErr] = useState("");
 
-  const [sync, setSync] = useState<SyncState>({
-    isOnline: true,
-    pendingCount: 0,
-    failedCount: 0,
-    lastSync: null,
-  });
 
   const createReport = useMutation(api.inspections.create);
 
-  const runSync = useCallback(() => {
-    void flushQueue({
-      "inspection.create": (payload, clientRequestId) =>
-        createReport({ ...(payload as Parameters<typeof createReport>[0]), clientRequestId }),
-    });
-  }, [createReport]);
-
-  useEffect(() => {
-    const unsub = subscribeSyncState(setSync);
-    runSync();
-    return unsub;
-  }, [runSync]);
-
-  useEffect(() => {
-    if (sync.isOnline && sync.pendingCount > 0) runSync();
-  }, [sync.isOnline, sync.pendingCount, runSync]);
+  const { sync, runSync } = useOfflineSync("inspection.create", (payload, clientRequestId) =>
+    createReport({ ...(payload as Parameters<typeof createReport>[0]), clientRequestId }),
+  );
 
   async function add() {
     if (!tenant || (!name.trim() && !clientId)) {
@@ -300,27 +274,12 @@ export default function InspectionsPage() {
       setClientId(undefined);
       setCantiereId(undefined);
     };
-    // One id for this save, online or queued: a retry of the same report is never created twice.
-    const clientRequestId = newQueueId("inspection.create");
     try {
-      if (!navigator.onLine) {
-        await enqueue("inspection.create", payload, clientRequestId);
-      } else {
-        await create({ ...payload, clientRequestId });
-      }
+      // Offline, or the reply lost on a flaky network: queued with one id, never created twice.
+      await saveWithOfflineFallback("inspection.create", payload, create);
       clearForm();
     } catch (e) {
-      // The reply may have been lost on a flaky network: queue it (same id). A refusal from the server is shown instead.
-      if (!shouldQueueAfterError(e)) {
-        setErr(tf(e));
-        return;
-      }
-      try {
-        await enqueue("inspection.create", payload, clientRequestId);
-        clearForm();
-      } catch {
-        setErr(tf(e));
-      }
+      setErr(tf(e));
     }
   }
 
