@@ -76,7 +76,7 @@
     "@edge-runtime/vm": "^4.0.4",
     "@swc/core": "file:./vendor/swc-core-stub",
     "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
+    "@types/node": "^26",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "convex-test": "0.0.35",
