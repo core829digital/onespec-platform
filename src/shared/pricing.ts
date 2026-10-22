@@ -256,7 +256,7 @@ export interface ProjectItem {
  * the pricing loop + widget submit pick them up automatically.
  */
 /** A piece with a different finish inside than outside. */
-export function isBicolor(item: { color: string; colorInside?: string }): boolean {
+export function isBicolor<T extends { color: string; colorInside?: string }>(item: T): item is T & { colorInside: string } {
   return !!item.colorInside && item.colorInside !== item.color;
 }
 
@@ -405,7 +405,7 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
     const quality = getQualityTier(payload, item.material, item.quality[item.material]);
     const glazing = getGlazingOption(payload, item.glazing);
     const outside = getFinishOption(payload, item.color);
-    const inside = isBicolor(item) && payload.configurator.bicolorEnabled !== false ? getFinishOption(payload, item.colorInside!) : undefined;
+    const inside = isBicolor(item) && payload.configurator.bicolorEnabled !== false ? getFinishOption(payload, item.colorInside) : undefined;
     // One colour: its own multiplier and flat price. Bicolour: each face is half of the coating, so the two are averaged
     // (identical faces give exactly the one-colour price), plus the installer's bicolour surcharge per m².
     const finish = outside && inside
