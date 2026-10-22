@@ -75,7 +75,7 @@ export function equalRatios(n: number): number[] {
  * `widthRatio` gets an equal share of whatever is left, then the whole set is
  * scaled to sum exactly 1.
  */
-export function normalizedRatios(sashes: EditorSash[]): number[] {
+export function normalizedRatios(sashes: ReadonlyArray<{ widthRatio?: number }>): number[] {
   const n = sashes.length;
   if (n === 0) return [];
   const explicit = sashes.map((s) =>

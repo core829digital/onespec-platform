@@ -1,6 +1,6 @@
 "use client";
 
-import { inactiveLeaves, jointsFor, normalizedRatios, type EditorSash } from "@/shared/sash-rules";
+import { inactiveLeaves, jointsFor, normalizedRatios } from "@/shared/sash-rules";
 import { darken, GLASS_GRADIENT_STOPS, hardwareFill, TEXTURE_TILE } from "@/lib/drawing/finishes";
 import { handleKindFor, handleShapes } from "@/lib/drawing/handle-shapes";
 import { useCallback, useRef, useState } from "react";
@@ -62,7 +62,7 @@ interface Props {
 }
 
 // The same shares the leaf labels and the editing use (shared with the platform), so drawing and numbers can never disagree.
-const normaliseRatios = (sashes: Sash[]): number[] => normalizedRatios(sashes as unknown as EditorSash[]);
+const normaliseRatios = (sashes: Sash[]): number[] => normalizedRatios(sashes);
 
 export function SpecDrawing({
   width,
