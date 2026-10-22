@@ -1,6 +1,13 @@
 import { regionForCountry } from "./regions";
 import { calculatePrice, computeOverallUw, type CatalogPayload, type ProjectItem } from "../../src/shared/pricing";
 import { complianceForRegion } from "./compliance";
+import { UW_LIMIT_BY_ZONE } from "./enea";
+
+/**
+ * The preview has no address, so Italy is judged for climate zone E (the most populated one, 1661 GG):
+ * the eligibility badge and the ENEA document parameters read the SAME limit (DM 6/8/2020, Allegato E).
+ */
+const PREVIEW_IT_ZONE = "E" as const;
 
 /**
  * Pure calculation behind the Showroom preview (price, VAT breakdown, Uw,
@@ -160,8 +167,8 @@ function getFundingDocParams(
   const costoCents = baseCalc.priceCents;
 
   if (region.code === "IT") {
-    const zone = "E";
-    const uwLimit = 1.3;
+    const zone = PREVIEW_IT_ZONE;
+    const uwLimit = UW_LIMIT_BY_ZONE[zone];
     return {
       region: region.code,
       title: funding.title,
@@ -208,9 +215,9 @@ function calculateNetAfterBonus50(totalCents: number, deductionPercent: number =
   return Math.round(totalCents * (1 - deductionPercent / 100));
 }
 
-function checkUwEligibility(regionCode: string, uw: number): boolean {
+export function checkUwEligibility(regionCode: string, uw: number): boolean {
   const limits: Record<string, number> = {
-    IT: 1.4,
+    IT: UW_LIMIT_BY_ZONE[PREVIEW_IT_ZONE],
     FR: 1.3,
     BE: 1.5,
     NL: 1.5,
