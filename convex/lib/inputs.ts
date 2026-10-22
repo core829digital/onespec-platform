@@ -37,9 +37,10 @@ export function assertLongText(value: string | undefined, max = 5000): void {
 /** Multilingual label object, language code → text. */
 export type Labels = Record<string, string>;
 /**
- * The validator the stored `labels` fields will move to once existing rows are
- * audited (they are `v.any()` today, issue #65): swapping it in changes how
- * invalid input is rejected, so it lands separately from the type narrowing.
+ * The validator of every stored `labels` field (issue #65 step B, after the
+ * production audit found no non-conforming row). Function arguments stay
+ * `v.any()` and go through `assertLabels`, so invalid input keeps failing with
+ * INVALID_INPUT rather than an argument-validation error.
  */
 export const labelsValidator = v.record(v.string(), v.string());
 

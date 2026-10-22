@@ -502,7 +502,7 @@ export const insertQuote = internalMutation({
     const quotaLocked = widgetPlan && !suspendedLocked && (overQuota || overConfiguratorCap);
     const locked = quotaLocked || suspendedLocked;
 
-    const price = calculatePrice(version.payload, items);
+    const price = calculatePrice(version.payload as CatalogPayload, items);
 
     // The widget shows the gross at the rate the visitor picked, minus the ecobonus and discount they applied:
     // compare like with like, or every honest lead that uses those knobs looks like tampering.

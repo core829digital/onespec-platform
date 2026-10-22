@@ -2,6 +2,7 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 import { authTables } from "@convex-dev/auth/server";
 import { hardwareKindValidator } from "./lib/enums";
+import { labelsValidator } from "./lib/inputs";
 
 export default defineSchema({
   ...authTables,
@@ -428,7 +429,7 @@ export default defineSchema({
     tenantId: v.id("tenants"),
     configuratorId: v.id("configurators"),
     key: v.string(),
-    labels: v.any(),
+    labels: labelsValidator,
     basePerM2Cents: v.number(),
     profilePerMlCents: v.number(),
     uFrameBase: v.optional(v.number()),
@@ -443,7 +444,7 @@ export default defineSchema({
     configuratorId: v.id("configurators"),
     materialKey: v.string(),
     key: v.string(),
-    labels: v.any(),
+    labels: labelsValidator,
     multiplier: v.number(),
     uAdjust: v.optional(v.number()),
     sortOrder: v.number(),
@@ -458,7 +459,7 @@ export default defineSchema({
     configuratorId: v.id("configurators"),
     materialKey: v.string(),
     key: v.string(),
-    labels: v.any(),
+    labels: labelsValidator,
     multiplier: v.number(),
     /** Frame U-value of this series, W/m²K. */
     uFrame: v.optional(v.number()),
@@ -491,7 +492,7 @@ export default defineSchema({
     tenantId: v.id("tenants"),
     configuratorId: v.id("configurators"),
     key: v.string(),
-    labels: v.any(),
+    labels: labelsValidator,
     priceCents: v.number(),
     uGlass: v.optional(v.number()),
     /** Linear transmittance of the spacer, W/mK. */
@@ -508,7 +509,7 @@ export default defineSchema({
     tenantId: v.id("tenants"),
     configuratorId: v.id("configurators"),
     key: v.string(),
-    labels: v.any(),
+    labels: labelsValidator,
     swatchHex: v.optional(v.string()),
     priceCents: v.number(),
     /** Multiplier on the material cost, on top of the flat price. */
@@ -534,8 +535,8 @@ export default defineSchema({
     tenantId: v.id("tenants"),
     configuratorId: v.id("configurators"),
     key: v.string(),
-    labels: v.any(),
-    descriptions: v.optional(v.any()),
+    labels: labelsValidator,
+    descriptions: v.optional(labelsValidator),
     multiplier: v.number(),
     /** Labour per piece, cents, for 1 / 2 / 3+ leaves. */
     installByLeavesCents: v.array(v.number()),
@@ -551,7 +552,7 @@ export default defineSchema({
     configuratorId: v.id("configurators"),
     category: v.union(v.literal("zanz"), v.literal("cass"), v.literal("avv"), v.literal("pers")),
     key: v.string(),
-    labels: v.any(),
+    labels: labelsValidator,
     priceModel: v.union(v.literal("flat"), v.literal("perM2"), v.literal("perMl")),
     priceCents: v.number(),
     sortOrder: v.number(),
@@ -574,7 +575,7 @@ export default defineSchema({
     configuratorId: v.id("configurators"),
     kind: hardwareKindValidator,
     key: v.string(),
-    labels: v.any(),
+    labels: labelsValidator,
     priceCents: v.number(),
     appliesToOperableOnly: v.boolean(),
     sortOrder: v.number(),
@@ -589,7 +590,7 @@ export default defineSchema({
     version: v.number(),
     publishedByUserId: v.id("users"),
     publishedAt: v.number(),
-    payload: v.any(),
+    payload: v.record(v.string(), v.any()),
     changeNote: v.optional(v.string()),
   })
     .index("by_configurator", ["configuratorId"])
@@ -706,7 +707,7 @@ export default defineSchema({
     ralMontage: v.optional(v.boolean()), // DE/LU RAL montage system
     rcSecurityLevel: v.optional(v.string()), // DE/LU RC2 / RC3 security grade
     klimabonusEligible: v.optional(v.boolean()), // LU Klimabonus
-    items: v.any(),
+    items: v.array(v.record(v.string(), v.any())),
     priceCents: v.number(),
     priceExVatCents: v.number(),
     vatRatePercent: v.number(),

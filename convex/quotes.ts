@@ -623,9 +623,11 @@ export const getQuoteForPrint = query({
       )
       .unique();
 
+    const printable = redactQuoteRequest(await withSignature(ctx, quote));
     return {
       gate: null,
-      quote: redactQuoteRequest(await withSignature(ctx, quote)),
+      // Stored items are validated as plain objects; parseQuoteItems/assertCoherentItems gated them to ProjectItem on write.
+      quote: { ...printable, items: printable.items as ProjectItem[] },
       tenant,
       branding,
       configurator,

@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { internal } from "../../convex/_generated/api";
 import { strictShapeProblem } from "../../convex/dataAudit";
+import schema from "../../convex/schema";
 import { newLegacyDb, seedTenant } from "./_helpers";
 
 describe("strictShapeProblem", () => {
@@ -40,4 +41,19 @@ test("strictShapes reads a page, reports the non-conforming rows and writes noth
   expect(r.done).toBe(true);
   const after = await t.run((ctx) => ctx.db.query("catalogMaterials").collect());
   expect(after).toEqual(before);
+});
+
+// convex-test 0.0.35 skips `v.record` when it validates writes, so pin the validators themselves: Convex enforces them.
+test("the schema stores labels, catalog payloads and quote items with typed validators (issue #65 step B)", () => {
+  const field = (table: string, name: string) => {
+    const tables = schema.tables as unknown as Record<string, { validator: { fields: Record<string, { kind: string; isOptional: string }> } }>;
+    return tables[table].validator.fields[name];
+  };
+  for (const table of ["catalogMaterials", "catalogQualityTiers", "catalogProfileSystems", "catalogGlazingOptions",
+    "catalogFinishOptions", "catalogFrameTypes", "catalogAccessories", "catalogHardwareOptions"]) {
+    expect(field(table, "labels").kind, table).toBe("record");
+  }
+  expect(field("catalogFrameTypes", "descriptions")).toMatchObject({ kind: "record", isOptional: "optional" });
+  expect(field("catalogVersions", "payload").kind).toBe("record");
+  expect(field("quoteRequests", "items").kind).toBe("array");
 });
