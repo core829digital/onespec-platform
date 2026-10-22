@@ -1702,6 +1702,16 @@ export default defineSchema({
     ),
     /** Packaging-quality documentation — up to 4, images or short video. */
     packagingMediaIds: v.array(v.id("_storage")),
+    /** Status and site of each inventory item before signing put it on the truck: restored if the shipment is cancelled. */
+    inventoryBefore: v.optional(
+      v.array(
+        v.object({
+          inventoryItemId: v.id("inventoryItems"),
+          status: v.union(v.literal("in_stock"), v.literal("assigned")),
+          cantiereId: v.optional(v.id("cantieri")),
+        }),
+      ),
+    ),
     signedByName: v.optional(v.string()),
     signatureDataUrl: v.optional(v.string()),
     signedAt: v.optional(v.number()),

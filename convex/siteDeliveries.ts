@@ -12,7 +12,8 @@
  * (in_stock/assigned -> in_transit), so the warehouse view can never show
  * something that is physically on a truck.
  */
-import { mutation, query } from "./_generated/server";
+import { mutation, query, type MutationCtx } from "./_generated/server";
+import type { Doc, Id } from "./_generated/dataModel";
 import { v, ConvexError } from "convex/values";
 import { requirePermission } from "./lib/rbac";
 import { assertStoredFile, consumeUploadSlot } from "./lib/uploads";
@@ -254,15 +255,18 @@ export const signSiteDelivery = mutation({
     if (unresolved) throw new ConvexError("CHECKLIST_INCOMPLETE");
 
     const now = Date.now();
+    const inventoryBefore: Array<{ inventoryItemId: Id<"inventoryItems">; status: "in_stock" | "assigned"; cantiereId?: Id<"cantieri"> }> = [];
     for (const item of row.items) {
       if (!item.loaded || !item.inventoryItemId) continue;
       const inv = await ctx.db.get(item.inventoryItemId);
       if (inv && (inv.status === "in_stock" || inv.status === "assigned")) {
+        inventoryBefore.push({ inventoryItemId: inv._id, status: inv.status, cantiereId: inv.cantiereId });
         await ctx.db.patch(inv._id, { status: "in_transit", cantiereId: row.cantiereId, updatedAt: now });
       }
     }
 
     await ctx.db.patch(row._id, {
+      inventoryBefore,
       status: "in_transit",
       signedByName,
       signatureDataUrl: args.signatureDataUrl,
@@ -313,12 +317,33 @@ export const markSiteDeliveryDelivered = mutation({
   },
 });
 
+/** Puts back the inventory a signed shipment had taken, unless an item has since moved on (delivered elsewhere, installed). */
+async function restoreInventory(ctx: MutationCtx, row: Doc<"siteDeliveries">) {
+  const now = Date.now();
+  const before = new Map((row.inventoryBefore ?? []).map((b) => [b.inventoryItemId, b]));
+  for (const item of row.items) {
+    if (!item.loaded || !item.inventoryItemId) continue;
+    const inv = await ctx.db.get(item.inventoryItemId);
+    if (!inv || inv.status !== "in_transit" || inv.cantiereId !== row.cantiereId) continue;
+    const prior = before.get(inv._id);
+    // Shipments signed before the prior state was recorded: back to the warehouse, still earmarked for this site.
+    await ctx.db.patch(inv._id, {
+      status: prior?.status ?? "assigned",
+      cantiereId: prior ? prior.cantiereId : inv.cantiereId,
+      updatedAt: now,
+    });
+  }
+}
+
 export const cancelSiteDelivery = mutation({
   args: { siteDeliveryId: v.id("siteDeliveries") },
   handler: async (ctx, args) => {
     const row = await loadOwned(ctx, args.siteDeliveryId);
     await requirePermission(ctx, row.tenantId, "logistics.manage");
     if (row.status === "delivered") throw new ConvexError("ALREADY_DELIVERED");
+    // A shipment that left with goods and is cancelled brings them back: each item goes back to the status and site
+    // it had before signing, so the warehouse shows it again and it can go on another truck (issue #48).
+    if (row.status === "in_transit") await restoreInventory(ctx, row);
     for (const id of row.packagingMediaIds) await ctx.storage.delete(id);
     await ctx.db.patch(row._id, { status: "cancelled", packagingMediaIds: [], updatedAt: Date.now() });
   },

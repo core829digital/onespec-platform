@@ -173,4 +173,35 @@ describe("siteDeliveries (warehouse -> cantiere shipment leg)", () => {
       as.mutation(api.siteDeliveries.markSiteDeliveryDelivered, { siteDeliveryId }),
     ).rejects.toThrow("NOT_IN_TRANSIT");
   });
+
+  test("cancelling a shipment that already left puts its goods back in the warehouse (issue #48)", async () => {
+    const t = newDb();
+    const { tenantId, ownerId } = await seedTenant(t, { plan: "pro" });
+    const cantiereId = await seedCantiere(t, tenantId);
+    const itemId = await seedInStockItem(t, tenantId);
+    const as = t.withIdentity({ subject: ownerId });
+    const siteDeliveryId = await as.mutation(api.siteDeliveries.createSiteDelivery, {
+      tenantId,
+      cantiereId,
+      items: [{ inventoryItemId: itemId, label: "Finestra 120x140", quantity: 1, unit: "pz" }],
+    });
+    await as.mutation(api.siteDeliveries.setChecklistItem, { siteDeliveryId, itemIndex: 0, loaded: true });
+    await as.mutation(api.siteDeliveries.signSiteDelivery, { siteDeliveryId, signedByName: "Mario Rossi", signatureDataUrl: SIGNATURE });
+    expect((await t.run((ctx) => ctx.db.get(itemId)))?.status).toBe("in_transit");
+
+    await as.mutation(api.siteDeliveries.cancelSiteDelivery, { siteDeliveryId });
+    const inv = await t.run((ctx) => ctx.db.get(itemId));
+    expect(inv?.status).toBe("in_stock");
+    expect(inv?.cantiereId).toBeUndefined();
+
+    // The piece can go on a new shipment, and the cancelled one can be deleted.
+    await expect(
+      as.mutation(api.siteDeliveries.createSiteDelivery, {
+        tenantId,
+        cantiereId,
+        items: [{ inventoryItemId: itemId, label: "Finestra 120x140", quantity: 1, unit: "pz" }],
+      }),
+    ).resolves.toBeTruthy();
+    await as.mutation(api.siteDeliveries.deleteSiteDelivery, { siteDeliveryId });
+  });
 });
