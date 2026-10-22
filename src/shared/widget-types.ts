@@ -3,6 +3,10 @@ import { PIECE_CATEGORIES } from "./configurator-model";
 import type { ProjectItem as PricingItem } from "./pricing";
 import { WIDGET_LEAD_LOCALES } from "./locales";
 
+// zod 4 compiles object parsers with new Function() by default. The public widget's CSP has no 'unsafe-eval' (and must
+// not get it), so parsing runs in the interpreted mode: same results, no eval. This module is the only runtime zod user.
+z.config({ jitless: true });
+
 /** Structural limits enforced on BOTH client preview and server. */
 export const DIM_ABS_MAX = 6000; // mm — hard ceiling for any single element
 export const SINGLE_SASH_MAX_WIDTH = 1200; // mm
@@ -25,7 +29,7 @@ export const ProjectItemSchema = z
       .optional(),
     notes: z.string().max(500).optional(),
     material: z.string().min(1).max(40),
-    quality: z.record(z.string().max(40)),
+    quality: z.record(z.string(), z.string().max(40)),
     profileSystem: z.string().max(40).optional(),
     width: z.number().int().min(200).max(DIM_ABS_MAX),
     height: z.number().int().min(200).max(DIM_ABS_MAX),
@@ -153,7 +157,7 @@ export function validateQuoteSubmission(
   if (!result.success) {
     return {
       success: false,
-      error: result.error.errors.map((e) => `${e.path.join(".")}: ${e.message}`).join("; "),
+      error: result.error.issues.map((e) => `${e.path.join(".")}: ${e.message}`).join("; "),
     };
   }
   return { success: true, data: result.data };
@@ -166,7 +170,7 @@ export function validateProjectItem(
   if (!result.success) {
     return {
       success: false,
-      error: result.error.errors.map((e) => `${e.path.join(".")}: ${e.message}`).join("; "),
+      error: result.error.issues.map((e) => `${e.path.join(".")}: ${e.message}`).join("; "),
     };
   }
   return { success: true, data: result.data };

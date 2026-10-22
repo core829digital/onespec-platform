@@ -10,6 +10,12 @@ updates:
       # From 0.0.45 convex-test keeps its state in Node's AsyncLocalStorage, which browsers do not have; the in-browser
       # demo (src/demo) runs on convex-test, so it stays on 0.0.35 until the demo has another engine.
       - dependency-name: convex-test
+      # Node's types follow the Node version CI and production run (24): a newer major describes APIs that are not there.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      # eslint 10 is not yet supported by eslint-plugin-react (peer eslint ^9.7), which eslint-config-next pulls in.
+      - dependency-name: eslint
+        update-types: ["version-update:semver-major"]
     groups:
       # Minor and patch updates arrive together, one PR a week; majors stay separate so they are reviewed on their own.
       minor-and-patch:

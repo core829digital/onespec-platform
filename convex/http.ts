@@ -163,7 +163,7 @@ http.route({
     const parsed = QuoteSubmissionSchema.safeParse(raw);
     if (!parsed.success) {
       return json(
-        { ok: false, error: "VALIDATION", detail: parsed.error.errors.map((e) => e.message) },
+        { ok: false, error: "VALIDATION", detail: parsed.error.issues.map((e) => e.message) },
         400,
       );
     }
