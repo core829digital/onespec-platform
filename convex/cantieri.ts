@@ -389,6 +389,9 @@ export const generateGuestPin = mutation({
     const cantiere = await ctx.db.get(args.cantiereId);
     if (!cantiere) throw new ConvexError("CANTIERE_NOT_FOUND");
     const { userId } = await requirePermission(ctx, cantiere.tenantId, "cantieri.use");
+    // Whole days from 1 to 365: a zero/negative value issued an already-expired PIN, a huge one a PIN that never expires.
+    const days = args.expiresInDays ?? 30;
+    if (!Number.isInteger(days) || days < 1 || days > 365) throw new ConvexError("INVALID_INPUT");
 
     // Generate a 6-digit PIN, retrying on collision with another cantiere's
     // still-active PIN — only 900k possible values, so as guest-PIN usage
@@ -407,7 +410,7 @@ export const generateGuestPin = mutation({
       }
     }
     if (!pin) throw new ConvexError("GUEST_PIN_COLLISION");
-    const expiresAt = Date.now() + (args.expiresInDays ?? 30) * 24 * 60 * 60 * 1000;
+    const expiresAt = Date.now() + days * 24 * 60 * 60 * 1000;
 
     await ctx.db.patch(args.cantiereId, {
       guestPin: pin,
