@@ -62,7 +62,7 @@ malformato (non riflesso); stile wizard; nessun `innerHTML` / `eval` nel codice;
 
 ## Dipendenze (npm audit)
 - **Produzione: 0 vulnerabilità.** `sharp` (usato da Next per le immagini) aggiornato a 0.35.5 con `npm audit fix` (nessun cambio di versione di Next).
-- **Solo sviluppo, accettata e documentata:** `braces` → `micromatch` → `fast-glob` → `eslint-config-next` (stack-exhaustion con pattern annidati). Non esiste una versione corretta
-  di `braces` (la 3.0.3 è l'ultima) e `npm audit fix --force` proporrebbe di *retrocedere* a eslint-config-next 14, che romperebbe il lint con Next 16. Il pacchetto gira solo sul
-  nostro PC / in CI sui nostri file, mai su dati di utenti né in produzione. La CI controlla solo la produzione (`npm audit --omit=dev`).
+- **Sviluppo: 0 vulnerabilità** (22/10/2026). `braces` (stack-exhaustion con pattern annidati, nessuna versione corretta esistente) arrivava solo da
+  `fast-glob`, usato da `@next/eslint-plugin-next` per espandere `settings.next.rootDir`. Un `overrides` in `package.json` sostituisce quel `fast-glob`
+  con `tinyglobby` (stessa funzione `globSync`, nessuna dipendenza da `braces`): `npm audit` completo = 0.
 - Non usare mai `npm audit fix --force` su questo progetto.

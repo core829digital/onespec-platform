@@ -76,6 +76,9 @@
     "ws": "^8.22.0"
   },
   "overrides": {
-    "@swc/core": "$@swc/core"
+    "@swc/core": "$@swc/core",
+    "@next/eslint-plugin-next": {
+      "fast-glob": "npm:tinyglobby@0.2.17"
+    }
   }
 }
