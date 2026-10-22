@@ -13,6 +13,12 @@ updates:
       # Node's types follow the Node version CI and production run (24): a newer major describes APIs that are not there.
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
+      # vite 8 breaks convex-test 0.0.35's module loading in the unit tests; it moves together with convex-test.
+      - dependency-name: vite
+        update-types: ["version-update:semver-major"]
+      # TypeScript 7 (the native compiler) cannot be loaded yet by typescript-eslint, which eslint-config-next uses.
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
       # eslint 10 is not yet supported by eslint-plugin-react (peer eslint ^9.7), which eslint-config-next pulls in.
       - dependency-name: eslint
         update-types: ["version-update:semver-major"]
