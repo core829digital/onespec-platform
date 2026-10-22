@@ -1,4 +1,4 @@
-import { regionForCountry } from "./regions";
+import { regionForCountry, type RegionCode } from "./regions";
 import { calculatePrice, computeOverallUw, type CatalogPayload, type ProjectItem } from "../../src/shared/pricing";
 import { complianceForRegion } from "./compliance";
 import { UW_LIMIT_BY_ZONE } from "./enea";
@@ -162,7 +162,7 @@ function estimateEnergySavings(regionCode: string, uw: number, items: ProjectIte
 }
 
 export interface CalculationOptions {
-  regionCode: "IT" | "FR" | "BE" | "NL" | "DE" | "LU";
+  regionCode: RegionCode;
   buildingAge: number;
   isEnergyRenovation: boolean;
   deductionPercent: number;

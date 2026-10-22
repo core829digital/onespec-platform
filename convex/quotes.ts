@@ -10,7 +10,7 @@ import { emit } from "./lib/triggers";
 import { enforceForCreateQuote, enforceForESignature, enforceForMultiSupplier } from "./lib/enforcement";
 import { calculatePrice, installationIncluded, type ProjectItem, type CatalogPayload } from "../src/shared/pricing";
 import { currentPeriod, resolveTenantEntitlements } from "./lib/entitlements";
-import { regionForCountry } from "./lib/regions";
+import { regionCodeValidator, regionForCountry } from "./lib/regions";
 import { resolveLinks, logClientActivity } from "./lib/links";
 import { linkQuoteToCrm, recomputeCantiereValue } from "./lib/crmLink";
 import { closeQuoteAsWon } from "./lib/quoteTransitions";
@@ -822,7 +822,7 @@ export const createQuoteWithSuppliers = mutation({
       supplierPriceCents: v.number(),
       leadTimeDays: v.number(),
     })),
-    regionCode: v.union(v.literal('IT'), v.literal('FR'), v.literal('BE'), v.literal('NL'), v.literal('DE'), v.literal('LU')),
+    regionCode: regionCodeValidator,
     leadName: v.string(),
     leadEmail: v.string(),
     leadPhone: v.optional(v.string()),

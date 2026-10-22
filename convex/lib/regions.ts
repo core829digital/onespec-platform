@@ -11,9 +11,22 @@
  * this file is the mechanism they all plug into.
  */
 
+import { v } from "convex/values";
 import { itBeniSignificativi, itVatLines } from "./fiscal";
 
-export type RegionCode = "IT" | "FR" | "BE" | "NL" | "DE" | "LU";
+/** The six markets, the one list every region type and validator derives from (issue #68). */
+export const REGION_CODES = ["IT", "FR", "BE", "NL", "DE", "LU"] as const;
+export type RegionCode = (typeof REGION_CODES)[number];
+export const regionCodeValidator = v.union(
+  v.literal("IT"), v.literal("FR"), v.literal("BE"), v.literal("NL"), v.literal("DE"), v.literal("LU"),
+);
+type Assert<T extends true> = T;
+export type RegionValidatorMatchesCodes = Assert<
+  [typeof regionCodeValidator.type] extends [RegionCode] ? ([RegionCode] extends [typeof regionCodeValidator.type] ? true : false) : false
+>;
+export function isRegionCode(x: unknown): x is RegionCode {
+  return typeof x === "string" && (REGION_CODES as readonly string[]).includes(x);
+}
 
 /** How the widget presents the price to the end visitor. */
 export type WidgetMode = "lead_gen" | "transparent";

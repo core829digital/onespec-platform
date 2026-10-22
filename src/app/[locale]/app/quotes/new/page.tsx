@@ -45,6 +45,7 @@ const REGION_OPTION_LABELS: Record<string, string> = {
 };
 import type { Doc, Id } from "@/convex/_generated/dataModel";
 import { useFriendlyError } from "@/lib/use-friendly-error";
+import type { RegionCode } from "@/convex/lib/regions";
 
 const EMPTY_PAYLOAD = {
   configurator: { publicId: "draft", name: "", defaultLocale: "it", defaultTheme: "auto", vatRatePercent: 22, priceRoundingStep: 1, showPricesToEndUser: true, currency: "EUR" },
@@ -62,7 +63,6 @@ const EMPTY_PAYLOAD = {
 } as unknown as CatalogPayload;
 
 type ConfiguratorDoc = Doc<"configurators">;
-type RegionCode = "IT" | "FR" | "BE" | "NL" | "DE" | "LU";
 
 interface RegionMeta {
   code: RegionCode;

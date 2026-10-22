@@ -1,4 +1,5 @@
 import type { ProjectItem } from "@/shared/pricing";
+import type { RegionCode } from "@/convex/lib/regions";
 
 /**
  * Showroom -> B2B quote handoff.
@@ -14,7 +15,7 @@ const MAX_AGE_MS = 6 * 60 * 60 * 1000;
 
 export interface ShowroomHandoff {
   items: ProjectItem[];
-  regionCode: "IT" | "FR" | "BE" | "NL" | "DE" | "LU";
+  regionCode: RegionCode;
   buildingAge: number;
   isEnergyRenovation: boolean;
   createdAt: number;

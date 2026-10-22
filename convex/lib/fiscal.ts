@@ -1,5 +1,6 @@
 import type { calculatePrice, CatalogPayload, ProjectItem } from "../../src/shared/pricing";
 import { UW_LIMIT_BY_ZONE } from "./enea";
+import type { RegionCode } from "./regions";
 
 /**
  * Per-region fiscal constants and the Italian "beni significativi" VAT split,
@@ -8,7 +9,6 @@ import { UW_LIMIT_BY_ZONE } from "./enea";
  * so no consumer keeps its own copy (issue #53).
  */
 
-type RegionCode = "IT" | "FR" | "BE" | "NL" | "DE" | "LU";
 
 /** The preview has no address, so Italy is judged for climate zone E (the most populated one). */
 export const PREVIEW_IT_ZONE = "E" as const;

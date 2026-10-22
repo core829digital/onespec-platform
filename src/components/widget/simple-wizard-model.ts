@@ -8,9 +8,10 @@
  */
 import type { PieceCategory } from "@/shared/configurator-model";
 import { SINGLE_SASH_MAX_HEIGHT, SINGLE_SASH_MAX_WIDTH, DIM_ABS_MAX } from "@/shared/widget-types";
+import type { RegionCode } from "@/convex/lib/regions";
 
 export type WizardLang = "it" | "en" | "fr" | "de" | "nl";
-export type WizardRegion = "IT" | "FR" | "BE" | "NL" | "DE" | "LU";
+export type WizardRegion = RegionCode;
 
 export type WorkKey = "renovation" | "new";
 export type ProductKey = "finestra1" | "finestra2" | "porta1" | "scorrevole" | "pannello";
