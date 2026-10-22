@@ -1,0 +1,27 @@
+name: Audit production data (read-only)
+
+# Manual, read-only: runs convex/dataAudit.ts against production and writes nothing (issue #65 step B).
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: "npm"
+      - run: npm ci
+      - name: Stored documents a stricter schema would reject
+        run: node scripts/audit-strict-shapes.mjs
+        env:
+          CONVEX_DEPLOY_KEY: ${{ secrets.CONVEX_DEPLOY_KEY }}
