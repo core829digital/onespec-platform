@@ -30,6 +30,7 @@ import type * as clients from "../clients.js";
 import type * as crm from "../crm.js";
 import type * as configurators from "../configurators.js";
 import type * as crons from "../crons.js";
+import type * as dataAudit from "../dataAudit.js";
 import type * as dpa from "../dpa.js";
 import type * as email from "../email.js";
 import type * as emails_auth from "../emails/auth.js";
@@ -155,6 +156,7 @@ declare const fullApi: ApiFromModules<{
   crm: typeof crm;
   configurators: typeof configurators;
   crons: typeof crons;
+  dataAudit: typeof dataAudit;
   dpa: typeof dpa;
   email: typeof email;
   "emails/auth": typeof emails_auth;
