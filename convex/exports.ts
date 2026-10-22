@@ -5,16 +5,9 @@ import { requirePermission } from "./lib/rbac";
 import { consumeToken, RATE_LIMITS } from "./lib/ratelimit";
 import { toCsv } from "./lib/csv";
 import { redactQuoteRequest } from "./lib/quotaLock";
+import { quoteStatusValidator } from "./lib/enums";
 
-const QUOTE_STATUS = v.union(
-  v.literal("draft"),
-  v.literal("new"),
-  v.literal("contacted"),
-  v.literal("quoted"),
-  v.literal("won"),
-  v.literal("lost"),
-  v.literal("spam"),
-);
+const QUOTE_STATUS = quoteStatusValidator;
 
 const MAX_ROWS = 5000;
 /** Half of Convex's per-transaction read allowance, as a safety margin. */

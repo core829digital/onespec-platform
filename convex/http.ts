@@ -15,6 +15,7 @@ import { supportFileDownload } from "./http/support_file";
 import { createPostHogClient } from "./lib/posthog";
 import { checkWebhookSource } from "./lib/webhookIp";
 import { cleanSourcePage } from "../src/shared/source-page";
+import { isSupportContactTopic } from "./lib/enums";
 
 const http = httpRouter();
 
@@ -88,13 +89,13 @@ http.route({
     const str = (k: string) => (typeof raw[k] === "string" ? (raw[k] as string) : "");
     if (str("website")) return json({ ok: true }); // honeypot
     const topic = str("topic");
-    if (!["login", "billing", "info", "other"].includes(topic)) return json({ ok: false, error: "VALIDATION" }, 400);
+    if (!isSupportContactTopic(topic)) return json({ ok: false, error: "VALIDATION" }, 400);
 
     const ip = clientIp(req.headers);
     if (!(await verifyTurnstile(str("turnstileToken"), ip))) return json({ ok: false, error: "TURNSTILE_FAILED" }, 403);
     try {
       await ctx.runMutation(internal.supportContact.submit, {
-        name: str("name"), email: str("email"), topic: topic as "login" | "billing" | "info" | "other",
+        name: str("name"), email: str("email"), topic,
         message: str("message"), locale: str("locale"), ipHash: await hashIp(ip),
       });
     } catch (e) {

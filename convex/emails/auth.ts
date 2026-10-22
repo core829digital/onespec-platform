@@ -12,7 +12,8 @@
  * subject. Template literals below only ever interpolate `esc(...)`, `escUrl(...)`
  * or values built server-side from trusted sources (SITE_URL, Convex IDs).
  */
-import { emailStrings, type QuoteStatus } from "./strings";
+import { emailStrings } from "./strings";
+import { isQuoteStatus } from "../lib/enums";
 import { gradeLabel } from "../../src/shared/grade-labels";
 import { cleanSourcePage } from "../../src/shared/source-page";
 
@@ -146,7 +147,6 @@ function cta(href: string, label: string) {
 
 const H1 = `<h1 style="font-size:22px;font-weight:600;margin:0 0 12px">`;
 const P = `<p style="color:#9a9aa0;line-height:1.6">`;
-const QUOTE_STATUSES: QuoteStatus[] = ["new", "contacted", "quoted", "won", "lost", "spam"];
 
 export function renderAuthEmail(template: string, locale: string, data: AuthEmailData): Rendered {
   const L = emailStrings(locale);
@@ -232,9 +232,7 @@ export function renderAuthEmail(template: string, locale: string, data: AuthEmai
 
     case "quote_status_changed": {
       const rawStatus = data.newStatus ?? "";
-      const statusLabel = (QUOTE_STATUSES as string[]).includes(rawStatus)
-        ? L.statusChanged.statuses[rawStatus as QuoteStatus]
-        : rawStatus;
+      const statusLabel = isQuoteStatus(rawStatus) ? L.statusChanged.statuses[rawStatus] : rawStatus;
       const href = data.href ? `${base}${data.href}` : `${base}/app/requests`;
       return {
         subject: line(L.statusChanged.subject(data.leadName ?? "", statusLabel)),

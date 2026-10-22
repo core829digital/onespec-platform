@@ -20,16 +20,9 @@ import { resolveQuoteVat } from "./lib/vat";
 import { assertCoherentItems, parseQuoteItems, nextOfferNumber } from "./lib/quoteItems";
 import { defaultItem } from "../src/shared/item-defaults";
 import { quoteTotals } from "../src/shared/quote-totals";
+import { quoteStatusValidator } from "./lib/enums";
 
-const QUOTE_STATUS = v.union(
-  v.literal("draft"),
-  v.literal("new"),
-  v.literal("contacted"),
-  v.literal("quoted"),
-  v.literal("won"),
-  v.literal("lost"),
-  v.literal("spam"),
-);
+const QUOTE_STATUS = quoteStatusValidator;
 
 const NOTE_MAX = 5_000;
 const NOTES_TOTAL_MAX = 100_000;

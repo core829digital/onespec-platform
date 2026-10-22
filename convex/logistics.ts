@@ -14,6 +14,7 @@ import { requirePermission } from "./lib/rbac";
 import { enforceLogisticsSupplierQuota, enforceCarrierQuota } from "./lib/enforcement";
 import { ensurePartnerForLogistics, findLogisticsMatch, syncLogisticsEdit } from "./lib/partnerLinks";
 import { completeSupplyFromDelivery, receiveDelivery } from "./lib/deliveryCore";
+import { inventoryStatusValidator } from "./lib/enums";
 
 const NAME_MAX = 200;
 const CONTACT_MAX = 120;
@@ -445,7 +446,7 @@ export const deleteDelivery = mutation({
 export const listInventoryItems = query({
   args: {
     tenantId: v.id("tenants"),
-    status: v.optional(v.union(v.literal("in_stock"), v.literal("assigned"), v.literal("in_transit"), v.literal("delivered"), v.literal("installed"))),
+    status: v.optional(inventoryStatusValidator),
     cantiereId: v.optional(v.id("cantieri")),
     limit: v.optional(v.number()),
   },
@@ -466,7 +467,7 @@ export const listInventoryItems = query({
 export const updateInventoryItem = mutation({
   args: {
     itemId: v.id("inventoryItems"),
-    status: v.optional(v.union(v.literal("in_stock"), v.literal("assigned"), v.literal("in_transit"), v.literal("delivered"), v.literal("installed"))),
+    status: v.optional(inventoryStatusValidator),
     cantiereId: v.optional(v.id("cantieri")),
     quantity: v.optional(v.number()),
   },

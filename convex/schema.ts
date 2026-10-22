@@ -1,6 +1,7 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 import { authTables } from "@convex-dev/auth/server";
+import { hardwareKindValidator } from "./lib/enums";
 
 export default defineSchema({
   ...authTables,
@@ -571,14 +572,7 @@ export default defineSchema({
   catalogHardwareOptions: defineTable({
     tenantId: v.id("tenants"),
     configuratorId: v.id("configurators"),
-    kind: v.union(v.literal("hardware"), v.literal("hardwareColor"),
-                  v.literal("sashType"), v.literal("screen"), v.literal("screenColor"),
-                  v.literal("installation"), v.literal("poseType"),
-                  v.literal("ventilationGrille"), v.literal("voletRoulant"), v.literal("warmEdge"),
-                  v.literal("profileDepth"), v.literal("cornerJoint"), v.literal("ugTier"),
-                  v.literal("colorPreset"), v.literal("inmeetservice"),
-                  v.literal("sunProtection"), v.literal("securityClass"), v.literal("montageSystem"),
-                  v.literal("threshold"), v.literal("misc")),
+    kind: hardwareKindValidator,
     key: v.string(),
     labels: v.any(),
     priceCents: v.number(),

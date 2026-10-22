@@ -6,10 +6,12 @@
  * themselves, so they must only ever be called from `renderAuthEmail`.
  */
 
+import type { QuoteStatus } from "../lib/enums";
+
 export type EmailLocale = "it" | "en" | "fr" | "de" | "nl" | "ro";
 export const EMAIL_LOCALES: EmailLocale[] = ["it", "en", "fr", "de", "nl", "ro"];
 
-export type QuoteStatus = "new" | "contacted" | "quoted" | "won" | "lost" | "spam";
+export type { QuoteStatus };
 
 export interface EmailStrings {
   tagline: string;
@@ -135,7 +137,7 @@ const it: EmailStrings = {
     title: "Preventivo aggiornato",
     lead: "Cliente",
     cta: "Apri in dashboard",
-    statuses: { new: "Nuova", contacted: "Contattato", quoted: "Preventivo inviato", won: "Vinta", lost: "Persa", spam: "Spam" },
+    statuses: { draft: "Bozza", new: "Nuova", contacted: "Contattato", quoted: "Preventivo inviato", won: "Vinta", lost: "Persa", spam: "Spam" },
   },
   memberJoined: {
     subject: (n) => `Nuovo membro nel team: ${n}`,
@@ -310,7 +312,7 @@ const en: EmailStrings = {
     title: "Quote updated",
     lead: "Lead",
     cta: "Open in dashboard",
-    statuses: { new: "New", contacted: "Contacted", quoted: "Quote sent", won: "Won", lost: "Lost", spam: "Spam" },
+    statuses: { draft: "Draft", new: "New", contacted: "Contacted", quoted: "Quote sent", won: "Won", lost: "Lost", spam: "Spam" },
   },
   memberJoined: {
     subject: (n) => `New team member: ${n}`,
@@ -485,7 +487,7 @@ const fr: EmailStrings = {
     title: "Devis mis à jour",
     lead: "Client",
     cta: "Ouvrir dans le tableau de bord",
-    statuses: { new: "Nouvelle", contacted: "Contacté", quoted: "Devis envoyé", won: "Gagnée", lost: "Perdue", spam: "Spam" },
+    statuses: { draft: "Brouillon", new: "Nouvelle", contacted: "Contacté", quoted: "Devis envoyé", won: "Gagnée", lost: "Perdue", spam: "Spam" },
   },
   memberJoined: {
     subject: (n) => `Nouveau membre dans l'équipe : ${n}`,
@@ -660,7 +662,7 @@ const de: EmailStrings = {
     title: "Angebot aktualisiert",
     lead: "Kunde",
     cta: "Im Dashboard öffnen",
-    statuses: { new: "Neu", contacted: "Kontaktiert", quoted: "Angebot gesendet", won: "Gewonnen", lost: "Verloren", spam: "Spam" },
+    statuses: { draft: "Entwurf", new: "Neu", contacted: "Kontaktiert", quoted: "Angebot gesendet", won: "Gewonnen", lost: "Verloren", spam: "Spam" },
   },
   memberJoined: {
     subject: (n) => `Neues Teammitglied: ${n}`,
@@ -835,7 +837,7 @@ const nl: EmailStrings = {
     title: "Offerte bijgewerkt",
     lead: "Klant",
     cta: "Openen in dashboard",
-    statuses: { new: "Nieuw", contacted: "Gecontacteerd", quoted: "Offerte verstuurd", won: "Gewonnen", lost: "Verloren", spam: "Spam" },
+    statuses: { draft: "Concept", new: "Nieuw", contacted: "Gecontacteerd", quoted: "Offerte verstuurd", won: "Gewonnen", lost: "Verloren", spam: "Spam" },
   },
   memberJoined: {
     subject: (n) => `Nieuw teamlid: ${n}`,
@@ -1010,7 +1012,7 @@ const ro: EmailStrings = {
     title: "Ofertă actualizată",
     lead: "Client",
     cta: "Deschide în panou",
-    statuses: { new: "Nouă", contacted: "Contactat", quoted: "Ofertă trimisă", won: "Câștigată", lost: "Pierdută", spam: "Spam" },
+    statuses: { draft: "Ciornă", new: "Nouă", contacted: "Contactat", quoted: "Ofertă trimisă", won: "Câștigată", lost: "Pierdută", spam: "Spam" },
   },
   memberJoined: {
     subject: (n) => `Membru nou în echipă: ${n}`,
