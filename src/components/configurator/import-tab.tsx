@@ -233,7 +233,7 @@ export function ImportTab({ configuratorId }: { configuratorId: Id<"configurator
                 </span>
                 {h.undone ? (
                   <span className="text-xs text-[var(--color-text-secondary)]">{t("undone")}</span>
-                ) : (
+                ) : h.canUndo ? (
                   <button
                     type="button"
                     onClick={() => undoImport({ importId: h._id })}
@@ -241,7 +241,7 @@ export function ImportTab({ configuratorId }: { configuratorId: Id<"configurator
                   >
                     {t("undo")}
                   </button>
-                )}
+                ) : null}
               </div>
             ))}
           </div>

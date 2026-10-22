@@ -111,3 +111,46 @@ describe("catalogImport.importRows", () => {
     expect(price("acustico")).toBeUndefined();
   });
 });
+
+describe("catalogImport undo reverts only its own rows (issue #49)", () => {
+  test("two imports, a manual edit: undo goes newest first and keeps everything it did not touch", async () => {
+    const t = newDb();
+    const { tenantId, ownerId } = await seedTenant(t);
+    const configuratorId = await seedPublishedConfigurator(t, tenantId);
+    const as = t.withIdentity({ subject: ownerId });
+    const rows = () =>
+      t.run((ctx) =>
+        ctx.db.query("catalogGlazingOptions").withIndex("by_configurator", (q) => q.eq("configuratorId", configuratorId)).collect(),
+      );
+    const price = async (k: string) => (await rows()).find((r) => r.key === k)?.priceCents;
+    const before = (await rows()).map((r) => r.key).sort();
+
+    await as.mutation(api.catalogImport.importRows, {
+      configuratorId, target: "glazing",
+      rows: [{ key: "a1", label: "A1", priceCents: 100 }, { key: "a2", label: "A2", priceCents: 200 }],
+    });
+    await as.mutation(api.catalogImport.importRows, {
+      configuratorId, target: "glazing",
+      rows: [{ key: "a1", label: "A1", priceCents: 150 }, { key: "b1", label: "B1", priceCents: 300 }],
+    });
+    // A manual addition after both imports.
+    await t.run((ctx) => ctx.db.insert("catalogGlazingOptions", { tenantId, configuratorId, key: "manual", labels: { it: "M" }, priceCents: 999, sortOrder: 99, enabled: true }));
+
+    const [newest, oldest] = await as.query(api.catalogImport.listImports, { configuratorId });
+    expect(newest.canUndo).toBe(true);
+    expect(oldest.canUndo).toBe(false);
+    await expect(as.mutation(api.catalogImport.undoImport, { importId: oldest._id })).rejects.toThrow(/IMPORT_UNDO_NEWER_EXISTS/);
+
+    // Undo B: b1 goes, a1 back to A's price; a2 and the manual row stay.
+    await as.mutation(api.catalogImport.undoImport, { importId: newest._id });
+    expect(await price("b1")).toBeUndefined();
+    expect(await price("a1")).toBe(100);
+    expect(await price("a2")).toBe(200);
+    expect(await price("manual")).toBe(999);
+
+    // Now A can be undone: its rows go, the manual row and the original catalogue stay.
+    expect((await as.query(api.catalogImport.listImports, { configuratorId })).find((i) => i._id === oldest._id)?.canUndo).toBe(true);
+    await as.mutation(api.catalogImport.undoImport, { importId: oldest._id });
+    expect((await rows()).map((r) => r.key).sort()).toEqual([...before, "manual"].sort());
+  });
+});

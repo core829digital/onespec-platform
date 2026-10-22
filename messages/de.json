@@ -463,6 +463,7 @@
     "fileTooLarge": "Datei zu groß (maximal 15 MB für Fotos, 25 MB für Dokumente).",
     "useMarkReceived": "Um die Lieferung als erhalten zu markieren, verwenden Sie die Schaltfläche „Als erhalten markieren“.",
     "alreadyUndone": "Dieser Import wurde bereits rückgängig gemacht.",
+    "importUndoNewerExists": "Machen Sie zuerst den neueren Import dieser Liste rückgängig.",
     "noTenant": "Für Ihr Konto wurde keine Organisation gefunden. Schließen Sie zuerst die Registrierung ab.",
     "billingUseCheckout": "Der Tarif wird durch die Zahlung aktiviert: Wählen Sie einen Tarif und schließen Sie den Checkout ab.",
     "cannotComputeUw": "Der Wärmedurchgangskoeffizient (Uw) kann mit den eingegebenen Daten nicht berechnet werden. Prüfen Sie die Positionen des verknüpften Angebots.",

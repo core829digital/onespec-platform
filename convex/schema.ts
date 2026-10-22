@@ -805,6 +805,13 @@ export default defineSchema({
     summary: v.object({ created: v.number(), updated: v.number(), rejected: v.number() }),
     /** Full rows of the target table as they were immediately before the import. */
     snapshot: v.any(),
+    /** What this import itself did: rows it created and the previous values of rows it updated. Undo reverts only these. */
+    changes: v.optional(
+      v.object({
+        created: v.array(v.string()),
+        updated: v.array(v.object({ id: v.string(), before: v.any() })),
+      }),
+    ),
     undone: v.boolean(),
     undoneAt: v.optional(v.number()),
   })

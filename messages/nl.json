@@ -463,6 +463,7 @@
     "fileTooLarge": "Bestand te groot (maximaal 15 MB voor foto's, 25 MB voor documenten).",
     "useMarkReceived": "Gebruik de knop “Markeren als ontvangen” om de levering als ontvangen te markeren.",
     "alreadyUndone": "Deze import is al ongedaan gemaakt.",
+    "importUndoNewerExists": "Maak eerst de nieuwere import van deze lijst ongedaan.",
     "noTenant": "Geen organisatie gevonden voor uw account. Rond eerst de registratie af.",
     "billingUseCheckout": "Het abonnement wordt geactiveerd via betaling: kies een abonnement en rond de checkout af.",
     "cannotComputeUw": "De warmtedoorgangscoëfficiënt (Uw) kan met de ingevoerde gegevens niet worden berekend. Controleer de regels van de gekoppelde offerte.",

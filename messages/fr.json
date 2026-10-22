@@ -463,6 +463,7 @@
     "fileTooLarge": "Fichier trop volumineux (15 Mo maximum pour les photos, 25 Mo pour les documents).",
     "useMarkReceived": "Pour marquer la livraison comme reçue, utilisez le bouton « Marquer comme reçue ».",
     "alreadyUndone": "Cet import a déjà été annulé.",
+    "importUndoNewerExists": "Annulez d'abord l'importation plus récente de cette liste.",
     "noTenant": "Aucune organisation trouvée pour votre compte. Terminez d'abord l'inscription.",
     "billingUseCheckout": "Le forfait s'active par le paiement : choisissez un forfait et terminez le paiement.",
     "cannotComputeUw": "Impossible de calculer le coefficient Uw avec les données saisies. Vérifiez les lignes du devis lié.",

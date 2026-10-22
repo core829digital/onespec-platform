@@ -463,6 +463,7 @@
     "fileTooLarge": "File too large (maximum 15 MB for photos, 25 MB for documents).",
     "useMarkReceived": "To mark the delivery as received, use the “Mark as received” button.",
     "alreadyUndone": "This import has already been undone.",
+    "importUndoNewerExists": "Undo the newer import of this list first.",
     "noTenant": "No organization found for your account. Complete registration first.",
     "billingUseCheckout": "The plan is activated through payment: choose a plan and complete checkout.",
     "cannotComputeUw": "Unable to calculate the thermal transmittance (Uw) with the data entered. Check the linked quote's items.",

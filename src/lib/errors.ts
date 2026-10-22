@@ -137,6 +137,7 @@ export type ErrorKey =
   | "invalidAssembly"
   | "quoteHasSupply"
   | "alreadySubscribed"
+  | "importUndoNewerExists"
   | "checkoutInProgress"
   | "annualNotAvailable"
   | "teamExceedsTargetPlan"
@@ -332,6 +333,7 @@ const EXACT: Record<string, ErrorKey> = {
   MEMBER_LIMIT_REACHED: "quotaExceeded",
   USE_MARK_RECEIVED: "useMarkReceived",
   ALREADY_UNDONE: "alreadyUndone",
+  IMPORT_UNDO_NEWER_EXISTS: "importUndoNewerExists",
   NO_TENANT: "noTenant",
   BILLING_LIVE_USE_CHECKOUT: "billingUseCheckout",
   CANNOT_COMPUTE_UW: "cannotComputeUw",

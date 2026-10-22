@@ -463,6 +463,7 @@
     "fileTooLarge": "Fișier prea mare (maximum 15 MB pentru fotografii, 25 MB pentru documente).",
     "useMarkReceived": "Pentru a marca livrarea ca primită, folosiți butonul „Marchează ca primită”.",
     "alreadyUndone": "Acest import a fost deja anulat.",
+    "importUndoNewerExists": "Anulează mai întâi importul mai recent al acestei liste.",
     "noTenant": "Nu s-a găsit nicio organizație pentru contul dvs. Finalizați mai întâi înregistrarea.",
     "billingUseCheckout": "Planul se activează prin plată: alegeți un plan și finalizați plata.",
     "cannotComputeUw": "Nu pot calcula transmitanța termică (Uw) cu datele introduse. Verificați pozițiile ofertei asociate.",

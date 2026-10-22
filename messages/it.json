@@ -463,6 +463,7 @@
     "fileTooLarge": "File troppo grande (massimo 15 MB per le foto, 25 MB per i documenti).",
     "useMarkReceived": "Per segnare la consegna come ricevuta usa il pulsante «Segna come ricevuta».",
     "alreadyUndone": "Questa importazione è già stata annullata.",
+    "importUndoNewerExists": "Annulla prima l'importazione più recente di questo elenco.",
     "noTenant": "Non risulta nessuna organizzazione per il tuo account. Completa prima la registrazione.",
     "billingUseCheckout": "Il piano si attiva con il pagamento: scegli un piano e completa il checkout.",
     "cannotComputeUw": "Non riesco a calcolare la trasmittanza (Uw) con i dati inseriti. Controlla le voci del preventivo collegato.",
