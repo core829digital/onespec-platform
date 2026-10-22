@@ -1,8 +1,8 @@
 /** Fascicolo del Serramento — digital dossier behind a QR label (Phase C). */
 
-import { query, mutation, internalMutation } from "./_generated/server";
+import { query, mutation, internalMutation, type MutationCtx } from "./_generated/server";
 import { v, ConvexError } from "convex/values";
-import type { Id } from "./_generated/dataModel";
+import type { Doc, Id } from "./_generated/dataModel";
 import { requirePermission } from "./lib/rbac";
 import { requireTenantRegion } from "./lib/fieldModules";
 import { enforceForMaintenance } from "./lib/enforcement";
@@ -104,10 +104,7 @@ export const create = mutation({
       siteAddress: args.siteAddress?.trim(),
       productSummary: args.productSummary?.trim(),
       installedAt: args.installedAt,
-      documents: req.documents.map((d) => ({ key: d.key, label: d.label, required: d.required })),
-      performanceDeclaration: req.performanceDeclaration,
-      maintenanceLabel: req.maintenance.label,
-      maintenancePriceCents: req.maintenance.defaultPriceCents,
+      ...dossierFields(req),
       maintenanceActive: false,
       scanCount: 0,
       createdAt: now,
@@ -129,6 +126,42 @@ function quoteUnits(items: unknown): string[] {
     for (let k = 0; k < qty; k++) units.push(qty > 1 ? `${base} (${k + 1}/${qty})` : base);
   });
   return units;
+}
+
+/** The region's dossier template: required documents, performance declaration, maintenance offer. */
+function dossierFields(req: ReturnType<typeof complianceForRegion>["dossier"]) {
+  return {
+    documents: req.documents.map((d) => ({ key: d.key, label: d.label, required: d.required })),
+    performanceDeclaration: req.performanceDeclaration,
+    maintenanceLabel: req.maintenance.label,
+    maintenancePriceCents: req.maintenance.defaultPriceCents,
+  };
+}
+
+/** What every unit passport of one quote shares; the factory adds the per-unit label, token and counters. */
+type UnitPassportBase = Pick<
+  Doc<"serramentoPassports">,
+  | "tenantId" | "regionCode" | "quoteId" | "createdByUserId" | "customerName" | "siteAddress" | "installedAt"
+  | "documents" | "performanceDeclaration" | "maintenanceLabel" | "maintenancePriceCents"
+>;
+
+/**
+ * The single place a unit passport (one per physical serramento of a quote) is inserted. The callers keep their
+ * own guards (permission, plan gate, existing-passport skip); this only builds the row (issue #55).
+ */
+async function insertUnitPassport(ctx: MutationCtx, base: UnitPassportBase, idx: number, unit: string, now: number) {
+  const publicToken = nanoid(16);
+  const id = await ctx.db.insert("serramentoPassports", {
+    ...base,
+    publicToken,
+    label: `FIN-${String(idx + 1).padStart(2, "0")} · ${unit}`,
+    productSummary: unit,
+    maintenanceActive: false,
+    scanCount: 0,
+    createdAt: now,
+    updatedAt: now,
+  });
+  return { id, publicToken };
 }
 
 /**
@@ -156,29 +189,19 @@ export const createBatchFromQuote = mutation({
     const units = quoteUnits(quote.items);
 
     const now = Date.now();
+    const base: UnitPassportBase = {
+      tenantId: args.tenantId,
+      regionCode,
+      quoteId: args.quoteId,
+      createdByUserId: userId,
+      customerName: quote.leadName,
+      siteAddress: [quote.customerAddress, quote.customerCity].filter(Boolean).join(", ") || undefined,
+      installedAt: now,
+      ...dossierFields(req),
+    };
     const created: string[] = [];
     for (let idx = existing.length; idx < units.length; idx++) {
-      const id = await ctx.db.insert("serramentoPassports", {
-        tenantId: args.tenantId,
-        regionCode,
-        quoteId: args.quoteId,
-        createdByUserId: userId,
-        publicToken: nanoid(16),
-        label: `FIN-${String(idx + 1).padStart(2, "0")} · ${units[idx]}`,
-        customerName: quote.leadName,
-        siteAddress: [quote.customerAddress, quote.customerCity].filter(Boolean).join(", ") || undefined,
-        productSummary: units[idx],
-        installedAt: now,
-        documents: req.documents.map((d) => ({ key: d.key, label: d.label, required: d.required })),
-        performanceDeclaration: req.performanceDeclaration,
-        maintenanceLabel: req.maintenance.label,
-        maintenancePriceCents: req.maintenance.defaultPriceCents,
-        maintenanceActive: false,
-        scanCount: 0,
-        createdAt: now,
-        updatedAt: now,
-      });
-      created.push(id);
+      created.push((await insertUnitPassport(ctx, base, idx, units[idx], now)).id);
     }
     return { created: created.length, skipped: existing.length, total: units.length };
   },
@@ -219,28 +242,22 @@ export const generatePassportQrs = mutation({
       .map((x) => ({ token: x.publicToken, label: x.productSummary ?? x.label }));
 
     const now = Date.now();
+    // New units copy the passport they were generated from (its documents without the attached files).
+    const base: UnitPassportBase = {
+      tenantId: p.tenantId,
+      regionCode: p.regionCode,
+      quoteId,
+      createdByUserId: p.createdByUserId,
+      customerName: p.customerName,
+      siteAddress: p.siteAddress,
+      installedAt: p.installedAt,
+      documents: p.documents.map((d) => ({ key: d.key, label: d.label, required: d.required })),
+      performanceDeclaration: p.performanceDeclaration,
+      maintenanceLabel: p.maintenanceLabel,
+      maintenancePriceCents: p.maintenancePriceCents,
+    };
     for (let idx = existing.length; idx < units.length; idx++) {
-      const publicToken = nanoid(16);
-      await ctx.db.insert("serramentoPassports", {
-        tenantId: p.tenantId,
-        regionCode: p.regionCode,
-        quoteId,
-        createdByUserId: p.createdByUserId,
-        publicToken,
-        label: `FIN-${String(idx + 1).padStart(2, "0")} · ${units[idx]}`,
-        customerName: p.customerName,
-        siteAddress: p.siteAddress,
-        productSummary: units[idx],
-        installedAt: p.installedAt,
-        documents: p.documents.map((d) => ({ key: d.key, label: d.label, required: d.required })),
-        performanceDeclaration: p.performanceDeclaration,
-        maintenanceLabel: p.maintenanceLabel,
-        maintenancePriceCents: p.maintenancePriceCents,
-        maintenanceActive: false,
-        scanCount: 0,
-        createdAt: now,
-        updatedAt: now,
-      });
+      const { publicToken } = await insertUnitPassport(ctx, base, idx, units[idx], now);
       results.push({ token: publicToken, label: units[idx] });
     }
 
