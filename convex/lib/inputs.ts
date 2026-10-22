@@ -1,4 +1,5 @@
 import { ConvexError, v } from "convex/values";
+import { APP_LOCALES } from "../../src/shared/locales";
 
 /**
  * Shared input guards for tenant-authored catalogue data. Convex validators
@@ -6,7 +7,7 @@ import { ConvexError, v } from "convex/values";
  * that type), so the bounds live here. Every failure throws the same
  * INVALID_INPUT code the UI already maps to a friendly message.
  */
-const LABEL_LANGS = ["it", "en", "fr", "de", "nl", "ro"] as const;
+const LABEL_LANGS = APP_LOCALES;
 // Control characters (incl. NUL, newline, tab): never legitimate in a label or key.
 const CONTROL = /[\u0000-\u001f\u007f]/;
 

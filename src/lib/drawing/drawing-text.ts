@@ -1,8 +1,9 @@
+import type { AppLocale } from "@/shared/locales";
 /**
  * Words used by the technical drawings and their legends, in the six languages of the platform.
  * One place for the editor, the PDFs and the exports, so a drawing reads the same everywhere.
  */
-export type DrawingLocale = "it" | "en" | "fr" | "de" | "nl" | "ro";
+export type DrawingLocale = AppLocale;
 
 export const DRAWING_LOCALES: readonly DrawingLocale[] = ["it", "en", "fr", "de", "nl", "ro"];
 

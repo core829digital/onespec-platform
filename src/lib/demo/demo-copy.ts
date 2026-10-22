@@ -1,5 +1,6 @@
+import type { AppLocale } from "@/shared/locales";
 /** Copy for the public demo configurators (shown on onespec.eu). */
-export type DemoLang = "it" | "en" | "fr" | "de" | "nl" | "ro";
+export type DemoLang = AppLocale;
 
 export interface DemoCopy {
   title: string;

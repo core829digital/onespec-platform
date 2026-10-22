@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { PIECE_CATEGORIES } from "./configurator-model";
 import type { ProjectItem as PricingItem } from "./pricing";
+import { WIDGET_LEAD_LOCALES } from "./locales";
 
 /** Structural limits enforced on BOTH client preview and server. */
 export const DIM_ABS_MAX = 6000; // mm — hard ceiling for any single element
@@ -118,7 +119,7 @@ export const QuoteSubmissionSchema = z.object({
   leadPhone: lineText(30).optional(),
   leadCompany: lineText(100).optional(),
   leadMessage: z.string().trim().max(2000).regex(NO_CONTROL, "invalid characters").optional(),
-  leadLocale: z.enum(["it", "en", "fr", "nl", "de"]).default("it"),
+  leadLocale: z.enum(WIDGET_LEAD_LOCALES).default("it"),
   /** NL transparent mode: which action the visitor asked for. */
   requestKind: z.enum(["quote", "firm_order", "measurement"]).default("quote"),
   turnstileToken: z.string().max(4096).optional(),

@@ -10,6 +10,7 @@
 // This is general information built into the calculator, not tax advice: the installer's accountant has the last word.
 
 import { checkVatId, compactVat, isCountryCode, type CountryCode } from "./validation";
+import type { AppLocale } from "./locales";
 
 export const EU_COUNTRIES = [
   "AT", "BE", "BG", "CY", "CZ", "DE", "DK", "EE", "ES", "FI", "FR", "GR", "HR", "HU", "IE", "IT", "LT", "LU", "LV", "MT", "NL", "PL", "PT", "RO", "SE", "SI", "SK",
@@ -106,7 +107,7 @@ export function checkCustomerVat(country: string, raw: unknown): { ok: true; val
   return { ok: true, value: prefix + s, prefix, number: s };
 }
 
-type Lang = "it" | "en" | "fr" | "de" | "nl" | "ro";
+type Lang = AppLocale;
 
 /** The sentence printed on quotes and invoices for a VAT-free supply ("" for a normal one). {vat} = the customer's VAT number. */
 export const VAT_NOTES: Record<Exclude<VatReason, "domestic">, Record<Lang, string>> = {

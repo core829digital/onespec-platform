@@ -1,6 +1,7 @@
+import type { AppLocale } from "./locales";
 // The sentence printed on quotes when the installer prices the fitting (posa) per m²: the quote either includes it or is supply only.
 
-type Lang = "it" | "en" | "fr" | "de" | "nl" | "ro";
+type Lang = AppLocale;
 
 const NOTES: Record<"included" | "excluded", Record<Lang, string>> = {
   included: {

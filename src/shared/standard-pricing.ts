@@ -1,3 +1,4 @@
+import type { AppLocale } from "./locales";
 // Standard price list for PVC windows in Italy, by zone (Nord / Centro / Sud). Public market prices 2024-2026,
 // transcribed from the comparative table supplied by the OneSpec team (12 PVC profiles).
 //
@@ -167,7 +168,7 @@ export function parseMarginInput(raw: string | number): number | null {
   return Math.round(Math.min(MAX_MARGIN_PERCENT, Math.max(0, n)) * 100) / 100;
 }
 
-type Six = Record<"it" | "en" | "fr" | "de" | "nl" | "ro", string>;
+type Six = Record<AppLocale, string>;
 const six = (it: string, en: string, fr: string, de: string, nl: string, ro: string): Six => ({ it, en, fr, de, nl, ro });
 
 export const QUALITY_CLASS_LABEL: Record<QualityClass, Six> = {

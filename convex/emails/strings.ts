@@ -7,8 +7,9 @@
  */
 
 import type { QuoteStatus } from "../lib/enums";
+import type { AppLocale } from "../../src/shared/locales";
 
-export type EmailLocale = "it" | "en" | "fr" | "de" | "nl" | "ro";
+export type EmailLocale = AppLocale;
 export const EMAIL_LOCALES: EmailLocale[] = ["it", "en", "fr", "de", "nl", "ro"];
 
 export type { QuoteStatus };

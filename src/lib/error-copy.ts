@@ -1,3 +1,4 @@
+import type { AppLocale } from "@/shared/locales";
 /**
  * Copy for error / not-found screens in the 6 supported languages.
  *
@@ -6,7 +7,7 @@
  * [locale] tree — can render when no intl provider exists, so they must be
  * able to pick their own language and never depend on a loaded message file.
  */
-export type ErrorLocale = "it" | "en" | "fr" | "de" | "nl" | "ro";
+export type ErrorLocale = AppLocale;
 
 export const ERROR_LOCALES: readonly ErrorLocale[] = ["it", "en", "fr", "de", "nl", "ro"];
 

@@ -1,3 +1,4 @@
+import type { AppLocale } from "./locales";
 // CSV of the supplies delivered in a period, for the accountant. Opens in Excel / LibreOffice / Numbers as is:
 // UTF-8 with BOM, ";" as the delimiter and "," as the decimal mark (the "." / "," of English), dates as YYYY-MM-DD,
 // no thousands separators, amounts WITHOUT VAT unless the column says otherwise.
@@ -18,7 +19,7 @@ export interface SupplyExportRow {
   otherCostsCents: number;
 }
 
-type Lang = "it" | "en" | "fr" | "de" | "nl" | "ro";
+type Lang = AppLocale;
 const COLS = ["reference", "customer", "ordered", "delivered", "producer", "deliverer", "revenue", "vatRate", "vat", "gross", "vatRegime", "factory", "factoryPaid", "transport", "other", "profit"] as const;
 type Col = (typeof COLS)[number];
 

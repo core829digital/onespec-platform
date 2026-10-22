@@ -1,3 +1,4 @@
+import type { AppLocale } from "@/shared/locales";
 /**
  * Document chrome for the field-module PDFs (inspection report, installation
  * dossier, site delivery report). Market-specific legal text (titles, legal
@@ -5,7 +6,7 @@
  * data; this file only covers the headings around it.
  */
 
-export type FieldPdfLang = "it" | "en" | "fr" | "de" | "nl" | "ro";
+export type FieldPdfLang = AppLocale;
 
 /** "fr-FR" → "fr"; anything unknown → Italian (the platform default). */
 export function fieldPdfLang(locale: string | undefined): FieldPdfLang {

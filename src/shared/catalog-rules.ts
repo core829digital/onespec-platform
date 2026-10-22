@@ -6,8 +6,9 @@
 import type { CatalogPayload, ProjectItem } from "./pricing";
 import { glazingShape, parseGlazingKey } from "./glazing-packages";
 import { STANDARD_PROFILES, type QualityClass, type StandardProfile } from "./standard-pricing";
+import type { AppLocale } from "./locales";
 
-type Lang = "it" | "en" | "fr" | "de" | "nl" | "ro";
+type Lang = AppLocale;
 export type Gasket = "standard" | "triple";
 
 /** The glass unit an installer can fit is about the frame depth minus the rebate and bead (indicative rule, not a data sheet). */
