@@ -311,8 +311,17 @@ http.route({
     } catch {
       return json({ ok: false, error: "BAD_JSON" }, 400);
     }
-    if (!body.token || !/^[A-Za-z0-9]{8,32}$/.test(body.token)) {
+    if (typeof body.token !== "string" || !/^[A-Za-z0-9]{8,32}$/.test(body.token)) {
       return json({ ok: false, error: "BAD_TOKEN" }, 400);
+    }
+    // TypeScript casts don't validate: a number / object in a text field would fail the mutation's
+    // validator and surface as a 500. Bounds here only refuse absurd payloads; the mutation trims.
+    const message = body.message ?? "";
+    if (!isStr(message, 5000, true)) return json({ ok: false, error: "BAD_MESSAGE" }, 400);
+    for (const field of ["contactName", "contactPhone", "contactEmail"] as const) {
+      if (body[field] !== undefined && body[field] !== null && !isStr(body[field], 500, true)) {
+        return json({ ok: false, error: "BAD_FIELD", field }, 400);
+      }
     }
     const kind = body.kind ?? "other";
     if (!["adjustment", "warranty", "maintenance", "other"].includes(kind)) {
@@ -342,10 +351,10 @@ http.route({
       await ctx.runMutation(internal.passports.recordInterventionFromHttp, {
         token: body.token,
         kind,
-        message: String(body.message ?? ""),
-        contactName: body.contactName,
-        contactPhone: body.contactPhone,
-        contactEmail: body.contactEmail,
+        message,
+        contactName: body.contactName ?? undefined,
+        contactPhone: body.contactPhone ?? undefined,
+        contactEmail: body.contactEmail ?? undefined,
         sourceIpHash: ipHash,
       });
     } catch (e) {
