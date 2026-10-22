@@ -7,6 +7,7 @@
  * can be exercised against the server schema in tests.
  */
 import type { PieceCategory } from "@/shared/configurator-model";
+import type { ProjectItem } from "@/shared/pricing";
 import { SINGLE_SASH_MAX_HEIGHT, SINGLE_SASH_MAX_WIDTH, DIM_ABS_MAX } from "@/shared/widget-types";
 import type { RegionCode } from "@/convex/lib/regions";
 
@@ -680,7 +681,16 @@ function clamp(v: number, min: number, max: number): number {
 /** A hardwareColor key every standard catalogue has. */
 export const WIZARD_HARDWARE_COLOR = "white";
 
-export function buildWizardItem(sel: WizardSelection, notes: string) {
+/**
+ * The submit seam between the wizard's display colour (white / woodgrain / custom) and the item's finish key.
+ * The keys are sent as they are today and the server prices them against the catalogue; any future mapping
+ * to a tenant's real finish keys lands here, in one place (issue #70).
+ */
+export function wizardFinishKey(colour: ColourKey): string {
+  return colour;
+}
+
+export function buildWizardItem(sel: WizardSelection, notes: string): ProjectItem {
   const shape = PRODUCT_SHAPE[sel.product];
   const maxW = shape.sashes === 1 ? SINGLE_SASH_MAX_WIDTH : DIM_ABS_MAX;
   const maxH = shape.sashes === 1 ? SINGLE_SASH_MAX_HEIGHT : DIM_ABS_MAX;
@@ -707,8 +717,8 @@ export function buildWizardItem(sel: WizardSelection, notes: string) {
     quantity: 1,
     sashes,
     glazing: sel.glazing,
-    color: sel.colour,
-    ...(sel.colourInside && sel.colourInside !== sel.colour ? { colorInside: sel.colourInside } : {}),
+    color: wizardFinishKey(sel.colour),
+    ...(sel.colourInside && sel.colourInside !== sel.colour ? { colorInside: wizardFinishKey(sel.colourInside) } : {}),
     insectScreen: false,
     notes: notes.slice(0, 500),
   };
