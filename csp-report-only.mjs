@@ -9,13 +9,27 @@
 const SENTRY_REPORT_URI =
   "https://o4512095204868096.ingest.us.sentry.io/api/4512095210242048/security/?sentry_key=fa57662b58693934150285ca8c3ee550";
 
+/**
+ * The Convex deployment this build talks to, when it is not on *.convex.cloud (a custom domain, or the stand-in backend of the browser
+ * tests): its HTTP origin and the matching WebSocket origin, so the reports stay about real third parties.
+ */
+function configuredConvexOrigins() {
+  try {
+    const url = new URL(process.env.NEXT_PUBLIC_CONVEX_URL ?? "");
+    if (url.hostname.endsWith(".convex.cloud")) return "";
+    return ` ${url.origin} ${url.protocol === "https:" ? "wss:" : "ws:"}//${url.host}`;
+  } catch {
+    return "";
+  }
+}
+
 export const APP_CSP_REPORT_ONLY = [
   "default-src 'self'",
   "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://va.vercel-scripts.com https://us-assets.i.posthog.com",
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' data: https://fonts.gstatic.com",
   "img-src 'self' data: blob: https:",
-  "connect-src 'self' https://*.convex.cloud wss://*.convex.cloud https://*.convex.site https://us.i.posthog.com https://us-assets.i.posthog.com https://*.ingest.us.sentry.io https://va.vercel-scripts.com https://vitals.vercel-insights.com",
+  `connect-src 'self' https://*.convex.cloud wss://*.convex.cloud https://*.convex.site https://us.i.posthog.com https://us-assets.i.posthog.com https://*.ingest.us.sentry.io https://va.vercel-scripts.com https://vitals.vercel-insights.com${configuredConvexOrigins()}`,
   "frame-src 'self' blob: https://challenges.cloudflare.com", // 'self': the widget preview in the configurator setup; blob: the in-app PDF viewer
   "worker-src 'self' blob:",
   "object-src 'none'",

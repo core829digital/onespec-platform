@@ -81,6 +81,8 @@ async function sweepOne(context, { path, locale, theme, device }) {
     if (m.type() !== "error") return;
     const where = m.location().url ?? "";
     if (/Failed to load resource/.test(m.text()) && (THIRD_PARTY.test(where) || NOISE.test(where))) return;
+    // Requests to analytics / error-reporting hosts are aborted by this test on purpose; Firefox logs each one as a CORS error.
+    if (THIRD_PARTY.test(m.text())) return;
     // Vercel's analytics scripts exist only on Vercel; on a test machine /_vercel/* answers text/plain.
     if (/speed-insights|_vercel\/insights/.test(m.text())) return;
     problems.push(`console.error: ${m.text().slice(0, 240)}`);

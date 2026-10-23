@@ -43,14 +43,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { name: "Widget in a third-party iframe", script: "e2e", browsers: "chromium" }
-          - { name: "Signature pad", script: "e2e:signature", browsers: "chromium" }
-          - { name: "Logged-in platform", script: "e2e:app", browsers: "chromium" }
-          - { name: "Public demo", script: "e2e:demo", browsers: "chromium" }
-          - { name: "Phone layout", script: "e2e:phone", browsers: "chromium" }
-          - { name: "All public pages · Chromium", script: "e2e:routes", browsers: "chromium" }
-          - { name: "All public pages · Firefox", script: "e2e:routes", browsers: "firefox", browser: "firefox", locales: "it,en" }
-          - { name: "All public pages · WebKit", script: "e2e:routes", browsers: "webkit", browser: "webkit", locales: "it,en" }
+          - { id: "widget", name: "Widget in a third-party iframe", script: "e2e", browsers: "chromium" }
+          - { id: "signature", name: "Signature pad", script: "e2e:signature", browsers: "chromium" }
+          - { id: "app", name: "Logged-in platform", script: "e2e:app", browsers: "chromium" }
+          - { id: "demo", name: "Public demo", script: "e2e:demo", browsers: "chromium" }
+          - { id: "phone", name: "Phone layout", script: "e2e:phone", browsers: "chromium" }
+          - { id: "routes-chromium", name: "All public pages · Chromium", script: "e2e:routes", browsers: "chromium" }
+          - { id: "routes-firefox", name: "All public pages · Firefox", script: "e2e:routes", browsers: "firefox", browser: "firefox", locales: "it,en" }
+          - { id: "routes-webkit", name: "All public pages · WebKit", script: "e2e:routes", browsers: "webkit", browser: "webkit", locales: "it,en" }
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -93,7 +93,7 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: e2e-${{ strategy.job-index }}-${{ matrix.script }}-${{ matrix.browser || 'chromium' }}
+          name: e2e-${{ matrix.id }}
           path: |
             next-start.log
             e2e-failure.png
