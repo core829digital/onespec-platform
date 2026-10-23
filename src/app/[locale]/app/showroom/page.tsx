@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useMutation } from "convex/react";
 import { useQuery } from "@/lib/convex-query";
 import { useLocale, useTranslations } from "next-intl";
@@ -15,6 +15,7 @@ import { saveShowroomHandoff } from "@/lib/showroom-handoff";
 import { PiecesEditor } from "@/components/quotes/editor/pieces-editor";
 import { ConfiguratorPicker, resolveChoice, type PickerConfigurator } from "@/components/showroom/configurator-picker";
 import { FiscalEngine, type FiscalCalc } from "@/components/showroom/FiscalEngine";
+import { SectionBoundary } from "@/components/section-boundary";
 import { buildExportModel } from "@/lib/quote-export/model";
 import { buildTxt, buildWhatsApp, whatsAppUrl } from "@/lib/quote-export/generators";
 import { buildBackup, parseBackup } from "@/lib/quote-export/backup";
@@ -24,6 +25,7 @@ import { useFriendlyError } from "@/lib/use-friendly-error";
 import type { RegionCode } from "@/convex/lib/regions";
 
 type Region = RegionCode;
+type CalcPreview = FunctionReturnType<typeof api.calculations.getCalculationPreview>;
 
 function download(name: string, mime: string, content: string) {
   const url = URL.createObjectURL(new Blob([content], { type: `${mime};charset=utf-8` }));
@@ -152,14 +154,9 @@ function ShowroomWorkspace({
   });
   useDraftSave(draftKey, itemsState, { clientName, clientPhone, clientCity });
 
-  const calc = useQuery(
-    api.calculations.getCalculationPreview,
-    items.length > 0
-      ? { tenantId: tenant._id, configuratorId: configuratorId as Id<"configurators">, items, options: { regionCode: region, buildingAge, isEnergyRenovation, deductionPercent: 50 } }
-      : "skip",
-  );
-
   const blocked = items.some((it) => blockingIssues(pieceIssues(it, payload)).length > 0);
+  // Owned by PricePreview (which runs the query); mirrored here for exportModel/whatsapp/the TXT button.
+  const [calc, setCalc] = useState<CalcPreview | null>(null);
 
   function exportModel(drawings: boolean) {
     if (!payload || !calc) return null;
@@ -292,10 +289,17 @@ function ShowroomWorkspace({
         </div>
 
         <div className="space-y-3">
-          {calc ? (
-            <FiscalEngine
-              calc={calc as FiscalCalc}
-              regionCode={region}
+          <SectionBoundary fallback={<div className="rounded-xl border border-[var(--color-border)] p-5 text-sm text-[var(--color-muted-fg)]">{t("configureToSee")}</div>}>
+            <PricePreview
+              tenant={tenant}
+              configuratorId={configuratorId}
+              items={items}
+              blocked={blocked}
+              region={region}
+              buildingAge={buildingAge}
+              isEnergyRenovation={isEnergyRenovation}
+              emptyLabel={t("configureToSee")}
+              onCalc={setCalc}
               onWhatsApp={() => void whatsapp()}
               onSopralluogo={access && !access.isLocked("fieldQuotes") ? requestSurvey : undefined}
               onAddToCart={() => {
@@ -304,9 +308,7 @@ function ShowroomWorkspace({
                 setActive(Math.min(active, items.length - 1) + 1);
               }}
             />
-          ) : (
-            <div className="rounded-xl border border-[var(--color-border)] p-5 text-sm text-[var(--color-muted-fg)]">{t("configureToSee")}</div>
-          )}
+          </SectionBoundary>
           {sendErr ? <p role="alert" className="rounded-lg border border-[var(--color-danger)]/40 p-3 text-xs text-[var(--color-danger)]">{sendErr}</p> : null}
           {blocked ? <p className="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-xs">{t("fixPieces")}</p> : null}
 
@@ -339,4 +341,53 @@ function ShowroomWorkspace({
       </div>
     </div>
   );
+}
+
+/**
+ * Runs the preview query and owns the FiscalEngine/empty-state split, so `SectionBoundary` in the
+ * parent can catch a rejected query (e.g. a stale piece the client-side checks missed) and fall back
+ * to the empty state instead of the whole workspace crashing.
+ */
+function PricePreview({
+  tenant,
+  configuratorId,
+  items,
+  blocked,
+  region,
+  buildingAge,
+  isEnergyRenovation,
+  emptyLabel,
+  onCalc,
+  onWhatsApp,
+  onSopralluogo,
+  onAddToCart,
+}: {
+  tenant: NonNullable<FunctionReturnType<typeof api.tenants.getMyTenant>>;
+  configuratorId: string;
+  items: ProjectItem[];
+  blocked: boolean;
+  region: Region;
+  buildingAge: number;
+  isEnergyRenovation: boolean;
+  emptyLabel: string;
+  onCalc: (calc: CalcPreview | null) => void;
+  onWhatsApp: () => void;
+  onSopralluogo?: () => void;
+  onAddToCart: () => void;
+}) {
+  // In-progress dimensions (e.g. the "1" of "1200" while typing) fail validation server-side
+  // with a coded error; skip the preview until the piece clears every blocking issue.
+  const calc = useQuery(
+    api.calculations.getCalculationPreview,
+    items.length > 0 && !blocked
+      ? { tenantId: tenant._id, configuratorId: configuratorId as Id<"configurators">, items, options: { regionCode: region, buildingAge, isEnergyRenovation, deductionPercent: 50 } }
+      : "skip",
+  );
+
+  useEffect(() => {
+    onCalc(calc ?? null);
+  }, [calc, onCalc]);
+
+  if (!calc) return <div className="rounded-xl border border-[var(--color-border)] p-5 text-sm text-[var(--color-muted-fg)]">{emptyLabel}</div>;
+  return <FiscalEngine calc={calc as FiscalCalc} regionCode={region} onWhatsApp={onWhatsApp} onSopralluogo={onSopralluogo} onAddToCart={onAddToCart} />;
 }
