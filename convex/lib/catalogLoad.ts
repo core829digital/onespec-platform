@@ -3,7 +3,12 @@ import type { MutationCtx, QueryCtx } from "../_generated/server";
 import type { Doc, Id } from "../_generated/dataModel";
 import type { CatalogPayload } from "../../src/shared/pricing";
 
-/** The configurator's published catalogue version (version 1 for configurators published before versioning), or null. */
+/**
+ * The configurator's published catalogue version (version 1 for configurators published before versioning), or null.
+ * `.first()`, not `.unique()`: (configuratorId, version) has no uniqueness constraint in the schema, only an index, so a
+ * stray duplicate row must not turn every quote-building and Showroom-pricing call into an uncoded crash. Same choice as
+ * the public widget's lookup of the same pair (widget.ts's getPublicConfigurator) — read-only and recoverable.
+ */
 export async function findPublishedVersion(
   ctx: QueryCtx | MutationCtx,
   configurator: Doc<"configurators">,
@@ -12,7 +17,7 @@ export async function findPublishedVersion(
   return await ctx.db
     .query("catalogVersions")
     .withIndex("by_configurator_version", (q) => q.eq("configuratorId", configurator._id).eq("version", targetVersion))
-    .unique();
+    .first();
 }
 
 /**

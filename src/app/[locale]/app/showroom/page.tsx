@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useMutation } from "convex/react";
-import { useQuery } from "@/lib/convex-query";
+import { useQuery, useQueryResult } from "@/lib/convex-query";
 import { useLocale, useTranslations } from "next-intl";
 import type { FunctionReturnType } from "convex/server";
 import { api } from "@/convex/_generated/api";
@@ -152,12 +152,17 @@ function ShowroomWorkspace({
   });
   useDraftSave(draftKey, itemsState, { clientName, clientPhone, clientCity });
 
-  const calc = useQuery(
+  // A query result, not a plain `useQuery`: the preview can refuse an item the editor let through (a stale restored
+  // draft, a catalogue change since the item was configured), and that must shrink to "no price to show" here, never
+  // crash the whole Showroom page the way an uncaught `useQuery` error would.
+  const calcState = useQueryResult(
     api.calculations.getCalculationPreview,
     items.length > 0
       ? { tenantId: tenant._id, configuratorId: configuratorId as Id<"configurators">, items, options: { regionCode: region, buildingAge, isEnergyRenovation, deductionPercent: 50 } }
       : "skip",
   );
+  const calc = calcState.status === "success" ? calcState.data : undefined;
+  const calcError = calcState.status === "error" ? calcState.error : undefined;
 
   const blocked = items.some((it) => blockingIssues(pieceIssues(it, payload)).length > 0);
 
@@ -304,6 +309,8 @@ function ShowroomWorkspace({
                 setActive(Math.min(active, items.length - 1) + 1);
               }}
             />
+          ) : calcError ? (
+            <p role="alert" className="rounded-xl border border-[var(--color-danger)]/40 bg-[var(--color-danger)]/5 p-5 text-sm text-[var(--color-danger)]">{tf(calcError)}</p>
           ) : (
             <div className="rounded-xl border border-[var(--color-border)] p-5 text-sm text-[var(--color-muted-fg)]">{t("configureToSee")}</div>
           )}
