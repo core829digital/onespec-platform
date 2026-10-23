@@ -118,9 +118,19 @@ export const calculateInternal = internalQuery({
     }),
   },
   handler: async (ctx, args) => {
-    const catalogData = await getTenantCatalog(ctx, args.tenantId, args.configuratorId);
-    if (!catalogData) throw new ConvexError("NO_CATALOG_VERSION");
-    return computeCalculationPreview(catalogData.payload, catalogData.version, args.items as ProjectItem[], args.options);
+    // Every deliberate refusal on this path is already a coded ConvexError; anything else here is a bug, and the
+    // Showroom preview must still fail with a message the client can show, not a redacted "Server Error" (issue: Showroom
+    // price preview crashed with an uncoded error for a session on 2026-10-23).
+    try {
+      const catalogData = await getTenantCatalog(ctx, args.tenantId, args.configuratorId);
+      if (!catalogData) throw new ConvexError("NO_CATALOG_VERSION");
+      return computeCalculationPreview(catalogData.payload, catalogData.version, args.items as ProjectItem[], args.options);
+    } catch (e) {
+      if (e instanceof ConvexError) throw e;
+      // The client only ever sees the coded error below; this keeps the real stack in Convex's own function logs.
+      console.error("[calculateInternal] unexpected error", e);
+      throw new ConvexError("CALCULATION_FAILED");
+    }
   },
 });
 

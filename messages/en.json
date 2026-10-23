@@ -487,6 +487,7 @@
     "uploadFailed": "File upload failed. Please try again.",
     "noSupplierLines": "No valid supplier found for the multi-supplier lines.",
     "quoteCreateFailed": "The quote could not be created. Please try again.",
+    "calculationFailed": "The price could not be calculated. Please try again.",
     "configuratorHasRequests": "This configurator has already received customer requests and cannot be deleted, so their data is not lost. You can archive it: it stops working but the data stays.",
     "priceZoneRequired": "First tell us where you work (North, Centre or South of Italy): it is needed to pick the right standard price list.",
     "qualityInUse": "Profiles still use this quality: move them to another quality before deleting it.",

@@ -166,6 +166,7 @@ export type ErrorKey =
   | "uploadFailed"
   | "noSupplierLines"
   | "quoteCreateFailed"
+  | "calculationFailed"
   | "importTooManyRows"
   | "importRateLimited"
   | "ticketClosed"
@@ -362,6 +363,7 @@ const EXACT: Record<string, ErrorKey> = {
   UPLOAD_FAILED: "uploadFailed",
   NO_SUPPLIER_LINES: "noSupplierLines",
   QUOTE_CREATE_FAILED: "quoteCreateFailed",
+  CALCULATION_FAILED: "calculationFailed",
   INVALID_SIGNATURE_FORMAT: "signatureInvalid",
   IMPORT_TOO_MANY_ROWS: "importTooManyRows",
   IMPORT_RATE_LIMITED: "importRateLimited",

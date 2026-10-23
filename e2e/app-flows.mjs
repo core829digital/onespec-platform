@@ -285,6 +285,20 @@ async function main() {
       await page.getByRole("alert").filter({ hasText: /mm/ }).first().waitFor({ timeout: 3000 });
     });
 
+    // ── Showroom: typing a size digit by digit ("1" → "12" → "120" → "1200") must never take the workspace down ─────────────────
+    // The in-between values are under the minimum; the price preview waits for a valid piece (PostHog report, 23/10/2026).
+    await step("Showroom: typing a width digit by digit keeps the workspace up and prices the final size", page, problems, async () => {
+      await page.goto(url("/app/showroom"), { waitUntil: "domcontentloaded" });
+      const width = page.locator('input[name="width"]').first();
+      await width.waitFor({ timeout: 30_000 });
+      await width.fill("");
+      await width.pressSequentially("1200", { delay: 250 });
+      await page.waitForTimeout(800);
+      if (await page.getByText(/Impossibile caricare questa pagina/).count()) throw new Error("the workspace crashed while typing");
+      if ((await width.inputValue()) !== "1200") throw new Error(`width is ${await width.inputValue()}, expected 1200`);
+      await page.locator("main#main-content").waitFor({ timeout: 5000 });
+    });
+
     // ── page by page: every platform page opens for the owner, renders content, and the browser stays clean ────────────────────────
     const PAGES = [
       "/app/dashboard", "/app/analytics", "/app/pipeline", "/app/quotes", "/app/quotes/new", "/app/clients", "/app/leads", `/app/clients/${seed.clientId}`,
