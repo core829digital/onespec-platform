@@ -481,7 +481,8 @@ export function SpecDrawing({
       ref={svgRef}
       viewBox={`0 0 ${svgW} ${svgH}`}
       xmlns="http://www.w3.org/2000/svg"
-      role="img"
+      // With editable dimensions the drawing holds buttons, which an "img" would hide from screen readers and keyboards.
+      role={onEditLeafWidth ? "group" : "img"}
       aria-label="dimension drawing"
       style={{ width: "100%", maxWidth: 320, height: "auto", touchAction: onResizeSash ? "none" : undefined }}
     >

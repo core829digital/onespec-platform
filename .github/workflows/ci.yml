@@ -46,69 +46,8 @@ jobs:
         env:
           NEXT_PUBLIC_CONVEX_URL: "https://placeholder.convex.cloud"
 
-  # The widget exactly as a dealer ships it: in an <iframe> on another origin, against a stand-in backend.
-  # Catches what unit tests cannot: framing headers (CSP frame-ancestors), cross-origin messages, blocked storage,
-  # a backend that fails or hangs, phone widths and the one-line embed loader.
-  widget-e2e:
-    name: Widget in a third-party iframe
-    runs-on: ubuntu-latest
-    timeout-minutes: 25
-    env:
-      CI: "true"
-      # The server talks to the stand-in backend (e2e/mock-convex.mjs); the browser's calls to this host are answered by the
-      # test through request interception. *.convex.site is allowed by the widget's CSP, like in production.
-      NEXT_PUBLIC_CONVEX_URL: "http://localhost:3210"
-      NEXT_PUBLIC_CONVEX_SITE_URL: "https://e2e.convex.site"
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: "24"
-          cache: "npm"
-
-      - run: npm ci
-
-      - name: Install the test browser
-        run: npx playwright install --with-deps chromium
-
-      - name: Build (production)
-        run: npm run build
-
-      - name: Start the app
-        run: |
-          nohup npx next start -p 3100 > next-start.log 2>&1 &
-          for i in $(seq 1 60); do curl -fs -o /dev/null http://localhost:3100/demo/widget && exit 0; sleep 2; done
-          echo "app did not start"; cat next-start.log; exit 1
-
-      - name: Widget end-to-end
-        run: npm run e2e
-      - name: Signature pad in a real browser
-        run: npm run e2e:signature
-
-      # The logged-in platform in a real browser, against the real Convex functions (e2e/app-backend.host.ts), on the same production build.
-      - name: Logged-in platform paths
-        run: npm run e2e:app
-        env:
-          APP_URL: "http://localhost:3100"
-
-      # The public demo (host demo.localhost): the whole platform on an in-browser database, desktop / tablet / phone.
-      - name: Public demo
-        run: npm run e2e:demo
-
-      # Phone layout guard: nothing wider than the screen, nothing shifted right, no text field under 16px (iOS zoom on focus).
-      - name: Phone layout
-        run: npm run e2e:phone
-
-      - name: Upload the app log when something failed
-        if: failure()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: e2e-logs
-          path: |
-            next-start.log
-            e2e-failure.png
-          if-no-files-found: ignore
+  # The browser end-to-end suites (widget in an iframe, signature, logged-in platform, demo, phone layout, every public page in
+  # Chromium / Firefox / WebKit) run side by side in .github/workflows/frontend-e2e.yml.
 
   audit:
     name: Dependency audit (production)

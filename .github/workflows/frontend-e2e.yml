@@ -1,0 +1,102 @@
+name: Frontend (Playwright)
+
+# The whole front end in real browsers, on the production build, one job per suite so they run side by side:
+#   widget       the widget in an <iframe> on another site (framing headers, cross-origin messages, failing backend, embed loader)
+#   signature    the signature pad (stroke visible in both themes, empty pad refused)
+#   app          the logged-in platform against the real Convex functions (e2e/app-backend.host.ts): 27 pages, quote → sign → print, support
+#   demo         the public demo on demo.localhost (desktop / tablet / phone)
+#   phone        phone layout guard (nothing wider than the screen, no text field under 16px)
+#   routes       every public page × 6 languages × light/dark × desktop/phone: errors, <html lang>, title, heading, alt text,
+#                accessibility (axe-core) and every internal link
+# plus the route sweep in Firefox and WebKit (Safari's engine) on two languages.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  # Nightly, so a change in a browser or a dependency shows up even on a quiet day.
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: frontend-e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: "true"
+  # The browser talks to the stand-in backends on this port (e2e/mock-convex.mjs or e2e/app-backend.host.ts); *.convex.site is allowed
+  # by the widget's CSP, like in production.
+  NEXT_PUBLIC_CONVEX_URL: "http://localhost:3210"
+  NEXT_PUBLIC_CONVEX_SITE_URL: "https://e2e.convex.site"
+  APP_URL: "http://localhost:3100"
+
+jobs:
+  suite:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { name: "Widget in a third-party iframe", script: "e2e", browsers: "chromium" }
+          - { name: "Signature pad", script: "e2e:signature", browsers: "chromium" }
+          - { name: "Logged-in platform", script: "e2e:app", browsers: "chromium" }
+          - { name: "Public demo", script: "e2e:demo", browsers: "chromium" }
+          - { name: "Phone layout", script: "e2e:phone", browsers: "chromium" }
+          - { name: "All public pages · Chromium", script: "e2e:routes", browsers: "chromium" }
+          - { name: "All public pages · Firefox", script: "e2e:routes", browsers: "firefox", browser: "firefox", locales: "it,en" }
+          - { name: "All public pages · WebKit", script: "e2e:routes", browsers: "webkit", browser: "webkit", locales: "it,en" }
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - run: npm ci
+
+      - name: Install the test browser
+        run: npx playwright install --with-deps ${{ matrix.browsers }}
+
+      # The Next build cache keeps the eight parallel builds short; the output itself is always rebuilt from this commit.
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .next/cache
+          key: next-e2e-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-${{ github.sha }}
+          restore-keys: |
+            next-e2e-${{ runner.os }}-${{ hashFiles('package-lock.json') }}-
+
+      - name: Build (production)
+        run: npm run build
+
+      - name: Start the app
+        run: |
+          nohup npx next start -p 3100 > next-start.log 2>&1 &
+          for i in $(seq 1 60); do curl -fs -o /dev/null http://localhost:3100/demo/widget && exit 0; sleep 2; done
+          echo "app did not start"; cat next-start.log; exit 1
+
+      - name: Run ${{ matrix.name }}
+        run: npm run ${{ matrix.script }}
+        env:
+          BROWSER: ${{ matrix.browser || 'chromium' }}
+          SWEEP_LOCALES: ${{ matrix.locales || 'it,en,fr,de,nl,ro' }}
+          E2E_SHOT: e2e-failure.png
+          E2E_SHOT_DIR: e2e-shots
+
+      - name: Upload screenshots and the app log when something failed
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: e2e-${{ strategy.job-index }}-${{ matrix.script }}-${{ matrix.browser || 'chromium' }}
+          path: |
+            next-start.log
+            e2e-failure.png
+            e2e-shots/
+          if-no-files-found: ignore
+          retention-days: 14

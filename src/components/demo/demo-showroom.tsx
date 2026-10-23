@@ -86,6 +86,8 @@ export function DemoShowroom({ lang, theme }: { lang: string; theme: "light" | "
 
   return (
     <div className="w-full space-y-4 p-3 sm:p-4">
+      {/* The page heading for screen readers: the site that frames this demo shows its own visible title above it. */}
+      <h1 className="sr-only">{t("title")}</h1>
       <WheelForward publicId={DEMO_ID} />
       <div className="space-y-4 rounded-xl border border-[var(--color-border)] p-4">
         <PiecesEditor

@@ -9,10 +9,9 @@
 // A path fails on any console error, page error or failed request of the app itself (analytics / error-reporting hosts are blocked, not counted).
 //
 // Environment: APP_URL (default http://localhost:3100), PLAYWRIGHT_MODULE, PLAYWRIGHT_CHROMIUM, E2E_SHOT (screenshot of a failed step).
-import { spawn } from "node:child_process";
-import { existsSync, readFileSync, rmSync } from "node:fs";
 import { createRequire } from "node:module";
 import { strToU8, zipSync } from "fflate";
+import { startBackend as startSharedBackend } from "./backend.mjs";
 
 const require = createRequire(import.meta.url);
 const { chromium } = require(process.env.PLAYWRIGHT_MODULE ?? "playwright");
@@ -28,38 +27,7 @@ const check = (ok, message) => {
   if (!ok) failures.push(message);
 };
 
-// ── the stand-in backend ────────────────────────────────────────────────────────────────────────────────────────────────────────────
-async function startBackend() {
-  const taken = await fetch(`http://localhost:${BACKEND_PORT}/version`).then(() => true, () => false);
-  if (taken) throw new Error(`port ${BACKEND_PORT} is already in use: stop the other backend first (or set E2E_BACKEND_PORT)`);
-  if (existsSync(SEED_FILE)) rmSync(SEED_FILE);
-  const child = spawn("npx", ["vitest", "run", "--config", "vitest.e2e.config.ts"], {
-    env: { ...process.env, E2E_SEED_FILE: SEED_FILE, E2E_BACKEND_PORT: BACKEND_PORT },
-    stdio: ["ignore", "pipe", "pipe"],
-    detached: true,
-  });
-  let log = "";
-  child.stdout.on("data", (d) => (log += d));
-  child.stderr.on("data", (d) => (log += d));
-  await new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error(`backend did not start in time:\n${log.slice(-2000)}`)), 120_000);
-    // vitest prints a test's console output only when the test ends, so readiness is the seed file plus an answering port.
-    const poll = setInterval(async () => {
-      if (!existsSync(SEED_FILE)) return;
-      try {
-        const r = await fetch(`http://localhost:${BACKEND_PORT}/version`);
-        if (!r.ok) return;
-      } catch {
-        return;
-      }
-      clearTimeout(timer);
-      clearInterval(poll);
-      resolve();
-    }, 300);
-    child.on("exit", (code) => reject(new Error(`backend exited (${code}):\n${log.slice(-2000)}`)));
-  });
-  return { seed: JSON.parse(readFileSync(SEED_FILE, "utf8")), stop: () => { try { process.kill(-child.pid, "SIGTERM"); } catch { /* already gone */ } }, log: () => log };
-}
+const startBackend = () => startSharedBackend({ seedFile: SEED_FILE, port: BACKEND_PORT });
 
 // ── helpers ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 const THIRD_PARTY = /posthog\.com|sentry\.io|vercel-scripts|vercel-insights|googleapis\.com|gstatic\.com|challenges\.cloudflare/;

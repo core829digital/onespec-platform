@@ -5,7 +5,9 @@ Prova il widget **come lo mette il montatore**: dentro un `<iframe>` di un sito 
 browser che bloccano lo storage, telefono, script a una riga (`/embed.js`), link oEmbed, stile "wizard".
 
 ## In CI
-Parte da solo (job `widget-e2e` in `.github/workflows/ci.yml`).
+Tutte le suite di questa cartella partono da sole nel workflow **Frontend (Playwright)** (`.github/workflows/frontend-e2e.yml`):
+a ogni push su `main`, a ogni pull request, ogni notte alle 03:17 UTC e a mano (Actions → «Frontend (Playwright)» → Run workflow).
+Ogni suite è un job separato e girano in parallelo; se una fallisce, il job carica screenshot e log dell'app come artefatto (14 giorni).
 
 ## In locale
 ```powershell
@@ -36,3 +38,17 @@ Se la porta 3210 è occupata, lo script si ferma con un messaggio (non riusa un 
 
 # Demo pubblica (`npm run e2e:demo`)
 Percorre le 12 pagine principali su `demo.localhost:3100` (desktop, tablet, telefono): contenuto presente, niente overflow, niente errori in console, banner demo. Non serve alcun backend. Vedi `docs/DEMO.md`.
+
+# Tutte le pagine pubbliche (`npm run e2e:routes`)
+`e2e/route-sweep.mjs` apre **ogni pagina pubblica** (accesso, registrazione, password dimenticata, unisciti, contattaci, tutte le pagine
+legali, widget e showroom demo) in **6 lingue × tema scuro/chiaro × desktop/telefono** e per ognuna controlla: nessun errore HTTP, nessun
+errore in console o della pagina, `<html lang>` giusto, titolo e `<h1>` presenti, niente più largo dello schermo, immagini con testo
+alternativo, accessibilità con axe-core (le violazioni «critical» fanno fallire, le «serious» finiscono nel report). Alla fine richiede una
+volta ogni link interno trovato: un link che risponde 404/5xx fa fallire. Controlla anche che la pagina 404 sia una pagina vera.
+
+L'elenco delle pagine legali viene letto da `src/content/legal.ts`: un documento nuovo viene controllato senza toccare il test.
+In CI gira con Chromium su tutte le lingue e con **Firefox** e **WebKit** (il motore di Safari) su italiano e inglese.
+Il report finisce nel riepilogo del job su GitHub.
+
+Prima: `NEXT_PUBLIC_CONVEX_URL=http://localhost:3210 npm run build` e `npx next start -p 3100`; poi `npm run e2e:routes`.
+Variabili: `BROWSER` (chromium | firefox | webkit), `SWEEP_LOCALES`, `SWEEP_THEMES`, `SWEEP_VIEWPORTS`, `SWEEP_CONCURRENCY`, `E2E_SHOT_DIR`.
