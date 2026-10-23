@@ -279,6 +279,16 @@ test("app backend (runs until stopped)", async () => {
       const storageId = await serial(() => t.run((ctx) => ctx.storage.store(blob)));
       return void res.writeHead(200, { ...cors, "content-type": "application/json" }).end(JSON.stringify({ storageId }));
     }
+    // Test-only control: switch the seeded company's plan for one flow (e.g. the Showroom needs Agency), then switch it back.
+    if (req.method === "POST" && url.pathname === "/__plan") {
+      const { plan } = JSON.parse(await readBody(req)) as { plan: "pro" | "agency" };
+      if (plan !== "pro" && plan !== "agency") return void res.writeHead(400, cors).end();
+      await serial(async () => {
+        await t.run((ctx) => ctx.db.patch(s.tenantId, { plan }));
+        await (await broadcast()).after();
+      });
+      return void res.writeHead(204, cors).end();
+    }
     if (url.pathname === "/version" || url.pathname === "/") return void res.writeHead(200, cors).end("ok");
     res.writeHead(404, cors).end();
   });
