@@ -299,7 +299,7 @@ async function main() {
         await width.pressSequentially("1200", { delay: 250 });
         await page.waitForTimeout(800);
         if (await page.getByText(/Impossibile caricare questa pagina/).count()) throw new Error("the workspace crashed while typing");
-        if ((await width.inputValue()) !== "1200") throw new Error(`width is ${await width.inputValue()}, expected 1200`);
+        if (Number(await width.inputValue()) !== 1200) throw new Error(`width is ${await width.inputValue()}, expected 1200`);
         await page.locator("main#main-content").waitFor({ timeout: 5000 });
       } finally {
         await setPlan("pro");

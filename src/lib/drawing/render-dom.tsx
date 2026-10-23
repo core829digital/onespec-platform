@@ -6,9 +6,10 @@ export const MONO = "IBM Plex Mono, ui-monospace, monospace";
 
 export function renderPrimitive(p: Primitive, key: number): ReactNode {
   switch (p.type) {
+    // A size typed digit by digit (1, 12, 120 mm) makes inner panels negative: the browser refuses a negative width, so clamp at 0.
     case "rect":
       return (
-        <rect key={key} x={p.x} y={p.y} width={p.w} height={p.h} rx={p.radius} fill={p.fill} stroke={p.stroke} strokeWidth={p.strokeWidth} strokeDasharray={p.dash} opacity={p.opacity} />
+        <rect key={key} x={p.x} y={p.y} width={Math.max(0, p.w)} height={Math.max(0, p.h)} rx={p.radius} fill={p.fill} stroke={p.stroke} strokeWidth={p.strokeWidth} strokeDasharray={p.dash} opacity={p.opacity} />
       );
     case "line":
       return (
