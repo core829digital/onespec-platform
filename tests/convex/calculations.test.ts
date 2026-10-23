@@ -187,16 +187,21 @@ test("compliance: funding preamble for all markets", () => {
 
 const previewOptions = { regionCode: "IT" as const, buildingAge: 20, isEnergyRenovation: true, deductionPercent: 50 };
 
+async function setupPreview(publicId: string) {
+  const t = newDb();
+  const s = await seedTenant(t, { plan: "agency" });
+  const as = t.withIdentity({ subject: s.ownerId });
+  const cfg = await seedPublishedConfigurator(t, s.tenantId, publicId);
+  return { t, s, as, cfg };
+}
+
 test("getCalculationPreview: a second catalogVersions row for the same (configuratorId, version) never reaches the client as an uncoded crash", async () => {
   // Reproduces the Showroom preview's redacted "Server Error" (inbox report, 2026-10-23): `catalogVersions` has an
   // index on (configuratorId, version) but no uniqueness constraint, and `findPublishedVersion` used to read it with
   // `.unique()`, which throws a plain Error — not a ConvexError — the moment a second row ever matches. A coded
   // ConvexError is the contract every deliberate refusal on this path already follows (NO_ITEMS, INVALID_ITEM,
   // NOT_A_MEMBER, NO_CATALOG_VERSION); this must stay true even for a bug that produces a duplicate row.
-  const t = newDb();
-  const s = await seedTenant(t, { plan: "agency" });
-  const as = t.withIdentity({ subject: s.ownerId });
-  const cfg = await seedPublishedConfigurator(t, s.tenantId, "DUPVER0001");
+  const { t, s, as, cfg } = await setupPreview("DUPVER0001");
 
   await t.run(async (ctx) => {
     const row = (await ctx.db.query("catalogVersions").collect()).find((r) => r.configuratorId === cfg)!;
@@ -214,10 +219,7 @@ test("getCalculationPreview: a second catalogVersions row for the same (configur
 });
 
 test("getCalculationPreview: an unexpected (non-ConvexError) failure surfaces as a coded ConvexError, not a redacted one", async () => {
-  const t = newDb();
-  const s = await seedTenant(t, { plan: "agency" });
-  const as = t.withIdentity({ subject: s.ownerId });
-  const cfg = await seedPublishedConfigurator(t, s.tenantId, "BADPAY0001");
+  const { t, s, as, cfg } = await setupPreview("BADPAY0001");
 
   // A payload a migration or a hand-edited row could produce: missing a field `calculatePrice` assumes is always an array.
   await t.run(async (ctx) => {

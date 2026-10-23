@@ -16,6 +16,7 @@ import { applyStandardPricing, ensureProfileClassification } from "./lib/standar
 import { isPriceZone } from "../src/shared/standard-pricing";
 import { DEFAULT_ACCENT, DEFAULT_ACCENT_INK } from "./branding";
 import { bumpUsageCounter } from "./lib/usageCounters";
+import { findCatalogVersion } from "./lib/catalogLoad";
 
 export const createConfigurator = mutation({
   args: { tenantId: v.id("tenants"), name: v.string() },
@@ -239,12 +240,7 @@ export const getPublishedCatalog = query({
     const version = configurator.publishedCatalogVersion;
     if (!version) return null;
 
-    const versionDoc = await ctx.db
-      .query("catalogVersions")
-      .withIndex("by_configurator_version", (q) =>
-        q.eq("configuratorId", args.configuratorId).eq("version", version),
-      )
-      .unique();
+    const versionDoc = await findCatalogVersion(ctx, args.configuratorId, version);
     if (!versionDoc) return null;
 
     return { version, payload: versionDoc.payload as Record<string, unknown> };
@@ -449,12 +445,7 @@ export const rollbackToVersion = mutation({
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
     const { membership } = await requirePermission(ctx, configurator.tenantId, "configurators.manage");
 
-    const target = await ctx.db
-      .query("catalogVersions")
-      .withIndex("by_configurator_version", (q) =>
-        q.eq("configuratorId", args.configuratorId).eq("version", args.version),
-      )
-      .unique();
+    const target = await findCatalogVersion(ctx, args.configuratorId, args.version);
     if (!target) throw new ConvexError("VERSION_NOT_FOUND");
 
     // Re-publish the old payload as a new version — never mutate history.

@@ -17,6 +17,7 @@ import { regionForCountry, type RegionPolicy } from "./lib/regions";
 import { configuratorServedByPlan } from "./lib/enforcement";
 import { resolveVisitorVat, visitorPercent } from "./lib/fiscal";
 import { bumpUsageCounter, findUsageCounter } from "./lib/usageCounters";
+import { findCatalogVersion } from "./lib/catalogLoad";
 
 /** Rows/objects that may carry Convex system + tenant fields. */
 type WithSystemFields = Record<string, unknown> & {
@@ -223,12 +224,7 @@ export const getPublicConfigurator = query({
       return null;
     }
 
-    const version = await ctx.db
-      .query("catalogVersions")
-      .withIndex("by_configurator_version", (q) =>
-        q.eq("configuratorId", configurator._id).eq("version", configurator.publishedCatalogVersion ?? 0),
-      )
-      .first();
+    const version = await findCatalogVersion(ctx, configurator._id, configurator.publishedCatalogVersion);
     if (!version) return null;
 
     const branding = await ctx.db
@@ -455,12 +451,7 @@ export const insertQuote = internalMutation({
     if (!configurator) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
     const sourcePage = cleanSourcePage(args.sourcePage);
 
-    const version = await ctx.db
-      .query("catalogVersions")
-      .withIndex("by_configurator_version", (q) =>
-        q.eq("configuratorId", args.configuratorId).eq("version", args.catalogVersion),
-      )
-      .unique();
+    const version = await findCatalogVersion(ctx, args.configuratorId, args.catalogVersion);
     if (!version) throw new ConvexError("VERSION_NOT_FOUND");
 
     const rawItems = Array.isArray(args.items) ? args.items : [];

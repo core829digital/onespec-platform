@@ -4,20 +4,28 @@ import type { Doc, Id } from "../_generated/dataModel";
 import type { CatalogPayload } from "../../src/shared/pricing";
 
 /**
- * The configurator's published catalogue version (version 1 for configurators published before versioning), or null.
- * `.first()`, not `.unique()`: (configuratorId, version) has no uniqueness constraint in the schema, only an index, so a
- * stray duplicate row must not turn every quote-building and Showroom-pricing call into an uncoded crash. Same choice as
- * the public widget's lookup of the same pair (widget.ts's getPublicConfigurator) — read-only and recoverable.
+ * A configurator's catalogue version, by number, or null. `.first()`, not `.unique()`: (configuratorId, version) has no
+ * uniqueness constraint in the schema, only an index, so a stray duplicate row must not turn every quote-building,
+ * widget-submission and Showroom-pricing call into an uncoded crash — it is read-only and recoverable (the same reasoning
+ * already applied to a duplicate `branding` row in quotes.ts). Every lookup of this pair goes through this one function.
  */
+export async function findCatalogVersion(
+  ctx: QueryCtx | MutationCtx,
+  configuratorId: Id<"configurators">,
+  version: number,
+): Promise<Doc<"catalogVersions"> | null> {
+  return await ctx.db
+    .query("catalogVersions")
+    .withIndex("by_configurator_version", (q) => q.eq("configuratorId", configuratorId).eq("version", version))
+    .first();
+}
+
+/** The configurator's PUBLISHED catalogue version (version 1 for configurators published before versioning), or null. */
 export async function findPublishedVersion(
   ctx: QueryCtx | MutationCtx,
   configurator: Doc<"configurators">,
 ): Promise<Doc<"catalogVersions"> | null> {
-  const targetVersion = configurator.publishedCatalogVersion ?? 1;
-  return await ctx.db
-    .query("catalogVersions")
-    .withIndex("by_configurator_version", (q) => q.eq("configuratorId", configurator._id).eq("version", targetVersion))
-    .first();
+  return findCatalogVersion(ctx, configurator._id, configurator.publishedCatalogVersion ?? 1);
 }
 
 /**

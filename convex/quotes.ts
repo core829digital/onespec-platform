@@ -23,7 +23,7 @@ import { quoteTotals } from "../src/shared/quote-totals";
 import { quoteStatusValidator } from "./lib/enums";
 import { mm } from "./lib/dims";
 import { bumpUsageCounter } from "./lib/usageCounters";
-import { defaultDepositTerms, loadPublishedCatalog } from "./lib/catalogLoad";
+import { defaultDepositTerms, findCatalogVersion, loadPublishedCatalog } from "./lib/catalogLoad";
 
 const QUOTE_STATUS = quoteStatusValidator;
 
@@ -616,12 +616,7 @@ export const getQuoteForPrint = query({
 
     const configurator = await ctx.db.get(quote.configuratorId);
     // The catalogue version the quote was priced on — labels, Uf/Ug/Ψ and telaio names for the PDF/exports.
-    const versionDoc = await ctx.db
-      .query("catalogVersions")
-      .withIndex("by_configurator_version", (q) =>
-        q.eq("configuratorId", quote.configuratorId).eq("version", quote.catalogVersion),
-      )
-      .unique();
+    const versionDoc = await findCatalogVersion(ctx, quote.configuratorId, quote.catalogVersion);
 
     const printable = redactQuoteRequest(await withSignature(ctx, quote));
     return {
