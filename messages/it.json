@@ -45,7 +45,8 @@
     "supply": "Fornitura",
     "leads": "Lead",
     "support": "Supporto",
-    "supportUnread": "{n, plural, one {# risposta non letta} other {# risposte non lette}}"
+    "supportUnread": "{n, plural, one {# risposta non letta} other {# risposte non lette}}",
+    "render3d": "Render 3D"
   },
   "dashboard": {
     "title": "Panoramica",
@@ -4058,5 +4059,14 @@
     "3y": "3 anni",
     "5y": "5 anni",
     "10y": "10 anni"
+  },
+  "render3d": {
+    "title": "Render 3D",
+    "subtitle": "Mostra al cliente la nuova finestra in casa sua: misura da foto (o a mano), foto della finestra che ha già e render 3D con colori, ferramenta e apertura delle ante.",
+    "loading": "Caricamento…",
+    "configurator": "Configuratore",
+    "configuratorHelp": "Colori, ferramenta e aperture disponibili sono quelli del configuratore scelto.",
+    "noConfigurator": "Non hai ancora un configuratore pubblicato: qui usi le opzioni standard.",
+    "manage": "Gestisci configuratori"
   }
 }

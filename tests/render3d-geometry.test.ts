@@ -168,3 +168,13 @@ describe("pose from the opening", () => {
     expect(poseFromQuad(quad, 0, 1000, SIZE, null)).toBeNull();
   });
 });
+
+import { fitSide } from "../src/lib/render3d/photo";
+
+describe("photo size", () => {
+  test("big photos are scaled down keeping the shape, small ones are left alone", () => {
+    expect(fitSide(4000, 3000)).toEqual({ width: 2000, height: 1500 });
+    expect(fitSide(3000, 4000)).toEqual({ width: 1500, height: 2000 });
+    expect(fitSide(800, 600)).toEqual({ width: 800, height: 600 });
+  });
+});

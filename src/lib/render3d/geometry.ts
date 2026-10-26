@@ -248,3 +248,12 @@ export function containFit(photo: PhotoSize, box: PhotoSize): { scale: number; o
   const height = photo.height * scale;
   return { scale, offsetX: (box.width - width) / 2, offsetY: (box.height - height) / 2, width, height };
 }
+
+/** The box follows the photo's shape (no black bars) up to a height that still fits a phone screen. */
+export function photoBoxHeight(photo: PhotoSize, width: number): number | string {
+  if (width <= 0) return "min(72vh, 640px)";
+  const natural = (width * photo.height) / photo.width;
+  const cap = typeof window === "undefined" ? 640 : Math.min(720, window.innerHeight * 0.72);
+  return Math.round(Math.max(220, Math.min(natural, cap)));
+}
+

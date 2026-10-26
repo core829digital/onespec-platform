@@ -306,11 +306,47 @@ async function main() {
       }
     });
 
+    // ── Render 3D: size by hand, a photo, the four corners, the 3D view (WebGL may be missing on a CI machine: then a clear message shows) ──
+    await step("Render 3D: measure, photo, corners and 3D view", page, problems, async () => {
+      await page.goto(url("/app/render-3d"), { waitUntil: "domcontentloaded" });
+      await page.getByTestId("render3d-studio").waitFor({ timeout: 30_000 });
+      await page.getByTestId("r3d-width").fill("1400");
+      await page.getByTestId("r3d-height").fill("1500");
+      await page.getByTestId("r3d-height").press("Enter");
+      await page.waitForFunction(() => document.querySelector('[data-testid="r3d-width"]')?.value === "1400");
+      const jpeg = await page.evaluate(() => {
+        const c = document.createElement("canvas");
+        c.width = 800;
+        c.height = 600;
+        const g = c.getContext("2d");
+        g.fillStyle = "#e6dccb";
+        g.fillRect(0, 0, 800, 600);
+        g.fillStyle = "#5a3d28";
+        g.fillRect(260, 140, 280, 330);
+        return c.toDataURL("image/jpeg", 0.9).split(",")[1];
+      });
+      await page.getByTestId("r3d-gallery").setInputFiles({ name: "room.jpg", mimeType: "image/jpeg", buffer: Buffer.from(jpeg, "base64") });
+      await page.getByTestId("photo-marker").waitFor({ timeout: 15_000 });
+      for (let i = 0; i < 4; i++) await page.getByTestId(`marker-${i}`).waitFor({ timeout: 5000 });
+      await page.getByTestId("r3d-next-view").click();
+      await page.waitForFunction(
+        () => document.querySelector('[data-testid="render3d-canvas"][data-ready="true"]') || /non riesce a mostrare il 3D/.test(document.body.innerText),
+        null,
+        { timeout: 30_000 },
+      );
+      if (await page.getByTestId("render3d-canvas").count()) {
+        await page.getByTestId("r3d-open-all").click();
+        await page.waitForTimeout(1500);
+        if (process.env.E2E_SHOTS) await page.screenshot({ path: `${process.env.E2E_SHOTS}/render3d-view.png`, fullPage: true });
+        await page.getByTestId("r3d-close-all").click();
+      }
+    });
+
     // ── page by page: every platform page opens for the owner, renders content, and the browser stays clean ────────────────────────
     const PAGES = [
       "/app/dashboard", "/app/analytics", "/app/pipeline", "/app/quotes", "/app/quotes/new", "/app/clients", "/app/leads", `/app/clients/${seed.clientId}`,
       "/app/requests", "/app/cantieri", "/app/surveys", "/app/installations", "/app/inspections", "/app/passports", "/app/supply", "/app/logistics",
-      "/app/configurators", `/app/configurators/${seed.configuratorId}`, `/app/configurators/${seed.configuratorId}/setup`, "/app/showroom",
+      "/app/configurators", `/app/configurators/${seed.configuratorId}`, `/app/configurators/${seed.configuratorId}/setup`, "/app/showroom", "/app/render-3d",
       "/app/notifications", "/app/account", "/app/account/company", "/app/account/team", "/app/account/billing", "/app/account/referral", "/app/account/dpa",
     ];
     for (const path of PAGES) {

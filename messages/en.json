@@ -45,7 +45,8 @@
     "supply": "Supply",
     "leads": "Leads",
     "support": "Support",
-    "supportUnread": "{n, plural, one {# unread reply} other {# unread replies}}"
+    "supportUnread": "{n, plural, one {# unread reply} other {# unread replies}}",
+    "render3d": "3D render"
   },
   "dashboard": {
     "title": "Overview",
@@ -4058,5 +4059,14 @@
     "3y": "3 years",
     "5y": "5 years",
     "10y": "10 years"
+  },
+  "render3d": {
+    "title": "3D render",
+    "subtitle": "Show the customer the new window in their home: measure from a photo (or by hand), photograph the window they have now and see it in 3D with colours, hardware and leaf opening.",
+    "loading": "Loading…",
+    "configurator": "Configurator",
+    "configuratorHelp": "The colours, hardware and openings on offer are those of the configurator you choose.",
+    "noConfigurator": "You have no published configurator yet: the standard options are used here.",
+    "manage": "Manage configurators"
   }
 }

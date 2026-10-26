@@ -11,16 +11,17 @@ import { submitErrorMessage, wizardCopy } from "./simple-wizard-model";
 import { getTurnstileToken } from "@/lib/turnstile-client";
 import { widgetSourcePage } from "@/lib/widget-source-page";
 import { postQuote } from "./post-quote";
-import { brandChoices, catalogOptions, catalogPricing, glazingChoices, pricingPayload, reconcileState, type WidgetCatalog, type WidgetOptions } from "./widget-catalog";
+import { brandChoices, catalogOptions, catalogPricing, freshWidgetState, glazingChoices, pricingPayload, reconcileState, type WidgetCatalog, type WidgetOptions } from "./widget-catalog";
 import { withLeafWidth } from "./leaf-edit";
 import { REGION_FLAT_OPTION_KINDS, calculatePrice, type ProjectItem } from "@/shared/pricing";
 import { quoteTotals } from "@/shared/quote-totals";
 import { disposalCharge, disposalModelOf, disposalOffered, disposalPriceOf } from "@/shared/disposal";
 import { SceneSvg, buildSubframeScene, subframeInputFor } from "@/lib/drawing";
+import { render3dText } from "@/lib/render3d/render3d-text";
+import { WidgetRender3D } from "./widget-render3d-studio";
 import { glazingAdvice, PACKAGE_DEPTHS, packageKey, parseGlazingKey } from "@/shared/glazing-packages";
 import { frameRules, inactiveLeaves, normalizedRatios, directionFromOpening, hasOpeningDirection, openingSide, retypeSash, typeForAddedSash } from "@/shared/sash-rules";
 import {
-  defaultConfig,
   defaultSashPreset,
   defaultDimsForType,
   calculate,
@@ -102,13 +103,6 @@ const CONVEX_SITE =
   (process.env.NEXT_PUBLIC_CONVEX_SITE_URL as string) ||
   (process.env.NEXT_PUBLIC_CONVEX_URL as string)?.replace(".convex.cloud", ".convex.site") ||
   "";
-
-/** A new piece: the catalogue's default quality, a profile of that quality and glazing that profile can hold (never a key the catalogue lacks). */
-function freshState(options: WidgetOptions): ConfigState {
-  const base = defaultConfig();
-  const withGlazing = options.glazing.some(([k]) => k === "d24_floatBeArgon") ? { ...base, glazing: "d24_floatBeArgon" } : base;
-  return reconcileState(options, withGlazing);
-}
 
 export function Widget({
   configurator,
@@ -193,13 +187,15 @@ export function Widget({
   );
 
   // The initial glazing is the first package (24 mm double, low-E, argon) when the catalogue offers it.
-  const [state, setState] = useState<ConfigState>(() => freshState(options));
+  const [state, setState] = useState<ConfigState>(() => freshWidgetState(options));
   const [items, setItems] = useState<SavedItem[]>([]);
   // Fitting (posa) included or supply only; null = the installer's default. One choice for the whole project.
   const [fittingChoice, setFittingChoice] = useState<boolean | null>(null);
   // Disposal of the old windows, when the installer offers it; null = the installer's default. One choice for the whole project.
   const [disposalChoice, setDisposalChoice] = useState<boolean | null>(null);
   const [selectedSash, setSelectedSash] = useState<number | null>(null);
+  // The 3D render of the new window in the customer's home replaces the form while it is open (same state, same price).
+  const [view3d, setView3d] = useState(false);
   const [ecobonusOpen, setEcobonusOpen] = useState(false);
   const [ecobonusPct, setEcobonusPct] = useState(0);
   const [discountPct, setDiscountPct] = useState(0);
@@ -429,7 +425,7 @@ export function Widget({
 
   const addAnother = () => {
     setItems((prev) => [...prev, { ...state, unitPrice: result.unitPrice, totalPrice: result.totalPrice }]);
-    setState(freshState(options));
+    setState(freshWidgetState(options));
     setSelectedSash(null);
   };
 
@@ -657,6 +653,17 @@ export function Widget({
               {dict.whatsappShare}
             </a>
           )}
+        </div>
+      </div>
+    );
+  }
+
+  if (view3d) {
+    return (
+      <div style={s.wrap}>
+        <div style={s.panel}>
+          <h2 style={s.h2}>{render3dText(lang).title}</h2>
+          <WidgetRender3D lang={lang} accent={accent} options={options} state={state} setState={setState} onClose={() => setView3d(false)} />
         </div>
       </div>
     );
@@ -1150,6 +1157,11 @@ export function Widget({
                   ))}
                 </div>
               ) : null}
+            </div>
+            <div style={{ display: "flex", justifyContent: "center", marginTop: 10 }}>
+              <button type="button" data-testid="widget-open-3d" onClick={() => { setView3d(true); window.scrollTo?.(0, 0); }} style={{ ...s.btnSecondary, width: "auto", padding: "10px 18px", fontWeight: 700 }}>
+                {render3dText(lang).title}
+              </button>
             </div>
             {subframeInput ? (
               <details data-testid="widget-subframe-sheet" style={{ marginTop: 10 }}>

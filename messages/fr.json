@@ -45,7 +45,8 @@
     "supply": "Fourniture",
     "leads": "Leads",
     "support": "Support",
-    "supportUnread": "{n, plural, one {# réponse non lue} other {# réponses non lues}}"
+    "supportUnread": "{n, plural, one {# réponse non lue} other {# réponses non lues}}",
+    "render3d": "Rendu 3D"
   },
   "dashboard": {
     "title": "Aperçu",
@@ -4058,5 +4059,14 @@
     "3y": "3 ans",
     "5y": "5 ans",
     "10y": "10 ans"
+  },
+  "render3d": {
+    "title": "Rendu 3D",
+    "subtitle": "Montrez au client la nouvelle fenêtre chez lui : mesure à partir d'une photo (ou à la main), photo de sa fenêtre actuelle et rendu 3D avec couleurs, quincaillerie et ouverture des battants.",
+    "loading": "Chargement…",
+    "configurator": "Configurateur",
+    "configuratorHelp": "Les couleurs, la quincaillerie et les ouvertures proposées sont celles du configurateur choisi.",
+    "noConfigurator": "Vous n'avez pas encore de configurateur publié : les options standard sont utilisées ici.",
+    "manage": "Gérer les configurateurs"
   }
 }

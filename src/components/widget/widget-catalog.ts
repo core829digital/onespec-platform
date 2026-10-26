@@ -4,7 +4,7 @@
 // catalogue still renders.
 
 import type { Material, Pricing } from "./widget-pricing";
-import { defaultPricing } from "./widget-pricing";
+import { defaultConfig, defaultPricing } from "./widget-pricing";
 import type { WidgetDict } from "./widget-i18n";
 import { REGION_FLAT_OPTION_KINDS } from "@/shared/pricing";
 import { glazingPackageRows } from "@/shared/glazing-packages";
@@ -349,4 +349,11 @@ export function reconcileState(options: WidgetOptions, s: ConfigState): ConfigSt
   const controtelaio = s.controtelaio && !options.controtelaio.some(([k]) => k === s.controtelaio) ? "" : s.controtelaio;
   if (quality === s.quality[s.material] && brand === s.brand && glazing === s.glazing && controtelaio === s.controtelaio) return s;
   return { ...s, quality: { ...s.quality, [s.material]: quality }, brand, glazing, controtelaio };
+}
+
+/** A new piece: the catalogue's default quality, a profile of that quality and glazing that profile can hold (never a key the catalogue lacks). */
+export function freshWidgetState(options: WidgetOptions): ConfigState {
+  const base = defaultConfig();
+  const withGlazing = options.glazing.some(([k]) => k === "d24_floatBeArgon") ? { ...base, glazing: "d24_floatBeArgon" } : base;
+  return reconcileState(options, withGlazing);
 }

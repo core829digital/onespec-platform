@@ -45,7 +45,8 @@
     "supply": "Levering",
     "leads": "Leads",
     "support": "Support",
-    "supportUnread": "{n, plural, one {# ongelezen antwoord} other {# ongelezen antwoorden}}"
+    "supportUnread": "{n, plural, one {# ongelezen antwoord} other {# ongelezen antwoorden}}",
+    "render3d": "3D-weergave"
   },
   "dashboard": {
     "title": "Overzicht",
@@ -4058,5 +4059,14 @@
     "3y": "3 jaar",
     "5y": "5 jaar",
     "10y": "10 jaar"
+  },
+  "render3d": {
+    "title": "3D-weergave",
+    "subtitle": "Laat de klant het nieuwe raam bij hem thuis zien: meten vanaf een foto (of met de hand), foto van het huidige raam en 3D-weergave met kleuren, hang- en sluitwerk en opening van de vleugels.",
+    "loading": "Laden…",
+    "configurator": "Configurator",
+    "configuratorHelp": "De beschikbare kleuren, het hang- en sluitwerk en de openingen zijn die van de gekozen configurator.",
+    "noConfigurator": "U heeft nog geen gepubliceerde configurator: hier gelden de standaardopties.",
+    "manage": "Configurators beheren"
   }
 }

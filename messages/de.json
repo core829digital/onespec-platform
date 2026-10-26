@@ -45,7 +45,8 @@
     "supply": "Lieferung",
     "leads": "Leads",
     "support": "Support",
-    "supportUnread": "{n, plural, one {# ungelesene Antwort} other {# ungelesene Antworten}}"
+    "supportUnread": "{n, plural, one {# ungelesene Antwort} other {# ungelesene Antworten}}",
+    "render3d": "3D-Ansicht"
   },
   "dashboard": {
     "title": "Übersicht",
@@ -4058,5 +4059,14 @@
     "3y": "3 Jahre",
     "5y": "5 Jahre",
     "10y": "10 Jahre"
+  },
+  "render3d": {
+    "title": "3D-Ansicht",
+    "subtitle": "Zeigen Sie dem Kunden das neue Fenster bei ihm zu Hause: Maße aus einem Foto (oder von Hand), Foto des jetzigen Fensters und 3D-Ansicht mit Farben, Beschlägen und Flügelöffnung.",
+    "loading": "Wird geladen…",
+    "configurator": "Konfigurator",
+    "configuratorHelp": "Farben, Beschläge und Öffnungen sind die des gewählten Konfigurators.",
+    "noConfigurator": "Sie haben noch keinen veröffentlichten Konfigurator: Hier gelten die Standardoptionen.",
+    "manage": "Konfiguratoren verwalten"
   }
 }

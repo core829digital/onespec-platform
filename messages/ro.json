@@ -45,7 +45,8 @@
     "supply": "Furnizare",
     "leads": "Lead-uri",
     "support": "Suport",
-    "supportUnread": "{n, plural, one {# răspuns necitit} other {# răspunsuri necitite}}"
+    "supportUnread": "{n, plural, one {# răspuns necitit} other {# răspunsuri necitite}}",
+    "render3d": "Randare 3D"
   },
   "dashboard": {
     "title": "Prezentare generală",
@@ -4058,5 +4059,14 @@
     "3y": "3 ani",
     "5y": "5 ani",
     "10y": "10 ani"
+  },
+  "render3d": {
+    "title": "Randare 3D",
+    "subtitle": "Arătați clientului fereastra nouă în casa lui: măsurare din fotografie (sau manual), fotografia ferestrei pe care o are și randare 3D cu culori, feronerie și deschiderea canatelor.",
+    "loading": "Se încarcă…",
+    "configurator": "Configurator",
+    "configuratorHelp": "Culorile, feroneria și deschiderile disponibile sunt cele ale configuratorului ales.",
+    "noConfigurator": "Nu aveți încă un configurator publicat: aici se folosesc opțiunile standard.",
+    "manage": "Gestionați configuratorii"
   }
 }

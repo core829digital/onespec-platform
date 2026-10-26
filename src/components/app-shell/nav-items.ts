@@ -23,6 +23,7 @@ import {
   Gift,
   LifeBuoy,
   PackageCheck,
+  Box,
   type LucideIcon,
 } from "lucide-react";
 import type { GatedFeature } from "@/lib/plan-gates";
@@ -61,6 +62,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/app/configurators", label: "configurators", icon: Package },
       { href: "/app/showroom", label: "showroom", icon: Store, feature: "showroom" },
+      { href: "/app/render-3d", label: "render3d", icon: Box, group: "commercial" },
       { href: "/app/requests", label: "requests", icon: FileText, group: "commercial" },
       { href: "/app/quotes", label: "quotes", icon: PenLine, group: "commercial", feature: "fieldQuotes" },
       { href: "/app/supply", label: "supply", icon: PackageCheck, group: "supply" },
