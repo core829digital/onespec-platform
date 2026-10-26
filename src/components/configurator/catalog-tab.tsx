@@ -7,6 +7,9 @@ import { MaterialsSection, QualitySection, ProfileSystemsSection } from "./catal
 import { GlazingSection, FinishSection, HardwareSection, SizeSection } from "./catalog/options";
 import { CatalogCheck } from "./catalog/catalog-check";
 import { FrameTypesSection, AccessoriesSection } from "./catalog/frames-accessories";
+import { regionForCountry } from "@/convex/lib/regions";
+import { useQuery } from "@/lib/convex-query";
+import { api } from "@/convex/_generated/api";
 
 interface EditorState {
   materials: Array<Record<string, unknown>>;
@@ -34,13 +37,18 @@ export function CatalogTab({
   configuratorId,
   state,
   labelLang,
+  tenantId,
 }: {
   configuratorId: Id<"configurators">;
   state: EditorState;
+  /** The company that owns the configurator: its market decides which accessory sections exist (the controtelaio is Italy only). */
+  tenantId?: Id<"tenants">;
   /** The configurator's default widget language — the labels edited here. */
   labelLang: string;
 }) {
   const t = useTranslations("editor.catalog");
+  const tenant = useQuery(api.tenants.getTenant, tenantId ? { tenantId } : "skip");
+  const region = regionForCountry(tenant?.country).code;
   const lang = ["it", "en", "fr", "de", "nl"].includes(labelLang) ? labelLang : "it";
   return (
     <CatalogEditorProvider configuratorId={configuratorId} labelLang={lang}>
@@ -55,7 +63,7 @@ export function CatalogTab({
         <GlazingSection rows={state.glazing} />
         <FinishSection rows={state.finish} />
         <HardwareSection hardware={state.hardware} />
-        <AccessoriesSection accessories={state.accessories} />
+        <AccessoriesSection accessories={state.accessories} region={region} />
         <SizeSection rows={state.sizeConstraints} />
       </div>
     </CatalogEditorProvider>

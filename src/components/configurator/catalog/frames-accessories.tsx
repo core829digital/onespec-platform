@@ -6,6 +6,7 @@ import { api } from "@/convex/_generated/api";
 import { Section, TextInput, NumberInput, Toggle } from "../editor-primitives";
 import { useCatalogEditor, toCents, thCls, tdCls } from "./store";
 import { AddRow, DeleteButton, ScrollTable } from "./widgets";
+import { accessoryOfferedIn, type AccessoryCategory } from "@/shared/configurator-model";
 
 type Row = Record<string, unknown>;
 const sorted = (rows: Row[]) => [...rows].sort((a, b) => (a.sortOrder as number) - (b.sortOrder as number));
@@ -217,10 +218,11 @@ export function FrameTypesSection({ frameTypes }: { frameTypes: Row[] }) {
 }
 
 // Titles come from editor.catalog.acc_<key>; price models from editor.catalog.pm_<model>.
-const ACCESSORY_CATEGORIES = [{ key: "zanz" }, { key: "cass" }, { key: "avv" }, { key: "pers" }] as const;
+const ACCESSORY_CATEGORIES = [{ key: "zanz" }, { key: "cass" }, { key: "avv" }, { key: "pers" }, { key: "ctel" }] as const satisfies ReadonlyArray<{ key: AccessoryCategory }>;
 const PRICE_MODELS = ["flat", "perM2", "perMl"];
 
-export function AccessoriesSection({ accessories }: { accessories: Row[] }) {
+/** `region` is the company's market ("IT", "FR", ...): the controtelaio is listed for Italy only. */
+export function AccessoriesSection({ accessories, region }: { accessories: Row[]; region: string }) {
   const { configuratorId, draft, setDraft, clearDraft, busy, run, autoSaveNow, autoSaveDebounced, labelOf, withLabel, newLabels, labelLang } = useCatalogEditor();
   const t = useTranslations("editor.catalog");
   const upsert = useMutation(api.catalog.upsertAccessory);
@@ -228,8 +230,9 @@ export function AccessoriesSection({ accessories }: { accessories: Row[] }) {
 
   return (
     <Section title={t("accessoriesTitle")} description={t("accessoriesDesc")}>
-      {ACCESSORY_CATEGORIES.map((cat) => {
+      {ACCESSORY_CATEGORIES.filter((cat) => accessoryOfferedIn(region, cat.key)).map((cat) => {
         const rows = sorted(accessories.filter((a) => a.category === cat.key));
+        const withDepth = cat.key === "ctel";
         return (
           <div key={cat.key} className="space-y-2">
             <p className="text-sm font-medium text-[var(--color-text)]">{t(`acc_${cat.key}`)}</p>
@@ -240,6 +243,7 @@ export function AccessoriesSection({ accessories }: { accessories: Row[] }) {
                   <th className={thCls}>{t("labelCol", { lang: labelLang.toUpperCase() })}</th>
                   <th className={thCls}>{t("model")}</th>
                   <th className={thCls}>{t("price")}</th>
+                  {withDepth ? <th className={thCls}>{t("depthCol")}</th> : null}
                   <th className={thCls}>{t("active")}</th>
                   <th className={thCls} />
                 </tr>
@@ -250,18 +254,22 @@ export function AccessoriesSection({ accessories }: { accessories: Row[] }) {
                   const labelIt = String(draft(id, a, "labelIt") ?? labelOf(a.labels));
                   const priceModel = String(draft(id, a, "priceModel") ?? a.priceModel);
                   const price = String(draft(id, a, "price") ?? (a.priceCents as number) / 100);
+                  const depth = String(draft(id, a, "depth") ?? (a.depthMm as number | undefined) ?? "");
                   const enabled = Boolean(draft(id, a, "enabled") ?? a.enabled);
-                  const save = (overrides: { labelIt?: string; price?: string; enabled?: boolean }) =>
-                    upsert({
+                  const save = (overrides: { labelIt?: string; price?: string; depth?: string; enabled?: boolean }) => {
+                    const d = withDepth ? Number(overrides.depth ?? depth) : NaN;
+                    return upsert({
                       configuratorId,
                       category: cat.key,
                       key: a.key as string,
                       labels: withLabel(a.labels, overrides.labelIt ?? labelIt),
                       priceModel: priceModel as "flat" | "perM2" | "perMl",
                       priceCents: toCents(overrides.price ?? price),
+                      ...(withDepth && Number.isFinite(d) && d > 0 ? { depthMm: Math.round(d) } : {}),
                       sortOrder: a.sortOrder as number,
                       enabled: overrides.enabled ?? enabled,
                     }).then(() => clearDraft(id));
+                  };
                   return (
                     <tr key={id}>
                       <td className={tdCls}>
@@ -291,6 +299,21 @@ export function AccessoriesSection({ accessories }: { accessories: Row[] }) {
                           step="0.01"
                         />
                       </td>
+                      {withDepth ? (
+                        <td className={tdCls}>
+                          <NumberInput
+                            value={depth}
+                            onChange={(e) => {
+                              setDraft(id, "depth", e.target.value);
+                              autoSaveDebounced(id, () => save({ depth: e.target.value }));
+                            }}
+                            className="h-8 py-1 w-20"
+                            step="5"
+                            min="30"
+                            max="200"
+                          />
+                        </td>
+                      ) : null}
                       <td className={tdCls}>
                         <Toggle
                           checked={enabled}
@@ -331,6 +354,7 @@ export function AccessoriesSection({ accessories }: { accessories: Row[] }) {
                   ],
                 },
                 { name: "price", label: t("priceEur"), type: "number" },
+                ...(withDepth ? [{ name: "depth", label: t("depthCol"), type: "number" as const }] : []),
               ]}
               onAdd={(vals) =>
                 run(`add-acc-${cat.key}`, () =>
@@ -341,6 +365,7 @@ export function AccessoriesSection({ accessories }: { accessories: Row[] }) {
                     labels: newLabels(String(vals.labelIt)),
                     priceModel: (vals.priceModel as "flat" | "perM2" | "perMl") || "flat",
                     priceCents: toCents(vals.price),
+                    ...(withDepth && Number(vals.depth) > 0 ? { depthMm: Math.round(Number(vals.depth)) } : {}),
                     sortOrder: rows.length,
                     enabled: true,
                   }),

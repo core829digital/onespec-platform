@@ -25,7 +25,7 @@ import {
 import { defaultItem } from "@/shared/item-defaults";
 import { reconcileItem } from "@/shared/catalog-rules";
 import { DIM_ABS_MAX } from "@/shared/widget-types";
-import { finishFillFor, insideFinishFor, buildHardwareScene, buildLegendScene, buildPlanScene, buildSectionScene, DRAWING_DIMENSION, DRAWING_FLIP, DRAWING_HANDLE, DRAWING_LEAF, DRAWING_OPTIONS, DRAWING_TABS, DRAWING_TITLES, DRAWING_VIEW, drawingLocale, SceneSvg, WindowDrawing, type DrawingTab, type DrawingView } from "@/lib/drawing";
+import { finishFillFor, insideFinishFor, buildHardwareScene, buildLegendScene, buildPlanScene, buildSectionScene, buildSubframeScene, subframeInputFor, DRAWING_DIMENSION, DRAWING_FLIP, DRAWING_HANDLE, DRAWING_LEAF, DRAWING_OPTIONS, DRAWING_TABS, DRAWING_TITLES, DRAWING_VIEW, drawingLocale, SceneSvg, WindowDrawing, type DrawingTab, type DrawingView } from "@/lib/drawing";
 import { SashPanel } from "@/components/quotes/sash-panel";
 import { catalogChoices, labelOf } from "./catalog-labels";
 import { PieceForm } from "./piece-form";
@@ -54,6 +54,9 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
   const [glassDims, setGlassDims] = useState(false);
   const [colorPicker, setColorPicker] = useState<{ index: number; x: number; y: number } | null>(null);
   const active = items[activeIndex] ?? items[0];
+  // The sub-frame sheet (controtelaio, Italy) exists only for a piece that has one chosen from the catalogue.
+  const subframe = active ? subframeInputFor(payload, active, locale) : null;
+  const shownTab: DrawingTab = tab === "subframe" && !subframe ? "elevation" : tab;
   const [autoNote, setAutoNote] = useState("");
   // The lists follow the choices made above them: qualities -> profiles of that quality -> glazing the profile can hold.
   const material = active?.material ?? "pvc";
@@ -231,8 +234,8 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
           />
 
           <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-4">
-            <DrawingTabs tabs={["elevation", "plan", "section", "hardware"]} value={tab} onChange={setTab} locale={locale} />
-            <div role="tabpanel" id="drawing-panel-elevation" aria-labelledby="drawing-tab-elevation" hidden={tab !== "elevation"}>
+            <DrawingTabs tabs={subframe ? ["elevation", "plan", "section", "hardware", "subframe"] : ["elevation", "plan", "section", "hardware"]} value={shownTab} onChange={setTab} locale={locale} />
+            <div role="tabpanel" id="drawing-panel-elevation" aria-labelledby="drawing-tab-elevation" hidden={shownTab !== "elevation"}>
             <div className="mb-2 flex justify-center gap-1" role="group" aria-label={DRAWING_VIEW[drawingLocale(locale)].inside + " / " + DRAWING_VIEW[drawingLocale(locale)].outside}>
               {(["inside", "outside"] as const).map((v) => (
                 <button
@@ -319,7 +322,7 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
               </div>
             </details>
             </div>
-            {tab === "plan" ? (
+            {shownTab === "plan" ? (
               <div role="tabpanel" id="drawing-panel-plan" aria-labelledby="drawing-tab-plan" className="mx-auto w-full max-w-[460px] rounded-lg bg-white p-2">
                 <SceneSvg
                   scene={buildPlanScene({ widthMm: active.width, heightMm: active.height, category: active.category, sashes: active.sashes, finish: active.color, frameType: active.frameType, glazing: active.glazing }, locale)}
@@ -327,7 +330,7 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
                 />
               </div>
             ) : null}
-            {tab === "hardware" ? (
+            {shownTab === "hardware" ? (
               <div role="tabpanel" id="drawing-panel-hardware" aria-labelledby="drawing-tab-hardware" className="mx-auto w-full max-w-[420px] rounded-lg bg-white p-2">
                 <SceneSvg
                   scene={buildHardwareScene({ widthMm: active.width, heightMm: active.height, category: active.category, sashes: active.sashes, finish: active.color, frameType: active.frameType, glazing: active.glazing, finishFill: finishFillFor(payload.finish, active.color), ...insideFinishFor(payload.finish, active) }, locale)}
@@ -335,7 +338,12 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
                 />
               </div>
             ) : null}
-            {tab === "section" ? (
+            {shownTab === "subframe" && subframe ? (
+              <div role="tabpanel" id="drawing-panel-subframe" aria-labelledby="drawing-tab-subframe" className="mx-auto w-full max-w-[460px] rounded-lg bg-white p-2">
+                <SceneSvg scene={buildSubframeScene(subframe, locale)} ariaLabel={DRAWING_TABS[drawingLocale(locale)].subframe} />
+              </div>
+            ) : null}
+            {shownTab === "section" ? (
               <div role="tabpanel" id="drawing-panel-section" aria-labelledby="drawing-tab-section" className="mx-auto w-full max-w-[520px] rounded-lg bg-white p-2">
                 <SceneSvg
                   scene={buildSectionScene({ material: active.material, quality: active.quality[active.material], glazing: active.glazing, frameType: active.frameType, thermal: thermal && thermal.uw > 0 ? { uf: thermal.uf, ug: thermal.ug, psi: thermal.psi } : undefined }, locale)}

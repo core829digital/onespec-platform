@@ -84,7 +84,7 @@ export interface ExportModel extends Omit<ExportInput, "items" | "payload"> {
   overallUw: number;
 }
 
-const ACC_KEYS = ["zanz", "cass", "avv", "pers"] as const;
+const ACC_KEYS = ["zanz", "cass", "avv", "pers", "ctel"] as const;
 
 /** Everything an export needs, as plain strings and numbers — the generators never touch the catalogue. */
 export function buildExportModel(input: ExportInput): ExportModel {

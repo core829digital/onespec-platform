@@ -115,7 +115,7 @@ export default function ConfiguratorEditorPage({
         <div>
           {tab === "general" && <GeneralTab configuratorId={configuratorId} configurator={cfg} />}
           {tab === "pricing" && <PricingTab configuratorId={configuratorId} configurator={cfg} />}
-          {tab === "catalog" && <CatalogTab configuratorId={configuratorId} state={state} labelLang={cfg.defaultLocale} />}
+          {tab === "catalog" && <CatalogTab configuratorId={configuratorId} state={state} labelLang={cfg.defaultLocale} tenantId={cfg.tenantId} />}
           {tab === "import" && <ImportTab configuratorId={configuratorId} />}
           {tab === "branding" && <BrandingTab configuratorId={configuratorId} />}
           {tab === "embed" && (

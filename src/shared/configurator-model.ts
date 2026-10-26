@@ -178,7 +178,7 @@ export const DEFAULT_FRAME_TYPES: FrameTypeSeed[] = [
 
 // ── Accessories ──────────────────────────────────────────────────────────────
 
-export const ACCESSORY_CATEGORIES = ["zanz", "cass", "avv", "pers"] as const;
+export const ACCESSORY_CATEGORIES = ["zanz", "cass", "avv", "pers", "ctel"] as const;
 export type AccessoryCategory = (typeof ACCESSORY_CATEGORIES)[number];
 
 export const ACCESSORY_CATEGORY_LABELS: Record<AccessoryCategory, Record<string, string>> = {
@@ -186,7 +186,20 @@ export const ACCESSORY_CATEGORY_LABELS: Record<AccessoryCategory, Record<string,
   cass: L("Cassonetti", "Shutter boxes", "Coffres de volet", "Rollladenkästen", "Rolluikkasten", "Casete de rulou"),
   avv: L("Avvolgibili", "Roller shutters", "Volets roulants", "Rollläden", "Rolluiken", "Rulouri"),
   pers: L("Persiane alluminio", "Aluminium shutters", "Persiennes aluminium", "Aluminium-Fensterläden", "Aluminium luiken", "Jaluzele aluminiu"),
+  ctel: L("Controtelaio", "Sub-frame (false frame)", "Précadre", "Blendrahmen", "Montagekozijn", "Toc fals (contratoc)"),
 };
+
+/**
+ * Accessory categories that exist in one market only. The controtelaio (the sub-frame set into the wall opening before the
+ * window) is an Italian way of fitting: no other market sells, seeds or draws it.
+ */
+export const MARKET_ONLY_ACCESSORIES: Partial<Record<string, readonly AccessoryCategory[]>> = { IT: ["ctel"] };
+
+/** Whether this market offers the accessory category. */
+export function accessoryOfferedIn(region: string, category: AccessoryCategory): boolean {
+  const onlyHere = Object.entries(MARKET_ONLY_ACCESSORIES).find(([, cats]) => cats?.includes(category));
+  return !onlyHere || onlyHere[0] === region;
+}
 
 export type AccessoryPriceModel = "flat" | "perM2" | "perMl";
 
@@ -197,6 +210,8 @@ export interface AccessorySeed {
   priceModel: AccessoryPriceModel;
   /** Cents: a flat amount, or per m² / per linear metre depending on the model. */
   priceCents: number;
+  /** Controtelaio: depth of the profile in the wall, mm (it sets the section in the drawing). */
+  depthMm?: number;
   sortOrder: number;
   enabled: boolean;
 }
@@ -239,7 +254,16 @@ export const DEFAULT_ACCESSORIES: AccessorySeed[] = [
   acc("avv", "accessori", 2, "Accessori avvolgibili", "Roller shutter accessories", 4500),
   acc("pers", "fisse", 0, "Persiana a lamelle fisse", "Fixed-louvre shutter", 25000),
   acc("pers", "orientabili", 1, "Persiana a lamelle orientabili", "Adjustable-louvre shutter", 32000),
+  // Controtelaio (Italy only, see MARKET_ONLY_ACCESSORIES): priced per linear metre of the opening, ballpark Italian rates.
+  { ...acc("ctel", "lamiera", 0, "Controtelaio in lamiera zincata", "Galvanised sheet-steel sub-frame", 1500), priceModel: "perMl", depthMm: 70 },
+  { ...acc("ctel", "legno", 1, "Controtelaio in legno", "Timber sub-frame", 2200), priceModel: "perMl", depthMm: 70 },
+  { ...acc("ctel", "isolato", 2, "Controtelaio isolante (ponte termico ridotto)", "Insulated sub-frame (reduced thermal bridge)", 3200), priceModel: "perMl", depthMm: 90 },
 ];
+
+/** The seed rows a market gets: the controtelaio only in Italy. */
+export function defaultAccessoriesFor(region: string): AccessorySeed[] {
+  return DEFAULT_ACCESSORIES.filter((a) => accessoryOfferedIn(region, a.category));
+}
 
 /** What a piece stores for its accessories: one catalogue key per category + the accessory's own size. */
 export interface ItemAccessories {
@@ -247,7 +271,9 @@ export interface ItemAccessories {
   cass?: string;
   avv?: string;
   pers?: string;
-  /** Accessory width / height in mm (defaults to the piece size when absent). */
+  /** Controtelaio (Italy): catalogue key of the sub-frame set into the wall opening for this piece. */
+  ctel?: string;
+  /** Accessory width / height in mm (defaults to the piece size when absent). Not used by the controtelaio, which follows the piece. */
   width?: number;
   height?: number;
 }

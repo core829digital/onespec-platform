@@ -72,6 +72,8 @@ export interface ConfigState {
   insectScreen: boolean;
   insectScreenType: string;
   insectScreenColor: string;
+  /** Controtelaio (Italy): catalogue key of the sub-frame; "" = none / not offered. */
+  controtelaio: string;
 }
 
 export interface Pricing {
@@ -218,6 +220,7 @@ export function defaultConfig(): ConfigState {
     insectScreen: false,
     insectScreenType: "cerniera",
     insectScreenColor: "white",
+    controtelaio: "",
   };
 }
 

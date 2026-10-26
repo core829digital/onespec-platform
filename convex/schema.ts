@@ -555,11 +555,13 @@ export default defineSchema({
   catalogAccessories: defineTable({
     tenantId: v.id("tenants"),
     configuratorId: v.id("configurators"),
-    category: v.union(v.literal("zanz"), v.literal("cass"), v.literal("avv"), v.literal("pers")),
+    category: v.union(v.literal("zanz"), v.literal("cass"), v.literal("avv"), v.literal("pers"), v.literal("ctel")),
     key: v.string(),
     labels: labelsValidator,
     priceModel: v.union(v.literal("flat"), v.literal("perM2"), v.literal("perMl")),
     priceCents: v.number(),
+    /** Controtelaio (Italy): depth of the profile in the wall, mm. */
+    depthMm: v.optional(v.number()),
     sortOrder: v.number(),
     enabled: v.boolean(),
   })

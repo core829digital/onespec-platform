@@ -2,7 +2,7 @@ import "./pdf-setup";
 import { Document, Image, Page, View, StyleSheet } from "@react-pdf/renderer";
 import { Text } from "./Text";
 import type { ProjectItem } from "@/shared/pricing";
-import { buildAssemblyScene, buildHardwareScene, buildPlanScene, buildSectionScene, DRAWING_TABS, finishFillFor, insideFinishFor, buildLegendScene, DRAWING_TITLES, drawingLocale } from "@/lib/drawing";
+import { buildAssemblyScene, buildHardwareScene, buildPlanScene, buildSectionScene, buildSubframeScene, subframeInputFor, DRAWING_TABS, finishFillFor, insideFinishFor, buildLegendScene, DRAWING_TITLES, drawingLocale } from "@/lib/drawing";
 import { ScenePdf, WindowDrawingPdf } from "@/lib/drawing/pdf";
 import { CATEGORY_DEFS } from "@/shared/configurator-model";
 import { computeItemThermal, type CatalogPayload } from "@/shared/pricing";
@@ -510,7 +510,7 @@ export function QuotePrintPDF({
             // Texture images are served by the platform: absolute URL so the PDF engine can fetch them.
             const assetOrigin = typeof window !== "undefined" ? window.location.origin : "";
             const finishLabel = finishText(catalog?.finish, item, langKey, dict, (k) => COLOR_LABELS[k] ?? k);
-            const accessoryLabels = (["zanz", "cass", "avv", "pers"] as const).flatMap((c) => {
+            const accessoryLabels = (["zanz", "cass", "avv", "pers", "ctel"] as const).flatMap((c) => {
               const key = item.accessories?.[c];
               return key && key !== "none" ? [lab(catalog?.accessories?.find((a) => a.category === c && a.key === key), key)] : [];
             });
@@ -757,6 +757,18 @@ export function QuotePrintPDF({
               </View>
             );
           })}
+          {/* Controtelaio (Italy): one sheet for every piece that has a sub-frame, from the catalogue row it chose. */}
+          {items.flatMap((item, idx) => {
+            const input = subframeInputFor(catalog, item, langKey);
+            return input ? [{ idx, item, input }] : [];
+          }).map(({ idx, item, input }) => (
+            <View key={`subframe-${idx}`} wrap={false} style={{ marginBottom: 10, paddingBottom: 6, borderBottomWidth: 0.5, borderBottomColor: colors.gray[200] }}>
+              <Text style={{ fontSize: 8, fontWeight: "bold", marginBottom: 3 }}>
+                #{idx + 1} · {item.width} × {item.height} mm · {DRAWING_TABS[drawingLocale(langKey)].subframe}
+              </Text>
+              <ScenePdf scene={buildSubframeScene(input, langKey)} width={200} />
+            </View>
+          ))}
           {assemblyIssues(items).length === 0 && assemblyGroups(items).map(({ group, members }) => (
             <View key={`assembly-${group}`} wrap={false} style={{ marginBottom: 10, paddingBottom: 6, borderBottomWidth: 0.5, borderBottomColor: colors.gray[200] }}>
               <Text style={{ fontSize: 8, fontWeight: "bold", marginBottom: 3 }}>

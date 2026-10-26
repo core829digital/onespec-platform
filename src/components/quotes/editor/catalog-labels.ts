@@ -47,7 +47,7 @@ export function catalogChoices(raw: CatalogPayload, materialKey: string, locale:
     })),
     hardware: bySort(payload.hardware.filter((h) => h.kind === "hardware")).map((h): [string, string] => [h.key, labelOf(h, locale)]),
     hardwareColors: bySort(payload.hardware.filter((h) => h.kind === "hardwareColor")).map((h): [string, string] => [h.key, labelOf(h, locale)]),
-    accessories: (["zanz", "cass", "avv", "pers"] as const).map((category) => ({
+    accessories: (["zanz", "cass", "avv", "pers", "ctel"] as const).map((category) => ({
       category,
       options: bySort(payload.accessories?.filter((a) => a.category === category)).map((a) => ({ key: a.key, label: labelOf(a, locale) })),
     })),

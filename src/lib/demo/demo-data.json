@@ -183,6 +183,45 @@
      "priceCents": 32000,
      "priceModel": "flat",
      "sortOrder": 1
+    },
+    {
+     "category": "ctel",
+     "depthMm": 70,
+     "enabled": true,
+     "key": "lamiera",
+     "labels": {
+      "en": "Galvanised sheet-steel sub-frame",
+      "it": "Controtelaio in lamiera zincata"
+     },
+     "priceCents": 1500,
+     "priceModel": "perMl",
+     "sortOrder": 0
+    },
+    {
+     "category": "ctel",
+     "depthMm": 70,
+     "enabled": true,
+     "key": "legno",
+     "labels": {
+      "en": "Timber sub-frame",
+      "it": "Controtelaio in legno"
+     },
+     "priceCents": 2200,
+     "priceModel": "perMl",
+     "sortOrder": 1
+    },
+    {
+     "category": "ctel",
+     "depthMm": 90,
+     "enabled": true,
+     "key": "isolato",
+     "labels": {
+      "en": "Insulated sub-frame (reduced thermal bridge)",
+      "it": "Controtelaio isolante (ponte termico ridotto)"
+     },
+     "priceCents": 3200,
+     "priceModel": "perMl",
+     "sortOrder": 2
     }
    ],
    "branding": {
@@ -6750,6 +6789,45 @@
      "priceCents": 32000,
      "priceModel": "flat",
      "sortOrder": 1
+    },
+    {
+     "category": "ctel",
+     "depthMm": 70,
+     "enabled": true,
+     "key": "lamiera",
+     "labels": {
+      "en": "Galvanised sheet-steel sub-frame",
+      "it": "Controtelaio in lamiera zincata"
+     },
+     "priceCents": 1500,
+     "priceModel": "perMl",
+     "sortOrder": 0
+    },
+    {
+     "category": "ctel",
+     "depthMm": 70,
+     "enabled": true,
+     "key": "legno",
+     "labels": {
+      "en": "Timber sub-frame",
+      "it": "Controtelaio in legno"
+     },
+     "priceCents": 2200,
+     "priceModel": "perMl",
+     "sortOrder": 1
+    },
+    {
+     "category": "ctel",
+     "depthMm": 90,
+     "enabled": true,
+     "key": "isolato",
+     "labels": {
+      "en": "Insulated sub-frame (reduced thermal bridge)",
+      "it": "Controtelaio isolante (ponte termico ridotto)"
+     },
+     "priceCents": 3200,
+     "priceModel": "perMl",
+     "sortOrder": 2
     }
    ],
    "branding": {

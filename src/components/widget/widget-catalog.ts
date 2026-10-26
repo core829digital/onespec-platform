@@ -56,6 +56,8 @@ interface HardwareRow extends Row {
 
 export interface WidgetCatalog {
   configurator?: { pricingMode?: "standard" | "custom"; marginPercent?: number; deliveryMode?: "factory" | "own"; ownServicePerM2Cents?: number; installationPerM2Cents?: number; installationDefault?: "with" | "without"; bicolorEnabled?: boolean; bicolorPerM2Cents?: number; disposalModel?: "perPiece" | "perJob"; disposalPriceCents?: number; disposalDefault?: "with" | "without" };
+  /** Zanzariere / cassonetti / ... and, for an Italian company, the controtelaio rows (`category: "ctel"`). */
+  accessories?: Array<Row & { category: string; depthMm?: number }>;
   materials?: MaterialRow[];
   qualityTiers?: QualityRow[];
   profileSystems?: QualityRow[];
@@ -115,6 +117,8 @@ export interface WidgetOptions {
   screenTypes: [string, string][];
   screenColors: [string, string][];
   installations: [string, string][];
+  /** Controtelaio rows of the catalogue (Italy only; empty elsewhere): `[key, label]`. */
+  controtelaio: [string, string][];
   /**
    * Region-specific flat option kinds → `[key, label]` pairs, keyed by catalog
    * `kind`. A list is empty unless the tenant's region enabled that kind.
@@ -216,6 +220,7 @@ export function catalogOptions(
     screenTypes: pairsFrom(hw("screen"), locale) ?? dict.insectScreenTypes,
     screenColors: pairsFrom(hw("screenColor"), locale) ?? dict.insectScreenColors,
     installations: pairsFrom(hw("installation"), locale) ?? dict.installationOptions,
+    controtelaio: pairsFrom(cat?.accessories?.filter((a) => a.category === "ctel"), locale) ?? [],
     regionOptions: Object.fromEntries(
       REGION_FLAT_OPTION_KINDS.map((k) => [k, pairsFrom(hw(k), locale) ?? []]),
     ),
@@ -340,6 +345,8 @@ export function reconcileState(options: WidgetOptions, s: ConfigState): ConfigSt
   }
   const row = options.profileRows[s.material]?.find((r) => r.key === (s.material === "pvc" || s.material === "aluminum" ? brand[s.material] : undefined));
   const glazing = row ? nearestFittingGlazing(options.glazing.map(([key]) => ({ key, labels: {}, priceCents: 0, sortOrder: 0, enabled: true })), row, s.glazing) ?? s.glazing : s.glazing;
-  if (quality === s.quality[s.material] && brand === s.brand && glazing === s.glazing) return s;
-  return { ...s, quality: { ...s.quality, [s.material]: quality }, brand, glazing };
+  // A sub-frame the catalogue no longer lists (or never had) is dropped, so nothing is sent that was not priced.
+  const controtelaio = s.controtelaio && !options.controtelaio.some(([k]) => k === s.controtelaio) ? "" : s.controtelaio;
+  if (quality === s.quality[s.material] && brand === s.brand && glazing === s.glazing && controtelaio === s.controtelaio) return s;
+  return { ...s, quality: { ...s.quality, [s.material]: quality }, brand, glazing, controtelaio };
 }

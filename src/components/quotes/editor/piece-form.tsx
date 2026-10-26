@@ -37,7 +37,7 @@ export function PieceForm({ item, choices, locale, onPatch, onWidth, onHeight, o
   };
   const acc = item.accessories ?? {};
   const setAcc = (patch: Partial<NonNullable<ProjectItem["accessories"]>>) => onPatch({ accessories: { ...acc, ...patch } });
-  const anyAccessory = (["zanz", "cass", "avv", "pers"] as const).some((c) => acc[c] && acc[c] !== "none");
+  const anyAccessory = (["zanz", "cass", "avv", "pers", "ctel"] as const).some((c) => acc[c] && acc[c] !== "none");
 
   // The width/height override inputs below only make sense while the
   // accessories <details> panel is open. Closing it (every category back to

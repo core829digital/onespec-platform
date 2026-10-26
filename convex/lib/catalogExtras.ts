@@ -1,6 +1,7 @@
 import type { MutationCtx, QueryCtx } from "../_generated/server";
 import type { Id } from "../_generated/dataModel";
-import { DEFAULT_ACCESSORIES, DEFAULT_FRAME_TYPES } from "../../src/shared/configurator-model";
+import { DEFAULT_FRAME_TYPES, defaultAccessoriesFor } from "../../src/shared/configurator-model";
+import { regionForCountry } from "./regions";
 import { finishLibraryRows } from "../../src/shared/finish-library";
 import { glazingPackageRows } from "../../src/shared/glazing-packages";
 
@@ -103,7 +104,9 @@ export async function seedExtras(
   }
 
   const accessories = await ctx.db.query("catalogAccessories").withIndex("by_configurator", (q) => q.eq("configuratorId", args.configuratorId)).collect();
-  for (const a of DEFAULT_ACCESSORIES) {
+  // The controtelaio rows exist for an Italian company only.
+  const tenant = await ctx.db.get(args.tenantId);
+  for (const a of defaultAccessoriesFor(regionForCountry(tenant?.country).code)) {
     if (accessories.some((x) => x.category === a.category && x.key === a.key)) continue;
     await ctx.db.insert("catalogAccessories", { ...scope, ...a });
     inserted++;

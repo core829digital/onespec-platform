@@ -16,6 +16,7 @@ import { withLeafWidth } from "./leaf-edit";
 import { REGION_FLAT_OPTION_KINDS, calculatePrice, type ProjectItem } from "@/shared/pricing";
 import { quoteTotals } from "@/shared/quote-totals";
 import { disposalCharge, disposalModelOf, disposalOffered, disposalPriceOf } from "@/shared/disposal";
+import { SceneSvg, buildSubframeScene, subframeInputFor } from "@/lib/drawing";
 import { glazingAdvice, PACKAGE_DEPTHS, packageKey, parseGlazingKey } from "@/shared/glazing-packages";
 import { frameRules, inactiveLeaves, normalizedRatios, directionFromOpening, hasOpeningDirection, openingSide, retypeSash, typeForAddedSash } from "@/shared/sash-rules";
 import {
@@ -316,6 +317,11 @@ export function Widget({
   // The total of a piece comes from the one pricing engine of the platform (the same the server records, the Showroom and the B2B
   // quote use); the local table only fills the breakdown lines and prices the demo, which has no catalogue.
   const payload = useMemo(() => pricingPayload(catalog), [catalog]);
+  // The sub-frame sheet (controtelaio, Italy): drawn only for the one the visitor chose from the catalogue.
+  const subframeInput = useMemo(
+    () => subframeInputFor(payload, { width: state.width, height: state.height, accessories: state.controtelaio ? { ctel: state.controtelaio } : undefined }, lang),
+    [payload, state.width, state.height, state.controtelaio, lang],
+  );
   const sharedTotal = useCallback(
     (it: ConfigState): { unit: number; total: number } | null => {
       if (!payload) return null;
@@ -465,6 +471,9 @@ export function Widget({
     });
     if (fittingOffered) lines.push(withFitting ? dict.fittingIncludedLine : dict.fittingExcludedLine);
     if (disposalOn) lines.push(withDisposal ? dict.disposalIncludedLine : dict.disposalExcludedLine);
+    for (const it of all) {
+      if (it.controtelaio) lines.push(`${dict.controtelaioSummary}: ${labelFromList(options.controtelaio, it.controtelaio)} (${it.width}×${it.height} mm)`);
+    }
     if (ecobonusPct > 0) lines.push(`Ecobonus: -${ecobonusPct}%`);
     if (discountPct > 0) lines.push(`${dict.discountLabel}: -${discountPct}%`);
     for (const note of complianceFlags.map((f) => dict.compliance[f]).filter(Boolean)) {
@@ -501,6 +510,7 @@ export function Widget({
       installation: it.installation,
       withInstallation: fittingOffered ? withFitting : undefined,
       withDisposal: disposalOn ? withDisposal : undefined,
+      accessories: it.controtelaio ? { ctel: it.controtelaio } : undefined,
       ...Object.fromEntries(
         REGION_FLAT_OPTION_KINDS.map((kind) => [kind, it[kind] || undefined]),
       ),
@@ -1000,6 +1010,19 @@ export function Widget({
             </select>
           </Field>
 
+          {options.controtelaio.length > 0 ? (
+            <Field label={dict.controtelaioLabel} id="widget-controtelaio">
+              <select id="widget-controtelaio" style={s.select} value={state.controtelaio} onChange={(e) => set({ controtelaio: e.target.value })}>
+                <option value="">{dict.controtelaioNone}</option>
+                {options.controtelaio.map(([k, v]) => (
+                  <option key={k} value={k}>
+                    {v}
+                  </option>
+                ))}
+              </select>
+            </Field>
+          ) : null}
+
           {REGION_FLAT_OPTION_KINDS.map((kind) => {
             const list = options.regionOptions[kind] ?? [];
             if (list.length === 0) return null;
@@ -1128,6 +1151,14 @@ export function Widget({
                 </div>
               ) : null}
             </div>
+            {subframeInput ? (
+              <details data-testid="widget-subframe-sheet" style={{ marginTop: 10 }}>
+                <summary style={{ cursor: "pointer", fontSize: 12.5, fontWeight: 700, color: "var(--color-text)", minHeight: 36, display: "flex", alignItems: "center" }}>{dict.controtelaioSheet}</summary>
+                <div style={{ maxWidth: 460, margin: "6px auto 0", background: "#fff", borderRadius: 8, padding: 8 }}>
+                  <SceneSvg scene={buildSubframeScene(subframeInput, lang)} ariaLabel={dict.controtelaioSheet} />
+                </div>
+              </details>
+            ) : null}
             <div style={{ fontSize: 11, color: "var(--color-text-secondary)", textAlign: "center", marginTop: 4 }}>{dict.diagramLegend}</div>
             <div style={{ fontSize: 11, color: "var(--color-text-secondary)", textAlign: "center", marginTop: 2 }}>{dict.diagramClickHint}</div>
             {state.sashes.length > 1 && (

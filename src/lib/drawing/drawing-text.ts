@@ -148,14 +148,25 @@ export const SURVEY: L<Record<SurveyWord, string>> = {
 };
 
 /** Names of the drawing tabs in the quote editor. */
-export type DrawingTab = "elevation" | "plan" | "section" | "hardware";
+export type DrawingTab = "elevation" | "plan" | "section" | "hardware" | "subframe";
 export const TABS: L<Record<DrawingTab, string>> = {
-  it: { elevation: "Prospetto", plan: "Pianta", section: "Sezione", hardware: "Ferramenta" },
-  en: { elevation: "Elevation", plan: "Plan", section: "Section", hardware: "Hardware" },
-  fr: { elevation: "Élévation", plan: "Plan", section: "Coupe", hardware: "Quincaillerie" },
-  de: { elevation: "Ansicht", plan: "Grundriss", section: "Schnitt", hardware: "Beschlag" },
-  nl: { elevation: "Aanzicht", plan: "Plattegrond", section: "Doorsnede", hardware: "Beslag" },
-  ro: { elevation: "Fațadă", plan: "Plan", section: "Secțiune", hardware: "Feronerie" },
+  it: { elevation: "Prospetto", plan: "Pianta", section: "Sezione", hardware: "Ferramenta", subframe: "Controtelaio" },
+  en: { elevation: "Elevation", plan: "Plan", section: "Section", hardware: "Hardware", subframe: "Sub-frame" },
+  fr: { elevation: "Élévation", plan: "Plan", section: "Coupe", hardware: "Quincaillerie", subframe: "Précadre" },
+  de: { elevation: "Ansicht", plan: "Grundriss", section: "Schnitt", hardware: "Beschlag", subframe: "Blendrahmen" },
+  nl: { elevation: "Aanzicht", plan: "Plattegrond", section: "Doorsnede", hardware: "Beslag", subframe: "Montagekozijn" },
+  ro: { elevation: "Fațadă", plan: "Plan", section: "Secțiune", hardware: "Feronerie", subframe: "Contratoc" },
+};
+
+/** Words of the controtelaio (sub-frame) sheet: the Italian way of fitting, drawn for the Italian market, translated for the rest of the platform's languages. */
+export type SubframeWord = "title" | "section" | "window" | "clear" | "outer" | "hole" | "wall" | "subframe" | "anchor" | "foam" | "frame" | "depth" | "anchors" | "exterior" | "interior" | "note";
+export const SUBFRAME: L<Record<SubframeWord, string>> = {
+  it: { title: "Controtelaio: prospetto e quote", section: "Sezione sulla spalletta", window: "Serramento", clear: "Luce interna del controtelaio", outer: "Ingombro del controtelaio", hole: "Foro minimo in muratura", wall: "Muratura", subframe: "Controtelaio", anchor: "Zanca di ancoraggio", foam: "Schiuma elastica / sigillante", frame: "Telaio del serramento", depth: "Profondità", anchors: "Zanche", exterior: "Esterno", interior: "Interno", note: "Quote indicative (gioco 5 mm per lato, profilo a vista 35 mm, giunto 10 mm): verifica sempre in cantiere. Non sostituisce il progetto di posa." },
+  en: { title: "Sub-frame: elevation and dimensions", section: "Section at the reveal", window: "Window", clear: "Clear opening of the sub-frame", outer: "Overall sub-frame size", hole: "Minimum masonry opening", wall: "Masonry", subframe: "Sub-frame", anchor: "Anchor strap", foam: "Elastic foam / sealant", frame: "Window frame", depth: "Depth", anchors: "Straps", exterior: "Outside", interior: "Inside", note: "Indicative dimensions (5 mm play per side, 35 mm visible profile, 10 mm joint): always check on site. Does not replace the installation design." },
+  fr: { title: "Précadre : élévation et cotes", section: "Coupe sur le tableau", window: "Menuiserie", clear: "Passage intérieur du précadre", outer: "Encombrement du précadre", hole: "Baie minimale en maçonnerie", wall: "Maçonnerie", subframe: "Précadre", anchor: "Patte de scellement", foam: "Mousse élastique / mastic", frame: "Dormant de la menuiserie", depth: "Profondeur", anchors: "Pattes", exterior: "Extérieur", interior: "Intérieur", note: "Cotes indicatives (jeu de 5 mm par côté, profil visible 35 mm, joint 10 mm) : toujours vérifier sur place. Ne remplace pas le projet de pose." },
+  de: { title: "Blendrahmen: Ansicht und Maße", section: "Schnitt an der Laibung", window: "Fenster", clear: "Lichte Öffnung des Blendrahmens", outer: "Außenmaß des Blendrahmens", hole: "Mindestöffnung im Mauerwerk", wall: "Mauerwerk", subframe: "Blendrahmen", anchor: "Befestigungslasche", foam: "Elastischer Schaum / Dichtstoff", frame: "Fensterrahmen", depth: "Tiefe", anchors: "Laschen", exterior: "Außen", interior: "Innen", note: "Richtmaße (5 mm Spiel je Seite, 35 mm Sichtprofil, 10 mm Fuge): immer vor Ort prüfen. Ersetzt keine Einbauplanung." },
+  nl: { title: "Montagekozijn: aanzicht en maten", section: "Doorsnede op de dagkant", window: "Kozijn", clear: "Lichte opening van het montagekozijn", outer: "Buitenmaat van het montagekozijn", hole: "Minimale muuropening", wall: "Metselwerk", subframe: "Montagekozijn", anchor: "Ankerstrip", foam: "Elastisch schuim / kit", frame: "Raamkozijn", depth: "Diepte", anchors: "Ankers", exterior: "Buiten", interior: "Binnen", note: "Indicatieve maten (5 mm speling per zijde, 35 mm zichtprofiel, 10 mm voeg): altijd ter plaatse controleren. Vervangt het montageontwerp niet." },
+  ro: { title: "Contratoc: fațadă și cote", section: "Secțiune pe spaletă", window: "Fereastră", clear: "Golul interior al contratocului", outer: "Gabaritul contratocului", hole: "Gol minim în zidărie", wall: "Zidărie", subframe: "Contratoc", anchor: "Gheară de ancorare", foam: "Spumă elastică / etanșant", frame: "Toc de fereastră", depth: "Adâncime", anchors: "Gheare", exterior: "Exterior", interior: "Interior", note: "Cote orientative (joc de 5 mm pe latură, profil vizibil 35 mm, rost 10 mm): verifică întotdeauna la fața locului. Nu înlocuiește proiectul de montaj." },
 };
 
 /** Legend rows: at most two short lines each (an SVG text does not wrap). */

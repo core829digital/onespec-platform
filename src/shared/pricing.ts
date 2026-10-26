@@ -164,6 +164,8 @@ export interface CatalogPayload {
     labels: Record<string, string>;
     priceModel: AccessoryPriceModel;
     priceCents: number;
+    /** Controtelaio: profile depth in the wall, mm. */
+    depthMm?: number;
     sortOrder: number;
     enabled: boolean;
   }>;
@@ -378,11 +380,13 @@ export function accessoriesCents(payload: CatalogPayload, item: ProjectItem, wid
   const w = acc.width && acc.width > 0 ? acc.width / 1000 : widthM;
   const h = acc.height && acc.height > 0 ? acc.height / 1000 : heightM;
   let total = 0;
-  for (const category of ["zanz", "cass", "avv", "pers"] as const) {
+  for (const category of ["zanz", "cass", "avv", "pers", "ctel"] as const) {
     const row = getAccessory(payload, category, acc[category]);
     if (!row) continue;
-    if (row.priceModel === "perM2") total += Math.round(row.priceCents * w * h);
-    else if (row.priceModel === "perMl") total += Math.round(row.priceCents * 2 * (w + h));
+    // The controtelaio follows the opening of the piece, never the size typed for a shutter box or a screen.
+    const [rw, rh] = category === "ctel" ? [widthM, heightM] : [w, h];
+    if (row.priceModel === "perM2") total += Math.round(row.priceCents * rw * rh);
+    else if (row.priceModel === "perMl") total += Math.round(row.priceCents * 2 * (rw + rh));
     else total += row.priceCents;
   }
   return total;

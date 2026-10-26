@@ -6,7 +6,7 @@ import { requirePermission } from "./lib/rbac";
 import { regionForCountry, type RegionCode } from "./lib/regions";
 import { loadExtras, seedExtras } from "./lib/catalogExtras";
 import { ensureProfileClassification } from "./lib/standardCatalog";
-import { PIECE_CATEGORIES } from "../src/shared/configurator-model";
+import { PIECE_CATEGORIES, accessoryOfferedIn } from "../src/shared/configurator-model";
 import { chamberQualityKey, chamberTierDefaults, chamberTierLabels, profileQualityKey } from "../src/shared/catalog-rules";
 import { assertCents, assertHex, assertKey, assertLabels, assertMultiplier, assertRange, assertShortText, assertSortOrder, assertThermal } from "./lib/inputs";
 
@@ -445,14 +445,21 @@ export const deleteFrameType = mutation({
   },
 });
 
+const accessoryCategory = v.union(v.literal("zanz"), v.literal("cass"), v.literal("avv"), v.literal("pers"), v.literal("ctel"));
+
+/** Profile depth of a controtelaio: a wall-thickness figure in whole millimetres. */
+export const CTEL_DEPTH_MIN_MM = 30;
+export const CTEL_DEPTH_MAX_MM = 200;
+
 export const upsertAccessory = mutation({
   args: {
     configuratorId: v.id("configurators"),
-    category: v.union(v.literal("zanz"), v.literal("cass"), v.literal("avv"), v.literal("pers")),
+    category: accessoryCategory,
     key: v.string(),
     labels: v.any(),
     priceModel: v.union(v.literal("flat"), v.literal("perM2"), v.literal("perMl")),
     priceCents: v.number(),
+    depthMm: v.optional(v.number()),
     sortOrder: v.number(),
     enabled: v.boolean(),
   },
@@ -460,6 +467,11 @@ export const upsertAccessory = mutation({
     const configurator = await ownedConfigurator(ctx, args.configuratorId);
     assertKey(args.key); assertLabels(args.labels); assertSortOrder(args.sortOrder); assertCents(args.priceCents);
     if (!positive(args.priceCents)) throw new ConvexError("INVALID_INPUT");
+    // The controtelaio is an Italian way of fitting: no other market can add one.
+    const tenant = await ctx.db.get(configurator.tenantId);
+    if (!accessoryOfferedIn(regionForCountry(tenant?.country).code, args.category)) throw new ConvexError("INVALID_INPUT");
+    // Only the controtelaio has a depth, and it is a whole number of millimetres within wall-thickness limits.
+    if (args.depthMm !== undefined && (args.category !== "ctel" || !Number.isInteger(args.depthMm) || args.depthMm < CTEL_DEPTH_MIN_MM || args.depthMm > CTEL_DEPTH_MAX_MM)) throw new ConvexError("INVALID_INPUT");
     const existing = await ctx.db.query("catalogAccessories").withIndex("by_configurator_category", (q) => q.eq("configuratorId", args.configuratorId).eq("category", args.category)).filter((q) => q.eq(q.field("key"), args.key)).unique();
     if (existing) await ctx.db.patch(existing._id, args);
     else await ctx.db.insert("catalogAccessories", { ...args, tenantId: configurator.tenantId });
@@ -467,7 +479,7 @@ export const upsertAccessory = mutation({
 });
 
 export const deleteAccessory = mutation({
-  args: { configuratorId: v.id("configurators"), category: v.union(v.literal("zanz"), v.literal("cass"), v.literal("avv"), v.literal("pers")), key: v.string() },
+  args: { configuratorId: v.id("configurators"), category: accessoryCategory, key: v.string() },
   handler: async (ctx, args) => {
     await ownedConfigurator(ctx, args.configuratorId);
     const existing = await ctx.db.query("catalogAccessories").withIndex("by_configurator_category", (q) => q.eq("configuratorId", args.configuratorId).eq("category", args.category)).filter((q) => q.eq(q.field("key"), args.key)).unique();

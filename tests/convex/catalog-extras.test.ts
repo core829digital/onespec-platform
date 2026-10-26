@@ -20,7 +20,7 @@ describe("B2B/showroom catalogue sections", () => {
     const { asOwner, configuratorId } = await seeded();
     const st = await asOwner.query(api.configurators.getEditorState, { configuratorId });
     expect(st?.frameTypes.map((f) => f.key).sort()).toEqual(["dritto", "reno40", "reno65"]);
-    expect(st?.accessories).toHaveLength(14);
+    expect(st?.accessories).toHaveLength(17); // 14 + the 3 controtelaio rows an Italian company gets
     // Every accessory used to seed at priceCents: 0 — fixed so a new catalog
     // is usable out of the box instead of every row being a free upgrade.
     expect(st?.accessories.every((a) => a.priceCents > 0)).toBe(true);

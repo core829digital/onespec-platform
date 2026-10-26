@@ -23,6 +23,7 @@ export const ProjectItemSchema = z
         cass: z.string().max(40).optional(),
         avv: z.string().max(40).optional(),
         pers: z.string().max(40).optional(),
+        ctel: z.string().max(40).optional(),
         width: z.number().int().min(100).max(DIM_ABS_MAX).optional(),
         height: z.number().int().min(100).max(DIM_ABS_MAX).optional(),
       })

@@ -99,6 +99,11 @@ export interface WidgetDict {
   disposalIncludedLine: string;
   disposalExcludedLine: string;
   disposalInNet: string;
+  /** Controtelaio (sub-frame, Italy): the choice, "none", the line of the summary and the technical sheet. */
+  controtelaioLabel: string;
+  controtelaioNone: string;
+  controtelaioSheet: string;
+  controtelaioSummary: string;
   perUnit: string;
   units: string;
   projectItemsTitle: string;
@@ -240,6 +245,10 @@ const en: WidgetDict = {
   disposalIncludedLine: "Disposal of the old windows included in the price",
   disposalExcludedLine: "Disposal of the old windows: handled by the customer",
   disposalInNet: "of which disposal of the old windows",
+  controtelaioLabel: "Sub-frame (controtelaio)",
+  controtelaioNone: "No sub-frame",
+  controtelaioSheet: "Technical drawing of the sub-frame",
+  controtelaioSummary: "Sub-frame",
   perUnit: "per unit",
   units: "units",
   projectItemsTitle: "Project items",
@@ -383,6 +392,10 @@ const it: WidgetDict = {
   disposalIncludedLine: "Smaltimento dei vecchi infissi incluso nel prezzo",
   disposalExcludedLine: "Smaltimento dei vecchi infissi a cura del cliente",
   disposalInNet: "di cui smaltimento vecchi infissi",
+  controtelaioLabel: "Controtelaio",
+  controtelaioNone: "Nessun controtelaio",
+  controtelaioSheet: "Disegno tecnico del controtelaio",
+  controtelaioSummary: "Controtelaio",
   perUnit: "a pezzo",
   units: "pezzi",
   projectItemsTitle: "Articoli del progetto",
@@ -524,6 +537,10 @@ const fr: WidgetDict = {
   disposalIncludedLine: "Évacuation des anciennes fenêtres incluse dans le prix",
   disposalExcludedLine: "Évacuation des anciennes fenêtres : à la charge du client",
   disposalInNet: "dont évacuation des anciennes fenêtres",
+  controtelaioLabel: "Précadre (controtelaio)",
+  controtelaioNone: "Sans précadre",
+  controtelaioSheet: "Dessin technique du précadre",
+  controtelaioSummary: "Précadre",
   perUnit: "à l'unité",
   units: "unités",
   projectItemsTitle: "Articles du projet",
@@ -665,6 +682,10 @@ const de: WidgetDict = {
   disposalIncludedLine: "Entsorgung der alten Fenster im Preis enthalten",
   disposalExcludedLine: "Entsorgung der alten Fenster: Sache des Kunden",
   disposalInNet: "davon Entsorgung der alten Fenster",
+  controtelaioLabel: "Blendrahmen (Controtelaio)",
+  controtelaioNone: "Kein Blendrahmen",
+  controtelaioSheet: "Technische Zeichnung des Blendrahmens",
+  controtelaioSummary: "Blendrahmen",
   perUnit: "pro Stück",
   units: "Stück",
   projectItemsTitle: "Projektartikel",
@@ -807,6 +828,10 @@ const nl: WidgetDict = {
   disposalIncludedLine: "Afvoer van de oude kozijnen inbegrepen in de prijs",
   disposalExcludedLine: "Afvoer van de oude kozijnen: door de klant geregeld",
   disposalInNet: "waarvan afvoer van de oude kozijnen",
+  controtelaioLabel: "Montagekozijn (controtelaio)",
+  controtelaioNone: "Geen montagekozijn",
+  controtelaioSheet: "Technische tekening van het montagekozijn",
+  controtelaioSummary: "Montagekozijn",
   perUnit: "per stuk",
   units: "stukken",
   projectItemsTitle: "Projectartikelen",
