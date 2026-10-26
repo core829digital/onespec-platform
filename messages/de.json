@@ -641,7 +641,17 @@
       "draftNoSuppliers": "Zeilen mit mehreren Lieferanten lassen sich nicht als Entwurf speichern: Entfernen Sie sie oder fahren Sie mit dem Angebot fort.",
       "draftSavedToast": "Entwurf gespeichert. Sie finden ihn unter Angebote.",
       "savedToast": "Änderungen gespeichert.",
-      "backToList": "Zurück zu den Angeboten"
+      "backToList": "Zurück zu den Angeboten",
+      "disposal": {
+        "title": "Entsorgung der alten Fenster",
+        "with": "Mit Entsorgung",
+        "without": "Ohne Entsorgung",
+        "withHint": "Der Preis enthält die Entsorgung der alten Fenster.",
+        "withoutHint": "Die Entsorgung wird nicht berechnet.",
+        "perPiece": "{price} pro Stück, Stückzahlen eingeschlossen.",
+        "perJob": "{price} pro Auftrag, einmal berechnet, unabhängig von der Stückzahl.",
+        "inSupply": "davon Entsorgung"
+      }
     },
     "list": {
       "kicker": "B2B-Baustellen-Tool",
@@ -1370,7 +1380,11 @@
       "terms": "Angebot {days} Tage gültig. Voraussichtliche Lieferung {weeks} Wochen nach Bestätigung. Die endgültigen Maße werden nach dem Aufmaß bestätigt.",
       "send": "An den Kunden senden",
       "pdf": "PDF herunterladen"
-    }
+    },
+    "disposalTitle": "Entsorgung der alten Fenster",
+    "disposalWith": "Mit Entsorgung",
+    "disposalWithout": "Ohne Entsorgung",
+    "disposalIncluded": "Entsorgung im Preis enthalten: {amount} (ohne MwSt.)"
   },
   "legal": {
     "lastUpdated": "Zuletzt aktualisiert",
@@ -2921,6 +2935,23 @@
       "help": "Wenn aktiv, kann der Kunde außen und innen unterschiedliche Ausführungen wählen. Der Preis nutzt den Durchschnitt beider Ausführungen (jeweils Faktor und Festbetrag) plus den unten eingetragenen Aufschlag.",
       "enabled": "Zweifarbig anbieten",
       "surcharge": "Aufschlag zweifarbig"
+    },
+    "disposal": {
+      "title": "Entsorgung der alten Fenster",
+      "help": "Geben Sie Ihren Entsorgungspreis (ohne MwSt.) ein: Er wird ohne Marge zur Summe addiert. Er gilt für alle Konfiguratoren (Widget, geführter Ablauf, Showroom, Angebote). Lassen Sie das Feld leer, oder 0, wenn Sie ihn nicht anbieten möchten.",
+      "price": "Preis",
+      "invalid": "Geben Sie einen Betrag zwischen 0 und 10.000 € mit höchstens zwei Dezimalstellen ein.",
+      "off": "Nicht angeboten: Angebote enthalten keine Entsorgungszeile.",
+      "modelTitle": "Wie Sie ihn berechnen",
+      "perPiece": "Pro Stück",
+      "perPieceHint": "Der Preis wird mit jedem Fenster multipliziert, Stückzahlen eingeschlossen.",
+      "perJob": "Pro Auftrag (pauschal)",
+      "perJobHint": "Ein Betrag für den ganzen Auftrag, unabhängig von der Zahl der Fenster.",
+      "defaultTitle": "Voreinstellung",
+      "with": "Standardmäßig enthalten",
+      "withHint": "Das Angebot enthält ihn; der Kunde kann ihn abwählen.",
+      "without": "Nur wenn der Kunde ihn wählt",
+      "withoutHint": "Das Angebot enthält ihn nicht; der Kunde kann ihn hinzufügen."
     }
   },
   "fiscal": {

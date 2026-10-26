@@ -641,7 +641,17 @@
       "draftNoSuppliers": "Regels met meerdere leveranciers kunnen niet als concept worden opgeslagen: verwijder ze of ga verder met de offerte.",
       "draftSavedToast": "Concept opgeslagen. U vindt het bij Offertes.",
       "savedToast": "Wijzigingen opgeslagen.",
-      "backToList": "Terug naar offertes"
+      "backToList": "Terug naar offertes",
+      "disposal": {
+        "title": "Afvoer van de oude kozijnen",
+        "with": "Met afvoer",
+        "without": "Zonder afvoer",
+        "withHint": "De prijs omvat de afvoer van de oude kozijnen.",
+        "withoutHint": "De afvoer wordt niet gerekend.",
+        "perPiece": "{price} per stuk, aantallen inbegrepen.",
+        "perJob": "{price} per opdracht, één keer gerekend ongeacht het aantal stuks.",
+        "inSupply": "waarvan afvoer"
+      }
     },
     "list": {
       "kicker": "B2B-werfhulpmiddel",
@@ -1370,7 +1380,11 @@
       "terms": "Offerte {days} dagen geldig. Verwachte levering {weeks} weken na bevestiging. De definitieve maten worden na de opname bevestigd.",
       "send": "Naar de klant sturen",
       "pdf": "PDF downloaden"
-    }
+    },
+    "disposalTitle": "Afvoer van de oude kozijnen",
+    "disposalWith": "Met afvoer",
+    "disposalWithout": "Zonder afvoer",
+    "disposalIncluded": "Afvoer inbegrepen in de prijs: {amount} (excl. btw)"
   },
   "legal": {
     "lastUpdated": "Laatst bijgewerkt",
@@ -2921,6 +2935,23 @@
       "help": "Indien actief kan de klant buiten en binnen een andere afwerking kiezen. De prijs gebruikt het gemiddelde van beide afwerkingen (factor en vast bedrag van elk) plus de toeslag die je hieronder invult.",
       "enabled": "Tweekleurig aanbieden",
       "surcharge": "Toeslag tweekleurig"
+    },
+    "disposal": {
+      "title": "Afvoer van de oude kozijnen",
+      "help": "Vul uw afvoerprijs in (excl. btw): die wordt zonder marge bij het totaal opgeteld. Hij geldt voor alle configurators (widget, begeleid pad, Showroom, offertes). Laat leeg, of 0, als u hem niet wilt aanbieden.",
+      "price": "Prijs",
+      "invalid": "Vul een bedrag in tussen 0 en 10.000 € met hooguit twee decimalen.",
+      "off": "Niet aangeboden: offertes hebben geen afvoerregel.",
+      "modelTitle": "Hoe u het berekent",
+      "perPiece": "Per stuk",
+      "perPieceHint": "De prijs wordt vermenigvuldigd met elk kozijn, aantallen inbegrepen.",
+      "perJob": "Per opdracht (vast bedrag)",
+      "perJobHint": "Eén bedrag voor de hele opdracht, ongeacht het aantal kozijnen.",
+      "defaultTitle": "Voorselectie",
+      "with": "Standaard inbegrepen",
+      "withHint": "De offerte omvat het; de klant kan het weghalen.",
+      "without": "Alleen als de klant het kiest",
+      "withoutHint": "De offerte omvat het niet; de klant kan het toevoegen."
     }
   },
   "fiscal": {

@@ -18,6 +18,7 @@ import { defaultItem } from "@/shared/item-defaults";
 import { blockingIssues, pieceIssues } from "@/shared/piece-ops";
 import { assemblyIssues } from "@/shared/composition";
 import { quoteTotals, regionalExtrasCents } from "@/shared/quote-totals";
+import { disposalModelOf, disposalOffered, disposalPriceOf } from "@/shared/disposal";
 import { clearDraft, useDraftRestore, useDraftSave } from "@/lib/use-draft";
 import { MultiSupplierTable, type SupplierItem } from "@/components/quotes/MultiSupplierTable";
 import {
@@ -217,6 +218,8 @@ export default function NewFieldQuotePage() {
   const [demolitionEuros, setDemolitionEuros] = useState(0);
   // Fitting (posa) included or supply only (the customer fits the windows themselves); null = the configurator's default.
   const [withPosaChoice, setWithPosaChoice] = useState<boolean | null>(null);
+  // Disposal of the old windows, when the configurator offers it (any market); null = the configurator's default.
+  const [withDisposalChoice, setWithDisposalChoice] = useState<boolean | null>(null);
   const [discountPercent, setDiscountPercent] = useState(0);
   const [profitMarginPercent, setProfitMarginPercent] = useState(30);
   const [vatRatePercent, setVatRatePercent] = useState(10);
@@ -310,6 +313,8 @@ export default function NewFieldQuotePage() {
       setDemolitionEuros(Math.round((editing.demolitionPriceCents ?? 0) / 100));
       const flags = saved.map((it) => it.withInstallation).filter((f): f is boolean => typeof f === "boolean");
       setWithPosaChoice(flags.length > 0 ? flags.every(Boolean) : null);
+      const disposalFlags = saved.map((it) => it.withDisposal).filter((f): f is boolean => typeof f === "boolean");
+      setWithDisposalChoice(disposalFlags.length > 0 ? disposalFlags.every(Boolean) : null);
       setDiscountPercent(editing.discountPercent ?? 0);
       setProfitMarginPercent(editing.profitMarginPercent ?? 30);
       // The saved rate is the one applied; only a plain domestic quote carries the national rate itself.
@@ -432,7 +437,14 @@ export default function NewFieldQuotePage() {
   const posaPerM2Cents = effectivePayload.configurator.installationPerM2Cents ?? 0;
   const posaOffered = posaPerM2Cents > 0;
   const withPosa = withPosaChoice ?? (effectivePayload.configurator.installationDefault !== "without");
-  const pricedItems = useMemo(() => (posaOffered ? items.map((it) => ({ ...it, withInstallation: withPosa })) : items), [items, posaOffered, withPosa]);
+  const disposalIsOffered = disposalOffered(effectivePayload.configurator);
+  const withDisposal = withDisposalChoice ?? effectivePayload.configurator.disposalDefault === "with";
+  const pricedItems = useMemo(
+    () => (posaOffered || disposalIsOffered
+      ? items.map((it) => ({ ...it, ...(posaOffered ? { withInstallation: withPosa } : {}), ...(disposalIsOffered ? { withDisposal } : {}) }))
+      : items),
+    [items, posaOffered, withPosa, disposalIsOffered, withDisposal],
+  );
 
   // Draft: the pieces and the client survive a reload or a dead signal on site.
   const draftKey = tenant ? `quote-new:${tenant._id}` : "quote-new";
@@ -500,6 +512,7 @@ export default function NewFieldQuotePage() {
     return {
       supplyExVat: base.priceExVatCents,
       posaByAreaCents: base.installation?.includedCents ?? 0,
+      disposalCents: base.disposal?.includedCents ?? 0,
       withoutPosaEx,
       withPosaEx,
       installCents,
@@ -1240,7 +1253,8 @@ export default function NewFieldQuotePage() {
                     onClick={() => {
                       const auto = computeInstallation(effectivePayload, items);
                       setInstallationEuros(Math.round((auto.labourCents + auto.scaffoldCents) / 100));
-                      setDemolitionEuros(Math.round(auto.disposalCents / 100));
+                      // The configurator's own disposal price is already in the pieces' total: no second, manual amount.
+                      setDemolitionEuros(disposalIsOffered ? 0 : Math.round(auto.disposalCents / 100));
                     }}
                     className="rounded-lg border border-[var(--color-border)] px-3 py-1.5 text-xs font-semibold text-[var(--color-text)] hover:border-[var(--color-mint)]"
                   >
@@ -1261,6 +1275,23 @@ export default function NewFieldQuotePage() {
                 </div>
                 {posaOffered && withPosa ? <p className="text-xs text-[var(--color-text-secondary)]">{t("posa.manualHint", { price: (posaPerM2Cents / 100).toFixed(2) })}</p> : null}
               </fieldset>
+              {disposalIsOffered ? (
+                <fieldset className="space-y-2 pt-2 border-t border-[var(--color-border)]" data-testid="disposal-choice">
+                  <legend className="text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">{t("disposal.title")}</legend>
+                  <div role="radiogroup" aria-label={t("disposal.title")} className="grid gap-2 sm:grid-cols-2">
+                    {([true, false] as const).map((v) => (
+                      <label key={String(v)} className={`relative cursor-pointer rounded-lg border p-3 text-sm focus-within:ring-2 focus-within:ring-[var(--color-mint)] ${withDisposal === v ? "border-[var(--color-mint)] bg-[var(--color-mint-light)]" : "border-[var(--color-border)]"}`}>
+                        <input type="radio" name="with-disposal" className="sr-only" checked={withDisposal === v} onChange={() => setWithDisposalChoice(v)} />
+                        <span className="block font-semibold text-[var(--color-text)]">{v ? t("disposal.with") : t("disposal.without")}</span>
+                        <span className="mt-1 block text-xs text-[var(--color-text-secondary)]">{v ? t("disposal.withHint") : t("disposal.withoutHint")}</span>
+                      </label>
+                    ))}
+                  </div>
+                  <p className="text-xs text-[var(--color-text-secondary)]">
+                    {t(disposalModelOf(effectivePayload.configurator) === "perJob" ? "disposal.perJob" : "disposal.perPiece", { price: `€${(disposalPriceOf(effectivePayload.configurator) / 100).toFixed(2)}` })}
+                  </p>
+                </fieldset>
+              ) : null}
               <div className={`grid grid-cols-2 gap-3 pt-2 border-t border-[var(--color-border)] ${withPosa ? "" : "opacity-50"}`}>
                 <div>
                   <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
@@ -1276,7 +1307,7 @@ export default function NewFieldQuotePage() {
                     className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)] font-mono"
                   />
                 </div>
-                <div>
+                {disposalIsOffered ? null : <div>
                   <label className="block text-xs font-medium text-[var(--color-text-secondary)] mb-1">
                     Smaltimento / Dépose (€)
                   </label>
@@ -1289,7 +1320,7 @@ export default function NewFieldQuotePage() {
                     onChange={(e) => setDemolitionEuros(Number(e.target.value))}
                     className="w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm text-[var(--color-text)] font-mono"
                   />
-                </div>
+                </div>}
               </div>
 
               <FiscalPanel
@@ -1392,6 +1423,12 @@ export default function NewFieldQuotePage() {
                 <div className="flex justify-between text-xs text-[var(--color-text-secondary)]">
                   <span>{t("posa.inSupply")}</span>
                   <span className="font-mono">€{(priceCalc.posaByAreaCents / 100).toFixed(2)}</span>
+                </div>
+              ) : null}
+              {priceCalc.disposalCents > 0 ? (
+                <div className="flex justify-between text-xs text-[var(--color-text-secondary)]" data-testid="disposal-line">
+                  <span>{t("disposal.inSupply")}</span>
+                  <span className="font-mono">€{(priceCalc.disposalCents / 100).toFixed(2)}</span>
                 </div>
               ) : null}
               {priceCalc.withPosaEx !== priceCalc.withoutPosaEx ? (

@@ -85,6 +85,7 @@ export const getCalculationPreview = query({
     monthlyRate24Months: number;
     netAfterBonus50: number;
     items: ReturnType<typeof calculatePrice>["items"];
+    disposal?: ReturnType<typeof calculatePrice>["disposal"];
     calculatedAt: number;
     catalogVersion: number;
   }> => {

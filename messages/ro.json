@@ -641,7 +641,17 @@
       "draftNoSuppliers": "Rândurile cu mai mulți furnizori nu se salvează ca ciornă: elimină-le sau continuă cu oferta.",
       "draftSavedToast": "Ciornă salvată. O găsești la Oferte.",
       "savedToast": "Modificări salvate.",
-      "backToList": "Înapoi la oferte"
+      "backToList": "Înapoi la oferte",
+      "disposal": {
+        "title": "Evacuarea ferestrelor vechi",
+        "with": "Cu evacuare",
+        "without": "Fără evacuare",
+        "withHint": "Prețul include evacuarea ferestrelor vechi.",
+        "withoutHint": "Evacuarea nu se taxează.",
+        "perPiece": "{price} pe bucată, cantitățile incluse.",
+        "perJob": "{price} pe lucrare, taxat o singură dată indiferent de numărul de bucăți.",
+        "inSupply": "din care evacuare"
+      }
     },
     "list": {
       "kicker": "Instrument B2B de șantier",
@@ -1370,7 +1380,11 @@
       "terms": "Ofertă valabilă {days} zile. Livrare estimată la {weeks} săptămâni de la confirmare. Măsurătorile finale se confirmă după vizita tehnică.",
       "send": "Trimite clientului",
       "pdf": "Descarcă PDF"
-    }
+    },
+    "disposalTitle": "Evacuarea ferestrelor vechi",
+    "disposalWith": "Cu evacuare",
+    "disposalWithout": "Fără evacuare",
+    "disposalIncluded": "Evacuare inclusă în preț: {amount} (fără TVA)"
   },
   "legal": {
     "lastUpdated": "Ultima actualizare",
@@ -2921,6 +2935,23 @@
       "help": "Dacă este activ, clientul poate alege un finisaj pentru exterior și altul pentru interior. Prețul folosește media celor două finisaje (coeficientul și suma fixă a fiecăruia), plus suplimentul introdus mai jos.",
       "enabled": "Oferă varianta bicolor clienților",
       "surcharge": "Supliment bicolor"
+    },
+    "disposal": {
+      "title": "Evacuarea ferestrelor vechi",
+      "help": "Introdu prețul tău de evacuare (fără TVA): se adaugă la total, fără marjă. Se aplică tuturor configuratoarelor (widget, parcurs ghidat, Showroom, oferte). Lasă gol, sau 0, dacă nu vrei să îl propui.",
+      "price": "Preț",
+      "invalid": "Introdu o sumă între 0 și 10.000 € cu cel mult două zecimale.",
+      "off": "Nepropus: ofertele nu au linia de evacuare.",
+      "modelTitle": "Cum îl taxezi",
+      "perPiece": "Pe bucată",
+      "perPieceHint": "Prețul se înmulțește cu fiecare fereastră, cantitățile incluse.",
+      "perJob": "Pe lucrare (forfetar)",
+      "perJobHint": "O singură sumă pentru toată lucrarea, indiferent de numărul de ferestre.",
+      "defaultTitle": "Preselecție",
+      "with": "Inclus implicit",
+      "withHint": "Oferta îl include; clientul îl poate elimina.",
+      "without": "Doar dacă îl alege clientul",
+      "withoutHint": "Oferta nu îl include; clientul îl poate adăuga."
     }
   },
   "fiscal": {

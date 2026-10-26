@@ -641,7 +641,17 @@
       "draftNoSuppliers": "Multi-supplier lines cannot be saved in a draft: remove them or continue with the quote.",
       "draftSavedToast": "Draft saved. You will find it in Quotes.",
       "savedToast": "Changes saved.",
-      "backToList": "Back to quotes"
+      "backToList": "Back to quotes",
+      "disposal": {
+        "title": "Disposal of the old windows",
+        "with": "With disposal",
+        "without": "Without disposal",
+        "withHint": "The price includes the disposal of the old windows.",
+        "withoutHint": "The disposal is not charged.",
+        "perPiece": "{price} per piece, quantities included.",
+        "perJob": "{price} per job, charged once whatever the number of pieces.",
+        "inSupply": "of which disposal"
+      }
     },
     "list": {
       "kicker": "Field B2B Tool",
@@ -1370,7 +1380,11 @@
       "terms": "Quote valid for {days} days. Estimated delivery {weeks} weeks after confirmation. Final measurements are confirmed after the site survey.",
       "send": "Send to customer",
       "pdf": "Download PDF"
-    }
+    },
+    "disposalTitle": "Disposal of the old windows",
+    "disposalWith": "With disposal",
+    "disposalWithout": "Without disposal",
+    "disposalIncluded": "Disposal included in the price: {amount} (VAT excluded)"
   },
   "legal": {
     "lastUpdated": "Last updated",
@@ -2921,6 +2935,23 @@
       "help": "When on, the customer can pick one finish for the outside and another for the inside. The price uses the average of the two finishes (each one's multiplier and flat price), plus the surcharge you enter below.",
       "enabled": "Offer bicolour to customers",
       "surcharge": "Bicolour surcharge"
+    },
+    "disposal": {
+      "title": "Disposal of the old windows",
+      "help": "Enter your disposal price (VAT excluded): it is added to the total, with no margin on top. It applies to every configurator (widget, guided path, Showroom, quotes). Leave it empty, or 0, if you do not want to offer it.",
+      "price": "Price",
+      "invalid": "Enter an amount between 0 and 10,000 € with at most two decimals.",
+      "off": "Not offered: quotes have no disposal line.",
+      "modelTitle": "How you charge it",
+      "perPiece": "Per piece",
+      "perPieceHint": "The price is multiplied by every window, quantities included.",
+      "perJob": "Per job (flat)",
+      "perJobHint": "One amount for the whole job, whatever the number of windows.",
+      "defaultTitle": "Preselection",
+      "with": "Included by default",
+      "withHint": "The quote includes it; the customer can remove it.",
+      "without": "Only if the customer chooses it",
+      "withoutHint": "The quote does not include it; the customer can add it."
     }
   },
   "fiscal": {

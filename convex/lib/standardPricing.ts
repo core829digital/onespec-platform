@@ -11,7 +11,7 @@ export function zoneOf(tenant: Pick<Doc<"tenants">, "priceZone"> | null | undefi
  * The margin applies in every mode; the zone only matters in "standard".
  */
 export function pricingBlock(
-  configurator: Pick<Doc<"configurators">, "pricingMode" | "marginPercent" | "deliveryMode" | "ownServicePerM2Cents" | "installationPerM2Cents" | "installationDefault" | "bicolorEnabled" | "bicolorPerM2Cents">,
+  configurator: Pick<Doc<"configurators">, "pricingMode" | "marginPercent" | "deliveryMode" | "ownServicePerM2Cents" | "installationPerM2Cents" | "installationDefault" | "bicolorEnabled" | "bicolorPerM2Cents" | "disposalModel" | "disposalPriceCents" | "disposalDefault">,
   tenant: Pick<Doc<"tenants">, "priceZone"> | null | undefined,
 ) {
   return {
@@ -21,6 +21,13 @@ export function pricingBlock(
     ...(configurator.deliveryMode === "own" && (configurator.ownServicePerM2Cents ?? 0) > 0 ? { deliveryMode: "own" as const, ownServicePerM2Cents: configurator.ownServicePerM2Cents } : {}),
     ...((configurator.installationPerM2Cents ?? 0) > 0
       ? { installationPerM2Cents: configurator.installationPerM2Cents, installationDefault: configurator.installationDefault ?? ("with" as const) }
+      : {}),
+    ...((configurator.disposalPriceCents ?? 0) > 0
+      ? {
+          disposalModel: configurator.disposalModel ?? ("perPiece" as const),
+          disposalPriceCents: configurator.disposalPriceCents,
+          disposalDefault: configurator.disposalDefault ?? ("without" as const),
+        }
       : {}),
     ...(configurator.bicolorEnabled === false ? { bicolorEnabled: false } : {}),
     ...((configurator.bicolorPerM2Cents ?? 0) > 0 && configurator.bicolorEnabled !== false ? { bicolorPerM2Cents: configurator.bicolorPerM2Cents } : {}),

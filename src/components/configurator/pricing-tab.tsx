@@ -9,6 +9,7 @@ import type { Id, Doc } from "@/convex/_generated/dataModel";
 import { regionForCountry } from "@/convex/lib/regions";
 import { useFriendlyError } from "@/lib/use-friendly-error";
 import { ZonePicker } from "@/components/pricing/zone-picker";
+import { parseDisposalPriceInput } from "@/shared/disposal";
 import { PriceGuide } from "@/components/pricing/price-guide";
 import {
   MAX_MARGIN_PERCENT,
@@ -38,6 +39,7 @@ export function PricingTab({ configuratorId, configurator }: { configuratorId: I
   const setDelivery = useMutation(api.pricing.setDelivery);
   const setInstallation = useMutation(api.pricing.setInstallation);
   const setBicolor = useMutation(api.pricing.setBicolor);
+  const setDisposal = useMutation(api.pricing.setDisposal);
 
   const saved = configurator.marginPercent ?? 0;
   const [value, setValue] = useState(saved);
@@ -93,6 +95,34 @@ export function PricingTab({ configuratorId, configurator }: { configuratorId: I
     if (posaParsed === savedPosa && nextDefault === savedPosaDefault) return;
     try {
       await setInstallation({ configuratorId, perM2Cents: posaParsed, defaultMode: nextDefault });
+      setNote(t("republish"));
+    } catch (e) {
+      setErr(tf(e));
+    }
+  }
+
+  // Disposal of the old windows (every market): one price, per piece or per job; empty / 0 = not offered.
+  const savedDisposal = configurator.disposalPriceCents ?? 0;
+  const savedDisposalModel = configurator.disposalModel ?? "perPiece";
+  const savedDisposalDefault = configurator.disposalDefault ?? "without";
+  const disposalKey = `${savedDisposal}:${savedDisposalModel}:${savedDisposalDefault}`;
+  const [disposalText, setDisposalText] = useState(savedDisposal ? (savedDisposal / 100).toFixed(2).replace(".", ",") : "");
+  const [disposalModel, setDisposalModel] = useState<"perPiece" | "perJob">(savedDisposalModel);
+  const [disposalDefault, setDisposalDefault] = useState<"with" | "without">(savedDisposalDefault);
+  const [prevDisposal, setPrevDisposal] = useState(disposalKey);
+  if (prevDisposal !== disposalKey) {
+    setPrevDisposal(disposalKey);
+    setDisposalText(savedDisposal ? (savedDisposal / 100).toFixed(2).replace(".", ",") : "");
+    setDisposalModel(savedDisposalModel);
+    setDisposalDefault(savedDisposalDefault);
+  }
+  const disposalParsed = disposalText.trim() === "" ? 0 : parseDisposalPriceInput(disposalText);
+  async function saveDisposal(nextModel = disposalModel, nextDefault = disposalDefault) {
+    setErr("");
+    if (disposalParsed === null) return;
+    if (disposalParsed === savedDisposal && nextModel === savedDisposalModel && nextDefault === savedDisposalDefault) return;
+    try {
+      await setDisposal({ configuratorId, priceCents: disposalParsed, model: nextModel, defaultMode: nextDefault });
       setNote(t("republish"));
     } catch (e) {
       setErr(tf(e));
@@ -305,6 +335,59 @@ export function PricingTab({ configuratorId, configurator }: { configuratorId: I
           </div>
         ) : (
           <p className="text-xs text-[var(--color-text-secondary)]">{t("posa.off")}</p>
+        )}
+      </section>
+
+      <section className="space-y-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-alt)] p-5" data-testid="disposal-settings">
+        <h3 className="font-semibold text-[var(--color-text)]">{t("disposal.title")}</h3>
+        <p className="text-sm text-[var(--color-text-secondary)]">{t("disposal.help")}</p>
+        <div className="flex flex-wrap items-center gap-3">
+          <label className="flex items-center gap-2 text-sm text-[var(--color-text)]">
+            <span>{t("disposal.price")}</span>
+            <input
+              type="text"
+              inputMode="decimal"
+              value={disposalText}
+              aria-invalid={disposalParsed === null}
+              placeholder="0,00"
+              onChange={(e) => setDisposalText(e.target.value.replace(/[^\d.,]/g, "").slice(0, 9))}
+              onBlur={() => void saveDisposal()}
+              onKeyDown={(e) => { if (e.key === "Enter") void saveDisposal(); }}
+              className="w-32 rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-right"
+            />
+            <span aria-hidden>€</span>
+          </label>
+          {disposalParsed === null ? <p className="text-xs text-[var(--color-danger)]">{t("disposal.invalid")}</p> : null}
+        </div>
+        {disposalParsed !== null && disposalParsed > 0 ? (
+          <>
+            <fieldset className="space-y-2">
+              <legend className="mb-1 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">{t("disposal.modelTitle")}</legend>
+              <div role="radiogroup" aria-label={t("disposal.modelTitle")} className="grid gap-2 sm:grid-cols-2">
+                {(["perPiece", "perJob"] as const).map((m) => (
+                  <label key={m} className={`relative cursor-pointer rounded-lg border p-3 text-sm focus-within:ring-2 focus-within:ring-[var(--color-mint)] ${disposalModel === m ? "border-[var(--color-mint)] bg-[var(--color-mint-light)]" : "border-[var(--color-border)]"}`}>
+                    <input type="radio" name="disposal-model" className="sr-only" checked={disposalModel === m} onChange={() => { setDisposalModel(m); void saveDisposal(m); }} />
+                    <span className="block font-semibold text-[var(--color-text)]">{t(`disposal.${m}`)}</span>
+                    <span className="mt-1 block text-xs text-[var(--color-text-secondary)]">{t(`disposal.${m}Hint`)}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset className="space-y-2">
+              <legend className="mb-1 text-xs font-semibold uppercase tracking-wider text-[var(--color-text-secondary)]">{t("disposal.defaultTitle")}</legend>
+              <div role="radiogroup" aria-label={t("disposal.defaultTitle")} className="grid gap-2 sm:grid-cols-2">
+                {(["with", "without"] as const).map((m) => (
+                  <label key={m} className={`relative cursor-pointer rounded-lg border p-3 text-sm focus-within:ring-2 focus-within:ring-[var(--color-mint)] ${disposalDefault === m ? "border-[var(--color-mint)] bg-[var(--color-mint-light)]" : "border-[var(--color-border)]"}`}>
+                    <input type="radio" name="disposal-default" className="sr-only" checked={disposalDefault === m} onChange={() => { setDisposalDefault(m); void saveDisposal(disposalModel, m); }} />
+                    <span className="block font-semibold text-[var(--color-text)]">{t(`disposal.${m}`)}</span>
+                    <span className="mt-1 block text-xs text-[var(--color-text-secondary)]">{t(`disposal.${m}Hint`)}</span>
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          </>
+        ) : (
+          <p className="text-xs text-[var(--color-text-secondary)]">{t("disposal.off")}</p>
         )}
       </section>
 

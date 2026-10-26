@@ -233,6 +233,8 @@ export function computeCalculationPreview(
     monthlyRate24Months,
     netAfterBonus50,
     items: baseCalc.items,
+    /** The disposal of the old windows when the configurator offers it (already inside the totals above). */
+    disposal: baseCalc.disposal,
     calculatedAt: Date.now(),
     catalogVersion,
   };

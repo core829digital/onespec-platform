@@ -720,6 +720,8 @@ export function buildWizardItem(sel: WizardSelection, notes: string): ProjectIte
     color: wizardFinishKey(sel.colour),
     ...(sel.colourInside && sel.colourInside !== sel.colour ? { colorInside: wizardFinishKey(sel.colourInside) } : {}),
     insectScreen: false,
+    // The visitor's yes / no is the piece's choice: when the installer prices the disposal, the server adds it to the estimate.
+    withDisposal: sel.disposal,
     notes: notes.slice(0, 500),
   };
 }

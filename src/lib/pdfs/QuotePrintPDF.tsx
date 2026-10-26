@@ -12,6 +12,7 @@ import { finishText } from "@/lib/quote-export/finish-text";
 import { vatNote } from "@/shared/tax";
 import { assemblyGroups, assemblyIssues } from "@/shared/composition";
 import { fittingNote } from "@/shared/fitting";
+import { disposalCharge } from "@/shared/disposal";
 import { CompanyLogo } from "./CompanyLogo";
 
 // Item-table column widths (header and rows share them so they stay aligned).
@@ -410,7 +411,9 @@ export function QuotePrintPDF({
   const nonSupplyExVat = installationTotal + regionalSurchargeCents;
   const fittingNoteText = fittingNote(quote.installationIncluded, langKey);
   const vatNoteText = vatNote(quote.vatReason, langKey, { vat: quote.buyerVatId, reason: quote.vatManualReason });
-  const supplyExVat = quote.priceExVatCents - (nonSupplyExVat > 0 ? Math.round(nonSupplyExVat / (1 + (quote.vatRatePercent ?? 22) / 100)) : 0);
+  // The disposal of the old windows is inside the engine's total: it gets a line of its own, not a share of the supply.
+  const disposalCents = catalog ? (disposalCharge(catalog.configurator, quote.items)?.includedCents ?? 0) : 0;
+  const supplyExVat = quote.priceExVatCents - disposalCents - (nonSupplyExVat > 0 ? Math.round(nonSupplyExVat / (1 + (quote.vatRatePercent ?? 22) / 100)) : 0);
 
   return (
     <Document>
@@ -610,6 +613,12 @@ export function QuotePrintPDF({
               <Text style={{ color: colors.gray[600] }}>{T.supplyN(items.length)}</Text>
               <Text style={{ fontFamily: "Courier", fontWeight: "bold" }}>{eur(supplyExVat)}</Text>
             </View>
+            {disposalCents > 0 && (
+              <View style={styles.priceRow}>
+                <Text style={{ color: colors.gray[600] }}>{dictFor(langKey).disposal}</Text>
+                <Text style={{ fontFamily: "Courier", fontWeight: "bold" }}>{eur(disposalCents)}</Text>
+              </View>
+            )}
             {installationTotal > 0 && (
               <View style={styles.priceRow}>
                 <Text style={{ color: colors.gray[600] }}>{T.installDisposal}:</Text>
@@ -626,7 +635,7 @@ export function QuotePrintPDF({
               <View style={styles.priceRow}>
                 <Text style={{ color: colors.amber[600] }}>{T.discount(quote.discountPercent ?? 0)}</Text>
                 <Text style={{ fontFamily: "Courier", fontWeight: "bold", color: colors.amber[600] }}>
-                  -{eur(quote.priceExVatCents - supplyExVat - installationTotal - regionalSurchargeCents)}
+                  -{eur(quote.priceExVatCents - supplyExVat - disposalCents - installationTotal - regionalSurchargeCents)}
                 </Text>
               </View>
             )}

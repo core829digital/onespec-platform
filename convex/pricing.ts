@@ -5,6 +5,7 @@ import { requirePermission } from "./lib/rbac";
 import { regionForCountry } from "./lib/regions";
 import { applyStandardPricing } from "./lib/standardCatalog";
 import { MAX_MARGIN_PERCENT, isPriceZone } from "../src/shared/standard-pricing";
+import { MAX_DISPOSAL_PRICE_CENTS } from "../src/shared/disposal";
 
 const zoneValidator = v.union(v.literal("nord"), v.literal("centro"), v.literal("sud"));
 
@@ -82,6 +83,28 @@ export const setInstallation = mutation({
     if (!Number.isInteger(c) || c < 0 || c > MAX_INSTALLATION_PER_M2_CENTS) throw new ConvexError("INVALID_INPUT");
     await ctx.db.patch(args.configuratorId, { installationPerM2Cents: c, installationDefault: args.defaultMode, updatedAt: Date.now() });
     return { installationPerM2Cents: c, installationDefault: args.defaultMode };
+  },
+});
+
+/**
+ * Disposal of the old windows (smaltimento): its price, whether it is charged per piece or once per job, and whether pieces have it by
+ * default. 0 switches it off. Same in every market. Published with the catalogue; see shared/disposal.
+ */
+export const setDisposal = mutation({
+  args: {
+    configuratorId: v.id("configurators"),
+    model: v.union(v.literal("perPiece"), v.literal("perJob")),
+    priceCents: v.number(),
+    defaultMode: v.union(v.literal("with"), v.literal("without")),
+  },
+  handler: async (ctx, args) => {
+    const configurator = await ctx.db.get(args.configuratorId);
+    if (!configurator || configurator.deletingAt !== undefined) throw new ConvexError("CONFIGURATOR_NOT_FOUND");
+    await requirePermission(ctx, configurator.tenantId, "configurators.manage");
+    const c = args.priceCents;
+    if (!Number.isInteger(c) || c < 0 || c > MAX_DISPOSAL_PRICE_CENTS) throw new ConvexError("INVALID_INPUT");
+    await ctx.db.patch(args.configuratorId, { disposalModel: args.model, disposalPriceCents: c, disposalDefault: args.defaultMode, updatedAt: Date.now() });
+    return { disposalModel: args.model, disposalPriceCents: c, disposalDefault: args.defaultMode };
   },
 });
 

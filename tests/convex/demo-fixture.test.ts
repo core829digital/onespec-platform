@@ -23,6 +23,8 @@ async function build() {
   await as.mutation(api.configurators.createConfigurator, { tenantId: s.tenantId, name: "Serramenti Demo" });
   const configuratorId = (await t.run((ctx) => ctx.db.query("configurators").first()))!._id;
   // createConfigurator already seeds the default catalogue: seeding again duplicated every option.
+  // The demo offers the disposal of the old windows (35 EUR per piece, which the visitor adds if they want it).
+  await as.mutation(api.pricing.setDisposal, { configuratorId, model: "perPiece", priceCents: 3500, defaultMode: "without" });
   await as.mutation(api.configurators.publishConfigurator, { configuratorId });
   const publicId = (await t.run((ctx) => ctx.db.get(configuratorId)))!.publicId;
   const configurator = await t.query(api.widget.getPublicConfigurator, { publicId });

@@ -55,7 +55,7 @@ interface HardwareRow extends Row {
 }
 
 export interface WidgetCatalog {
-  configurator?: { pricingMode?: "standard" | "custom"; marginPercent?: number; deliveryMode?: "factory" | "own"; ownServicePerM2Cents?: number; installationPerM2Cents?: number; installationDefault?: "with" | "without"; bicolorEnabled?: boolean; bicolorPerM2Cents?: number };
+  configurator?: { pricingMode?: "standard" | "custom"; marginPercent?: number; deliveryMode?: "factory" | "own"; ownServicePerM2Cents?: number; installationPerM2Cents?: number; installationDefault?: "with" | "without"; bicolorEnabled?: boolean; bicolorPerM2Cents?: number; disposalModel?: "perPiece" | "perJob"; disposalPriceCents?: number; disposalDefault?: "with" | "without" };
   materials?: MaterialRow[];
   qualityTiers?: QualityRow[];
   profileSystems?: QualityRow[];

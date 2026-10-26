@@ -9,6 +9,7 @@ import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
 import { Link, useRouter } from "@/i18n/navigation";
 import type { CatalogPayload, ProjectItem } from "@/shared/pricing";
+import { disposalOffered } from "@/shared/disposal";
 import { defaultItem } from "@/shared/item-defaults";
 import { duplicateItem, blockingIssues, pieceIssues } from "@/shared/piece-ops";
 import { saveShowroomHandoff } from "@/lib/showroom-handoff";
@@ -141,7 +142,15 @@ function ShowroomWorkspace({
   const ready = true;
   const region = catalog.regionCode as Region;
   const seed = useMemo(() => [defaultItem(payload, "finestra2")], [payload]);
-  const items = itemsState ?? seed;
+  const editedItems = itemsState ?? seed;
+  // Disposal of the old windows (any market), when this configurator offers it: one choice for the whole project.
+  const [disposalChoice, setDisposalChoice] = useState<boolean | null>(null);
+  const disposalIsOffered = disposalOffered(payload.configurator);
+  const withDisposal = disposalChoice ?? payload.configurator.disposalDefault === "with";
+  const items = useMemo(
+    () => (disposalIsOffered ? editedItems.map((it) => ({ ...it, withDisposal })) : editedItems),
+    [editedItems, disposalIsOffered, withDisposal],
+  );
   // One draft per configurator: its pieces refer to that catalogue's keys.
   const draftKey = `showroom:${tenant._id}:${configuratorId}`;
 
@@ -169,9 +178,10 @@ function ShowroomWorkspace({
       items,
       payload,
       money: {
-        supplyExVatCents: calc.priceExVatCents,
+        // The disposal sits inside the engine's total: the document shows it as its own line.
+        supplyExVatCents: calc.priceExVatCents - (calc.disposal?.includedCents ?? 0),
         installCents: 0,
-        demolitionCents: 0,
+        demolitionCents: calc.disposal?.includedCents ?? 0,
         regionalCents: 0,
         discountPercent: 0,
         vatPercent: calc.vatRatePercent,
@@ -281,6 +291,19 @@ function ShowroomWorkspace({
               <input id="showroom-energy-renovation" type="checkbox" checked={isEnergyRenovation} onChange={(e) => setIsEnergyRenovation(e.target.checked)} />
               {t("energyRenovation")}
             </label>
+            {disposalIsOffered ? (
+              <fieldset className="sm:col-span-2" data-testid="showroom-disposal">
+                <legend className="mb-1 text-sm text-[var(--color-muted-fg)]">{t("disposalTitle")}</legend>
+                <div role="radiogroup" aria-label={t("disposalTitle")} className="flex flex-wrap gap-2">
+                  {([true, false] as const).map((v) => (
+                    <label key={String(v)} className={`relative cursor-pointer rounded-lg border px-3 py-1.5 text-sm focus-within:ring-2 focus-within:ring-[var(--color-mint)] ${withDisposal === v ? "border-[var(--color-mint)] bg-[var(--color-mint-light)] font-semibold" : "border-[var(--color-border)]"}`}>
+                      <input type="radio" name="showroom-disposal" className="sr-only" checked={withDisposal === v} onChange={() => setDisposalChoice(v)} />
+                      {v ? t("disposalWith") : t("disposalWithout")}
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            ) : null}
             <label className="block text-sm">
               <span className="text-[var(--color-muted-fg)]">{t("buildingAge")}</span>
               <input id="showroom-building-age" type="number" min={0} value={buildingAge} onChange={(e) => setBuildingAge(Math.max(0, Number(e.target.value) || 0))} className={`${input} w-28`} />

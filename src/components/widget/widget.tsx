@@ -15,6 +15,7 @@ import { brandChoices, catalogOptions, catalogPricing, glazingChoices, pricingPa
 import { withLeafWidth } from "./leaf-edit";
 import { REGION_FLAT_OPTION_KINDS, calculatePrice, type ProjectItem } from "@/shared/pricing";
 import { quoteTotals } from "@/shared/quote-totals";
+import { disposalCharge, disposalModelOf, disposalOffered, disposalPriceOf } from "@/shared/disposal";
 import { glazingAdvice, PACKAGE_DEPTHS, packageKey, parseGlazingKey } from "@/shared/glazing-packages";
 import { frameRules, inactiveLeaves, normalizedRatios, directionFromOpening, hasOpeningDirection, openingSide, retypeSash, typeForAddedSash } from "@/shared/sash-rules";
 import {
@@ -195,6 +196,8 @@ export function Widget({
   const [items, setItems] = useState<SavedItem[]>([]);
   // Fitting (posa) included or supply only; null = the installer's default. One choice for the whole project.
   const [fittingChoice, setFittingChoice] = useState<boolean | null>(null);
+  // Disposal of the old windows, when the installer offers it; null = the installer's default. One choice for the whole project.
+  const [disposalChoice, setDisposalChoice] = useState<boolean | null>(null);
   const [selectedSash, setSelectedSash] = useState<number | null>(null);
   const [ecobonusOpen, setEcobonusOpen] = useState(false);
   const [ecobonusPct, setEcobonusPct] = useState(0);
@@ -308,6 +311,8 @@ export function Widget({
   // ---- derived ----
   const fittingOffered = pricing.installationPerM2 > 0;
   const withFitting = fittingChoice ?? pricing.installationDefault;
+  const disposalOn = disposalOffered(catalog?.configurator);
+  const withDisposal = disposalChoice ?? catalog?.configurator?.disposalDefault === "with";
   // The total of a piece comes from the one pricing engine of the platform (the same the server records, the Showroom and the B2B
   // quote use); the local table only fills the breakdown lines and prices the demo, which has no catalogue.
   const payload = useMemo(() => pricingPayload(catalog), [catalog]);
@@ -332,7 +337,9 @@ export function Widget({
   const itemsSubtotal = items.reduce((s, it) => s + itemPrice(it), 0);
   // Catalogue prices are net: the VAT of the chosen rate (0% included) goes on top.
   // In whole cents, rounded exactly as the server does (shared/quote-totals): 22 % of 123,45 is never shown one cent apart.
-  const netGrand = Math.round((itemsSubtotal + result.totalPrice) * 100) / 100;
+  // The disposal of the old windows is a line of its own (a per-job price is never split over the pieces): the same figure the server adds.
+  const disposalCents = disposalCharge(catalog?.configurator, [...items, state].map((it) => ({ quantity: it.quantity, withDisposal })))?.includedCents ?? 0;
+  const netGrand = Math.round((itemsSubtotal + result.totalPrice) * 100 + disposalCents) / 100;
   const grossCents = quoteTotals({ supplyExVatCents: Math.round(netGrand * 100), installCents: 0, demolitionCents: 0, regionalCents: 0, discountPercent: 0, vatPercent: vatPct }).grossCents;
   const vatAmount = (grossCents - Math.round(netGrand * 100)) / 100;
   const grossGrand = grossCents / 100;
@@ -457,6 +464,7 @@ export function Widget({
       return `${i + 1}. ${pt} ${mat}${brand ? ` (${brand})` : ""} ${it.width}×${it.height}mm ×${it.quantity} | ${q}, ${glz}, ${col}, ${inst}${regionBits} | ${dict.sashLabel}: ${sashDesc}${screen}`;
     });
     if (fittingOffered) lines.push(withFitting ? dict.fittingIncludedLine : dict.fittingExcludedLine);
+    if (disposalOn) lines.push(withDisposal ? dict.disposalIncludedLine : dict.disposalExcludedLine);
     if (ecobonusPct > 0) lines.push(`Ecobonus: -${ecobonusPct}%`);
     if (discountPct > 0) lines.push(`${dict.discountLabel}: -${discountPct}%`);
     for (const note of complianceFlags.map((f) => dict.compliance[f]).filter(Boolean)) {
@@ -492,6 +500,7 @@ export function Widget({
       insectScreenColor: it.insectScreen ? it.insectScreenColor : undefined,
       installation: it.installation,
       withInstallation: fittingOffered ? withFitting : undefined,
+      withDisposal: disposalOn ? withDisposal : undefined,
       ...Object.fromEntries(
         REGION_FLAT_OPTION_KINDS.map((kind) => [kind, it[kind] || undefined]),
       ),
@@ -1270,6 +1279,31 @@ export function Widget({
                   </fieldset>
                 )}
 
+                {disposalOn && (
+                  <fieldset style={{ border: "none", margin: 0, padding: "8px 0" }}>
+                    <legend style={{ fontSize: 12.5, fontWeight: 800, color: "var(--color-text)", letterSpacing: ".03em", textTransform: "uppercase", padding: 0, marginBottom: 6 }}>{dict.disposalTitle}</legend>
+                    <div role="radiogroup" aria-label={dict.disposalTitle} style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                      {([true, false] as const).map((v) => (
+                        <button
+                          key={String(v)}
+                          type="button"
+                          role="radio"
+                          aria-checked={withDisposal === v}
+                          onClick={() => setDisposalChoice(v)}
+                          style={{ ...s.input, flex: 1, minWidth: 130, cursor: "pointer", fontWeight: withDisposal === v ? 800 : 500, outline: withDisposal === v ? `2px solid ${accent}` : "none" }}
+                        >
+                          {v ? dict.disposalWith : dict.disposalWithout}
+                        </button>
+                      ))}
+                    </div>
+                    {showPrices && (
+                      <p style={{ margin: "6px 0 0", fontSize: 12, color: "var(--color-text-secondary)" }}>
+                        {(disposalModelOf(catalog?.configurator) === "perJob" ? dict.disposalPerJobHint : dict.disposalPerPieceHint).replace("{price}", fmtC(disposalPriceOf(catalog?.configurator) / 100))}
+                      </p>
+                    )}
+                  </fieldset>
+                )}
+
                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: "8px 0" }}>
                   <label htmlFor="widget-vat" style={{ fontSize: 12.5, fontWeight: 800, color: "var(--color-text)", letterSpacing: ".03em", textTransform: "uppercase" }}>
                     {vatRates.length > 0 ? dict.vatRateLabel : dict.vatPercentLabel}
@@ -1305,6 +1339,12 @@ export function Widget({
                     <span>{dict.summaryNet}</span>
                     <span>{fmtC(netGrand)}</span>
                   </div>
+                  {disposalCents > 0 && (
+                    <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, opacity: 0.9, fontFamily: "var(--font-ibm-plex-mono), monospace" }}>
+                      <span>{dict.disposalInNet}</span>
+                      <span>{fmtC(disposalCents / 100)}</span>
+                    </div>
+                  )}
                   <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, opacity: 0.9, fontFamily: "var(--font-ibm-plex-mono), monospace" }}>
                     <span>{dict.summaryVat.replace("{n}", String(vatPct))}</span>
                     <span>{fmtC(vatAmount)}</span>

@@ -8,6 +8,7 @@ import {
   type PieceCategory,
 } from "./configurator-model";
 import { applyMarginCents } from "./standard-pricing";
+import { disposalCharge, type DisposalCharge, type DisposalModel } from "./disposal";
 import { assemblyGroups, assemblyJoins } from "./composition";
 import { leafFieldOpenings, leafTransoms, transomLengthForLeavesM, type FieldOpening } from "./transoms";
 import { leafWidthsMm } from "./leaf-widths";
@@ -41,6 +42,11 @@ export interface CatalogPayload {
     bicolorEnabled?: boolean;
     /** Extra the installer charges for a bicolour piece, per m², VAT excluded (before margin). */
     bicolorPerM2Cents?: number;
+    /** Disposal of the old windows (see shared/disposal): one price, per piece or per job, VAT excluded, charged as entered. 0 / absent = not offered. */
+    disposalModel?: DisposalModel;
+    disposalPriceCents?: number;
+    /** Whether a piece has the disposal when it does not say so itself. Absent = the customer opts in. */
+    disposalDefault?: "with" | "without";
   };
   branding: {
     whiteLabel: boolean;
@@ -222,6 +228,8 @@ export interface ProjectItem {
   installation?: string;
   /** Fitting (posa) by the installer at the configurator's per-m² price: true = included, false = supply only (the customer fits them). Absent = the configurator's default. */
   withInstallation?: boolean;
+  /** Disposal of the old windows for this piece (see shared/disposal). Absent = the configurator's default. */
+  withDisposal?: boolean;
   /** FR frame-fitting method (pose): rénovation / feuillure / applique. */
   poseType?: string;
   /** BE ventilation grille (Renson-style, top rail). */
@@ -303,6 +311,11 @@ export interface PriceBreakdown {
   /** Per-item breakdowns, index-aligned with the input items array. */
   items: ItemBreakdown[];
   uwValue?: number;
+  /**
+   * Present when the configurator offers the disposal of the old windows: what it adds to the net total (a line of its own, never
+   * inside a piece's price, so a "per job" price is not split over the pieces). `includedCents` is already inside `priceExVatCents`.
+   */
+  disposal?: DisposalCharge;
   /** Present when the installer prices the fitting (posa): the fitting inside `priceExVatCents` and both ex-VAT totals, with and without it. */
   installation?: {
     perM2Cents: number;
@@ -529,9 +542,13 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
     });
   }
 
+  // The disposal of the old windows is a line of its own on top of the pieces; the fitting totals below carry it too, since it does not depend on the fitting.
+  const disposal = disposalCharge(payload.configurator, items);
+  const disposalCents = disposal?.includedCents ?? 0;
+
   const step = roundingStep && roundingStep > 0 ? roundingStep : 1;
   const roundNet = (cents: number) => Math.round(cents / step) * step;
-  const roundedExVat = roundNet(totalExVatCents);
+  const roundedExVat = roundNet(totalExVatCents + disposalCents);
   // The VAT is computed on the rounded net, so net + VAT = gross exactly on every document.
   const roundedTotal = roundedExVat + Math.round((roundedExVat * vatRate) / 100);
 
@@ -541,13 +558,14 @@ export function calculatePrice(payload: CatalogPayload, items: ProjectItem[]): P
     vatRatePercent: vatRate,
     totalPrice: roundedTotal,
     items: itemBreakdowns,
+    ...(disposal ? { disposal } : {}),
     ...(installRate > 0
       ? {
           installation: {
             perM2Cents: installRate,
             includedCents: totalExVatCents - supplyExVatCents,
-            exVatWithCents: roundNet(supplyExVatCents + installAllCents),
-            exVatWithoutCents: roundNet(supplyExVatCents),
+            exVatWithCents: roundNet(supplyExVatCents + installAllCents + disposalCents),
+            exVatWithoutCents: roundNet(supplyExVatCents + disposalCents),
           },
         }
       : {}),

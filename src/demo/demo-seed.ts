@@ -113,6 +113,8 @@ export async function seedDemo(t: T): Promise<DemoSeedInfo> {
   const mkConfigurator = async (name: string, widgetStyle?: "standard" | "wizard") => {
     const created = await at(startOfHistory + 2 * DAY, () => as.mutation(api.configurators.createConfigurator, { tenantId, name }));
     if (widgetStyle) await as.mutation(api.configurators.updateConfigurator, { configuratorId: created.configuratorId, widgetStyle });
+    // The demo shows the disposal of the old windows too: 35 EUR per piece, which the visitor adds if they want it.
+    if (widgetStyle !== "wizard") await as.mutation(api.pricing.setDisposal, { configuratorId: created.configuratorId, model: "perPiece", priceCents: 3500, defaultMode: "without" });
     await at(startOfHistory + 3 * DAY, () => as.mutation(api.configurators.publishConfigurator, { configuratorId: created.configuratorId }));
     return created;
   };

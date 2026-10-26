@@ -641,7 +641,17 @@
       "draftNoSuppliers": "Le righe con più fornitori non si salvano in bozza: rimuovile o procedi con il preventivo.",
       "draftSavedToast": "Bozza salvata. La trovi in Preventivi.",
       "savedToast": "Modifiche salvate.",
-      "backToList": "Torna ai preventivi"
+      "backToList": "Torna ai preventivi",
+      "disposal": {
+        "title": "Smaltimento vecchi infissi",
+        "with": "Con smaltimento",
+        "without": "Senza smaltimento",
+        "withHint": "Il prezzo comprende lo smaltimento dei vecchi infissi.",
+        "withoutHint": "Lo smaltimento non viene addebitato.",
+        "perPiece": "{price} a pezzo, quantità comprese.",
+        "perJob": "{price} a lavoro, una sola volta qualunque sia il numero di pezzi.",
+        "inSupply": "di cui smaltimento"
+      }
     },
     "list": {
       "kicker": "Strumento B2B da Cantiere",
@@ -1370,7 +1380,11 @@
       "terms": "Preventivo valido {days} giorni. Consegna stimata in {weeks} settimane dalla conferma. Le misure definitive vengono confermate dopo il sopralluogo.",
       "send": "Invia al cliente",
       "pdf": "Scarica PDF"
-    }
+    },
+    "disposalTitle": "Smaltimento vecchi infissi",
+    "disposalWith": "Con smaltimento",
+    "disposalWithout": "Senza smaltimento",
+    "disposalIncluded": "Smaltimento incluso nel prezzo: {amount} (IVA esclusa)"
   },
   "legal": {
     "lastUpdated": "Ultimo aggiornamento",
@@ -2921,6 +2935,23 @@
       "help": "Se attivo, il cliente può scegliere una finitura per l'esterno e una diversa per l'interno. Il prezzo usa la media delle due finiture (moltiplicatore e importo fisso di ciascuna), più il supplemento che indichi qui sotto.",
       "enabled": "Offri il bicolore ai clienti",
       "surcharge": "Supplemento bicolore"
+    },
+    "disposal": {
+      "title": "Smaltimento vecchi infissi",
+      "help": "Inserisci il tuo prezzo di smaltimento (senza IVA): sarà sommato al totale, senza margine. Vale per tutti i configuratori (widget, percorso guidato, Showroom, preventivi). Lascia vuoto, o 0, se non vuoi proporlo.",
+      "price": "Prezzo",
+      "invalid": "Inserisci un importo tra 0 e 10.000 € con al massimo due decimali.",
+      "off": "Non proposto: i preventivi non hanno la voce smaltimento.",
+      "modelTitle": "Come lo fai pagare",
+      "perPiece": "A pezzo",
+      "perPieceHint": "Il prezzo si moltiplica per ogni infisso, quantità comprese.",
+      "perJob": "A lavoro (a corpo)",
+      "perJobHint": "Un solo importo per tutto il lavoro, qualunque sia il numero di infissi.",
+      "defaultTitle": "Preselezione",
+      "with": "Incluso di default",
+      "withHint": "Il preventivo lo include; il cliente può toglierlo.",
+      "without": "Solo se lo sceglie il cliente",
+      "withoutHint": "Il preventivo non lo include; il cliente può aggiungerlo."
     }
   },
   "fiscal": {

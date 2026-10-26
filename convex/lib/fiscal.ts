@@ -72,6 +72,8 @@ export function itSplitFromItems(
     beniCents += (ib.materialCost + ib.profileCost) * item.quantity;
     altriCents += (ib.optionsCost - installationCost) * item.quantity;
   }
+  // The disposal of the old windows is a service on the job, taxed like the labour it comes with.
+  manoperaCents += baseCalc.disposal?.includedCents ?? 0;
   return { manoperaCents, beniCents, altriCents };
 }
 

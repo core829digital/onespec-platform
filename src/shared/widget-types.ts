@@ -66,6 +66,7 @@ export const ProjectItemSchema = z
     insectScreenColor: z.string().max(40).optional(),
     installation: z.string().max(40).optional(),
     withInstallation: z.boolean().optional(),
+    withDisposal: z.boolean().optional(),
     poseType: z.string().max(40).optional(),
     ventilationGrille: z.string().max(40).optional(),
     voletRoulant: z.string().max(40).optional(),

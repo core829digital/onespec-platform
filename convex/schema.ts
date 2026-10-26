@@ -396,6 +396,11 @@ export default defineSchema({
     bicolorEnabled: v.optional(v.boolean()),
     /** What the installer adds for a bicolour piece, per m², cents, VAT excluded (before margin). */
     bicolorPerM2Cents: v.optional(v.number()),
+    /** Disposal of the old windows (shared/disposal): "perPiece" or "perJob", one price in cents (VAT excluded, charged as entered). 0 / absent = not offered. */
+    disposalModel: v.optional(v.union(v.literal("perPiece"), v.literal("perJob"))),
+    disposalPriceCents: v.optional(v.number()),
+    /** Whether a piece has the disposal unless it says otherwise ("without" / absent = the customer opts in). */
+    disposalDefault: v.optional(v.union(v.literal("with"), v.literal("without"))),
   })
     .index("by_tenant", ["tenantId"])
     .index("by_publicId", ["publicId"])

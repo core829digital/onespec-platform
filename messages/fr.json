@@ -641,7 +641,17 @@
       "draftNoSuppliers": "Les lignes multi-fournisseurs ne s'enregistrent pas en brouillon : retirez-les ou continuez avec le devis.",
       "draftSavedToast": "Brouillon enregistré. Vous le trouverez dans Devis.",
       "savedToast": "Modifications enregistrées.",
-      "backToList": "Retour aux devis"
+      "backToList": "Retour aux devis",
+      "disposal": {
+        "title": "Évacuation des anciennes fenêtres",
+        "with": "Avec évacuation",
+        "without": "Sans évacuation",
+        "withHint": "Le prix comprend l’évacuation des anciennes fenêtres.",
+        "withoutHint": "L’évacuation n’est pas facturée.",
+        "perPiece": "{price} par pièce, quantités comprises.",
+        "perJob": "{price} par chantier, facturé une seule fois quel que soit le nombre de pièces.",
+        "inSupply": "dont évacuation"
+      }
     },
     "list": {
       "kicker": "Outil B2B de chantier",
@@ -1370,7 +1380,11 @@
       "terms": "Devis valable {days} jours. Livraison estimée {weeks} semaines après la confirmation. Les mesures définitives sont confirmées après la visite technique.",
       "send": "Envoyer au client",
       "pdf": "Télécharger le PDF"
-    }
+    },
+    "disposalTitle": "Évacuation des anciennes fenêtres",
+    "disposalWith": "Avec évacuation",
+    "disposalWithout": "Sans évacuation",
+    "disposalIncluded": "Évacuation incluse dans le prix : {amount} (HT)"
   },
   "legal": {
     "lastUpdated": "Dernière mise à jour",
@@ -2921,6 +2935,23 @@
       "help": "Si activé, le client peut choisir une finition extérieure et une autre intérieure. Le prix utilise la moyenne des deux finitions (coefficient et montant fixe de chacune), plus le supplément indiqué ci-dessous.",
       "enabled": "Proposer le bicolore aux clients",
       "surcharge": "Supplément bicolore"
+    },
+    "disposal": {
+      "title": "Évacuation des anciennes fenêtres",
+      "help": "Saisissez votre prix d’évacuation (HT) : il s’ajoute au total, sans marge. Il s’applique à tous les configurateurs (widget, parcours guidé, Showroom, devis). Laissez vide, ou 0, si vous ne souhaitez pas le proposer.",
+      "price": "Prix",
+      "invalid": "Saisissez un montant entre 0 et 10 000 € avec au plus deux décimales.",
+      "off": "Non proposé : les devis n’ont pas de ligne d’évacuation.",
+      "modelTitle": "Comment vous le facturez",
+      "perPiece": "À la pièce",
+      "perPieceHint": "Le prix est multiplié par chaque fenêtre, quantités comprises.",
+      "perJob": "Au chantier (forfait)",
+      "perJobHint": "Un seul montant pour tout le chantier, quel que soit le nombre de fenêtres.",
+      "defaultTitle": "Présélection",
+      "with": "Inclus par défaut",
+      "withHint": "Le devis l’inclut ; le client peut le retirer.",
+      "without": "Seulement si le client le choisit",
+      "withoutHint": "Le devis ne l’inclut pas ; le client peut l’ajouter."
     }
   },
   "fiscal": {

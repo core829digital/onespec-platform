@@ -48,6 +48,8 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
   // The configurator's published catalogue names the material, glass and finish keys stored on each piece.
   const catalog = useQuery(api.configurators.getPublishedCatalog, quote?.configuratorId ? { configuratorId: quote.configuratorId } : "skip");
   type Labelled = { key: string; labels?: Record<string, string> };
+  // Whether the visitor asked for the disposal of the old windows (its price is already inside the totals above).
+  const asksDisposal = ((quote?.items ?? []) as Array<{ withDisposal?: boolean }>).some((it) => it.withDisposal === true);
   const catalogLabel = (group: "materials" | "glazing" | "finish", key: string | undefined) => {
     if (!key) return "";
     const rows = (catalog?.payload as Record<string, Labelled[] | undefined> | undefined)?.[group];
@@ -400,6 +402,7 @@ export default function RequestDetailPage({ params }: { params: Promise<{ id: st
               {quote.demolitionPriceCents ? (
                 <Row label={t("rowDisposal")} value={eur(quote.demolitionPriceCents)} />
               ) : null}
+              {asksDisposal ? <Row label={t("rowDisposal")} value={<span aria-label="✓">✓</span>} /> : null}
               {quote.ecobonusPercent && quote.ecobonusPercent > 0 ? (
                 <Row label={t("rowEcobonus", { percent: quote.ecobonusPercent })} value={<span className="text-emerald-600 font-semibold">{eur(quote.ecobonusDeductionCents || 0)}</span>} />
               ) : null}

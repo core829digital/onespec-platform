@@ -9,6 +9,7 @@ import { PiecesEditor } from "@/components/quotes/editor/pieces-editor";
 import { FiscalEngine, type FiscalCalc } from "@/components/showroom/FiscalEngine";
 import { DemoQuoteSheet } from "@/components/demo/demo-quote-sheet";
 import { computeCalculationPreview } from "@/convex/lib/calcPreview";
+import { disposalOffered } from "@/shared/disposal";
 import { postToHost } from "@/components/widget/host-bridge";
 import { demoCopy, demoRegisterUrl } from "@/lib/demo/demo-copy";
 import { WheelForward } from "@/components/demo/wheel-forward";
@@ -31,7 +32,15 @@ export function DemoShowroom({ lang, theme }: { lang: string; theme: "light" | "
   const locale = useLocale();
   const dc = demoCopy(lang);
   const seed = useMemo(() => [defaultItem(payload, "finestra2")], []);
-  const [items, setItems] = useState<ProjectItem[]>(seed);
+  const [editedItems, setItems] = useState<ProjectItem[]>(seed);
+  // Disposal of the old windows (the demo catalogue offers it): the visitor adds it if they want it.
+  const [disposalChoice, setDisposalChoice] = useState<boolean | null>(null);
+  const disposalIsOffered = disposalOffered(payload.configurator);
+  const withDisposal = disposalChoice ?? payload.configurator.disposalDefault === "with";
+  const items = useMemo(
+    () => (disposalIsOffered ? editedItems.map((it) => ({ ...it, withDisposal })) : editedItems),
+    [editedItems, disposalIsOffered, withDisposal],
+  );
   const [active, setActive] = useState(0);
   const [buildingAge, setBuildingAge] = useState(20);
   const [isEnergyRenovation, setIsEnergyRenovation] = useState(true);
@@ -103,6 +112,19 @@ export function DemoShowroom({ lang, theme }: { lang: string; theme: "light" | "
             <input type="checkbox" checked={isEnergyRenovation} onChange={(e) => setIsEnergyRenovation(e.target.checked)} />
             {t("energyRenovation")}
           </label>
+          {disposalIsOffered ? (
+            <fieldset className="sm:col-span-2" data-testid="demo-disposal">
+              <legend className="mb-1 text-sm text-[var(--color-muted-fg)]">{t("disposalTitle")}</legend>
+              <div role="radiogroup" aria-label={t("disposalTitle")} className="flex flex-wrap gap-2">
+                {([true, false] as const).map((v) => (
+                  <label key={String(v)} className={`relative cursor-pointer rounded-lg border px-3 py-1.5 text-sm focus-within:ring-2 focus-within:ring-[var(--color-mint)] ${withDisposal === v ? "border-[var(--color-mint)] bg-[var(--color-mint)]/10 font-semibold" : "border-[var(--color-border)]"}`}>
+                    <input type="radio" name="demo-disposal" className="sr-only" checked={withDisposal === v} onChange={() => setDisposalChoice(v)} />
+                    {v ? t("disposalWith") : t("disposalWithout")}
+                  </label>
+                ))}
+              </div>
+            </fieldset>
+          ) : null}
           <label className="block text-sm">
             <span className="text-[var(--color-muted-fg)]">{t("buildingAge")}</span>
             <input type="number" min={0} value={buildingAge} onChange={(e) => setBuildingAge(Math.max(0, Number(e.target.value) || 0))} className={`${input} w-28`} />

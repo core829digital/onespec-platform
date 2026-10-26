@@ -62,6 +62,9 @@ export function DemoQuoteSheet({
     });
   }, [payload, items, locale]);
 
+  // The disposal of the old windows: a line of its own under the pieces, already inside the net total below.
+  const disposalCents = useMemo(() => calculatePrice(payload, items).disposal?.includedCents ?? 0, [payload, items]);
+
   const factor = 1 - discountPct / 100;
   const netBeforeCents = calc.priceExVatCents;
   const discountCents = Math.round(netBeforeCents * (discountPct / 100));
@@ -138,6 +141,13 @@ export function DemoQuoteSheet({
               <span className="font-mono font-semibold">{eur(l.totalCents)}</span>
             </li>
           ))}
+          {disposalCents > 0 ? (
+            <li className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-start gap-x-3 py-2.5" data-testid="demo-disposal-line">
+              <span aria-hidden className="font-mono text-xs text-[var(--color-muted-fg)]">+</span>
+              <div className="min-w-0 font-semibold">{t("disposalTitle")}</div>
+              <span className="font-mono font-semibold">{eur(disposalCents)}</span>
+            </li>
+          ) : null}
         </ol>
 
         <dl className="mt-1 space-y-1 border-t border-[var(--color-border)] pt-3">

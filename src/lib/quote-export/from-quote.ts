@@ -45,6 +45,9 @@ export function exportInputFromQuote(
   const items = (Array.isArray(q.items) ? q.items : []) as ProjectItem[];
   const subsidyCents = q.ecobonusDeductionCents ?? q.maPrimeRenovDeductionCents;
   const subsidyPercent = q.ecobonusPercent ?? q.maPrimeRenovPercent;
+  // The disposal of the old windows sits inside the engine's total: the document shows it as its own line, not inside the supply.
+  const priced = calculatePrice(payload, items);
+  const disposalCents = priced.disposal?.includedCents ?? 0;
   const locale = opts.locale ?? localeForRegion(q.regionCode);
   return {
     locale,
@@ -55,9 +58,9 @@ export function exportInputFromQuote(
     items,
     payload,
     money: {
-      supplyExVatCents: calculatePrice(payload, items).priceExVatCents,
+      supplyExVatCents: priced.priceExVatCents - disposalCents,
       installCents: q.installationPriceCents ?? 0,
-      demolitionCents: q.demolitionPriceCents ?? 0,
+      demolitionCents: (q.demolitionPriceCents ?? 0) + disposalCents,
       regionalCents: q.regionalSurchargeCents ?? 0,
       discountPercent: q.discountPercent ?? 0,
       vatPercent: q.vatRatePercent,

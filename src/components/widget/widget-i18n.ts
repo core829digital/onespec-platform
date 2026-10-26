@@ -90,6 +90,15 @@ export interface WidgetDict {
   fittingWithout: string;
   fittingIncludedLine: string;
   fittingExcludedLine: string;
+  /** Disposal of the old windows (smaltimento): the choice, its price hints ({price} = formatted amount), the summary lines. */
+  disposalTitle: string;
+  disposalWith: string;
+  disposalWithout: string;
+  disposalPerPieceHint: string;
+  disposalPerJobHint: string;
+  disposalIncludedLine: string;
+  disposalExcludedLine: string;
+  disposalInNet: string;
   perUnit: string;
   units: string;
   projectItemsTitle: string;
@@ -223,6 +232,14 @@ const en: WidgetDict = {
   fittingWithout: "Supply only",
   fittingIncludedLine: "Fitting included in the price",
   fittingExcludedLine: "Supply only: the customer fits the windows themselves",
+  disposalTitle: "Disposal",
+  disposalWith: "Disposal of the old windows",
+  disposalWithout: "I will handle it myself",
+  disposalPerPieceHint: "{price} per piece",
+  disposalPerJobHint: "{price} per job, whatever the number of pieces",
+  disposalIncludedLine: "Disposal of the old windows included in the price",
+  disposalExcludedLine: "Disposal of the old windows: handled by the customer",
+  disposalInNet: "of which disposal of the old windows",
   perUnit: "per unit",
   units: "units",
   projectItemsTitle: "Project items",
@@ -358,6 +375,14 @@ const it: WidgetDict = {
   fittingWithout: "Solo fornitura",
   fittingIncludedLine: "Posa inclusa nel prezzo",
   fittingExcludedLine: "Solo fornitura: il cliente monta le finestre da sé",
+  disposalTitle: "Smaltimento",
+  disposalWith: "Smaltimento vecchi infissi",
+  disposalWithout: "Lo gestisco io",
+  disposalPerPieceHint: "{price} a pezzo",
+  disposalPerJobHint: "{price} a lavoro, qualunque sia il numero di pezzi",
+  disposalIncludedLine: "Smaltimento dei vecchi infissi incluso nel prezzo",
+  disposalExcludedLine: "Smaltimento dei vecchi infissi a cura del cliente",
+  disposalInNet: "di cui smaltimento vecchi infissi",
   perUnit: "a pezzo",
   units: "pezzi",
   projectItemsTitle: "Articoli del progetto",
@@ -491,6 +516,14 @@ const fr: WidgetDict = {
   fittingWithout: "Fourniture seule",
   fittingIncludedLine: "Pose incluse dans le prix",
   fittingExcludedLine: "Fourniture seule : le client pose les fenêtres lui-même",
+  disposalTitle: "Évacuation",
+  disposalWith: "Évacuation des anciennes fenêtres",
+  disposalWithout: "Je m’en occupe moi-même",
+  disposalPerPieceHint: "{price} par pièce",
+  disposalPerJobHint: "{price} par chantier, quel que soit le nombre de pièces",
+  disposalIncludedLine: "Évacuation des anciennes fenêtres incluse dans le prix",
+  disposalExcludedLine: "Évacuation des anciennes fenêtres : à la charge du client",
+  disposalInNet: "dont évacuation des anciennes fenêtres",
   perUnit: "à l'unité",
   units: "unités",
   projectItemsTitle: "Articles du projet",
@@ -624,6 +657,14 @@ const de: WidgetDict = {
   fittingWithout: "Nur Lieferung",
   fittingIncludedLine: "Montage im Preis enthalten",
   fittingExcludedLine: "Nur Lieferung: Der Kunde montiert die Fenster selbst",
+  disposalTitle: "Entsorgung",
+  disposalWith: "Entsorgung der alten Fenster",
+  disposalWithout: "Ich kümmere mich selbst darum",
+  disposalPerPieceHint: "{price} pro Stück",
+  disposalPerJobHint: "{price} pro Auftrag, unabhängig von der Stückzahl",
+  disposalIncludedLine: "Entsorgung der alten Fenster im Preis enthalten",
+  disposalExcludedLine: "Entsorgung der alten Fenster: Sache des Kunden",
+  disposalInNet: "davon Entsorgung der alten Fenster",
   perUnit: "pro Stück",
   units: "Stück",
   projectItemsTitle: "Projektartikel",
@@ -758,6 +799,14 @@ const nl: WidgetDict = {
   fittingWithout: "Alleen levering",
   fittingIncludedLine: "Montage inbegrepen in de prijs",
   fittingExcludedLine: "Alleen levering: de klant monteert de ramen zelf",
+  disposalTitle: "Afvoer",
+  disposalWith: "Afvoer van de oude kozijnen",
+  disposalWithout: "Ik regel dat zelf",
+  disposalPerPieceHint: "{price} per stuk",
+  disposalPerJobHint: "{price} per opdracht, ongeacht het aantal stuks",
+  disposalIncludedLine: "Afvoer van de oude kozijnen inbegrepen in de prijs",
+  disposalExcludedLine: "Afvoer van de oude kozijnen: door de klant geregeld",
+  disposalInNet: "waarvan afvoer van de oude kozijnen",
   perUnit: "per stuk",
   units: "stukken",
   projectItemsTitle: "Projectartikelen",
