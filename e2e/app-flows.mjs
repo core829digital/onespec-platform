@@ -306,6 +306,37 @@ async function main() {
       }
     });
 
+    // ── Render 3D on a phone whose GPU refuses the first WebGL requests (Android): it must retry and still show the 3D, not the error ──
+    await step("Render 3D: a GPU that refuses the first context requests still gets the 3D", page, problems, async () => {
+      const p2 = await page.context().newPage();
+      try {
+        await p2.addInitScript(() => {
+          const real = HTMLCanvasElement.prototype.getContext;
+          let refused = 0;
+          window.__refused = () => refused;
+          HTMLCanvasElement.prototype.getContext = function (type, ...rest) {
+            if (type === "webgl2" && refused < 4) {
+              refused++;
+              return null;
+            }
+            return real.call(this, type, ...rest);
+          };
+        });
+        await p2.goto(url("/app/render-3d"), { waitUntil: "domcontentloaded" });
+        await p2.getByTestId("render3d-studio").waitFor({ timeout: 30_000 });
+        // The canvas is there at once; what counts is that, after the refusals, it ends up with a live WebGL 2 context and no error screen.
+        await p2.waitForFunction(
+          () => window.__refused() >= 4 && !!document.querySelector('[data-testid="render3d-canvas"]')?.getContext("webgl2"),
+          null,
+          { timeout: 30_000 },
+        );
+        await p2.waitForTimeout(800);
+        if (await p2.getByTestId("r3d-unsupported").count()) throw new Error("the 3D gave up although the GPU accepted a later request");
+      } finally {
+        await p2.close();
+      }
+    });
+
     // ── Render 3D: it opens full screen with the floating menu; accessories, size by hand, a photo, the four corners, back (WebGL may be missing on a CI machine: then a clear message shows) ──
     await step("Render 3D: menu, accessories, measure, photo and back", page, problems, async () => {
       await page.goto(url("/app/render-3d"), { waitUntil: "domcontentloaded" });

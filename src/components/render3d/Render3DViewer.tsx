@@ -12,7 +12,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { FrameGovernor, RES_STEPS, anisotropyFor, detectCaps, initialQuality, nextLower, pixelRatioFor, wantsMultisample, type Quality } from "@/lib/render3d/capabilities";
+import { FrameGovernor, RES_STEPS, anisotropyFor, contextAttempts, detectCaps, initialQuality, refineCaps, nextLower, pixelRatioFor, type Quality } from "@/lib/render3d/capabilities";
 import { containFit, photoBoxHeight, poseFromQuad, type CameraPose, type PhotoSize, type Quad } from "@/lib/render3d/geometry";
 import { buildRoom, ROOM_SURROUND, type RoomRig } from "@/lib/render3d/room-3d";
 import type { RoomScene } from "@/lib/render3d/model";
@@ -168,6 +168,7 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
   const [photoReady, setPhotoReady] = useState(false);
   const [epoch, setEpoch] = useState(0); // bumped when a lost WebGL context comes back: everything is recreated
   const [canvasKey, setCanvasKey] = useState(0); // a canvas whose context died cannot get a new one: it is replaced
+  const createTries = useRef(0); // fresh-canvas retries when the GPU refuses a context
   const forcedLow = useRef(false); // after a lost context (memory) the scene is rebuilt at the lightest level
   const three = useRef<Ctx | null>(null);
   const cb = useRef({ onSashTap, onAccessoryTap, onUnsupported, onQuality });
@@ -285,18 +286,42 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const caps = detectCaps();
+    let caps = detectCaps();
     if (!caps.webgl2) {
       cb.current.onUnsupported?.("webgl");
       return;
     }
-    let renderer: THREE.WebGLRenderer;
-    try {
-      renderer = new THREE.WebGLRenderer({ canvas, antialias: wantsMultisample(caps), alpha: true, powerPreference: "high-performance", preserveDrawingBuffer: false });
-    } catch {
+    // Ask for the context ourselves, from the best request to the plainest (a GPU that refuses one often takes the next).
+    let gl: WebGL2RenderingContext | null = null;
+    for (const attrs of contextAttempts(caps)) {
+      try {
+        gl = canvas.getContext("webgl2", attrs) as WebGL2RenderingContext | null;
+      } catch {
+        gl = null;
+      }
+      if (gl) break;
+    }
+    let made: THREE.WebGLRenderer | null = null;
+    if (gl) {
+      try {
+        made = new THREE.WebGLRenderer({ canvas, context: gl, alpha: true, preserveDrawingBuffer: false });
+        caps = refineCaps(caps, gl);
+      } catch {
+        made = null;
+      }
+    }
+    if (!made) {
+      // The GPU may be busy for a moment (another tab, the app just switched): two more tries on a fresh canvas before giving up.
+      if (createTries.current < 2) {
+        createTries.current++;
+        const wait = window.setTimeout(() => setCanvasKey((n) => n + 1), createTries.current * 700);
+        return () => window.clearTimeout(wait);
+      }
       cb.current.onUnsupported?.("webgl");
       return;
     }
+    createTries.current = 0;
+    const renderer: THREE.WebGLRenderer = made;
     mark("r3d:start");
     const quality: Quality = forcedLow.current ? "low" : initialQuality(caps);
     const baseRatio = pixelRatioFor(quality, window.devicePixelRatio);

@@ -65,7 +65,7 @@ Oltre al trascinamento, in basso a destra c'è un pad: quattro frecce per **ruot
 
 ## Compatibilità e prestazioni
 
-- Richiede WebGL2; senza, il livello mostra un messaggio chiaro (e il resto del configuratore continua a funzionare).
+- Richiede WebGL2. Il dispositivo **non viene più "sondato"** con contesti WebGL di prova (su molti Android, tablet compresi, quei contesti usa-e-getta facevano rifiutare quello vero e comparivano falsi errori "serve WebGL 2"). Il 3D chiede il contesto da sé, con tre richieste dalla migliore alla più semplice (senza antialiasing, senza preferenza di potenza, mai "failIfMajorPerformanceCaveat"), e se la GPU rifiuta riprova due volte su un canvas nuovo (700 ms, 1400 ms). GPU e limite texture si leggono dal contesto reale (`refineCaps`). Solo se tutto fallisce compare il messaggio, ora con consigli concreti (accelerazione hardware, Chrome e Android System WebView aggiornati, risparmio energetico) e il pulsante "Riprova". Il resto del configuratore continua a funzionare.
 - Livelli di qualità (basso / medio / alto) scelti da GPU, core, memoria e tocco; pixel ratio massimo 1 / 1,5 / 2; ombre statiche; rendering solo quando serve; se i fotogrammi scendono sotto soglia la qualità scende da sola.
 - Controlli a dito (orbita, pizzico, tocco su anta o accessorio) e tastiera (Esc chiude pannello, poi 3D; Tab resta nel livello).
 - `prefers-reduced-motion` rispettato.

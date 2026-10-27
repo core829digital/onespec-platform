@@ -122,7 +122,7 @@ export const RENDER3D_UI: L<Render3DUi> = {
     photoRemove: "Togli la foto e torna alla cucina",
     photoActive: "Stai vedendo la finestra sulla tua foto.",
     lightMode: "Modalità leggera attiva per mantenere la fluidità.",
-    unsupportedWebgl: "Questo dispositivo o browser non riesce a mostrare il 3D (serve WebGL 2). Aggiorna il browser, oppure prova da un altro dispositivo: la configurazione resta salvata.",
+    unsupportedWebgl: "Non riusciamo ad avviare il 3D su questo dispositivo. Di solito si risolve così: chiudi le altre schede e app, attiva l'accelerazione hardware del browser, aggiorna Chrome e \"Android System WebView\", disattiva il risparmio energetico e riprova. La configurazione resta salvata.",
     unsupportedContext: "Il dispositivo ha interrotto la grafica 3D (di solito per poca memoria). Chiudi altre schede o app e riprova.",
     tryAgain: "Riprova",
     f: {
@@ -195,7 +195,7 @@ export const RENDER3D_UI: L<Render3DUi> = {
     photoRemove: "Remove the photo and go back to the kitchen",
     photoActive: "You are seeing the window on your photo.",
     lightMode: "Light mode is on to keep it smooth.",
-    unsupportedWebgl: "This device or browser cannot show 3D (WebGL 2 is needed). Update the browser or try another device: your configuration is kept.",
+    unsupportedWebgl: "We could not start 3D on this device. This usually fixes it: close other tabs and apps, turn on hardware acceleration in the browser, update Chrome and \"Android System WebView\", turn off battery saver and try again. Your configuration is kept.",
     unsupportedContext: "The device stopped the 3D graphics (usually for lack of memory). Close other tabs or apps and try again.",
     tryAgain: "Try again",
     f: {
@@ -268,7 +268,7 @@ export const RENDER3D_UI: L<Render3DUi> = {
     photoRemove: "Retirer la photo et revenir à la cuisine",
     photoActive: "Vous voyez la fenêtre sur votre photo.",
     lightMode: "Le mode léger est activé pour rester fluide.",
-    unsupportedWebgl: "Cet appareil ou navigateur ne peut pas afficher la 3D (WebGL 2 requis). Mettez à jour le navigateur ou essayez un autre appareil : votre configuration est conservée.",
+    unsupportedWebgl: "Impossible de démarrer la 3D sur cet appareil. Cela se résout généralement ainsi : fermez les autres onglets et applications, activez l'accélération matérielle du navigateur, mettez à jour Chrome et \"Android System WebView\", désactivez l'économiseur de batterie et réessayez. Votre configuration est conservée.",
     unsupportedContext: "L'appareil a interrompu la 3D (souvent par manque de mémoire). Fermez d'autres onglets ou applications et réessayez.",
     tryAgain: "Réessayer",
     f: {
@@ -341,7 +341,7 @@ export const RENDER3D_UI: L<Render3DUi> = {
     photoRemove: "Foto entfernen und zurück zur Küche",
     photoActive: "Sie sehen das Fenster auf Ihrem Foto.",
     lightMode: "Der Leichtmodus ist aktiv, damit alles flüssig bleibt.",
-    unsupportedWebgl: "Dieses Gerät oder dieser Browser kann kein 3D anzeigen (WebGL 2 nötig). Aktualisieren Sie den Browser oder probieren Sie ein anderes Gerät: Ihre Konfiguration bleibt erhalten.",
+    unsupportedWebgl: "3D konnte auf diesem Gerät nicht gestartet werden. Meist hilft: andere Tabs und Apps schließen, Hardwarebeschleunigung im Browser aktivieren, Chrome und \"Android System WebView\" aktualisieren, Energiesparmodus ausschalten und erneut versuchen. Ihre Konfiguration bleibt erhalten.",
     unsupportedContext: "Das Gerät hat die 3D-Grafik beendet (meist wegen zu wenig Speicher). Schließen Sie andere Tabs oder Apps und versuchen Sie es erneut.",
     tryAgain: "Erneut versuchen",
     f: {
@@ -414,7 +414,7 @@ export const RENDER3D_UI: L<Render3DUi> = {
     photoRemove: "Foto verwijderen en terug naar de keuken",
     photoActive: "U ziet het raam op uw foto.",
     lightMode: "De lichte modus is aan om het vloeiend te houden.",
-    unsupportedWebgl: "Dit apparaat of deze browser kan geen 3D tonen (WebGL 2 nodig). Werk de browser bij of probeer een ander apparaat: uw configuratie blijft bewaard.",
+    unsupportedWebgl: "Het 3D kon op dit apparaat niet starten. Meestal helpt dit: sluit andere tabbladen en apps, zet hardwareversnelling in de browser aan, werk Chrome en \"Android System WebView\" bij, zet de batterijbesparing uit en probeer opnieuw. Uw configuratie blijft bewaard.",
     unsupportedContext: "Het apparaat heeft de 3D-graphics gestopt (meestal door te weinig geheugen). Sluit andere tabbladen of apps en probeer opnieuw.",
     tryAgain: "Opnieuw proberen",
     f: {
@@ -487,7 +487,7 @@ export const RENDER3D_UI: L<Render3DUi> = {
     photoRemove: "Scoate fotografia și revino la bucătărie",
     photoActive: "Vedeți fereastra pe fotografia dumneavoastră.",
     lightMode: "Modul ușor este activ pentru a păstra fluiditatea.",
-    unsupportedWebgl: "Acest dispozitiv sau browser nu poate afișa 3D (e nevoie de WebGL 2). Actualizați browserul sau încercați alt dispozitiv: configurarea rămâne salvată.",
+    unsupportedWebgl: "Nu am putut porni 3D pe acest dispozitiv. De obicei se rezolvă astfel: închideți celelalte file și aplicații, activați accelerarea hardware în browser, actualizați Chrome și \"Android System WebView\", opriți economisirea bateriei și încercați din nou. Configurația rămâne salvată.",
     unsupportedContext: "Dispozitivul a oprit grafica 3D (de obicei din lipsă de memorie). Închideți alte file sau aplicații și încercați din nou.",
     tryAgain: "Încearcă din nou",
     f: {

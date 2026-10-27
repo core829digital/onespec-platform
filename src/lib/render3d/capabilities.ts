@@ -23,47 +23,56 @@ export interface Caps {
 
 const g = () => (typeof window === "undefined" ? undefined : window);
 
+/**
+ * Reads the device WITHOUT opening a WebGL context: probing with throw-away contexts is itself what makes some Android phones and tablets
+ * refuse the real one a moment later (they allow very few at a time). The GPU name and the texture limit are read afterwards from the
+ * renderer that is really used (`refineCaps`). `webgl2` here only says that the browser knows WebGL 2 at all; whether a context can be
+ * created is decided by trying, with fallbacks, in the viewer.
+ */
 export function detectCaps(): Caps {
   const w = g();
   const nav = typeof navigator === "undefined" ? undefined : navigator;
-  let webgl2 = false;
-  let maxTexture = 0;
-  let gpu = "";
-  if (w && typeof document !== "undefined") {
-    try {
-      const c = document.createElement("canvas");
-      const gl = c.getContext("webgl2");
-      if (gl) {
-        webgl2 = true;
-        maxTexture = gl.getParameter(gl.MAX_TEXTURE_SIZE) as number;
-        const ext = gl.getExtension("WEBGL_debug_renderer_info");
-        if (ext) gpu = String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) ?? "");
-        gl.getExtension("WEBGL_lose_context")?.loseContext();
-      }
-    } catch {
-      webgl2 = false;
-    }
-  }
   const ua = nav?.userAgent ?? "";
   const iOS = /iPad|iPhone|iPod/.test(ua) || (nav?.platform === "MacIntel" && (nav?.maxTouchPoints ?? 0) > 1);
   const standalone = !!w && (w.matchMedia?.("(display-mode: standalone)").matches || (nav as unknown as { standalone?: boolean } | undefined)?.standalone === true);
   return {
-    webgl2,
-    maxTexture,
+    webgl2: !!w && typeof (w as unknown as { WebGL2RenderingContext?: unknown }).WebGL2RenderingContext !== "undefined",
+    maxTexture: 0,
     touch: !!w && ("ontouchstart" in w || (nav?.maxTouchPoints ?? 0) > 0),
     iOS,
     standalone,
     reducedMotion: !!w && !!w.matchMedia?.("(prefers-reduced-motion: reduce)").matches,
     cores: nav?.hardwareConcurrency ?? 4,
     memoryGb: (nav as unknown as { deviceMemory?: number } | undefined)?.deviceMemory ?? null,
-    gpu,
-    software: /swiftshader|llvmpipe|software|basic render|microsoft basic/i.test(gpu),
+    gpu: "",
+    software: false,
   };
+}
+
+/** Completes the caps with what the live WebGL context tells (texture limit, GPU name). */
+export function refineCaps(c: Caps, gl: WebGL2RenderingContext): Caps {
+  let gpu = "";
+  try {
+    const ext = gl.getExtension("WEBGL_debug_renderer_info");
+    if (ext) gpu = String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) ?? "");
+  } catch {
+    /* some browsers hide it */
+  }
+  return { ...c, maxTexture: (gl.getParameter(gl.MAX_TEXTURE_SIZE) as number) || 0, gpu, software: /swiftshader|llvmpipe|software|basic render|microsoft basic/i.test(gpu) };
+}
+
+/** Context attributes to try, from the best picture to the safest: some GPUs refuse the first ones but take a plainer request. */
+export function contextAttempts(c: Caps): WebGLContextAttributes[] {
+  return [
+    { antialias: wantsMultisample(c), alpha: true, powerPreference: "high-performance", failIfMajorPerformanceCaveat: false },
+    { antialias: false, alpha: true, powerPreference: "default", failIfMajorPerformanceCaveat: false },
+    { antialias: false, alpha: true, depth: true, stencil: false, powerPreference: "low-power", failIfMajorPerformanceCaveat: false },
+  ];
 }
 
 /** The quality to start at: generous on a desktop, careful on a phone, minimal on software rendering or very small devices. */
 export function initialQuality(c: Caps): Quality {
-  if (!c.webgl2 || c.software || c.maxTexture < 4096) return "low";
+  if (!c.webgl2 || c.software || (c.maxTexture > 0 && c.maxTexture < 4096)) return "low";
   if (c.memoryGb !== null && c.memoryGb <= 2) return "low";
   if (c.touch && (c.cores <= 4 || (c.memoryGb !== null && c.memoryGb < 4))) return "low";
   if (c.touch) return "mid";

@@ -356,11 +356,9 @@ export function Render3DStudio(props: Render3DStudioProps) {
             <div className="r3d-glass" style={{ maxWidth: 480, padding: 22, borderRadius: 20 }}>
               <p style={{ margin: "0 0 14px", fontSize: 15, lineHeight: 1.5 }}>{unsupported === "webgl" ? ui.unsupportedWebgl : ui.unsupportedContext}</p>
               <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
-                {unsupported === "context" ? (
-                  <button type="button" className="r3d-btn" onClick={() => { setUnsupported(null); setRetry((n) => n + 1); }}>
-                    {ui.tryAgain}
-                  </button>
-                ) : null}
+                <button type="button" className="r3d-btn" data-testid="r3d-try-again" onClick={() => { setUnsupported(null); setRetry((n) => n + 1); }}>
+                  {ui.tryAgain}
+                </button>
                 <button type="button" className="r3d-btn" onClick={back}>
                   {ui.back}
                 </button>
