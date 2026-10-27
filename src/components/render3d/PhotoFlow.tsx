@@ -7,6 +7,7 @@
  */
 import { useMemo, useRef, useState } from "react";
 import { A4_MM, CARD_MM, estimateRectangle, isValidQuad, measureQuadAgainstReference, type PhotoSize, type Quad } from "@/lib/render3d/geometry";
+import { detectPhotoQuad } from "@/lib/render3d/detect-photo";
 import { loadPhoto, releasePhoto, type LoadedPhoto } from "@/lib/render3d/photo";
 import { render3dText } from "@/lib/render3d/render3d-text";
 import { render3dUi } from "@/lib/render3d/render3d-ui-text";
@@ -46,12 +47,18 @@ export function PhotoFlow({ lang, accent, size, limits, onSize, photo, quad, onP
   const cameraInput = useRef<HTMLInputElement>(null);
   const galleryInput = useRef<HTMLInputElement>(null);
 
+  const [autoFound, setAutoFound] = useState(false);
+
   const onFile = async (file: File | undefined) => {
     if (!file) return;
     try {
       const p = await loadPhoto(file);
       releasePhoto(photo);
-      onPhoto(p, defaultQuad(p));
+      // The markers start on the opening the program finds in the photo (matched to the typed size); if it finds nothing, on a default frame.
+      const found = await detectPhotoQuad(p, size.widthMm / size.heightMm);
+      const start = found && isValidQuad(found.quad) ? found.quad : defaultQuad(p);
+      onPhoto(p, start);
+      setAutoFound(!!found && start === found.quad);
       setRefQuad(defaultQuad(p, 0.38));
       setPhotoError(false);
       setStep("photo");
@@ -204,11 +211,12 @@ export function PhotoFlow({ lang, accent, size, limits, onSize, photo, quad, onP
             <>
               <PhotoMarker photo={photo} quad={quad} onChange={onQuad} cornerLabels={t.corner} hint={t.markHint} color={accent} />
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-                <Btn accent={accent} onClick={() => onQuad(defaultQuad(photo))}>{t.resetCorners}</Btn>
+                <Btn accent={accent} onClick={() => { onQuad(defaultQuad(photo)); setAutoFound(false); }}>{t.resetCorners}</Btn>
                 <Btn accent={accent} onClick={() => cameraInput.current?.click()}>{t.changePhoto}</Btn>
                 <Btn accent={accent} onClick={() => { releasePhoto(photo); onPhoto(null, null); setStep("measure"); }} testId="r3d-photo-remove">{ui.photoRemove}</Btn>
               </div>
               <span style={{ fontSize: 12, color: muted }}>{t.photoPrivacy}</span>
+              {autoFound ? <p role="status" data-testid="r3d-autocorners" style={{ margin: 0, fontSize: 12.5, color: muted }}>{ui.autoCorners}</p> : null}
               {mismatch ? <p role="status" data-testid="r3d-mismatch" style={{ margin: 0, fontSize: 12.5, color: "#92400e" }}>{t.mismatch}</p> : null}
             </>
           )}

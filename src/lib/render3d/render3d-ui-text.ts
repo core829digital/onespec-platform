@@ -1,11 +1,15 @@
 /** Words of the full-screen 3D studio (menu, accessories, fitting order, device messages), in the six languages of the platform. */
 import { drawingLocale, type DrawingLocale } from "@/lib/drawing/drawing-text";
+import type { RoomScene } from "./model";
 
-export type GroupId = "color" | "hardware" | "glass" | "profile" | "leaves" | "openings" | "accessories" | "photo";
-export const GROUP_IDS: readonly GroupId[] = ["color", "hardware", "glass", "profile", "leaves", "openings", "accessories", "photo"];
+export type GroupId = "color" | "hardware" | "glass" | "profile" | "leaves" | "openings" | "accessories" | "scene" | "photo";
+export const GROUP_IDS: readonly GroupId[] = ["color", "hardware", "glass", "profile", "leaves", "openings", "accessories", "scene", "photo"];
 
 export interface Render3DUi {
   groups: Record<GroupId, string>;
+  scenes: Record<RoomScene, string>;
+  sceneNote: string;
+  autoCorners: string;
   back: string;
   fullscreen: string;
   exitFullscreen: string;
@@ -70,7 +74,10 @@ type L<T> = Record<DrawingLocale, T>;
 
 export const RENDER3D_UI: L<Render3DUi> = {
   it: {
-    groups: { color: "Colore", hardware: "Ferramenta", glass: "Vetro", profile: "Profilo", leaves: "Conf. anta", openings: "Aperture", accessories: "Accessori", photo: "Foto e misure" },
+    groups: { color: "Colore", hardware: "Ferramenta", glass: "Vetro", profile: "Profilo", leaves: "Conf. anta", openings: "Aperture", accessories: "Accessori", scene: "Ambiente", photo: "Foto e misure" },
+    scenes: { kitchen: "Cucina", living: "Soggiorno", bedroom: "Camera matrimoniale", bathroom: "Bagno" },
+    sceneNote: "Scegli la stanza in cui vedere la finestra: le porte balcone stanno bene in soggiorno o in camera, le finestre piccole in bagno.",
+    autoCorners: "Angoli rilevati automaticamente dalla foto: controllali e trascinali se serve.",
     back: "Torna alla configurazione",
     fullscreen: "Schermo intero",
     exitFullscreen: "Esci da schermo intero",
@@ -131,7 +138,10 @@ export const RENDER3D_UI: L<Render3DUi> = {
     },
   },
   en: {
-    groups: { color: "Colour", hardware: "Hardware", glass: "Glass", profile: "Profile", leaves: "Leaf layout", openings: "Openings", accessories: "Accessories", photo: "Photo & size" },
+    groups: { color: "Colour", hardware: "Hardware", glass: "Glass", profile: "Profile", leaves: "Leaf layout", openings: "Openings", accessories: "Accessories", scene: "Room", photo: "Photo & size" },
+    scenes: { kitchen: "Kitchen", living: "Living room", bedroom: "Master bedroom", bathroom: "Bathroom" },
+    sceneNote: "Pick the room to see the window in: balcony doors suit the living room or the bedroom, small windows the bathroom.",
+    autoCorners: "Corners detected automatically from the photo: check them and drag if needed.",
     back: "Back to the configuration",
     fullscreen: "Full screen",
     exitFullscreen: "Leave full screen",
@@ -192,7 +202,10 @@ export const RENDER3D_UI: L<Render3DUi> = {
     },
   },
   fr: {
-    groups: { color: "Couleur", hardware: "Quincaillerie", glass: "Vitrage", profile: "Profilé", leaves: "Conf. vantaux", openings: "Ouvertures", accessories: "Accessoires", photo: "Photo et mesures" },
+    groups: { color: "Couleur", hardware: "Quincaillerie", glass: "Vitrage", profile: "Profilé", leaves: "Conf. vantaux", openings: "Ouvertures", accessories: "Accessoires", scene: "Pièce", photo: "Photo et mesures" },
+    scenes: { kitchen: "Cuisine", living: "Salon", bedroom: "Chambre parentale", bathroom: "Salle de bain" },
+    sceneNote: "Choisissez la pièce où voir la fenêtre : les portes-fenêtres au salon ou dans la chambre, les petites fenêtres dans la salle de bain.",
+    autoCorners: "Coins détectés automatiquement sur la photo : vérifiez-les et déplacez-les si besoin.",
     back: "Retour à la configuration",
     fullscreen: "Plein écran",
     exitFullscreen: "Quitter le plein écran",
@@ -253,7 +266,10 @@ export const RENDER3D_UI: L<Render3DUi> = {
     },
   },
   de: {
-    groups: { color: "Farbe", hardware: "Beschläge", glass: "Glas", profile: "Profil", leaves: "Flügelaufteilung", openings: "Öffnungen", accessories: "Zubehör", photo: "Foto & Maße" },
+    groups: { color: "Farbe", hardware: "Beschläge", glass: "Glas", profile: "Profil", leaves: "Flügelaufteilung", openings: "Öffnungen", accessories: "Zubehör", scene: "Raum", photo: "Foto & Maße" },
+    scenes: { kitchen: "Küche", living: "Wohnzimmer", bedroom: "Schlafzimmer", bathroom: "Badezimmer" },
+    sceneNote: "Wählen Sie den Raum, in dem Sie das Fenster sehen: Balkontüren passen ins Wohn- oder Schlafzimmer, kleine Fenster ins Bad.",
+    autoCorners: "Ecken automatisch im Foto erkannt: bitte prüfen und bei Bedarf verschieben.",
     back: "Zurück zur Konfiguration",
     fullscreen: "Vollbild",
     exitFullscreen: "Vollbild beenden",
@@ -314,7 +330,10 @@ export const RENDER3D_UI: L<Render3DUi> = {
     },
   },
   nl: {
-    groups: { color: "Kleur", hardware: "Hang- en sluitwerk", glass: "Glas", profile: "Profiel", leaves: "Vleugelindeling", openings: "Openingen", accessories: "Accessoires", photo: "Foto en maten" },
+    groups: { color: "Kleur", hardware: "Hang- en sluitwerk", glass: "Glas", profile: "Profiel", leaves: "Vleugelindeling", openings: "Openingen", accessories: "Accessoires", scene: "Ruimte", photo: "Foto en maten" },
+    scenes: { kitchen: "Keuken", living: "Woonkamer", bedroom: "Slaapkamer", bathroom: "Badkamer" },
+    sceneNote: "Kies de ruimte waarin u het raam ziet: balkondeuren passen in de woonkamer of slaapkamer, kleine ramen in de badkamer.",
+    autoCorners: "Hoeken automatisch herkend op de foto: controleer ze en versleep ze indien nodig.",
     back: "Terug naar de configuratie",
     fullscreen: "Volledig scherm",
     exitFullscreen: "Volledig scherm verlaten",
@@ -375,7 +394,10 @@ export const RENDER3D_UI: L<Render3DUi> = {
     },
   },
   ro: {
-    groups: { color: "Culoare", hardware: "Feronerie", glass: "Sticlă", profile: "Profil", leaves: "Conf. canaturi", openings: "Deschideri", accessories: "Accesorii", photo: "Foto și măsuri" },
+    groups: { color: "Culoare", hardware: "Feronerie", glass: "Sticlă", profile: "Profil", leaves: "Conf. canaturi", openings: "Deschideri", accessories: "Accesorii", scene: "Cameră", photo: "Foto și măsuri" },
+    scenes: { kitchen: "Bucătărie", living: "Living", bedroom: "Dormitor matrimonial", bathroom: "Baie" },
+    sceneNote: "Alegeți camera în care vedeți fereastra: ușile de balcon se potrivesc în living sau dormitor, ferestrele mici în baie.",
+    autoCorners: "Colțuri detectate automat din fotografie: verificați-le și trageți-le dacă e nevoie.",
     back: "Înapoi la configurare",
     fullscreen: "Ecran complet",
     exitFullscreen: "Ieși din ecran complet",

@@ -12,9 +12,10 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { FrameGovernor, detectCaps, initialQuality, nextLower, pixelRatioFor, type Quality } from "@/lib/render3d/capabilities";
+import { FrameGovernor, RES_STEPS, anisotropyFor, detectCaps, initialQuality, nextLower, pixelRatioFor, wantsMultisample, type Quality } from "@/lib/render3d/capabilities";
 import { containFit, photoBoxHeight, poseFromQuad, type CameraPose, type PhotoSize, type Quad } from "@/lib/render3d/geometry";
 import { buildRoom, ROOM_SURROUND, type RoomRig } from "@/lib/render3d/room-3d";
+import type { RoomScene } from "@/lib/render3d/model";
 import { buildWindow3D, type AccessoryName, type AccessoryState, type SashPose, type Window3DInput, type Window3DRig } from "@/lib/render3d/window-3d";
 
 export interface ViewerPhoto extends PhotoSize {
@@ -41,6 +42,8 @@ interface Props {
   photo?: ViewerPhoto | null;
   /** Room mode: look from inside the kitchen or from the garden. */
   view?: ViewSide;
+  /** The room the window is seen in (room mode). */
+  scene?: RoomScene;
   /** Changes every time the customer asks to go back to the starting view. */
   viewNonce?: number;
   onSashTap?: (index: number) => void;
@@ -112,10 +115,37 @@ interface Ctx {
   governor: FrameGovernor;
   shadowClock: number;
   anisotropy: number;
+  /** Index in RES_STEPS: the resolution used while the picture moves (0 = full). At rest it goes back to 0. */
+  res: number;
+  /** The size of the drawing buffer in CSS pixels and the pixel ratio at full resolution. */
+  cssW: number;
+  cssH: number;
+  baseRatio: number;
+  restTimer: number;
+  /** True while the shaders compile in the background (a frame drawn now would freeze the page): nothing is drawn until it is done. */
+  compiling: boolean;
+}
+
+/** A named point on the performance timeline (devtools, and the tests that watch how long opening takes). */
+const mark = (name: string) => {
+  try {
+    performance.mark(name);
+  } catch {
+    /* no timeline */
+  }
+};
+
+/** Sets the drawing-buffer resolution (a real reallocation, so only when the step or the size really changes). */
+function applyResolution(t: Ctx) {
+  const ratio = t.baseRatio * RES_STEPS[t.res];
+  if (t.cssW <= 0 || t.cssH <= 0) return;
+  if (t.renderer.getPixelRatio() !== ratio) t.renderer.setPixelRatio(ratio);
+  const size = t.renderer.getSize(new THREE.Vector2());
+  if (size.x !== t.cssW || size.y !== t.cssH || t.renderer.domElement.width !== Math.floor(t.cssW * ratio)) t.renderer.setSize(t.cssW, t.cssH, false);
 }
 
 export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function Render3DViewer(
-  { model, poses, accessories, photo = null, view = "inside", viewNonce = 0, onSashTap, onAccessoryTap, onUnsupported, onQuality, ariaLabel, fill = false },
+  { model, poses, accessories, photo = null, view = "inside", scene = "kitchen", viewNonce = 0, onSashTap, onAccessoryTap, onUnsupported, onQuality, ariaLabel, fill = false },
   ref,
 ) {
   const boxRef = useRef<HTMLDivElement>(null);
@@ -124,11 +154,13 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
   const [box, setBox] = useState<PhotoSize>({ width: 0, height: 0 });
   const [photoReady, setPhotoReady] = useState(false);
   const [epoch, setEpoch] = useState(0); // bumped when a lost WebGL context comes back: everything is recreated
+  const [canvasKey, setCanvasKey] = useState(0); // a canvas whose context died cannot get a new one: it is replaced
+  const forcedLow = useRef(false); // after a lost context (memory) the scene is rebuilt at the lightest level
   const three = useRef<Ctx | null>(null);
   const cb = useRef({ onSashTap, onAccessoryTap, onUnsupported, onQuality });
   cb.current = { onSashTap, onAccessoryTap, onUnsupported, onQuality };
-  const latest = useRef({ poses, accessories, model, photo, view });
-  latest.current = { poses, accessories, model, photo, view };
+  const latest = useRef({ poses, accessories, model, photo, view, scene });
+  latest.current = { poses, accessories, model, photo, view, scene };
 
   const fit = useMemo(() => (photo && box.width > 0 ? containFit(photo, box) : null), [photo, box]);
   const cssW = photo ? (fit?.width ?? 0) : box.width;
@@ -150,45 +182,91 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
       const cur = three.current;
       if (!cur) return;
       cur.raf = 0;
+      if (cur.compiling) return;
       const dtMs = now - cur.last;
       const dt = Math.min(0.05, dtMs / 1000 || 0.016);
       cur.last = now;
       const moving = cur.rig?.step(dt) ?? false;
       const damping = cur.controls?.update(dt) ?? false;
       const active = moving || damping;
-      // The sun's shadows follow the moving parts: every frame on a strong device, a few times a second otherwise.
-      if (cur.renderer.shadowMap.enabled && moving) {
+      // The sun's shadows follow the moving parts: a few times a second on a strong device, only at rest otherwise (a shadow map is a
+      // whole extra render of the scene).
+      if (cur.renderer.shadowMap.enabled && moving && cur.quality === "high") {
         cur.shadowClock += dtMs;
-        if (cur.quality === "high" || cur.shadowClock > 90) {
+        if (cur.shadowClock > 120) {
           cur.renderer.shadowMap.needsUpdate = true;
           cur.shadowClock = 0;
         }
       }
       cur.renderer.render(cur.scene, cur.camera);
+      mark("r3d:frame");
       if (active) {
-        if (cur.governor.sample(dtMs) && cur.quality !== "low") {
-          cur.quality = nextLower(cur.quality);
+        window.clearTimeout(cur.restTimer);
+        cur.restTimer = 0;
+        // 60 frames a second is the aim: when the average is slower, the picture gets coarser WHILE it moves (nothing is rebuilt).
+        if (cur.governor.sample(dtMs)) {
           cur.governor.reset();
-          cb.current.onQuality?.(cur.quality);
-          cur.renderer.setPixelRatio(pixelRatioFor(cur.quality, window.devicePixelRatio));
-          cur.renderer.shadowMap.enabled = cur.quality !== "low";
-          cur.renderer.setSize(cur.renderer.domElement.clientWidth, cur.renderer.domElement.clientHeight, false);
-          setQualityTick((n) => n + 1);
+          if (cur.res < RES_STEPS.length - 1) {
+            cur.res++;
+            applyResolution(cur);
+          } else if (cur.renderer.shadowMap.enabled) {
+            cur.renderer.shadowMap.enabled = false;
+            cur.quality = "low";
+            cb.current.onQuality?.("low");
+          } else if (cur.quality !== "low") {
+            cur.quality = nextLower(cur.quality);
+            cb.current.onQuality?.(cur.quality);
+          }
         }
         cur.raf = requestAnimationFrame(tick);
       } else {
-        // At rest: one last shadow refresh so the picture matches the final positions.
-        if (cur.renderer.shadowMap.enabled) {
-          cur.renderer.shadowMap.needsUpdate = true;
-          cur.renderer.render(cur.scene, cur.camera);
-        }
         cur.governor.reset();
+        // At rest: back to the sharp resolution and one last shadow refresh, so the still picture is the best one.
+        const sharpen = () => {
+          const c2 = three.current;
+          if (!c2) return;
+          c2.restTimer = 0;
+          if (c2.res !== 0) {
+            c2.res = 0;
+            applyResolution(c2);
+          }
+          if (c2.renderer.shadowMap.enabled) c2.renderer.shadowMap.needsUpdate = true;
+          c2.renderer.render(c2.scene, c2.camera);
+        };
+        if (cur.res !== 0 || cur.renderer.shadowMap.enabled) {
+          window.clearTimeout(cur.restTimer);
+          cur.restTimer = window.setTimeout(sharpen, 160);
+        }
       }
     };
     t.last = performance.now();
     t.raf = requestAnimationFrame(tick);
   }, []);
-  const [qualityTick, setQualityTick] = useState(0);
+
+  // Compiles the shaders of what is in the scene WITHOUT blocking the page (the browser does it on its own threads), then draws.
+  const warm = useCallback(() => {
+    const t = three.current;
+    if (!t) return;
+    // Without the browser's parallel compile (older or software GL) the compile would be synchronous anyway: draw straight away.
+    if (!t.renderer.extensions.has("KHR_parallel_shader_compile")) {
+      schedule();
+      return;
+    }
+    t.compiling = true;
+    const done = () => {
+      const c = three.current;
+      if (c === t) {
+        mark("r3d:compiled");
+        c.compiling = false;
+        schedule();
+      }
+    };
+    try {
+      t.renderer.compileAsync(t.scene, t.camera).then(done, done);
+    } catch {
+      done();
+    }
+  }, [schedule]);
 
   // ── The renderer, created once per WebGL context ───────────────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -201,26 +279,30 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
     }
     let renderer: THREE.WebGLRenderer;
     try {
-      renderer = new THREE.WebGLRenderer({ canvas, antialias: caps.touch ? true : !caps.software, alpha: true, powerPreference: "high-performance", preserveDrawingBuffer: false });
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: wantsMultisample(caps), alpha: true, powerPreference: "high-performance", preserveDrawingBuffer: false });
     } catch {
       cb.current.onUnsupported?.("webgl");
       return;
     }
-    const quality = initialQuality(caps);
-    renderer.setPixelRatio(pixelRatioFor(quality, window.devicePixelRatio));
+    mark("r3d:start");
+    const quality: Quality = forcedLow.current ? "low" : initialQuality(caps);
+    const baseRatio = pixelRatioFor(quality, window.devicePixelRatio);
+    renderer.setPixelRatio(baseRatio);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.NeutralToneMapping;
     renderer.setClearColor(0x000000, 0);
     renderer.shadowMap.enabled = quality !== "low";
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.type = THREE.PCFShadowMap;
     renderer.shadowMap.autoUpdate = false;
     const scene = new THREE.Scene();
+    mark("r3d:renderer");
     const pmrem = new THREE.PMREMGenerator(renderer);
     const envScene = new RoomEnvironment();
     const envTexture = pmrem.fromScene(envScene, 0.04).texture;
     scene.environment = envTexture;
     envScene.dispose();
     pmrem.dispose();
+    mark("r3d:env");
     const hemi = new THREE.HemisphereLight(0xffffff, 0x8a8478, 0.9);
     scene.add(hemi);
     const key = new THREE.DirectionalLight(0xffffff, 1.1);
@@ -242,7 +324,13 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
       quality,
       governor: new FrameGovernor(),
       shadowClock: 0,
-      anisotropy: Math.min(8, renderer.capabilities.getMaxAnisotropy()),
+      anisotropy: anisotropyFor(caps, renderer.capabilities.getMaxAnisotropy()),
+      res: 0,
+      cssW: 0,
+      cssH: 0,
+      baseRatio,
+      restTimer: 0,
+      compiling: false,
     };
     cb.current.onQuality?.(quality);
 
@@ -250,10 +338,21 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
     let lostTimer = 0;
     const onLost = (e: Event) => {
       e.preventDefault();
-      lostTimer = window.setTimeout(() => cb.current.onUnsupported?.("context"), 4000);
+      // If the browser does not give the context back by itself, start again on a fresh canvas at the lightest level (once);
+      // only a second loss in a row is reported to the customer.
+      lostTimer = window.setTimeout(() => {
+        if (forcedLow.current) {
+          cb.current.onUnsupported?.("context");
+        } else {
+          forcedLow.current = true;
+          setCanvasKey((n) => n + 1);
+          setEpoch((n) => n + 1);
+        }
+      }, 1200);
     };
     const onRestored = () => {
       window.clearTimeout(lostTimer);
+      forcedLow.current = true;
       setEpoch((n) => n + 1);
     };
     canvas.addEventListener("webglcontextlost", onLost);
@@ -270,6 +369,7 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
       const t = three.current;
       if (t) {
         cancelAnimationFrame(t.raf);
+        window.clearTimeout(t.restTimer);
         t.controls?.dispose();
         t.rig?.dispose();
         t.room?.dispose();
@@ -279,7 +379,7 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
       }
       three.current = null;
     };
-  }, [epoch, schedule]);
+  }, [epoch, canvasKey, schedule]);
 
   // ── The photo: wait for it, and light the window like the room ─────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -298,7 +398,7 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
 
   // ── The room (no photo): rebuilt only when what it depends on changes ─────────────────────────────────────────────────────────
   const boxH = model.accessories?.box?.heightMm ?? (model.accessories?.roller ? 250 : 0);
-  const roomKey = photo ? "photo" : `${model.widthMm}x${model.heightMm}:${model.door ? 1 : 0}:${boxH}`;
+  const roomKey = photo ? "photo" : `${scene}:${model.widthMm}x${model.heightMm}:${model.door ? 1 : 0}:${boxH}`;
   useEffect(() => {
     const t = three.current;
     if (!t) return;
@@ -310,7 +410,9 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
     }
     t.hemi.groundColor.set(0x8a8478);
     if (!photo) {
-      const room = buildRoom(latest.current.model, t.quality, t.anisotropy);
+      mark("r3d:room-start");
+      const room = buildRoom(latest.current.model, t.quality, t.anisotropy, latest.current.scene);
+      mark("r3d:room-built");
       t.scene.add(room.group);
       t.room = room;
       t.scene.fog = new THREE.Fog(room.skyHex, 30000, 150000);
@@ -324,9 +426,9 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
       t.key.visible = true;
       t.scene.environmentIntensity = 0.7;
     }
-    schedule();
+    warm();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roomKey, qualityTick, epoch, schedule]);
+  }, [roomKey, epoch, schedule, warm]);
 
   // ── The window itself, rebuilt when its description changes ───────────────────────────────────────────────────────────────
   const modelKey = JSON.stringify(model);
@@ -338,6 +440,7 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
       t.rig.dispose();
     }
     const m = latest.current.model;
+    mark("r3d:window-start");
     const rig = buildWindow3D(latest.current.photo ? m : { ...m, surround: ROOM_SURROUND }, { textureLoader: new THREE.TextureLoader(), anisotropy: t.anisotropy, onAsync: schedule });
     latest.current.poses.forEach((p, i) => rig.setPose(i, p));
     rig.setAccessoryState(latest.current.accessories);
@@ -352,10 +455,11 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
     });
     t.scene.add(rig.group);
     t.rig = rig;
+    mark("r3d:window-built");
     t.renderer.shadowMap.needsUpdate = true;
-    schedule();
+    warm();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [modelKey, !!photo, epoch, schedule]);
+  }, [modelKey, !!photo, epoch, schedule, warm]);
 
   useEffect(() => {
     const t = three.current;
@@ -374,7 +478,9 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
   useEffect(() => {
     const t = three.current;
     if (!t || cssW <= 0 || cssH <= 0) return;
-    t.renderer.setSize(cssW, cssH, false);
+    t.cssW = cssW;
+    t.cssH = cssH;
+    applyResolution(t);
     const cam = t.camera;
     if (photo) {
       t.controls?.dispose();
@@ -425,10 +531,10 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
     c.minPolarAngle = 0.5;
     c.maxPolarAngle = 1.72;
     if (view === "inside") {
-      t.camera.position.set(cx + 450, floorY + 1500, wallFaceZ + 3400);
+      t.camera.position.set(cx + 450, floorY + 1500, wallFaceZ + Math.min(4300, room.bounds.backZ - wallFaceZ - 600));
       c.target.set(cx, Math.min(floorY + 1500, Math.max(floorY + 800, H / 2)), 0);
       c.minDistance = 700;
-      c.maxDistance = 4300;
+      c.maxDistance = 5000;
     } else {
       t.camera.position.set(cx + 1500, floorY + 1250, outerFaceZ - 4600);
       c.target.set(cx, H / 2, outerFaceZ);
@@ -505,7 +611,7 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
       canvas.removeEventListener("pointerup", onUp);
       canvas.removeEventListener("pointercancel", onCancel);
     };
-  }, []);
+  }, [canvasKey]);
 
   useImperativeHandle(
     ref,
@@ -565,6 +671,7 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
         />
       ) : null}
       <canvas
+        key={canvasKey}
         ref={canvasRef}
         role="img"
         aria-label={ariaLabel}

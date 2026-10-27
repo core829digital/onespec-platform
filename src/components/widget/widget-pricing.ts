@@ -27,6 +27,8 @@ export interface Sash {
   widthRatio?: number;
   /** Handle centre height in mm from the sill; absent = frame height / 2. */
   handleHeightMm?: number;
+  /** The principal leaf of a piece that came from the quote editor (the widget itself does not set it). */
+  main?: boolean;
 }
 
 export interface ConfigState {

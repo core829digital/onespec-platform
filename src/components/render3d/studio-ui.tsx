@@ -48,10 +48,11 @@ export const STUDIO_CSS = `
 .r3d-view{position:absolute;inset:0}
 .r3d-top{position:absolute;left:0;right:0;top:0;display:flex;align-items:center;gap:8px;padding:calc(10px + env(safe-area-inset-top)) calc(12px + env(safe-area-inset-right)) 10px calc(12px + env(safe-area-inset-left));pointer-events:none;z-index:3}
 .r3d-top>*{pointer-events:auto}
+.r3d-panel,.r3d-dock{contain:layout paint;will-change:transform}
 .r3d-btn{white-space:nowrap}
 @media (max-width:480px){.r3d-top{gap:6px}.r3d-btn{padding:0 10px;font-size:13px}}
-.r3d-glass{background:rgba(18,24,28,.62);-webkit-backdrop-filter:blur(14px) saturate(1.3);backdrop-filter:blur(14px) saturate(1.3);border:1px solid rgba(255,255,255,.14);box-shadow:0 8px 28px rgba(0,0,0,.35)}
-.r3d-btn{min-width:44px;min-height:44px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 14px;font-size:14px;font-weight:650;color:#f5f7f8;cursor:pointer;border:1px solid rgba(255,255,255,.14);background:rgba(18,24,28,.62);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);transition:transform .12s ease,background .15s ease}
+.r3d-glass{background:rgba(16,22,26,.9);border:1px solid rgba(255,255,255,.14);box-shadow:0 8px 28px rgba(0,0,0,.35)}
+.r3d-btn{min-width:44px;min-height:44px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 14px;font-size:14px;font-weight:650;color:#f5f7f8;cursor:pointer;border:1px solid rgba(255,255,255,.14);background:rgba(16,22,26,.88);transition:transform .12s ease,background .15s ease}
 .r3d-btn:active{transform:scale(.94)}
 .r3d-btn:hover{background:rgba(40,52,58,.78)}
 .r3d-btn:focus-visible,.r3d-tab:focus-visible,.r3d-chip:focus-visible,.r3d-swatch:focus-visible{outline:3px solid var(--r3d-accent,#16d19d);outline-offset:2px}
@@ -66,7 +67,7 @@ export const STUDIO_CSS = `
 .r3d-tab:hover{background:rgba(255,255,255,.08)}
 .r3d-tab[aria-selected="true"]{background:var(--r3d-accent,#16d19d);color:#06130e}
 .r3d-panel{position:absolute;z-index:4;border-radius:20px;overflow:hidden;display:flex;flex-direction:column;animation:r3d-rise .26s cubic-bezier(.2,.9,.25,1.05) both}
-.r3d-panel.v{left:calc(112px + env(safe-area-inset-left));top:calc(64px + env(safe-area-inset-top));bottom:20px;width:min(380px,calc(100% - 140px))}
+.r3d-panel.v{left:calc(112px + env(safe-area-inset-left));top:calc(64px + env(safe-area-inset-top));max-height:calc(100% - 84px - env(safe-area-inset-top));width:min(380px,calc(100% - 140px))}
 .r3d-panel.h{left:calc(8px + env(safe-area-inset-left));right:calc(8px + env(safe-area-inset-right));bottom:calc(84px + env(safe-area-inset-bottom));max-height:min(58%,calc(100% - 150px));animation-name:r3d-sheet}
 .r3d-panel-head{display:flex;align-items:center;gap:8px;padding:12px 14px 8px;font-weight:700;font-size:15px}
 .r3d-panel-body{overflow-y:auto;padding:4px 14px 16px;display:flex;flex-direction:column;gap:14px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}

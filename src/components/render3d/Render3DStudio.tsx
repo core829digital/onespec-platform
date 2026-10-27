@@ -6,7 +6,7 @@
  * changes in front of them. One component for every configurator: the owner passes the window (as the 3D model), the menu fields and the
  * callbacks that change the configuration, so the price and everything else stay in the owner's hands.
  */
-import { Blinds, Camera, Columns3, Download, DoorOpen, Layers, Maximize2, Minimize2, Palette, RotateCcw, Share2, Square, Wrench, ArrowLeft, X, type LucideIcon } from "lucide-react";
+import { Armchair, Blinds, Camera, Columns3, Download, DoorOpen, Layers, Maximize2, Minimize2, Palette, RotateCcw, Share2, Square, Wrench, ArrowLeft, X, type LucideIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { detectCaps, type Caps, type Quality } from "@/lib/render3d/capabilities";
 import { canNativeFullscreen, enterNativeFullscreen, exitNativeFullscreen, nativeFullscreenElement, onNativeFullscreenChange } from "@/lib/render3d/fullscreen";
@@ -14,6 +14,7 @@ import { estimateRectangle, isValidQuad, type PhotoSize, type Quad } from "@/lib
 import { releasePhoto, type LoadedPhoto } from "@/lib/render3d/photo";
 import { render3dText } from "@/lib/render3d/render3d-text";
 import { GROUP_IDS, render3dUi, type GroupId } from "@/lib/render3d/render3d-ui-text";
+import { ROOM_SCENES, defaultSceneFor, type RoomScene } from "@/lib/render3d/model";
 import { DEFAULT_ACCESSORY_STATE, posesFor, type AccessoryName, type AccessoryState, type SashPose, type Window3DInput } from "@/lib/render3d/window-3d";
 import { PhotoFlow } from "./PhotoFlow";
 import { Fields, type FieldDef, type GroupDef } from "./studio-fields";
@@ -44,6 +45,7 @@ const ICONS: Record<GroupId, LucideIcon> = {
   leaves: Columns3,
   openings: DoorOpen,
   accessories: Blinds,
+  scene: Armchair,
   photo: Camera,
 };
 
@@ -75,6 +77,9 @@ export function Render3DStudio(props: Render3DStudioProps) {
   const [poses, setPoses] = useState<SashPose[]>([]);
   const [acc, setAcc] = useState<AccessoryState>(DEFAULT_ACCESSORY_STATE);
   const [view, setView] = useState<ViewSide>("inside");
+  // The room starts as the one that suits the window (a balcony door in the living room, a small window in the bathroom); the customer can change it.
+  const [pickedScene, setPickedScene] = useState<RoomScene | null>(null);
+  const scene = pickedScene ?? defaultSceneFor(model);
   const [viewNonce, setViewNonce] = useState(0);
   const [isFs, setIsFs] = useState(false);
   const [fsOk, setFsOk] = useState(false);
@@ -214,7 +219,7 @@ export function Render3DStudio(props: Render3DStudioProps) {
 
   // ── The menu ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────
   const byId = useMemo(() => new Map(groups.map((g) => [g.id, g.fields] as const)), [groups]);
-  const tabs = GROUP_IDS.filter((id) => id === "photo" || id === "openings" || (byId.get(id)?.length ?? 0) > 0 || (id === "accessories" && (hasScreen || hasRoller || hasShutter)));
+  const tabs = GROUP_IDS.filter((id) => (id === "scene" ? !viewerPhoto : false) || id === "photo" || id === "openings" || (byId.get(id)?.length ?? 0) > 0 || (id === "accessories" && (hasScreen || hasRoller || hasShutter)));
   const fields = (id: GroupId): FieldDef[] => byId.get(id) ?? [];
 
   const liveCard = (title: string, children: React.ReactNode, testId: string) => (
@@ -257,6 +262,16 @@ export function Render3DStudio(props: Render3DStudioProps) {
             ) : null}
           </div>
           <p className="r3d-note">{t.photoPrivacy}</p>
+        </>
+      );
+    }
+    if (id === "scene") {
+      return (
+        <>
+          <div className="r3d-chips" role="group" aria-label={ui.groups.scene}>
+            {ROOM_SCENES.map((k) => chip(ui.scenes[k], scene === k, () => { setPickedScene(k); setViewNonce((n) => n + 1); }, `r3d-scene-${k}`))}
+          </div>
+          <p className="r3d-note">{ui.sceneNote}</p>
         </>
       );
     }
@@ -360,6 +375,7 @@ export function Render3DStudio(props: Render3DStudioProps) {
             accessories={acc}
             photo={viewerPhoto}
             view={view}
+            scene={scene}
             viewNonce={viewNonce}
             onSashTap={tapSash}
             onAccessoryTap={toggleAcc}

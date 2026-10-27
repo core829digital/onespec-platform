@@ -20,6 +20,7 @@ import { SceneSvg, buildSubframeScene, subframeInputFor } from "@/lib/drawing";
 import { render3dText } from "@/lib/render3d/render3d-text";
 import { render3dUi } from "@/lib/render3d/render3d-ui-text";
 import { WidgetRender3D } from "./widget-render3d-studio";
+import { prefetch3d } from "@/components/render3d/Render3DStudioLazy";
 import { withSashCount } from "./widget-leaves";
 import { glazingAdvice, PACKAGE_DEPTHS, packageKey, parseGlazingKey } from "@/shared/glazing-packages";
 import { frameRules, inactiveLeaves, directionFromOpening, hasOpeningDirection, openingSide, retypeSash } from "@/shared/sash-rules";
@@ -1158,7 +1159,7 @@ export function Widget({
               ) : null}
             </div>
             <div style={{ display: "flex", justifyContent: "center", marginTop: 10 }}>
-              <button type="button" data-testid="widget-open-3d" onClick={() => { setView3d(true); window.scrollTo?.(0, 0); }} style={{ ...s.btnSecondary, width: "auto", padding: "10px 18px", fontWeight: 700 }}>
+              <button type="button" data-testid="widget-open-3d" onPointerEnter={prefetch3d} onFocus={prefetch3d} onClick={() => { setView3d(true); window.scrollTo?.(0, 0); }} style={{ ...s.btnSecondary, width: "auto", padding: "10px 18px", fontWeight: 700 }}>
                 {render3dText(lang).title}
               </button>
             </div>

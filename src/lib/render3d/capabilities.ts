@@ -70,11 +70,23 @@ export function initialQuality(c: Caps): Quality {
   return c.cores >= 8 ? "high" : "mid";
 }
 
-/** Pixel ratio per quality: the sharpness that costs the most is capped first. */
+/** Pixel ratio per quality when the picture is at rest: the sharpness that costs the most is capped first. */
 export function pixelRatioFor(q: Quality, devicePixelRatio: number): number {
-  const cap = q === "low" ? 1 : q === "mid" ? 1.5 : 2;
+  const cap = q === "low" ? 1 : q === "mid" ? 1.25 : 1.75;
   return Math.max(1, Math.min(cap, devicePixelRatio || 1));
 }
+
+/** Multi-sampling costs memory in proportion to the screen (a tablet in full screen loses its context on it): desktop only. */
+export const wantsMultisample = (c: Caps): boolean => c.webgl2 && !c.touch && !c.software;
+
+/** Sun shadow map size (one static map): none on "low". */
+export const shadowSizeFor = (q: Quality): number => (q === "high" ? 1024 : q === "mid" ? 512 : 0);
+
+/** Texture filtering: cheap on touch devices, which have the least memory bandwidth. */
+export const anisotropyFor = (c: Caps, max: number): number => Math.min(c.touch ? 2 : 4, max);
+
+/** Steps of the resolution used WHILE the picture moves (1 = full). At rest it always comes back to 1 and the picture is sharp. */
+export const RES_STEPS = [1, 0.75, 0.55] as const;
 
 export const nextLower = (q: Quality): Quality => (q === "high" ? "mid" : "low");
 
@@ -86,8 +98,8 @@ export class FrameGovernor {
   private n = 0;
   private sum = 0;
   constructor(
-    private readonly windowFrames = 40,
-    private readonly slowMs = 34,
+    private readonly windowFrames = 24,
+    private readonly slowMs = 19,
   ) {}
   /** Returns true when the quality should go down. */
   sample(dtMs: number): boolean {

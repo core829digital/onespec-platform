@@ -75,6 +75,7 @@ export function window3dFromState(state: ConfigState, options: WidgetOptions, co
       widthRatio: s.widthRatio,
       handleHeightMm: s.handleHeightMm,
       hardwareHex: hardwareFill(s.hardwareColor),
+      main: s.main,
     })),
   };
 }

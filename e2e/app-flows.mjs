@@ -317,11 +317,19 @@ async function main() {
       );
       const hasGl = (await page.getByTestId("render3d-canvas").count()) > 0;
       // The menu: one tab per group, a panel for the open one.
-      for (const id of ["color", "glass", "profile", "leaves", "openings", "accessories", "photo"]) {
+      for (const id of ["color", "glass", "profile", "leaves", "openings", "accessories", "scene", "photo"]) {
         if (await page.getByTestId(`r3d-tab-${id}`).count()) {
           // A tab that is already open closes its panel when pressed again.
           if ((await page.getByTestId(`r3d-tab-${id}`).getAttribute("aria-selected")) !== "true") await page.getByTestId(`r3d-tab-${id}`).click();
           await page.getByTestId(`r3d-panel-${id}`).waitFor({ timeout: 5000 });
+        }
+      }
+      // The room: balcony doors and small windows have their own rooms; picking one keeps the 3D alive.
+      if (hasGl && (await page.getByTestId("r3d-tab-scene").count())) {
+        if ((await page.getByTestId("r3d-tab-scene").getAttribute("aria-selected")) !== "true") await page.getByTestId("r3d-tab-scene").click();
+        for (const k of ["bathroom", "bedroom", "living", "kitchen"]) {
+          await page.getByTestId(`r3d-scene-${k}`).click();
+          await page.waitForFunction(() => document.querySelector('[data-testid="render3d-canvas"][data-ready="true"]'), null, { timeout: 30_000 });
         }
       }
       if (hasGl && (await page.getByTestId("r3d-tab-accessories").count())) {

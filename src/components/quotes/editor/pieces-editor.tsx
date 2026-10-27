@@ -33,6 +33,7 @@ import { HandleColorPopover } from "./handle-color-popover";
 import { DrawingTabs } from "./drawing-tabs";
 import { StructurePanel } from "./structure-panel";
 import { ItemRender3D } from "@/components/widget/item-render3d";
+import { prefetch3d } from "@/components/render3d/Render3DStudioLazy";
 import { render3dText } from "@/lib/render3d/render3d-text";
 
 interface Props {
@@ -241,6 +242,8 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
               <button
                 type="button"
                 data-testid="piece-open-3d"
+                onPointerEnter={prefetch3d}
+                onFocus={prefetch3d}
                 onClick={() => setShow3d(true)}
                 className="min-h-[36px] rounded-md border border-[var(--color-mint)] px-3 py-1 text-xs font-semibold text-[var(--color-mint-text)] hover:bg-[var(--color-mint)] hover:text-[var(--color-mint-dark)]"
               >

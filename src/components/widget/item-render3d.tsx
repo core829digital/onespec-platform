@@ -27,7 +27,7 @@ export function itemToState(item: ProjectItem, options: WidgetOptions): ConfigSt
     height: item.height,
     quantity: item.quantity,
     // The piece may hold openings the widget has no name for (vasistas, lift-and-slide): they are drawn as they are.
-    sashes: item.sashes.map((s) => ({
+    sashes: item.sashes.map((s): Sash => ({
       type: s.type as Sash["type"],
       direction: s.direction,
       active: s.active,
@@ -35,6 +35,7 @@ export function itemToState(item: ProjectItem, options: WidgetOptions): ConfigSt
       hardwareColor: s.hardwareColor,
       widthRatio: s.widthRatio,
       handleHeightMm: s.handleHeightMm,
+      main: s.main,
     })),
     glazing: item.glazing,
     color: item.color,

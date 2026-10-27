@@ -38,17 +38,17 @@ const full: Window3DInput = {
   },
 };
 
-describe("fitting order: net, window, roller shutter, louvre shutter", () => {
-  test("from the room outwards: net (z > 0), window (-D..0), roller guides behind the window, louvre shutter outermost", () => {
+describe("fitting order: window, net, roller shutter, louvre shutter (from the wall outwards)", () => {
+  test("window (-D..0), then the net just outside it, then the roller guides, the louvre shutter outermost", () => {
     const rig = buildWindow3D(full);
     const net = bounds(rig.accessories.parts.screen!.group);
     const roller = bounds(rig.accessories.parts.roller!.group);
     const shutter = bounds(rig.accessories.parts.shutter!.group);
-    // The net is on the room side of the frame.
-    expect(net.min.z).toBeGreaterThanOrEqual(0);
+    // The net is just outside the window frame (behind the window, seen from the room), and in front of the roller shutter's guides.
+    expect(net.max.z).toBeLessThanOrEqual(-D + 0.5);
     // The roller shutter's curtain and guides are outside the window; its belt and winder are on the wall (room side).
     const guides = bounds(find(rig.accessories.parts.roller!.group, "roller-curtain")!);
-    expect(guides.max.z).toBeLessThanOrEqual(-D + 0.5);
+    expect(guides.max.z).toBeLessThanOrEqual(net.min.z + 0.5);
     expect(roller.min.z).toBeLessThan(-D);
     // The louvre shutter is the last one fitted: farther out than anything else.
     expect(shutter.max.z).toBeLessThan(roller.min.z + 0.001);
@@ -161,12 +161,12 @@ describe("mosquito nets move like the real ones", () => {
     rig.dispose();
   });
 
-  test("hinged: swings into the room; roller: rolls up into its cassette; sliding: slides over the fixed half", () => {
+  test("hinged: swings outwards, away from the window; roller: rolls up into its cassette; sliding: slides over the fixed half", () => {
     const hinged = buildWindow3D({ ...base, accessories: { screen: { kind: "hinged", hex: "#fff" } } });
-    const z0 = bounds(hinged.accessories.parts.screen!.group).max.z;
+    const z0 = bounds(hinged.accessories.parts.screen!.group).min.z;
     hinged.setAccessory("screen", 0);
     settle(hinged);
-    expect(bounds(hinged.accessories.parts.screen!.group).max.z).toBeGreaterThan(z0 + 300);
+    expect(bounds(hinged.accessories.parts.screen!.group).min.z).toBeLessThan(z0 - 300);
 
     const roll = buildWindow3D({ ...base, accessories: { screen: { kind: "roller", hex: "#fff" } } });
     const bar = find(roll.accessories.parts.screen!.group, "screen-bar")!;
@@ -228,5 +228,87 @@ describe("profile and glass in the model", () => {
     const b = bounds(deep.group);
     expect(b.min.z).toBeCloseTo(-90, 0);
     deep.dispose();
+  });
+});
+
+describe("welded corners, handles and finishes", () => {
+  test("every member of the frame and of the leaves is cut at 45° (a trapezoid, not a straight cut)", () => {
+    const rig = buildWindow3D({ ...base, sashes: [{ type: "fix", direction: "left" }] });
+    // The frame's top bar: full width along its outer edge, shorter by two faces along its inner edge.
+    const bars: THREE.Mesh[] = [];
+    rig.group.traverse((o) => {
+      const m = o as THREE.Mesh;
+      if (m.isMesh && m.geometry.type === "ExtrudeGeometry") bars.push(m);
+    });
+    expect(bars.length).toBe(8); // 4 frame members + 4 leaf members
+    const top = bars[0].geometry.attributes.position;
+    const xsAtTop: number[] = [];
+    const xsAtInner: number[] = [];
+    for (let i = 0; i < top.count; i++) {
+      const y = top.getY(i);
+      if (Math.abs(y - H) < 0.01) xsAtTop.push(top.getX(i));
+      if (Math.abs(y - (H - 70)) < 2.5) xsAtInner.push(top.getX(i));
+    }
+    expect(Math.min(...xsAtTop)).toBeCloseTo(0, 0);
+    expect(Math.max(...xsAtTop)).toBeCloseTo(W, 0);
+    // The inner edge is shorter by one face at each end: the diagonal.
+    expect(Math.min(...xsAtInner)).toBeGreaterThan(60);
+    expect(Math.max(...xsAtInner)).toBeLessThan(W - 60);
+    rig.dispose();
+  });
+
+  test("the casement next to a tilt-and-turn leaf has no handle (the main leaf's handle works the pair)", () => {
+    const rig = buildWindow3D(base);
+    const owners = new Set<number>();
+    rig.group.traverse((o) => {
+      if (o.name === "handle") owners.add(o.userData.sashIndex as number);
+    });
+    expect([...owners]).toEqual([0]);
+    rig.dispose();
+    const two = buildWindow3D({ ...base, sashes: [{ type: "tiltturn", direction: "left" }, { type: "tiltturn", direction: "right" }] });
+    const both = new Set<number>();
+    two.group.traverse((o) => {
+      if (o.name === "handle") both.add(o.userData.sashIndex as number);
+    });
+    expect([...both].sort()).toEqual([0, 1]);
+    two.dispose();
+  });
+
+  test("the box, the net and the louvre shutter in the window's finish share the window's textured material", () => {
+    const textured = buildWindow3D({
+      ...base,
+      frameGrain: true,
+      frameHex: "#8a5a35",
+      accessories: { screen: { kind: "hinged", hex: "#8a5a35" }, box: { heightMm: 250, hex: "#8a5a35" }, roller: { kind: "roller", slatHex: "#ddd" }, shutter: { adjustable: false, hex: "#8a5a35" } },
+    });
+    // (No canvas in the test environment, so the grain itself is not drawn: what matters is that the parts SHARE the window's materials,
+    // which receive the texture whenever it is there.)
+    const finish = new Set<THREE.Material>();
+    textured.group.traverse((o) => {
+      const m = o as THREE.Mesh;
+      if (m.isMesh && m.geometry.type === "ExtrudeGeometry") finish.add(m.material as THREE.Material);
+    });
+    expect(finish.size).toBe(2); // vertical and horizontal grain
+    const uses = (root: THREE.Object3D | undefined) => {
+      let n = 0;
+      root?.traverse((o) => {
+        const m = o as THREE.Mesh;
+        if (m.isMesh && finish.has(m.material as THREE.Material)) n++;
+      });
+      return n;
+    };
+    expect(uses(textured.accessories.box!)).toBeGreaterThan(0);
+    expect(uses(textured.accessories.parts.screen!.group)).toBeGreaterThan(0);
+    expect(uses(textured.accessories.parts.shutter!.group)).toBeGreaterThan(0);
+    // The leaves' infill panels and bars use them too (nothing is left in a flat colour).
+    const flat = buildWindow3D({ ...base, frameGrain: true, glass: { panes: 2, kind: "panel", depthMm: 24, lowE: false, laminated: false } });
+    let infill = 0;
+    flat.group.traverse((o) => {
+      const m = o as THREE.Mesh;
+      if (m.isMesh && o.userData.sashIndex !== undefined && m.geometry.type !== "ExtrudeGeometry" && ((m.material as THREE.MeshStandardMaterial).color?.getHexString() ?? "") !== "" && !(m.material as THREE.Material).transparent && m.name !== "handle") infill++;
+    });
+    expect(infill).toBeGreaterThan(0);
+    flat.dispose();
+    textured.dispose();
   });
 });

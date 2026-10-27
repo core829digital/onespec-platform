@@ -4,7 +4,7 @@ import { jointsFor } from "@/shared/sash-rules";
 import { drawOpening } from "./build-openings";
 import { glassLabel } from "./glass-size";
 import { GLASS_FILL, PALETTE } from "./finishes";
-import { circle, diagonalBand, hatchSegments, line, poly, rect, text } from "./prims";
+import { circle, diagonalBand, hatchSegments, line, mitreLines, poly, rect, text } from "./prims";
 import type { Box, DrawingSash, Primitive, SceneCell, SceneContext } from "./types";
 
 const DOOR_PANEL_SHARE = 0.55;
@@ -144,6 +144,8 @@ function drawField(ctx: SceneContext, s: DrawingSash, i: number, cell: SceneCell
     w: Math.max(1, cell.w - 2 * inset),
     h: Math.max(1, cell.h - 2 * inset),
   };
+  // The leaf's profiles are welded at 45° too.
+  out.push(...mitreLines(tag, cell, area, PALETTE.outline, 0.6));
 
   if (category === "pannello") {
     out.push(...drawPanel(ctx, area, i, true));

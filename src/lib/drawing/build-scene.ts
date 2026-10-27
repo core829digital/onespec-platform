@@ -5,7 +5,7 @@ import { drawLeaves, drawMullions, drawTransoms, hitRects, layoutCells } from ".
 import { normalizeTransoms } from "@/shared/transoms";
 import { glazingShape } from "@/shared/glazing-packages";
 import { darken, finishStyle, PALETTE, TEXTURE_TILE } from "./finishes";
-import { boundsOf, mirror, place, rect } from "./prims";
+import { boundsOf, mirror, mitreLines, place, rect } from "./prims";
 import type { DrawingInput, DrawingOptions, DrawingSash, Primitive, Scene, SceneContext, SceneTexture } from "./types";
 
 const FIT_W = 300;
@@ -50,6 +50,8 @@ function frameLayers(ctx: SceneContext, frameType: string | undefined): Primitiv
       radius: 1.5,
     }),
     rect({ role: "frame", part: "inner" }, inner.x, inner.y, inner.w, inner.h, { stroke: PALETTE.outline, strokeWidth: 0.9 }),
+    // The frame's four members are cut at 45° and welded: the joins run on the diagonals.
+    ...mitreLines({ role: "frame" }, frame, inner, PALETTE.outline),
   );
   return out;
 }

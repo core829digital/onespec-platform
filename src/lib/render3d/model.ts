@@ -6,9 +6,9 @@
  * origin is the bottom-left outer corner of the frame; the frame fills the box (0..width, 0..height, -depth..0).
  *
  * Fitting order, from the room outwards (the rules of the trade the scene follows):
- *   1. the mosquito net, on the room side of the frame (z > 0);
- *   2. the window, set in the wall opening (z from -depth to 0);
- *   3. the roller shutter outside it: its box above the window, its curtain running between two side guides in the reveal;
+ *   1. the window, set in the wall opening (z from -depth to 0);
+ *   2. the mosquito net, just outside the window frame (behind it, seen from the room);
+ *   3. the roller shutter outside the net: its box above the window, its curtain running between two side guides in the reveal;
  *   4. the louvre shutter (persiana), last, on the outer face of the wall, closing over everything else.
  */
 import { glazingShape } from "@/shared/glazing-packages";
@@ -74,6 +74,8 @@ export interface Window3DSash {
   handleHeightMm?: number;
   /** Handle colour of this leaf; absent = `Window3DInput.hardwareHex`. */
   hardwareHex?: string;
+  /** The principal leaf (it keeps the handle when two casements meet). */
+  main?: boolean;
 }
 
 /** Where the wall faces are, in the scene's Z (the photo mode has no wall: faces just clear the frame). */
@@ -224,3 +226,17 @@ export function boxFor(a: Accessories3D | undefined, fallbackHex: string): BoxSp
 
 /** The order the elements are fitted in, for the help text and for the tests of the scene. */
 export const FITTING_ORDER = ["window", "screen", "rollerShutter", "louvreShutter"] as const;
+
+/** The rooms the window can be seen in. */
+export type RoomScene = "kitchen" | "living" | "bedroom" | "bathroom";
+export const ROOM_SCENES: readonly RoomScene[] = ["kitchen", "living", "bedroom", "bathroom"];
+
+/**
+ * The room that suits a window best: a balcony door is seen in the living room, a small window in the bathroom, any other window in
+ * the kitchen. The customer can pick another one; this is only where the studio starts.
+ */
+export function defaultSceneFor(input: Pick<Window3DInput, "widthMm" | "heightMm" | "door">): RoomScene {
+  if (input.door) return "living";
+  if (input.widthMm <= 800 || input.heightMm <= 900) return "bathroom";
+  return "kitchen";
+}

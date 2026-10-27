@@ -6,8 +6,10 @@
  * static shadow map for the sun coming through the window. Units are millimetres; the window is at the origin (see model.ts).
  */
 import * as THREE from "three";
+import { shadowSizeFor } from "./capabilities";
+import { furnishBathroom, furnishBedroom, furnishLiving } from "./room-scenes";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
-import { frameDepthMm, type Window3DInput, type Surround3D } from "./model";
+import { frameDepthMm, type RoomScene, type Window3DInput, type Surround3D } from "./model";
 import { SURROUND_PHOTO } from "./accessories-3d";
 
 import type { Quality } from "./capabilities";
@@ -24,7 +26,7 @@ export interface RoomRig {
 }
 
 /** The wall faces of the room scene: the window sits recessed in a 330 mm wall. */
-export const ROOM_SURROUND: Surround3D = { wallFaceZ: 120, outerFaceZ: -210 };
+export const ROOM_SURROUND: Surround3D = { wallFaceZ: 120, outerFaceZ: -230 };
 const WALL_T = ROOM_SURROUND.wallFaceZ - ROOM_SURROUND.outerFaceZ;
 
 function prng(seed: number) {
@@ -128,6 +130,8 @@ function skyTexture(top: string, mid: string, horizon: string): THREE.CanvasText
   g.fillRect(0, 0, 8, 256);
   const t = new THREE.CanvasTexture(c);
   t.colorSpace = THREE.SRGBColorSpace;
+  t.generateMipmaps = false; // a smooth gradient: no mip levels to build or keep
+  t.minFilter = THREE.LinearFilter;
   return t;
 }
 
@@ -193,7 +197,7 @@ class Batch {
   }
 }
 
-export function buildRoom(input: Window3DInput, quality: Quality = "mid", anisotropy = 4): RoomRig {
+export function buildRoom(input: Window3DInput, quality: Quality = "mid", anisotropy = 4, scene: RoomScene = "kitchen"): RoomRig {
   const W = input.widthMm;
   const H = input.heightMm;
   const D = frameDepthMm(input);
@@ -203,9 +207,11 @@ export function buildRoom(input: Window3DInput, quality: Quality = "mid", anisot
   const cx = W / 2;
   const floorY = door ? 0 : -950;
   const ceilingY = floorY + 2700;
-  const minX = cx - 2200;
-  const maxX = cx + 2200;
-  const backZ = wf + 5200;
+  // A bathroom is a small room; the others are the same size.
+  const halfW = scene === "bathroom" ? 1450 : 2200;
+  const minX = cx - halfW;
+  const maxX = cx + halfW;
+  const backZ = wf + (scene === "bathroom" ? 3300 : 5200);
   const disposables: Array<{ dispose(): void }> = [];
   const track = <T extends { dispose(): void }>(o: T): T => (disposables.push(o), o);
   const group = new THREE.Group();
@@ -248,9 +254,18 @@ export function buildRoom(input: Window3DInput, quality: Quality = "mid", anisot
     bulb: track(new THREE.MeshBasicMaterial({ color: "#fff1c9" })),
     shade: std("#d9d2c4", 0.8),
     magnet: std("#d9453a", 0.5),
+    sofa: std("#7f8c97", 0.95),
+    sofaLight: std("#a3afb8", 0.95),
+    cushionA: std("#c9774a", 0.9),
+    cushionB: std("#e3c36a", 0.9),
+    linen: std("#f2efe9", 0.95),
+    linenAccent: std("#b8a58a", 0.95),
+    curtain: std("#e4ded1", 0.95),
+    mirror: std("#d3e0e6", 0.04, 1),
+    water: std("#9fd3e6", 0.1, 0),
   };
-  const shadowKeys = new Set(["cab", "cabDark", "carcass", "top", "steel", "black", "white", "wood", "woodDark", "fabric", "ceramic", "pan", "pot", "leaf", "apple", "lemon", "orange", "mug", "chrome", "shade"]);
-  const receiveKeys = new Set(["floor", "tiles", "top", "plaster", "cab", "wood", "rug", "ceiling"]);
+  const shadowKeys = new Set(["sofa", "sofaLight", "cushionA", "cushionB", "linen", "linenAccent", "curtain", "cab", "cabDark", "carcass", "top", "steel", "black", "white", "wood", "woodDark", "fabric", "ceramic", "pan", "pot", "leaf", "apple", "lemon", "orange", "mug", "chrome", "shade"]);
+  const receiveKeys = new Set(["sofa", "linen", "curtain", "floor", "tiles", "top", "plaster", "cab", "wood", "rug", "ceiling"]);
 
   // ── Walls: the window wall has the opening (and the box above it); the other walls and the ceiling close the room ───────────────
   const shape = new THREE.Shape();
@@ -279,7 +294,7 @@ export function buildRoom(input: Window3DInput, quality: Quality = "mid", anisot
   B.box("plaster", maxX, floorY, wf, 40, 2700, backZ - wf);
   B.box("plaster", minX, floorY, backZ, maxX - minX, 2700, 40);
   B.box("ceiling", minX, ceilingY, of, maxX - minX, 40, backZ - of);
-  B.box("floor", minX, floorY - 40, wf, maxX - minX, 40, backZ - wf);
+  B.box(scene === "bathroom" ? "tiles" : "floor", minX, floorY - 40, wf, maxX - minX, 40, backZ - wf);
   // Skirting boards.
   B.box("white", minX, floorY, wf, maxX - minX, 90, 12);
   B.box("white", minX, floorY, wf, 12, 90, backZ - wf);
@@ -291,6 +306,7 @@ export function buildRoom(input: Window3DInput, quality: Quality = "mid", anisot
     B.box("top", -70, -32, of - 50, W + 140, 32, 50 + (-D - of) + 8);
   }
 
+  const kitchen = () => {
   // ── The kitchen ─────────────────────────────────────────────────────────────────────────────────────────────────────────────
   const az = wf; // the wall face
   const counterTopY = floorY + 900;
@@ -476,7 +492,7 @@ export function buildRoom(input: Window3DInput, quality: Quality = "mid", anisot
   // ── Dining table, chairs, rug, lamp, fruit, plant ───────────────────────────────────────────────────────────────────────────
   {
     const tcx = cx + 250;
-    const tcz = az + 2750;
+    const tcz = az + 3700;
     const tw = 1500;
     const td = 850;
     B.box("rug", tcx - 1100, floorY, tcz - 800, 2200, 6, 1600);
@@ -517,8 +533,14 @@ export function buildRoom(input: Window3DInput, quality: Quality = "mid", anisot
     B.cyl("shade", tcx, shadeY, tcz, 30, 150, 150, 28);
     B.sphere("bulb", tcx, shadeY - 60, tcz, 30, 14);
   }
+  };
+  const sc = { B, floorY, ceilingY, minX, maxX, wf, backZ, W, H, cx };
+  if (scene === "living") furnishLiving(sc);
+  else if (scene === "bedroom") furnishBedroom(sc);
+  else if (scene === "bathroom") furnishBathroom(sc);
+  else kitchen();
   // Recessed ceiling lights.
-  for (let i = 0; i < 4; i++) B.cyl("bulb", cx - 1200 + i * 800, ceilingY - 2, az + 1500 + (i % 2) * 1700, 55, 55, 4, 16);
+  for (let i = 0; i < 4; i++) B.cyl("bulb", cx - 1200 + i * 800, ceilingY - 2, wf + 1500 + (i % 2) * 1500, 55, 55, 4, 16);
 
   group.add(B.build(mats, shadowKeys, receiveKeys, disposables));
 
@@ -543,7 +565,7 @@ export function buildRoom(input: Window3DInput, quality: Quality = "mid", anisot
 
   // Trees and bushes: instanced, placed with a seeded generator so the view is always the same.
   const rnd = prng(2026);
-  const nTrees = quality === "low" ? 28 : quality === "mid" ? 56 : 90;
+  const nTrees = quality === "low" ? 24 : quality === "mid" ? 40 : 70;
   const trunkGeo = track(new THREE.CylinderGeometry(120, 170, 1, 7));
   const crownGeo = track(new THREE.IcosahedronGeometry(1, 1));
   const trunks = new THREE.InstancedMesh(trunkGeo, std("#6b4a2f", 0.9), nTrees);
@@ -570,7 +592,7 @@ export function buildRoom(input: Window3DInput, quality: Quality = "mid", anisot
     }
   }
   group.add(trunks, crowns);
-  const nBush = quality === "low" ? 0 : 22;
+  const nBush = quality === "low" ? 0 : quality === "mid" ? 12 : 22;
   if (nBush) {
     const bushes = new THREE.InstancedMesh(crownGeo, std("#ffffff", 0.9), nBush);
     for (let i = 0; i < nBush; i++) {
@@ -646,7 +668,7 @@ export function buildRoom(input: Window3DInput, quality: Quality = "mid", anisot
   group.add(sun.target);
   sun.castShadow = quality !== "low";
   if (sun.castShadow) {
-    const size = quality === "high" ? 2048 : 1024;
+    const size = shadowSizeFor(quality);
     sun.shadow.mapSize.set(size, size);
     const s = sun.shadow.camera;
     s.left = -4200;

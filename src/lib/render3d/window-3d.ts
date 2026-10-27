@@ -6,7 +6,8 @@
  */
 import * as THREE from "three";
 import { buildAccessories, type AccessoryRig } from "./accessories-3d";
-import { ease, makeDisposer, place, rad, rbox, tagHit } from "./geo";
+import { ease, frameCorners, makeDisposer, mitreMember, place, rad, rbox, tagHit } from "./geo";
+import { inactiveLeaves } from "@/shared/sash-rules";
 import {
   DEFAULT_ACCESSORY_STATE,
   DEFAULT_DEPTH_MM,
@@ -195,13 +196,13 @@ export function buildWindow3D(input: Window3DInput, options: BuildOptions = {}):
     parent.add(mesh);
     return mesh;
   };
-  const bevel = material === "aluminum" ? 1.4 : 2.6;
 
-  // ── Frame: four members around the opening ─────────────────────────────────────────────────────────────────────────────────
-  addTo(group, place(rbox(W, F, D, frameH, bevel), 0, H - F, -D, W, F, D));
-  addTo(group, place(rbox(W, F, D, frameH, bevel), 0, 0, -D, W, F, D));
-  addTo(group, place(rbox(F, H - 2 * F, D, frameV, bevel), 0, F, -D, F, H - 2 * F, D));
-  addTo(group, place(rbox(F, H - 2 * F, D, frameV, bevel), W - F, F, -D, F, H - 2 * F, D));
+  // ── Frame: four members around the opening, cut at 45° and welded at the corners ──────────────────────────────────────────────
+  frameCorners(W, H, F).forEach((c, k) => {
+    const m = mitreMember(c, D, k < 2, k < 2 ? frameH : frameV);
+    m.position.z = -D;
+    addTo(group, m);
+  });
 
   // ── Horizontal bars across the whole opening ───────────────────────────────────────────────────────────────────────────────
   for (const y of input.transomsMm ?? []) {
@@ -210,6 +211,7 @@ export function buildWindow3D(input: Window3DInput, options: BuildOptions = {}):
 
   // ── Leaves ─────────────────────────────────────────────────────────────────────────────────────────────────────────────────
   const layout = sashLayout(input);
+  const handleless = inactiveLeaves(input.sashes.map((s) => ({ type: s.type, main: s.main })));
   const movers: Mover[] = [];
   const hitTargets: THREE.Object3D[] = [];
   const innerH = H - 2 * F;
@@ -226,13 +228,12 @@ export function buildWindow3D(input: Window3DInput, options: BuildOptions = {}):
     const z0 = -D + (D - depth) / 2 + (slides ? (slidingCount++ % 2 === 0 ? -6 : 8) : 0);
     const sashGroup = new THREE.Group();
     sashGroup.name = `sash-${i}`;
-    const members: Array<[number, number, number, number, boolean]> = [
-      [0, h - face, w, face, true],
-      [0, 0, w, face, true],
-      [0, face, face, h - 2 * face, false],
-      [w - face, face, face, h - 2 * face, false],
-    ];
-    for (const [x, y, mw, mh, horizontal] of members) addTo(sashGroup, place(rbox(mw, mh, depth, horizontal ? frameH : frameV, bevel), x, y, z0, mw, mh, depth), i);
+    // The four members of the leaf, mitred like the frame.
+    frameCorners(w, h, face).forEach((c, k) => {
+      const m = mitreMember(c, depth, k < 2, k < 2 ? frameH : frameV);
+      m.position.z = z0;
+      addTo(sashGroup, m, i);
+    });
 
     const iw = w - 2 * face;
     const ih = h - 2 * face;
@@ -272,19 +273,22 @@ export function buildWindow3D(input: Window3DInput, options: BuildOptions = {}):
       }
     }
 
-    // Handle on the room side, on the side opposite the hinge (a sliding leaf: on the meeting edge).
-    if (!fix) {
+    // Handle on the room side, on the side opposite the hinge (a sliding leaf: on the meeting edge). A leaf that meets a tilt-and-turn one
+    // (a casement next to it) has none: the main leaf's handle works the pair, the casement carries the movable mullion.
+    if (!fix && !handleless.has(i)) {
       const hingeLeft = sash.direction === "left";
       const hx = hingeLeft ? w - face / 2 : face / 2;
       const hy = Math.min(h - face - 60, Math.max(face + 60, (sash.handleHeightMm ?? (input.door ? 1050 : H / 2)) - F));
       const mat = hw(sash.hardwareHex ?? input.hardwareHex);
       const zf = z0 + depth;
       const rose = new THREE.Mesh(new THREE.CylinderGeometry(11, 11, 6, 20), mat);
+      rose.name = "handle";
       rose.rotation.x = Math.PI / 2;
       rose.position.set(hx, hy, zf + 3);
       sashGroup.add(rose);
       track(rose.geometry);
       const grip = rbox(18, 118, 18, mat, 8);
+      grip.name = "handle";
       grip.position.set(hx, hy - 52, zf + 18);
       sashGroup.add(grip);
       track(grip.geometry);
@@ -339,7 +343,7 @@ export function buildWindow3D(input: Window3DInput, options: BuildOptions = {}):
   movers.forEach(apply);
 
   // ── Accessories: net, box, roller shutter, louvre shutter, grille ──────────────────────────────────────────────────────────
-  const accessories = buildAccessories({ input, disposer, anisotropy });
+  const accessories = buildAccessories({ input, disposer, anisotropy, frameMats: { v: frameV, h: frameH, textured: wantGrain || !!input.frameTextureUrl } });
   group.add(accessories.group);
   accessories.set("screen", DEFAULT_ACCESSORY_STATE.screen);
 

@@ -8,6 +8,7 @@ import { getTurnstileToken } from "@/lib/turnstile-client";
 import { widgetSourcePage } from "@/lib/widget-source-page";
 import { postQuote } from "./post-quote";
 import { WizardRender3D } from "./wizard-render3d";
+import { prefetch3d } from "@/components/render3d/Render3DStudioLazy";
 import { render3dText } from "@/lib/render3d/render3d-text";
 import {
   buildWizardItem,
@@ -454,7 +455,7 @@ export function SimpleWizardWidget({
             </div>
             {product && colour ? (
               <div style={{ display: "flex", justifyContent: "center", marginBottom: 14 }}>
-                <button type="button" data-testid="wizard-open-3d" onClick={() => setView3d(true)} style={s.btnPrev}>
+                <button type="button" data-testid="wizard-open-3d" onPointerEnter={prefetch3d} onFocus={prefetch3d} onClick={() => setView3d(true)} style={s.btnPrev}>
                   {render3dText(lang).title}
                 </button>
               </div>

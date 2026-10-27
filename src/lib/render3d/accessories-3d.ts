@@ -6,7 +6,8 @@
  *   - the roller shutter: slatted curtain that runs down between two side guides, from the box, with the belt the customer pulls and
  *     its winder on the wall (or the raffstore variant with tilting slats);
  *   - the louvre shutter (persiana): two leaves hinged on the outer wall face that swing open flat against the facade.
- * Fitting order (see model.ts): net on the room side, window, roller shutter outside it, louvre shutter last and outermost.
+ * Fitting order (see model.ts), from the wall outwards: window, mosquito net just outside the frame (behind it, seen from the room),
+ * roller shutter outside the net, louvre shutter last and outermost.
  */
 import * as THREE from "three";
 import { frameDepthMm, frameFaceMm, boxFor, type AccessoryName, type Window3DInput, DEFAULT_ACCESSORY_STATE, type Surround3D } from "./model";
@@ -17,6 +18,8 @@ export interface AccessoryCtx {
   input: Window3DInput;
   disposer: Disposer;
   anisotropy: number;
+  /** The window's own finish materials (colour, texture or grain, filled in as the texture arrives): parts of the same finish share them. */
+  frameMats?: { v: THREE.Material; h: THREE.Material; textured: boolean };
 }
 
 export interface Part {
@@ -62,7 +65,10 @@ function makePart(initial: number, apply: (v: number) => void): Part {
 
 const mixHex = (a: string, b: string, t: number) => `#${new THREE.Color(a).lerp(new THREE.Color(b), t).getHexString()}`;
 
-export const SURROUND_PHOTO = (D: number): Surround3D => ({ wallFaceZ: 0, outerFaceZ: -(D + 60) });
+/** Space the mosquito net takes outside the frame (a sliding net has two panels), and what the roller guides need after it. */
+export const netSpaceMm = (kind: string | undefined) => (kind === undefined ? 0 : kind === "sliding" ? 66 : 44);
+export const ROLLER_GUIDE_MM = 46;
+export const SURROUND_PHOTO = (D: number): Surround3D => ({ wallFaceZ: 0, outerFaceZ: -(D + 110) });
 
 /** Net mesh plane with its UVs in real-world cells, so the threads keep the same size on any panel. */
 const CELL_MM = 2;
@@ -74,7 +80,7 @@ function netPlane(w: number, h: number, mat: THREE.Material): THREE.Mesh {
 }
 
 export function buildAccessories(ctx: AccessoryCtx): AccessoryRig {
-  const { input, disposer, anisotropy } = ctx;
+  const { input, disposer, anisotropy, frameMats } = ctx;
   const { track } = disposer;
   const W = input.widthMm;
   const H = input.heightMm;
@@ -103,15 +109,16 @@ export function buildAccessories(ctx: AccessoryCtx): AccessoryRig {
     root.add(part.group);
   };
 
-  // ── Mosquito net: on the room side of the frame ──────────────────────────────────────────────────────────────────────────────
+  // ── Mosquito net: just outside the frame, behind the window seen from the room ──────────────────────────────────────────────────────────────────────────────
   if (acc?.screen) {
     const { kind, hex } = acc.screen;
     const netTex = netMeshTexture(anisotropy);
     if (netTex) track(netTex);
     const netMat = track(new THREE.MeshStandardMaterial({ color: "#2b2e31", roughness: 1, metalness: 0, transparent: true, opacity: 0.9, alphaMap: undefined, map: netTex ?? null, side: THREE.DoubleSide, depthWrite: false }));
     if (!netTex) netMat.opacity = 0.18;
-    const frameMat = std(hex, 0.45, 0.1);
-    const z0 = 2;
+    // A net in the window's own finish (no other colour chosen) is made of the same material, texture included.
+    const frameMat = frameMats?.textured && hex === input.frameHex ? frameMats.v : std(hex, 0.45, 0.1);
+    const z0 = kind === "sliding" ? -D - 36 : -D - 34;
     const th = 20;
     const fw = kind === "fixed" ? 24 : 22;
     const xa = 8;
@@ -141,7 +148,7 @@ export function buildAccessories(ctx: AccessoryCtx): AccessoryRig {
       pivot.add(p);
       addMesh(p, place(rbox(14, 70, 14, frameMat, 4), iw - fw - 6, ih / 2 - 35, th, 14, 70, 14));
       const part = makePart(DEFAULT_ACCESSORY_STATE.screen, (v) => {
-        pivot.rotation.y = -rad(100) * (1 - v);
+        pivot.rotation.y = rad(100) * (1 - v); // swings outwards, away from the window
       });
       part.group.add(pivot);
       finishPart("screen", part);
@@ -236,7 +243,7 @@ export function buildAccessories(ctx: AccessoryCtx): AccessoryRig {
       fixedP.position.set(iw - pw, 0, 0);
       g.add(fixedP);
       const moving = panel(pw, ih, true);
-      moving.position.z = th + 2;
+      moving.position.z = -(th + 2); // the sliding panel runs on the outer rail
       g.add(moving);
       addMesh(moving, place(rbox(12, 90, 12, frameMat, 4), pw - fw - 4, ih / 2 - 45, th, 12, 90, 12));
       const part = makePart(DEFAULT_ACCESSORY_STATE.screen, (v) => {
@@ -262,10 +269,12 @@ export function buildAccessories(ctx: AccessoryCtx): AccessoryRig {
     const g = new THREE.Group();
     g.name = "shutter-box";
     const depth = Math.max(150, env.wallFaceZ - env.outerFaceZ);
-    const mat = std(box.hex ?? input.frameHex, 0.55, 0.04);
+    // In the window's own finish the box is made of the window's material (same colour, texture or grain).
+    const sameFinish = !!frameMats?.textured && (box.hex ?? input.frameHex) === input.frameHex;
+    const mat = sameFinish ? frameMats!.h : std(box.hex ?? input.frameHex, 0.55, 0.04);
     addMesh(g, place(rbox(W, box.heightMm, depth, mat, 4), 0, H, env.wallFaceZ - depth, W, box.heightMm, depth));
     // The inspection panel on the room side: a slightly lighter lid with a dark joint round it and two screws.
-    const lid = std(mixHex(box.hex ?? input.frameHex, "#ffffff", 0.18), 0.5, 0.05);
+    const lid = sameFinish ? frameMats!.h : std(mixHex(box.hex ?? input.frameHex, "#ffffff", 0.18), 0.5, 0.05);
     const joint = std("#2a2c2e", 0.9, 0);
     const lw = Math.max(60, W - 90);
     const lh = Math.max(40, box.heightMm - 60);
@@ -278,7 +287,7 @@ export function buildAccessories(ctx: AccessoryCtx): AccessoryRig {
       addMesh(g, s);
     }
     // The slot the curtain leaves by, on the underside, outside the frame.
-    addMesh(g, place(rbox(W - 40, 3, 34, joint, 0.5), 20, H - 1.5, -D - 52, W - 40, 3, 34));
+    addMesh(g, place(rbox(W - 40, 3, 34, joint, 0.5), 20, H - 1.5, -D - netSpaceMm(acc?.screen?.kind) - 52, W - 40, 3, 34));
     root.add(g);
     boxObj = g;
   }
@@ -288,15 +297,17 @@ export function buildAccessories(ctx: AccessoryCtx): AccessoryRig {
     const spec = acc.roller;
     const guideMat = std(mixHex(box.hex ?? input.frameHex, "#8a8d90", 0.35), 0.5, 0.3);
     const gW = 34;
-    const gD = 46;
+    const gD = ROLLER_GUIDE_MM;
+    // The guides stand outside the net (when there is one), in the reveal.
+    const zR = -D - netSpaceMm(acc?.screen?.kind);
     const guides = new THREE.Group();
     for (const x of [0, W - gW]) {
-      addMesh(guides, place(rbox(gW, H + 4, gD, guideMat, 2), x, -4, -D - gD, gW, H + 4, gD));
+      addMesh(guides, place(rbox(gW, H + 4, gD, guideMat, 2), x, -4, zR - gD, gW, H + 4, gD));
       const slit = std("#1d1f21", 0.9, 0);
-      addMesh(guides, place(rbox(8, H - 8, 2, slit, 0.2), x + (gW - 8) / 2, 0, -D - 1, 8, H - 8, 2));
+      addMesh(guides, place(rbox(8, H - 8, 2, slit, 0.2), x + (gW - 8) / 2, 0, zR - 1, 8, H - 8, 2));
     }
     const innerW = W - 2 * gW + 8;
-    const zc = -D - gD / 2;
+    const zc = zR - gD / 2;
     const slatTex = slatTexture(spec.slatHex, anisotropy);
     if (slatTex) track(slatTex);
     const PITCH = 38;
@@ -400,7 +411,7 @@ export function buildAccessories(ctx: AccessoryCtx): AccessoryRig {
   // ── Louvre shutter (persiana): last, on the outer face of the wall ──────────────────────────────────────────────────────────
   if (acc?.shutter) {
     const spec = acc.shutter;
-    const leafMat = std(spec.hex, 0.55, 0.15);
+    const leafMat = frameMats?.textured && spec.hex === input.frameHex ? frameMats.v : std(spec.hex, 0.55, 0.15);
     const darkMat = std(mixHex(spec.hex, "#000000", 0.35), 0.6, 0.1);
     const wl = W / 2 + 18;
     const hs = H + 10;

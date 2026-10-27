@@ -1,4 +1,5 @@
 import type {
+  Box,
   CirclePrimitive,
   LinePrimitive,
   PolygonPrimitive,
@@ -269,4 +270,20 @@ export function diagonalBand(x: number, y: number, w: number, h: number, c1: num
   poly = clip(poly, ([px, py]) => px + py - c1);
   if (poly.length > 0) poly = clip(poly, ([px, py]) => c2 - (px + py));
   return poly.length < 3 ? [] : poly.map(([px, py]) => [x + px, y + py] as [number, number]);
+}
+
+/**
+ * The welded corners of a frame or a leaf: profiles are cut at 45°, so the join runs on the diagonal from each outer corner to the
+ * matching inner one. Drawn as four thin lines over the profile's fill.
+ */
+export function mitreLines(tag: Tag, outer: Box, inner: Box, stroke: string, strokeWidth = 0.7): Primitive[] {
+  if (inner.w <= 0 || inner.h <= 0 || inner.x - outer.x < 1 || inner.y - outer.y < 1) return [];
+  const t = { ...tag, part: tag.part ?? "mitre" };
+  const o = { stroke, strokeWidth, opacity: 0.85 };
+  return [
+    line(t, outer.x, outer.y, inner.x, inner.y, o),
+    line(t, outer.x + outer.w, outer.y, inner.x + inner.w, inner.y, o),
+    line(t, outer.x, outer.y + outer.h, inner.x, inner.y + inner.h, o),
+    line(t, outer.x + outer.w, outer.y + outer.h, inner.x + inner.w, inner.y + inner.h, o),
+  ];
 }

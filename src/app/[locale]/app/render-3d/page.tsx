@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useQuery } from "@/lib/convex-query";
 import { api } from "@/convex/_generated/api";
@@ -9,6 +9,7 @@ import { catalogOptions, catalogPricing, freshWidgetState, type WidgetCatalog } 
 import { LOCALE_CFG, getDict } from "@/components/widget/widget-i18n";
 import type { ConfigState } from "@/components/widget/widget-pricing";
 import { WidgetRender3D } from "@/components/widget/widget-render3d-studio";
+import { prefetch3d } from "@/components/render3d/Render3DStudioLazy";
 
 /**
  * The 3D render of the new window in the customer's home, without the public widget. It opens full screen straight away (the 3D studio is
@@ -20,6 +21,8 @@ export default function Render3DPage() {
   const tenant = useQuery(api.tenants.getMyTenant);
   const configurators = useQuery(api.configurators.listConfigurators, tenant ? { tenantId: tenant._id } : "skip");
   const [chosen, setChosen] = useState<string | null>(null);
+  // The page is only about the 3D: its code downloads while the company's data loads.
+  useEffect(() => prefetch3d(), []);
 
   const published = useMemo(() => (configurators ?? []).filter((c) => c.status === "published" && c.publishedCatalogVersion !== undefined), [configurators]);
   const current = published.find((c) => c._id === chosen) ?? published[0];
