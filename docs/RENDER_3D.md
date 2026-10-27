@@ -54,6 +54,10 @@ Dopo lo scatto i quattro punti partono dal contorno trovato nella foto (`detect-
 
 Risoluzione dinamica (scende in movimento, risale a riposo), niente antialiasing nativo sui dispositivi touch, ombra statica aggiornata a riposo, compilazione asincrona degli shader, nessuno sfocato (`backdrop-filter`) sopra il canvas, recupero della perdita di contesto (ricrea il canvas al livello più basso) e precaricamento del blocco 3D al passaggio sul pulsante.
 
+## Navigazione con le frecce
+
+Oltre al trascinamento, in basso a destra c'è un pad: quattro frecce per **ruotare** la vista (o **spostarla** di lato/su-giù con il tasto centrale), più **+ / −** per avvicinare e allontanare. Tenendo premuto il movimento è continuo e fluido; funzionano anche le frecce della tastiera e i tasti + / −. Il movimento è limitato alla stanza (non si attraversa il muro). Codice: `NavPad.tsx` e `navigate()` del viewer. Su telefono il pad si nasconde mentre è aperto un pannello.
+
 ## Schermo intero
 
 - API Fullscreen nativa (con prefisso webkit), sempre accompagnata da un livello `position: fixed` (pseudo-schermo-intero) per i browser senza supporto (iPhone Safari non ha schermo intero per gli elementi).

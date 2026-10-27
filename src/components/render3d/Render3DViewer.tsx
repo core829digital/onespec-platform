@@ -31,6 +31,19 @@ export type ViewSide = "inside" | "outside";
 export interface Render3DViewerHandle {
   /** The picture as it is now (photo + window, or the room), or null when it cannot be made. */
   capture(): Promise<Blob | null>;
+  /**
+   * Moves the camera while a button is held (the on-screen arrows): each axis is -1, 0 or 1. `yaw` / `pitch` turn around the point looked at,
+   * `zoom` goes in (+1) or out (-1), `panX` / `panY` slide the view sideways / up. All zero stops it. Has no effect on a photo.
+   */
+  navigate(v: NavInput): void;
+}
+
+export interface NavInput {
+  yaw: number;
+  pitch: number;
+  zoom: number;
+  panX: number;
+  panY: number;
 }
 
 export type UnsupportedReason = "webgl" | "context";
@@ -613,9 +626,59 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
     };
   }, [canvasKey]);
 
+  const nav = useRef<NavInput>({ yaw: 0, pitch: 0, zoom: 0, panX: 0, panY: 0 });
+  const navFrame = useRef(0);
+  useEffect(() => () => window.cancelAnimationFrame(navFrame.current), []);
+
   useImperativeHandle(
     ref,
     () => ({
+      navigate(v) {
+        nav.current = v;
+        const idle = !(v.yaw || v.pitch || v.zoom || v.panX || v.panY);
+        if (idle || navFrame.current) return;
+        let last = performance.now();
+        const tick = (now: number) => {
+          const t = three.current;
+          const n = nav.current;
+          if (!t?.controls || latest.current.photo || !(n.yaw || n.pitch || n.zoom || n.panX || n.panY)) {
+            navFrame.current = 0;
+            return;
+          }
+          const dt = Math.min(0.05, (now - last) / 1000);
+          last = now;
+          const c = t.controls;
+          const cam = t.camera;
+          const offset = cam.position.clone().sub(c.target);
+          const sph = new THREE.Spherical().setFromVector3(offset);
+          sph.theta -= n.yaw * dt * 1.1;
+          sph.phi = Math.min(c.maxPolarAngle, Math.max(c.minPolarAngle, sph.phi - n.pitch * dt * 0.8));
+          sph.radius = Math.min(c.maxDistance, Math.max(c.minDistance, sph.radius * Math.exp(-n.zoom * dt * 1.2)));
+          if (n.panX || n.panY) {
+            const room = t.room?.bounds;
+            const right = new THREE.Vector3().setFromMatrixColumn(cam.matrix, 0);
+            const step = dt * Math.max(500, sph.radius * 0.45);
+            const move = right.multiplyScalar(n.panX * step);
+            move.y += n.panY * step;
+            move.z = 0;
+            const nx = c.target.x + move.x;
+            const ny = c.target.y + move.y;
+            const cx = room?.cx ?? c.target.x;
+            const fy = room?.floorY ?? 0;
+            const tx = Math.min(cx + 2200, Math.max(cx - 2200, nx));
+            const ty = Math.min(fy + 2300, Math.max(fy + 300, ny));
+            cam.position.x += tx - c.target.x;
+            cam.position.y += ty - c.target.y;
+            c.target.x = tx;
+            c.target.y = ty;
+          }
+          offset.setFromSpherical(sph);
+          cam.position.copy(c.target).add(offset);
+          c.update();
+          navFrame.current = window.requestAnimationFrame(tick);
+        };
+        navFrame.current = window.requestAnimationFrame(tick);
+      },
       async capture() {
         const t = three.current;
         const canvas = canvasRef.current;

@@ -19,7 +19,8 @@ import { DEFAULT_ACCESSORY_STATE, posesFor, type AccessoryName, type AccessorySt
 import { PhotoFlow } from "./PhotoFlow";
 import { Fields, type FieldDef, type GroupDef } from "./studio-fields";
 import { STUDIO_CSS } from "./studio-ui";
-import { Render3DViewer, type Render3DViewerHandle, type ViewSide, type ViewerPhoto } from "./Render3DViewer";
+import { NavPad } from "./NavPad";
+import { Render3DViewer, type NavInput, type Render3DViewerHandle, type ViewSide, type ViewerPhoto } from "./Render3DViewer";
 
 export type { FieldDef, GroupDef, StudioSwatch, StudioOption } from "./studio-fields";
 
@@ -67,6 +68,7 @@ export function Render3DStudio(props: Render3DStudioProps) {
   const wide = useWide();
   const layer = useRef<HTMLDivElement>(null);
   const viewer = useRef<Render3DViewerHandle>(null);
+  const navigate = useCallback((v: NavInput) => viewer.current?.navigate(v), []);
   const [caps] = useState<Caps | null>(() => (typeof window === "undefined" ? null : detectCaps()));
   const [unsupported, setUnsupported] = useState<null | "webgl" | "context">(caps && !caps.webgl2 ? "webgl" : null);
   const [retry, setRetry] = useState(0);
@@ -425,6 +427,13 @@ export function Render3DStudio(props: Render3DStudioProps) {
           </button>
         ) : null}
       </div>
+
+      {roomMode && !unsupported && !flow && (wide || !open) ? (
+        <NavPad
+          onNavigate={navigate}
+          labels={{ pad: ui.navPad, rotate: ui.navRotate, slide: ui.navSlide, up: ui.navUp, down: ui.navDown, left: ui.navLeft, right: ui.navRight, zoomIn: ui.navIn, zoomOut: ui.navOut }}
+        />
+      ) : null}
 
       {light ? (
         <div className="r3d-hint r3d-glass" role="status" style={{ top: "calc(70px + env(safe-area-inset-top))", bottom: "auto" }}>

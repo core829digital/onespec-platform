@@ -332,6 +332,23 @@ async function main() {
           await page.waitForFunction(() => document.querySelector('[data-testid="render3d-canvas"][data-ready="true"]'), null, { timeout: 30_000 });
         }
       }
+      // The on-screen arrows: holding one moves the view (the picture changes), letting go stops it.
+      if (hasGl && (await page.getByTestId("r3d-nav").count())) {
+        const shot = () => page.getByTestId("render3d-canvas").screenshot().then((b) => b.toString("base64"));
+        const before = await shot();
+        const left = page.getByTestId("r3d-nav-left");
+        const bb = await left.boundingBox();
+        await page.mouse.move(bb.x + bb.width / 2, bb.y + bb.height / 2);
+        await page.mouse.down();
+        await page.waitForTimeout(700);
+        await page.mouse.up();
+        await page.waitForTimeout(600);
+        if ((await shot()) === before) throw new Error("the arrow did not move the view");
+        await page.getByTestId("r3d-nav-in").click();
+        await page.getByTestId("r3d-nav-mode").click();
+        await page.getByTestId("r3d-nav-up").click();
+        await page.getByTestId("r3d-nav-mode").click();
+      }
       if (hasGl && (await page.getByTestId("r3d-tab-accessories").count())) {
         if ((await page.getByTestId("r3d-tab-accessories").getAttribute("aria-selected")) !== "true") await page.getByTestId("r3d-tab-accessories").click();
         const box = page.getByTestId("r3d-select-box");

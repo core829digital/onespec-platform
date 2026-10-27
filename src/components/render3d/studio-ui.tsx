@@ -84,6 +84,11 @@ export const STUDIO_CSS = `
 .r3d-select option{color:#111;background:#fff}
 .r3d-note{font-size:12.5px;line-height:1.45;color:#b9c4ca;margin:0}
 .r3d-card{border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:10px 12px;background:rgba(255,255,255,.05);display:flex;flex-direction:column;gap:8px}
+.r3d-nav{position:absolute;right:calc(12px + env(safe-area-inset-right));bottom:calc(16px + env(safe-area-inset-bottom));z-index:3;display:flex;align-items:flex-end;gap:10px;touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.r3d-nav-grid{display:grid;grid-template-areas:". u ." "l c r" ". d .";grid-template-columns:repeat(3,48px);grid-template-rows:repeat(3,48px);gap:4px}
+.r3d-nav-zoom{display:grid;gap:4px}
+.r3d-nav-btn{width:48px;height:48px;padding:0;touch-action:none}
+@media (max-width:760px){.r3d-nav{bottom:calc(84px + env(safe-area-inset-bottom))}.r3d-nav-grid{grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px)}.r3d-nav-btn{width:44px;height:44px}}
 .r3d-hint{position:absolute;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:2;max-width:min(560px,calc(100% - 32px));padding:8px 14px;border-radius:999px;font-size:12.5px;text-align:center;pointer-events:none;animation:r3d-fade .4s ease both}
 .r3d-sheet-full{position:absolute;inset:0;z-index:6;background:#f3f5f6;color:#111827;overflow-y:auto;padding:calc(12px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) calc(14px + env(safe-area-inset-left));animation:r3d-fade .2s ease both}
 .r3d-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;z-index:5}
