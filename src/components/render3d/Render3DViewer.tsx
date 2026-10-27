@@ -1,16 +1,21 @@
 "use client";
 
 /**
- * The 3D view. With a photo: the window is drawn on top of it with the perspective of the shot (the camera is recovered from
- * the four corners the customer marked). Without a photo: a room wall you can turn around.
+ * The 3D view. With a photo: the window is drawn on top of it with the perspective of the shot (the camera is recovered from the four
+ * corners the customer marked). Without a photo: a kitchen with a landscape outside, that you can turn around (inside or outside view).
  * Loaded on demand (three.js is heavy): import it through `Render3DStudio`, never at the top of a page.
+ *
+ * Built to be light on every device: it draws only when something changes or moves, caps the pixel ratio by quality, steps the quality
+ * down by itself when frames are slow, keeps one static shadow map, and recovers from a lost WebGL context.
  */
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
+import { FrameGovernor, detectCaps, initialQuality, nextLower, pixelRatioFor, type Quality } from "@/lib/render3d/capabilities";
 import { containFit, photoBoxHeight, poseFromQuad, type CameraPose, type PhotoSize, type Quad } from "@/lib/render3d/geometry";
-import { buildWindow3D, FRAME_DEPTH_MM, type SashPose, type Window3DInput, type Window3DRig } from "@/lib/render3d/window-3d";
+import { buildRoom, ROOM_SURROUND, type RoomRig } from "@/lib/render3d/room-3d";
+import { buildWindow3D, type AccessoryName, type AccessoryState, type SashPose, type Window3DInput, type Window3DRig } from "@/lib/render3d/window-3d";
 
 export interface ViewerPhoto extends PhotoSize {
   url: string;
@@ -20,28 +25,39 @@ export interface ViewerPhoto extends PhotoSize {
   focalPx: number | null;
 }
 
+export type ViewSide = "inside" | "outside";
+
 export interface Render3DViewerHandle {
-  /** The picture as it is now (photo + window), or the plain 3D view; null when it cannot be made. */
+  /** The picture as it is now (photo + window, or the room), or null when it cannot be made. */
   capture(): Promise<Blob | null>;
 }
+
+export type UnsupportedReason = "webgl" | "context";
 
 interface Props {
   model: Window3DInput;
   poses: SashPose[];
+  accessories: AccessoryState;
   photo?: ViewerPhoto | null;
+  /** Room mode: look from inside the kitchen or from the garden. */
+  view?: ViewSide;
+  /** Changes every time the customer asks to go back to the starting view. */
+  viewNonce?: number;
   onSashTap?: (index: number) => void;
-  onUnsupported?: () => void;
+  onAccessoryTap?: (name: AccessoryName) => void;
+  onUnsupported?: (reason: UnsupportedReason) => void;
+  onQuality?: (q: Quality) => void;
   ariaLabel: string;
-  /** Height of the box when there is no photo (with a photo the box follows the photo). */
-  minHeight?: number;
+  /** Fills its parent (the studio layer) instead of having its own height. */
+  fill?: boolean;
 }
 
 const NEAR = 20;
-const FAR = 120000;
+const FAR = 260000;
 
-function projectionFor(poseF: number, w: number, h: number): THREE.Matrix4 {
+function projectionFor(f: number, w: number, h: number): THREE.Matrix4 {
   const m = new THREE.Matrix4();
-  m.set((2 * poseF) / w, 0, 0, 0, 0, (2 * poseF) / h, 0, 0, 0, 0, -(FAR + NEAR) / (FAR - NEAR), (-2 * FAR * NEAR) / (FAR - NEAR), 0, 0, -1, 0);
+  m.set((2 * f) / w, 0, 0, 0, 0, (2 * f) / h, 0, 0, 0, 0, -(FAR + NEAR) / (FAR - NEAR), (-2 * FAR * NEAR) / (FAR - NEAR), 0, 0, -1, 0);
   return m;
 }
 
@@ -74,46 +90,32 @@ function photoAmbient(img: HTMLImageElement): { color: THREE.Color; level: numbe
     const n = d.length / 4;
     const mean = new THREE.Color(r / n / 255, gg / n / 255, b / n / 255);
     const lum = 0.2126 * mean.r + 0.7152 * mean.g + 0.0722 * mean.b;
-    // Tint the light a little towards the room, keep it mostly white.
     return { color: new THREE.Color(1, 1, 1).lerp(mean.clone().multiplyScalar(1 / Math.max(0.2, lum)), 0.25), level: Math.min(1.25, Math.max(0.55, 0.45 + lum * 1.2)) };
   } catch {
     return { color: new THREE.Color(1, 1, 1), level: 0.9 };
   }
 }
 
-function wallFor(model: Window3DInput): THREE.Group {
-  const g = new THREE.Group();
-  const W = model.widthMm;
-  const H = model.heightMm;
-  const pad = 1400;
-  const shape = new THREE.Shape();
-  shape.moveTo(-pad, -pad);
-  shape.lineTo(W + pad, -pad);
-  shape.lineTo(W + pad, H + pad);
-  shape.lineTo(-pad, H + pad);
-  shape.closePath();
-  const hole = new THREE.Path();
-  hole.moveTo(0, 0);
-  hole.lineTo(0, H);
-  hole.lineTo(W, H);
-  hole.lineTo(W, 0);
-  hole.closePath();
-  shape.holes.push(hole);
-  const geo = new THREE.ExtrudeGeometry(shape, { depth: 250, bevelEnabled: false });
-  geo.translate(0, 0, -250);
-  g.add(new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: "#e9e4dc", roughness: 0.95 })));
-  const sky = new THREE.Mesh(new THREE.PlaneGeometry(W + 6000, H + 6000), new THREE.MeshBasicMaterial({ color: "#cfe3f1" }));
-  sky.position.set(W / 2, H / 2, -1800);
-  g.add(sky);
-  const floor = new THREE.Mesh(new THREE.PlaneGeometry(W + 2800, 4000), new THREE.MeshStandardMaterial({ color: "#c9c3b8", roughness: 1 }));
-  floor.rotation.x = -Math.PI / 2;
-  floor.position.set(W / 2, -pad, 1500);
-  g.add(floor);
-  return g;
+interface Ctx {
+  renderer: THREE.WebGLRenderer;
+  scene: THREE.Scene;
+  camera: THREE.PerspectiveCamera;
+  controls: OrbitControls | null;
+  rig: Window3DRig | null;
+  room: RoomRig | null;
+  hemi: THREE.HemisphereLight;
+  key: THREE.DirectionalLight;
+  envTexture: THREE.Texture;
+  raf: number;
+  last: number;
+  quality: Quality;
+  governor: FrameGovernor;
+  shadowClock: number;
+  anisotropy: number;
 }
 
 export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function Render3DViewer(
-  { model, poses, photo = null, onSashTap, onUnsupported, ariaLabel, minHeight = 420 },
+  { model, poses, accessories, photo = null, view = "inside", viewNonce = 0, onSashTap, onAccessoryTap, onUnsupported, onQuality, ariaLabel, fill = false },
   ref,
 ) {
   const boxRef = useRef<HTMLDivElement>(null);
@@ -121,27 +123,17 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
   const imgRef = useRef<HTMLImageElement>(null);
   const [box, setBox] = useState<PhotoSize>({ width: 0, height: 0 });
   const [photoReady, setPhotoReady] = useState(false);
-  const three = useRef<{
-    renderer: THREE.WebGLRenderer;
-    scene: THREE.Scene;
-    camera: THREE.PerspectiveCamera;
-    controls: OrbitControls | null;
-    rig: Window3DRig | null;
-    wall: THREE.Group | null;
-    hemi: THREE.HemisphereLight;
-    raf: number;
-    last: number;
-  } | null>(null);
-  const tapRef = useRef(onSashTap);
-  tapRef.current = onSashTap;
-  const unsupportedRef = useRef(onUnsupported);
-  unsupportedRef.current = onUnsupported;
+  const [epoch, setEpoch] = useState(0); // bumped when a lost WebGL context comes back: everything is recreated
+  const three = useRef<Ctx | null>(null);
+  const cb = useRef({ onSashTap, onAccessoryTap, onUnsupported, onQuality });
+  cb.current = { onSashTap, onAccessoryTap, onUnsupported, onQuality };
+  const latest = useRef({ poses, accessories, model, photo, view });
+  latest.current = { poses, accessories, model, photo, view };
 
   const fit = useMemo(() => (photo && box.width > 0 ? containFit(photo, box) : null), [photo, box]);
   const cssW = photo ? (fit?.width ?? 0) : box.width;
   const cssH = photo ? (fit?.height ?? 0) : box.height;
 
-  // Size of the box we live in.
   useEffect(() => {
     const el = boxRef.current;
     if (!el) return;
@@ -158,60 +150,138 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
       const cur = three.current;
       if (!cur) return;
       cur.raf = 0;
-      const dt = Math.min(0.05, (now - cur.last) / 1000 || 0.016);
+      const dtMs = now - cur.last;
+      const dt = Math.min(0.05, dtMs / 1000 || 0.016);
       cur.last = now;
       const moving = cur.rig?.step(dt) ?? false;
       const damping = cur.controls?.update(dt) ?? false;
+      const active = moving || damping;
+      // The sun's shadows follow the moving parts: every frame on a strong device, a few times a second otherwise.
+      if (cur.renderer.shadowMap.enabled && moving) {
+        cur.shadowClock += dtMs;
+        if (cur.quality === "high" || cur.shadowClock > 90) {
+          cur.renderer.shadowMap.needsUpdate = true;
+          cur.shadowClock = 0;
+        }
+      }
       cur.renderer.render(cur.scene, cur.camera);
-      if (moving || damping) cur.raf = requestAnimationFrame(tick);
+      if (active) {
+        if (cur.governor.sample(dtMs) && cur.quality !== "low") {
+          cur.quality = nextLower(cur.quality);
+          cur.governor.reset();
+          cb.current.onQuality?.(cur.quality);
+          cur.renderer.setPixelRatio(pixelRatioFor(cur.quality, window.devicePixelRatio));
+          cur.renderer.shadowMap.enabled = cur.quality !== "low";
+          cur.renderer.setSize(cur.renderer.domElement.clientWidth, cur.renderer.domElement.clientHeight, false);
+          setQualityTick((n) => n + 1);
+        }
+        cur.raf = requestAnimationFrame(tick);
+      } else {
+        // At rest: one last shadow refresh so the picture matches the final positions.
+        if (cur.renderer.shadowMap.enabled) {
+          cur.renderer.shadowMap.needsUpdate = true;
+          cur.renderer.render(cur.scene, cur.camera);
+        }
+        cur.governor.reset();
+      }
     };
     t.last = performance.now();
     t.raf = requestAnimationFrame(tick);
   }, []);
+  const [qualityTick, setQualityTick] = useState(0);
 
-  // The renderer, created once.
+  // ── The renderer, created once per WebGL context ───────────────────────────────────────────────────────────────────────────
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    let renderer: THREE.WebGLRenderer;
-    try {
-      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: false });
-    } catch {
-      unsupportedRef.current?.();
+    const caps = detectCaps();
+    if (!caps.webgl2) {
+      cb.current.onUnsupported?.("webgl");
       return;
     }
-    renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+    let renderer: THREE.WebGLRenderer;
+    try {
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: caps.touch ? true : !caps.software, alpha: true, powerPreference: "high-performance", preserveDrawingBuffer: false });
+    } catch {
+      cb.current.onUnsupported?.("webgl");
+      return;
+    }
+    const quality = initialQuality(caps);
+    renderer.setPixelRatio(pixelRatioFor(quality, window.devicePixelRatio));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.NeutralToneMapping;
     renderer.setClearColor(0x000000, 0);
+    renderer.shadowMap.enabled = quality !== "low";
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.shadowMap.autoUpdate = false;
     const scene = new THREE.Scene();
     const pmrem = new THREE.PMREMGenerator(renderer);
     const envScene = new RoomEnvironment();
-    scene.environment = pmrem.fromScene(envScene, 0.04).texture;
-    scene.environmentIntensity = 0.7;
+    const envTexture = pmrem.fromScene(envScene, 0.04).texture;
+    scene.environment = envTexture;
     envScene.dispose();
     pmrem.dispose();
     const hemi = new THREE.HemisphereLight(0xffffff, 0x8a8478, 0.9);
     scene.add(hemi);
-    const sun = new THREE.DirectionalLight(0xffffff, 1.1);
-    sun.position.set(-1500, 2600, 3200);
-    scene.add(sun);
+    const key = new THREE.DirectionalLight(0xffffff, 1.1);
+    key.position.set(-1500, 2600, 3200);
+    scene.add(key);
     const camera = new THREE.PerspectiveCamera(40, 1, NEAR, FAR);
-    three.current = { renderer, scene, camera, controls: null, rig: null, wall: null, hemi, raf: 0, last: 0 };
+    three.current = {
+      renderer,
+      scene,
+      camera,
+      controls: null,
+      rig: null,
+      room: null,
+      hemi,
+      key,
+      envTexture,
+      raf: 0,
+      last: 0,
+      quality,
+      governor: new FrameGovernor(),
+      shadowClock: 0,
+      anisotropy: Math.min(8, renderer.capabilities.getMaxAnisotropy()),
+    };
+    cb.current.onQuality?.(quality);
+
+    // A lost context (the phone gave the GPU to another app) is not the end: the picture comes back when it is restored.
+    let lostTimer = 0;
+    const onLost = (e: Event) => {
+      e.preventDefault();
+      lostTimer = window.setTimeout(() => cb.current.onUnsupported?.("context"), 4000);
+    };
+    const onRestored = () => {
+      window.clearTimeout(lostTimer);
+      setEpoch((n) => n + 1);
+    };
+    canvas.addEventListener("webglcontextlost", onLost);
+    canvas.addEventListener("webglcontextrestored", onRestored);
+    const onVisible = () => {
+      if (!document.hidden) schedule();
+    };
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
+      window.clearTimeout(lostTimer);
+      canvas.removeEventListener("webglcontextlost", onLost);
+      canvas.removeEventListener("webglcontextrestored", onRestored);
+      document.removeEventListener("visibilitychange", onVisible);
       const t = three.current;
       if (t) {
         cancelAnimationFrame(t.raf);
         t.controls?.dispose();
         t.rig?.dispose();
-        t.scene.environment?.dispose();
+        t.room?.dispose();
+        t.envTexture.dispose();
         t.renderer.dispose();
+        t.renderer.forceContextLoss();
       }
       three.current = null;
     };
-  }, []);
+  }, [epoch, schedule]);
 
-  // The photo: wait for it, and light the window like the room.
+  // ── The photo: wait for it, and light the window like the room ─────────────────────────────────────────────────────────────
   useEffect(() => {
     setPhotoReady(false);
   }, [photo?.url]);
@@ -226,10 +296,40 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
     setPhotoReady(true);
   }, []);
 
-  // The window itself, rebuilt when its description changes.
+  // ── The room (no photo): rebuilt only when what it depends on changes ─────────────────────────────────────────────────────────
+  const boxH = model.accessories?.box?.heightMm ?? (model.accessories?.roller ? 250 : 0);
+  const roomKey = photo ? "photo" : `${model.widthMm}x${model.heightMm}:${model.door ? 1 : 0}:${boxH}`;
+  useEffect(() => {
+    const t = three.current;
+    if (!t) return;
+    if (t.room) {
+      t.scene.remove(t.room.group);
+      t.room.dispose();
+      t.room = null;
+      t.scene.fog = null;
+    }
+    t.hemi.groundColor.set(0x8a8478);
+    if (!photo) {
+      const room = buildRoom(latest.current.model, t.quality, t.anisotropy);
+      t.scene.add(room.group);
+      t.room = room;
+      t.scene.fog = new THREE.Fog(room.skyHex, 30000, 150000);
+      // Inside a room the light is the sun through the window plus a soft fill; the directional light of the photo mode is switched off.
+      t.hemi.intensity = 0.55;
+      t.hemi.color.set(0xfff4e6);
+      t.key.visible = false;
+      t.scene.environmentIntensity = 0.32;
+      t.renderer.shadowMap.needsUpdate = true;
+    } else {
+      t.key.visible = true;
+      t.scene.environmentIntensity = 0.7;
+    }
+    schedule();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [roomKey, qualityTick, epoch, schedule]);
+
+  // ── The window itself, rebuilt when its description changes ───────────────────────────────────────────────────────────────
   const modelKey = JSON.stringify(model);
-  const posesRef = useRef(poses);
-  posesRef.current = poses;
   useEffect(() => {
     const t = three.current;
     if (!t) return;
@@ -237,24 +337,40 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
       t.scene.remove(t.rig.group);
       t.rig.dispose();
     }
-    const rig = buildWindow3D(model, new THREE.TextureLoader());
-    posesRef.current.forEach((p, i) => rig.setPose(i, p));
+    const m = latest.current.model;
+    const rig = buildWindow3D(latest.current.photo ? m : { ...m, surround: ROOM_SURROUND }, { textureLoader: new THREE.TextureLoader(), anisotropy: t.anisotropy, onAsync: schedule });
+    latest.current.poses.forEach((p, i) => rig.setPose(i, p));
+    rig.setAccessoryState(latest.current.accessories);
     rig.step(10); // a rebuilt window appears already in its pose
+    rig.group.traverse((o) => {
+      const mesh = o as THREE.Mesh;
+      if (mesh.isMesh) {
+        const mat = mesh.material as THREE.Material;
+        mesh.castShadow = !mat.transparent;
+        mesh.receiveShadow = true;
+      }
+    });
     t.scene.add(rig.group);
     t.rig = rig;
+    t.renderer.shadowMap.needsUpdate = true;
     schedule();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [modelKey, schedule]);
+  }, [modelKey, !!photo, epoch, schedule]);
 
-  // Poses: animate to the asked ones.
   useEffect(() => {
     const t = three.current;
     if (!t?.rig) return;
     poses.forEach((p, i) => t.rig!.setPose(i, p));
     schedule();
   }, [poses, schedule]);
+  useEffect(() => {
+    const t = three.current;
+    if (!t?.rig) return;
+    t.rig.setAccessoryState(accessories);
+    schedule();
+  }, [accessories, schedule]);
 
-  // Camera, wall and size: photo mode follows the photo, free mode orbits.
+  // ── Camera and size: photo mode follows the photo, room mode orbits ───────────────────────────────────────────────────────────
   useEffect(() => {
     const t = three.current;
     if (!t || cssW <= 0 || cssH <= 0) return;
@@ -263,10 +379,6 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
     if (photo) {
       t.controls?.dispose();
       t.controls = null;
-      if (t.wall) {
-        t.scene.remove(t.wall);
-        t.wall = null;
-      }
       const scale = cssW / photo.width;
       const pose = poseFromQuad(photo.quad, model.widthMm, model.heightMm, photo, photo.focalPx);
       if (pose) {
@@ -282,60 +394,116 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
       cam.matrixAutoUpdate = true;
       cam.matrixWorldAutoUpdate = true;
       cam.aspect = cssW / cssH;
-      cam.fov = 38;
+      cam.fov = cssW / cssH < 0.8 ? 62 : 46;
       cam.near = NEAR;
       cam.far = FAR;
       cam.updateProjectionMatrix();
-      if (!t.wall) {
-        t.wall = wallFor(model);
-        t.scene.add(t.wall);
-        cam.position.set(model.widthMm * 0.5 + 500, model.heightMm * 0.55, Math.max(model.widthMm, model.heightMm) * 2.3 + 900);
-      }
       if (!t.controls) {
         const c = new OrbitControls(cam, t.renderer.domElement);
         c.enableDamping = true;
+        c.dampingFactor = 0.08;
         c.enablePan = false;
-        c.minDistance = 900;
-        c.maxDistance = 9000;
-        c.minPolarAngle = 0.55;
-        c.maxPolarAngle = 1.75;
-        c.minAzimuthAngle = -1.25;
-        c.maxAzimuthAngle = 1.25;
+        c.rotateSpeed = 0.7;
+        c.zoomSpeed = 0.8;
+        c.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_ROTATE };
         c.addEventListener("change", schedule);
         t.controls = c;
       }
-      t.controls.target.set(model.widthMm / 2, model.heightMm / 2, -FRAME_DEPTH_MM / 2);
-      t.controls.update();
     }
     schedule();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [photo, cssW, cssH, modelKey, schedule]);
+  }, [photo, cssW, cssH, modelKey, epoch, schedule]);
 
-  // A tap on a leaf asks the parent to open or close it (a drag turns the view and is not a tap).
+  // The starting camera of the room: inside (eye height, looking at the window) or outside (in the garden, looking at the facade).
+  useEffect(() => {
+    const t = three.current;
+    const room = t?.room;
+    if (!t || !room || !t.controls || photo) return;
+    const { cx, floorY, wallFaceZ, outerFaceZ } = room.bounds;
+    const H = latest.current.model.heightMm;
+    const c = t.controls;
+    c.minPolarAngle = 0.5;
+    c.maxPolarAngle = 1.72;
+    if (view === "inside") {
+      t.camera.position.set(cx + 450, floorY + 1500, wallFaceZ + 3400);
+      c.target.set(cx, Math.min(floorY + 1500, Math.max(floorY + 800, H / 2)), 0);
+      c.minDistance = 700;
+      c.maxDistance = 4300;
+    } else {
+      t.camera.position.set(cx + 1500, floorY + 1250, outerFaceZ - 4600);
+      c.target.set(cx, H / 2, outerFaceZ);
+      c.minDistance = 1200;
+      c.maxDistance = 14000;
+    }
+    c.update();
+    schedule();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, viewNonce, roomKey, epoch, cssW > 0, schedule]);
+
+  // Keep the camera on its own side of the wall: a swing of about 75° either way, never through the wall or behind the room.
+  useEffect(() => {
+    const t = three.current;
+    if (!t?.controls || !t.room) return;
+    const c = t.controls;
+    const room = t.room;
+    const onChange = () => {
+      const side = latest.current.view === "inside" ? 1 : -1;
+      const dx = t.camera.position.x - c.target.x;
+      const dz = (t.camera.position.z - c.target.z) * side;
+      const limit = Math.tan((75 * Math.PI) / 180);
+      if (dz < 200) {
+        t.camera.position.z = c.target.z + 200 * side;
+      } else if (Math.abs(dx) > dz * limit) {
+        t.camera.position.x = c.target.x + Math.sign(dx) * dz * limit;
+      }
+      // The inside view stays inside the room.
+      if (latest.current.view === "inside") {
+        t.camera.position.x = Math.min(room.bounds.maxX - 150, Math.max(room.bounds.minX + 150, t.camera.position.x));
+        t.camera.position.z = Math.min(room.bounds.backZ - 150, t.camera.position.z);
+        t.camera.position.y = Math.min(room.bounds.ceilingY - 120, Math.max(room.bounds.floorY + 250, t.camera.position.y));
+      }
+    };
+    c.addEventListener("change", onChange);
+    return () => c.removeEventListener("change", onChange);
+  }, [roomKey, epoch, photo]);
+
+  // ── A tap on a leaf or on an accessory asks the parent to move it (a drag turns the view and is not a tap) ──────────────────
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    let down: { x: number; y: number } | null = null;
+    let down: { x: number; y: number; id: number } | null = null;
+    let pointers = 0;
     const onDown = (e: PointerEvent) => {
-      down = { x: e.clientX, y: e.clientY };
+      pointers++;
+      down = pointers === 1 ? { x: e.clientX, y: e.clientY, id: e.pointerId } : null;
     };
     const onUp = (e: PointerEvent) => {
+      pointers = Math.max(0, pointers - 1);
       const t = three.current;
-      if (!t?.rig || !down || Math.hypot(e.clientX - down.x, e.clientY - down.y) > 6) return;
+      const d = down;
       down = null;
+      if (!t?.rig || !d || d.id !== e.pointerId || Math.hypot(e.clientX - d.x, e.clientY - d.y) > 8) return;
       const r = canvas.getBoundingClientRect();
       const ndc = new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -(((e.clientY - r.top) / r.height) * 2 - 1));
       const ray = new THREE.Raycaster();
       ray.setFromCamera(ndc, t.camera);
-      const hit = ray.intersectObjects(t.rig.hitTargets, false)[0];
-      const idx = hit?.object.userData.sashIndex;
-      if (typeof idx === "number") tapRef.current?.(idx);
+      const hit = ray.intersectObjects([...t.rig.accessoryHits, ...t.rig.hitTargets], false)[0];
+      if (!hit) return;
+      const acc = hit.object.userData.accessory as AccessoryName | undefined;
+      if (acc) cb.current.onAccessoryTap?.(acc);
+      else if (typeof hit.object.userData.sashIndex === "number") cb.current.onSashTap?.(hit.object.userData.sashIndex);
+    };
+    const onCancel = () => {
+      pointers = 0;
+      down = null;
     };
     canvas.addEventListener("pointerdown", onDown);
     canvas.addEventListener("pointerup", onUp);
+    canvas.addEventListener("pointercancel", onCancel);
     return () => {
       canvas.removeEventListener("pointerdown", onDown);
       canvas.removeEventListener("pointerup", onUp);
+      canvas.removeEventListener("pointercancel", onCancel);
     };
   }, []);
 
@@ -356,14 +524,13 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
           const g = out.getContext("2d");
           if (!g) return null;
           g.drawImage(img, 0, 0, out.width, out.height);
-          // The renderer clears its buffer after presenting; a fresh render just above keeps this frame readable in the same task.
           g.drawImage(canvas, 0, 0, out.width, out.height);
         } else {
           out.width = canvas.width;
           out.height = canvas.height;
           const g = out.getContext("2d");
           if (!g) return null;
-          g.fillStyle = "#e9e4dc";
+          g.fillStyle = "#cfe3f1";
           g.fillRect(0, 0, out.width, out.height);
           g.drawImage(canvas, 0, 0);
         }
@@ -376,7 +543,15 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
   return (
     <div
       ref={boxRef}
-      style={{ position: "relative", width: "100%", height: photo ? photoBoxHeight(photo, box.width) : minHeight, background: photo ? "#111" : "#dfe8ee", borderRadius: 12, overflow: "hidden", touchAction: photo ? "manipulation" : "none" }}
+      style={{
+        position: "relative",
+        width: "100%",
+        height: fill ? "100%" : photo ? photoBoxHeight(photo, box.width) : 420,
+        background: photo ? "#111" : "#cfe3f1",
+        overflow: "hidden",
+        borderRadius: fill ? 0 : 12,
+        touchAction: "none",
+      }}
     >
       {photo && fit ? (
         // eslint-disable-next-line @next/next/no-img-element
@@ -386,7 +561,7 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
           alt=""
           onLoad={onPhotoLoad}
           draggable={false}
-          style={{ position: "absolute", left: fit.offsetX, top: fit.offsetY, width: fit.width, height: fit.height, userSelect: "none" }}
+          style={{ position: "absolute", left: fit.offsetX, top: fit.offsetY, width: fit.width, height: fit.height, userSelect: "none", pointerEvents: "none" }}
         />
       ) : null}
       <canvas
@@ -395,7 +570,7 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
         aria-label={ariaLabel}
         data-testid="render3d-canvas"
         data-ready={photo ? String(photoReady) : "true"}
-        style={{ position: "absolute", left: photo && fit ? fit.offsetX : 0, top: photo && fit ? fit.offsetY : 0, width: cssW || "100%", height: cssH || "100%", opacity: photo && !photoReady ? 0 : 1 }}
+        style={{ position: "absolute", left: photo && fit ? fit.offsetX : 0, top: photo && fit ? fit.offsetY : 0, width: cssW || "100%", height: cssH || "100%", opacity: photo && !photoReady ? 0 : 1, touchAction: "none", outline: "none" }}
       />
     </div>
   );
