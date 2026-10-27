@@ -1,181 +1,191 @@
 "use client";
 
 /**
- * Measure from a photo + 3D render of the new window in the customer's home.
- * One component for the public widget and for the platform page: the owner passes the window (as the 3D model), the catalogue
- * choices and the callbacks that change the configuration, so the price and everything else stay in the owner's hands.
+ * The 3D render of the new window, full screen: the room (or the customer's photo) fills the screen and a floating menu on top lets
+ * the customer change everything (colour, hardware, glass, profile, leaf layout, openings, accessories) while the window moves and
+ * changes in front of them. One component for every configurator: the owner passes the window (as the 3D model), the menu fields and the
+ * callbacks that change the configuration, so the price and everything else stay in the owner's hands.
  */
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from "react";
-import { openingSide, type SashKind } from "@/shared/sash-rules";
-import { A4_MM, CARD_MM, estimateRectangle, isValidQuad, measureQuadAgainstReference, type PhotoSize, type Quad } from "@/lib/render3d/geometry";
-import { loadPhoto, releasePhoto, type LoadedPhoto } from "@/lib/render3d/photo";
-import { render3dText, type Render3DText } from "@/lib/render3d/render3d-text";
-import { posesFor, type SashPose, type Window3DInput } from "@/lib/render3d/window-3d";
-import { defaultQuad, PhotoMarker } from "./PhotoMarker";
-import { Render3DViewer, type Render3DViewerHandle, type ViewerPhoto } from "./Render3DViewer";
+import { Blinds, Camera, Columns3, Download, DoorOpen, Layers, Maximize2, Minimize2, Palette, RotateCcw, Share2, Square, Wrench, ArrowLeft, X, type LucideIcon } from "lucide-react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { detectCaps, type Caps, type Quality } from "@/lib/render3d/capabilities";
+import { canNativeFullscreen, enterNativeFullscreen, exitNativeFullscreen, nativeFullscreenElement, onNativeFullscreenChange } from "@/lib/render3d/fullscreen";
+import { estimateRectangle, isValidQuad, type PhotoSize, type Quad } from "@/lib/render3d/geometry";
+import { releasePhoto, type LoadedPhoto } from "@/lib/render3d/photo";
+import { render3dText } from "@/lib/render3d/render3d-text";
+import { GROUP_IDS, render3dUi, type GroupId } from "@/lib/render3d/render3d-ui-text";
+import { DEFAULT_ACCESSORY_STATE, posesFor, type AccessoryName, type AccessoryState, type SashPose, type Window3DInput } from "@/lib/render3d/window-3d";
+import { PhotoFlow } from "./PhotoFlow";
+import { Fields, type FieldDef, type GroupDef } from "./studio-fields";
+import { STUDIO_CSS } from "./studio-ui";
+import { Render3DViewer, type Render3DViewerHandle, type ViewSide, type ViewerPhoto } from "./Render3DViewer";
 
-export interface StudioSwatch {
-  key: string;
-  label: string;
-  hex: string;
-  textureUrl?: string;
-}
+export type { FieldDef, GroupDef, StudioSwatch, StudioOption } from "./studio-fields";
 
 export interface Render3DStudioProps {
   lang: string;
   model: Window3DInput;
-  colors: StudioSwatch[];
-  colorKey: string;
-  onColor: (key: string) => void;
-  hardware: StudioSwatch[];
-  hardwareKey: string;
-  onHardware: (key: string) => void;
-  sashTypes: Array<{ key: SashKind; label: string }>;
-  onSashType: (index: number, type: SashKind) => void;
-  /** The opening side as named in the interface (see `openingSide` in sash-rules): the owner converts it to the stored direction. */
-  onSashDirection: (index: number, side: "left" | "right") => void;
+  /** The menu: one group per tab, drawn from these fields. A group with no fields has no tab. */
+  groups: GroupDef[];
   limits: { minWidth: number; maxWidth: number; minHeight: number; maxHeight: number };
   onSize: (widthMm: number, heightMm: number) => void;
-  /** Where the customer goes back to change the rest of the configuration (the widget form); absent = no such button. */
-  onClose?: () => void;
+  /** Back to the normal view (the configuration form, or the page before). */
+  onBack: () => void;
+  /** Called with true when the full-screen layer appears and false when it goes (a widget in a frame asks its host page for the whole screen). */
+  onLayer?: (on: boolean) => void;
   accent?: string;
 }
 
-type Step = "measure" | "photo" | "view";
-type RefKind = "card" | "a4" | "width" | "height";
+const ICONS: Record<GroupId, LucideIcon> = {
+  color: Palette,
+  hardware: Wrench,
+  glass: Square,
+  profile: Layers,
+  leaves: Columns3,
+  openings: DoorOpen,
+  accessories: Blinds,
+  photo: Camera,
+};
 
-const card: CSSProperties = { border: "1px solid var(--color-border, #d1d5db)", borderRadius: 12, padding: 14, background: "var(--color-bg-alt, #f9fafb)" };
-const input: CSSProperties = { width: "100%", minHeight: 44, borderRadius: 8, border: "1px solid var(--color-border, #d1d5db)", padding: "8px 10px", fontSize: 16, background: "var(--color-bg, #fff)", color: "var(--color-text, #111827)" };
-
-const sizeText = (t: string, p: Record<string, string | number>) => Object.entries(p).reduce((s, [k, v]) => s.replace(`{${k}}`, String(v)), t);
-
-function Btn({ children, onClick, primary, accent, disabled, testId, ariaPressed }: { children: ReactNode; onClick?: () => void; primary?: boolean; accent: string; disabled?: boolean; testId?: string; ariaPressed?: boolean }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      aria-pressed={ariaPressed}
-      data-testid={testId}
-      style={{
-        minHeight: 44,
-        padding: "8px 16px",
-        borderRadius: 10,
-        fontSize: 14,
-        fontWeight: 650,
-        cursor: disabled ? "default" : "pointer",
-        opacity: disabled ? 0.5 : 1,
-        border: `1.5px solid ${primary || ariaPressed ? accent : "var(--color-border, #d1d5db)"}`,
-        background: primary ? accent : ariaPressed ? "var(--color-mint-light, #ecfdf5)" : "var(--color-bg, #fff)",
-        color: primary ? "#fff" : "var(--color-text, #111827)",
-      }}
-    >
-      {children}
-    </button>
-  );
+function useWide(): boolean {
+  const [wide, setWide] = useState(() => (typeof window === "undefined" ? true : window.matchMedia("(min-width: 760px) and (min-height: 480px)").matches));
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 760px) and (min-height: 480px)");
+    const on = () => setWide(mq.matches);
+    mq.addEventListener("change", on);
+    return () => mq.removeEventListener("change", on);
+  }, []);
+  return wide;
 }
 
 export function Render3DStudio(props: Render3DStudioProps) {
-  const { lang, model, colors, colorKey, onColor, hardware, hardwareKey, onHardware, sashTypes, onSashType, onSashDirection, limits, onSize, onClose, accent = "#16a34a" } = props;
-  const t: Render3DText = render3dText(lang);
-  const [step, setStep] = useState<Step>("measure");
-  const [photo, setPhoto] = useState<LoadedPhoto | null>(null);
-  const [photoError, setPhotoError] = useState(false);
-  const [quad, setQuad] = useState<Quad | null>(null);
-  const [refKind, setRefKind] = useState<RefKind>("card");
-  const [refQuad, setRefQuad] = useState<Quad | null>(null);
-  const [known, setKnown] = useState("");
-  // What is being typed; null = show the size of the configuration (so a change made elsewhere shows up here).
-  const [wEdit, setWEdit] = useState<string | null>(null);
-  const [hEdit, setHEdit] = useState<string | null>(null);
-  const wText = wEdit ?? String(model.widthMm);
-  const hText = hEdit ?? String(model.heightMm);
-  const setWText = setWEdit;
-  const setHText = setHEdit;
-  const [poses, setPoses] = useState<SashPose[]>([]);
-  const [unsupported, setUnsupported] = useState(false);
+  const { lang, model, groups, limits, onSize, onBack, onLayer, accent = "#16d19d" } = props;
+  const t = render3dText(lang);
+  const ui = render3dUi(lang);
+  const wide = useWide();
+  const layer = useRef<HTMLDivElement>(null);
   const viewer = useRef<Render3DViewerHandle>(null);
+  const [caps] = useState<Caps | null>(() => (typeof window === "undefined" ? null : detectCaps()));
+  const [unsupported, setUnsupported] = useState<null | "webgl" | "context">(caps && !caps.webgl2 ? "webgl" : null);
+  const [retry, setRetry] = useState(0);
+  const [open, setOpen] = useState<GroupId | null>(() => (typeof window !== "undefined" && window.matchMedia("(min-width: 760px) and (min-height: 480px)").matches ? "color" : null));
+  const [flow, setFlow] = useState(false);
+  const [photo, setPhoto] = useState<LoadedPhoto | null>(null);
+  const [quad, setQuad] = useState<Quad | null>(null);
+  const [poses, setPoses] = useState<SashPose[]>([]);
+  const [acc, setAcc] = useState<AccessoryState>(DEFAULT_ACCESSORY_STATE);
+  const [view, setView] = useState<ViewSide>("inside");
+  const [viewNonce, setViewNonce] = useState(0);
+  const [isFs, setIsFs] = useState(false);
+  const [fsOk, setFsOk] = useState(false);
+  const [hint, setHint] = useState(true);
+  const [light, setLight] = useState(false);
+  const startQuality = useRef<Quality | null>(null);
+
+  // ── The layer: tells the host it is up, locks the page behind it, tries the native full screen, keeps focus inside ───────────────
+  useEffect(() => {
+    onLayer?.(true);
+    setFsOk(canNativeFullscreen(layer.current));
+    const html = document.documentElement;
+    const prev = html.style.overflow;
+    html.style.overflow = "hidden";
+    // The browser only allows full screen right after a tap; if that moment has passed this quietly fails and the button stays available.
+    if (layer.current && canNativeFullscreen(layer.current)) void enterNativeFullscreen(layer.current);
+    const off = onNativeFullscreenChange(() => setIsFs(nativeFullscreenElement() === layer.current));
+    const timer = window.setTimeout(() => setHint(false), 7000);
+    return () => {
+      window.clearTimeout(timer);
+      off();
+      html.style.overflow = prev;
+      void exitNativeFullscreen();
+      onLayer?.(false);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const photoRef = useRef<LoadedPhoto | null>(null);
   useEffect(() => {
     photoRef.current = photo;
   }, [photo]);
   useEffect(() => () => releasePhoto(photoRef.current), []);
 
-  const onFile = async (file: File | undefined) => {
-    if (!file) return;
-    try {
-      const p = await loadPhoto(file);
-      releasePhoto(photoRef.current);
-      setPhoto(p);
-      setQuad(defaultQuad(p));
-      setRefQuad(defaultQuad(p, 0.38));
-      setPhotoError(false);
-      setStep("photo");
-    } catch {
-      setPhotoError(true);
-    }
-  };
+  // The parent hands a new onBack on every render: keeping the latest in a ref keeps `back` (and the key listener below) stable.
+  const onBackRef = useRef(onBack);
+  useEffect(() => {
+    onBackRef.current = onBack;
+  }, [onBack]);
+  const back = useCallback(() => {
+    void exitNativeFullscreen();
+    onBackRef.current();
+  }, []);
 
+  // Focus starts on "back" once, when the layer opens (never again while it is used: that would pull it out of a field being typed in).
+  useEffect(() => {
+    layer.current?.querySelector<HTMLElement>("[data-r3d-initial-focus]")?.focus({ preventScroll: true });
+  }, []);
+
+  // Escape closes the open panel, then leaves; Tab stays inside the layer.
+  useEffect(() => {
+    const el = layer.current;
+    if (!el) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !nativeFullscreenElement()) {
+        e.preventDefault();
+        if (flow) setFlow(false);
+        else if (open) setOpen(null);
+        else back();
+      }
+      if (e.key === "Tab") {
+        const f = Array.from(el.querySelectorAll<HTMLElement>('button:not([disabled]),[href],input:not([disabled]),select:not([disabled]),[tabindex]:not([tabindex="-1"])')).filter((n) => n.offsetParent !== null);
+        if (f.length === 0) return;
+        const a = f[0];
+        const z = f[f.length - 1];
+        if (e.shiftKey && document.activeElement === a) {
+          e.preventDefault();
+          z.focus();
+        } else if (!e.shiftKey && document.activeElement === z) {
+          e.preventDefault();
+          a.focus();
+        }
+      }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [back, flow, open]);
+
+  // ── The photo: its pose (focal length trusted only inside what a phone camera can have) ─────────────────────────────────────────
   const photoSize = useMemo<PhotoSize | null>(() => (photo ? { width: photo.width, height: photo.height } : null), [photo]);
   const quadOk = !!quad && isValidQuad(quad);
   const estimate = useMemo(() => (quadOk && photoSize ? estimateRectangle(quad!, photoSize) : null), [quadOk, quad, photoSize]);
-
-  // A focal length read from hand-placed corners is only trusted inside what a phone camera can really have.
   const focalPx = useMemo(() => {
     if (!estimate?.focalPx || !photoSize) return null;
     const side = Math.max(photoSize.width, photoSize.height);
     return estimate.focalPx >= 0.45 * side && estimate.focalPx <= 2.2 * side ? estimate.focalPx : null;
   }, [estimate, photoSize]);
-
   const viewerPhoto: ViewerPhoto | null = photo && quadOk ? { url: photo.url, width: photo.width, height: photo.height, quad: quad!, focalPx } : null;
-  const mismatch = !!estimate && Math.abs(Math.log(estimate.aspect / (model.widthMm / model.heightMm))) > 0.12;
 
-  // --- Poses: one per leaf, always something the leaf can do.
+  // ── Poses and accessories ─────────────────────────────────────────────────────────────────────────────────────────────────────
   const effective = useMemo(() => model.sashes.map((s, i) => (posesFor(s.type).includes(poses[i]) ? poses[i] : "closed")), [model.sashes, poses]);
-  const setPose = useCallback(
-    (i: number, p: SashPose) => setPoses((old) => model.sashes.map((_, k) => (k === i ? p : (old[k] ?? "closed")))),
-    [model.sashes],
-  );
-  const tap = useCallback(
+  const setPose = useCallback((i: number, p: SashPose) => setPoses((old) => model.sashes.map((_, k) => (k === i ? p : (old[k] ?? "closed")))), [model.sashes]);
+  const tapSash = useCallback(
     (i: number) => {
       const s = model.sashes[i];
       if (!s) return;
       const order = posesFor(s.type);
       if (order.length < 2) return;
-      const cur = effective[i];
-      setPose(i, order[(order.indexOf(cur) + 1) % order.length]);
+      setPose(i, order[(order.indexOf(effective[i]) + 1) % order.length]);
     },
     [effective, model.sashes, setPose],
   );
   const setAll = (mode: "open" | "closed") => setPoses(model.sashes.map((s) => (mode === "closed" ? "closed" : posesFor(s.type).includes("open") ? "open" : posesFor(s.type).includes("tilt") ? "tilt" : "closed")));
+  const toggleAcc = useCallback((name: AccessoryName) => setAcc((a) => ({ ...a, [name]: a[name] > 0.5 ? 0 : 1 })), []);
 
-  // --- Measures.
-  const commitSize = () => {
-    const w = Math.round(Number(wText.replace(",", ".")));
-    const h = Math.round(Number(hText.replace(",", ".")));
-    if (Number.isFinite(w) && Number.isFinite(h) && w >= limits.minWidth && w <= limits.maxWidth && h >= limits.minHeight && h <= limits.maxHeight) {
-      onSize(w, h);
-      setWEdit(null);
-      setHEdit(null);
-    }
-  };
-  const wBad = !(Number(wText) >= limits.minWidth && Number(wText) <= limits.maxWidth);
-  const hBad = !(Number(hText) >= limits.minHeight && Number(hText) <= limits.maxHeight);
+  const hasScreen = !!model.accessories?.screen;
+  const hasRoller = !!model.accessories?.roller;
+  const hasShutter = !!model.accessories?.shutter;
+  const screenMovable = hasScreen && model.accessories?.screen?.kind !== "fixed";
 
-  const measured = useMemo(() => {
-    if (!photoSize || !quadOk) return null;
-    if (refKind === "card" || refKind === "a4") {
-      if (!refQuad || !isValidQuad(refQuad)) return null;
-      const m = measureQuadAgainstReference(refQuad, refKind === "card" ? CARD_MM : A4_MM, quad!);
-      return m ? { w: Math.round(m.widthMm), h: Math.round(m.heightMm), skew: m.skew } : null;
-    }
-    if (!estimate) return null;
-    const v = Number(known.replace(",", "."));
-    if (!(v > 0)) return null;
-    return refKind === "width" ? { w: Math.round(v), h: Math.round(v / estimate.aspect), skew: 0 } : { w: Math.round(v * estimate.aspect), h: Math.round(v), skew: 0 };
-  }, [photoSize, quadOk, quad, refKind, refQuad, estimate, known]);
-  const measuredInRange = !!measured && measured.w >= limits.minWidth && measured.w <= limits.maxWidth && measured.h >= limits.minHeight && measured.h <= limits.maxHeight;
-
+  // ── Top bar actions ───────────────────────────────────────────────────────────────────────────────────────────────────────────
   const save = async (share: boolean) => {
     const blob = await viewer.current?.capture();
     if (!blob) return;
@@ -183,10 +193,10 @@ export function Render3DStudio(props: Render3DStudioProps) {
     if (share && typeof navigator.canShare === "function" && navigator.canShare({ files: [file] })) {
       try {
         await navigator.share({ files: [file], title: t.title });
-        return;
       } catch {
-        return; // the customer closed the share sheet
+        /* the customer closed the share sheet */
       }
+      return;
     }
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -195,216 +205,287 @@ export function Render3DStudio(props: Render3DStudioProps) {
     a.click();
     setTimeout(() => URL.revokeObjectURL(url), 2000);
   };
-
   const canShare = typeof navigator !== "undefined" && typeof navigator.canShare === "function";
-  const cameraInput = useRef<HTMLInputElement>(null);
-  const galleryInput = useRef<HTMLInputElement>(null);
+  const toggleFs = () => {
+    if (!layer.current) return;
+    if (nativeFullscreenElement()) void exitNativeFullscreen();
+    else void enterNativeFullscreen(layer.current);
+  };
 
-  const stepChips = (
-    <div role="tablist" aria-label={t.title} style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
-      {(["measure", "photo", "view"] as const).map((s, i) => (
-        <button
-          key={s}
-          type="button"
-          role="tab"
-          aria-selected={step === s}
-          data-testid={`r3d-step-${s}`}
-          onClick={() => setStep(s)}
-          style={{ minHeight: 44, padding: "6px 14px", borderRadius: 999, fontSize: 13.5, fontWeight: 650, cursor: "pointer", border: `1.5px solid ${step === s ? accent : "var(--color-border, #d1d5db)"}`, background: step === s ? "var(--color-mint-light, #ecfdf5)" : "var(--color-bg, #fff)", color: "var(--color-text, #111827)" }}
-        >
-          {i + 1}. {s === "measure" ? t.stepMeasure : s === "photo" ? t.stepPhoto : t.step3d}
-        </button>
-      ))}
+  // ── The menu ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+  const byId = useMemo(() => new Map(groups.map((g) => [g.id, g.fields] as const)), [groups]);
+  const tabs = GROUP_IDS.filter((id) => id === "photo" || id === "openings" || (byId.get(id)?.length ?? 0) > 0 || (id === "accessories" && (hasScreen || hasRoller || hasShutter)));
+  const fields = (id: GroupId): FieldDef[] => byId.get(id) ?? [];
+
+  const liveCard = (title: string, children: React.ReactNode, testId: string) => (
+    <div className="r3d-card" data-testid={testId}>
+      <p className="r3d-label" style={{ margin: 0 }}>{title}</p>
+      <div className="r3d-chips">{children}</div>
     </div>
   );
-
-  const hiddenInputs = (
-    <>
-      <input ref={cameraInput} type="file" accept="image/*" capture="environment" hidden data-testid="r3d-camera" onChange={(e) => { void onFile(e.target.files?.[0]); e.target.value = ""; }} />
-      <input ref={galleryInput} type="file" accept="image/*" hidden data-testid="r3d-gallery" onChange={(e) => { void onFile(e.target.files?.[0]); e.target.value = ""; }} />
-    </>
+  const chip = (label: string, pressed: boolean, onClick: () => void, testId: string) => (
+    <button type="button" className="r3d-chip" aria-pressed={pressed} data-testid={testId} onClick={onClick}>
+      {label}
+    </button>
   );
 
-  const photoButtons = (
-    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-      <Btn primary accent={accent} onClick={() => cameraInput.current?.click()} testId="r3d-take">{t.takePhoto}</Btn>
-      <Btn accent={accent} onClick={() => galleryInput.current?.click()} testId="r3d-choose">{t.choosePhoto}</Btn>
-    </div>
-  );
+  const panelBody = (id: GroupId) => {
+    if (id === "photo") {
+      return (
+        <>
+          <p className="r3d-note">{photo ? ui.photoActive : ui.photoModeTitle}</p>
+          <div className="r3d-chips">
+            <button type="button" className="r3d-chip" data-testid="r3d-open-photoflow" onClick={() => setFlow(true)}>
+              <Camera size={16} aria-hidden="true" /> {photo ? t.changePhoto : t.takePhoto}
+            </button>
+            <button type="button" className="r3d-chip" data-testid="r3d-open-measure" onClick={() => setFlow(true)}>
+              {t.stepMeasure}: {model.widthMm} × {model.heightMm} {t.mm}
+            </button>
+            {photo ? (
+              <button
+                type="button"
+                className="r3d-chip"
+                data-testid="r3d-photo-off"
+                onClick={() => {
+                  releasePhoto(photo);
+                  setPhoto(null);
+                  setQuad(null);
+                }}
+              >
+                {ui.photoRemove}
+              </button>
+            ) : null}
+          </div>
+          <p className="r3d-note">{t.photoPrivacy}</p>
+        </>
+      );
+    }
+    if (id === "openings") {
+      return (
+        <>
+          <div className="r3d-chips">
+            {chip(t.openAll, false, () => setAll("open"), "r3d-open-all")}
+            {chip(t.closeAll, false, () => setAll("closed"), "r3d-close-all")}
+          </div>
+          <Fields fields={fields("openings")} />
+          {model.sashes.map((s, i) => {
+            const list = posesFor(s.type);
+            if (list.length < 2) return null;
+            return liveCard(
+              `${t.leaf} ${i + 1}`,
+              list.map((p) => chip(t.pose[p], effective[i] === p, () => setPose(i, p), `r3d-pose-${i}-${p}`)),
+              `r3d-live-leaf-${i}`,
+            );
+          })}
+          <p className="r3d-note">{ui.tapHint}</p>
+        </>
+      );
+    }
+    if (id === "accessories") {
+      const any = hasScreen || hasRoller || hasShutter || fields("accessories").length > 0;
+      return (
+        <>
+          <Fields fields={fields("accessories")} />
+          {hasScreen && screenMovable
+            ? liveCard(ui.netTitle, [chip(ui.netClose, acc.screen > 0.5, () => setAcc((a) => ({ ...a, screen: 1 })), "r3d-net-close"), chip(ui.netOpen, acc.screen <= 0.5, () => setAcc((a) => ({ ...a, screen: 0 })), "r3d-net-open")], "r3d-live-screen")
+            : null}
+          {hasRoller
+            ? liveCard(
+                ui.rollerTitle,
+                [
+                  chip(ui.rollerDown, acc.roller > 0.5, () => setAcc((a) => ({ ...a, roller: 1 })), "r3d-roller-down"),
+                  chip(ui.rollerUp, acc.roller <= 0.5, () => setAcc((a) => ({ ...a, roller: 0 })), "r3d-roller-up"),
+                ],
+                "r3d-live-roller",
+              )
+            : null}
+          {hasShutter
+            ? liveCard(ui.shutterTitle, [chip(ui.shutterClose, acc.shutter > 0.5, () => setAcc((a) => ({ ...a, shutter: 1 })), "r3d-shutter-close"), chip(ui.shutterOpen, acc.shutter <= 0.5, () => setAcc((a) => ({ ...a, shutter: 0 })), "r3d-shutter-open")], "r3d-live-shutter")
+            : null}
+          {!any ? <p className="r3d-note">{ui.accessoriesNone}</p> : null}
+          <div className="r3d-card">
+            <p className="r3d-label" style={{ margin: 0 }}>{ui.orderTitle}</p>
+            <p className="r3d-note">{ui.orderBody}</p>
+            {hasRoller && hasShutter ? <p className="r3d-note">{ui.orderNote}</p> : null}
+          </div>
+        </>
+      );
+    }
+    return (
+      <>
+        <Fields fields={fields(id)} />
+        {id === "glass" ? <p className="r3d-note">{ui.f.glassNote}</p> : null}
+      </>
+    );
+  };
+
+  const roomMode = !viewerPhoto;
+  const dockClass = `r3d-dock r3d-glass ${wide ? "v" : "h"}`;
 
   return (
-    <section aria-label={t.title} data-testid="render3d-studio" style={{ color: "var(--color-text, #111827)" }}>
-      {hiddenInputs}
-      {stepChips}
-      {photoError ? <p role="alert" style={{ color: "#b91c1c", fontSize: 13.5, margin: "0 0 10px" }}>{t.photoError}</p> : null}
-
-      {step === "measure" && (
-        <div style={{ display: "grid", gap: 14 }}>
-          <div style={card}>
-            <h3 style={{ margin: "0 0 4px", fontSize: 16 }}>{t.measureTitle}</h3>
-            <p style={{ margin: "0 0 10px", fontSize: 13.5, fontWeight: 600 }}>{t.measureManual}</p>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10 }}>
-              <label style={{ fontSize: 13, fontWeight: 600 }}>
-                {t.width} ({t.mm})
-                <input style={{ ...input, borderColor: wBad ? "#b91c1c" : undefined }} inputMode="numeric" data-testid="r3d-width" value={wText} onChange={(e) => setWText(e.target.value)} onBlur={commitSize} onKeyDown={(e) => e.key === "Enter" && commitSize()} aria-invalid={wBad} />
-                <span style={{ fontWeight: 400, fontSize: 12, color: wBad ? "#b91c1c" : "var(--color-text-secondary, #6b7280)" }}>{sizeText(t.limits, { min: limits.minWidth, max: limits.maxWidth })}</span>
-              </label>
-              <label style={{ fontSize: 13, fontWeight: 600 }}>
-                {t.height} ({t.mm})
-                <input style={{ ...input, borderColor: hBad ? "#b91c1c" : undefined }} inputMode="numeric" data-testid="r3d-height" value={hText} onChange={(e) => setHText(e.target.value)} onBlur={commitSize} onKeyDown={(e) => e.key === "Enter" && commitSize()} aria-invalid={hBad} />
-                <span style={{ fontWeight: 400, fontSize: 12, color: hBad ? "#b91c1c" : "var(--color-text-secondary, #6b7280)" }}>{sizeText(t.limits, { min: limits.minHeight, max: limits.maxHeight })}</span>
-              </label>
-            </div>
-          </div>
-
-          <div style={card}>
-            <h3 style={{ margin: "0 0 4px", fontSize: 16 }}>{t.measureFromPhoto}</h3>
-            <p style={{ margin: "0 0 10px", fontSize: 13, color: "var(--color-text-secondary, #6b7280)" }}>{t.measureFromPhotoHint}</p>
-            {!photo || !quadOk ? (
-              <div style={{ display: "grid", gap: 8 }}>
-                <p style={{ margin: 0, fontSize: 13.5 }}>{t.needPhoto}</p>
-                {photo ? <Btn accent={accent} onClick={() => setStep("photo")}>{t.stepPhoto} →</Btn> : photoButtons}
-              </div>
-            ) : (
-              <div style={{ display: "grid", gap: 10 }}>
-                <p style={{ margin: 0, fontSize: 13, fontWeight: 650 }}>{t.refTitle}</p>
-                <div role="group" aria-label={t.refTitle} style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                  {(["card", "a4", "width", "height"] as const).map((k) => (
-                    <Btn key={k} accent={accent} ariaPressed={refKind === k} onClick={() => setRefKind(k)} testId={`r3d-ref-${k}`}>
-                      {k === "card" ? t.refCard : k === "a4" ? t.refA4 : k === "width" ? t.refWidth : t.refHeight}
-                    </Btn>
-                  ))}
-                </div>
-                {refKind === "card" || refKind === "a4" ? (
-                  refQuad ? (
-                    <PhotoMarker photo={photo} quad={refQuad} onChange={setRefQuad} cornerLabels={t.corner} hint={refKind === "card" ? t.refHintCard : t.refHintA4} color="#2563eb" />
-                  ) : null
-                ) : (
-                  <label style={{ fontSize: 13, fontWeight: 600 }}>
-                    {t.refValue} ({t.mm})
-                    <input style={input} inputMode="numeric" data-testid="r3d-known" value={known} onChange={(e) => setKnown(e.target.value)} />
-                    <span style={{ fontWeight: 400, fontSize: 12, color: "var(--color-text-secondary, #6b7280)" }}>{t.refHintKnown}</span>
-                  </label>
-                )}
-                {measured ? (
-                  <div data-testid="r3d-measured" style={{ borderRadius: 10, padding: 12, border: `1.5px solid ${accent}`, background: "var(--color-mint-light, #ecfdf5)" }}>
-                    <div style={{ fontSize: 12.5, fontWeight: 650 }}>{t.measureResult}</div>
-                    <div style={{ fontSize: 22, fontWeight: 800 }}>{measured.w} × {measured.h} {t.mm}</div>
-                    {measured.skew > 0.06 ? <p style={{ margin: "6px 0 0", fontSize: 12.5, color: "#92400e" }}>{t.measureQualityBad}</p> : null}
-                    {!measuredInRange ? <p style={{ margin: "6px 0 0", fontSize: 12.5, color: "#b91c1c" }}>{t.measureOutOfRange}</p> : null}
-                    <div style={{ marginTop: 8 }}>
-                      <Btn primary accent={accent} disabled={!measuredInRange} testId="r3d-use-measure" onClick={() => { onSize(measured.w, measured.h); setWEdit(null); setHEdit(null); }}>{t.measureUse}</Btn>
-                    </div>
-                  </div>
+    <div
+      ref={layer}
+      className="r3d-layer"
+      role="dialog"
+      aria-modal="true"
+      aria-label={t.title}
+      data-testid="render3d-studio"
+      style={{ ["--r3d-accent" as string]: accent } as React.CSSProperties}
+    >
+      <style>{STUDIO_CSS}</style>
+      <div className="r3d-view">
+        {unsupported ? (
+          <div className="r3d-fallback" role="alert" data-testid="r3d-unsupported">
+            <div className="r3d-glass" style={{ maxWidth: 480, padding: 22, borderRadius: 20 }}>
+              <p style={{ margin: "0 0 14px", fontSize: 15, lineHeight: 1.5 }}>{unsupported === "webgl" ? ui.unsupportedWebgl : ui.unsupportedContext}</p>
+              <div style={{ display: "flex", gap: 8, justifyContent: "center", flexWrap: "wrap" }}>
+                {unsupported === "context" ? (
+                  <button type="button" className="r3d-btn" onClick={() => { setUnsupported(null); setRetry((n) => n + 1); }}>
+                    {ui.tryAgain}
+                  </button>
                 ) : null}
-                <p style={{ margin: 0, fontSize: 12, color: "var(--color-text-secondary, #6b7280)" }}>{t.measureDisclaimer}</p>
-              </div>
-            )}
-          </div>
-          <div style={{ display: "flex", justifyContent: "flex-end" }}>
-            <Btn primary accent={accent} onClick={() => setStep("photo")} testId="r3d-next-photo">{t.next} →</Btn>
-          </div>
-        </div>
-      )}
-
-      {step === "photo" && (
-        <div style={{ display: "grid", gap: 12 }}>
-          <h3 style={{ margin: 0, fontSize: 16 }}>{photo ? t.markTitle : t.photoTitle}</h3>
-          {!photo || !quad ? (
-            <div style={card}>
-              <p style={{ margin: "0 0 10px", fontSize: 13.5 }}>{t.photoHint}</p>
-              {photoButtons}
-              <p style={{ margin: "10px 0 0", fontSize: 12, color: "var(--color-text-secondary, #6b7280)" }}>{t.photoPrivacy}</p>
-            </div>
-          ) : (
-            <>
-              <PhotoMarker photo={photo} quad={quad} onChange={setQuad} cornerLabels={t.corner} hint={t.markHint} color={accent} />
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-                <Btn accent={accent} onClick={() => setQuad(defaultQuad(photo))}>{t.resetCorners}</Btn>
-                <Btn accent={accent} onClick={() => cameraInput.current?.click()}>{t.changePhoto}</Btn>
-                <span style={{ fontSize: 12, color: "var(--color-text-secondary, #6b7280)" }}>{t.photoPrivacy}</span>
-              </div>
-            </>
-          )}
-          <div style={{ display: "flex", justifyContent: "space-between", gap: 8 }}>
-            <Btn accent={accent} onClick={() => setStep("measure")}>← {t.back}</Btn>
-            <Btn primary accent={accent} onClick={() => setStep("view")} testId="r3d-next-view">{t.next} →</Btn>
-          </div>
-        </div>
-      )}
-
-      {step === "view" && (
-        <div style={{ display: "grid", gap: 12 }}>
-          <h3 style={{ margin: 0, fontSize: 16 }}>{t.view3dTitle}</h3>
-          {unsupported ? (
-            <p role="alert" style={{ ...card, fontSize: 14 }}>{t.unsupported}</p>
-          ) : (
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 320px), 1fr))", gap: 14, alignItems: "start" }}>
-              <div>
-                <Render3DViewer ref={viewer} model={model} poses={effective} photo={viewerPhoto} onSashTap={tap} onUnsupported={() => setUnsupported(true)} ariaLabel={t.view3dTitle} />
-                <p style={{ margin: "6px 2px 0", fontSize: 12.5, color: "var(--color-text-secondary, #6b7280)" }}>{viewerPhoto ? t.viewHint : t.viewNoPhoto}</p>
-                {mismatch ? <p role="status" data-testid="r3d-mismatch" style={{ margin: "6px 2px 0", fontSize: 12.5, color: "#92400e" }}>{t.mismatch}</p> : null}
-                {!photo ? <div style={{ marginTop: 8 }}>{photoButtons}</div> : null}
-              </div>
-              <div style={{ display: "grid", gap: 12 }}>
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  <Btn accent={accent} onClick={() => setAll("open")} testId="r3d-open-all">{t.openAll}</Btn>
-                  <Btn accent={accent} onClick={() => setAll("closed")} testId="r3d-close-all">{t.closeAll}</Btn>
-                </div>
-                <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
-                  <legend style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>{t.colour}</legend>
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", maxHeight: 190, overflowY: "auto", padding: 2 }}>
-                    {colors.map((c) => (
-                      <button key={c.key} type="button" aria-label={c.label} title={c.label} aria-pressed={colorKey === c.key} data-testid={`r3d-colour-${c.key}`} onClick={() => onColor(c.key)} style={{ width: 44, height: 44, borderRadius: 10, padding: 0, cursor: "pointer", background: c.hex, backgroundImage: c.textureUrl ? `url(${c.textureUrl})` : undefined, backgroundSize: "cover", border: colorKey === c.key ? `3px solid ${accent}` : "1.5px solid var(--color-border, #d1d5db)", outline: colorKey === c.key ? "2px solid #fff" : undefined, outlineOffset: -5 }} />
-                    ))}
-                  </div>
-                </fieldset>
-                <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
-                  <legend style={{ fontSize: 13, fontWeight: 700, marginBottom: 6 }}>{t.hardware}</legend>
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                    {hardware.map((c) => (
-                      <button key={c.key} type="button" aria-label={c.label} title={c.label} aria-pressed={hardwareKey === c.key} data-testid={`r3d-hw-${c.key}`} onClick={() => onHardware(c.key)} style={{ width: 44, height: 44, borderRadius: 999, padding: 0, cursor: "pointer", background: c.hex, border: hardwareKey === c.key ? `3px solid ${accent}` : "1.5px solid var(--color-border, #d1d5db)" }} />
-                    ))}
-                  </div>
-                </fieldset>
-                {model.sashes.map((s, i) => (
-                  <div key={i} style={{ ...card, padding: 10, display: "grid", gap: 8 }}>
-                    <div style={{ fontSize: 13, fontWeight: 700 }}>{t.leaf} {i + 1}</div>
-                    <label style={{ fontSize: 12.5, fontWeight: 600 }}>
-                      {t.leafType}
-                      <select style={{ ...input, fontSize: 15 }} value={s.type} data-testid={`r3d-type-${i}`} onChange={(e) => onSashType(i, e.target.value as SashKind)}>
-                        {(sashTypes.some((o) => o.key === s.type) ? sashTypes : [...sashTypes, { key: s.type, label: s.type }]).map((o) => <option key={o.key} value={o.key}>{o.label}</option>)}
-                      </select>
-                    </label>
-                    {s.type !== "fix" && s.type !== "tilt" ? (
-                      <div role="group" aria-label={t.leafSide} style={{ display: "flex", gap: 6 }}>
-                        <Btn accent={accent} ariaPressed={openingSide(s.type, s.direction) === "left"} onClick={() => onSashDirection(i, "left")} testId={`r3d-dir-${i}-left`}>{t.left}</Btn>
-                        <Btn accent={accent} ariaPressed={openingSide(s.type, s.direction) === "right"} onClick={() => onSashDirection(i, "right")} testId={`r3d-dir-${i}-right`}>{t.right}</Btn>
-                      </div>
-                    ) : null}
-                    {posesFor(s.type).length > 1 ? (
-                      <div role="group" aria-label={t.leafType} style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                        {posesFor(s.type).map((p) => (
-                          <Btn key={p} accent={accent} ariaPressed={effective[i] === p} onClick={() => setPose(i, p)} testId={`r3d-pose-${i}-${p}`}>{t.pose[p]}</Btn>
-                        ))}
-                      </div>
-                    ) : null}
-                  </div>
-                ))}
-                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                  <Btn accent={accent} onClick={() => void save(false)} testId="r3d-save">{t.saveImage}</Btn>
-                  {canShare ? <Btn accent={accent} onClick={() => void save(true)}>{t.shareImage}</Btn> : null}
-                  {onClose ? <Btn primary accent={accent} onClick={onClose} testId="r3d-close">{t.backToConfig}</Btn> : null}
-                </div>
-                <p style={{ margin: 0, fontSize: 12, color: "var(--color-text-secondary, #6b7280)" }}>{t.indicative}</p>
+                <button type="button" className="r3d-btn" onClick={back}>
+                  {ui.back}
+                </button>
               </div>
             </div>
-          )}
-          <div>
-            <Btn accent={accent} onClick={() => setStep("photo")}>← {t.back}</Btn>
           </div>
+        ) : (
+          <Render3DViewer
+            key={retry}
+            ref={viewer}
+            fill
+            model={model}
+            poses={effective}
+            accessories={acc}
+            photo={viewerPhoto}
+            view={view}
+            viewNonce={viewNonce}
+            onSashTap={tapSash}
+            onAccessoryTap={toggleAcc}
+            onUnsupported={setUnsupported}
+            onQuality={(q) => {
+              if (startQuality.current === null) startQuality.current = q;
+              else if (q !== startQuality.current) {
+                setLight(true);
+                window.setTimeout(() => setLight(false), 6000);
+              }
+            }}
+            ariaLabel={ui.menu}
+          />
+        )}
+      </div>
+
+      <div className="r3d-top">
+        <button type="button" className="r3d-btn" onClick={back} data-testid="r3d-close" data-r3d-initial-focus aria-label={ui.back}>
+          <ArrowLeft size={18} aria-hidden="true" />
+          <span style={{ display: wide ? "inline" : "none" }}>{ui.back}</span>
+        </button>
+        <div className="r3d-spacer" />
+        {roomMode ? (
+          <>
+            <button type="button" className="r3d-btn" aria-pressed={view === "inside"} data-testid="r3d-view-inside" onClick={() => { setView("inside"); setViewNonce((n) => n + 1); }}>
+              {ui.viewInside}
+            </button>
+            <button type="button" className="r3d-btn" aria-pressed={view === "outside"} data-testid="r3d-view-outside" onClick={() => { setView("outside"); setViewNonce((n) => n + 1); }}>
+              {ui.viewOutside}
+            </button>
+            <button type="button" className="r3d-btn" aria-label={ui.resetView} title={ui.resetView} data-testid="r3d-reset-view" onClick={() => setViewNonce((n) => n + 1)}>
+              <RotateCcw size={18} aria-hidden="true" />
+            </button>
+          </>
+        ) : null}
+        {fsOk ? (
+          <button type="button" className="r3d-btn" aria-label={isFs ? ui.exitFullscreen : ui.fullscreen} title={isFs ? ui.exitFullscreen : ui.fullscreen} data-testid="r3d-fullscreen" onClick={toggleFs}>
+            {isFs ? <Minimize2 size={18} aria-hidden="true" /> : <Maximize2 size={18} aria-hidden="true" />}
+          </button>
+        ) : null}
+        <button type="button" className="r3d-btn" aria-label={t.saveImage} title={t.saveImage} data-testid="r3d-save" onClick={() => void save(false)}>
+          <Download size={18} aria-hidden="true" />
+        </button>
+        {canShare ? (
+          <button type="button" className="r3d-btn" aria-label={t.shareImage} title={t.shareImage} onClick={() => void save(true)}>
+            <Share2 size={18} aria-hidden="true" />
+          </button>
+        ) : null}
+      </div>
+
+      {light ? (
+        <div className="r3d-hint r3d-glass" role="status" style={{ top: "calc(70px + env(safe-area-inset-top))", bottom: "auto" }}>
+          {ui.lightMode}
         </div>
-      )}
-    </section>
+      ) : null}
+      {hint && !open && !unsupported ? (
+        <div className="r3d-hint r3d-glass" role="status">
+          {ui.tapHint}
+        </div>
+      ) : null}
+
+      {!unsupported ? (
+        <nav className={dockClass} role="tablist" aria-label={ui.menu} aria-orientation={wide ? "vertical" : "horizontal"}>
+          {tabs.map((id) => {
+            const Icon = ICONS[id];
+            return (
+              <button
+                key={id}
+                type="button"
+                role="tab"
+                className="r3d-tab"
+                aria-selected={open === id}
+                aria-controls="r3d-panel"
+                data-testid={`r3d-tab-${id}`}
+                onClick={() => {
+                  setHint(false);
+                  if (id === "photo" && !photo) {
+                    setOpen(id);
+                    return;
+                  }
+                  setOpen((cur) => (cur === id ? null : id));
+                }}
+              >
+                <Icon size={21} aria-hidden="true" />
+                <span>{ui.groups[id]}</span>
+              </button>
+            );
+          })}
+        </nav>
+      ) : null}
+
+      {open && !unsupported ? (
+        <section id="r3d-panel" className={`r3d-panel r3d-glass ${wide ? "v" : "h"}`} role="tabpanel" aria-label={ui.groups[open]} data-testid={`r3d-panel-${open}`} key={open}>
+          <div className="r3d-panel-head">
+            {(() => {
+              const Icon = ICONS[open];
+              return <Icon size={18} aria-hidden="true" />;
+            })()}
+            <span style={{ flex: 1 }}>{ui.groups[open]}</span>
+            <button type="button" className="r3d-btn" style={{ minWidth: 40, minHeight: 40, padding: 0 }} aria-label={ui.closePanel} data-testid="r3d-panel-close" onClick={() => setOpen(null)}>
+              <X size={18} aria-hidden="true" />
+            </button>
+          </div>
+          <div className="r3d-panel-body">{panelBody(open)}</div>
+        </section>
+      ) : null}
+
+      {flow ? (
+        <div className="r3d-sheet-full" data-testid="r3d-flow-sheet">
+          <PhotoFlow
+            lang={lang}
+            accent={accent === "#16d19d" ? "#0f9f77" : accent}
+            size={{ widthMm: model.widthMm, heightMm: model.heightMm }}
+            limits={limits}
+            onSize={onSize}
+            photo={photo}
+            quad={quad}
+            onPhoto={(p, q) => {
+              setPhoto(p);
+              setQuad(q);
+            }}
+            onQuad={setQuad}
+            onDone={() => setFlow(false)}
+          />
+        </div>
+      ) : null}
+    </div>
   );
 }

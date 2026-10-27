@@ -4067,6 +4067,7 @@
     "configurator": "Configurator",
     "configuratorHelp": "Culorile, feroneria și deschiderile disponibile sunt cele ale configuratorului ales.",
     "noConfigurator": "Nu aveți încă un configurator publicat: aici se folosesc opțiunile standard.",
-    "manage": "Gestionați configuratorii"
+    "manage": "Gestionați configuratorii",
+    "open": "Deschide randarea 3D"
   }
 }

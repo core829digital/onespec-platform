@@ -27,7 +27,7 @@ describe("public/embed.js", () => {
   });
   it("is small (a loader, not a framework)", () => {
     // Raised from 6000 for the scroll shield (overlay + hint in 6 languages); still about 3 KB once compressed.
-    expect(src.length).toBeLessThan(11000);
+    expect(src.length).toBeLessThan(13500);
   });
   it("runs twice without creating a second frame", () => {
     // Minimal DOM stand-in: one script tag, an insertion point; the second run must find it already marked as done.
@@ -53,5 +53,58 @@ describe("public/embed.js", () => {
     expect(made.length).toBe(1);
     // What lands on the page is the box holding the frame (and, with a mouse, the scroll shield).
     expect((made[0] as { children: Array<{ src: string }> }).children[0].src).toBe("https://platform.example/w/ABCDEF1234?from=https%3A%2F%2Fdealer.example%2Fpreventivo");
+  });
+
+  it("gives the frame the whole screen while the 3D render is open, then puts it back", () => {
+    const attrs: Record<string, string> = { "data-onespec": "ABCDEF1234", src: "https://platform.example/embed.js" };
+    const script = {
+      src: attrs.src,
+      getAttribute: (k: string) => attrs[k] ?? null,
+      setAttribute: (k: string, v: string) => { attrs[k] = v; },
+      parentNode: { insertBefore() {} },
+      nextSibling: null,
+    };
+    let frame: { style: { cssText: string; minHeight: string; height: string }; attrs: Record<string, string>; contentWindow: object; offsetHeight: number; parentNode?: { style: { minHeight: string } } } | undefined;
+    const el = () => {
+      const node = {
+        style: { cssText: "", minHeight: "", height: "" },
+        attrs: {} as Record<string, string>,
+        contentWindow: {},
+        offsetHeight: 700,
+        parentNode: undefined as { style: { minHeight: string } } | undefined,
+        children: [] as unknown[],
+        setAttribute(k: string, v: string) { node.attrs[k] = v; },
+        dispatchEvent() {},
+        appendChild(c: { attrs?: Record<string, string> }) { node.children.push(c); if (c.attrs) frame = c as never; (c as { parentNode?: unknown }).parentNode = node; },
+      };
+      return node;
+    };
+    let handler: ((e: unknown) => void) | undefined;
+    const window = { addEventListener: (type: string, fn: (e: unknown) => void) => { if (type === "message") handler = fn; }, innerHeight: 800, self: {}, top: {} };
+    (window as { self: unknown; top: unknown }).top = window.self;
+    const documentElement = { style: { overflow: "" } };
+    const document = { baseURI: "https://dealer.example/", documentElement, querySelectorAll: () => [script], createElement: el };
+    const location = { origin: "https://dealer.example", pathname: "/" };
+    const ctx = vm.createContext({ window, document, location, URL, CustomEvent: class {}, isFinite, parseInt, Math });
+    vm.runInContext(src, ctx);
+    expect(frame).toBeDefined();
+    // The frame is allowed to use the browser's own full screen.
+    expect(frame!.attrs.allow).toBe("fullscreen");
+    const before = frame!.style.cssText;
+    const msg = (on: boolean, origin = "https://platform.example", id = "ABCDEF1234") => ({ source: frame!.contentWindow, origin, data: { type: "onespec:fullscreen", publicId: id, on } });
+    // From another origin or for another widget: ignored.
+    handler!(msg(true, "https://evil.example"));
+    handler!(msg(true, "https://platform.example", "OTHERID123"));
+    expect(frame!.style.cssText).toBe(before);
+    handler!(msg(true));
+    expect(frame!.style.cssText).toContain("position:fixed");
+    expect(frame!.style.cssText).toContain("z-index:2147483647");
+    expect(documentElement.style.overflow).toBe("hidden");
+    // A resize report while the 3D is open does not shrink it.
+    handler!({ source: frame!.contentWindow, origin: "https://platform.example", data: { type: "onespec:resize", publicId: "ABCDEF1234", height: 900 } });
+    expect(frame!.style.cssText).toContain("position:fixed");
+    handler!(msg(false));
+    expect(frame!.style.cssText).toBe(before);
+    expect(documentElement.style.overflow).toBe("");
   });
 });

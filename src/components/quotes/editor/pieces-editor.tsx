@@ -32,6 +32,8 @@ import { PieceForm } from "./piece-form";
 import { HandleColorPopover } from "./handle-color-popover";
 import { DrawingTabs } from "./drawing-tabs";
 import { StructurePanel } from "./structure-panel";
+import { ItemRender3D } from "@/components/widget/item-render3d";
+import { render3dText } from "@/lib/render3d/render3d-text";
 
 interface Props {
   payload: CatalogPayload;
@@ -52,6 +54,7 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
   const [tab, setTab] = useState<DrawingTab>("elevation");
   const [leafDims, setLeafDims] = useState(true);
   const [glassDims, setGlassDims] = useState(false);
+  const [show3d, setShow3d] = useState(false);
   const [colorPicker, setColorPicker] = useState<{ index: number; x: number; y: number } | null>(null);
   const active = items[activeIndex] ?? items[0];
   // The sub-frame sheet (controtelaio, Italy) exists only for a piece that has one chosen from the catalogue.
@@ -234,6 +237,16 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
           />
 
           <div className="rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] p-4">
+            <div className="mb-2 flex justify-end">
+              <button
+                type="button"
+                data-testid="piece-open-3d"
+                onClick={() => setShow3d(true)}
+                className="min-h-[36px] rounded-md border border-[var(--color-mint)] px-3 py-1 text-xs font-semibold text-[var(--color-mint-text)] hover:bg-[var(--color-mint)] hover:text-[var(--color-mint-dark)]"
+              >
+                {render3dText(locale).title}
+              </button>
+            </div>
             <DrawingTabs tabs={subframe ? ["elevation", "plan", "section", "hardware", "subframe"] : ["elevation", "plan", "section", "hardware"]} value={shownTab} onChange={setTab} locale={locale} />
             <div role="tabpanel" id="drawing-panel-elevation" aria-labelledby="drawing-tab-elevation" hidden={shownTab !== "elevation"}>
             <div className="mb-2 flex justify-center gap-1" role="group" aria-label={DRAWING_VIEW[drawingLocale(locale)].inside + " / " + DRAWING_VIEW[drawingLocale(locale)].outside}>
@@ -383,6 +396,7 @@ export function PiecesEditor({ payload, locale, items, onChange, activeIndex, on
             />
           ) : null}
           <p className="text-[11px] text-[var(--color-text-secondary)]">{t("minHint", { w: SASH_MIN.tiltturn.w, h: SASH_MIN.tiltturn.h })} · {labelOf(payload.frameTypes?.find((f) => f.key === active.frameType), locale)}</p>
+          {show3d ? <ItemRender3D item={active} payload={payload} locale={locale} onChange={(next) => update(activeIndex, reconcileItem(payload, next))} onClose={() => setShow3d(false)} /> : null}
         </div>
       ) : null}
     </div>

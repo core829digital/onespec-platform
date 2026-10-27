@@ -3,6 +3,7 @@ import { catalogOptions, freshWidgetState } from "../src/components/widget/widge
 import { getDict } from "../src/components/widget/widget-i18n";
 import { colorSwatches, hardwareSwatches, window3dFromState } from "../src/components/widget/widget-render3d";
 import { buildWindow3D, sashLayout } from "../src/lib/render3d/window-3d";
+import { frameFaceMm } from "../src/lib/render3d/model";
 import { RENDER3D } from "../src/lib/render3d/render3d-text";
 import { DRAWING_LOCALES } from "../src/lib/drawing/drawing-text";
 
@@ -19,7 +20,7 @@ describe("widget -> 3D model", () => {
     const rig = buildWindow3D(model);
     expect(rig.hitTargets.length).toBeGreaterThan(0);
     const layout = sashLayout(model);
-    expect(layout.reduce((n, l) => n + l.width, 0)).toBeCloseTo(model.widthMm - 2 * 68, 6);
+    expect(layout.reduce((n, l) => n + l.width, 0)).toBeCloseTo(model.widthMm - 2 * frameFaceMm(model), 6);
     rig.dispose();
   });
 

@@ -7,6 +7,8 @@ import { postToHost, readHostTheme } from "./host-bridge";
 import { getTurnstileToken } from "@/lib/turnstile-client";
 import { widgetSourcePage } from "@/lib/widget-source-page";
 import { postQuote } from "./post-quote";
+import { WizardRender3D } from "./wizard-render3d";
+import { render3dText } from "@/lib/render3d/render3d-text";
 import {
   buildWizardItem,
   buildWizardNotes,
@@ -130,6 +132,7 @@ export function SimpleWizardWidget({
   }, [configurator.publicId]);
 
   const [step, setStep] = useState(1);
+  const [view3d, setView3d] = useState(false);
   const totalSteps = 5;
   const [work, setWork] = useState<WorkKey | "">("");
   const [product, setProduct] = useState<ProductKey | "">("");
@@ -283,6 +286,26 @@ export function SimpleWizardWidget({
     );
   }
 
+  if (view3d && product && colour) {
+    const preview = buildWizardItem(
+      { work: work || "renovation", product, widthCm: larghezza, heightCm: altezza, colour, colourInside: bicolor ? colourInside : "", glazing, frame, disposal: smaltimento, installation: posa, incentive, postal: cap.trim() },
+      "",
+    );
+    return (
+      <WizardRender3D
+        lang={lang}
+        item={preview}
+        colour={colour}
+        glazing={glazing}
+        accent={accent}
+        onColour={(k) => { setColour(k); if (colourInside === k) setColourInside(""); }}
+        onGlazing={setGlazing}
+        onClose={() => setView3d(false)}
+        publicId={configurator.publicId}
+      />
+    );
+  }
+
   const installationLabel = market.installationNorm
     ? `${copy.installation} (${market.installationNorm})`
     : copy.installation;
@@ -429,6 +452,13 @@ export function SimpleWizardWidget({
               <br />• {product ? copy.products[product] : ""} ({larghezza || "?"} x {altezza || "?"} cm)
               <br />• {colour ? copy.colours[colour] : ""}{bicolor && colourInside ? ` / ${copy.colours[colourInside]}` : ""} — {copy.glazings[glazing]} — {copy.frames[frame]}
             </div>
+            {product && colour ? (
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: 14 }}>
+                <button type="button" data-testid="wizard-open-3d" onClick={() => setView3d(true)} style={s.btnPrev}>
+                  {render3dText(lang).title}
+                </button>
+              </div>
+            ) : null}
             <div style={{ marginBottom: 14 }}>
               <label style={s.label} htmlFor="wizard-nome">{copy.name}</label>
               <input id="wizard-nome" style={s.input} type="text" required value={nome} onChange={(e) => setNome(e.target.value)} placeholder={market.placeholders.name} autoComplete="name" />

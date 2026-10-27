@@ -81,6 +81,8 @@
     iframe.setAttribute("loading", "lazy");
     iframe.setAttribute("referrerpolicy", "strict-origin-when-cross-origin");
     iframe.setAttribute("allowtransparency", "true");
+    // The 3D render asks for the browser's own full screen from inside the frame.
+    iframe.setAttribute("allow", "fullscreen");
     // The frame keeps its own scrolling: until the widget reports its height (slow network, blocked script, a site builder that
     // re-frames this tag) the visitor can still scroll inside it. Once the height matches the content there is nothing to scroll.
     var minHeight = clampInt(script.getAttribute("data-min-height"), 300, 2000, 640);
@@ -163,6 +165,23 @@
     try { return window.self !== window.top; } catch (e) { return true; }
   }
 
+  // The full-screen 3D inside the frame: the frame takes the whole viewport of this page, then goes back to where it was.
+  function setFullscreen(f, on) {
+    var el = f.iframe;
+    if (on && !f.fs) {
+      f.fs = { css: el.style.cssText, overflow: document.documentElement.style.overflow, holder: el.parentNode ? el.parentNode.style.minHeight : "" };
+      if (el.parentNode) el.parentNode.style.minHeight = el.offsetHeight + "px"; // keep the page from jumping while the frame leaves the flow
+      el.style.cssText = "position:fixed;top:0;left:0;width:100vw;height:100vh;height:100dvh;max-width:none;min-height:0;border:0;margin:0;" +
+        "z-index:2147483647;background:#0b0f12;display:block";
+      document.documentElement.style.overflow = "hidden";
+    } else if (!on && f.fs) {
+      el.style.cssText = f.fs.css;
+      document.documentElement.style.overflow = f.fs.overflow;
+      if (el.parentNode) el.parentNode.style.minHeight = f.fs.holder;
+      f.fs = null;
+    }
+  }
+
   function fire(name, id, iframe) {
     var event;
     try { event = new CustomEvent(name, { detail: { publicId: id }, bubbles: true }); }
@@ -178,6 +197,7 @@
       // Only the frame we created, only from the platform's own origin, only for its own widget id.
       if (e.source !== f.iframe.contentWindow || e.origin !== f.origin || d.publicId !== f.id) continue;
       if (d.type === "onespec:resize" && typeof d.height === "number" && isFinite(d.height)) {
+        if (f.fs) return; // the frame owns the whole screen while the 3D is open
         var h = Math.min(20000, Math.max(200, Math.ceil(d.height)));
         // This page is itself a fixed-size frame (Wix, Google Sites and other builders put custom code in one): a taller iframe
         // would only be cut off, so it fills the visible box and the widget scrolls inside it.
@@ -186,6 +206,8 @@
           f.iframe.style.minHeight = "0";
         }
         f.iframe.style.height = h + "px";
+      } else if (d.type === "onespec:fullscreen" && typeof d.on === "boolean") {
+        setFullscreen(f, d.on);
       } else if (d.type === "onespec:submitted" || d.type === "onespec:ready") {
         fire(d.type, f.id, f.iframe);
       }

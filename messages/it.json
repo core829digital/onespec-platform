@@ -4067,6 +4067,7 @@
     "configurator": "Configuratore",
     "configuratorHelp": "Colori, ferramenta e aperture disponibili sono quelli del configuratore scelto.",
     "noConfigurator": "Non hai ancora un configuratore pubblicato: qui usi le opzioni standard.",
-    "manage": "Gestisci configuratori"
+    "manage": "Gestisci configuratori",
+    "open": "Apri il render 3D"
   }
 }

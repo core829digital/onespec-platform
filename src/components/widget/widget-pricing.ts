@@ -74,6 +74,10 @@ export interface ConfigState {
   insectScreenColor: string;
   /** Controtelaio (Italy): catalogue key of the sub-frame; "" = none / not offered. */
   controtelaio: string;
+  /** Shutter box (cassonetto), roller shutter (avvolgibile) and louvre shutter (persiana) of the catalogue; "" = none / not offered. */
+  cassonetto: string;
+  avvolgibile: string;
+  persiana: string;
 }
 
 export interface Pricing {
@@ -221,6 +225,9 @@ export function defaultConfig(): ConfigState {
     insectScreenType: "cerniera",
     insectScreenColor: "white",
     controtelaio: "",
+    cassonetto: "",
+    avvolgibile: "",
+    persiana: "",
   };
 }
 

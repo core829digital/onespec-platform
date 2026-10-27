@@ -215,6 +215,38 @@ async function main() {
       await ctx.close();
     }
 
+    // ── 3b. the 3D render takes the whole screen of the host page, and gives it back ───────────────────────────────
+    {
+      console.log("3b. 3D render full screen through the loader");
+      const problems = [];
+      const ctx = await newContext(browser);
+      const page = await ctx.newPage();
+      watch(page, "host", problems);
+      await page.goto(`${ALLOWED}/embed-loader?id=${ID}&attrs=${encodeURIComponent('data-lang="en"')}`, { waitUntil: "networkidle" });
+      const frame = widgetFrame(page);
+      await frame.locator("#widget-width").waitFor();
+      const box = () => page.locator("#cfg iframe").first().evaluate((el) => {
+        const r = el.getBoundingClientRect();
+        return { position: getComputedStyle(el).position, w: Math.round(r.width), h: Math.round(r.height), vw: window.innerWidth, vh: window.innerHeight };
+      });
+      const before = await box();
+      await page.mouse.click(500, 400); // removes the scroll shield
+      await frame.locator('[data-testid="widget-open-3d"]').first().click();
+      await frame.locator('[data-testid="render3d-studio"]').waitFor({ timeout: 30_000 });
+      await page.waitForFunction(() => getComputedStyle(document.querySelector("#cfg iframe")).position === "fixed", null, { timeout: 5000 });
+      const during = await box();
+      check(during.w === during.vw && during.h === during.vh, `the frame covers the whole host screen (${during.w}x${during.h} of ${during.vw}x${during.vh})`);
+      check((await page.locator("#cfg iframe").first().getAttribute("allow")) === "fullscreen", "the frame is allowed to use the browser's full screen");
+      await frame.locator('[data-testid="r3d-close"]').click();
+      await page.waitForFunction(() => getComputedStyle(document.querySelector("#cfg iframe")).position !== "fixed", null, { timeout: 5000 });
+      const after = await box();
+      check(after.position === before.position, "the frame is back in the page after closing the 3D render");
+      // The software GL of a CI machine (SwiftShader) logs performance notes ("GPU stall due to ReadPixels"): not an error of the page.
+      const real = problems.filter((m) => !/GL Driver Message/.test(m));
+      check(real.length === 0, `no errors on the way${real.length ? ": " + real.join(" | ") : ""}`);
+      await ctx.close();
+    }
+
     // ── 4. backend misbehaves: the visitor always gets a clear, recoverable message ────────────────────────────
     for (const mode of ["500", "429", "badjson"]) {
       console.log(`4. backend answers ${mode}`);

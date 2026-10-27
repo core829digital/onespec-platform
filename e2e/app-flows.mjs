@@ -306,10 +306,39 @@ async function main() {
       }
     });
 
-    // ── Render 3D: size by hand, a photo, the four corners, the 3D view (WebGL may be missing on a CI machine: then a clear message shows) ──
-    await step("Render 3D: measure, photo, corners and 3D view", page, problems, async () => {
+    // ── Render 3D: it opens full screen with the floating menu; accessories, size by hand, a photo, the four corners, back (WebGL may be missing on a CI machine: then a clear message shows) ──
+    await step("Render 3D: menu, accessories, measure, photo and back", page, problems, async () => {
       await page.goto(url("/app/render-3d"), { waitUntil: "domcontentloaded" });
       await page.getByTestId("render3d-studio").waitFor({ timeout: 30_000 });
+      await page.waitForFunction(
+        () => document.querySelector('[data-testid="render3d-canvas"][data-ready="true"]') || document.querySelector('[data-testid="r3d-unsupported"]'),
+        null,
+        { timeout: 60_000 },
+      );
+      const hasGl = (await page.getByTestId("render3d-canvas").count()) > 0;
+      // The menu: one tab per group, a panel for the open one.
+      for (const id of ["color", "glass", "profile", "leaves", "openings", "accessories", "photo"]) {
+        if (await page.getByTestId(`r3d-tab-${id}`).count()) {
+          // A tab that is already open closes its panel when pressed again.
+          if ((await page.getByTestId(`r3d-tab-${id}`).getAttribute("aria-selected")) !== "true") await page.getByTestId(`r3d-tab-${id}`).click();
+          await page.getByTestId(`r3d-panel-${id}`).waitFor({ timeout: 5000 });
+        }
+      }
+      if (hasGl && (await page.getByTestId("r3d-tab-accessories").count())) {
+        if ((await page.getByTestId("r3d-tab-accessories").getAttribute("aria-selected")) !== "true") await page.getByTestId("r3d-tab-accessories").click();
+        const box = page.getByTestId("r3d-select-box");
+        if (await box.count()) {
+          const values = await box.evaluate((el) => Array.from(el.options).map((o) => o.value).filter(Boolean));
+          if (values.length) await box.selectOption(values[0]);
+        }
+      }
+      if (hasGl) {
+        await page.getByTestId("r3d-view-outside").click();
+        await page.getByTestId("r3d-view-inside").click();
+      }
+      // Size by hand and a photo (the photo sheet).
+      if ((await page.getByTestId("r3d-tab-photo").getAttribute("aria-selected")) !== "true") await page.getByTestId("r3d-tab-photo").click();
+      await page.getByTestId("r3d-open-photoflow").click();
       await page.getByTestId("r3d-width").fill("1400");
       await page.getByTestId("r3d-height").fill("1500");
       await page.getByTestId("r3d-height").press("Enter");
@@ -329,17 +358,10 @@ async function main() {
       await page.getByTestId("photo-marker").waitFor({ timeout: 15_000 });
       for (let i = 0; i < 4; i++) await page.getByTestId(`marker-${i}`).waitFor({ timeout: 5000 });
       await page.getByTestId("r3d-next-view").click();
-      await page.waitForFunction(
-        () => document.querySelector('[data-testid="render3d-canvas"][data-ready="true"]') || /non riesce a mostrare il 3D/.test(document.body.innerText),
-        null,
-        { timeout: 30_000 },
-      );
-      if (await page.getByTestId("render3d-canvas").count()) {
-        await page.getByTestId("r3d-open-all").click();
-        await page.waitForTimeout(1500);
-        if (process.env.E2E_SHOTS) await page.screenshot({ path: `${process.env.E2E_SHOTS}/render3d-view.png`, fullPage: true });
-        await page.getByTestId("r3d-close-all").click();
-      }
+      if (hasGl && process.env.E2E_SHOTS) await page.screenshot({ path: `${process.env.E2E_SHOTS}/render3d-view.png` });
+      // Back leaves the full-screen 3D (to the page before: here, the page that opened it is the dashboard or none, so it stays or goes back).
+      await page.getByTestId("r3d-close").click();
+      await page.waitForFunction(() => !document.querySelector('[data-testid="render3d-studio"]') || document.querySelector('[data-testid="render3d-reopen"]'), null, { timeout: 10_000 }).catch(() => {});
     });
 
     // ── page by page: every platform page opens for the owner, renders content, and the browser stays clean ────────────────────────

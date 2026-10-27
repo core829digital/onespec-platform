@@ -32,6 +32,8 @@ export type OutboundMessage =
   | { type: "onespec:ready"; publicId: string }
   | { type: "onespec:resize"; publicId: string; height: number }
   | { type: "onespec:submitted"; publicId: string }
+  // The full-screen 3D opened (on) or closed (off): the loader gives the frame the whole screen of the host page, or takes it back.
+  | { type: "onespec:fullscreen"; publicId: string; on: boolean }
   // Demo frames only: forwards the mouse wheel so the host page can keep its smooth scroll.
   | { type: "onespec:wheel"; publicId: string; deltaY: number };
 

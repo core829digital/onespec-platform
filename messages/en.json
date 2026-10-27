@@ -4067,6 +4067,7 @@
     "configurator": "Configurator",
     "configuratorHelp": "The colours, hardware and openings on offer are those of the configurator you choose.",
     "noConfigurator": "You have no published configurator yet: the standard options are used here.",
-    "manage": "Manage configurators"
+    "manage": "Manage configurators",
+    "open": "Open the 3D render"
   }
 }

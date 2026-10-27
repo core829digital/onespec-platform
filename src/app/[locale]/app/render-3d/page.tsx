@@ -4,16 +4,16 @@ import { useMemo, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useQuery } from "@/lib/convex-query";
 import { api } from "@/convex/_generated/api";
-import { Link } from "@/i18n/navigation";
-import { catalogOptions, freshWidgetState, type WidgetCatalog } from "@/components/widget/widget-catalog";
+import { Link, useRouter } from "@/i18n/navigation";
+import { catalogOptions, catalogPricing, freshWidgetState, type WidgetCatalog } from "@/components/widget/widget-catalog";
 import { LOCALE_CFG, getDict } from "@/components/widget/widget-i18n";
 import type { ConfigState } from "@/components/widget/widget-pricing";
 import { WidgetRender3D } from "@/components/widget/widget-render3d-studio";
 
 /**
- * The 3D render of the new window in the customer's home, without the public widget: measure from a photo (or type the size),
- * photograph the old window, see the new one in 3D. The windows on offer are those of one of the company's published configurators
- * (or the standard ones when there is none yet), so the colours, hardware and openings are the real ones.
+ * The 3D render of the new window in the customer's home, without the public widget. It opens full screen straight away (the 3D studio is
+ * a full-screen layer with a floating menu); "back" returns to the page that was before. The windows on offer are those of one of the
+ * company's published configurators (or the standard ones when there is none yet), so colours, hardware, accessories and openings are the real ones.
  */
 export default function Render3DPage() {
   const t = useTranslations("render3d");
@@ -70,15 +70,22 @@ export default function Render3DPage() {
 }
 
 function Render3DWorkspace({ catalog }: { catalog: WidgetCatalog | undefined }) {
+  const t = useTranslations("render3d");
   const locale = useLocale();
+  const router = useRouter();
   const dict = getDict(locale);
   const cfg = LOCALE_CFG[locale] ?? LOCALE_CFG.en;
   const options = useMemo(() => catalogOptions(catalog, dict, cfg.locale), [catalog, dict, cfg.locale]);
+  const pricing = useMemo(() => catalogPricing(catalog), [catalog]);
   const [state, setState] = useState<ConfigState>(() => freshWidgetState(options));
-  return (
-    <div className="rounded-xl border border-[var(--color-border)] p-4 pb-24">
-      {/* pb-24: the floating onboarding card must never cover the Next button */}
-      <WidgetRender3D lang={locale} options={options} state={state} setState={setState} />
-    </div>
-  );
+  const [open, setOpen] = useState(true);
+  if (!open) {
+    return (
+      <button type="button" data-testid="render3d-reopen" onClick={() => setOpen(true)} className="rounded-xl bg-[var(--color-mint)] px-5 py-3 text-sm font-semibold text-black">
+        {t("open")}
+      </button>
+    );
+  }
+  // Closing the full-screen 3D leaves the page (back to where the user came from); the button above is for when there is nowhere to go back to.
+  return <WidgetRender3D lang={locale} options={options} pricing={pricing} state={state} setState={setState} onClose={() => (window.history.length > 1 ? router.back() : setOpen(false))} />;
 }

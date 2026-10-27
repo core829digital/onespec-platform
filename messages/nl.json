@@ -4067,6 +4067,7 @@
     "configurator": "Configurator",
     "configuratorHelp": "De beschikbare kleuren, het hang- en sluitwerk en de openingen zijn die van de gekozen configurator.",
     "noConfigurator": "U heeft nog geen gepubliceerde configurator: hier gelden de standaardopties.",
-    "manage": "Configurators beheren"
+    "manage": "Configurators beheren",
+    "open": "3D-weergave openen"
   }
 }

@@ -512,9 +512,10 @@ export function buildRoom(input: Window3DInput, quality: Quality = "mid", anisot
     B.cyl("pot", tcx + 480, floorY + 780, tcz + 20, 60, 46, 70, 16);
     for (let k = 0; k < 5; k++) B.sphere("leaf", tcx + 480 + (k - 2) * 26, floorY + 880 + (k % 2) * 30, tcz + 20 + ((k * 37) % 40) - 20, 50, 10, 1.3);
     // Pendant lamp.
-    B.cyl("black", tcx, (floorY + 720 + ceilingY) / 2 + 400, tcz, 2.5, 2.5, ceilingY - (floorY + 1750), 6);
-    B.cyl("shade", tcx, floorY + 1700, tcz, 40, 230, 220, 28);
-    B.sphere("bulb", tcx, floorY + 1620, tcz, 42, 14);
+    const shadeY = Math.min(floorY + 1950, ceilingY - 420);
+    B.cyl("black", tcx, (shadeY + ceilingY) / 2, tcz, 2.5, 2.5, ceilingY - shadeY, 6);
+    B.cyl("shade", tcx, shadeY, tcz, 30, 150, 150, 28);
+    B.sphere("bulb", tcx, shadeY - 60, tcz, 30, 14);
   }
   // Recessed ceiling lights.
   for (let i = 0; i < 4; i++) B.cyl("bulb", cx - 1200 + i * 800, ceilingY - 2, az + 1500 + (i % 2) * 1700, 55, 55, 4, 16);

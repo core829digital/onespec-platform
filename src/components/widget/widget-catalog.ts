@@ -119,6 +119,10 @@ export interface WidgetOptions {
   installations: [string, string][];
   /** Controtelaio rows of the catalogue (Italy only; empty elsewhere): `[key, label]`. */
   controtelaio: [string, string][];
+  /** Shutter boxes, roller shutters and louvre shutters of the catalogue: `[key, label]` (empty when the catalogue has none). */
+  cassonetto: [string, string][];
+  avvolgibile: [string, string][];
+  persiana: [string, string][];
   /**
    * Region-specific flat option kinds → `[key, label]` pairs, keyed by catalog
    * `kind`. A list is empty unless the tenant's region enabled that kind.
@@ -221,6 +225,9 @@ export function catalogOptions(
     screenColors: pairsFrom(hw("screenColor"), locale) ?? dict.insectScreenColors,
     installations: pairsFrom(hw("installation"), locale) ?? dict.installationOptions,
     controtelaio: pairsFrom(cat?.accessories?.filter((a) => a.category === "ctel"), locale) ?? [],
+    cassonetto: pairsFrom(cat?.accessories?.filter((a) => a.category === "cass"), locale) ?? [],
+    avvolgibile: pairsFrom(cat?.accessories?.filter((a) => a.category === "avv"), locale) ?? [],
+    persiana: pairsFrom(cat?.accessories?.filter((a) => a.category === "pers"), locale) ?? [],
     regionOptions: Object.fromEntries(
       REGION_FLAT_OPTION_KINDS.map((k) => [k, pairsFrom(hw(k), locale) ?? []]),
     ),
@@ -346,9 +353,13 @@ export function reconcileState(options: WidgetOptions, s: ConfigState): ConfigSt
   const row = options.profileRows[s.material]?.find((r) => r.key === (s.material === "pvc" || s.material === "aluminum" ? brand[s.material] : undefined));
   const glazing = row ? nearestFittingGlazing(options.glazing.map(([key]) => ({ key, labels: {}, priceCents: 0, sortOrder: 0, enabled: true })), row, s.glazing) ?? s.glazing : s.glazing;
   // A sub-frame the catalogue no longer lists (or never had) is dropped, so nothing is sent that was not priced.
-  const controtelaio = s.controtelaio && !options.controtelaio.some(([k]) => k === s.controtelaio) ? "" : s.controtelaio;
-  if (quality === s.quality[s.material] && brand === s.brand && glazing === s.glazing && controtelaio === s.controtelaio) return s;
-  return { ...s, quality: { ...s.quality, [s.material]: quality }, brand, glazing, controtelaio };
+  const known = (list: [string, string][], key: string) => (key && !list.some(([k]) => k === key) ? "" : key);
+  const controtelaio = known(options.controtelaio, s.controtelaio);
+  const cassonetto = known(options.cassonetto, s.cassonetto);
+  const avvolgibile = known(options.avvolgibile, s.avvolgibile);
+  const persiana = known(options.persiana, s.persiana);
+  if (quality === s.quality[s.material] && brand === s.brand && glazing === s.glazing && controtelaio === s.controtelaio && cassonetto === s.cassonetto && avvolgibile === s.avvolgibile && persiana === s.persiana) return s;
+  return { ...s, quality: { ...s.quality, [s.material]: quality }, brand, glazing, controtelaio, cassonetto, avvolgibile, persiana };
 }
 
 /** A new piece: the catalogue's default quality, a profile of that quality and glazing that profile can hold (never a key the catalogue lacks). */

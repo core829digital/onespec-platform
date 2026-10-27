@@ -4067,6 +4067,7 @@
     "configurator": "Konfigurator",
     "configuratorHelp": "Farben, Beschläge und Öffnungen sind die des gewählten Konfigurators.",
     "noConfigurator": "Sie haben noch keinen veröffentlichten Konfigurator: Hier gelten die Standardoptionen.",
-    "manage": "Konfiguratoren verwalten"
+    "manage": "Konfiguratoren verwalten",
+    "open": "3D-Ansicht öffnen"
   }
 }

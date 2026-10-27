@@ -18,9 +18,11 @@ import { quoteTotals } from "@/shared/quote-totals";
 import { disposalCharge, disposalModelOf, disposalOffered, disposalPriceOf } from "@/shared/disposal";
 import { SceneSvg, buildSubframeScene, subframeInputFor } from "@/lib/drawing";
 import { render3dText } from "@/lib/render3d/render3d-text";
+import { render3dUi } from "@/lib/render3d/render3d-ui-text";
 import { WidgetRender3D } from "./widget-render3d-studio";
+import { withSashCount } from "./widget-leaves";
 import { glazingAdvice, PACKAGE_DEPTHS, packageKey, parseGlazingKey } from "@/shared/glazing-packages";
-import { frameRules, inactiveLeaves, normalizedRatios, directionFromOpening, hasOpeningDirection, openingSide, retypeSash, typeForAddedSash } from "@/shared/sash-rules";
+import { frameRules, inactiveLeaves, directionFromOpening, hasOpeningDirection, openingSide, retypeSash } from "@/shared/sash-rules";
 import {
   defaultSashPreset,
   defaultDimsForType,
@@ -115,6 +117,7 @@ export function Widget({
   initialMode = demo ? "guided" : "full",
 }: WidgetProps) {
   const dict = getDict(lang);
+  const ui3 = render3dUi(lang);
   const cfg = LOCALE_CFG[lang] ?? LOCALE_CFG.en;
   // Owner's custom texts for this language; blank fields keep the defaults.
   const ownCopy = configurator.branding?.copy?.[lang];
@@ -390,28 +393,7 @@ export function Widget({
 
   const setSashCount = (raw: number) => {
     const n = clamp(Math.round(raw), SASH_MIN, SASH_MAX);
-    setState((s) => {
-      let sashes = s.sashes.slice();
-      if (n > sashes.length) {
-        for (let i = sashes.length; i < n; i++) {
-          // Outermost leaf on the right: hinge right, handle towards the middle.
-          const type: SashType = typeForAddedSash(sashes.map((x) => x.type)) === "sliding" ? "sliding" : "tiltturn";
-          sashes.push({ type, direction: type === "tiltturn" ? "right" : "left", active: true, hardware: "maco", hardwareColor: "white" });
-        }
-      } else if (n < sashes.length) {
-        sashes = sashes.slice(0, n);
-      }
-      // Whatever the leaves were, the shares must add up to the whole frame again (the leaf widths are typed on them).
-      const shares = normalizedRatios(sashes);
-      sashes = sashes.map((sh, k) => ({ ...sh, widthRatio: shares[k] }));
-      let width = s.width;
-      let height = s.height;
-      if (n === 1) {
-        width = clamp(width, dimMin(s, "width"), SINGLE_SASH_MAX_WIDTH);
-        height = clamp(height, dimMin(s, "height"), SINGLE_SASH_MAX_HEIGHT);
-      }
-      return { ...s, sashes, width, height };
-    });
+    setState((s) => withSashCount(s, n));
     setSelectedSash((sel) => (sel !== null && sel >= n ? null : sel));
   };
 
@@ -469,6 +451,9 @@ export function Widget({
     if (disposalOn) lines.push(withDisposal ? dict.disposalIncludedLine : dict.disposalExcludedLine);
     for (const it of all) {
       if (it.controtelaio) lines.push(`${dict.controtelaioSummary}: ${labelFromList(options.controtelaio, it.controtelaio)} (${it.width}×${it.height} mm)`);
+      if (it.cassonetto) lines.push(`${ui3.f.box}: ${labelFromList(options.cassonetto, it.cassonetto)}`);
+      if (it.avvolgibile) lines.push(`${ui3.f.roller}: ${labelFromList(options.avvolgibile, it.avvolgibile)}`);
+      if (it.persiana) lines.push(`${ui3.f.shutter}: ${labelFromList(options.persiana, it.persiana)}`);
     }
     if (ecobonusPct > 0) lines.push(`Ecobonus: -${ecobonusPct}%`);
     if (discountPct > 0) lines.push(`${dict.discountLabel}: -${discountPct}%`);
@@ -506,7 +491,7 @@ export function Widget({
       installation: it.installation,
       withInstallation: fittingOffered ? withFitting : undefined,
       withDisposal: disposalOn ? withDisposal : undefined,
-      accessories: it.controtelaio ? { ctel: it.controtelaio } : undefined,
+      accessories: it.controtelaio || it.cassonetto || it.avvolgibile || it.persiana ? { ctel: it.controtelaio || undefined, cass: it.cassonetto || undefined, avv: it.avvolgibile || undefined, pers: it.persiana || undefined } : undefined,
       ...Object.fromEntries(
         REGION_FLAT_OPTION_KINDS.map((kind) => [kind, it[kind] || undefined]),
       ),
@@ -659,14 +644,7 @@ export function Widget({
   }
 
   if (view3d) {
-    return (
-      <div style={s.wrap}>
-        <div style={s.panel}>
-          <h2 style={s.h2}>{render3dText(lang).title}</h2>
-          <WidgetRender3D lang={lang} accent={accent} options={options} state={state} setState={setState} onClose={() => setView3d(false)} />
-        </div>
-      </div>
-    );
+    return <WidgetRender3D lang={lang} accent={accent} options={options} pricing={pricing} state={state} setState={setState} publicId={configurator.publicId} onClose={() => setView3d(false)} />;
   }
 
   const materialTabs = options.materials;
@@ -1029,6 +1007,27 @@ export function Widget({
               </select>
             </Field>
           ) : null}
+
+          {(
+            [
+              ["cassonetto", ui3.f.box, options.cassonetto],
+              ["avvolgibile", ui3.f.roller, options.avvolgibile],
+              ["persiana", ui3.f.shutter, options.persiana],
+            ] as const
+          ).map(([field, label, list]) =>
+            list.length > 0 ? (
+              <Field key={field} label={label} id={`widget-${field}`}>
+                <select id={`widget-${field}`} style={s.select} value={state[field]} onChange={(e) => set({ [field]: e.target.value })}>
+                  <option value="">{ui3.f.none}</option>
+                  {list.map(([k, v]) => (
+                    <option key={k} value={k}>
+                      {v}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+            ) : null,
+          )}
 
           {REGION_FLAT_OPTION_KINDS.map((kind) => {
             const list = options.regionOptions[kind] ?? [];

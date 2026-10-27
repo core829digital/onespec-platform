@@ -4067,6 +4067,7 @@
     "configurator": "Configurateur",
     "configuratorHelp": "Les couleurs, la quincaillerie et les ouvertures proposées sont celles du configurateur choisi.",
     "noConfigurator": "Vous n'avez pas encore de configurateur publié : les options standard sont utilisées ici.",
-    "manage": "Gérer les configurateurs"
+    "manage": "Gérer les configurateurs",
+    "open": "Ouvrir le rendu 3D"
   }
 }
