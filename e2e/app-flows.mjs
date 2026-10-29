@@ -363,6 +363,17 @@ async function main() {
           await page.waitForFunction(() => document.querySelector('[data-testid="render3d-canvas"][data-ready="true"]'), null, { timeout: 30_000 });
         }
       }
+      // Light mode on request (for slow devices): the 3D stays alive, the choice is remembered, and it can be turned off again.
+      if (hasGl && (await page.getByTestId("r3d-lite").count())) {
+        for (const want of ["true", "false"]) {
+          await page.getByTestId("r3d-lite").click();
+          await page.waitForFunction((w) => document.querySelector('[data-testid="r3d-lite"]')?.getAttribute("aria-pressed") === w, want);
+          await page.waitForFunction(() => document.querySelector('[data-testid="render3d-canvas"][data-ready="true"]'), null, { timeout: 30_000 });
+          if (await page.getByTestId("r3d-unsupported").count()) throw new Error("light mode broke the 3D");
+        }
+      }
+      await page.waitForTimeout(1500);
+      await page.screenshot({ path: "/tmp/claude-0/-home-user-onespec-platform/23a5a032-5578-51f2-a280-6f8227fc4989/scratchpad/lite.png" });
       // The on-screen arrows: holding one moves the view (the picture changes), letting go stops it.
       if (hasGl && (await page.getByTestId("r3d-nav").count())) {
         const shot = () => page.getByTestId("render3d-canvas").screenshot().then((b) => b.toString("base64"));

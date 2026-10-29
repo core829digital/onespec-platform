@@ -54,6 +54,14 @@ Dopo lo scatto i quattro punti partono dal contorno trovato nella foto (`detect-
 
 Risoluzione dinamica (scende in movimento, risale a riposo), niente antialiasing nativo sui dispositivi touch, ombra statica aggiornata a riposo, compilazione asincrona degli shader, nessuno sfocato (`backdrop-filter`) sopra il canvas, recupero della perdita di contesto (ricrea il canvas al livello più basso) e precaricamento del blocco 3D al passaggio sul pulsante.
 
+## Fasce di qualità e modalità leggera
+
+Quattro fasce: **lite → low → mid → high**. La fascia di partenza dipende da GPU (nome letto dal contesto reale: Mali-4xx/T-series, Adreno 2xx/3xx, PowerVR, Vivante, rendering software), memoria, core e limite texture. Durante l'uso, se i fotogrammi restano lenti, il 3D scende di un gradino alla volta (risoluzione in movimento → niente ombre → fascia più bassa) fino a **lite**, ricostruendo la scena una sola volta.
+
+**Lite** = nessuna mappa di riflessi (risparmia avvio e memoria; luci più forti e metalli opachi per non scurire), nessuna texture sulla stanza, nessuna ombra, giardino ridotto (10 alberi, niente cespugli né nuvole), risoluzione a riposo 0,85. Finestra, ante, accessori e scenari restano identici.
+
+Il cliente può attivarla da solo con il pulsante ⚡ in alto ("Modalità leggera"); la scelta è ricordata sul dispositivo (localStorage).
+
 ## Navigazione con le frecce
 
 Oltre al trascinamento, in basso a destra c'è un pad: quattro frecce per **ruotare** la vista (o **spostarla** di lato/su-giù con il tasto centrale), più **+ / −** per avvicinare e allontanare. Tenendo premuto il movimento è continuo e fluido; funzionano anche le frecce della tastiera e i tasti + / −. Il movimento è limitato alla stanza (non si attraversa il muro). Codice: `NavPad.tsx` e `navigate()` del viewer. Su telefono il pad si nasconde mentre è aperto un pannello.

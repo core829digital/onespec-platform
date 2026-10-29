@@ -12,7 +12,7 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { RoomEnvironment } from "three/examples/jsm/environments/RoomEnvironment.js";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from "react";
-import { FrameGovernor, RES_STEPS, anisotropyFor, contextAttempts, detectCaps, initialQuality, refineCaps, nextLower, pixelRatioFor, type Quality } from "@/lib/render3d/capabilities";
+import { FrameGovernor, RES_STEPS, anisotropyFor, contextAttempts, detectCaps, initialQuality, refineCaps, isPlain, nextLower, pixelRatioFor, type Quality } from "@/lib/render3d/capabilities";
 import { containFit, photoBoxHeight, poseFromQuad, type CameraPose, type PhotoSize, type Quad } from "@/lib/render3d/geometry";
 import { buildRoom, ROOM_SURROUND, type RoomRig } from "@/lib/render3d/room-3d";
 import type { RoomScene } from "@/lib/render3d/model";
@@ -63,6 +63,8 @@ interface Props {
   onAccessoryTap?: (name: AccessoryName) => void;
   onUnsupported?: (reason: UnsupportedReason) => void;
   onQuality?: (q: Quality) => void;
+  /** Start (and stay) on the lightest tier: the customer asked for it, or a slow device was found before. */
+  forceLite?: boolean;
   ariaLabel: string;
   /** Fills its parent (the studio layer) instead of having its own height. */
   fill?: boolean;
@@ -121,7 +123,7 @@ interface Ctx {
   room: RoomRig | null;
   hemi: THREE.HemisphereLight;
   key: THREE.DirectionalLight;
-  envTexture: THREE.Texture;
+  envTexture: THREE.Texture | null;
   raf: number;
   last: number;
   quality: Quality;
@@ -157,8 +159,22 @@ function applyResolution(t: Ctx) {
   if (size.x !== t.cssW || size.y !== t.cssH || t.renderer.domElement.width !== Math.floor(t.cssW * ratio)) t.renderer.setSize(t.cssW, t.cssH, false);
 }
 
+/** Without an environment map a shiny metal looks black: on the lightest tier the metals are made matte (a satin grey, not a hole). */
+function dullMetals(root: THREE.Object3D): void {
+  root.traverse((o) => {
+    const mats = (o as THREE.Mesh).material;
+    for (const m of Array.isArray(mats) ? mats : mats ? [mats] : []) {
+      const std = m as THREE.MeshStandardMaterial;
+      if (std.isMeshStandardMaterial && std.metalness > 0.2) {
+        std.metalness = 0.15;
+        std.roughness = Math.max(std.roughness, 0.45);
+      }
+    }
+  });
+}
+
 export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function Render3DViewer(
-  { model, poses, accessories, photo = null, view = "inside", scene = "kitchen", viewNonce = 0, onSashTap, onAccessoryTap, onUnsupported, onQuality, ariaLabel, fill = false },
+  { model, poses, accessories, photo = null, view = "inside", scene = "kitchen", viewNonce = 0, onSashTap, onAccessoryTap, onUnsupported, onQuality, forceLite = false, ariaLabel, fill = false },
   ref,
 ) {
   const boxRef = useRef<HTMLDivElement>(null);
@@ -169,6 +185,7 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
   const [epoch, setEpoch] = useState(0); // bumped when a lost WebGL context comes back: everything is recreated
   const [canvasKey, setCanvasKey] = useState(0); // a canvas whose context died cannot get a new one: it is replaced
   const createTries = useRef(0); // fresh-canvas retries when the GPU refuses a context
+  const forcedLite = useRef(false); // set when even the plain tier was too slow on this device: the scene is rebuilt once at the floor
   const forcedLow = useRef(false); // after a lost context (memory) the scene is rebuilt at the lightest level
   const three = useRef<Ctx | null>(null);
   const cb = useRef({ onSashTap, onAccessoryTap, onUnsupported, onQuality });
@@ -227,9 +244,18 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
             cur.renderer.shadowMap.enabled = false;
             cur.quality = "low";
             cb.current.onQuality?.("low");
-          } else if (cur.quality !== "low") {
+          } else if (cur.quality !== "low" && cur.quality !== "lite") {
             cur.quality = nextLower(cur.quality);
             cb.current.onQuality?.(cur.quality);
+          } else if (cur.quality === "low") {
+            // Still slow after every cheap step: rebuild once at the floor (no reflections, no textures, a light garden).
+            cur.governor.reset();
+            forcedLite.current = true;
+            cb.current.onQuality?.("lite");
+            window.setTimeout(() => {
+              setCanvasKey((n) => n + 1);
+              setEpoch((n) => n + 1);
+            }, 0);
           }
         }
         cur.raf = requestAnimationFrame(tick);
@@ -323,27 +349,32 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
     createTries.current = 0;
     const renderer: THREE.WebGLRenderer = made;
     mark("r3d:start");
-    const quality: Quality = forcedLow.current ? "low" : initialQuality(caps);
+    const quality: Quality = forceLite || forcedLite.current ? "lite" : forcedLow.current ? "low" : initialQuality(caps);
     const baseRatio = pixelRatioFor(quality, window.devicePixelRatio);
     renderer.setPixelRatio(baseRatio);
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.NeutralToneMapping;
     renderer.setClearColor(0x000000, 0);
-    renderer.shadowMap.enabled = quality !== "low";
+    renderer.shadowMap.enabled = !isPlain(quality);
     renderer.shadowMap.type = THREE.PCFShadowMap;
     renderer.shadowMap.autoUpdate = false;
     const scene = new THREE.Scene();
     mark("r3d:renderer");
-    const pmrem = new THREE.PMREMGenerator(renderer);
-    const envScene = new RoomEnvironment();
-    const envTexture = pmrem.fromScene(envScene, 0.04).texture;
-    scene.environment = envTexture;
-    envScene.dispose();
-    pmrem.dispose();
+    // Reflections (an environment map) cost start-up time and memory: the lightest tier goes without and relies on the lights alone.
+    let envTexture: THREE.Texture | null = null;
+    if (quality !== "lite") {
+      const pmrem = new THREE.PMREMGenerator(renderer);
+      const envScene = new RoomEnvironment();
+      envTexture = pmrem.fromScene(envScene, 0.04).texture;
+      scene.environment = envTexture;
+      envScene.dispose();
+      pmrem.dispose();
+    }
     mark("r3d:env");
-    const hemi = new THREE.HemisphereLight(0xffffff, 0x8a8478, 0.9);
+    // Without reflections the lights carry the whole picture: stronger on the lightest tier so it does not look dim.
+    const hemi = new THREE.HemisphereLight(0xffffff, 0x8a8478, quality === "lite" ? 2.1 : 0.9);
     scene.add(hemi);
-    const key = new THREE.DirectionalLight(0xffffff, 1.1);
+    const key = new THREE.DirectionalLight(0xffffff, quality === "lite" ? 1.6 : 1.1);
     key.position.set(-1500, 2600, 3200);
     scene.add(key);
     const camera = new THREE.PerspectiveCamera(40, 1, NEAR, FAR);
@@ -411,13 +442,13 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
         t.controls?.dispose();
         t.rig?.dispose();
         t.room?.dispose();
-        t.envTexture.dispose();
+        t.envTexture?.dispose();
         t.renderer.dispose();
         t.renderer.forceContextLoss();
       }
       three.current = null;
     };
-  }, [epoch, canvasKey, schedule]);
+  }, [epoch, canvasKey, schedule, forceLite]);
 
   // ── The photo: wait for it, and light the window like the room ─────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -429,7 +460,7 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
     if (t && img) {
       const amb = photoAmbient(img);
       t.hemi.color.copy(amb.color);
-      t.hemi.intensity = amb.level;
+      t.hemi.intensity = t.quality === "lite" ? amb.level * 2 : amb.level;
     }
     setPhotoReady(true);
   }, []);
@@ -452,10 +483,11 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
       const room = buildRoom(latest.current.model, t.quality, t.anisotropy, latest.current.scene);
       mark("r3d:room-built");
       t.scene.add(room.group);
+      if (t.quality === "lite") dullMetals(room.group);
       t.room = room;
       t.scene.fog = new THREE.Fog(room.skyHex, 30000, 150000);
       // Inside a room the light is the sun through the window plus a soft fill; the directional light of the photo mode is switched off.
-      t.hemi.intensity = 0.55;
+      t.hemi.intensity = t.quality === "lite" ? 1.6 : 0.55;
       t.hemi.color.set(0xfff4e6);
       t.key.visible = false;
       t.scene.environmentIntensity = 0.32;
@@ -492,6 +524,7 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
       }
     });
     t.scene.add(rig.group);
+    if (t.quality === "lite") dullMetals(rig.group);
     t.rig = rig;
     mark("r3d:window-built");
     t.renderer.shadowMap.needsUpdate = true;

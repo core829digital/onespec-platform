@@ -9,6 +9,7 @@ export interface Render3DUi {
   groups: Record<GroupId, string>;
   scenes: Record<RoomScene, string>;
   sceneNote: string;
+  liteToggle: string;
   navPad: string;
   navRotate: string;
   navSlide: string;
@@ -86,6 +87,7 @@ export const RENDER3D_UI: L<Render3DUi> = {
     groups: { color: "Colore", hardware: "Ferramenta", glass: "Vetro", profile: "Profilo", leaves: "Conf. anta", openings: "Aperture", accessories: "Accessori", scene: "Ambiente", photo: "Foto e misure" },
     scenes: { kitchen: "Cucina", living: "Soggiorno", bedroom: "Camera matrimoniale", bathroom: "Bagno" },
     sceneNote: "Scegli la stanza in cui vedere la finestra: le porte balcone stanno bene in soggiorno o in camera, le finestre piccole in bagno.",
+    liteToggle: "Modalità leggera: meno dettagli, più fluidità (per dispositivi lenti)",
     navPad: "Spostati nella scena",
     navRotate: "Ruota",
     navSlide: "Sposta",
@@ -159,6 +161,7 @@ export const RENDER3D_UI: L<Render3DUi> = {
     groups: { color: "Colour", hardware: "Hardware", glass: "Glass", profile: "Profile", leaves: "Leaf layout", openings: "Openings", accessories: "Accessories", scene: "Room", photo: "Photo & size" },
     scenes: { kitchen: "Kitchen", living: "Living room", bedroom: "Master bedroom", bathroom: "Bathroom" },
     sceneNote: "Pick the room to see the window in: balcony doors suit the living room or the bedroom, small windows the bathroom.",
+    liteToggle: "Light mode: less detail, smoother (for slow devices)",
     navPad: "Move around the scene",
     navRotate: "Look around",
     navSlide: "Slide",
@@ -232,6 +235,7 @@ export const RENDER3D_UI: L<Render3DUi> = {
     groups: { color: "Couleur", hardware: "Quincaillerie", glass: "Vitrage", profile: "Profilé", leaves: "Conf. vantaux", openings: "Ouvertures", accessories: "Accessoires", scene: "Pièce", photo: "Photo et mesures" },
     scenes: { kitchen: "Cuisine", living: "Salon", bedroom: "Chambre parentale", bathroom: "Salle de bain" },
     sceneNote: "Choisissez la pièce où voir la fenêtre : les portes-fenêtres au salon ou dans la chambre, les petites fenêtres dans la salle de bain.",
+    liteToggle: "Mode léger : moins de détails, plus de fluidité (pour appareils lents)",
     navPad: "Se déplacer dans la scène",
     navRotate: "Tourner",
     navSlide: "Glisser",
@@ -305,6 +309,7 @@ export const RENDER3D_UI: L<Render3DUi> = {
     groups: { color: "Farbe", hardware: "Beschläge", glass: "Glas", profile: "Profil", leaves: "Flügelaufteilung", openings: "Öffnungen", accessories: "Zubehör", scene: "Raum", photo: "Foto & Maße" },
     scenes: { kitchen: "Küche", living: "Wohnzimmer", bedroom: "Schlafzimmer", bathroom: "Badezimmer" },
     sceneNote: "Wählen Sie den Raum, in dem Sie das Fenster sehen: Balkontüren passen ins Wohn- oder Schlafzimmer, kleine Fenster ins Bad.",
+    liteToggle: "Leichtmodus: weniger Details, flüssiger (für langsame Geräte)",
     navPad: "In der Szene bewegen",
     navRotate: "Drehen",
     navSlide: "Verschieben",
@@ -378,6 +383,7 @@ export const RENDER3D_UI: L<Render3DUi> = {
     groups: { color: "Kleur", hardware: "Hang- en sluitwerk", glass: "Glas", profile: "Profiel", leaves: "Vleugelindeling", openings: "Openingen", accessories: "Accessoires", scene: "Ruimte", photo: "Foto en maten" },
     scenes: { kitchen: "Keuken", living: "Woonkamer", bedroom: "Slaapkamer", bathroom: "Badkamer" },
     sceneNote: "Kies de ruimte waarin u het raam ziet: balkondeuren passen in de woonkamer of slaapkamer, kleine ramen in de badkamer.",
+    liteToggle: "Lichte modus: minder details, vloeiender (voor trage apparaten)",
     navPad: "Door de scène bewegen",
     navRotate: "Draaien",
     navSlide: "Verschuiven",
@@ -451,6 +457,7 @@ export const RENDER3D_UI: L<Render3DUi> = {
     groups: { color: "Culoare", hardware: "Feronerie", glass: "Sticlă", profile: "Profil", leaves: "Conf. canaturi", openings: "Deschideri", accessories: "Accesorii", scene: "Cameră", photo: "Foto și măsuri" },
     scenes: { kitchen: "Bucătărie", living: "Living", bedroom: "Dormitor matrimonial", bathroom: "Baie" },
     sceneNote: "Alegeți camera în care vedeți fereastra: ușile de balcon se potrivesc în living sau dormitor, ferestrele mici în baie.",
+    liteToggle: "Mod ușor: mai puține detalii, mai fluid (pentru dispozitive lente)",
     navPad: "Deplasare în scenă",
     navRotate: "Rotire",
     navSlide: "Deplasare laterală",

@@ -6,7 +6,7 @@
  * static shadow map for the sun coming through the window. Units are millimetres; the window is at the origin (see model.ts).
  */
 import * as THREE from "three";
-import { shadowSizeFor } from "./capabilities";
+import { isPlain, shadowSizeFor } from "./capabilities";
 import { furnishBathroom, furnishBedroom, furnishLiving } from "./room-scenes";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { frameDepthMm, type RoomScene, type Window3DInput, type Surround3D } from "./model";
@@ -222,9 +222,9 @@ export function buildRoom(input: Window3DInput, quality: Quality = "mid", anisot
 
   // ── Materials ───────────────────────────────────────────────────────────────────────────────────────────────────────────────
   const std = (color: string, rough = 0.6, metal = 0, extra: Partial<THREE.MeshStandardMaterialParameters> = {}) => track(new THREE.MeshStandardMaterial({ color, roughness: rough, metalness: metal, ...extra }));
-  const woodMap = quality === "low" ? null : woodFloorTexture(anisotropy);
+  const woodMap = isPlain(quality) ? null : woodFloorTexture(anisotropy);
   if (woodMap) track(woodMap);
-  const tileMap = quality === "low" ? null : tileTexture(anisotropy);
+  const tileMap = isPlain(quality) ? null : tileTexture(anisotropy);
   if (tileMap) track(tileMap);
   const mats: Record<string, THREE.Material> = {
     plaster: std("#efe7da", 0.95),
@@ -546,7 +546,7 @@ export function buildRoom(input: Window3DInput, quality: Quality = "mid", anisot
 
   // ── Outside: lawn, terrace, trees, bushes, hills, clouds, sky ────────────────────────────────────────────────────────────────
   const outsideY = floorY - 300;
-  const lawnMap = quality === "low" ? null : grassTexture(anisotropy);
+  const lawnMap = isPlain(quality) ? null : grassTexture(anisotropy);
   if (lawnMap) track(lawnMap);
   const lawnMat = std("#ffffff", 1, 0, { map: lawnMap ?? null, color: lawnMap ? "#ffffff" : "#5e8f3c" });
   const lawn = new THREE.Mesh(track(new THREE.PlaneGeometry(260000, 260000)), lawnMat);
@@ -565,7 +565,7 @@ export function buildRoom(input: Window3DInput, quality: Quality = "mid", anisot
 
   // Trees and bushes: instanced, placed with a seeded generator so the view is always the same.
   const rnd = prng(2026);
-  const nTrees = quality === "low" ? 24 : quality === "mid" ? 40 : 70;
+  const nTrees = quality === "lite" ? 10 : quality === "low" ? 24 : quality === "mid" ? 40 : 70;
   const trunkGeo = track(new THREE.CylinderGeometry(120, 170, 1, 7));
   const crownGeo = track(new THREE.IcosahedronGeometry(1, 1));
   const trunks = new THREE.InstancedMesh(trunkGeo, std("#6b4a2f", 0.9), nTrees);
@@ -592,7 +592,7 @@ export function buildRoom(input: Window3DInput, quality: Quality = "mid", anisot
     }
   }
   group.add(trunks, crowns);
-  const nBush = quality === "low" ? 0 : quality === "mid" ? 12 : 22;
+  const nBush = isPlain(quality) ? 0 : quality === "mid" ? 12 : 22;
   if (nBush) {
     const bushes = new THREE.InstancedMesh(crownGeo, std("#ffffff", 0.9), nBush);
     for (let i = 0; i < nBush; i++) {
@@ -648,7 +648,7 @@ export function buildRoom(input: Window3DInput, quality: Quality = "mid", anisot
   sunDisc.lookAt(cx, floorY + 1000, 0);
   sunDisc.renderOrder = -9;
   group.add(sunDisc);
-  const cloudMap = quality === "low" ? null : cloudTexture();
+  const cloudMap = isPlain(quality) ? null : cloudTexture();
   if (cloudMap) {
     track(cloudMap);
     const cloudMat = track(new THREE.MeshBasicMaterial({ map: cloudMap, transparent: true, depthWrite: false, fog: false, opacity: 0.9 }));
@@ -666,7 +666,7 @@ export function buildRoom(input: Window3DInput, quality: Quality = "mid", anisot
   sun.target.position.set(cx, floorY + 500, 1800);
   sun.position.copy(sun.target.position).addScaledVector(toSun, 9000);
   group.add(sun.target);
-  sun.castShadow = quality !== "low";
+  sun.castShadow = !isPlain(quality);
   if (sun.castShadow) {
     const size = shadowSizeFor(quality);
     sun.shadow.mapSize.set(size, size);

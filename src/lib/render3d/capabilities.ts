@@ -2,7 +2,14 @@
  * What the device can do, and how hard the 3D should work on it. No three.js here: the studio asks BEFORE loading the 3D library,
  * so a device that cannot show it gets a clear message at once instead of a broken canvas.
  */
-export type Quality = "low" | "mid" | "high";
+/** "lite" is the floor for weak devices: no reflections, no textures, a lighter garden, a lower resolution. */
+export type Quality = "lite" | "low" | "mid" | "high";
+
+/** True for the two plain tiers: no textures on the room, no shadows. */
+export const isPlain = (q: Quality): boolean => q === "low" || q === "lite";
+
+/** GPUs that are known to struggle with anything but the plainest scene (old Mali / Adreno / PowerVR / Vivante and the like). */
+export const WEAK_GPU = /mali-4|mali-t[0-7]\d\d|adreno[^0-9]*(2|3)\d\d\b|powervr (sgx|rogue ge)|vivante|videocore|llvmpipe|swiftshader/i;
 
 export interface Caps {
   /** WebGL2 is what the 3D needs (every browser of the last years has it: Chrome/Edge 56+, Firefox 51+, Safari 15+). */
@@ -72,8 +79,9 @@ export function contextAttempts(c: Caps): WebGLContextAttributes[] {
 
 /** The quality to start at: generous on a desktop, careful on a phone, minimal on software rendering or very small devices. */
 export function initialQuality(c: Caps): Quality {
-  if (!c.webgl2 || c.software || (c.maxTexture > 0 && c.maxTexture < 4096)) return "low";
-  if (c.memoryGb !== null && c.memoryGb <= 2) return "low";
+  if (!c.webgl2 || c.software || WEAK_GPU.test(c.gpu) || (c.maxTexture > 0 && c.maxTexture < 4096)) return "lite";
+  if (c.memoryGb !== null && c.memoryGb <= 2) return "lite";
+  if (c.cores <= 2) return "lite";
   if (c.touch && (c.cores <= 4 || (c.memoryGb !== null && c.memoryGb < 4))) return "low";
   if (c.touch) return "mid";
   return c.cores >= 8 ? "high" : "mid";
@@ -81,8 +89,8 @@ export function initialQuality(c: Caps): Quality {
 
 /** Pixel ratio per quality when the picture is at rest: the sharpness that costs the most is capped first. */
 export function pixelRatioFor(q: Quality, devicePixelRatio: number): number {
-  const cap = q === "low" ? 1 : q === "mid" ? 1.25 : 1.75;
-  return Math.max(1, Math.min(cap, devicePixelRatio || 1));
+  const cap = q === "lite" ? 0.85 : q === "low" ? 1 : q === "mid" ? 1.25 : 1.75;
+  return Math.max(Math.min(cap, 1), Math.min(cap, devicePixelRatio || 1));
 }
 
 /** Multi-sampling costs memory in proportion to the screen (a tablet in full screen loses its context on it): desktop only. */
@@ -97,7 +105,7 @@ export const anisotropyFor = (c: Caps, max: number): number => Math.min(c.touch 
 /** Steps of the resolution used WHILE the picture moves (1 = full). At rest it always comes back to 1 and the picture is sharp. */
 export const RES_STEPS = [1, 0.75, 0.55] as const;
 
-export const nextLower = (q: Quality): Quality => (q === "high" ? "mid" : "low");
+export const nextLower = (q: Quality): Quality => (q === "high" ? "mid" : q === "mid" ? "low" : "lite");
 
 /**
  * Watches the time between frames while something moves; when the average is too slow for a whole window of frames it says so, and the

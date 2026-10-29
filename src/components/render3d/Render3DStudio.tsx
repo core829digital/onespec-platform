@@ -6,7 +6,7 @@
  * changes in front of them. One component for every configurator: the owner passes the window (as the 3D model), the menu fields and the
  * callbacks that change the configuration, so the price and everything else stay in the owner's hands.
  */
-import { Armchair, Blinds, Camera, Columns3, Download, DoorOpen, Layers, Maximize2, Minimize2, Palette, RotateCcw, Share2, Square, Wrench, ArrowLeft, X, type LucideIcon } from "lucide-react";
+import { Armchair, Blinds, Camera, Columns3, Download, DoorOpen, Layers, Maximize2, Minimize2, Palette, RotateCcw, Share2, Square, Wrench, ArrowLeft, Zap, X, type LucideIcon } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { detectCaps, type Caps, type Quality } from "@/lib/render3d/capabilities";
 import { canNativeFullscreen, enterNativeFullscreen, exitNativeFullscreen, nativeFullscreenElement, onNativeFullscreenChange } from "@/lib/render3d/fullscreen";
@@ -86,6 +86,23 @@ export function Render3DStudio(props: Render3DStudioProps) {
   const [isFs, setIsFs] = useState(false);
   const [fsOk, setFsOk] = useState(false);
   const [hint, setHint] = useState(true);
+  // The lightest tier on request (remembered on this device): the same window and room, with fewer details, for slow devices.
+  const [lite, setLite] = useState(() => {
+    try {
+      return typeof window !== "undefined" && window.localStorage.getItem("onespec.r3d.lite") === "1";
+    } catch {
+      return false;
+    }
+  });
+  const toggleLite = () =>
+    setLite((v) => {
+      try {
+        window.localStorage.setItem("onespec.r3d.lite", v ? "0" : "1");
+      } catch {
+        /* private mode: the choice lasts for this visit only */
+      }
+      return !v;
+    });
   const [light, setLight] = useState(false);
   const startQuality = useRef<Quality | null>(null);
 
@@ -367,7 +384,8 @@ export function Render3DStudio(props: Render3DStudioProps) {
           </div>
         ) : (
           <Render3DViewer
-            key={retry}
+            key={`${retry}-${lite ? "lite" : "std"}`}
+            forceLite={lite}
             ref={viewer}
             fill
             model={model}
@@ -411,6 +429,9 @@ export function Render3DStudio(props: Render3DStudioProps) {
             </button>
           </>
         ) : null}
+        <button type="button" className="r3d-btn" aria-pressed={lite} aria-label={ui.liteToggle} title={ui.liteToggle} data-testid="r3d-lite" onClick={toggleLite}>
+          <Zap size={18} aria-hidden="true" />
+        </button>
         {fsOk ? (
           <button type="button" className="r3d-btn" aria-label={isFs ? ui.exitFullscreen : ui.fullscreen} title={isFs ? ui.exitFullscreen : ui.fullscreen} data-testid="r3d-fullscreen" onClick={toggleFs}>
             {isFs ? <Minimize2 size={18} aria-hidden="true" /> : <Maximize2 size={18} aria-hidden="true" />}
