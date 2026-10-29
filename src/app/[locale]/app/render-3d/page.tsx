@@ -67,12 +67,13 @@ export default function Render3DPage() {
         </p>
       )}
       {/* Remounted for each configurator: the piece starts clean for its catalogue. */}
-      <Render3DWorkspace key={current?._id ?? "default"} catalog={catalog} />
+      <Render3DWorkspace key={current?._id ?? "default"} catalog={catalog} startOpen={published.length <= 1} />
     </div>
   );
 }
 
-function Render3DWorkspace({ catalog }: { catalog: WidgetCatalog | undefined }) {
+/** `startOpen` is false when the company has several configurators: the full-screen 3D would hide the selector above, so the choice comes first. */
+function Render3DWorkspace({ catalog, startOpen }: { catalog: WidgetCatalog | undefined; startOpen: boolean }) {
   const t = useTranslations("render3d");
   const locale = useLocale();
   const router = useRouter();
@@ -81,7 +82,7 @@ function Render3DWorkspace({ catalog }: { catalog: WidgetCatalog | undefined }) 
   const options = useMemo(() => catalogOptions(catalog, dict, cfg.locale), [catalog, dict, cfg.locale]);
   const pricing = useMemo(() => catalogPricing(catalog), [catalog]);
   const [state, setState] = useState<ConfigState>(() => freshWidgetState(options));
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(startOpen);
   if (!open) {
     return (
       <button type="button" data-testid="render3d-reopen" onClick={() => setOpen(true)} className="rounded-xl bg-[var(--color-mint)] px-5 py-3 text-sm font-semibold text-black">

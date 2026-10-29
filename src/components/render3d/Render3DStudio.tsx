@@ -405,7 +405,7 @@ export function Render3DStudio(props: Render3DStudioProps) {
                 window.setTimeout(() => setLight(false), 6000);
               }
             }}
-            ariaLabel={ui.menu}
+            ariaLabel={t.title}
           />
         )}
       </div>
@@ -433,7 +433,7 @@ export function Render3DStudio(props: Render3DStudioProps) {
           <Zap size={18} aria-hidden="true" />
         </button>
         {fsOk ? (
-          <button type="button" className="r3d-btn" aria-label={isFs ? ui.exitFullscreen : ui.fullscreen} title={isFs ? ui.exitFullscreen : ui.fullscreen} data-testid="r3d-fullscreen" onClick={toggleFs}>
+          <button type="button" className="r3d-btn r3d-fs" aria-label={isFs ? ui.exitFullscreen : ui.fullscreen} title={isFs ? ui.exitFullscreen : ui.fullscreen} data-testid="r3d-fullscreen" onClick={toggleFs}>
             {isFs ? <Minimize2 size={18} aria-hidden="true" /> : <Maximize2 size={18} aria-hidden="true" />}
           </button>
         ) : null}
@@ -455,7 +455,7 @@ export function Render3DStudio(props: Render3DStudioProps) {
       ) : null}
 
       {light ? (
-        <div className="r3d-hint r3d-glass" role="status" style={{ top: "calc(70px + env(safe-area-inset-top))", bottom: "auto" }}>
+        <div className="r3d-hint r3d-glass" role="status" style={{ top: "calc(126px + env(safe-area-inset-top))" }}>
           {ui.lightMode}
         </div>
       ) : null}
@@ -503,7 +503,7 @@ export function Render3DStudio(props: Render3DStudioProps) {
               return <Icon size={18} aria-hidden="true" />;
             })()}
             <span style={{ flex: 1 }}>{ui.groups[open]}</span>
-            <button type="button" className="r3d-btn" style={{ minWidth: 40, minHeight: 40, padding: 0 }} aria-label={ui.closePanel} data-testid="r3d-panel-close" onClick={() => setOpen(null)}>
+            <button type="button" className="r3d-btn" style={{ minWidth: 44, minHeight: 44, padding: 0 }} aria-label={ui.closePanel} data-testid="r3d-panel-close" onClick={() => setOpen(null)}>
               <X size={18} aria-hidden="true" />
             </button>
           </div>

@@ -51,6 +51,8 @@ export const STUDIO_CSS = `
 .r3d-panel,.r3d-dock{contain:layout paint;will-change:transform}
 .r3d-btn{white-space:nowrap}
 @media (max-width:480px){.r3d-top{gap:6px}.r3d-btn{padding:0 10px;font-size:13px}}
+/* On a phone the layer already covers the whole screen: the full-screen button makes room so the top bar never runs off the edge. */
+@media (max-width:420px){.r3d-fs{display:none}.r3d-top{gap:4px;padding-left:calc(8px + env(safe-area-inset-left));padding-right:calc(8px + env(safe-area-inset-right))}.r3d-btn{padding:0 8px}}
 .r3d-glass{background:rgba(16,22,26,.9);border:1px solid rgba(255,255,255,.14);box-shadow:0 8px 28px rgba(0,0,0,.35)}
 .r3d-btn{min-width:44px;min-height:44px;border-radius:14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:0 14px;font-size:14px;font-weight:650;color:#f5f7f8;cursor:pointer;border:1px solid rgba(255,255,255,.14);background:rgba(16,22,26,.88);transition:transform .12s ease,background .15s ease}
 .r3d-btn:active{transform:scale(.94)}
@@ -88,8 +90,8 @@ export const STUDIO_CSS = `
 .r3d-nav-grid{display:grid;grid-template-areas:". u ." "l c r" ". d .";grid-template-columns:repeat(3,48px);grid-template-rows:repeat(3,48px);gap:4px}
 .r3d-nav-zoom{display:grid;gap:4px}
 .r3d-nav-btn{width:48px;height:48px;padding:0;touch-action:none}
-@media (max-width:760px){.r3d-nav{bottom:calc(84px + env(safe-area-inset-bottom))}.r3d-nav-grid{grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px)}.r3d-nav-btn{width:44px;height:44px}}
-.r3d-hint{position:absolute;left:50%;bottom:calc(92px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:2;max-width:min(560px,calc(100% - 32px));padding:8px 14px;border-radius:999px;font-size:12.5px;text-align:center;pointer-events:none;animation:r3d-fade .4s ease both}
+@media (max-width:760px),(max-height:480px){.r3d-nav{bottom:calc(84px + env(safe-area-inset-bottom))}.r3d-nav-grid{grid-template-columns:repeat(3,44px);grid-template-rows:repeat(3,44px)}.r3d-nav-btn{width:44px;height:44px}}
+.r3d-hint{position:absolute;left:50%;top:calc(70px + env(safe-area-inset-top));transform:translateX(-50%);z-index:2;max-width:min(560px,calc(100% - 32px));padding:8px 14px;border-radius:999px;font-size:12.5px;text-align:center;pointer-events:none;animation:r3d-fade .4s ease both}
 .r3d-sheet-full{position:absolute;inset:0;z-index:6;background:#f3f5f6;color:#111827;overflow-y:auto;padding:calc(12px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) calc(14px + env(safe-area-inset-left));animation:r3d-fade .2s ease both}
 .r3d-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;z-index:5}
 @keyframes r3d-fade{from{opacity:0}to{opacity:1}}

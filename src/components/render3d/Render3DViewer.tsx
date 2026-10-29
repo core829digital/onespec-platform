@@ -340,7 +340,11 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
       // The GPU may be busy for a moment (another tab, the app just switched): two more tries on a fresh canvas before giving up.
       if (createTries.current < 2) {
         createTries.current++;
-        const wait = window.setTimeout(() => setCanvasKey((n) => n + 1), createTries.current * 700);
+        // A new canvas AND a new generation: the room, the window and the controls are built again on it.
+        const wait = window.setTimeout(() => {
+          setCanvasKey((n) => n + 1);
+          setEpoch((n) => n + 1);
+        }, createTries.current * 700);
         return () => window.clearTimeout(wait);
       }
       cb.current.onUnsupported?.("webgl");
@@ -419,10 +423,11 @@ export const Render3DViewer = forwardRef<Render3DViewerHandle, Props>(function R
         }
       }, 1200);
     };
+    // three.js re-creates its own GPU state when the browser gives the context back: all that is left is to draw again (tearing the
+    // renderer down here would force-lose the very context that was just restored).
     const onRestored = () => {
       window.clearTimeout(lostTimer);
-      forcedLow.current = true;
-      setEpoch((n) => n + 1);
+      schedule();
     };
     canvas.addEventListener("webglcontextlost", onLost);
     canvas.addEventListener("webglcontextrestored", onRestored);

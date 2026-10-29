@@ -77,6 +77,28 @@ async function newSession(browser, token, refresh, device = {}) {
 }
 
 let failShots = 0;
+/** True when a screenshot of the element is not (nearly) one flat colour: the 3D really drew something. */
+async function drewSomething(page, testId) {
+  const png = (await page.getByTestId(testId).screenshot()).toString("base64");
+  return page.evaluate(async (b64) => {
+    const bytes = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+    const bmp = await createImageBitmap(new Blob([bytes], { type: "image/png" }));
+    const c = new OffscreenCanvas(64, 64);
+    const g = c.getContext("2d");
+    g.drawImage(bmp, 0, 0, 64, 64);
+    const d = g.getImageData(0, 0, 64, 64).data;
+    let sum = 0;
+    let sum2 = 0;
+    for (let i = 0; i < d.length; i += 4) {
+      const l = d[i] * 0.3 + d[i + 1] * 0.59 + d[i + 2] * 0.11;
+      sum += l;
+      sum2 += l * l;
+    }
+    const n = d.length / 4;
+    return Math.sqrt(Math.max(0, sum2 / n - (sum / n) ** 2)) > 12;
+  }, png);
+}
+
 async function step(name, page, problems, fn) {
   const before = problems.length;
   try {
@@ -330,10 +352,35 @@ async function main() {
           null,
           { timeout: 30_000 },
         );
-        await p2.waitForTimeout(800);
+        await p2.waitForTimeout(2500);
         if (await p2.getByTestId("r3d-unsupported").count()) throw new Error("the 3D gave up although the GPU accepted a later request");
+        if (!(await drewSomething(p2, "render3d-canvas"))) throw new Error("after the retry the scene stayed empty");
       } finally {
         await p2.close();
+      }
+    });
+
+    // ── Render 3D when the browser takes the GPU away and gives it back (another app, a locked screen): the picture must come back ──
+    await step("Render 3D: the picture comes back after a lost and restored context", page, problems, async () => {
+      const p3 = await page.context().newPage();
+      try {
+        await p3.goto(url("/app/render-3d"), { waitUntil: "domcontentloaded" });
+        await p3.getByTestId("render3d-studio").waitFor({ timeout: 30_000 });
+        await p3.waitForFunction(() => !!document.querySelector('[data-testid="render3d-canvas"]')?.getContext("webgl2"), null, { timeout: 30_000 });
+        await p3.waitForTimeout(2500);
+        if (!(await drewSomething(p3, "render3d-canvas"))) throw new Error("the scene was empty before the context was lost");
+        await p3.evaluate(async () => {
+          const gl = document.querySelector('[data-testid="render3d-canvas"]').getContext("webgl2");
+          const ext = gl.getExtension("WEBGL_lose_context");
+          ext.loseContext();
+          await new Promise((r) => setTimeout(r, 300));
+          ext.restoreContext();
+        });
+        await p3.waitForTimeout(3500);
+        if (await p3.getByTestId("r3d-unsupported").count()) throw new Error("the error screen appeared although the context was restored");
+        if (!(await drewSomething(p3, "render3d-canvas"))) throw new Error("the scene stayed empty after the context was restored");
+      } finally {
+        await p3.close();
       }
     });
 
