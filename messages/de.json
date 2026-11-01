@@ -2271,7 +2271,7 @@
       "discountMax": "Maximaler Rabatt %",
       "discountMaxHint": "Obergrenze für den im Widget eingegebenen Rabatt.",
       "originsTitle": "Zugelassene Domains",
-      "originsDesc": "Das Widget akzeptiert Einbettung und Anfragen nur von diesen Domains. Leer = keine Herkunftsbeschränkung (im Produktivbetrieb nicht empfohlen).",
+      "originsDesc": "Das Widget erscheint nur auf diesen Domains (Einbettung und Anfragen). Ist die Liste leer, erscheint das Widget auf KEINER externen Website: Fügen Sie die Domain der Website hinzu, in die Sie es einbetten (mit und ohne www, wenn Sie beides nutzen).",
       "removeOrigin": "{origin} entfernen",
       "noOrigins": "Keine Domains",
       "originPlaceholder": "https://www.beispiel.de",

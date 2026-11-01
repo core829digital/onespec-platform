@@ -2271,7 +2271,7 @@
       "discountMax": "Maximale korting %",
       "discountMaxHint": "Bovengrens voor de korting in de widget.",
       "originsTitle": "Toegestane domeinen",
-      "originsDesc": "De widget accepteert insluiten en aanvragen alleen vanaf deze domeinen. Leeg = geen herkomstbeperking (afgeraden in productie).",
+      "originsDesc": "De widget verschijnt alleen op deze domeinen (insluiten en aanvragen). Is de lijst leeg, dan verschijnt de widget op GEEN enkele externe site: voeg het domein toe van de site waarin u hem insluit (met en zonder www als u beide gebruikt).",
       "removeOrigin": "{origin} verwijderen",
       "noOrigins": "Geen domeinen",
       "originPlaceholder": "https://www.voorbeeld.nl",

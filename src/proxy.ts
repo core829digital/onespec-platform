@@ -10,44 +10,16 @@ import { api } from "../convex/_generated/api";
 import { routing } from "./i18n/routing";
 import { localeForCountry } from "./lib/country-locale";
 import { buildWidgetCsp, newNonce } from "./lib/widget-csp";
+import { widgetAncestors as widgetAncestorsOf } from "./lib/widget-ancestors";
 import { isDemoHost } from "./demo/is-demo";
 
 const intlMiddleware = createMiddleware(routing);
 
 const IS_PROD = process.env.NODE_ENV === "production";
-const EMBED_CACHE = new Map<string, { ancestors: string; expires: number }>();
-const EMBED_TTL_MS = 5 * 60_000;
-const EMBED_CACHE_MAX = 5_000;
 
-/** The `frame-ancestors` source list of one widget (cached; the nonce-bearing rest of the CSP is built per request). */
-async function widgetAncestors(publicId: string): Promise<string> {
-  const cached = EMBED_CACHE.get(publicId);
-  if (cached && cached.expires > Date.now()) return cached.ancestors;
-
-  let ancestors = "'self'";
-  try {
-    const policy = await fetchQuery(api.widget.getEmbedPolicy, { publicId });
-    if (policy.frameAncestors.length > 0) {
-      ancestors = `'self' ${policy.frameAncestors.join(" ")}`;
-    } else if (!IS_PROD) {
-      // Dev convenience only — never a wildcard in production.
-      ancestors = "*";
-    }
-  } catch {
-    // Convex unreachable — fail closed to same-origin (in-app preview still works).
-    ancestors = IS_PROD ? "'self'" : "*";
-  }
-
-  // Bounded: random publicIds (valid shape, nonexistent) must not grow this
-  // per-instance cache without limit. A Map iterates in insertion order, so
-  // the first key is the oldest entry.
-  if (EMBED_CACHE.size >= EMBED_CACHE_MAX) {
-    const oldest = EMBED_CACHE.keys().next().value;
-    if (oldest !== undefined) EMBED_CACHE.delete(oldest);
-  }
-  EMBED_CACHE.set(publicId, { ancestors, expires: Date.now() + EMBED_TTL_MS });
-  return ancestors;
-}
+/** The `frame-ancestors` source list of one widget (see lib/widget-ancestors.ts: cached, tolerant of a failing lookup). */
+const widgetAncestors = (publicId: string) =>
+  widgetAncestorsOf(publicId, { fetchPolicy: (id) => fetchQuery(api.widget.getEmbedPolicy, { publicId: id }), dev: !IS_PROD });
 
 /**
  * Continues the request with a nonce-based CSP. Next reads the nonce from the CSP *request* header while rendering and stamps it on its

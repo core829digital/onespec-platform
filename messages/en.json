@@ -2271,7 +2271,7 @@
       "discountMax": "Maximum discount %",
       "discountMaxHint": "Upper limit for the discount entered in the widget.",
       "originsTitle": "Authorised domains",
-      "originsDesc": "The widget only accepts embedding and requests from these domains. Empty = no origin restriction (not recommended in production).",
+      "originsDesc": "The widget only appears on these domains (embedding and requests). If the list is empty the widget does NOT appear on any external site: add the domain of the site where you embed it (with and without www if you use both).",
       "removeOrigin": "Remove {origin}",
       "noOrigins": "No domains",
       "originPlaceholder": "https://www.example.com",

@@ -2271,7 +2271,7 @@
       "discountMax": "Reducere maximă %",
       "discountMaxHint": "Limita reducerii introduse în widget.",
       "originsTitle": "Domenii autorizate",
-      "originsDesc": "Widgetul acceptă încorporarea și cererile doar de pe aceste domenii. Gol = fără restricție de origine (nerecomandat în producție).",
+      "originsDesc": "Widgetul apare doar pe aceste domenii (încorporare și cereri). Dacă lista este goală, widgetul NU apare pe niciun site extern: adaugă domeniul site-ului în care îl încorporezi (cu și fără www dacă le folosești pe amândouă).",
       "removeOrigin": "Elimină {origin}",
       "noOrigins": "Niciun domeniu",
       "originPlaceholder": "https://www.exemplu.ro",

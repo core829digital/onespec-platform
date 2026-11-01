@@ -2271,7 +2271,7 @@
       "discountMax": "Sconto massimo %",
       "discountMaxHint": "Limite dello sconto inseribile nel widget.",
       "originsTitle": "Domini autorizzati",
-      "originsDesc": "Il widget accetta l'incorporamento e le richieste solo da questi domini. Vuoto = nessuna restrizione di origine (sconsigliato in produzione).",
+      "originsDesc": "Il widget compare solo su questi domini (incorporamento e richieste). Se l'elenco è vuoto il widget NON compare su nessun sito esterno: aggiungi il dominio del sito dove lo incorpori (con e senza www se usi entrambi).",
       "removeOrigin": "Rimuovi {origin}",
       "noOrigins": "Nessun dominio",
       "originPlaceholder": "https://www.esempio.it",
